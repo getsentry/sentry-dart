@@ -22,9 +22,8 @@ List<Map<String, dynamic>> encodeStackTrace(dynamic stackTrace) {
   final List<Map<String, dynamic>> frames = <Map<String, dynamic>>[];
   for (int t = 0; t < chain.traces.length; t += 1) {
     frames.addAll(chain.traces[t].frames.map(encodeStackTraceFrame));
-    if (t < chain.traces.length - 1) {
+    if (t < chain.traces.length - 1)
       frames.add(asynchronousGapFrameJson);
-    }
   }
   return frames;
 }
