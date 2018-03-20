@@ -161,7 +161,7 @@ class SentryClient {
           'sentry_secret=$secretKey',
     };
 
-    final Map<String, dynamic> json = <String, dynamic>{
+    final Map<String, dynamic> outputBodyJson = <String, dynamic>{
       'project': projectId,
       'event_id': _uuidGenerator(),
       'timestamp': formatDateAsIso8601WithSecondPrecision(_clock.now()),
@@ -169,11 +169,11 @@ class SentryClient {
     };
 
     if (environmentAttributes != null)
-      mergeAttributes(environmentAttributes.toJson(), into: json);
+      mergeAttributes(environmentAttributes.toJson(), into: outputBodyJson);
 
-    mergeAttributes(event.toJson(), into: json);
+    mergeAttributes(event.toJson(), into: outputBodyJson);
 
-    List<int> body = UTF8.encode(JSON.encode(json));
+    List<int> body = utf8.encode(json.encode(outputBodyJson));
     if (compressPayload) {
       headers['Content-Encoding'] = 'gzip';
       body = GZIP.encode(body);
@@ -190,7 +190,7 @@ class SentryClient {
       return new SentryResponse.failure(errorMessage);
     }
 
-    final String eventId = JSON.decode(response.body)['id'];
+    final String eventId = json.decode(response.body)['id'];
     return new SentryResponse.success(eventId: eventId);
   }
 
@@ -349,7 +349,7 @@ class Event {
 
   /// Serializes this event to JSON.
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> json = <String, dynamic>{
+    final Map<String, dynamic> eventJson = <String, dynamic>{
       'platform': sdkPlatform,
       'sdk': {
         'version': sdkVersion,
@@ -357,18 +357,18 @@ class Event {
       },
     };
 
-    if (loggerName != null) json['logger'] = loggerName;
+    if (loggerName != null) eventJson['logger'] = loggerName;
 
-    if (serverName != null) json['server_name'] = serverName;
+    if (serverName != null) eventJson['server_name'] = serverName;
 
-    if (release != null) json['release'] = release;
+    if (release != null) eventJson['release'] = release;
 
-    if (environment != null) json['environment'] = environment;
+    if (environment != null) eventJson['environment'] = environment;
 
-    if (message != null) json['message'] = message;
+    if (message != null) eventJson['message'] = message;
 
     if (exception != null) {
-      json['exception'] = [
+      eventJson['exception'] = [
         <String, dynamic>{
           'type': '${exception.runtimeType}',
           'value': '$exception',
@@ -377,22 +377,22 @@ class Event {
     }
 
     if (stackTrace != null) {
-      json['stacktrace'] = <String, dynamic>{
+      eventJson['stacktrace'] = <String, dynamic>{
         'frames': encodeStackTrace(stackTrace),
       };
     }
 
-    if (level != null) json['level'] = level.name;
+    if (level != null) eventJson['level'] = level.name;
 
-    if (culprit != null) json['culprit'] = culprit;
+    if (culprit != null) eventJson['culprit'] = culprit;
 
-    if (tags != null && tags.isNotEmpty) json['tags'] = tags;
+    if (tags != null && tags.isNotEmpty) eventJson['tags'] = tags;
 
-    if (extra != null && extra.isNotEmpty) json['extra'] = extra;
+    if (extra != null && extra.isNotEmpty) eventJson['extra'] = extra;
 
     if (fingerprint != null && fingerprint.isNotEmpty)
-      json['fingerprint'] = fingerprint;
+      eventJson['fingerprint'] = fingerprint;
 
-    return json;
+    return eventJson;
   }
 }
