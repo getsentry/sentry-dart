@@ -79,13 +79,13 @@ void main() {
 
       expect(headers, expectedHeaders);
 
-      Map<String, dynamic> json;
+      Map<String, dynamic> bodyJson;
       if (compressPayload) {
-        json = JSON.decode(UTF8.decode(GZIP.decode(body)));
+        bodyJson = json.decode(utf8.decode(GZIP.decode(body)));
       } else {
-        json = JSON.decode(UTF8.decode(body));
+        bodyJson = json.decode(utf8.decode(body));
       }
-      final Map<String, dynamic> stacktrace = json.remove('stacktrace');
+      final Map<String, dynamic> stacktrace = bodyJson.remove('stacktrace');
       expect(stacktrace['frames'], const isInstanceOf<List>());
       expect(stacktrace['frames'], isNotEmpty);
 
@@ -98,7 +98,7 @@ void main() {
       expect(topFrame['in_app'], true);
       expect(topFrame['filename'], 'sentry_test.dart');
 
-      expect(json, {
+      expect(bodyJson, {
         'project': '1',
         'event_id': 'X' * 32,
         'timestamp': '2017-01-02T00:00:00',
