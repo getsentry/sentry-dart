@@ -32,11 +32,16 @@ void main() {
       Map<String, String> headers;
       List<int> body;
       httpMock.answerWith((Invocation invocation) {
-        if (invocation.memberName == #close) return null;
-        postUri = invocation.positionalArguments.single;
-        headers = invocation.namedArguments[#headers];
-        body = invocation.namedArguments[#body];
-        return new Response('{"id": "test-event-id"}', 200);
+        if (invocation.memberName == #close) {
+          return null;
+        }
+        if (invocation.memberName == #post) {
+          postUri = invocation.positionalArguments.single;
+          headers = invocation.namedArguments[#headers];
+          body = invocation.namedArguments[#body];
+          return new Response('{"id": "test-event-id"}', 200);
+        }
+        fail('Unexpected invocation of ${invocation.memberName} in HttpMock');
       });
 
       final SentryClient client = new SentryClient(
@@ -128,9 +133,15 @@ void main() {
       final Clock fakeClock = new Clock.fixed(new DateTime(2017, 1, 2));
 
       httpMock.answerWith((Invocation invocation) {
-        return new Response('', 401, headers: <String, String>{
-          'x-sentry-error': 'Invalid api key',
-        });
+        if (invocation.memberName == #close) {
+          return null;
+        }
+        if (invocation.memberName == #post) {
+          return new Response('', 401, headers: <String, String>{
+            'x-sentry-error': 'Invalid api key',
+          });
+        }
+        fail('Unexpected invocation of ${invocation.memberName} in HttpMock');
       });
 
       final SentryClient client = new SentryClient(
