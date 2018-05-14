@@ -187,7 +187,6 @@ void main() {
           var decoded = new Utf8Codec().decode(bodyData);
           var decodedJson = new JsonDecoder().convert(decoded);
           loggedUserId = decodedJson['user']['id'];
-          print(decoded);
           return new Response('', 401, headers: <String, String>{
             'x-sentry-error': 'Invalid api key',
           });
