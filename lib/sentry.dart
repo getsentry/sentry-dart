@@ -186,7 +186,7 @@ class SentryClient {
     List<int> body = utf8.encode(json.encode(data));
     if (compressPayload) {
       headers['Content-Encoding'] = 'gzip';
-      body = gzip.encode(body);
+      body = GZIP.encode(body);
     }
 
     final Response response =
