@@ -144,6 +144,13 @@ class SentryClient {
   final String projectId;
 
   @visibleForTesting
+  User _userContext;
+
+  set userContext(User val) {
+    _userContext = val;
+  }
+
+  @visibleForTesting
   String get postUri =>
       '${dsnUri.scheme}://${dsnUri.host}/api/$projectId/store/';
 
@@ -170,6 +177,10 @@ class SentryClient {
     if (environmentAttributes != null)
       mergeAttributes(environmentAttributes.toJson(), into: data);
 
+    // merge the user context
+    if (_userContext != null) {
+      mergeAttributes({'user': _userContext.toJson()}, into: data);
+    }
     mergeAttributes(event.toJson(), into: data);
 
     List<int> body = utf8.encode(json.encode(data));
@@ -285,6 +296,7 @@ class Event {
     this.tags,
     this.extra,
     this.fingerprint,
+    this.userContext,
   });
 
   /// The logger that logged the event.
@@ -329,6 +341,8 @@ class Event {
   /// Sentry.io docs do not talk about restrictions on the values, other than
   /// they must be JSON-serializable.
   final Map<String, dynamic> extra;
+
+  final User userContext;
 
   /// Used to deduplicate events by grouping ones with the same fingerprint
   /// together.
@@ -389,9 +403,45 @@ class Event {
 
     if (extra != null && extra.isNotEmpty) json['extra'] = extra;
 
+    Map<String, String> userContextMap;
+    if (userContext != null &&
+        (userContextMap = userContext.toJson()).isNotEmpty)
+      json['user'] = userContextMap;
+
     if (fingerprint != null && fingerprint.isNotEmpty)
       json['fingerprint'] = fingerprint;
 
     return json;
+  }
+}
+
+/// Conforms to the User Interface contract for Sentry
+/// https://docs.sentry.io/clientdev/interfaces/user/
+///
+/// "user": {
+///  "id": "unique_id",
+///  "username": "my_user",
+///  "email": "foo@example.com",
+///  "ip_address": "127.0.0.1",
+///  "subscription": "basic"
+///}
+///
+class User {
+  final String id;
+  final String username;
+  final String email;
+  final String ipAddress;
+  final String subscription;
+
+  User(this.id, this.username, this.email, this.ipAddress, this.subscription);
+
+  Map<String, String> toJson() {
+    return <String, String>{
+      "id": id,
+      "username": username,
+      "email": email,
+      "ip_address": ipAddress,
+      "subscription": subscription
+    };
   }
 }
