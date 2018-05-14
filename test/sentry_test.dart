@@ -195,8 +195,10 @@ void main() {
         fail('Unexpected invocation of ${invocation.memberName} in HttpMock');
       });
 
-      const clientUserContext = const User("client_user", "username", "email@email.com", "127.0.0.1", "basic");
-      final eventUserContext = new User("event_user", "username", "email@email.com", "127.0.0.1", "basic");
+      const clientUserContext = const User(
+          "client_user", "username", "email@email.com", "127.0.0.1", "basic");
+      final eventUserContext = new User(
+          "event_user", "username", "email@email.com", "127.0.0.1", "basic");
 
       final SentryClient client = new SentryClient(
         dsn: _testDsn,
@@ -209,16 +211,14 @@ void main() {
           release: '1.2.3',
           environment: 'staging',
         ),
-
       );
       client.userContext = clientUserContext;
 
       try {
         throw new ArgumentError('Test error');
       } catch (error, stackTrace) {
-        final eventWithoutContext = new Event(
-            exception: error,
-            stackTrace: stackTrace);
+        final eventWithoutContext =
+            new Event(exception: error, stackTrace: stackTrace);
         final eventWithContext = new Event(
             exception: error,
             stackTrace: stackTrace,
@@ -235,7 +235,8 @@ void main() {
 
   group('$Event', () {
     test('serializes to JSON', () {
-      final user = new User("user_id", "username", "email@email.com", "127.0.0.1", "basic");
+      final user = new User(
+          "user_id", "username", "email@email.com", "127.0.0.1", "basic");
       expect(
         new Event(
           message: 'test-message',
