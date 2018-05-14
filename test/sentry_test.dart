@@ -85,7 +85,7 @@ void main() {
 
       Map<String, dynamic> data;
       if (compressPayload) {
-        data = json.decode(utf8.decode(GZIP.decode(body)));
+        data = json.decode(utf8.decode(gzip.decode(body)));
       } else {
         data = json.decode(utf8.decode(body));
       }
