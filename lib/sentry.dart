@@ -433,7 +433,7 @@ class User {
   final String ipAddress;
   final String subscription;
 
-  User(this.id, this.username, this.email, this.ipAddress, this.subscription);
+  const User(this.id, this.username, this.email, this.ipAddress, this.subscription);
 
   Map<String, String> toJson() {
     return <String, String>{
