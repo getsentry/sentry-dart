@@ -456,7 +456,8 @@ class User {
   final Map<String, dynamic> extras;
 
   /// At a minimum you must set an [id] or an [ipAddress]
-  const User({this.id, this.username, this.email, this.ipAddress, this.extras}): assert(id != null || ipAddress != null);
+  const User({this.id, this.username, this.email, this.ipAddress, this.extras})
+      : assert(id != null || ipAddress != null);
 
   /// produces a [Map] that can be serialized to JSON
   Map<String, dynamic> toJson() {
