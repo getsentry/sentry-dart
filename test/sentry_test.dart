@@ -74,7 +74,9 @@ void main() {
         'Content-Type': 'application/json',
         'X-Sentry-Auth': 'Sentry sentry_version=6, '
             'sentry_client=${SentryClient.sentryClient}, '
-            'sentry_timestamp=${fakeClock.now().millisecondsSinceEpoch}, '
+            'sentry_timestamp=${fakeClock
+            .now()
+            .millisecondsSinceEpoch}, '
             'sentry_key=public, '
             'sentry_secret=secret',
       };
@@ -194,10 +196,17 @@ void main() {
         fail('Unexpected invocation of ${invocation.memberName} in HttpMock');
       });
 
-      const clientUserContext = const User(
-          "client_user", "username", "email@email.com", "127.0.0.1", "basic");
+      final clientUserContext = new User(
+          id: "client_user",
+          username: "username",
+          email: "email@email.com",
+          ipAddress: "127.0.0.1");
       final eventUserContext = new User(
-          "event_user", "username", "email@email.com", "127.0.0.1", "basic");
+          id: "event_user",
+          username: "username",
+          email: "email@email.com",
+          ipAddress: "127.0.0.1",
+          extras: {"foo": "bar"});
 
       final SentryClient client = new SentryClient(
         dsn: _testDsn,
@@ -235,7 +244,11 @@ void main() {
   group('$Event', () {
     test('serializes to JSON', () {
       final user = new User(
-          "user_id", "username", "email@email.com", "127.0.0.1", "basic");
+          id: "user_id",
+          username: "username",
+          email: "email@email.com",
+          ipAddress: "127.0.0.1",
+          extras: {"foo": "bar"});
       expect(
         new Event(
           message: 'test-message',
@@ -270,7 +283,7 @@ void main() {
             'username': 'username',
             'email': 'email@email.com',
             'ip_address': '127.0.0.1',
-            'subscription': 'basic'
+            'extras': {'foo': 'bar'}
           },
         },
       );

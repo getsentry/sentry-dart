@@ -143,12 +143,13 @@ class SentryClient {
   /// Attached to the event payload.
   final String projectId;
 
-  @visibleForTesting
-  User _userContext;
-
-  set userContext(User val) {
-    _userContext = val;
-  }
+  /// The user data that will get sent with every logged event
+  ///
+  /// Note that a [Event.userContext] that is set on a logged [Event]
+  /// will override the [User] context set here.
+  ///
+  /// see: https://docs.sentry.io/learn/context/#capturing-the-user
+  User userContext;
 
   @visibleForTesting
   String get postUri =>
@@ -178,8 +179,8 @@ class SentryClient {
       mergeAttributes(environmentAttributes.toJson(), into: data);
 
     // merge the user context
-    if (_userContext != null) {
-      mergeAttributes({'user': _userContext.toJson()}, into: data);
+    if (userContext != null) {
+      mergeAttributes({'user': userContext.toJson()}, into: data);
     }
     mergeAttributes(event.toJson(), into: data);
 
@@ -342,6 +343,10 @@ class Event {
   /// they must be JSON-serializable.
   final Map<String, dynamic> extra;
 
+  /// User information that is sent with the logged [Event]
+  ///
+  /// The value in this field overrides the user context
+  /// set in [SentryClient.userContext] for this logged event.
   final User userContext;
 
   /// Used to deduplicate events by grouping ones with the same fingerprint
@@ -415,33 +420,50 @@ class Event {
   }
 }
 
+/// An interface which describes the authenticated User for a request.
+/// You should provide at least either an id (a unique identifier for an
+/// authenticated user) or ip_address (their IP address).
+///
 /// Conforms to the User Interface contract for Sentry
 /// https://docs.sentry.io/clientdev/interfaces/user/
 ///
+/// The outgoing json representation is:
+/// ```
 /// "user": {
-///  "id": "unique_id",
-///  "username": "my_user",
-///  "email": "foo@example.com",
-///  "ip_address": "127.0.0.1",
-///  "subscription": "basic"
-///}
-///
+///   "id": "unique_id",
+///   "username": "my_user",
+///   "email": "foo@example.com",
+///   "ip_address": "127.0.0.1",
+///   "subscription": "basic"
+/// }
+/// ```
 class User {
+  /// The unique ID of the user.
   final String id;
+
+  /// The username of the user
   final String username;
+
+  /// The email address of the user.
   final String email;
+
+  /// The IP of the user.
   final String ipAddress;
-  final String subscription;
 
-  const User(this.id, this.username, this.email, this.ipAddress, this.subscription);
+  /// Any other user context information that may be helpful
+  /// All other keys are stored as extra information but not
+  /// specifically processed by sentry.
+  final Map<String, dynamic> extras;
 
-  Map<String, String> toJson() {
-    return <String, String>{
+  const User({this.id, this.username, this.email, this.ipAddress, this.extras});
+
+  Map<String, dynamic> toJson() {
+    return {
       "id": id,
       "username": username,
       "email": email,
       "ip_address": ipAddress,
-      "subscription": subscription
+      "extras": extras,
     };
   }
 }
