@@ -408,7 +408,7 @@ class Event {
 
     if (extra != null && extra.isNotEmpty) json['extra'] = extra;
 
-    Map<String, String> userContextMap;
+    Map<String, dynamic> userContextMap;
     if (userContext != null &&
         (userContextMap = userContext.toJson()).isNotEmpty)
       json['user'] = userContextMap;
