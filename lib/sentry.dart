@@ -68,10 +68,6 @@ class SentryClient {
     final List<String> userInfo = uri.userInfo.split(':');
 
     assert(() {
-      if (userInfo.length != 2)
-        throw new ArgumentError(
-            'Colon-separated publicKey:secretKey pair not found in the user info field of the DSN URI: $dsn');
-
       if (uri.pathSegments.isEmpty)
         throw new ArgumentError(
             'Project ID not found in the URI path of the DSN URI: $dsn');
@@ -79,8 +75,8 @@ class SentryClient {
       return true;
     }());
 
-    final String publicKey = userInfo.first;
-    final String secretKey = userInfo.last;
+    final String publicKey = userInfo[0];
+    final String secretKey = userInfo.length >= 2 ? userInfo[1] : null;
     final String projectId = uri.pathSegments.last;
 
     return new SentryClient._(
@@ -103,7 +99,7 @@ class SentryClient {
     @required this.environmentAttributes,
     @required this.dsnUri,
     @required this.publicKey,
-    @required this.secretKey,
+    this.secretKey,
     @required this.compressPayload,
     @required this.projectId,
   })  : _httpClient = httpClient,
@@ -111,7 +107,7 @@ class SentryClient {
         _uuidGenerator = uuidGenerator;
 
   final Client _httpClient;
-  final Clock _clock;
+  final ClockProvider _clock;
   final UuidGenerator _uuidGenerator;
 
   /// Contains [Event] attributes that are automatically mixed into all events
@@ -161,15 +157,18 @@ class SentryClient {
 
   /// Reports an [event] to Sentry.io.
   Future<SentryResponse> capture({@required Event event}) async {
+
     final DateTime now = _clock.now();
+    String authHeader = 'Sentry sentry_version=6, sentry_client=$sentryClient, '
+      'sentry_timestamp=${now.millisecondsSinceEpoch}, sentry_key=$publicKey';
+    if (secretKey != null) {
+      authHeader += ', sentry_secret=$secretKey';
+    }
+
     final Map<String, String> headers = <String, String>{
       'User-Agent': '$sentryClient',
       'Content-Type': 'application/json',
-      'X-Sentry-Auth': 'Sentry sentry_version=6, '
-          'sentry_client=$sentryClient, '
-          'sentry_timestamp=${now.millisecondsSinceEpoch}, '
-          'sentry_key=$publicKey, '
-          'sentry_secret=$secretKey',
+      'X-Sentry-Auth': authHeader,
     };
 
     final Map<String, dynamic> data = <String, dynamic>{
