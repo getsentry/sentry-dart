@@ -25,7 +25,8 @@ void main() {
 
     testCaptureException(bool compressPayload) async {
       final MockClient httpMock = new MockClient();
-      final ClockProvider fakeClockProvider = () => new DateTime.utc(2017, 1, 2);
+      final ClockProvider fakeClockProvider =
+          () => new DateTime.utc(2017, 1, 2);
 
       String postUri;
       Map<String, String> headers;
@@ -130,7 +131,7 @@ void main() {
 
     test('reads error message from the x-sentry-error header', () async {
       final MockClient httpMock = new MockClient();
-      final Clock fakeClock = new Clock.fixed(new DateTime(2017, 1, 2));
+      final ClockProvider fakeClockProvider = () => DateTime(2017, 1, 2);
 
       httpMock.answerWith((Invocation invocation) async {
         if (invocation.memberName == #close) {
@@ -147,7 +148,7 @@ void main() {
       final SentryClient client = new SentryClient(
         dsn: _testDsn,
         httpClient: httpMock,
-        clock: fakeClock,
+        clock: fakeClockProvider,
         uuidGenerator: () => 'X' * 32,
         compressPayload: false,
         environmentAttributes: const Event(
@@ -173,7 +174,7 @@ void main() {
 
     test('$Event userContext overrides client', () async {
       final MockClient httpMock = new MockClient();
-      final Clock fakeClock = new Clock.fixed(new DateTime(2017, 1, 2));
+      final ClockProvider fakeClockProvider = () => DateTime(2017, 1, 2);
 
       String loggedUserId; // used to find out what user context was sent
       httpMock.answerWith((Invocation invocation) async {
@@ -208,7 +209,7 @@ void main() {
       final SentryClient client = new SentryClient(
         dsn: _testDsn,
         httpClient: httpMock,
-        clock: fakeClock,
+        clock: fakeClockProvider,
         uuidGenerator: () => 'X' * 32,
         compressPayload: false,
         environmentAttributes: const Event(

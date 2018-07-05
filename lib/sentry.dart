@@ -159,10 +159,9 @@ class SentryClient {
 
   /// Reports an [event] to Sentry.io.
   Future<SentryResponse> capture({@required Event event}) async {
-
     final DateTime now = _clock();
     String authHeader = 'Sentry sentry_version=6, sentry_client=$sentryClient, '
-      'sentry_timestamp=${now.millisecondsSinceEpoch}, sentry_key=$publicKey';
+        'sentry_timestamp=${now.millisecondsSinceEpoch}, sentry_key=$publicKey';
     if (secretKey != null) {
       authHeader += ', sentry_secret=$secretKey';
     }
