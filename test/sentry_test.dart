@@ -6,7 +6,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart';
-import 'package:quiver/time.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
@@ -26,7 +25,7 @@ void main() {
 
     testCaptureException(bool compressPayload) async {
       final MockClient httpMock = new MockClient();
-      final Clock fakeClock = new Clock.fixed(new DateTime.utc(2017, 1, 2));
+      final ClockProvider fakeClockProvider = () => new DateTime.utc(2017, 1, 2);
 
       String postUri;
       Map<String, String> headers;
@@ -47,7 +46,7 @@ void main() {
       final SentryClient client = new SentryClient(
         dsn: _testDsn,
         httpClient: httpMock,
-        clock: fakeClock,
+        clock: fakeClockProvider,
         uuidGenerator: () => 'X' * 32,
         compressPayload: compressPayload,
         environmentAttributes: const Event(
@@ -74,9 +73,7 @@ void main() {
         'Content-Type': 'application/json',
         'X-Sentry-Auth': 'Sentry sentry_version=6, '
             'sentry_client=${SentryClient.sentryClient}, '
-            'sentry_timestamp=${fakeClock
-            .now()
-            .millisecondsSinceEpoch}, '
+            'sentry_timestamp=${fakeClockProvider().millisecondsSinceEpoch}, '
             'sentry_key=public, '
             'sentry_secret=secret',
       };

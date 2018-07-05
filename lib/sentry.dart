@@ -11,7 +11,6 @@ import 'dart:io';
 
 import 'package:http/http.dart';
 import 'package:meta/meta.dart';
-import 'package:quiver/time.dart';
 import 'package:usage/uuid/uuid.dart';
 
 import 'src/stack_trace.dart';
@@ -19,6 +18,9 @@ import 'src/utils.dart';
 import 'src/version.dart';
 
 export 'src/version.dart';
+
+/// Used to provide time-stamp for logging.
+typedef ClockProvider = DateTime Function();
 
 /// Logs crash reports and events to the Sentry.io service.
 class SentryClient {
@@ -56,11 +58,11 @@ class SentryClient {
     Event environmentAttributes,
     bool compressPayload,
     Client httpClient,
-    Clock clock,
+    ClockProvider clock,
     UuidGenerator uuidGenerator,
   }) {
     httpClient ??= new Client();
-    clock ??= const Clock(_getUtcDateTime);
+    clock ??= _getUtcDateTime;
     uuidGenerator ??= _generateUuidV4WithoutDashes;
     compressPayload ??= true;
 
@@ -94,7 +96,7 @@ class SentryClient {
 
   SentryClient._({
     @required Client httpClient,
-    @required Clock clock,
+    @required ClockProvider clock,
     @required UuidGenerator uuidGenerator,
     @required this.environmentAttributes,
     @required this.dsnUri,
@@ -158,7 +160,7 @@ class SentryClient {
   /// Reports an [event] to Sentry.io.
   Future<SentryResponse> capture({@required Event event}) async {
 
-    final DateTime now = _clock.now();
+    final DateTime now = _clock();
     String authHeader = 'Sentry sentry_version=6, sentry_client=$sentryClient, '
       'sentry_timestamp=${now.millisecondsSinceEpoch}, sentry_key=$publicKey';
     if (secretKey != null) {
@@ -174,7 +176,7 @@ class SentryClient {
     final Map<String, dynamic> data = <String, dynamic>{
       'project': projectId,
       'event_id': _uuidGenerator(),
-      'timestamp': formatDateAsIso8601WithSecondPrecision(_clock.now()),
+      'timestamp': formatDateAsIso8601WithSecondPrecision(now),
       'logger': defaultLoggerName,
     };
 
