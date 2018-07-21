@@ -19,7 +19,7 @@ import 'src/version.dart';
 
 export 'src/version.dart';
 
-/// Used to provide time-stamp for logging.
+/// Used to provide timestamp for logging.
 typedef ClockProvider = DateTime Function();
 
 /// Logs crash reports and events to the Sentry.io service.
@@ -48,7 +48,9 @@ class SentryClient {
   /// make HTTP calls to Sentry.io. This is useful in tests.
   ///
   /// If [clock] is provided, it is used to get time instead of the system
-  /// clock. This is useful in tests.
+  /// clock. This is useful in tests. Should be an implementation of ClockProvider.
+  /// This parameter is dynamic to maintain backwards compatibility with
+  /// previous use of Clock from the Quiver library.
   ///
   /// If [uuidGenerator] is provided, it is used to generate the "event_id"
   /// field instead of the built-in random UUID v4 generator. This is useful in
@@ -58,13 +60,17 @@ class SentryClient {
     Event environmentAttributes,
     bool compressPayload,
     Client httpClient,
-    ClockProvider clock,
+    dynamic clock,
     UuidGenerator uuidGenerator,
   }) {
     httpClient ??= new Client();
     clock ??= _getUtcDateTime;
     uuidGenerator ??= _generateUuidV4WithoutDashes;
     compressPayload ??= true;
+
+    final ClockProvider clockProvider = clock is ClockProvider
+      ? clock
+      : clock.get;
 
     final Uri uri = Uri.parse(dsn);
     final List<String> userInfo = uri.userInfo.split(':');
@@ -83,7 +89,7 @@ class SentryClient {
 
     return new SentryClient._(
       httpClient: httpClient,
-      clock: clock,
+      clock: clockProvider,
       uuidGenerator: uuidGenerator,
       environmentAttributes: environmentAttributes,
       dsnUri: uri,
