@@ -68,9 +68,8 @@ class SentryClient {
     uuidGenerator ??= _generateUuidV4WithoutDashes;
     compressPayload ??= true;
 
-    final ClockProvider clockProvider = clock is ClockProvider
-      ? clock
-      : clock.get;
+    final ClockProvider clockProvider =
+        clock is ClockProvider ? clock : clock.get;
 
     final Uri uri = Uri.parse(dsn);
     final List<String> userInfo = uri.userInfo.split(':');

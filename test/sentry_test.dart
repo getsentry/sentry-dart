@@ -36,7 +36,8 @@ void main() {
 
     test('sends client auth header without secret', () async {
       final MockClient httpMock = new MockClient();
-      final ClockProvider fakeClockProvider = () => new DateTime.utc(2017, 1, 2);
+      final ClockProvider fakeClockProvider =
+          () => new DateTime.utc(2017, 1, 2);
 
       Map<String, String> headers;
 
@@ -64,7 +65,7 @@ void main() {
         ),
       );
 
-     try {
+      try {
         throw new ArgumentError('Test error');
       } catch (error, stackTrace) {
         final SentryResponse response = await client.captureException(
@@ -196,7 +197,8 @@ void main() {
 
     test('reads error message from the x-sentry-error header', () async {
       final MockClient httpMock = new MockClient();
-      final ClockProvider fakeClockProvider = () => new DateTime.utc(2017, 1, 2);
+      final ClockProvider fakeClockProvider =
+          () => new DateTime.utc(2017, 1, 2);
 
       httpMock.answerWith((Invocation invocation) async {
         if (invocation.memberName == #close) {
@@ -239,7 +241,8 @@ void main() {
 
     test('$Event userContext overrides client', () async {
       final MockClient httpMock = new MockClient();
-      final ClockProvider fakeClockProvider = () => new DateTime.utc(2017, 1, 2);
+      final ClockProvider fakeClockProvider =
+          () => new DateTime.utc(2017, 1, 2);
 
       String loggedUserId; // used to find out what user context was sent
       httpMock.answerWith((Invocation invocation) async {
