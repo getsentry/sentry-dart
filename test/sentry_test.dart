@@ -79,7 +79,7 @@ void main() {
         'User-Agent': '$sdkName/$sdkVersion',
         'Content-Type': 'application/json',
         'X-Sentry-Auth': 'Sentry sentry_version=6, '
-            'sentry_client=${SentryClient.sentryClient}, '
+            'sentry_client=${SentryClientBase.sentryClient}, '
             'sentry_timestamp=${fakeClockProvider().millisecondsSinceEpoch}, '
             'sentry_key=public',
       };
@@ -139,7 +139,7 @@ void main() {
         'User-Agent': '$sdkName/$sdkVersion',
         'Content-Type': 'application/json',
         'X-Sentry-Auth': 'Sentry sentry_version=6, '
-            'sentry_client=${SentryClient.sentryClient}, '
+            'sentry_client=${SentryClientBase.sentryClient}, '
             'sentry_timestamp=${fakeClockProvider().millisecondsSinceEpoch}, '
             'sentry_key=public, '
             'sentry_secret=secret',
@@ -151,18 +151,24 @@ void main() {
 
       Map<String, dynamic> data;
       if (compressPayload) {
-        data = json.decode(utf8.decode(GZIP.decode(body)));
+        data = json.decode(utf8.decode(gzip.decode(body)));
       } else {
         data = json.decode(utf8.decode(body));
       }
       final Map<String, dynamic> stacktrace = data.remove('stacktrace');
-      expect(stacktrace['frames'], const isInstanceOf<List>());
+      expect(stacktrace['frames'], const TypeMatcher<List>());
       expect(stacktrace['frames'], isNotEmpty);
 
       final Map<String, dynamic> topFrame =
           (stacktrace['frames'] as Iterable<dynamic>).last;
-      expect(topFrame.keys,
-          <String>['abs_path', 'function', 'lineno', 'in_app', 'filename']);
+      expect(topFrame.keys, <String>[
+        'abs_path',
+        'function',
+        'lineno',
+        'colno',
+        'in_app',
+        'filename'
+      ]);
       expect(topFrame['abs_path'], 'sentry_test.dart');
       expect(topFrame['function'], 'main.<fn>.testCaptureException');
       expect(topFrame['lineno'], greaterThan(0));
@@ -173,15 +179,15 @@ void main() {
         'project': '1',
         'event_id': 'X' * 32,
         'timestamp': '2017-01-02T00:00:00',
-        'platform': 'dart',
         'exception': [
           {'type': 'ArgumentError', 'value': 'Invalid argument(s): Test error'}
         ],
         'sdk': {'version': sdkVersion, 'name': 'dart'},
-        'logger': SentryClient.defaultLoggerName,
+        'logger': SentryClientBase.defaultLoggerName,
         'server_name': 'test.server.com',
         'release': '1.2.3',
         'environment': 'staging',
+        'platform': 'dart',
       });
 
       await client.close();
@@ -333,7 +339,6 @@ void main() {
           userContext: user,
         ).toJson(),
         <String, dynamic>{
-          'platform': 'dart',
           'sdk': {'version': sdkVersion, 'name': 'dart'},
           'message': 'test-message',
           'exception': [

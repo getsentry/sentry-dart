@@ -1,5 +1,9 @@
 # package:sentry changelog
 
+## 2.2.0
+
+- Refactor to support browser with `SentryClientBrowser`
+
 ## 2.1.0
 
 - Support DNS format without secret key.

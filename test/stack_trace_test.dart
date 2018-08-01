@@ -14,6 +14,7 @@ void main() {
         'abs_path': 'dart:core',
         'function': 'buzz',
         'lineno': 1,
+        'colno': 2,
         'in_app': false,
         'filename': 'core'
       });
@@ -36,6 +37,7 @@ void main() {
           'abs_path': 'test.dart',
           'function': 'bar',
           'lineno': 46,
+          'colno': 9,
           'in_app': true,
           'filename': 'test.dart'
         },
@@ -43,6 +45,7 @@ void main() {
           'abs_path': 'test.dart',
           'function': 'baz',
           'lineno': 50,
+          'colno': 3,
           'in_app': true,
           'filename': 'test.dart'
         },
@@ -59,6 +62,7 @@ void main() {
           'abs_path': 'test.dart',
           'function': 'bar',
           'lineno': 46,
+          'colno': 9,
           'in_app': true,
           'filename': 'test.dart'
         },
@@ -69,6 +73,7 @@ void main() {
           'abs_path': 'test.dart',
           'function': 'baz',
           'lineno': 50,
+          'colno': 3,
           'in_app': true,
           'filename': 'test.dart'
         },
