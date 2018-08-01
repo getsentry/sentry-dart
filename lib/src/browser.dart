@@ -22,10 +22,6 @@ class SentryClientBrowser extends SentryClientBase {
   /// under this category: [Event.loggerName], [Event.serverName],
   /// [Event.release], [Event.environment].
   ///
-  /// If [compressPayload] is `true` the outgoing HTTP payloads are compressed
-  /// using gzip. Otherwise, the payloads are sent in plain UTF8-encoded JSON
-  /// text. If not specified, the compression is enabled by default.
-  ///
   /// If [httpClient] is provided, it is used instead of the default client to
   /// make HTTP calls to Sentry.io. This is useful in tests.
   ///
