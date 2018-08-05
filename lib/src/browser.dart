@@ -4,8 +4,9 @@
 
 /// A pure Dart client for Sentry.io crash reporting.
 import 'dart:convert';
-import 'dart:html' hide Event;
+import 'dart:html' hide Event, Client;
 
+import 'package:http/http.dart';
 import 'package:http/browser_client.dart';
 import 'package:meta/meta.dart';
 import 'base.dart';
@@ -37,7 +38,7 @@ class SentryClientBrowser extends SentryClientBase {
   factory SentryClientBrowser({
     @required String dsn,
     Event environmentAttributes,
-    BrowserClient httpClient,
+    Client httpClient,
     dynamic clock,
     UuidGenerator uuidGenerator,
     String origin,
@@ -57,7 +58,7 @@ class SentryClientBrowser extends SentryClientBase {
   }
 
   SentryClientBrowser._({
-    BrowserClient httpClient,
+    Client httpClient,
     dynamic clock,
     UuidGenerator uuidGenerator,
     Event environmentAttributes,
