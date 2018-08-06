@@ -31,21 +31,16 @@ void main() {
     });
 
     test('sends client auth header without secret', () async {
-      final MockClient httpMock = new MockClient();
       final ClockProvider fakeClockProvider =
           () => new DateTime.utc(2017, 1, 2);
 
       Map<String, String> headers;
-
-      httpMock.answerWith((Invocation invocation) async {
-        if (invocation.memberName == #close) {
-          return null;
-        }
-        if (invocation.memberName == #post) {
-          headers = invocation.namedArguments[#headers];
+      final MockClient httpMock = new MockClient((Request request) async {
+        if (request.method == "POST") {
+          headers = request.headers;
           return new Response('{"id": "test-event-id"}', 200);
         }
-        fail('Unexpected invocation of ${invocation.memberName} in HttpMock');
+        return new Response('Unexpected invocation in HttpMock', 404);
       });
 
       final SentryClientBase client = new SentryClient(
@@ -81,24 +76,20 @@ void main() {
     });
 
     testCaptureException(bool compressPayload) async {
-      final MockClient httpMock = new MockClient();
       final ClockProvider fakeClockProvider =
           () => new DateTime.utc(2017, 1, 2);
 
       String postUri;
       Map<String, String> headers;
       List<int> body;
-      httpMock.answerWith((Invocation invocation) async {
-        if (invocation.memberName == #close) {
-          return null;
-        }
-        if (invocation.memberName == #post) {
-          postUri = invocation.positionalArguments.single;
-          headers = invocation.namedArguments[#headers];
-          body = invocation.namedArguments[#body];
+      final MockClient httpMock = new MockClient((Request request) async {
+        if (request.method == "POST") {
+          postUri = request.url.toString();
+          headers = request.headers;
+          body = request.bodyBytes;
           return new Response('{"id": "test-event-id"}', 200);
         }
-        fail('Unexpected invocation of ${invocation.memberName} in HttpMock');
+        return new Response('Unexpected invocation in HttpMock', 404);
       });
 
       final SentryClientBase client = new SentryClient(

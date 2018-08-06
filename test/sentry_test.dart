@@ -15,20 +15,16 @@ const String _testDsn = 'https://public:secret@sentry.example.com/1';
 void main() {
   group('$SentryClient', () {
     test('reads error message from the x-sentry-error header', () async {
-      final MockClient httpMock = new MockClient();
       final ClockProvider fakeClockProvider =
           () => new DateTime.utc(2017, 1, 2);
 
-      httpMock.answerWith((Invocation invocation) async {
-        if (invocation.memberName == #close) {
-          return null;
-        }
-        if (invocation.memberName == #post) {
+      final MockClient httpMock = new MockClient((Request request) async {
+        if (request.method == "POST") {
           return new Response('', 401, headers: <String, String>{
             'x-sentry-error': 'Invalid api key',
           });
         }
-        fail('Unexpected invocation of ${invocation.memberName} in HttpMock');
+        return new Response('Unexpected invocation in HttpMock', 404);
       });
 
       final SentryClient client = new SentryClient(
@@ -59,28 +55,22 @@ void main() {
     });
 
     test('$Event userContext overrides client', () async {
-      final MockClient httpMock = new MockClient();
       final ClockProvider fakeClockProvider =
           () => new DateTime.utc(2017, 1, 2);
 
-      String loggedUserId; // used to find out what user context was sent
-      httpMock.answerWith((Invocation invocation) async {
-        if (invocation.memberName == #close) {
-          return null;
-        }
-        if (invocation.memberName == #post) {
+      String loggedUserId; //
+      final MockClient httpMock = new MockClient((Request request) async {
+        if (request.method == "POST") {
           // parse the body and detect which user context was sent
-          var bodyData = invocation.namedArguments[new Symbol("body")];
-          var decoded = new Utf8Codec().decode(bodyData);
-          var decodedJson = new JsonDecoder().convert(decoded);
+          final decodedJson = new JsonDecoder().convert(request.body);
           loggedUserId = decodedJson['user']['id'];
           return new Response('', 401, headers: <String, String>{
             'x-sentry-error': 'Invalid api key',
           });
         }
-        fail('Unexpected invocation of ${invocation.memberName} in HttpMock');
+        return new Response('Unexpected invocation in HttpMock', 404);
       });
-
+      // used to find out what user context was sent
       final clientUserContext = new User(
           id: "client_user",
           username: "username",

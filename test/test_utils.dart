@@ -1,20 +1,12 @@
-import 'package:http/http.dart';
+import 'package:http/testing.dart' as http;
 import 'package:sentry/src/base.dart';
 import 'package:sentry/src/version.dart';
 import 'package:test/test.dart';
 
 typedef Answer = dynamic Function(Invocation invocation);
 
-class MockClient implements Client {
-  Answer _answer;
-
-  void answerWith(Answer answer) {
-    _answer = answer;
-  }
-
-  noSuchMethod(Invocation invocation) {
-    return _answer(invocation);
-  }
+class MockClient extends http.MockClient {
+  MockClient(http.MockClientHandler fn) : super(fn);
 }
 
 void testDsn(SentryClientBase client, String dsn, {bool withSecret = true}) {
