@@ -151,7 +151,6 @@ abstract class SentryClientBase {
     final Event event = new Event(
       exception: exception,
       stackTrace: stackTrace,
-      origin: origin,
     );
     return capture(event: event);
   }
@@ -381,6 +380,39 @@ class Event {
 
     return json;
   }
+
+  Event replace(
+    String loggerName,
+    String serverName,
+    String release,
+    String environment,
+    String message,
+    exception,
+    stackTrace,
+    SeverityLevel level,
+    String culprit,
+    Map<String, String> tags,
+    Map<String, dynamic> extra,
+    List<String> fingerprint,
+    User userContext,
+    String origin,
+  ) =>
+      new Event(
+        loggerName: loggerName ?? this.loggerName,
+        serverName: serverName ?? this.serverName,
+        release: release ?? this.release,
+        environment: environment ?? this.environment,
+        message: message ?? this.message,
+        exception: exception ?? this.exception,
+        stackTrace: stackTrace ?? this.stackTrace,
+        extra: extra ?? this.extra,
+        tags: tags ?? this.tags,
+        fingerprint: fingerprint ?? this.fingerprint,
+        culprit: culprit ?? this.culprit,
+        userContext: userContext ?? this.userContext,
+        level: level ?? this.level,
+        origin: origin ?? this.origin,
+      );
 }
 
 /// Describes the current user associated with the application, such as the
