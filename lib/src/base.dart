@@ -123,13 +123,20 @@ abstract class SentryClientBase {
     if (userContext != null) {
       mergeAttributes({'user': userContext.toJson()}, into: data);
     }
+
+    // apply origin to event
+    event = event.replace(origin: origin);
+
     mergeAttributes(event.toJson(), into: data);
     mergeAttributes({'platform': _platform}, into: data);
 
     final body = bodyEncoder(data, headers);
 
-    final Response response =
-        await httpClient.post(postUri, headers: headers, body: body);
+    final Response response = await httpClient.post(
+      postUri,
+      headers: headers,
+      body: body,
+    );
 
     if (response.statusCode != 200) {
       String errorMessage =
@@ -381,7 +388,7 @@ class Event {
     return json;
   }
 
-  Event replace(
+  Event replace({
     String loggerName,
     String serverName,
     String release,
@@ -396,7 +403,7 @@ class Event {
     List<String> fingerprint,
     User userContext,
     String origin,
-  ) =>
+  }) =>
       new Event(
         loggerName: loggerName ?? this.loggerName,
         serverName: serverName ?? this.serverName,
