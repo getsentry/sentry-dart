@@ -4,6 +4,10 @@
 
 import 'package:stack_trace/stack_trace.dart';
 
+/// Used to filter or modify stack frames before sending stack trace.
+typedef StackFrameFilter =
+  List<Map<String,dynamic>> Function(List<Map<String,dynamic>>);
+
 /// Sentry.io JSON encoding of a stack frame for the asynchronous suspension,
 /// which is the gap between asynchronous calls.
 const Map<String, dynamic> asynchronousGapFrameJson = const <String, dynamic>{
@@ -13,7 +17,8 @@ const Map<String, dynamic> asynchronousGapFrameJson = const <String, dynamic>{
 /// Encodes [stackTrace] as JSON in the Sentry.io format.
 ///
 /// [stackTrace] must be [String] or [StackTrace].
-List<Map<String, dynamic>> encodeStackTrace(dynamic stackTrace) {
+List<Map<String, dynamic>> encodeStackTrace(dynamic stackTrace,
+    {StackFrameFilter stackFrameFilter}) {
   assert(stackTrace is String || stackTrace is StackTrace);
   final Chain chain = stackTrace is StackTrace
       ? new Chain.forTrace(stackTrace)
@@ -24,7 +29,11 @@ List<Map<String, dynamic>> encodeStackTrace(dynamic stackTrace) {
     frames.addAll(chain.traces[t].frames.map(encodeStackTraceFrame));
     if (t < chain.traces.length - 1) frames.add(asynchronousGapFrameJson);
   }
-  return frames.reversed.toList();
+
+  final jsonFrames = frames.reversed.toList();
+  return stackFrameFilter != null
+      ? stackFrameFilter(jsonFrames)
+      : jsonFrames;
 }
 
 Map<String, dynamic> encodeStackTraceFrame(Frame frame) {

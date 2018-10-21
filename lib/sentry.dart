@@ -164,7 +164,10 @@ class SentryClient {
       '${dsnUri.scheme}://${dsnUri.host}/api/$projectId/store/';
 
   /// Reports an [event] to Sentry.io.
-  Future<SentryResponse> capture({@required Event event}) async {
+  Future<SentryResponse> capture({
+    @required Event event,
+    StackFrameFilter stackFrameFilter
+  }) async {
     final DateTime now = _clock();
     String authHeader = 'Sentry sentry_version=6, sentry_client=$sentryClient, '
         'sentry_timestamp=${now.millisecondsSinceEpoch}, sentry_key=$publicKey';
@@ -192,7 +195,7 @@ class SentryClient {
     if (userContext != null) {
       mergeAttributes({'user': userContext.toJson()}, into: data);
     }
-    mergeAttributes(event.toJson(), into: data);
+    mergeAttributes(event.toJson(stackFrameFilter: stackFrameFilter), into: data);
 
     List<int> body = utf8.encode(json.encode(data));
     if (compressPayload) {
@@ -216,15 +219,19 @@ class SentryClient {
   }
 
   /// Reports the [exception] and optionally its [stackTrace] to Sentry.io.
+  ///
+  /// Optionally allows specifying a [stackFrameFilter] that receives the
+  /// list of stack frames just before sending to allow modifying it.
   Future<SentryResponse> captureException({
     @required dynamic exception,
     dynamic stackTrace,
+    StackFrameFilter stackFrameFilter,
   }) {
     final Event event = new Event(
       exception: exception,
       stackTrace: stackTrace,
     );
-    return capture(event: event);
+    return capture(event: event, stackFrameFilter: stackFrameFilter);
   }
 
   Future<Null> close() async {
@@ -376,7 +383,7 @@ class Event {
   final List<String> fingerprint;
 
   /// Serializes this event to JSON.
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toJson({StackFrameFilter stackFrameFilter}) {
     final Map<String, dynamic> json = <String, dynamic>{
       'platform': sdkPlatform,
       'sdk': {
@@ -406,7 +413,7 @@ class Event {
 
     if (stackTrace != null) {
       json['stacktrace'] = <String, dynamic>{
-        'frames': encodeStackTrace(stackTrace),
+        'frames': encodeStackTrace(stackTrace, stackFrameFilter: stackFrameFilter),
       };
     }
 
