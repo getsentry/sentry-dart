@@ -12,7 +12,7 @@ void main() {
   group('sdkVersion', () {
     test('matches that of pubspec.yaml', () {
       final dynamic pubspec =
-          yaml.loadYaml(new File('pubspec.yaml').readAsStringSync());
+          yaml.loadYaml(new File('../pubspec.yaml').readAsStringSync());
       expect(sdkVersion, pubspec['version']);
     });
   });
