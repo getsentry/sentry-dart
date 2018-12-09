@@ -151,12 +151,12 @@ void main() {
 
       Map<String, dynamic> data;
       if (compressPayload) {
-        data = json.decode(utf8.decode(GZIP.decode(body)));
+        data = json.decode(utf8.decode(gzip.decode(body)));
       } else {
         data = json.decode(utf8.decode(body));
       }
       final Map<String, dynamic> stacktrace = data.remove('stacktrace');
-      expect(stacktrace['frames'], const isInstanceOf<List>());
+      expect(stacktrace['frames'], const TypeMatcher<List>());
       expect(stacktrace['frames'], isNotEmpty);
 
       final Map<String, dynamic> topFrame =
