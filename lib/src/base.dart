@@ -76,8 +76,6 @@ abstract class SentryClientBase {
   /// Used by sentry to differentiate browser from io environment
   final String _platform;
 
-  final String dartSdkVersion;
-
   SentryClientBase({
     this.httpClient,
     dynamic clock,
@@ -86,11 +84,9 @@ abstract class SentryClientBase {
     this.environmentAttributes,
     String platform,
     this.origin,
-    String dartSdkVersion,
   })  : _dsn = Dsn.parse(dsn),
         _uuidGenerator = uuidGenerator ?? _generateUuidV4WithoutDashes,
-        _platform = platform ?? sdkPlatform,
-        dartSdkVersion = dartSdkVersion ?? 'stable' {
+        _platform = platform ?? sdkPlatform {
     if (clock == null) {
       _clock = _getUtcDateTime;
     } else {
@@ -129,10 +125,7 @@ abstract class SentryClientBase {
     }
 
     // apply origin to event
-    event = event.replace(
-      origin: origin,
-      dartSdkVersion: dartSdkVersion,
-    );
+    event = event.replace(origin: origin);
 
     mergeAttributes(event.toJson(), into: data);
     mergeAttributes({'platform': _platform}, into: data);
@@ -270,15 +263,12 @@ class Event {
     this.fingerprint,
     this.userContext,
     this.origin,
-    this.dartSdkVersion,
   });
 
   /// path origin ot hte excepetion
   /// used in browser environment
   /// window.location.origin
   final String origin;
-
-  final String dartSdkVersion;
 
   /// The logger that logged the event.
   final String loggerName;
@@ -375,11 +365,7 @@ class Event {
 
     if (stackTrace != null) {
       json['stacktrace'] = <String, dynamic>{
-        'frames': encodeStackTrace(
-          stackTrace,
-          origin: origin,
-          dartSdkVersion: dartSdkVersion,
-        ),
+        'frames': encodeStackTrace(stackTrace, origin: origin),
       };
     }
 
@@ -417,7 +403,6 @@ class Event {
     List<String> fingerprint,
     User userContext,
     String origin,
-    String dartSdkVersion,
   }) =>
       new Event(
         loggerName: loggerName ?? this.loggerName,
@@ -434,7 +419,6 @@ class Event {
         userContext: userContext ?? this.userContext,
         level: level ?? this.level,
         origin: origin ?? this.origin,
-        dartSdkVersion: dartSdkVersion ?? this.dartSdkVersion,
       );
 }
 

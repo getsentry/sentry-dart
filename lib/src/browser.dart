@@ -42,7 +42,6 @@ class SentryClientBrowser extends SentryClientBase {
     dynamic clock,
     UuidGenerator uuidGenerator,
     String origin,
-    String dartSdkVersion,
   }) {
     httpClient ??= new BrowserClient();
     origin ??= '${window.location.origin}/';
@@ -55,7 +54,6 @@ class SentryClientBrowser extends SentryClientBase {
       dsn: dsn,
       origin: origin,
       platform: browserPlatform,
-      dartSdkVersion: dartSdkVersion,
     );
   }
 
@@ -67,7 +65,6 @@ class SentryClientBrowser extends SentryClientBase {
     String dsn,
     String platform,
     String origin,
-    String dartSdkVersion,
   }) : super(
           httpClient: httpClient,
           clock: clock,
@@ -76,7 +73,6 @@ class SentryClientBrowser extends SentryClientBase {
           dsn: dsn,
           platform: platform,
           origin: origin,
-          dartSdkVersion: dartSdkVersion,
         );
 
   @override

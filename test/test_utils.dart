@@ -37,8 +37,7 @@ void testHeaders(
         'sentry_secret=secret';
   }
 
-  if (withUserAgent)
-    expectedHeaders['User-Agent'] = '$sdkName/$sdkVersion';
+  if (withUserAgent) expectedHeaders['User-Agent'] = '$sdkName/$sdkVersion';
 
   if (compressPayload) expectedHeaders['Content-Encoding'] = 'gzip';
 
