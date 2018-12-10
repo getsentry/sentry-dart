@@ -76,8 +76,8 @@ void main() {
     });
 
     test('allows changing the stack frame list before sending', () {
-      StackFrameFilter filter = (list) =>
-          list.where((f) => f['abs_path'] != 'secret.dart').toList();
+      StackFrameFilter filter =
+          (list) => list.where((f) => f['abs_path'] != 'secret.dart').toList();
 
       expect(encodeStackTrace('''
 #0      baz (file:///pathto/test.dart:50:3)

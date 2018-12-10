@@ -6,8 +6,8 @@ import 'package:stack_trace/stack_trace.dart';
 
 /// Used to filter or modify stack frames before sending stack trace. The stack
 /// frames are in the Sentry.io format.
-typedef StackFrameFilter =
-  List<Map<String,dynamic>> Function(List<Map<String,dynamic>>);
+typedef StackFrameFilter = List<Map<String, dynamic>> Function(
+    List<Map<String, dynamic>>);
 
 /// Sentry.io JSON encoding of a stack frame for the asynchronous suspension,
 /// which is the gap between asynchronous calls.
@@ -32,9 +32,7 @@ List<Map<String, dynamic>> encodeStackTrace(dynamic stackTrace,
   }
 
   final jsonFrames = frames.reversed.toList();
-  return stackFrameFilter != null
-      ? stackFrameFilter(jsonFrames)
-      : jsonFrames;
+  return stackFrameFilter != null ? stackFrameFilter(jsonFrames) : jsonFrames;
 }
 
 Map<String, dynamic> encodeStackTraceFrame(Frame frame) {

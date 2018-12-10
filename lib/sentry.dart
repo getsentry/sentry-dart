@@ -164,10 +164,8 @@ class SentryClient {
       '${dsnUri.scheme}://${dsnUri.host}/api/$projectId/store/';
 
   /// Reports an [event] to Sentry.io.
-  Future<SentryResponse> capture({
-    @required Event event,
-    StackFrameFilter stackFrameFilter
-  }) async {
+  Future<SentryResponse> capture(
+      {@required Event event, StackFrameFilter stackFrameFilter}) async {
     final DateTime now = _clock();
     String authHeader = 'Sentry sentry_version=6, sentry_client=$sentryClient, '
         'sentry_timestamp=${now.millisecondsSinceEpoch}, sentry_key=$publicKey';
@@ -195,7 +193,8 @@ class SentryClient {
     if (userContext != null) {
       mergeAttributes({'user': userContext.toJson()}, into: data);
     }
-    mergeAttributes(event.toJson(stackFrameFilter: stackFrameFilter), into: data);
+    mergeAttributes(event.toJson(stackFrameFilter: stackFrameFilter),
+        into: data);
 
     List<int> body = utf8.encode(json.encode(data));
     if (compressPayload) {
@@ -413,7 +412,8 @@ class Event {
 
     if (stackTrace != null) {
       json['stacktrace'] = <String, dynamic>{
-        'frames': encodeStackTrace(stackTrace, stackFrameFilter: stackFrameFilter),
+        'frames':
+            encodeStackTrace(stackTrace, stackFrameFilter: stackFrameFilter),
       };
     }
 
