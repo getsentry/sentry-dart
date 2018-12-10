@@ -74,5 +74,23 @@ void main() {
         },
       ]);
     });
+
+    test('allows changing the stack frame list before sending', () {
+      StackFrameFilter filter =
+          (list) => list.where((f) => f['abs_path'] != 'secret.dart').toList();
+
+      expect(encodeStackTrace('''
+#0      baz (file:///pathto/test.dart:50:3)
+#1      bar (file:///pathto/secret.dart:46:9)
+      ''', stackFrameFilter: filter), [
+        {
+          'abs_path': 'test.dart',
+          'function': 'baz',
+          'lineno': 50,
+          'in_app': true,
+          'filename': 'test.dart'
+        },
+      ]);
+    });
   });
 }
