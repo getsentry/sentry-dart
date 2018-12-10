@@ -1,5 +1,10 @@
 # package:sentry changelog
 
+## 2.2.0
+
+- Add a `stackFrameFilter` argument to `SentryClient`'s `capture` method (96be842).
+- Clean-up code using pre-Dart 2 API (91c7706, b01ebf8).
+
 ## 2.1.1
 
 - Defensively copy internal maps event attributes to
