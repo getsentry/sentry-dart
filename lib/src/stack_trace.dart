@@ -17,6 +17,7 @@ const Map<String, dynamic> asynchronousGapFrameJson = const <String, dynamic>{
 List<Map<String, dynamic>> encodeStackTrace(
   dynamic stackTrace, {
   String origin,
+  String dartSdkVersion,
 }) {
   assert(stackTrace is String || stackTrace is StackTrace);
   final Chain chain = stackTrace is StackTrace
@@ -25,18 +26,32 @@ List<Map<String, dynamic>> encodeStackTrace(
 
   final List<Map<String, dynamic>> frames = <Map<String, dynamic>>[];
   for (int t = 0; t < chain.traces.length; t += 1) {
-    frames.addAll(chain.traces[t].frames
-        .map((f) => encodeStackTraceFrame(f, origin: origin)));
+    frames.addAll(chain.traces[t].frames.map((f) => encodeStackTraceFrame(
+          f,
+          origin: origin,
+          dartSdkVersion: dartSdkVersion,
+        )));
     if (t < chain.traces.length - 1) frames.add(asynchronousGapFrameJson);
   }
   return frames.reversed.toList();
 }
 
-Map<String, dynamic> encodeStackTraceFrame(Frame frame, {String origin}) {
+Map<String, dynamic> encodeStackTraceFrame(
+  Frame frame, {
+  String origin,
+  String dartSdkVersion,
+}) {
   origin ??= '';
 
+  final version = dartSdkVersion ?? 'stable';
+
+  final absPath = '$origin${_absolutePathForCrashReport(frame)}'.replaceFirst(
+    'org-dartlang-sdk://',
+    'https://raw.githubusercontent.com/dart-lang/sdk/$version',
+  );
+
   final Map<String, dynamic> json = <String, dynamic>{
-    'abs_path': '$origin${_absolutePathForCrashReport(frame)}',
+    'abs_path': absPath,
     'function': frame.member,
     'lineno': frame.line,
     'colno': frame.column,
