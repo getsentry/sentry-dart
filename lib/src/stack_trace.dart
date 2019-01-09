@@ -4,8 +4,13 @@
 
 import 'package:stack_trace/stack_trace.dart';
 
-/// Used to filter or modify stack frames before sending stack trace. The stack
-/// frames are in the Sentry.io format.
+/// Used to filter or modify stack frames before sending the stack trace.
+///
+/// The input stack frames are in the Sentry.io JSON format. The output
+/// stack frames must follow the same format.
+///
+/// Detailed documentation about the stack trace format is on Sentry.io's
+/// web-site: https://docs.sentry.io/development/sdk-dev/overview/.
 typedef StackFrameFilter = List<Map<String, dynamic>> Function(
     List<Map<String, dynamic>>);
 
