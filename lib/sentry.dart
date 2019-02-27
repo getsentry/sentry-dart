@@ -161,7 +161,7 @@ class SentryClient {
 
   @visibleForTesting
   String get postUri =>
-      '${dsnUri.scheme}://${dsnUri.host}:${dsnUri.port}/api/$projectId/store/';
+      '${dsnUri.scheme}://${dsnUri.host}${dsnUri.port != 80 && dsnUri.port != 443 ? ':' + dsnUri.port.toString() : ''}/api/$projectId/store/';
 
   /// Reports an [event] to Sentry.io.
   Future<SentryResponse> capture(
