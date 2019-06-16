@@ -566,7 +566,6 @@ class Contexts {
         json[key] = runtime.toJson();
       }
     } else if (runtimes.length > 1) {
-      var i = 0;
       for (final runtime in runtimes) {
         if (runtime != null) {
           var key = runtime.key ?? runtime.name.toLowerCase();
@@ -580,8 +579,6 @@ class Contexts {
           }
 
           json[key] = runtime.toJson()..addAll({"type": "runtime"});
-
-          i++;
         }
       }
     }
