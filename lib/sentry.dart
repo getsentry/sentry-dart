@@ -444,8 +444,6 @@ class Event {
     if (fingerprint != null && fingerprint.isNotEmpty)
       json['fingerprint'] = fingerprint;
 
-    print(json);
-
     return json;
   }
 }
