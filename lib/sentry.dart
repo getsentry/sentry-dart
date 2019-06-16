@@ -300,22 +300,21 @@ class Event {
   static const String defaultFingerprint = '{{ default }}';
 
   /// Creates an event.
-  const Event({
-    this.loggerName,
-    this.serverName,
-    this.release,
-    this.environment,
-    this.message,
-    this.exception,
-    this.stackTrace,
-    this.level,
-    this.culprit,
-    this.tags,
-    this.extra,
-    this.fingerprint,
-    this.userContext,
-    this.contexts
-  });
+  const Event(
+      {this.loggerName,
+      this.serverName,
+      this.release,
+      this.environment,
+      this.message,
+      this.exception,
+      this.stackTrace,
+      this.level,
+      this.culprit,
+      this.tags,
+      this.extra,
+      this.fingerprint,
+      this.userContext,
+      this.contexts});
 
   /// The logger that logged the event.
   final String loggerName;
@@ -432,8 +431,7 @@ class Event {
     if (extra != null && extra.isNotEmpty) json['extra'] = extra;
 
     Map<String, dynamic> contextsMap;
-    if (contexts != null &&
-        (contextsMap = contexts.toJson()).isNotEmpty)
+    if (contexts != null && (contextsMap = contexts.toJson()).isNotEmpty)
       json['contexts'] = contextsMap;
 
     Map<String, dynamic> userContextMap;
@@ -535,18 +533,11 @@ class Contexts {
   /// agent of a web request that triggered the event.
   final Browser browser;
 
-  const Contexts({
-    this.device,
-    this.os,
-    this.runtimes,
-    this.app,
-    this.browser
-  });
+  const Contexts({this.device, this.os, this.runtimes, this.app, this.browser});
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-
-    final Map<String, dynamic > json = { };
+    final Map<String, dynamic> json = {};
 
     Map<String, dynamic> deviceMap;
     if (device != null && (deviceMap = device.toJson()).isNotEmpty) {
@@ -588,10 +579,7 @@ class Contexts {
             }
           }
 
-          json[key] = runtime.toJson()
-            ..addAll({
-              "type": "runtime"
-            });
+          json[key] = runtime.toJson()..addAll({"type": "runtime"});
 
           i++;
         }
@@ -684,37 +672,36 @@ class Device {
   /// The timezone of the device, e.g.: `Europe/Vienna`.
   final String timezone;
 
-  const Device({
-    this.name,
-    this.family,
-    this.model,
-    this.modelId,
-    this.arch,
-    this.batteryLevel,
-    this.orientation,
-    this.manufacturer,
-    this.brand,
-    this.screenResolution,
-    this.screenDensity,
-    this.screenDpi,
-    this.online,
-    this.charging,
-    this.lowMemory,
-    this.simulator,
-    this.memorySize,
-    this.freeMemory,
-    this.usableMemory,
-    this.storageSize,
-    this.freeStorage,
-    this.externalStorageSize,
-    this.externalFreeStorage,
-    this.bootTime,
-    this.timezone
-  }) : assert(batteryLevel >= 0 && batteryLevel <= 100);
+  const Device(
+      {this.name,
+      this.family,
+      this.model,
+      this.modelId,
+      this.arch,
+      this.batteryLevel,
+      this.orientation,
+      this.manufacturer,
+      this.brand,
+      this.screenResolution,
+      this.screenDensity,
+      this.screenDpi,
+      this.online,
+      this.charging,
+      this.lowMemory,
+      this.simulator,
+      this.memorySize,
+      this.freeMemory,
+      this.usableMemory,
+      this.storageSize,
+      this.freeStorage,
+      this.externalStorageSize,
+      this.externalFreeStorage,
+      this.bootTime,
+      this.timezone})
+      : assert(batteryLevel >= 0 && batteryLevel <= 100);
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-
     final Map<String, dynamic> json = {};
 
     String orientation;
@@ -784,10 +771,7 @@ class Device {
   }
 }
 
-enum Orientation {
-  portrait,
-  landscape
-}
+enum Orientation { portrait, landscape }
 
 /// Describes the operating system on which the event was created.
 /// In web contexts, this is the operating system of the browse
@@ -814,14 +798,13 @@ class Os {
   /// version from this string, if they are not explicitly given.
   final String rawDescription;
 
-  const Os({
-    this.name,
-    this.version,
-    this.build,
-    this.kernelVersion,
-    this.rooted,
-    this.rawDescription
-  });
+  const Os(
+      {this.name,
+      this.version,
+      this.build,
+      this.kernelVersion,
+      this.rooted,
+      this.rawDescription});
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
@@ -848,7 +831,6 @@ class Os {
 /// are involved (for instance if you have a JavaScript application running
 /// on top of JVM).
 class Runtime {
-
   /// Key used in the JSON and which will be displayed
   /// in the Sentry UI. Defaults to lower case version of [name].
   ///
@@ -866,12 +848,8 @@ class Runtime {
   /// and version from this string, if they are not explicitly given.
   final String rawDescription;
 
-  const Runtime({
-    this.key,
-    this.name,
-    this.version,
-    this.rawDescription
-  }) : assert(key == null || key.length >= 1);
+  const Runtime({this.key, this.name, this.version, this.rawDescription})
+      : assert(key == null || key.length >= 1);
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
@@ -913,15 +891,14 @@ class App {
   /// Application specific device identifier.
   final String deviceAppHash;
 
-  const App({
-    this.name,
-    this.version,
-    this.identifier,
-    this.build,
-    this.buildType,
-    this.startTime,
-    this.deviceAppHash
-  });
+  const App(
+      {this.name,
+      this.version,
+      this.identifier,
+      this.build,
+      this.buildType,
+      this.startTime,
+      this.deviceAppHash});
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
@@ -955,10 +932,7 @@ class Browser {
   /// Human readable application version, as it appears on the platform.
   final String version;
 
-  const Browser({
-    this.name,
-    this.version
-  });
+  const Browser({this.name, this.version});
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
