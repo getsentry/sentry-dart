@@ -555,7 +555,7 @@ class Contexts {
     }
 
     Map<String, dynamic> browserMap;
-    if (browser != null && (appMap = browser.toJson()).isNotEmpty) {
+    if (browser != null && (browserMap = browser.toJson()).isNotEmpty) {
       json['browser'] = browserMap;
     }
 
