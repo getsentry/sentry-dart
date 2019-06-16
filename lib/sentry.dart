@@ -698,7 +698,8 @@ class Device {
       this.externalFreeStorage,
       this.bootTime,
       this.timezone})
-      : assert(batteryLevel >= 0 && batteryLevel <= 100);
+      : assert(
+            batteryLevel == null || batteryLevel >= 0 && batteryLevel <= 100);
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
