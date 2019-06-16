@@ -559,26 +559,28 @@ class Contexts {
       json['browser'] = browserMap;
     }
 
-    if (runtimes.length == 1) {
-      final runtime = runtimes[0];
-      if (runtime != null) {
-        final key = runtime.key ?? 'runtime';
-        json[key] = runtime.toJson();
-      }
-    } else if (runtimes.length > 1) {
-      for (final runtime in runtimes) {
+    if (runtimes != null) {
+      if (runtimes.length == 1) {
+        final runtime = runtimes[0];
         if (runtime != null) {
-          var key = runtime.key ?? runtime.name.toLowerCase();
+          final key = runtime.key ?? 'runtime';
+          json[key] = runtime.toJson();
+        }
+      } else if (runtimes.length > 1) {
+        for (final runtime in runtimes) {
+          if (runtime != null) {
+            var key = runtime.key ?? runtime.name.toLowerCase();
 
-          if (json.containsKey(key)) {
-            var k = 0;
-            while (json.containsKey(key)) {
-              key = '$key$k';
-              k++;
+            if (json.containsKey(key)) {
+              var k = 0;
+              while (json.containsKey(key)) {
+                key = '$key$k';
+                k++;
+              }
             }
-          }
 
-          json[key] = runtime.toJson()..addAll({"type": "runtime"});
+            json[key] = runtime.toJson()..addAll({"type": "runtime"});
+          }
         }
       }
     }
