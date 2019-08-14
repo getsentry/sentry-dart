@@ -25,10 +25,18 @@ List<Map<String, dynamic>> encodeStackTrace(
 
   final List<Map<String, dynamic>> frames = <Map<String, dynamic>>[];
   for (int t = 0; t < chain.traces.length; t += 1) {
-    frames.addAll(chain.traces[t].frames
-        .map((f) => encodeStackTraceFrame(f, origin: origin)));
+    final encodedFrames = chain.traces[t].frames
+        .map((f) => encodeStackTraceFrame(f, origin: origin));
+
+    frames.addAll(encodedFrames);
+
     if (t < chain.traces.length - 1) frames.add(asynchronousGapFrameJson);
   }
+
+  if (frames.every((f) => f['function'] == null)) {
+    throw EmptyStacktraceException(stackTrace);
+  }
+
   return frames.reversed.toList();
 }
 
@@ -62,4 +70,10 @@ String _absolutePathForCrashReport(Frame frame) {
     return frame.uri.pathSegments.last;
 
   return '${frame.uri}';
+}
+
+class EmptyStacktraceException implements Exception {
+  final dynamic originalStacktrace;
+
+  EmptyStacktraceException(this.originalStacktrace);
 }

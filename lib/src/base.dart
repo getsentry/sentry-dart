@@ -363,10 +363,17 @@ class Event {
       ];
     }
 
+    if (extra != null && extra.isNotEmpty) json['extra'] = extra;
+
     if (stackTrace != null) {
-      json['stacktrace'] = <String, dynamic>{
-        'frames': encodeStackTrace(stackTrace, origin: origin),
-      };
+      try {
+        json['stacktrace'] = <String, dynamic>{
+          'frames': encodeStackTrace(stackTrace, origin: origin),
+        };
+      } on EmptyStacktraceException catch (e) {
+        json['extra'] ??= {};
+        json['extra']['original_stacktrace'] = e.originalStacktrace.toString();
+      }
     }
 
     if (level != null) json['level'] = level.name;
@@ -374,8 +381,6 @@ class Event {
     if (culprit != null) json['culprit'] = culprit;
 
     if (tags != null && tags.isNotEmpty) json['tags'] = tags;
-
-    if (extra != null && extra.isNotEmpty) json['extra'] = extra;
 
     Map<String, dynamic> userContextMap;
     if (userContext != null &&
