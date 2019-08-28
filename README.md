@@ -60,7 +60,7 @@ main() async {
         stackTrace: details.stack,
       );
     } finally {
-      // Also use Flutter's default error reporting.
+      // Also use Flutter's default error logging to the device's console.
       FlutterError.dumpErrorToConsole(details, forceReport: forceReport);
     }
   };
