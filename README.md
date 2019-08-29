@@ -73,6 +73,8 @@ main() async {
         exception: details.exception,
         stackTrace: details.stack,
       );
+    } catch (e) {
+      print('Sending report to sentry.io failed: $e');
     } finally {
       // Also use Flutter's default error logging to the device's console.
       FlutterError.dumpErrorToConsole(details, forceReport: forceReport);
