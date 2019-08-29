@@ -49,7 +49,21 @@ main() async {
 
 - Use a `try/catch` block, like in the example above.
 - Create a `Zone` with an error handler, e.g. using [runZoned][run_zoned].
-- In Flutter, use [FlutterError.onError][flutter_error]. For example:
+  
+  ```dart
+  var sentry = SentryClient(dsn: "https://...");
+  // Run the whole app in a zone to capture all uncaught errors.
+  runZoned(
+    () => runApp(MyApp()),
+    onError: (Object error, StackTrace stackTrace) {
+      sentry.captureException(
+        exception: error,
+        stackTrace: stackTrace,
+      );
+    },
+  );
+  ```
+- For Flutter-specific errors (such as layout failures), use [FlutterError.onError][flutter_error]. For example:
   
   ```dart
   var sentry = SentryClient(dsn: "https://...");
