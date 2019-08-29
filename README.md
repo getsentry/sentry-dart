@@ -56,10 +56,16 @@ main() async {
   runZoned(
     () => runApp(MyApp()),
     onError: (Object error, StackTrace stackTrace) {
-      sentry.captureException(
-        exception: error,
-        stackTrace: stackTrace,
-      );
+      try {
+        sentry.captureException(
+          exception: error,
+          stackTrace: stackTrace,
+        );
+        print('Error sent to sentry.io: $error');
+      } catch (e) {
+        print('Sending report to sentry.io failed: $e');
+        print('Original error: $error');
+      }
     },
   );
   ```
@@ -76,7 +82,7 @@ main() async {
     } catch (e) {
       print('Sending report to sentry.io failed: $e');
     } finally {
-      // Also use Flutter's default error logging to the device's console.
+      // Also use Flutter's pretty error logging to the device's console.
       FlutterError.dumpErrorToConsole(details, forceReport: forceReport);
     }
   };
