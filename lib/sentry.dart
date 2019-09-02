@@ -306,6 +306,7 @@ class Event {
     this.release,
     this.environment,
     this.message,
+    this.transaction,
     this.exception,
     this.stackTrace,
     this.level,
@@ -314,6 +315,7 @@ class Event {
     this.extra,
     this.fingerprint,
     this.userContext,
+    this.breadcrumbs,
   });
 
   /// The logger that logged the event.
@@ -344,6 +346,10 @@ class Event {
   /// Can be `null`, a [String], or a [StackTrace].
   final dynamic stackTrace;
 
+  /// The name of the transaction which generated this event,
+  /// for e.g., might be the route name: `"/users/<username>/"`.
+  final String transaction;
+
   /// How important this event is.
   final SeverityLevel level;
 
@@ -358,6 +364,11 @@ class Event {
   /// Sentry.io docs do not talk about restrictions on the values, other than
   /// they must be JSON-serializable.
   final Map<String, dynamic> extra;
+
+  /// List of breadcrumbs for this event.
+  ///
+  /// see docs https://docs.sentry.io/enriching-error-data/breadcrumbs/?platform=javascript
+  final List<Breadcrumb> breadcrumbs;
 
   /// Information about the current user.
   ///
@@ -401,6 +412,8 @@ class Event {
 
     if (message != null) json['message'] = message;
 
+    if (transaction != null) json['transaction'] = transaction;
+
     if (exception != null) {
       json['exception'] = [
         <String, dynamic>{
@@ -432,6 +445,12 @@ class Event {
 
     if (fingerprint != null && fingerprint.isNotEmpty)
       json['fingerprint'] = fingerprint;
+
+    if (breadcrumbs != null && breadcrumbs.isNotEmpty) {
+      json['breadcrumbs'] = <String, List<Map<String, dynamic>>>{
+        'values': breadcrumbs.map((b) => b.toJson()).toList(growable: false)
+      };
+    }
 
     return json;
   }
@@ -492,5 +511,61 @@ class User {
       "ip_address": ipAddress,
       "extras": extras,
     };
+  }
+}
+
+/// Structed data to describe more information pior to the event [captured][SentryClient.capture].
+///
+/// The outgoing JSON representation is:
+///
+/// ```
+/// {
+///   "timestamp": 1000
+///   "message": "message",
+///   "category": "category",
+///   "data": {"key": "value"},
+///   "level": "info",
+///   "type": "default"
+/// }
+/// ```
+/// See also:
+/// * https://docs.sentry.io/development/sdk-dev/event-payloads/breadcrumbs/
+class Breadcrumb {
+  final String message;
+  final String category;
+  final Map<String, String> data;
+  final SeverityLevel level;
+
+  /// default, http, or navigation.
+  /// see docs https://docs.sentry.io/development/sdk-dev/event-payloads/breadcrumbs/#breadcrumb-types
+  final String type;
+
+  /// Recording time
+  ///
+  /// note: serialized in  seconds
+  final DateTime timestamp;
+  const Breadcrumb(this.message, this.timestamp,
+      {this.category, this.data, this.level = SeverityLevel.info, this.type});
+
+  Map<String, dynamic> toJson() {
+    var json = <String, dynamic>{
+      'timestamp': timestamp.millisecondsSinceEpoch ~/ 1000,
+    };
+    if (message != null) {
+      json['message'] = message;
+    }
+    if (category != null) {
+      json['category'] = category;
+    }
+    if (data != null && data.isNotEmpty) {
+      json['data'] = Map.of(data);
+    }
+    if (level != null) {
+      json['level'] = level.name;
+    }
+    if (type != null) {
+      json['type'] = type;
+    }
+    return json;
   }
 }

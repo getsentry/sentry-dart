@@ -315,9 +315,16 @@ void main() {
           email: "email@email.com",
           ipAddress: "127.0.0.1",
           extras: {"foo": "bar"});
+
+      final breadcrumbs = [
+        Breadcrumb("test log", DateTime.fromMillisecondsSinceEpoch(1200 * 1000),
+            level: SeverityLevel.debug, category: "test"),
+      ];
+
       expect(
         new Event(
           message: 'test-message',
+          transaction: '/test/1',
           exception: new StateError('test-error'),
           level: SeverityLevel.debug,
           culprit: 'Professor Moriarty',
@@ -331,11 +338,13 @@ void main() {
           },
           fingerprint: <String>[Event.defaultFingerprint, 'foo'],
           userContext: user,
+          breadcrumbs: breadcrumbs,
         ).toJson(),
         <String, dynamic>{
           'platform': 'dart',
           'sdk': {'version': sdkVersion, 'name': 'dart'},
           'message': 'test-message',
+          'transaction': '/test/1',
           'exception': [
             {'type': 'StateError', 'value': 'Bad state: test-error'}
           ],
@@ -350,6 +359,16 @@ void main() {
             'email': 'email@email.com',
             'ip_address': '127.0.0.1',
             'extras': {'foo': 'bar'}
+          },
+          'breadcrumbs': {
+            'values': [
+              {
+                'timestamp': 1200,
+                'message': 'test log',
+                'category': 'test',
+                'level': 'debug',
+              },
+            ]
           },
         },
       );
