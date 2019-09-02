@@ -11,8 +11,10 @@ import 'package:test/test.dart';
 
 const String _testDsn = 'https://public:secret@sentry.example.com/1';
 const String _testDsnWithoutSecret = 'https://public@sentry.example.com/1';
-const String _testDsnWithPath = 'https://public:secret@sentry.example.com/path/1';
-const String _testDsnWithPort = 'https://public:secret@sentry.example.com:8888/1';
+const String _testDsnWithPath =
+    'https://public:secret@sentry.example.com/path/1';
+const String _testDsnWithPort =
+    'https://public:secret@sentry.example.com:8888/1';
 void main() {
   group('$SentryClient', () {
     test('can parse DSN', () async {

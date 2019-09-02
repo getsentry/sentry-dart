@@ -169,7 +169,7 @@ class SentryClient {
     var pathLength = dsnUri.pathSegments.length;
     var apiPath;
     if (pathLength > 1) {
-      // some paths would present before the projectID in the dsnUri 
+      // some paths would present before the projectID in the dsnUri
       apiPath =
           (dsnUri.pathSegments.sublist(0, pathLength - 1) + ['api']).join('/');
     } else {
