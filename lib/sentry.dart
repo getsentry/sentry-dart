@@ -508,6 +508,8 @@ class User {
 /// The context interfaces provide additional context data.
 /// Typically this is data related to the current user,
 /// the current HTTP request.
+///
+/// See also: https://docs.sentry.io/development/sdk-dev/event-payloads/contexts/.
 class Contexts {
   /// This describes the device that caused the event.
   final Device device;
