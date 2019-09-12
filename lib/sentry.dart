@@ -526,10 +526,10 @@ class Contexts {
   /// on top of JVM).
   final List<Runtime> runtimes;
 
-  /// Describes a runtime in more detail.
-  /// Typically this context is used multiple times if multiple runtimes
-  /// are involved (for instance if you have a JavaScript application running
-  /// on top of JVM).
+  /// App context describes the application.
+  ///
+  /// As opposed to the runtime, this is the actual application that was
+  /// running and carries metadata about the current session.
   final App app;
 
   /// Carries information about the browser or user agent for web-related
@@ -877,10 +877,10 @@ class Runtime {
   }
 }
 
-/// Describes a runtime in more detail.
-/// Typically this context is used multiple times if multiple runtimes
-/// are involved (for instance if you have a JavaScript application running
-/// on top of JVM).
+/// App context describes the application.
+///
+/// As opposed to the runtime, this is the actual application that was
+/// running and carries metadata about the current session.
 class App {
   /// Human readable application name, as it appears on the platform.
   final String name;
