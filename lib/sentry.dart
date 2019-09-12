@@ -516,11 +516,13 @@ class Contexts {
   final Device device;
 
   /// Describes the operating system on which the event was created.
+  ///
   /// In web contexts, this is the operating system of the browse
   /// (normally pulled from the User-Agent string).
   final OperatingSystem operatingSystem;
 
   /// Describes a runtime in more detail.
+  ///
   /// Typically this context is used multiple times if multiple runtimes
   /// are involved (for instance if you have a JavaScript application running
   /// on top of JVM).
@@ -533,7 +535,9 @@ class Contexts {
   final App app;
 
   /// Carries information about the browser or user agent for web-related
-  /// errors. This can either be the browser this event ocurred in, or the user
+  /// errors.
+  ///
+  /// This can either be the browser this event ocurred in, or the user
   /// agent of a web request that triggered the event.
   final Browser browser;
 
@@ -605,8 +609,10 @@ class Device {
   /// The name of the device. This is typically a hostname.
   final String name;
 
-  /// The family of the device. This is normally the common part of model names
-  /// across generations. For instance `iPhone` would be a reasonable family,
+  /// The family of the device.
+  ///
+  /// This is normally the common part of model names across generations.
+  /// For instance `iPhone` would be a reasonable family,
   /// so would be `Samsung Galaxy`.
   final String family;
 
@@ -785,6 +791,7 @@ class Device {
 enum Orientation { portrait, landscape }
 
 /// Describes the operating system on which the event was created.
+///
 /// In web contexts, this is the operating system of the browse
 /// (normally pulled from the User-Agent string).
 class OperatingSystem {
@@ -797,14 +804,16 @@ class OperatingSystem {
   /// The internal build revision of the operating system.
   final String build;
 
-  /// An independent kernel version string. This is typically the
-  /// entire output of the `uname` syscall.
+  /// An independent kernel version string.
+  ///
+  /// This is typically the entire output of the `uname` syscall.
   final String kernelVersion;
 
   /// A flag indicating whether the OS has been jailbroken or rooted.
   final bool rooted;
 
   /// An unprocessed description string obtained by the operating system.
+  ///
   /// For some well-known runtimes, Sentry will attempt to parse name and
   /// version from this string, if they are not explicitly given.
   final String rawDescription;
@@ -839,6 +848,7 @@ class OperatingSystem {
 }
 
 /// Describes a runtime in more detail.
+///
 /// Typically this context is used multiple times if multiple runtimes
 /// are involved (for instance if you have a JavaScript application running
 /// on top of JVM).
@@ -856,6 +866,7 @@ class Runtime {
   final String version;
 
   /// An unprocessed description string obtained by the runtime.
+  ///
   /// For some well-known runtimes, Sentry will attempt to parse name
   /// and version from this string, if they are not explicitly given.
   final String rawDescription;
@@ -935,8 +946,9 @@ class App {
   }
 }
 
-/// Carries information about the browser or user agent for web-related
-/// errors. This can either be the browser this event ocurred in, or the user
+/// Carries information about the browser or user agent for web-related errors.
+///
+/// This can either be the browser this event ocurred in, or the user
 /// agent of a web request that triggered the event.
 class Browser {
   /// Human readable application name, as it appears on the platform.
