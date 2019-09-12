@@ -300,21 +300,22 @@ class Event {
   static const String defaultFingerprint = '{{ default }}';
 
   /// Creates an event.
-  const Event(
-      {this.loggerName,
-      this.serverName,
-      this.release,
-      this.environment,
-      this.message,
-      this.exception,
-      this.stackTrace,
-      this.level,
-      this.culprit,
-      this.tags,
-      this.extra,
-      this.fingerprint,
-      this.userContext,
-      this.contexts});
+  const Event({
+    this.loggerName,
+    this.serverName,
+    this.release,
+    this.environment,
+    this.message,
+    this.exception,
+    this.stackTrace,
+    this.level,
+    this.culprit,
+    this.tags,
+    this.extra,
+    this.fingerprint,
+    this.userContext,
+    this.contexts,
+  });
 
   /// The logger that logged the event.
   final String loggerName;
@@ -671,33 +672,33 @@ class Device {
   /// The timezone of the device, e.g.: `Europe/Vienna`.
   final String timezone;
 
-  const Device(
-      {this.name,
-      this.family,
-      this.model,
-      this.modelId,
-      this.arch,
-      this.batteryLevel,
-      this.orientation,
-      this.manufacturer,
-      this.brand,
-      this.screenResolution,
-      this.screenDensity,
-      this.screenDpi,
-      this.online,
-      this.charging,
-      this.lowMemory,
-      this.simulator,
-      this.memorySize,
-      this.freeMemory,
-      this.usableMemory,
-      this.storageSize,
-      this.freeStorage,
-      this.externalStorageSize,
-      this.externalFreeStorage,
-      this.bootTime,
-      this.timezone})
-      : assert(
+  const Device({
+    this.name,
+    this.family,
+    this.model,
+    this.modelId,
+    this.arch,
+    this.batteryLevel,
+    this.orientation,
+    this.manufacturer,
+    this.brand,
+    this.screenResolution,
+    this.screenDensity,
+    this.screenDpi,
+    this.online,
+    this.charging,
+    this.lowMemory,
+    this.simulator,
+    this.memorySize,
+    this.freeMemory,
+    this.usableMemory,
+    this.storageSize,
+    this.freeStorage,
+    this.externalStorageSize,
+    this.externalFreeStorage,
+    this.bootTime,
+    this.timezone,
+  }) : assert(
             batteryLevel == null || (batteryLevel >= 0 && batteryLevel <= 100));
 
   /// Produces a [Map] that can be serialized to JSON.
@@ -798,13 +799,14 @@ class Os {
   /// version from this string, if they are not explicitly given.
   final String rawDescription;
 
-  const Os(
-      {this.name,
-      this.version,
-      this.build,
-      this.kernelVersion,
-      this.rooted,
-      this.rawDescription});
+  const Os({
+    this.name,
+    this.version,
+    this.build,
+    this.kernelVersion,
+    this.rooted,
+    this.rawDescription,
+  });
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
@@ -891,14 +893,15 @@ class App {
   /// Application specific device identifier.
   final String deviceAppHash;
 
-  const App(
-      {this.name,
-      this.version,
-      this.identifier,
-      this.build,
-      this.buildType,
-      this.startTime,
-      this.deviceAppHash});
+  const App({
+    this.name,
+    this.version,
+    this.identifier,
+    this.build,
+    this.buildType,
+    this.startTime,
+    this.deviceAppHash,
+  });
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
