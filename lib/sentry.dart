@@ -515,7 +515,7 @@ class Contexts {
   /// Describes the operating system on which the event was created.
   /// In web contexts, this is the operating system of the browse
   /// (normally pulled from the User-Agent string).
-  final Os os;
+  final OperatingSystem operatingSystem;
 
   /// Describes a runtime in more detail.
   /// Typically this context is used multiple times if multiple runtimes
@@ -534,7 +534,13 @@ class Contexts {
   /// agent of a web request that triggered the event.
   final Browser browser;
 
-  const Contexts({this.device, this.os, this.runtimes, this.app, this.browser});
+  const Contexts({
+    this.device,
+    this.operatingSystem,
+    this.runtimes,
+    this.app,
+    this.browser,
+  });
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
@@ -546,7 +552,8 @@ class Contexts {
     }
 
     Map<String, dynamic> osMap;
-    if (os != null && (osMap = os.toJson()).isNotEmpty) {
+    if (operatingSystem != null &&
+        (osMap = operatingSystem.toJson()).isNotEmpty) {
       json['os'] = osMap;
     }
 
@@ -777,7 +784,7 @@ enum Orientation { portrait, landscape }
 /// Describes the operating system on which the event was created.
 /// In web contexts, this is the operating system of the browse
 /// (normally pulled from the User-Agent string).
-class Os {
+class OperatingSystem {
   /// The name of the operating system.
   final String name;
 
@@ -799,7 +806,7 @@ class Os {
   /// version from this string, if they are not explicitly given.
   final String rawDescription;
 
-  const Os({
+  const OperatingSystem({
     this.name,
     this.version,
     this.build,
