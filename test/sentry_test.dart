@@ -308,6 +308,22 @@ void main() {
   });
 
   group('$Event', () {
+    test('$Breadcrumb serializes', () {
+      expect(
+        Breadcrumb(
+          "example log",
+          DateTime.utc(2019),
+          level: SeverityLevel.debug,
+          category: "test",
+        ).toJson(),
+        <String, dynamic>{
+          'timestamp': '2019-01-01T00:00:00',
+          'message': 'example log',
+          'category': 'test',
+          'level': 'debug',
+        },
+      );
+    });
     test('serializes to JSON', () {
       final user = new User(
           id: "user_id",
@@ -317,7 +333,7 @@ void main() {
           extras: {"foo": "bar"});
 
       final breadcrumbs = [
-        Breadcrumb("test log", DateTime.fromMillisecondsSinceEpoch(1200 * 1000),
+        Breadcrumb("test log", DateTime.utc(2019),
             level: SeverityLevel.debug, category: "test"),
       ];
 
@@ -363,7 +379,7 @@ void main() {
           'breadcrumbs': {
             'values': [
               {
-                'timestamp': 1200,
+                'timestamp': '2019-01-01T00:00:00',
                 'message': 'test log',
                 'category': 'test',
                 'level': 'debug',
