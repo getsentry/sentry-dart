@@ -347,7 +347,7 @@ class Event {
   final dynamic stackTrace;
 
   /// The name of the transaction which generated this event,
-  /// for e.g., might be the route name: `"/users/<username>/"`.
+  /// for example, the route name: `"/users/<username>/"`.
   final String transaction;
 
   /// How important this event is.
@@ -367,7 +367,8 @@ class Event {
 
   /// List of breadcrumbs for this event.
   ///
-  /// see docs https://docs.sentry.io/enriching-error-data/breadcrumbs/?platform=javascript
+  /// See also:
+  /// * https://docs.sentry.io/enriching-error-data/breadcrumbs/?platform=javascript
   final List<Breadcrumb> breadcrumbs;
 
   /// Information about the current user.
@@ -536,20 +537,25 @@ class Breadcrumb {
   final Map<String, String> data;
   final SeverityLevel level;
 
-  /// default, http, or navigation.
-  /// see docs https://docs.sentry.io/development/sdk-dev/event-payloads/breadcrumbs/#breadcrumb-types
+  /// Describes what type of breadcrumb this is.
+  ///
+  /// Possible values: "default", "http", "navigation".
+  ///
+  /// See also:
+  ///
+  /// * https://docs.sentry.io/development/sdk-dev/event-payloads/breadcrumbs/#breadcrumb-types
   final String type;
 
-  /// Recording time
+  /// The time the breadcrumb was recorded.
   ///
-  /// note: serialized in  seconds
+  /// The value is submitted to Sentry with second precision.
   final DateTime timestamp;
   const Breadcrumb(this.message, this.timestamp,
       {this.category, this.data, this.level = SeverityLevel.info, this.type});
 
   Map<String, dynamic> toJson() {
     var json = <String, dynamic>{
-      'timestamp': timestamp.millisecondsSinceEpoch ~/ 1000,
+      'timestamp': formatDateAsIso8601WithSecondPrecision(timestamp),
     };
     if (message != null) {
       json['message'] = message;
