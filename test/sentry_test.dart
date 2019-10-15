@@ -308,6 +308,22 @@ void main() {
   });
 
   group('$Event', () {
+    test('$Breadcrumb serializes', () {
+      expect(
+        Breadcrumb(
+          "example log",
+          DateTime.utc(2019),
+          level: SeverityLevel.debug,
+          category: "test",
+        ).toJson(),
+        <String, dynamic>{
+          'timestamp': '2019-01-01T00:00:00',
+          'message': 'example log',
+          'category': 'test',
+          'level': 'debug',
+        },
+      );
+    });
     test('serializes to JSON', () {
       final user = new User(
           id: "user_id",
@@ -315,9 +331,16 @@ void main() {
           email: "email@email.com",
           ipAddress: "127.0.0.1",
           extras: {"foo": "bar"});
+
+      final breadcrumbs = [
+        Breadcrumb("test log", DateTime.utc(2019),
+            level: SeverityLevel.debug, category: "test"),
+      ];
+
       expect(
         new Event(
           message: 'test-message',
+          transaction: '/test/1',
           exception: new StateError('test-error'),
           level: SeverityLevel.debug,
           culprit: 'Professor Moriarty',
@@ -331,11 +354,13 @@ void main() {
           },
           fingerprint: <String>[Event.defaultFingerprint, 'foo'],
           userContext: user,
+          breadcrumbs: breadcrumbs,
         ).toJson(),
         <String, dynamic>{
           'platform': 'dart',
           'sdk': {'version': sdkVersion, 'name': 'dart'},
           'message': 'test-message',
+          'transaction': '/test/1',
           'exception': [
             {'type': 'StateError', 'value': 'Bad state: test-error'}
           ],
@@ -350,6 +375,16 @@ void main() {
             'email': 'email@email.com',
             'ip_address': '127.0.0.1',
             'extras': {'foo': 'bar'}
+          },
+          'breadcrumbs': {
+            'values': [
+              {
+                'timestamp': '2019-01-01T00:00:00',
+                'message': 'test log',
+                'category': 'test',
+                'level': 'debug',
+              },
+            ]
           },
         },
       );
