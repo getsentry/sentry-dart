@@ -1,5 +1,9 @@
 # package:sentry changelog
 
+## 2.3.0
+
+- Add [breadcrumb](https://docs.sentry.io/development/sdk-dev/event-payloads/breadcrumbs/) support.
+
 ## 2.2.0
 
 - Add a `stackFrameFilter` argument to `SentryClient`'s `capture` method (96be842).
@@ -33,7 +37,7 @@
 ## 1.0.0
 
 - first and last Dart 1-compatible release (we may fix bugs on a separate branch if there's demand)
-- fix code for Dart 2 
+- fix code for Dart 2
 
 ## 0.0.6
 
