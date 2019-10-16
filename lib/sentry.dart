@@ -161,13 +161,13 @@ class SentryClient {
 
   @visibleForTesting
   String get postUri {
-    var port = dsnUri.hasPort &&
+    String port = dsnUri.hasPort &&
             ((dsnUri.scheme == 'http' && dsnUri.port != 80) ||
                 (dsnUri.scheme == 'https' && dsnUri.port != 443))
         ? ':${dsnUri.port}'
         : '';
-    var pathLength = dsnUri.pathSegments.length;
-    var apiPath;
+    int pathLength = dsnUri.pathSegments.length;
+    String apiPath;
     if (pathLength > 1) {
       // some paths would present before the projectID in the dsnUri
       apiPath =
