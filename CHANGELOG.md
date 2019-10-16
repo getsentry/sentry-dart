@@ -1,5 +1,9 @@
 # package:sentry changelog
 
+## 2.3.1
+
+- Support non-standard port numbers and paths in DSN URL.
+
 ## 2.3.0
 
 - Add [breadcrumb](https://docs.sentry.io/development/sdk-dev/event-payloads/breadcrumbs/) support.
