@@ -160,8 +160,23 @@ class SentryClient {
   User userContext;
 
   @visibleForTesting
-  String get postUri =>
-      '${dsnUri.scheme}://${dsnUri.host}/api/$projectId/store/';
+  String get postUri {
+    String port = dsnUri.hasPort &&
+            ((dsnUri.scheme == 'http' && dsnUri.port != 80) ||
+                (dsnUri.scheme == 'https' && dsnUri.port != 443))
+        ? ':${dsnUri.port}'
+        : '';
+    int pathLength = dsnUri.pathSegments.length;
+    String apiPath;
+    if (pathLength > 1) {
+      // some paths would present before the projectID in the dsnUri
+      apiPath =
+          (dsnUri.pathSegments.sublist(0, pathLength - 1) + ['api']).join('/');
+    } else {
+      apiPath = 'api';
+    }
+    return '${dsnUri.scheme}://${dsnUri.host}${port}/$apiPath/$projectId/store/';
+  }
 
   /// Reports an [event] to Sentry.io.
   Future<SentryResponse> capture(

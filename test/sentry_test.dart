@@ -11,7 +11,10 @@ import 'package:test/test.dart';
 
 const String _testDsn = 'https://public:secret@sentry.example.com/1';
 const String _testDsnWithoutSecret = 'https://public@sentry.example.com/1';
-
+const String _testDsnWithPath =
+    'https://public:secret@sentry.example.com/path/1';
+const String _testDsnWithPort =
+    'https://public:secret@sentry.example.com:8888/1';
 void main() {
   group('$SentryClient', () {
     test('can parse DSN', () async {
@@ -34,6 +37,24 @@ void main() {
       await client.close();
     });
 
+    test('can parse DSN with path', () async {
+      final SentryClient client = new SentryClient(dsn: _testDsnWithPath);
+      expect(client.dsnUri, Uri.parse(_testDsnWithPath));
+      expect(client.postUri, 'https://sentry.example.com/path/api/1/store/');
+      expect(client.publicKey, 'public');
+      expect(client.secretKey, 'secret');
+      expect(client.projectId, '1');
+      await client.close();
+    });
+    test('can parse DSN with port', () async {
+      final SentryClient client = new SentryClient(dsn: _testDsnWithPort);
+      expect(client.dsnUri, Uri.parse(_testDsnWithPort));
+      expect(client.postUri, 'https://sentry.example.com:8888/api/1/store/');
+      expect(client.publicKey, 'public');
+      expect(client.secretKey, 'secret');
+      expect(client.projectId, '1');
+      await client.close();
+    });
     test('sends client auth header without secret', () async {
       final MockClient httpMock = new MockClient();
       final ClockProvider fakeClockProvider =
