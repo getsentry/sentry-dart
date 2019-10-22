@@ -9,7 +9,7 @@ import 'package:test/test.dart';
 void main() {
   group('encodeStackTraceFrame', () {
     test('marks dart: frames as not app frames', () {
-      final Frame frame = new Frame(Uri.parse('dart:core'), 1, 2, 'buzz');
+      final Frame frame = Frame(Uri.parse('dart:core'), 1, 2, 'buzz');
       expect(encodeStackTraceFrame(frame), {
         'abs_path': 'dart:core',
         'function': 'buzz',
@@ -22,7 +22,7 @@ void main() {
 
     test('cleanses absolute paths', () {
       final Frame frame =
-          new Frame(Uri.parse('file://foo/bar/baz.dart'), 1, 2, 'buzz');
+          Frame(Uri.parse('file://foo/bar/baz.dart'), 1, 2, 'buzz');
       expect(encodeStackTraceFrame(frame)['abs_path'], 'baz.dart');
     });
   });

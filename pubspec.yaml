@@ -12,6 +12,7 @@ dependencies:
   meta: ">=1.0.0 <2.0.0"
   stack_trace: ">=1.0.0 <2.0.0"
   usage: ">=3.0.0 <4.0.0"
+  pedantic: ">=1.8.0 <2.0.0"
 
 dev_dependencies:
   args: ">=0.13.0 <2.0.0"
