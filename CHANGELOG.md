@@ -1,8 +1,22 @@
 # package:sentry changelog
 
+## 2.3.1
+
+- Support non-standard port numbers and paths in DSN URL.
+
+## 2.3.0
+
+- Add [breadcrumb](https://docs.sentry.io/development/sdk-dev/event-payloads/breadcrumbs/) support.
+
 ## 2.2.0
 
-- Refactor to support browser with `SentryClientBrowser`
+- Add a `stackFrameFilter` argument to `SentryClient`'s `capture` method (96be842).
+- Clean-up code using pre-Dart 2 API (91c7706, b01ebf8).
+
+## 2.1.1
+
+- Defensively copy internal maps event attributes to
+  avoid shared mutable state (https://github.com/flutter/sentry/commit/044e4c1f43c2d199ed206e5529e2a630c90e4434)
 
 ## 2.1.0
 
@@ -27,7 +41,7 @@
 ## 1.0.0
 
 - first and last Dart 1-compatible release (we may fix bugs on a separate branch if there's demand)
-- fix code for Dart 2 
+- fix code for Dart 2
 
 ## 0.0.6
 
