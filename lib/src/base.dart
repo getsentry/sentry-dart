@@ -10,6 +10,12 @@ import 'package:http/http.dart';
 import 'package:meta/meta.dart';
 import 'package:usage/uuid/uuid.dart';
 
+import 'client_stub.dart'
+    // ignore: uri_does_not_exist
+    if (dart.library.html) 'browser.dart'
+    // ignore: uri_does_not_exist
+    if (dart.library.io) 'io.dart';
+
 import 'stack_trace.dart';
 import 'utils.dart';
 import 'version.dart';
@@ -18,7 +24,27 @@ import 'version.dart';
 typedef ClockProvider = DateTime Function();
 
 /// Logs crash reports and events to the Sentry.io service.
-abstract class SentryClientBase {
+abstract class SentryClient {
+  /// Creates a new platform appropriate client.
+  ///
+  /// Creates an `SentryIOClient` if `dart:io` is available and a `SentryBrowserClient` if
+  /// `dart:html` is available, otherwise it will throw an unsupported error.
+  factory SentryClient({
+    @required String dsn,
+    Event environmentAttributes,
+    bool compressPayload,
+    Client httpClient,
+    dynamic clock,
+    UuidGenerator uuidGenerator,
+  }) =>
+      createSentryClient(
+        dsn: dsn,
+        environmentAttributes: environmentAttributes,
+        httpClient: httpClient,
+        clock: clock,
+        uuidGenerator: uuidGenerator,
+      );
+
   /// Sentry.io client identifier for _this_ client.
   static const String sentryClient = '$sdkName/$sdkVersion';
 
@@ -38,7 +64,6 @@ abstract class SentryClientBase {
   /// supplied in the even passed to [capture].
   final Event environmentAttributes;
 
-  @visibleForTesting
   final Dsn _dsn;
 
   /// The DSN URI.
@@ -76,7 +101,7 @@ abstract class SentryClientBase {
   /// Used by sentry to differentiate browser from io environment
   final String _platform;
 
-  SentryClientBase({
+  SentryClient.base({
     this.httpClient,
     dynamic clock,
     UuidGenerator uuidGenerator,
@@ -85,21 +110,39 @@ abstract class SentryClientBase {
     String platform,
     this.origin,
   })  : _dsn = Dsn.parse(dsn),
-        _uuidGenerator = uuidGenerator ?? _generateUuidV4WithoutDashes,
+        _uuidGenerator = uuidGenerator ?? generateUuidV4WithoutDashes,
         _platform = platform ?? sdkPlatform {
     if (clock == null) {
-      _clock = _getUtcDateTime;
+      _clock = getUtcDateTime;
     } else {
       _clock = clock is ClockProvider ? clock : clock.get;
     }
   }
 
   @visibleForTesting
-  String get postUri =>
-      '${dsnUri.scheme}://${dsnUri.host}/api/$projectId/store/';
+  String get postUri {
+    String port = dsnUri.hasPort &&
+            ((dsnUri.scheme == 'http' && dsnUri.port != 80) ||
+                (dsnUri.scheme == 'https' && dsnUri.port != 443))
+        ? ':${dsnUri.port}'
+        : '';
+    int pathLength = dsnUri.pathSegments.length;
+    String apiPath;
+    if (pathLength > 1) {
+      // some paths would present before the projectID in the dsnUri
+      apiPath =
+          (dsnUri.pathSegments.sublist(0, pathLength - 1) + ['api']).join('/');
+    } else {
+      apiPath = 'api';
+    }
+    return '${dsnUri.scheme}://${dsnUri.host}${port}/$apiPath/$projectId/store/';
+  }
 
   /// Reports an [event] to Sentry.io.
-  Future<SentryResponse> capture({@required Event event}) async {
+  Future<SentryResponse> capture({
+    @required Event event,
+    StackFrameFilter stackFrameFilter,
+  }) async {
     final DateTime now = _clock();
     String authHeader = 'Sentry sentry_version=6, sentry_client=$sentryClient, '
         'sentry_timestamp=${now.millisecondsSinceEpoch}, sentry_key=$publicKey';
@@ -116,18 +159,22 @@ abstract class SentryClientBase {
       'logger': defaultLoggerName,
     };
 
-    if (environmentAttributes != null)
+    if (environmentAttributes != null) {
       mergeAttributes(environmentAttributes.toJson(), into: data);
+    }
 
     // Merge the user context.
     if (userContext != null) {
       mergeAttributes({'user': userContext.toJson()}, into: data);
     }
 
-    // apply origin to event
-    event = event.replace(origin: origin);
-
-    mergeAttributes(event.toJson(), into: data);
+    mergeAttributes(
+      event.toJson(
+        stackFrameFilter: stackFrameFilter,
+        origin: origin,
+      ),
+      into: data,
+    );
     mergeAttributes({'platform': _platform}, into: data);
 
     final body = bodyEncoder(data, headers);
@@ -141,8 +188,9 @@ abstract class SentryClientBase {
     if (response.statusCode != 200) {
       String errorMessage =
           'Sentry.io responded with HTTP ${response.statusCode}';
-      if (response.headers['x-sentry-error'] != null)
+      if (response.headers['x-sentry-error'] != null) {
         errorMessage += ': ${response.headers['x-sentry-error']}';
+      }
       return new SentryResponse.failure(errorMessage);
     }
 
@@ -167,16 +215,14 @@ abstract class SentryClientBase {
   }
 
   @override
-  String toString() => '$SentryClientBase("$postUri")';
+  String toString() => '$SentryClient("$postUri")';
 
   @protected
   List<int> bodyEncoder(Map<String, dynamic> data, Map<String, String> headers);
 
   @protected
   @mustCallSuper
-  Map<String, String> buildHeaders(
-    String authHeader,
-  ) {
+  Map<String, String> buildHeaders(String authHeader) {
     final headers = {
       'Content-Type': 'application/json',
     };
@@ -216,7 +262,7 @@ class SentryResponse {
 
 typedef UuidGenerator = String Function();
 
-String _generateUuidV4WithoutDashes() =>
+String generateUuidV4WithoutDashes() =>
     new Uuid().generateV4().replaceAll('-', '');
 
 /// Severity of the logged [Event].
@@ -236,7 +282,7 @@ class SeverityLevel {
 
 /// Sentry does not take a timezone and instead expects the date-time to be
 /// submitted in UTC timezone.
-DateTime _getUtcDateTime() => new DateTime.now().toUtc();
+DateTime getUtcDateTime() => new DateTime.now().toUtc();
 
 /// An event to be reported to Sentry.io.
 @immutable
@@ -254,6 +300,7 @@ class Event {
     this.release,
     this.environment,
     this.message,
+    this.transaction,
     this.exception,
     this.stackTrace,
     this.level,
@@ -262,13 +309,8 @@ class Event {
     this.extra,
     this.fingerprint,
     this.userContext,
-    this.origin,
+    this.breadcrumbs,
   });
-
-  /// path origin ot hte excepetion
-  /// used in browser environment
-  /// window.location.origin
-  final String origin;
 
   /// The logger that logged the event.
   final String loggerName;
@@ -298,6 +340,10 @@ class Event {
   /// Can be `null`, a [String], or a [StackTrace].
   final dynamic stackTrace;
 
+  /// The name of the transaction which generated this event,
+  /// for example, the route name: `"/users/<username>/"`.
+  final String transaction;
+
   /// How important this event is.
   final SeverityLevel level;
 
@@ -312,6 +358,12 @@ class Event {
   /// Sentry.io docs do not talk about restrictions on the values, other than
   /// they must be JSON-serializable.
   final Map<String, dynamic> extra;
+
+  /// List of breadcrumbs for this event.
+  ///
+  /// See also:
+  /// * https://docs.sentry.io/enriching-error-data/breadcrumbs/?platform=javascript
+  final List<Breadcrumb> breadcrumbs;
 
   /// Information about the current user.
   ///
@@ -336,23 +388,39 @@ class Event {
   final List<String> fingerprint;
 
   /// Serializes this event to JSON.
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toJson(
+      {StackFrameFilter stackFrameFilter, String origin}) {
     final Map<String, dynamic> json = <String, dynamic>{
+      'platform': sdkPlatform,
       'sdk': {
         'version': sdkVersion,
         'name': sdkName,
       },
     };
 
-    if (loggerName != null) json['logger'] = loggerName;
+    if (loggerName != null) {
+      json['logger'] = loggerName;
+    }
 
-    if (serverName != null) json['server_name'] = serverName;
+    if (serverName != null) {
+      json['server_name'] = serverName;
+    }
 
-    if (release != null) json['release'] = release;
+    if (release != null) {
+      json['release'] = release;
+    }
 
-    if (environment != null) json['environment'] = environment;
+    if (environment != null) {
+      json['environment'] = environment;
+    }
 
-    if (message != null) json['message'] = message;
+    if (message != null) {
+      json['message'] = message;
+    }
+
+    if (transaction != null) {
+      json['transaction'] = transaction;
+    }
 
     if (exception != null) {
       json['exception'] = [
@@ -363,68 +431,50 @@ class Event {
       ];
     }
 
-    if (extra != null && extra.isNotEmpty) json['extra'] = extra;
-
     if (stackTrace != null) {
-      try {
-        json['stacktrace'] = <String, dynamic>{
-          'frames': encodeStackTrace(stackTrace, origin: origin),
-        };
-      } on EmptyStacktraceException catch (e) {
-        json['extra'] ??= {};
-        json['extra']['original_stacktrace'] = e.originalStacktrace.toString();
-      }
+      json['stacktrace'] = <String, dynamic>{
+        'frames': encodeStackTrace(
+          stackTrace,
+          stackFrameFilter: stackFrameFilter,
+          origin: origin,
+        ),
+      };
     }
 
-    if (level != null) json['level'] = level.name;
+    if (level != null) {
+      json['level'] = level.name;
+    }
 
-    if (culprit != null) json['culprit'] = culprit;
+    if (culprit != null) {
+      json['culprit'] = culprit;
+    }
 
-    if (tags != null && tags.isNotEmpty) json['tags'] = tags;
+    if (tags != null && tags.isNotEmpty) {
+      json['tags'] = tags;
+    }
+
+    if (extra != null && extra.isNotEmpty) {
+      json['extra'] = extra;
+    }
 
     Map<String, dynamic> userContextMap;
     if (userContext != null &&
-        (userContextMap = userContext.toJson()).isNotEmpty)
+        (userContextMap = userContext.toJson()).isNotEmpty) {
       json['user'] = userContextMap;
+    }
 
-    if (fingerprint != null && fingerprint.isNotEmpty)
+    if (fingerprint != null && fingerprint.isNotEmpty) {
       json['fingerprint'] = fingerprint;
+    }
+
+    if (breadcrumbs != null && breadcrumbs.isNotEmpty) {
+      json['breadcrumbs'] = <String, List<Map<String, dynamic>>>{
+        'values': breadcrumbs.map((b) => b.toJson()).toList(growable: false)
+      };
+    }
 
     return json;
   }
-
-  Event replace({
-    String loggerName,
-    String serverName,
-    String release,
-    String environment,
-    String message,
-    exception,
-    stackTrace,
-    SeverityLevel level,
-    String culprit,
-    Map<String, String> tags,
-    Map<String, dynamic> extra,
-    List<String> fingerprint,
-    User userContext,
-    String origin,
-  }) =>
-      new Event(
-        loggerName: loggerName ?? this.loggerName,
-        serverName: serverName ?? this.serverName,
-        release: release ?? this.release,
-        environment: environment ?? this.environment,
-        message: message ?? this.message,
-        exception: exception ?? this.exception,
-        stackTrace: stackTrace ?? this.stackTrace,
-        extra: extra ?? this.extra,
-        tags: tags ?? this.tags,
-        fingerprint: fingerprint ?? this.fingerprint,
-        culprit: culprit ?? this.culprit,
-        userContext: userContext ?? this.userContext,
-        level: level ?? this.level,
-        origin: origin ?? this.origin,
-      );
 }
 
 /// Describes the current user associated with the application, such as the
@@ -482,6 +532,102 @@ class User {
       "ip_address": ipAddress,
       "extras": extras,
     };
+  }
+}
+
+/// Structed data to describe more information pior to the event [captured][SentryClient.capture].
+///
+/// The outgoing JSON representation is:
+///
+/// ```
+/// {
+///   "timestamp": 1000
+///   "message": "message",
+///   "category": "category",
+///   "data": {"key": "value"},
+///   "level": "info",
+///   "type": "default"
+/// }
+/// ```
+/// See also:
+/// * https://docs.sentry.io/development/sdk-dev/event-payloads/breadcrumbs/
+class Breadcrumb {
+  /// Describes the breadcrumb.
+  ///
+  /// This field is optional and may be set to null.
+  final String message;
+
+  /// A dot-separated string describing the source of the breadcrumb, e.g. "ui.click".
+  ///
+  /// This field is optional and may be set to null.
+  final String category;
+
+  /// Data associated with the breadcrumb.
+  ///
+  /// The contents depend on the [type] of breadcrumb.
+  ///
+  /// This field is optional and may be set to null.
+  ///
+  /// See also:
+  ///
+  /// * https://docs.sentry.io/development/sdk-dev/event-payloads/breadcrumbs/#breadcrumb-types
+  final Map<String, String> data;
+
+  /// Severity of the breadcrumb.
+  ///
+  /// This field is optional and may be set to null.
+  final SeverityLevel level;
+
+  /// Describes what type of breadcrumb this is.
+  ///
+  /// Possible values: "default", "http", "navigation".
+  ///
+  /// This field is optional and may be set to null.
+  ///
+  /// See also:
+  ///
+  /// * https://docs.sentry.io/development/sdk-dev/event-payloads/breadcrumbs/#breadcrumb-types
+  final String type;
+
+  /// The time the breadcrumb was recorded.
+  ///
+  /// This field is required, it must not be null.
+  ///
+  /// The value is submitted to Sentry with second precision.
+  final DateTime timestamp;
+
+  /// Creates a breadcrumb that can be attached to an [Event].
+  const Breadcrumb(
+    this.message,
+    this.timestamp, {
+    this.category,
+    this.data,
+    this.level = SeverityLevel.info,
+    this.type,
+  }) : assert(timestamp != null);
+
+  /// Converts this breadcrumb to a map that can be serialized to JSON according
+  /// to the Sentry protocol.
+  Map<String, dynamic> toJson() {
+    var json = <String, dynamic>{
+      'timestamp': formatDateAsIso8601WithSecondPrecision(timestamp),
+    };
+    if (message != null) {
+      json['message'] = message;
+    }
+    if (category != null) {
+      json['category'] = category;
+    }
+    if (data != null && data.isNotEmpty) {
+      json['data'] = Map.of(data);
+    }
+    if (level != null) {
+      json['level'] = level.name;
+    }
+    if (type != null) {
+      json['type'] = type;
+    }
+    return json;
   }
 }
 

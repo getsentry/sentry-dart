@@ -13,7 +13,7 @@ import 'base.dart';
 import 'version.dart';
 
 /// Logs crash reports and events to the Sentry.io service.
-class SentryClientBrowser extends SentryClientBase {
+class SentryBrowserClient extends SentryClient {
   /// Instantiates a client using [dsn] issued to your project by Sentry.io as
   /// the endpoint for submitting events.
   ///
@@ -35,7 +35,7 @@ class SentryClientBrowser extends SentryClientBase {
   /// If [uuidGenerator] is provided, it is used to generate the "event_id"
   /// field instead of the built-in random UUID v4 generator. This is useful in
   /// tests.
-  factory SentryClientBrowser({
+  factory SentryBrowserClient({
     @required String dsn,
     Event environmentAttributes,
     Client httpClient,
@@ -44,9 +44,13 @@ class SentryClientBrowser extends SentryClientBase {
     String origin,
   }) {
     httpClient ??= new BrowserClient();
+    clock ??= getUtcDateTime;
+    uuidGenerator ??= generateUuidV4WithoutDashes;
+
+    // origin is necessary for sentry to resolve stacktrace
     origin ??= '${window.location.origin}/';
 
-    return new SentryClientBrowser._(
+    return SentryBrowserClient._(
       httpClient: httpClient,
       clock: clock,
       uuidGenerator: uuidGenerator,
@@ -57,7 +61,7 @@ class SentryClientBrowser extends SentryClientBase {
     );
   }
 
-  SentryClientBrowser._({
+  SentryBrowserClient._({
     Client httpClient,
     dynamic clock,
     UuidGenerator uuidGenerator,
@@ -65,7 +69,7 @@ class SentryClientBrowser extends SentryClientBase {
     String dsn,
     String platform,
     String origin,
-  }) : super(
+  }) : super.base(
           httpClient: httpClient,
           clock: clock,
           uuidGenerator: uuidGenerator,
@@ -77,6 +81,25 @@ class SentryClientBrowser extends SentryClientBase {
 
   @override
   List<int> bodyEncoder(
-          Map<String, dynamic> data, Map<String, String> headers) =>
+    Map<String, dynamic> data,
+    Map<String, String> headers,
+  ) =>
+      // Gzip compression is not available on browser
       utf8.encode(json.encode(data));
 }
+
+SentryClient createSentryClient({
+  @required String dsn,
+  Event environmentAttributes,
+  bool compressPayload,
+  Client httpClient,
+  dynamic clock,
+  UuidGenerator uuidGenerator,
+}) =>
+    SentryBrowserClient(
+      dsn: dsn,
+      environmentAttributes: environmentAttributes,
+      httpClient: httpClient,
+      clock: clock,
+      uuidGenerator: uuidGenerator,
+    );

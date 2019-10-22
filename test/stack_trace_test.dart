@@ -92,6 +92,7 @@ void main() {
           'abs_path': 'test.dart',
           'function': 'baz',
           'lineno': 50,
+          'colno': 3,
           'in_app': true,
           'filename': 'test.dart'
         },

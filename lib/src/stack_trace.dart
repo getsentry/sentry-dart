@@ -23,9 +23,14 @@ const Map<String, dynamic> asynchronousGapFrameJson = const <String, dynamic>{
 /// Encodes [stackTrace] as JSON in the Sentry.io format.
 ///
 /// [stackTrace] must be [String] or [StackTrace].
-List<Map<String, dynamic>> encodeStackTrace(dynamic stackTrace,
-    {StackFrameFilter stackFrameFilter, String origin = ''}) {
+List<Map<String, dynamic>> encodeStackTrace(
+  dynamic stackTrace, {
+  StackFrameFilter stackFrameFilter,
+  String origin,
+}) {
   assert(stackTrace is String || stackTrace is StackTrace);
+  origin ??= '';
+
   final Chain chain = stackTrace is StackTrace
       ? new Chain.forTrace(stackTrace)
       : new Chain.parse(stackTrace);

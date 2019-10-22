@@ -2,13 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+@TestOn("vm")
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart';
-import 'package:sentry/sentry.dart';
+import 'package:sentry/io_client.dart';
 import 'package:test/test.dart';
-
-import 'test_utils.dart';
 
 const String _testDsn = 'https://public:secret@sentry.example.com/1';
 const String _testDsnWithoutSecret = 'https://public@sentry.example.com/1';
@@ -17,9 +17,9 @@ const String _testDsnWithPath =
 const String _testDsnWithPort =
     'https://public:secret@sentry.example.com:8888/1';
 void main() {
-  group('$SentryClient', () {
+  group('$SentryIOClient', () {
     test('can parse DSN', () async {
-      final SentryClient client = new SentryClient(dsn: _testDsn);
+      final SentryIOClient client = SentryIOClient(dsn: _testDsn);
       expect(client.dsnUri, Uri.parse(_testDsn));
       expect(client.postUri, 'https://sentry.example.com/api/1/store/');
       expect(client.publicKey, 'public');
@@ -29,7 +29,7 @@ void main() {
     });
 
     test('can parse DSN without secret', () async {
-      final SentryClient client = new SentryClient(dsn: _testDsnWithoutSecret);
+      final SentryIOClient client = SentryIOClient(dsn: _testDsnWithoutSecret);
       expect(client.dsnUri, Uri.parse(_testDsnWithoutSecret));
       expect(client.postUri, 'https://sentry.example.com/api/1/store/');
       expect(client.publicKey, 'public');
@@ -39,7 +39,7 @@ void main() {
     });
 
     test('can parse DSN with path', () async {
-      final SentryClient client = new SentryClient(dsn: _testDsnWithPath);
+      final SentryIOClient client = SentryIOClient(dsn: _testDsnWithPath);
       expect(client.dsnUri, Uri.parse(_testDsnWithPath));
       expect(client.postUri, 'https://sentry.example.com/path/api/1/store/');
       expect(client.publicKey, 'public');
@@ -48,7 +48,7 @@ void main() {
       await client.close();
     });
     test('can parse DSN with port', () async {
-      final SentryClient client = new SentryClient(dsn: _testDsnWithPort);
+      final SentryIOClient client = SentryIOClient(dsn: _testDsnWithPort);
       expect(client.dsnUri, Uri.parse(_testDsnWithPort));
       expect(client.postUri, 'https://sentry.example.com:8888/api/1/store/');
       expect(client.publicKey, 'public');
@@ -57,9 +57,8 @@ void main() {
       await client.close();
     });
     test('sends client auth header without secret', () async {
-      final MockClient httpMock = new MockClient();
-      final ClockProvider fakeClockProvider =
-          () => new DateTime.utc(2017, 1, 2);
+      final MockClient httpMock = MockClient();
+      final ClockProvider fakeClockProvider = () => DateTime.utc(2017, 1, 2);
 
       Map<String, String> headers;
 
@@ -69,12 +68,12 @@ void main() {
         }
         if (invocation.memberName == #post) {
           headers = invocation.namedArguments[#headers];
-          return new Response('{"id": "test-event-id"}', 200);
+          return Response('{"id": "test-event-id"}', 200);
         }
         fail('Unexpected invocation of ${invocation.memberName} in HttpMock');
       });
 
-      final SentryClient client = new SentryClient(
+      final SentryIOClient client = SentryIOClient(
         dsn: _testDsnWithoutSecret,
         httpClient: httpMock,
         clock: fakeClockProvider,
@@ -88,7 +87,7 @@ void main() {
       );
 
       try {
-        throw new ArgumentError('Test error');
+        throw ArgumentError('Test error');
       } catch (error, stackTrace) {
         final SentryResponse response = await client.captureException(
             exception: error, stackTrace: stackTrace);
@@ -112,9 +111,8 @@ void main() {
     });
 
     testCaptureException(bool compressPayload) async {
-      final MockClient httpMock = new MockClient();
-      final ClockProvider fakeClockProvider =
-          () => new DateTime.utc(2017, 1, 2);
+      final MockClient httpMock = MockClient();
+      final ClockProvider fakeClockProvider = () => DateTime.utc(2017, 1, 2);
 
       String postUri;
       Map<String, String> headers;
@@ -127,12 +125,12 @@ void main() {
           postUri = invocation.positionalArguments.single;
           headers = invocation.namedArguments[#headers];
           body = invocation.namedArguments[#body];
-          return new Response('{"id": "test-event-id"}', 200);
+          return Response('{"id": "test-event-id"}', 200);
         }
         fail('Unexpected invocation of ${invocation.memberName} in HttpMock');
       });
 
-      final SentryClient client = new SentryClient(
+      final SentryIOClient client = SentryIOClient(
         dsn: _testDsn,
         httpClient: httpMock,
         clock: fakeClockProvider,
@@ -146,7 +144,7 @@ void main() {
       );
 
       try {
-        throw new ArgumentError('Test error');
+        throw ArgumentError('Test error');
       } catch (error, stackTrace) {
         final SentryResponse response = await client.captureException(
             exception: error, stackTrace: stackTrace);
@@ -183,13 +181,19 @@ void main() {
 
       final Map<String, dynamic> topFrame =
           (stacktrace['frames'] as Iterable<dynamic>).last;
-      expect(topFrame.keys,
-          <String>['abs_path', 'function', 'lineno', 'in_app', 'filename']);
-      expect(topFrame['abs_path'], 'sentry_test.dart');
+      expect(topFrame.keys, <String>[
+        'abs_path',
+        'function',
+        'lineno',
+        'colno',
+        'in_app',
+        'filename',
+      ]);
+      expect(topFrame['abs_path'], 'sentry_io_test.dart');
       expect(topFrame['function'], 'main.<fn>.testCaptureException');
       expect(topFrame['lineno'], greaterThan(0));
       expect(topFrame['in_app'], true);
-      expect(topFrame['filename'], 'sentry_test.dart');
+      expect(topFrame['filename'], 'sentry_io_test.dart');
 
       expect(data, {
         'project': '1',
@@ -200,7 +204,7 @@ void main() {
           {'type': 'ArgumentError', 'value': 'Invalid argument(s): Test error'}
         ],
         'sdk': {'version': sdkVersion, 'name': 'dart'},
-        'logger': SentryClient.defaultLoggerName,
+        'logger': 'SentryClient',
         'server_name': 'test.server.com',
         'release': '1.2.3',
         'environment': 'staging',
@@ -218,19 +222,22 @@ void main() {
     });
 
     test('reads error message from the x-sentry-error header', () async {
-      final ClockProvider fakeClockProvider =
-          () => new DateTime.utc(2017, 1, 2);
+      final MockClient httpMock = MockClient();
+      final ClockProvider fakeClockProvider = () => DateTime.utc(2017, 1, 2);
 
-      final MockClient httpMock = new MockClient((Request request) async {
-        if (request.method == "POST") {
-          return new Response('', 401, headers: <String, String>{
+      httpMock.answerWith((Invocation invocation) async {
+        if (invocation.memberName == #close) {
+          return null;
+        }
+        if (invocation.memberName == #post) {
+          return Response('', 401, headers: <String, String>{
             'x-sentry-error': 'Invalid api key',
           });
         }
-        return new Response('Unexpected invocation in HttpMock', 404);
+        fail('Unexpected invocation of ${invocation.memberName} in HttpMock');
       });
 
-      final SentryClient client = new SentryClient(
+      final SentryIOClient client = SentryIOClient(
         dsn: _testDsn,
         httpClient: httpMock,
         clock: fakeClockProvider,
@@ -244,7 +251,7 @@ void main() {
       );
 
       try {
-        throw new ArgumentError('Test error');
+        throw ArgumentError('Test error');
       } catch (error, stackTrace) {
         final SentryResponse response = await client.captureException(
             exception: error, stackTrace: stackTrace);
@@ -258,35 +265,40 @@ void main() {
     });
 
     test('$Event userContext overrides client', () async {
-      final ClockProvider fakeClockProvider =
-          () => new DateTime.utc(2017, 1, 2);
+      final MockClient httpMock = MockClient();
+      final ClockProvider fakeClockProvider = () => DateTime.utc(2017, 1, 2);
 
-      String loggedUserId; //
-      final MockClient httpMock = new MockClient((Request request) async {
-        if (request.method == "POST") {
+      String loggedUserId; // used to find out what user context was sent
+      httpMock.answerWith((Invocation invocation) async {
+        if (invocation.memberName == #close) {
+          return null;
+        }
+        if (invocation.memberName == #post) {
           // parse the body and detect which user context was sent
-          final decodedJson = new JsonDecoder().convert(request.body);
+          var bodyData = invocation.namedArguments[Symbol("body")];
+          var decoded = Utf8Codec().decode(bodyData);
+          var decodedJson = JsonDecoder().convert(decoded);
           loggedUserId = decodedJson['user']['id'];
-          return new Response('', 401, headers: <String, String>{
+          return Response('', 401, headers: <String, String>{
             'x-sentry-error': 'Invalid api key',
           });
         }
-        return new Response('Unexpected invocation in HttpMock', 404);
+        fail('Unexpected invocation of ${invocation.memberName} in HttpMock');
       });
-      // used to find out what user context was sent
-      final clientUserContext = new User(
+
+      final clientUserContext = User(
           id: "client_user",
           username: "username",
           email: "email@email.com",
           ipAddress: "127.0.0.1");
-      final eventUserContext = new User(
+      final eventUserContext = User(
           id: "event_user",
           username: "username",
           email: "email@email.com",
           ipAddress: "127.0.0.1",
           extras: {"foo": "bar"});
 
-      final SentryClient client = new SentryClient(
+      final SentryIOClient client = SentryIOClient(
         dsn: _testDsn,
         httpClient: httpMock,
         clock: fakeClockProvider,
@@ -301,11 +313,11 @@ void main() {
       client.userContext = clientUserContext;
 
       try {
-        throw new ArgumentError('Test error');
+        throw ArgumentError('Test error');
       } catch (error, stackTrace) {
         final eventWithoutContext =
-            new Event(exception: error, stackTrace: stackTrace);
-        final eventWithContext = new Event(
+            Event(exception: error, stackTrace: stackTrace);
+        final eventWithContext = Event(
             exception: error,
             stackTrace: stackTrace,
             userContext: eventUserContext);
@@ -337,7 +349,7 @@ void main() {
       );
     });
     test('serializes to JSON', () {
-      final user = new User(
+      final user = User(
           id: "user_id",
           username: "username",
           email: "email@email.com",
@@ -350,10 +362,10 @@ void main() {
       ];
 
       expect(
-        new Event(
+        Event(
           message: 'test-message',
           transaction: '/test/1',
-          exception: new StateError('test-error'),
+          exception: StateError('test-error'),
           level: SeverityLevel.debug,
           culprit: 'Professor Moriarty',
           tags: <String, String>{
@@ -369,6 +381,7 @@ void main() {
           breadcrumbs: breadcrumbs,
         ).toJson(),
         <String, dynamic>{
+          'platform': 'dart',
           'sdk': {'version': sdkVersion, 'name': 'dart'},
           'message': 'test-message',
           'transaction': '/test/1',
@@ -401,4 +414,18 @@ void main() {
       );
     });
   });
+}
+
+typedef Answer = dynamic Function(Invocation invocation);
+
+class MockClient implements Client {
+  Answer _answer;
+
+  void answerWith(Answer answer) {
+    _answer = answer;
+  }
+
+  noSuchMethod(Invocation invocation) {
+    return _answer(invocation);
+  }
 }

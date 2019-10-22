@@ -1,5 +1,12 @@
 # package:sentry changelog
 
+## 2.4.0
+
+- Support Web 
+  - `SentryClient` from `package:sentry/sentry.dart` with conditional import
+  - `SentryBrowserClient` for web from `package:sentry/browser_client.dart`
+  - `SentryIOClient` for VM and Flutter from `package:sentry/io_client.dart`
+
 ## 2.3.1
 
 - Support non-standard port numbers and paths in DSN URL.

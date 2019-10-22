@@ -12,7 +12,8 @@ import 'base.dart';
 import 'version.dart';
 
 /// Logs crash reports and events to the Sentry.io service.
-class SentryClient extends SentryClientBase {
+class SentryIOClient extends SentryClient {
+  /// Whether to compress payloads sent to Sentry.io.
   final bool compressPayload;
 
   /// Instantiates a client using [dsn] issued to your project by Sentry.io as
@@ -40,7 +41,7 @@ class SentryClient extends SentryClientBase {
   /// If [uuidGenerator] is provided, it is used to generate the "event_id"
   /// field instead of the built-in random UUID v4 generator. This is useful in
   /// tests.
-  factory SentryClient({
+  factory SentryIOClient({
     @required String dsn,
     Event environmentAttributes,
     bool compressPayload,
@@ -49,9 +50,11 @@ class SentryClient extends SentryClientBase {
     UuidGenerator uuidGenerator,
   }) {
     httpClient ??= new Client();
+    clock ??= getUtcDateTime;
+    uuidGenerator ??= generateUuidV4WithoutDashes;
     compressPayload ??= true;
 
-    return new SentryClient._(
+    return SentryIOClient._(
       httpClient: httpClient,
       clock: clock,
       uuidGenerator: uuidGenerator,
@@ -62,7 +65,7 @@ class SentryClient extends SentryClientBase {
     );
   }
 
-  SentryClient._({
+  SentryIOClient._({
     Client httpClient,
     dynamic clock,
     UuidGenerator uuidGenerator,
@@ -71,7 +74,7 @@ class SentryClient extends SentryClientBase {
     this.compressPayload: true,
     String platform,
     String origin,
-  }) : super(
+  }) : super.base(
           httpClient: httpClient,
           clock: clock,
           uuidGenerator: uuidGenerator,
@@ -82,19 +85,23 @@ class SentryClient extends SentryClientBase {
         );
 
   @override
-  Map<String, String> buildHeaders(
-    String authHeader,
-  ) {
+  Map<String, String> buildHeaders(String authHeader) {
     final headers = super.buildHeaders(authHeader);
 
-    headers['User-Agent'] = SentryClientBase.sentryClient;
+    // NOTE(lejard_h) overriding user agent on VM and Flutter not sure why
+    // for web it use browser user agent
+    headers['User-Agent'] = SentryClient.sentryClient;
 
     return headers;
   }
 
   @override
   List<int> bodyEncoder(
-      Map<String, dynamic> data, Map<String, String> headers) {
+    Map<String, dynamic> data,
+    Map<String, String> headers,
+  ) {
+    // [SentryIOClient] implement gzip compression
+    // gzip compression is not available on browser
     List<int> body = utf8.encode(json.encode(data));
     if (compressPayload) {
       headers['Content-Encoding'] = 'gzip';
@@ -103,3 +110,20 @@ class SentryClient extends SentryClientBase {
     return body;
   }
 }
+
+SentryClient createSentryClient({
+  @required String dsn,
+  Event environmentAttributes,
+  bool compressPayload,
+  Client httpClient,
+  dynamic clock,
+  UuidGenerator uuidGenerator,
+}) =>
+    SentryIOClient(
+      dsn: dsn,
+      environmentAttributes: environmentAttributes,
+      compressPayload: compressPayload,
+      httpClient: httpClient,
+      clock: clock,
+      uuidGenerator: uuidGenerator,
+    );

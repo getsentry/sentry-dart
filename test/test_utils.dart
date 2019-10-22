@@ -9,7 +9,7 @@ class MockClient extends http.MockClient {
   MockClient(http.MockClientHandler fn) : super(fn);
 }
 
-void testDsn(SentryClientBase client, String dsn, {bool withSecret = true}) {
+void testDsn(SentryClient client, String dsn, {bool withSecret = true}) {
   expect(client.dsnUri, Uri.parse(dsn));
   expect(client.postUri, 'https://sentry.example.com/api/1/store/');
   expect(client.publicKey, 'public');
@@ -27,7 +27,7 @@ void testHeaders(
   final Map<String, String> expectedHeaders = <String, String>{
     'Content-Type': 'application/json',
     'X-Sentry-Auth': 'Sentry sentry_version=6, '
-        'sentry_client=${SentryClientBase.sentryClient}, '
+        'sentry_client=${SentryClient.sentryClient}, '
         'sentry_timestamp=${fakeClockProvider().millisecondsSinceEpoch}, '
         'sentry_key=public'
   };
