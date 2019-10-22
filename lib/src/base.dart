@@ -191,11 +191,11 @@ abstract class SentryClient {
       if (response.headers['x-sentry-error'] != null) {
         errorMessage += ': ${response.headers['x-sentry-error']}';
       }
-      return new SentryResponse.failure(errorMessage);
+      return SentryResponse.failure(errorMessage);
     }
 
     final String eventId = json.decode(response.body)['id'];
-    return new SentryResponse.success(eventId: eventId);
+    return SentryResponse.success(eventId: eventId);
   }
 
   /// Reports the [exception] and optionally its [stackTrace] to Sentry.io.
@@ -203,7 +203,7 @@ abstract class SentryClient {
     @required dynamic exception,
     dynamic stackTrace,
   }) {
-    final Event event = new Event(
+    final Event event = Event(
       exception: exception,
       stackTrace: stackTrace,
     );
@@ -262,17 +262,16 @@ class SentryResponse {
 
 typedef UuidGenerator = String Function();
 
-String generateUuidV4WithoutDashes() =>
-    new Uuid().generateV4().replaceAll('-', '');
+String generateUuidV4WithoutDashes() => Uuid().generateV4().replaceAll('-', '');
 
 /// Severity of the logged [Event].
 @immutable
 class SeverityLevel {
-  static const fatal = const SeverityLevel._('fatal');
-  static const error = const SeverityLevel._('error');
-  static const warning = const SeverityLevel._('warning');
-  static const info = const SeverityLevel._('info');
-  static const debug = const SeverityLevel._('debug');
+  static const fatal = SeverityLevel._('fatal');
+  static const error = SeverityLevel._('error');
+  static const warning = SeverityLevel._('warning');
+  static const info = SeverityLevel._('info');
+  static const debug = SeverityLevel._('debug');
 
   const SeverityLevel._(this.name);
 
@@ -282,7 +281,7 @@ class SeverityLevel {
 
 /// Sentry does not take a timezone and instead expects the date-time to be
 /// submitted in UTC timezone.
-DateTime getUtcDateTime() => new DateTime.now().toUtc();
+DateTime getUtcDateTime() => DateTime.now().toUtc();
 
 /// An event to be reported to Sentry.io.
 @immutable
@@ -660,9 +659,11 @@ class Dsn {
     final List<String> userInfo = uri.userInfo.split(':');
 
     assert(() {
-      if (uri.pathSegments.isEmpty)
-        throw new ArgumentError(
-            'Project ID not found in the URI path of the DSN URI: $dsn');
+      if (uri.pathSegments.isEmpty) {
+        throw ArgumentError(
+          'Project ID not found in the URI path of the DSN URI: $dsn',
+        );
+      }
 
       return true;
     }());

@@ -43,7 +43,7 @@ class SentryBrowserClient extends SentryClient {
     UuidGenerator uuidGenerator,
     String origin,
   }) {
-    httpClient ??= new BrowserClient();
+    httpClient ??= BrowserClient();
     clock ??= getUtcDateTime;
     uuidGenerator ??= generateUuidV4WithoutDashes;
 

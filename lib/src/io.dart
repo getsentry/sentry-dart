@@ -49,7 +49,7 @@ class SentryIOClient extends SentryClient {
     dynamic clock,
     UuidGenerator uuidGenerator,
   }) {
-    httpClient ??= new Client();
+    httpClient ??= Client();
     clock ??= getUtcDateTime;
     uuidGenerator ??= generateUuidV4WithoutDashes;
     compressPayload ??= true;
@@ -71,7 +71,7 @@ class SentryIOClient extends SentryClient {
     UuidGenerator uuidGenerator,
     Event environmentAttributes,
     String dsn,
-    this.compressPayload: true,
+    this.compressPayload = true,
     String platform,
     String origin,
   }) : super.base(

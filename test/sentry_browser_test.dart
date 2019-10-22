@@ -192,7 +192,8 @@ void main() {
       expect(topFrame['function'], 'Object.wrapException');
       expect(topFrame['lineno'], greaterThan(0));
       expect(topFrame['in_app'], true);
-      expect(topFrame['filename'], 'sentry_browser_test.dart.browser_test.dart.js');
+      expect(topFrame['filename'],
+          'sentry_browser_test.dart.browser_test.dart.js');
 
       expect(data, {
         'project': '1',
