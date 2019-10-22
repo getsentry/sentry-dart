@@ -64,7 +64,7 @@ class SentryClient {
     dynamic clock,
     UuidGenerator uuidGenerator,
   }) {
-    httpClient ??= new Client();
+    httpClient ??= Client();
     clock ??= _getUtcDateTime;
     uuidGenerator ??= _generateUuidV4WithoutDashes;
     compressPayload ??= true;
@@ -76,9 +76,11 @@ class SentryClient {
     final List<String> userInfo = uri.userInfo.split(':');
 
     assert(() {
-      if (uri.pathSegments.isEmpty)
-        throw new ArgumentError(
-            'Project ID not found in the URI path of the DSN URI: $dsn');
+      if (uri.pathSegments.isEmpty) {
+        throw ArgumentError(
+          'Project ID not found in the URI path of the DSN URI: $dsn',
+        );
+      }
 
       return true;
     }());
@@ -87,7 +89,7 @@ class SentryClient {
     final String secretKey = userInfo.length >= 2 ? userInfo[1] : null;
     final String projectId = uri.pathSegments.last;
 
-    return new SentryClient._(
+    return SentryClient._(
       httpClient: httpClient,
       clock: clockProvider,
       uuidGenerator: uuidGenerator,
@@ -201,8 +203,9 @@ class SentryClient {
       'logger': defaultLoggerName,
     };
 
-    if (environmentAttributes != null)
+    if (environmentAttributes != null) {
       mergeAttributes(environmentAttributes.toJson(), into: data);
+    }
 
     // Merge the user context.
     if (userContext != null) {
@@ -223,13 +226,14 @@ class SentryClient {
     if (response.statusCode != 200) {
       String errorMessage =
           'Sentry.io responded with HTTP ${response.statusCode}';
-      if (response.headers['x-sentry-error'] != null)
+      if (response.headers['x-sentry-error'] != null) {
         errorMessage += ': ${response.headers['x-sentry-error']}';
-      return new SentryResponse.failure(errorMessage);
+      }
+      return SentryResponse.failure(errorMessage);
     }
 
     final String eventId = json.decode(response.body)['id'];
-    return new SentryResponse.success(eventId: eventId);
+    return SentryResponse.success(eventId: eventId);
   }
 
   /// Reports the [exception] and optionally its [stackTrace] to Sentry.io.
@@ -241,7 +245,7 @@ class SentryClient {
     dynamic stackTrace,
     StackFrameFilter stackFrameFilter,
   }) {
-    final Event event = new Event(
+    final Event event = Event(
       exception: exception,
       stackTrace: stackTrace,
     );
@@ -284,16 +288,16 @@ class SentryResponse {
 typedef UuidGenerator = String Function();
 
 String _generateUuidV4WithoutDashes() =>
-    new Uuid().generateV4().replaceAll('-', '');
+    Uuid().generateV4().replaceAll('-', '');
 
 /// Severity of the logged [Event].
 @immutable
 class SeverityLevel {
-  static const fatal = const SeverityLevel._('fatal');
-  static const error = const SeverityLevel._('error');
-  static const warning = const SeverityLevel._('warning');
-  static const info = const SeverityLevel._('info');
-  static const debug = const SeverityLevel._('debug');
+  static const fatal = SeverityLevel._('fatal');
+  static const error = SeverityLevel._('error');
+  static const warning = SeverityLevel._('warning');
+  static const info = SeverityLevel._('info');
+  static const debug = SeverityLevel._('debug');
 
   const SeverityLevel._(this.name);
 
@@ -303,7 +307,7 @@ class SeverityLevel {
 
 /// Sentry does not take a timezone and instead expects the date-time to be
 /// submitted in UTC timezone.
-DateTime _getUtcDateTime() => new DateTime.now().toUtc();
+DateTime _getUtcDateTime() => DateTime.now().toUtc();
 
 /// An event to be reported to Sentry.io.
 @immutable
@@ -418,17 +422,29 @@ class Event {
       },
     };
 
-    if (loggerName != null) json['logger'] = loggerName;
+    if (loggerName != null) {
+      json['logger'] = loggerName;
+    }
 
-    if (serverName != null) json['server_name'] = serverName;
+    if (serverName != null) {
+      json['server_name'] = serverName;
+    }
 
-    if (release != null) json['release'] = release;
+    if (release != null) {
+      json['release'] = release;
+    }
 
-    if (environment != null) json['environment'] = environment;
+    if (environment != null) {
+      json['environment'] = environment;
+    }
 
-    if (message != null) json['message'] = message;
+    if (message != null) {
+      json['message'] = message;
+    }
 
-    if (transaction != null) json['transaction'] = transaction;
+    if (transaction != null) {
+      json['transaction'] = transaction;
+    }
 
     if (exception != null) {
       json['exception'] = [
@@ -446,21 +462,31 @@ class Event {
       };
     }
 
-    if (level != null) json['level'] = level.name;
+    if (level != null) {
+      json['level'] = level.name;
+    }
 
-    if (culprit != null) json['culprit'] = culprit;
+    if (culprit != null) {
+      json['culprit'] = culprit;
+    }
 
-    if (tags != null && tags.isNotEmpty) json['tags'] = tags;
+    if (tags != null && tags.isNotEmpty) {
+      json['tags'] = tags;
+    }
 
-    if (extra != null && extra.isNotEmpty) json['extra'] = extra;
+    if (extra != null && extra.isNotEmpty) {
+      json['extra'] = extra;
+    }
 
     Map<String, dynamic> userContextMap;
     if (userContext != null &&
-        (userContextMap = userContext.toJson()).isNotEmpty)
+        (userContextMap = userContext.toJson()).isNotEmpty) {
       json['user'] = userContextMap;
+    }
 
-    if (fingerprint != null && fingerprint.isNotEmpty)
+    if (fingerprint != null && fingerprint.isNotEmpty) {
       json['fingerprint'] = fingerprint;
+    }
 
     if (breadcrumbs != null && breadcrumbs.isNotEmpty) {
       json['breadcrumbs'] = <String, List<Map<String, dynamic>>>{
