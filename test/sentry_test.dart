@@ -18,7 +18,7 @@ const String _testDsnWithPort =
 void main() {
   group('$SentryClient', () {
     test('can parse DSN', () async {
-      final SentryClient client = new SentryClient(dsn: _testDsn);
+      final SentryClient client = SentryClient(dsn: _testDsn);
       expect(client.dsnUri, Uri.parse(_testDsn));
       expect(client.postUri, 'https://sentry.example.com/api/1/store/');
       expect(client.publicKey, 'public');
@@ -28,7 +28,7 @@ void main() {
     });
 
     test('can parse DSN without secret', () async {
-      final SentryClient client = new SentryClient(dsn: _testDsnWithoutSecret);
+      final SentryClient client = SentryClient(dsn: _testDsnWithoutSecret);
       expect(client.dsnUri, Uri.parse(_testDsnWithoutSecret));
       expect(client.postUri, 'https://sentry.example.com/api/1/store/');
       expect(client.publicKey, 'public');
@@ -38,7 +38,7 @@ void main() {
     });
 
     test('can parse DSN with path', () async {
-      final SentryClient client = new SentryClient(dsn: _testDsnWithPath);
+      final SentryClient client = SentryClient(dsn: _testDsnWithPath);
       expect(client.dsnUri, Uri.parse(_testDsnWithPath));
       expect(client.postUri, 'https://sentry.example.com/path/api/1/store/');
       expect(client.publicKey, 'public');
@@ -47,7 +47,7 @@ void main() {
       await client.close();
     });
     test('can parse DSN with port', () async {
-      final SentryClient client = new SentryClient(dsn: _testDsnWithPort);
+      final SentryClient client = SentryClient(dsn: _testDsnWithPort);
       expect(client.dsnUri, Uri.parse(_testDsnWithPort));
       expect(client.postUri, 'https://sentry.example.com:8888/api/1/store/');
       expect(client.publicKey, 'public');
@@ -56,9 +56,8 @@ void main() {
       await client.close();
     });
     test('sends client auth header without secret', () async {
-      final MockClient httpMock = new MockClient();
-      final ClockProvider fakeClockProvider =
-          () => new DateTime.utc(2017, 1, 2);
+      final MockClient httpMock = MockClient();
+      final ClockProvider fakeClockProvider = () => DateTime.utc(2017, 1, 2);
 
       Map<String, String> headers;
 
@@ -68,12 +67,12 @@ void main() {
         }
         if (invocation.memberName == #post) {
           headers = invocation.namedArguments[#headers];
-          return new Response('{"id": "test-event-id"}', 200);
+          return Response('{"id": "test-event-id"}', 200);
         }
         fail('Unexpected invocation of ${invocation.memberName} in HttpMock');
       });
 
-      final SentryClient client = new SentryClient(
+      final SentryClient client = SentryClient(
         dsn: _testDsnWithoutSecret,
         httpClient: httpMock,
         clock: fakeClockProvider,
@@ -87,7 +86,7 @@ void main() {
       );
 
       try {
-        throw new ArgumentError('Test error');
+        throw ArgumentError('Test error');
       } catch (error, stackTrace) {
         final SentryResponse response = await client.captureException(
             exception: error, stackTrace: stackTrace);
@@ -111,9 +110,8 @@ void main() {
     });
 
     testCaptureException(bool compressPayload) async {
-      final MockClient httpMock = new MockClient();
-      final ClockProvider fakeClockProvider =
-          () => new DateTime.utc(2017, 1, 2);
+      final MockClient httpMock = MockClient();
+      final ClockProvider fakeClockProvider = () => DateTime.utc(2017, 1, 2);
 
       String postUri;
       Map<String, String> headers;
@@ -126,12 +124,12 @@ void main() {
           postUri = invocation.positionalArguments.single;
           headers = invocation.namedArguments[#headers];
           body = invocation.namedArguments[#body];
-          return new Response('{"id": "test-event-id"}', 200);
+          return Response('{"id": "test-event-id"}', 200);
         }
         fail('Unexpected invocation of ${invocation.memberName} in HttpMock');
       });
 
-      final SentryClient client = new SentryClient(
+      final SentryClient client = SentryClient(
         dsn: _testDsn,
         httpClient: httpMock,
         clock: fakeClockProvider,
@@ -145,7 +143,7 @@ void main() {
       );
 
       try {
-        throw new ArgumentError('Test error');
+        throw ArgumentError('Test error');
       } catch (error, stackTrace) {
         final SentryResponse response = await client.captureException(
             exception: error, stackTrace: stackTrace);
@@ -217,23 +215,22 @@ void main() {
     });
 
     test('reads error message from the x-sentry-error header', () async {
-      final MockClient httpMock = new MockClient();
-      final ClockProvider fakeClockProvider =
-          () => new DateTime.utc(2017, 1, 2);
+      final MockClient httpMock = MockClient();
+      final ClockProvider fakeClockProvider = () => DateTime.utc(2017, 1, 2);
 
       httpMock.answerWith((Invocation invocation) async {
         if (invocation.memberName == #close) {
           return null;
         }
         if (invocation.memberName == #post) {
-          return new Response('', 401, headers: <String, String>{
+          return Response('', 401, headers: <String, String>{
             'x-sentry-error': 'Invalid api key',
           });
         }
         fail('Unexpected invocation of ${invocation.memberName} in HttpMock');
       });
 
-      final SentryClient client = new SentryClient(
+      final SentryClient client = SentryClient(
         dsn: _testDsn,
         httpClient: httpMock,
         clock: fakeClockProvider,
@@ -247,7 +244,7 @@ void main() {
       );
 
       try {
-        throw new ArgumentError('Test error');
+        throw ArgumentError('Test error');
       } catch (error, stackTrace) {
         final SentryResponse response = await client.captureException(
             exception: error, stackTrace: stackTrace);
@@ -261,9 +258,8 @@ void main() {
     });
 
     test('$Event userContext overrides client', () async {
-      final MockClient httpMock = new MockClient();
-      final ClockProvider fakeClockProvider =
-          () => new DateTime.utc(2017, 1, 2);
+      final MockClient httpMock = MockClient();
+      final ClockProvider fakeClockProvider = () => DateTime.utc(2017, 1, 2);
 
       String loggedUserId; // used to find out what user context was sent
       httpMock.answerWith((Invocation invocation) async {
@@ -272,30 +268,30 @@ void main() {
         }
         if (invocation.memberName == #post) {
           // parse the body and detect which user context was sent
-          var bodyData = invocation.namedArguments[new Symbol("body")];
-          var decoded = new Utf8Codec().decode(bodyData);
-          var decodedJson = new JsonDecoder().convert(decoded);
+          var bodyData = invocation.namedArguments[Symbol("body")];
+          var decoded = Utf8Codec().decode(bodyData);
+          var decodedJson = JsonDecoder().convert(decoded);
           loggedUserId = decodedJson['user']['id'];
-          return new Response('', 401, headers: <String, String>{
+          return Response('', 401, headers: <String, String>{
             'x-sentry-error': 'Invalid api key',
           });
         }
         fail('Unexpected invocation of ${invocation.memberName} in HttpMock');
       });
 
-      final clientUserContext = new User(
+      final clientUserContext = User(
           id: "client_user",
           username: "username",
           email: "email@email.com",
           ipAddress: "127.0.0.1");
-      final eventUserContext = new User(
+      final eventUserContext = User(
           id: "event_user",
           username: "username",
           email: "email@email.com",
           ipAddress: "127.0.0.1",
           extras: {"foo": "bar"});
 
-      final SentryClient client = new SentryClient(
+      final SentryClient client = SentryClient(
         dsn: _testDsn,
         httpClient: httpMock,
         clock: fakeClockProvider,
@@ -310,11 +306,11 @@ void main() {
       client.userContext = clientUserContext;
 
       try {
-        throw new ArgumentError('Test error');
+        throw ArgumentError('Test error');
       } catch (error, stackTrace) {
         final eventWithoutContext =
-            new Event(exception: error, stackTrace: stackTrace);
-        final eventWithContext = new Event(
+            Event(exception: error, stackTrace: stackTrace);
+        final eventWithContext = Event(
             exception: error,
             stackTrace: stackTrace,
             userContext: eventUserContext);
@@ -346,7 +342,7 @@ void main() {
       );
     });
     test('serializes to JSON', () {
-      final user = new User(
+      final user = User(
           id: "user_id",
           username: "username",
           email: "email@email.com",
@@ -359,10 +355,10 @@ void main() {
       ];
 
       expect(
-        new Event(
+        Event(
           message: 'test-message',
           transaction: '/test/1',
-          exception: new StateError('test-error'),
+          exception: StateError('test-error'),
           level: SeverityLevel.debug,
           culprit: 'Professor Moriarty',
           tags: <String, String>{

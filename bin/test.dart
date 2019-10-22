@@ -16,7 +16,7 @@ Future<Null> main(List<String> rawArgs) async {
   }
 
   final String dsn = rawArgs.single;
-  final SentryClient client = new SentryClient(dsn: dsn);
+  final SentryClient client = SentryClient(dsn: dsn);
 
   try {
     await foo();
@@ -47,5 +47,5 @@ Future<Null> bar() async {
 }
 
 Future<Null> baz() async {
-  throw new StateError('This is a test error');
+  throw StateError('This is a test error');
 }
