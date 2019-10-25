@@ -386,6 +386,41 @@ class Event {
   ///     var supplemented = [Event.defaultFingerprint, 'foo'];
   final List<String> fingerprint;
 
+  Event copyWith({
+    String loggerName,
+    String serverName,
+    String release,
+    String environment,
+    String message,
+    String transaction,
+    dynamic exception,
+    dynamic stackTrace,
+    SeverityLevel level,
+    String culprit,
+    Map<String, String> tags,
+    Map<String, dynamic> extra,
+    List<String> fingerprint,
+    User userContext,
+    List<Breadcrumb> breadcrumbs,
+  }) =>
+      Event(
+        loggerName: loggerName ?? this.loggerName,
+        serverName: serverName ?? this.serverName,
+        release: release ?? this.release,
+        environment: environment ?? this.environment,
+        message: message ?? this.message,
+        transaction: transaction ?? this.transaction,
+        exception: exception ?? this.exception,
+        stackTrace: stackTrace ?? this.stackTrace,
+        level: level ?? this.level,
+        culprit: culprit ?? this.culprit,
+        tags: tags ?? this.tags,
+        extra: extra ?? this.extra,
+        fingerprint: fingerprint ?? this.fingerprint,
+        userContext: userContext ?? this.userContext,
+        breadcrumbs: breadcrumbs ?? this.breadcrumbs,
+      );
+
   /// Serializes this event to JSON.
   Map<String, dynamic> toJson(
       {StackFrameFilter stackFrameFilter, String origin}) {
