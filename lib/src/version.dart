@@ -15,7 +15,7 @@ const String sdkVersion = '3.0.0-dev0';
 const String sdkName = 'dart';
 
 /// The name of the SDK platform reported to Sentry.io in the submitted events.
-/// 
+///
 /// Used for IO version.
 const String sdkPlatform = 'dart';
 
