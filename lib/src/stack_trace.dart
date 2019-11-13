@@ -82,9 +82,3 @@ String _absolutePathForCrashReport(Frame frame) {
 
   return '${frame.uri}';
 }
-
-class EmptyStacktraceException implements Exception {
-  final dynamic originalStacktrace;
-
-  EmptyStacktraceException(this.originalStacktrace);
-}

@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-/// A pure Dart client for Sentry.io crash reporting.
 import 'dart:async';
 import 'dart:convert';
 
@@ -11,9 +10,7 @@ import 'package:meta/meta.dart';
 import 'package:usage/uuid/uuid.dart';
 
 import 'client_stub.dart'
-    // ignore: uri_does_not_exist
     if (dart.library.html) 'browser.dart'
-    // ignore: uri_does_not_exist
     if (dart.library.io) 'io.dart';
 
 import 'stack_trace.dart';
@@ -51,7 +48,9 @@ abstract class SentryClient {
   /// The default logger name used if no other value is supplied.
   static const String defaultLoggerName = 'SentryClient';
 
+  @protected
   final Client httpClient;
+
   ClockProvider _clock;
   final UuidGenerator _uuidGenerator;
 

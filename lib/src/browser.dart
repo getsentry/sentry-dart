@@ -84,7 +84,7 @@ class SentryBrowserClient extends SentryClient {
     Map<String, dynamic> data,
     Map<String, String> headers,
   ) =>
-      // Gzip compression is not available on browser
+      // Gzip compression is implicit on browser
       utf8.encode(json.encode(data));
 }
 

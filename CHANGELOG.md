@@ -1,6 +1,6 @@
 # package:sentry changelog
 
-## 2.4.0
+## 3.0.0
 
 - Support Web 
   - `SentryClient` from `package:sentry/sentry.dart` with conditional import
