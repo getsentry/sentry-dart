@@ -40,6 +40,7 @@ abstract class SentryClient {
         httpClient: httpClient,
         clock: clock,
         uuidGenerator: uuidGenerator,
+        compressPayload: compressPayload,
       );
 
   /// Sentry.io client identifier for _this_ client.
