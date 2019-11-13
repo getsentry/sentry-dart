@@ -4,6 +4,7 @@
 
 import 'dart:convert';
 
+import 'package:http/testing.dart';
 import 'package:http/http.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
@@ -14,20 +15,6 @@ const String _testDsnWithPath =
     'https://public:secret@sentry.example.com/path/1';
 const String _testDsnWithPort =
     'https://public:secret@sentry.example.com:8888/1';
-
-typedef Answer = dynamic Function(Invocation invocation);
-
-class MockClient implements Client {
-  Answer _answer;
-
-  void answerWith(Answer answer) {
-    _answer = answer;
-  }
-
-  noSuchMethod(Invocation invocation) {
-    return _answer(invocation);
-  }
-}
 
 void testHeaders(
   Map<String, String> headers,
@@ -61,23 +48,19 @@ testCaptureException(
   Codec<List<int>, List<int>> gzip,
   bool isWeb,
 ) async {
-  final MockClient httpMock = MockClient();
   final ClockProvider fakeClockProvider = () => DateTime.utc(2017, 1, 2);
 
   String postUri;
   Map<String, String> headers;
   List<int> body;
-  httpMock.answerWith((Invocation invocation) async {
-    if (invocation.memberName == #close) {
-      return null;
-    }
-    if (invocation.memberName == #post) {
-      postUri = invocation.positionalArguments.single;
-      headers = invocation.namedArguments[#headers];
-      body = invocation.namedArguments[#body];
+  final MockClient httpMock = MockClient((Request request) async {
+    if (request.method == 'POST') {
+      postUri = request.url.toString();
+      headers = request.headers;
+      body = request.bodyBytes;
       return Response('{"id": "test-event-id"}', 200);
     }
-    fail('Unexpected invocation of ${invocation.memberName} in HttpMock');
+    fail('Unexpected request on ${request.method} ${request.url} in HttpMock');
   });
 
   final SentryClient client = SentryClient(
@@ -227,20 +210,17 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     await client.close();
   });
   test('sends client auth header without secret', () async {
-    final MockClient httpMock = MockClient();
     final ClockProvider fakeClockProvider = () => DateTime.utc(2017, 1, 2);
 
     Map<String, String> headers;
 
-    httpMock.answerWith((Invocation invocation) async {
-      if (invocation.memberName == #close) {
-        return null;
-      }
-      if (invocation.memberName == #post) {
-        headers = invocation.namedArguments[#headers];
+    final MockClient httpMock = MockClient((Request request) async {
+      if (request.method == 'POST') {
+        headers = request.headers;
         return Response('{"id": "test-event-id"}', 200);
       }
-      fail('Unexpected invocation of ${invocation.memberName} in HttpMock');
+      fail(
+          'Unexpected request on ${request.method} ${request.url} in HttpMock');
     });
 
     final SentryClient client = SentryClient(
@@ -288,19 +268,16 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
   });
 
   test('reads error message from the x-sentry-error header', () async {
-    final MockClient httpMock = MockClient();
     final ClockProvider fakeClockProvider = () => DateTime.utc(2017, 1, 2);
 
-    httpMock.answerWith((Invocation invocation) async {
-      if (invocation.memberName == #close) {
-        return null;
-      }
-      if (invocation.memberName == #post) {
+    final MockClient httpMock = MockClient((Request request) async {
+      if (request.method == 'POST') {
         return Response('', 401, headers: <String, String>{
           'x-sentry-error': 'Invalid api key',
         });
       }
-      fail('Unexpected invocation of ${invocation.memberName} in HttpMock');
+      fail(
+          'Unexpected request on ${request.method} ${request.url} in HttpMock');
     });
 
     final SentryClient client = SentryClient(
@@ -331,17 +308,12 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
   });
 
   test('$Event userContext overrides client', () async {
-    final MockClient httpMock = MockClient();
     final ClockProvider fakeClockProvider = () => DateTime.utc(2017, 1, 2);
 
     String loggedUserId; // used to find out what user context was sent
-    httpMock.answerWith((Invocation invocation) async {
-      if (invocation.memberName == #close) {
-        return null;
-      }
-      if (invocation.memberName == #post) {
-        // parse the body and detect which user context was sent
-        var bodyData = invocation.namedArguments[Symbol("body")];
+    final MockClient httpMock = MockClient((Request request) async {
+      if (request.method == 'POST') {
+        var bodyData = request.bodyBytes;
         var decoded = Utf8Codec().decode(bodyData);
         var decodedJson = JsonDecoder().convert(decoded);
         loggedUserId = decodedJson['user']['id'];
@@ -349,7 +321,8 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
           'x-sentry-error': 'Invalid api key',
         });
       }
-      fail('Unexpected invocation of ${invocation.memberName} in HttpMock');
+      fail(
+          'Unexpected request on ${request.method} ${request.url} in HttpMock');
     });
 
     final clientUserContext = User(
