@@ -9,10 +9,15 @@
 library version;
 
 /// The SDK version reported to Sentry.io in the submitted events.
-const String sdkVersion = '2.3.1';
+const String sdkVersion = '3.0.0-dev0';
 
 /// The SDK name reported to Sentry.io in the submitted events.
 const String sdkName = 'dart';
 
 /// The name of the SDK platform reported to Sentry.io in the submitted events.
+///
+/// Used for IO version.
 const String sdkPlatform = 'dart';
+
+/// Used to report browser Stacktrace to sentry.
+const String browserPlatform = 'javascript';

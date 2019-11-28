@@ -5,6 +5,5 @@ set -x
 
 pub get
 dartanalyzer --fatal-warnings ./
-pub run test --platform vm
-./tool/dart2_test.sh
+pub run test -p vm -p chrome
 dartfmt -n --set-exit-if-changed ./

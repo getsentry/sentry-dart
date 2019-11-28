@@ -23,16 +23,25 @@ const Map<String, dynamic> asynchronousGapFrameJson = <String, dynamic>{
 /// Encodes [stackTrace] as JSON in the Sentry.io format.
 ///
 /// [stackTrace] must be [String] or [StackTrace].
-List<Map<String, dynamic>> encodeStackTrace(dynamic stackTrace,
-    {StackFrameFilter stackFrameFilter}) {
+List<Map<String, dynamic>> encodeStackTrace(
+  dynamic stackTrace, {
+  StackFrameFilter stackFrameFilter,
+  String origin,
+}) {
   assert(stackTrace is String || stackTrace is StackTrace);
+  origin ??= '';
+
   final Chain chain = stackTrace is StackTrace
       ? Chain.forTrace(stackTrace)
       : Chain.parse(stackTrace);
 
   final List<Map<String, dynamic>> frames = <Map<String, dynamic>>[];
   for (int t = 0; t < chain.traces.length; t += 1) {
-    frames.addAll(chain.traces[t].frames.map(encodeStackTraceFrame));
+    final encodedFrames = chain.traces[t].frames
+        .map((f) => encodeStackTraceFrame(f, origin: origin));
+
+    frames.addAll(encodedFrames);
+
     if (t < chain.traces.length - 1) frames.add(asynchronousGapFrameJson);
   }
 
@@ -40,11 +49,14 @@ List<Map<String, dynamic>> encodeStackTrace(dynamic stackTrace,
   return stackFrameFilter != null ? stackFrameFilter(jsonFrames) : jsonFrames;
 }
 
-Map<String, dynamic> encodeStackTraceFrame(Frame frame) {
+Map<String, dynamic> encodeStackTraceFrame(Frame frame, {String origin}) {
+  origin ??= '';
+
   final Map<String, dynamic> json = <String, dynamic>{
-    'abs_path': _absolutePathForCrashReport(frame),
+    'abs_path': '$origin${_absolutePathForCrashReport(frame)}',
     'function': frame.member,
     'lineno': frame.line,
+    'colno': frame.column,
     'in_app': !frame.isCore,
   };
 
