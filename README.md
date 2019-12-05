@@ -2,14 +2,19 @@
 
 [![Build Status](https://travis-ci.org/flutter/sentry.svg?branch=master)](https://travis-ci.org/flutter/sentry)
 
-Use this library in your Dart programs (Flutter, command-line and (TBD) AngularDart) to report errors thrown by your
-program to https://sentry.io error tracking service.
+Use this library in your Dart programs (Flutter for mobile, Flutter for web,
+command-line, and AngularDart) to report errors thrown by your program to
+https://sentry.io error tracking service.
 
 ## Versions
 
-`>=0.0.0 <2.0.0` is the range of versions compatible with Dart 1.
+`>=2.0.0 <3.0.0` is the range of versions that support Flutter for mobile and
+Dart VM only.
 
-`>=2.0.0 <3.0.0` is the range of versions compatible with Dart 2.
+Versions `3.0.0` and higher supports Flutter for mobile, Flutter for web,
+command-line, and AngularDart.
+
+Versions `<2.0.0` are deprecated.
 
 ## Usage
 
@@ -19,7 +24,7 @@ Add `sentry` dependency to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  sentry: any
+  sentry: >=2.0.0 <3.0.0
 ```
 
 In your Dart code, import `package:sentry/sentry.dart` and create a `SentryClient` using the DSN issued by Sentry.io:
