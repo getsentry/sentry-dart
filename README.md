@@ -1,21 +1,18 @@
 # Sentry.io client for Dart
 
 [![Build Status](https://travis-ci.org/flutter/sentry.svg?branch=master)](https://travis-ci.org/flutter/sentry)
-[![pub package](https://img.shields.io/pub/v/sentry.svg)](https://pub.dev/packages/sentry) 
+[![pub package](https://img.shields.io/pub/v/sentry.svg)](https://pub.dev/packages/sentry)
 
 Use this library in your Dart programs (Flutter for mobile, Flutter for web,
-command-line, and AngularDart) to report errors thrown by your program to
+command-line, and [AngularDart][angular_sentry]) to report errors thrown by your program to
 https://sentry.io error tracking service.
 
 ## Versions
 
-Versions `3.0.0` and higher support Flutter for mobile, Flutter for web,
-command-line, desktop, and AngularDart.
+Versions `4.0.0` and higher support [Flutter][flutter] (mobile, web, desktop),
+command-line/server Dart VM, and [AngularDart][angular_sentry].
 
-`>=2.0.0 <3.0.0` is the range of versions that support Flutter for mobile and
-Dart VM only.
-
-Versions `<2.0.0` are deprecated.
+Versions below `4.0.0` are deprecated.
 
 ## Usage
 
@@ -25,7 +22,7 @@ Add `sentry` dependency to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  sentry: ">=3.0.0 <4.0.0"
+  sentry: ">=4.0.0 <5.0.0"
 ```
 
 In your Dart code, import `package:sentry/sentry.dart` and create a `SentryClient` using the DSN issued by Sentry.io:
@@ -96,9 +93,11 @@ main() async {
 - Use `Isolate.current.addErrorListener` to capture uncaught errors
   in the root zone.
 
-[run_zoned]: https://api.dartlang.org/stable/dart-async/runZoned.html
-[flutter_error]: https://docs.flutter.io/flutter/foundation/FlutterError/onError.html
-
 ## Found a bug?
 
 Please file it at https://github.com/flutter/flutter/issues/new
+
+[flutter]: https://flutter.dev
+[run_zoned]: https://api.dartlang.org/stable/dart-async/runZoned.html
+[flutter_error]: https://docs.flutter.io/flutter/foundation/FlutterError/onError.html
+[angular_sentry]: https://pub.dev/packages/angular_sentry

@@ -2,7 +2,7 @@
 
 ## 4.0.0
 
-- Fixed context screenDensity is of type double #53
+- BREAKING CHANGE: Fixed context screenDensity is of type double #53
 
 ## 3.0.1
 
