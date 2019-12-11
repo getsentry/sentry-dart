@@ -1,8 +1,12 @@
 # package:sentry changelog
 
+## 3.0.0+1
+
+- `pubspec.yaml` and example code clean-up.
+
 ## 3.0.0
 
-- Support Web 
+- Support Web
   - `SentryClient` from `package:sentry/sentry.dart` with conditional import
   - `SentryBrowserClient` for web from `package:sentry/browser_client.dart`
   - `SentryIOClient` for VM and Flutter from `package:sentry/io_client.dart`

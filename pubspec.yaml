@@ -1,7 +1,8 @@
 name: sentry
-version: 3.0.0
-description: A pure Dart Sentry.io client.
-author: Flutter Authors <flutter-dev@googlegroups.com>
+version: 3.0.0+1
+description: >
+  A crash reporting library for for Dart that sends crash reports to Sentry.io.
+  This library supports Dart VM, and Flutter for mobile, web, and desktop.
 homepage: https://github.com/flutter/sentry
 
 environment:
