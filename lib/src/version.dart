@@ -9,7 +9,7 @@
 library version;
 
 /// The SDK version reported to Sentry.io in the submitted events.
-const String sdkVersion = '3.0.0';
+const String sdkVersion = '3.0.0+1';
 
 /// The SDK name reported to Sentry.io in the submitted events.
 const String sdkName = 'dart';
