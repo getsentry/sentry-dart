@@ -8,11 +8,11 @@ https://sentry.io error tracking service.
 
 ## Versions
 
+Versions `3.0.0` and higher support Flutter for mobile, Flutter for web,
+command-line, desktop, and AngularDart.
+
 `>=2.0.0 <3.0.0` is the range of versions that support Flutter for mobile and
 Dart VM only.
-
-Versions `3.0.0` and higher supports Flutter for mobile, Flutter for web,
-command-line, and AngularDart.
 
 Versions `<2.0.0` are deprecated.
 
@@ -24,7 +24,7 @@ Add `sentry` dependency to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  sentry: >=2.0.0 <3.0.0
+  sentry: >=3.0.0 <4.0.0
 ```
 
 In your Dart code, import `package:sentry/sentry.dart` and create a `SentryClient` using the DSN issued by Sentry.io:
@@ -54,7 +54,7 @@ main() async {
 
 - Use a `try/catch` block, like in the example above.
 - Create a `Zone` with an error handler, e.g. using [runZoned][run_zoned].
-  
+
   ```dart
   var sentry = SentryClient(dsn: "https://...");
   // Run the whole app in a zone to capture all uncaught errors.
@@ -75,7 +75,7 @@ main() async {
   );
   ```
 - For Flutter-specific errors (such as layout failures), use [FlutterError.onError][flutter_error]. For example:
-  
+
   ```dart
   var sentry = SentryClient(dsn: "https://...");
   FlutterError.onError = (details, {bool forceReport = false}) {
@@ -92,7 +92,7 @@ main() async {
     }
   };
   ```
-- Use `Isolate.current.addErrorListener` to capture uncaught errors 
+- Use `Isolate.current.addErrorListener` to capture uncaught errors
   in the root zone.
 
 [run_zoned]: https://api.dartlang.org/stable/dart-async/runZoned.html
