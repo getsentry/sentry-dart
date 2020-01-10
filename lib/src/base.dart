@@ -789,12 +789,14 @@ class Device {
 
     if (storageSize != null) json['storage_size'] = storageSize;
 
+    if (freeStorage != null) json['free_storage'] = freeStorage;
+
     if (externalStorageSize != null) {
       json['external_storage_size'] = externalStorageSize;
     }
 
     if (externalFreeStorage != null) {
-      json['exterenal_free_storage'] = externalFreeStorage;
+      json['external_free_storage'] = externalFreeStorage;
     }
 
     if (bootTime != null) json['boot_time'] = bootTime.toIso8601String();
