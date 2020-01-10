@@ -2,9 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+@TestOn('vm')
+
 import 'dart:io';
 
-import 'package:sentry/sentry.dart';
+import 'package:sentry/src/version.dart';
 import 'package:test/test.dart';
 import 'package:yaml/yaml.dart' as yaml;
 
@@ -12,7 +14,7 @@ void main() {
   group('sdkVersion', () {
     test('matches that of pubspec.yaml', () {
       final dynamic pubspec =
-          yaml.loadYaml(new File('pubspec.yaml').readAsStringSync());
+          yaml.loadYaml(File('pubspec.yaml').readAsStringSync());
       expect(sdkVersion, pubspec['version']);
     });
   });
