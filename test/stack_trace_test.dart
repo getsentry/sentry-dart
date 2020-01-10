@@ -9,11 +9,12 @@ import 'package:test/test.dart';
 void main() {
   group('encodeStackTraceFrame', () {
     test('marks dart: frames as not app frames', () {
-      final Frame frame = new Frame(Uri.parse('dart:core'), 1, 2, 'buzz');
+      final Frame frame = Frame(Uri.parse('dart:core'), 1, 2, 'buzz');
       expect(encodeStackTraceFrame(frame), {
         'abs_path': 'dart:core',
         'function': 'buzz',
         'lineno': 1,
+        'colno': 2,
         'in_app': false,
         'filename': 'core'
       });
@@ -21,7 +22,7 @@ void main() {
 
     test('cleanses absolute paths', () {
       final Frame frame =
-          new Frame(Uri.parse('file://foo/bar/baz.dart'), 1, 2, 'buzz');
+          Frame(Uri.parse('file://foo/bar/baz.dart'), 1, 2, 'buzz');
       expect(encodeStackTraceFrame(frame)['abs_path'], 'baz.dart');
     });
   });
@@ -36,6 +37,7 @@ void main() {
           'abs_path': 'test.dart',
           'function': 'bar',
           'lineno': 46,
+          'colno': 9,
           'in_app': true,
           'filename': 'test.dart'
         },
@@ -43,6 +45,7 @@ void main() {
           'abs_path': 'test.dart',
           'function': 'baz',
           'lineno': 50,
+          'colno': 3,
           'in_app': true,
           'filename': 'test.dart'
         },
@@ -59,6 +62,7 @@ void main() {
           'abs_path': 'test.dart',
           'function': 'bar',
           'lineno': 46,
+          'colno': 9,
           'in_app': true,
           'filename': 'test.dart'
         },
@@ -69,6 +73,7 @@ void main() {
           'abs_path': 'test.dart',
           'function': 'baz',
           'lineno': 50,
+          'colno': 3,
           'in_app': true,
           'filename': 'test.dart'
         },
@@ -87,6 +92,7 @@ void main() {
           'abs_path': 'test.dart',
           'function': 'baz',
           'lineno': 50,
+          'colno': 3,
           'in_app': true,
           'filename': 'test.dart'
         },

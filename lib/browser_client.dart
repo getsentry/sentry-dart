@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-/// A pure Dart client for Sentry.io crash reporting.
-
 export 'src/base.dart';
 export 'src/version.dart';
+export 'src/browser.dart';
