@@ -7,6 +7,7 @@ import 'package:test/test.dart';
 
 void main() {
   group(Contexts, () {
+    final testBootTime = DateTime.fromMicrosecondsSinceEpoch(0);
     test('serializes to JSON', () {
       final testDevice = Device(
         name: 'testDevice',
@@ -32,7 +33,7 @@ void main() {
         freeStorage: 1234567,
         externalStorageSize: 98765,
         externalFreeStorage: 98765,
-        bootTime: DateTime.fromMicrosecondsSinceEpoch(0),
+        bootTime: testBootTime,
         timezone: 'Australia/Melbourne',
       );
       final testOS = OperatingSystem(name: 'testOS');
@@ -78,7 +79,7 @@ void main() {
             'free_storage': 1234567,
             'external_storage_size': 98765,
             'external_free_storage': 98765,
-            'boot_time': '1970-01-01T10:00:00.000',
+            'boot_time': testBootTime.toIso8601String(),
             'timezone': 'Australia/Melbourne',
           },
           'os': {
