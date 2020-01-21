@@ -1,5 +1,8 @@
 # package:sentry changelog
 
+## 3.0.1
+- Add support for Contexts in Sentry events
+
 ## 3.0.0+1
 
 - `pubspec.yaml` and example code clean-up.
