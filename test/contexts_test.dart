@@ -52,8 +52,10 @@ void main() {
         browser: testBrowser,
       );
 
+      final event = Event(contexts: contexts);
+
       expect(
-        contexts.toJson(),
+        event.toJson()['contexts'],
         <String, dynamic>{
           'device': {
             'name': 'testDevice',
