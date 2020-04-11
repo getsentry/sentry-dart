@@ -24,7 +24,7 @@ Add `sentry` dependency to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  sentry: >=3.0.0 <4.0.0
+  sentry: ">=3.0.0 <4.0.0"
 ```
 
 In your Dart code, import `package:sentry/sentry.dart` and create a `SentryClient` using the DSN issued by Sentry.io:
