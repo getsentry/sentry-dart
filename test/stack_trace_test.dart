@@ -9,7 +9,7 @@ import 'package:test/test.dart';
 void main() {
   group('encodeStackTraceFrame', () {
     test('marks dart: frames as not app frames', () {
-      final Frame frame = Frame(Uri.parse('dart:core'), 1, 2, 'buzz');
+      final frame = Frame(Uri.parse('dart:core'), 1, 2, 'buzz');
       expect(encodeStackTraceFrame(frame), {
         'abs_path': 'dart:core',
         'function': 'buzz',
@@ -21,7 +21,7 @@ void main() {
     });
 
     test('cleanses absolute paths', () {
-      final Frame frame =
+      final frame =
           Frame(Uri.parse('file://foo/bar/baz.dart'), 1, 2, 'buzz');
       expect(encodeStackTraceFrame(frame)['abs_path'], 'baz.dart');
     });
@@ -81,6 +81,7 @@ void main() {
     });
 
     test('allows changing the stack frame list before sending', () {
+      // ignore: omit_local_variable_types
       StackFrameFilter filter =
           (list) => list.where((f) => f['abs_path'] != 'secret.dart').toList();
 

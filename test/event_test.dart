@@ -10,10 +10,10 @@ void main() {
     test('$Breadcrumb serializes', () {
       expect(
         Breadcrumb(
-          "example log",
+          'example log',
           DateTime.utc(2019),
           level: SeverityLevel.debug,
-          category: "test",
+          category: 'test',
         ).toJson(),
         <String, dynamic>{
           'timestamp': '2019-01-01T00:00:00',
@@ -25,15 +25,15 @@ void main() {
     });
     test('serializes to JSON', () {
       final user = User(
-          id: "user_id",
-          username: "username",
-          email: "email@email.com",
-          ipAddress: "127.0.0.1",
-          extras: {"foo": "bar"});
+          id: 'user_id',
+          username: 'username',
+          email: 'email@email.com',
+          ipAddress: '127.0.0.1',
+          extras: {'foo': 'bar'});
 
       final breadcrumbs = [
-        Breadcrumb("test log", DateTime.utc(2019),
-            level: SeverityLevel.debug, category: "test"),
+        Breadcrumb('test log', DateTime.utc(2019),
+            level: SeverityLevel.debug, category: 'test'),
       ];
 
       expect(

@@ -121,12 +121,12 @@ abstract class SentryClient {
 
   @visibleForTesting
   String get postUri {
-    String port = dsnUri.hasPort &&
+    var port = dsnUri.hasPort &&
             ((dsnUri.scheme == 'http' && dsnUri.port != 80) ||
                 (dsnUri.scheme == 'https' && dsnUri.port != 443))
         ? ':${dsnUri.port}'
         : '';
-    int pathLength = dsnUri.pathSegments.length;
+    var pathLength = dsnUri.pathSegments.length;
     String apiPath;
     if (pathLength > 1) {
       // some paths would present before the projectID in the dsnUri
@@ -143,16 +143,16 @@ abstract class SentryClient {
     @required Event event,
     StackFrameFilter stackFrameFilter,
   }) async {
-    final DateTime now = _clock();
-    String authHeader = 'Sentry sentry_version=6, sentry_client=$sentryClient, '
+    final now = _clock();
+    var authHeader = 'Sentry sentry_version=6, sentry_client=$sentryClient, '
         'sentry_timestamp=${now.millisecondsSinceEpoch}, sentry_key=$publicKey';
     if (secretKey != null) {
       authHeader += ', sentry_secret=$secretKey';
     }
 
-    final Map<String, String> headers = buildHeaders(authHeader);
+    final headers = buildHeaders(authHeader);
 
-    final Map<String, dynamic> data = <String, dynamic>{
+    final data = <String, dynamic>{
       'project': projectId,
       'event_id': _uuidGenerator(),
       'timestamp': formatDateAsIso8601WithSecondPrecision(now),
@@ -179,14 +179,14 @@ abstract class SentryClient {
 
     final body = bodyEncoder(data, headers);
 
-    final Response response = await httpClient.post(
+    final response = await httpClient.post(
       postUri,
       headers: headers,
       body: body,
     );
 
     if (response.statusCode != 200) {
-      String errorMessage =
+      var errorMessage =
           'Sentry.io responded with HTTP ${response.statusCode}';
       if (response.headers['x-sentry-error'] != null) {
         errorMessage += ': ${response.headers['x-sentry-error']}';
@@ -203,7 +203,7 @@ abstract class SentryClient {
     @required dynamic exception,
     dynamic stackTrace,
   }) {
-    final Event event = Event(
+    final event = Event(
       exception: exception,
       stackTrace: stackTrace,
     );
@@ -424,7 +424,7 @@ class Event {
   /// Serializes this event to JSON.
   Map<String, dynamic> toJson(
       {StackFrameFilter stackFrameFilter, String origin}) {
-    final Map<String, dynamic> json = <String, dynamic>{
+    final json = <String, dynamic>{
       'platform': sdkPlatform,
       'sdk': {
         'version': sdkVersion,
@@ -560,11 +560,11 @@ class User {
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     return {
-      "id": id,
-      "username": username,
-      "email": email,
-      "ip_address": ipAddress,
-      "extras": extras,
+      'id': id,
+      'username': username,
+      'email': email,
+      'ip_address': ipAddress,
+      'extras': extras,
     };
   }
 }
@@ -690,8 +690,8 @@ class Dsn {
   });
 
   static Dsn parse(String dsn) {
-    final Uri uri = Uri.parse(dsn);
-    final List<String> userInfo = uri.userInfo.split(':');
+    final uri = Uri.parse(dsn);
+    final userInfo = uri.userInfo.split(':');
 
     assert(() {
       if (uri.pathSegments.isEmpty) {

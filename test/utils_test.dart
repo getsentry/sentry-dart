@@ -9,7 +9,7 @@ import 'package:sentry/src/utils.dart';
 void main() {
   group('mergeAttributes', () {
     test('merges attributes', () {
-      final Map<String, dynamic> target = <String, dynamic>{
+      final target = <String, dynamic>{
         'overwritten': 1,
         'unchanged': 2,
         'recursed': <String, dynamic>{
@@ -18,7 +18,7 @@ void main() {
         },
       };
 
-      final Map<String, dynamic> attributes = <String, dynamic>{
+      final attributes = <String, dynamic>{
         'overwritten': 2,
         'recursed': <String, dynamic>{
           'overwritten_child': [4, 5, 6],
@@ -58,7 +58,7 @@ void main() {
 
   group('formatDateAsIso8601WithSecondPrecision', () {
     test('strips sub-millisecond parts', () {
-      final DateTime testDate =
+      final testDate =
           DateTime.fromMillisecondsSinceEpoch(1502467721598, isUtc: true);
       expect(testDate.toIso8601String(), '2017-08-11T16:08:41.598Z');
       expect(formatDateAsIso8601WithSecondPrecision(testDate),

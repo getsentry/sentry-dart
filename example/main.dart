@@ -15,15 +15,15 @@ Future<Null> main(List<String> rawArgs) async {
     exit(1);
   }
 
-  final String dsn = rawArgs.single;
-  final SentryClient client = SentryClient(dsn: dsn);
+  final dsn = rawArgs.single;
+  final client = SentryClient(dsn: dsn);
 
   try {
     await foo();
   } catch (error, stackTrace) {
     print('Reporting the following stack trace: ');
     print(stackTrace);
-    final SentryResponse response = await client.captureException(
+    final response = await client.captureException(
       exception: error,
       stackTrace: stackTrace,
     );
