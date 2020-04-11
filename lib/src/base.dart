@@ -186,8 +186,7 @@ abstract class SentryClient {
     );
 
     if (response.statusCode != 200) {
-      var errorMessage =
-          'Sentry.io responded with HTTP ${response.statusCode}';
+      var errorMessage = 'Sentry.io responded with HTTP ${response.statusCode}';
       if (response.headers['x-sentry-error'] != null) {
         errorMessage += ': ${response.headers['x-sentry-error']}';
       }
