@@ -567,6 +567,7 @@ class Contexts {
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
+    // ignore: omit_local_variable_types
     final Map<String, dynamic> json = {};
 
     Map<String, dynamic> deviceMap;
@@ -592,25 +593,25 @@ class Contexts {
 
     if (runtimes != null) {
       if (runtimes.length == 1) {
-        final Runtime runtime = runtimes[0];
+        final runtime = runtimes[0];
         if (runtime != null) {
-          final String key = runtime.key ?? 'runtime';
+          final key = runtime.key ?? 'runtime';
           json[key] = runtime.toJson();
         }
       } else if (runtimes.length > 1) {
         for (final runtime in runtimes) {
           if (runtime != null) {
-            String key = runtime.key ?? runtime.name.toLowerCase();
+            var key = runtime.key ?? runtime.name.toLowerCase();
 
             if (json.containsKey(key)) {
-              int k = 0;
+              var k = 0;
               while (json.containsKey(key)) {
                 key = '$key$k';
                 k++;
               }
             }
 
-            json[key] = runtime.toJson()..addAll({"type": "runtime"});
+            json[key] = runtime.toJson()..addAll({'type': 'runtime'});
           }
         }
       }
@@ -735,16 +736,17 @@ class Device {
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
+    // ignore: omit_local_variable_types
     final Map<String, dynamic> json = {};
 
     String orientation;
 
     switch (this.orientation) {
       case Orientation.portrait:
-        orientation = "portait";
+        orientation = 'portait';
         break;
       case Orientation.landscape:
-        orientation = "landscape";
+        orientation = 'landscape';
         break;
     }
 
@@ -847,6 +849,7 @@ class OperatingSystem {
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
+    // ignore: omit_local_variable_types
     final Map<String, dynamic> json = {};
 
     if (name != null) json['name'] = name;
@@ -890,10 +893,12 @@ class Runtime {
   final String rawDescription;
 
   const Runtime({this.key, this.name, this.version, this.rawDescription})
+      // ignore: prefer_is_empty
       : assert(key == null || key.length >= 1);
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
+    // ignore: omit_local_variable_types
     final Map<String, dynamic> json = {};
 
     if (name != null) json['name'] = name;
@@ -944,6 +949,7 @@ class App {
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
+    // ignore: omit_local_variable_types
     final Map<String, dynamic> json = {};
 
     if (name != null) json['app_name'] = name;
@@ -979,6 +985,7 @@ class Browser {
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
+    // ignore: omit_local_variable_types
     final Map<String, dynamic> json = {};
 
     if (name != null) json['name'] = name;
