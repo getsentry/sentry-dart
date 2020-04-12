@@ -659,7 +659,7 @@ class Device {
   final String screenResolution;
 
   /// A floating point denoting the screen density.
-  final String screenDensity;
+  final double screenDensity;
 
   /// A decimal value reflecting the DPI (dots-per-inch) density.
   final String screenDpi;
