@@ -1,6 +1,11 @@
 # package:sentry changelog
 
+## 4.0.0
+
+- Fixed context screenDensity is of type double #53
+
 ## 3.0.1
+
 - Add support for Contexts in Sentry events
 
 ## 3.0.0+1
