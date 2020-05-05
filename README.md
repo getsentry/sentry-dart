@@ -1,6 +1,7 @@
 # Sentry.io client for Dart
 
 [![Build Status](https://travis-ci.org/flutter/sentry.svg?branch=master)](https://travis-ci.org/flutter/sentry)
+[![pub package](https://img.shields.io/pub/v/sentry.svg)](https://pub.dev/packages/sentry) 
 
 Use this library in your Dart programs (Flutter for mobile, Flutter for web,
 command-line, and AngularDart) to report errors thrown by your program to
