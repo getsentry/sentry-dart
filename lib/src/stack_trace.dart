@@ -31,12 +31,12 @@ List<Map<String, dynamic>> encodeStackTrace(
   assert(stackTrace is String || stackTrace is StackTrace);
   origin ??= '';
 
-  final Chain chain = stackTrace is StackTrace
+  final chain = stackTrace is StackTrace
       ? Chain.forTrace(stackTrace)
       : Chain.parse(stackTrace);
 
-  final List<Map<String, dynamic>> frames = <Map<String, dynamic>>[];
-  for (int t = 0; t < chain.traces.length; t += 1) {
+  final frames = <Map<String, dynamic>>[];
+  for (var t = 0; t < chain.traces.length; t += 1) {
     final encodedFrames = chain.traces[t].frames
         .map((f) => encodeStackTraceFrame(f, origin: origin));
 
@@ -52,7 +52,7 @@ List<Map<String, dynamic>> encodeStackTrace(
 Map<String, dynamic> encodeStackTraceFrame(Frame frame, {String origin}) {
   origin ??= '';
 
-  final Map<String, dynamic> json = <String, dynamic>{
+  final json = <String, dynamic>{
     'abs_path': '$origin${_absolutePathForCrashReport(frame)}',
     'function': frame.member,
     'lineno': frame.line,

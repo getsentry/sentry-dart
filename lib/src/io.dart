@@ -102,7 +102,7 @@ class SentryIOClient extends SentryClient {
   ) {
     // [SentryIOClient] implement gzip compression
     // gzip compression is not available on browser
-    List<int> body = utf8.encode(json.encode(data));
+    var body = utf8.encode(json.encode(data));
     if (compressPayload) {
       headers['Content-Encoding'] = 'gzip';
       body = gzip.encode(body);

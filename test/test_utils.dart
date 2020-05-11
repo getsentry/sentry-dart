@@ -23,7 +23,7 @@ void testHeaders(
   bool compressPayload = true,
   bool withSecret = true,
 }) {
-  final Map<String, String> expectedHeaders = <String, String>{
+  final expectedHeaders = <String, String>{
     'Content-Type': 'application/json',
     'X-Sentry-Auth': 'Sentry sentry_version=6, '
         'sentry_client=${SentryClient.sentryClient}, '
@@ -43,17 +43,17 @@ void testHeaders(
   expect(headers, expectedHeaders);
 }
 
-testCaptureException(
+void testCaptureException(
   bool compressPayload,
   Codec<List<int>, List<int>> gzip,
   bool isWeb,
 ) async {
-  final ClockProvider fakeClockProvider = () => DateTime.utc(2017, 1, 2);
+  final fakeClockProvider = () => DateTime.utc(2017, 1, 2);
 
   String postUri;
   Map<String, String> headers;
   List<int> body;
-  final MockClient httpMock = MockClient((Request request) async {
+  final httpMock = MockClient((Request request) async {
     if (request.method == 'POST') {
       postUri = request.url.toString();
       headers = request.headers;
@@ -63,7 +63,7 @@ testCaptureException(
     fail('Unexpected request on ${request.method} ${request.url} in HttpMock');
   });
 
-  final SentryClient client = SentryClient(
+  final client = SentryClient(
     dsn: testDsn,
     httpClient: httpMock,
     clock: fakeClockProvider,
@@ -79,7 +79,7 @@ testCaptureException(
   try {
     throw ArgumentError('Test error');
   } catch (error, stackTrace) {
-    final SentryResponse response =
+    final response =
         await client.captureException(exception: error, stackTrace: stackTrace);
     expect(response.isSuccessful, true);
     expect(response.eventId, 'test-event-id');
@@ -172,7 +172,7 @@ testCaptureException(
 
 void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
   test('can parse DSN', () async {
-    final SentryClient client = SentryClient(dsn: testDsn);
+    final client = SentryClient(dsn: testDsn);
     expect(client.dsnUri, Uri.parse(testDsn));
     expect(client.postUri, 'https://sentry.example.com/api/1/store/');
     expect(client.publicKey, 'public');
@@ -182,7 +182,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
   });
 
   test('can parse DSN without secret', () async {
-    final SentryClient client = SentryClient(dsn: _testDsnWithoutSecret);
+    final client = SentryClient(dsn: _testDsnWithoutSecret);
     expect(client.dsnUri, Uri.parse(_testDsnWithoutSecret));
     expect(client.postUri, 'https://sentry.example.com/api/1/store/');
     expect(client.publicKey, 'public');
@@ -192,7 +192,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
   });
 
   test('can parse DSN with path', () async {
-    final SentryClient client = SentryClient(dsn: _testDsnWithPath);
+    final client = SentryClient(dsn: _testDsnWithPath);
     expect(client.dsnUri, Uri.parse(_testDsnWithPath));
     expect(client.postUri, 'https://sentry.example.com/path/api/1/store/');
     expect(client.publicKey, 'public');
@@ -201,7 +201,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     await client.close();
   });
   test('can parse DSN with port', () async {
-    final SentryClient client = SentryClient(dsn: _testDsnWithPort);
+    final client = SentryClient(dsn: _testDsnWithPort);
     expect(client.dsnUri, Uri.parse(_testDsnWithPort));
     expect(client.postUri, 'https://sentry.example.com:8888/api/1/store/');
     expect(client.publicKey, 'public');
@@ -210,11 +210,11 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     await client.close();
   });
   test('sends client auth header without secret', () async {
-    final ClockProvider fakeClockProvider = () => DateTime.utc(2017, 1, 2);
+    final fakeClockProvider = () => DateTime.utc(2017, 1, 2);
 
     Map<String, String> headers;
 
-    final MockClient httpMock = MockClient((Request request) async {
+    final httpMock = MockClient((Request request) async {
       if (request.method == 'POST') {
         headers = request.headers;
         return Response('{"id": "test-event-id"}', 200);
@@ -223,7 +223,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
           'Unexpected request on ${request.method} ${request.url} in HttpMock');
     });
 
-    final SentryClient client = SentryClient(
+    final client = SentryClient(
       dsn: _testDsnWithoutSecret,
       httpClient: httpMock,
       clock: fakeClockProvider,
@@ -239,7 +239,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     try {
       throw ArgumentError('Test error');
     } catch (error, stackTrace) {
-      final SentryResponse response = await client.captureException(
+      final response = await client.captureException(
           exception: error, stackTrace: stackTrace);
       expect(response.isSuccessful, true);
       expect(response.eventId, 'test-event-id');
@@ -268,9 +268,9 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
   });
 
   test('reads error message from the x-sentry-error header', () async {
-    final ClockProvider fakeClockProvider = () => DateTime.utc(2017, 1, 2);
+    final fakeClockProvider = () => DateTime.utc(2017, 1, 2);
 
-    final MockClient httpMock = MockClient((Request request) async {
+    final httpMock = MockClient((Request request) async {
       if (request.method == 'POST') {
         return Response('', 401, headers: <String, String>{
           'x-sentry-error': 'Invalid api key',
@@ -280,7 +280,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
           'Unexpected request on ${request.method} ${request.url} in HttpMock');
     });
 
-    final SentryClient client = SentryClient(
+    final client = SentryClient(
       dsn: testDsn,
       httpClient: httpMock,
       clock: fakeClockProvider,
@@ -296,7 +296,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     try {
       throw ArgumentError('Test error');
     } catch (error, stackTrace) {
-      final SentryResponse response = await client.captureException(
+      final response = await client.captureException(
           exception: error, stackTrace: stackTrace);
       expect(response.isSuccessful, false);
       expect(response.eventId, null);
@@ -308,10 +308,10 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
   });
 
   test('$Event userContext overrides client', () async {
-    final ClockProvider fakeClockProvider = () => DateTime.utc(2017, 1, 2);
+    final fakeClockProvider = () => DateTime.utc(2017, 1, 2);
 
     String loggedUserId; // used to find out what user context was sent
-    final MockClient httpMock = MockClient((Request request) async {
+    final httpMock = MockClient((Request request) async {
       if (request.method == 'POST') {
         var bodyData = request.bodyBytes;
         var decoded = Utf8Codec().decode(bodyData);
@@ -326,18 +326,18 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     });
 
     final clientUserContext = User(
-        id: "client_user",
-        username: "username",
-        email: "email@email.com",
-        ipAddress: "127.0.0.1");
+        id: 'client_user',
+        username: 'username',
+        email: 'email@email.com',
+        ipAddress: '127.0.0.1');
     final eventUserContext = User(
-        id: "event_user",
-        username: "username",
-        email: "email@email.com",
-        ipAddress: "127.0.0.1",
-        extras: {"foo": "bar"});
+        id: 'event_user',
+        username: 'username',
+        email: 'email@email.com',
+        ipAddress: '127.0.0.1',
+        extras: {'foo': 'bar'});
 
-    final SentryClient client = SentryClient(
+    final client = SentryClient(
       dsn: testDsn,
       httpClient: httpMock,
       clock: fakeClockProvider,
