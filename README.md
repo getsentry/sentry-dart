@@ -51,14 +51,14 @@ main() async {
 ## Tips for catching errors
 
 - Use a `try/catch` block, like in the example above.
-- Create a `Zone` with an error handler, e.g. using [runZoned][run_zoned].
+- Create a `Zone` with an error handler, e.g. using [runZonedGuarded][run_zoned_guarded].
 
   ```dart
   var sentry = SentryClient(dsn: "https://...");
   // Run the whole app in a zone to capture all uncaught errors.
-  runZoned(
+  runZonedGuarded(
     () => runApp(MyApp()),
-    onError: (Object error, StackTrace stackTrace) {
+    (error, stackTrace) {
       try {
         sentry.captureException(
           exception: error,
@@ -98,6 +98,6 @@ main() async {
 Please file it at https://github.com/flutter/flutter/issues/new
 
 [flutter]: https://flutter.dev
-[run_zoned]: https://api.dartlang.org/stable/dart-async/runZoned.html
+[run_zoned_guarded]: https://api.dartlang.org/stable/dart-async/runZonedGuarded.html
 [flutter_error]: https://docs.flutter.io/flutter/foundation/FlutterError/onError.html
 [angular_sentry]: https://pub.dev/packages/angular_sentry
