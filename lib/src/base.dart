@@ -201,10 +201,12 @@ abstract class SentryClient {
   Future<SentryResponse> captureException({
     @required dynamic exception,
     dynamic stackTrace,
+    dynamic extra,
   }) {
     final event = Event(
       exception: exception,
       stackTrace: stackTrace,
+      extra: extra
     );
     return capture(event: event);
   }

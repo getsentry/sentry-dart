@@ -43,6 +43,7 @@ main() async {
     await sentry.captureException(
       exception: error,
       stackTrace: stackTrace,
+      extra: additionalCustomData, // Map<String, dynamic> | must be JSON-serializable
     );
   }
 }
@@ -63,6 +64,7 @@ main() async {
         sentry.captureException(
           exception: error,
           stackTrace: stackTrace,
+          extra: additionalCustomData,
         );
         print('Error sent to sentry.io: $error');
       } catch (e) {
@@ -81,6 +83,7 @@ main() async {
       sentry.captureException(
         exception: details.exception,
         stackTrace: details.stack,
+        extra: additionalCustomData,
       );
     } catch (e) {
       print('Sending report to sentry.io failed: $e');
