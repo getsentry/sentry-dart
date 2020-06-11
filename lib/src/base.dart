@@ -662,7 +662,7 @@ class Device {
   final double screenDensity;
 
   /// A decimal value reflecting the DPI (dots-per-inch) density.
-  final String screenDpi;
+  final int screenDpi;
 
   /// Whether the device was online or not.
   final bool online;
