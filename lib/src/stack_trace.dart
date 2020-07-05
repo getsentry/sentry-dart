@@ -27,6 +27,7 @@ List<Map<String, dynamic>> encodeStackTrace(
   dynamic stackTrace, {
   StackFrameFilter stackFrameFilter,
   String origin,
+  String packageName,
 }) {
   assert(stackTrace is String || stackTrace is StackTrace);
   origin ??= '';
@@ -37,8 +38,8 @@ List<Map<String, dynamic>> encodeStackTrace(
 
   final frames = <Map<String, dynamic>>[];
   for (var t = 0; t < chain.traces.length; t += 1) {
-    final encodedFrames = chain.traces[t].frames
-        .map((f) => encodeStackTraceFrame(f, origin: origin));
+    final encodedFrames = chain.traces[t].frames.map((f) =>
+        encodeStackTraceFrame(f, origin: origin, packageName: packageName));
 
     frames.addAll(encodedFrames);
 
@@ -49,15 +50,25 @@ List<Map<String, dynamic>> encodeStackTrace(
   return stackFrameFilter != null ? stackFrameFilter(jsonFrames) : jsonFrames;
 }
 
-Map<String, dynamic> encodeStackTraceFrame(Frame frame, {String origin}) {
+Map<String, dynamic> encodeStackTraceFrame(Frame frame,
+    {String origin, String packageName}) {
   origin ??= '';
 
+  bool is_local_source = false;
+
+  print("info ${frame.uri.scheme} & ${frame.uri.pathSegments.first}");
+
+  if (frame.uri.scheme == 'package' &&
+      frame.uri.pathSegments.first == packageName) {
+    is_local_source = true;
+  }
+
   final json = <String, dynamic>{
-    'abs_path': '$origin${_absolutePathForCrashReport(frame)}',
+    'abs_path': '$origin${_absolutePathForCrashReport(frame, packageName)}',
     'function': frame.member,
     'lineno': frame.line,
     'colno': frame.column,
-    'in_app': !frame.isCore,
+    'in_app': is_local_source,
   };
 
   if (frame.uri.pathSegments.isNotEmpty) {
@@ -75,9 +86,18 @@ Map<String, dynamic> encodeStackTraceFrame(Frame frame, {String origin}) {
 ///
 /// "dart:" and "package:" imports are always relative and are OK to send in
 /// full.
-String _absolutePathForCrashReport(Frame frame) {
+String _absolutePathForCrashReport(Frame frame, String packageName) {
   if (frame.uri.scheme != 'dart' && frame.uri.scheme != 'package') {
     return frame.uri.pathSegments.last;
+  } else if (frame.uri.scheme == 'package' &&
+      frame.uri.pathSegments.first == packageName) {
+    List<String> paths = ['./lib'];
+
+    for (int i = 1; i < frame.uri.pathSegments.length; ++i) {
+      paths.add(frame.uri.pathSegments[i]);
+    }
+
+    return paths.join("/");
   }
 
   return '${frame.uri}';
