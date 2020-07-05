@@ -89,7 +89,7 @@ String _absolutePathForCrashReport(Frame frame, String packageName) {
     return frame.uri.pathSegments.last;
   } else if (frame.uri.scheme == 'package' &&
       frame.uri.pathSegments.first == packageName) {
-    List<String> paths = ['./lib'];
+    List<String> paths = ['lib'];
 
     for (int i = 1; i < frame.uri.pathSegments.length; ++i) {
       paths.add(frame.uri.pathSegments[i]);
