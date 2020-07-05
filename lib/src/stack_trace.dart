@@ -56,8 +56,6 @@ Map<String, dynamic> encodeStackTraceFrame(Frame frame,
 
   bool is_local_source = false;
 
-  print("info ${frame.uri.scheme} & ${frame.uri.pathSegments.first}");
-
   if (frame.uri.scheme == 'package' &&
       frame.uri.pathSegments.first == packageName) {
     is_local_source = true;
