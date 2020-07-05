@@ -10,6 +10,7 @@ import 'base.dart';
 /// Implemented in `browser_client.dart` and `io_client.dart`.
 SentryClient createSentryClient({
   @required String dsn,
+  @required String packageName,
   Event environmentAttributes,
   bool compressPayload,
   Client httpClient,

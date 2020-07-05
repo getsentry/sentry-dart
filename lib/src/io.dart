@@ -43,6 +43,7 @@ class SentryIOClient extends SentryClient {
   /// tests.
   factory SentryIOClient({
     @required String dsn,
+    @required String packageName,
     Event environmentAttributes,
     bool compressPayload,
     Client httpClient,
@@ -60,6 +61,7 @@ class SentryIOClient extends SentryClient {
       uuidGenerator: uuidGenerator,
       environmentAttributes: environmentAttributes,
       dsn: dsn,
+      packageName: packageName,
       compressPayload: compressPayload,
       platform: sdkPlatform,
     );
@@ -71,6 +73,7 @@ class SentryIOClient extends SentryClient {
     UuidGenerator uuidGenerator,
     Event environmentAttributes,
     String dsn,
+    String packageName,
     this.compressPayload = true,
     String platform,
     String origin,
@@ -80,6 +83,7 @@ class SentryIOClient extends SentryClient {
           uuidGenerator: uuidGenerator,
           environmentAttributes: environmentAttributes,
           dsn: dsn,
+          packageName: packageName,
           platform: platform,
           origin: origin,
         );
@@ -113,6 +117,7 @@ class SentryIOClient extends SentryClient {
 
 SentryClient createSentryClient({
   @required String dsn,
+  @required String packageName,
   Event environmentAttributes,
   bool compressPayload,
   Client httpClient,
@@ -121,6 +126,7 @@ SentryClient createSentryClient({
 }) =>
     SentryIOClient(
       dsn: dsn,
+      packageName: packageName,
       environmentAttributes: environmentAttributes,
       compressPayload: compressPayload,
       httpClient: httpClient,

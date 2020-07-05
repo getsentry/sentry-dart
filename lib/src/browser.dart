@@ -37,6 +37,7 @@ class SentryBrowserClient extends SentryClient {
   /// tests.
   factory SentryBrowserClient({
     @required String dsn,
+    @required String packageName,
     Event environmentAttributes,
     Client httpClient,
     dynamic clock,
@@ -56,6 +57,7 @@ class SentryBrowserClient extends SentryClient {
       uuidGenerator: uuidGenerator,
       environmentAttributes: environmentAttributes,
       dsn: dsn,
+      packageName: packageName,
       origin: origin,
       platform: browserPlatform,
     );
@@ -67,6 +69,7 @@ class SentryBrowserClient extends SentryClient {
     UuidGenerator uuidGenerator,
     Event environmentAttributes,
     String dsn,
+    String packageName,
     String platform,
     String origin,
   }) : super.base(
@@ -75,6 +78,7 @@ class SentryBrowserClient extends SentryClient {
           uuidGenerator: uuidGenerator,
           environmentAttributes: environmentAttributes,
           dsn: dsn,
+          packageName: packageName,
           platform: platform,
           origin: origin,
         );
@@ -90,6 +94,7 @@ class SentryBrowserClient extends SentryClient {
 
 SentryClient createSentryClient({
   @required String dsn,
+  @required String packageName,
   Event environmentAttributes,
   bool compressPayload,
   Client httpClient,
@@ -98,6 +103,7 @@ SentryClient createSentryClient({
 }) =>
     SentryBrowserClient(
       dsn: dsn,
+      packageName: packageName,
       environmentAttributes: environmentAttributes,
       httpClient: httpClient,
       clock: clock,

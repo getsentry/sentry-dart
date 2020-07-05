@@ -28,6 +28,7 @@ abstract class SentryClient {
   /// `dart:html` is available, otherwise it will throw an unsupported error.
   factory SentryClient({
     @required String dsn,
+    @required String packageName,
     Event environmentAttributes,
     bool compressPayload,
     Client httpClient,
@@ -36,6 +37,7 @@ abstract class SentryClient {
   }) =>
       createSentryClient(
         dsn: dsn,
+        packageName: packageName,
         environmentAttributes: environmentAttributes,
         httpClient: httpClient,
         clock: clock,
@@ -65,6 +67,8 @@ abstract class SentryClient {
   final Event environmentAttributes;
 
   final Dsn _dsn;
+
+  final String packageName;
 
   /// The DSN URI.
   @visibleForTesting
@@ -106,10 +110,12 @@ abstract class SentryClient {
     dynamic clock,
     UuidGenerator uuidGenerator,
     String dsn,
+    String packageName,
     this.environmentAttributes,
     String platform,
     this.origin,
   })  : _dsn = Dsn.parse(dsn),
+        packageName = packageName,
         _uuidGenerator = uuidGenerator ?? generateUuidV4WithoutDashes,
         _platform = platform ?? sdkPlatform {
     if (clock == null) {
@@ -205,6 +211,7 @@ abstract class SentryClient {
     final event = Event(
       exception: exception,
       stackTrace: stackTrace,
+      packageName: packageName,
     );
     return capture(event: event);
   }
@@ -309,6 +316,7 @@ class Event {
     this.userContext,
     this.contexts,
     this.breadcrumbs,
+    this.packageName,
   });
 
   /// The logger that logged the event.
@@ -364,6 +372,8 @@ class Event {
   /// * https://docs.sentry.io/enriching-error-data/breadcrumbs/?platform=javascript
   final List<Breadcrumb> breadcrumbs;
 
+  final String packageName;
+
   /// Information about the current user.
   ///
   /// The value in this field overrides the user context
@@ -407,6 +417,7 @@ class Event {
     List<String> fingerprint,
     User userContext,
     List<Breadcrumb> breadcrumbs,
+    String packageName,
   }) =>
       Event(
         loggerName: loggerName ?? this.loggerName,
@@ -424,6 +435,7 @@ class Event {
         fingerprint: fingerprint ?? this.fingerprint,
         userContext: userContext ?? this.userContext,
         breadcrumbs: breadcrumbs ?? this.breadcrumbs,
+        packageName: packageName ?? this.packageName,
       );
 
   /// Serializes this event to JSON.
@@ -476,6 +488,7 @@ class Event {
           stackTrace,
           stackFrameFilter: stackFrameFilter,
           origin: origin,
+          packageName: packageName,
         ),
       };
     }
