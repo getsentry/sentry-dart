@@ -62,7 +62,7 @@ Map<String, dynamic> encodeStackTraceFrame(Frame frame,
   }
 
   final json = <String, dynamic>{
-    'abs_path': '$origin${_absolutePathForCrashReport(frame, packageName)}',
+    'abs_path': '$origin${_absolutePathForCrashReport(frame)}',
     'function': frame.member,
     'lineno': frame.line,
     'colno': frame.column,
@@ -70,7 +70,18 @@ Map<String, dynamic> encodeStackTraceFrame(Frame frame,
   };
 
   if (frame.uri.pathSegments.isNotEmpty) {
-    json['filename'] = frame.uri.pathSegments.last;
+    if (frame.uri.scheme == 'package' &&
+        frame.uri.pathSegments.first == packageName) {
+      List<String> paths = ['lib'];
+
+      for (int i = 1; i < frame.uri.pathSegments.length; ++i) {
+        paths.add(frame.uri.pathSegments[i]);
+      }
+
+      json['filename'] = paths.join("/");
+    } else {
+      json['filename'] = frame.uri.pathSegments.last;
+    }
   }
 
   return json;
@@ -84,18 +95,9 @@ Map<String, dynamic> encodeStackTraceFrame(Frame frame,
 ///
 /// "dart:" and "package:" imports are always relative and are OK to send in
 /// full.
-String _absolutePathForCrashReport(Frame frame, String packageName) {
+String _absolutePathForCrashReport(Frame frame) {
   if (frame.uri.scheme != 'dart' && frame.uri.scheme != 'package') {
     return frame.uri.pathSegments.last;
-  } else if (frame.uri.scheme == 'package' &&
-      frame.uri.pathSegments.first == packageName) {
-    List<String> paths = ['lib'];
-
-    for (int i = 1; i < frame.uri.pathSegments.length; ++i) {
-      paths.add(frame.uri.pathSegments[i]);
-    }
-
-    return paths.join("/");
   }
 
   return '${frame.uri}';
