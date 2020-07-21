@@ -46,9 +46,6 @@ abstract class SentryClient {
   /// Sentry.io client identifier for _this_ client.
   static const String sentryClient = '$sdkName/$sdkVersion';
 
-  /// The default logger name used if no other value is supplied.
-  static const String defaultLoggerName = 'SentryClient';
-
   @protected
   final Client httpClient;
 
@@ -155,8 +152,7 @@ abstract class SentryClient {
     final data = <String, dynamic>{
       'project': projectId,
       'event_id': _uuidGenerator(),
-      'timestamp': formatDateAsIso8601WithSecondPrecision(now),
-      'logger': defaultLoggerName,
+      'timestamp': formatDateAsIso8601WithSecondPrecision(now)
     };
 
     if (environmentAttributes != null) {
