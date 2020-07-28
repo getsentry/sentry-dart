@@ -3,6 +3,7 @@
 ## 5.0.0
 
 - BREAKING CHANGE: Fixed context screenDpi is of type int #58
+- By default no logger it set #63
 
 ## 4.0.0
 
