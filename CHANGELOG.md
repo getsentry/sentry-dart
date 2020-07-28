@@ -3,6 +3,7 @@
 ## 5.0.0
 
 - BREAKING CHANGE: Fixed context screenDpi is of type int #58
+- BREAKING CHANGE: Renamed capture method to captureEvent #64
 
 ## 4.0.0
 
