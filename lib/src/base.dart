@@ -152,7 +152,7 @@ abstract class SentryClient {
     final data = <String, dynamic>{
       'project': projectId,
       'event_id': _uuidGenerator(),
-      'timestamp': formatDateAsIso8601WithSecondPrecision(now)
+      'timestamp': formatDateAsIso8601WithSecondPrecision(now),
     };
 
     if (environmentAttributes != null) {
