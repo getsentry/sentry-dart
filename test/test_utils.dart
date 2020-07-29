@@ -135,7 +135,7 @@ void testCaptureException(
       'timestamp': '2017-01-02T00:00:00',
       'logger': 'SentryClient',
       'platform': 'javascript',
-      'sdk': {'version': sdkVersion, 'name': 'dart'},
+      'sdk': {'version': sdkVersion, 'name': 'sentry.dart'},
       'server_name': 'test.server.com',
       'release': '1.2.3',
       'environment': 'staging',
@@ -156,7 +156,7 @@ void testCaptureException(
       'exception': [
         {'type': 'ArgumentError', 'value': 'Invalid argument(s): Test error'}
       ],
-      'sdk': {'version': sdkVersion, 'name': 'dart'},
+      'sdk': {'version': sdkVersion, 'name': 'sentry.dart'},
       'logger': 'SentryClient',
       'server_name': 'test.server.com',
       'release': '1.2.3',
