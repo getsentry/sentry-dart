@@ -42,6 +42,17 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+  void init() async {
+    const platform = MethodChannel('io.sentry.flutter.manchestermaps/kmlLayer');
+    try {
+      final campusMapOverlay =
+          await platform.invokeMethod('retrieveFileFromUrl');
+      print(campusMapOverlay);
+    } on PlatformException catch (error) {
+      print(error);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

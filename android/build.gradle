@@ -1,4 +1,4 @@
-group 'com.example.sentry_flutter'
+group 'io.sentry.flutter'
 version '1.0-SNAPSHOT'
 
 buildscript {

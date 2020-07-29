@@ -1,4 +1,4 @@
-package com.example.sentry_flutter_example
+package io.sentry.flutter.example
 
 import io.flutter.embedding.android.FlutterActivity
 
