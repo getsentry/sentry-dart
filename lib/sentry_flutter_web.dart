@@ -32,7 +32,8 @@ class SentryFlutterWeb {
       default:
         throw PlatformException(
           code: 'Unimplemented',
-          details: 'sentry_flutter for web doesn\'t implement \'${call.method}\'',
+          details:
+              'sentry_flutter for web doesn\'t implement \'${call.method}\'',
         );
     }
   }

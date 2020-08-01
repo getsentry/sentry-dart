@@ -8,6 +8,8 @@
 Sentry SDK for Flutter
 ===========
 
+[![build](https://github.com/getsentry/sentry-flutter/workflows/build/badge.svg?branch=main)](https://github.com/getsentry/sentry-flutter/actions?query=branch%3Amain)
+
 This is a work in progress.
 A lot still to be done on [the base SDK](http://github.com/getsentry/sentry-dart) before the proper Flutter support is shipped.
 
