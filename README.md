@@ -9,7 +9,7 @@ Sentry SDK for Flutter
 ===========
 
 This is a work in progress.
-A lot still to be done on [the base SDK](github.com/flutter/sentry) before the proper Flutter support is shipped.
+A lot still to be done on [the base SDK](http://github.com/getsentry/sentry-dart) before the proper Flutter support is shipped.
 
 ## Resources
 
