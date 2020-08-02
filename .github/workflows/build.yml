@@ -55,7 +55,6 @@ jobs:
             flutter build appbundle
             ;;
             web)
-            echo “Invalid Input”
             flutter build web
             ;;
             esac
