@@ -23,6 +23,25 @@ void main() {
         },
       );
     });
+    test('$Sdk serializes', () {
+      final event = Event(
+          sdk: Sdk(
+              name: 'sentry.dart.flutter',
+              version: '4.3.2',
+              integrations: <String>['integration'],
+              packages: <Package>[Package('npm:@sentry/javascript', '1.3.4')]));
+      expect(event.toJson(), <String, dynamic>{
+        'platform': 'dart',
+        'sdk': {
+          'name': 'sentry.dart.flutter',
+          'version': '4.3.2',
+          'packages': [
+            {'name': 'npm:@sentry/javascript', 'version': '1.3.4'}
+          ],
+          'integrations': ['integration'],
+        },
+      });
+    });
     test('serializes to JSON', () {
       final user = User(
           id: 'user_id',
@@ -57,7 +76,7 @@ void main() {
         ).toJson(),
         <String, dynamic>{
           'platform': 'dart',
-          'sdk': {'version': sdkVersion, 'name': 'dart'},
+          'sdk': {'version': sdkVersion, 'name': 'sentry.dart'},
           'message': 'test-message',
           'transaction': '/test/1',
           'exception': [
