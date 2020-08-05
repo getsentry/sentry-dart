@@ -112,7 +112,7 @@ Future<Null> captureCompleteExampleEvent(SentryClient client) async {
             timezone: 'America/Toronto',
           )));
 
-  final response = await client.capture(event: event);
+  final response = await client.captureEvent(event: event);
 
   print('\nReporting a complete event example: ');
   if (response.isSuccessful) {
