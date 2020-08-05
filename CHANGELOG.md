@@ -5,6 +5,7 @@
 - BREAKING CHANGE: Fixed context screenDensity is of type double #53
 - BREAKING CHANGE: Fixed context screenDpi is of type int #58
 - BREAKING CHANGE: Renamed capture method to captureEvent #64
+- By default no logger it set #63
 
 ## 3.0.1
 
