@@ -139,7 +139,7 @@ abstract class SentryClient {
   }
 
   /// Reports an [event] to Sentry.io.
-  Future<SentryResponse> capture({
+  Future<SentryResponse> captureEvent({
     @required Event event,
     StackFrameFilter stackFrameFilter,
   }) async {
@@ -206,7 +206,7 @@ abstract class SentryClient {
       exception: exception,
       stackTrace: stackTrace,
     );
-    return capture(event: event);
+    return captureEvent(event: event);
   }
 
   Future<Null> close() async {
@@ -1061,7 +1061,7 @@ class User {
   }
 }
 
-/// Structed data to describe more information pior to the event [captured][SentryClient.capture].
+/// Structed data to describe more information pior to the event [captured][SentryClient.captureEvent].
 ///
 /// The outgoing JSON representation is:
 ///
