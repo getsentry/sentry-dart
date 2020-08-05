@@ -1,13 +1,10 @@
 # package:sentry changelog
 
-## 5.0.0
-
-- BREAKING CHANGE: Fixed context screenDpi is of type int #58
-- By default no logger it set #63
-
 ## 4.0.0
 
 - BREAKING CHANGE: Fixed context screenDensity is of type double #53
+- BREAKING CHANGE: Fixed context screenDpi is of type int #58
+- By default no logger it set #63
 
 ## 3.0.1
 
