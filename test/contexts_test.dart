@@ -36,13 +36,13 @@ void main() {
         bootTime: testBootTime,
         timezone: 'Australia/Melbourne',
       );
-      final testOS = OperatingSystem(name: 'testOS');
+      const testOS = OperatingSystem(name: 'testOS');
       final testRuntimes = [
-        Runtime(name: 'testRT1', version: '1.0'),
-        Runtime(name: 'testRT2', version: '2.3.1'),
+        const Runtime(name: 'testRT1', version: '1.0'),
+        const Runtime(name: 'testRT2', version: '2.3.1'),
       ];
-      final testApp = App(version: '1.2.3');
-      final testBrowser = Browser(version: '12.3.4');
+      const testApp = App(version: '1.2.3');
+      const testBrowser = Browser(version: '12.3.4');
 
       final contexts = Contexts(
         device: testDevice,

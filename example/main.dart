@@ -8,7 +8,7 @@ import 'dart:io';
 import 'package:sentry/sentry.dart';
 
 /// Sends a test exception report to Sentry.io using this Dart client.
-Future<Null> main(List<String> rawArgs) async {
+Future<void> main(List<String> rawArgs) async {
   if (rawArgs.length != 1) {
     stderr.writeln(
         'Expected exactly one argument, which is the DSN issued by Sentry.io to your project.');
@@ -41,7 +41,7 @@ Future<Null> main(List<String> rawArgs) async {
   }
 }
 
-Future<Null> captureCompleteExampleEvent(SentryClient client) async {
+Future<void> captureCompleteExampleEvent(SentryClient client) async {
   final event = Event(
       loggerName: 'main',
       serverName: 'server.dart',
@@ -50,15 +50,15 @@ Future<Null> captureCompleteExampleEvent(SentryClient client) async {
       message: 'This is an example Dart event.',
       transaction: '/example/app',
       level: SeverityLevel.warning,
-      tags: {'project-id': '7371'},
-      extra: {'company-name': 'Dart Inc'},
-      fingerprint: ['example-dart'],
-      userContext: User(
+      tags: const <String, String>{'project-id': '7371'},
+      extra: const <String, String>{'company-name': 'Dart Inc'},
+      fingerprint: const <String>['example-dart'],
+      userContext: const User(
           id: '800',
           username: 'first-user',
           email: 'first@user.lan',
           ipAddress: '127.0.0.1',
-          extras: {'first-sign-in': '2020-01-01'}),
+          extras: <String, String>{'first-sign-in': '2020-01-01'}),
       breadcrumbs: [
         Breadcrumb('UI Lifecycle', DateTime.now().toUtc(),
             category: 'ui.lifecycle',
@@ -67,14 +67,14 @@ Future<Null> captureCompleteExampleEvent(SentryClient client) async {
             level: SeverityLevel.info)
       ],
       contexts: Contexts(
-          operatingSystem: OperatingSystem(
+          operatingSystem: const OperatingSystem(
               name: 'Android',
               version: '5.0.2',
               build: 'LRX22G.P900XXS0BPL2',
               kernelVersion:
                   'Linux version 3.4.39-5726670 (dpi@SWHC3807) (gcc version 4.8 (GCC) ) #1 SMP PREEMPT Thu Dec 1 19:42:39 KST 2016',
               rooted: false),
-          runtimes: [Runtime(name: 'ART', version: '5')],
+          runtimes: [const Runtime(name: 'ART', version: '5')],
           app: App(
               name: 'Example Dart App',
               version: '1.42.0',
@@ -83,7 +83,7 @@ Future<Null> captureCompleteExampleEvent(SentryClient client) async {
               buildType: 'release',
               deviceAppHash: '5afd3a6',
               startTime: DateTime.now().toUtc()),
-          browser: Browser(name: 'Firefox', version: '42.0.1'),
+          browser: const Browser(name: 'Firefox', version: '42.0.1'),
           device: Device(
             name: 'SM-P900',
             family: 'SM-P900',
@@ -122,14 +122,14 @@ Future<Null> captureCompleteExampleEvent(SentryClient client) async {
   }
 }
 
-Future<Null> foo() async {
+Future<void> foo() async {
   await bar();
 }
 
-Future<Null> bar() async {
+Future<void> bar() async {
   await baz();
 }
 
-Future<Null> baz() async {
+Future<void> baz() async {
   throw StateError('This is a test error');
 }

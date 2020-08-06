@@ -13,9 +13,6 @@ import 'version.dart';
 
 /// Logs crash reports and events to the Sentry.io service.
 class SentryIOClient extends SentryClient {
-  /// Whether to compress payloads sent to Sentry.io.
-  final bool compressPayload;
-
   /// Instantiates a client using [dsn] issued to your project by Sentry.io as
   /// the endpoint for submitting events.
   ///
@@ -82,6 +79,9 @@ class SentryIOClient extends SentryClient {
           platform: platform,
           origin: origin,
         );
+
+  /// Whether to compress payloads sent to Sentry.io.
+  final bool compressPayload;
 
   @override
   Map<String, String> buildHeaders(String authHeader) {

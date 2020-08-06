@@ -24,7 +24,7 @@ void main() {
       );
     });
     test('$Sdk serializes', () {
-      final event = Event(
+      const event = Event(
           sdk: Sdk(
               name: 'sentry.dart.flutter',
               version: '4.3.2',
@@ -43,12 +43,12 @@ void main() {
       });
     });
     test('serializes to JSON', () {
-      final user = User(
+      const user = User(
           id: 'user_id',
           username: 'username',
           email: 'email@email.com',
           ipAddress: '127.0.0.1',
-          extras: {'foo': 'bar'});
+          extras: <String, String>{'foo': 'bar'});
 
       final breadcrumbs = [
         Breadcrumb('test log', DateTime.utc(2019),
@@ -62,15 +62,15 @@ void main() {
           exception: StateError('test-error'),
           level: SeverityLevel.debug,
           culprit: 'Professor Moriarty',
-          tags: <String, String>{
+          tags: const <String, String>{
             'a': 'b',
             'c': 'd',
           },
-          extra: <String, dynamic>{
+          extra: const <String, dynamic>{
             'e': 'f',
             'g': 2,
           },
-          fingerprint: <String>[Event.defaultFingerprint, 'foo'],
+          fingerprint: const <String>[Event.defaultFingerprint, 'foo'],
           userContext: user,
           breadcrumbs: breadcrumbs,
         ).toJson(),

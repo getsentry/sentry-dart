@@ -43,6 +43,24 @@ abstract class SentryClient {
         compressPayload: compressPayload,
       );
 
+  SentryClient.base({
+    this.httpClient,
+    dynamic clock,
+    UuidGenerator uuidGenerator,
+    String dsn,
+    this.environmentAttributes,
+    String platform,
+    this.origin,
+  })  : _dsn = Dsn.parse(dsn),
+        _uuidGenerator = uuidGenerator ?? generateUuidV4WithoutDashes,
+        _platform = platform ?? sdkPlatform {
+    if (clock == null) {
+      _clock = getUtcDateTime;
+    } else {
+      _clock = (clock is ClockProvider ? clock : clock.get) as ClockProvider;
+    }
+  }
+
   /// Sentry.io client identifier for _this_ client.
   static const String sentryClient = '$sdkName/$sdkVersion';
 
@@ -98,32 +116,14 @@ abstract class SentryClient {
   /// Used by sentry to differentiate browser from io environment
   final String _platform;
 
-  SentryClient.base({
-    this.httpClient,
-    dynamic clock,
-    UuidGenerator uuidGenerator,
-    String dsn,
-    this.environmentAttributes,
-    String platform,
-    this.origin,
-  })  : _dsn = Dsn.parse(dsn),
-        _uuidGenerator = uuidGenerator ?? generateUuidV4WithoutDashes,
-        _platform = platform ?? sdkPlatform {
-    if (clock == null) {
-      _clock = getUtcDateTime;
-    } else {
-      _clock = clock is ClockProvider ? clock : clock.get;
-    }
-  }
-
   @visibleForTesting
   String get postUri {
-    var port = dsnUri.hasPort &&
+    final port = dsnUri.hasPort &&
             ((dsnUri.scheme == 'http' && dsnUri.port != 80) ||
                 (dsnUri.scheme == 'https' && dsnUri.port != 443))
         ? ':${dsnUri.port}'
         : '';
-    var pathLength = dsnUri.pathSegments.length;
+    final pathLength = dsnUri.pathSegments.length;
     String apiPath;
     if (pathLength > 1) {
       // some paths would present before the projectID in the dsnUri
@@ -132,7 +132,7 @@ abstract class SentryClient {
     } else {
       apiPath = 'api';
     }
-    return '${dsnUri.scheme}://${dsnUri.host}${port}/$apiPath/$projectId/store/';
+    return '${dsnUri.scheme}://${dsnUri.host}$port/$apiPath/$projectId/store/';
   }
 
   /// Reports an [event] to Sentry.io.
@@ -161,7 +161,8 @@ abstract class SentryClient {
 
     // Merge the user context.
     if (userContext != null) {
-      mergeAttributes({'user': userContext.toJson()}, into: data);
+      mergeAttributes(<String, dynamic>{'user': userContext.toJson()},
+          into: data);
     }
 
     mergeAttributes(
@@ -171,7 +172,7 @@ abstract class SentryClient {
       ),
       into: data,
     );
-    mergeAttributes({'platform': _platform}, into: data);
+    mergeAttributes(<String, String>{'platform': _platform}, into: data);
 
     final body = bodyEncoder(data, headers);
 
@@ -189,7 +190,7 @@ abstract class SentryClient {
       return SentryResponse.failure(errorMessage);
     }
 
-    final String eventId = json.decode(response.body)['id'];
+    final String eventId = json.decode(response.body)['id'] as String;
     return SentryResponse.success(eventId: eventId);
   }
 
@@ -205,7 +206,7 @@ abstract class SentryClient {
     return captureEvent(event: event);
   }
 
-  Future<Null> close() async {
+  Future<void> close() async {
     httpClient.close();
   }
 
@@ -262,13 +263,13 @@ String generateUuidV4WithoutDashes() => Uuid().generateV4().replaceAll('-', '');
 /// Severity of the logged [Event].
 @immutable
 class SeverityLevel {
+  const SeverityLevel._(this.name);
+
   static const fatal = SeverityLevel._('fatal');
   static const error = SeverityLevel._('error');
   static const warning = SeverityLevel._('warning');
   static const info = SeverityLevel._('info');
   static const debug = SeverityLevel._('debug');
-
-  const SeverityLevel._(this.name);
 
   /// API name of the level as it is encoded in the JSON protocol.
   final String name;
@@ -281,12 +282,6 @@ DateTime getUtcDateTime() => DateTime.now().toUtc();
 /// An event to be reported to Sentry.io.
 @immutable
 class Event {
-  /// Refers to the default fingerprinting algorithm.
-  ///
-  /// You do not need to specify this value unless you supplement the default
-  /// fingerprint with custom fingerprints.
-  static const String defaultFingerprint = '{{ default }}';
-
   /// Creates an event.
   const Event({
     this.loggerName,
@@ -307,6 +302,12 @@ class Event {
     this.breadcrumbs,
     this.sdk,
   });
+
+  /// Refers to the default fingerprinting algorithm.
+  ///
+  /// You do not need to specify this value unless you supplement the default
+  /// fingerprint with custom fingerprints.
+  static const String defaultFingerprint = '{{ default }}';
 
   /// The logger that logged the event.
   final String loggerName;
@@ -515,7 +516,7 @@ class Event {
     }
 
     json['sdk'] = sdk?.toJson() ??
-        {
+        <String, String>{
           'name': sdkName,
           'version': sdkVersion,
         };
@@ -531,6 +532,14 @@ class Event {
 ///
 /// See also: https://docs.sentry.io/development/sdk-dev/event-payloads/contexts/.
 class Contexts {
+  const Contexts({
+    this.device,
+    this.operatingSystem,
+    this.runtimes,
+    this.app,
+    this.browser,
+  });
+
   /// This describes the device that caused the event.
   final Device device;
 
@@ -560,18 +569,9 @@ class Contexts {
   /// agent of a web request that triggered the event.
   final Browser browser;
 
-  const Contexts({
-    this.device,
-    this.operatingSystem,
-    this.runtimes,
-    this.app,
-    this.browser,
-  });
-
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    // ignore: omit_local_variable_types
-    final Map<String, dynamic> json = {};
+    final json = <String, dynamic>{};
 
     Map<String, dynamic> deviceMap;
     if (device != null && (deviceMap = device.toJson()).isNotEmpty) {
@@ -614,7 +614,8 @@ class Contexts {
               }
             }
 
-            json[key] = runtime.toJson()..addAll({'type': 'runtime'});
+            json[key] = runtime.toJson()
+              ..addAll(<String, String>{'type': 'runtime'});
           }
         }
       }
@@ -626,6 +627,35 @@ class Contexts {
 
 /// This describes the device that caused the event.
 class Device {
+  const Device({
+    this.name,
+    this.family,
+    this.model,
+    this.modelId,
+    this.arch,
+    this.batteryLevel,
+    this.orientation,
+    this.manufacturer,
+    this.brand,
+    this.screenResolution,
+    this.screenDensity,
+    this.screenDpi,
+    this.online,
+    this.charging,
+    this.lowMemory,
+    this.simulator,
+    this.memorySize,
+    this.freeMemory,
+    this.usableMemory,
+    this.storageSize,
+    this.freeStorage,
+    this.externalStorageSize,
+    this.externalFreeStorage,
+    this.bootTime,
+    this.timezone,
+  }) : assert(
+            batteryLevel == null || (batteryLevel >= 0 && batteryLevel <= 100));
+
   /// The name of the device. This is typically a hostname.
   final String name;
 
@@ -708,39 +738,9 @@ class Device {
   /// The timezone of the device, e.g.: `Europe/Vienna`.
   final String timezone;
 
-  const Device({
-    this.name,
-    this.family,
-    this.model,
-    this.modelId,
-    this.arch,
-    this.batteryLevel,
-    this.orientation,
-    this.manufacturer,
-    this.brand,
-    this.screenResolution,
-    this.screenDensity,
-    this.screenDpi,
-    this.online,
-    this.charging,
-    this.lowMemory,
-    this.simulator,
-    this.memorySize,
-    this.freeMemory,
-    this.usableMemory,
-    this.storageSize,
-    this.freeStorage,
-    this.externalStorageSize,
-    this.externalFreeStorage,
-    this.bootTime,
-    this.timezone,
-  }) : assert(
-            batteryLevel == null || (batteryLevel >= 0 && batteryLevel <= 100));
-
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    // ignore: omit_local_variable_types
-    final Map<String, dynamic> json = {};
+    final json = <String, dynamic>{};
 
     String orientation;
 
@@ -753,47 +753,89 @@ class Device {
         break;
     }
 
-    if (name != null) json['name'] = name;
+    if (name != null) {
+      json['name'] = name;
+    }
 
-    if (family != null) json['family'] = family;
+    if (family != null) {
+      json['family'] = family;
+    }
 
-    if (model != null) json['model'] = model;
+    if (model != null) {
+      json['model'] = model;
+    }
 
-    if (modelId != null) json['model_id'] = modelId;
+    if (modelId != null) {
+      json['model_id'] = modelId;
+    }
 
-    if (arch != null) json['arch'] = arch;
+    if (arch != null) {
+      json['arch'] = arch;
+    }
 
-    if (batteryLevel != null) json['battery_level'] = batteryLevel;
+    if (batteryLevel != null) {
+      json['battery_level'] = batteryLevel;
+    }
 
-    if (orientation != null) json['orientation'] = orientation;
+    if (orientation != null) {
+      json['orientation'] = orientation;
+    }
 
-    if (manufacturer != null) json['manufacturer'] = manufacturer;
+    if (manufacturer != null) {
+      json['manufacturer'] = manufacturer;
+    }
 
-    if (brand != null) json['brand'] = brand;
+    if (brand != null) {
+      json['brand'] = brand;
+    }
 
-    if (screenResolution != null) json['screen_resolution'] = screenResolution;
+    if (screenResolution != null) {
+      json['screen_resolution'] = screenResolution;
+    }
 
-    if (screenDensity != null) json['screen_density'] = screenDensity;
+    if (screenDensity != null) {
+      json['screen_density'] = screenDensity;
+    }
 
-    if (screenDpi != null) json['screen_dpi'] = screenDpi;
+    if (screenDpi != null) {
+      json['screen_dpi'] = screenDpi;
+    }
 
-    if (online != null) json['online'] = online;
+    if (online != null) {
+      json['online'] = online;
+    }
 
-    if (charging != null) json['charging'] = charging;
+    if (charging != null) {
+      json['charging'] = charging;
+    }
 
-    if (lowMemory != null) json['low_memory'] = lowMemory;
+    if (lowMemory != null) {
+      json['low_memory'] = lowMemory;
+    }
 
-    if (simulator != null) json['simulator'] = simulator;
+    if (simulator != null) {
+      json['simulator'] = simulator;
+    }
 
-    if (memorySize != null) json['memory_size'] = memorySize;
+    if (memorySize != null) {
+      json['memory_size'] = memorySize;
+    }
 
-    if (freeMemory != null) json['free_memory'] = freeMemory;
+    if (freeMemory != null) {
+      json['free_memory'] = freeMemory;
+    }
 
-    if (usableMemory != null) json['usable_memory'] = usableMemory;
+    if (usableMemory != null) {
+      json['usable_memory'] = usableMemory;
+    }
 
-    if (storageSize != null) json['storage_size'] = storageSize;
+    if (storageSize != null) {
+      json['storage_size'] = storageSize;
+    }
 
-    if (freeStorage != null) json['free_storage'] = freeStorage;
+    if (freeStorage != null) {
+      json['free_storage'] = freeStorage;
+    }
 
     if (externalStorageSize != null) {
       json['external_storage_size'] = externalStorageSize;
@@ -803,9 +845,13 @@ class Device {
       json['external_free_storage'] = externalFreeStorage;
     }
 
-    if (bootTime != null) json['boot_time'] = bootTime.toIso8601String();
+    if (bootTime != null) {
+      json['boot_time'] = bootTime.toIso8601String();
+    }
 
-    if (timezone != null) json['timezone'] = timezone;
+    if (timezone != null) {
+      json['timezone'] = timezone;
+    }
 
     return json;
   }
@@ -818,6 +864,15 @@ enum Orientation { portrait, landscape }
 /// In web contexts, this is the operating system of the browse
 /// (normally pulled from the User-Agent string).
 class OperatingSystem {
+  const OperatingSystem({
+    this.name,
+    this.version,
+    this.build,
+    this.kernelVersion,
+    this.rooted,
+    this.rawDescription,
+  });
+
   /// The name of the operating system.
   final String name;
 
@@ -841,31 +896,33 @@ class OperatingSystem {
   /// version from this string, if they are not explicitly given.
   final String rawDescription;
 
-  const OperatingSystem({
-    this.name,
-    this.version,
-    this.build,
-    this.kernelVersion,
-    this.rooted,
-    this.rawDescription,
-  });
-
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    // ignore: omit_local_variable_types
-    final Map<String, dynamic> json = {};
+    final json = <String, dynamic>{};
 
-    if (name != null) json['name'] = name;
+    if (name != null) {
+      json['name'] = name;
+    }
 
-    if (version != null) json['version'] = version;
+    if (version != null) {
+      json['version'] = version;
+    }
 
-    if (build != null) json['build'] = build;
+    if (build != null) {
+      json['build'] = build;
+    }
 
-    if (kernelVersion != null) json['kernel_version'] = kernelVersion;
+    if (kernelVersion != null) {
+      json['kernel_version'] = kernelVersion;
+    }
 
-    if (rooted != null) json['rooted'] = rooted;
+    if (rooted != null) {
+      json['rooted'] = rooted;
+    }
 
-    if (rawDescription != null) json['raw_description'] = rawDescription;
+    if (rawDescription != null) {
+      json['raw_description'] = rawDescription;
+    }
 
     return json;
   }
@@ -877,6 +934,9 @@ class OperatingSystem {
 /// are involved (for instance if you have a JavaScript application running
 /// on top of JVM).
 class Runtime {
+  const Runtime({this.key, this.name, this.version, this.rawDescription})
+      : assert(key == null || key.length >= 1);
+
   /// Key used in the JSON and which will be displayed
   /// in the Sentry UI. Defaults to lower case version of [name].
   ///
@@ -895,20 +955,21 @@ class Runtime {
   /// and version from this string, if they are not explicitly given.
   final String rawDescription;
 
-  const Runtime({this.key, this.name, this.version, this.rawDescription})
-      // ignore: prefer_is_empty
-      : assert(key == null || key.length >= 1);
-
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    // ignore: omit_local_variable_types
-    final Map<String, dynamic> json = {};
+    final json = <String, dynamic>{};
 
-    if (name != null) json['name'] = name;
+    if (name != null) {
+      json['name'] = name;
+    }
 
-    if (version != null) json['version'] = version;
+    if (version != null) {
+      json['version'] = version;
+    }
 
-    if (rawDescription != null) json['raw_description'] = rawDescription;
+    if (rawDescription != null) {
+      json['raw_description'] = rawDescription;
+    }
 
     return json;
   }
@@ -919,6 +980,16 @@ class Runtime {
 /// As opposed to the runtime, this is the actual application that was
 /// running and carries metadata about the current session.
 class App {
+  const App({
+    this.name,
+    this.version,
+    this.identifier,
+    this.build,
+    this.buildType,
+    this.startTime,
+    this.deviceAppHash,
+  });
+
   /// Human readable application name, as it appears on the platform.
   final String name;
 
@@ -940,34 +1011,37 @@ class App {
   /// Application specific device identifier.
   final String deviceAppHash;
 
-  const App({
-    this.name,
-    this.version,
-    this.identifier,
-    this.build,
-    this.buildType,
-    this.startTime,
-    this.deviceAppHash,
-  });
-
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    // ignore: omit_local_variable_types
-    final Map<String, dynamic> json = {};
+    final json = <String, String>{};
 
-    if (name != null) json['app_name'] = name;
+    if (name != null) {
+      json['app_name'] = name;
+    }
 
-    if (version != null) json['app_version'] = version;
+    if (version != null) {
+      json['app_version'] = version;
+    }
 
-    if (identifier != null) json['app_identifier'] = identifier;
+    if (identifier != null) {
+      json['app_identifier'] = identifier;
+    }
 
-    if (build != null) json['app_build'] = build;
+    if (build != null) {
+      json['app_build'] = build;
+    }
 
-    if (buildType != null) json['build_type'] = buildType;
+    if (buildType != null) {
+      json['build_type'] = buildType;
+    }
 
-    if (startTime != null) json['app_start_time'] = startTime.toIso8601String();
+    if (startTime != null) {
+      json['app_start_time'] = startTime.toIso8601String();
+    }
 
-    if (deviceAppHash != null) json['device_app_hash'] = deviceAppHash;
+    if (deviceAppHash != null) {
+      json['device_app_hash'] = deviceAppHash;
+    }
 
     return json;
   }
@@ -978,22 +1052,26 @@ class App {
 /// This can either be the browser this event ocurred in, or the user
 /// agent of a web request that triggered the event.
 class Browser {
+  /// Creates an instance of [Browser].
+  const Browser({this.name, this.version});
+
   /// Human readable application name, as it appears on the platform.
   final String name;
 
   /// Human readable application version, as it appears on the platform.
   final String version;
 
-  const Browser({this.name, this.version});
-
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    // ignore: omit_local_variable_types
-    final Map<String, dynamic> json = {};
+    final json = <String, dynamic>{};
 
-    if (name != null) json['name'] = name;
+    if (name != null) {
+      json['name'] = name;
+    }
 
-    if (version != null) json['version'] = version;
+    if (version != null) {
+      json['version'] = version;
+    }
 
     return json;
   }
@@ -1023,6 +1101,10 @@ class Browser {
 /// }
 /// ```
 class User {
+  /// At a minimum you must set an [id] or an [ipAddress].
+  const User({this.id, this.username, this.email, this.ipAddress, this.extras})
+      : assert(id != null || ipAddress != null);
+
   /// A unique identifier of the user.
   final String id;
 
@@ -1041,13 +1123,9 @@ class User {
   /// by Sentry.
   final Map<String, dynamic> extras;
 
-  /// At a minimum you must set an [id] or an [ipAddress].
-  const User({this.id, this.username, this.email, this.ipAddress, this.extras})
-      : assert(id != null || ipAddress != null);
-
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    return {
+    return <String, dynamic>{
       'id': id,
       'username': username,
       'email': email,
@@ -1074,6 +1152,16 @@ class User {
 /// See also:
 /// * https://docs.sentry.io/development/sdk-dev/event-payloads/breadcrumbs/
 class Breadcrumb {
+  /// Creates a breadcrumb that can be attached to an [Event].
+  const Breadcrumb(
+    this.message,
+    this.timestamp, {
+    this.category,
+    this.data,
+    this.level = SeverityLevel.info,
+    this.type,
+  }) : assert(timestamp != null);
+
   /// Describes the breadcrumb.
   ///
   /// This field is optional and may be set to null.
@@ -1118,20 +1206,10 @@ class Breadcrumb {
   /// The value is submitted to Sentry with second precision.
   final DateTime timestamp;
 
-  /// Creates a breadcrumb that can be attached to an [Event].
-  const Breadcrumb(
-    this.message,
-    this.timestamp, {
-    this.category,
-    this.data,
-    this.level = SeverityLevel.info,
-    this.type,
-  }) : assert(timestamp != null);
-
   /// Converts this breadcrumb to a map that can be serialized to JSON according
   /// to the Sentry protocol.
   Map<String, dynamic> toJson() {
-    var json = <String, dynamic>{
+    final json = <String, dynamic>{
       'timestamp': formatDateAsIso8601WithSecondPrecision(timestamp),
     };
     if (message != null) {
@@ -1185,6 +1263,14 @@ class Breadcrumb {
 /// ```
 @immutable
 class Sdk {
+  /// Creates an [Sdk] object which represents the SDK that created an [Event].
+  const Sdk(
+      {@required this.name,
+      @required this.version,
+      this.integrations,
+      this.packages})
+      : assert(name != null || version != null);
+
   /// The name of the SDK.
   final String name;
 
@@ -1196,14 +1282,6 @@ class Sdk {
 
   /// A list of packages that compose this SDK.
   final List<Package> packages;
-
-  /// Creates an [Sdk] object which represents the SDK that created an [Event].
-  const Sdk(
-      {@required this.name,
-      @required this.version,
-      this.integrations,
-      this.packages})
-      : assert(name != null || version != null);
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
@@ -1224,19 +1302,19 @@ class Sdk {
 /// A [Package] part of the [Sdk].
 @immutable
 class Package {
+  /// Creates an [Package] object that is part of the [Sdk].
+  const Package(this.name, this.version)
+      : assert(name != null && version != null);
+
   /// The name of the SDK.
   final String name;
 
   /// The version of the SDK.
   final String version;
 
-  /// Creates an [Package] object that is part of the [Sdk].
-  const Package(this.name, this.version)
-      : assert(name != null && version != null);
-
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    return {
+    return <String, String>{
       'name': name,
       'version': version,
     };
@@ -1244,6 +1322,13 @@ class Package {
 }
 
 class Dsn {
+  Dsn({
+    @required this.publicKey,
+    @required this.projectId,
+    this.uri,
+    this.secretKey,
+  });
+
   /// The Sentry.io public key for the project.
   @visibleForTesting
   final String publicKey;
@@ -1259,13 +1344,6 @@ class Dsn {
 
   /// The DSN URI.
   final Uri uri;
-
-  Dsn({
-    @required this.publicKey,
-    @required this.projectId,
-    this.uri,
-    this.secretKey,
-  });
 
   static Dsn parse(String dsn) {
     final uri = Uri.parse(dsn);

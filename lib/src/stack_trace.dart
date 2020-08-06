@@ -33,7 +33,7 @@ List<Map<String, dynamic>> encodeStackTrace(
 
   final chain = stackTrace is StackTrace
       ? Chain.forTrace(stackTrace)
-      : Chain.parse(stackTrace);
+      : Chain.parse(stackTrace as String);
 
   final frames = <Map<String, dynamic>>[];
   for (var t = 0; t < chain.traces.length; t += 1) {
@@ -42,7 +42,9 @@ List<Map<String, dynamic>> encodeStackTrace(
 
     frames.addAll(encodedFrames);
 
-    if (t < chain.traces.length - 1) frames.add(asynchronousGapFrameJson);
+    if (t < chain.traces.length - 1) {
+      frames.add(asynchronousGapFrameJson);
+    }
   }
 
   final jsonFrames = frames.reversed.toList();

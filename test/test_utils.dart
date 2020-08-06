@@ -36,14 +36,18 @@ void testHeaders(
         'sentry_secret=secret';
   }
 
-  if (withUserAgent) expectedHeaders['User-Agent'] = '$sdkName/$sdkVersion';
+  if (withUserAgent) {
+    expectedHeaders['User-Agent'] = '$sdkName/$sdkVersion';
+  }
 
-  if (compressPayload) expectedHeaders['Content-Encoding'] = 'gzip';
+  if (compressPayload) {
+    expectedHeaders['Content-Encoding'] = 'gzip';
+  }
 
   expect(headers, expectedHeaders);
 }
 
-void testCaptureException(
+Future testCaptureException(
   bool compressPayload,
   Codec<List<int>, List<int>> gzip,
   bool isWeb,
@@ -97,16 +101,17 @@ void testCaptureException(
 
   Map<String, dynamic> data;
   if (compressPayload) {
-    data = json.decode(utf8.decode(gzip.decode(body)));
+    data = json.decode(utf8.decode(gzip.decode(body))) as Map<String, dynamic>;
   } else {
-    data = json.decode(utf8.decode(body));
+    data = json.decode(utf8.decode(body)) as Map<String, dynamic>;
   }
-  final Map<String, dynamic> stacktrace = data.remove('stacktrace');
+  final Map<String, dynamic> stacktrace =
+      data.remove('stacktrace') as Map<String, dynamic>;
   expect(stacktrace['frames'], const TypeMatcher<List>());
   expect(stacktrace['frames'], isNotEmpty);
 
   final Map<String, dynamic> topFrame =
-      (stacktrace['frames'] as Iterable<dynamic>).last;
+      (stacktrace['frames'] as Iterable<dynamic>).last as Map<String, dynamic>;
   expect(topFrame.keys, <String>[
     'abs_path',
     'function',
@@ -119,7 +124,7 @@ void testCaptureException(
   if (isWeb) {
     // can't test the full url
     // the localhost port can change
-    final absPathUri = Uri.parse(topFrame['abs_path']);
+    final absPathUri = Uri.parse(topFrame['abs_path'] as String);
     expect(absPathUri.host, 'localhost');
     expect(absPathUri.path, '/sentry_browser_test.dart.browser_test.dart.js');
 
@@ -257,8 +262,8 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
 
   test('sends an exception report (compressed)', () async {
     await testCaptureException(true, gzip, isWeb);
-  }, onPlatform: {
-    'browser': Skip(),
+  }, onPlatform: <String, Skip>{
+    'browser': const Skip(),
   });
 
   test('sends an exception report (uncompressed)', () async {
@@ -311,10 +316,10 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     String loggedUserId; // used to find out what user context was sent
     final httpMock = MockClient((Request request) async {
       if (request.method == 'POST') {
-        var bodyData = request.bodyBytes;
-        var decoded = Utf8Codec().decode(bodyData);
-        var decodedJson = JsonDecoder().convert(decoded);
-        loggedUserId = decodedJson['user']['id'];
+        final bodyData = request.bodyBytes;
+        final decoded = const Utf8Codec().decode(bodyData);
+        final dynamic decodedJson = const JsonDecoder().convert(decoded);
+        loggedUserId = decodedJson['user']['id'] as String;
         return Response('', 401, headers: <String, String>{
           'x-sentry-error': 'Invalid api key',
         });
@@ -323,17 +328,17 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
           'Unexpected request on ${request.method} ${request.url} in HttpMock');
     });
 
-    final clientUserContext = User(
+    const clientUserContext = User(
         id: 'client_user',
         username: 'username',
         email: 'email@email.com',
         ipAddress: '127.0.0.1');
-    final eventUserContext = User(
+    const eventUserContext = User(
         id: 'event_user',
         username: 'username',
         email: 'email@email.com',
         ipAddress: '127.0.0.1',
-        extras: {'foo': 'bar'});
+        extras: <String, String>{'foo': 'bar'});
 
     final client = SentryClient(
       dsn: testDsn,
