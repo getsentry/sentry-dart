@@ -405,6 +405,7 @@ class Event {
     Map<String, dynamic> extra,
     List<String> fingerprint,
     User userContext,
+    Contexts contexts,
     List<Breadcrumb> breadcrumbs,
     Sdk sdk,
   }) =>
@@ -423,6 +424,7 @@ class Event {
         extra: extra ?? this.extra,
         fingerprint: fingerprint ?? this.fingerprint,
         userContext: userContext ?? this.userContext,
+        contexts: contexts ?? this.contexts,
         breadcrumbs: breadcrumbs ?? this.breadcrumbs,
         sdk: sdk ?? this.sdk,
       );
