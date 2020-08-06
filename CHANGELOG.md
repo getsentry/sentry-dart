@@ -6,6 +6,7 @@
 - BREAKING CHANGE: Fixed context screenDpi is of type int #58
 - BREAKING CHANGE: Renamed capture method to captureEvent #64
 - By default no logger it set #63
+- Added missing Contexts to Event.copyWith() #62 
 
 ## 3.0.1
 
