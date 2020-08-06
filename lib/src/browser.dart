@@ -20,8 +20,7 @@ class SentryBrowserClient extends SentryClient {
   /// [environmentAttributes] contain event attributes that do not change over
   /// the course of a program's lifecycle. These attributes will be added to
   /// all events captured via this client. The following attributes often fall
-  /// under this category: [Event.loggerName], [Event.serverName],
-  /// [Event.release], [Event.environment].
+  /// under this category: [Event.serverName], [Event.release], [Event.environment].
   ///
   /// If [httpClient] is provided, it is used instead of the default client to
   /// make HTTP calls to Sentry.io. This is useful in tests.

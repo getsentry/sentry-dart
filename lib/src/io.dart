@@ -22,8 +22,7 @@ class SentryIOClient extends SentryClient {
   /// [environmentAttributes] contain event attributes that do not change over
   /// the course of a program's lifecycle. These attributes will be added to
   /// all events captured via this client. The following attributes often fall
-  /// under this category: [Event.loggerName], [Event.serverName],
-  /// [Event.release], [Event.environment].
+  /// under this category: [Event.serverName], [Event.release], [Event.environment].
   ///
   /// If [compressPayload] is `true` the outgoing HTTP payloads are compressed
   /// using gzip. Otherwise, the payloads are sent in plain UTF8-encoded JSON
