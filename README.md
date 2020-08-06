@@ -1,4 +1,11 @@
-# Sentry.io client for Dart
+<p align="center">
+  <a href="https://sentry.io" target="_blank" align="center">
+    <img src="https://sentry-brand.storage.googleapis.com/sentry-logo-black.png" width="280">
+  </a>
+  <br />
+</p>
+
+# Sentry SDK for Dart
 
 [![Build Status](https://travis-ci.org/flutter/sentry.svg?branch=master)](https://travis-ci.org/flutter/sentry)
 [![pub package](https://img.shields.io/pub/v/sentry.svg)](https://pub.dev/packages/sentry)
