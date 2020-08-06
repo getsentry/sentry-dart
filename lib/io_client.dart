@@ -3,5 +3,5 @@
 // found in the LICENSE file.
 
 export 'src/base.dart';
-export 'src/version.dart';
 export 'src/io.dart';
+export 'src/version.dart';

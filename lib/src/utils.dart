@@ -19,7 +19,8 @@ void mergeAttributes(Map<String, dynamic> attributes,
         // of 'value' will expose 'value' to be mutated by further merges.
         into[name] = targetValue = <String, dynamic>{};
       }
-      mergeAttributes(value, into: targetValue);
+      mergeAttributes(value as Map<String, dynamic>,
+          into: targetValue as Map<String, dynamic>);
     } else {
       into[name] = value;
     }
