@@ -9,6 +9,9 @@
 
 [![Build Status](https://travis-ci.org/flutter/sentry.svg?branch=master)](https://travis-ci.org/flutter/sentry)
 [![pub package](https://img.shields.io/pub/v/sentry.svg)](https://pub.dev/packages/sentry)
+[![likes](https://badges.bar/sentry/likes)](https://pub.dev/packages/sentry/score)
+[![popularity](https://badges.bar/sentry/popularity)](https://pub.dev/packages/sentry/score)
+[![pub points](https://badges.bar/sentry/pub%20points)](https://pub.dev/packages/sentry/score) 
 
 Use this library in your Dart programs (Flutter for mobile, Flutter for web,
 command-line, and [AngularDart][angular_sentry]) to report errors thrown by your program to
