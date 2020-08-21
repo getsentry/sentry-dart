@@ -1,12 +1,65 @@
 import 'dart:async';
+import 'dart:isolate';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
-void main() {
-  runApp(MyApp());
+import 'package:sentry/sentry.dart';
+
+// NOTE: Add your DSN below to get the events in your Sentry project.
+final SentryClient _sentry = SentryClient(
+    dsn:
+        'https://39226a237e6b4fa5aae9191fa5732814@o19635.ingest.sentry.io/2078115');
+
+// Proposed init:
+// https://github.com/bruno-garcia/badges.bar/blob/2450ed9125f7b73d2baad1fa6d676cc71858116c/lib/src/sentry.dart#L9-L32
+Future<void> main() async {
+  // Needs to move into the library
+  FlutterError.onError = (FlutterErrorDetails details) async {
+    print('Capture from FlutterError ${details.exception}');
+    Zone.current.handleUncaughtError(details.exception, details.stack);
+  };
+  Isolate.current.addSentryErrorListener(_sentry);
+
+  runZonedGuarded<Future<void>>(() async {
+    runApp(MyApp());
+  }, (error, stackTrace) async {
+    print('Capture from runZonedGuarded $error');
+    await _sentry.captureException(
+      exception: error,
+      stackTrace: stackTrace,
+    );
+  });
+}
+
+// Candidate API for the SDK
+extension IsolateExtensions on Isolate {
+  void addSentryErrorListener(SentryClient sentry) {
+    final receivePort = RawReceivePort((dynamic values) async {
+      await sentry.captureIsolateError(values);
+    });
+
+    Isolate.current.addErrorListener(receivePort.sendPort);
+  }
+}
+
+// Candidate API for the SDK
+extension SentryExtensions on SentryClient {
+  Future<void> captureIsolateError(dynamic error) {
+    print('Capture from IsolateError $error');
+
+    if (error is List<dynamic> && error.length != 2) {
+      dynamic stackTrace = error[1];
+      if (stackTrace != null) {
+        stackTrace = StackTrace.fromString(stackTrace as String);
+      }
+      return captureException(exception: error[0], stackTrace: stackTrace);
+    } else {
+      return Future.value();
+    }
+  }
 }
 
 class MyApp extends StatefulWidget {
