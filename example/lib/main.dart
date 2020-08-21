@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -60,10 +61,36 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Plugin example app'),
+          title: const Text('Sentry Flutter Example.'),
         ),
-        body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+        body: Column(
+          children: [
+            Center(
+              child: Text('Running on: $_platformVersion\n'),
+            ),
+            RaisedButton(
+                child: const Text('Dart: throw null'),
+                onPressed: () => throw null),
+            RaisedButton(
+                child: const Text('Dart: Fail in microtask.'),
+                onPressed: () async => {
+                      await Future.microtask(
+                          () => throw StateError('Failure in a microtask.'))
+                    }),
+            RaisedButton(
+                child: const Text('Dart: Fail in isolate.'),
+                onPressed: () async => {
+                      await compute(
+                          (void _) => print('where is the bug?'), null)
+                    }),
+            RaisedButton(
+              child: const Text('Platform: MethodChannel unknown method.'),
+              onPressed: () async {
+                const channel = MethodChannel('method_channel');
+                await channel.invokeMethod<void>('unknown');
+              },
+            ),
+          ],
         ),
       ),
     );
