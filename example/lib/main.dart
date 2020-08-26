@@ -156,10 +156,53 @@ class _MyAppState extends State<MyApp> {
                           null)
                     }),
             RaisedButton(
-              child: const Text('Platform: MethodChannel unknown method'),
+              child: const Text('Platform: unknown MethodChannel'),
               onPressed: () async {
-                const channel = MethodChannel('method_channel');
+                const channel = MethodChannel('unknown');
                 await channel.invokeMethod<void>('unknown');
+              },
+            ),
+            RaisedButton(
+              child: const Text('Platform: Throw Exception'),
+              onPressed: () async {
+                const channel = MethodChannel('example.flutter.sentry.io');
+                await channel.invokeMethod<void>('throw');
+              },
+            ),
+            RaisedButton(
+              child: const Text('Platform: Background error'),
+              onPressed: () async {
+                const channel = MethodChannel('example.flutter.sentry.io');
+                await channel.invokeMethod<void>('background');
+              },
+            ),
+            RaisedButton(
+              child: const Text('Platform: try/catch/capture'),
+              onPressed: () async {
+                const channel = MethodChannel('example.flutter.sentry.io');
+                await channel.invokeMethod<void>('capture');
+              },
+            ),
+            RaisedButton(
+              child: const Text('Platform: ANR'),
+              onPressed: () async {
+                const channel = MethodChannel('example.flutter.sentry.io');
+                await channel.invokeMethod<void>('anr');
+              },
+            ),
+            RaisedButton(
+              child: const Text('Platform: native crash (signal)'),
+              onPressed: () async {
+                const channel = MethodChannel('example.flutter.sentry.io');
+                await channel.invokeMethod<void>('crash');
+              },
+            ),
+            // XXX: Show only relevant buttons for the platform
+            RaisedButton(
+              child: const Text('Platform: native capture message'),
+              onPressed: () async {
+                const channel = MethodChannel('example.flutter.sentry.io');
+                await channel.invokeMethod<void>('native_capture_message');
               },
             ),
           ],

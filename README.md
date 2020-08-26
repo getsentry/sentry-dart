@@ -13,6 +13,19 @@ Sentry SDK for Flutter
 This is a work in progress.
 A lot still to be done on [the base SDK](http://github.com/getsentry/sentry-dart) before the proper Flutter support is shipped.
 
+## Contributing
+
+The SDK currently supports Android, iOS and Web. We build the example app for these targets in 3 platforms: Windows, macOS and Linux.
+This is to make sure you'd be able to contribute to this project if you're using any of these operating systems.
+
+We also run CI against the Flutter `stable` and `beta` channels so you should be able to build it if you're in one of those.
+
+### Dependencies
+
+* Android: Android SDK with NDK: The example project includes C++.
+* iOS: You'll need a Mac with xcode installed.
+* Web: No additional dependencies.
+
 ## Resources
 
 * [![Documentation](https://img.shields.io/badge/documentation-sentry.io-green.svg)](https://docs.sentry.io/platforms/dotnet/)

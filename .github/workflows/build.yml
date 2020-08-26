@@ -44,6 +44,8 @@ jobs:
         - name: Test
           run: flutter test
         - name: Build ${{ matrix.target }}
+          env:
+            SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           run: |
             cd example
             TARGET=${{ matrix.target }}
@@ -62,7 +64,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: axel-op/dart-package-analyzer@v2
+      - uses: axel-op/dart-package-analyzer@v3
         id: analysis
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
