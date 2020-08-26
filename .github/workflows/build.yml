@@ -69,12 +69,14 @@ jobs:
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
       - name: Check scores
-        # TODO: Once 1.0.0 lands, change min maintenance points to 100
+        env:
+          TOTAL: ${{ steps.analysis.outputs.total }}
+          TOTAL_MAX: ${{ steps.analysis.outputs.total_max }}
+        # TODO: Once 1.0.0 lands, change to 100 
         run: |
-          MAINTENANCE_SCORE=${{ steps.analysis.outputs.maintenance }}
-          HEALTH_SCORE=${{ steps.analysis.outputs.health }}
-          if (( $(echo "$MAINTENANCE_SCORE < 90" | bc) )) || (( $(echo "$HEALTH_SCORE < 100" | bc) ))
+          PERCENTAGE=$(( $TOTAL * 100 / $TOTAL_MAX ))
+          if (( $PERCENTAGE < 95 ))
           then
-            echo "Scores must be min 90 for maintenance (until 1.0 ships), 100 for health."
+            echo Score too low!
             exit 1
           fi
