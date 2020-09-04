@@ -14,10 +14,16 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
   }
 
   override init() {
-    SentrySDK.start { options in
-        options.dsn = "https://39226a237e6b4fa5aae9191fa5732814@o19635.ingest.sentry.io/2078115"
-        options.debug = true
-        options.attachStacktrace = true
+    if let path = Bundle.main.path(forResource: "Info", ofType: "plist") {
+      if let resource = NSDictionary(contentsOfFile: path) {
+        if let dsn = resource.object(forKey: "SentryDsn") {
+          SentrySDK.start { options in
+              options.dsn = dsn as? String
+              options.debug = resource["SentryDebug"] as? NSNumber ?? 0
+              options.attachStacktrace = true
+          }
+        }
+      }
     }
   }
 }

@@ -2,6 +2,17 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+    <!-- Sentry example properties -->
+
+    <!-- Add your DSN below to see the events in your Sentry project -->
+	<key>SentryDsn</key>
+	<string>https://39226a237e6b4fa5aae9191fa5732814@o19635.ingest.sentry.io/2078115</string>
+    <!-- To show the SDK diagnostic messages in the debugger output -->
+	<key>SentryDebug</key>
+	<string>true</string>
+
+    <!-- End of Sentry example properties -->
+
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>

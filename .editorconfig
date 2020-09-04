@@ -13,5 +13,5 @@ end_of_line = lf
 [*.{cmd, bat, ps1}]
 end_of_line = crlf
 
-[*.{kt,kts}]
+[*.{kt,kts,swift}]
 indent_size=2
