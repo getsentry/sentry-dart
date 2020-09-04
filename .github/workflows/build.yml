@@ -80,3 +80,24 @@ jobs:
             echo Score too low!
             exit 1
           fi
+  pod-lint:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      # https://github.com/CocoaPods/CocoaPods/issues/5275#issuecomment-315461879
+      - run: pod lib lint ios/sentry_flutter.podspec --skip-import-validation
+  swift-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: norio-nomura/action-swiftlint@3.1.0
+  ktlint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: brew install ktlint
+      - name: run ktlint
+        run: ktlint --reporter=checkstyle,output=build/ktlint-report.xml || true
+      - uses: yutailang0119/action-ktlint@v1.0.0
+        with:
+          xml_path: build/ktlint-report.xml

@@ -1,7 +1,6 @@
 package io.sentry.flutter
 
-import androidx.annotation.NonNull;
-
+import androidx.annotation.NonNull
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -9,12 +8,12 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
 
-public class SentryFlutterPlugin: FlutterPlugin, MethodCallHandler {
-  private lateinit var channel : MethodChannel
+public class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
+  private lateinit var channel: MethodChannel
 
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.getFlutterEngine().getDartExecutor(), "sentry_flutter")
-    channel.setMethodCallHandler(this);
+    channel.setMethodCallHandler(this)
   }
 
   // Required by Flutter Android projects v1.12 and older
