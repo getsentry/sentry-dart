@@ -7,7 +7,7 @@
 
 # Sentry SDK for Dart
 
-[![Build Status](https://travis-ci.org/flutter/sentry.svg?branch=master)](https://travis-ci.org/flutter/sentry)
+[![Build Status](https://travis-ci.org/getsentry/sentry-dart.svg?branch=master)](https://travis-ci.org/getsentry/sentry-dart)
 [![pub package](https://img.shields.io/pub/v/sentry.svg)](https://pub.dev/packages/sentry)
 [![likes](https://badges.bar/sentry/likes)](https://pub.dev/packages/sentry/score)
 [![popularity](https://badges.bar/sentry/popularity)](https://pub.dev/packages/sentry/score)
