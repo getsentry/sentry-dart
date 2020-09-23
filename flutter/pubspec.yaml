@@ -1,0 +1,33 @@
+name: sentry_flutter
+description: Sentry SDK for Flutter. This package aims to support different Flutter targets by relying on the many platforms supported by Sentry with native SDKs.
+version: 0.0.1
+homepage: https://docs.sentry.io/platforms/flutter/
+repository: https://github.com/getsentry/sentry-flutter
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+  flutter: ">=1.17.0 <2.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_web_plugins:
+    sdk: flutter
+  sentry: ^3.0.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        pluginClass: SentryFlutterPlugin
+        package: io.sentry.flutter
+      ios:
+        pluginClass: SentryFlutterPlugin
+      web:
+        pluginClass: SentryFlutterWeb
+        fileName: sentry_flutter_web.dart
+

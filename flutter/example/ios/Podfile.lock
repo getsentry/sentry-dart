@@ -1,0 +1,31 @@
+PODS:
+  - Flutter (1.0.0)
+  - Sentry (6.0.0-alpha.0):
+    - Sentry/Core (= 6.0.0-alpha.0)
+  - Sentry/Core (6.0.0-alpha.0)
+  - sentry_flutter (0.0.1):
+    - Flutter
+    - Sentry (~> 6.0.0-alpha.0)
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - sentry_flutter (from `.symlinks/plugins/sentry_flutter/ios`)
+
+SPEC REPOS:
+  trunk:
+    - Sentry
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  sentry_flutter:
+    :path: ".symlinks/plugins/sentry_flutter/ios"
+
+SPEC CHECKSUMS:
+  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+  Sentry: 7092bb6ed680769a1213cbd2ae37f43342dbd680
+  sentry_flutter: 56fa44bdf7f77bbd77b8de55b10d8da993c14a85
+
+PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c
+
+COCOAPODS: 1.9.3
