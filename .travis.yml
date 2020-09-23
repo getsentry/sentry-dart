@@ -1,9 +1,0 @@
-sudo: required
-addons:
-  chrome: stable
-
-language: dart
-dart:
-  - stable
-  - dev
-script: ./tool/presubmit.sh

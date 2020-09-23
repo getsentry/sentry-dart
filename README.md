@@ -5,26 +5,48 @@
   <br />
 </p>
 
-# Sentry SDK for Dart
+Sentry SDK for Dart and Flutter
+===========
 
-[![Build Status](https://travis-ci.org/getsentry/sentry-dart.svg?branch=master)](https://travis-ci.org/getsentry/sentry-dart)
-[![pub package](https://img.shields.io/pub/v/sentry.svg)](https://pub.dev/packages/sentry)
-[![likes](https://badges.bar/sentry/likes)](https://pub.dev/packages/sentry/score)
-[![popularity](https://badges.bar/sentry/popularity)](https://pub.dev/packages/sentry/score)
-[![pub points](https://badges.bar/sentry/pub%20points)](https://pub.dev/packages/sentry/score) 
+[![build](https://github.com/getsentry/sentry-flutter/workflows/build/badge.svg?branch=main)](https://github.com/getsentry/sentry-flutter/actions?query=branch%3Amain)
 
-Use this library in your Dart programs (Flutter for mobile, Flutter for web,
-command-line, and [AngularDart][angular_sentry]) to report errors thrown by your program to
-https://sentry.io error tracking service.
+| package | pub | likes | popularity | pub points |
+| ------- | ------- | ------- | ------- | ------- |
+| sentry | [![pub package](https://img.shields.io/pub/v/sentry.svg)](https://pub.dev/packages/sentry) | [![likes](https://badges.bar/sentry/likes)](https://pub.dev/packages/sentry/score) | [![popularity](https://badges.bar/sentry/popularity)](https://pub.dev/packages/sentry/score) | [![pub points](https://badges.bar/sentry/pub%20points)](https://pub.dev/packages/sentry/score)  
+| sentry-flutter | WIP | | |
 
-## Versions
+## Contributing
+
+### Dart
+
+All you need is the Dart SDK. The `sentry` package doesn't depend on the Flutter SDK.
+
+### Flutter
+
+The SDK currently supports Android, iOS and Web. We build the example app for these targets in 3 platforms: Windows, macOS and Linux.
+This is to make sure you'd be able to contribute to this project if you're using any of these operating systems.
+
+We also run CI against the Flutter `stable` and `beta` channels so you should be able to build it if you're in one of those.
+
+### Dependencies
+
+* The Dart SDK (if you want to change `sentry-dart`)
+* The Flutter SDK (if you want to change `sentry-dart` or `sentry-flutter`)
+* Android: Android SDK with NDK: The example project includes C++.
+* iOS: You'll need a Mac with xcode installed.
+* Web: No additional dependencies.
+
+#### Sentry Dart
+
+
+##### Versions
 
 Versions `4.0.0` and higher support [Flutter][flutter] (mobile, web, desktop),
 command-line/server Dart VM, and [AngularDart][angular_sentry].
 
 Versions below `4.0.0` are deprecated.
 
-## Usage
+##### Usage
 
 Sign up for a Sentry.io account and get a DSN at http://sentry.io.
 
@@ -58,7 +80,7 @@ main() async {
 }
 ```
 
-## Tips for catching errors
+##### Tips for catching errors
 
 - Use a `try/catch` block, like in the example above.
 - Create a `Zone` with an error handler, e.g. using [runZonedGuarded][run_zoned_guarded].
@@ -103,11 +125,10 @@ main() async {
 - Use `Isolate.current.addErrorListener` to capture uncaught errors
   in the root zone.
 
-## Found a bug?
+#### Resources
 
-Please file it at https://github.com/flutter/flutter/issues/new
-
-[flutter]: https://flutter.dev
-[run_zoned_guarded]: https://api.dartlang.org/stable/dart-async/runZonedGuarded.html
-[flutter_error]: https://docs.flutter.io/flutter/foundation/FlutterError/onError.html
-[angular_sentry]: https://pub.dev/packages/angular_sentry
+* [![Documentation](https://img.shields.io/badge/documentation-sentry.io-green.svg)](https://docs.sentry.io/platforms/flutter/)
+* [![Forum](https://img.shields.io/badge/forum-sentry-green.svg)](https://forum.sentry.io/c/sdks)
+* [![Discord](https://img.shields.io/discord/621778831602221064)](https://discord.gg/Ww9hbqr)
+* [![Stack Overflow](https://img.shields.io/badge/stack%20overflow-sentry-green.svg)](https://stackoverflow.com/questions/tagged/sentry)
+* [![Twitter Follow](https://img.shields.io/twitter/follow/getsentry?label=getsentry&style=social)](https://twitter.com/intent/follow?screen_name=getsentry)

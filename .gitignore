@@ -1,11 +1,16 @@
 .DS_Store
 .atom/
+.idea/
 .packages
 .dart_tool/
 build/
 packages
 pubspec.lock
+.pub/
 .idea/libraries
 .idea/workspace.xml
+*.iml
 android/
 ios/
+build/
+.cxx/
