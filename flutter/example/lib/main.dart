@@ -15,7 +15,7 @@ const String _release =
 // NOTE: Add your DSN below to get the events in your Sentry project.
 final SentryClient _sentry = SentryClient(
     dsn:
-        'https://39226a237e6b4fa5aae9191fa5732814@o19635.ingest.sentry.io/2078115');
+        'https://cb0fad6f5d4e42ebb9c956cb0463edc9@o447951.ingest.sentry.io/5428562');
 
 // Proposed init:
 // https://github.com/bruno-garcia/badges.bar/blob/2450ed9125f7b73d2baad1fa6d676cc71858116c/lib/src/sentry.dart#L9-L32
