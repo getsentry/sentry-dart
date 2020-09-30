@@ -8,7 +8,7 @@
 Sentry SDK for Dart and Flutter
 ===========
 
-[![build](https://github.com/getsentry/sentry-flutter/workflows/build/badge.svg?branch=main)](https://github.com/getsentry/sentry-flutter/actions?query=branch%3Amain)
+[![build](https://github.com/getsentry/sentry-dart/workflows/build/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=branch%3Amain)
 
 | package | pub | likes | popularity | pub points |
 | ------- | ------- | ------- | ------- | ------- |
