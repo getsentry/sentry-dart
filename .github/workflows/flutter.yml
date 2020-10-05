@@ -70,6 +70,7 @@ jobs:
         id: analysis
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
+        run: cd flutter
       - name: Check scores
         env:
           TOTAL: ${{ steps.analysis.outputs.total }}
