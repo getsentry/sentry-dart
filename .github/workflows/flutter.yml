@@ -49,7 +49,7 @@ jobs:
           env:
             SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           run: |
-            cd example
+            cd flutter/example
             TARGET=${{ matrix.target }}
             case $TARGET in
             ios)
