@@ -43,8 +43,8 @@ jobs:
           run: rm flutter/example/ios/Podfile
         - name: Test
           run: |
-          cd flutter
-          flutter test
+            cd flutter
+            flutter test
         - name: Build ${{ matrix.target }}
           env:
             SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
