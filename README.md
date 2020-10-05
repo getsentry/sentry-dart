@@ -39,10 +39,10 @@ We also run CI against the Flutter `stable` and `beta` channels so you should be
 
 ##### Versions
 
-Versions `4.0.0` and higher support [Flutter][flutter] (mobile, web, desktop),
+Versions `3.0.1` and higher support [Flutter][flutter] (mobile, web, desktop),
 command-line/server Dart VM, and [AngularDart][angular_sentry].
 
-Versions below `4.0.0` are deprecated.
+Versions below `3.0.1` are deprecated.
 
 ##### Usage
 
@@ -52,7 +52,7 @@ Add `sentry` dependency to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  sentry: ">=3.0.1 < 4.0.0"
+  sentry: ">=3.0.1 <4.0.0"
 ```
 
 In your Dart code, import `package:sentry/sentry.dart` and create a `SentryClient` using the DSN issued by Sentry.io:
