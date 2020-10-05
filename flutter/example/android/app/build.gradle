@@ -25,7 +25,10 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 apply plugin: 'com.ydq.android.gradle.native-aar.import'
-apply plugin: 'io.sentry.android.gradle'
+
+// uncomment this to upload proguard mapping file and debug symbols to Sentry
+// and also set the token (sentry.properties) file
+// apply plugin: 'io.sentry.android.gradle'
 
 android {
     compileOptions {
@@ -89,7 +92,8 @@ dependencies {
     implementation "androidx.annotation:annotation:1.1.0"
 }
 
-sentry {
-    uploadNativeSymbols true
-    includeNativeSources true
-}
+// uncomment this to upload debug symbols to Sentry
+// sentry {
+//     uploadNativeSymbols true
+//     includeNativeSources true
+// }

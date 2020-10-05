@@ -1,4 +1,4 @@
-name: build
+name: Flutter
 on:
   push:
     branches:
@@ -40,14 +40,16 @@ jobs:
         # https://github.com/flutter/flutter/issues/59522#issuecomment-646208247
         - name: Fix iOS build bug
           if: matrix.target == 'ios'
-          run: rm example/ios/Podfile
+          run: rm flutter/example/ios/Podfile
         - name: Test
-          run: flutter test
+          run: |
+            cd flutter
+            flutter test
         - name: Build ${{ matrix.target }}
           env:
             SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           run: |
-            cd example
+            cd flutter/example
             TARGET=${{ matrix.target }}
             case $TARGET in
             ios)
@@ -68,6 +70,7 @@ jobs:
         id: analysis
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
+          relativePath: flutter/
       - name: Check scores
         env:
           TOTAL: ${{ steps.analysis.outputs.total }}
@@ -85,7 +88,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       # https://github.com/CocoaPods/CocoaPods/issues/5275#issuecomment-315461879
-      - run: pod lib lint ios/sentry_flutter.podspec --skip-import-validation
+      - run: pod lib lint flutter/ios/sentry_flutter.podspec --skip-import-validation
   swift-lint:
     runs-on: ubuntu-latest
     steps:

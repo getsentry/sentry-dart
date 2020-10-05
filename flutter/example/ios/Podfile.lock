@@ -1,11 +1,11 @@
 PODS:
   - Flutter (1.0.0)
-  - Sentry (6.0.0-alpha.0):
-    - Sentry/Core (= 6.0.0-alpha.0)
-  - Sentry/Core (6.0.0-alpha.0)
+  - Sentry (6.0.1):
+    - Sentry/Core (= 6.0.1)
+  - Sentry/Core (6.0.1)
   - sentry_flutter (0.0.1):
     - Flutter
-    - Sentry (~> 6.0.0-alpha.0)
+    - Sentry (~> 6.0.1)
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
@@ -23,8 +23,8 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
-  Sentry: 7092bb6ed680769a1213cbd2ae37f43342dbd680
-  sentry_flutter: 0cebc650932f10da344626802afe6360830ef7a1
+  Sentry: 2130c956d0d6824d4d9aaa98fd55140b1d55c030
+  sentry_flutter: 9207b0a464df3e7e501650267d61f0a40670ce2d
 
 PODFILE CHECKSUM: a75497545d4391e2d394c3668e20cfb1c2bbd4aa
 

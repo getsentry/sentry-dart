@@ -19,7 +19,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
         if let dsn = resource.object(forKey: "SentryDsn") {
           SentrySDK.start { options in
               options.dsn = dsn as? String
-              options.debug = resource["SentryDebug"] as? Bool == true
+              options.debug = resource["SentryDebug"] as? Bool ?? false
               options.attachStacktrace = true
           }
         }
