@@ -7,12 +7,12 @@ import 'dart:convert';
 
 import 'package:http/http.dart';
 import 'package:meta/meta.dart';
-import 'package:usage/uuid/uuid.dart';
+
+import 'package:uuid/uuid.dart';
 
 import 'client_stub.dart'
     if (dart.library.html) 'browser.dart'
     if (dart.library.io) 'io.dart';
-
 import 'stack_trace.dart';
 import 'utils.dart';
 import 'version.dart';
@@ -258,7 +258,7 @@ class SentryResponse {
 
 typedef UuidGenerator = String Function();
 
-String generateUuidV4WithoutDashes() => Uuid().generateV4().replaceAll('-', '');
+String generateUuidV4WithoutDashes() => Uuid().v4().replaceAll('-', '');
 
 /// Severity of the logged [Event].
 @immutable
