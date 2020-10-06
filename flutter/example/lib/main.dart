@@ -4,9 +4,8 @@ import 'dart:isolate';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
-
 import 'package:sentry/sentry.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 const String _release =
@@ -36,10 +35,11 @@ Future<void> main() async {
   }, (error, stackTrace) async {
     print('Capture from runZonedGuarded $error');
     final event = Event(
-        exception: error,
-        stackTrace: stackTrace,
-        // release is required on Web to match the source maps
-        release: _release);
+      exception: error,
+      stackTrace: stackTrace,
+      // release is required on Web to match the source maps
+      release: _release,
+    );
     await _sentry.capture(event: event);
   });
 }
@@ -47,9 +47,11 @@ Future<void> main() async {
 // Candidate API for the SDK
 extension IsolateExtensions on Isolate {
   void addSentryErrorListener(SentryClient sentry) {
-    final receivePort = RawReceivePort((dynamic values) async {
-      await sentry.captureIsolateError(values);
-    });
+    final receivePort = RawReceivePort(
+      (dynamic values) async {
+        await sentry.captureIsolateError(values);
+      },
+    );
 
     Isolate.current.addErrorListener(receivePort.sendPort);
   }
@@ -103,81 +105,56 @@ class _MyAppState extends State<MyApp> {
       return;
     }
 
-    setState(() {
-      _platformVersion = platformVersion;
-    });
-  }
-
-  Future<void> init() async {
-    const platform = MethodChannel('io.sentry.flutter.manchestermaps/kmlLayer');
-    try {
-      final dynamic campusMapOverlay =
-          await platform.invokeMethod<dynamic>('retrieveFileFromUrl');
-      print(campusMapOverlay);
-    } on PlatformException catch (error) {
-      print(error);
-    }
+    setState(() => _platformVersion = platformVersion);
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Sentry Flutter Example'),
-        ),
+        appBar: AppBar(title: const Text('Sentry Flutter Example')),
         body: Column(
           children: [
-            Center(
-              child: Text('Running on: $_platformVersion\n'),
+            Center(child: Text('Running on: $_platformVersion\n')),
+            const Center(child: Text('Release: $_release\n')),
+            RaisedButton(
+              child: const Text('Dart: throw null'),
+              // Warning : not captured if a debugger is attached
+              // https://github.com/flutter/flutter/issues/48972
+              onPressed: () => throw null,
             ),
-            const Center(
-              child: Text('Release: $_release\n'),
+            RaisedButton(
+              child: const Text('Dart: assert'),
+              onPressed: () {
+                // Only relevant in debug builds
+                // Warning : not captured if a debugger is attached
+                // https://github.com/flutter/flutter/issues/48972
+                assert(false, 'assert failure');
+              },
             ),
             RaisedButton(
-                child: const Text('Dart: throw null'),
-                onPressed: () => throw null),
+              child: const Text('Dart: Fail in microtask.'),
+              onPressed: () async => {
+                await Future.microtask(
+                  () => throw StateError('Failure in a microtask'),
+                )
+              },
+            ),
             RaisedButton(
-                child: const Text('Dart: assert'),
-                onPressed: () {
-                  // Only relevant in debug builds
-                  assert(false, 'assert failure');
-                }),
-            RaisedButton(
-                child: const Text('Dart: Fail in microtask.'),
-                onPressed: () async => {
-                      await Future.microtask(
-                          () => throw StateError('Failure in a microtask'))
-                    }),
-            RaisedButton(
-                child: const Text('Dart: Fail in isolate'),
-                onPressed: () async => {
-                      await compute(
-                          (Object _) => throw StateError('from an isolate'),
-                          null)
-                    }),
-            const PlatformExample()
+              child: const Text('Dart: Fail in isolate'),
+              onPressed: () async => {
+                await compute(
+                  (Object _) => throw StateError('from an isolate'),
+                  null,
+                )
+              },
+            ),
+            if (UniversalPlatform.isIOS) const CocoaExample(),
+            if (UniversalPlatform.isAndroid) const AndroidExample(),
+            if (UniversalPlatform.isWeb) const WebExample(),
           ],
         ),
       ),
-    );
-  }
-}
-
-class PlatformExample extends StatelessWidget {
-  const PlatformExample({Key key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        if (UniversalPlatform.isIOS)
-          const CocoaExample()
-        else if (UniversalPlatform.isAndroid)
-          const AndroidExample()
-        else if (UniversalPlatform.isWeb)
-          const WebExample()
-      ],
     );
   }
 }
@@ -239,43 +216,45 @@ class CocoaExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      RaisedButton(
-        child: const Text('Swift fatalError'),
-        onPressed: () async {
-          const channel = MethodChannel('example.flutter.sentry.io');
-          await channel.invokeMethod<void>('fatalError');
-        },
-      ),
-      RaisedButton(
-        child: const Text('Swift Capture NSException'),
-        onPressed: () async {
-          const channel = MethodChannel('example.flutter.sentry.io');
-          await channel.invokeMethod<void>('capture');
-        },
-      ),
-      RaisedButton(
-        child: const Text('Swift Capture message'),
-        onPressed: () async {
-          const channel = MethodChannel('example.flutter.sentry.io');
-          await channel.invokeMethod<void>('capture_message');
-        },
-      ),
-      RaisedButton(
-        child: const Text('Objective-C Throw unhandled exception'),
-        onPressed: () async {
-          const channel = MethodChannel('example.flutter.sentry.io');
-          await channel.invokeMethod<void>('throw');
-        },
-      ),
-      RaisedButton(
-        child: const Text('Objective-C SEGFAULT'),
-        onPressed: () async {
-          const channel = MethodChannel('example.flutter.sentry.io');
-          await channel.invokeMethod<void>('crash');
-        },
-      ),
-    ]);
+    return Column(
+      children: [
+        RaisedButton(
+          child: const Text('Swift fatalError'),
+          onPressed: () async {
+            const channel = MethodChannel('example.flutter.sentry.io');
+            await channel.invokeMethod<void>('fatalError');
+          },
+        ),
+        RaisedButton(
+          child: const Text('Swift Capture NSException'),
+          onPressed: () async {
+            const channel = MethodChannel('example.flutter.sentry.io');
+            await channel.invokeMethod<void>('capture');
+          },
+        ),
+        RaisedButton(
+          child: const Text('Swift Capture message'),
+          onPressed: () async {
+            const channel = MethodChannel('example.flutter.sentry.io');
+            await channel.invokeMethod<void>('capture_message');
+          },
+        ),
+        RaisedButton(
+          child: const Text('Objective-C Throw unhandled exception'),
+          onPressed: () async {
+            const channel = MethodChannel('example.flutter.sentry.io');
+            await channel.invokeMethod<void>('throw');
+          },
+        ),
+        RaisedButton(
+          child: const Text('Objective-C SEGFAULT'),
+          onPressed: () async {
+            const channel = MethodChannel('example.flutter.sentry.io');
+            await channel.invokeMethod<void>('crash');
+          },
+        ),
+      ],
+    );
   }
 }
 
@@ -284,14 +263,16 @@ class WebExample extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      RaisedButton(
-        child: const Text('Web: console.log'),
-        onPressed: () async {
-          const channel = MethodChannel('example.flutter.sentry.io');
-          await channel.invokeMethod<void>('console.log');
-        },
-      ),
-    ]);
+    return Column(
+      children: [
+        RaisedButton(
+          child: const Text('Web: console.log'),
+          onPressed: () async {
+            const channel = MethodChannel('example.flutter.sentry.io');
+            await channel.invokeMethod<void>('console.log');
+          },
+        ),
+      ],
+    );
   }
 }
