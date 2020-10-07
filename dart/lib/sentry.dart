@@ -4,5 +4,5 @@
 
 /// A pure Dart client for Sentry.io crash reporting.
 export 'src/client.dart';
-export 'src/model.dart';
+export 'src/protocol.dart';
 export 'src/version.dart';

@@ -6,7 +6,7 @@ import 'package:meta/meta.dart';
 import 'client_stub.dart'
     if (dart.library.html) 'browser_client.dart'
     if (dart.library.io) 'io_client.dart';
-import 'model.dart';
+import 'protocol.dart';
 import 'stack_trace.dart';
 import 'utils.dart';
 import 'version.dart';

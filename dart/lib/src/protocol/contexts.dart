@@ -1,5 +1,4 @@
-import 'package:sentry/src/model/system.dart';
-
+import '../protocol.dart';
 import 'app.dart';
 import 'browser.dart';
 import 'device.dart';

@@ -1,12 +1,8 @@
 import 'package:meta/meta.dart';
-import 'package:sentry/src/model/user.dart';
 
+import '../protocol.dart';
 import '../stack_trace.dart';
 import '../version.dart';
-import 'breadcrumb.dart';
-import 'contexts.dart';
-import 'level.dart';
-import 'sdk.dart';
 
 /// An event to be reported to Sentry.io.
 @immutable

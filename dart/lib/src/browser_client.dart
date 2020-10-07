@@ -11,7 +11,7 @@ import 'package:http/http.dart';
 import 'package:meta/meta.dart';
 
 import 'client.dart';
-import 'model/event.dart';
+import 'protocol.dart';
 import 'utils.dart';
 import 'version.dart';
 
