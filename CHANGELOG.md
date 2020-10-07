@@ -11,6 +11,7 @@
 - replace the `package:usage` by `package:uuid` #94
 - move the `package:pedantic` to dev depencies #94
 - Added GH Action Changelog verifier #95
+- new Dart code file structure #96 
 
 # `package:sentry` changelog
 
