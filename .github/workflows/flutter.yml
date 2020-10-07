@@ -1,4 +1,4 @@
-name: Flutter
+name: sentry-flutter
 on:
   push:
     branches:

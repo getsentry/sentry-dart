@@ -1,0 +1,60 @@
+name: sentry-dart
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+defaults:
+  run:
+    shell: bash
+jobs:
+  build:
+    name: Build ${{matrix.sdk}} on ${{matrix.os}}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # TODO: cedx/setup-dart@v2 doesn't work on Windows (doesn't add pub to the PATH?)
+        # os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest]
+        sdk: [beta, dev, stable]
+        exclude:
+          # Bad state: Could not run tests with Observatory enabled. Try setting a different port with --port option.
+          - os: ubuntu-latest
+            sdk: beta
+          # hanging often
+          - os: ubuntu-latest
+            sdk: dev
+          - os: macos-latest
+            sdk: beta
+    steps:
+        - uses: cedx/setup-dart@v2
+          with:
+            release-channel: ${{ matrix.sdk }}
+        - uses: actions/checkout@v2
+        - run: pub get
+        - name: Test on Dart VM and collect code coverage
+          run: pub run test_coverage
+        - uses: codecov/codecov-action@v1
+        - name: Test on Chrome
+          run: pub run test -p chrome test/*
+        - run: dartanalyzer --fatal-warnings ./
+        - run: dartfmt -n --set-exit-if-changed ./
+  package-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: axel-op/dart-package-analyzer@v2
+        id: analysis
+        with:
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check scores
+        # TODO: Once 1.0.0 lands, change min maintenance points to 100
+        run: |
+          MAINTENANCE_SCORE=${{ steps.analysis.outputs.maintenance }}
+          HEALTH_SCORE=${{ steps.analysis.outputs.health }}
+          if (( $(echo "$MAINTENANCE_SCORE < 90" | bc) )) || (( $(echo "$HEALTH_SCORE < 100" | bc) ))
+          then
+            echo "Scores must be min 90 for maintenance (until 1.0 ships), 100 for health."
+            exit 1
+          fi
