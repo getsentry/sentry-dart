@@ -32,14 +32,24 @@ jobs:
           with:
             release-channel: ${{ matrix.sdk }}
         - uses: actions/checkout@v2
-        - run: pub get
+        - run: |
+            cd dart
+            pub get
         - name: Test on Dart VM and collect code coverage
-          run: pub run test_coverage
+          run: |
+            cd dart
+            pub run test_coverage
         - uses: codecov/codecov-action@v1
         - name: Test on Chrome
-          run: pub run test -p chrome test/*
-        - run: dartanalyzer --fatal-warnings ./
-        - run: dartfmt -n --set-exit-if-changed ./
+          run:  |
+            cd dart
+            pub run test -p vm test/*
+        - run:  |
+            cd dart
+            dartanalyzer --fatal-warnings ./
+        - run:  |
+            cd dart
+            dartfmt -n --set-exit-if-changed ./
   package-analysis:
     runs-on: ubuntu-latest
     steps:
