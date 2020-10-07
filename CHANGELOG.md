@@ -10,7 +10,7 @@
 - remove the `package:args` dependency #94
 - replace the `package:usage` by `package:uuid` #94
 - move the `package:pedantic` to dev depencies #94
-- Added GH Action Changelog verifier
+- Added GH Action Changelog verifier #95
 
 # `package:sentry` changelog
 
