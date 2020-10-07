@@ -4,15 +4,35 @@
 
 /// A pure Dart client for Sentry.io crash reporting.
 import 'dart:convert';
-import 'dart:io';
+import 'dart:html' show window;
 
+import 'package:http/browser_client.dart';
 import 'package:http/http.dart';
 import 'package:meta/meta.dart';
-import 'base.dart';
+
+import 'client.dart';
+import 'model/event.dart';
+import 'utils.dart';
 import 'version.dart';
 
+SentryClient createSentryClient({
+  @required String dsn,
+  Event environmentAttributes,
+  bool compressPayload,
+  Client httpClient,
+  dynamic clock,
+  UuidGenerator uuidGenerator,
+}) =>
+    SentryBrowserClient(
+      dsn: dsn,
+      environmentAttributes: environmentAttributes,
+      httpClient: httpClient,
+      clock: clock,
+      uuidGenerator: uuidGenerator,
+    );
+
 /// Logs crash reports and events to the Sentry.io service.
-class SentryIOClient extends SentryClient {
+class SentryBrowserClient extends SentryClient {
   /// Instantiates a client using [dsn] issued to your project by Sentry.io as
   /// the endpoint for submitting events.
   ///
@@ -20,10 +40,6 @@ class SentryIOClient extends SentryClient {
   /// the course of a program's lifecycle. These attributes will be added to
   /// all events captured via this client. The following attributes often fall
   /// under this category: [Event.serverName], [Event.release], [Event.environment].
-  ///
-  /// If [compressPayload] is `true` the outgoing HTTP payloads are compressed
-  /// using gzip. Otherwise, the payloads are sent in plain UTF8-encoded JSON
-  /// text. If not specified, the compression is enabled by default.
   ///
   /// If [httpClient] is provided, it is used instead of the default client to
   /// make HTTP calls to Sentry.io. This is useful in tests.
@@ -37,37 +53,38 @@ class SentryIOClient extends SentryClient {
   /// If [uuidGenerator] is provided, it is used to generate the "event_id"
   /// field instead of the built-in random UUID v4 generator. This is useful in
   /// tests.
-  factory SentryIOClient({
+  factory SentryBrowserClient({
     @required String dsn,
     Event environmentAttributes,
-    bool compressPayload,
     Client httpClient,
     dynamic clock,
     UuidGenerator uuidGenerator,
+    String origin,
   }) {
-    httpClient ??= Client();
+    httpClient ??= BrowserClient();
     clock ??= getUtcDateTime;
     uuidGenerator ??= generateUuidV4WithoutDashes;
-    compressPayload ??= true;
 
-    return SentryIOClient._(
+    // origin is necessary for sentry to resolve stacktrace
+    origin ??= '${window.location.origin}/';
+
+    return SentryBrowserClient._(
       httpClient: httpClient,
       clock: clock,
       uuidGenerator: uuidGenerator,
       environmentAttributes: environmentAttributes,
       dsn: dsn,
-      compressPayload: compressPayload,
-      platform: sdkPlatform,
+      origin: origin,
+      platform: browserPlatform,
     );
   }
 
-  SentryIOClient._({
+  SentryBrowserClient._({
     Client httpClient,
     dynamic clock,
     UuidGenerator uuidGenerator,
     Event environmentAttributes,
     String dsn,
-    this.compressPayload = true,
     String platform,
     String origin,
   }) : super.base(
@@ -80,49 +97,11 @@ class SentryIOClient extends SentryClient {
           origin: origin,
         );
 
-  /// Whether to compress payloads sent to Sentry.io.
-  final bool compressPayload;
-
-  @override
-  Map<String, String> buildHeaders(String authHeader) {
-    final headers = super.buildHeaders(authHeader);
-
-    // NOTE(lejard_h) overriding user agent on VM and Flutter not sure why
-    // for web it use browser user agent
-    headers['User-Agent'] = SentryClient.sentryClient;
-
-    return headers;
-  }
-
   @override
   List<int> bodyEncoder(
     Map<String, dynamic> data,
     Map<String, String> headers,
-  ) {
-    // [SentryIOClient] implement gzip compression
-    // gzip compression is not available on browser
-    var body = utf8.encode(json.encode(data));
-    if (compressPayload) {
-      headers['Content-Encoding'] = 'gzip';
-      body = gzip.encode(body);
-    }
-    return body;
-  }
+  ) =>
+      // Gzip compression is implicit on browser
+      utf8.encode(json.encode(data));
 }
-
-SentryClient createSentryClient({
-  @required String dsn,
-  Event environmentAttributes,
-  bool compressPayload,
-  Client httpClient,
-  dynamic clock,
-  UuidGenerator uuidGenerator,
-}) =>
-    SentryIOClient(
-      dsn: dsn,
-      environmentAttributes: environmentAttributes,
-      compressPayload: compressPayload,
-      httpClient: httpClient,
-      clock: clock,
-      uuidGenerator: uuidGenerator,
-    );

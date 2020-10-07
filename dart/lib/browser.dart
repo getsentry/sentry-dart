@@ -2,6 +2,5 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-export 'src/base.dart';
-export 'src/browser.dart';
+export 'src/browser_client.dart';
 export 'src/version.dart';

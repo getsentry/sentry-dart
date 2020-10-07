@@ -3,6 +3,6 @@
 // found in the LICENSE file.
 
 /// A pure Dart client for Sentry.io crash reporting.
-
-export 'src/base.dart';
+export 'src/client.dart';
+export 'src/model.dart';
 export 'src/version.dart';

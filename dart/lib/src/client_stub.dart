@@ -5,7 +5,9 @@
 import 'package:http/http.dart';
 import 'package:meta/meta.dart';
 
-import 'base.dart';
+import 'client.dart';
+import 'model/event.dart';
+import 'utils.dart';
 
 /// Implemented in `browser_client.dart` and `io_client.dart`.
 SentryClient createSentryClient({
