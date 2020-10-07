@@ -7,9 +7,9 @@
 - BREAKING CHANGE: Renamed capture method to captureEvent #64
 - By default no logger it set #63
 - Added missing Contexts to Event.copyWith() #62 
-- remove the `package:args` dependency
-- replace the `package:usage` by `package:uuid`
-- move the `package:pedantic` to dev depencies
+- remove the `package:args` dependency #94
+- replace the `package:usage` by `package:uuid` #94
+- move the `package:pedantic` to dev depencies #94
 
 ## 3.0.1
 
