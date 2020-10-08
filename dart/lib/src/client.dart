@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart';
@@ -81,10 +82,12 @@ abstract class SentryClient {
 
   /// The Sentry.io public key for the project.
   @visibleForTesting
+  // ignore: invalid_use_of_visible_for_testing_member
   String get publicKey => _dsn.publicKey;
 
   /// The Sentry.io secret key for the project.
   @visibleForTesting
+  // ignore: invalid_use_of_visible_for_testing_member
   String get secretKey => _dsn.secretKey;
 
   /// The ID issued by Sentry.io to your project.
@@ -184,7 +187,7 @@ abstract class SentryClient {
       return SentryResponse.failure(errorMessage);
     }
 
-    final String eventId = json.decode(response.body)['id'] as String;
+    final eventId = '${json.decode(response.body)['id']}';
     return SentryResponse.success(eventId: eventId);
   }
 

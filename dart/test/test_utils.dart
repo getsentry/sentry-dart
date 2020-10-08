@@ -2,10 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
 import 'dart:convert';
 
-import 'package:http/testing.dart';
 import 'package:http/http.dart';
+import 'package:http/testing.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
