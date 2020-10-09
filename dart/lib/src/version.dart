@@ -14,6 +14,9 @@ const String sdkVersion = '4.0.0';
 /// The default SDK name reported to Sentry.io in the submitted events.
 const String sdkName = 'sentry.dart';
 
+/// The SDK name for web projects reported to Sentry.io in the submitted events.
+const String browserSdkName = 'sentry.dart.browser';
+
 /// The name of the SDK platform reported to Sentry.io in the submitted events.
 ///
 /// Used for IO version.
