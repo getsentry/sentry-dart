@@ -39,8 +39,9 @@ Future<void> main() async {
       stackTrace: stackTrace,
       // release is required on Web to match the source maps
       release: _release,
+      sdk: _sentry.sdk,
     );
-    await _sentry.capture(event: event);
+    await _sentry.captureEvent(event: event);
   });
 }
 

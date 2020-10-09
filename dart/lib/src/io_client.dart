@@ -98,6 +98,7 @@ class SentryIOClient extends SentryClient {
           dsn: dsn,
           platform: platform,
           origin: origin,
+          sdk: Sdk(name: sdkName, version: sdkVersion),
         );
 
   /// Whether to compress payloads sent to Sentry.io.
@@ -109,7 +110,7 @@ class SentryIOClient extends SentryClient {
 
     // NOTE(lejard_h) overriding user agent on VM and Flutter not sure why
     // for web it use browser user agent
-    headers['User-Agent'] = SentryClient.sentryClient;
+    headers['User-Agent'] = clientId /* SentryClient.sentryClient*/;
 
     return headers;
   }
