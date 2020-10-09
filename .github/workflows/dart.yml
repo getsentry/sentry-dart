@@ -1,0 +1,73 @@
+name: sentry-dart
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+defaults:
+  run:
+    shell: bash
+jobs:
+  build:
+    name: Build ${{matrix.sdk}} on ${{matrix.os}}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # TODO: cedx/setup-dart@v2 doesn't work on Windows (doesn't add pub to the PATH?)
+        # os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest]
+        sdk: [beta, dev, stable]
+        exclude:
+          # Bad state: Could not run tests with Observatory enabled. Try setting a different port with --port option.
+          - os: ubuntu-latest
+            sdk: beta
+          # hanging often
+          - os: ubuntu-latest
+            sdk: dev
+          - os: macos-latest
+            sdk: beta
+    steps:
+        - uses: cedx/setup-dart@v2
+          with:
+            release-channel: ${{ matrix.sdk }}
+        - uses: actions/checkout@v2
+        - run: |
+            cd dart
+            pub get
+        - name: Test on Dart VM and collect code coverage
+          run: |
+            cd dart
+            pub run test_coverage
+        - uses: codecov/codecov-action@v1
+        - name: Test on Chrome
+          run:  |
+            cd dart
+            pub run test -p vm test/*
+        - run:  |
+            cd dart
+            dartanalyzer --fatal-warnings ./
+        - run:  |
+            cd dart
+            dartfmt -n --set-exit-if-changed ./
+  package-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: axel-op/dart-package-analyzer@v3
+        id: analysis
+        with:
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          relativePath: dart/
+      - name: Check scores
+        env:
+          TOTAL: ${{ steps.analysis.outputs.total }}
+          TOTAL_MAX: ${{ steps.analysis.outputs.total_max }}
+        # TODO: Once 4.0.0 lands, change to 100 
+        run: |
+          PERCENTAGE=$(( $TOTAL * 100 / $TOTAL_MAX ))
+          if (( $PERCENTAGE < 90 ))
+          then
+            echo Score too low!
+            exit 1
+          fi
