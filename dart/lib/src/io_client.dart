@@ -110,7 +110,7 @@ class SentryIOClient extends SentryClient {
 
     // NOTE(lejard_h) overriding user agent on VM and Flutter not sure why
     // for web it use browser user agent
-    headers['User-Agent'] = clientId /* SentryClient.sentryClient*/;
+    headers['User-Agent'] = clientId;
 
     return headers;
   }
