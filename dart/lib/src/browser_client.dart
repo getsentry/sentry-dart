@@ -4,13 +4,32 @@
 
 /// A pure Dart client for Sentry.io crash reporting.
 import 'dart:convert';
-import 'dart:html' hide Event, Client;
+import 'dart:html' show window;
 
-import 'package:http/http.dart';
 import 'package:http/browser_client.dart';
+import 'package:http/http.dart';
 import 'package:meta/meta.dart';
-import 'base.dart';
+
+import 'client.dart';
+import 'protocol.dart';
+import 'utils.dart';
 import 'version.dart';
+
+SentryClient createSentryClient({
+  @required String dsn,
+  Event environmentAttributes,
+  bool compressPayload,
+  Client httpClient,
+  dynamic clock,
+  UuidGenerator uuidGenerator,
+}) =>
+    SentryBrowserClient(
+      dsn: dsn,
+      environmentAttributes: environmentAttributes,
+      httpClient: httpClient,
+      clock: clock,
+      uuidGenerator: uuidGenerator,
+    );
 
 /// Logs crash reports and events to the Sentry.io service.
 class SentryBrowserClient extends SentryClient {
@@ -86,19 +105,3 @@ class SentryBrowserClient extends SentryClient {
       // Gzip compression is implicit on browser
       utf8.encode(json.encode(data));
 }
-
-SentryClient createSentryClient({
-  @required String dsn,
-  Event environmentAttributes,
-  bool compressPayload,
-  Client httpClient,
-  dynamic clock,
-  UuidGenerator uuidGenerator,
-}) =>
-    SentryBrowserClient(
-      dsn: dsn,
-      environmentAttributes: environmentAttributes,
-      httpClient: httpClient,
-      clock: clock,
-      uuidGenerator: uuidGenerator,
-    );

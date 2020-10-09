@@ -8,8 +8,28 @@ import 'dart:io';
 
 import 'package:http/http.dart';
 import 'package:meta/meta.dart';
-import 'base.dart';
+
+import 'client.dart';
+import 'protocol.dart';
+import 'utils.dart';
 import 'version.dart';
+
+SentryClient createSentryClient({
+  @required String dsn,
+  Event environmentAttributes,
+  bool compressPayload,
+  Client httpClient,
+  dynamic clock,
+  UuidGenerator uuidGenerator,
+}) =>
+    SentryIOClient(
+      dsn: dsn,
+      environmentAttributes: environmentAttributes,
+      compressPayload: compressPayload,
+      httpClient: httpClient,
+      clock: clock,
+      uuidGenerator: uuidGenerator,
+    );
 
 /// Logs crash reports and events to the Sentry.io service.
 class SentryIOClient extends SentryClient {
@@ -109,20 +129,3 @@ class SentryIOClient extends SentryClient {
     return body;
   }
 }
-
-SentryClient createSentryClient({
-  @required String dsn,
-  Event environmentAttributes,
-  bool compressPayload,
-  Client httpClient,
-  dynamic clock,
-  UuidGenerator uuidGenerator,
-}) =>
-    SentryIOClient(
-      dsn: dsn,
-      environmentAttributes: environmentAttributes,
-      compressPayload: compressPayload,
-      httpClient: httpClient,
-      clock: clock,
-      uuidGenerator: uuidGenerator,
-    );
