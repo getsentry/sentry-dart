@@ -27,7 +27,7 @@ void testHeaders(
   final expectedHeaders = <String, String>{
     'Content-Type': 'application/json',
     'X-Sentry-Auth': 'Sentry sentry_version=6, '
-        'sentry_client=${SentryClient.sentryClient}, '
+        'sentry_client=$sdkName/$sdkVersion, '
         'sentry_timestamp=${fakeClockProvider().millisecondsSinceEpoch}, '
         'sentry_key=public'
   };

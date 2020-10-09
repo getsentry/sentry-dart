@@ -95,6 +95,7 @@ class SentryBrowserClient extends SentryClient {
           dsn: dsn,
           platform: platform,
           origin: origin,
+          sdk: Sdk(name: browserSdkName, version: sdkVersion),
         );
 
   @override

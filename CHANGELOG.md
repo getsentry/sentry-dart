@@ -12,6 +12,7 @@
 - move the `package:pedantic` to dev depencies #94
 - Added GH Action Changelog verifier #95
 - new Dart code file structure #96 
+- Base the sdk name on the platform (`sentry.dart` for io & flutter, `sentry.dart.browser` in a browser context) #103 
 
 # `package:sentry` changelog
 

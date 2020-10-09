@@ -46,18 +46,17 @@ abstract class SentryClient {
     this.environmentAttributes,
     String platform,
     this.origin,
+    Sdk sdk,
   })  : _dsn = Dsn.parse(dsn),
         _uuidGenerator = uuidGenerator ?? generateUuidV4WithoutDashes,
-        _platform = platform ?? sdkPlatform {
+        _platform = platform ?? sdkPlatform,
+        sdk = sdk ?? Sdk(name: sdkName, version: sdkVersion) {
     if (clock == null) {
       _clock = getUtcDateTime;
     } else {
       _clock = (clock is ClockProvider ? clock : clock.get) as ClockProvider;
     }
   }
-
-  /// Sentry.io client identifier for _this_ client.
-  static const String sentryClient = '$sdkName/$sdkVersion';
 
   @protected
   final Client httpClient;
@@ -113,6 +112,10 @@ abstract class SentryClient {
   /// Used by sentry to differentiate browser from io environment
   final String _platform;
 
+  final Sdk sdk;
+
+  String get clientId => sdk.identifier;
+
   @visibleForTesting
   String get postUri {
     final port = dsnUri.hasPort &&
@@ -138,7 +141,7 @@ abstract class SentryClient {
     StackFrameFilter stackFrameFilter,
   }) async {
     final now = _clock();
-    var authHeader = 'Sentry sentry_version=6, sentry_client=$sentryClient, '
+    var authHeader = 'Sentry sentry_version=6, sentry_client=$clientId, '
         'sentry_timestamp=${now.millisecondsSinceEpoch}, sentry_key=$publicKey';
     if (secretKey != null) {
       authHeader += ', sentry_secret=$secretKey';

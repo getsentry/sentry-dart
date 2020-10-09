@@ -54,6 +54,8 @@ class Sdk {
   /// A list of packages that compose this SDK.
   final List<Package> packages;
 
+  String get identifier => '${name}/${version}';
+
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
