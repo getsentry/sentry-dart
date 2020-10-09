@@ -43,6 +43,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.15.0-nullsafety.3"
+  convert:
+    dependency: transitive
+    description:
+      name: convert
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.1.1"
+  crypto:
+    dependency: transitive
+    description:
+      name: crypto
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.1.5"
   fake_async:
     dependency: transitive
     description:
@@ -110,10 +124,10 @@ packages:
   sentry:
     dependency: "direct main"
     description:
-      name: sentry
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "3.0.1"
+      path: "../dart"
+      relative: true
+    source: path
+    version: "4.0.0"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -168,13 +182,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.3.0-nullsafety.3"
-  usage:
+  uuid:
     dependency: transitive
     description:
-      name: usage
+      name: uuid
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.4.2"
+    version: "2.2.2"
   vector_math:
     dependency: transitive
     description:
@@ -183,5 +197,5 @@ packages:
     source: hosted
     version: "2.1.0-nullsafety.3"
 sdks:
-  dart: ">=2.10.0-110 <=2.11.0-161.0.dev"
+  dart: ">=2.10.0-110 <2.11.0"
   flutter: ">=1.17.0 <2.0.0"
