@@ -75,7 +75,6 @@ jobs:
         env:
           TOTAL: ${{ steps.analysis.outputs.total }}
           TOTAL_MAX: ${{ steps.analysis.outputs.total_max }}
-        # TODO: Once 4.0.0 lands, change to 100 
         run: |
           PERCENTAGE=$(( $TOTAL * 100 / $TOTAL_MAX ))
           if (( $PERCENTAGE < 90 ))
