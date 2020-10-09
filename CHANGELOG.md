@@ -5,10 +5,11 @@
 - BREAKING CHANGE: Fixed context screenDensity is of type double #53
 - BREAKING CHANGE: Fixed context screenDpi is of type int #58
 - BREAKING CHANGE: Renamed capture method to captureEvent #64
+- BREAKING CHANGE: `package:http` min version bumped to 0.12.0 #104
+- BREAKING CHANGE: replace the `package:usage` by `package:uuid` #94
 - By default no logger it set #63
 - Added missing Contexts to Event.copyWith() #62 
 - remove the `package:args` dependency #94
-- replace the `package:usage` by `package:uuid` #94
 - move the `package:pedantic` to dev depencies #94
 - Added GH Action Changelog verifier #95
 - new Dart code file structure #96 
