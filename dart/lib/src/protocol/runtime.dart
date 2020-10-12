@@ -11,19 +11,19 @@ class Runtime {
   /// in the Sentry UI. Defaults to lower case version of [name].
   ///
   /// Unused if only one [Runtime] is provided in [Contexts].
-  final String key;
+  final String? key;
 
   /// The name of the runtime.
-  final String name;
+  final String? name;
 
   /// The version identifier of the runtime.
-  final String version;
+  final String? version;
 
   /// An unprocessed description string obtained by the runtime.
   ///
   /// For some well-known runtimes, Sentry will attempt to parse name
   /// and version from this string, if they are not explicitly given.
-  final String rawDescription;
+  final String? rawDescription;
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {

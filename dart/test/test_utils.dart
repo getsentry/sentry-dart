@@ -18,7 +18,7 @@ const String _testDsnWithPort =
     'https://public:secret@sentry.example.com:8888/1';
 
 void testHeaders(
-  Map<String, String> headers,
+  Map<String, String>? headers,
   ClockProvider fakeClockProvider, {
   bool withUserAgent = true,
   bool compressPayload = true,
@@ -33,8 +33,8 @@ void testHeaders(
   };
 
   if (withSecret) {
-    expectedHeaders['X-Sentry-Auth'] += ', '
-        'sentry_secret=secret';
+    expectedHeaders['X-Sentry-Auth'] =
+        expectedHeaders['X-Sentry-Auth']! + ', sentry_secret=secret';
   }
 
   if (withUserAgent) {
@@ -50,14 +50,14 @@ void testHeaders(
 
 Future testCaptureException(
   bool compressPayload,
-  Codec<List<int>, List<int>> gzip,
+  Codec<List<int>, List<int>>? gzip,
   bool isWeb,
 ) async {
   final fakeClockProvider = () => DateTime.utc(2017, 1, 2);
 
-  String postUri;
-  Map<String, String> headers;
-  List<int> body;
+  String? postUri;
+  Map<String, String>? headers;
+  List<int>? body;
   final httpMock = MockClient((Request request) async {
     if (request.method == 'POST') {
       postUri = request.url.toString();
@@ -101,80 +101,81 @@ Future testCaptureException(
   );
 
   Map<String, dynamic> data;
-  if (compressPayload) {
-    data = json.decode(utf8.decode(gzip.decode(body))) as Map<String, dynamic>;
-  } else {
-    data = json.decode(utf8.decode(body)) as Map<String, dynamic>;
+  if (body != null) {
+    if (compressPayload && gzip != null) {
+      data =
+          json.decode(utf8.decode(gzip.decode(body!))) as Map<String, dynamic>;
+    } else {
+      data = json.decode(utf8.decode(body!)) as Map<String, dynamic>;
+    }
+    final stacktrace = data.remove('stacktrace') as Map<String, dynamic>;
+    expect(stacktrace['frames'], const TypeMatcher<List>());
+    expect(stacktrace['frames'], isNotEmpty);
+
+    final topFrame = (stacktrace['frames'] as Iterable<dynamic>).last
+        as Map<String, dynamic>;
+    expect(topFrame.keys, <String>[
+      'abs_path',
+      'function',
+      'lineno',
+      'colno',
+      'in_app',
+      'filename',
+    ]);
+
+    if (isWeb) {
+      // can't test the full url
+      // the localhost port can change
+      final absPathUri = Uri.parse(topFrame['abs_path'] as String);
+      expect(absPathUri.host, 'localhost');
+      expect(absPathUri.path, '/sentry_browser_test.dart.browser_test.dart.js');
+
+      expect(
+        topFrame['filename'],
+        'sentry_browser_test.dart.browser_test.dart.js',
+      );
+      expect(topFrame['function'], 'Object.wrapException');
+
+      expect(data, {
+        'project': '1',
+        'event_id': 'X' * 32,
+        'timestamp': '2017-01-02T00:00:00',
+        'platform': 'javascript',
+        'sdk': {'version': sdkVersion, 'name': 'sentry.dart'},
+        'server_name': 'test.server.com',
+        'release': '1.2.3',
+        'environment': 'staging',
+        'exception': [
+          {'type': 'ArgumentError', 'value': 'Invalid argument(s): Test error'}
+        ],
+      });
+    } else {
+      expect(topFrame['abs_path'], 'test_utils.dart');
+      expect(topFrame['filename'], 'test_utils.dart');
+      expect(topFrame['function'], 'testCaptureException');
+
+      expect(data, {
+        'project': '1',
+        'event_id': 'X' * 32,
+        'timestamp': '2017-01-02T00:00:00',
+        'platform': 'dart',
+        'exception': [
+          {'type': 'ArgumentError', 'value': 'Invalid argument(s): Test error'}
+        ],
+        'sdk': {'version': sdkVersion, 'name': 'sentry.dart'},
+        'server_name': 'test.server.com',
+        'release': '1.2.3',
+        'environment': 'staging',
+      });
+    }
+
+    expect(topFrame['lineno'], greaterThan(0));
+    expect(topFrame['in_app'], true);
   }
-  final Map<String, dynamic> stacktrace =
-      data.remove('stacktrace') as Map<String, dynamic>;
-  expect(stacktrace['frames'], const TypeMatcher<List>());
-  expect(stacktrace['frames'], isNotEmpty);
-
-  final Map<String, dynamic> topFrame =
-      (stacktrace['frames'] as Iterable<dynamic>).last as Map<String, dynamic>;
-  expect(topFrame.keys, <String>[
-    'abs_path',
-    'function',
-    'lineno',
-    'colno',
-    'in_app',
-    'filename',
-  ]);
-
-  if (isWeb) {
-    // can't test the full url
-    // the localhost port can change
-    final absPathUri = Uri.parse(topFrame['abs_path'] as String);
-    expect(absPathUri.host, 'localhost');
-    expect(absPathUri.path, '/sentry_browser_test.dart.browser_test.dart.js');
-
-    expect(
-      topFrame['filename'],
-      'sentry_browser_test.dart.browser_test.dart.js',
-    );
-    expect(topFrame['function'], 'Object.wrapException');
-
-    expect(data, {
-      'project': '1',
-      'event_id': 'X' * 32,
-      'timestamp': '2017-01-02T00:00:00',
-      'platform': 'javascript',
-      'sdk': {'version': sdkVersion, 'name': 'sentry.dart'},
-      'server_name': 'test.server.com',
-      'release': '1.2.3',
-      'environment': 'staging',
-      'exception': [
-        {'type': 'ArgumentError', 'value': 'Invalid argument(s): Test error'}
-      ],
-    });
-  } else {
-    expect(topFrame['abs_path'], 'test_utils.dart');
-    expect(topFrame['filename'], 'test_utils.dart');
-    expect(topFrame['function'], 'testCaptureException');
-
-    expect(data, {
-      'project': '1',
-      'event_id': 'X' * 32,
-      'timestamp': '2017-01-02T00:00:00',
-      'platform': 'dart',
-      'exception': [
-        {'type': 'ArgumentError', 'value': 'Invalid argument(s): Test error'}
-      ],
-      'sdk': {'version': sdkVersion, 'name': 'sentry.dart'},
-      'server_name': 'test.server.com',
-      'release': '1.2.3',
-      'environment': 'staging',
-    });
-  }
-
-  expect(topFrame['lineno'], greaterThan(0));
-  expect(topFrame['in_app'], true);
-
   await client.close();
 }
 
-void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
+void runTest({Codec<List<int>, List<int>>? gzip, bool isWeb = false}) {
   test('can parse DSN', () async {
     final client = SentryClient(dsn: testDsn);
     expect(client.dsnUri, Uri.parse(testDsn));
@@ -216,7 +217,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
   test('sends client auth header without secret', () async {
     final fakeClockProvider = () => DateTime.utc(2017, 1, 2);
 
-    Map<String, String> headers;
+    Map<String, String>? headers;
 
     final httpMock = MockClient((Request request) async {
       if (request.method == 'POST') {
@@ -314,7 +315,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
   test('$Event userContext overrides client', () async {
     final fakeClockProvider = () => DateTime.utc(2017, 1, 2);
 
-    String loggedUserId; // used to find out what user context was sent
+    String? loggedUserId; // used to find out what user context was sent
     final httpMock = MockClient((Request request) async {
       if (request.method == 'POST') {
         final bodyData = request.bodyBytes;

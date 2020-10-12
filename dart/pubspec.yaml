@@ -6,10 +6,11 @@ description: >
 homepage: https://github.com/getsentry/sentry-dart
 
 environment:
-  sdk: ^2.0.0
+  sdk: ">=2.10.0 <2.11.0"
 
 dependencies:
-  http: ^0.12.0
+  http: 0.12.0
+   #git: https://github.com/dart-lang/http
   meta: ^1.0.0
   stack_trace: ^1.0.0
   uuid: ^2.0.0
@@ -20,3 +21,10 @@ dev_dependencies:
   test: ^1.15.4
   yaml: ^2.2.1
   test_coverage: ^0.4.2
+
+# until the next pkg:http , pkg: http-parser and pkg:test NNBD release
+dependency_overrides:
+  # Because pkg:test does not support pkg:http ^0.13.0
+  test: ^1.16.0-nullsafety.5
+  http_parser:
+    git: https://github.com/dart-lang/http_parser

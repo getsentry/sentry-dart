@@ -35,21 +35,21 @@ class Event {
   static const String defaultFingerprint = '{{ default }}';
 
   /// The logger that logged the event.
-  final String loggerName;
+  final String? loggerName;
 
   /// Identifies the server that logged this event.
-  final String serverName;
+  final String? serverName;
 
   /// The version of the application that logged the event.
-  final String release;
+  final String? release;
 
   /// The environment that logged the event, e.g. "production", "staging".
-  final String environment;
+  final String? environment;
 
   /// Event message.
   ///
   /// Generally an event either contains a [message] or an [exception].
-  final String message;
+  final String? message;
 
   /// An object that was thrown.
   ///
@@ -60,43 +60,43 @@ class Event {
   /// The stack trace corresponding to the thrown [exception].
   ///
   /// Can be `null`, a [String], or a [StackTrace].
-  final dynamic stackTrace;
+  final dynamic? stackTrace;
 
   /// The name of the transaction which generated this event,
   /// for example, the route name: `"/users/<username>/"`.
-  final String transaction;
+  final String? transaction;
 
   /// How important this event is.
-  final SeverityLevel level;
+  final SeverityLevel? level;
 
   /// What caused this event to be logged.
-  final String culprit;
+  final String? culprit;
 
   /// Name/value pairs that events can be searched by.
-  final Map<String, String> tags;
+  final Map<String, String>? tags;
 
   /// Arbitrary name/value pairs attached to the event.
   ///
   /// Sentry.io docs do not talk about restrictions on the values, other than
   /// they must be JSON-serializable.
-  final Map<String, dynamic> extra;
+  final Map<String, dynamic>? extra;
 
   /// List of breadcrumbs for this event.
   ///
   /// See also:
   /// * https://docs.sentry.io/enriching-error-data/breadcrumbs/?platform=javascript
-  final List<Breadcrumb> breadcrumbs;
+  final List<Breadcrumb>? breadcrumbs;
 
   /// Information about the current user.
   ///
   /// The value in this field overrides the user context
   /// set in [SentryClient.userContext] for this logged event.
-  final User userContext;
+  final User? userContext;
 
   /// The context interfaces provide additional context data.
   /// Typically this is data related to the current user,
   /// the current HTTP request.
-  final Contexts contexts;
+  final Contexts? contexts;
 
   /// Used to deduplicate events by grouping ones with the same fingerprint
   /// together.
@@ -112,28 +112,28 @@ class Event {
   ///     var custom = ['foo', 'bar', 'baz'];
   ///     // A fingerprint that supplements the default one with value 'foo':
   ///     var supplemented = [Event.defaultFingerprint, 'foo'];
-  final List<String> fingerprint;
+  final List<String>? fingerprint;
 
-  final Sdk sdk;
+  final Sdk? sdk;
 
   Event copyWith({
-    String loggerName,
-    String serverName,
-    String release,
-    String environment,
-    String message,
-    String transaction,
+    String? loggerName,
+    String? serverName,
+    String? release,
+    String? environment,
+    String? message,
+    String? transaction,
     dynamic exception,
     dynamic stackTrace,
-    SeverityLevel level,
-    String culprit,
-    Map<String, String> tags,
-    Map<String, dynamic> extra,
-    List<String> fingerprint,
-    User userContext,
-    Contexts contexts,
-    List<Breadcrumb> breadcrumbs,
-    Sdk sdk,
+    SeverityLevel? level,
+    String? culprit,
+    Map<String, String>? tags,
+    Map<String, dynamic>? extra,
+    List<String>? fingerprint,
+    User? userContext,
+    Contexts? contexts,
+    List<Breadcrumb>? breadcrumbs,
+    Sdk? sdk,
   }) =>
       Event(
         loggerName: loggerName ?? this.loggerName,
@@ -157,7 +157,7 @@ class Event {
 
   /// Serializes this event to JSON.
   Map<String, dynamic> toJson(
-      {StackFrameFilter stackFrameFilter, String origin}) {
+      {StackFrameFilter? stackFrameFilter, String? origin}) {
     final json = <String, dynamic>{
       'platform': sdkPlatform,
     };
@@ -206,39 +206,39 @@ class Event {
     }
 
     if (level != null) {
-      json['level'] = level.name;
+      json['level'] = level!.name;
     }
 
     if (culprit != null) {
       json['culprit'] = culprit;
     }
 
-    if (tags != null && tags.isNotEmpty) {
+    if (tags?.isNotEmpty == true) {
       json['tags'] = tags;
     }
 
-    if (extra != null && extra.isNotEmpty) {
+    if (extra?.isNotEmpty == true) {
       json['extra'] = extra;
     }
 
     Map<String, dynamic> contextsMap;
-    if (contexts != null && (contextsMap = contexts.toJson()).isNotEmpty) {
+    if (contexts != null && (contextsMap = contexts!.toJson()).isNotEmpty) {
       json['contexts'] = contextsMap;
     }
 
     Map<String, dynamic> userContextMap;
     if (userContext != null &&
-        (userContextMap = userContext.toJson()).isNotEmpty) {
+        (userContextMap = userContext!.toJson()).isNotEmpty) {
       json['user'] = userContextMap;
     }
 
-    if (fingerprint != null && fingerprint.isNotEmpty) {
+    if (fingerprint?.isNotEmpty == true) {
       json['fingerprint'] = fingerprint;
     }
 
-    if (breadcrumbs != null && breadcrumbs.isNotEmpty) {
+    if (breadcrumbs?.isNotEmpty == true) {
       json['breadcrumbs'] = <String, List<Map<String, dynamic>>>{
-        'values': breadcrumbs.map((b) => b.toJson()).toList(growable: false)
+        'values': breadcrumbs!.map((b) => b.toJson()).toList(growable: false)
       };
     }
 

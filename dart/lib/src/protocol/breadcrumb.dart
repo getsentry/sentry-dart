@@ -26,17 +26,17 @@ class Breadcrumb {
     this.data,
     this.level = SeverityLevel.info,
     this.type,
-  }) : assert(timestamp != null);
+  });
 
   /// Describes the breadcrumb.
   ///
   /// This field is optional and may be set to null.
-  final String message;
+  final String? message;
 
   /// A dot-separated string describing the source of the breadcrumb, e.g. "ui.click".
   ///
   /// This field is optional and may be set to null.
-  final String category;
+  final String? category;
 
   /// Data associated with the breadcrumb.
   ///
@@ -47,12 +47,12 @@ class Breadcrumb {
   /// See also:
   ///
   /// * https://docs.sentry.io/development/sdk-dev/event-payloads/breadcrumbs/#breadcrumb-types
-  final Map<String, String> data;
+  final Map<String, String>? data;
 
   /// Severity of the breadcrumb.
   ///
   /// This field is optional and may be set to null.
-  final SeverityLevel level;
+  final SeverityLevel? level;
 
   /// Describes what type of breadcrumb this is.
   ///
@@ -63,7 +63,7 @@ class Breadcrumb {
   /// See also:
   ///
   /// * https://docs.sentry.io/development/sdk-dev/event-payloads/breadcrumbs/#breadcrumb-types
-  final String type;
+  final String? type;
 
   /// The time the breadcrumb was recorded.
   ///
@@ -84,11 +84,11 @@ class Breadcrumb {
     if (category != null) {
       json['category'] = category;
     }
-    if (data != null && data.isNotEmpty) {
-      json['data'] = Map.of(data);
+    if (data?.isNotEmpty == true) {
+      json['data'] = Map<String, dynamic>.of(data!);
     }
     if (level != null) {
-      json['level'] = level.name;
+      json['level'] = level!.name;
     }
     if (type != null) {
       json['type'] = type;

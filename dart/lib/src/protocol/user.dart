@@ -27,22 +27,22 @@ class User {
       : assert(id != null || ipAddress != null);
 
   /// A unique identifier of the user.
-  final String id;
+  final String? id;
 
   /// The username of the user.
-  final String username;
+  final String? username;
 
   /// The email address of the user.
-  final String email;
+  final String? email;
 
   /// The IP of the user.
-  final String ipAddress;
+  final String? ipAddress;
 
   /// Any other user context information that may be helpful.
   ///
   /// These keys are stored as extra information but not specifically processed
   /// by Sentry.
-  final Map<String, dynamic> extras;
+  final Map<String, dynamic>? extras;
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {

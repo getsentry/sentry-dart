@@ -2,9 +2,9 @@ import 'package:meta/meta.dart';
 
 class Dsn {
   Dsn({
-    @required this.publicKey,
-    @required this.projectId,
-    this.uri,
+    required this.publicKey,
+    required this.projectId,
+    required this.uri,
     this.secretKey,
   });
 
@@ -14,7 +14,7 @@ class Dsn {
 
   /// The Sentry.io secret key for the project.
   @visibleForTesting
-  final String secretKey;
+  final String? secretKey;
 
   /// The ID issued by Sentry.io to your project.
   ///

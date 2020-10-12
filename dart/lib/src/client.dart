@@ -22,12 +22,12 @@ abstract class SentryClient {
   /// Creates an `SentryIOClient` if `dart:io` is available and a `SentryBrowserClient` if
   /// `dart:html` is available, otherwise it will throw an unsupported error.
   factory SentryClient({
-    @required String dsn,
-    Event environmentAttributes,
-    bool compressPayload,
-    Client httpClient,
+    required String dsn,
+    Event? environmentAttributes,
+    Client? httpClient,
     dynamic clock,
-    UuidGenerator uuidGenerator,
+    UuidGenerator? uuidGenerator,
+    bool compressPayload = true,
   }) =>
       createSentryClient(
         dsn: dsn,
@@ -39,24 +39,28 @@ abstract class SentryClient {
       );
 
   SentryClient.base({
-    this.httpClient,
-    dynamic clock,
-    UuidGenerator uuidGenerator,
-    String dsn,
+    required this.httpClient,
+    dynamic? clock,
+    UuidGenerator? uuidGenerator,
+    required String dsn,
     this.environmentAttributes,
-    String platform,
+    String? platform,
     this.origin,
-    Sdk sdk,
+    Sdk? sdk,
   })  : _dsn = Dsn.parse(dsn),
         _uuidGenerator = uuidGenerator ?? generateUuidV4WithoutDashes,
         _platform = platform ?? sdkPlatform,
-        sdk = sdk ?? Sdk(name: sdkName, version: sdkVersion) {
+        sdk = sdk ?? Sdk(name: sdkName, version: sdkVersion),
+        _clock = clock == null
+            ? getUtcDateTime
+            : (clock is ClockProvider ? clock : clock.get) as ClockProvider;
+  /*{
     if (clock == null) {
       _clock = getUtcDateTime;
     } else {
       _clock = (clock is ClockProvider ? clock : clock.get) as ClockProvider;
     }
-  }
+  }*/
 
   @protected
   final Client httpClient;
@@ -71,7 +75,7 @@ abstract class SentryClient {
   /// event to event, such as local operating system version, the version of
   /// Dart/Flutter SDK, etc. These attributes have lower precedence than those
   /// supplied in the even passed to [capture].
-  final Event environmentAttributes;
+  final Event? environmentAttributes;
 
   final Dsn _dsn;
 
@@ -87,7 +91,7 @@ abstract class SentryClient {
   /// The Sentry.io secret key for the project.
   @visibleForTesting
   // ignore: invalid_use_of_visible_for_testing_member
-  String get secretKey => _dsn.secretKey;
+  String? get secretKey => _dsn.secretKey;
 
   /// The ID issued by Sentry.io to your project.
   ///
@@ -104,10 +108,10 @@ abstract class SentryClient {
   ///
   /// See also:
   /// * https://docs.sentry.io/learn/context/#capturing-the-user
-  User userContext;
+  User? userContext;
 
   /// Use for browser stacktrace
-  final String origin;
+  final String? origin;
 
   /// Used by sentry to differentiate browser from io environment
   final String _platform;
@@ -137,8 +141,8 @@ abstract class SentryClient {
 
   /// Reports an [event] to Sentry.io.
   Future<SentryResponse> captureEvent({
-    @required Event event,
-    StackFrameFilter stackFrameFilter,
+    required Event event,
+    StackFrameFilter? stackFrameFilter,
   }) async {
     final now = _clock();
     var authHeader = 'Sentry sentry_version=6, sentry_client=$clientId, '
@@ -156,22 +160,26 @@ abstract class SentryClient {
     };
 
     if (environmentAttributes != null) {
-      mergeAttributes(environmentAttributes.toJson(), into: data);
+      mergeAttributes(environmentAttributes!.toJson(), into: data);
     }
 
     // Merge the user context.
     if (userContext != null) {
-      mergeAttributes(<String, dynamic>{'user': userContext.toJson()},
-          into: data);
+      mergeAttributes(
+        <String, dynamic>{'user': userContext!.toJson()},
+        into: data,
+      );
     }
 
-    mergeAttributes(
-      event.toJson(
-        stackFrameFilter: stackFrameFilter,
-        origin: origin,
-      ),
-      into: data,
-    );
+    if (stackFrameFilter != null) {
+      mergeAttributes(
+        event.toJson(
+          stackFrameFilter: stackFrameFilter,
+          origin: origin ?? '', /* FIXME(rxlabz) default origin ?*/
+        ),
+        into: data,
+      );
+    }
     mergeAttributes(<String, String>{'platform': _platform}, into: data);
 
     final body = bodyEncoder(data, headers);
@@ -223,9 +231,7 @@ abstract class SentryClient {
       'Content-Type': 'application/json',
     };
 
-    if (authHeader != null) {
-      headers['X-Sentry-Auth'] = authHeader;
-    }
+    headers['X-Sentry-Auth'] = authHeader;
 
     return headers;
   }
@@ -238,7 +244,7 @@ abstract class SentryClient {
 /// contain the description of the error.
 @immutable
 class SentryResponse {
-  const SentryResponse.success({@required this.eventId})
+  const SentryResponse.success({required this.eventId})
       : isSuccessful = true,
         error = null;
 
@@ -250,8 +256,8 @@ class SentryResponse {
   final bool isSuccessful;
 
   /// The ID Sentry.io assigned to the submitted event for future reference.
-  final String eventId;
+  final String? eventId;
 
   /// Error message, if the response is not successful.
-  final String error;
+  final String? error;
 }

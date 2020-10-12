@@ -7,10 +7,10 @@ class Browser {
   const Browser({this.name, this.version});
 
   /// Human readable application name, as it appears on the platform.
-  final String name;
+  final String? name;
 
   /// Human readable application version, as it appears on the platform.
-  final String version;
+  final String? version;
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {

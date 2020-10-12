@@ -4,8 +4,7 @@ import 'package:meta/meta.dart';
 @immutable
 class Package {
   /// Creates an [Package] object that is part of the [Sdk].
-  const Package(this.name, this.version)
-      : assert(name != null && version != null);
+  const Package(this.name, this.version);
 
   /// The name of the SDK.
   final String name;

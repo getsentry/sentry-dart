@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 import 'package:http/http.dart';
-import 'package:meta/meta.dart';
 
 import 'client.dart';
 import 'protocol.dart';
@@ -11,12 +10,12 @@ import 'utils.dart';
 
 /// Implemented in `browser_client.dart` and `io_client.dart`.
 SentryClient createSentryClient({
-  @required String dsn,
-  Event environmentAttributes,
-  bool compressPayload,
-  Client httpClient,
-  dynamic clock,
-  UuidGenerator uuidGenerator,
+  required String dsn,
+  Event? environmentAttributes,
+  Client? httpClient,
+  dynamic? clock,
+  UuidGenerator? uuidGenerator,
+  bool compressPayload = true,
 }) =>
     throw UnsupportedError(
         'Cannot create a client without dart:html or dart:io.');

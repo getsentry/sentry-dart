@@ -7,7 +7,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart';
-import 'package:meta/meta.dart';
 
 import 'client.dart';
 import 'protocol.dart';
@@ -15,12 +14,12 @@ import 'utils.dart';
 import 'version.dart';
 
 SentryClient createSentryClient({
-  @required String dsn,
-  Event environmentAttributes,
-  bool compressPayload,
-  Client httpClient,
-  dynamic clock,
-  UuidGenerator uuidGenerator,
+  required String dsn,
+  Event? environmentAttributes,
+  Client? httpClient,
+  dynamic? clock,
+  UuidGenerator? uuidGenerator,
+  bool compressPayload = true,
 }) =>
     SentryIOClient(
       dsn: dsn,
@@ -58,17 +57,16 @@ class SentryIOClient extends SentryClient {
   /// field instead of the built-in random UUID v4 generator. This is useful in
   /// tests.
   factory SentryIOClient({
-    @required String dsn,
-    Event environmentAttributes,
-    bool compressPayload,
-    Client httpClient,
+    required String dsn,
+    Event? environmentAttributes,
+    Client? httpClient,
     dynamic clock,
-    UuidGenerator uuidGenerator,
+    UuidGenerator? uuidGenerator,
+    bool compressPayload = true,
   }) {
     httpClient ??= Client();
     clock ??= getUtcDateTime;
     uuidGenerator ??= generateUuidV4WithoutDashes;
-    compressPayload ??= true;
 
     return SentryIOClient._(
       httpClient: httpClient,
@@ -82,14 +80,14 @@ class SentryIOClient extends SentryClient {
   }
 
   SentryIOClient._({
-    Client httpClient,
-    dynamic clock,
-    UuidGenerator uuidGenerator,
-    Event environmentAttributes,
-    String dsn,
+    required String dsn,
+    required Client httpClient,
+    required dynamic clock,
+    required UuidGenerator uuidGenerator,
+    required String platform,
+    Event? environmentAttributes,
     this.compressPayload = true,
-    String platform,
-    String origin,
+    String? origin,
   }) : super.base(
           httpClient: httpClient,
           clock: clock,

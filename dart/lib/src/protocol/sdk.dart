@@ -36,11 +36,11 @@ import 'package.dart';
 class Sdk {
   /// Creates an [Sdk] object which represents the SDK that created an [Event].
   const Sdk({
-    @required this.name,
-    @required this.version,
+    required this.name,
+    required this.version,
     this.integrations,
     this.packages,
-  }) : assert(name != null || version != null);
+  });
 
   /// The name of the SDK.
   final String name;
@@ -49,10 +49,10 @@ class Sdk {
   final String version;
 
   /// A list of integrations enabled in the SDK that created the [Event].
-  final List<String> integrations;
+  final List<String>? integrations;
 
   /// A list of packages that compose this SDK.
-  final List<Package> packages;
+  final List<Package>? packages;
 
   String get identifier => '${name}/${version}';
 
@@ -61,11 +61,11 @@ class Sdk {
     final json = <String, dynamic>{};
     json['name'] = name;
     json['version'] = version;
-    if (packages != null && packages.isNotEmpty) {
+    if (packages?.isNotEmpty == true) {
       json['packages'] =
-          packages.map((p) => p.toJson()).toList(growable: false);
+          packages!.map((p) => p.toJson()).toList(growable: false);
     }
-    if (integrations != null && integrations.isNotEmpty) {
+    if (integrations?.isNotEmpty == true) {
       json['integrations'] = integrations;
     }
     return json;

@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:meta/meta.dart';
 import 'package:uuid/uuid.dart';
 
 typedef UuidGenerator = String Function();
@@ -18,8 +17,7 @@ DateTime getUtcDateTime() => DateTime.now().toUtc();
 /// [attributes] take precedence over the target map. Recursion takes place
 /// along [Map] values only. All other types are overwritten entirely.
 void mergeAttributes(Map<String, dynamic> attributes,
-    {@required Map<String, dynamic> into}) {
-  assert(attributes != null && into != null);
+    {required Map<String, dynamic> into}) {
   attributes.forEach((String name, dynamic value) {
     dynamic targetValue = into[name];
     if (value is Map) {

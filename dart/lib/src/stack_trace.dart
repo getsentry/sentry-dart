@@ -25,8 +25,8 @@ const Map<String, dynamic> asynchronousGapFrameJson = <String, dynamic>{
 /// [stackTrace] must be [String] or [StackTrace].
 List<Map<String, dynamic>> encodeStackTrace(
   dynamic stackTrace, {
-  StackFrameFilter stackFrameFilter,
-  String origin,
+  StackFrameFilter? stackFrameFilter,
+  String? origin,
 }) {
   assert(stackTrace is String || stackTrace is StackTrace);
   origin ??= '';
@@ -51,7 +51,7 @@ List<Map<String, dynamic>> encodeStackTrace(
   return stackFrameFilter != null ? stackFrameFilter(jsonFrames) : jsonFrames;
 }
 
-Map<String, dynamic> encodeStackTraceFrame(Frame frame, {String origin}) {
+Map<String, dynamic> encodeStackTraceFrame(Frame frame, {String? origin}) {
   origin ??= '';
 
   final json = <String, dynamic>{
