@@ -6,6 +6,7 @@ export 'protocol/device.dart';
 export 'protocol/dsn.dart';
 export 'protocol/event.dart';
 export 'protocol/level.dart';
+export 'protocol/message.dart';
 export 'protocol/package.dart';
 export 'protocol/runtime.dart';
 export 'protocol/sdk.dart';

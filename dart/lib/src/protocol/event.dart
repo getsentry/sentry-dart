@@ -49,7 +49,7 @@ class Event {
   /// Event message.
   ///
   /// Generally an event either contains a [message] or an [exception].
-  final String message;
+  final Message message;
 
   /// An object that was thrown.
   ///
@@ -121,7 +121,7 @@ class Event {
     String serverName,
     String release,
     String environment,
-    String message,
+    Message message,
     String transaction,
     dynamic exception,
     dynamic stackTrace,
@@ -179,7 +179,7 @@ class Event {
     }
 
     if (message != null) {
-      json['message'] = message;
+      json['message'] = message.toJson();
     }
 
     if (transaction != null) {

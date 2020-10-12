@@ -7,6 +7,7 @@
 - BREAKING CHANGE: Renamed capture method to captureEvent #64
 - BREAKING CHANGE: `package:http` min version bumped to 0.12.0 #104
 - BREAKING CHANGE: replace the `package:usage` by `package:uuid` #94
+- BREAKING CHANGE: `Event.message` must now be an instance of `Message`
 - By default no logger it set #63
 - Added missing Contexts to Event.copyWith() #62 
 - remove the `package:args` dependency #94
