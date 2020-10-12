@@ -1,3 +1,11 @@
+/// The Message Interface carries a log message that describes an event or error.
+/// Optionally, it can carry a format string and structured parameters. This can help to group similar messages into the same issue.
+/// example of a serialized message : {
+///   "message": {
+///     "message": "My raw message with interpreted strings like %s",
+///     "params": ["this"]
+///   }
+/// }
 class Message {
   /// The fully formatted message. If missing, Sentry will try to interpolate the message.
   final String formatted;
@@ -18,21 +26,4 @@ class Message {
       'params': params,
     };
   }
-
-  @override
-  String toString() {
-    return 'Message{formatted: $formatted, message: $message, params: $params}';
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is Message &&
-          runtimeType == other.runtimeType &&
-          formatted == other.formatted &&
-          message == other.message &&
-          params == other.params;
-
-  @override
-  int get hashCode => formatted.hashCode ^ message.hashCode ^ params.hashCode;
 }
