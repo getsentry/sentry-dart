@@ -57,7 +57,11 @@ void main() {
 
       expect(
         Event(
-          message: 'test-message',
+          message: Message(
+            formatted: 'test-message 1 2',
+            message: 'test-message %d %d',
+            params: ['1', '2'],
+          ),
           transaction: '/test/1',
           exception: StateError('test-error'),
           level: SeverityLevel.debug,
@@ -77,7 +81,11 @@ void main() {
         <String, dynamic>{
           'platform': 'dart',
           'sdk': {'version': sdkVersion, 'name': 'sentry.dart'},
-          'message': 'test-message',
+          'message': {
+            'formatted': 'test-message 1 2',
+            'message': 'test-message %d %d',
+            'params': ['1', '2']
+          },
           'transaction': '/test/1',
           'exception': [
             {'type': 'StateError', 'value': 'Bad state: test-error'}

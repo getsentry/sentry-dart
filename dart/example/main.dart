@@ -47,7 +47,7 @@ Future<void> captureCompleteExampleEvent(SentryClient client) async {
       serverName: 'server.dart',
       release: '1.4.0-preview.1',
       environment: 'Test',
-      message: 'This is an example Dart event.',
+      message: Message(formatted: 'This is an example Dart event.'),
       transaction: '/example/app',
       level: SeverityLevel.warning,
       tags: const <String, String>{'project-id': '7371'},
