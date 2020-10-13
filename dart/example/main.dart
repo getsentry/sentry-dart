@@ -5,8 +5,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:sentry/src/sentry.dart';
-import 'package:sentry/src/sentry_options.dart';
+import 'package:sentry/sentry.dart';
 
 import 'event_example.dart';
 
