@@ -3,7 +3,6 @@ import 'package:meta/meta.dart';
 import 'client.dart';
 import 'protocol.dart';
 import 'sentry_options.dart';
-import 'stack_trace.dart';
 
 /// Sentry SDK main entry point
 ///
@@ -12,7 +11,9 @@ class Sentry {
 
   Sentry._();
 
-  static void init(SentryOptions options) {
+  static void init(OptionsConfiguration<SentryOptions> optionsConfiguration) {
+    final options = SentryOptions();
+    optionsConfiguration.configure(options);
     _client = SentryClient(
       dsn: options.dsn,
       environmentAttributes: options.environmentAttributes,
@@ -24,14 +25,8 @@ class Sentry {
   }
 
   /// Reports an [event] to Sentry.io.
-  static Future<SentryResponse> captureEvent(
-    Event event, {
-    StackFrameFilter stackFrameFilter,
-  }) async {
-    return _client.captureEvent(
-      event: event,
-      stackFrameFilter: stackFrameFilter,
-    );
+  static Future<SentryResponse> captureEvent(Event event) async {
+    return _client.captureEvent(event: event);
   }
 
   /// Reports the [exception] and optionally its [stackTrace] to Sentry.io.
@@ -51,4 +46,10 @@ class Sentry {
   /// client injector only use for testing
   @visibleForTesting
   static void initClient(SentryClient client) => _client = client;
+}
+
+/// Configuration options callback
+abstract class OptionsConfiguration<T extends SentryOptions> {
+  ///configure the options
+  void configure(T options);
 }

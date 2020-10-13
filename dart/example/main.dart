@@ -18,7 +18,7 @@ Future<void> main(List<String> rawArgs) async {
   }
 
   final dsn = rawArgs.single;
-  Sentry.init(SentryOptions(dsn: dsn));
+  Sentry.init(Options(dsn: dsn));
 
   print('\nReporting a complete event example: ');
 
@@ -51,19 +51,6 @@ Future<void> main(List<String> rawArgs) async {
   }
 
   /* TODO(rxlabz) Sentry CaptureMessage(message, level) */
-
-/*Future<void> captureCompleteExampleEvent(SentryClient client) async {
-
-
-  final response = await client.captureEvent(event: event);
-
-  print('\nReporting a complete event example: ');
-  if (response.isSuccessful) {
-    print('SUCCESS\nid: ${response.eventId}');
-  } else {
-    print('FAILURE: ${response.error}');
-  }
-*/
 }
 
 Future<void> foo() async {
@@ -76,4 +63,15 @@ Future<void> bar() async {
 
 Future<void> baz() async {
   throw StateError('This is a test error');
+}
+
+class Options implements OptionsConfiguration<SentryOptions> {
+  final String dsn;
+
+  Options({this.dsn});
+
+  @override
+  void configure(SentryOptions options) {
+    options.dsn = dsn;
+  }
 }

@@ -6,7 +6,7 @@ import 'package:sentry/src/sentry_options.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('Sentry.init', () {
+  group('Sentry static entry', () {
     SentryClient client;
 
     Exception anException;
@@ -15,10 +15,15 @@ void main() {
         'https://cb0fad6f5d4e42ebb9c956cb0463edc9@o447951.ingest.sentry.io/5428562';
 
     setUp(() {
-      Sentry.init(SentryOptions(dsn: dns));
+      Sentry.init(Options(dsn: dns));
 
       client = MockSentryClient();
       Sentry.initClient(client);
+    });
+
+    test('should capture the event', () {
+      Sentry.captureEvent(event);
+      verify(client.captureEvent(event: event)).called(1);
     });
 
     test('should capture the event', () {
@@ -34,6 +39,17 @@ void main() {
 }
 
 class MockSentryClient extends Mock implements SentryClient {}
+
+class Options implements OptionsConfiguration<SentryOptions> {
+  final String dsn;
+
+  Options({this.dsn});
+
+  @override
+  void configure(SentryOptions options) {
+    options.dsn = dsn;
+  }
+}
 
 final event = Event(
   loggerName: 'main',

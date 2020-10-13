@@ -1,5 +1,4 @@
 import 'package:http/http.dart';
-import 'package:meta/meta.dart';
 
 import 'protocol.dart';
 import 'utils.dart';
@@ -11,7 +10,7 @@ class SentryOptions {
 
   /// The DSN tells the SDK where to send the events to. If this value is not provided, the SDK will
   ///  just not send any events.
-  final String dsn;
+  String dsn;
 
   /// Contains [Event] attributes that are automatically mixed into all events
   /// captured through this client.
@@ -20,31 +19,31 @@ class SentryOptions {
   /// event to event, such as local operating system version, the version of
   /// Dart/Flutter SDK, etc. These attributes have lower precedence than those
   /// supplied in the even passed to [capture].
-  final Event environmentAttributes;
+  Event environmentAttributes;
 
   /// If [compressPayload] is `true` the outgoing HTTP payloads are compressed
   /// using gzip. Otherwise, the payloads are sent in plain UTF8-encoded JSON
   /// text. If not specified, the compression is enabled by default.
-  final bool compressPayload;
+  bool compressPayload;
 
   /// If [httpClient] is provided, it is used instead of the default client to
   /// make HTTP calls to Sentry.io. This is useful in tests.
-  final Client httpClient;
+  Client httpClient;
 
   /// If [clock] is provided, it is used to get time instead of the system
   /// clock. This is useful in tests. Should be an implementation of [ClockProvider].
   /// This parameter is dynamic to maintain backwards compatibility with
   /// previous use of [Clock](https://pub.dartlang.org/documentation/quiver/latest/quiver.time/Clock-class.html)
   /// from [`package:quiver`](https://pub.dartlang.org/packages/quiver).
-  final dynamic clock;
+  dynamic clock;
 
   /// If [uuidGenerator] is provided, it is used to generate the "event_id"
   /// field instead of the built-in random UUID v4 generator. This is useful in
   /// tests.
-  final UuidGenerator uuidGenerator;
+  UuidGenerator uuidGenerator;
 
-  const SentryOptions({
-    @required this.dsn,
+  SentryOptions({
+    this.dsn,
     this.environmentAttributes,
     this.compressPayload,
     this.httpClient,
