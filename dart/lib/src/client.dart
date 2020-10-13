@@ -23,7 +23,7 @@ abstract class SentryClient {
   /// `dart:html` is available, otherwise it will throw an unsupported error.
   factory SentryClient({
     @required String dsn,
-    Event environmentAttributes,
+    Event environment,
     bool compressPayload,
     Client httpClient,
     dynamic clock,
@@ -31,7 +31,7 @@ abstract class SentryClient {
   }) =>
       createSentryClient(
         dsn: dsn,
-        environmentAttributes: environmentAttributes,
+        environmentAttributes: environment,
         httpClient: httpClient,
         clock: clock,
         uuidGenerator: uuidGenerator,

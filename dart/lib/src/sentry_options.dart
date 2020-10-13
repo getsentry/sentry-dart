@@ -19,7 +19,7 @@ class SentryOptions {
   /// event to event, such as local operating system version, the version of
   /// Dart/Flutter SDK, etc. These attributes have lower precedence than those
   /// supplied in the even passed to [capture].
-  Event environmentAttributes;
+  Event environment;
 
   /// If [compressPayload] is `true` the outgoing HTTP payloads are compressed
   /// using gzip. Otherwise, the payloads are sent in plain UTF8-encoded JSON
@@ -44,7 +44,7 @@ class SentryOptions {
 
   SentryOptions({
     this.dsn,
-    this.environmentAttributes,
+    this.environment,
     this.compressPayload,
     this.httpClient,
     this.clock,

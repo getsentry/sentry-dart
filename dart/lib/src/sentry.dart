@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:meta/meta.dart';
 
 import 'client.dart';
@@ -16,7 +18,7 @@ class Sentry {
     optionsConfiguration.configure(options);
     _client = SentryClient(
       dsn: options.dsn,
-      environmentAttributes: options.environmentAttributes,
+      environment: options.environment,
       compressPayload: options.compressPayload,
       httpClient: options.httpClient,
       clock: options.clock,

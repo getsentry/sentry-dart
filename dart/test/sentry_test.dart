@@ -11,8 +11,7 @@ void main() {
 
     Exception anException;
 
-    final dns =
-        'https://cb0fad6f5d4e42ebb9c956cb0463edc9@o447951.ingest.sentry.io/5428562';
+    final dns = 'https://abc@def.ingest.sentry.io/1234567';
 
     setUp(() {
       Sentry.init(Options(dsn: dns));
