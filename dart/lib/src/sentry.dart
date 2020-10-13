@@ -23,9 +23,6 @@ class Sentry {
     );
   }
 
-  /// Initializes the SDK
-  static void initDns(String dns) => _client = SentryClient(dsn: dns);
-
   /// Reports an [event] to Sentry.io.
   static Future<SentryResponse> captureEvent(
     Event event, {
