@@ -6,3 +6,5 @@
 export 'src/client.dart';
 export 'src/protocol.dart';
 export 'src/version.dart';
+export 'src/scope.dart';
+export 'src/sentry_options.dart';
