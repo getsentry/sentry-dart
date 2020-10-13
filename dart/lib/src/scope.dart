@@ -42,7 +42,7 @@ class Scope {
   /// they must be JSON-serializable.
   final Map<String, dynamic> extra = {};
 
-  // TODO: eventProcessors, Contexts, BeforeBreadcrumbCallback, Breadcrumb hint, clome
+  // TODO: eventProcessors, Contexts, BeforeBreadcrumbCallback, Breadcrumb hint, clone
 
   final SentryOptions _options;
 
@@ -52,13 +52,17 @@ class Scope {
   void addBreadcrumb(Breadcrumb breadcrumb) {
     assert(breadcrumb != null, "Breadcrumb can't be null");
 
+    // bail out if maxBreadcrumbs is zero
+    if (_options.maxBreadcrumbs == 0) {
+      return;
+    }
+
+    // remove first item if list if full
     if (_breadcrumbs.length >= _options.maxBreadcrumbs &&
         _breadcrumbs.isNotEmpty) {
       _breadcrumbs.removeFirst();
     }
-    if (_options.maxBreadcrumbs == 0) {
-      return;
-    }
+
     _breadcrumbs.add(breadcrumb);
   }
 
