@@ -9,10 +9,7 @@ void main() {
 
     sut.level = SeverityLevel.debug;
 
-    expect(
-      sut.level,
-      SeverityLevel.debug,
-    );
+    expect(sut.level, SeverityLevel.debug);
   });
 
   test('sets transaction', () {
@@ -20,10 +17,7 @@ void main() {
 
     sut.transaction = 'test';
 
-    expect(
-      sut.transaction,
-      'test',
-    );
+    expect(sut.transaction, 'test');
   });
 
   test('sets $User', () {
@@ -32,10 +26,7 @@ void main() {
     final user = User(id: 'test');
     sut.user = user;
 
-    expect(
-      sut.user,
-      user,
-    );
+    expect(sut.user, user);
   });
 
   test('sets fingerprint', () {
@@ -44,10 +35,7 @@ void main() {
     final fingerprints = ['test'];
     sut.fingerprint = fingerprints;
 
-    expect(
-      sut.fingerprint,
-      fingerprints,
-    );
+    expect(sut.fingerprint, fingerprints);
   });
 
   test('adds $Breadcrumb', () {
@@ -56,10 +44,7 @@ void main() {
     final breadcrumb = Breadcrumb('test log', DateTime.utc(2019));
     sut.addBreadcrumb(breadcrumb);
 
-    expect(
-      sut.breadcrumbs.last,
-      breadcrumb,
-    );
+    expect(sut.breadcrumbs.last, breadcrumb);
   });
 
   test('respects max $Breadcrumb', () {
@@ -73,10 +58,7 @@ void main() {
     sut.addBreadcrumb(breadcrumb2);
     sut.addBreadcrumb(breadcrumb3);
 
-    expect(
-      sut.breadcrumbs.length,
-      maxBreadcrumbs,
-    );
+    expect(sut.breadcrumbs.length, maxBreadcrumbs);
   });
 
   test('rotates $Breadcrumb', () {
@@ -89,15 +71,9 @@ void main() {
     sut.addBreadcrumb(breadcrumb2);
     sut.addBreadcrumb(breadcrumb3);
 
-    expect(
-      sut.breadcrumbs.first,
-      breadcrumb2,
-    );
+    expect(sut.breadcrumbs.first, breadcrumb2);
 
-    expect(
-      sut.breadcrumbs.last,
-      breadcrumb3,
-    );
+    expect(sut.breadcrumbs.last, breadcrumb3);
   });
 
   test('empty $Breadcrumb list', () {
@@ -107,10 +83,7 @@ void main() {
     final breadcrumb1 = Breadcrumb('test log', DateTime.utc(2019));
     sut.addBreadcrumb(breadcrumb1);
 
-    expect(
-      sut.breadcrumbs.length,
-      maxBreadcrumbs,
-    );
+    expect(sut.breadcrumbs.length, maxBreadcrumbs);
   });
 
   test('clears $Breadcrumb list', () {
@@ -120,56 +93,41 @@ void main() {
     sut.addBreadcrumb(breadcrumb1);
     sut.clear();
 
-    expect(
-      sut.breadcrumbs.length,
-      0,
-    );
+    expect(sut.breadcrumbs.length, 0);
   });
 
   test('sets tag', () {
     final sut = fixture.getSut();
 
-    sut.tags['test'] = 'test';
+    sut.setTag('test', 'test');
 
-    expect(
-      sut.tags['test'],
-      'test',
-    );
+    expect(sut.tags['test'], 'test');
   });
 
   test('removes tag', () {
     final sut = fixture.getSut();
 
-    sut.tags['test'] = 'test';
-    sut.tags.remove('test');
+    sut.setTag('test', 'test');
+    sut.removeTag('test');
 
-    expect(
-      sut.tags['test'],
-      null,
-    );
+    expect(sut.tags['test'], null);
   });
 
   test('sets extra', () {
     final sut = fixture.getSut();
 
-    sut.extra['test'] = 'test';
+    sut.setExtra('test', 'test');
 
-    expect(
-      sut.extra['test'],
-      'test',
-    );
+    expect(sut.extra['test'], 'test');
   });
 
   test('removes extra', () {
     final sut = fixture.getSut();
 
-    sut.extra['test'] = 'test';
-    sut.extra.remove('test');
+    sut.setExtra('test', 'test');
+    sut.removeExtra('test');
 
-    expect(
-      sut.extra['test'],
-      null,
-    );
+    expect(sut.extra['test'], null);
   });
 
   test('clears $Scope', () {
@@ -187,45 +145,24 @@ void main() {
     final fingerprints = ['test'];
     sut.fingerprint = fingerprints;
 
-    sut.tags['test'] = 'test';
-    sut.extra['test'] = 'test';
+    sut.setTag('test', 'test');
+    sut.setExtra('test', 'test');
 
     sut.clear();
 
-    expect(
-      sut.breadcrumbs.length,
-      0,
-    );
+    expect(sut.breadcrumbs.length, 0);
 
-    expect(
-      sut.level,
-      null,
-    );
+    expect(sut.level, null);
 
-    expect(
-      sut.transaction,
-      null,
-    );
+    expect(sut.transaction, null);
 
-    expect(
-      sut.user,
-      null,
-    );
+    expect(sut.user, null);
 
-    expect(
-      sut.fingerprint,
-      null,
-    );
+    expect(sut.fingerprint, null);
 
-    expect(
-      sut.tags.length,
-      0,
-    );
+    expect(sut.tags.length, 0);
 
-    expect(
-      sut.extra.length,
-      0,
-    );
+    expect(sut.extra.length, 0);
   });
 }
 
