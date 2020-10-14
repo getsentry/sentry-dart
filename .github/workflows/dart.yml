@@ -11,8 +11,9 @@ jobs:
   build:
     name: Build ${{matrix.sdk}} on ${{matrix.os}}
     runs-on: ${{ matrix.os }}
-    env:
-      working-directory: ./dart
+    defaults:
+      env:
+        working-directory: ./dart
     strategy:
       fail-fast: false
       matrix:
