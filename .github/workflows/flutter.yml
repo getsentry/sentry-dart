@@ -87,7 +87,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       # https://github.com/CocoaPods/CocoaPods/issues/5275#issuecomment-315461879
-      - run: pod lib lint flutter/ios/sentry_flutter.podspec --skip-import-validation
+      - run: pod lib lint flutter/ios/sentry_flutter.podspec --skip-import-validation --allow-warnings
   swift-lint:
     runs-on: ubuntu-latest
     steps:
