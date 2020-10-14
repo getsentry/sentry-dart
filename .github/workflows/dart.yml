@@ -37,7 +37,7 @@ jobs:
         - uses: actions/checkout@v2
         - run: pub get
         - name: Test on Chrome
-          run: pub run test -p chrome .
+          run: pub run test -p chrome test
         - run: dartanalyzer --fatal-warnings ./
         - run: dartfmt -n --set-exit-if-changed ./
   package-analysis:
