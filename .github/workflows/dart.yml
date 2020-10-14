@@ -12,7 +12,8 @@ jobs:
     name: Build ${{matrix.sdk}} on ${{matrix.os}}
     runs-on: ${{ matrix.os }}
     defaults:
-      working-directory: ./dart
+      run:
+        working-directory: ./dart
     strategy:
       fail-fast: false
       matrix:
