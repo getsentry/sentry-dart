@@ -42,6 +42,8 @@ class SentryOptions {
   /// tests.
   UuidGenerator uuidGenerator;
 
+  int maxBreadcrumbs;
+
   SentryOptions({
     this.dsn,
     this.environmentAttributes,
@@ -49,5 +51,6 @@ class SentryOptions {
     this.httpClient,
     this.clock,
     this.uuidGenerator,
+    this.maxBreadcrumbs = 100,
   });
 }

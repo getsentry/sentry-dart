@@ -8,3 +8,5 @@ export 'src/protocol.dart';
 export 'src/sentry.dart';
 export 'src/sentry_options.dart';
 export 'src/version.dart';
+export 'src/scope.dart';
+export 'src/sentry_options.dart';

@@ -19,6 +19,7 @@
 - Single changelog and readme for both packages #105
 - new static API : Sentry.init(), Sentry.captureEvent() #108
 - expect a sdkName based on the test platform #105
+- Added Scope and Breadcrumb ring buffer #109
 
 # `package:sentry` changelog
 
