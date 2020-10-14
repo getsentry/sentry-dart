@@ -36,12 +36,6 @@ jobs:
             release-channel: ${{ matrix.sdk }}
         - uses: actions/checkout@v2
         - run: pub get
-        - name: Test on Dart VM and collect code coverage
-          uses: stelynx/dart-full-coverage@v1.0.3
-          with:
-            package: sentry
-            path: dart # seems the action does a cd {BLA} and ignores the workdir we set
-        - uses: codecov/codecov-action@v1
         - name: Test on Chrome
           run: pub run test -p chrome test/*
         - run: dartanalyzer --fatal-warnings ./
