@@ -31,7 +31,7 @@ abstract class SentryClient {
   }) =>
       createSentryClient(
         dsn: dsn,
-        environmentAttributes: environment,
+        environment: environment,
         httpClient: httpClient,
         clock: clock,
         uuidGenerator: uuidGenerator,
@@ -43,7 +43,7 @@ abstract class SentryClient {
     dynamic clock,
     UuidGenerator uuidGenerator,
     String dsn,
-    this.environmentAttributes,
+    this.environment,
     String platform,
     this.origin,
     Sdk sdk,
@@ -71,7 +71,7 @@ abstract class SentryClient {
   /// event to event, such as local operating system version, the version of
   /// Dart/Flutter SDK, etc. These attributes have lower precedence than those
   /// supplied in the even passed to [capture].
-  final Event environmentAttributes;
+  final Event environment;
 
   final Dsn _dsn;
 
@@ -155,8 +155,8 @@ abstract class SentryClient {
       'timestamp': formatDateAsIso8601WithSecondPrecision(now),
     };
 
-    if (environmentAttributes != null) {
-      mergeAttributes(environmentAttributes.toJson(), into: data);
+    if (environment != null) {
+      mergeAttributes(environment.toJson(), into: data);
     }
 
     // Merge the user context.
