@@ -20,6 +20,7 @@ const String _testDsnWithPort =
 void testHeaders(
   Map<String, String> headers,
   ClockProvider fakeClockProvider, {
+  String sdkName,
   bool withUserAgent = true,
   bool compressPayload = true,
   bool withSecret = true,
@@ -98,6 +99,7 @@ Future testCaptureException(
     fakeClockProvider,
     compressPayload: compressPayload,
     withUserAgent: !isWeb,
+    sdkName: isWeb ? browserSdkName : sdkName,
   );
 
   Map<String, dynamic> data;
@@ -256,6 +258,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
       withUserAgent: !isWeb,
       compressPayload: false,
       withSecret: false,
+      sdkName: isWeb ? browserSdkName : sdkName,
     );
 
     await client.close();
