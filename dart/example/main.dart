@@ -18,7 +18,7 @@ Future<void> main(List<String> rawArgs) async {
   }
 
   final dsn = rawArgs.single;
-  Sentry.init(Options(dsn: dsn));
+  Sentry.init((options) => options.dsn = dsn);
 
   print('\nReporting a complete event example: ');
 
@@ -63,15 +63,4 @@ Future<void> bar() async {
 
 Future<void> baz() async {
   throw StateError('This is a test error');
-}
-
-class Options implements OptionsConfiguration<SentryOptions> {
-  final String dsn;
-
-  Options({this.dsn});
-
-  @override
-  void configure(SentryOptions options) {
-    options.dsn = dsn;
-  }
 }

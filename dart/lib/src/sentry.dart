@@ -6,6 +6,9 @@ import 'client.dart';
 import 'protocol.dart';
 import 'sentry_options.dart';
 
+/// Configuration options callback
+typedef OptionsConfiguration = void Function(SentryOptions);
+
 /// Sentry SDK main entry point
 ///
 class Sentry {
@@ -13,9 +16,9 @@ class Sentry {
 
   Sentry._();
 
-  static void init(OptionsConfiguration<SentryOptions> optionsConfiguration) {
+  static void init(OptionsConfiguration optionsConfiguration) {
     final options = SentryOptions();
-    optionsConfiguration.configure(options);
+    optionsConfiguration(options);
     _client = SentryClient(
       dsn: options.dsn,
       environment: options.environment,
@@ -48,10 +51,4 @@ class Sentry {
   /// client injector only use for testing
   @visibleForTesting
   static void initClient(SentryClient client) => _client = client;
-}
-
-/// Configuration options callback
-abstract class OptionsConfiguration<T extends SentryOptions> {
-  ///configure the options
-  void configure(T options);
 }

@@ -1,8 +1,5 @@
 import 'package:mockito/mockito.dart';
-import 'package:sentry/src/client.dart';
-import 'package:sentry/src/protocol.dart';
-import 'package:sentry/src/sentry.dart';
-import 'package:sentry/src/sentry_options.dart';
+import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -14,7 +11,7 @@ void main() {
     final dns = 'https://abc@def.ingest.sentry.io/1234567';
 
     setUp(() {
-      Sentry.init(Options(dsn: dns));
+      Sentry.init((options) => options.dsn = dns);
 
       client = MockSentryClient();
       Sentry.initClient(client);
@@ -38,17 +35,6 @@ void main() {
 }
 
 class MockSentryClient extends Mock implements SentryClient {}
-
-class Options implements OptionsConfiguration<SentryOptions> {
-  final String dsn;
-
-  Options({this.dsn});
-
-  @override
-  void configure(SentryOptions options) {
-    options.dsn = dsn;
-  }
-}
 
 final event = Event(
   loggerName: 'main',
