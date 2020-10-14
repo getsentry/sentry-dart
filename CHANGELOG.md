@@ -17,7 +17,7 @@
 - new Dart code file structure #96 
 - Base the sdk name on the platform (`sentry.dart` for io & flutter, `sentry.dart.browser` in a browser context) #103 
 - Single changelog and readme for both packages #105
-- fix a #103 test regression introduced #105
+- fix a test regression introduced by #103 #105
 
 # `package:sentry` changelog
 
