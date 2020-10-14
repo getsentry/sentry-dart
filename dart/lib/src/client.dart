@@ -23,7 +23,7 @@ abstract class SentryClient {
   /// `dart:html` is available, otherwise it will throw an unsupported error.
   factory SentryClient({
     @required String dsn,
-    Event environment,
+    Event environmentAttributes,
     bool compressPayload,
     Client httpClient,
     dynamic clock,
@@ -31,7 +31,7 @@ abstract class SentryClient {
   }) =>
       createSentryClient(
         dsn: dsn,
-        environment: environment,
+        environmentAttributes: environmentAttributes,
         httpClient: httpClient,
         clock: clock,
         uuidGenerator: uuidGenerator,
@@ -43,7 +43,7 @@ abstract class SentryClient {
     dynamic clock,
     UuidGenerator uuidGenerator,
     String dsn,
-    this.environment,
+    this.environmentAttributes,
     String platform,
     this.origin,
     Sdk sdk,
@@ -71,7 +71,7 @@ abstract class SentryClient {
   /// event to event, such as local operating system version, the version of
   /// Dart/Flutter SDK, etc. These attributes have lower precedence than those
   /// supplied in the even passed to [capture].
-  final Event environment;
+  final Event environmentAttributes;
 
   final Dsn _dsn;
 
@@ -155,8 +155,8 @@ abstract class SentryClient {
       'timestamp': formatDateAsIso8601WithSecondPrecision(now),
     };
 
-    if (environment != null) {
-      mergeAttributes(environment.toJson(), into: data);
+    if (environmentAttributes != null) {
+      mergeAttributes(environmentAttributes.toJson(), into: data);
     }
 
     // Merge the user context.

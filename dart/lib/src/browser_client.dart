@@ -17,7 +17,7 @@ import 'version.dart';
 
 SentryClient createSentryClient({
   @required String dsn,
-  Event environment,
+  Event environmentAttributes,
   bool compressPayload,
   Client httpClient,
   dynamic clock,
@@ -25,7 +25,7 @@ SentryClient createSentryClient({
 }) =>
     SentryBrowserClient(
       dsn: dsn,
-      environment: environment,
+      environmentAttributes: environmentAttributes,
       httpClient: httpClient,
       clock: clock,
       uuidGenerator: uuidGenerator,
@@ -36,7 +36,7 @@ class SentryBrowserClient extends SentryClient {
   /// Instantiates a client using [dsn] issued to your project by Sentry.io as
   /// the endpoint for submitting events.
   ///
-  /// [environment] contain event attributes that do not change over
+  /// [environmentAttributes] contain event attributes that do not change over
   /// the course of a program's lifecycle. These attributes will be added to
   /// all events captured via this client. The following attributes often fall
   /// under this category: [Event.serverName], [Event.release], [Event.environment].
@@ -55,7 +55,7 @@ class SentryBrowserClient extends SentryClient {
   /// tests.
   factory SentryBrowserClient({
     @required String dsn,
-    Event environment,
+    Event environmentAttributes,
     Client httpClient,
     dynamic clock,
     UuidGenerator uuidGenerator,
@@ -72,7 +72,7 @@ class SentryBrowserClient extends SentryClient {
       httpClient: httpClient,
       clock: clock,
       uuidGenerator: uuidGenerator,
-      environment: environment,
+      environmentAttributes: environmentAttributes,
       dsn: dsn,
       origin: origin,
       platform: browserPlatform,
@@ -83,7 +83,7 @@ class SentryBrowserClient extends SentryClient {
     Client httpClient,
     dynamic clock,
     UuidGenerator uuidGenerator,
-    Event environment,
+    Event environmentAttributes,
     String dsn,
     String platform,
     String origin,
@@ -91,7 +91,7 @@ class SentryBrowserClient extends SentryClient {
           httpClient: httpClient,
           clock: clock,
           uuidGenerator: uuidGenerator,
-          environment: environment,
+          environmentAttributes: environmentAttributes,
           dsn: dsn,
           platform: platform,
           origin: origin,

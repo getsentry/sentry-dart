@@ -75,7 +75,7 @@ Future testCaptureException(
     clock: fakeClockProvider,
     uuidGenerator: () => 'X' * 32,
     compressPayload: compressPayload,
-    environment: const Event(
+    environmentAttributes: const Event(
       serverName: 'test.server.com',
       release: '1.2.3',
       environment: 'staging',
@@ -235,7 +235,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
       clock: fakeClockProvider,
       compressPayload: false,
       uuidGenerator: () => 'X' * 32,
-      environment: const Event(
+      environmentAttributes: const Event(
         serverName: 'test.server.com',
         release: '1.2.3',
         environment: 'staging',
@@ -293,7 +293,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
       clock: fakeClockProvider,
       uuidGenerator: () => 'X' * 32,
       compressPayload: false,
-      environment: const Event(
+      environmentAttributes: const Event(
         serverName: 'test.server.com',
         release: '1.2.3',
         environment: 'staging',
@@ -350,7 +350,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
       clock: fakeClockProvider,
       uuidGenerator: () => 'X' * 32,
       compressPayload: false,
-      environment: const Event(
+      environmentAttributes: const Event(
         serverName: 'test.server.com',
         release: '1.2.3',
         environment: 'staging',

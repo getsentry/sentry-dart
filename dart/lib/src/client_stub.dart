@@ -12,7 +12,7 @@ import 'utils.dart';
 /// Implemented in `browser_client.dart` and `io_client.dart`.
 SentryClient createSentryClient({
   @required String dsn,
-  Event environment,
+  Event environmentAttributes,
   bool compressPayload,
   Client httpClient,
   dynamic clock,

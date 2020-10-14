@@ -21,7 +21,7 @@ class Sentry {
     optionsConfiguration(options);
     _client = SentryClient(
       dsn: options.dsn,
-      environment: options.environment,
+      environmentAttributes: options.environmentAttributes,
       compressPayload: options.compressPayload,
       httpClient: options.httpClient,
       clock: options.clock,
