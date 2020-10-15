@@ -7,7 +7,9 @@ import 'mocks.dart';
 void main() {
   group('Hub instanciation', () {
     test('should not instanciate without a sentryOptions', () {
-      expect(() => Hub(null), throwsArgumentError);
+      Hub hub;
+      expect(() => hub = Hub(null), throwsArgumentError);
+      expect(hub, null);
     });
 
     test('should not instanciate without a dsn', () {

@@ -1,11 +1,12 @@
+import 'dart:async';
 import 'dart:collection';
-
-import 'package:meta/meta.dart';
 
 import 'client.dart';
 import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_options.dart';
+
+typedef ScopeCallback = void Function(Scope);
 
 /// SDK API contract which combines a client and scope management
 class Hub implements HubInterface {
@@ -20,16 +21,18 @@ class Hub implements HubInterface {
 
   final ListQueue<_StackItem> _stack;
 
+  final SentryOptions _options;
+
   factory Hub(SentryOptions options) {
     _validateOptions(options);
 
-    final client = _getClient(fromOptions: options);
-    return Hub._(client: client, scope: Scope(options));
+    return Hub._(options);
   }
 
-  Hub._({@required SentryClient client, @required Scope scope})
-      : _stack = ListQueue() {
-    _stack.add(_StackItem(client, scope));
+  Hub._(SentryOptions options)
+      : _options = options,
+        _stack = ListQueue() {
+    _stack.add(_StackItem(_getClient(fromOptions: options), Scope(_options)));
     _isEnabled = true;
   }
 
@@ -54,9 +57,40 @@ class Hub implements HubInterface {
   SentryId get lastEventId => _lastEventId;
 
   @override
-  SentryId captureEvent(Event event) {
-    // TODO: implement captureEvent
-    throw UnimplementedError();
+  Future<SentryId> captureEvent(Event event) async {
+    var sentryId = SentryId.empty();
+
+    if (!_isEnabled) {
+      _options.logger(
+        SeverityLevel.warning,
+        "Instance is disabled and this 'captureEvent' call is a no-op.",
+      );
+    } else if (event == null) {
+      _options.logger(
+        SeverityLevel.warning,
+        'captureEvent called with null parameter.',
+      );
+    } else {
+      final item = _stack.last;
+      if (item != null) {
+        try {
+          sentryId = await item.client.captureEvent(event: event);
+        } catch (err) {
+          /* FIXME(rxlabz) ? Event.id ?*/
+          _options.logger(
+            SeverityLevel.error,
+            'Error while capturing event with id: ${event}',
+          );
+        }
+      } else {
+        _options.logger(
+          SeverityLevel.fatal,
+          'Stack peek was null when captureEvent',
+        );
+      }
+    }
+    _lastEventId = sentryId;
+    return sentryId;
   }
 
   @override
@@ -79,8 +113,7 @@ class Hub implements HubInterface {
 
   @override
   void bindClient(SentryClient client) {
-    // TODO: implement bindClient
-    throw UnimplementedError();
+    _stack.add(_StackItem(client, _stack.last.scope));
   }
 
   @override
@@ -187,11 +220,11 @@ class Hub implements HubInterface {
 }
 
 class _StackItem {
-  final SentryClient _client;
+  final SentryClient client;
 
-  final Scope _scope;
+  final Scope scope;
 
-  _StackItem(this._client, this._scope);
+  _StackItem(this.client, this.scope);
 }
 
 abstract class HubInterface {
@@ -202,7 +235,7 @@ abstract class HubInterface {
   SentryId get lastEventId;
 
   /// Captures the event.
-  SentryId captureEvent(Event event);
+  Future<SentryId> captureEvent(Event event);
 
   /// Captures the exception
   SentryId captureException({Message message, SeverityLevel level});
@@ -270,5 +303,3 @@ abstract class HubInterface {
   /// Clones the Hub
   Hub clone();
 }
-
-typedef ScopeCallback = void Function(Scope);

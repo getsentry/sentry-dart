@@ -22,11 +22,6 @@ void main() {
       verify(client.captureEvent(event: event)).called(1);
     });
 
-    test('should capture the event', () {
-      Sentry.captureEvent(event);
-      verify(client.captureEvent(event: event)).called(1);
-    });
-
     test('should capture the exception', () {
       Sentry.captureException(anException);
       verify(client.captureException(exception: anException)).called(1);

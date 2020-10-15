@@ -136,7 +136,7 @@ abstract class SentryClient {
   }
 
   /// Reports an [event] to Sentry.io.
-  Future<SentryResponse> captureEvent({
+  Future<SentryId> captureEvent({
     @required Event event,
     StackFrameFilter stackFrameFilter,
   }) async {
@@ -187,15 +187,15 @@ abstract class SentryClient {
       if (response.headers['x-sentry-error'] != null) {
         errorMessage += ': ${response.headers['x-sentry-error']}';
       }
-      return SentryResponse.failure(errorMessage);
+      return SentryId.empty();
     }
 
     final eventId = '${json.decode(response.body)['id']}';
-    return SentryResponse.success(eventId: eventId);
+    return SentryId(eventId);
   }
 
   /// Reports the [exception] and optionally its [stackTrace] to Sentry.io.
-  Future<SentryResponse> captureException({
+  Future<SentryId> captureException({
     @required dynamic exception,
     dynamic stackTrace,
   }) {
