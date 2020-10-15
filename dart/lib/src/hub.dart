@@ -25,18 +25,23 @@ class Hub implements IHub {
 
   final SentryOptions _options;
 
-  //factory Hub(SentryOptions options) => Hub._(options);
+  factory Hub(SentryOptions options) {
+    _validateOptions(options);
 
-  Hub(SentryOptions options)
-      : assert(options != null && options.dsn != null),
-        _options = options,
+    return Hub._(options);
+  }
+
+  Hub._(SentryOptions options)
+      : _options = options,
         _stack = ListQueue() {
     _stack.add(_StackItem(_getClient(fromOptions: options), Scope(_options)));
     _isEnabled = true;
   }
 
   static void _validateOptions(SentryOptions options) {
-    ;
+    if (options == null) {
+      throw ArgumentError.notNull('options');
+    }
 
     if (options.dsn == null) {
       throw ArgumentError.notNull('options.dsn');
