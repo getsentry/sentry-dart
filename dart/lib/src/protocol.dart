@@ -10,5 +10,6 @@ export 'protocol/message.dart';
 export 'protocol/package.dart';
 export 'protocol/runtime.dart';
 export 'protocol/sdk.dart';
+export 'protocol/sentry_id.dart';
 export 'protocol/system.dart';
 export 'protocol/user.dart';

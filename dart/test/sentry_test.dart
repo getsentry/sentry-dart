@@ -2,16 +2,16 @@ import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
+import 'mocks.dart';
+
 void main() {
   group('Sentry static entry', () {
     SentryClient client;
 
     Exception anException;
 
-    final dns = 'https://abc@def.ingest.sentry.io/1234567';
-
     setUp(() {
-      Sentry.init((options) => options.dsn = dns);
+      Sentry.init((options) => options.dsn = fakeDns);
 
       client = MockSentryClient();
       Sentry.initClient(client);
