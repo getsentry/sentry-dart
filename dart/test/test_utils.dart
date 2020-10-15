@@ -109,6 +109,7 @@ Future testCaptureException(
   }
   final Map<String, dynamic> stacktrace =
       data.remove('stacktrace') as Map<String, dynamic>;
+
   expect(stacktrace['frames'], const TypeMatcher<List>());
   expect(stacktrace['frames'], isNotEmpty);
 
