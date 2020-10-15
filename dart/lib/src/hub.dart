@@ -185,10 +185,10 @@ class Hub implements IHub {
   }
 
   @override
-  Hub clone() {
-    // TODO: implement clone
-    throw UnimplementedError();
-  }
+  Hub clone() => Hub(_options)
+    .._stack.addAll(_stack)
+    .._lastEventId = _lastEventId
+    .._isEnabled = _isEnabled;
 
   @override
   void close() {
@@ -209,56 +209,8 @@ class Hub implements IHub {
   }
 
   @override
-  void removeExtra(String key) {
-    // TODO: implement removeExtra
-    throw UnimplementedError();
-  }
-
-  @override
-  void removeTag({String key}) {
-    // TODO: implement removeTag
-    throw UnimplementedError();
-  }
-
-  @override
-  void setExtra(String key, String value) {
-    // TODO: implement setExtra
-    throw UnimplementedError();
-  }
-
-  @override
-  void setFingerPrint(List<String> fingerPrint) {
-    // TODO: implement setFingerPrint
-    throw UnimplementedError();
-  }
-
-  @override
-  void setLevel(SeverityLevel level) {
-    // TODO: implement setLevel
-    throw UnimplementedError();
-  }
-
-  @override
-  void setTag({String key, String value}) {
-    // TODO: implement setTag
-    throw UnimplementedError();
-  }
-
-  @override
-  void setTransaction(String transaction) {
-    // TODO: implement setTransaction
-    throw UnimplementedError();
-  }
-
-  @override
-  void setUser(User user) {
-    // TODO: implement setUser
-    throw UnimplementedError();
-  }
-
-  @override
-  void startSession() {
-    // TODO: implement startSession
+  void pushScope() {
+    // TODO: implement popScope
     throw UnimplementedError();
   }
 
@@ -293,35 +245,13 @@ abstract class IHub {
   /// Captures the message.
   Future<SentryId> captureMessage(Message message, {SeverityLevel level});
 
-  /// Starts a new session. If there's a running session, it ends it before starting the new one.
-  void startSession();
-
   /// Flushes out the queue for up to timeout seconds and disable the Hub.
   void close();
 
-  /// Sets the level of all events sent within current Scope
-  void setLevel(SeverityLevel level);
+  /// Runs the callback with a new scope which gets dropped at the end
+  void pushScope();
 
-  /// Sets the name of the current transaction to the current Scope.
-  void setTransaction(String transaction);
-
-  /// Shallow merges user configuration (email, username, etc) to the current Scope.
-  void setUser(User user);
-
-  /// Sets the fingerprint to group specific events together to the current Scope.
-  void setFingerPrint(List<String> fingerPrint);
-
-  /// Sets the tag to a string value to the current Scope, overwriting a potential previous value
-  void setTag({String key, String value});
-
-  /// Removes the tag to a string value to the current Scope
-  void removeTag({String key});
-
-  /// Sets the extra key to an arbitrary value to the current Scope, overwriting a potential previous value
-  void setExtra(String key, String value);
-
-  /// Removes the extra key to an arbitrary value to the current Scope
-  void removeExtra(String key);
+  void popScope();
 
   /// Runs the callback with a new scope which gets dropped at the end
   void withScope(ScopeCallback callback);
