@@ -9,7 +9,7 @@ import 'sentry_options.dart';
 typedef ScopeCallback = void Function(Scope);
 
 /// SDK API contract which combines a client and scope management
-class Hub implements HubInterface {
+class Hub implements IHub {
   static SentryClient _getClient({SentryOptions fromOptions}) {
     return SentryClient(
       dsn: fromOptions.dsn,
@@ -25,23 +25,18 @@ class Hub implements HubInterface {
 
   final SentryOptions _options;
 
-  factory Hub(SentryOptions options) {
-    _validateOptions(options);
+  //factory Hub(SentryOptions options) => Hub._(options);
 
-    return Hub._(options);
-  }
-
-  Hub._(SentryOptions options)
-      : _options = options,
+  Hub(SentryOptions options)
+      : assert(options != null && options.dsn != null),
+        _options = options,
         _stack = ListQueue() {
     _stack.add(_StackItem(_getClient(fromOptions: options), Scope(_options)));
     _isEnabled = true;
   }
 
   static void _validateOptions(SentryOptions options) {
-    if (options == null) {
-      throw ArgumentError.notNull('options');
-    }
+    ;
 
     if (options.dsn == null) {
       throw ArgumentError.notNull('options.dsn');
@@ -78,7 +73,7 @@ class Hub implements HubInterface {
         try {
           sentryId = await item.client.captureEvent(event: event);
         } catch (err) {
-          /* FIXME(rxlabz) ? Event.id ?*/
+          /* TODO add Event.id */
           _options.logger(
             SeverityLevel.error,
             'Error while capturing event with id: ${event}',
@@ -180,20 +175,8 @@ class Hub implements HubInterface {
   }
 
   @override
-  void addBreadcrumb(Breadcrumb breadCrumb) {
-    // TODO: implement addBreadcrumb
-    throw UnimplementedError();
-  }
-
-  @override
   void bindClient(SentryClient client) {
     _stack.add(_StackItem(client, _stack.last.scope));
-  }
-
-  @override
-  void clearBreadcrumbs() {
-    // TODO: implement clearBreadcrumbs
-    throw UnimplementedError();
   }
 
   @override
@@ -217,12 +200,6 @@ class Hub implements HubInterface {
   @override
   void popScope() {
     // TODO: implement popScope
-    throw UnimplementedError();
-  }
-
-  @override
-  void pushScope() {
-    // TODO: implement pushScope
     throw UnimplementedError();
   }
 
@@ -281,12 +258,6 @@ class Hub implements HubInterface {
   }
 
   @override
-  void stopSession() {
-    // TODO: implement stopSession
-    throw UnimplementedError();
-  }
-
-  @override
   void withScope(ScopeCallback callback) {
     // TODO: implement withScope
     throw UnimplementedError();
@@ -301,7 +272,7 @@ class _StackItem {
   _StackItem(this.client, this.scope);
 }
 
-abstract class HubInterface {
+abstract class IHub {
   /// Check if the Hub is enabled/active.
   bool get isEnabled;
 
@@ -320,14 +291,8 @@ abstract class HubInterface {
   /// Starts a new session. If there's a running session, it ends it before starting the new one.
   void startSession();
 
-  /// ends the current session
-  void stopSession();
-
   /// Flushes out the queue for up to timeout seconds and disable the Hub.
   void close();
-
-  /// Adds a breadcrumb to the current Scope
-  void addBreadcrumb(Breadcrumb breadCrumb);
 
   /// Sets the level of all events sent within current Scope
   void setLevel(SeverityLevel level);
@@ -341,9 +306,6 @@ abstract class HubInterface {
   /// Sets the fingerprint to group specific events together to the current Scope.
   void setFingerPrint(List<String> fingerPrint);
 
-  /// Deletes current breadcrumbs from the current scope.
-  void clearBreadcrumbs();
-
   /// Sets the tag to a string value to the current Scope, overwriting a potential previous value
   void setTag({String key, String value});
 
@@ -355,12 +317,6 @@ abstract class HubInterface {
 
   /// Removes the extra key to an arbitrary value to the current Scope
   void removeExtra(String key);
-
-  /// Pushes a new scope while inheriting the current scope's data.
-  void pushScope();
-
-  /// Removes the first scope
-  void popScope();
 
   /// Runs the callback with a new scope which gets dropped at the end
   void withScope(ScopeCallback callback);

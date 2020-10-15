@@ -207,7 +207,7 @@ abstract class SentryClient {
   /// Reports the [message]
   Future<SentryId> captureMessage({
     @required Message message,
-    SeverityLevel level = SeverityLevel.warning,
+    SeverityLevel level = SeverityLevel.info,
   }) {
     final event = Event(message: message, level: level);
     return captureEvent(event: event);

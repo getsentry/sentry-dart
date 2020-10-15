@@ -245,11 +245,9 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     try {
       throw ArgumentError('Test error');
     } catch (error, stackTrace) {
-      final response =
+      final sentryId =
           await client.captureException(error, stackTrace: stackTrace);
-      //expect(response.isSuccessful, true);
-      expect(response.id, 'test-event-id');
-      //expect(response.error, null);
+      expect(sentryId.id, 'test-event-id');
     }
 
     testHeaders(
@@ -303,12 +301,9 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     try {
       throw ArgumentError('Test error');
     } catch (error, stackTrace) {
-      final response =
+      final sentryId =
           await client.captureException(error, stackTrace: stackTrace);
-      //expect(response.isSuccessful, false);
-      expect(response.id, SentryId.emptyId);
-      /*expect(
-          response.error, 'Sentry.io responded with HTTP 401: Invalid api key');*/
+      expect(sentryId.id, SentryId.emptyId);
     }
 
     await client.close();

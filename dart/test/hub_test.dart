@@ -9,12 +9,15 @@ void main() {
   group('Hub instanciation', () {
     test('should not instanciate without a sentryOptions', () {
       Hub hub;
-      expect(() => hub = Hub(null), throwsArgumentError);
+      expect(() => hub = Hub(null), throwsA(TypeMatcher<AssertionError>()));
       expect(hub, null);
     });
 
     test('should not instanciate without a dsn', () {
-      expect(() => Hub(SentryOptions()), throwsArgumentError);
+      expect(
+        () => Hub(SentryOptions()),
+        throwsA(TypeMatcher<AssertionError>()),
+      );
     });
 
     test('should instanciate with a dsn', () {
