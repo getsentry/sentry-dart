@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart';
 import 'package:meta/meta.dart';
+import 'package:sentry/sentry.dart';
 
 import 'client_stub.dart'
     if (dart.library.html) 'browser_client.dart'
@@ -182,8 +183,16 @@ abstract class SentryClient {
       body: body,
     );
 
-    final eventId = '${json.decode(response.body)['id']}';
-    return SentryId(eventId);
+    if (response.statusCode != 200) {
+      /*var errorMessage = 'Sentry.io responded with HTTP ${response.statusCode}';
+      if (response.headers['x-sentry-error'] != null) {
+        errorMessage += ': ${response.headers['x-sentry-error']}';
+      }*/
+      return SentryId.empty();
+    }
+
+    final eventId = json.decode(response.body)['id'];
+    return eventId != null ? SentryId(eventId) : SentryId.empty();
   }
 
   /// Reports the [throwable] and optionally its [stackTrace] to Sentry.io.
