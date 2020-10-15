@@ -182,27 +182,25 @@ abstract class SentryClient {
       body: body,
     );
 
-    if (response.statusCode != 200) {
-      var errorMessage = 'Sentry.io responded with HTTP ${response.statusCode}';
-      if (response.headers['x-sentry-error'] != null) {
-        errorMessage += ': ${response.headers['x-sentry-error']}';
-      }
-      return SentryId.empty();
-    }
-
     final eventId = '${json.decode(response.body)['id']}';
     return SentryId(eventId);
   }
 
-  /// Reports the [exception] and optionally its [stackTrace] to Sentry.io.
-  Future<SentryId> captureException({
-    @required dynamic exception,
-    dynamic stackTrace,
-  }) {
+  /// Reports the [throwable] and optionally its [stackTrace] to Sentry.io.
+  Future<SentryId> captureException(dynamic throwable, {dynamic stackTrace}) {
     final event = Event(
-      exception: exception,
-      stackTrace: stackTrace,
+      exception: throwable,
+      /*stackTrace: stackTrace,*/
     );
+    return captureEvent(event: event);
+  }
+
+  /// Reports the [message]
+  Future<SentryId> captureMessage({
+    @required Message message,
+    SeverityLevel level = SeverityLevel.warning,
+  }) {
+    final event = Event(message: message, level: level);
     return captureEvent(event: event);
   }
 

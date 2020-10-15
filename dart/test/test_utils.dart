@@ -86,7 +86,7 @@ Future testCaptureException(
     throw ArgumentError('Test error');
   } catch (error, stackTrace) {
     final response =
-        await client.captureException(exception: error, stackTrace: stackTrace);
+        await client.captureException(error, stackTrace: stackTrace);
     //expect(response.isSuccessful, true);
     expect(response.id, 'test-event-id');
   }
@@ -244,8 +244,8 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     try {
       throw ArgumentError('Test error');
     } catch (error, stackTrace) {
-      final response = await client.captureException(
-          exception: error, stackTrace: stackTrace);
+      final response =
+          await client.captureException(error, stackTrace: stackTrace);
       //expect(response.isSuccessful, true);
       expect(response.id, 'test-event-id');
       //expect(response.error, null);
@@ -302,8 +302,8 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     try {
       throw ArgumentError('Test error');
     } catch (error, stackTrace) {
-      final response = await client.captureException(
-          exception: error, stackTrace: stackTrace);
+      final response =
+          await client.captureException(error, stackTrace: stackTrace);
       //expect(response.isSuccessful, false);
       expect(response.id, SentryId.emptyId);
       /*expect(

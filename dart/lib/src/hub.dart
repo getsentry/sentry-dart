@@ -10,14 +10,16 @@ typedef ScopeCallback = void Function(Scope);
 
 /// SDK API contract which combines a client and scope management
 class Hub implements HubInterface {
-  static SentryClient _getClient({SentryOptions fromOptions}) => SentryClient(
-        dsn: fromOptions.dsn,
-        environmentAttributes: fromOptions.environmentAttributes,
-        compressPayload: fromOptions.compressPayload,
-        httpClient: fromOptions.httpClient,
-        clock: fromOptions.clock,
-        uuidGenerator: fromOptions.uuidGenerator,
-      );
+  static SentryClient _getClient({SentryOptions fromOptions}) {
+    return SentryClient(
+      dsn: fromOptions.dsn,
+      environmentAttributes: fromOptions.environmentAttributes,
+      compressPayload: fromOptions.compressPayload,
+      httpClient: fromOptions.httpClient,
+      clock: fromOptions.clock,
+      uuidGenerator: fromOptions.uuidGenerator,
+    );
+  }
 
   final ListQueue<_StackItem> _stack;
 
@@ -94,8 +96,10 @@ class Hub implements HubInterface {
   }
 
   @override
-  Future<SentryId> captureException(
-      {dynamic throwable, dynamic stackTrace}) async {
+  Future<SentryId> captureException({
+    dynamic throwable,
+    dynamic stackTrace,
+  }) async {
     var sentryId = SentryId.empty();
 
     if (!_isEnabled) {
@@ -112,12 +116,14 @@ class Hub implements HubInterface {
       final item = _stack.last;
       if (item != null) {
         try {
-          sentryId = await item.client
-              .captureException(exception: throwable, stackTrace: stackTrace);
+          sentryId = await item.client.captureException(
+            throwable,
+            stackTrace: stackTrace,
+          );
         } catch (err) {
           _options.logger(
             SeverityLevel.error,
-            'Error while capturing event with id: ${throwable}',
+            'Error while capturing exception : ${throwable}',
           );
         }
       } else {
@@ -133,9 +139,44 @@ class Hub implements HubInterface {
 
   @override
   Future<SentryId> captureMessage(
-      {Message message, SeverityLevel level}) async {
-    // TODO: implement captureMessage
-    throw UnimplementedError();
+    Message message, {
+    SeverityLevel level,
+  }) async {
+    var sentryId = SentryId.empty();
+
+    if (!_isEnabled) {
+      _options.logger(
+        SeverityLevel.warning,
+        "Instance is disabled and this 'captureMessage' call is a no-op.",
+      );
+    } else if (message == null) {
+      _options.logger(
+        SeverityLevel.warning,
+        'captureMessage called with null parameter.',
+      );
+    } else {
+      final item = _stack.last;
+      if (item != null) {
+        try {
+          sentryId = await item.client.captureMessage(
+            message: message,
+            level: level,
+          );
+        } catch (err) {
+          _options.logger(
+            SeverityLevel.error,
+            'Error while capturing message with id: ${message}',
+          );
+        }
+      } else {
+        _options.logger(
+          SeverityLevel.fatal,
+          'Stack peek was null when captureMessage',
+        );
+      }
+    }
+    _lastEventId = sentryId;
+    return sentryId;
   }
 
   @override
@@ -274,7 +315,7 @@ abstract class HubInterface {
   Future<SentryId> captureException({dynamic throwable, dynamic stackTrace});
 
   /// Captures the message.
-  Future<SentryId> captureMessage({Message message, SeverityLevel level});
+  Future<SentryId> captureMessage(Message message, {SeverityLevel level});
 
   /// Starts a new session. If there's a running session, it ends it before starting the new one.
   void startSession();

@@ -1,3 +1,4 @@
+import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/hub.dart';
 import 'package:test/test.dart';
@@ -19,6 +20,37 @@ void main() {
     test('should instanciate with a dsn', () {
       final hub = Hub(SentryOptions(dsn: fakeDns));
       expect(hub.isEnabled, true);
+    });
+  });
+
+  group('Hub captures', () {
+    Hub hub;
+    SentryOptions options;
+    MockSentryClient client;
+
+    setUp(() {
+      options = SentryOptions(dsn: fakeDns);
+      hub = Hub(options);
+      client = MockSentryClient();
+      hub.bindClient(client);
+    });
+
+    test('should capture event', () {
+      hub.captureEvent(fakeEvent);
+      verify(client.captureEvent(event: fakeEvent)).called(1);
+    });
+
+    test('should capture exception', () {
+      hub.captureException(throwable: fakeException);
+
+      verify(client.captureException(fakeException)).called(1);
+    });
+
+    test('should capture message', () {
+      hub.captureMessage(fakeMessage, level: SeverityLevel.info);
+      verify(
+        client.captureMessage(message: fakeMessage, level: SeverityLevel.info),
+      ).called(1);
     });
   });
 }

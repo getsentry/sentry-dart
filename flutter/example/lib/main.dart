@@ -68,7 +68,7 @@ extension SentryExtensions on SentryClient {
       if (stackTrace != null) {
         stackTrace = StackTrace.fromString(stackTrace as String);
       }
-      return captureException(exception: error[0], stackTrace: stackTrace);
+      return captureException(error[0], stackTrace: stackTrace);
     } else {
       return Future.value();
     }
