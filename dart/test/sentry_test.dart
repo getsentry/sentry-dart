@@ -32,7 +32,7 @@ void main() {
       await Sentry.captureException(null);
       verifyNever(
         client.captureException(
-          anyNamed('exception'),
+          any,
           stackTrace: anyNamed('stackTrace'),
         ),
       );
