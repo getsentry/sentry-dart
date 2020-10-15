@@ -42,8 +42,8 @@ class Sentry {
     dynamic stackTrace,
   }) async {
     return _hub.captureException(
-      message: error,
-      //stackTrace: stackTrace,
+      throwable: error,
+      stackTrace: stackTrace,
     );
   }
 

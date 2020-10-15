@@ -12,6 +12,7 @@ void main() {
 
     setUp(() {
       Sentry.init((options) => options.dsn = fakeDns);
+      anException = Exception('anException');
 
       client = MockSentryClient();
       Sentry.initClient(client);
@@ -22,9 +23,29 @@ void main() {
       verify(client.captureEvent(event: event)).called(1);
     });
 
-    test('should capture the exception', () {
-      Sentry.captureException(anException);
-      verify(client.captureException(exception: anException)).called(1);
+    test('should not capture a null event', () async {
+      await Sentry.captureEvent(null);
+      verifyNever(client.captureEvent(event: event));
+    });
+
+    test('should not capture a null exception', () async {
+      await Sentry.captureException(null);
+      verifyNever(
+        client.captureException(
+          exception: anyNamed('exception'),
+          stackTrace: anyNamed('stackTrace'),
+        ),
+      );
+    });
+
+    test('should capture the exception', () async {
+      await Sentry.captureException(anException);
+      verify(
+        client.captureException(
+          exception: anException,
+          stackTrace: null,
+        ),
+      ).called(1);
     });
   });
 }

@@ -94,13 +94,46 @@ class Hub implements HubInterface {
   }
 
   @override
-  SentryId captureException({Message message, SeverityLevel level}) {
-    // TODO: implement captureException
-    throw UnimplementedError();
+  Future<SentryId> captureException(
+      {dynamic throwable, dynamic stackTrace}) async {
+    var sentryId = SentryId.empty();
+
+    if (!_isEnabled) {
+      _options.logger(
+        SeverityLevel.warning,
+        "Instance is disabled and this 'captureException' call is a no-op.",
+      );
+    } else if (throwable == null) {
+      _options.logger(
+        SeverityLevel.warning,
+        'captureException called with null parameter.',
+      );
+    } else {
+      final item = _stack.last;
+      if (item != null) {
+        try {
+          sentryId = await item.client
+              .captureException(exception: throwable, stackTrace: stackTrace);
+        } catch (err) {
+          _options.logger(
+            SeverityLevel.error,
+            'Error while capturing event with id: ${throwable}',
+          );
+        }
+      } else {
+        _options.logger(
+          SeverityLevel.fatal,
+          'Stack peek was null when captureException',
+        );
+      }
+    }
+    _lastEventId = sentryId;
+    return sentryId;
   }
 
   @override
-  SentryId captureMessage({Message message, SeverityLevel level}) {
+  Future<SentryId> captureMessage(
+      {Message message, SeverityLevel level}) async {
     // TODO: implement captureMessage
     throw UnimplementedError();
   }
@@ -238,10 +271,10 @@ abstract class HubInterface {
   Future<SentryId> captureEvent(Event event);
 
   /// Captures the exception
-  SentryId captureException({Message message, SeverityLevel level});
+  Future<SentryId> captureException({dynamic throwable, dynamic stackTrace});
 
   /// Captures the message.
-  SentryId captureMessage({Message message, SeverityLevel level});
+  Future<SentryId> captureMessage({Message message, SeverityLevel level});
 
   /// Starts a new session. If there's a running session, it ends it before starting the new one.
   void startSession();

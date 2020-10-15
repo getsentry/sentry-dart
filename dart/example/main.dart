@@ -26,11 +26,6 @@ Future<void> main(List<String> rawArgs) async {
   final response = await Sentry.captureEvent(event);
 
   print('SentryId : ${response.id}');
-  /*if (response.isSuccessful) {
-    print('SUCCESS\nid: ${response.eventId}');
-  } else {
-    print('FAILURE: ${response.error}');
-  }*/
 
   try {
     await foo();

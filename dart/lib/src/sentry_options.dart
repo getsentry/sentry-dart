@@ -63,6 +63,6 @@ class SentryOptions {
   }) : _logger = logger;
 }
 
-void defaultLogger({SeverityLevel level, String message}) {
+void defaultLogger(SeverityLevel level, String message) {
   print('[$level] $message');
 }
