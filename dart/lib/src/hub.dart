@@ -204,10 +204,16 @@ class Hub {
   }
 
   /// Clones the Hub
-  Hub clone() => Hub(_options)
-    .._stack.addAll(_stack)
-    .._lastEventId = _lastEventId
-    .._isEnabled = _isEnabled;
+  Hub clone() {
+    if (!_isEnabled) {
+      _options..logger(SeverityLevel.warning, 'Disabled Hub cloned.');
+    }
+    final clone = Hub(_options);
+    for (final item in _stack) {
+      clone._stack.add(_StackItem(item.client, item.scope.clone()));
+    }
+    return clone;
+  }
 
   /// Flushes out the queue for up to timeout seconds and disable the Hub.
   void close() {

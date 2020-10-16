@@ -135,8 +135,27 @@ class Scope {
   }
 
   /// Removes an extra from the Scope
-  void removeExtra(String key) {
-    _extra.remove(key);
+  void removeExtra(String key) => _extra.remove(key);
+
+  Scope clone() {
+    final clone = Scope(_options)
+      ..user = user
+      ..fingerprint = fingerprint != null ? List.from(fingerprint) : null
+      ..transaction = transaction;
+
+    for (final tag in _tags.keys) {
+      clone.setTag(tag, _tags[tag]);
+    }
+
+    for (final extraKey in _extra.keys) {
+      clone.setExtra(extraKey, _extra[extraKey]);
+    }
+
+    for (final breadcrumb in _breadcrumbs) {
+      clone.addBreadcrumb(breadcrumb);
+    }
+
+    return clone;
   }
 
   @override

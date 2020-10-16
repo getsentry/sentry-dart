@@ -124,4 +124,9 @@ void main() {
       verify(client.close()).called(1);
     });
   });
+
+  test('clones', () {
+    // TODO I'm not sure how to test it
+    // could we set [hub.stack] as @visibleForTesting ?
+  });
 }
