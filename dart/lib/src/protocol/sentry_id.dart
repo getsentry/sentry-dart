@@ -1,11 +1,7 @@
 /// Sentry response id
 
-const _dashIndexed = [8, 13, 18, 23];
-
 class SentryId {
-  static final String emptyId =
-      List.generate(36, (index) => _dashIndexed.contains(index) ? '-' : '0')
-          .join();
+  static const String emptyId = '00000000-0000-0000-0000-000000000000';
 
   /// The ID Sentry.io assigned to the submitted event for future reference.
   final String id;
