@@ -269,23 +269,6 @@ class Hub {
       }
     }
   }
-
-  /// Runs the callback with a new scope which gets dropped at the end
-  void pushScope() {
-    // TODO: implement popScope
-    throw UnimplementedError();
-  }
-
-  void popScope() {
-    // TODO: implement popScope
-    throw UnimplementedError();
-  }
-
-  /// Runs the callback with a new scope which gets dropped at the end
-  void withScope(ScopeCallback callback) {
-    // TODO: implement withScope
-    throw UnimplementedError();
-  }
 }
 
 class _StackItem {
