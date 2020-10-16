@@ -22,7 +22,7 @@ class Hub {
     );
   }
 
-  final ListQueue<_StackItem> _stack;
+  final DoubleLinkedQueue<_StackItem> _stack;
 
   final SentryOptions _options;
 
@@ -34,7 +34,7 @@ class Hub {
 
   Hub._(SentryOptions options)
       : _options = options,
-        _stack = ListQueue() {
+        _stack = DoubleLinkedQueue() {
     _stack.add(_StackItem(_getClient(fromOptions: options), Scope(_options)));
     _isEnabled = true;
   }
@@ -74,7 +74,7 @@ class Hub {
         'captureEvent called with null parameter.',
       );
     } else {
-      final item = _stack.last;
+      final item = _stack.first;
       if (item != null) {
         try {
           sentryId = await item.client.captureEvent(event, scope: item.scope);
@@ -114,7 +114,7 @@ class Hub {
         'captureException called with null parameter.',
       );
     } else {
-      final item = _stack.last;
+      final item = _stack.first;
       if (item != null) {
         try {
           // TODO pass the scope
@@ -157,7 +157,7 @@ class Hub {
         'captureMessage called with null parameter.',
       );
     } else {
-      final item = _stack.last;
+      final item = _stack.first;
       if (item != null) {
         try {
           // TODO pass the scope
@@ -185,7 +185,7 @@ class Hub {
       _options.logger(SeverityLevel.warning,
           "Instance is disabled and this 'bindClient' call is a no-op.");
     } else {
-      final item = _stack.last;
+      final item = _stack.first;
       if (item != null) {
         if (client != null) {
           _options.logger(SeverityLevel.debug, 'New client bound to scope.');
@@ -223,7 +223,7 @@ class Hub {
         "Instance is disabled and this 'close' call is a no-op.",
       );
     } else {
-      final item = _stack.last;
+      final item = _stack.first;
       if (item != null) {
         try {
           item.client.close();
@@ -251,7 +251,7 @@ class Hub {
         "Instance is disabled and this 'configureScope' call is a no-op.",
       );
     } else {
-      final item = _stack.last;
+      final item = _stack.first;
       if (item != null) {
         try {
           callback(item.scope);
