@@ -53,4 +53,16 @@ void main() {
       ).called(1);
     });
   });
+
+  group('Close hub', () {
+    test('should close an enabled hub', () {
+      final hub = Hub(SentryOptions(dsn: fakeDns));
+      final client = MockSentryClient();
+      hub.bindClient(client);
+      hub.close();
+
+      expect(hub.isEnabled, false);
+      verify(client.close()).called(1);
+    });
+  });
 }

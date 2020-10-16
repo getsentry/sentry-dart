@@ -192,8 +192,30 @@ class Hub implements IHub {
 
   @override
   void close() {
-    // TODO: implement close
-    throw UnimplementedError();
+    if (!_isEnabled) {
+      _options.logger(
+        SeverityLevel.warning,
+        "Instance is disabled and this 'close' call is a no-op.",
+      );
+    } else {
+      final item = _stack.last;
+      if (item != null) {
+        try {
+          item.client.close();
+        } catch (err) {
+          _options.logger(
+            SeverityLevel.error,
+            'Error while closing the Hub.',
+          );
+        }
+      } else {
+        _options.logger(
+          SeverityLevel.fatal,
+          'Stack peek was NULL when closing Hub',
+        );
+      }
+      _isEnabled = false;
+    }
   }
 
   @override
