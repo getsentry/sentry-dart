@@ -22,7 +22,7 @@ class Hub {
     );
   }
 
-  final DoubleLinkedQueue<_StackItem> _stack;
+  final ListQueue<_StackItem> _stack;
 
   final SentryOptions _options;
 
@@ -34,7 +34,7 @@ class Hub {
 
   Hub._(SentryOptions options)
       : _options = options,
-        _stack = DoubleLinkedQueue() {
+        _stack = ListQueue() {
     _stack.add(_StackItem(_getClient(fromOptions: options), Scope(_options)));
     _isEnabled = true;
   }
