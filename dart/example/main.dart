@@ -25,7 +25,7 @@ Future<void> main(List<String> rawArgs) async {
   // Sends a full Sentry event payload to show the different parts of the UI.
   final sentryId = await Sentry.captureEvent(event);
 
-  print('SentryId : ${sentryId.id}');
+  print('SentryId : ${sentryId}');
 
   try {
     await foo();
@@ -37,7 +37,7 @@ Future<void> main(List<String> rawArgs) async {
       stackTrace: stackTrace,
     );
 
-    print('SentryId : ${sentryId.id}');
+    print('SentryId : ${sentryId}');
   } finally {
     await Sentry.close();
   }

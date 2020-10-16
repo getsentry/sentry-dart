@@ -6,18 +6,18 @@ import 'package:test/test.dart';
 import 'mocks.dart';
 
 void main() {
-  group('Hub instanciation', () {
-    test('should not instanciate without a sentryOptions', () {
+  group('Hub instantiation', () {
+    test('should not instantiate without a sentryOptions', () {
       Hub hub;
       expect(() => hub = Hub(null), throwsArgumentError);
       expect(hub, null);
     });
 
-    test('should not instanciate without a dsn', () {
+    test('should not instantiate without a dsn', () {
       expect(() => Hub(SentryOptions()), throwsArgumentError);
     });
 
-    test('should instanciate with a dsn', () {
+    test('should instantiate with a dsn', () {
       final hub = Hub(SentryOptions(dsn: fakeDsn));
       expect(hub.isEnabled, true);
     });
@@ -38,11 +38,8 @@ void main() {
     test('should capture event', () {
       hub.captureEvent(fakeEvent);
       verify(
-        client.captureEvent(
-          fakeEvent,
-          scope: Scope(options),
-          stackFrameFilter: null,
-        ),
+        client.captureEvent(fakeEvent,
+            scope: Scope(options), stackFrameFilter: null),
       ).called(1);
     });
 
