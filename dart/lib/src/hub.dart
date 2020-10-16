@@ -84,6 +84,8 @@ class Hub {
             SeverityLevel.error,
             'Error while capturing event with id: ${event}',
           );
+        } finally {
+          _lastEventId = sentryId;
         }
       } else {
         _options.logger(
@@ -92,7 +94,6 @@ class Hub {
         );
       }
     }
-    _lastEventId = sentryId;
     return sentryId;
   }
 
@@ -127,6 +128,8 @@ class Hub {
             SeverityLevel.error,
             'Error while capturing exception : ${throwable}',
           );
+        } finally {
+          _lastEventId = sentryId;
         }
       } else {
         _options.logger(
@@ -135,7 +138,7 @@ class Hub {
         );
       }
     }
-    _lastEventId = sentryId;
+
     return sentryId;
   }
 
@@ -167,6 +170,8 @@ class Hub {
             SeverityLevel.error,
             'Error while capturing message with id: ${message}',
           );
+        } finally {
+          _lastEventId = sentryId;
         }
       } else {
         _options.logger(
@@ -175,7 +180,6 @@ class Hub {
         );
       }
     }
-    _lastEventId = sentryId;
     return sentryId;
   }
 
