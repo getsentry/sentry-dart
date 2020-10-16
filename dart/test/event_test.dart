@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/stack_trace.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -55,6 +56,8 @@ void main() {
             level: SeverityLevel.debug, category: 'test'),
       ];
 
+      final error = StateError('test-error');
+
       expect(
         Event(
           message: Message(
@@ -63,7 +66,7 @@ void main() {
             params: ['1', '2'],
           ),
           transaction: '/test/1',
-          exception: StateError('test-error'),
+          exception: error,
           level: SeverityLevel.debug,
           culprit: 'Professor Moriarty',
           tags: const <String, String>{
@@ -90,6 +93,13 @@ void main() {
           'exception': [
             {'type': 'StateError', 'value': 'Bad state: test-error'}
           ],
+          'stacktrace': {
+            'frames': encodeStackTrace(
+              error.stackTrace,
+              stackFrameFilter: null,
+              origin: null,
+            )
+          },
           'level': 'debug',
           'culprit': 'Professor Moriarty',
           'tags': {'a': 'b', 'c': 'd'},

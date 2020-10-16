@@ -196,7 +196,7 @@ class Event {
       if (exception is Error && exception.stackTrace != null) {
         json['stacktrace'] = <String, dynamic>{
           'frames': encodeStackTrace(
-            stackTrace,
+            exception.stackTrace,
             stackFrameFilter: stackFrameFilter,
             origin: origin,
           ),
