@@ -362,9 +362,9 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
           exception: error,
           stackTrace: stackTrace,
           userContext: eventUserContext);
-      await client.captureEvent(event: eventWithoutContext);
+      await client.captureEvent(eventWithoutContext);
       expect(loggedUserId, clientUserContext.id);
-      await client.captureEvent(event: eventWithContext);
+      await client.captureEvent(eventWithContext);
       expect(loggedUserId, eventUserContext.id);
     }
 

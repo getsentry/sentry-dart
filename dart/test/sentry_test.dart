@@ -11,7 +11,7 @@ void main() {
     Exception anException;
 
     setUp(() {
-      Sentry.init((options) => options.dsn = fakeDns);
+      Sentry.init((options) => options.dsn = fakeDsn);
       anException = Exception('anException');
 
       client = MockSentryClient();
@@ -20,12 +20,18 @@ void main() {
 
     test('should capture the event', () {
       Sentry.captureEvent(fakeEvent);
-      verify(client.captureEvent(event: fakeEvent)).called(1);
+      verify(
+        client.captureEvent(
+          fakeEvent,
+          scope: Scope(SentryOptions(dsn: fakeDsn)) /*anyNamed('scope')*/,
+          stackFrameFilter: null,
+        ),
+      ).called(1);
     });
 
     test('should not capture a null event', () async {
       await Sentry.captureEvent(null);
-      verifyNever(client.captureEvent(event: fakeEvent));
+      verifyNever(client.captureEvent(fakeEvent));
     });
 
     test('should not capture a null exception', () async {

@@ -41,7 +41,7 @@ Future<void> main() async {
       release: _release,
       sdk: _sentry.sdk,
     );
-    await _sentry.captureEvent(event: event);
+    await _sentry.captureEvent(event);
   });
 }
 

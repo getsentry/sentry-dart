@@ -21,14 +21,6 @@ class Sentry {
     final options = SentryOptions();
     optionsConfiguration(options);
     _hub = Hub(options);
-    /*_client = SentryClient(
-      dsn: options.dsn,
-      environmentAttributes: options.environmentAttributes,
-      compressPayload: options.compressPayload,
-      httpClient: options.httpClient,
-      clock: options.clock,
-      uuidGenerator: options.uuidGenerator,
-    );*/
   }
 
   /// Reports an [event] to Sentry.io.

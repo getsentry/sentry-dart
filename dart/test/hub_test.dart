@@ -18,7 +18,7 @@ void main() {
     });
 
     test('should instanciate with a dsn', () {
-      final hub = Hub(SentryOptions(dsn: fakeDns));
+      final hub = Hub(SentryOptions(dsn: fakeDsn));
       expect(hub.isEnabled, true);
     });
   });
@@ -29,7 +29,7 @@ void main() {
     MockSentryClient client;
 
     setUp(() {
-      options = SentryOptions(dsn: fakeDns);
+      options = SentryOptions(dsn: fakeDsn);
       hub = Hub(options);
       client = MockSentryClient();
       hub.bindClient(client);
@@ -37,7 +37,13 @@ void main() {
 
     test('should capture event', () {
       hub.captureEvent(fakeEvent);
-      verify(client.captureEvent(event: fakeEvent)).called(1);
+      verify(
+        client.captureEvent(
+          fakeEvent,
+          scope: Scope(options),
+          stackFrameFilter: null,
+        ),
+      ).called(1);
     });
 
     test('should capture exception', () {
@@ -54,11 +60,64 @@ void main() {
     });
   });
 
-  group('Close hub', () {
-    test('should close an enabled hub', () {
-      final hub = Hub(SentryOptions(dsn: fakeDns));
-      final client = MockSentryClient();
+  group('Hub scope', () {
+    Hub hub;
+    SentryClient client;
+
+    setUp(() {
+      hub = Hub(SentryOptions(dsn: fakeDsn));
+      client = MockSentryClient();
       hub.bindClient(client);
+    });
+
+    test('should configure its scope', () {
+      hub.configureScope((Scope scope) {
+        scope
+          ..level = SeverityLevel.debug
+          ..user = fakeUser
+          ..fingerprint = ['1', '2'];
+      });
+      hub.captureEvent(fakeEvent);
+
+      verify(
+        client.captureEvent(
+          fakeEvent,
+          scope: Scope(SentryOptions(dsn: fakeDsn))
+            ..level = SeverityLevel.debug
+            ..user = fakeUser
+            ..fingerprint = ['1', '2'],
+          stackFrameFilter: null,
+        ),
+      ).called(1);
+    });
+  });
+
+  group('Hub Client', () {
+    Hub hub;
+    SentryClient client;
+    SentryOptions options;
+
+    setUp(() {
+      options = SentryOptions(dsn: fakeDsn);
+      hub = Hub(options);
+      client = MockSentryClient();
+      hub.bindClient(client);
+    });
+
+    test('should bind a new client', () {
+      final client2 = MockSentryClient();
+      hub.bindClient(client2);
+      hub.captureEvent(fakeEvent);
+      verify(
+        client2.captureEvent(
+          fakeEvent,
+          scope: Scope(options),
+          stackFrameFilter: null,
+        ),
+      ).called(1);
+    });
+
+    test('should close its client', () {
       hub.close();
 
       expect(hub.isEnabled, false);

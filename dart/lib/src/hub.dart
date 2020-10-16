@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'client.dart';
+import 'noop_client.dart';
 import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_options.dart';
@@ -76,7 +77,7 @@ class Hub {
       final item = _stack.last;
       if (item != null) {
         try {
-          sentryId = await item.client.captureEvent(event: event);
+          sentryId = await item.client.captureEvent(event, scope: item.scope);
         } catch (err) {
           /* TODO add Event.id */
           _options.logger(
@@ -116,6 +117,7 @@ class Hub {
       final item = _stack.last;
       if (item != null) {
         try {
+          // TODO pass the scope
           sentryId = await item.client.captureException(
             throwable,
             stackTrace: stackTrace,
@@ -158,10 +160,8 @@ class Hub {
       final item = _stack.last;
       if (item != null) {
         try {
-          sentryId = await item.client.captureMessage(
-            message,
-            level: level,
-          );
+          // TODO pass the scope
+          sentryId = await item.client.captureMessage(message, level: level);
         } catch (err) {
           _options.logger(
             SeverityLevel.error,
@@ -181,7 +181,26 @@ class Hub {
 
   /// Binds a different client to the hub
   void bindClient(SentryClient client) {
-    _stack.add(_StackItem(client, _stack.last.scope));
+    if (!_isEnabled) {
+      _options.logger(SeverityLevel.warning,
+          "Instance is disabled and this 'bindClient' call is a no-op.");
+    } else {
+      final item = _stack.last;
+      if (item != null) {
+        if (client != null) {
+          _options.logger(SeverityLevel.debug, 'New client bound to scope.');
+          item.client = client;
+        } else {
+          _options.logger(SeverityLevel.debug, 'NoOp client bound to scope.');
+          item.client = NoOpSentryClient();
+        }
+      } else {
+        _options.logger(
+          SeverityLevel.fatal,
+          'Stack peek was null when bindClient',
+        );
+      }
+    }
   }
 
   /// Clones the Hub
@@ -220,8 +239,29 @@ class Hub {
 
   /// Configures the scope through the callback.
   void configureScope(ScopeCallback callback) {
-    // TODO: implement configureScope
-    throw UnimplementedError();
+    if (!_isEnabled) {
+      _options.logger(
+        SeverityLevel.warning,
+        "Instance is disabled and this 'configureScope' call is a no-op.",
+      );
+    } else {
+      final item = _stack.last;
+      if (item != null) {
+        try {
+          callback(item.scope);
+        } catch (err) {
+          _options.logger(
+            SeverityLevel.error,
+            "Error in the 'configureScope' callback.",
+          );
+        }
+      } else {
+        _options.logger(
+          SeverityLevel.fatal,
+          'Stack peek was NULL when configureScope',
+        );
+      }
+    }
   }
 
   /// Runs the callback with a new scope which gets dropped at the end
@@ -243,7 +283,7 @@ class Hub {
 }
 
 class _StackItem {
-  final SentryClient client;
+  SentryClient client;
 
   final Scope scope;
 

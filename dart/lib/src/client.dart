@@ -137,9 +137,10 @@ abstract class SentryClient {
   }
 
   /// Reports an [event] to Sentry.io.
-  Future<SentryId> captureEvent({
-    @required Event event,
+  Future<SentryId> captureEvent(
+    Event event, {
     StackFrameFilter stackFrameFilter,
+    Scope scope,
   }) async {
     final now = _clock();
     var authHeader = 'Sentry sentry_version=6, sentry_client=$clientId, '
@@ -201,7 +202,7 @@ abstract class SentryClient {
       exception: throwable,
       stackTrace: stackTrace,
     );
-    return captureEvent(event: event);
+    return captureEvent(event);
   }
 
   /// Reports the [message]
@@ -210,7 +211,7 @@ abstract class SentryClient {
     SeverityLevel level = SeverityLevel.info,
   }) {
     final event = Event(message: message, level: level);
-    return captureEvent(event: event);
+    return captureEvent(event);
   }
 
   Future<void> close() async {

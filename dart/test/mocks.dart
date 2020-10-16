@@ -4,12 +4,14 @@ import 'package:sentry/src/protocol.dart';
 
 class MockSentryClient extends Mock implements SentryClient {}
 
-final fakeDns = 'https://abc@def.ingest.sentry.io/1234567';
+final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
 final fakeException = Exception('Error');
 
 final fakeMessage =
     Message(formatted: 'message 1', message: 'message %d', params: ['1']);
+
+final fakeUser = User(id: '1', email: 'test@test');
 
 final fakeEvent = Event(
   loggerName: 'main',
