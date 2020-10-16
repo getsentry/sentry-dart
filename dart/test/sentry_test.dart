@@ -23,7 +23,7 @@ void main() {
       verify(
         client.captureEvent(
           fakeEvent,
-          scope: Scope(SentryOptions(dsn: fakeDsn)) /*anyNamed('scope')*/,
+          scope: anyNamed('scope'),
           stackFrameFilter: null,
         ),
       ).called(1);

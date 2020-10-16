@@ -20,7 +20,7 @@
 - new static API : Sentry.init(), Sentry.captureEvent() #108
 - expect a sdkName based on the test platform #105
 - Added Scope and Breadcrumb ring buffer #109
-- Added Hub ring buffer #113
+- Added Hub to SDK #113
 
 # `package:sentry` changelog
 

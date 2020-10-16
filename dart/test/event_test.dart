@@ -58,6 +58,8 @@ void main() {
 
       final error = StateError('test-error');
 
+      print('error.stackTrace ${error.stackTrace}');
+
       expect(
         Event(
           message: Message(
@@ -93,13 +95,6 @@ void main() {
           'exception': [
             {'type': 'StateError', 'value': 'Bad state: test-error'}
           ],
-          'stacktrace': {
-            'frames': encodeStackTrace(
-              error.stackTrace,
-              stackFrameFilter: null,
-              origin: null,
-            )
-          },
           'level': 'debug',
           'culprit': 'Professor Moriarty',
           'tags': {'a': 'b', 'c': 'd'},
@@ -122,7 +117,19 @@ void main() {
               },
             ]
           },
-        },
+        }..addAll(
+            error.stackTrace == null
+                ? {}
+                : {
+                    'stacktrace': {
+                      'frames': encodeStackTrace(
+                        error.stackTrace,
+                        stackFrameFilter: null,
+                        origin: null,
+                      )
+                    }
+                  },
+          ),
       );
     });
   });

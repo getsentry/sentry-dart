@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/hub.dart';
@@ -6,6 +7,17 @@ import 'package:test/test.dart';
 import 'mocks.dart';
 
 void main() {
+  bool scopeEquals(Scope a, Scope b) {
+    return identical(a, b) ||
+        a.level == b.level &&
+            a.transaction == b.transaction &&
+            a.user == b.user &&
+            IterableEquality().equals(a.fingerprint, b.fingerprint) &&
+            IterableEquality().equals(a.breadcrumbs, b.breadcrumbs) &&
+            MapEquality().equals(a.tags, b.tags) &&
+            MapEquality().equals(a.extra, b.extra);
+  }
+
   group('Hub instantiation', () {
     test('should not instantiate without a sentryOptions', () {
       Hub hub;
@@ -35,13 +47,25 @@ void main() {
       hub.bindClient(client);
     });
 
-    test('should capture event', () {
-      hub.captureEvent(fakeEvent);
-      verify(
-        client.captureEvent(fakeEvent,
-            scope: Scope(options), stackFrameFilter: null),
-      ).called(1);
-    });
+    test(
+      'should capture event with the default scope',
+      () {
+        hub.captureEvent(fakeEvent);
+        expect(
+          scopeEquals(
+            verify(
+              client.captureEvent(
+                fakeEvent,
+                scope: captureAnyNamed('scope'),
+                stackFrameFilter: null,
+              ),
+            ).captured.first,
+            Scope(options),
+          ),
+          true,
+        );
+      },
+    );
 
     test('should capture exception', () {
       hub.captureException(fakeException);
@@ -76,16 +100,23 @@ void main() {
       });
       hub.captureEvent(fakeEvent);
 
-      verify(
-        client.captureEvent(
-          fakeEvent,
-          scope: Scope(SentryOptions(dsn: fakeDsn))
+      hub.captureEvent(fakeEvent);
+      expect(
+        scopeEquals(
+          verify(
+            client.captureEvent(
+              fakeEvent,
+              scope: captureAnyNamed('scope'),
+              stackFrameFilter: null,
+            ),
+          ).captured.first,
+          Scope(SentryOptions(dsn: fakeDsn))
             ..level = SeverityLevel.debug
             ..user = fakeUser
             ..fingerprint = ['1', '2'],
-          stackFrameFilter: null,
         ),
-      ).called(1);
+        true,
+      );
     });
   });
 
@@ -108,7 +139,7 @@ void main() {
       verify(
         client2.captureEvent(
           fakeEvent,
-          scope: Scope(options),
+          scope: anyNamed('scope'),
           stackFrameFilter: null,
         ),
       ).called(1);

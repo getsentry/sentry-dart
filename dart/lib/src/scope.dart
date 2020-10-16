@@ -1,7 +1,5 @@
 import 'dart:collection';
 
-import 'package:collection/collection.dart';
-
 import 'protocol.dart';
 import 'sentry_options.dart';
 
@@ -157,28 +155,4 @@ class Scope {
 
     return clone;
   }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is Scope &&
-          runtimeType == other.runtimeType &&
-          _level == other.level &&
-          _transaction == other.transaction &&
-          _user == other.user &&
-          IterableEquality().equals(_fingerprint, other.fingerprint) &&
-          IterableEquality().equals(_breadcrumbs, other.breadcrumbs) &&
-          MapEquality().equals(_tags, other.tags) &&
-          MapEquality().equals(_extra, other.extra);
-
-  @override
-  int get hashCode =>
-      _level.hashCode ^
-      _transaction.hashCode ^
-      _user.hashCode ^
-      _fingerprint.hashCode ^
-      _breadcrumbs.hashCode ^
-      _tags.hashCode ^
-      _extra.hashCode ^
-      _options.hashCode;
 }
