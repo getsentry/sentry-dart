@@ -85,10 +85,9 @@ Future testCaptureException(
   try {
     throw ArgumentError('Test error');
   } catch (error, stackTrace) {
-    final response =
+    final sentryId =
         await client.captureException(error, stackTrace: stackTrace);
-    //expect(response.isSuccessful, true);
-    expect(response.id, 'test-event-id');
+    expect(sentryId.id, 'test-event-id');
   }
 
   expect(postUri, client.postUri);
