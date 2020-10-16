@@ -41,7 +41,7 @@ void main() {
     });
 
     test('should capture exception', () {
-      hub.captureException(throwable: fakeException);
+      hub.captureException(fakeException);
 
       verify(client.captureException(fakeException)).called(1);
     });
@@ -49,7 +49,7 @@ void main() {
     test('should capture message', () {
       hub.captureMessage(fakeMessage, level: SeverityLevel.info);
       verify(
-        client.captureMessage(message: fakeMessage, level: SeverityLevel.info),
+        client.captureMessage(fakeMessage, level: SeverityLevel.info),
       ).called(1);
     });
   });

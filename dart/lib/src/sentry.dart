@@ -41,10 +41,7 @@ class Sentry {
     dynamic error, {
     dynamic stackTrace,
   }) async {
-    return _hub.captureException(
-      throwable: error,
-      stackTrace: stackTrace,
-    );
+    return _hub.captureException(error, stackTrace: stackTrace);
   }
 
   /// Close the client SDK

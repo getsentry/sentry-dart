@@ -9,7 +9,7 @@ import 'sentry_options.dart';
 typedef ScopeCallback = void Function(Scope);
 
 /// SDK API contract which combines a client and scope management
-class Hub implements IHub {
+class Hub {
   static SentryClient _getClient({SentryOptions fromOptions}) {
     return SentryClient(
       dsn: fromOptions.dsn,
@@ -50,15 +50,15 @@ class Hub implements IHub {
 
   bool _isEnabled = false;
 
-  @override
+  /// Check if the Hub is enabled/active.
   bool get isEnabled => _isEnabled;
 
   SentryId _lastEventId;
 
-  @override
+  /// Last event id recorded in the current scope
   SentryId get lastEventId => _lastEventId;
 
-  @override
+  /// Captures the event.
   Future<SentryId> captureEvent(Event event) async {
     var sentryId = SentryId.empty();
 
@@ -95,9 +95,9 @@ class Hub implements IHub {
     return sentryId;
   }
 
-  @override
-  Future<SentryId> captureException({
-    dynamic throwable,
+  /// Captures the exception
+  Future<SentryId> captureException(
+    dynamic throwable, {
     dynamic stackTrace,
   }) async {
     var sentryId = SentryId.empty();
@@ -137,10 +137,10 @@ class Hub implements IHub {
     return sentryId;
   }
 
-  @override
+  /// Captures the message.
   Future<SentryId> captureMessage(
     Message message, {
-    SeverityLevel level,
+    SeverityLevel level = SeverityLevel.info,
   }) async {
     var sentryId = SentryId.empty();
 
@@ -159,7 +159,7 @@ class Hub implements IHub {
       if (item != null) {
         try {
           sentryId = await item.client.captureMessage(
-            message: message,
+            message,
             level: level,
           );
         } catch (err) {
@@ -179,18 +179,18 @@ class Hub implements IHub {
     return sentryId;
   }
 
-  @override
+  /// Binds a different client to the hub
   void bindClient(SentryClient client) {
     _stack.add(_StackItem(client, _stack.last.scope));
   }
 
-  @override
+  /// Clones the Hub
   Hub clone() => Hub(_options)
     .._stack.addAll(_stack)
     .._lastEventId = _lastEventId
     .._isEnabled = _isEnabled;
 
-  @override
+  /// Flushes out the queue for up to timeout seconds and disable the Hub.
   void close() {
     if (!_isEnabled) {
       _options.logger(
@@ -218,25 +218,24 @@ class Hub implements IHub {
     }
   }
 
-  @override
+  /// Configures the scope through the callback.
   void configureScope(ScopeCallback callback) {
     // TODO: implement configureScope
     throw UnimplementedError();
   }
 
-  @override
-  void popScope() {
-    // TODO: implement popScope
-    throw UnimplementedError();
-  }
-
-  @override
+  /// Runs the callback with a new scope which gets dropped at the end
   void pushScope() {
     // TODO: implement popScope
     throw UnimplementedError();
   }
 
-  @override
+  void popScope() {
+    // TODO: implement popScope
+    throw UnimplementedError();
+  }
+
+  /// Runs the callback with a new scope which gets dropped at the end
   void withScope(ScopeCallback callback) {
     // TODO: implement withScope
     throw UnimplementedError();
@@ -249,44 +248,4 @@ class _StackItem {
   final Scope scope;
 
   _StackItem(this.client, this.scope);
-}
-
-abstract class IHub {
-  /// Check if the Hub is enabled/active.
-  bool get isEnabled;
-
-  /// Last event id recorded in the current scope
-  SentryId get lastEventId;
-
-  /// Captures the event.
-  Future<SentryId> captureEvent(Event event);
-
-  /// Captures the exception
-  Future<SentryId> captureException({dynamic throwable, dynamic stackTrace});
-
-  /// Captures the message.
-  Future<SentryId> captureMessage(Message message, {SeverityLevel level});
-
-  /// Flushes out the queue for up to timeout seconds and disable the Hub.
-  void close();
-
-  /// Runs the callback with a new scope which gets dropped at the end
-  void pushScope();
-
-  void popScope();
-
-  /// Runs the callback with a new scope which gets dropped at the end
-  void withScope(ScopeCallback callback);
-
-  /// Configures the scope through the callback.
-  void configureScope(ScopeCallback callback);
-
-  /// Binds a different client to the hub
-  void bindClient(SentryClient client);
-
-  /// Flushes events queued up, but keeps the Hub enabled. Not implemented yet.
-  /// void flush({int timeout} )
-
-  /// Clones the Hub
-  Hub clone();
 }
