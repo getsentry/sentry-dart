@@ -1,7 +1,10 @@
 import 'package:http/http.dart';
+import 'package:sentry/sentry.dart';
 
 import 'protocol.dart';
 import 'utils.dart';
+
+typedef Logger = void Function(SeverityLevel, String);
 
 /// Sentry SDK options
 class SentryOptions {
@@ -44,6 +47,10 @@ class SentryOptions {
 
   int maxBreadcrumbs;
 
+  final Logger _logger;
+
+  Logger get logger => _logger ?? defaultLogger;
+
   SentryOptions({
     this.dsn,
     this.environmentAttributes,
@@ -51,6 +58,11 @@ class SentryOptions {
     this.httpClient,
     this.clock,
     this.uuidGenerator,
+    Logger logger,
     this.maxBreadcrumbs = 100,
-  });
+  }) : _logger = logger;
+}
+
+void defaultLogger(SeverityLevel level, String message) {
+  print('[$level] $message');
 }

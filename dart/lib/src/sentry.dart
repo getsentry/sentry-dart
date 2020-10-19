@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import 'client.dart';
+import 'hub.dart';
 import 'protocol.dart';
 import 'sentry_options.dart';
 
@@ -12,7 +13,7 @@ typedef OptionsConfiguration = void Function(SentryOptions);
 /// Sentry SDK main entry point
 ///
 class Sentry {
-  static SentryClient _client;
+  static Hub _hub;
 
   Sentry._();
 
@@ -25,36 +26,26 @@ class Sentry {
 
   /// Initializes the SDK
   static void _init(SentryOptions options) {
-    _client = SentryClient(
-      dsn: options.dsn,
-      environmentAttributes: options.environmentAttributes,
-      compressPayload: options.compressPayload,
-      httpClient: options.httpClient,
-      clock: options.clock,
-      uuidGenerator: options.uuidGenerator,
-    );
+    _hub = Hub(options);
   }
 
   /// Reports an [event] to Sentry.io.
-  static Future<SentryResponse> captureEvent(Event event) async {
-    return _client.captureEvent(event: event);
+  static Future<SentryId> captureEvent(Event event) async {
+    return _hub.captureEvent(event);
   }
 
   /// Reports the [exception] and optionally its [stackTrace] to Sentry.io.
-  static Future<SentryResponse> captureException(
+  static Future<SentryId> captureException(
     dynamic error, {
     dynamic stackTrace,
   }) async {
-    return _client.captureException(
-      exception: error,
-      stackTrace: stackTrace,
-    );
+    return _hub.captureException(error, stackTrace: stackTrace);
   }
 
   /// Close the client SDK
-  static Future<void> close() async => _client.close();
+  static Future<void> close() async => _hub.close();
 
   /// client injector only use for testing
   @visibleForTesting
-  static void initClient(SentryClient client) => _client = client;
+  static void initClient(SentryClient client) => _hub.bindClient(client);
 }

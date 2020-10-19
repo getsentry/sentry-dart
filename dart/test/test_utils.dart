@@ -85,11 +85,9 @@ Future testCaptureException(
   try {
     throw ArgumentError('Test error');
   } catch (error, stackTrace) {
-    final response =
-        await client.captureException(exception: error, stackTrace: stackTrace);
-    expect(response.isSuccessful, true);
-    expect(response.eventId, 'test-event-id');
-    expect(response.error, null);
+    final sentryId =
+        await client.captureException(error, stackTrace: stackTrace);
+    expect('${sentryId.id}', 'test-event-id');
   }
 
   expect(postUri, client.postUri);
@@ -110,6 +108,7 @@ Future testCaptureException(
   }
   final Map<String, dynamic> stacktrace =
       data.remove('stacktrace') as Map<String, dynamic>;
+
   expect(stacktrace['frames'], const TypeMatcher<List>());
   expect(stacktrace['frames'], isNotEmpty);
 
@@ -245,11 +244,9 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     try {
       throw ArgumentError('Test error');
     } catch (error, stackTrace) {
-      final response = await client.captureException(
-          exception: error, stackTrace: stackTrace);
-      expect(response.isSuccessful, true);
-      expect(response.eventId, 'test-event-id');
-      expect(response.error, null);
+      final sentryId =
+          await client.captureException(error, stackTrace: stackTrace);
+      expect('${sentryId.id}', 'test-event-id');
     }
 
     testHeaders(
@@ -303,12 +300,9 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     try {
       throw ArgumentError('Test error');
     } catch (error, stackTrace) {
-      final response = await client.captureException(
-          exception: error, stackTrace: stackTrace);
-      expect(response.isSuccessful, false);
-      expect(response.eventId, null);
-      expect(
-          response.error, 'Sentry.io responded with HTTP 401: Invalid api key');
+      final sentryId =
+          await client.captureException(error, stackTrace: stackTrace);
+      expect('${sentryId.id}', SentryId.emptyId);
     }
 
     await client.close();
@@ -367,9 +361,9 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
           exception: error,
           stackTrace: stackTrace,
           userContext: eventUserContext);
-      await client.captureEvent(event: eventWithoutContext);
+      await client.captureEvent(eventWithoutContext);
       expect(loggedUserId, clientUserContext.id);
-      await client.captureEvent(event: eventWithContext);
+      await client.captureEvent(eventWithContext);
       expect(loggedUserId, eventUserContext.id);
     }
 
