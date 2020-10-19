@@ -23,29 +23,21 @@ Future<void> main(List<String> rawArgs) async {
   print('\nReporting a complete event example: ');
 
   // Sends a full Sentry event payload to show the different parts of the UI.
-  final response = await Sentry.captureEvent(event);
+  final sentryId = await Sentry.captureEvent(event);
 
-  if (response.isSuccessful) {
-    print('SUCCESS\nid: ${response.eventId}');
-  } else {
-    print('FAILURE: ${response.error}');
-  }
+  print('SentryId : ${sentryId}');
 
   try {
     await foo();
   } catch (error, stackTrace) {
     print('\nReporting the following stack trace: ');
     print(stackTrace);
-    final response = await Sentry.captureException(
+    final sentryId = await Sentry.captureException(
       error,
       stackTrace: stackTrace,
     );
 
-    if (response.isSuccessful) {
-      print('SUCCESS\nid: ${response.eventId}');
-    } else {
-      print('FAILURE: ${response.error}');
-    }
+    print('SentryId : ${sentryId}');
   } finally {
     await Sentry.close();
   }

@@ -41,7 +41,7 @@ Future<void> main() async {
       release: _release,
       sdk: _sentry.sdk,
     );
-    await _sentry.captureEvent(event: event);
+    await _sentry.captureEvent(event);
   });
 }
 
@@ -68,7 +68,7 @@ extension SentryExtensions on SentryClient {
       if (stackTrace != null) {
         stackTrace = StackTrace.fromString(stackTrace as String);
       }
-      return captureException(exception: error[0], stackTrace: stackTrace);
+      return captureException(error[0], stackTrace: stackTrace);
     } else {
       return Future.value();
     }

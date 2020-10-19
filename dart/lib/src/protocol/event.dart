@@ -193,6 +193,15 @@ class Event {
           'value': '$exception',
         }
       ];
+      if (exception is Error && exception.stackTrace != null) {
+        json['stacktrace'] = <String, dynamic>{
+          'frames': encodeStackTrace(
+            exception.stackTrace,
+            stackFrameFilter: stackFrameFilter,
+            origin: origin,
+          ),
+        };
+      }
     }
 
     if (stackTrace != null) {

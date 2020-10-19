@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart';
 import 'package:meta/meta.dart';
+import 'package:sentry/sentry.dart';
 
 import 'client_stub.dart'
     if (dart.library.html) 'browser_client.dart'
@@ -136,9 +137,10 @@ abstract class SentryClient {
   }
 
   /// Reports an [event] to Sentry.io.
-  Future<SentryResponse> captureEvent({
-    @required Event event,
+  Future<SentryId> captureEvent(
+    Event event, {
     StackFrameFilter stackFrameFilter,
+    Scope scope,
   }) async {
     final now = _clock();
     var authHeader = 'Sentry sentry_version=6, sentry_client=$clientId, '
@@ -183,27 +185,38 @@ abstract class SentryClient {
     );
 
     if (response.statusCode != 200) {
-      var errorMessage = 'Sentry.io responded with HTTP ${response.statusCode}';
+      /*var errorMessage = 'Sentry.io responded with HTTP ${response.statusCode}';
       if (response.headers['x-sentry-error'] != null) {
         errorMessage += ': ${response.headers['x-sentry-error']}';
-      }
-      return SentryResponse.failure(errorMessage);
+      }*/
+      return SentryId.empty();
     }
 
-    final eventId = '${json.decode(response.body)['id']}';
-    return SentryResponse.success(eventId: eventId);
+    final eventId = json.decode(response.body)['id'];
+    return eventId != null ? SentryId(eventId) : SentryId.empty();
   }
 
-  /// Reports the [exception] and optionally its [stackTrace] to Sentry.io.
-  Future<SentryResponse> captureException({
-    @required dynamic exception,
-    dynamic stackTrace,
-  }) {
+  /// Reports the [throwable] and optionally its [stackTrace] to Sentry.io.
+  Future<SentryId> captureException(dynamic throwable, {dynamic stackTrace}) {
     final event = Event(
-      exception: exception,
+      exception: throwable,
       stackTrace: stackTrace,
     );
-    return captureEvent(event: event);
+    return captureEvent(event);
+  }
+
+  /// Reports the [template]
+  Future<SentryId> captureMessage(
+    String formatted, {
+    SeverityLevel level = SeverityLevel.info,
+    String template,
+    List<dynamic> params,
+  }) {
+    final event = Event(
+      message: Message(formatted, template: template, params: params),
+      level: level,
+    );
+    return captureEvent(event);
   }
 
   Future<void> close() async {

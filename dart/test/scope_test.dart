@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
@@ -163,6 +164,17 @@ void main() {
     expect(sut.tags.length, 0);
 
     expect(sut.extra.length, 0);
+  });
+
+  test('clones', () {
+    final sut = fixture.getSut();
+    final clone = sut.clone();
+    expect(sut.user, clone.user);
+    expect(sut.transaction, clone.transaction);
+    expect(sut.extra, clone.extra);
+    expect(sut.tags, clone.tags);
+    expect(sut.breadcrumbs, clone.breadcrumbs);
+    expect(ListEquality().equals(sut.fingerprint, clone.fingerprint), true);
   });
 }
 

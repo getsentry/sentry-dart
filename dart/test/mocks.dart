@@ -1,6 +1,18 @@
+import 'package:mockito/mockito.dart';
+import 'package:sentry/sentry.dart';
 import 'package:sentry/src/protocol.dart';
 
-final event = Event(
+class MockSentryClient extends Mock implements SentryClient {}
+
+final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
+
+final fakeException = Exception('Error');
+
+final fakeMessage = Message('message 1', template: 'message %d', params: ['1']);
+
+final fakeUser = User(id: '1', email: 'test@test');
+
+final fakeEvent = Event(
   loggerName: 'main',
   serverName: 'server.dart',
   release: '1.4.0-preview.1',
