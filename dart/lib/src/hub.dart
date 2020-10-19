@@ -119,11 +119,8 @@ class Hub {
       final item = _peek();
       if (item != null) {
         try {
-          // TODO pass the scope
-          sentryId = await item.client.captureException(
-            throwable,
-            stackTrace: stackTrace,
-          );
+          sentryId = await item.client.captureException(throwable,
+              stackTrace: stackTrace, scope: item.scope);
         } catch (err) {
           _options.logger(
             SeverityLevel.error,
@@ -166,13 +163,11 @@ class Hub {
       final item = _peek();
       if (item != null) {
         try {
-          // TODO pass the scope
-          sentryId = await item.client.captureMessage(
-            message,
-            level: level,
-            template: template,
-            params: params,
-          );
+          sentryId = await item.client.captureMessage(message,
+              level: level,
+              template: template,
+              params: params,
+              scope: item.scope);
         } catch (err) {
           _options.logger(
             SeverityLevel.error,

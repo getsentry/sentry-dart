@@ -197,12 +197,13 @@ abstract class SentryClient {
   }
 
   /// Reports the [throwable] and optionally its [stackTrace] to Sentry.io.
-  Future<SentryId> captureException(dynamic throwable, {dynamic stackTrace}) {
+  Future<SentryId> captureException(dynamic throwable,
+      {dynamic stackTrace, Scope scope}) {
     final event = Event(
       exception: throwable,
       stackTrace: stackTrace,
     );
-    return captureEvent(event);
+    return captureEvent(event, scope: scope);
   }
 
   /// Reports the [template]
@@ -211,12 +212,13 @@ abstract class SentryClient {
     SeverityLevel level = SeverityLevel.info,
     String template,
     List<dynamic> params,
+    Scope scope,
   }) {
     final event = Event(
       message: Message(formatted, template: template, params: params),
       level: level,
     );
-    return captureEvent(event);
+    return captureEvent(event, scope: scope);
   }
 
   Future<void> close() async {

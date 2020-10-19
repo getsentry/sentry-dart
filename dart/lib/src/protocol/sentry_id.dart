@@ -6,6 +6,8 @@ class SentryId {
   /// The ID Sentry.io assigned to the submitted event for future reference.
   final String _id;
 
+  // TODO: should we generate the new UUID here with an empty ctor?
+
   const SentryId(this._id);
 
   factory SentryId.empty() => SentryId(_emptyId);
