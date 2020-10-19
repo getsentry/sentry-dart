@@ -106,13 +106,13 @@ Future testCaptureException(
   } else {
     data = json.decode(utf8.decode(body)) as Map<String, dynamic>;
   }
-  final Map<String, dynamic> stacktrace =
+  final stacktrace =
       data.remove('stacktrace') as Map<String, dynamic>;
 
   expect(stacktrace['frames'], const TypeMatcher<List>());
   expect(stacktrace['frames'], isNotEmpty);
 
-  final Map<String, dynamic> topFrame =
+  final topFrame =
       (stacktrace['frames'] as Iterable<dynamic>).last as Map<String, dynamic>;
   expect(topFrame.keys, <String>[
     'abs_path',
