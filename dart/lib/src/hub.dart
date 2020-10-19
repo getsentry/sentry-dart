@@ -144,7 +144,7 @@ class Hub {
 
   /// Captures the message.
   Future<SentryId> captureMessage(
-    Message message, {
+    String message, {
     SeverityLevel level = SeverityLevel.info,
   }) async {
     var sentryId = SentryId.empty();

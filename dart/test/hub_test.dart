@@ -74,9 +74,9 @@ void main() {
     });
 
     test('should capture message', () {
-      hub.captureMessage(fakeMessage, level: SeverityLevel.info);
+      hub.captureMessage(fakeMessage.formatted, level: SeverityLevel.info);
       verify(
-        client.captureMessage(fakeMessage, level: SeverityLevel.info),
+        client.captureMessage(fakeMessage.formatted, level: SeverityLevel.info),
       ).called(1);
     });
   });
