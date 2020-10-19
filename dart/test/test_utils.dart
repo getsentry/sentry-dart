@@ -87,7 +87,7 @@ Future testCaptureException(
   } catch (error, stackTrace) {
     final sentryId =
         await client.captureException(error, stackTrace: stackTrace);
-    expect('$sentryId', 'test-event-id');
+    expect('$sentryId', 'testeventid');
   }
 
   expect(postUri, client.postUri);
@@ -106,8 +106,7 @@ Future testCaptureException(
   } else {
     data = json.decode(utf8.decode(body)) as Map<String, dynamic>;
   }
-  final stacktrace =
-      data.remove('stacktrace') as Map<String, dynamic>;
+  final stacktrace = data.remove('stacktrace') as Map<String, dynamic>;
 
   expect(stacktrace['frames'], const TypeMatcher<List>());
   expect(stacktrace['frames'], isNotEmpty);
@@ -222,7 +221,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     final httpMock = MockClient((Request request) async {
       if (request.method == 'POST') {
         headers = request.headers;
-        return Response('{"id": "test-event-id"}', 200);
+        return Response('{"id": "testeventid"}', 200);
       }
       fail(
           'Unexpected request on ${request.method} ${request.url} in HttpMock');
@@ -246,7 +245,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     } catch (error, stackTrace) {
       final sentryId =
           await client.captureException(error, stackTrace: stackTrace);
-      expect('$sentryId', 'test-event-id');
+      expect('$sentryId', 'testeventid');
     }
 
     testHeaders(
@@ -302,7 +301,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     } catch (error, stackTrace) {
       final sentryId =
           await client.captureException(error, stackTrace: stackTrace);
-      expect('$sentryId', SentryId.empty());
+      expect('$sentryId', '00000000000000000000000000000000');
     }
 
     await client.close();

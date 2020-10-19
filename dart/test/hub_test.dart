@@ -70,13 +70,15 @@ void main() {
     test('should capture exception', () {
       hub.captureException(fakeException);
 
-      verify(client.captureException(fakeException)).called(1);
+      verify(client.captureException(fakeException, scope: anyNamed('scope')))
+          .called(1);
     });
 
     test('should capture message', () {
       hub.captureMessage(fakeMessage.formatted, level: SeverityLevel.info);
       verify(
-        client.captureMessage(fakeMessage.formatted, level: SeverityLevel.info),
+        client.captureMessage(fakeMessage.formatted,
+            level: SeverityLevel.info, scope: anyNamed('scope')),
       ).called(1);
     });
   });
