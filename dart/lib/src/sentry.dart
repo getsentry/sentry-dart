@@ -16,9 +16,15 @@ class Sentry {
 
   Sentry._();
 
+  /// Initializes the SDK
   static void init(OptionsConfiguration optionsConfiguration) {
     final options = SentryOptions();
     optionsConfiguration(options);
+    _init(options);
+  }
+
+  /// Initializes the SDK
+  static void _init(SentryOptions options) {
     _client = SentryClient(
       dsn: options.dsn,
       environmentAttributes: options.environmentAttributes,
