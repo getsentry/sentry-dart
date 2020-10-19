@@ -6,6 +6,14 @@ import 'client.dart';
 import 'protocol.dart';
 
 class NoOpSentryClient implements SentryClient {
+  NoOpSentryClient._();
+
+  static final NoOpSentryClient _instance = NoOpSentryClient._();
+
+  factory NoOpSentryClient() {
+    return _instance;
+  }
+
   @override
   User userContext;
 

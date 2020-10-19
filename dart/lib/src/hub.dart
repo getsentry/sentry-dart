@@ -22,7 +22,10 @@ class Hub {
     );
   }
 
-  final ListQueue<_StackItem> _stack;
+  final ListQueue<_StackItem> _stack = ListQueue();
+
+  /// if stack is empty, it throws IterableElementError.noElement()
+  _StackItem _peek() => _stack.isNotEmpty ? _stack.first : null;
 
   final SentryOptions _options;
 
@@ -32,20 +35,18 @@ class Hub {
     return Hub._(options);
   }
 
-  Hub._(SentryOptions options)
-      : _options = options,
-        _stack = ListQueue() {
+  Hub._(SentryOptions options) : _options = options {
     _stack.add(_StackItem(_getClient(fromOptions: options), Scope(_options)));
     _isEnabled = true;
   }
 
   static void _validateOptions(SentryOptions options) {
     if (options == null) {
-      throw ArgumentError.notNull('options');
+      throw ArgumentError.notNull('SentryOptions is required.');
     }
 
-    if (options.dsn == null) {
-      throw ArgumentError.notNull('options.dsn');
+    if (options.dsn == null || options.dsn.isEmpty) {
+      throw ArgumentError.notNull('DSN is required.');
     }
   }
 
@@ -54,7 +55,7 @@ class Hub {
   /// Check if the Hub is enabled/active.
   bool get isEnabled => _isEnabled;
 
-  SentryId _lastEventId;
+  SentryId _lastEventId = SentryId.empty();
 
   /// Last event id recorded in the current scope
   SentryId get lastEventId => _lastEventId;
@@ -74,7 +75,7 @@ class Hub {
         'captureEvent called with null parameter.',
       );
     } else {
-      final item = _stack.first;
+      final item = _peek();
       if (item != null) {
         try {
           sentryId = await item.client.captureEvent(event, scope: item.scope);
@@ -115,7 +116,7 @@ class Hub {
         'captureException called with null parameter.',
       );
     } else {
-      final item = _stack.first;
+      final item = _peek();
       if (item != null) {
         try {
           // TODO pass the scope
@@ -162,7 +163,7 @@ class Hub {
         'captureMessage called with null parameter.',
       );
     } else {
-      final item = _stack.first;
+      final item = _peek();
       if (item != null) {
         try {
           // TODO pass the scope
@@ -196,7 +197,7 @@ class Hub {
       _options.logger(SeverityLevel.warning,
           "Instance is disabled and this 'bindClient' call is a no-op.");
     } else {
-      final item = _stack.first;
+      final item = _peek();
       if (item != null) {
         if (client != null) {
           _options.logger(SeverityLevel.debug, 'New client bound to scope.');
@@ -234,7 +235,7 @@ class Hub {
         "Instance is disabled and this 'close' call is a no-op.",
       );
     } else {
-      final item = _stack.first;
+      final item = _peek();
       if (item != null) {
         try {
           item.client.close();
@@ -262,7 +263,7 @@ class Hub {
         "Instance is disabled and this 'configureScope' call is a no-op.",
       );
     } else {
-      final item = _stack.first;
+      final item = _peek();
       if (item != null) {
         try {
           callback(item.scope);
