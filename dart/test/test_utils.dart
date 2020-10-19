@@ -87,7 +87,7 @@ Future testCaptureException(
   } catch (error, stackTrace) {
     final sentryId =
         await client.captureException(error, stackTrace: stackTrace);
-    expect('${sentryId.toString()}', 'test-event-id');
+    expect('$sentryId', 'test-event-id');
   }
 
   expect(postUri, client.postUri);
@@ -246,7 +246,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     } catch (error, stackTrace) {
       final sentryId =
           await client.captureException(error, stackTrace: stackTrace);
-      expect('${sentryId.id}', 'test-event-id');
+      expect('$sentryId', 'test-event-id');
     }
 
     testHeaders(
