@@ -12,17 +12,17 @@ class Message {
 
   /// The raw message string (uninterpolated).
   /// example : "My raw message with interpreted strings like %s",
-  final String message;
+  final String template;
 
   /// A list of formatting parameters, preferably strings. Non-strings will be coerced to strings.
   final List<dynamic> params;
 
-  Message({this.formatted, this.message, this.params});
+  Message(this.formatted, {this.template, this.params});
 
   Map<String, dynamic> toJson() {
     return {
       'formatted': formatted,
-      'message': message,
+      'message': template,
       'params': params,
     };
   }

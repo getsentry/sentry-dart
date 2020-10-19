@@ -205,12 +205,17 @@ abstract class SentryClient {
     return captureEvent(event);
   }
 
-  /// Reports the [message]
+  /// Reports the [template]
   Future<SentryId> captureMessage(
-    String message, {
+    String formatted, {
     SeverityLevel level = SeverityLevel.info,
+    String template,
+    List<dynamic> params,
   }) {
-    final event = Event(message: Message(formatted: message), level: level);
+    final event = Event(
+      message: Message(formatted, template: template, params: params),
+      level: level,
+    );
     return captureEvent(event);
   }
 

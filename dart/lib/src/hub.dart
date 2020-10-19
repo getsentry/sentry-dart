@@ -146,6 +146,8 @@ class Hub {
   Future<SentryId> captureMessage(
     String message, {
     SeverityLevel level = SeverityLevel.info,
+    String template,
+    List<dynamic> params,
   }) async {
     var sentryId = SentryId.empty();
 
@@ -164,7 +166,12 @@ class Hub {
       if (item != null) {
         try {
           // TODO pass the scope
-          sentryId = await item.client.captureMessage(message, level: level);
+          sentryId = await item.client.captureMessage(
+            message,
+            level: level,
+            template: template,
+            params: params,
+          );
         } catch (err) {
           _options.logger(
             SeverityLevel.error,

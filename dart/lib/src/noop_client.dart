@@ -31,6 +31,8 @@ class NoOpSentryClient implements SentryClient {
   Future<SentryId> captureMessage(
     String message, {
     SeverityLevel level = SeverityLevel.info,
+    String template,
+    List<dynamic> params,
   }) =>
       Future.value(SentryId.empty());
 

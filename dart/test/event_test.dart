@@ -63,8 +63,8 @@ void main() {
       expect(
         Event(
           message: Message(
-            formatted: 'test-message 1 2',
-            message: 'test-message %d %d',
+            'test-message 1 2',
+            template: 'test-message %d %d',
             params: ['1', '2'],
           ),
           transaction: '/test/1',

@@ -8,8 +8,7 @@ final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
 final fakeException = Exception('Error');
 
-final fakeMessage =
-    Message(formatted: 'message 1', message: 'message %d', params: ['1']);
+final fakeMessage = Message('message 1', template: 'message %d', params: ['1']);
 
 final fakeUser = User(id: '1', email: 'test@test');
 
@@ -18,7 +17,7 @@ final fakeEvent = Event(
   serverName: 'server.dart',
   release: '1.4.0-preview.1',
   environment: 'Test',
-  message: Message(formatted: 'This is an example Dart event.'),
+  message: Message('This is an example Dart event.'),
   transaction: '/example/app',
   level: SeverityLevel.warning,
   tags: const <String, String>{'project-id': '7371'},
