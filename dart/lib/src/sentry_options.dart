@@ -73,7 +73,7 @@ class SentryOptions {
 
   /// Turns debug mode on or off. If debug is enabled SDK will attempt to print out useful debugging
   /// information if something goes wrong. Default is disabled.
-  bool debug;
+  bool debug = false;
 
   /// minimum LogLevel to be used if debug is enabled
   SeverityLevel _diagnosticLevel = defaultDiagnosticLevel;
