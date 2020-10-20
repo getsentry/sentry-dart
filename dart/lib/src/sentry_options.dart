@@ -8,7 +8,7 @@ import 'utils.dart';
 /// Sentry SDK options
 class SentryOptions {
   /// Default Log level if not specified Default is DEBUG
-  static final SeverityLevel defaultDiagnosticLevel = SeverityLevel.debug;
+  static final SentryLevel defaultDiagnosticLevel = SentryLevel.debug;
 
   /// The DSN tells the SDK where to send the events to. If this value is not provided, the SDK will
   ///  just not send any events.
@@ -76,13 +76,13 @@ class SentryOptions {
   bool debug = false;
 
   /// minimum LogLevel to be used if debug is enabled
-  SeverityLevel _diagnosticLevel = defaultDiagnosticLevel;
+  SentryLevel _diagnosticLevel = defaultDiagnosticLevel;
 
-  set diagnosticLevel(SeverityLevel level) {
+  set diagnosticLevel(SentryLevel level) {
     _diagnosticLevel = level ?? defaultDiagnosticLevel;
   }
 
-  SeverityLevel get diagnosticLevel => _diagnosticLevel;
+  SentryLevel get diagnosticLevel => _diagnosticLevel;
 
   /// Sentry client name used for the HTTP authHeader and userAgent eg
   /// sentry.{language}.{platform}/{version} eg sentry.java.android/2.0.0 would be a valid case
@@ -138,6 +138,7 @@ class SentryOptions {
 
   // TODO: sendDefaultPii
 
+  // TODO: those ctor params could be set on Sentry._setDefaultConfiguration or instantiate by default here
   SentryOptions({
     this.dsn,
     this.environmentAttributes,
@@ -189,10 +190,10 @@ typedef EventProcessor = Event Function(Event event, dynamic hint);
 
 typedef Integration = Function(Hub hub, SentryOptions options);
 
-typedef Logger = Function(SeverityLevel level, String message);
+typedef Logger = Function(SentryLevel level, String message);
 
-void noOpLogger(SeverityLevel level, String message) {}
+void noOpLogger(SentryLevel level, String message) {}
 
-void dartLogger(SeverityLevel level, String message) {
+void dartLogger(SentryLevel level, String message) {
   print('[$level] $message');
 }

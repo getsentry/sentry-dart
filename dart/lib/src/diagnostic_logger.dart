@@ -1,5 +1,4 @@
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/protocol/level.dart';
 
 class DiagnosticLogger {
   final Logger _logger;
@@ -7,14 +6,13 @@ class DiagnosticLogger {
 
   DiagnosticLogger(this._logger, this._options);
 
-  void log(SeverityLevel level, String message) {
-    if (_isEnabled()) {
+  void log(SentryLevel level, String message) {
+    if (_isEnabled(level)) {
       _logger(level, message);
     }
   }
 
-  bool _isEnabled() {
-    // TODO: if (_options.diagnosticLevel)
-    return _options.debug;
+  bool _isEnabled(SentryLevel level) {
+    return _options.debug && level.ordinal >= _options.diagnosticLevel.ordinal;
   }
 }

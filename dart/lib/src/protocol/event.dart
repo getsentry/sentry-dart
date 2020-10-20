@@ -67,7 +67,7 @@ class Event {
   final String transaction;
 
   /// How important this event is.
-  final SeverityLevel level;
+  final SentryLevel level;
 
   /// What caused this event to be logged.
   final String culprit;
@@ -125,7 +125,7 @@ class Event {
     String transaction,
     dynamic exception,
     dynamic stackTrace,
-    SeverityLevel level,
+    SentryLevel level,
     String culprit,
     Map<String, String> tags,
     Map<String, dynamic> extra,

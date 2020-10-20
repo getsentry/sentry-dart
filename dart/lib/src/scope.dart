@@ -6,11 +6,11 @@ import 'sentry_options.dart';
 /// Scope data to be sent with the event
 class Scope {
   /// How important this event is.
-  SeverityLevel _level;
+  SentryLevel _level;
 
-  SeverityLevel get level => _level;
+  SentryLevel get level => _level;
 
-  set level(SeverityLevel level) {
+  set level(SentryLevel level) {
     _level = level;
   }
 

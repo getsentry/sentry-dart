@@ -7,7 +7,7 @@ final event = Event(
   environment: 'Test',
   message: Message('This is an example Dart event.'),
   transaction: '/example/app',
-  level: SeverityLevel.warning,
+  level: SentryLevel.warning,
   tags: const <String, String>{'project-id': '7371'},
   extra: const <String, String>{'company-name': 'Dart Inc'},
   fingerprint: const <String>['example-dart'],
@@ -22,7 +22,7 @@ final event = Event(
         category: 'ui.lifecycle',
         type: 'navigation',
         data: {'screen': 'MainActivity', 'state': 'created'},
-        level: SeverityLevel.info)
+        level: SentryLevel.info)
   ],
   contexts: Contexts(
     operatingSystem: const OperatingSystem(

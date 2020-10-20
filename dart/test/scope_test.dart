@@ -5,12 +5,12 @@ import 'package:test/test.dart';
 void main() {
   final fixture = Fixture();
 
-  test('sets $SeverityLevel', () {
+  test('sets $SentryLevel', () {
     final sut = fixture.getSut();
 
-    sut.level = SeverityLevel.debug;
+    sut.level = SentryLevel.debug;
 
-    expect(sut.level, SeverityLevel.debug);
+    expect(sut.level, SentryLevel.debug);
   });
 
   test('sets transaction', () {
@@ -137,7 +137,7 @@ void main() {
     final breadcrumb1 = Breadcrumb('test log', DateTime.utc(2019));
     sut.addBreadcrumb(breadcrumb1);
 
-    sut.level = SeverityLevel.debug;
+    sut.level = SentryLevel.debug;
     sut.transaction = 'test';
 
     final user = User(id: 'test');
