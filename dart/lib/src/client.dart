@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:http/http.dart';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
@@ -22,54 +21,29 @@ abstract class SentryClient {
   ///
   /// Creates an `SentryIOClient` if `dart:io` is available and a `SentryBrowserClient` if
   /// `dart:html` is available, otherwise it will throw an unsupported error.
-  factory SentryClient({
-    @required String dsn,
-    Event environmentAttributes,
-    bool compressPayload,
-    Client httpClient,
-    dynamic clock,
-  }) =>
-      createSentryClient(
-        dsn: dsn,
-        environmentAttributes: environmentAttributes,
-        httpClient: httpClient,
-        clock: clock,
-        compressPayload: compressPayload,
-      );
+  factory SentryClient(SentryOptions options) => createSentryClient(options);
 
-  SentryClient.base({
-    this.httpClient,
-    dynamic clock,
-    String dsn,
-    this.environmentAttributes,
+  SentryClient.base(
+    this.options, {
     String platform,
     this.origin,
     Sdk sdk,
-  })  : _dsn = Dsn.parse(dsn),
+  })  : _dsn = Dsn.parse(options.dsn),
         _platform = platform ?? sdkPlatform,
         sdk = sdk ?? Sdk(name: sdkName, version: sdkVersion) {
-    if (clock == null) {
-      _clock = getUtcDateTime;
+    if (options.clock == null) {
+      options.clock = getUtcDateTime;
     } else {
-      _clock = (clock is ClockProvider ? clock : clock.get) as ClockProvider;
+      options.clock = (options.clock is ClockProvider
+          ? options.clock
+          : options.clock.get) as ClockProvider;
     }
   }
 
-  @protected
-  final Client httpClient;
-
-  ClockProvider _clock;
-
-  /// Contains [Event] attributes that are automatically mixed into all events
-  /// captured through this client.
-  ///
-  /// This event is designed to contain static values that do not change from
-  /// event to event, such as local operating system version, the version of
-  /// Dart/Flutter SDK, etc. These attributes have lower precedence than those
-  /// supplied in the even passed to [capture].
-  final Event environmentAttributes;
-
   final Dsn _dsn;
+
+  @protected
+  SentryOptions options;
 
   /// The DSN URI.
   @visibleForTesting
@@ -103,7 +77,7 @@ abstract class SentryClient {
   User userContext;
 
   /// Use for browser stacktrace
-  final String origin;
+  String origin;
 
   /// Used by sentry to differentiate browser from io environment
   final String _platform;
@@ -137,7 +111,7 @@ abstract class SentryClient {
     StackFrameFilter stackFrameFilter,
     Scope scope,
   }) async {
-    final now = _clock();
+    final now = options.clock();
     var authHeader = 'Sentry sentry_version=6, sentry_client=$clientId, '
         'sentry_timestamp=${now.millisecondsSinceEpoch}, sentry_key=$publicKey';
     if (secretKey != null) {
@@ -152,8 +126,8 @@ abstract class SentryClient {
       'timestamp': formatDateAsIso8601WithSecondPrecision(now),
     };
 
-    if (environmentAttributes != null) {
-      mergeAttributes(environmentAttributes.toJson(), into: data);
+    if (options.environmentAttributes != null) {
+      mergeAttributes(options.environmentAttributes.toJson(), into: data);
     }
 
     // Merge the user context.
@@ -173,17 +147,13 @@ abstract class SentryClient {
 
     final body = bodyEncoder(data, headers);
 
-    final response = await httpClient.post(
+    final response = await options.httpClient.post(
       postUri,
       headers: headers,
       body: body,
     );
 
     if (response.statusCode != 200) {
-      /*var errorMessage = 'Sentry.io responded with HTTP ${response.statusCode}';
-      if (response.headers['x-sentry-error'] != null) {
-        errorMessage += ': ${response.headers['x-sentry-error']}';
-      }*/
       return SentryId.empty();
     }
 
@@ -217,7 +187,7 @@ abstract class SentryClient {
   }
 
   Future<void> close() async {
-    httpClient.close();
+    options.httpClient?.close();
   }
 
   @override

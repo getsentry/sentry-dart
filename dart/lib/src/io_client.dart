@@ -6,28 +6,13 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:http/http.dart';
-import 'package:meta/meta.dart';
+import 'package:sentry/sentry.dart';
 
 import 'client.dart';
 import 'protocol.dart';
-import 'utils.dart';
-import 'version.dart';
 
-SentryClient createSentryClient({
-  @required String dsn,
-  Event environmentAttributes,
-  bool compressPayload,
-  Client httpClient,
-  dynamic clock,
-}) =>
-    SentryIOClient(
-      dsn: dsn,
-      environmentAttributes: environmentAttributes,
-      compressPayload: compressPayload,
-      httpClient: httpClient,
-      clock: clock,
-    );
+SentryClient createSentryClient(SentryOptions options) =>
+    SentryIOClient(options);
 
 /// Logs crash reports and events to the Sentry.io service.
 class SentryIOClient extends SentryClient {
@@ -51,47 +36,9 @@ class SentryIOClient extends SentryClient {
   /// This parameter is dynamic to maintain backwards compatibility with
   /// previous use of [Clock](https://pub.dartlang.org/documentation/quiver/latest/quiver.time/Clock-class.html)
   /// from [`package:quiver`](https://pub.dartlang.org/packages/quiver).
-  factory SentryIOClient({
-    @required String dsn,
-    Event environmentAttributes,
-    bool compressPayload,
-    Client httpClient,
-    dynamic clock,
-  }) {
-    httpClient ??= Client();
-    clock ??= getUtcDateTime;
-    compressPayload ??= true;
+  factory SentryIOClient(SentryOptions options) => SentryIOClient._(options);
 
-    return SentryIOClient._(
-      httpClient: httpClient,
-      clock: clock,
-      environmentAttributes: environmentAttributes,
-      dsn: dsn,
-      compressPayload: compressPayload,
-      platform: sdkPlatform,
-    );
-  }
-
-  SentryIOClient._({
-    Client httpClient,
-    dynamic clock,
-    Event environmentAttributes,
-    String dsn,
-    this.compressPayload = true,
-    String platform,
-    String origin,
-  }) : super.base(
-          httpClient: httpClient,
-          clock: clock,
-          environmentAttributes: environmentAttributes,
-          dsn: dsn,
-          platform: platform,
-          origin: origin,
-          sdk: Sdk(name: sdkName, version: sdkVersion),
-        );
-
-  /// Whether to compress payloads sent to Sentry.io.
-  final bool compressPayload;
+  SentryIOClient._(SentryOptions options) : super.base(options);
 
   @override
   Map<String, String> buildHeaders(String authHeader) {
@@ -112,7 +59,7 @@ class SentryIOClient extends SentryClient {
     // [SentryIOClient] implement gzip compression
     // gzip compression is not available on browser
     var body = utf8.encode(json.encode(data));
-    if (compressPayload) {
+    if (options.compressPayload) {
       headers['Content-Encoding'] = 'gzip';
       body = gzip.encode(body);
     }

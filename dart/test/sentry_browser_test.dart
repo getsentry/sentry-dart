@@ -11,7 +11,7 @@ import 'test_utils.dart';
 void main() {
   group('SentryBrowserClient', () {
     test('SentryClient constructor build browser client', () {
-      final client = SentryClient(dsn: testDsn);
+      final client = SentryClient(SentryOptions(dsn: testDsn));
       expect(client is SentryBrowserClient, isTrue);
     });
 

@@ -1,10 +1,9 @@
 import 'dart:async';
 
-import 'package:http/src/client.dart';
-
 import 'client.dart';
 import 'protocol.dart';
 import 'scope.dart';
+import 'sentry_options.dart';
 
 class NoOpSentryClient implements SentryClient {
   NoOpSentryClient._();
@@ -17,6 +16,12 @@ class NoOpSentryClient implements SentryClient {
 
   @override
   User userContext;
+
+  @override
+  SentryOptions options;
+
+  @override
+  String origin;
 
   @override
   List<int> bodyEncoder(
@@ -56,15 +61,6 @@ class NoOpSentryClient implements SentryClient {
 
   @override
   Uri get dsnUri => null;
-
-  @override
-  Event get environmentAttributes => null;
-
-  @override
-  Client get httpClient => null;
-
-  @override
-  String get origin => null;
 
   @override
   String get postUri => null;

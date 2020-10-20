@@ -7,27 +7,15 @@ import 'dart:convert';
 import 'dart:html' show window;
 
 import 'package:http/browser_client.dart';
-import 'package:http/http.dart';
-import 'package:meta/meta.dart';
 
 import 'client.dart';
 import 'protocol.dart';
+import 'sentry_options.dart';
 import 'utils.dart';
 import 'version.dart';
 
-SentryClient createSentryClient({
-  @required String dsn,
-  Event environmentAttributes,
-  bool compressPayload,
-  Client httpClient,
-  dynamic clock,
-}) =>
-    SentryBrowserClient(
-      dsn: dsn,
-      environmentAttributes: environmentAttributes,
-      httpClient: httpClient,
-      clock: clock,
-    );
+SentryClient createSentryClient(SentryOptions options) =>
+    SentryBrowserClient(options);
 
 /// Logs crash reports and events to the Sentry.io service.
 class SentryBrowserClient extends SentryClient {
@@ -47,44 +35,26 @@ class SentryBrowserClient extends SentryClient {
   /// This parameter is dynamic to maintain backwards compatibility with
   /// previous use of [Clock](https://pub.dartlang.org/documentation/quiver/latest/quiver.time/Clock-class.html)
   /// from [`package:quiver`](https://pub.dartlang.org/packages/quiver).
-  factory SentryBrowserClient({
-    @required String dsn,
-    Event environmentAttributes,
-    Client httpClient,
-    dynamic clock,
-    String origin,
-  }) {
-    httpClient ??= BrowserClient();
-    clock ??= getUtcDateTime;
+  factory SentryBrowserClient(SentryOptions options, {String origin}) {
+    options.httpClient ??= BrowserClient();
+    options.clock ??= getUtcDateTime;
 
     // origin is necessary for sentry to resolve stacktrace
     origin ??= '${window.location.origin}/';
 
     return SentryBrowserClient._(
-      httpClient: httpClient,
-      clock: clock,
-      environmentAttributes: environmentAttributes,
-      dsn: dsn,
+      options,
       origin: origin,
       platform: browserPlatform,
     );
   }
 
-  SentryBrowserClient._({
-    Client httpClient,
-    dynamic clock,
-    Event environmentAttributes,
-    String dsn,
-    String platform,
-    String origin,
-  }) : super.base(
-          httpClient: httpClient,
-          clock: clock,
-          environmentAttributes: environmentAttributes,
-          dsn: dsn,
-          platform: platform,
+  SentryBrowserClient._(SentryOptions options, {String origin, String platform})
+      : super.base(
+          options,
           origin: origin,
           sdk: Sdk(name: browserSdkName, version: sdkVersion),
+          platform: platform,
         );
 
   @override
