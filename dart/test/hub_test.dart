@@ -75,11 +75,11 @@ void main() {
     });
 
     test('should capture message', () {
-      hub.captureMessage(fakeMessage.formatted, level: SeverityLevel.info);
+      hub.captureMessage(fakeMessage.formatted, level: SentryLevel.info);
       verify(
         client.captureMessage(
           fakeMessage.formatted,
-          level: SeverityLevel.info,
+          level: SentryLevel.info,
           scope: anyNamed('scope'),
         ),
       ).called(1);
@@ -99,7 +99,7 @@ void main() {
     test('should configure its scope', () {
       hub.configureScope((Scope scope) {
         scope
-          ..level = SeverityLevel.debug
+          ..level = SentryLevel.debug
           ..user = fakeUser
           ..fingerprint = ['1', '2'];
       });
@@ -116,7 +116,7 @@ void main() {
             ),
           ).captured.first,
           Scope(SentryOptions(dsn: fakeDsn))
-            ..level = SeverityLevel.debug
+            ..level = SentryLevel.debug
             ..user = fakeUser
             ..fingerprint = ['1', '2'],
         ),

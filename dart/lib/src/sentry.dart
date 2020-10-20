@@ -32,10 +32,12 @@ class Sentry {
   static void _init(SentryOptions options) {
     if (isEnabled) {
       options.logger(
-        SeverityLevel.warning,
+        SentryLevel.warning,
         'Sentry has been already initialized. Previous configuration will be overwritten.',
       );
     }
+
+    _setDefaultConfiguration(options);
 
     final hub = currentHub;
     _hub = Hub(options);
@@ -57,7 +59,7 @@ class Sentry {
 
   Future<SentryId> captureMessage(
     String message, {
-    SeverityLevel level,
+    SentryLevel level,
     String template,
     List<dynamic> params,
   }) async {
@@ -74,6 +76,14 @@ class Sentry {
 
   /// Check if the current Hub is enabled/active.
   static bool get isEnabled => currentHub.isEnabled;
+
+  static void _setDefaultConfiguration(SentryOptions options) {
+    // TODO: check DSN nullability and empty
+
+    if (options.debug && options.logger == noOpLogger) {
+      options.logger = dartLogger;
+    }
+  }
 
   /// client injector only use for testing
   @visibleForTesting

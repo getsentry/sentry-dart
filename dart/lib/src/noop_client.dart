@@ -39,7 +39,7 @@ class NoOpSentryClient implements SentryClient {
   @override
   Future<SentryId> captureMessage(
     String message, {
-    SeverityLevel level = SeverityLevel.info,
+    SentryLevel level = SentryLevel.info,
     String template,
     List<dynamic> params,
     Scope scope,

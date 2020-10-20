@@ -3,7 +3,7 @@ import 'dart:async';
 import 'client.dart';
 import 'hub.dart';
 import 'protocol/event.dart';
-import 'protocol/level.dart';
+import 'protocol/sentry_level.dart';
 import 'protocol/sentry_id.dart';
 
 class NoOpHub implements Hub {
@@ -28,7 +28,7 @@ class NoOpHub implements Hub {
   @override
   Future<SentryId> captureMessage(
     String message, {
-    SeverityLevel level = SeverityLevel.info,
+    SentryLevel level = SentryLevel.info,
     String template,
     List params,
   }) =>

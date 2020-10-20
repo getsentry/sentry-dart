@@ -66,12 +66,12 @@ class Hub {
 
     if (!_isEnabled) {
       _options.logger(
-        SeverityLevel.warning,
+        SentryLevel.warning,
         "Instance is disabled and this 'captureEvent' call is a no-op.",
       );
     } else if (event == null) {
       _options.logger(
-        SeverityLevel.warning,
+        SentryLevel.warning,
         'captureEvent called with null parameter.',
       );
     } else {
@@ -82,7 +82,7 @@ class Hub {
         } catch (err) {
           /* TODO add Event.id */
           _options.logger(
-            SeverityLevel.error,
+            SentryLevel.error,
             'Error while capturing event with id: ${event}',
           );
         } finally {
@@ -90,7 +90,7 @@ class Hub {
         }
       } else {
         _options.logger(
-          SeverityLevel.fatal,
+          SentryLevel.fatal,
           'Stack peek was null when captureEvent',
         );
       }
@@ -107,12 +107,12 @@ class Hub {
 
     if (!_isEnabled) {
       _options.logger(
-        SeverityLevel.warning,
+        SentryLevel.warning,
         "Instance is disabled and this 'captureException' call is a no-op.",
       );
     } else if (throwable == null) {
       _options.logger(
-        SeverityLevel.warning,
+        SentryLevel.warning,
         'captureException called with null parameter.',
       );
     } else {
@@ -123,7 +123,7 @@ class Hub {
               stackTrace: stackTrace, scope: item.scope);
         } catch (err) {
           _options.logger(
-            SeverityLevel.error,
+            SentryLevel.error,
             'Error while capturing exception : ${throwable}',
           );
         } finally {
@@ -131,7 +131,7 @@ class Hub {
         }
       } else {
         _options.logger(
-          SeverityLevel.fatal,
+          SentryLevel.fatal,
           'Stack peek was null when captureException',
         );
       }
@@ -143,7 +143,7 @@ class Hub {
   /// Captures the message.
   Future<SentryId> captureMessage(
     String message, {
-    SeverityLevel level = SeverityLevel.info,
+    SentryLevel level = SentryLevel.info,
     String template,
     List<dynamic> params,
   }) async {
@@ -151,12 +151,12 @@ class Hub {
 
     if (!_isEnabled) {
       _options.logger(
-        SeverityLevel.warning,
+        SentryLevel.warning,
         "Instance is disabled and this 'captureMessage' call is a no-op.",
       );
     } else if (message == null) {
       _options.logger(
-        SeverityLevel.warning,
+        SentryLevel.warning,
         'captureMessage called with null parameter.',
       );
     } else {
@@ -172,7 +172,7 @@ class Hub {
           );
         } catch (err) {
           _options.logger(
-            SeverityLevel.error,
+            SentryLevel.error,
             'Error while capturing message with id: ${message}',
           );
         } finally {
@@ -180,7 +180,7 @@ class Hub {
         }
       } else {
         _options.logger(
-          SeverityLevel.fatal,
+          SentryLevel.fatal,
           'Stack peek was null when captureMessage',
         );
       }
@@ -191,21 +191,21 @@ class Hub {
   /// Binds a different client to the hub
   void bindClient(SentryClient client) {
     if (!_isEnabled) {
-      _options.logger(SeverityLevel.warning,
+      _options.logger(SentryLevel.warning,
           "Instance is disabled and this 'bindClient' call is a no-op.");
     } else {
       final item = _peek();
       if (item != null) {
         if (client != null) {
-          _options.logger(SeverityLevel.debug, 'New client bound to scope.');
+          _options.logger(SentryLevel.debug, 'New client bound to scope.');
           item.client = client;
         } else {
-          _options.logger(SeverityLevel.debug, 'NoOp client bound to scope.');
+          _options.logger(SentryLevel.debug, 'NoOp client bound to scope.');
           item.client = NoOpSentryClient();
         }
       } else {
         _options.logger(
-          SeverityLevel.fatal,
+          SentryLevel.fatal,
           'Stack peek was null when bindClient',
         );
       }
@@ -215,7 +215,7 @@ class Hub {
   /// Clones the Hub
   Hub clone() {
     if (!_isEnabled) {
-      _options..logger(SeverityLevel.warning, 'Disabled Hub cloned.');
+      _options..logger(SentryLevel.warning, 'Disabled Hub cloned.');
     }
     final clone = Hub(_options);
     for (final item in _stack) {
@@ -228,7 +228,7 @@ class Hub {
   void close() {
     if (!_isEnabled) {
       _options.logger(
-        SeverityLevel.warning,
+        SentryLevel.warning,
         "Instance is disabled and this 'close' call is a no-op.",
       );
     } else {
@@ -238,13 +238,13 @@ class Hub {
           item.client.close();
         } catch (err) {
           _options.logger(
-            SeverityLevel.error,
+            SentryLevel.error,
             'Error while closing the Hub.',
           );
         }
       } else {
         _options.logger(
-          SeverityLevel.fatal,
+          SentryLevel.fatal,
           'Stack peek was NULL when closing Hub',
         );
       }
@@ -256,7 +256,7 @@ class Hub {
   void configureScope(ScopeCallback callback) {
     if (!_isEnabled) {
       _options.logger(
-        SeverityLevel.warning,
+        SentryLevel.warning,
         "Instance is disabled and this 'configureScope' call is a no-op.",
       );
     } else {
@@ -266,13 +266,13 @@ class Hub {
           callback(item.scope);
         } catch (err) {
           _options.logger(
-            SeverityLevel.error,
+            SentryLevel.error,
             "Error in the 'configureScope' callback.",
           );
         }
       } else {
         _options.logger(
-          SeverityLevel.fatal,
+          SentryLevel.fatal,
           'Stack peek was NULL when configureScope',
         );
       }

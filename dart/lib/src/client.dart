@@ -209,7 +209,7 @@ abstract class SentryClient {
   /// Reports the [template]
   Future<SentryId> captureMessage(
     String formatted, {
-    SeverityLevel level = SeverityLevel.info,
+    SentryLevel level = SentryLevel.info,
     String template,
     List<dynamic> params,
     Scope scope,
