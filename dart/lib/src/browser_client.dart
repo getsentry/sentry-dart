@@ -12,6 +12,7 @@ import 'client.dart';
 import 'protocol.dart';
 import 'sentry_options.dart';
 import 'utils.dart';
+import 'version.dart';
 
 SentryClient createSentryClient(SentryOptions options) =>
     SentryBrowserClient(options);
@@ -46,11 +47,18 @@ class SentryBrowserClient extends SentryClient {
     // origin is necessary for sentry to resolve stacktrace
     origin ??= '${window.location.origin}/';
 
-    return SentryBrowserClient._(options, origin: origin);
+    return SentryBrowserClient._(
+      options,
+      origin: origin,
+      platform: browserPlatform,
+    );
   }
 
-  SentryBrowserClient._(SentryOptions options, {String origin})
-      : super.base(options, origin: origin);
+  SentryBrowserClient._(SentryOptions options, {String origin, String platform})
+      : super.base(options,
+            origin: origin,
+            sdk: Sdk(name: browserSdkName, version: sdkVersion),
+            platform: platform);
 
   @override
   List<int> bodyEncoder(
