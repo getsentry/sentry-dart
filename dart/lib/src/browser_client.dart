@@ -55,10 +55,12 @@ class SentryBrowserClient extends SentryClient {
   }
 
   SentryBrowserClient._(SentryOptions options, {String origin, String platform})
-      : super.base(options,
-            origin: origin,
-            sdk: Sdk(name: browserSdkName, version: sdkVersion),
-            platform: platform);
+      : super.base(
+          options,
+          origin: origin,
+          sdk: Sdk(name: browserSdkName, version: sdkVersion),
+          platform: platform,
+        );
 
   @override
   List<int> bodyEncoder(
