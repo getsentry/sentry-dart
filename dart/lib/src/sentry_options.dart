@@ -1,10 +1,9 @@
 import 'package:http/http.dart';
 import 'package:sentry/sentry.dart';
-
+import 'diagnostic_logger.dart';
+import 'hub.dart';
 import 'protocol.dart';
 import 'utils.dart';
-
-typedef Logger = void Function(SeverityLevel, String);
 
 /// Sentry SDK options
 class SentryOptions {
@@ -47,9 +46,97 @@ class SentryOptions {
 
   int maxBreadcrumbs;
 
-  final Logger _logger;
+  /// Logger interface to log useful debugging information if debug is enabled
+  Logger _logger = noOpLogger;
 
-  Logger get logger => _logger ?? defaultLogger;
+  Logger get logger => _logger;
+
+  set logger(Logger logger) {
+    _logger = logger != null ? DiagnosticLogger(logger, this) : noOpLogger;
+  }
+
+  /// Are callbacks that run for every event. They can either return a new event which in most cases
+  /// means just adding data OR return null in case the event will be dropped and not sent.
+  final List<EventProcessor> _eventProcessors = [];
+
+  List<EventProcessor> get eventProcessors =>
+      List.unmodifiable(_eventProcessors);
+
+  /// Code that provides middlewares, bindings or hooks into certain frameworks or environments,
+  /// along with code that inserts those bindings and activates them.
+  final List<Integration> _integrations = [];
+
+  // TODO: shutdownTimeout, flushTimeoutMillis
+  // https://api.dart.dev/stable/2.10.2/dart-io/HttpClient/close.html doesn't have a timeout param, we'd need to implement manually
+
+  List<Integration> get integrations => List.unmodifiable(_integrations);
+
+  /// Turns debug mode on or off. If debug is enabled SDK will attempt to print out useful debugging
+  /// information if something goes wrong. Default is disabled.
+  bool debug;
+
+  /// minimum LogLevel to be used if debug is enabled
+  SeverityLevel _diagnosticLevel = defaultDiagnosticLevel;
+
+  set diagnosticLevel(SeverityLevel level) {
+    _diagnosticLevel = level ?? defaultDiagnosticLevel;
+  }
+
+  SeverityLevel get diagnosticLevel => _diagnosticLevel;
+
+  /// Sentry client name used for the HTTP authHeader and userAgent eg
+  /// sentry.{language}.{platform}/{version} eg sentry.java.android/2.0.0 would be a valid case
+  String sentryClientName;
+
+  /// This function is called with an SDK specific event object and can return a modified event
+  /// object or nothing to skip reporting the event
+  BeforeSendCallback beforeSendCallback;
+
+  /// This function is called with an SDK specific breadcrumb object before the breadcrumb is added
+  /// to the scope. When nothing is returned from the function, the breadcrumb is dropped
+  BeforeBreadcrumbCallback beforeBreadcrumbCallback;
+
+  /// Sets the release. SDK will try to automatically configure a release out of the box
+  String release;
+
+// TODO: probably its part of environmentAttributes
+  /// Sets the environment. This string is freeform and not set by default. A release can be
+  /// associated with more than one environment to separate them in the UI Think staging vs prod or
+  /// similar.
+  String environment;
+
+  /// Configures the sample rate as a percentage of events to be sent in the range of 0.0 to 1.0. if
+  /// 1.0 is set it means that 100% of events are sent. If set to 0.1 only 10% of events will be
+  /// sent. Events are picked randomly. Default is 1.0 (disabled)
+  double sampleRate = 1.0;
+
+  /// A list of string prefixes of module names that do not belong to the app, but rather third-party
+  /// packages. Modules considered not to be part of the app will be hidden from stack traces by
+  /// default.
+  final List<String> _inAppExcludes = [];
+
+  List<String> get inAppExcludes => List.unmodifiable(_inAppExcludes);
+
+  /// A list of string prefixes of module names that belong to the app. This option takes precedence
+  /// over inAppExcludes.
+  final List<String> _inAppIncludes = [];
+
+  List<String> get inAppIncludes => List.unmodifiable(_inAppIncludes);
+
+  // TODO: transport, transportGate, connectionTimeoutMillis, readTimeoutMillis, hostnameVerifier, sslSocketFactory, proxy
+
+  /// Sets the distribution. Think about it together with release and environment
+  String dist;
+
+  /// The server name used in the Sentry messages.
+  String serverName;
+
+  /// SdkVersion object that contains the Sentry Client Name and its version
+  Sdk sdkVersion;
+
+  // TODO: Scope observers, enableScopeSync
+
+  // TODO: sendDefaultPii
 
   SentryOptions({
     this.dsn,
@@ -61,8 +148,53 @@ class SentryOptions {
     Logger logger,
     this.maxBreadcrumbs = 100,
   }) : _logger = logger;
+
+  /// Adds an event processor
+  void addEventProcessor(EventProcessor eventProcessor) {
+    _eventProcessors.add(eventProcessor);
+  }
+
+  /// Removes an event processor
+  void removeEventProcessor(EventProcessor eventProcessor) {
+    _eventProcessors.remove(eventProcessor);
+  }
+
+  /// Adds an integration
+  void addIntegration(Integration integration) {
+    _integrations.add(integration);
+  }
+
+  /// Removes an integration
+  void removeIntegration(Integration integration) {
+    _integrations.remove(integration);
+  }
+
+  /// Adds an inAppExclude
+  void addInAppExclude(String inApp) {
+    _inAppExcludes.add(inApp);
+  }
+
+  /// Adds an inAppIncludes
+  void addInAppInclude(String inApp) {
+    _inAppIncludes.add(inApp);
+  }
 }
 
-void defaultLogger(SeverityLevel level, String message) {
+typedef BeforeSendCallback = Event Function(Event event, dynamic hint);
+
+typedef BeforeBreadcrumbCallback = Breadcrumb Function(
+  Breadcrumb breadcrumb,
+  dynamic hint,
+);
+
+typedef EventProcessor = Event Function(Event event, dynamic hint);
+
+typedef Integration = Function(Hub hub, SentryOptions options);
+
+typedef Logger = Function(SeverityLevel level, String message);
+
+void noOpLogger(SeverityLevel level, String message) {}
+
+void dartLogger(SeverityLevel level, String message) {
   print('[$level] $message');
 }

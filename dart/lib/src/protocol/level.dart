@@ -3,6 +3,8 @@ import 'package:meta/meta.dart';
 /// Severity of the logged [Event].
 @immutable
 class SeverityLevel {
+  // TODO: make this as an enum
+
   const SeverityLevel._(this.name);
 
   static const fatal = SeverityLevel._('fatal');
