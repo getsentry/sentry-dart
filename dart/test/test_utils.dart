@@ -74,7 +74,7 @@ Future testCaptureException(
     httpClient: httpMock,
     clock: fakeClockProvider,
     compressPayload: compressPayload,
-    environmentAttributes: const Event(
+    environmentAttributes: Event(
       serverName: 'test.server.com',
       release: '1.2.3',
       environment: 'staging',
@@ -136,7 +136,7 @@ Future testCaptureException(
 
     expect(data, {
       'project': '1',
-      'event_id': 'X' * 32,
+      'event_id': SentryId.empty().toString(),
       'timestamp': '2017-01-02T00:00:00',
       'platform': 'javascript',
       'sdk': {'version': sdkVersion, 'name': 'sentry.dart'},
@@ -154,7 +154,7 @@ Future testCaptureException(
 
     expect(data, {
       'project': '1',
-      'event_id': 'X' * 32,
+      'event_id': SentryId.empty().toString(),
       'timestamp': '2017-01-02T00:00:00',
       'platform': 'dart',
       'exception': [
@@ -231,7 +231,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
       httpClient: httpMock,
       clock: fakeClockProvider,
       compressPayload: false,
-      environmentAttributes: const Event(
+      environmentAttributes: Event(
         serverName: 'test.server.com',
         release: '1.2.3',
         environment: 'staging',
@@ -286,7 +286,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
       httpClient: httpMock,
       clock: fakeClockProvider,
       compressPayload: false,
-      environmentAttributes: const Event(
+      environmentAttributes: Event(
         serverName: 'test.server.com',
         release: '1.2.3',
         environment: 'staging',
@@ -339,7 +339,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
       httpClient: httpMock,
       clock: fakeClockProvider,
       compressPayload: false,
-      environmentAttributes: const Event(
+      environmentAttributes: Event(
         serverName: 'test.server.com',
         release: '1.2.3',
         environment: 'staging',

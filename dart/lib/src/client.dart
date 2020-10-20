@@ -148,7 +148,7 @@ abstract class SentryClient {
 
     final data = <String, dynamic>{
       'project': projectId,
-      'event_id': event.eventId,
+      'event_id': event.eventId.toString(),
       'timestamp': formatDateAsIso8601WithSecondPrecision(now),
     };
 

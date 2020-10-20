@@ -25,7 +25,7 @@ void main() {
       );
     });
     test('$Sdk serializes', () {
-      const event = Event(
+      final event = Event(
           sdk: Sdk(
               name: 'sentry.dart.flutter',
               version: '4.3.2',

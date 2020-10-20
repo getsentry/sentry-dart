@@ -8,8 +8,8 @@ import '../version.dart';
 @immutable
 class Event {
   /// Creates an event.
-  const Event({
-    this.eventId,
+  Event({
+    SentryId eventId,
     this.loggerName,
     this.serverName,
     this.release,
@@ -27,7 +27,7 @@ class Event {
     this.contexts,
     this.breadcrumbs,
     this.sdk,
-  });
+  }) : eventId = eventId ?? SentryId.newId();
 
   /// Refers to the default fingerprinting algorithm.
   ///
@@ -169,7 +169,7 @@ class Event {
     };
 
     if (eventId != null) {
-      json['event_id'] = eventId;
+      json['event_id'] = eventId.toString();
     }
 
     if (loggerName != null) {
