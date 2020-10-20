@@ -26,6 +26,7 @@ void main() {
     });
     test('$Sdk serializes', () {
       final event = Event(
+          eventId: SentryId.empty(),
           sdk: Sdk(
               name: 'sentry.dart.flutter',
               version: '4.3.2',
@@ -33,6 +34,7 @@ void main() {
               packages: <Package>[Package('npm:@sentry/javascript', '1.3.4')]));
       expect(event.toJson(), <String, dynamic>{
         'platform': 'dart',
+        'event_id': '00000000000000000000000000000000',
         'sdk': {
           'name': 'sentry.dart.flutter',
           'version': '4.3.2',
@@ -62,6 +64,7 @@ void main() {
 
       expect(
         Event(
+          eventId: SentryId.empty(),
           message: Message(
             'test-message 1 2',
             template: 'test-message %d %d',
@@ -85,6 +88,7 @@ void main() {
         ).toJson(),
         <String, dynamic>{
           'platform': 'dart',
+          'event_id': '00000000000000000000000000000000',
           'sdk': {'version': sdkVersion, 'name': 'sentry.dart'},
           'message': {
             'formatted': 'test-message 1 2',

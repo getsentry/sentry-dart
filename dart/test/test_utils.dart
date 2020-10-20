@@ -350,12 +350,17 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     try {
       throw ArgumentError('Test error');
     } catch (error, stackTrace) {
-      final eventWithoutContext =
-          Event(exception: error, stackTrace: stackTrace);
+      final eventWithoutContext = Event(
+        eventId: SentryId.empty(),
+        exception: error,
+        stackTrace: stackTrace,
+      );
       final eventWithContext = Event(
-          exception: error,
-          stackTrace: stackTrace,
-          userContext: eventUserContext);
+        eventId: SentryId.empty(),
+        exception: error,
+        stackTrace: stackTrace,
+        userContext: eventUserContext,
+      );
       await client.captureEvent(eventWithoutContext);
       expect(loggedUserId, clientUserContext.id);
       await client.captureEvent(eventWithContext);
