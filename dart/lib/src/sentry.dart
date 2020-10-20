@@ -43,8 +43,7 @@ class Sentry {
   static void _setDefaultConfiguration(SentryOptions options) {
     // TODO: check DSN nullability and empty
 
-    // TODO: find a way to know ifs no-op (&& options.logger is noOpLogger)
-    if (options.debug) {
+    if (options.debug && options.logger == noOpLogger) {
       options.logger = dartLogger;
     }
   }
