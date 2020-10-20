@@ -75,7 +75,7 @@ class Hub {
         } catch (err) {
           _options.logger(
             SentryLevel.error,
-            'Error while capturing event with id: ${event.eventId}',
+            'Error while capturing event with id: ${event.eventId.toString()}',
           );
         } finally {
           _lastEventId = sentryId;
