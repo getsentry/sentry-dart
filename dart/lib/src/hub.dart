@@ -167,7 +167,8 @@ class Hub {
               level: level,
               template: template,
               params: params,
-              scope: item.scope);
+              scope: item.scope,
+          );
         } catch (err) {
           _options.logger(
             SeverityLevel.error,
