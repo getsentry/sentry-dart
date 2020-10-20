@@ -87,7 +87,7 @@ Future testCaptureException(
   } catch (error, stackTrace) {
     final sentryId =
         await client.captureException(error, stackTrace: stackTrace);
-    expect('${sentryId.id}', 'test-event-id');
+    expect('$sentryId', 'testeventid');
   }
 
   expect(postUri, client.postUri);
@@ -106,13 +106,12 @@ Future testCaptureException(
   } else {
     data = json.decode(utf8.decode(body)) as Map<String, dynamic>;
   }
-  final Map<String, dynamic> stacktrace =
-      data.remove('stacktrace') as Map<String, dynamic>;
+  final stacktrace = data.remove('stacktrace') as Map<String, dynamic>;
 
   expect(stacktrace['frames'], const TypeMatcher<List>());
   expect(stacktrace['frames'], isNotEmpty);
 
-  final Map<String, dynamic> topFrame =
+  final topFrame =
       (stacktrace['frames'] as Iterable<dynamic>).last as Map<String, dynamic>;
   expect(topFrame.keys, <String>[
     'abs_path',
@@ -222,7 +221,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     final httpMock = MockClient((Request request) async {
       if (request.method == 'POST') {
         headers = request.headers;
-        return Response('{"id": "test-event-id"}', 200);
+        return Response('{"id": "testeventid"}', 200);
       }
       fail(
           'Unexpected request on ${request.method} ${request.url} in HttpMock');
@@ -246,7 +245,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     } catch (error, stackTrace) {
       final sentryId =
           await client.captureException(error, stackTrace: stackTrace);
-      expect('${sentryId.id}', 'test-event-id');
+      expect('$sentryId', 'testeventid');
     }
 
     testHeaders(
@@ -302,7 +301,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     } catch (error, stackTrace) {
       final sentryId =
           await client.captureException(error, stackTrace: stackTrace);
-      expect('${sentryId.id}', SentryId.emptyId);
+      expect('$sentryId', '00000000000000000000000000000000');
     }
 
     await client.close();

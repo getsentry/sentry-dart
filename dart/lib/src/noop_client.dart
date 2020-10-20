@@ -4,8 +4,17 @@ import 'package:http/src/client.dart';
 
 import 'client.dart';
 import 'protocol.dart';
+import 'scope.dart';
 
 class NoOpSentryClient implements SentryClient {
+  NoOpSentryClient._();
+
+  static final NoOpSentryClient _instance = NoOpSentryClient._();
+
+  factory NoOpSentryClient() {
+    return _instance;
+  }
+
   @override
   User userContext;
 
@@ -24,7 +33,7 @@ class NoOpSentryClient implements SentryClient {
       Future.value(SentryId.empty());
 
   @override
-  Future<SentryId> captureException(throwable, {stackTrace}) =>
+  Future<SentryId> captureException(throwable, {stackTrace, scope}) =>
       Future.value(SentryId.empty());
 
   @override
@@ -33,6 +42,7 @@ class NoOpSentryClient implements SentryClient {
     SentryLevel level = SentryLevel.info,
     String template,
     List<dynamic> params,
+    Scope scope,
   }) =>
       Future.value(SentryId.empty());
 

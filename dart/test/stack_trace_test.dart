@@ -80,6 +80,7 @@ void main() {
     });
 
     test('allows changing the stack frame list before sending', () {
+      // ignore: omit_local_variable_types
       final StackFrameFilter filter =
           (list) => list.where((f) => f['abs_path'] != 'secret.dart').toList();
 

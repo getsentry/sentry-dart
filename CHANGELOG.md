@@ -21,6 +21,7 @@
 - expect a sdkName based on the test platform #105
 - Added Scope and Breadcrumb ring buffer #109
 - Added Hub to SDK #113
+- Ref: Hub passes the Scope to SentryClient
 - feat: sentry options #116
 
 # `package:sentry` changelog
