@@ -45,7 +45,7 @@ class Hub {
       throw ArgumentError.notNull('SentryOptions is required.');
     }
 
-    if (options.dsn == null || options.dsn.isEmpty) {
+    if (options.dsn?.isNotEmpty != true) {
       throw ArgumentError.notNull('DSN is required.');
     }
   }
