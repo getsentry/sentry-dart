@@ -7,29 +7,15 @@ import 'dart:convert';
 import 'dart:html' show window;
 
 import 'package:http/browser_client.dart';
-import 'package:http/http.dart';
-import 'package:meta/meta.dart';
 
 import 'client.dart';
 import 'protocol.dart';
+import 'sentry_options.dart';
 import 'utils.dart';
 import 'version.dart';
 
-SentryClient createSentryClient({
-  @required String dsn,
-  Event environmentAttributes,
-  bool compressPayload,
-  Client httpClient,
-  dynamic clock,
-  UuidGenerator uuidGenerator,
-}) =>
-    SentryBrowserClient(
-      dsn: dsn,
-      environmentAttributes: environmentAttributes,
-      httpClient: httpClient,
-      clock: clock,
-      uuidGenerator: uuidGenerator,
-    );
+SentryClient createSentryClient(SentryOptions options) =>
+    SentryBrowserClient(options);
 
 /// Logs crash reports and events to the Sentry.io service.
 class SentryBrowserClient extends SentryClient {
@@ -53,49 +39,27 @@ class SentryBrowserClient extends SentryClient {
   /// If [uuidGenerator] is provided, it is used to generate the "event_id"
   /// field instead of the built-in random UUID v4 generator. This is useful in
   /// tests.
-  factory SentryBrowserClient({
-    @required String dsn,
-    Event environmentAttributes,
-    Client httpClient,
-    dynamic clock,
-    UuidGenerator uuidGenerator,
-    String origin,
-  }) {
-    httpClient ??= BrowserClient();
-    clock ??= getUtcDateTime;
-    uuidGenerator ??= generateUuidV4WithoutDashes;
+  factory SentryBrowserClient(SentryOptions options, {String origin}) {
+    options.httpClient ??= BrowserClient();
+    options.clock ??= getUtcDateTime;
+    options.uuidGenerator ??= generateUuidV4WithoutDashes;
 
     // origin is necessary for sentry to resolve stacktrace
     origin ??= '${window.location.origin}/';
 
     return SentryBrowserClient._(
-      httpClient: httpClient,
-      clock: clock,
-      uuidGenerator: uuidGenerator,
-      environmentAttributes: environmentAttributes,
-      dsn: dsn,
+      options,
       origin: origin,
       platform: browserPlatform,
     );
   }
 
-  SentryBrowserClient._({
-    Client httpClient,
-    dynamic clock,
-    UuidGenerator uuidGenerator,
-    Event environmentAttributes,
-    String dsn,
-    String platform,
-    String origin,
-  }) : super.base(
-          httpClient: httpClient,
-          clock: clock,
-          uuidGenerator: uuidGenerator,
-          environmentAttributes: environmentAttributes,
-          dsn: dsn,
-          platform: platform,
+  SentryBrowserClient._(SentryOptions options, {String origin, String platform})
+      : super.base(
+          options,
           origin: origin,
           sdk: Sdk(name: browserSdkName, version: sdkVersion),
+          platform: platform,
         );
 
   @override
