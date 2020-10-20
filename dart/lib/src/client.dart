@@ -187,7 +187,7 @@ abstract class SentryClient {
   }
 
   Future<void> close() async {
-    options.httpClient.close();
+    options.httpClient?.close();
   }
 
   @override
