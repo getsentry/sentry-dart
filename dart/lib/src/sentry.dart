@@ -61,8 +61,12 @@ class Sentry {
     String template,
     List<dynamic> params,
   }) async {
-    return currentHub.captureMessage(message,
-        level: level, template: template, params: params);
+    return currentHub.captureMessage(
+      message,
+      level: level,
+      template: template,
+      params: params,
+    );
   }
 
   /// Close the client SDK

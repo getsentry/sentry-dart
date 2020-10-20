@@ -47,8 +47,11 @@ void main() {
     test('should capture the exception', () async {
       await Sentry.captureException(anException);
       verify(
-        client.captureException(anException,
-            stackTrace: null, scope: anyNamed('scope')),
+        client.captureException(
+          anException,
+          stackTrace: null,
+          scope: anyNamed('scope'),
+        ),
       ).called(1);
     });
   });

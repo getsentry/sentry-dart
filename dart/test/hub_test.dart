@@ -77,8 +77,11 @@ void main() {
     test('should capture message', () {
       hub.captureMessage(fakeMessage.formatted, level: SeverityLevel.info);
       verify(
-        client.captureMessage(fakeMessage.formatted,
-            level: SeverityLevel.info, scope: anyNamed('scope')),
+        client.captureMessage(
+          fakeMessage.formatted,
+          level: SeverityLevel.info,
+          scope: anyNamed('scope'),
+        ),
       ).called(1);
     });
   });
