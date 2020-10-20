@@ -69,6 +69,7 @@ Future testCaptureException(
     fail('Unexpected request on ${request.method} ${request.url} in HttpMock');
   });
 
+  var sentryId = SentryId.empty();
   final client = SentryClient(
     SentryOptions(
       dsn: testDsn,
@@ -86,8 +87,7 @@ Future testCaptureException(
   try {
     throw ArgumentError('Test error');
   } catch (error, stackTrace) {
-    final sentryId =
-        await client.captureException(error, stackTrace: stackTrace);
+    sentryId = await client.captureException(error, stackTrace: stackTrace);
     expect('$sentryId', 'testeventid');
   }
 
@@ -107,6 +107,10 @@ Future testCaptureException(
   } else {
     data = json.decode(utf8.decode(body)) as Map<String, dynamic>;
   }
+
+  // so we assert the generated and returned id
+  data['event_id'] = sentryId.toString();
+
   final stacktrace = data.remove('stacktrace') as Map<String, dynamic>;
 
   expect(stacktrace['frames'], const TypeMatcher<List>());
@@ -138,7 +142,7 @@ Future testCaptureException(
 
     expect(data, {
       'project': '1',
-      'event_id': SentryId.empty().toString(),
+      'event_id': sentryId.toString(),
       'timestamp': '2017-01-02T00:00:00',
       'platform': 'javascript',
       'sdk': {'version': sdkVersion, 'name': 'sentry.dart'},
@@ -156,7 +160,7 @@ Future testCaptureException(
 
     expect(data, {
       'project': '1',
-      'event_id': SentryId.empty().toString(),
+      'event_id': sentryId.toString(),
       'timestamp': '2017-01-02T00:00:00',
       'platform': 'dart',
       'exception': [

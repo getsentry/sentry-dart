@@ -60,8 +60,6 @@ void main() {
 
       final error = StateError('test-error');
 
-      print('error.stackTrace ${error.stackTrace}');
-
       expect(
         Event(
           eventId: SentryId.empty(),
