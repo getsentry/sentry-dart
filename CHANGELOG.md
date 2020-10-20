@@ -8,6 +8,7 @@
 - BREAKING CHANGE: `package:http` min version bumped to 0.12.0 #104
 - BREAKING CHANGE: replace the `package:usage` by `package:uuid` #94
 - BREAKING CHANGE: `Event.message` must now be an instance of `Message`
+- BREAKING CHANGE: SentryClient must now be initialized with a SentryOptions #118
 - By default no logger it set #63
 - Added missing Contexts to Event.copyWith() #62 
 - remove the `package:args` dependency #94
