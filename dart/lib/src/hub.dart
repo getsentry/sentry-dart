@@ -54,14 +54,14 @@ class Hub {
   /// Check if the Hub is enabled/active.
   bool get isEnabled => _isEnabled;
 
-  SentryId _lastEventId = SentryId.emptyId;
+  SentryId _lastEventId = SentryId.empty();
 
   /// Last event id recorded in the current scope
   SentryId get lastEventId => _lastEventId;
 
   /// Captures the event.
   Future<SentryId> captureEvent(Event event) async {
-    var sentryId = SentryId.emptyId;
+    var sentryId = SentryId.empty();
 
     if (!_isEnabled) {
       _options.logger(
@@ -79,10 +79,9 @@ class Hub {
         try {
           sentryId = await item.client.captureEvent(event, scope: item.scope);
         } catch (err) {
-          /* TODO add Event.id */
           _options.logger(
             SentryLevel.error,
-            'Error while capturing event with id: ${event}',
+            'Error while capturing event with id: ${event.eventId}',
           );
         } finally {
           _lastEventId = sentryId;
@@ -102,7 +101,7 @@ class Hub {
     dynamic throwable, {
     dynamic stackTrace,
   }) async {
-    var sentryId = SentryId.emptyId;
+    var sentryId = SentryId.empty();
 
     if (!_isEnabled) {
       _options.logger(
@@ -146,7 +145,7 @@ class Hub {
     String template,
     List<dynamic> params,
   }) async {
-    var sentryId = SentryId.emptyId;
+    var sentryId = SentryId.empty();
 
     if (!_isEnabled) {
       _options.logger(

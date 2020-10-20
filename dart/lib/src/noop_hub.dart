@@ -19,11 +19,11 @@ class NoOpHub implements Hub {
   void bindClient(SentryClient client) {}
 
   @override
-  Future<SentryId> captureEvent(Event event) => Future.value(SentryId.emptyId);
+  Future<SentryId> captureEvent(Event event) => Future.value(SentryId.empty());
 
   @override
   Future<SentryId> captureException(throwable, {stackTrace}) =>
-      Future.value(SentryId.emptyId);
+      Future.value(SentryId.empty());
 
   @override
   Future<SentryId> captureMessage(
@@ -32,7 +32,7 @@ class NoOpHub implements Hub {
     String template,
     List params,
   }) =>
-      Future.value(SentryId.emptyId);
+      Future.value(SentryId.empty());
 
   @override
   Hub clone() => this;
@@ -47,5 +47,5 @@ class NoOpHub implements Hub {
   bool get isEnabled => false;
 
   @override
-  SentryId get lastEventId => SentryId.emptyId;
+  SentryId get lastEventId => SentryId.empty();
 }

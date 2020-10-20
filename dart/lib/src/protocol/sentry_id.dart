@@ -1,10 +1,8 @@
 import 'package:uuid/uuid.dart';
 
 class SentryId {
-  static const String _emptyId = '00000000-0000-0000-0000-000000000000';
-
-  /// SentryId with an empty UUID
-  static final SentryId emptyId = SentryId.fromId(_emptyId);
+  static final SentryId _emptyId =
+      SentryId.fromId('00000000-0000-0000-0000-000000000000');
 
   /// The ID Sentry.io assigned to the submitted event for future reference.
   String _id;
@@ -20,6 +18,9 @@ class SentryId {
 
   /// Generates a SentryId with the given UUID
   factory SentryId.fromId(String id) => SentryId._internal(id: id);
+
+  /// SentryId with an empty UUID
+  factory SentryId.empty() => _emptyId;
 
   @override
   String toString() => _id.replaceAll('-', '');

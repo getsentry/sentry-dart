@@ -184,11 +184,11 @@ abstract class SentryClient {
       if (response.headers['x-sentry-error'] != null) {
         errorMessage += ': ${response.headers['x-sentry-error']}';
       }*/
-      return SentryId.emptyId;
+      return SentryId.empty();
     }
 
     final eventId = json.decode(response.body)['id'];
-    return eventId != null ? SentryId.fromId(eventId) : SentryId.emptyId;
+    return eventId != null ? SentryId.fromId(eventId) : SentryId.empty();
   }
 
   /// Reports the [throwable] and optionally its [stackTrace] to Sentry.io.
