@@ -1,5 +1,5 @@
 import '../utils.dart';
-import 'level.dart';
+import 'sentry_level.dart';
 
 /// Structed data to describe more information pior to the event [captured][SentryClient.captureEvent].
 ///
@@ -24,7 +24,7 @@ class Breadcrumb {
     this.timestamp, {
     this.category,
     this.data,
-    this.level = SeverityLevel.info,
+    this.level = SentryLevel.info,
     this.type,
   }) : assert(timestamp != null);
 
@@ -52,7 +52,7 @@ class Breadcrumb {
   /// Severity of the breadcrumb.
   ///
   /// This field is optional and may be set to null.
-  final SeverityLevel level;
+  final SentryLevel level;
 
   /// Describes what type of breadcrumb this is.
   ///

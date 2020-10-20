@@ -1,0 +1,18 @@
+import 'package:sentry/sentry.dart';
+
+class DiagnosticLogger {
+  final Logger _logger;
+  final SentryOptions _options;
+
+  DiagnosticLogger(this._logger, this._options);
+
+  void log(SentryLevel level, String message) {
+    if (_isEnabled(level)) {
+      _logger(level, message);
+    }
+  }
+
+  bool _isEnabled(SentryLevel level) {
+    return _options.debug && level.ordinal >= _options.diagnosticLevel.ordinal;
+  }
+}

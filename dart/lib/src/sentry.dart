@@ -20,6 +20,7 @@ class Sentry {
   static void init(OptionsConfiguration optionsConfiguration) {
     final options = SentryOptions();
     optionsConfiguration(options);
+    _setDefaultConfiguration(options);
     _hub = Hub(options);
   }
 
@@ -38,6 +39,14 @@ class Sentry {
 
   /// Close the client SDK
   static Future<void> close() async => _hub.close();
+
+  static void _setDefaultConfiguration(SentryOptions options) {
+    // TODO: check DSN nullability and empty
+
+    if (options.debug && options.logger == noOpLogger) {
+      options.logger = dartLogger;
+    }
+  }
 
   /// client injector only use for testing
   @visibleForTesting

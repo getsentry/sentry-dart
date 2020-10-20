@@ -13,7 +13,7 @@ void main() {
         Breadcrumb(
           'example log',
           DateTime.utc(2019),
-          level: SeverityLevel.debug,
+          level: SentryLevel.debug,
           category: 'test',
         ).toJson(),
         <String, dynamic>{
@@ -53,7 +53,7 @@ void main() {
 
       final breadcrumbs = [
         Breadcrumb('test log', DateTime.utc(2019),
-            level: SeverityLevel.debug, category: 'test'),
+            level: SentryLevel.debug, category: 'test'),
       ];
 
       final error = StateError('test-error');
@@ -69,7 +69,7 @@ void main() {
           ),
           transaction: '/test/1',
           exception: error,
-          level: SeverityLevel.debug,
+          level: SentryLevel.debug,
           culprit: 'Professor Moriarty',
           tags: const <String, String>{
             'a': 'b',
