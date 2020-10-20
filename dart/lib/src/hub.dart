@@ -11,15 +11,8 @@ typedef ScopeCallback = void Function(Scope);
 
 /// SDK API contract which combines a client and scope management
 class Hub {
-  static SentryClient _getClient({SentryOptions fromOptions}) {
-    return SentryClient(
-      dsn: fromOptions.dsn,
-      environmentAttributes: fromOptions.environmentAttributes,
-      compressPayload: fromOptions.compressPayload,
-      httpClient: fromOptions.httpClient,
-      clock: fromOptions.clock,
-      uuidGenerator: fromOptions.uuidGenerator,
-    );
+  static SentryClient _getClient(SentryOptions options) {
+    return SentryClient(options);
   }
 
   final ListQueue<_StackItem> _stack = ListQueue();
@@ -36,7 +29,7 @@ class Hub {
   }
 
   Hub._(SentryOptions options) : _options = options {
-    _stack.add(_StackItem(_getClient(fromOptions: options), Scope(_options)));
+    _stack.add(_StackItem(_getClient(_options), Scope(_options)));
     _isEnabled = true;
   }
 

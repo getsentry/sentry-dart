@@ -6,30 +6,13 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:http/http.dart';
-import 'package:meta/meta.dart';
+import 'package:sentry/sentry.dart';
 
 import 'client.dart';
 import 'protocol.dart';
-import 'utils.dart';
-import 'version.dart';
 
-SentryClient createSentryClient({
-  @required String dsn,
-  Event environmentAttributes,
-  bool compressPayload,
-  Client httpClient,
-  dynamic clock,
-  UuidGenerator uuidGenerator,
-}) =>
-    SentryIOClient(
-      dsn: dsn,
-      environmentAttributes: environmentAttributes,
-      compressPayload: compressPayload,
-      httpClient: httpClient,
-      clock: clock,
-      uuidGenerator: uuidGenerator,
-    );
+SentryClient createSentryClient(SentryOptions options) =>
+    SentryIOClient(options);
 
 /// Logs crash reports and events to the Sentry.io service.
 class SentryIOClient extends SentryClient {
@@ -57,52 +40,9 @@ class SentryIOClient extends SentryClient {
   /// If [uuidGenerator] is provided, it is used to generate the "event_id"
   /// field instead of the built-in random UUID v4 generator. This is useful in
   /// tests.
-  factory SentryIOClient({
-    @required String dsn,
-    Event environmentAttributes,
-    bool compressPayload,
-    Client httpClient,
-    dynamic clock,
-    UuidGenerator uuidGenerator,
-  }) {
-    httpClient ??= Client();
-    clock ??= getUtcDateTime;
-    uuidGenerator ??= generateUuidV4WithoutDashes;
-    compressPayload ??= true;
+  factory SentryIOClient(SentryOptions options) => SentryIOClient._(options);
 
-    return SentryIOClient._(
-      httpClient: httpClient,
-      clock: clock,
-      uuidGenerator: uuidGenerator,
-      environmentAttributes: environmentAttributes,
-      dsn: dsn,
-      compressPayload: compressPayload,
-      platform: sdkPlatform,
-    );
-  }
-
-  SentryIOClient._({
-    Client httpClient,
-    dynamic clock,
-    UuidGenerator uuidGenerator,
-    Event environmentAttributes,
-    String dsn,
-    this.compressPayload = true,
-    String platform,
-    String origin,
-  }) : super.base(
-          httpClient: httpClient,
-          clock: clock,
-          uuidGenerator: uuidGenerator,
-          environmentAttributes: environmentAttributes,
-          dsn: dsn,
-          platform: platform,
-          origin: origin,
-          sdk: Sdk(name: sdkName, version: sdkVersion),
-        );
-
-  /// Whether to compress payloads sent to Sentry.io.
-  final bool compressPayload;
+  SentryIOClient._(SentryOptions options) : super.base(options);
 
   @override
   Map<String, String> buildHeaders(String authHeader) {
@@ -123,7 +63,7 @@ class SentryIOClient extends SentryClient {
     // [SentryIOClient] implement gzip compression
     // gzip compression is not available on browser
     var body = utf8.encode(json.encode(data));
-    if (compressPayload) {
+    if (options.compressPayload) {
       headers['Content-Encoding'] = 'gzip';
       body = gzip.encode(body);
     }

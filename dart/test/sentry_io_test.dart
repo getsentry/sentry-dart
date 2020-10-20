@@ -13,7 +13,7 @@ import 'test_utils.dart';
 void main() {
   group(SentryIOClient, () {
     test('SentryClient constructor build io client', () {
-      final client = SentryClient(dsn: testDsn);
+      final client = SentryClient(SentryOptions(dsn: testDsn));
       expect(client is SentryIOClient, isTrue);
     });
 
