@@ -18,7 +18,6 @@ class Hub {
       compressPayload: fromOptions.compressPayload,
       httpClient: fromOptions.httpClient,
       clock: fromOptions.clock,
-      uuidGenerator: fromOptions.uuidGenerator,
     );
   }
 
@@ -55,14 +54,14 @@ class Hub {
   /// Check if the Hub is enabled/active.
   bool get isEnabled => _isEnabled;
 
-  SentryId _lastEventId = SentryId.empty();
+  SentryId _lastEventId = SentryId.emptyId;
 
   /// Last event id recorded in the current scope
   SentryId get lastEventId => _lastEventId;
 
   /// Captures the event.
   Future<SentryId> captureEvent(Event event) async {
-    var sentryId = SentryId.empty();
+    var sentryId = SentryId.emptyId;
 
     if (!_isEnabled) {
       _options.logger(
@@ -103,7 +102,7 @@ class Hub {
     dynamic throwable, {
     dynamic stackTrace,
   }) async {
-    var sentryId = SentryId.empty();
+    var sentryId = SentryId.emptyId;
 
     if (!_isEnabled) {
       _options.logger(
@@ -147,7 +146,7 @@ class Hub {
     String template,
     List<dynamic> params,
   }) async {
-    var sentryId = SentryId.empty();
+    var sentryId = SentryId.emptyId;
 
     if (!_isEnabled) {
       _options.logger(

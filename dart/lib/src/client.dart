@@ -28,28 +28,24 @@ abstract class SentryClient {
     bool compressPayload,
     Client httpClient,
     dynamic clock,
-    UuidGenerator uuidGenerator,
   }) =>
       createSentryClient(
         dsn: dsn,
         environmentAttributes: environmentAttributes,
         httpClient: httpClient,
         clock: clock,
-        uuidGenerator: uuidGenerator,
         compressPayload: compressPayload,
       );
 
   SentryClient.base({
     this.httpClient,
     dynamic clock,
-    UuidGenerator uuidGenerator,
     String dsn,
     this.environmentAttributes,
     String platform,
     this.origin,
     Sdk sdk,
   })  : _dsn = Dsn.parse(dsn),
-        _uuidGenerator = uuidGenerator ?? generateUuidV4WithoutDashes,
         _platform = platform ?? sdkPlatform,
         sdk = sdk ?? Sdk(name: sdkName, version: sdkVersion) {
     if (clock == null) {
@@ -63,7 +59,6 @@ abstract class SentryClient {
   final Client httpClient;
 
   ClockProvider _clock;
-  final UuidGenerator _uuidGenerator;
 
   /// Contains [Event] attributes that are automatically mixed into all events
   /// captured through this client.
@@ -153,7 +148,7 @@ abstract class SentryClient {
 
     final data = <String, dynamic>{
       'project': projectId,
-      'event_id': _uuidGenerator(),
+      'event_id': event.eventId,
       'timestamp': formatDateAsIso8601WithSecondPrecision(now),
     };
 
@@ -189,11 +184,11 @@ abstract class SentryClient {
       if (response.headers['x-sentry-error'] != null) {
         errorMessage += ': ${response.headers['x-sentry-error']}';
       }*/
-      return SentryId.empty();
+      return SentryId.emptyId;
     }
 
     final eventId = json.decode(response.body)['id'];
-    return eventId != null ? SentryId(eventId) : SentryId.empty();
+    return eventId != null ? SentryId.fromId(eventId) : SentryId.emptyId;
   }
 
   /// Reports the [throwable] and optionally its [stackTrace] to Sentry.io.

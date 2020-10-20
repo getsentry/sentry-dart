@@ -9,6 +9,7 @@ import '../version.dart';
 class Event {
   /// Creates an event.
   const Event({
+    this.eventId,
     this.loggerName,
     this.serverName,
     this.release,
@@ -33,6 +34,9 @@ class Event {
   /// You do not need to specify this value unless you supplement the default
   /// fingerprint with custom fingerprints.
   static const String defaultFingerprint = '{{ default }}';
+
+  /// The ID Sentry.io assigned to the submitted event for future reference.
+  final SentryId eventId;
 
   /// The logger that logged the event.
   final String loggerName;
@@ -117,6 +121,7 @@ class Event {
   final Sdk sdk;
 
   Event copyWith({
+    SentryId eventId,
     String loggerName,
     String serverName,
     String release,
@@ -136,6 +141,7 @@ class Event {
     Sdk sdk,
   }) =>
       Event(
+        eventId: eventId ?? this.eventId,
         loggerName: loggerName ?? this.loggerName,
         serverName: serverName ?? this.serverName,
         release: release ?? this.release,
@@ -161,6 +167,10 @@ class Event {
     final json = <String, dynamic>{
       'platform': sdkPlatform,
     };
+
+    if (eventId != null) {
+      json['event_id'] = eventId;
+    }
 
     if (loggerName != null) {
       json['logger'] = loggerName;

@@ -20,7 +20,6 @@ SentryClient createSentryClient({
   bool compressPayload,
   Client httpClient,
   dynamic clock,
-  UuidGenerator uuidGenerator,
 }) =>
     SentryIOClient(
       dsn: dsn,
@@ -28,7 +27,6 @@ SentryClient createSentryClient({
       compressPayload: compressPayload,
       httpClient: httpClient,
       clock: clock,
-      uuidGenerator: uuidGenerator,
     );
 
 /// Logs crash reports and events to the Sentry.io service.
@@ -53,27 +51,20 @@ class SentryIOClient extends SentryClient {
   /// This parameter is dynamic to maintain backwards compatibility with
   /// previous use of [Clock](https://pub.dartlang.org/documentation/quiver/latest/quiver.time/Clock-class.html)
   /// from [`package:quiver`](https://pub.dartlang.org/packages/quiver).
-  ///
-  /// If [uuidGenerator] is provided, it is used to generate the "event_id"
-  /// field instead of the built-in random UUID v4 generator. This is useful in
-  /// tests.
   factory SentryIOClient({
     @required String dsn,
     Event environmentAttributes,
     bool compressPayload,
     Client httpClient,
     dynamic clock,
-    UuidGenerator uuidGenerator,
   }) {
     httpClient ??= Client();
     clock ??= getUtcDateTime;
-    uuidGenerator ??= generateUuidV4WithoutDashes;
     compressPayload ??= true;
 
     return SentryIOClient._(
       httpClient: httpClient,
       clock: clock,
-      uuidGenerator: uuidGenerator,
       environmentAttributes: environmentAttributes,
       dsn: dsn,
       compressPayload: compressPayload,
@@ -84,7 +75,6 @@ class SentryIOClient extends SentryClient {
   SentryIOClient._({
     Client httpClient,
     dynamic clock,
-    UuidGenerator uuidGenerator,
     Event environmentAttributes,
     String dsn,
     this.compressPayload = true,
@@ -93,7 +83,6 @@ class SentryIOClient extends SentryClient {
   }) : super.base(
           httpClient: httpClient,
           clock: clock,
-          uuidGenerator: uuidGenerator,
           environmentAttributes: environmentAttributes,
           dsn: dsn,
           platform: platform,

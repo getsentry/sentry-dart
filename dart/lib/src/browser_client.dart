@@ -21,14 +21,12 @@ SentryClient createSentryClient({
   bool compressPayload,
   Client httpClient,
   dynamic clock,
-  UuidGenerator uuidGenerator,
 }) =>
     SentryBrowserClient(
       dsn: dsn,
       environmentAttributes: environmentAttributes,
       httpClient: httpClient,
       clock: clock,
-      uuidGenerator: uuidGenerator,
     );
 
 /// Logs crash reports and events to the Sentry.io service.
@@ -49,21 +47,15 @@ class SentryBrowserClient extends SentryClient {
   /// This parameter is dynamic to maintain backwards compatibility with
   /// previous use of [Clock](https://pub.dartlang.org/documentation/quiver/latest/quiver.time/Clock-class.html)
   /// from [`package:quiver`](https://pub.dartlang.org/packages/quiver).
-  ///
-  /// If [uuidGenerator] is provided, it is used to generate the "event_id"
-  /// field instead of the built-in random UUID v4 generator. This is useful in
-  /// tests.
   factory SentryBrowserClient({
     @required String dsn,
     Event environmentAttributes,
     Client httpClient,
     dynamic clock,
-    UuidGenerator uuidGenerator,
     String origin,
   }) {
     httpClient ??= BrowserClient();
     clock ??= getUtcDateTime;
-    uuidGenerator ??= generateUuidV4WithoutDashes;
 
     // origin is necessary for sentry to resolve stacktrace
     origin ??= '${window.location.origin}/';
@@ -71,7 +63,6 @@ class SentryBrowserClient extends SentryClient {
     return SentryBrowserClient._(
       httpClient: httpClient,
       clock: clock,
-      uuidGenerator: uuidGenerator,
       environmentAttributes: environmentAttributes,
       dsn: dsn,
       origin: origin,
@@ -82,7 +73,6 @@ class SentryBrowserClient extends SentryClient {
   SentryBrowserClient._({
     Client httpClient,
     dynamic clock,
-    UuidGenerator uuidGenerator,
     Event environmentAttributes,
     String dsn,
     String platform,
@@ -90,7 +80,6 @@ class SentryBrowserClient extends SentryClient {
   }) : super.base(
           httpClient: httpClient,
           clock: clock,
-          uuidGenerator: uuidGenerator,
           environmentAttributes: environmentAttributes,
           dsn: dsn,
           platform: platform,

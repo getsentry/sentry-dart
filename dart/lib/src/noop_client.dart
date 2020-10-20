@@ -30,11 +30,11 @@ class NoOpSentryClient implements SentryClient {
 
   @override
   Future<SentryId> captureEvent(Event event, {stackFrameFilter, scope}) =>
-      Future.value(SentryId.empty());
+      Future.value(SentryId.emptyId);
 
   @override
   Future<SentryId> captureException(throwable, {stackTrace, scope}) =>
-      Future.value(SentryId.empty());
+      Future.value(SentryId.emptyId);
 
   @override
   Future<SentryId> captureMessage(
@@ -44,7 +44,7 @@ class NoOpSentryClient implements SentryClient {
     List<dynamic> params,
     Scope scope,
   }) =>
-      Future.value(SentryId.empty());
+      Future.value(SentryId.emptyId);
 
   @override
   String get clientId => 'No-op';

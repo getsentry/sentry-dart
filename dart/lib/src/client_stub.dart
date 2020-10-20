@@ -7,7 +7,6 @@ import 'package:meta/meta.dart';
 
 import 'client.dart';
 import 'protocol.dart';
-import 'utils.dart';
 
 /// Implemented in `browser_client.dart` and `io_client.dart`.
 SentryClient createSentryClient({
@@ -16,7 +15,6 @@ SentryClient createSentryClient({
   bool compressPayload,
   Client httpClient,
   dynamic clock,
-  UuidGenerator uuidGenerator,
 }) =>
     throw UnsupportedError(
         'Cannot create a client without dart:html or dart:io.');
