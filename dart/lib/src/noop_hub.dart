@@ -1,12 +1,10 @@
 import 'dart:async';
 
-import 'package:sentry/src/client.dart';
-import 'package:sentry/src/hub.dart';
-import 'package:sentry/src/protocol/sentry_id.dart';
-import 'package:sentry/src/protocol/level.dart';
-import 'package:sentry/src/protocol/event.dart';
-
+import 'client.dart';
 import 'hub.dart';
+import 'protocol/event.dart';
+import 'protocol/level.dart';
+import 'protocol/sentry_id.dart';
 
 class NoOpHub implements Hub {
   NoOpHub._();
