@@ -91,7 +91,7 @@ Future testCaptureException(
     expect('$sentryId', 'testeventid');
   }
 
-  expect(postUri, client.postUri);
+  expect(postUri, client.transport.postUri);
 
   testHeaders(
     headers,
@@ -182,40 +182,46 @@ Future testCaptureException(
 void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
   test('can parse DSN', () async {
     final client = SentryClient(SentryOptions(dsn: testDsn));
-    expect(client.dsnUri, Uri.parse(testDsn));
-    expect(client.postUri, 'https://sentry.example.com/api/1/store/');
-    expect(client.publicKey, 'public');
-    expect(client.secretKey, 'secret');
-    expect(client.projectId, '1');
+    expect(client.transport.dsnUri, Uri.parse(testDsn));
+    expect(client.transport.postUri, 'https://sentry.example.com/api/1/store/');
+    expect(client.transport.publicKey, 'public');
+    expect(client.transport.secretKey, 'secret');
+    expect(client.transport.projectId, '1');
     await client.close();
   });
 
   test('can parse DSN without secret', () async {
     final client = SentryClient(SentryOptions(dsn: _testDsnWithoutSecret));
-    expect(client.dsnUri, Uri.parse(_testDsnWithoutSecret));
-    expect(client.postUri, 'https://sentry.example.com/api/1/store/');
-    expect(client.publicKey, 'public');
-    expect(client.secretKey, null);
-    expect(client.projectId, '1');
+    expect(client.transport.dsnUri, Uri.parse(_testDsnWithoutSecret));
+    expect(client.transport.postUri, 'https://sentry.example.com/api/1/store/');
+    expect(client.transport.publicKey, 'public');
+    expect(client.transport.secretKey, null);
+    expect(client.transport.projectId, '1');
     await client.close();
   });
 
   test('can parse DSN with path', () async {
     final client = SentryClient(SentryOptions(dsn: _testDsnWithPath));
-    expect(client.dsnUri, Uri.parse(_testDsnWithPath));
-    expect(client.postUri, 'https://sentry.example.com/path/api/1/store/');
-    expect(client.publicKey, 'public');
-    expect(client.secretKey, 'secret');
-    expect(client.projectId, '1');
+    expect(client.transport.dsnUri, Uri.parse(_testDsnWithPath));
+    expect(
+      client.transport.postUri,
+      'https://sentry.example.com/path/api/1/store/',
+    );
+    expect(client.transport.publicKey, 'public');
+    expect(client.transport.secretKey, 'secret');
+    expect(client.transport.projectId, '1');
     await client.close();
   });
   test('can parse DSN with port', () async {
     final client = SentryClient(SentryOptions(dsn: _testDsnWithPort));
-    expect(client.dsnUri, Uri.parse(_testDsnWithPort));
-    expect(client.postUri, 'https://sentry.example.com:8888/api/1/store/');
-    expect(client.publicKey, 'public');
-    expect(client.secretKey, 'secret');
-    expect(client.projectId, '1');
+    expect(client.transport.dsnUri, Uri.parse(_testDsnWithPort));
+    expect(
+      client.transport.postUri,
+      'https://sentry.example.com:8888/api/1/store/',
+    );
+    expect(client.transport.publicKey, 'public');
+    expect(client.transport.secretKey, 'secret');
+    expect(client.transport.projectId, '1');
     await client.close();
   });
   test('sends client auth header without secret', () async {

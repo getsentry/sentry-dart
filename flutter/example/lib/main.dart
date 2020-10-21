@@ -40,7 +40,7 @@ Future<void> main() async {
       stackTrace: stackTrace,
       // release is required on Web to match the source maps
       release: _release,
-      sdk: _sentry.sdk,
+      sdk: const Sdk(name: sdkName, version: sdkVersion),
     );
     await _sentry.captureEvent(event);
   });

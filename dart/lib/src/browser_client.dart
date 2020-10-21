@@ -3,14 +3,15 @@
 // found in the LICENSE file.
 
 /// A pure Dart client for Sentry.io crash reporting.
-import 'dart:convert';
 import 'dart:html' show window;
 
 import 'package:http/browser_client.dart';
+import 'package:meta/meta.dart';
 
 import 'client.dart';
 import 'protocol.dart';
 import 'sentry_options.dart';
+import 'transport/transport.dart';
 import 'version.dart';
 
 SentryClient createSentryClient(SentryOptions options) =>
@@ -41,19 +42,19 @@ class SentryBrowserClient extends SentryClient {
     );
   }
 
-  SentryBrowserClient._(SentryOptions options, {String origin, String platform})
+  SentryBrowserClient._(SentryOptions options,
+      {String origin, @required String platform})
       : super.base(
           options,
+          transport: Transport(
+            dsn: options.dsn,
+            httpClient: options.httpClient,
+            clock: options.clock,
+            compressPayload: false,
+            sdk: Sdk(name: browserSdkName, version: sdkVersion),
+            headersBuilder: SentryClient.buildHeaders,
+            platform: platform,
+          ),
           origin: origin,
-          sdk: Sdk(name: browserSdkName, version: sdkVersion),
-          platform: platform,
         );
-
-  @override
-  List<int> bodyEncoder(
-    Map<String, dynamic> data,
-    Map<String, String> headers,
-  ) =>
-      // Gzip compression is implicit on browser
-      utf8.encode(json.encode(data));
 }

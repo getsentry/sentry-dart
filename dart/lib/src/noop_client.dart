@@ -4,6 +4,7 @@ import 'client.dart';
 import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_options.dart';
+import 'transport/transport.dart';
 
 class NoOpSentryClient implements SentryClient {
   NoOpSentryClient._();
@@ -24,14 +25,7 @@ class NoOpSentryClient implements SentryClient {
   String origin;
 
   @override
-  List<int> bodyEncoder(
-    Map<String, dynamic> data,
-    Map<String, String> headers,
-  ) =>
-      [];
-
-  @override
-  Map<String, String> buildHeaders(String authHeader) => {};
+  Transport transport;
 
   @override
   Future<SentryId> captureEvent(SentryEvent event, {stackFrameFilter, scope}) =>
@@ -52,28 +46,7 @@ class NoOpSentryClient implements SentryClient {
       Future.value(SentryId.empty());
 
   @override
-  String get clientId => 'No-op';
-
-  @override
   Future<void> close() async {
     return;
   }
-
-  @override
-  Uri get dsnUri => null;
-
-  @override
-  String get postUri => null;
-
-  @override
-  String get projectId => null;
-
-  @override
-  String get publicKey => null;
-
-  @override
-  Sdk get sdk => null;
-
-  @override
-  String get secretKey => null;
 }

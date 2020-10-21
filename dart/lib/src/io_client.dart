@@ -2,60 +2,48 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-/// A pure Dart client for Sentry.io crash reporting.
-import 'dart:convert';
-import 'dart:io';
+import 'package:meta/meta.dart';
 
+/// A pure Dart client for Sentry.io crash reporting.
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/transport/transport.dart';
 
 import 'client.dart';
+import 'protocol.dart';
 
 SentryClient createSentryClient(SentryOptions options) =>
     SentryIOClient(options);
 
 /// Logs crash reports and events to the Sentry.io service.
 class SentryIOClient extends SentryClient {
-  /// Instantiates a client using [dsn] issued to your project by Sentry.io as
-  /// the endpoint for submitting events.
-  ///
-  /// [environmentAttributes] contain event attributes that do not change over
-  /// the course of a program's lifecycle. These attributes will be added to
-  /// all events captured via this client. The following attributes often fall
-  /// under this category: [Event.serverName], [Event.release], [Event.environment].
-  ///
-  /// If [compressPayload] is `true` the outgoing HTTP payloads are compressed
-  /// using gzip. Otherwise, the payloads are sent in plain UTF8-encoded JSON
-  /// text. If not specified, the compression is enabled by default.
-  ///
-  /// If [httpClient] is provided, it is used instead of the default client to
-  /// make HTTP calls to Sentry.io. This is useful in tests.
-  factory SentryIOClient(SentryOptions options) => SentryIOClient._(options);
+  /// Instantiates a client using [SentryOptions]
+  factory SentryIOClient(SentryOptions options) =>
+      SentryIOClient._(options, platform: sdkPlatform);
 
-  SentryIOClient._(SentryOptions options) : super.base(options);
+  static const sdk = Sdk(name: sdkName, version: sdkVersion);
 
-  @override
-  Map<String, String> buildHeaders(String authHeader) {
-    final headers = super.buildHeaders(authHeader);
+  SentryIOClient._(SentryOptions options, {@required String platform})
+      : super.base(
+          options,
+          transport: Transport(
+            compressPayload: options.compressPayload,
+            httpClient: options.httpClient,
+            clock: options.clock,
+            sdk: sdk,
+            dsn: options.dsn,
+            headersBuilder: buildHeaders,
+            platform: platform,
+          ),
+        );
+
+  @protected
+  static Map<String, String> buildHeaders(String authHeader) {
+    final headers = SentryClient.buildHeaders(authHeader);
 
     // NOTE(lejard_h) overriding user agent on VM and Flutter not sure why
     // for web it use browser user agent
-    headers['User-Agent'] = clientId;
+    headers['User-Agent'] = sdk.identifier;
 
     return headers;
-  }
-
-  @override
-  List<int> bodyEncoder(
-    Map<String, dynamic> data,
-    Map<String, String> headers,
-  ) {
-    // [SentryIOClient] implement gzip compression
-    // gzip compression is not available on browser
-    var body = utf8.encode(json.encode(data));
-    if (options.compressPayload) {
-      headers['Content-Encoding'] = 'gzip';
-      body = gzip.encode(body);
-    }
-    return body;
   }
 }

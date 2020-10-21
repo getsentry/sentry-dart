@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
@@ -9,8 +8,8 @@ import 'client_stub.dart'
     if (dart.library.io) 'io_client.dart';
 import 'protocol.dart';
 import 'stack_trace.dart';
+import 'transport/transport.dart';
 import 'utils.dart';
-import 'version.dart';
 
 /// Logs crash reports and events to the Sentry.io service.
 abstract class SentryClient {
@@ -22,36 +21,15 @@ abstract class SentryClient {
 
   SentryClient.base(
     this.options, {
-    String platform,
     this.origin,
-    Sdk sdk,
-  })  : _dsn = Dsn.parse(options.dsn),
-        _platform = platform ?? sdkPlatform,
-        sdk = sdk ?? Sdk(name: sdkName, version: sdkVersion);
-
-  final Dsn _dsn;
+    @required this.transport,
+  });
 
   @protected
   SentryOptions options;
 
-  /// The DSN URI.
   @visibleForTesting
-  Uri get dsnUri => _dsn.uri;
-
-  /// The Sentry.io public key for the project.
-  @visibleForTesting
-  // ignore: invalid_use_of_visible_for_testing_member
-  String get publicKey => _dsn.publicKey;
-
-  /// The Sentry.io secret key for the project.
-  @visibleForTesting
-  // ignore: invalid_use_of_visible_for_testing_member
-  String get secretKey => _dsn.secretKey;
-
-  /// The ID issued by Sentry.io to your project.
-  ///
-  /// Attached to the event payload.
-  String get projectId => _dsn.projectId;
+  final Transport transport;
 
   /// Information about the current user.
   ///
@@ -68,51 +46,16 @@ abstract class SentryClient {
   /// Use for browser stacktrace
   String origin;
 
-  /// Used by sentry to differentiate browser from io environment
-  final String _platform;
-
-  final Sdk sdk;
-
-  String get clientId => sdk.identifier;
-
-  @visibleForTesting
-  String get postUri {
-    final port = dsnUri.hasPort &&
-            ((dsnUri.scheme == 'http' && dsnUri.port != 80) ||
-                (dsnUri.scheme == 'https' && dsnUri.port != 443))
-        ? ':${dsnUri.port}'
-        : '';
-    final pathLength = dsnUri.pathSegments.length;
-    String apiPath;
-    if (pathLength > 1) {
-      // some paths would present before the projectID in the dsnUri
-      apiPath =
-          (dsnUri.pathSegments.sublist(0, pathLength - 1) + ['api']).join('/');
-    } else {
-      apiPath = 'api';
-    }
-    return '${dsnUri.scheme}://${dsnUri.host}$port/$apiPath/$projectId/store/';
-  }
-
   /// Reports an [event] to Sentry.io.
   Future<SentryId> captureEvent(
     SentryEvent event, {
     StackFrameFilter stackFrameFilter,
     Scope scope,
   }) async {
-    final now = options.clock();
-    var authHeader = 'Sentry sentry_version=6, sentry_client=$clientId, '
-        'sentry_timestamp=${now.millisecondsSinceEpoch}, sentry_key=$publicKey';
-    if (secretKey != null) {
-      authHeader += ', sentry_secret=$secretKey';
-    }
-
-    final headers = buildHeaders(authHeader);
+    event = _processEvent(event, eventProcessors: options.eventProcessors);
 
     final data = <String, dynamic>{
-      'project': projectId,
       'event_id': event.eventId.toString(),
-      'timestamp': formatDateAsIso8601WithSecondPrecision(event.timestamp),
     };
 
     if (options.environmentAttributes != null) {
@@ -132,22 +75,8 @@ abstract class SentryClient {
       ),
       into: data,
     );
-    mergeAttributes(<String, String>{'platform': _platform}, into: data);
 
-    final body = bodyEncoder(data, headers);
-
-    final response = await options.httpClient.post(
-      postUri,
-      headers: headers,
-      body: body,
-    );
-
-    if (response.statusCode != 200) {
-      return SentryId.empty();
-    }
-
-    final eventId = json.decode(response.body)['id'];
-    return eventId != null ? SentryId.fromId(eventId) : SentryId.empty();
+    return transport.send(data);
   }
 
   /// Reports the [throwable] and optionally its [stackTrace] to Sentry.io.
@@ -188,15 +117,22 @@ abstract class SentryClient {
     options.httpClient?.close();
   }
 
+  SentryEvent _processEvent(
+    SentryEvent event, {
+    dynamic hint,
+    List<EventProcessor> eventProcessors,
+  }) {
+    for (final processor in eventProcessors) {
+      event = processor(event, hint);
+    }
+    return event;
+  }
+
   @override
-  String toString() => '$SentryClient("$postUri")';
+  String toString() => '$SentryClient("${options.dsn}")';
 
   @protected
-  List<int> bodyEncoder(Map<String, dynamic> data, Map<String, String> headers);
-
-  @protected
-  @mustCallSuper
-  Map<String, String> buildHeaders(String authHeader) {
+  static Map<String, String> buildHeaders(String authHeader) {
     final headers = {
       'Content-Type': 'application/json',
     };
