@@ -208,28 +208,3 @@ abstract class SentryClient {
     return headers;
   }
 }
-
-/// A response from Sentry.io.
-///
-/// If [isSuccessful] the [eventId] field will contain the ID assigned to the
-/// captured event by the Sentry.io backend. Otherwise, the [error] field will
-/// contain the description of the error.
-@immutable
-class SentryResponse {
-  const SentryResponse.success({@required this.eventId})
-      : isSuccessful = true,
-        error = null;
-
-  const SentryResponse.failure(this.error)
-      : isSuccessful = false,
-        eventId = null;
-
-  /// Whether event was submitted successfully.
-  final bool isSuccessful;
-
-  /// The ID Sentry.io assigned to the submitted event for future reference.
-  final String eventId;
-
-  /// Error message, if the response is not successful.
-  final String error;
-}
