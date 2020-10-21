@@ -23,7 +23,8 @@
 - Added Scope and Breadcrumb ring buffer #109
 - Added Hub to SDK #113
 - Ref: Hub passes the Scope to SentryClient
-- feat: sentry options #116
+- Feat: sentry options #116
+- Ref: SentryId generates UUID
 
 # `package:sentry` changelog
 

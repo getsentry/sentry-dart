@@ -3,7 +3,6 @@ import 'package:sentry/sentry.dart';
 import 'diagnostic_logger.dart';
 import 'hub.dart';
 import 'protocol.dart';
-import 'utils.dart';
 
 /// Sentry SDK options
 class SentryOptions {
@@ -38,11 +37,6 @@ class SentryOptions {
   /// previous use of [Clock](https://pub.dartlang.org/documentation/quiver/latest/quiver.time/Clock-class.html)
   /// from [`package:quiver`](https://pub.dartlang.org/packages/quiver).
   dynamic clock;
-
-  /// If [uuidGenerator] is provided, it is used to generate the "event_id"
-  /// field instead of the built-in random UUID v4 generator. This is useful in
-  /// tests.
-  UuidGenerator uuidGenerator;
 
   int maxBreadcrumbs;
 
@@ -145,7 +139,6 @@ class SentryOptions {
     this.compressPayload,
     this.httpClient,
     this.clock,
-    this.uuidGenerator,
   });
 
   /// Adds an event processor

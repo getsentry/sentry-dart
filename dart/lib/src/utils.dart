@@ -3,11 +3,6 @@
 // found in the LICENSE file.
 
 import 'package:meta/meta.dart';
-import 'package:uuid/uuid.dart';
-
-typedef UuidGenerator = String Function();
-
-String generateUuidV4WithoutDashes() => Uuid().v4().replaceAll('-', '');
 
 /// Sentry does not take a timezone and instead expects the date-time to be
 /// submitted in UTC timezone.

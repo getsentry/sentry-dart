@@ -122,7 +122,7 @@ abstract class SentryClient {
 
     final data = <String, dynamic>{
       'project': projectId,
-      'event_id': options.uuidGenerator(),
+      'event_id': event.eventId.toString(),
       'timestamp': formatDateAsIso8601WithSecondPrecision(now),
     };
 
@@ -158,7 +158,7 @@ abstract class SentryClient {
     }
 
     final eventId = json.decode(response.body)['id'];
-    return eventId != null ? SentryId(eventId) : SentryId.empty();
+    return eventId != null ? SentryId.fromId(eventId) : SentryId.empty();
   }
 
   /// Reports the [throwable] and optionally its [stackTrace] to Sentry.io.

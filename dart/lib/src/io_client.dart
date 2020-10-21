@@ -36,10 +36,6 @@ class SentryIOClient extends SentryClient {
   /// This parameter is dynamic to maintain backwards compatibility with
   /// previous use of [Clock](https://pub.dartlang.org/documentation/quiver/latest/quiver.time/Clock-class.html)
   /// from [`package:quiver`](https://pub.dartlang.org/packages/quiver).
-  ///
-  /// If [uuidGenerator] is provided, it is used to generate the "event_id"
-  /// field instead of the built-in random UUID v4 generator. This is useful in
-  /// tests.
   factory SentryIOClient(SentryOptions options) => SentryIOClient._(options);
 
   SentryIOClient._(SentryOptions options) : super.base(options);

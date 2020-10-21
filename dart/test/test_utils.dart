@@ -69,14 +69,14 @@ Future testCaptureException(
     fail('Unexpected request on ${request.method} ${request.url} in HttpMock');
   });
 
+  var sentryId = SentryId.empty();
   final client = SentryClient(
     SentryOptions(
       dsn: testDsn,
       httpClient: httpMock,
       clock: fakeClockProvider,
-      uuidGenerator: () => 'X' * 32,
       compressPayload: compressPayload,
-      environmentAttributes: const Event(
+      environmentAttributes: Event(
         serverName: 'test.server.com',
         release: '1.2.3',
         environment: 'staging',
@@ -87,8 +87,7 @@ Future testCaptureException(
   try {
     throw ArgumentError('Test error');
   } catch (error, stackTrace) {
-    final sentryId =
-        await client.captureException(error, stackTrace: stackTrace);
+    sentryId = await client.captureException(error, stackTrace: stackTrace);
     expect('$sentryId', 'testeventid');
   }
 
@@ -108,6 +107,10 @@ Future testCaptureException(
   } else {
     data = json.decode(utf8.decode(body)) as Map<String, dynamic>;
   }
+
+  // so we assert the generated and returned id
+  data['event_id'] = sentryId.toString();
+
   final stacktrace = data.remove('stacktrace') as Map<String, dynamic>;
 
   expect(stacktrace['frames'], const TypeMatcher<List>());
@@ -139,7 +142,7 @@ Future testCaptureException(
 
     expect(data, {
       'project': '1',
-      'event_id': 'X' * 32,
+      'event_id': sentryId.toString(),
       'timestamp': '2017-01-02T00:00:00',
       'platform': 'javascript',
       'sdk': {'version': sdkVersion, 'name': 'sentry.dart'},
@@ -157,7 +160,7 @@ Future testCaptureException(
 
     expect(data, {
       'project': '1',
-      'event_id': 'X' * 32,
+      'event_id': sentryId.toString(),
       'timestamp': '2017-01-02T00:00:00',
       'platform': 'dart',
       'exception': [
@@ -235,8 +238,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
         httpClient: httpMock,
         clock: fakeClockProvider,
         compressPayload: false,
-        uuidGenerator: () => 'X' * 32,
-        environmentAttributes: const Event(
+        environmentAttributes: Event(
           serverName: 'test.server.com',
           release: '1.2.3',
           environment: 'staging',
@@ -292,9 +294,8 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
         dsn: testDsn,
         httpClient: httpMock,
         clock: fakeClockProvider,
-        uuidGenerator: () => 'X' * 32,
         compressPayload: false,
-        environmentAttributes: const Event(
+        environmentAttributes: Event(
           serverName: 'test.server.com',
           release: '1.2.3',
           environment: 'staging',
@@ -348,9 +349,8 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
         dsn: testDsn,
         httpClient: httpMock,
         clock: fakeClockProvider,
-        uuidGenerator: () => 'X' * 32,
         compressPayload: false,
-        environmentAttributes: const Event(
+        environmentAttributes: Event(
           serverName: 'test.server.com',
           release: '1.2.3',
           environment: 'staging',
@@ -362,12 +362,17 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     try {
       throw ArgumentError('Test error');
     } catch (error, stackTrace) {
-      final eventWithoutContext =
-          Event(exception: error, stackTrace: stackTrace);
+      final eventWithoutContext = Event(
+        eventId: SentryId.empty(),
+        exception: error,
+        stackTrace: stackTrace,
+      );
       final eventWithContext = Event(
-          exception: error,
-          stackTrace: stackTrace,
-          userContext: eventUserContext);
+        eventId: SentryId.empty(),
+        exception: error,
+        stackTrace: stackTrace,
+        userContext: eventUserContext,
+      );
       await client.captureEvent(eventWithoutContext);
       expect(loggedUserId, clientUserContext.id);
       await client.captureEvent(eventWithContext);

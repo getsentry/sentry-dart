@@ -35,14 +35,9 @@ class SentryBrowserClient extends SentryClient {
   /// This parameter is dynamic to maintain backwards compatibility with
   /// previous use of [Clock](https://pub.dartlang.org/documentation/quiver/latest/quiver.time/Clock-class.html)
   /// from [`package:quiver`](https://pub.dartlang.org/packages/quiver).
-  ///
-  /// If [uuidGenerator] is provided, it is used to generate the "event_id"
-  /// field instead of the built-in random UUID v4 generator. This is useful in
-  /// tests.
   factory SentryBrowserClient(SentryOptions options, {String origin}) {
     options.httpClient ??= BrowserClient();
     options.clock ??= getUtcDateTime;
-    options.uuidGenerator ??= generateUuidV4WithoutDashes;
 
     // origin is necessary for sentry to resolve stacktrace
     origin ??= '${window.location.origin}/';

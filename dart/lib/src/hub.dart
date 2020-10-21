@@ -73,10 +73,9 @@ class Hub {
         try {
           sentryId = await item.client.captureEvent(event, scope: item.scope);
         } catch (err) {
-          /* TODO add Event.id */
           _options.logger(
             SentryLevel.error,
-            'Error while capturing event with id: ${event}',
+            'Error while capturing event with id: ${event.eventId.toString()}',
           );
         } finally {
           _lastEventId = sentryId;
