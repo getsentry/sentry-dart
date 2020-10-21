@@ -53,7 +53,7 @@ class Scope {
 
   Map<String, dynamic> get extra => Map.unmodifiable(_extra);
 
-  // TODO: EventProcessors, Contexts, BeforeBreadcrumbCallback, Breadcrumb Hint, clone
+  // TODO: Contexts
 
   /// Scope's event processor list
   final List<EventProcessor> _eventProcessors = [];
