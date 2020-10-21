@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart';
 import 'package:meta/meta.dart';
+import 'package:sentry/sentry.dart';
 import 'package:sentry/src/utils.dart';
 
 import '../protocol.dart';
@@ -16,10 +17,12 @@ typedef BodyEncoder = List<int> Function(
 
 typedef HeadersBuilder = Map<String, String> Function(String authHeader);
 
+/// Used to provide timestamp for logging.
+typedef ClockProvider = DateTime Function();
+
+/// A transport is in charge of sending the event to the Sentry server.
 class Transport {
   final Client httpClient;
-
-  final dynamic clock;
 
   final Dsn _dsn;
 
@@ -32,15 +35,18 @@ class Transport {
   /// Used by sentry to differentiate browser from io environment
   final String platform;
 
+  final ClockProvider _clock;
+
   Transport({
     @required this.compressPayload,
     @required this.httpClient,
-    @required this.clock,
+    @required ClockProvider clock,
     @required this.sdk,
     @required String dsn,
     @required this.headersBuilder,
     @required this.platform,
-  }) : _dsn = Dsn.parse(dsn);
+  })  : _dsn = Dsn.parse(dsn),
+        _clock = clock ?? getUtcDateTime;
 
   /// The DSN URI.
   @visibleForTesting
@@ -83,7 +89,7 @@ class Transport {
   }
 
   Future<SentryId> send(Map<String, dynamic> data) async {
-    final now = clock();
+    final now = _clock();
     var authHeader = 'Sentry sentry_version=6, sentry_client=$clientId, '
         'sentry_timestamp=${now.millisecondsSinceEpoch}, sentry_key=$publicKey';
     if (secretKey != null) {
