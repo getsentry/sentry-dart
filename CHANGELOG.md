@@ -26,6 +26,7 @@
 - Feature: sentry options #116
 - Ref: SentryId generates UUID
 - Ref: Event now is SentryEvent and added GPU
+- Ref: added Transport #123
 
 # `package:sentry` changelog
 
