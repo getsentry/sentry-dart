@@ -6,32 +6,14 @@ import 'sentry_options.dart';
 /// Scope data to be sent with the event
 class Scope {
   /// How important this event is.
-  SentryLevel _level;
-
-  SentryLevel get level => _level;
-
-  set level(SentryLevel level) {
-    _level = level;
-  }
+  SentryLevel level;
 
   /// The name of the transaction which generated this event,
   /// for example, the route name: `"/users/<username>/"`.
-  String _transaction;
-
-  String get transaction => _transaction;
-
-  set transaction(String transaction) {
-    _transaction = transaction;
-  }
+  String transaction;
 
   /// Information about the current user.
-  User _user;
-
-  User get user => _user;
-
-  set user(User user) {
-    _user = user;
-  }
+  User user;
 
   /// Used to deduplicate events by grouping ones with the same fingerprint
   /// together.
@@ -73,17 +55,34 @@ class Scope {
 
   // TODO: EventProcessors, Contexts, BeforeBreadcrumbCallback, Breadcrumb Hint, clone
 
+  /// Scope's event processor list
+  final List<EventProcessor> _eventProcessors = [];
+
+  List<EventProcessor> get eventProcessors =>
+      List.unmodifiable(_eventProcessors);
+
   final SentryOptions _options;
 
   Scope(this._options) : assert(_options != null, 'SentryOptions is required');
 
   /// Adds a breadcrumb to the breadcrumbs queue
-  void addBreadcrumb(Breadcrumb breadcrumb) {
+  void addBreadcrumb(Breadcrumb breadcrumb, {dynamic hint}) {
     assert(breadcrumb != null, "Breadcrumb can't be null");
 
     // bail out if maxBreadcrumbs is zero
     if (_options.maxBreadcrumbs == 0) {
       return;
+    }
+
+    // run before breadcrumb callback if set
+    if (_options.beforeBreadcrumbCallback != null) {
+      breadcrumb = _options.beforeBreadcrumbCallback(breadcrumb, hint);
+
+      if (breadcrumb == null) {
+        _options.logger(
+            SentryLevel.info, 'Breadcrumb was dropped by beforeBreadcrumb');
+        return;
+      }
     }
 
     // remove first item if list if full
@@ -100,15 +99,23 @@ class Scope {
     _breadcrumbs.clear();
   }
 
+  /// Adds an event processor
+  void addEventProcessor(EventProcessor eventProcessor) {
+    assert(eventProcessor != null, "EventProcessor can't be null");
+
+    _eventProcessors.add(eventProcessor);
+  }
+
   /// Resets the Scope to its default state
   void clear() {
     clearBreadcrumbs();
-    _level = null;
-    _transaction = null;
-    _user = null;
+    level = null;
+    transaction = null;
+    user = null;
     _fingerprint = null;
     _tags.clear();
     _extra.clear();
+    _eventProcessors.clear();
   }
 
   /// Sets a tag to the Scope
@@ -135,6 +142,7 @@ class Scope {
   /// Removes an extra from the Scope
   void removeExtra(String key) => _extra.remove(key);
 
+  /// Clones the current Scope
   Scope clone() {
     final clone = Scope(_options)
       ..user = user
@@ -151,6 +159,10 @@ class Scope {
 
     for (final breadcrumb in _breadcrumbs) {
       clone.addBreadcrumb(breadcrumb);
+    }
+
+    for (final eventProcessor in _eventProcessors) {
+      clone.addEventProcessor(eventProcessor);
     }
 
     return clone;

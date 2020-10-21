@@ -48,6 +48,25 @@ void main() {
     expect(sut.breadcrumbs.last, breadcrumb);
   });
 
+  test('Executes and drops $Breadcrumb', () {
+    final sut = fixture.getSut(
+      beforeBreadcrumbCallback: fixture.beforeBreadcrumbCallback,
+    );
+
+    final breadcrumb = Breadcrumb('test log', DateTime.utc(2019));
+    sut.addBreadcrumb(breadcrumb);
+
+    expect(sut.breadcrumbs.length, 0);
+  });
+
+  test('adds $EventProcessor', () {
+    final sut = fixture.getSut();
+
+    sut.addEventProcessor(fixture.processor);
+
+    expect(sut.eventProcessors.last, fixture.processor);
+  });
+
   test('respects max $Breadcrumb', () {
     final maxBreadcrumbs = 2;
     final sut = fixture.getSut(maxBreadcrumbs: maxBreadcrumbs);
@@ -175,13 +194,24 @@ void main() {
     expect(sut.tags, clone.tags);
     expect(sut.breadcrumbs, clone.breadcrumbs);
     expect(ListEquality().equals(sut.fingerprint, clone.fingerprint), true);
+    expect(ListEquality().equals(sut.eventProcessors, clone.eventProcessors),
+        true);
   });
 }
 
 class Fixture {
-  Scope getSut({int maxBreadcrumbs = 100}) {
+  Scope getSut({
+    int maxBreadcrumbs = 100,
+    BeforeBreadcrumbCallback beforeBreadcrumbCallback,
+  }) {
     final options = SentryOptions();
     options.maxBreadcrumbs = maxBreadcrumbs;
+    options.beforeBreadcrumbCallback = beforeBreadcrumbCallback;
     return Scope(options);
   }
+
+  Event processor(Event event, dynamic hint) => null;
+
+  Breadcrumb beforeBreadcrumbCallback(Breadcrumb breadcrumb, dynamic hint) =>
+      null;
 }
