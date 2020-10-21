@@ -339,30 +339,32 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     });
 
     const clientUserContext = User(
-        id: 'client_user',
-        username: 'username',
-        email: 'email@email.com',
-        ipAddress: '127.0.0.1');
+      id: 'client_user',
+      username: 'username',
+      email: 'email@email.com',
+      ipAddress: '127.0.0.1',
+    );
     const eventUserContext = User(
-        id: 'event_user',
-        username: 'username',
-        email: 'email@email.com',
-        ipAddress: '127.0.0.1',
-        extras: <String, String>{'foo': 'bar'});
+      id: 'event_user',
+      username: 'username',
+      email: 'email@email.com',
+      ipAddress: '127.0.0.1',
+      extras: <String, String>{'foo': 'bar'},
+    );
 
-    final client = SentryClient(
-      SentryOptions(
-        dsn: testDsn,
-        httpClient: httpMock,
-        clock: fakeClockProvider,
-        compressPayload: false,
-        environmentAttributes: SentryEvent(
-          serverName: 'test.server.com',
-          release: '1.2.3',
-          environment: 'staging',
-        ),
+    final options = SentryOptions(
+      dsn: testDsn,
+      httpClient: httpMock,
+      clock: fakeClockProvider,
+      compressPayload: false,
+      environmentAttributes: SentryEvent(
+        serverName: 'test.server.com',
+        release: '1.2.3',
+        environment: 'staging',
       ),
     );
+
+    final client = SentryClient(options);
     client.userContext = clientUserContext;
 
     try {
@@ -379,9 +381,13 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
         stackTrace: stackTrace,
         userContext: eventUserContext,
       );
-      await client.captureEvent(eventWithoutContext);
+      await client.captureEvent(eventWithoutContext,
+          scope: Scope(options)..user = clientUserContext);
       expect(loggedUserId, clientUserContext.id);
-      await client.captureEvent(eventWithContext);
+      await client.captureEvent(
+        eventWithContext,
+        scope: Scope(options)..user = clientUserContext,
+      );
       expect(loggedUserId, eventUserContext.id);
     }
 

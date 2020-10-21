@@ -22,9 +22,6 @@ class NoOpSentryClient implements SentryClient {
   SentryOptions options;
 
   @override
-  String origin;
-
-  @override
   Transport transport;
 
   @override

@@ -37,14 +37,18 @@ class Transport {
 
   final ClockProvider _clock;
 
+  /// Use for browser stacktrace
+  final String origin;
+
   Transport({
+    @required String dsn,
     @required this.compressPayload,
     @required this.httpClient,
-    @required ClockProvider clock,
     @required this.sdk,
-    @required String dsn,
+    @required ClockProvider clock,
     @required this.headersBuilder,
     @required this.platform,
+    this.origin,
   })  : _dsn = Dsn.parse(dsn),
         _clock = clock ?? getUtcDateTime;
 

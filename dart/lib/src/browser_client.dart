@@ -54,7 +54,7 @@ class SentryBrowserClient extends SentryClient {
             sdk: Sdk(name: browserSdkName, version: sdkVersion),
             headersBuilder: SentryClient.buildHeaders,
             platform: platform,
+            origin: origin,
           ),
-          origin: origin,
         );
 }

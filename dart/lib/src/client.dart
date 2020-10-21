@@ -21,7 +21,6 @@ abstract class SentryClient {
 
   SentryClient.base(
     this.options, {
-    this.origin,
     @required this.transport,
   });
 
@@ -43,9 +42,6 @@ abstract class SentryClient {
   /// * https://docs.sentry.io/learn/context/#capturing-the-user
   User userContext;
 
-  /// Use for browser stacktrace
-  String origin;
-
   /// Reports an [event] to Sentry.io.
   Future<SentryId> captureEvent(
     SentryEvent event, {
@@ -53,6 +49,8 @@ abstract class SentryClient {
     Scope scope,
   }) async {
     event = _processEvent(event, eventProcessors: options.eventProcessors);
+
+    event = _applyScope(event: event, scope: scope);
 
     final data = <String, dynamic>{
       'event_id': event.eventId.toString(),
@@ -62,16 +60,10 @@ abstract class SentryClient {
       mergeAttributes(options.environmentAttributes.toJson(), into: data);
     }
 
-    // Merge the user context.
-    if (userContext != null) {
-      mergeAttributes(<String, dynamic>{'user': userContext.toJson()},
-          into: data);
-    }
-
     mergeAttributes(
       event.toJson(
         stackFrameFilter: stackFrameFilter,
-        origin: origin,
+        origin: transport.origin,
       ),
       into: data,
     );
@@ -124,6 +116,46 @@ abstract class SentryClient {
   }) {
     for (final processor in eventProcessors) {
       event = processor(event, hint);
+    }
+    return event;
+  }
+
+  Event _applyScope({@required Event event, @required Scope scope}) {
+    if (scope != null) {
+      // Merge the scope transaction.
+      if (event.transaction == null) {
+        event = event.copyWith(transaction: scope.transaction);
+      }
+
+      // Merge the user context.
+      if (event.userContext == null) {
+        event = event.copyWith(userContext: scope.user);
+      }
+
+      // Merge the scope fingerprint.
+      if (event.fingerprint == null) {
+        event = event.copyWith(fingerprint: scope.fingerprint);
+      }
+
+      // Merge the scope breadcrumbs.
+      if (event.breadcrumbs == null) {
+        event = event.copyWith(breadcrumbs: scope.breadcrumbs);
+      }
+
+      // Merge the scope tags.
+      if (event.tags == null) {
+        event = event.copyWith(tags: scope.tags);
+      }
+
+      // Merge the scope extra.
+      if (event.extra == null) {
+        event = event.copyWith(extra: scope.extra);
+      }
+
+      // Merge the scope level.
+      if (event.level == null) {
+        event = event.copyWith(level: scope.level);
+      }
     }
     return event;
   }
