@@ -7,7 +7,7 @@ import 'package:sentry/src/stack_trace.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group(Event, () {
+  group(SentryEvent, () {
     test('$Breadcrumb serializes', () {
       expect(
         Breadcrumb(
@@ -25,8 +25,9 @@ void main() {
       );
     });
     test('$Sdk serializes', () {
-      final event = Event(
+      final event = SentryEvent(
           eventId: SentryId.empty(),
+          timestamp: DateTime.utc(2019),
           sdk: Sdk(
               name: 'sentry.dart.flutter',
               version: '4.3.2',
@@ -35,6 +36,7 @@ void main() {
       expect(event.toJson(), <String, dynamic>{
         'platform': 'dart',
         'event_id': '00000000000000000000000000000000',
+        'timestamp': '2019-01-01T00:00:00',
         'sdk': {
           'name': 'sentry.dart.flutter',
           'version': '4.3.2',
@@ -46,6 +48,7 @@ void main() {
       });
     });
     test('serializes to JSON', () {
+      final timestamp = DateTime.utc(2019);
       const user = User(
           id: 'user_id',
           username: 'username',
@@ -54,15 +57,16 @@ void main() {
           extras: <String, String>{'foo': 'bar'});
 
       final breadcrumbs = [
-        Breadcrumb('test log', DateTime.utc(2019),
+        Breadcrumb('test log', timestamp,
             level: SentryLevel.debug, category: 'test'),
       ];
 
       final error = StateError('test-error');
 
       expect(
-        Event(
+        SentryEvent(
           eventId: SentryId.empty(),
+          timestamp: timestamp,
           message: Message(
             'test-message 1 2',
             template: 'test-message %d %d',
@@ -80,13 +84,14 @@ void main() {
             'e': 'f',
             'g': 2,
           },
-          fingerprint: const <String>[Event.defaultFingerprint, 'foo'],
+          fingerprint: const <String>[SentryEvent.defaultFingerprint, 'foo'],
           userContext: user,
           breadcrumbs: breadcrumbs,
         ).toJson(),
         <String, dynamic>{
           'platform': 'dart',
           'event_id': '00000000000000000000000000000000',
+          'timestamp': '2019-01-01T00:00:00',
           'sdk': {'version': sdkVersion, 'name': 'sentry.dart'},
           'message': {
             'formatted': 'test-message 1 2',

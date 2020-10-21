@@ -9,7 +9,6 @@ import 'dart:io';
 import 'package:sentry/sentry.dart';
 
 import 'client.dart';
-import 'protocol.dart';
 
 SentryClient createSentryClient(SentryOptions options) =>
     SentryIOClient(options);

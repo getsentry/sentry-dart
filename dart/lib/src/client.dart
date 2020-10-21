@@ -12,9 +12,6 @@ import 'stack_trace.dart';
 import 'utils.dart';
 import 'version.dart';
 
-/// Used to provide timestamp for logging.
-typedef ClockProvider = DateTime Function();
-
 /// Logs crash reports and events to the Sentry.io service.
 abstract class SentryClient {
   /// Creates a new platform appropriate client.
@@ -30,15 +27,7 @@ abstract class SentryClient {
     Sdk sdk,
   })  : _dsn = Dsn.parse(options.dsn),
         _platform = platform ?? sdkPlatform,
-        sdk = sdk ?? Sdk(name: sdkName, version: sdkVersion) {
-    if (options.clock == null) {
-      options.clock = getUtcDateTime;
-    } else {
-      options.clock = (options.clock is ClockProvider
-          ? options.clock
-          : options.clock.get) as ClockProvider;
-    }
-  }
+        sdk = sdk ?? Sdk(name: sdkName, version: sdkVersion);
 
   final Dsn _dsn;
 
@@ -107,7 +96,7 @@ abstract class SentryClient {
 
   /// Reports an [event] to Sentry.io.
   Future<SentryId> captureEvent(
-    Event event, {
+    SentryEvent event, {
     StackFrameFilter stackFrameFilter,
     Scope scope,
   }) async {
@@ -123,7 +112,7 @@ abstract class SentryClient {
     final data = <String, dynamic>{
       'project': projectId,
       'event_id': event.eventId.toString(),
-      'timestamp': formatDateAsIso8601WithSecondPrecision(now),
+      'timestamp': formatDateAsIso8601WithSecondPrecision(event.timestamp),
     };
 
     if (options.environmentAttributes != null) {
@@ -164,9 +153,10 @@ abstract class SentryClient {
   /// Reports the [throwable] and optionally its [stackTrace] to Sentry.io.
   Future<SentryId> captureException(dynamic throwable,
       {dynamic stackTrace, Scope scope}) {
-    final event = Event(
+    final event = SentryEvent(
       exception: throwable,
       stackTrace: stackTrace,
+      timestamp: options.clock()
     );
     return captureEvent(event, scope: scope);
   }
@@ -179,9 +169,10 @@ abstract class SentryClient {
     List<dynamic> params,
     Scope scope,
   }) {
-    final event = Event(
+    final event = SentryEvent(
       message: Message(formatted, template: template, params: params),
       level: level,
+      timestamp: options.clock()
     );
     return captureEvent(event, scope: scope);
   }

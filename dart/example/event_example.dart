@@ -1,7 +1,7 @@
 import 'package:sentry/src/protocol.dart';
 
-final event = Event(
-  loggerName: 'main',
+final event = SentryEvent(
+  logger: 'main',
   serverName: 'server.dart',
   release: '1.4.0-preview.1',
   environment: 'Test',

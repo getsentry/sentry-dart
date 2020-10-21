@@ -34,7 +34,7 @@ class NoOpSentryClient implements SentryClient {
   Map<String, String> buildHeaders(String authHeader) => {};
 
   @override
-  Future<SentryId> captureEvent(Event event, {stackFrameFilter, scope}) =>
+  Future<SentryId> captureEvent(SentryEvent event, {stackFrameFilter, scope}) =>
       Future.value(SentryId.empty());
 
   @override

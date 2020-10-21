@@ -54,7 +54,7 @@ class Hub {
   SentryId get lastEventId => _lastEventId;
 
   /// Captures the event.
-  Future<SentryId> captureEvent(Event event) async {
+  Future<SentryId> captureEvent(SentryEvent event) async {
     var sentryId = SentryId.empty();
 
     if (!_isEnabled) {
