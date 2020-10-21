@@ -151,12 +151,15 @@ abstract class SentryClient {
   }
 
   /// Reports the [throwable] and optionally its [stackTrace] to Sentry.io.
-  Future<SentryId> captureException(dynamic throwable,
-      {dynamic stackTrace, Scope scope}) {
+  Future<SentryId> captureException(
+    dynamic throwable, {
+    dynamic stackTrace,
+    Scope scope,
+  }) {
     final event = SentryEvent(
       exception: throwable,
       stackTrace: stackTrace,
-      timestamp: options.clock()
+      timestamp: options.clock(),
     );
     return captureEvent(event, scope: scope);
   }
@@ -170,9 +173,13 @@ abstract class SentryClient {
     Scope scope,
   }) {
     final event = SentryEvent(
-      message: Message(formatted, template: template, params: params),
+      message: Message(
+        formatted,
+        template: template,
+        params: params,
+      ),
       level: level,
-      timestamp: options.clock()
+      timestamp: options.clock(),
     );
     return captureEvent(event, scope: scope);
   }

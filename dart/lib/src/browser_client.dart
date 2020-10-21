@@ -11,7 +11,6 @@ import 'package:http/browser_client.dart';
 import 'client.dart';
 import 'protocol.dart';
 import 'sentry_options.dart';
-import 'utils.dart';
 import 'version.dart';
 
 SentryClient createSentryClient(SentryOptions options) =>
