@@ -25,6 +25,7 @@
 - Ref: Hub passes the Scope to SentryClient
 - Feat: sentry options #116
 - Ref: SentryId generates UUID
+- Feat: before breadcrumb and scope ref.
 
 # `package:sentry` changelog
 
