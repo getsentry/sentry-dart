@@ -127,8 +127,10 @@ abstract class SentryClient {
     return event;
   }
 
-  SentryEvent _applyScope(
-      {@required SentryEvent event, @required Scope scope}) {
+  SentryEvent _applyScope({
+    @required SentryEvent event,
+    @required Scope scope,
+  }) {
     if (scope != null) {
       // Merge the scope transaction.
       if (event.transaction == null) {
@@ -150,15 +152,12 @@ abstract class SentryClient {
         event = event.copyWith(breadcrumbs: scope.breadcrumbs);
       }
 
+      // TODO add tests
       // Merge the scope tags.
-      if (event.tags == null) {
-        event = event.copyWith(tags: scope.tags);
-      }
+      event = event.copyWith(tags: scope.tags..addAll(event.tags ?? {}));
 
       // Merge the scope extra.
-      if (event.extra == null) {
-        event = event.copyWith(extra: scope.extra);
-      }
+      event = event.copyWith(extra: scope.extra..addAll(event.extra ?? {}));
 
       // Merge the scope level.
       if (event.level == null) {
