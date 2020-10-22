@@ -94,11 +94,7 @@ abstract class SentryClient {
     Scope scope,
   }) {
     final event = SentryEvent(
-      message: Message(
-        formatted,
-        template: template,
-        params: params,
-      ),
+      message: Message(formatted, template: template, params: params),
       level: level,
       timestamp: options.clock(),
     );
@@ -115,7 +111,18 @@ abstract class SentryClient {
     List<EventProcessor> eventProcessors,
   }) {
     for (final processor in eventProcessors) {
-      event = processor(event, hint);
+      try {
+        event = processor(event, hint);
+      } catch (err) {
+        options.logger(
+          SentryLevel.error,
+          'An exception occurred while processing event by a processor : $err',
+        );
+      }
+      if (event == null) {
+        options.logger(SentryLevel.debug, 'Event was dropped by a processor');
+        break;
+      }
     }
     return event;
   }
