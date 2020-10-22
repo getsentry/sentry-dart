@@ -37,7 +37,10 @@ class Sentry {
       );
     }
 
-    _setDefaultConfiguration(options);
+    // if there's an empty DSN, SDK is disabled
+    if (!_setDefaultConfiguration(options)) {
+      return;
+    }
 
     final hub = currentHub;
     _hub = Hub(options);
@@ -82,17 +85,29 @@ class Sentry {
   }
 
   /// Close the client SDK
-  static Future<void> close() async => currentHub.close();
+  static void close() {
+    final hub = currentHub;
+    _hub = NoOpHub();
+    return hub.close();
+  }
 
   /// Check if the current Hub is enabled/active.
   static bool get isEnabled => currentHub.isEnabled;
 
-  static void _setDefaultConfiguration(SentryOptions options) {
-    // TODO: check DSN nullability and empty
+  static bool _setDefaultConfiguration(SentryOptions options) {
+    if (options.dsn == null) {
+      throw ArgumentError.notNull(
+          'DSN is required. Use empty string to disable SDK.');
+    }
+    if (options.dsn.isEmpty) {
+      close();
+      return false;
+    }
 
     if (options.debug && options.logger == noOpLogger) {
       options.logger = dartLogger;
     }
+    return true;
   }
 
   /// client injector only use for testing
