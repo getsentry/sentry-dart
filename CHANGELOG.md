@@ -27,7 +27,7 @@
 - Ref: SentryId generates UUID #119
 - Ref: Event now is SentryEvent and added GPU #121
 - Feat: before breadcrumb and scope ref. #122
-- Feat: Remove stackFrameFilter in favor of beforeSendCallback
+- Ref: Remove stackFrameFilter in favor of beforeSendCallback
 
 # `package:sentry` changelog
 
