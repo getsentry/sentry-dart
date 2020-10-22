@@ -214,7 +214,7 @@ class Fixture {
     return Scope(options);
   }
 
-  Event processor(Event event, dynamic hint) => null;
+  SentryEvent processor(SentryEvent event, dynamic hint) => null;
 
   Breadcrumb beforeBreadcrumbCallback(Breadcrumb breadcrumb, dynamic hint) =>
       null;
