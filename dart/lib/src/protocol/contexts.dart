@@ -2,6 +2,7 @@ import '../protocol.dart';
 import 'app.dart';
 import 'browser.dart';
 import 'device.dart';
+import 'gpu.dart';
 import 'runtime.dart';
 
 /// The context interfaces provide additional context data.
@@ -17,6 +18,7 @@ class Contexts {
     this.runtimes,
     this.app,
     this.browser,
+    this.gpu,
   });
 
   /// This describes the device that caused the event.
@@ -48,6 +50,11 @@ class Contexts {
   /// agent of a web request that triggered the event.
   final Browser browser;
 
+  /// GPU context describes the GPU of the device.
+  final Gpu gpu;
+
+  // TODO: contexts should accept arbitrary values
+
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -71,6 +78,11 @@ class Contexts {
     Map<String, dynamic> browserMap;
     if (browser != null && (browserMap = browser.toJson()).isNotEmpty) {
       json['browser'] = browserMap;
+    }
+
+    Map<String, dynamic> gpuMap;
+    if (gpu != null && (gpuMap = gpu.toJson()).isNotEmpty) {
+      json['gpu'] = gpuMap;
     }
 
     if (runtimes != null) {

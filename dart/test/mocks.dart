@@ -12,8 +12,8 @@ final fakeMessage = Message('message 1', template: 'message %d', params: ['1']);
 
 final fakeUser = User(id: '1', email: 'test@test');
 
-final fakeEvent = Event(
-  loggerName: 'main',
+final fakeEvent = SentryEvent(
+  logger: 'main',
   serverName: 'server.dart',
   release: '1.4.0-preview.1',
   environment: 'Test',

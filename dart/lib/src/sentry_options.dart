@@ -3,6 +3,7 @@ import 'package:sentry/sentry.dart';
 import 'diagnostic_logger.dart';
 import 'hub.dart';
 import 'protocol.dart';
+import 'utils.dart';
 
 /// Sentry SDK options
 class SentryOptions {
@@ -20,7 +21,7 @@ class SentryOptions {
   /// event to event, such as local operating system version, the version of
   /// Dart/Flutter SDK, etc. These attributes have lower precedence than those
   /// supplied in the even passed to [capture].
-  Event environmentAttributes;
+  SentryEvent environmentAttributes;
 
   /// If [compressPayload] is `true` the outgoing HTTP payloads are compressed
   /// using gzip. Otherwise, the payloads are sent in plain UTF8-encoded JSON
@@ -33,12 +34,12 @@ class SentryOptions {
 
   /// If [clock] is provided, it is used to get time instead of the system
   /// clock. This is useful in tests. Should be an implementation of [ClockProvider].
-  /// This parameter is dynamic to maintain backwards compatibility with
-  /// previous use of [Clock](https://pub.dartlang.org/documentation/quiver/latest/quiver.time/Clock-class.html)
-  /// from [`package:quiver`](https://pub.dartlang.org/packages/quiver).
-  dynamic clock;
+  ClockProvider _clock;
 
-  int maxBreadcrumbs;
+  ClockProvider get clock => _clock;
+
+  /// This variable controls the total amount of breadcrumbs that should be captured Default is 100
+  int maxBreadcrumbs = 100;
 
   /// Logger interface to log useful debugging information if debug is enabled
   Logger _logger = noOpLogger;
@@ -138,8 +139,10 @@ class SentryOptions {
     this.environmentAttributes,
     this.compressPayload,
     this.httpClient,
-    this.clock,
-  });
+    ClockProvider clock = getUtcDateTime,
+  }) {
+    _clock = clock;
+  }
 
   /// Adds an event processor
   void addEventProcessor(EventProcessor eventProcessor) {
@@ -172,18 +175,22 @@ class SentryOptions {
   }
 }
 
-typedef BeforeSendCallback = Event Function(Event event, dynamic hint);
+typedef BeforeSendCallback = SentryEvent Function(
+    SentryEvent event, dynamic hint);
 
 typedef BeforeBreadcrumbCallback = Breadcrumb Function(
   Breadcrumb breadcrumb,
   dynamic hint,
 );
 
-typedef EventProcessor = Event Function(Event event, dynamic hint);
+typedef EventProcessor = SentryEvent Function(SentryEvent event, dynamic hint);
 
 typedef Integration = Function(Hub hub, SentryOptions options);
 
 typedef Logger = Function(SentryLevel level, String message);
+
+/// Used to provide timestamp for logging.
+typedef ClockProvider = DateTime Function();
 
 void noOpLogger(SentryLevel level, String message) {}
 
