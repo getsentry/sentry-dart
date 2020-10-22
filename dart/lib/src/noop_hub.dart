@@ -31,11 +31,13 @@ class NoOpHub implements Hub {
       Future.value(SentryId.empty());
 
   @override
-  Future<SentryId> captureMessage(String message,
-          {SentryLevel level = SentryLevel.info,
-          String template,
-          List params,
-          dynamic hint}) =>
+  Future<SentryId> captureMessage(
+    String message, {
+    SentryLevel level = SentryLevel.info,
+    String template,
+    List params,
+    dynamic hint,
+  }) =>
       Future.value(SentryId.empty());
 
   @override

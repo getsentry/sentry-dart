@@ -60,11 +60,13 @@ class Sentry {
         stackTrace: stackTrace, hint: hint);
   }
 
-  Future<SentryId> captureMessage(String message,
-      {SentryLevel level,
-      String template,
-      List<dynamic> params,
-      dynamic hint}) async {
+  Future<SentryId> captureMessage(
+    String message, {
+    SentryLevel level,
+    String template,
+    List<dynamic> params,
+    dynamic hint,
+  }) async {
     return currentHub.captureMessage(message,
         level: level, template: template, params: params, hint: hint);
   }
