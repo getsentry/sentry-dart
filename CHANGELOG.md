@@ -27,7 +27,7 @@
 - Ref: SentryId generates UUID #119
 - Ref: Event now is SentryEvent and added GPU #121
 - Feat: before breadcrumb and scope ref. #122
-- Ref: Sentry init with null and empty DSN and close method
+- Ref: Sentry init with null and empty DSN and close method #126
 - Ref: Hint is passed across Sentry static class, Hub and Client #124
 - Ref: Remove stackFrameFilter in favor of beforeSendCallback #125
 
