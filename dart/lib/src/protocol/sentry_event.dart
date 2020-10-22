@@ -2,18 +2,23 @@ import 'package:meta/meta.dart';
 
 import '../protocol.dart';
 import '../stack_trace.dart';
+import '../utils.dart';
 import '../version.dart';
 
 /// An event to be reported to Sentry.io.
 @immutable
-class Event {
+class SentryEvent {
   /// Creates an event.
-  Event({
+  SentryEvent({
     SentryId eventId,
-    this.loggerName,
+    DateTime timestamp,
+    String platform,
+    this.logger,
     this.serverName,
     this.release,
+    this.dist,
     this.environment,
+    this.modules,
     this.message,
     this.transaction,
     this.exception,
@@ -27,7 +32,9 @@ class Event {
     this.contexts,
     this.breadcrumbs,
     this.sdk,
-  }) : eventId = eventId ?? SentryId.newId();
+  })  : eventId = eventId ?? SentryId.newId(),
+        platform = platform ?? sdkPlatform,
+        timestamp = timestamp ?? getUtcDateTime();
 
   /// Refers to the default fingerprinting algorithm.
   ///
@@ -38,8 +45,14 @@ class Event {
   /// The ID Sentry.io assigned to the submitted event for future reference.
   final SentryId eventId;
 
+  /// A timestamp representing when the breadcrumb occurred.
+  final DateTime timestamp;
+
+  /// A string representing the platform the SDK is submitting from. This will be used by the Sentry interface to customize various components in the interface.
+  final String platform;
+
   /// The logger that logged the event.
-  final String loggerName;
+  final String logger;
 
   /// Identifies the server that logged this event.
   final String serverName;
@@ -47,8 +60,14 @@ class Event {
   /// The version of the application that logged the event.
   final String release;
 
+  /// The distribution of the application.
+  final String dist;
+
   /// The environment that logged the event, e.g. "production", "staging".
   final String environment;
+
+  /// A list of relevant modules and their versions.
+  final Map<String, String> modules;
 
   /// Event message.
   ///
@@ -118,14 +137,22 @@ class Event {
   ///     var supplemented = [Event.defaultFingerprint, 'foo'];
   final List<String> fingerprint;
 
+  /// The SDK Interface describes the Sentry SDK and its configuration used to capture and transmit an event.
   final Sdk sdk;
 
-  Event copyWith({
+  // TODO: Request and DebugMeta Interface
+  // TODO: do we need a Threads interface?
+
+  SentryEvent copyWith({
     SentryId eventId,
-    String loggerName,
+    DateTime timestamp,
+    String platform,
+    String logger,
     String serverName,
     String release,
+    String dist,
     String environment,
+    Map<String, String> modules,
     Message message,
     String transaction,
     dynamic exception,
@@ -140,12 +167,16 @@ class Event {
     List<Breadcrumb> breadcrumbs,
     Sdk sdk,
   }) =>
-      Event(
+      SentryEvent(
         eventId: eventId ?? this.eventId,
-        loggerName: loggerName ?? this.loggerName,
+        timestamp: timestamp ?? this.timestamp,
+        platform: platform ?? this.platform,
+        logger: logger ?? this.logger,
         serverName: serverName ?? this.serverName,
         release: release ?? this.release,
+        dist: dist ?? this.dist,
         environment: environment ?? this.environment,
+        modules: modules ?? this.modules,
         message: message ?? this.message,
         transaction: transaction ?? this.transaction,
         exception: exception ?? this.exception,
@@ -164,16 +195,22 @@ class Event {
   /// Serializes this event to JSON.
   Map<String, dynamic> toJson(
       {StackFrameFilter stackFrameFilter, String origin}) {
-    final json = <String, dynamic>{
-      'platform': sdkPlatform,
-    };
+    final json = <String, dynamic>{};
 
     if (eventId != null) {
       json['event_id'] = eventId.toString();
     }
 
-    if (loggerName != null) {
-      json['logger'] = loggerName;
+    if (timestamp != null) {
+      json['timestamp'] = formatDateAsIso8601WithSecondPrecision(timestamp);
+    }
+
+    if (platform != null) {
+      json['platform'] = platform;
+    }
+
+    if (logger != null) {
+      json['logger'] = logger;
     }
 
     if (serverName != null) {
@@ -184,8 +221,16 @@ class Event {
       json['release'] = release;
     }
 
+    if (dist != null) {
+      json['dist'] = dist;
+    }
+
     if (environment != null) {
       json['environment'] = environment;
+    }
+
+    if (modules != null && modules.isNotEmpty) {
+      json['modules'] = modules;
     }
 
     if (message != null) {
@@ -197,6 +242,7 @@ class Event {
     }
 
     if (exception != null) {
+      // TODO: create Exception and Mechanism Interface class
       json['exception'] = [
         <String, dynamic>{
           'type': '${exception.runtimeType}',
@@ -204,6 +250,7 @@ class Event {
         }
       ];
       if (exception is Error && exception.stackTrace != null) {
+        // TODO: create Stack Trace and Frame Interface
         json['stacktrace'] = <String, dynamic>{
           'frames': encodeStackTrace(
             exception.stackTrace,

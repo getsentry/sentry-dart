@@ -45,7 +45,7 @@ class Sentry {
   }
 
   /// Reports an [event] to Sentry.io.
-  static Future<SentryId> captureEvent(Event event) async {
+  static Future<SentryId> captureEvent(SentryEvent event) async {
     return currentHub.captureEvent(event);
   }
 

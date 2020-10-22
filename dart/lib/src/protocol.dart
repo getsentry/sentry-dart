@@ -4,7 +4,7 @@ export 'protocol/browser.dart';
 export 'protocol/contexts.dart';
 export 'protocol/device.dart';
 export 'protocol/dsn.dart';
-export 'protocol/event.dart';
+export 'protocol/sentry_event.dart';
 export 'protocol/sentry_level.dart';
 export 'protocol/message.dart';
 export 'protocol/package.dart';

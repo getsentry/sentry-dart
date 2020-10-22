@@ -11,7 +11,6 @@ import 'package:http/browser_client.dart';
 import 'client.dart';
 import 'protocol.dart';
 import 'sentry_options.dart';
-import 'utils.dart';
 import 'version.dart';
 
 SentryClient createSentryClient(SentryOptions options) =>
@@ -29,15 +28,8 @@ class SentryBrowserClient extends SentryClient {
   ///
   /// If [httpClient] is provided, it is used instead of the default client to
   /// make HTTP calls to Sentry.io. This is useful in tests.
-  ///
-  /// If [clock] is provided, it is used to get time instead of the system
-  /// clock. This is useful in tests. Should be an implementation of [ClockProvider].
-  /// This parameter is dynamic to maintain backwards compatibility with
-  /// previous use of [Clock](https://pub.dartlang.org/documentation/quiver/latest/quiver.time/Clock-class.html)
-  /// from [`package:quiver`](https://pub.dartlang.org/packages/quiver).
   factory SentryBrowserClient(SentryOptions options, {String origin}) {
     options.httpClient ??= BrowserClient();
-    options.clock ??= getUtcDateTime;
 
     // origin is necessary for sentry to resolve stacktrace
     origin ??= '${window.location.origin}/';

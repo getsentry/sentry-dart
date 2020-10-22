@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'client.dart';
 import 'hub.dart';
-import 'protocol/event.dart';
+import 'protocol/sentry_event.dart';
 import 'protocol/sentry_level.dart';
 import 'protocol/sentry_id.dart';
 
@@ -19,7 +19,8 @@ class NoOpHub implements Hub {
   void bindClient(SentryClient client) {}
 
   @override
-  Future<SentryId> captureEvent(Event event) => Future.value(SentryId.empty());
+  Future<SentryId> captureEvent(SentryEvent event) =>
+      Future.value(SentryId.empty());
 
   @override
   Future<SentryId> captureException(throwable, {stackTrace}) =>

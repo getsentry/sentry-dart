@@ -76,7 +76,7 @@ Future testCaptureException(
       httpClient: httpMock,
       clock: fakeClockProvider,
       compressPayload: compressPayload,
-      environmentAttributes: Event(
+      environmentAttributes: SentryEvent(
         serverName: 'test.server.com',
         release: '1.2.3',
         environment: 'staging',
@@ -238,7 +238,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
         httpClient: httpMock,
         clock: fakeClockProvider,
         compressPayload: false,
-        environmentAttributes: Event(
+        environmentAttributes: SentryEvent(
           serverName: 'test.server.com',
           release: '1.2.3',
           environment: 'staging',
@@ -295,7 +295,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
         httpClient: httpMock,
         clock: fakeClockProvider,
         compressPayload: false,
-        environmentAttributes: Event(
+        environmentAttributes: SentryEvent(
           serverName: 'test.server.com',
           release: '1.2.3',
           environment: 'staging',
@@ -314,7 +314,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     await client.close();
   });
 
-  test('$Event userContext overrides client', () async {
+  test('$SentryEvent userContext overrides client', () async {
     final fakeClockProvider = () => DateTime.utc(2017, 1, 2);
 
     String loggedUserId; // used to find out what user context was sent
@@ -350,7 +350,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
         httpClient: httpMock,
         clock: fakeClockProvider,
         compressPayload: false,
-        environmentAttributes: Event(
+        environmentAttributes: SentryEvent(
           serverName: 'test.server.com',
           release: '1.2.3',
           environment: 'staging',
@@ -362,12 +362,12 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     try {
       throw ArgumentError('Test error');
     } catch (error, stackTrace) {
-      final eventWithoutContext = Event(
+      final eventWithoutContext = SentryEvent(
         eventId: SentryId.empty(),
         exception: error,
         stackTrace: stackTrace,
       );
-      final eventWithContext = Event(
+      final eventWithContext = SentryEvent(
         eventId: SentryId.empty(),
         exception: error,
         stackTrace: stackTrace,
