@@ -154,10 +154,14 @@ abstract class SentryClient {
 
       // TODO add tests
       // Merge the scope tags.
-      event = event.copyWith(tags: scope.tags..addAll(event.tags ?? {}));
+      event = event.copyWith(
+          tags: scope.tags.map((key, value) => MapEntry(key, value))
+            ..addAll(event.tags ?? {}));
 
       // Merge the scope extra.
-      event = event.copyWith(extra: scope.extra..addAll(event.extra ?? {}));
+      event = event.copyWith(
+          extra: scope.extra.map((key, value) => MapEntry(key, value))
+            ..addAll(event.extra ?? {}));
 
       // Merge the scope level.
       if (event.level == null) {
