@@ -52,7 +52,6 @@ class SentryBrowserClient extends SentryClient {
             clock: options.clock,
             compressPayload: false,
             sdk: Sdk(name: browserSdkName, version: sdkVersion),
-            headersBuilder: SentryClient.buildHeaders,
             platform: platform,
             origin: origin,
           ),

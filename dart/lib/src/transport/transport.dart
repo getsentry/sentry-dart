@@ -8,14 +8,13 @@ import 'package:sentry/src/utils.dart';
 import '../protocol.dart';
 import '../sentry_options.dart';
 import 'body_encoder_browser.dart' if (dart.library.io) 'body_encoder.dart';
+import 'header_builder_browser.dart' if (dart.library.io) 'header_builder.dart';
 
 typedef BodyEncoder = List<int> Function(
   Map<String, dynamic> data,
   Map<String, String> headers, {
   bool compressPayload,
 });
-
-typedef HeadersBuilder = Map<String, String> Function(String authHeader);
 
 /// A transport is in charge of sending the event to the Sentry server.
 class Transport {
@@ -24,8 +23,6 @@ class Transport {
   final Dsn _dsn;
 
   final Sdk sdk;
-
-  final HeadersBuilder headersBuilder;
 
   final bool compressPayload;
 
@@ -43,7 +40,6 @@ class Transport {
     @required this.httpClient,
     @required this.sdk,
     @required ClockProvider clock,
-    @required this.headersBuilder,
     @required this.platform,
     this.origin,
   })  : _dsn = Dsn.parse(dsn),
@@ -77,7 +73,9 @@ class Transport {
                 (dsnUri.scheme == 'https' && dsnUri.port != 443))
         ? ':${dsnUri.port}'
         : '';
+
     final pathLength = dsnUri.pathSegments.length;
+
     String apiPath;
     if (pathLength > 1) {
       // some paths would present before the projectID in the dsnUri
@@ -91,6 +89,7 @@ class Transport {
 
   Future<SentryId> send(Map<String, dynamic> data) async {
     final now = _clock();
+
     var authHeader = 'Sentry sentry_version=6, sentry_client=$clientId, '
         'sentry_timestamp=${now.millisecondsSinceEpoch}, sentry_key=$publicKey';
     if (secretKey != null) {
@@ -99,7 +98,7 @@ class Transport {
 
     mergeAttributes(_getContext(now), into: data);
 
-    final headers = headersBuilder(authHeader);
+    final headers = buildHeaders(authHeader, sdk: sdk);
 
     final body = bodyEncoder(data, headers, compressPayload: compressPayload);
 

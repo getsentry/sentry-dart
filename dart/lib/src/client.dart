@@ -163,17 +163,4 @@ abstract class SentryClient {
 
   @override
   String toString() => '$SentryClient("${options.dsn}")';
-
-  @protected
-  static Map<String, String> buildHeaders(String authHeader) {
-    final headers = {
-      'Content-Type': 'application/json',
-    };
-
-    if (authHeader != null) {
-      headers['X-Sentry-Auth'] = authHeader;
-    }
-
-    return headers;
-  }
 }
