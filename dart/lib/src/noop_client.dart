@@ -4,6 +4,7 @@ import 'client.dart';
 import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_options.dart';
+import 'stack_trace.dart';
 
 class NoOpSentryClient implements SentryClient {
   NoOpSentryClient._();
@@ -34,11 +35,21 @@ class NoOpSentryClient implements SentryClient {
   Map<String, String> buildHeaders(String authHeader) => {};
 
   @override
-  Future<SentryId> captureEvent(SentryEvent event, {stackFrameFilter, scope}) =>
+  Future<SentryId> captureEvent(
+    SentryEvent event, {
+    StackFrameFilter stackFrameFilter,
+    Scope scope,
+    dynamic hint,
+  }) =>
       Future.value(SentryId.empty());
 
   @override
-  Future<SentryId> captureException(throwable, {stackTrace, scope}) =>
+  Future<SentryId> captureException(
+    dynamic throwable, {
+    dynamic stackTrace,
+    Scope scope,
+    dynamic hint,
+  }) =>
       Future.value(SentryId.empty());
 
   @override
@@ -48,6 +59,7 @@ class NoOpSentryClient implements SentryClient {
     String template,
     List<dynamic> params,
     Scope scope,
+    dynamic hint,
   }) =>
       Future.value(SentryId.empty());
 
