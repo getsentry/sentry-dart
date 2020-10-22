@@ -7,7 +7,6 @@ import 'client_stub.dart'
     if (dart.library.html) 'browser_client.dart'
     if (dart.library.io) 'io_client.dart';
 import 'protocol.dart';
-import 'stack_trace.dart';
 import 'transport/transport.dart';
 
 /// Logs crash reports and events to the Sentry.io service.
@@ -18,10 +17,7 @@ abstract class SentryClient {
   /// `dart:html` is available, otherwise it will throw an unsupported error.
   factory SentryClient(SentryOptions options) => createSentryClient(options);
 
-  SentryClient.base(
-    this.options, {
-    @required this.transport,
-  });
+  SentryClient.base(this.options, {@required this.transport});
 
   @protected
   SentryOptions options;
@@ -44,7 +40,6 @@ abstract class SentryClient {
   /// Reports an [event] to Sentry.io.
   Future<SentryId> captureEvent(
     SentryEvent event, {
-    StackFrameFilter stackFrameFilter,
     Scope scope,
     dynamic hint,
   }) async {
@@ -52,7 +47,7 @@ abstract class SentryClient {
 
     event = _applyScope(event: event, scope: scope);
 
-    return transport.send(event, stackFrameFilter: stackFrameFilter);
+    return transport.send(event);
   }
 
   /// Reports the [throwable] and optionally its [stackTrace] to Sentry.io.

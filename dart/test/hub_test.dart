@@ -57,7 +57,6 @@ void main() {
               client.captureEvent(
                 fakeEvent,
                 scope: captureAnyNamed('scope'),
-                stackFrameFilter: null,
               ),
             ).captured.first,
             Scope(options),
@@ -112,7 +111,6 @@ void main() {
             client.captureEvent(
               fakeEvent,
               scope: captureAnyNamed('scope'),
-              stackFrameFilter: null,
             ),
           ).captured.first,
           Scope(SentryOptions(dsn: fakeDsn))
@@ -145,7 +143,6 @@ void main() {
         client2.captureEvent(
           fakeEvent,
           scope: anyNamed('scope'),
-          stackFrameFilter: null,
         ),
       ).called(1);
     });
