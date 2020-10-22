@@ -168,6 +168,8 @@ void main() {
     sut.setTag('test', 'test');
     sut.setExtra('test', 'test');
 
+    sut.addEventProcessor(fixture.processor);
+
     sut.clear();
 
     expect(sut.breadcrumbs.length, 0);
@@ -183,6 +185,8 @@ void main() {
     expect(sut.tags.length, 0);
 
     expect(sut.extra.length, 0);
+
+    expect(sut.eventProcessors.length, 0);
   });
 
   test('clones', () {
