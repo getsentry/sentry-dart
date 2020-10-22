@@ -8,7 +8,6 @@ import 'client_stub.dart'
     if (dart.library.html) 'browser_client.dart'
     if (dart.library.io) 'io_client.dart';
 import 'protocol.dart';
-import 'stack_trace.dart';
 import 'utils.dart';
 import 'version.dart';
 
@@ -97,7 +96,6 @@ abstract class SentryClient {
   /// Reports an [event] to Sentry.io.
   Future<SentryId> captureEvent(
     SentryEvent event, {
-    StackFrameFilter stackFrameFilter,
     Scope scope,
   }) async {
     final now = options.clock();
@@ -127,7 +125,6 @@ abstract class SentryClient {
 
     mergeAttributes(
       event.toJson(
-        stackFrameFilter: stackFrameFilter,
         origin: origin,
       ),
       into: data,

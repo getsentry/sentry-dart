@@ -131,7 +131,6 @@ void main() {
                     'stacktrace': {
                       'frames': encodeStackTrace(
                         error.stackTrace,
-                        stackFrameFilter: null,
                         origin: null,
                       )
                     }
