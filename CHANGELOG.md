@@ -26,6 +26,7 @@
 - Feature: sentry options #116
 - Ref: SentryId generates UUID
 - Ref: Event now is SentryEvent and added GPU
+- Ref: Hint is passed across Sentry static class, Hub and Client
 
 # `package:sentry` changelog
 
