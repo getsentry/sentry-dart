@@ -166,7 +166,4 @@ abstract class SentryClient {
     }
     return event;
   }
-
-  @override
-  String toString() => '$SentryClient("${options.dsn}")';
 }
