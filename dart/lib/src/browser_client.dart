@@ -42,15 +42,14 @@ class SentryBrowserClient extends SentryClient {
     );
   }
 
-  SentryBrowserClient._(SentryOptions options,
-      {String origin, @required String platform})
-      : super.base(
+  SentryBrowserClient._(
+    SentryOptions options, {
+    String origin,
+    @required String platform,
+  }) : super.base(
           options,
           transport: Transport(
-            dsn: options.dsn,
-            httpClient: options.httpClient,
-            clock: options.clock,
-            compressPayload: false,
+            options: options,
             sdk: Sdk(name: browserSdkName, version: sdkVersion),
             platform: platform,
             origin: origin,

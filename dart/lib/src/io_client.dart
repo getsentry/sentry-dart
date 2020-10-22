@@ -25,13 +25,6 @@ class SentryIOClient extends SentryClient {
   SentryIOClient._(SentryOptions options, {@required String platform})
       : super.base(
           options,
-          transport: Transport(
-            compressPayload: options.compressPayload,
-            httpClient: options.httpClient,
-            clock: options.clock,
-            sdk: sdk,
-            dsn: options.dsn,
-            platform: platform,
-          ),
+          transport: Transport(options: options, sdk: sdk, platform: platform),
         );
 }

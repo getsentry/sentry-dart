@@ -24,6 +24,26 @@ class Dsn {
   /// The DSN URI.
   final Uri uri;
 
+  String get postUri {
+    final port = uri.hasPort &&
+            ((uri.scheme == 'http' && uri.port != 80) ||
+                (uri.scheme == 'https' && uri.port != 443))
+        ? ':${uri.port}'
+        : '';
+
+    final pathLength = uri.pathSegments.length;
+
+    String apiPath;
+    if (pathLength > 1) {
+      // some paths would present before the projectID in the uri
+      apiPath =
+          (uri.pathSegments.sublist(0, pathLength - 1) + ['api']).join('/');
+    } else {
+      apiPath = 'api';
+    }
+    return '${uri.scheme}://${uri.host}$port/$apiPath/$projectId/store/';
+  }
+
   static Dsn parse(String dsn) {
     final uri = Uri.parse(dsn);
     final userInfo = uri.userInfo.split(':');
@@ -44,5 +64,16 @@ class Dsn {
       projectId: uri.pathSegments.last,
       uri: uri,
     );
+  }
+
+  String buildAuthHeader({int timestamp, String clientId}) {
+    var header = 'Sentry sentry_version=6, sentry_client=$clientId, '
+        'sentry_timestamp=$timestamp, sentry_key=${publicKey}';
+
+    if (secretKey != null) {
+      header += ', sentry_secret=${secretKey}';
+    }
+
+    return header;
   }
 }
