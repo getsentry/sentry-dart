@@ -24,7 +24,6 @@ void main() {
         client.captureEvent(
           fakeEvent,
           scope: anyNamed('scope'),
-          stackFrameFilter: null,
         ),
       ).called(1);
     });
