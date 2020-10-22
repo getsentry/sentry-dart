@@ -27,6 +27,7 @@
 - Ref: SentryId generates UUID #119
 - Ref: Event now is SentryEvent and added GPU #121
 - Feat: before breadcrumb and scope ref. #122
+- Ref: Sentry init with null and empty DSN and close method
 
 # `package:sentry` changelog
 

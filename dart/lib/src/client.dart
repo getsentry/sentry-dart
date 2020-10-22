@@ -184,7 +184,7 @@ abstract class SentryClient {
     return captureEvent(event, scope: scope);
   }
 
-  Future<void> close() async {
+  void close() {
     options.httpClient?.close();
   }
 
