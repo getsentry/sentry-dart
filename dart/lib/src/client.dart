@@ -47,6 +47,7 @@ abstract class SentryClient {
     SentryEvent event, {
     StackFrameFilter stackFrameFilter,
     Scope scope,
+    dynamic hint,
   }) async {
     event = _processEvent(event, eventProcessors: options.eventProcessors);
 
@@ -76,13 +77,14 @@ abstract class SentryClient {
     dynamic throwable, {
     dynamic stackTrace,
     Scope scope,
+    dynamic hint,
   }) {
     final event = SentryEvent(
       exception: throwable,
       stackTrace: stackTrace,
       timestamp: options.clock(),
     );
-    return captureEvent(event, scope: scope);
+    return captureEvent(event, scope: scope, hint: hint);
   }
 
   /// Reports the [template]
@@ -92,13 +94,14 @@ abstract class SentryClient {
     String template,
     List<dynamic> params,
     Scope scope,
+    dynamic hint,
   }) {
     final event = SentryEvent(
       message: Message(formatted, template: template, params: params),
       level: level,
       timestamp: options.clock(),
     );
-    return captureEvent(event, scope: scope);
+    return captureEvent(event, scope: scope, hint: hint);
   }
 
   Future<void> close() async {

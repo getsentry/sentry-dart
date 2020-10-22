@@ -27,6 +27,7 @@
 - Ref: SentryId generates UUID #119
 - Ref: Event now is SentryEvent and added GPU #121
 - Feat: before breadcrumb and scope ref. #122
+- Ref: Hint is passed across Sentry static class, Hub and Client #124
 - Ref: added Transport #123
 
 # `package:sentry` changelog
