@@ -14,7 +14,7 @@
 - remove the `package:args` dependency #94
 - move the `package:pedantic` to dev depencies #94
 - Added GH Action Changelog verifier #95
-- Added GH Action (CI) for Dart
+- Added GH Action (CI) for Dart #97
 - new Dart code file structure #96 
 - Base the sdk name on the platform (`sentry.dart` for io & flutter, `sentry.dart.browser` in a browser context) #103 
 - Single changelog and readme for both packages #105
@@ -22,11 +22,12 @@
 - expect a sdkName based on the test platform #105
 - Added Scope and Breadcrumb ring buffer #109
 - Added Hub to SDK #113
-- Ref: Hub passes the Scope to SentryClient
+- Ref: Hub passes the Scope to SentryClient #114
 - Feature: sentry options #116
-- Ref: SentryId generates UUID
-- Ref: Event now is SentryEvent and added GPU
-- Ref: Hint is passed across Sentry static class, Hub and Client
+- Ref: SentryId generates UUID #119
+- Ref: Event now is SentryEvent and added GPU #121
+- Feat: before breadcrumb and scope ref. #122
+- Ref: Hint is passed across Sentry static class, Hub and Client #124
 
 # `package:sentry` changelog
 
