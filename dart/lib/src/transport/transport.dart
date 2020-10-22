@@ -6,7 +6,6 @@ import 'package:sentry/src/utils.dart';
 
 import '../protocol.dart';
 import '../sentry_options.dart';
-import '../stack_trace.dart';
 import 'body_encoder_browser.dart' if (dart.library.io) 'body_encoder.dart';
 import 'header_builder_browser.dart' if (dart.library.io) 'header_builder.dart';
 
@@ -39,10 +38,7 @@ class Transport {
   })  : _options = options,
         dsn = Dsn.parse(options.dsn);
 
-  Future<SentryId> send(
-    SentryEvent event, {
-    StackFrameFilter stackFrameFilter,
-  }) async {
+  Future<SentryId> send(SentryEvent event) async {
     final now = _options.clock();
 
     var authHeader = dsn.buildAuthHeader(
@@ -52,7 +48,6 @@ class Transport {
     final data = _getEventData(
       event,
       timeStamp: now,
-      stackFrameFilter: stackFrameFilter,
     );
 
     final body = bodyEncoder(
@@ -78,7 +73,6 @@ class Transport {
   Map<String, dynamic> _getEventData(
     SentryEvent event, {
     DateTime timeStamp,
-    StackFrameFilter stackFrameFilter,
   }) {
     final data = <String, dynamic>{
       'event_id': event.eventId.toString(),
@@ -89,10 +83,7 @@ class Transport {
     }
 
     mergeAttributes(
-      event.toJson(
-        stackFrameFilter: stackFrameFilter,
-        origin: origin,
-      ),
+      event.toJson(origin: origin),
       into: data,
     );
 
