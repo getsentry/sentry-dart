@@ -79,24 +79,25 @@ void main() {
       ]);
     });
 
-    test('allows changing the stack frame list before sending', () {
-      // ignore: omit_local_variable_types
-      final StackFrameFilter filter =
-          (list) => list.where((f) => f['abs_path'] != 'secret.dart').toList();
+// TODO: use beforeSend to filter stack frames
+//     test('allows changing the stack frame list before sending', () {
+//       // ignore: omit_local_variable_types
+//       final StackFrameFilter filter =
+//           (list) => list.where((f) => f['abs_path'] != 'secret.dart').toList();
 
-      expect(encodeStackTrace('''
-#0      baz (file:///pathto/test.dart:50:3)
-#1      bar (file:///pathto/secret.dart:46:9)
-      ''', stackFrameFilter: filter), [
-        {
-          'abs_path': 'test.dart',
-          'function': 'baz',
-          'lineno': 50,
-          'colno': 3,
-          'in_app': true,
-          'filename': 'test.dart'
-        },
-      ]);
-    });
+//       expect(encodeStackTrace('''
+// #0      baz (file:///pathto/test.dart:50:3)
+// #1      bar (file:///pathto/secret.dart:46:9)
+//       ''', stackFrameFilter: filter), [
+//         {
+//           'abs_path': 'test.dart',
+//           'function': 'baz',
+//           'lineno': 50,
+//           'colno': 3,
+//           'in_app': true,
+//           'filename': 'test.dart'
+//         },
+//       ]);
+//     });
   });
 }

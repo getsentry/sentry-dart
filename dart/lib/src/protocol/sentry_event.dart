@@ -193,8 +193,7 @@ class SentryEvent {
       );
 
   /// Serializes this event to JSON.
-  Map<String, dynamic> toJson(
-      {StackFrameFilter stackFrameFilter, String origin}) {
+  Map<String, dynamic> toJson({String origin}) {
     final json = <String, dynamic>{};
 
     if (eventId != null) {
@@ -254,7 +253,6 @@ class SentryEvent {
         json['stacktrace'] = <String, dynamic>{
           'frames': encodeStackTrace(
             exception.stackTrace,
-            stackFrameFilter: stackFrameFilter,
             origin: origin,
           ),
         };
@@ -265,7 +263,6 @@ class SentryEvent {
       json['stacktrace'] = <String, dynamic>{
         'frames': encodeStackTrace(
           stackTrace,
-          stackFrameFilter: stackFrameFilter,
           origin: origin,
         ),
       };
