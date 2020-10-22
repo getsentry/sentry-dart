@@ -97,6 +97,7 @@ abstract class SentryClient {
   Future<SentryId> captureEvent(
     SentryEvent event, {
     Scope scope,
+    dynamic hint,
   }) async {
     final now = options.clock();
     var authHeader = 'Sentry sentry_version=6, sentry_client=$clientId, '
@@ -152,13 +153,14 @@ abstract class SentryClient {
     dynamic throwable, {
     dynamic stackTrace,
     Scope scope,
+    dynamic hint,
   }) {
     final event = SentryEvent(
       exception: throwable,
       stackTrace: stackTrace,
       timestamp: options.clock(),
     );
-    return captureEvent(event, scope: scope);
+    return captureEvent(event, scope: scope, hint: hint);
   }
 
   /// Reports the [template]
@@ -168,6 +170,7 @@ abstract class SentryClient {
     String template,
     List<dynamic> params,
     Scope scope,
+    dynamic hint,
   }) {
     final event = SentryEvent(
       message: Message(
@@ -178,7 +181,7 @@ abstract class SentryClient {
       level: level,
       timestamp: options.clock(),
     );
-    return captureEvent(event, scope: scope);
+    return captureEvent(event, scope: scope, hint: hint);
   }
 
   Future<void> close() async {

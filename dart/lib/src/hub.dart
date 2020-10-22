@@ -54,7 +54,7 @@ class Hub {
   SentryId get lastEventId => _lastEventId;
 
   /// Captures the event.
-  Future<SentryId> captureEvent(SentryEvent event) async {
+  Future<SentryId> captureEvent(SentryEvent event, {dynamic hint}) async {
     var sentryId = SentryId.empty();
 
     if (!_isEnabled) {
@@ -71,7 +71,11 @@ class Hub {
       final item = _peek();
       if (item != null) {
         try {
-          sentryId = await item.client.captureEvent(event, scope: item.scope);
+          sentryId = await item.client.captureEvent(
+            event,
+            scope: item.scope,
+            hint: hint,
+          );
         } catch (err) {
           _options.logger(
             SentryLevel.error,
@@ -94,6 +98,7 @@ class Hub {
   Future<SentryId> captureException(
     dynamic throwable, {
     dynamic stackTrace,
+    dynamic hint,
   }) async {
     var sentryId = SentryId.empty();
 
@@ -111,8 +116,12 @@ class Hub {
       final item = _peek();
       if (item != null) {
         try {
-          sentryId = await item.client.captureException(throwable,
-              stackTrace: stackTrace, scope: item.scope);
+          sentryId = await item.client.captureException(
+            throwable,
+            stackTrace: stackTrace,
+            scope: item.scope,
+            hint: hint,
+          );
         } catch (err) {
           _options.logger(
             SentryLevel.error,
@@ -138,6 +147,7 @@ class Hub {
     SentryLevel level = SentryLevel.info,
     String template,
     List<dynamic> params,
+    dynamic hint,
   }) async {
     var sentryId = SentryId.empty();
 
@@ -161,6 +171,7 @@ class Hub {
             template: template,
             params: params,
             scope: item.scope,
+            hint: hint,
           );
         } catch (err) {
           _options.logger(
