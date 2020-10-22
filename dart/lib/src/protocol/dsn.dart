@@ -9,11 +9,9 @@ class Dsn {
   });
 
   /// The Sentry.io public key for the project.
-  @visibleForTesting
   final String publicKey;
 
   /// The Sentry.io secret key for the project.
-  @visibleForTesting
   final String secretKey;
 
   /// The ID issued by Sentry.io to your project.
@@ -64,16 +62,5 @@ class Dsn {
       projectId: uri.pathSegments.last,
       uri: uri,
     );
-  }
-
-  String buildAuthHeader({int timestamp, String clientId}) {
-    var header = 'Sentry sentry_version=6, sentry_client=$clientId, '
-        'sentry_timestamp=$timestamp, sentry_key=${publicKey}';
-
-    if (secretKey != null) {
-      header += ', sentry_secret=${secretKey}';
-    }
-
-    return header;
   }
 }

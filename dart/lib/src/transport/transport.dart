@@ -30,19 +30,25 @@ class Transport {
 
   final Sdk sdk;
 
+  CredentialBuilder _credentialBuilder;
+
   Transport({
     @required SentryOptions options,
     @required this.sdk,
     @required this.platform,
     this.origin,
   })  : _options = options,
-        dsn = Dsn.parse(options.dsn);
+        dsn = Dsn.parse(options.dsn) {
+    _credentialBuilder = CredentialBuilder(
+      dsn: Dsn.parse(options.dsn),
+      clientId: sdk.identifier,
+    );
+  }
 
   Future<SentryId> send(SentryEvent event) async {
     final now = _options.clock();
 
-    var authHeader = dsn.buildAuthHeader(
-        timestamp: now.millisecondsSinceEpoch, clientId: sdk.identifier);
+    var authHeader = _credentialBuilder.build(now.millisecondsSinceEpoch);
     final headers = buildHeaders(authHeader, sdk: sdk);
 
     final data = _getEventData(
@@ -97,4 +103,32 @@ class Transport {
         'timestamp': formatDateAsIso8601WithSecondPrecision(now),
         'platform': platform,
       };
+}
+
+class CredentialBuilder {
+  final String authHeader;
+
+  CredentialBuilder({@required Dsn dsn, String clientId})
+      : authHeader = buildAuthHeader(
+          publicKey: dsn.publicKey,
+          secretKey: dsn.secretKey,
+          clientId: clientId,
+        );
+
+  String build(int timestamp) => '$authHeader, sentry_timestamp=$timestamp';
+
+  static String buildAuthHeader({
+    String publicKey,
+    String secretKey,
+    String clientId,
+  }) {
+    var header = 'Sentry sentry_version=6, sentry_client=$clientId, '
+        'sentry_key=${publicKey}';
+
+    if (secretKey != null) {
+      header += ', sentry_secret=${secretKey}';
+    }
+
+    return header;
+  }
 }
