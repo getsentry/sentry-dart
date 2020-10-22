@@ -34,12 +34,9 @@ class SentryOptions {
 
   /// If [clock] is provided, it is used to get time instead of the system
   /// clock. This is useful in tests. Should be an implementation of [ClockProvider].
-  /// This parameter is dynamic to maintain backwards compatibility with
-  /// previous use of [Clock](https://pub.dartlang.org/documentation/quiver/latest/quiver.time/Clock-class.html)
-  /// from [`package:quiver`](https://pub.dartlang.org/packages/quiver).
-  dynamic _clock;
+  ClockProvider _clock;
 
-  dynamic get clock => _clock;
+  ClockProvider get clock => _clock;
 
   /// This variable controls the total amount of breadcrumbs that should be captured Default is 100
   int maxBreadcrumbs = 100;
@@ -142,13 +139,9 @@ class SentryOptions {
     this.environmentAttributes,
     this.compressPayload,
     this.httpClient,
-    dynamic clock,
+    ClockProvider clock = getUtcDateTime,
   }) {
-    if (clock == null) {
-      clock = getUtcDateTime;
-    } else {
-      _clock = (clock is ClockProvider ? clock : clock.get) as ClockProvider;
-    }
+    _clock = clock;
   }
 
   /// Adds an event processor
