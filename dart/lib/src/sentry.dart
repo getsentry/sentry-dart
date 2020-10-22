@@ -45,8 +45,10 @@ class Sentry {
   }
 
   /// Reports an [event] to Sentry.io.
-  static Future<SentryId> captureEvent(SentryEvent event,
-      {dynamic hint}) async {
+  static Future<SentryId> captureEvent(
+    SentryEvent event, {
+    dynamic hint,
+  }) async {
     return currentHub.captureEvent(event, hint: hint);
   }
 
@@ -56,8 +58,11 @@ class Sentry {
     dynamic stackTrace,
     dynamic hint,
   }) async {
-    return currentHub.captureException(error,
-        stackTrace: stackTrace, hint: hint);
+    return currentHub.captureException(
+      error,
+      stackTrace: stackTrace,
+      hint: hint,
+    );
   }
 
   Future<SentryId> captureMessage(
@@ -67,8 +72,13 @@ class Sentry {
     List<dynamic> params,
     dynamic hint,
   }) async {
-    return currentHub.captureMessage(message,
-        level: level, template: template, params: params, hint: hint);
+    return currentHub.captureMessage(
+      message,
+      level: level,
+      template: template,
+      params: params,
+      hint: hint,
+    );
   }
 
   /// Close the client SDK
