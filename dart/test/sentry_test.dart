@@ -5,7 +5,7 @@ import 'package:test/test.dart';
 import 'mocks.dart';
 
 void main() {
-  group('Sentry static entry', () {
+  group('Sentry capture methods', () {
     SentryClient client;
 
     Exception anException;
@@ -17,9 +17,12 @@ void main() {
       client = MockSentryClient();
       Sentry.initClient(client);
     });
+    tearDown(() {
+      Sentry.close();
+    });
 
-    test('should capture the event', () {
-      Sentry.captureEvent(fakeEvent);
+    test('should capture the event', () async {
+      await Sentry.captureEvent(fakeEvent);
       verify(
         client.captureEvent(
           fakeEvent,
@@ -52,6 +55,32 @@ void main() {
           scope: anyNamed('scope'),
         ),
       ).called(1);
+    });
+  });
+  group('Sentry is enabled or closed', () {
+    test('null DSN', () {
+      expect(
+        () => Sentry.init((options) => options.dsn = null),
+        throwsArgumentError,
+      );
+      expect(Sentry.isEnabled, false);
+    });
+
+    test('empty DSN', () {
+      Sentry.init((options) => options.dsn = '');
+      expect(Sentry.isEnabled, false);
+    });
+
+    test('empty DSN', () {
+      Sentry.init((options) => options.dsn = fakeDsn);
+
+      Sentry.initClient(MockSentryClient());
+
+      expect(Sentry.isEnabled, true);
+
+      Sentry.close();
+
+      expect(Sentry.isEnabled, false);
     });
   });
 }
