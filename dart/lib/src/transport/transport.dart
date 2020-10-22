@@ -6,6 +6,7 @@ import 'package:sentry/src/utils.dart';
 
 import '../protocol.dart';
 import '../sentry_options.dart';
+import '../stack_trace.dart';
 import 'body_encoder_browser.dart' if (dart.library.io) 'body_encoder.dart';
 import 'header_builder_browser.dart' if (dart.library.io) 'header_builder.dart';
 
@@ -38,15 +39,21 @@ class Transport {
   })  : _options = options,
         dsn = Dsn.parse(options.dsn);
 
-  Future<SentryId> send(Map<String, dynamic> data) async {
+  Future<SentryId> send(
+    SentryEvent event, {
+    StackFrameFilter stackFrameFilter,
+  }) async {
     final now = _options.clock();
 
     var authHeader = dsn.buildAuthHeader(
         timestamp: now.millisecondsSinceEpoch, clientId: sdk.identifier);
-
-    mergeAttributes(_getContext(now), into: data);
-
     final headers = buildHeaders(authHeader, sdk: sdk);
+
+    final data = _getEventData(
+      event,
+      timeStamp: now,
+      stackFrameFilter: stackFrameFilter,
+    );
 
     final body = bodyEncoder(
       data,
@@ -66,6 +73,32 @@ class Transport {
 
     final eventId = json.decode(response.body)['id'];
     return eventId != null ? SentryId.fromId(eventId) : SentryId.empty();
+  }
+
+  Map<String, dynamic> _getEventData(
+    SentryEvent event, {
+    DateTime timeStamp,
+    StackFrameFilter stackFrameFilter,
+  }) {
+    final data = <String, dynamic>{
+      'event_id': event.eventId.toString(),
+    };
+
+    if (_options.environmentAttributes != null) {
+      mergeAttributes(_options.environmentAttributes.toJson(), into: data);
+    }
+
+    mergeAttributes(
+      event.toJson(
+        stackFrameFilter: stackFrameFilter,
+        origin: origin,
+      ),
+      into: data,
+    );
+
+    mergeAttributes(_getContext(timeStamp), into: data);
+
+    return data;
   }
 
   Map<String, dynamic> _getContext(DateTime now) => {

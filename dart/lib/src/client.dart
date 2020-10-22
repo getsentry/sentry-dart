@@ -9,7 +9,6 @@ import 'client_stub.dart'
 import 'protocol.dart';
 import 'stack_trace.dart';
 import 'transport/transport.dart';
-import 'utils.dart';
 
 /// Logs crash reports and events to the Sentry.io service.
 abstract class SentryClient {
@@ -53,23 +52,7 @@ abstract class SentryClient {
 
     event = _applyScope(event: event, scope: scope);
 
-    final data = <String, dynamic>{
-      'event_id': event.eventId.toString(),
-    };
-
-    if (options.environmentAttributes != null) {
-      mergeAttributes(options.environmentAttributes.toJson(), into: data);
-    }
-
-    mergeAttributes(
-      event.toJson(
-        stackFrameFilter: stackFrameFilter,
-        origin: transport.origin,
-      ),
-      into: data,
-    );
-
-    return transport.send(data);
+    return transport.send(event, stackFrameFilter: stackFrameFilter);
   }
 
   /// Reports the [throwable] and optionally its [stackTrace] to Sentry.io.
