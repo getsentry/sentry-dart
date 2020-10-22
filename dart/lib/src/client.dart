@@ -120,7 +120,8 @@ abstract class SentryClient {
     return event;
   }
 
-  Event _applyScope({@required Event event, @required Scope scope}) {
+  SentryEvent _applyScope(
+      {@required SentryEvent event, @required Scope scope}) {
     if (scope != null) {
       // Merge the scope transaction.
       if (event.transaction == null) {

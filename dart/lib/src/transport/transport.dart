@@ -3,10 +3,10 @@ import 'dart:convert';
 
 import 'package:http/http.dart';
 import 'package:meta/meta.dart';
-import 'package:sentry/sentry.dart';
 import 'package:sentry/src/utils.dart';
 
 import '../protocol.dart';
+import '../sentry_options.dart';
 import 'body_encoder_browser.dart' if (dart.library.io) 'body_encoder.dart';
 
 typedef BodyEncoder = List<int> Function(
@@ -16,9 +16,6 @@ typedef BodyEncoder = List<int> Function(
 });
 
 typedef HeadersBuilder = Map<String, String> Function(String authHeader);
-
-/// Used to provide timestamp for logging.
-typedef ClockProvider = DateTime Function();
 
 /// A transport is in charge of sending the event to the Sentry server.
 class Transport {
