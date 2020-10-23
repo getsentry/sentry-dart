@@ -41,15 +41,16 @@ class Transport {
     this.origin,
   })  : _options = options,
         dsn = Dsn.parse(options.dsn),
-        _headers = buildHeaders(sdk: sdk) {
+        _headers = buildHeaders(sdkIdentifier: sdk.identifier) {
     _credentialBuilder = CredentialBuilder(
-        dsn: Dsn.parse(options.dsn),
-        clientId: sdk.identifier,
-        clock: options.clock);
+      dsn: Dsn.parse(options.dsn),
+      clientId: sdk.identifier,
+      clock: options.clock,
+    );
   }
 
   Future<SentryId> send(SentryEvent event) async {
-    final data = _getEventData(event, timeStamp: _options.clock());
+    final data = _getEventData(event);
 
     final body = bodyEncoder(
       data,
@@ -71,10 +72,7 @@ class Transport {
     return eventId != null ? SentryId.fromId(eventId) : SentryId.empty();
   }
 
-  Map<String, dynamic> _getEventData(
-    SentryEvent event, {
-    DateTime timeStamp,
-  }) {
+  Map<String, dynamic> _getEventData(SentryEvent event) {
     final data = event.toJson(origin: origin);
 
     // TODO add this attributes to event in client

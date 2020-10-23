@@ -81,6 +81,7 @@ Future testCaptureException(
         serverName: 'test.server.com',
         release: '1.2.3',
         environment: 'staging',
+        timestamp: fakeClockProvider(),
       ),
     ),
   );
