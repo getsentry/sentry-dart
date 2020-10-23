@@ -47,10 +47,7 @@ abstract class SentryClient {
 
     event = _applyScope(event: event, scope: scope);
 
-    event = event.copyWith(
-      /*timestamp: options.clock(),*/
-      platform: transport.platform,
-    );
+    event = event.copyWith(platform: transport.platform);
 
     return transport.send(event);
   }

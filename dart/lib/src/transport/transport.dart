@@ -7,7 +7,6 @@ import 'package:sentry/src/utils.dart';
 import '../protocol.dart';
 import '../sentry_options.dart';
 import 'body_encoder_browser.dart' if (dart.library.io) 'body_encoder.dart';
-import 'header_builder_browser.dart' if (dart.library.io) 'header_builder.dart';
 
 typedef BodyEncoder = List<int> Function(
   Map<String, dynamic> data,
@@ -41,7 +40,7 @@ class Transport {
     this.origin,
   })  : _options = options,
         dsn = Dsn.parse(options.dsn),
-        _headers = buildHeaders(sdkIdentifier: sdk.identifier) {
+        _headers = _buildHeaders(sdkIdentifier: sdk.identifier) {
     _credentialBuilder = CredentialBuilder(
       dsn: Dsn.parse(options.dsn),
       clientId: sdk.identifier,
@@ -80,13 +79,8 @@ class Transport {
       mergeAttributes(_options.environmentAttributes.toJson(), into: data);
     }
 
-    // TODO add this attributes to event in client
-    mergeAttributes(_getContext(), into: data);
-
     return data;
   }
-
-  Map<String, dynamic> _getContext() => {'project': dsn.projectId};
 }
 
 class CredentialBuilder {
@@ -126,4 +120,14 @@ class CredentialBuilder {
         },
       );
   }
+}
+
+Map<String, String> _buildHeaders({String sdkIdentifier}) {
+  final headers = {'Content-Type': 'application/json'};
+  // NOTE(lejard_h) overriding user agent on VM and Flutter not sure why
+  // for web it use browser user agent
+  if (!isWeb) {
+    headers['User-Agent'] = sdkIdentifier;
+  }
+  return headers;
 }

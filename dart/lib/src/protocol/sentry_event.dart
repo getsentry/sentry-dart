@@ -33,7 +33,7 @@ class SentryEvent {
     this.breadcrumbs,
     this.sdk,
   })  : eventId = eventId ?? SentryId.newId(),
-        platform = platform ?? sdkPlatform,
+        platform = platform ?? (isWeb ? browserPlatform : sdkPlatform),
         timestamp = timestamp ?? getUtcDateTime();
 
   /// Refers to the default fingerprinting algorithm.

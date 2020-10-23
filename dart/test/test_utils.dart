@@ -143,7 +143,6 @@ Future testCaptureException(
     expect(topFrame['function'], 'Object.wrapException');
 
     expect(data, {
-      'project': '1',
       'event_id': sentryId.toString(),
       'timestamp': '2017-01-02T00:00:00',
       'platform': 'javascript',
@@ -161,7 +160,6 @@ Future testCaptureException(
     expect(topFrame['function'], 'testCaptureException');
 
     expect(data, {
-      'project': '1',
       'event_id': sentryId.toString(),
       'timestamp': '2017-01-02T00:00:00',
       'platform': 'dart',
