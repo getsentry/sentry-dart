@@ -21,11 +21,7 @@ abstract class SentryClient {
   SentryClient.base(this._options, {String origin}) {
     _random = _options.sampleRate == null ? null : Random();
     if (_options.transport is NoOpTransport) {
-      _options.transport = Transport(
-        options: _options,
-        sdkIdentifier: _options.sdk.identifier,
-        origin: origin,
-      );
+      _options.transport = Transport(options: _options, origin: origin);
     }
   }
 
@@ -48,10 +44,12 @@ abstract class SentryClient {
 
     event = _applyScope(event: event, scope: scope);
 
+    // TODO create eventProcessors ?
     event = event.copyWith(
       serverName: _options.serverName,
       environment: _options.environment,
       release: _options.release,
+      platform: event.platform ?? sdkPlatform,
     );
 
     return _options.transport.send(event);
@@ -90,9 +88,7 @@ abstract class SentryClient {
     return captureEvent(event, scope: scope, hint: hint);
   }
 
-  void close() {
-    _options.httpClient?.close();
-  }
+  void close() => _options.httpClient?.close();
 
   SentryEvent _processEvent(
     SentryEvent event, {

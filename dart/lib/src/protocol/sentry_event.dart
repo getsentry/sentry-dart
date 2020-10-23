@@ -12,8 +12,8 @@ class SentryEvent {
   SentryEvent({
     SentryId eventId,
     DateTime timestamp,
-    String platform,
     Sdk sdk,
+    this.platform,
     this.logger,
     this.serverName,
     this.release,
@@ -33,7 +33,6 @@ class SentryEvent {
     this.contexts,
     this.breadcrumbs,
   })  : eventId = eventId ?? SentryId.newId(),
-        platform = platform ?? sdkPlatform,
         timestamp = timestamp ?? getUtcDateTime(),
         sdk = sdk ?? Sdk(name: sdkName, version: sdkVersion);
 

@@ -28,17 +28,14 @@ class Transport {
 
   final Map<String, String> _headers;
 
-  Transport({
-    @required SentryOptions options,
-    @required String sdkIdentifier,
-    String origin,
-  })  : _options = options,
+  Transport({@required SentryOptions options, String origin})
+      : _options = options,
         _origin = origin,
         dsn = Dsn.parse(options.dsn),
-        _headers = _buildHeaders(sdkIdentifier: sdkIdentifier) {
+        _headers = _buildHeaders(sdkIdentifier: options.sdk.identifier) {
     _credentialBuilder = CredentialBuilder(
       dsn: Dsn.parse(options.dsn),
-      clientId: sdkIdentifier,
+      clientId: options.sdk.identifier,
       clock: options.clock,
     );
   }

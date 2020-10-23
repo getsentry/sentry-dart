@@ -29,6 +29,7 @@ void main() {
       final event = SentryEvent(
         eventId: SentryId.empty(),
         timestamp: DateTime.utc(2019),
+        platform: sdkPlatform,
         sdk: Sdk(
           name: 'sentry.dart.flutter',
           version: '4.3.2',
@@ -72,6 +73,7 @@ void main() {
         SentryEvent(
           eventId: SentryId.empty(),
           timestamp: timestamp,
+          platform: sdkPlatform,
           message: Message(
             'test-message 1 2',
             template: 'test-message %d %d',
