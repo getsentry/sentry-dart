@@ -13,23 +13,23 @@ import 'utils.dart';
 /// The SDK version reported to Sentry.io in the submitted events.
 const String sdkVersion = '4.0.0';
 
-String get sdkName => isWeb ? browserSdkName : ioSdkName;
+String get sdkName => isWeb ? _browserSdkName : _ioSdkName;
 
 /// The default SDK name reported to Sentry.io in the submitted events.
-const String ioSdkName = 'sentry.dart';
+const String _ioSdkName = 'sentry.dart';
 
 /// The SDK name for web projects reported to Sentry.io in the submitted events.
-const String browserSdkName = 'sentry.dart.browser';
+const String _browserSdkName = 'sentry.dart.browser';
 
 /// The name of the SDK platform reported to Sentry.io in the submitted events.
 ///
 /// Used for IO version.
-String get sdkPlatform => isWeb ? browserPlatform : ioSdkPlatform;
+String get sdkPlatform => isWeb ? _browserPlatform : _ioSdkPlatform;
 
 /// The name of the SDK platform reported to Sentry.io in the submitted events.
 ///
 /// Used for IO version.
-const String ioSdkPlatform = 'dart';
+const String _ioSdkPlatform = 'dart';
 
 /// Used to report browser Stacktrace to sentry.
-const String browserPlatform = 'javascript';
+const String _browserPlatform = 'javascript';
