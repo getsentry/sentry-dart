@@ -102,8 +102,8 @@ class SentryOptions {
 
   /// Configures the sample rate as a percentage of events to be sent in the range of 0.0 to 1.0. if
   /// 1.0 is set it means that 100% of events are sent. If set to 0.1 only 10% of events will be
-  /// sent. Events are picked randomly. Default is 1.0 (disabled)
-  double sampleRate = 1.0;
+  /// sent. Events are picked randomly. Default is null (disabled)
+  double sampleRate;
 
   /// A list of string prefixes of module names that do not belong to the app, but rather third-party
   /// packages. Modules considered not to be part of the app will be hidden from stack traces by
@@ -119,6 +119,14 @@ class SentryOptions {
   List<String> get inAppIncludes => List.unmodifiable(_inAppIncludes);
 
   // TODO: transport, transportGate, connectionTimeoutMillis, readTimeoutMillis, hostnameVerifier, sslSocketFactory, proxy
+  Transport _transport;
+
+  Transport get transport => _transport;
+
+  set transport(Transport transport) {
+    // TODO: NoOp transport
+    _transport = transport;
+  }
 
   /// Sets the distribution. Think about it together with release and environment
   String dist;

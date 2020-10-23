@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
@@ -17,13 +18,16 @@ abstract class SentryClient {
   /// `dart:html` is available, otherwise it will throw an unsupported error.
   factory SentryClient(SentryOptions options) => createSentryClient(options);
 
-  SentryClient.base(this.options, {@required this.transport});
+  SentryClient.base(this.options, {@required this.transport}) {
+    _random = options.sampleRate == null ? null : Random();
+  }
 
   @protected
   SentryOptions options;
 
+  // TODO: this should be removed and used options.transport
   @visibleForTesting
-  final Transport transport;
+  Transport transport;
 
   /// Information about the current user.
   ///
@@ -37,6 +41,8 @@ abstract class SentryClient {
   /// * https://docs.sentry.io/learn/context/#capturing-the-user
   User userContext;
 
+  Random _random;
+
   /// Reports an [event] to Sentry.io.
   Future<SentryId> captureEvent(
     SentryEvent event, {
@@ -44,6 +50,11 @@ abstract class SentryClient {
     dynamic hint,
   }) async {
     event = _processEvent(event, eventProcessors: options.eventProcessors);
+
+    // dropped by sampling or event processors
+    if (event == null) {
+      return Future.value(SentryId.empty());
+    }
 
     event = _applyScope(event: event, scope: scope);
 
@@ -97,6 +108,14 @@ abstract class SentryClient {
     dynamic hint,
     List<EventProcessor> eventProcessors,
   }) {
+    if (_sampleRate()) {
+      options.logger(
+        SentryLevel.debug,
+        'Event ${event.eventId.toString()} was dropped due to sampling decision.',
+      );
+      return null;
+    }
+
     for (final processor in eventProcessors) {
       try {
         event = processor(event, hint);
@@ -156,5 +175,12 @@ abstract class SentryClient {
       }
     }
     return event;
+  }
+
+  bool _sampleRate() {
+    if (options.sampleRate != null && _random != null) {
+      return (options.sampleRate < _random.nextDouble());
+    }
+    return true;
   }
 }
