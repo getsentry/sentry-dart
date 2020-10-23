@@ -7,11 +7,5 @@ class NoOpTransport implements Transport {
   Dsn get dsn => null;
 
   @override
-  String get origin => null;
-
-  @override
-  String get sdkIdentifier => null;
-
-  @override
   Future<SentryId> send(SentryEvent event) => Future.value(SentryId.empty());
 }

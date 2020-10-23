@@ -22,9 +22,7 @@ class Transport {
   final Dsn dsn;
 
   /// Use for browser stacktrace
-  final String origin;
-
-  final String sdkIdentifier;
+  final String _origin;
 
   CredentialBuilder _credentialBuilder;
 
@@ -32,9 +30,10 @@ class Transport {
 
   Transport({
     @required SentryOptions options,
-    @required this.sdkIdentifier,
-    this.origin,
+    @required String sdkIdentifier,
+    String origin,
   })  : _options = options,
+        _origin = origin,
         dsn = Dsn.parse(options.dsn),
         _headers = _buildHeaders(sdkIdentifier: sdkIdentifier) {
     _credentialBuilder = CredentialBuilder(
@@ -68,7 +67,7 @@ class Transport {
   }
 
   Map<String, dynamic> _getEventData(SentryEvent event) {
-    final data = event.toJson(origin: origin);
+    final data = event.toJson(origin: _origin);
 
     // TODO add this attributes to event in client
     if (_options.environmentAttributes != null) {

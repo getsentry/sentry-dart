@@ -3,7 +3,6 @@ import 'dart:async';
 import 'client.dart';
 import 'protocol.dart';
 import 'scope.dart';
-import 'sentry_options.dart';
 
 class NoOpSentryClient implements SentryClient {
   NoOpSentryClient._();
@@ -13,12 +12,6 @@ class NoOpSentryClient implements SentryClient {
   factory NoOpSentryClient() {
     return _instance;
   }
-
-  @override
-  User userContext;
-
-  @override
-  SentryOptions options;
 
   @override
   Future<SentryId> captureEvent(
