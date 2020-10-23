@@ -1,5 +1,7 @@
 import 'package:http/http.dart';
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/transport/noop_transport.dart';
+
 import 'diagnostic_logger.dart';
 import 'hub.dart';
 import 'protocol.dart';
@@ -118,7 +120,14 @@ class SentryOptions {
 
   List<String> get inAppIncludes => List.unmodifiable(_inAppIncludes);
 
-  // TODO: transport, transportGate, connectionTimeoutMillis, readTimeoutMillis, hostnameVerifier, sslSocketFactory, proxy
+  Transport _transport = NoOpTransport();
+
+  Transport get transport => _transport;
+
+  set transport(Transport transport) =>
+      _transport = transport ?? NoOpTransport();
+
+  // TODO: transportGate, connectionTimeoutMillis, readTimeoutMillis, hostnameVerifier, sslSocketFactory, proxy
 
   /// Sets the distribution. Think about it together with release and environment
   String dist;
@@ -139,8 +148,9 @@ class SentryOptions {
     this.environmentAttributes,
     this.compressPayload,
     this.httpClient,
+    Transport transport,
     ClockProvider clock = getUtcDateTime,
-  }) {
+  }) : _transport = transport ?? NoOpTransport() {
     _clock = clock;
   }
 

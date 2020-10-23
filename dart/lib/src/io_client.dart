@@ -5,10 +5,9 @@
 import 'package:meta/meta.dart';
 
 /// A pure Dart client for Sentry.io crash reporting.
-import 'package:sentry/sentry.dart';
-import 'package:sentry/src/transport/transport.dart';
-
 import 'client.dart';
+import 'sentry_options.dart';
+import 'version.dart';
 
 SentryClient createSentryClient(SentryOptions options) =>
     SentryIOClient(options);
@@ -20,12 +19,5 @@ class SentryIOClient extends SentryClient {
       SentryIOClient._(options, platform: sdkPlatform);
 
   SentryIOClient._(SentryOptions options, {@required String platform})
-      : super.base(
-          options,
-          transport: Transport(
-            options: options,
-            sdkIdentifier: '${sdkName}/${sdkVersion}',
-            platform: platform,
-          ),
-        );
+      : super.base(options);
 }

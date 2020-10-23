@@ -24,9 +24,6 @@ class Transport {
   /// Use for browser stacktrace
   final String origin;
 
-  /// Used by sentry to differentiate browser from io environment
-  final String platform;
-
   final String sdkIdentifier;
 
   CredentialBuilder _credentialBuilder;
@@ -36,7 +33,6 @@ class Transport {
   Transport({
     @required SentryOptions options,
     @required this.sdkIdentifier,
-    @required this.platform,
     this.origin,
   })  : _options = options,
         dsn = Dsn.parse(options.dsn),

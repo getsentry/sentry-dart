@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/transport/noop_transport.dart';
 
 import 'client_stub.dart'
     if (dart.library.html) 'browser_client.dart'
     if (dart.library.io) 'io_client.dart';
 import 'protocol.dart';
-import 'transport/transport.dart';
 
 /// Logs crash reports and events to the Sentry.io service.
 abstract class SentryClient {
@@ -17,13 +17,19 @@ abstract class SentryClient {
   /// `dart:html` is available, otherwise it will throw an unsupported error.
   factory SentryClient(SentryOptions options) => createSentryClient(options);
 
-  SentryClient.base(this.options, {@required this.transport});
+  SentryClient.base(this.options, {String origin}) {
+    if (options.transport is NoOpTransport) {
+      options.transport = Transport(
+        options: options,
+        sdkIdentifier: '${sdkName}/${sdkVersion}',
+        origin: origin,
+      );
+    }
+  }
 
   @protected
-  SentryOptions options;
-
   @visibleForTesting
-  final Transport transport;
+  SentryOptions options;
 
   /// Information about the current user.
   ///
@@ -47,9 +53,9 @@ abstract class SentryClient {
 
     event = _applyScope(event: event, scope: scope);
 
-    event = event.copyWith(platform: transport.platform);
+    event = event.copyWith(platform: sdkPlatform);
 
-    return transport.send(event);
+    return options.transport.send(event);
   }
 
   /// Reports the [throwable] and optionally its [stackTrace] to Sentry.io.

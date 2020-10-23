@@ -4,7 +4,6 @@ import 'client.dart';
 import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_options.dart';
-import 'transport/transport.dart';
 
 class NoOpSentryClient implements SentryClient {
   NoOpSentryClient._();
@@ -20,9 +19,6 @@ class NoOpSentryClient implements SentryClient {
 
   @override
   SentryOptions options;
-
-  @override
-  Transport transport;
 
   @override
   Future<SentryId> captureEvent(
