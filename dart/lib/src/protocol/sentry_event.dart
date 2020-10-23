@@ -33,7 +33,7 @@ class SentryEvent {
     this.contexts,
     this.breadcrumbs,
   })  : eventId = eventId ?? SentryId.newId(),
-        platform = platform ?? (isWeb ? browserPlatform : sdkPlatform),
+        platform = platform ?? sdkPlatform,
         timestamp = timestamp ?? getUtcDateTime(),
         sdk = sdk ?? Sdk(name: sdkName, version: sdkVersion);
 

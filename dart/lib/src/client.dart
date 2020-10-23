@@ -29,7 +29,6 @@ abstract class SentryClient {
     }
   }
 
-  //@visibleForTesting
   SentryOptions _options;
 
   Random _random;
@@ -48,8 +47,6 @@ abstract class SentryClient {
     }
 
     event = _applyScope(event: event, scope: scope);
-
-    event = event.copyWith(platform: sdkPlatform);
 
     return _options.transport.send(event);
   }
