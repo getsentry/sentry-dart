@@ -31,6 +31,7 @@
 - Ref: Hint is passed across Sentry static class, Hub and Client #124
 - Ref: Remove stackFrameFilter in favor of beforeSendCallback #125
 - Ref: added Transport #123
+- Feat: apply sample rate
 
 # `package:sentry` changelog
 
