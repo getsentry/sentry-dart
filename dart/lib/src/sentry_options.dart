@@ -148,9 +148,8 @@ class SentryOptions {
     this.environmentAttributes,
     this.compressPayload,
     this.httpClient,
-    Transport transport,
     ClockProvider clock = getUtcDateTime,
-  }) : _transport = transport ?? NoOpTransport() {
+  }) {
     _clock = clock;
   }
 
