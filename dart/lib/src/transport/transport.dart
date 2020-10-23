@@ -44,7 +44,7 @@ class Transport {
   }
 
   Future<SentryId> send(SentryEvent event) async {
-    final data = _getEventData(event);
+    final data = event.toJson(origin: _origin);
 
     final body = bodyEncoder(
       data,
@@ -64,17 +64,6 @@ class Transport {
 
     final eventId = json.decode(response.body)['id'];
     return eventId != null ? SentryId.fromId(eventId) : SentryId.empty();
-  }
-
-  Map<String, dynamic> _getEventData(SentryEvent event) {
-    final data = event.toJson(origin: _origin);
-
-    // TODO add this attributes to event in client
-    if (_options.environmentAttributes != null) {
-      mergeAttributes(_options.environmentAttributes.toJson(), into: data);
-    }
-
-    return data;
   }
 }
 

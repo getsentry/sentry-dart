@@ -16,15 +16,6 @@ class SentryOptions {
   ///  just not send any events.
   String dsn;
 
-  /// Contains [Event] attributes that are automatically mixed into all events
-  /// captured through this client.
-  ///
-  /// This event is designed to contain static values that do not change from
-  /// event to event, such as local operating system version, the version of
-  /// Dart/Flutter SDK, etc. These attributes have lower precedence than those
-  /// supplied in the even passed to [capture].
-  SentryEvent environmentAttributes;
-
   /// If [compressPayload] is `true` the outgoing HTTP payloads are compressed
   /// using gzip. Otherwise, the payloads are sent in plain UTF8-encoded JSON
   /// text. If not specified, the compression is enabled by default.
@@ -145,7 +136,6 @@ class SentryOptions {
   // TODO: those ctor params could be set on Sentry._setDefaultConfiguration or instantiate by default here
   SentryOptions({
     this.dsn,
-    this.environmentAttributes,
     this.compressPayload,
     this.httpClient,
     ClockProvider clock = getUtcDateTime,

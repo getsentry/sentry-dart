@@ -48,6 +48,12 @@ abstract class SentryClient {
 
     event = _applyScope(event: event, scope: scope);
 
+    event = event.copyWith(
+      serverName: _options.serverName,
+      environment: _options.environment,
+      release: _options.release,
+    );
+
     return _options.transport.send(event);
   }
 

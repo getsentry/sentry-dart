@@ -75,13 +75,10 @@ Future testCaptureException(
     httpClient: httpMock,
     clock: fakeClockProvider,
     compressPayload: compressPayload,
-    environmentAttributes: SentryEvent(
-      serverName: 'test.server.com',
-      release: '1.2.3',
-      environment: 'staging',
-      timestamp: fakeClockProvider(),
-    ),
-  );
+  )
+    ..serverName = 'test.server.com'
+    ..release = '1.2.3'
+    ..environment = 'staging';
 
   var sentryId = SentryId.empty();
   final client = SentryClient(options);
@@ -250,12 +247,10 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
         httpClient: httpMock,
         clock: fakeClockProvider,
         compressPayload: false,
-        environmentAttributes: SentryEvent(
-          serverName: 'test.server.com',
-          release: '1.2.3',
-          environment: 'staging',
-        ),
-      ),
+      )
+        ..serverName = 'test.server.com'
+        ..release = '1.2.3'
+        ..environment = 'staging',
     );
 
     try {
@@ -307,12 +302,10 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
         httpClient: httpMock,
         clock: fakeClockProvider,
         compressPayload: false,
-        environmentAttributes: SentryEvent(
-          serverName: 'test.server.com',
-          release: '1.2.3',
-          environment: 'staging',
-        ),
-      ),
+      )
+        ..serverName = 'test.server.com'
+        ..release = '1.2.3'
+        ..environment = 'staging',
     );
 
     try {
@@ -363,12 +356,10 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
       httpClient: httpMock,
       clock: fakeClockProvider,
       compressPayload: false,
-      environmentAttributes: SentryEvent(
-        serverName: 'test.server.com',
-        release: '1.2.3',
-        environment: 'staging',
-      ),
-    );
+    )
+      ..serverName = 'test.server.com'
+      ..release = '1.2.3'
+      ..environment = 'staging';
 
     final client = SentryClient(options);
 
