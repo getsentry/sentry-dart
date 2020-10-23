@@ -18,31 +18,19 @@ abstract class SentryClient {
   /// `dart:html` is available, otherwise it will throw an unsupported error.
   factory SentryClient(SentryOptions options) => createSentryClient(options);
 
-  SentryClient.base(this.options, {String origin}) {
-    _random = options.sampleRate == null ? null : Random();
-    if (options.transport is NoOpTransport) {
-      options.transport = Transport(
-        options: options,
+  SentryClient.base(this._options, {String origin}) {
+    _random = _options.sampleRate == null ? null : Random();
+    if (_options.transport is NoOpTransport) {
+      _options.transport = Transport(
+        options: _options,
         sdkIdentifier: '${sdkName}/${sdkVersion}',
         origin: origin,
       );
     }
   }
 
-  @visibleForTesting
-  SentryOptions options;
-
-  /// Information about the current user.
-  ///
-  /// This information is sent with every logged event. If the value
-  /// of this field is updated, all subsequent events will carry the
-  /// new information.
-  ///
-  /// [Event.userContext] overrides the [User] context set here.
-  ///
-  /// See also:
-  /// * https://docs.sentry.io/learn/context/#capturing-the-user
-  User userContext;
+  //@visibleForTesting
+  SentryOptions _options;
 
   Random _random;
 
@@ -52,7 +40,7 @@ abstract class SentryClient {
     Scope scope,
     dynamic hint,
   }) async {
-    event = _processEvent(event, eventProcessors: options.eventProcessors);
+    event = _processEvent(event, eventProcessors: _options.eventProcessors);
 
     // dropped by sampling or event processors
     if (event == null) {
@@ -63,7 +51,7 @@ abstract class SentryClient {
 
     event = event.copyWith(platform: sdkPlatform);
 
-    return options.transport.send(event);
+    return _options.transport.send(event);
   }
 
   /// Reports the [throwable] and optionally its [stackTrace] to Sentry.io.
@@ -76,7 +64,7 @@ abstract class SentryClient {
     final event = SentryEvent(
       exception: throwable,
       stackTrace: stackTrace,
-      timestamp: options.clock(),
+      timestamp: _options.clock(),
     );
     return captureEvent(event, scope: scope, hint: hint);
   }
@@ -93,14 +81,14 @@ abstract class SentryClient {
     final event = SentryEvent(
       message: Message(formatted, template: template, params: params),
       level: level,
-      timestamp: options.clock(),
+      timestamp: _options.clock(),
     );
 
     return captureEvent(event, scope: scope, hint: hint);
   }
 
   void close() {
-    options.httpClient?.close();
+    _options.httpClient?.close();
   }
 
   SentryEvent _processEvent(
@@ -109,7 +97,7 @@ abstract class SentryClient {
     List<EventProcessor> eventProcessors,
   }) {
     if (_sampleRate()) {
-      options.logger(
+      _options.logger(
         SentryLevel.debug,
         'Event ${event.eventId.toString()} was dropped due to sampling decision.',
       );
@@ -120,13 +108,13 @@ abstract class SentryClient {
       try {
         event = processor(event, hint);
       } catch (err) {
-        options.logger(
+        _options.logger(
           SentryLevel.error,
           'An exception occurred while processing event by a processor : $err',
         );
       }
       if (event == null) {
-        options.logger(SentryLevel.debug, 'Event was dropped by a processor');
+        _options.logger(SentryLevel.debug, 'Event was dropped by a processor');
         break;
       }
     }
@@ -178,8 +166,8 @@ abstract class SentryClient {
   }
 
   bool _sampleRate() {
-    if (options.sampleRate != null && _random != null) {
-      return (options.sampleRate < _random.nextDouble());
+    if (_options.sampleRate != null && _random != null) {
+      return (_options.sampleRate < _random.nextDouble());
     }
     return false;
   }
