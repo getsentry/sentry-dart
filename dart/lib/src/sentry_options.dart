@@ -135,8 +135,8 @@ class SentryOptions {
   /// The server name used in the Sentry messages.
   String serverName;
 
-  /// SdkVersion object that contains the Sentry Client Name and its version
-  Sdk sdkVersion;
+  /// Sdk object that contains the Sentry Client Name and its version
+  Sdk sdk;
 
   // TODO: Scope observers, enableScopeSync
 

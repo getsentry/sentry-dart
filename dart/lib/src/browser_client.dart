@@ -8,7 +8,9 @@ import 'dart:html' show window;
 import 'package:http/browser_client.dart';
 
 import 'client.dart';
+import 'protocol.dart';
 import 'sentry_options.dart';
+import 'version.dart';
 
 SentryClient createSentryClient(SentryOptions options) =>
     SentryBrowserClient(options);
@@ -25,15 +27,15 @@ class SentryBrowserClient extends SentryClient {
   ///
   /// If [httpClient] is provided, it is used instead of the default client to
   /// make HTTP calls to Sentry.io. This is useful in tests.
-  factory SentryBrowserClient(SentryOptions options, {String origin}) {
+  factory SentryBrowserClient(SentryOptions options) {
     options.httpClient ??= BrowserClient();
 
+    options.sdk ??= Sdk(name: sdkName, version: sdkVersion);
+
     // origin is necessary for sentry to resolve stacktrace
-    return SentryBrowserClient._(options, origin: origin);
+    return SentryBrowserClient._(options);
   }
 
-  SentryBrowserClient._(
-    SentryOptions options, {
-    String origin,
-  }) : super.base(options, origin: '${window.location.origin}/');
+  SentryBrowserClient._(SentryOptions options)
+      : super.base(options, origin: '${window.location.origin}/');
 }

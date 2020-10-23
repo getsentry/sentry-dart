@@ -23,7 +23,7 @@ abstract class SentryClient {
     if (_options.transport is NoOpTransport) {
       _options.transport = Transport(
         options: _options,
-        sdkIdentifier: '${sdkName}/${sdkVersion}',
+        sdkIdentifier: _options.sdk.identifier,
         origin: origin,
       );
     }
