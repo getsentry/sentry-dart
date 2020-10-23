@@ -29,7 +29,6 @@ abstract class SentryClient {
     }
   }
 
-  @protected
   @visibleForTesting
   SentryOptions options;
 
