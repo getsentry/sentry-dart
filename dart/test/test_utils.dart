@@ -29,14 +29,15 @@ void testHeaders(
     'Content-Type': 'application/json',
     'X-Sentry-Auth': 'Sentry sentry_version=6, '
         'sentry_client=$sdkName/$sdkVersion, '
-        'sentry_timestamp=${fakeClockProvider().millisecondsSinceEpoch}, '
-        'sentry_key=public'
+        'sentry_key=public, '
   };
 
   if (withSecret) {
-    expectedHeaders['X-Sentry-Auth'] += ', '
-        'sentry_secret=secret';
+    expectedHeaders['X-Sentry-Auth'] += 'sentry_secret=secret, ';
   }
+
+  expectedHeaders['X-Sentry-Auth'] +=
+      'sentry_timestamp=${fakeClockProvider().millisecondsSinceEpoch}';
 
   if (withUserAgent) {
     expectedHeaders['User-Agent'] = '$sdkName/$sdkVersion';
@@ -69,20 +70,18 @@ Future testCaptureException(
     fail('Unexpected request on ${request.method} ${request.url} in HttpMock');
   });
 
+  final options = SentryOptions(
+    dsn: testDsn,
+    httpClient: httpMock,
+    clock: fakeClockProvider,
+    compressPayload: compressPayload,
+  )
+    ..serverName = 'test.server.com'
+    ..release = '1.2.3'
+    ..environment = 'staging';
+
   var sentryId = SentryId.empty();
-  final client = SentryClient(
-    SentryOptions(
-      dsn: testDsn,
-      httpClient: httpMock,
-      clock: fakeClockProvider,
-      compressPayload: compressPayload,
-      environmentAttributes: SentryEvent(
-        serverName: 'test.server.com',
-        release: '1.2.3',
-        environment: 'staging',
-      ),
-    ),
-  );
+  final client = SentryClient(options);
 
   try {
     throw ArgumentError('Test error');
@@ -91,14 +90,14 @@ Future testCaptureException(
     expect('$sentryId', 'testeventid');
   }
 
-  expect(postUri, client.postUri);
+  expect(postUri, options.transport.dsn.postUri);
 
   testHeaders(
     headers,
     fakeClockProvider,
     compressPayload: compressPayload,
     withUserAgent: !isWeb,
-    sdkName: isWeb ? browserSdkName : sdkName,
+    sdkName: sdkName,
   );
 
   Map<String, dynamic> data;
@@ -141,11 +140,10 @@ Future testCaptureException(
     expect(topFrame['function'], 'Object.wrapException');
 
     expect(data, {
-      'project': '1',
       'event_id': sentryId.toString(),
       'timestamp': '2017-01-02T00:00:00',
       'platform': 'javascript',
-      'sdk': {'version': sdkVersion, 'name': 'sentry.dart'},
+      'sdk': {'version': sdkVersion, 'name': sdkName},
       'server_name': 'test.server.com',
       'release': '1.2.3',
       'environment': 'staging',
@@ -159,7 +157,6 @@ Future testCaptureException(
     expect(topFrame['function'], 'testCaptureException');
 
     expect(data, {
-      'project': '1',
       'event_id': sentryId.toString(),
       'timestamp': '2017-01-02T00:00:00',
       'platform': 'dart',
@@ -181,41 +178,53 @@ Future testCaptureException(
 
 void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
   test('can parse DSN', () async {
-    final client = SentryClient(SentryOptions(dsn: testDsn));
-    expect(client.dsnUri, Uri.parse(testDsn));
-    expect(client.postUri, 'https://sentry.example.com/api/1/store/');
-    expect(client.publicKey, 'public');
-    expect(client.secretKey, 'secret');
-    expect(client.projectId, '1');
+    final options = SentryOptions(dsn: testDsn);
+    final client = SentryClient(options);
+    expect(options.transport.dsn.uri, Uri.parse(testDsn));
+    expect(options.transport.dsn.postUri,
+        'https://sentry.example.com/api/1/store/');
+    expect(options.transport.dsn.publicKey, 'public');
+    expect(options.transport.dsn.secretKey, 'secret');
+    expect(options.transport.dsn.projectId, '1');
     await client.close();
   });
 
   test('can parse DSN without secret', () async {
-    final client = SentryClient(SentryOptions(dsn: _testDsnWithoutSecret));
-    expect(client.dsnUri, Uri.parse(_testDsnWithoutSecret));
-    expect(client.postUri, 'https://sentry.example.com/api/1/store/');
-    expect(client.publicKey, 'public');
-    expect(client.secretKey, null);
-    expect(client.projectId, '1');
+    final options = SentryOptions(dsn: _testDsnWithoutSecret);
+    final client = SentryClient(options);
+    expect(options.transport.dsn.uri, Uri.parse(_testDsnWithoutSecret));
+    expect(options.transport.dsn.postUri,
+        'https://sentry.example.com/api/1/store/');
+    expect(options.transport.dsn.publicKey, 'public');
+    expect(options.transport.dsn.secretKey, null);
+    expect(options.transport.dsn.projectId, '1');
     await client.close();
   });
 
   test('can parse DSN with path', () async {
-    final client = SentryClient(SentryOptions(dsn: _testDsnWithPath));
-    expect(client.dsnUri, Uri.parse(_testDsnWithPath));
-    expect(client.postUri, 'https://sentry.example.com/path/api/1/store/');
-    expect(client.publicKey, 'public');
-    expect(client.secretKey, 'secret');
-    expect(client.projectId, '1');
+    final options = SentryOptions(dsn: _testDsnWithPath);
+    final client = SentryClient(options);
+    expect(options.transport.dsn.uri, Uri.parse(_testDsnWithPath));
+    expect(
+      options.transport.dsn.postUri,
+      'https://sentry.example.com/path/api/1/store/',
+    );
+    expect(options.transport.dsn.publicKey, 'public');
+    expect(options.transport.dsn.secretKey, 'secret');
+    expect(options.transport.dsn.projectId, '1');
     await client.close();
   });
   test('can parse DSN with port', () async {
-    final client = SentryClient(SentryOptions(dsn: _testDsnWithPort));
-    expect(client.dsnUri, Uri.parse(_testDsnWithPort));
-    expect(client.postUri, 'https://sentry.example.com:8888/api/1/store/');
-    expect(client.publicKey, 'public');
-    expect(client.secretKey, 'secret');
-    expect(client.projectId, '1');
+    final options = SentryOptions(dsn: _testDsnWithPort);
+    final client = SentryClient(options);
+    expect(options.transport.dsn.uri, Uri.parse(_testDsnWithPort));
+    expect(
+      options.transport.dsn.postUri,
+      'https://sentry.example.com:8888/api/1/store/',
+    );
+    expect(options.transport.dsn.publicKey, 'public');
+    expect(options.transport.dsn.secretKey, 'secret');
+    expect(options.transport.dsn.projectId, '1');
     await client.close();
   });
   test('sends client auth header without secret', () async {
@@ -238,12 +247,10 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
         httpClient: httpMock,
         clock: fakeClockProvider,
         compressPayload: false,
-        environmentAttributes: SentryEvent(
-          serverName: 'test.server.com',
-          release: '1.2.3',
-          environment: 'staging',
-        ),
-      ),
+      )
+        ..serverName = 'test.server.com'
+        ..release = '1.2.3'
+        ..environment = 'staging',
     );
 
     try {
@@ -260,7 +267,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
       withUserAgent: !isWeb,
       compressPayload: false,
       withSecret: false,
-      sdkName: isWeb ? browserSdkName : sdkName,
+      sdkName: sdkName,
     );
 
     await client.close();
@@ -295,12 +302,10 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
         httpClient: httpMock,
         clock: fakeClockProvider,
         compressPayload: false,
-        environmentAttributes: SentryEvent(
-          serverName: 'test.server.com',
-          release: '1.2.3',
-          environment: 'staging',
-        ),
-      ),
+      )
+        ..serverName = 'test.server.com'
+        ..release = '1.2.3'
+        ..environment = 'staging',
     );
 
     try {
@@ -333,31 +338,30 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     });
 
     const clientUserContext = User(
-        id: 'client_user',
-        username: 'username',
-        email: 'email@email.com',
-        ipAddress: '127.0.0.1');
-    const eventUserContext = User(
-        id: 'event_user',
-        username: 'username',
-        email: 'email@email.com',
-        ipAddress: '127.0.0.1',
-        extras: <String, String>{'foo': 'bar'});
-
-    final client = SentryClient(
-      SentryOptions(
-        dsn: testDsn,
-        httpClient: httpMock,
-        clock: fakeClockProvider,
-        compressPayload: false,
-        environmentAttributes: SentryEvent(
-          serverName: 'test.server.com',
-          release: '1.2.3',
-          environment: 'staging',
-        ),
-      ),
+      id: 'client_user',
+      username: 'username',
+      email: 'email@email.com',
+      ipAddress: '127.0.0.1',
     );
-    client.userContext = clientUserContext;
+    const eventUserContext = User(
+      id: 'event_user',
+      username: 'username',
+      email: 'email@email.com',
+      ipAddress: '127.0.0.1',
+      extras: <String, String>{'foo': 'bar'},
+    );
+
+    final options = SentryOptions(
+      dsn: testDsn,
+      httpClient: httpMock,
+      clock: fakeClockProvider,
+      compressPayload: false,
+    )
+      ..serverName = 'test.server.com'
+      ..release = '1.2.3'
+      ..environment = 'staging';
+
+    final client = SentryClient(options);
 
     try {
       throw ArgumentError('Test error');
@@ -373,9 +377,13 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
         stackTrace: stackTrace,
         userContext: eventUserContext,
       );
-      await client.captureEvent(eventWithoutContext);
+      await client.captureEvent(eventWithoutContext,
+          scope: Scope(options)..user = clientUserContext);
       expect(loggedUserId, clientUserContext.id);
-      await client.captureEvent(eventWithContext);
+      await client.captureEvent(
+        eventWithContext,
+        scope: Scope(options)..user = clientUserContext,
+      );
       expect(loggedUserId, eventUserContext.id);
     }
 

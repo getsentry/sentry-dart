@@ -1,15 +1,14 @@
 import 'dart:async';
-import 'dart:convert';
+import 'dart:math';
 
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/transport/noop_transport.dart';
 
 import 'client_stub.dart'
     if (dart.library.html) 'browser_client.dart'
     if (dart.library.io) 'io_client.dart';
 import 'protocol.dart';
-import 'utils.dart';
-import 'version.dart';
 
 /// Logs crash reports and events to the Sentry.io service.
 abstract class SentryClient {
@@ -19,79 +18,16 @@ abstract class SentryClient {
   /// `dart:html` is available, otherwise it will throw an unsupported error.
   factory SentryClient(SentryOptions options) => createSentryClient(options);
 
-  SentryClient.base(
-    this.options, {
-    String platform,
-    this.origin,
-    Sdk sdk,
-  })  : _dsn = Dsn.parse(options.dsn),
-        _platform = platform ?? sdkPlatform,
-        sdk = sdk ?? Sdk(name: sdkName, version: sdkVersion);
-
-  final Dsn _dsn;
-
-  @protected
-  SentryOptions options;
-
-  /// The DSN URI.
-  @visibleForTesting
-  Uri get dsnUri => _dsn.uri;
-
-  /// The Sentry.io public key for the project.
-  @visibleForTesting
-  // ignore: invalid_use_of_visible_for_testing_member
-  String get publicKey => _dsn.publicKey;
-
-  /// The Sentry.io secret key for the project.
-  @visibleForTesting
-  // ignore: invalid_use_of_visible_for_testing_member
-  String get secretKey => _dsn.secretKey;
-
-  /// The ID issued by Sentry.io to your project.
-  ///
-  /// Attached to the event payload.
-  String get projectId => _dsn.projectId;
-
-  /// Information about the current user.
-  ///
-  /// This information is sent with every logged event. If the value
-  /// of this field is updated, all subsequent events will carry the
-  /// new information.
-  ///
-  /// [Event.userContext] overrides the [User] context set here.
-  ///
-  /// See also:
-  /// * https://docs.sentry.io/learn/context/#capturing-the-user
-  User userContext;
-
-  /// Use for browser stacktrace
-  String origin;
-
-  /// Used by sentry to differentiate browser from io environment
-  final String _platform;
-
-  final Sdk sdk;
-
-  String get clientId => sdk.identifier;
-
-  @visibleForTesting
-  String get postUri {
-    final port = dsnUri.hasPort &&
-            ((dsnUri.scheme == 'http' && dsnUri.port != 80) ||
-                (dsnUri.scheme == 'https' && dsnUri.port != 443))
-        ? ':${dsnUri.port}'
-        : '';
-    final pathLength = dsnUri.pathSegments.length;
-    String apiPath;
-    if (pathLength > 1) {
-      // some paths would present before the projectID in the dsnUri
-      apiPath =
-          (dsnUri.pathSegments.sublist(0, pathLength - 1) + ['api']).join('/');
-    } else {
-      apiPath = 'api';
+  SentryClient.base(this._options, {String origin}) {
+    _random = _options.sampleRate == null ? null : Random();
+    if (_options.transport is NoOpTransport) {
+      _options.transport = Transport(options: _options, origin: origin);
     }
-    return '${dsnUri.scheme}://${dsnUri.host}$port/$apiPath/$projectId/store/';
   }
+
+  SentryOptions _options;
+
+  Random _random;
 
   /// Reports an [event] to Sentry.io.
   Future<SentryId> captureEvent(
@@ -99,53 +35,24 @@ abstract class SentryClient {
     Scope scope,
     dynamic hint,
   }) async {
-    final now = options.clock();
-    var authHeader = 'Sentry sentry_version=6, sentry_client=$clientId, '
-        'sentry_timestamp=${now.millisecondsSinceEpoch}, sentry_key=$publicKey';
-    if (secretKey != null) {
-      authHeader += ', sentry_secret=$secretKey';
+    event = _processEvent(event, eventProcessors: _options.eventProcessors);
+
+    // dropped by sampling or event processors
+    if (event == null) {
+      return Future.value(SentryId.empty());
     }
 
-    final headers = buildHeaders(authHeader);
+    event = _applyScope(event: event, scope: scope);
 
-    final data = <String, dynamic>{
-      'project': projectId,
-      'event_id': event.eventId.toString(),
-      'timestamp': formatDateAsIso8601WithSecondPrecision(event.timestamp),
-    };
-
-    if (options.environmentAttributes != null) {
-      mergeAttributes(options.environmentAttributes.toJson(), into: data);
-    }
-
-    // Merge the user context.
-    if (userContext != null) {
-      mergeAttributes(<String, dynamic>{'user': userContext.toJson()},
-          into: data);
-    }
-
-    mergeAttributes(
-      event.toJson(
-        origin: origin,
-      ),
-      into: data,
-    );
-    mergeAttributes(<String, String>{'platform': _platform}, into: data);
-
-    final body = bodyEncoder(data, headers);
-
-    final response = await options.httpClient.post(
-      postUri,
-      headers: headers,
-      body: body,
+    // TODO create eventProcessors ?
+    event = event.copyWith(
+      serverName: _options.serverName,
+      environment: _options.environment,
+      release: _options.release,
+      platform: event.platform ?? sdkPlatform,
     );
 
-    if (response.statusCode != 200) {
-      return SentryId.empty();
-    }
-
-    final eventId = json.decode(response.body)['id'];
-    return eventId != null ? SentryId.fromId(eventId) : SentryId.empty();
+    return _options.transport.send(event);
   }
 
   /// Reports the [throwable] and optionally its [stackTrace] to Sentry.io.
@@ -158,7 +65,7 @@ abstract class SentryClient {
     final event = SentryEvent(
       exception: throwable,
       stackTrace: stackTrace,
-      timestamp: options.clock(),
+      timestamp: _options.clock(),
     );
     return captureEvent(event, scope: scope, hint: hint);
   }
@@ -173,63 +80,94 @@ abstract class SentryClient {
     dynamic hint,
   }) {
     final event = SentryEvent(
-      message: Message(
-        formatted,
-        template: template,
-        params: params,
-      ),
+      message: Message(formatted, template: template, params: params),
       level: level,
-      timestamp: options.clock(),
+      timestamp: _options.clock(),
     );
+
     return captureEvent(event, scope: scope, hint: hint);
   }
 
-  void close() {
-    options.httpClient?.close();
-  }
+  void close() => _options.httpClient?.close();
 
-  @override
-  String toString() => '$SentryClient("$postUri")';
-
-  @protected
-  List<int> bodyEncoder(Map<String, dynamic> data, Map<String, String> headers);
-
-  @protected
-  @mustCallSuper
-  Map<String, String> buildHeaders(String authHeader) {
-    final headers = {
-      'Content-Type': 'application/json',
-    };
-
-    if (authHeader != null) {
-      headers['X-Sentry-Auth'] = authHeader;
+  SentryEvent _processEvent(
+    SentryEvent event, {
+    dynamic hint,
+    List<EventProcessor> eventProcessors,
+  }) {
+    if (_sampleRate()) {
+      _options.logger(
+        SentryLevel.debug,
+        'Event ${event.eventId.toString()} was dropped due to sampling decision.',
+      );
+      return null;
     }
 
-    return headers;
+    for (final processor in eventProcessors) {
+      try {
+        event = processor(event, hint);
+      } catch (err) {
+        _options.logger(
+          SentryLevel.error,
+          'An exception occurred while processing event by a processor : $err',
+        );
+      }
+      if (event == null) {
+        _options.logger(SentryLevel.debug, 'Event was dropped by a processor');
+        break;
+      }
+    }
+    return event;
   }
-}
 
-/// A response from Sentry.io.
-///
-/// If [isSuccessful] the [eventId] field will contain the ID assigned to the
-/// captured event by the Sentry.io backend. Otherwise, the [error] field will
-/// contain the description of the error.
-@immutable
-class SentryResponse {
-  const SentryResponse.success({@required this.eventId})
-      : isSuccessful = true,
-        error = null;
+  SentryEvent _applyScope({
+    @required SentryEvent event,
+    @required Scope scope,
+  }) {
+    if (scope != null) {
+      // Merge the scope transaction.
+      if (event.transaction == null) {
+        event = event.copyWith(transaction: scope.transaction);
+      }
 
-  const SentryResponse.failure(this.error)
-      : isSuccessful = false,
-        eventId = null;
+      // Merge the user context.
+      if (event.userContext == null) {
+        event = event.copyWith(userContext: scope.user);
+      }
 
-  /// Whether event was submitted successfully.
-  final bool isSuccessful;
+      // Merge the scope fingerprint.
+      if (event.fingerprint == null) {
+        event = event.copyWith(fingerprint: scope.fingerprint);
+      }
 
-  /// The ID Sentry.io assigned to the submitted event for future reference.
-  final String eventId;
+      // Merge the scope breadcrumbs.
+      if (event.breadcrumbs == null) {
+        event = event.copyWith(breadcrumbs: scope.breadcrumbs);
+      }
 
-  /// Error message, if the response is not successful.
-  final String error;
+      // TODO add tests
+      // Merge the scope tags.
+      event = event.copyWith(
+          tags: scope.tags.map((key, value) => MapEntry(key, value))
+            ..addAll(event.tags ?? {}));
+
+      // Merge the scope extra.
+      event = event.copyWith(
+          extra: scope.extra.map((key, value) => MapEntry(key, value))
+            ..addAll(event.extra ?? {}));
+
+      // Merge the scope level.
+      if (scope.level != null) {
+        event = event.copyWith(level: scope.level);
+      }
+    }
+    return event;
+  }
+
+  bool _sampleRate() {
+    if (_options.sampleRate != null && _random != null) {
+      return (_options.sampleRate < _random.nextDouble());
+    }
+    return false;
+  }
 }

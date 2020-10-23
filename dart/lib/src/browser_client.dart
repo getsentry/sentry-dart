@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 /// A pure Dart client for Sentry.io crash reporting.
-import 'dart:convert';
 import 'dart:html' show window;
 
 import 'package:http/browser_client.dart';
@@ -28,32 +27,15 @@ class SentryBrowserClient extends SentryClient {
   ///
   /// If [httpClient] is provided, it is used instead of the default client to
   /// make HTTP calls to Sentry.io. This is useful in tests.
-  factory SentryBrowserClient(SentryOptions options, {String origin}) {
+  factory SentryBrowserClient(SentryOptions options) {
     options.httpClient ??= BrowserClient();
 
-    // origin is necessary for sentry to resolve stacktrace
-    origin ??= '${window.location.origin}/';
+    options.sdk ??= Sdk(name: sdkName, version: sdkVersion);
 
-    return SentryBrowserClient._(
-      options,
-      origin: origin,
-      platform: browserPlatform,
-    );
+    // origin is necessary for sentry to resolve stacktrace
+    return SentryBrowserClient._(options);
   }
 
-  SentryBrowserClient._(SentryOptions options, {String origin, String platform})
-      : super.base(
-          options,
-          origin: origin,
-          sdk: Sdk(name: browserSdkName, version: sdkVersion),
-          platform: platform,
-        );
-
-  @override
-  List<int> bodyEncoder(
-    Map<String, dynamic> data,
-    Map<String, String> headers,
-  ) =>
-      // Gzip compression is implicit on browser
-      utf8.encode(json.encode(data));
+  SentryBrowserClient._(SentryOptions options)
+      : super.base(options, origin: '${window.location.origin}/');
 }

@@ -4,6 +4,7 @@
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/stack_trace.dart';
+import 'package:sentry/src/utils.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -26,15 +27,20 @@ void main() {
     });
     test('$Sdk serializes', () {
       final event = SentryEvent(
-          eventId: SentryId.empty(),
-          timestamp: DateTime.utc(2019),
-          sdk: Sdk(
-              name: 'sentry.dart.flutter',
-              version: '4.3.2',
-              integrations: <String>['integration'],
-              packages: <Package>[Package('npm:@sentry/javascript', '1.3.4')]));
+        eventId: SentryId.empty(),
+        timestamp: DateTime.utc(2019),
+        platform: sdkPlatform,
+        sdk: Sdk(
+          name: 'sentry.dart.flutter',
+          version: '4.3.2',
+          integrations: <String>['integration'],
+          packages: <Package>[
+            Package('npm:@sentry/javascript', '1.3.4'),
+          ],
+        ),
+      );
       expect(event.toJson(), <String, dynamic>{
-        'platform': 'dart',
+        'platform': isWeb ? 'javascript' : 'dart',
         'event_id': '00000000000000000000000000000000',
         'timestamp': '2019-01-01T00:00:00',
         'sdk': {
@@ -67,6 +73,7 @@ void main() {
         SentryEvent(
           eventId: SentryId.empty(),
           timestamp: timestamp,
+          platform: sdkPlatform,
           message: Message(
             'test-message 1 2',
             template: 'test-message %d %d',
@@ -89,10 +96,10 @@ void main() {
           breadcrumbs: breadcrumbs,
         ).toJson(),
         <String, dynamic>{
-          'platform': 'dart',
+          'platform': isWeb ? 'javascript' : 'dart',
           'event_id': '00000000000000000000000000000000',
           'timestamp': '2019-01-01T00:00:00',
-          'sdk': {'version': sdkVersion, 'name': 'sentry.dart'},
+          'sdk': {'version': sdkVersion, 'name': sdkName},
           'message': {
             'formatted': 'test-message 1 2',
             'message': 'test-message %d %d',

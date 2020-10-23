@@ -1,5 +1,7 @@
 import 'package:http/http.dart';
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/transport/noop_transport.dart';
+
 import 'diagnostic_logger.dart';
 import 'hub.dart';
 import 'protocol.dart';
@@ -13,15 +15,6 @@ class SentryOptions {
   /// The DSN tells the SDK where to send the events to. If this value is not provided, the SDK will
   ///  just not send any events.
   String dsn;
-
-  /// Contains [Event] attributes that are automatically mixed into all events
-  /// captured through this client.
-  ///
-  /// This event is designed to contain static values that do not change from
-  /// event to event, such as local operating system version, the version of
-  /// Dart/Flutter SDK, etc. These attributes have lower precedence than those
-  /// supplied in the even passed to [capture].
-  SentryEvent environmentAttributes;
 
   /// If [compressPayload] is `true` the outgoing HTTP payloads are compressed
   /// using gzip. Otherwise, the payloads are sent in plain UTF8-encoded JSON
@@ -102,8 +95,8 @@ class SentryOptions {
 
   /// Configures the sample rate as a percentage of events to be sent in the range of 0.0 to 1.0. if
   /// 1.0 is set it means that 100% of events are sent. If set to 0.1 only 10% of events will be
-  /// sent. Events are picked randomly. Default is 1.0 (disabled)
-  double sampleRate = 1.0;
+  /// sent. Events are picked randomly. Default is null (disabled)
+  double sampleRate;
 
   /// A list of string prefixes of module names that do not belong to the app, but rather third-party
   /// packages. Modules considered not to be part of the app will be hidden from stack traces by
@@ -118,7 +111,14 @@ class SentryOptions {
 
   List<String> get inAppIncludes => List.unmodifiable(_inAppIncludes);
 
-  // TODO: transport, transportGate, connectionTimeoutMillis, readTimeoutMillis, hostnameVerifier, sslSocketFactory, proxy
+  Transport _transport = NoOpTransport();
+
+  Transport get transport => _transport;
+
+  set transport(Transport transport) =>
+      _transport = transport ?? NoOpTransport();
+
+  // TODO: transportGate, connectionTimeoutMillis, readTimeoutMillis, hostnameVerifier, sslSocketFactory, proxy
 
   /// Sets the distribution. Think about it together with release and environment
   String dist;
@@ -126,8 +126,8 @@ class SentryOptions {
   /// The server name used in the Sentry messages.
   String serverName;
 
-  /// SdkVersion object that contains the Sentry Client Name and its version
-  Sdk sdkVersion;
+  /// Sdk object that contains the Sentry Client Name and its version
+  Sdk sdk;
 
   // TODO: Scope observers, enableScopeSync
 
@@ -136,7 +136,6 @@ class SentryOptions {
   // TODO: those ctor params could be set on Sentry._setDefaultConfiguration or instantiate by default here
   SentryOptions({
     this.dsn,
-    this.environmentAttributes,
     this.compressPayload,
     this.httpClient,
     ClockProvider clock = getUtcDateTime,
