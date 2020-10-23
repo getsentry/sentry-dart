@@ -9,7 +9,6 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/transport/transport.dart';
 
 import 'client.dart';
-import 'protocol.dart';
 
 SentryClient createSentryClient(SentryOptions options) =>
     SentryIOClient(options);
@@ -20,11 +19,13 @@ class SentryIOClient extends SentryClient {
   factory SentryIOClient(SentryOptions options) =>
       SentryIOClient._(options, platform: sdkPlatform);
 
-  static const sdk = Sdk(name: sdkName, version: sdkVersion);
-
   SentryIOClient._(SentryOptions options, {@required String platform})
       : super.base(
           options,
-          transport: Transport(options: options, sdk: sdk, platform: platform),
+          transport: Transport(
+            options: options,
+            sdkIdentifier: '${sdkName}/${sdkVersion}',
+            platform: platform,
+          ),
         );
 }

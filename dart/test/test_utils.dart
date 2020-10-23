@@ -146,7 +146,7 @@ Future testCaptureException(
       'event_id': sentryId.toString(),
       'timestamp': '2017-01-02T00:00:00',
       'platform': 'javascript',
-      'sdk': {'version': sdkVersion, 'name': 'sentry.dart'},
+      'sdk': {'version': sdkVersion, 'name': sdkName},
       'server_name': 'test.server.com',
       'release': '1.2.3',
       'environment': 'staging',

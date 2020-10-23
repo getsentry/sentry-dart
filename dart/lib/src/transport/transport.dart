@@ -27,7 +27,7 @@ class Transport {
   /// Used by sentry to differentiate browser from io environment
   final String platform;
 
-  final Sdk sdk;
+  final String sdkIdentifier;
 
   CredentialBuilder _credentialBuilder;
 
@@ -35,15 +35,15 @@ class Transport {
 
   Transport({
     @required SentryOptions options,
-    @required this.sdk,
+    @required this.sdkIdentifier,
     @required this.platform,
     this.origin,
   })  : _options = options,
         dsn = Dsn.parse(options.dsn),
-        _headers = _buildHeaders(sdkIdentifier: sdk.identifier) {
+        _headers = _buildHeaders(sdkIdentifier: sdkIdentifier) {
     _credentialBuilder = CredentialBuilder(
       dsn: Dsn.parse(options.dsn),
-      clientId: sdk.identifier,
+      clientId: sdkIdentifier,
       clock: options.clock,
     );
   }

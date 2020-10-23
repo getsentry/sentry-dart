@@ -97,7 +97,7 @@ void main() {
           'platform': isWeb ? 'javascript' : 'dart',
           'event_id': '00000000000000000000000000000000',
           'timestamp': '2019-01-01T00:00:00',
-          'sdk': {'version': sdkVersion, 'name': 'sentry.dart'},
+          'sdk': {'version': sdkVersion, 'name': sdkName},
           'message': {
             'formatted': 'test-message 1 2',
             'message': 'test-message %d %d',

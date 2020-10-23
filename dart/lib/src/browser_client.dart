@@ -9,7 +9,6 @@ import 'package:http/browser_client.dart';
 import 'package:meta/meta.dart';
 
 import 'client.dart';
-import 'protocol.dart';
 import 'sentry_options.dart';
 import 'transport/transport.dart';
 import 'version.dart';
@@ -50,7 +49,7 @@ class SentryBrowserClient extends SentryClient {
           options,
           transport: Transport(
             options: options,
-            sdk: Sdk(name: browserSdkName, version: sdkVersion),
+            sdkIdentifier: '${browserSdkName}/${sdkVersion}',
             platform: platform,
             origin: origin,
           ),
