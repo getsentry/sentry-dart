@@ -54,7 +54,7 @@ void main() {
       verifyNever(options.transport.send(any));
     });
 
-    test('captures event, sample rate is null, disabled', () {
+    test('before send returns an event and event is captured', () {
       options.beforeSendCallback = beforeSendCallback;
       final client = SentryClient(options);
       client.captureEvent(fakeEvent);
