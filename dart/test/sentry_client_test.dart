@@ -32,13 +32,13 @@ void main() {
       verifyNever(client.transport.send(any));
     });
 
-    test('do not capture event, sample rate is null', () {
+    test('captures event, sample rate is null, disabled', () {
       options.sampleRate = null;
       final client = SentryClient(options);
       client.transport = transport;
       client.captureEvent(fakeEvent);
 
-      verifyNever(client.transport.send(any));
+      verify(client.transport.send(any)).called(1);
     });
   });
 }

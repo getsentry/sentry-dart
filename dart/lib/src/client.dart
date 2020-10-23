@@ -181,6 +181,6 @@ abstract class SentryClient {
     if (options.sampleRate != null && _random != null) {
       return (options.sampleRate < _random.nextDouble());
     }
-    return true;
+    return false;
   }
 }
