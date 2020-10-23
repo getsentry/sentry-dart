@@ -32,39 +32,34 @@ class Transport {
 
   CredentialBuilder _credentialBuilder;
 
+  final Map<String, String> _headers;
+
   Transport({
     @required SentryOptions options,
     @required this.sdk,
     @required this.platform,
     this.origin,
   })  : _options = options,
-        dsn = Dsn.parse(options.dsn) {
+        dsn = Dsn.parse(options.dsn),
+        _headers = buildHeaders(sdk: sdk) {
     _credentialBuilder = CredentialBuilder(
-      dsn: Dsn.parse(options.dsn),
-      clientId: sdk.identifier,
-    );
+        dsn: Dsn.parse(options.dsn),
+        clientId: sdk.identifier,
+        clock: options.clock);
   }
 
   Future<SentryId> send(SentryEvent event) async {
-    final now = _options.clock();
-
-    var authHeader = _credentialBuilder.build(now.millisecondsSinceEpoch);
-    final headers = buildHeaders(authHeader, sdk: sdk);
-
-    final data = _getEventData(
-      event,
-      timeStamp: now,
-    );
+    final data = _getEventData(event, timeStamp: _options.clock());
 
     final body = bodyEncoder(
       data,
-      headers,
+      _headers,
       compressPayload: _options.compressPayload,
     );
 
     final response = await _options.httpClient.post(
       dsn.postUri,
-      headers: headers,
+      headers: _credentialBuilder.configure(_headers),
       body: body,
     );
 
@@ -80,42 +75,35 @@ class Transport {
     SentryEvent event, {
     DateTime timeStamp,
   }) {
-    final data = <String, dynamic>{
-      'event_id': event.eventId.toString(),
-    };
+    final data = event.toJson(origin: origin);
 
+    // TODO add this attributes to event in client
     if (_options.environmentAttributes != null) {
       mergeAttributes(_options.environmentAttributes.toJson(), into: data);
     }
 
-    mergeAttributes(
-      event.toJson(origin: origin),
-      into: data,
-    );
-
-    mergeAttributes(_getContext(timeStamp), into: data);
+    // TODO add this attributes to event in client
+    mergeAttributes(_getContext(), into: data);
 
     return data;
   }
 
-  Map<String, dynamic> _getContext(DateTime now) => {
-        'project': dsn.projectId,
-        'timestamp': formatDateAsIso8601WithSecondPrecision(now),
-        'platform': platform,
-      };
+  Map<String, dynamic> _getContext() => {'project': dsn.projectId};
 }
 
 class CredentialBuilder {
-  final String authHeader;
+  final String _authHeader;
 
-  CredentialBuilder({@required Dsn dsn, String clientId})
-      : authHeader = buildAuthHeader(
+  final ClockProvider clock;
+
+  int get timestamp => clock().millisecondsSinceEpoch;
+
+  CredentialBuilder({@required Dsn dsn, String clientId, @required this.clock})
+      : _authHeader = buildAuthHeader(
           publicKey: dsn.publicKey,
           secretKey: dsn.secretKey,
           clientId: clientId,
         );
-
-  String build(int timestamp) => '$authHeader, sentry_timestamp=$timestamp';
 
   static String buildAuthHeader({
     String publicKey,
@@ -130,5 +118,14 @@ class CredentialBuilder {
     }
 
     return header;
+  }
+
+  Map<String, dynamic> configure(Map<String, dynamic> headers) {
+    return headers
+      ..addAll(
+        <String, String>{
+          'X-Sentry-Auth': '$_authHeader, sentry_timestamp=${timestamp}'
+        },
+      );
   }
 }

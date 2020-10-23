@@ -47,6 +47,11 @@ abstract class SentryClient {
 
     event = _applyScope(event: event, scope: scope);
 
+    event = event.copyWith(
+      /*timestamp: event.timestamp ?? options.clock(),*/
+      platform: transport.platform,
+    );
+
     return transport.send(event);
   }
 
@@ -79,6 +84,7 @@ abstract class SentryClient {
       level: level,
       timestamp: options.clock(),
     );
+
     return captureEvent(event, scope: scope, hint: hint);
   }
 
@@ -145,7 +151,7 @@ abstract class SentryClient {
             ..addAll(event.extra ?? {}));
 
       // Merge the scope level.
-      if (event.level == null) {
+      if (scope.level == null) {
         event = event.copyWith(level: scope.level);
       }
     }
