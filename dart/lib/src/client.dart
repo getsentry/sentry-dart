@@ -151,7 +151,7 @@ abstract class SentryClient {
             ..addAll(event.extra ?? {}));
 
       // Merge the scope level.
-      if (scope.level == null) {
+      if (scope.level != null) {
         event = event.copyWith(level: scope.level);
       }
     }
