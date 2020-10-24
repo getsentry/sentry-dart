@@ -35,14 +35,21 @@ abstract class SentryClient {
     Scope scope,
     dynamic hint,
   }) async {
+    final emptyFuture = Future.value(SentryId.empty());
+
     event = _processEvent(event, eventProcessors: _options.eventProcessors);
 
     // dropped by sampling or event processors
     if (event == null) {
-      return Future.value(SentryId.empty());
+      return emptyFuture;
     }
 
     event = _applyScope(event: event, scope: scope);
+
+    // dropped by scope event processors
+    if (event == null) {
+      return emptyFuture;
+    }
 
     // TODO create eventProcessors ?
     event = event.copyWith(
@@ -51,6 +58,21 @@ abstract class SentryClient {
       release: _options.release,
       platform: event.platform ?? sdkPlatform,
     );
+
+    if (_options.beforeSendCallback != null) {
+      try {
+        event = _options.beforeSendCallback(event, hint);
+      } catch (err) {
+        _options.logger(
+          SentryLevel.error,
+          'The BeforeSend callback threw an exception',
+        );
+      }
+      if (event == null) {
+        _options.logger(SentryLevel.debug, 'Event was dropped by a processor');
+        return emptyFuture;
+      }
+    }
 
     return _options.transport.send(event);
   }
@@ -160,6 +182,8 @@ abstract class SentryClient {
       if (scope.level != null) {
         event = event.copyWith(level: scope.level);
       }
+
+      // TODO: execute scope event processors
     }
     return event;
   }

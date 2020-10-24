@@ -32,6 +32,7 @@
 - Ref: Remove stackFrameFilter in favor of beforeSendCallback #125
 - Ref: added Transport #123
 - Feat: apply sample rate
+- Ref: execute before send callback
 
 # `package:sentry` changelog
 
