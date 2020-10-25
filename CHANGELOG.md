@@ -33,6 +33,7 @@
 - Ref: added Transport #123
 - Feat: apply sample rate
 - Ref: execute before send callback
+- Feat: addBreadcrumb on Static API
 
 # `package:sentry` changelog
 
