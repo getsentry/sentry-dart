@@ -94,6 +94,9 @@ class Sentry {
   /// Check if the current Hub is enabled/active.
   static bool get isEnabled => currentHub.isEnabled;
 
+  /// Last event id recorded by the current Hub
+  static SentryId get lastEventId => currentHub.lastEventId;
+
   static bool _setDefaultConfiguration(SentryOptions options) {
     if (options.dsn == null) {
       throw ArgumentError.notNull(

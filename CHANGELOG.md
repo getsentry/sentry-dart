@@ -33,6 +33,7 @@
 - Ref: added Transport #123
 - Feat: apply sample rate
 - Ref: execute before send callback
+- Ref: add lastEventId to the Sentry static API
 
 # `package:sentry` changelog
 
