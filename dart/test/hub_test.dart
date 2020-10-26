@@ -3,6 +3,7 @@ import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/hub.dart';
 import 'package:test/test.dart';
+import 'dart:async';
 
 import 'mocks.dart';
 
@@ -94,6 +95,15 @@ void main() {
       )).thenAnswer((_) => Future.value(event.eventId));
       final returnedId = await hub.captureEvent(event);
       expect(eventId.toString(), returnedId.toString());
+    });
+
+    test('should install integrations', () {
+      var called = false;
+      void integration(Hub hub, SentryOptions options) => called = true;
+      options.addIntegration(integration);
+      Hub(options);
+
+      expect(called, true);
     });
   });
 

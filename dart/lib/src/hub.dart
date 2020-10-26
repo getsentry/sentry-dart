@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:sentry/src/hub_adapter.dart';
+
 import 'client.dart';
 import 'noop_client.dart';
 import 'protocol.dart';
@@ -31,6 +33,11 @@ class Hub {
   Hub._(SentryOptions options) : _options = options {
     _stack.add(_StackItem(_getClient(_options), Scope(_options)));
     _isEnabled = true;
+
+    // execute integrations
+    options.integrations.forEach((integration) {
+      integration(HubAdapter(), _options);
+    });
   }
 
   static void _validateOptions(SentryOptions options) {
