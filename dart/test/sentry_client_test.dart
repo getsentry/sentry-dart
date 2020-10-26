@@ -1,7 +1,3 @@
-import 'dart:convert';
-
-import 'package:http/http.dart';
-import 'package:http/testing.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
@@ -12,28 +8,10 @@ void main() {
   group('SentryClient captures message', () {
     SentryOptions options;
 
-    String formattedMessage;
-    String template;
-    List<dynamic> params;
-
     setUp(() {
       options = SentryOptions(dsn: fakeDsn);
       options.compressPayload = false;
-      options.httpClient = MockClient((request) async {
-        if (request.method == 'POST') {
-          final body = const JsonDecoder()
-              .convert(Utf8Codec().decode(request.bodyBytes));
-
-          formattedMessage = body['message']['formatted'];
-          template = body['message']['message'];
-          params = body['message']['params'];
-
-          return Response('{"id": "test-event-id"}', 200);
-        }
-        fail(
-          'Unexpected request on ${request.method} ${request.url} in HttpMock',
-        );
-      });
+      options.transport = MockTransport();
     });
 
     test('should captures message', () async {
@@ -44,24 +22,20 @@ void main() {
         params: [1],
         level: SentryLevel.error,
       );
-      expect(formattedMessage, 'simple message 1');
-      expect(template, 'simple message %d');
-      expect(params, [1]);
+
+      final capturedEvent = (verify(
+        options.transport.send(captureAny),
+      ).captured.first) as SentryEvent;
+
+      expect(capturedEvent.message.formatted, 'simple message 1');
+      expect(capturedEvent.message.template, 'simple message %d');
+      expect(capturedEvent.message.params, [1]);
     });
   });
 
   group('SentryClient : apply scope to the captured event', () {
     SentryOptions options;
-    String eventLevel;
-    String eventTransaction;
-    String eventBreadcrumbMessage;
-    List<dynamic> eventFingerprint;
-    String userId;
     Scope scope;
-    String capturedScopeTagValue;
-    String capturedScopeExtraValue;
-    String capturedEventTagValue;
-    String capturedEventExtraValue;
 
     final level = SentryLevel.error;
     final transaction = '/test/scope';
@@ -83,33 +57,11 @@ void main() {
       level: SentryLevel.warning,
     );
 
-    final mockClient = MockClient((request) async {
-      if (request.method == 'POST') {
-        final body = const JsonDecoder().convert(
-          Utf8Codec().decode(request.bodyBytes),
-        );
-
-        eventLevel = body['level'];
-        eventTransaction = body['transaction'];
-        eventFingerprint = body['fingerprint'];
-        userId = body['user']['id'];
-        eventBreadcrumbMessage = body['breadcrumbs']['values'].first['message'];
-        capturedScopeTagValue = body['tags'][scopeTagKey];
-        capturedEventTagValue = body['tags'][eventTagKey];
-        capturedScopeExtraValue = body['extra'][scopeExtraKey];
-        capturedEventExtraValue = body['extra'][eventExtraKey];
-
-        return Response('{"id": "test-event-id"}', 200);
-      }
-      fail(
-        'Unexpected request on ${request.method} ${request.url} in HttpMock',
-      );
-    });
-
     setUp(() {
       options = SentryOptions(dsn: fakeDsn);
       options.compressPayload = false;
-      options.httpClient = mockClient;
+      options.transport = MockTransport();
+
       scope = Scope(options)
         ..user = user
         ..level = level
@@ -124,25 +76,28 @@ void main() {
       final client = SentryClient(options);
       await client.captureEvent(event, scope: scope);
 
-      expect(userId, user.id);
-      expect(eventLevel, SentryLevel.error.name);
-      expect(eventTransaction, transaction);
-      expect(eventFingerprint, fingerprint);
-      expect(eventBreadcrumbMessage, crumb.message);
-      expect(capturedScopeTagValue, scopeTagValue);
-      expect(capturedEventTagValue, eventTagValue);
-      expect(capturedScopeExtraValue, scopeExtraValue);
-      expect(capturedEventExtraValue, eventExtraValue);
+      final capturedEvent = (verify(
+        options.transport.send(captureAny),
+      ).captured.first) as SentryEvent;
+
+      expect(capturedEvent.userContext?.id, user.id);
+      expect(capturedEvent.level.name, SentryLevel.error.name);
+      expect(capturedEvent.transaction, transaction);
+      expect(capturedEvent.fingerprint, fingerprint);
+      expect(capturedEvent.breadcrumbs.first, crumb);
+      expect(capturedEvent.tags, {
+        scopeTagKey: scopeTagValue,
+        eventTagKey: eventTagValue,
+      });
+      expect(capturedEvent.extra, {
+        scopeExtraKey: scopeExtraValue,
+        eventExtraKey: eventExtraValue,
+      });
     });
   });
 
   group('SentryClient : apply partial scope to the captured event', () {
     SentryOptions options;
-    String capturedLevel;
-    String capturedTransaction;
-    String capturedBreadcrumbMessage;
-    List<dynamic> capturedFingerprint;
-    String capturedUserId;
     Scope scope;
 
     final transaction = '/test/scope';
@@ -162,30 +117,10 @@ void main() {
       breadcrumbs: eventCrumbs,
     );
 
-    final mockClient = MockClient((request) async {
-      if (request.method == 'POST') {
-        final body = const JsonDecoder().convert(
-          Utf8Codec().decode(request.bodyBytes),
-        );
-
-        capturedLevel = body['level'];
-        capturedTransaction = body['transaction'];
-        capturedFingerprint = body['fingerprint'];
-        capturedUserId = body['user']['id'];
-        capturedBreadcrumbMessage =
-            body['breadcrumbs']['values'].first['message'];
-
-        return Response('{"id": "test-event-id"}', 200);
-      }
-      fail(
-        'Unexpected request on ${request.method} ${request.url} in HttpMock',
-      );
-    });
-
     setUp(() {
       options = SentryOptions(dsn: fakeDsn);
       options.compressPayload = false;
-      options.httpClient = mockClient;
+      options.transport = MockTransport();
       scope = Scope(options)
         ..user = user
         ..transaction = transaction
@@ -197,11 +132,15 @@ void main() {
       final client = SentryClient(options);
       await client.captureEvent(event, scope: scope);
 
-      expect(capturedUserId, eventUser.id);
-      expect(capturedLevel, SentryLevel.warning.name);
-      expect(capturedTransaction, eventTransaction);
-      expect(capturedFingerprint, eventFingerprint);
-      expect(capturedBreadcrumbMessage, eventCrumbs.first.message);
+      final capturedEvent = (verify(
+        options.transport.send(captureAny),
+      ).captured.first) as SentryEvent;
+
+      expect(capturedEvent.userContext.id, eventUser.id);
+      expect(capturedEvent.level.name, SentryLevel.warning.name);
+      expect(capturedEvent.transaction, eventTransaction);
+      expect(capturedEvent.fingerprint, eventFingerprint);
+      expect(capturedEvent.breadcrumbs, eventCrumbs);
     });
   });
 
