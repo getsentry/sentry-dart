@@ -4,9 +4,9 @@ import 'package:meta/meta.dart';
 
 import 'client.dart';
 import 'hub.dart';
+import 'noop_hub.dart';
 import 'protocol.dart';
 import 'sentry_options.dart';
-import 'noop_hub.dart';
 
 /// Configuration options callback
 typedef OptionsConfiguration = void Function(SentryOptions);
@@ -68,7 +68,7 @@ class Sentry {
     );
   }
 
-  Future<SentryId> captureMessage(
+  static Future<SentryId> captureMessage(
     String message, {
     SentryLevel level,
     String template,
