@@ -36,6 +36,7 @@
 - Feat: add lastEventId to the Sentry static API
 - Feat: addBreadcrumb on Static API
 - Fix: NoOp encode for Web
+- Fix: Breadcrumb data should accept serializable types and not only String values
 
 # `package:sentry` changelog
 
