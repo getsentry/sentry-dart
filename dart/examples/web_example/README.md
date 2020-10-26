@@ -1,5 +1,10 @@
 # Sentry Dart : web example
 
+```dart
+pub get
+webdev serve --release
+```
+
 ## more Resources
 
 * [![Documentation](https://img.shields.io/badge/documentation-sentry.io-green.svg)](https://docs.sentry.io/platforms/flutter/)

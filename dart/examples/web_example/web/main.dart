@@ -9,37 +9,46 @@ const dsn =
 void main() {
   querySelector('#output').text = 'Your Dart app is running.';
 
-  querySelector('#bt').onClick.listen((event) => capture());
+  querySelector('#btEvent')
+      .onClick
+      .listen((event) => captureCompleteExampleEvent());
+  querySelector('#btMessage').onClick.listen((event) => captureMessage());
+  querySelector('#btException').onClick.listen((event) => captureException());
 
   Sentry.init((options) => options.dsn = dsn);
 }
 
-void capture() async {
-  print('capture... ');
-  //final client = SentryClient(SentryOptions(dsn: dsn));
-  await captureCompleteExampleEvent();
-
-  final msgResultId = await Sentry.captureMessage(
+void captureMessage() async {
+  print('Capturing Message :  ');
+  final sentryId = await Sentry.captureMessage(
     'Message 2',
     template: 'Message %s',
     params: ['2'],
   );
-  print('capture message result : $msgResultId');
+  print('capture message result : $sentryId');
+  if (sentryId != SentryId.empty()) {
+    querySelector('#messageResult').style.display = 'block';
+  }
+  await Sentry.close();
+}
 
+void captureException() async {
   try {
     await foo();
   } catch (error, stackTrace) {
     print('\nReporting the following stack trace: ');
     print(stackTrace);
-    final response = await Sentry.captureException(
+    final sentryId = await Sentry.captureException(
       error,
       stackTrace: stackTrace,
     );
 
-    print('Capture exception : SentryId: ${response}');
-  }
+    print('Capture exception : SentryId: ${sentryId}');
 
-  await Sentry.close();
+    if (sentryId != SentryId.empty()) {
+      querySelector('#exceptionResult').style.display = 'block';
+    }
+  }
 }
 
 Future<void> captureCompleteExampleEvent() async {
@@ -120,10 +129,12 @@ Future<void> captureCompleteExampleEvent() async {
 
   final sentryId = await Sentry.captureEvent(event);
 
-  print(
-    '\nReporting a complete event example: ${sdkName}',
-  );
+  print('\nReporting a complete event example: ${sdkName}');
   print('Response SentryId: ${sentryId}');
+
+  if (sentryId != SentryId.empty()) {
+    querySelector('#eventResult').style.display = 'block';
+  }
 }
 
 Future<void> foo() async {
