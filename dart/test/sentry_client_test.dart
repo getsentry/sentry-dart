@@ -36,7 +36,7 @@ void main() {
       });
     });
 
-    test('captures message', () async {
+    test('should captures message', () async {
       final client = SentryClient(options);
       await client.captureMessage(
         'simple message 1',
@@ -50,7 +50,7 @@ void main() {
     });
   });
 
-  group('SentryClient : apply scope', () {
+  group('SentryClient : apply scope to the captured event', () {
     SentryOptions options;
     String eventLevel;
     String eventTransaction;
@@ -83,33 +83,33 @@ void main() {
       level: SentryLevel.warning,
     );
 
+    final mockClient = MockClient((request) async {
+      if (request.method == 'POST') {
+        final body = const JsonDecoder().convert(
+          Utf8Codec().decode(request.bodyBytes),
+        );
+
+        eventLevel = body['level'];
+        eventTransaction = body['transaction'];
+        eventFingerprint = body['fingerprint'];
+        userId = body['user']['id'];
+        eventBreadcrumbMessage = body['breadcrumbs']['values'].first['message'];
+        capturedScopeTagValue = body['tags'][scopeTagKey];
+        capturedEventTagValue = body['tags'][eventTagKey];
+        capturedScopeExtraValue = body['extra'][scopeExtraKey];
+        capturedEventExtraValue = body['extra'][eventExtraKey];
+
+        return Response('{"id": "test-event-id"}', 200);
+      }
+      fail(
+        'Unexpected request on ${request.method} ${request.url} in HttpMock',
+      );
+    });
+
     setUp(() {
       options = SentryOptions(dsn: fakeDsn);
       options.compressPayload = false;
-      options.httpClient = MockClient((request) async {
-        if (request.method == 'POST') {
-          final body = const JsonDecoder().convert(
-            Utf8Codec().decode(request.bodyBytes),
-          );
-
-          print(body['tags']);
-          eventLevel = body['level'];
-          eventTransaction = body['transaction'];
-          eventFingerprint = body['fingerprint'];
-          userId = body['user']['id'];
-          eventBreadcrumbMessage =
-              body['breadcrumbs']['values'].first['message'];
-          capturedScopeTagValue = body['tags'][scopeTagKey];
-          capturedEventTagValue = body['tags'][eventTagKey];
-          capturedScopeExtraValue = body['extra'][scopeExtraKey];
-          capturedEventExtraValue = body['extra'][eventExtraKey];
-
-          return Response('{"id": "test-event-id"}', 200);
-        }
-        fail(
-          'Unexpected request on ${request.method} ${request.url} in HttpMock',
-        );
-      });
+      options.httpClient = mockClient;
       scope = Scope(options)
         ..user = user
         ..level = level
