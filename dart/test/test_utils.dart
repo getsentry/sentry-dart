@@ -181,8 +181,10 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     final options = SentryOptions(dsn: testDsn);
     final client = SentryClient(options);
     expect(options.transport.dsn.uri, Uri.parse(testDsn));
-    expect(options.transport.dsn.postUri,
-        'https://sentry.example.com/api/1/store/');
+    expect(
+      options.transport.dsn.postUri,
+      'https://sentry.example.com/api/1/store/',
+    );
     expect(options.transport.dsn.publicKey, 'public');
     expect(options.transport.dsn.secretKey, 'secret');
     expect(options.transport.dsn.projectId, '1');
@@ -193,8 +195,10 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     final options = SentryOptions(dsn: _testDsnWithoutSecret);
     final client = SentryClient(options);
     expect(options.transport.dsn.uri, Uri.parse(_testDsnWithoutSecret));
-    expect(options.transport.dsn.postUri,
-        'https://sentry.example.com/api/1/store/');
+    expect(
+      options.transport.dsn.postUri,
+      'https://sentry.example.com/api/1/store/',
+    );
     expect(options.transport.dsn.publicKey, 'public');
     expect(options.transport.dsn.secretKey, null);
     expect(options.transport.dsn.projectId, '1');

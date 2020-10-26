@@ -167,7 +167,6 @@ abstract class SentryClient {
         event = event.copyWith(breadcrumbs: scope.breadcrumbs);
       }
 
-      // TODO add tests
       // Merge the scope tags.
       event = event.copyWith(
           tags: scope.tags.map((key, value) => MapEntry(key, value))
