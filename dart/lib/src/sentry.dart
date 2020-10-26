@@ -51,22 +51,20 @@ class Sentry {
   static Future<SentryId> captureEvent(
     SentryEvent event, {
     dynamic hint,
-  }) async {
-    return currentHub.captureEvent(event, hint: hint);
-  }
+  }) async =>
+      currentHub.captureEvent(event, hint: hint);
 
   /// Reports the [exception] and optionally its [stackTrace] to Sentry.io.
   static Future<SentryId> captureException(
-    dynamic error, {
+    dynamic throwable, {
     dynamic stackTrace,
     dynamic hint,
-  }) async {
-    return currentHub.captureException(
-      error,
-      stackTrace: stackTrace,
-      hint: hint,
-    );
-  }
+  }) async =>
+      currentHub.captureException(
+        throwable,
+        stackTrace: stackTrace,
+        hint: hint,
+      );
 
   static Future<SentryId> captureMessage(
     String message, {
@@ -74,15 +72,14 @@ class Sentry {
     String template,
     List<dynamic> params,
     dynamic hint,
-  }) async {
-    return currentHub.captureMessage(
-      message,
-      level: level,
-      template: template,
-      params: params,
-      hint: hint,
-    );
-  }
+  }) async =>
+      currentHub.captureMessage(
+        message,
+        level: level,
+        template: template,
+        params: params,
+        hint: hint,
+      );
 
   /// Close the client SDK
   static void close() {
@@ -98,20 +95,32 @@ class Sentry {
   static SentryId get lastEventId => currentHub.lastEventId;
 
   /// Adds a breacrumb to the current Scope
-  static void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) {
-    currentHub.addBreadcrumb(crumb, hint: hint);
-  }
+  static void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) =>
+      currentHub.addBreadcrumb(crumb, hint: hint);
+
+  /// Configures the scope through the callback.
+  static void configureScope(ScopeCallback callback) =>
+      currentHub.configureScope(callback);
+
+  /// Clones the current Hub
+  static Hub clone() => currentHub.clone();
+
+  /// Binds a different client to the current hub
+  static void bindClient(SentryClient client) => currentHub.bindClient(client);
 
   static bool _setDefaultConfiguration(SentryOptions options) {
+    // if DSN is null, let's crash the App.
     if (options.dsn == null) {
       throw ArgumentError.notNull(
           'DSN is required. Use empty string to disable SDK.');
     }
+    // if the DSN is empty, let's disable the SDK
     if (options.dsn.isEmpty) {
       close();
       return false;
     }
 
+    // if logger os NoOp, let's set a logger that prints on the console
     if (options.debug && options.logger == noOpLogger) {
       options.logger = dartLogger;
     }
