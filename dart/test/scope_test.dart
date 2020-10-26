@@ -42,7 +42,10 @@ void main() {
   test('adds $Breadcrumb', () {
     final sut = fixture.getSut();
 
-    final breadcrumb = Breadcrumb('test log', DateTime.utc(2019));
+    final breadcrumb = Breadcrumb(
+      message: 'test log',
+      timestamp: DateTime.utc(2019),
+    );
     sut.addBreadcrumb(breadcrumb);
 
     expect(sut.breadcrumbs.last, breadcrumb);
@@ -53,7 +56,10 @@ void main() {
       beforeBreadcrumbCallback: fixture.beforeBreadcrumbCallback,
     );
 
-    final breadcrumb = Breadcrumb('test log', DateTime.utc(2019));
+    final breadcrumb = Breadcrumb(
+      message: 'test log',
+      timestamp: DateTime.utc(2019),
+    );
     sut.addBreadcrumb(breadcrumb);
 
     expect(sut.breadcrumbs.length, 0);
@@ -71,9 +77,18 @@ void main() {
     final maxBreadcrumbs = 2;
     final sut = fixture.getSut(maxBreadcrumbs: maxBreadcrumbs);
 
-    final breadcrumb1 = Breadcrumb('test log', DateTime.utc(2019));
-    final breadcrumb2 = Breadcrumb('test log', DateTime.utc(2019));
-    final breadcrumb3 = Breadcrumb('test log', DateTime.utc(2019));
+    final breadcrumb1 = Breadcrumb(
+      message: 'test log',
+      timestamp: DateTime.utc(2019),
+    );
+    final breadcrumb2 = Breadcrumb(
+      message: 'test log',
+      timestamp: DateTime.utc(2019),
+    );
+    final breadcrumb3 = Breadcrumb(
+      message: 'test log',
+      timestamp: DateTime.utc(2019),
+    );
     sut.addBreadcrumb(breadcrumb1);
     sut.addBreadcrumb(breadcrumb2);
     sut.addBreadcrumb(breadcrumb3);
@@ -84,9 +99,18 @@ void main() {
   test('rotates $Breadcrumb', () {
     final sut = fixture.getSut(maxBreadcrumbs: 2);
 
-    final breadcrumb1 = Breadcrumb('test log', DateTime.utc(2019));
-    final breadcrumb2 = Breadcrumb('test log', DateTime.utc(2019));
-    final breadcrumb3 = Breadcrumb('test log', DateTime.utc(2019));
+    final breadcrumb1 = Breadcrumb(
+      message: 'test log',
+      timestamp: DateTime.utc(2019),
+    );
+    final breadcrumb2 = Breadcrumb(
+      message: 'test log',
+      timestamp: DateTime.utc(2019),
+    );
+    final breadcrumb3 = Breadcrumb(
+      message: 'test log',
+      timestamp: DateTime.utc(2019),
+    );
     sut.addBreadcrumb(breadcrumb1);
     sut.addBreadcrumb(breadcrumb2);
     sut.addBreadcrumb(breadcrumb3);
@@ -100,7 +124,10 @@ void main() {
     final maxBreadcrumbs = 0;
     final sut = fixture.getSut(maxBreadcrumbs: maxBreadcrumbs);
 
-    final breadcrumb1 = Breadcrumb('test log', DateTime.utc(2019));
+    final breadcrumb1 = Breadcrumb(
+      message: 'test log',
+      timestamp: DateTime.utc(2019),
+    );
     sut.addBreadcrumb(breadcrumb1);
 
     expect(sut.breadcrumbs.length, maxBreadcrumbs);
@@ -109,7 +136,10 @@ void main() {
   test('clears $Breadcrumb list', () {
     final sut = fixture.getSut();
 
-    final breadcrumb1 = Breadcrumb('test log', DateTime.utc(2019));
+    final breadcrumb1 = Breadcrumb(
+      message: 'test log',
+      timestamp: DateTime.utc(2019),
+    );
     sut.addBreadcrumb(breadcrumb1);
     sut.clear();
 
@@ -153,7 +183,10 @@ void main() {
   test('clears $Scope', () {
     final sut = fixture.getSut();
 
-    final breadcrumb1 = Breadcrumb('test log', DateTime.utc(2019));
+    final breadcrumb1 = Breadcrumb(
+      message: 'test log',
+      timestamp: DateTime.utc(2019),
+    );
     sut.addBreadcrumb(breadcrumb1);
 
     sut.level = SentryLevel.debug;

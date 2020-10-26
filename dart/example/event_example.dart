@@ -18,7 +18,9 @@ final event = SentryEvent(
       ipAddress: '127.0.0.1',
       extras: <String, String>{'first-sign-in': '2020-01-01'}),
   breadcrumbs: [
-    Breadcrumb('UI Lifecycle', DateTime.now().toUtc(),
+    Breadcrumb(
+        message: 'UI Lifecycle',
+        timestamp: DateTime.now().toUtc(),
         category: 'ui.lifecycle',
         type: 'navigation',
         data: {'screen': 'MainActivity', 'state': 'created'},

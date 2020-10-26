@@ -34,6 +34,7 @@
 - Feat: apply sample rate
 - Ref: execute before send callback
 - Feat: add lastEventId to the Sentry static API
+- Feat: addBreadcrumb on Static API
 
 # `package:sentry` changelog
 

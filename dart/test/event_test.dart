@@ -12,8 +12,8 @@ void main() {
     test('$Breadcrumb serializes', () {
       expect(
         Breadcrumb(
-          'example log',
-          DateTime.utc(2019),
+          message: 'example log',
+          timestamp: DateTime.utc(2019),
           level: SentryLevel.debug,
           category: 'test',
         ).toJson(),
@@ -63,8 +63,11 @@ void main() {
           extras: <String, String>{'foo': 'bar'});
 
       final breadcrumbs = [
-        Breadcrumb('test log', timestamp,
-            level: SentryLevel.debug, category: 'test'),
+        Breadcrumb(
+            message: 'test log',
+            timestamp: timestamp,
+            level: SentryLevel.debug,
+            category: 'test'),
       ];
 
       final error = StateError('test-error');

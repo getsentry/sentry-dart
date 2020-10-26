@@ -191,6 +191,31 @@ class Hub {
     return sentryId;
   }
 
+  /// Adds a breacrumb to the current Scope
+  void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) {
+    if (!_isEnabled) {
+      _options.logger(
+        SentryLevel.warning,
+        "Instance is disabled and this 'addBreadcrumb' call is a no-op.",
+      );
+    } else if (crumb == null) {
+      _options.logger(
+        SentryLevel.warning,
+        'addBreadcrumb called with null parameter.',
+      );
+    } else {
+      final item = _peek();
+      if (item != null) {
+        item.scope.addBreadcrumb(crumb, hint: hint);
+      } else {
+        _options.logger(
+          SentryLevel.fatal,
+          'Stack peek was null when addBreadcrumb',
+        );
+      }
+    }
+  }
+
   /// Binds a different client to the hub
   void bindClient(SentryClient client) {
     if (!_isEnabled) {

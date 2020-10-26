@@ -97,6 +97,11 @@ class Sentry {
   /// Last event id recorded by the current Hub
   static SentryId get lastEventId => currentHub.lastEventId;
 
+  /// Adds a breacrumb to the current Scope
+  static void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) {
+    currentHub.addBreadcrumb(crumb, hint: hint);
+  }
+
   static bool _setDefaultConfiguration(SentryOptions options) {
     if (options.dsn == null) {
       throw ArgumentError.notNull(

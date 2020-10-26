@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:sentry/src/protocol/breadcrumb.dart';
+
 import 'client.dart';
 import 'hub.dart';
 import 'protocol/sentry_event.dart';
@@ -54,4 +56,7 @@ class NoOpHub implements Hub {
 
   @override
   SentryId get lastEventId => SentryId.empty();
+
+  @override
+  void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) {}
 }
