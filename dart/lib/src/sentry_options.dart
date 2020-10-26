@@ -19,7 +19,7 @@ class SentryOptions {
   /// If [compressPayload] is `true` the outgoing HTTP payloads are compressed
   /// using gzip. Otherwise, the payloads are sent in plain UTF8-encoded JSON
   /// text. If not specified, the compression is enabled by default.
-  bool compressPayload = false;
+  bool compressPayload;
 
   /// If [httpClient] is provided, it is used instead of the default client to
   /// make HTTP calls to Sentry.io. This is useful in tests.
@@ -136,7 +136,7 @@ class SentryOptions {
   // TODO: those ctor params could be set on Sentry._setDefaultConfiguration or instantiate by default here
   SentryOptions({
     this.dsn,
-    this.compressPayload,
+    this.compressPayload = true,
     this.httpClient,
     ClockProvider clock = getUtcDateTime,
   }) {
