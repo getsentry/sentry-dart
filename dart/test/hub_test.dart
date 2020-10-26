@@ -98,11 +98,12 @@ void main() {
     });
 
     test('should install integrations', () {
+      var called = false;
+      void integration(Hub hub, SentryOptions options) => called = true;
       options.addIntegration(integration);
-      final hub = Hub(options);
-      client = MockSentryClient();
-      hub.bindClient(client);
-      // TODO: assert that integration(hub, options) has been invoked
+      Hub(options);
+
+      expect(called, true);
     });
   });
 
@@ -192,5 +193,3 @@ void main() {
     // could we set [hub.stack] as @visibleForTesting ?
   });
 }
-
-void integration(Hub hub, SentryOptions options) {}
