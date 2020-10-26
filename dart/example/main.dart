@@ -25,7 +25,19 @@ Future<void> main(List<String> rawArgs) async {
   // Sends a full Sentry event payload to show the different parts of the UI.
   final sentryId = await Sentry.captureEvent(event);
 
-  print('SentryId : ${sentryId}');
+  print('Capture event result : SentryId : ${sentryId}');
+
+  print('\nCapture message: ');
+
+  // Sends a full Sentry event payload to show the different parts of the UI.
+  final messageSentryId = await Sentry.captureMessage(
+    'Message 1',
+    level: SentryLevel.warning,
+    template: 'Message %s',
+    params: ['1'],
+  );
+
+  print('Capture message result : SentryId : ${messageSentryId}');
 
   try {
     await foo();
@@ -37,7 +49,7 @@ Future<void> main(List<String> rawArgs) async {
       stackTrace: stackTrace,
     );
 
-    print('SentryId : ${sentryId}');
+    print('Capture exception result : SentryId : ${sentryId}');
   } finally {
     await Sentry.close();
   }
