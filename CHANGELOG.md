@@ -35,6 +35,7 @@
 - Ref: execute before send callback
 - Feat: add lastEventId to the Sentry static API
 - Feat: addBreadcrumb on Static API
+- Fix: Breadcrumb data should accept serialziable types and not only String values
 
 # `package:sentry` changelog
 
