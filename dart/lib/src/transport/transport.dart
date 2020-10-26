@@ -8,8 +8,6 @@ import '../protocol.dart';
 import '../sentry_options.dart';
 import 'noop_encode.dart' if (dart.library.io) 'encode.dart';
 
-typedef BodyEncoder = Function(List<int> body, Map<String, String> headers);
-
 /// A transport is in charge of sending the event to the Sentry server.
 class Transport {
   final SentryOptions _options;
@@ -68,7 +66,7 @@ class Transport {
     // gzip compression is not available on browser
     var body = utf8.encode(json.encode(data));
     if (compressPayload) {
-      compressBody(body, headers);
+      body = compressBody(body, headers);
     }
     return body;
   }
