@@ -95,6 +95,14 @@ void main() {
       final returnedId = await hub.captureEvent(event);
       expect(eventId.toString(), returnedId.toString());
     });
+
+    test('should install integrations', () {
+      options.addIntegration(integration);
+      final hub = Hub(options);
+      client = MockSentryClient();
+      hub.bindClient(client);
+      // TODO: assert that integration(hub, options) has been invoked
+    });
   });
 
   group('Hub scope', () {
@@ -183,3 +191,5 @@ void main() {
     // could we set [hub.stack] as @visibleForTesting ?
   });
 }
+
+void integration(Hub hub, SentryOptions options) {}
