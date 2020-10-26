@@ -50,7 +50,7 @@ class Hub {
 
   SentryId _lastEventId = SentryId.empty();
 
-  /// Last event id recorded in the current scope
+  /// Last event id recorded by the Hub
   SentryId get lastEventId => _lastEventId;
 
   /// Captures the event.

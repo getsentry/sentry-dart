@@ -83,6 +83,18 @@ void main() {
         ),
       ).called(1);
     });
+
+    test('should save the lastEventId', () async {
+      final event = SentryEvent();
+      final eventId = event.eventId;
+      when(client.captureEvent(
+        event,
+        scope: anyNamed('scope'),
+        hint: anyNamed('hint'),
+      )).thenAnswer((_) => Future.value(event.eventId));
+      final returnedId = await hub.captureEvent(event);
+      expect(eventId.toString(), returnedId.toString());
+    });
   });
 
   group('Hub scope', () {
