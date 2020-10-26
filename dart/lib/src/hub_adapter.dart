@@ -5,6 +5,7 @@ import 'package:sentry/src/protocol/breadcrumb.dart';
 import 'package:sentry/src/client.dart';
 import 'package:sentry/src/sentry.dart';
 import 'hub.dart';
+import 'dart:async';
 
 /// Hub adapter to make Integrations testable
 class HubAdapter implements Hub {
