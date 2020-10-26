@@ -19,14 +19,14 @@ import 'sentry_level.dart';
 /// * https://docs.sentry.io/development/sdk-dev/event-payloads/breadcrumbs/
 class Breadcrumb {
   /// Creates a breadcrumb that can be attached to an [Event].
-  const Breadcrumb(
+  Breadcrumb({
     this.message,
-    this.timestamp, {
+    DateTime timestamp,
     this.category,
     this.data,
     this.level = SentryLevel.info,
     this.type,
-  }) : assert(timestamp != null);
+  }) : timestamp = timestamp ?? getUtcDateTime();
 
   /// Describes the breadcrumb.
   ///

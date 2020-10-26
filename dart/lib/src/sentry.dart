@@ -94,6 +94,11 @@ class Sentry {
   /// Check if the current Hub is enabled/active.
   static bool get isEnabled => currentHub.isEnabled;
 
+  /// Adds a breacrumb to the current Scope
+  static void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) {
+    currentHub.addBreadcrumb(crumb, hint: hint);
+  }
+
   static bool _setDefaultConfiguration(SentryOptions options) {
     if (options.dsn == null) {
       throw ArgumentError.notNull(
