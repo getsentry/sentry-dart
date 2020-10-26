@@ -35,6 +35,7 @@
 - Ref: execute before send callback
 - Feat: add lastEventId to the Sentry static API
 - Feat: addBreadcrumb on Static API
+- Add a Dart web example
 
 # `package:sentry` changelog
 
