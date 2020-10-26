@@ -33,6 +33,38 @@ void main() {
     });
   });
 
+  group('SentryClient captures exception', () {
+    SentryOptions options;
+
+    Error error;
+    StackTrace stackTrace;
+
+    setUp(() {
+      options = SentryOptions(dsn: fakeDsn);
+      options.compressPayload = false;
+      options.transport = MockTransport();
+    });
+
+    test('should capture exception', () async {
+      try {
+        throw StateError('Error');
+      } on Error catch (err, stack) {
+        error = err;
+        stackTrace = stack;
+      }
+
+      final client = SentryClient(options);
+      await client.captureException(error, stackTrace: stackTrace);
+
+      final capturedEvent = (verify(
+        options.transport.send(captureAny),
+      ).captured.first) as SentryEvent;
+
+      expect(capturedEvent.exception, error);
+      expect(capturedEvent.stackTrace, stackTrace);
+    });
+  });
+
   group('SentryClient : apply scope to the captured event', () {
     SentryOptions options;
     Scope scope;
