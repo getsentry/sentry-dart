@@ -47,7 +47,7 @@ class Breadcrumb {
   /// See also:
   ///
   /// * https://docs.sentry.io/development/sdk-dev/event-payloads/breadcrumbs/#breadcrumb-types
-  final Map<String, String> data;
+  final Map<String, dynamic> data;
 
   /// Severity of the breadcrumb.
   ///
@@ -85,7 +85,7 @@ class Breadcrumb {
       json['category'] = category;
     }
     if (data != null && data.isNotEmpty) {
-      json['data'] = Map.of(data);
+      json['data'] = data;
     }
     if (level != null) {
       json['level'] = level.name;

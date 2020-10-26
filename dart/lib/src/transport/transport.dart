@@ -6,13 +6,7 @@ import 'package:sentry/src/utils.dart';
 
 import '../protocol.dart';
 import '../sentry_options.dart';
-import 'body_encoder_browser.dart' if (dart.library.io) 'body_encoder.dart';
-
-typedef BodyEncoder = List<int> Function(
-  Map<String, dynamic> data,
-  Map<String, String> headers, {
-  bool compressPayload,
-});
+import 'noop_encode.dart' if (dart.library.io) 'encode.dart';
 
 /// A transport is in charge of sending the event to the Sentry server.
 class Transport {
@@ -43,7 +37,7 @@ class Transport {
   Future<SentryId> send(SentryEvent event) async {
     final data = event.toJson(origin: _origin);
 
-    final body = bodyEncoder(
+    final body = _bodyEncoder(
       data,
       _headers,
       compressPayload: _options.compressPayload,
@@ -61,6 +55,20 @@ class Transport {
 
     final eventId = json.decode(response.body)['id'];
     return eventId != null ? SentryId.fromId(eventId) : SentryId.empty();
+  }
+
+  List<int> _bodyEncoder(
+    Map<String, dynamic> data,
+    Map<String, String> headers, {
+    bool compressPayload,
+  }) {
+    // [SentryIOClient] implement gzip compression
+    // gzip compression is not available on browser
+    var body = utf8.encode(json.encode(data));
+    if (compressPayload) {
+      body = compressBody(body, headers);
+    }
+    return body;
   }
 }
 
