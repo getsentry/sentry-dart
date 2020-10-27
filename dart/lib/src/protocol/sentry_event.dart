@@ -12,7 +12,7 @@ class SentryEvent {
   SentryEvent({
     SentryId eventId,
     DateTime timestamp,
-    Sdk sdk,
+    this.sdk,
     this.platform,
     this.logger,
     this.serverName,
@@ -33,8 +33,7 @@ class SentryEvent {
     this.contexts,
     this.breadcrumbs,
   })  : eventId = eventId ?? SentryId.newId(),
-        timestamp = timestamp ?? getUtcDateTime(),
-        sdk = sdk ?? Sdk(name: sdkName, version: sdkVersion);
+        timestamp = timestamp ?? getUtcDateTime();
 
   /// Refers to the default fingerprinting algorithm.
   ///

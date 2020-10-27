@@ -80,6 +80,7 @@ abstract class SentryClient {
         environment:
             event.environment ?? _options.environment ?? defaultEnvironment,
         release: event.release ?? _options.release,
+        sdk: event.sdk ?? Sdk(name: sdkName, version: sdkVersion),
         platform: event.platform ?? sdkPlatform,
       );
 
