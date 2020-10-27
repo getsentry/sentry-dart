@@ -5,7 +5,7 @@
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 
-/// Implemented in `browser_client.dart` and `io_client.dart`.
+/// Implemented in `sentry_browser_client.dart` and `sentry_io_client.dart`.
 SentryClient createSentryClient(SentryOptions options) =>
     throw UnsupportedError(
         'Cannot create a client without dart:html or dart:io.');
