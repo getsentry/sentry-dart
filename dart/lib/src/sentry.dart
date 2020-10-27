@@ -56,12 +56,12 @@ class Sentry {
 
   /// Reports the [exception] and optionally its [stackTrace] to Sentry.io.
   static Future<SentryId> captureException(
-    dynamic throwable, {
+    dynamic exception, {
     dynamic stackTrace,
     dynamic hint,
   }) async =>
       currentHub.captureException(
-        throwable,
+        exception,
         stackTrace: stackTrace,
         hint: hint,
       );
