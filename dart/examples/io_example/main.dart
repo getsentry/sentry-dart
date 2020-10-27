@@ -13,12 +13,39 @@ import 'event_example.dart';
 Future<void> main(List<String> rawArgs) async {
   if (rawArgs.length != 1) {
     stderr.writeln(
-        'Expected exactly one argument, which is the DSN issued by Sentry.io to your project.');
+      'Expected exactly one argument, which is the DSN issued by Sentry.io to your project.',
+    );
     exit(1);
   }
 
   final dsn = rawArgs.single;
-  Sentry.init((options) => options.dsn = dsn);
+  Sentry.init((options) => options..dsn = dsn);
+
+  Sentry.addBreadcrumb(
+    Breadcrumb(
+        message: 'UI Lifecycle',
+        timestamp: DateTime.now().toUtc(),
+        category: 'ui.lifecycle',
+        type: 'navigation',
+        data: {'screen': 'MainActivity', 'state': 'created'},
+        level: SentryLevel.info),
+  );
+
+  Sentry.configureScope((scope) {
+    scope
+      ..user = User(
+        id: '800',
+        username: 'first-user',
+        email: 'first@user.lan',
+        ipAddress: '127.0.0.1',
+        extras: <String, String>{'first-sign-in': '2020-01-01'},
+      )
+      ..fingerprint = ['example-dart']
+      ..transaction = '/example/app'
+      ..level = SentryLevel.warning
+      ..setTag('project-id', '7371')
+      ..setExtra('company-name', 'Dart Inc');
+  });
 
   print('\nReporting a complete event example: ');
 

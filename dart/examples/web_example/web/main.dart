@@ -15,7 +15,37 @@ void main() {
   querySelector('#btMessage').onClick.listen((event) => captureMessage());
   querySelector('#btException').onClick.listen((event) => captureException());
 
+  initSentry();
+}
+
+void initSentry() {
   Sentry.init((options) => options.dsn = dsn);
+
+  Sentry.addBreadcrumb(
+    Breadcrumb(
+        message: 'UI Lifecycle',
+        timestamp: DateTime.now().toUtc(),
+        category: 'ui.lifecycle',
+        type: 'navigation',
+        data: {'screen': 'MainActivity', 'state': 'created'},
+        level: SentryLevel.info),
+  );
+
+  Sentry.configureScope((scope) {
+    scope
+      ..user = User(
+        id: '800',
+        username: 'first-user',
+        email: 'first@user.lan',
+        ipAddress: '127.0.0.1',
+        extras: <String, String>{'first-sign-in': '2020-01-01'},
+      )
+      ..fingerprint = ['example-dart']
+      ..transaction = '/example/app'
+      ..level = SentryLevel.warning
+      ..setTag('project-id', '7371')
+      ..setExtra('company-name', 'Dart Inc');
+  });
 }
 
 void captureMessage() async {

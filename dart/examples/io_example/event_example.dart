@@ -6,26 +6,12 @@ final event = SentryEvent(
   release: '1.4.0-preview.1',
   environment: 'Test',
   message: Message('This is an example Dart event.'),
-  transaction: '/example/app',
-  level: SentryLevel.warning,
-  tags: const <String, String>{'project-id': '7371'},
-  extra: const <String, String>{'company-name': 'Dart Inc'},
-  fingerprint: const <String>['example-dart'],
   userContext: const User(
       id: '800',
       username: 'first-user',
       email: 'first@user.lan',
       ipAddress: '127.0.0.1',
       extras: <String, String>{'first-sign-in': '2020-01-01'}),
-  breadcrumbs: [
-    Breadcrumb(
-        message: 'UI Lifecycle',
-        timestamp: DateTime.now().toUtc(),
-        category: 'ui.lifecycle',
-        type: 'navigation',
-        data: {'screen': 'MainActivity', 'state': 'created'},
-        level: SentryLevel.info)
-  ],
   contexts: Contexts(
     operatingSystem: const OperatingSystem(
         name: 'Android',
