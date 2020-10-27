@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 
-import 'client.dart';
 import 'hub.dart';
 import 'noop_hub.dart';
 import 'protocol.dart';
+import 'sentry_client.dart';
 import 'sentry_options.dart';
 
 /// Configuration options callback

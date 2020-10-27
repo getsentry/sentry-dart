@@ -5,7 +5,7 @@
 import 'package:sentry/sentry.dart';
 
 /// A pure Dart client for Sentry.io crash reporting.
-import 'client.dart';
+import 'sentry_client.dart';
 import 'sentry_options.dart';
 
 SentryClient createSentryClient(SentryOptions options) =>

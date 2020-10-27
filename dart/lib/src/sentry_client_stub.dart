@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'client.dart';
+import 'sentry_client.dart';
 import 'sentry_options.dart';
 
 /// Implemented in `browser_client.dart` and `io_client.dart`.

@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'client.dart';
 import 'protocol.dart';
 import 'scope.dart';
+import 'sentry_client.dart';
 
 class NoOpSentryClient implements SentryClient {
   NoOpSentryClient._();
