@@ -143,45 +143,15 @@ class Scope {
   void removeExtra(String key) => _extra.remove(key);
 
   SentryEvent applyToEvent(SentryEvent event, dynamic hint) {
-    if (event.transaction == null) {
-      event = event.copyWith(transaction: transaction);
-    }
-
-    // set the user context if none is set.
-    if (event.userContext == null) {
-      event = event.copyWith(userContext: user);
-    }
-
-    // set the scope fingerprint if none is set.
-    if (event.fingerprint == null) {
-      event = event.copyWith(fingerprint: fingerprint);
-    }
-
-    // set the scope breadcrumbs if none is set.
-    if (event.breadcrumbs == null) {
-      event = event.copyWith(breadcrumbs: breadcrumbs);
-    }
-
-    // Merge the scope tags
-    // if the scope and the event have tag entries with the same key,
-    // the event tags will be keeped
     event = event.copyWith(
-      tags: tags.map((key, value) => MapEntry(key, value))
-        ..addAll(event.tags ?? {}),
+      transaction: event.transaction ?? transaction,
+      userContext: event.userContext ?? user,
+      fingerprint: event.fingerprint ?? fingerprint,
+      breadcrumbs: event.breadcrumbs ?? breadcrumbs,
+      tags: _mergeEventTags(event),
+      extra: _mergeEventExtra(event),
+      level: level ?? event.level,
     );
-
-    // Merge the scope extra.
-    // if the scope and the event have extra entries with the same key,
-    // the event extra will be keeped
-    event = event.copyWith(
-      extra: extra.map((key, value) => MapEntry(key, value))
-        ..addAll(event.extra ?? {}),
-    );
-
-    // Merge the scope level.
-    if (level != null) {
-      event = event.copyWith(level: level);
-    }
 
     for (final processor in _eventProcessors) {
       try {
@@ -200,6 +170,17 @@ class Scope {
 
     return event;
   }
+
+  /// the event tags will be kept
+  /// if the scope and the event have tag entries with the same key,
+  Map<String, String> _mergeEventTags(SentryEvent event) =>
+      tags.map((key, value) => MapEntry(key, value))..addAll(event.tags ?? {});
+
+  /// if the scope and the event have extra entries with the same key,
+  /// the event extra will be kept
+  Map<String, dynamic> _mergeEventExtra(SentryEvent event) =>
+      extra.map((key, value) => MapEntry(key, value))
+        ..addAll(event.extra ?? {});
 
   /// Clones the current Scope
   Scope clone() {
