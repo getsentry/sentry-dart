@@ -162,12 +162,16 @@ class Scope {
       event = event.copyWith(breadcrumbs: breadcrumbs);
     }
 
-    // Merge the scope tags.
+    // Merge the scope tags
+    // if the scope and the event have tag entries with the same key,
+    // the event tags will be keeped
     event = event.copyWith(
         tags: tags.map((key, value) => MapEntry(key, value))
           ..addAll(event.tags ?? {}));
 
     // Merge the scope extra.
+    // if the scope and the event have extra entries with the same key,
+    // the event extra will be keeped
     event = event.copyWith(
         extra: extra.map((key, value) => MapEntry(key, value))
           ..addAll(event.extra ?? {}));
