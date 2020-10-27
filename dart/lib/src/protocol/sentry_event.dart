@@ -288,9 +288,9 @@ class SentryEvent {
       json['contexts'] = contextsMap;
     }
 
-    Map<String, dynamic> userContextMap;
-    if (user != null && (userContextMap = user.toJson()).isNotEmpty) {
-      json['user'] = userContextMap;
+    Map<String, dynamic> userMap;
+    if (user != null && (userMap = user.toJson()).isNotEmpty) {
+      json['user'] = userMap;
     }
 
     if (fingerprint != null && fingerprint.isNotEmpty) {
