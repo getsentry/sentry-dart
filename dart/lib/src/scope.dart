@@ -148,8 +148,8 @@ class Scope {
       userContext: event.userContext ?? user,
       fingerprint: event.fingerprint ?? fingerprint,
       breadcrumbs: event.breadcrumbs ?? breadcrumbs,
-      tags: _mergeEventTags(event),
-      extra: _mergeEventExtra(event),
+      tags: tags.isNotEmpty ? _mergeEventTags(event) : event.tags,
+      extra: extra.isNotEmpty ? _mergeEventExtra(event) : event.extra,
       level: level ?? event.level,
     );
 
