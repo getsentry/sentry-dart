@@ -41,6 +41,7 @@
 - Fix: Breadcrumb data should accept serializable types and not only String values
 - Ref: added Scope.applyToEvent
 - Ref: rename sdk files accordely to their content
+- Ref: rename the `throwable` argument name to `exception` in `captureEvents(...)`
 
 # `package:sentry` changelog
 

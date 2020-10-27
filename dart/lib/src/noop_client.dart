@@ -23,7 +23,7 @@ class NoOpSentryClient implements SentryClient {
 
   @override
   Future<SentryId> captureException(
-    dynamic throwable, {
+    dynamic exception, {
     dynamic stackTrace,
     Scope scope,
     dynamic hint,
