@@ -39,6 +39,7 @@
 - Fix: Integrations are executed on Hub creation
 - Fix: NoOp encode for Web
 - Fix: Breadcrumb data should accept serializable types and not only String values
+- Ref: added Scope.applyToEvent
 
 # `package:sentry` changelog
 

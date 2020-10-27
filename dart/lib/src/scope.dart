@@ -142,6 +142,46 @@ class Scope {
   /// Removes an extra from the Scope
   void removeExtra(String key) => _extra.remove(key);
 
+  SentryEvent applyToEvent(SentryEvent event, dynamic hint) {
+    event = event.copyWith(
+      transaction: event.transaction ?? transaction,
+      userContext: event.userContext ?? user,
+      fingerprint: event.fingerprint ?? fingerprint,
+      breadcrumbs: event.breadcrumbs ?? breadcrumbs,
+      tags: tags.isNotEmpty ? _mergeEventTags(event) : event.tags,
+      extra: extra.isNotEmpty ? _mergeEventExtra(event) : event.extra,
+      level: level ?? event.level,
+    );
+
+    for (final processor in _eventProcessors) {
+      try {
+        event = processor(event, hint);
+      } catch (err) {
+        _options.logger(
+          SentryLevel.error,
+          'An exception occurred while processing event by a processor : $err',
+        );
+      }
+      if (event == null) {
+        _options.logger(SentryLevel.debug, 'Event was dropped by a processor');
+        break;
+      }
+    }
+
+    return event;
+  }
+
+  /// the event tags will be kept
+  /// if the scope and the event have tag entries with the same key,
+  Map<String, String> _mergeEventTags(SentryEvent event) =>
+      tags.map((key, value) => MapEntry(key, value))..addAll(event.tags ?? {});
+
+  /// if the scope and the event have extra entries with the same key,
+  /// the event extra will be kept
+  Map<String, dynamic> _mergeEventExtra(SentryEvent event) =>
+      extra.map((key, value) => MapEntry(key, value))
+        ..addAll(event.extra ?? {});
+
   /// Clones the current Scope
   Scope clone() {
     final clone = Scope(_options)
