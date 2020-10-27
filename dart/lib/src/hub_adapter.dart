@@ -28,12 +28,12 @@ class HubAdapter implements Hub {
 
   @override
   Future<SentryId> captureException(
-    dynamic throwable, {
+    dynamic exception, {
     dynamic stackTrace,
     dynamic hint,
   }) =>
       Sentry.captureException(
-        throwable,
+        exception,
         stackTrace: stackTrace,
         hint: hint,
       );

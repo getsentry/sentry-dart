@@ -102,7 +102,7 @@ class Hub {
 
   /// Captures the exception
   Future<SentryId> captureException(
-    dynamic throwable, {
+    dynamic exception, {
     dynamic stackTrace,
     dynamic hint,
   }) async {
@@ -113,7 +113,7 @@ class Hub {
         SentryLevel.warning,
         "Instance is disabled and this 'captureException' call is a no-op.",
       );
-    } else if (throwable == null) {
+    } else if (exception == null) {
       _options.logger(
         SentryLevel.warning,
         'captureException called with null parameter.',
@@ -123,7 +123,7 @@ class Hub {
       if (item != null) {
         try {
           sentryId = await item.client.captureException(
-            throwable,
+            exception,
             stackTrace: stackTrace,
             scope: item.scope,
             hint: hint,
@@ -131,7 +131,7 @@ class Hub {
         } catch (err) {
           _options.logger(
             SentryLevel.error,
-            'Error while capturing exception : ${throwable}',
+            'Error while capturing exception : ${exception}',
           );
         } finally {
           _lastEventId = sentryId;

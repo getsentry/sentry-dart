@@ -42,6 +42,7 @@
 - Ref: added Scope.applyToEvent
 - Ref: rename sdk files accordely to their content
 - chore: new analysis options rules
+- Ref: rename the `throwable` argument name to `exception` in `captureEvents(...)`
 
 # `package:sentry` changelog
 

@@ -86,15 +86,15 @@ abstract class SentryClient {
         platform: event.platform ?? sdkPlatform,
       );
 
-  /// Reports the [throwable] and optionally its [stackTrace] to Sentry.io.
+  /// Reports the [exception] and optionally its [stackTrace] to Sentry.io.
   Future<SentryId> captureException(
-    dynamic throwable, {
+    dynamic exception, {
     dynamic stackTrace,
     Scope scope,
     dynamic hint,
   }) {
     final event = SentryEvent(
-      exception: throwable,
+      exception: exception,
       stackTrace: stackTrace,
       timestamp: _options.clock(),
     );
