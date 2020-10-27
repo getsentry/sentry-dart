@@ -5,7 +5,6 @@ import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/hub.dart';
 import 'package:test/test.dart';
-import 'dart:async';
 
 import 'mocks.dart';
 
