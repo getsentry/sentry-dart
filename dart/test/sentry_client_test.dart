@@ -10,7 +10,6 @@ void main() {
 
     setUp(() {
       options = SentryOptions(dsn: fakeDsn);
-      options.compressPayload = false;
       options.transport = MockTransport();
     });
 
@@ -41,7 +40,6 @@ void main() {
 
     setUp(() {
       options = SentryOptions(dsn: fakeDsn);
-      options.compressPayload = false;
       options.transport = MockTransport();
     });
 
@@ -91,7 +89,6 @@ void main() {
 
     setUp(() {
       options = SentryOptions(dsn: fakeDsn);
-      options.compressPayload = false;
       options.transport = MockTransport();
 
       scope = Scope(options)
@@ -151,7 +148,6 @@ void main() {
 
     setUp(() {
       options = SentryOptions(dsn: fakeDsn);
-      options.compressPayload = false;
       options.transport = MockTransport();
       scope = Scope(options)
         ..user = user
