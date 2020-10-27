@@ -100,7 +100,6 @@ class SentryOptions {
   /// Sets the release. SDK will try to automatically configure a release out of the box
   String release;
 
-// TODO: probably its part of environmentAttributes
   /// Sets the environment. This string is freeform and not set by default. A release can be
   /// associated with more than one environment to separate them in the UI Think staging vs prod or
   /// similar.
@@ -139,8 +138,14 @@ class SentryOptions {
   /// The server name used in the Sentry messages.
   String serverName;
 
+  Sdk _sdk = Sdk(name: sdkName, version: sdkVersion);
+
   /// Sdk object that contains the Sentry Client Name and its version
-  Sdk sdk;
+  Sdk get sdk => _sdk;
+
+  set sdk(Sdk sdk) {
+    _sdk = sdk ?? _sdk;
+  }
 
   // TODO: Scope observers, enableScopeSync
 
