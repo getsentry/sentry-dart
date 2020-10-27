@@ -14,7 +14,7 @@ void main() {
       options.transport = MockTransport();
     });
 
-    test('should captures message', () async {
+    test('should capture message', () async {
       final client = SentryClient(options);
       await client.captureMessage(
         'simple message 1',
