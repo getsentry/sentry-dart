@@ -7,6 +7,8 @@ import 'hub.dart';
 import 'protocol.dart';
 import 'utils.dart';
 
+const defaultEnvironment = 'production';
+
 /// Sentry SDK options
 class SentryOptions {
   /// Default Log level if not specified Default is DEBUG

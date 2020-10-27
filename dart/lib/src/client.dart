@@ -77,7 +77,8 @@ abstract class SentryClient {
   SentryEvent _prepareEvent(SentryEvent event) => event.copyWith(
         serverName: event.serverName ?? _options.serverName,
         dist: event.dist ?? _options.dist,
-        environment: event.environment ?? _options.environment,
+        environment:
+            event.environment ?? _options.environment ?? defaultEnvironment,
         release: event.release ?? _options.release,
         platform: event.platform ?? sdkPlatform,
       );
