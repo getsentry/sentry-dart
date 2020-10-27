@@ -1,8 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
 
-import 'package:sentry/src/hub_adapter.dart';
-
+import 'hub_adapter.dart';
 import 'noop_client.dart';
 import 'protocol.dart';
 import 'scope.dart';

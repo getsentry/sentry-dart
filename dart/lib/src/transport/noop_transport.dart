@@ -1,6 +1,7 @@
 import 'dart:async';
 
-import 'package:sentry/sentry.dart';
+import '../protocol.dart';
+import 'transport.dart';
 
 class NoOpTransport implements Transport {
   @override
