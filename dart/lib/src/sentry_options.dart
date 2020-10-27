@@ -16,20 +16,31 @@ class SentryOptions {
   ///  just not send any events.
   String dsn;
 
+  bool _compressPayload = true;
+
   /// If [compressPayload] is `true` the outgoing HTTP payloads are compressed
   /// using gzip. Otherwise, the payloads are sent in plain UTF8-encoded JSON
   /// text. If not specified, the compression is enabled by default.
-  bool compressPayload = false;
+  bool get compressPayload => _compressPayload;
+
+  set compressPayload(bool compressPayload) =>
+      _compressPayload = compressPayload ?? _compressPayload;
+
+  Client _httpClient = Client();
 
   /// If [httpClient] is provided, it is used instead of the default client to
   /// make HTTP calls to Sentry.io. This is useful in tests.
-  Client httpClient;
+  Client get httpClient => _httpClient;
+
+  set httpClient(Client httpClient) => _httpClient = httpClient ?? _httpClient;
 
   /// If [clock] is provided, it is used to get time instead of the system
   /// clock. This is useful in tests. Should be an implementation of [ClockProvider].
-  ClockProvider _clock;
+  ClockProvider _clock = getUtcDateTime;
 
   ClockProvider get clock => _clock;
+
+  set clock(ClockProvider clock) => _clock = clock ?? _clock;
 
   /// This variable controls the total amount of breadcrumbs that should be captured Default is 100
   int maxBreadcrumbs = 100;
@@ -134,14 +145,7 @@ class SentryOptions {
   // TODO: sendDefaultPii
 
   // TODO: those ctor params could be set on Sentry._setDefaultConfiguration or instantiate by default here
-  SentryOptions({
-    this.dsn,
-    this.compressPayload,
-    this.httpClient,
-    ClockProvider clock = getUtcDateTime,
-  }) {
-    _clock = clock;
-  }
+  SentryOptions({this.dsn});
 
   /// Adds an event processor
   void addEventProcessor(EventProcessor eventProcessor) {

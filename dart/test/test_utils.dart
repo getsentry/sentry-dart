@@ -70,12 +70,10 @@ Future testCaptureException(
     fail('Unexpected request on ${request.method} ${request.url} in HttpMock');
   });
 
-  final options = SentryOptions(
-    dsn: testDsn,
-    httpClient: httpMock,
-    clock: fakeClockProvider,
-    compressPayload: compressPayload,
-  )
+  final options = SentryOptions(dsn: testDsn)
+    ..compressPayload = compressPayload
+    ..clock = fakeClockProvider
+    ..httpClient = httpMock
     ..serverName = 'test.server.com'
     ..release = '1.2.3'
     ..environment = 'staging';
@@ -181,8 +179,10 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     final options = SentryOptions(dsn: testDsn);
     final client = SentryClient(options);
     expect(options.transport.dsn.uri, Uri.parse(testDsn));
-    expect(options.transport.dsn.postUri,
-        'https://sentry.example.com/api/1/store/');
+    expect(
+      options.transport.dsn.postUri,
+      'https://sentry.example.com/api/1/store/',
+    );
     expect(options.transport.dsn.publicKey, 'public');
     expect(options.transport.dsn.secretKey, 'secret');
     expect(options.transport.dsn.projectId, '1');
@@ -193,8 +193,10 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     final options = SentryOptions(dsn: _testDsnWithoutSecret);
     final client = SentryClient(options);
     expect(options.transport.dsn.uri, Uri.parse(_testDsnWithoutSecret));
-    expect(options.transport.dsn.postUri,
-        'https://sentry.example.com/api/1/store/');
+    expect(
+      options.transport.dsn.postUri,
+      'https://sentry.example.com/api/1/store/',
+    );
     expect(options.transport.dsn.publicKey, 'public');
     expect(options.transport.dsn.secretKey, null);
     expect(options.transport.dsn.projectId, '1');
@@ -242,12 +244,10 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     });
 
     final client = SentryClient(
-      SentryOptions(
-        dsn: _testDsnWithoutSecret,
-        httpClient: httpMock,
-        clock: fakeClockProvider,
-        compressPayload: false,
-      )
+      SentryOptions(dsn: _testDsnWithoutSecret)
+        ..httpClient = httpMock
+        ..clock = fakeClockProvider
+        ..compressPayload = false
         ..serverName = 'test.server.com'
         ..release = '1.2.3'
         ..environment = 'staging',
@@ -299,10 +299,10 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     final client = SentryClient(
       SentryOptions(
         dsn: testDsn,
-        httpClient: httpMock,
-        clock: fakeClockProvider,
-        compressPayload: false,
       )
+        ..httpClient = httpMock
+        ..clock = fakeClockProvider
+        ..compressPayload = false
         ..serverName = 'test.server.com'
         ..release = '1.2.3'
         ..environment = 'staging',
@@ -353,10 +353,10 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
 
     final options = SentryOptions(
       dsn: testDsn,
-      httpClient: httpMock,
-      clock: fakeClockProvider,
-      compressPayload: false,
     )
+      ..httpClient = httpMock
+      ..clock = fakeClockProvider
+      ..compressPayload = false
       ..serverName = 'test.server.com'
       ..release = '1.2.3'
       ..environment = 'staging';

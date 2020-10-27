@@ -231,8 +231,10 @@ void main() {
     expect(sut.tags, clone.tags);
     expect(sut.breadcrumbs, clone.breadcrumbs);
     expect(ListEquality().equals(sut.fingerprint, clone.fingerprint), true);
-    expect(ListEquality().equals(sut.eventProcessors, clone.eventProcessors),
-        true);
+    expect(
+      ListEquality().equals(sut.eventProcessors, clone.eventProcessors),
+      true,
+    );
   });
 }
 
