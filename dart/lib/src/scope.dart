@@ -164,7 +164,7 @@ class Scope {
 
     // Merge the scope tags
     // if the scope and the event have tag entries with the same key,
-    // the event tags will be keeped
+    // the event tags will be kept
     event = event.copyWith(
       tags: tags.map((key, value) => MapEntry(key, value))
         ..addAll(event.tags ?? {}),
