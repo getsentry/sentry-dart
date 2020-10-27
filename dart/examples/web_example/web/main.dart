@@ -34,7 +34,7 @@ void captureMessage() async {
 
 void captureException() async {
   try {
-    await foo();
+    await buildCard();
   } catch (error, stackTrace) {
     print('\nReporting the following stack trace: ');
     print(stackTrace);
@@ -137,14 +137,14 @@ Future<void> captureCompleteExampleEvent() async {
   }
 }
 
-Future<void> foo() async {
-  await bar();
+Future<void> buildCard() async {
+  await loadData();
 }
 
-Future<void> bar() async {
-  await baz();
+Future<void> loadData() async {
+  await parseData();
 }
 
-Future<void> baz() async {
+Future<void> parseData() async {
   throw StateError('This is a test error');
 }

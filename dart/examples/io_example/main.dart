@@ -40,7 +40,7 @@ Future<void> main(List<String> rawArgs) async {
   print('Capture message result : SentryId : ${messageSentryId}');
 
   try {
-    await foo();
+    await loadConfig();
   } catch (error, stackTrace) {
     print('\nReporting the following stack trace: ');
     print(stackTrace);
@@ -57,14 +57,14 @@ Future<void> main(List<String> rawArgs) async {
   /* TODO(rxlabz) Sentry CaptureMessage(message, level) */
 }
 
-Future<void> foo() async {
-  await bar();
+Future<void> loadConfig() async {
+  await parseConfig();
 }
 
-Future<void> bar() async {
-  await baz();
+Future<void> parseConfig() async {
+  await decode();
 }
 
-Future<void> baz() async {
+Future<void> decode() async {
   throw StateError('This is a test error');
 }
