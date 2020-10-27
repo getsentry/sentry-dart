@@ -71,6 +71,7 @@ Future testCaptureException(
   });
 
   final options = SentryOptions(dsn: testDsn)
+    ..compressPayload = compressPayload
     ..clock = fakeClockProvider
     ..httpClient = httpMock
     ..serverName = 'test.server.com'
