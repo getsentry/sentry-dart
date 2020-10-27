@@ -1,11 +1,12 @@
 import 'package:http/http.dart';
-import 'package:sentry/sentry.dart';
-import 'package:sentry/src/transport/noop_transport.dart';
 
 import 'diagnostic_logger.dart';
 import 'hub.dart';
 import 'protocol.dart';
+import 'transport/noop_transport.dart';
+import 'transport/transport.dart';
 import 'utils.dart';
+import 'version.dart';
 
 const defaultEnvironment = 'production';
 

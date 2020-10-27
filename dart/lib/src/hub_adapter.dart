@@ -1,13 +1,9 @@
 import 'dart:async';
 
-import 'package:sentry/src/protocol/breadcrumb.dart';
-import 'package:sentry/src/protocol/sentry_event.dart';
-import 'package:sentry/src/protocol/sentry_id.dart';
-import 'package:sentry/src/protocol/sentry_level.dart';
-import 'package:sentry/src/sentry.dart';
-import 'package:sentry/src/sentry_client.dart';
-
 import 'hub.dart';
+import 'protocol.dart';
+import 'sentry.dart';
+import 'sentry_client.dart';
 
 /// Hub adapter to make Integrations testable
 class HubAdapter implements Hub {

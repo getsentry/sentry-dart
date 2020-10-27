@@ -1,4 +1,5 @@
-import 'package:sentry/sentry.dart';
+import 'protocol.dart';
+import 'sentry_options.dart';
 
 class DiagnosticLogger {
   final Logger _logger;

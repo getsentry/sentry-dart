@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:meta/meta.dart';
-import 'package:sentry/src/utils.dart';
 
 import '../protocol.dart';
 import '../sentry_options.dart';
+import '../utils.dart';
 import 'noop_encode.dart' if (dart.library.io) 'encode.dart';
 
 /// A transport is in charge of sending the event to the Sentry server.
