@@ -142,6 +142,59 @@ class Scope {
   /// Removes an extra from the Scope
   void removeExtra(String key) => _extra.remove(key);
 
+  SentryEvent applyToEvent(SentryEvent event, dynamic hint) {
+    if (event.transaction == null) {
+      event = event.copyWith(transaction: transaction);
+    }
+
+    // Merge the user context.
+    if (event.userContext == null) {
+      event = event.copyWith(userContext: user);
+    }
+
+    // Merge the scope fingerprint.
+    if (event.fingerprint == null) {
+      event = event.copyWith(fingerprint: fingerprint);
+    }
+
+    // Merge the scope breadcrumbs.
+    if (event.breadcrumbs == null) {
+      event = event.copyWith(breadcrumbs: breadcrumbs);
+    }
+
+    // Merge the scope tags.
+    event = event.copyWith(
+        tags: tags.map((key, value) => MapEntry(key, value))
+          ..addAll(event.tags ?? {}));
+
+    // Merge the scope extra.
+    event = event.copyWith(
+        extra: extra.map((key, value) => MapEntry(key, value))
+          ..addAll(event.extra ?? {}));
+
+    // Merge the scope level.
+    if (level != null) {
+      event = event.copyWith(level: level);
+    }
+
+    for (final processor in _eventProcessors) {
+      try {
+        event = processor(event, hint);
+      } catch (err) {
+        _options.logger(
+          SentryLevel.error,
+          'An exception occurred while processing event by a processor : $err',
+        );
+      }
+      if (event == null) {
+        _options.logger(SentryLevel.debug, 'Event was dropped by a processor');
+        break;
+      }
+    }
+
+    return event;
+  }
+
   /// Clones the current Scope
   Scope clone() {
     final clone = Scope(_options)

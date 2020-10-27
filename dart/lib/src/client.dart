@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/transport/noop_transport.dart';
 
@@ -44,20 +43,14 @@ abstract class SentryClient {
       return emptyFuture;
     }
 
-    event = _applyScope(event: event, scope: scope);
+    event = scope?.applyToEvent(event, hint) ?? event;
 
     // dropped by scope event processors
     if (event == null) {
       return emptyFuture;
     }
 
-    // TODO create eventProcessors ?
-    event = event.copyWith(
-      serverName: _options.serverName,
-      environment: _options.environment,
-      release: _options.release,
-      platform: event.platform ?? sdkPlatform,
-    );
+    event = _prepareEvent(event);
 
     if (_options.beforeSendCallback != null) {
       try {
@@ -75,6 +68,16 @@ abstract class SentryClient {
     }
 
     return _options.transport.send(event);
+  }
+
+  SentryEvent _prepareEvent(SentryEvent event) {
+    return event.copyWith(
+      serverName: _options.serverName,
+      dist: _options.dist,
+      environment: _options.environment,
+      release: _options.release,
+      platform: event.platform ?? sdkPlatform,
+    );
   }
 
   /// Reports the [throwable] and optionally its [stackTrace] to Sentry.io.
@@ -138,51 +141,6 @@ abstract class SentryClient {
         _options.logger(SentryLevel.debug, 'Event was dropped by a processor');
         break;
       }
-    }
-    return event;
-  }
-
-  SentryEvent _applyScope({
-    @required SentryEvent event,
-    @required Scope scope,
-  }) {
-    if (scope != null) {
-      // Merge the scope transaction.
-      if (event.transaction == null) {
-        event = event.copyWith(transaction: scope.transaction);
-      }
-
-      // Merge the user context.
-      if (event.userContext == null) {
-        event = event.copyWith(userContext: scope.user);
-      }
-
-      // Merge the scope fingerprint.
-      if (event.fingerprint == null) {
-        event = event.copyWith(fingerprint: scope.fingerprint);
-      }
-
-      // Merge the scope breadcrumbs.
-      if (event.breadcrumbs == null) {
-        event = event.copyWith(breadcrumbs: scope.breadcrumbs);
-      }
-
-      // Merge the scope tags.
-      event = event.copyWith(
-          tags: scope.tags.map((key, value) => MapEntry(key, value))
-            ..addAll(event.tags ?? {}));
-
-      // Merge the scope extra.
-      event = event.copyWith(
-          extra: scope.extra.map((key, value) => MapEntry(key, value))
-            ..addAll(event.extra ?? {}));
-
-      // Merge the scope level.
-      if (scope.level != null) {
-        event = event.copyWith(level: scope.level);
-      }
-
-      // TODO: execute scope event processors
     }
     return event;
   }
