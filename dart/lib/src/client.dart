@@ -43,7 +43,11 @@ abstract class SentryClient {
       return emptyFuture;
     }
 
-    event = scope?.applyToEvent(event, hint) ?? event;
+    if (scope != null) {
+      event = scope.applyToEvent(event, hint);
+    } else {
+      _options.logger(SentryLevel.debug, 'No scope is defined');
+    }
 
     // dropped by scope event processors
     if (event == null) {
