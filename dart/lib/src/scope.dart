@@ -147,17 +147,17 @@ class Scope {
       event = event.copyWith(transaction: transaction);
     }
 
-    // Merge the user context.
+    // set the user context if none is set.
     if (event.userContext == null) {
       event = event.copyWith(userContext: user);
     }
 
-    // Merge the scope fingerprint.
+    // set the scope fingerprint if none is set.
     if (event.fingerprint == null) {
       event = event.copyWith(fingerprint: fingerprint);
     }
 
-    // Merge the scope breadcrumbs.
+    // set the scope breadcrumbs if none is set.
     if (event.breadcrumbs == null) {
       event = event.copyWith(breadcrumbs: breadcrumbs);
     }
