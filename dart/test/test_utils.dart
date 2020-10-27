@@ -375,7 +375,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
         eventId: SentryId.empty(),
         exception: error,
         stackTrace: stackTrace,
-        userContext: eventUserContext,
+        user: eventUserContext,
       );
       await client.captureEvent(eventWithoutContext,
           scope: Scope(options)..user = clientUserContext);

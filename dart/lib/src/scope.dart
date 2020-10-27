@@ -145,7 +145,7 @@ class Scope {
   SentryEvent applyToEvent(SentryEvent event, dynamic hint) {
     event = event.copyWith(
       transaction: event.transaction ?? transaction,
-      userContext: event.userContext ?? user,
+      user: event.user ?? user,
       fingerprint: event.fingerprint ?? fingerprint,
       breadcrumbs: event.breadcrumbs ?? breadcrumbs,
       tags: tags.isNotEmpty ? _mergeEventTags(event) : event.tags,

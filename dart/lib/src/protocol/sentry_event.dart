@@ -29,7 +29,7 @@ class SentryEvent {
     this.tags,
     this.extra,
     this.fingerprint,
-    this.userContext,
+    this.user,
     this.contexts,
     this.breadcrumbs,
   })  : eventId = eventId ?? SentryId.newId(),
@@ -112,8 +112,8 @@ class SentryEvent {
   /// Information about the current user.
   ///
   /// The value in this field overrides the user context
-  /// set in [SentryClient.userContext] for this logged event.
-  final User userContext;
+  /// set in [SentryClient.user] for this logged event.
+  final User user;
 
   /// The context interfaces provide additional context data.
   /// Typically this is data related to the current user,
@@ -161,7 +161,7 @@ class SentryEvent {
     Map<String, String> tags,
     Map<String, dynamic> extra,
     List<String> fingerprint,
-    User userContext,
+    User user,
     Contexts contexts,
     List<Breadcrumb> breadcrumbs,
     Sdk sdk,
@@ -185,7 +185,7 @@ class SentryEvent {
         tags: tags ?? this.tags,
         extra: extra ?? this.extra,
         fingerprint: fingerprint ?? this.fingerprint,
-        userContext: userContext ?? this.userContext,
+        user: user ?? this.user,
         contexts: contexts ?? this.contexts,
         breadcrumbs: breadcrumbs ?? this.breadcrumbs,
         sdk: sdk ?? this.sdk,
@@ -289,8 +289,7 @@ class SentryEvent {
     }
 
     Map<String, dynamic> userContextMap;
-    if (userContext != null &&
-        (userContextMap = userContext.toJson()).isNotEmpty) {
+    if (user != null && (userContextMap = user.toJson()).isNotEmpty) {
       json['user'] = userContextMap;
     }
 

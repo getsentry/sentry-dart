@@ -109,7 +109,7 @@ void main() {
         options.transport.send(captureAny),
       ).captured.first) as SentryEvent;
 
-      expect(capturedEvent.userContext?.id, user.id);
+      expect(capturedEvent.user?.id, user.id);
       expect(capturedEvent.level.name, SentryLevel.error.name);
       expect(capturedEvent.transaction, transaction);
       expect(capturedEvent.fingerprint, fingerprint);
@@ -141,7 +141,7 @@ void main() {
     final event = SentryEvent(
       level: SentryLevel.warning,
       transaction: eventTransaction,
-      userContext: eventUser,
+      user: eventUser,
       fingerprint: eventFingerprint,
       breadcrumbs: eventCrumbs,
     );
@@ -164,7 +164,7 @@ void main() {
         options.transport.send(captureAny),
       ).captured.first) as SentryEvent;
 
-      expect(capturedEvent.userContext.id, eventUser.id);
+      expect(capturedEvent.user.id, eventUser.id);
       expect(capturedEvent.level.name, SentryLevel.warning.name);
       expect(capturedEvent.transaction, eventTransaction);
       expect(capturedEvent.fingerprint, eventFingerprint);
