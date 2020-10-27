@@ -74,15 +74,13 @@ abstract class SentryClient {
     return _options.transport.send(event);
   }
 
-  SentryEvent _prepareEvent(SentryEvent event) {
-    return event.copyWith(
-      serverName: _options.serverName,
-      dist: _options.dist,
-      environment: _options.environment,
-      release: _options.release,
-      platform: event.platform ?? sdkPlatform,
-    );
-  }
+  SentryEvent _prepareEvent(SentryEvent event) => event.copyWith(
+        serverName: event.serverName ?? _options.serverName,
+        dist: event.dist ?? _options.dist,
+        environment: event.environment ?? _options.environment,
+        release: event.release ?? _options.release,
+        platform: event.platform ?? sdkPlatform,
+      );
 
   /// Reports the [throwable] and optionally its [stackTrace] to Sentry.io.
   Future<SentryId> captureException(
