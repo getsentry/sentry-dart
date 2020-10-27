@@ -1,4 +1,4 @@
-import 'package:sentry/src/protocol.dart';
+import 'package:sentry/sentry.dart';
 
 final event = SentryEvent(
   logger: 'main',

@@ -3,32 +3,33 @@
 // found in the LICENSE file.
 
 import 'dart:async';
-import 'dart:io';
 
 import 'package:sentry/sentry.dart';
 
 import 'event_example.dart';
 
 /// Sends a test exception report to Sentry.io using this Dart client.
-Future<void> main(List<String> rawArgs) async {
-  if (rawArgs.length != 1) {
-    stderr.writeln(
-      'Expected exactly one argument, which is the DSN issued by Sentry.io to your project.',
-    );
-    exit(1);
-  }
+Future<void> main() async {
+  const dsn =
+      'https://cb0fad6f5d4e42ebb9c956cb0463edc9@o447951.ingest.sentry.io/5428562';
 
-  final dsn = rawArgs.single;
-  Sentry.init((options) => options..dsn = dsn);
+  SentryEvent processTagEvent(SentryEvent event, Object hint) =>
+      event..tags.addAll({'page-locale': 'en-us'});
+
+  Sentry.init((options) => options
+    ..dsn = dsn
+    ..addEventProcessor(processTagEvent));
 
   Sentry.addBreadcrumb(
     Breadcrumb(
-        message: 'UI Lifecycle',
-        timestamp: DateTime.now().toUtc(),
-        category: 'ui.lifecycle',
-        type: 'navigation',
-        data: {'screen': 'MainActivity', 'state': 'created'},
-        level: SentryLevel.info),
+      message: 'Authenticated user',
+      category: 'auth',
+      type: 'debug',
+      data: {
+        'admin': true,
+        'permissions': [1, 2, 3]
+      },
+    ),
   );
 
   Sentry.configureScope((scope) {
