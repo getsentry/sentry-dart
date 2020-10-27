@@ -52,7 +52,7 @@ void initSentry() {
       ..fingerprint = ['example-dart']
       ..transaction = '/example/app'
       ..level = SentryLevel.warning
-      ..setTag('project-id', '7371')
+      ..setTag('build', '579')
       ..setExtra('company-name', 'Dart Inc');
   });
 }

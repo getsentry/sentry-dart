@@ -6,6 +6,9 @@ final event = SentryEvent(
   release: '1.4.0-preview.1',
   environment: 'Test',
   message: Message('This is an example Dart event.'),
+  tags: const <String, String>{'project-id': '7371'},
+  extra: const <String, String>{'section': '1'},
+  fingerprint: const <String>['example-dart'],
   userContext: const User(
     id: '800',
     username: 'first-user',
@@ -23,7 +26,6 @@ final event = SentryEvent(
       level: SentryLevel.info,
     )
   ],
-  extra: {'section': 'extras infos'},
   contexts: Contexts(
     operatingSystem: const OperatingSystem(
       name: 'Android',
