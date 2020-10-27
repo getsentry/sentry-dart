@@ -3,10 +3,10 @@ import 'dart:collection';
 
 import 'package:sentry/src/hub_adapter.dart';
 
-import 'client.dart';
 import 'noop_client.dart';
 import 'protocol.dart';
 import 'scope.dart';
+import 'sentry_client.dart';
 import 'sentry_options.dart';
 
 typedef ScopeCallback = void Function(Scope);

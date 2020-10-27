@@ -319,7 +319,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     await client.close();
   });
 
-  test('$SentryEvent userContext overrides client', () async {
+  test('$SentryEvent user overrides client', () async {
     final fakeClockProvider = () => DateTime.utc(2017, 1, 2);
 
     String loggedUserId; // used to find out what user context was sent
@@ -337,13 +337,13 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
           'Unexpected request on ${request.method} ${request.url} in HttpMock');
     });
 
-    const clientUserContext = User(
+    const clientUser = User(
       id: 'client_user',
       username: 'username',
       email: 'email@email.com',
       ipAddress: '127.0.0.1',
     );
-    const eventUserContext = User(
+    const eventUser = User(
       id: 'event_user',
       username: 'username',
       email: 'email@email.com',
@@ -375,16 +375,16 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
         eventId: SentryId.empty(),
         exception: error,
         stackTrace: stackTrace,
-        userContext: eventUserContext,
+        user: eventUser,
       );
       await client.captureEvent(eventWithoutContext,
-          scope: Scope(options)..user = clientUserContext);
-      expect(loggedUserId, clientUserContext.id);
+          scope: Scope(options)..user = clientUser);
+      expect(loggedUserId, clientUser.id);
       await client.captureEvent(
         eventWithContext,
-        scope: Scope(options)..user = clientUserContext,
+        scope: Scope(options)..user = clientUser,
       );
-      expect(loggedUserId, eventUserContext.id);
+      expect(loggedUserId, eventUser.id);
     }
 
     await client.close();

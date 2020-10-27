@@ -95,7 +95,7 @@ void main() {
             'g': 2,
           },
           fingerprint: const <String>[SentryEvent.defaultFingerprint, 'foo'],
-          userContext: user,
+          user: user,
           breadcrumbs: breadcrumbs,
         ).toJson(),
         <String, dynamic>{

@@ -5,8 +5,8 @@
 /// A pure Dart client for Sentry.io crash reporting.
 import 'dart:html' show window;
 
-import 'client.dart';
 import 'protocol.dart';
+import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'version.dart';
 
