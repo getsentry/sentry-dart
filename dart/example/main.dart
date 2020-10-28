@@ -81,8 +81,6 @@ Future<void> main() async {
   } finally {
     await Sentry.close();
   }
-
-  /* TODO(rxlabz) Sentry CaptureMessage(message, level) */
 }
 
 Future<void> loadConfig() async {
