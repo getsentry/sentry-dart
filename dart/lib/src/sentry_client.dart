@@ -1,13 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:sentry/sentry.dart';
-
 import 'protocol.dart';
 import 'scope.dart';
-/*import 'sentry_client_stub.dart'
-    if (dart.library.html) 'sentry_browser_client.dart'
-    if (dart.library.io) 'sentry_io_client.dart';*/
 import 'sentry_options.dart';
 import 'transport/http_transport.dart';
 import 'transport/noop_transport.dart';
