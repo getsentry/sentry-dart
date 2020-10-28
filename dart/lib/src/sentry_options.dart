@@ -37,10 +37,10 @@ class SentryOptions {
 
   set httpClient(Client httpClient) => _httpClient = httpClient ?? _httpClient;
 
-  /// If [clock] is provided, it is used to get time instead of the system
-  /// clock. This is useful in tests. Should be an implementation of [ClockProvider].
   ClockProvider _clock = getUtcDateTime;
 
+  /// If [clock] is provided, it is used to get time instead of the system
+  /// clock. This is useful in tests. Should be an implementation of [ClockProvider].
   ClockProvider get clock => _clock;
 
   set clock(ClockProvider clock) => _clock = clock ?? _clock;
@@ -48,42 +48,42 @@ class SentryOptions {
   /// This variable controls the total amount of breadcrumbs that should be captured Default is 100
   int maxBreadcrumbs = 100;
 
-  /// Logger interface to log useful debugging information if debug is enabled
   Logger _logger = noOpLogger;
 
+  /// Logger interface to log useful debugging information if debug is enabled
   Logger get logger => _logger;
 
   set logger(Logger logger) {
     _logger = logger != null ? DiagnosticLogger(logger, this) : noOpLogger;
   }
 
-  /// Are callbacks that run for every event. They can either return a new event which in most cases
-  /// means just adding data OR return null in case the event will be dropped and not sent.
   final List<EventProcessor> _eventProcessors = [];
 
+  /// Are callbacks that run for every event. They can either return a new event which in most cases
+  /// means just adding data OR return null in case the event will be dropped and not sent.
   List<EventProcessor> get eventProcessors =>
       List.unmodifiable(_eventProcessors);
 
-  /// Code that provides middlewares, bindings or hooks into certain frameworks or environments,
-  /// along with code that inserts those bindings and activates them.
   final List<Integration> _integrations = [];
 
   // TODO: shutdownTimeout, flushTimeoutMillis
   // https://api.dart.dev/stable/2.10.2/dart-io/HttpClient/close.html doesn't have a timeout param, we'd need to implement manually
 
+  /// Code that provides middlewares, bindings or hooks into certain frameworks or environments,
+  /// along with code that inserts those bindings and activates them.
   List<Integration> get integrations => List.unmodifiable(_integrations);
 
   /// Turns debug mode on or off. If debug is enabled SDK will attempt to print out useful debugging
   /// information if something goes wrong. Default is disabled.
   bool debug = false;
 
-  /// minimum LogLevel to be used if debug is enabled
   SentryLevel _diagnosticLevel = defaultDiagnosticLevel;
 
   set diagnosticLevel(SentryLevel level) {
     _diagnosticLevel = level ?? defaultDiagnosticLevel;
   }
 
+  /// minimum LogLevel to be used if debug is enabled
   SentryLevel get diagnosticLevel => _diagnosticLevel;
 
   /// Sentry client name used for the HTTP authHeader and userAgent eg
@@ -111,17 +111,17 @@ class SentryOptions {
   /// sent. Events are picked randomly. Default is null (disabled)
   double sampleRate;
 
+  final List<String> _inAppExcludes = [];
+
   /// A list of string prefixes of module names that do not belong to the app, but rather third-party
   /// packages. Modules considered not to be part of the app will be hidden from stack traces by
   /// default.
-  final List<String> _inAppExcludes = [];
-
   List<String> get inAppExcludes => List.unmodifiable(_inAppExcludes);
+
+  final List<String> _inAppIncludes = [];
 
   /// A list of string prefixes of module names that belong to the app. This option takes precedence
   /// over inAppExcludes.
-  final List<String> _inAppIncludes = [];
-
   List<String> get inAppIncludes => List.unmodifiable(_inAppIncludes);
 
   Transport _transport = NoOpTransport();
