@@ -66,10 +66,18 @@ Sentry.init((options) => options.dsn = '___PUBLIC_DSN___');
 In an exception handler, call `captureException()`:
 
 ```dart
-try {
-  aMethodThatMightFail();
-} catch (exception, stackTrace) {
-  Sentry.captureException(exception, stackTrace: stackTrace);
+import 'dart:async';
+import 'package:sentry/sentry.dart';
+
+void main() async {
+  try {
+    aMethodThatMightFail();
+  } catch (exception, stackTrace) {
+    await Sentry.captureException(
+      exception,
+      stackTrace: stackTrace,
+    );
+  }
 }
 ```
 
@@ -80,35 +88,42 @@ try {
 
 ```dart
 import 'dart:async';
+
+import 'package:flutter/material.dart';
+
 import 'package:sentry/sentry.dart';
 
 // Wrap your 'runApp(MyApp())' as follows:
 
-void main() async {
-  runZonedGuarded(
-    () => runApp(MyApp()),
-    (error, stackTrace) {
-      Sentry.captureException(
-        exception: error,
-        stackTrace: stackTrace,
-      );
-    },
-  );
+Future<void> main() async {
+  runZonedGuarded<Future<void>>(() async {
+    runApp(MyApp());
+  }, (exception, stackTrace) async {
+    await Sentry.captureException(
+      exception,
+      stackTrace: stackTrace,
+    );
+  });
 }
 ```
 
 - For Flutter-specific errors (such as layout failures), use [FlutterError.onError][flutter_error]. For example:
 
 ```dart
-import 'package:flutter/foundation.dart';
+import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:sentry/sentry.dart';
 
-FlutterError.onError = (details, {bool forceReport = false}) {
-  Sentry.captureException(
-    exception: details.exception,
-    stackTrace: details.stack,
-  );
-};
+// Wrap your 'runApp(MyApp())' as follows:
+
+Future<void> main() async {
+  FlutterError.onError = (FlutterErrorDetails details) async {
+    await Sentry.captureException(
+      details.exception,
+      stackTrace: details.stack,
+    );
+  };
+}
 ```
   
 - Use `Isolate.current.addErrorListener` to capture uncaught errors
