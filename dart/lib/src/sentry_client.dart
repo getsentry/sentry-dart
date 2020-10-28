@@ -1,28 +1,36 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:sentry/sentry.dart';
+
 import 'protocol.dart';
 import 'scope.dart';
-import 'sentry_client_stub.dart'
+/*import 'sentry_client_stub.dart'
     if (dart.library.html) 'sentry_browser_client.dart'
-    if (dart.library.io) 'sentry_io_client.dart';
+    if (dart.library.io) 'sentry_io_client.dart';*/
 import 'sentry_options.dart';
 import 'transport/http_transport.dart';
 import 'transport/noop_transport.dart';
 import 'version.dart';
 
 /// Logs crash reports and events to the Sentry.io service.
-abstract class SentryClient {
-  /// Creates a new platform appropriate client.
+class SentryClient {
+  /// Instantiates a client using [dsn] issued to your project by Sentry.io as
+  /// the endpoint for submitting events.
   ///
-  /// Creates an `SentryIOClient` if `dart:io` is available and a `SentryBrowserClient` if
-  /// `dart:html` is available, otherwise it will throw an unsupported error.
-  factory SentryClient(SentryOptions options) => createSentryClient(options);
+  /// [environmentAttributes] contain event attributes that do not change over
+  /// the course of a program's lifecycle. These attributes will be added to
+  /// all events captured via this client. The following attributes often fall
+  /// under this category: [Event.serverName], [Event.release], [Event.environment].
+  ///
+  /// If [httpClient] is provided, it is used instead of the default client to
+  /// make HTTP calls to Sentry.io. This is useful in tests.
+  factory SentryClient(SentryOptions options) => SentryClient.base(options);
 
   SentryClient.base(this._options, {String origin}) {
     _random = _options.sampleRate == null ? null : Random();
     if (_options.transport is NoOpTransport) {
-      _options.transport = HttpTransport(options: _options, origin: origin);
+      _options.transport = HttpTransport(options: _options);
     }
   }
 
