@@ -1,8 +1,8 @@
 /// Describes the current user associated with the application, such as the
 /// currently signed in user.
 ///
-/// The user can be specified globally in the [SentryClient.user] field,
-/// or per event in the [Event.user] field.
+/// The user can be specified globally in the [Scope.user] field,
+/// or per event in the [SentryEvent.user] field.
 ///
 /// You should provide at least either an [id] (a unique identifier for an
 /// authenticated user) or [ipAddress] (their IP address).

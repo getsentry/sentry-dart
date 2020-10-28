@@ -112,7 +112,7 @@ class SentryEvent {
   /// Information about the current user.
   ///
   /// The value in this field overrides the user context
-  /// set in [SentryClient.user] for this logged event.
+  /// set in [Scope.user] for this logged event.
   final User user;
 
   /// The context interfaces provide additional context data.
@@ -133,14 +133,11 @@ class SentryEvent {
   ///     // A completely custom fingerprint:
   ///     var custom = ['foo', 'bar', 'baz'];
   ///     // A fingerprint that supplements the default one with value 'foo':
-  ///     var supplemented = [Event.defaultFingerprint, 'foo'];
+  ///     var supplemented = [SentryEvent.defaultFingerprint, 'foo'];
   final List<String> fingerprint;
 
   /// The SDK Interface describes the Sentry SDK and its configuration used to capture and transmit an event.
   final Sdk sdk;
-
-  // TODO: Request and DebugMeta Interface
-  // TODO: do we need a Threads interface?
 
   SentryEvent copyWith({
     SentryId eventId,
@@ -240,7 +237,6 @@ class SentryEvent {
     }
 
     if (exception != null) {
-      // TODO: create Exception and Mechanism Interface class
       json['exception'] = [
         <String, dynamic>{
           'type': '${exception.runtimeType}',
@@ -248,7 +244,6 @@ class SentryEvent {
         }
       ];
       if (exception is Error && exception.stackTrace != null) {
-        // TODO: create Stack Trace and Frame Interface
         json['stacktrace'] = <String, dynamic>{
           'frames': encodeStackTrace(
             exception.stackTrace,

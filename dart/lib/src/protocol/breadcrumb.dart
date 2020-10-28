@@ -1,7 +1,7 @@
 import '../utils.dart';
 import 'sentry_level.dart';
 
-/// Structed data to describe more information pior to the event [captured][SentryClient.captureEvent].
+/// Structed data to describe more information pior to the event [captured][Sentry.captureEvent].
 ///
 /// The outgoing JSON representation is:
 ///
