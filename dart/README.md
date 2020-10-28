@@ -17,7 +17,7 @@ In your Dart code, import `package:sentry/sentry.dart` and initialize the Sentry
 ```dart
 import 'package:sentry/sentry.dart';
 
-Sentry.init((options) => options.dsn = '___PUBLIC_DSN___');
+Sentry.init((options) => options.dsn = 'https://example@sentry.io/add-your-dsn-here');
 ```
 
 In an exception handler, call `captureException()`:
