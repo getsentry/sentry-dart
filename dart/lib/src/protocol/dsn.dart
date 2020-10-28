@@ -46,15 +46,11 @@ class Dsn {
     final uri = Uri.parse(dsn);
     final userInfo = uri.userInfo.split(':');
 
-    assert(() {
-      if (uri.pathSegments.isEmpty) {
-        throw ArgumentError(
-          'Project ID not found in the URI path of the DSN URI: $dsn',
-        );
-      }
-
-      return true;
-    }());
+    if (uri.pathSegments.isEmpty) {
+      throw ArgumentError(
+        'Project ID not found in the URI path of the DSN URI: $dsn',
+      );
+    }
 
     return Dsn(
       publicKey: userInfo[0],
