@@ -47,6 +47,7 @@
 - update the Dart sdk constraint
 - fix : throws on invalid dsn
 - GH Action ( CI ) run test on vm and on browser
+- fix: example_web pubspec
 
 # `package:sentry` changelog
 
