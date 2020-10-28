@@ -8,7 +8,6 @@ import 'dart:convert';
 import 'package:http/http.dart';
 import 'package:http/testing.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/transport/http_transport.dart';
 import 'package:test/test.dart';
 
 const String testDsn = 'https://public:secret@sentry.example.com/1';
@@ -89,8 +88,8 @@ Future testCaptureException(
     expect('$sentryId', 'testeventid');
   }
 
-  final transport = options.transport as HttpTransport;
-  expect(postUri, transport.dsn.postUri);
+  final dsn = Dsn.parse(options.dsn);
+  expect(postUri, dsn.postUri);
 
   testHeaders(
     headers,
@@ -181,16 +180,16 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     final options = SentryOptions(dsn: testDsn);
     final client = SentryClient(options);
 
-    final transport = options.transport as HttpTransport;
+    final dsn = Dsn.parse(options.dsn);
 
-    expect(transport.dsn.uri, Uri.parse(testDsn));
+    expect(dsn.uri, Uri.parse(testDsn));
     expect(
-      transport.dsn.postUri,
+      dsn.postUri,
       'https://sentry.example.com/api/1/store/',
     );
-    expect(transport.dsn.publicKey, 'public');
-    expect(transport.dsn.secretKey, 'secret');
-    expect(transport.dsn.projectId, '1');
+    expect(dsn.publicKey, 'public');
+    expect(dsn.secretKey, 'secret');
+    expect(dsn.projectId, '1');
     await client.close();
   });
 
@@ -198,16 +197,16 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     final options = SentryOptions(dsn: _testDsnWithoutSecret);
     final client = SentryClient(options);
 
-    final transport = options.transport as HttpTransport;
+    final dsn = Dsn.parse(options.dsn);
 
-    expect(transport.dsn.uri, Uri.parse(_testDsnWithoutSecret));
+    expect(dsn.uri, Uri.parse(_testDsnWithoutSecret));
     expect(
-      transport.dsn.postUri,
+      dsn.postUri,
       'https://sentry.example.com/api/1/store/',
     );
-    expect(transport.dsn.publicKey, 'public');
-    expect(transport.dsn.secretKey, null);
-    expect(transport.dsn.projectId, '1');
+    expect(dsn.publicKey, 'public');
+    expect(dsn.secretKey, null);
+    expect(dsn.projectId, '1');
     await client.close();
   });
 
@@ -215,32 +214,32 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     final options = SentryOptions(dsn: _testDsnWithPath);
     final client = SentryClient(options);
 
-    final transport = options.transport as HttpTransport;
+    final dsn = Dsn.parse(options.dsn);
 
-    expect(transport.dsn.uri, Uri.parse(_testDsnWithPath));
+    expect(dsn.uri, Uri.parse(_testDsnWithPath));
     expect(
-      transport.dsn.postUri,
+      dsn.postUri,
       'https://sentry.example.com/path/api/1/store/',
     );
-    expect(transport.dsn.publicKey, 'public');
-    expect(transport.dsn.secretKey, 'secret');
-    expect(transport.dsn.projectId, '1');
+    expect(dsn.publicKey, 'public');
+    expect(dsn.secretKey, 'secret');
+    expect(dsn.projectId, '1');
     await client.close();
   });
   test('can parse DSN with port', () async {
     final options = SentryOptions(dsn: _testDsnWithPort);
     final client = SentryClient(options);
 
-    final transport = options.transport as HttpTransport;
+    final dsn = Dsn.parse(options.dsn);
 
-    expect(transport.dsn.uri, Uri.parse(_testDsnWithPort));
+    expect(dsn.uri, Uri.parse(_testDsnWithPort));
     expect(
-      transport.dsn.postUri,
+      dsn.postUri,
       'https://sentry.example.com:8888/api/1/store/',
     );
-    expect(transport.dsn.publicKey, 'public');
-    expect(transport.dsn.secretKey, 'secret');
-    expect(transport.dsn.projectId, '1');
+    expect(dsn.publicKey, 'public');
+    expect(dsn.secretKey, 'secret');
+    expect(dsn.projectId, '1');
     await client.close();
   });
   test('sends client auth header without secret', () async {

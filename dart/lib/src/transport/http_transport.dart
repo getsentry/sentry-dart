@@ -13,8 +13,7 @@ import 'transport.dart';
 class HttpTransport implements Transport {
   final SentryOptions _options;
 
-  @visibleForTesting
-  final Dsn dsn;
+  final Dsn _dsn;
 
   /// Use for browser stacktrace
   final String _origin;
@@ -26,7 +25,7 @@ class HttpTransport implements Transport {
   HttpTransport({@required SentryOptions options, String origin})
       : _options = options,
         _origin = origin,
-        dsn = Dsn.parse(options.dsn),
+        _dsn = Dsn.parse(options.dsn),
         _headers = _buildHeaders(sdkIdentifier: options.sdk.identifier) {
     _credentialBuilder = CredentialBuilder(
       dsn: Dsn.parse(options.dsn),
@@ -46,7 +45,7 @@ class HttpTransport implements Transport {
     );
 
     final response = await _options.httpClient.post(
-      dsn.postUri,
+      _dsn.postUri,
       headers: _credentialBuilder.configure(_headers),
       body: body,
     );
