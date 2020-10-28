@@ -5,10 +5,8 @@
 /// A pure Dart client for Sentry.io crash reporting.
 import 'dart:html' show window;
 
-import 'protocol.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
-import 'version.dart';
 
 SentryClient createSentryClient(SentryOptions options) =>
     SentryBrowserClient(options);
@@ -25,13 +23,10 @@ class SentryBrowserClient extends SentryClient {
   ///
   /// If [httpClient] is provided, it is used instead of the default client to
   /// make HTTP calls to Sentry.io. This is useful in tests.
-  factory SentryBrowserClient(SentryOptions options) {
-    options.sdk ??= Sdk(name: sdkName, version: sdkVersion);
-
-    // origin is necessary for sentry to resolve stacktrace
-    return SentryBrowserClient._(options);
-  }
+  factory SentryBrowserClient(SentryOptions options) =>
+      SentryBrowserClient._(options);
 
   SentryBrowserClient._(SentryOptions options)
+      // origin is necessary for sentry to resolve stacktrace
       : super.base(options, origin: '${window.location.origin}/');
 }

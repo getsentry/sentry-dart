@@ -2,12 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'protocol.dart';
-
 /// A pure Dart client for Sentry.io crash reporting.
 import 'sentry_client.dart';
 import 'sentry_options.dart';
-import 'version.dart';
 
 SentryClient createSentryClient(SentryOptions options) =>
     SentryIOClient(options);
@@ -15,10 +12,7 @@ SentryClient createSentryClient(SentryOptions options) =>
 /// Logs crash reports and events to the Sentry.io service.
 class SentryIOClient extends SentryClient {
   /// Instantiates a client using [SentryOptions]
-  factory SentryIOClient(SentryOptions options) {
-    options.sdk ??= Sdk(name: sdkName, version: sdkVersion);
-    return SentryIOClient._(options);
-  }
+  factory SentryIOClient(SentryOptions options) => SentryIOClient._(options);
 
   SentryIOClient._(SentryOptions options) : super.base(options);
 }
