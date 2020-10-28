@@ -88,7 +88,7 @@ void main() async {
   runZonedGuarded(
     () => runApp(MyApp()),
     (error, stackTrace) {
-      Sentry.captureException(
+      await Sentry.captureException(
         exception: error,
         stackTrace: stackTrace,
       );
