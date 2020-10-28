@@ -36,8 +36,8 @@ jobs:
             release-channel: ${{ matrix.sdk }}
         - uses: actions/checkout@v2
         - run: pub get
-        - name: Test on Chrome
-          run: pub run test -p chrome test
+        - name: Test (VM and browser)
+          run: pub run test test
         - run: dartanalyzer --fatal-warnings ./
         - run: dartfmt -n --set-exit-if-changed ./
   package-analysis:
