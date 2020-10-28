@@ -11,7 +11,7 @@ import 'package:universal_platform/universal_platform.dart';
 const String _release =
     String.fromEnvironment('SENTRY_RELEASE', defaultValue: 'unknown');
 
-// Change the DSN
+// ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
 const String exampleDsn =
     'https://cb0fad6f5d4e42ebb9c956cb0463edc9@o447951.ingest.sentry.io/5428562';
 

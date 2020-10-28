@@ -5,7 +5,7 @@ import 'package:sentry/sentry.dart';
 
 import 'event.dart';
 
-// Change the DSN
+// ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
 const dsn =
     'https://cb0fad6f5d4e42ebb9c956cb0463edc9@o447951.ingest.sentry.io/5428562';
 
