@@ -46,6 +46,7 @@
 - Ref : remove dsn from Transport public Api
 - update the Dart sdk constraint
 - fix : throws on invalid dsn
+- GH Action ( CI ) run test on vm and on browser
 
 # `package:sentry` changelog
 
