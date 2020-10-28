@@ -1,6 +1,6 @@
 # `package:sentry` and `package:sentry-flutter` changelog
 
-## 4.0.0
+## 4.0.0-alpha.1
 
 - BREAKING CHANGE: Fixed context screenDensity is of type double #53
 - BREAKING CHANGE: Fixed context screenDpi is of type int #58

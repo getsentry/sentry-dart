@@ -11,6 +11,7 @@ import 'package:universal_platform/universal_platform.dart';
 const String _release =
     String.fromEnvironment('SENTRY_RELEASE', defaultValue: 'unknown');
 
+// Change the DSN
 const String exampleDsn =
     'https://cb0fad6f5d4e42ebb9c956cb0463edc9@o447951.ingest.sentry.io/5428562';
 
