@@ -16,16 +16,12 @@ class HttpTransport implements Transport {
 
   final Dsn _dsn;
 
-  /// Use for browser stacktrace
-  //final String _origin;
-
   CredentialBuilder _credentialBuilder;
 
   final Map<String, String> _headers;
 
-  HttpTransport({@required SentryOptions options /*, String origin*/})
+  HttpTransport({@required SentryOptions options})
       : _options = options,
-        /*_origin = origin,*/
         _dsn = Dsn.parse(options.dsn),
         _headers = _buildHeaders(sdkIdentifier: options.sdk.identifier) {
     _credentialBuilder = CredentialBuilder(
