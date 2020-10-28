@@ -39,8 +39,8 @@ We also run CI against the Flutter `stable` and `beta` channels so you should be
 
 ##### Versions
 
-Versions `3.0.1` and higher support [Flutter][flutter] (mobile, web, desktop),
-command-line/server Dart VM, and [AngularDart][angular_sentry].
+Versions `3.0.1` and higher support `Flutter` (mobile, web, desktop),
+command-line/server Dart VM, and `AngularDart`.
 
 Versions below `3.0.1` are deprecated.
 
@@ -52,29 +52,26 @@ Add `sentry` dependency to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  sentry: ^4.0.0
+  sentry: ">=3.0.1 <4.0.0"
 ```
 
-In your Dart code, import `package:sentry/sentry.dart` and initialize the Sentry SDK using the DSN issued by Sentry.io:
+In your Dart code, import `package:sentry/sentry.dart` and create a `SentryClient` using the DSN issued by Sentry.io:
 
 ```dart
 import 'package:sentry/sentry.dart';
 
-Sentry.init((options) => options.dsn = '___PUBLIC_DSN___');
+final SentryClient sentry = new SentryClient(dsn: YOUR_DSN);
 ```
 
 In an exception handler, call `captureException()`:
 
 ```dart
-import 'dart:async';
-import 'package:sentry/sentry.dart';
-
-void main() async {
+main() async {
   try {
-    aMethodThatMightFail();
-  } catch (exception, stackTrace) {
-    await Sentry.captureException(
-      exception,
+    doSomethingThatMightThrowAnError();
+  } catch(error, stackTrace) {
+    await sentry.captureException(
+      exception: error,
       stackTrace: stackTrace,
     );
   }
@@ -84,48 +81,45 @@ void main() async {
 ##### Tips for catching errors
 
 - Use a `try/catch` block, like in the example above.
-- Create a `Zone` with an error handler, e.g. using [runZonedGuarded][run_zoned_guarded].
+- Create a `Zone` with an error handler, e.g. using `runZonedGuarded`.
 
-```dart
-import 'dart:async';
+  ```dart
+  var sentry = SentryClient(dsn: "https://...");
+  // Run the whole app in a zone to capture all uncaught errors.
+  runZonedGuarded(
+    () => runApp(MyApp()),
+    (error, stackTrace) {
+      try {
+        sentry.captureException(
+          exception: error,
+          stackTrace: stackTrace,
+        );
+        print('Error sent to sentry.io: $error');
+      } catch (e) {
+        print('Sending report to sentry.io failed: $e');
+        print('Original error: $error');
+      }
+    },
+  );
+  ```
+- For Flutter-specific errors (such as layout failures), use `FlutterError.onError`. For example:
 
-import 'package:flutter/material.dart';
-
-import 'package:sentry/sentry.dart';
-
-// Wrap your 'runApp(MyApp())' as follows:
-
-Future<void> main() async {
-  runZonedGuarded<Future<void>>(() async {
-    runApp(MyApp());
-  }, (exception, stackTrace) async {
-    await Sentry.captureException(
-      exception,
-      stackTrace: stackTrace,
-    );
-  });
-}
-```
-
-- For Flutter-specific errors (such as layout failures), use [FlutterError.onError][flutter_error]. For example:
-
-```dart
-import 'dart:async';
-import 'package:flutter/material.dart';
-import 'package:sentry/sentry.dart';
-
-// Wrap your 'runApp(MyApp())' as follows:
-
-Future<void> main() async {
-  FlutterError.onError = (FlutterErrorDetails details) async {
-    await Sentry.captureException(
-      details.exception,
-      stackTrace: details.stack,
-    );
+  ```dart
+  var sentry = SentryClient(dsn: "https://...");
+  FlutterError.onError = (details, {bool forceReport = false}) {
+    try {
+      sentry.captureException(
+        exception: details.exception,
+        stackTrace: details.stack,
+      );
+    } catch (e) {
+      print('Sending report to sentry.io failed: $e');
+    } finally {
+      // Also use Flutter's pretty error logging to the device's console.
+      FlutterError.dumpErrorToConsole(details, forceReport: forceReport);
+    }
   };
-}
-```
-  
+  ```
 - Use `Isolate.current.addErrorListener` to capture uncaught errors
   in the root zone.
 
