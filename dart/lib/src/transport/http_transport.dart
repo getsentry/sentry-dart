@@ -28,7 +28,7 @@ class HttpTransport implements Transport {
         _dsn = Dsn.parse(options.dsn),
         _headers = _buildHeaders(sdkIdentifier: options.sdk.identifier) {
     _credentialBuilder = CredentialBuilder(
-      dsn: Dsn.parse(options.dsn),
+      dsn: _dsn,
       clientId: options.sdk.identifier,
       clock: options.clock,
     );
