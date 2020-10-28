@@ -5,7 +5,7 @@ homepage: https://docs.sentry.io/platforms/flutter/
 repository: https://github.com/getsentry/sentry-dart
 
 environment:
-  sdk: ^2.7.0
+  sdk: ">=2.0.0 <3.0.0"
   flutter: ^1.17.0
 
 dependencies:
@@ -13,7 +13,7 @@ dependencies:
     sdk: flutter
   flutter_web_plugins:
     sdk: flutter
-  sentry:
+  sentry: #^4.0.0 uncomment before publishing
     path: ../dart
 
 dev_dependencies:
