@@ -10,6 +10,7 @@ import 'event_example.dart';
 
 /// Sends a test exception report to Sentry.io using this Dart client.
 Future<void> main() async {
+  // Change the DSN
   const dsn =
       'https://cb0fad6f5d4e42ebb9c956cb0463edc9@o447951.ingest.sentry.io/5428562';
 
