@@ -55,7 +55,7 @@ dependencies:
   sentry: ^4.0.0
 ```
 
-In your Dart code, import `package:sentry/sentry.dart` and `Sentry.init(...)` using the DSN issued by Sentry.io:
+In your Dart code, import `package:sentry/sentry.dart` and initialize the Sentry SDK using the DSN issued by Sentry.io:
 
 ```dart
 import 'package:sentry/sentry.dart';
