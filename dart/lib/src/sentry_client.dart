@@ -27,7 +27,7 @@ class SentryClient {
     }
   }
 
-  SentryOptions _options;
+  final SentryOptions _options;
 
   Random _random;
 
