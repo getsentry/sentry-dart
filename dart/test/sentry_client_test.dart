@@ -214,7 +214,7 @@ void main() {
     });
 
     test('before send drops event', () {
-      options.beforeSendCallback = beforeSendCallbackDropEvent;
+      options.beforeSend = beforeSendCallbackDropEvent;
       final client = SentryClient(options);
       client.captureEvent(fakeEvent);
 
@@ -222,7 +222,7 @@ void main() {
     });
 
     test('before send returns an event and event is captured', () {
-      options.beforeSendCallback = beforeSendCallback;
+      options.beforeSend = beforeSendCallback;
       final client = SentryClient(options);
       client.captureEvent(fakeEvent);
 

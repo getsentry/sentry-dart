@@ -92,11 +92,11 @@ class SentryOptions {
 
   /// This function is called with an SDK specific event object and can return a modified event
   /// object or nothing to skip reporting the event
-  BeforeSendCallback beforeSendCallback;
+  BeforeSendCallback beforeSend;
 
   /// This function is called with an SDK specific breadcrumb object before the breadcrumb is added
   /// to the scope. When nothing is returned from the function, the breadcrumb is dropped
-  BeforeBreadcrumbCallback beforeBreadcrumbCallback;
+  BeforeBreadcrumbCallback beforeBreadcrumb;
 
   /// Sets the release. SDK will try to automatically configure a release out of the box
   String release;
@@ -130,8 +130,6 @@ class SentryOptions {
 
   set transport(Transport transport) =>
       _transport = transport ?? NoOpTransport();
-
-  // TODO: transportGate, connectionTimeoutMillis, readTimeoutMillis, hostnameVerifier, sslSocketFactory, proxy
 
   /// Sets the distribution. Think about it together with release and environment
   String dist;
