@@ -44,6 +44,7 @@
 - chore: new analysis options rules
 - Ref: rename the `throwable` argument name to `exception` in `captureEvents(...)`
 - Ref : remove dsn from Transport public Api
+- update the Dart sdk constraint
 
 # `package:sentry` changelog
 
