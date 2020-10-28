@@ -20,7 +20,7 @@ class SentryClient {
   ///
   /// If [httpClient] is provided, it is used instead of the default client to
   /// make HTTP calls to Sentry.io. This is useful in tests.
-  SentryClient(SentryOptions options) {
+  SentryClient(SentryOptions options) : _options = options {
     _random = _options.sampleRate == null ? null : Random();
     if (_options.transport is NoOpTransport) {
       _options.transport = HttpTransport(options: _options);
