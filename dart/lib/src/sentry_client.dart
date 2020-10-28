@@ -7,8 +7,8 @@ import 'sentry_client_stub.dart'
     if (dart.library.html) 'sentry_browser_client.dart'
     if (dart.library.io) 'sentry_io_client.dart';
 import 'sentry_options.dart';
+import 'transport/http_transport.dart';
 import 'transport/noop_transport.dart';
-import 'transport/transport.dart';
 import 'version.dart';
 
 /// Logs crash reports and events to the Sentry.io service.
@@ -22,7 +22,7 @@ abstract class SentryClient {
   SentryClient.base(this._options, {String origin}) {
     _random = _options.sampleRate == null ? null : Random();
     if (_options.transport is NoOpTransport) {
-      _options.transport = Transport(options: _options, origin: origin);
+      _options.transport = HttpTransport(options: _options, origin: origin);
     }
   }
 
@@ -30,19 +30,19 @@ abstract class SentryClient {
 
   Random _random;
 
+  static final _sentryId = Future.value(SentryId.empty());
+
   /// Reports an [event] to Sentry.io.
   Future<SentryId> captureEvent(
     SentryEvent event, {
     Scope scope,
     dynamic hint,
   }) async {
-    final emptyFuture = Future.value(SentryId.empty());
-
     event = _processEvent(event, eventProcessors: _options.eventProcessors);
 
     // dropped by sampling or event processors
     if (event == null) {
-      return emptyFuture;
+      return _sentryId;
     }
 
     if (scope != null) {
@@ -53,14 +53,14 @@ abstract class SentryClient {
 
     // dropped by scope event processors
     if (event == null) {
-      return emptyFuture;
+      return _sentryId;
     }
 
     event = _prepareEvent(event);
 
-    if (_options.beforeSendCallback != null) {
+    if (_options.beforeSend != null) {
       try {
-        event = _options.beforeSendCallback(event, hint);
+        event = _options.beforeSend(event, hint);
       } catch (err) {
         _options.logger(
           SentryLevel.error,
@@ -69,7 +69,7 @@ abstract class SentryClient {
       }
       if (event == null) {
         _options.logger(SentryLevel.debug, 'Event was dropped by a processor');
-        return emptyFuture;
+        return _sentryId;
       }
     }
 

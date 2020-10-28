@@ -245,7 +245,7 @@ class Fixture {
   }) {
     final options = SentryOptions();
     options.maxBreadcrumbs = maxBreadcrumbs;
-    options.beforeBreadcrumbCallback = beforeBreadcrumbCallback;
+    options.beforeBreadcrumb = beforeBreadcrumbCallback;
     return Scope(options);
   }
 

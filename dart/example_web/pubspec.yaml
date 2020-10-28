@@ -1,7 +1,5 @@
 name: sentry_dart_web_example
 description: An absolute bare-bones web app.
-# version: 1.0.0
-#homepage: https://www.example.com
 
 environment:
   sdk: ^2.0.0

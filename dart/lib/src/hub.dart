@@ -249,7 +249,7 @@ class Hub {
   /// Clones the Hub
   Hub clone() {
     if (!_isEnabled) {
-      _options..logger(SentryLevel.warning, 'Disabled Hub cloned.');
+      _options.logger(SentryLevel.warning, 'Disabled Hub cloned.');
     }
     final clone = Hub(_options);
     for (final item in _stack) {
