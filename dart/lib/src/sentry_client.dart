@@ -22,13 +22,7 @@ abstract class SentryClient {
   SentryClient.base(this._options, {String origin}) {
     _random = _options.sampleRate == null ? null : Random();
     if (_options.transport is NoOpTransport) {
-      try {
-        _options.transport = HttpTransport(options: _options, origin: origin);
-      } on ArgumentError catch (error) {
-        _options.logger(SentryLevel.error, '${error.message}');
-      } catch (err) {
-        _options.logger(SentryLevel.error, 'An exception occurred.');
-      }
+      _options.transport = HttpTransport(options: _options, origin: origin);
     }
   }
 
