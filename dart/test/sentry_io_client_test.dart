@@ -9,7 +9,5 @@ import 'package:test/test.dart';
 import 'test_utils.dart';
 
 void main() {
-  group('SentryClient on vm', () {
-    runTest(gzip: gzip);
-  });
+  runTest(gzip: gzip);
 }

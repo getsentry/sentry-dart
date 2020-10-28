@@ -10,16 +10,7 @@ import 'version.dart';
 
 /// Logs crash reports and events to the Sentry.io service.
 class SentryClient {
-  /// Instantiates a client using [dsn] issued to your project by Sentry.io as
-  /// the endpoint for submitting events.
-  ///
-  /// [environmentAttributes] contain event attributes that do not change over
-  /// the course of a program's lifecycle. These attributes will be added to
-  /// all events captured via this client. The following attributes often fall
-  /// under this category: [Event.serverName], [Event.release], [Event.environment].
-  ///
-  /// If [httpClient] is provided, it is used instead of the default client to
-  /// make HTTP calls to Sentry.io. This is useful in tests.
+  /// Instantiates a client using [SentryOptions]
   SentryClient(SentryOptions options) : _options = options {
     _random = _options.sampleRate == null ? null : Random();
     if (_options.transport is NoOpTransport) {
