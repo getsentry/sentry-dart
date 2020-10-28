@@ -47,6 +47,7 @@
 - update the Dart sdk constraint
 - fix : throws on invalid dsn
 - GH Action ( CI ) run test on vm and on browser
+- ref: remove SentryBrowserClient & SentryIOClient, all platform can use SentryClient 
 
 # `package:sentry` changelog
 
