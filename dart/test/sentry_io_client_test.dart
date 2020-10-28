@@ -4,18 +4,12 @@
 @TestOn('vm')
 import 'dart:io';
 
-import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
 import 'test_utils.dart';
 
 void main() {
   group('SentryClient on vm', () {
-    test('SentryClient constructor build io client', () {
-      final client = SentryClient(SentryOptions(dsn: testDsn));
-      expect(client is SentryClient, isTrue);
-    });
-
     runTest(gzip: gzip);
   });
 }
