@@ -17,7 +17,6 @@ class Contexts extends MapView {
   Contexts({
     Device device,
     OperatingSystem operatingSystem,
-    // TODO ? list of runtimes or unique as in Java ?
     List<Runtime> runtimes,
     App app,
     Browser browser,
@@ -50,7 +49,9 @@ class Contexts extends MapView {
   /// on top of Android).
   List<Runtime> get runtimes => List.unmodifiable(this['runtimes']);
 
-  void addRuntime(Runtime runtime) => this['runtimes'] = runtimes;
+  void addRuntime(Runtime runtime) => this['runtimes'].add(runtime);
+
+  void removeRuntime(Runtime runtime) => this['runtimes'].remove(runtime);
 
   /// App context describes the application.
   ///
@@ -156,12 +157,12 @@ class Contexts extends MapView {
   Contexts clone() {
     // TODO ? make each class cloneable ?
     final copy = Contexts(
-      device: device,
-      operatingSystem: operatingSystem,
-      app: app,
-      browser: browser,
-      gpu: gpu,
-      runtimes: runtimes,
+      device: device?.clone(),
+      operatingSystem: operatingSystem?.clone(),
+      app: app?.clone(),
+      browser: browser?.clone(),
+      gpu: gpu?.clone(),
+      runtimes: runtimes.map((runtime) => runtime.clone()),
     )..addEntries(
         entries.where((element) => !_defaultFields.contains(element.key)),
       );

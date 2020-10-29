@@ -70,4 +70,14 @@ class App {
 
     return json;
   }
+
+  App clone() => App(
+        name: name,
+        version: version,
+        identifier: identifier,
+        build: build,
+        buildType: buildType,
+        startTime: startTime,
+        deviceAppHash: deviceAppHash,
+      );
 }

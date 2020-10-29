@@ -28,4 +28,6 @@ class Browser {
 
     return json;
   }
+
+  Browser clone() => Browser(name: name, version: version);
 }

@@ -45,4 +45,11 @@ class Runtime {
 
     return json;
   }
+
+  Runtime clone() => Runtime(
+        key: key,
+        name: name,
+        version: version,
+        rawDescription: rawDescription,
+      );
 }

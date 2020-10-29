@@ -52,6 +52,18 @@ class Gpu {
     this.npotSupport,
   });
 
+  Gpu clone() => Gpu(
+        name: name,
+        id: id,
+        vendorId: vendorId,
+        vendorName: vendorName,
+        memorySize: memorySize,
+        apiType: apiType,
+        multiThreadedRendering: multiThreadedRendering,
+        version: version,
+        npotSupport: npotSupport,
+      );
+
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};

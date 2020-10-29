@@ -67,4 +67,13 @@ class OperatingSystem {
 
     return json;
   }
+
+  OperatingSystem clone() => OperatingSystem(
+        name: name,
+        version: version,
+        build: build,
+        kernelVersion: kernelVersion,
+        rooted: rooted,
+        rawDescription: rawDescription,
+      );
 }
