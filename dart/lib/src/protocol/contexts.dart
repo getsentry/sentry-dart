@@ -45,11 +45,9 @@ class Contexts extends MapView {
   set operatingSystem(OperatingSystem operatingSystem) =>
       this[OperatingSystem.type] = operatingSystem;
 
-  /// Describes a runtime in more detail.
-  ///
-  /// Typically this context is used multiple times if multiple runtimes
-  /// are involved (for instance if you have a JavaScript application running
-  /// on top of JVM).
+  /// Describes a list of runtimes in more detail
+  /// (for instance if you have a Flutter application running
+  /// on top of Android).
   List<Runtime> get runtimes => List.unmodifiable(this['runtimes']);
 
   void addRuntime(Runtime runtime) => this['runtimes'] = runtimes;
