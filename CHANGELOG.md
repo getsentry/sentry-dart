@@ -1,6 +1,6 @@
 # `package:sentry` and `package:sentry-flutter` changelog
 
-## 4.0.0
+## 4.0.0-alpha.1
 
 - BREAKING CHANGE: Fixed context screenDensity is of type double #53
 - BREAKING CHANGE: Fixed context screenDpi is of type int #58
@@ -47,6 +47,8 @@
 - update the Dart sdk constraint
 - fix : throws on invalid dsn
 - GH Action ( CI ) run test on vm and on browser
+- ref: remove SentryBrowserClient & SentryIOClient, all platform can use SentryClient 
+- fix: example_web pubspec
 
 # `package:sentry` changelog
 
