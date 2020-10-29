@@ -85,7 +85,7 @@ class Contexts extends MapView {
         case Device.type:
           Map<String, dynamic> deviceMap;
           if ((deviceMap = device.toJson()).isNotEmpty) {
-            json['device'] = deviceMap;
+            json[Device.type] = deviceMap;
           }
           break;
         case OperatingSystem.type:
@@ -102,17 +102,17 @@ class Contexts extends MapView {
           }
           break;
 
-        case 'browser':
+        case Browser.type:
           Map<String, dynamic> browserMap;
           if ((browserMap = browser.toJson()).isNotEmpty) {
-            json['browser'] = browserMap;
+            json[Browser.type] = browserMap;
           }
           break;
 
-        case 'gpu':
+        case Gpu.type:
           Map<String, dynamic> gpuMap;
           if ((gpuMap = gpu.toJson()).isNotEmpty) {
-            json['gpu'] = gpuMap;
+            json[Gpu.type] = gpuMap;
           }
           break;
 
