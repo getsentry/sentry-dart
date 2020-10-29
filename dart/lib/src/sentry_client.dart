@@ -3,30 +3,22 @@ import 'dart:math';
 
 import 'protocol.dart';
 import 'scope.dart';
-import 'sentry_client_stub.dart'
-    if (dart.library.html) 'sentry_browser_client.dart'
-    if (dart.library.io) 'sentry_io_client.dart';
 import 'sentry_options.dart';
 import 'transport/http_transport.dart';
 import 'transport/noop_transport.dart';
 import 'version.dart';
 
 /// Logs crash reports and events to the Sentry.io service.
-abstract class SentryClient {
-  /// Creates a new platform appropriate client.
-  ///
-  /// Creates an `SentryIOClient` if `dart:io` is available and a `SentryBrowserClient` if
-  /// `dart:html` is available, otherwise it will throw an unsupported error.
-  factory SentryClient(SentryOptions options) => createSentryClient(options);
-
-  SentryClient.base(this._options, {String origin}) {
+class SentryClient {
+  /// Instantiates a client using [SentryOptions]
+  SentryClient(SentryOptions options) : _options = options {
     _random = _options.sampleRate == null ? null : Random();
     if (_options.transport is NoOpTransport) {
-      _options.transport = HttpTransport(options: _options, origin: origin);
+      _options.transport = HttpTransport(options: _options);
     }
   }
 
-  SentryOptions _options;
+  final SentryOptions _options;
 
   Random _random;
 
