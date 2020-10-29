@@ -160,7 +160,7 @@ class Scope {
     );
 
     contexts.clone().forEach((key, value) {
-      if (!event.contexts?.containsKey(key) && value != null) {
+      if (!event.contexts.containsKey(key) && value != null) {
         event.contexts[key] = value;
       }
     });
