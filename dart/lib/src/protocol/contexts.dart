@@ -162,7 +162,7 @@ class Contexts extends MapView {
       app: app?.clone(),
       browser: browser?.clone(),
       gpu: gpu?.clone(),
-      runtimes: runtimes.map((runtime) => runtime.clone()),
+      runtimes: runtimes.map((runtime) => runtime.clone()).toList(),
     )..addEntries(
         entries.where((element) => !_defaultFields.contains(element.key)),
       );

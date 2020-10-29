@@ -2,7 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/protocol/gpu.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -44,12 +46,15 @@ void main() {
     const testApp = App(version: '1.2.3');
     const testBrowser = Browser(version: '12.3.4');
 
+    final gpu = Gpu(name: 'Radeon', version: '1');
+
     final contexts = Contexts(
       device: testDevice,
       operatingSystem: testOS,
       runtimes: testRuntimes,
       app: testApp,
       browser: testBrowser,
+      gpu: gpu,
     )..['theme'] = 'material';
 
     test('serializes to JSON', () {
@@ -93,6 +98,7 @@ void main() {
           'app': {'app_version': '1.2.3'},
           'browser': {'version': '12.3.4'},
           'theme': 'material',
+          'gpu': {'name': 'Radeon', 'version': '1'},
         },
       );
     });
@@ -100,12 +106,21 @@ void main() {
     test('clone context', () {
       final clone = contexts.clone();
 
-      expect(clone.app, contexts.app);
-      expect(clone.browser, contexts.browser);
-      expect(clone.device, contexts.device);
-      expect(clone.operatingSystem, contexts.operatingSystem);
-      expect(clone.gpu, contexts.gpu);
-      expect(clone.runtimes, contexts.runtimes);
+      expect(clone.app.toJson(), contexts.app.toJson());
+      expect(clone.browser.toJson(), contexts.browser.toJson());
+      expect(clone.device.toJson(), contexts.device.toJson());
+      expect(clone.operatingSystem.toJson(), contexts.operatingSystem.toJson());
+      expect(clone.gpu.toJson(), contexts.gpu.toJson());
+
+      contexts.runtimes.forEach((element) {
+        expect(
+          clone.runtimes.where(
+            (clone) => MapEquality().equals(element.toJson(), clone.toJson()),
+          ),
+          isNotEmpty,
+        );
+      });
+
       expect(clone['theme'], 'material');
     });
   });
