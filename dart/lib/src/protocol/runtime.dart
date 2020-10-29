@@ -1,3 +1,5 @@
+const runtimesType = 'runtimes';
+
 /// Describes a runtime in more detail.
 ///
 /// Typically this context is used multiple times if multiple runtimes

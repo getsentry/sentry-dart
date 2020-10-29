@@ -24,7 +24,7 @@ class Contexts extends MapView {
   }) : super({
           Device.type: device,
           OperatingSystem.type: operatingSystem,
-          'runtimes': runtimes ?? [],
+          runtimesType: runtimes ?? [],
           App.type: app,
           Browser.type: browser,
           Gpu.type: gpu,
@@ -47,11 +47,11 @@ class Contexts extends MapView {
   /// Describes a list of runtimes in more detail
   /// (for instance if you have a Flutter application running
   /// on top of Android).
-  List<Runtime> get runtimes => List.unmodifiable(this['runtimes']);
+  List<Runtime> get runtimes => List.unmodifiable(this[runtimesType]);
 
-  void addRuntime(Runtime runtime) => this['runtimes'].add(runtime);
+  void addRuntime(Runtime runtime) => this[runtimesType].add(runtime);
 
-  void removeRuntime(Runtime runtime) => this['runtimes'].remove(runtime);
+  void removeRuntime(Runtime runtime) => this[runtimesType].remove(runtime);
 
   /// App context describes the application.
   ///
@@ -116,12 +116,12 @@ class Contexts extends MapView {
           }
           break;
 
-        case 'runtimes':
+        case runtimesType:
           if (runtimes != null) {
             if (runtimes.length == 1) {
               final runtime = runtimes[0];
               if (runtime != null) {
-                final key = runtime.key ?? 'runtime';
+                final key = runtime.key ?? Runtime.type;
                 json[key] = runtime.toJson();
               }
             } else if (runtimes.length > 1) {
@@ -138,7 +138,7 @@ class Contexts extends MapView {
                   }
 
                   json[key] = runtime.toJson()
-                    ..addAll(<String, String>{'type': 'runtime'});
+                    ..addAll(<String, String>{'type': Runtime.type});
                 }
               }
             }
@@ -174,7 +174,7 @@ class Contexts extends MapView {
     App.type,
     Device.type,
     OperatingSystem.type,
-    'runtimes',
+    runtimesType,
     Runtime.type,
     Gpu.type,
     Browser.type,
