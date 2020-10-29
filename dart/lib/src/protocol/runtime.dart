@@ -4,6 +4,8 @@
 /// are involved (for instance if you have a JavaScript application running
 /// on top of JVM).
 class Runtime {
+  static const type = 'runtime';
+
   const Runtime({this.key, this.name, this.version, this.rawDescription})
       : assert(key == null || key.length >= 1);
 

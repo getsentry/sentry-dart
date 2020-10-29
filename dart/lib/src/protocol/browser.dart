@@ -3,6 +3,8 @@
 /// This can either be the browser this event ocurred in, or the user
 /// agent of a web request that triggered the event.
 class Browser {
+  static const type = 'browser';
+
   /// Creates an instance of [Browser].
   const Browser({this.name, this.version});
 

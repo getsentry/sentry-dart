@@ -30,10 +30,11 @@ class SentryEvent {
     this.extra,
     this.fingerprint,
     this.user,
-    this.contexts,
+    Contexts contexts,
     this.breadcrumbs,
   })  : eventId = eventId ?? SentryId.newId(),
-        timestamp = timestamp ?? getUtcDateTime();
+        timestamp = timestamp ?? getUtcDateTime(),
+        contexts = contexts ?? Contexts();
 
   /// Refers to the default fingerprinting algorithm.
   ///

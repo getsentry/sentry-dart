@@ -53,7 +53,13 @@ class Scope {
 
   Map<String, dynamic> get extra => Map.unmodifiable(_extra);
 
-  // TODO: Contexts
+  final Contexts _contexts = Contexts();
+
+  Contexts get contexts => _contexts;
+
+  void setContexts({String key, dynamic value}) {
+    _contexts[key] = value;
+  }
 
   /// Scope's event processor list
   final List<EventProcessor> _eventProcessors = [];
@@ -153,6 +159,12 @@ class Scope {
       level: level ?? event.level,
     );
 
+    contexts.clone().forEach((key, value) {
+      if (!event.contexts?.containsKey(key) && value != null) {
+        event.contexts[key] = value;
+      }
+    });
+
     for (final processor in _eventProcessors) {
       try {
         event = processor(event, hint);
@@ -204,6 +216,12 @@ class Scope {
     for (final eventProcessor in _eventProcessors) {
       clone.addEventProcessor(eventProcessor);
     }
+
+    contexts.forEach((key, value) {
+      if (value != null) {
+        clone.setContexts(key: key, value: value);
+      }
+    });
 
     return clone;
   }

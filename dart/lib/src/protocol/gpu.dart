@@ -11,6 +11,8 @@
 // }
 
 class Gpu {
+  static const type = 'gpu';
+
   /// The name of the graphics device.
   final String name;
 

@@ -3,6 +3,8 @@
 /// In web contexts, this is the operating system of the browse
 /// (normally pulled from the User-Agent string).
 class OperatingSystem {
+  static const type = 'os';
+
   const OperatingSystem({
     this.name,
     this.version,

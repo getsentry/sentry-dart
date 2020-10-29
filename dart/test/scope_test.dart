@@ -2,6 +2,8 @@ import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
+// TODO test context apply / clone
+
 void main() {
   final fixture = Fixture();
 

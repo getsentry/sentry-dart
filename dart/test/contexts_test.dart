@@ -8,50 +8,51 @@ import 'package:test/test.dart';
 void main() {
   group(Contexts, () {
     final testBootTime = DateTime.fromMicrosecondsSinceEpoch(0);
+
+    final testDevice = Device(
+      name: 'testDevice',
+      family: 'testFamily',
+      model: 'testModel',
+      modelId: 'testModelId',
+      arch: 'testArch',
+      batteryLevel: 23,
+      orientation: Orientation.landscape,
+      manufacturer: 'testOEM',
+      brand: 'testBrand',
+      screenResolution: '123x345',
+      screenDensity: 99.1,
+      screenDpi: 100,
+      online: false,
+      charging: true,
+      lowMemory: false,
+      simulator: true,
+      memorySize: 1234567,
+      freeMemory: 12345,
+      usableMemory: 9876,
+      storageSize: 1234567,
+      freeStorage: 1234567,
+      externalStorageSize: 98765,
+      externalFreeStorage: 98765,
+      bootTime: testBootTime,
+      timezone: 'Australia/Melbourne',
+    );
+    const testOS = OperatingSystem(name: 'testOS');
+    final testRuntimes = [
+      const Runtime(name: 'testRT1', version: '1.0'),
+      const Runtime(name: 'testRT2', version: '2.3.1'),
+    ];
+    const testApp = App(version: '1.2.3');
+    const testBrowser = Browser(version: '12.3.4');
+
+    final contexts = Contexts(
+      device: testDevice,
+      operatingSystem: testOS,
+      runtimes: testRuntimes,
+      app: testApp,
+      browser: testBrowser,
+    )..['theme'] = 'material';
+
     test('serializes to JSON', () {
-      final testDevice = Device(
-        name: 'testDevice',
-        family: 'testFamily',
-        model: 'testModel',
-        modelId: 'testModelId',
-        arch: 'testArch',
-        batteryLevel: 23,
-        orientation: Orientation.landscape,
-        manufacturer: 'testOEM',
-        brand: 'testBrand',
-        screenResolution: '123x345',
-        screenDensity: 99.1,
-        screenDpi: 100,
-        online: false,
-        charging: true,
-        lowMemory: false,
-        simulator: true,
-        memorySize: 1234567,
-        freeMemory: 12345,
-        usableMemory: 9876,
-        storageSize: 1234567,
-        freeStorage: 1234567,
-        externalStorageSize: 98765,
-        externalFreeStorage: 98765,
-        bootTime: testBootTime,
-        timezone: 'Australia/Melbourne',
-      );
-      const testOS = OperatingSystem(name: 'testOS');
-      final testRuntimes = [
-        const Runtime(name: 'testRT1', version: '1.0'),
-        const Runtime(name: 'testRT2', version: '2.3.1'),
-      ];
-      const testApp = App(version: '1.2.3');
-      const testBrowser = Browser(version: '12.3.4');
-
-      final contexts = Contexts(
-        device: testDevice,
-        operatingSystem: testOS,
-        runtimes: testRuntimes,
-        app: testApp,
-        browser: testBrowser,
-      );
-
       final event = SentryEvent(contexts: contexts);
 
       expect(
@@ -91,8 +92,21 @@ void main() {
           'testrt2': {'name': 'testRT2', 'type': 'runtime', 'version': '2.3.1'},
           'app': {'app_version': '1.2.3'},
           'browser': {'version': '12.3.4'},
+          'theme': 'material',
         },
       );
+    });
+
+    test('clone context', () {
+      final clone = contexts.clone();
+
+      expect(clone.app, contexts.app);
+      expect(clone.browser, contexts.browser);
+      expect(clone.device, contexts.device);
+      expect(clone.operatingSystem, contexts.operatingSystem);
+      expect(clone.gpu, contexts.gpu);
+      expect(clone.runtimes, contexts.runtimes);
+      expect(clone['theme'], 'material');
     });
   });
 }

@@ -2,6 +2,8 @@ enum Orientation { portrait, landscape }
 
 /// This describes the device that caused the event.
 class Device {
+  static const type = 'device';
+
   const Device({
     this.name,
     this.family,

@@ -8,7 +8,7 @@
 
 ## 4.0.0-alpha.2
 
-- 
+- feat: add contexts to scope
 
 ## 4.0.0-alpha.1
 
