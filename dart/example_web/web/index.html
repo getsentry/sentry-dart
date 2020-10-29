@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="scaffolded-by" content="https://github.com/dart-lang/stagehand">
+    <title>dart_web</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="favicon.ico">
+
+    <style>
+      .bloc {
+        display: flex;
+        margin: 1rem;
+      }
+
+      .result {
+        padding-left: 1rem;
+        color: green;
+        display: none;
+      }
+    </style>
+
+    <script defer src="main.dart.js"></script>
+</head>
+
+<body>
+
+<div id="output"></div>
+
+<div class="bloc">
+    <button id="btEvent">Capture Event</button>
+    <div id="eventResult" class="result">Captured</div>
+</div>
+
+<div class="bloc">
+    <button id="btMessage">Capture Message</button>
+    <div id="messageResult" class="result">Captured</div>
+</div>
+
+<div class="bloc">
+    <button id="btException">Capture Exception</button>
+    <div id="exceptionResult" class="result">Captured</div>
+</div>
+
+</body>
+</html>

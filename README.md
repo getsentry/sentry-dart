@@ -39,8 +39,8 @@ We also run CI against the Flutter `stable` and `beta` channels so you should be
 
 ##### Versions
 
-Versions `3.0.1` and higher support [Flutter][flutter] (mobile, web, desktop),
-command-line/server Dart VM, and [AngularDart][angular_sentry].
+Versions `3.0.1` and higher support `Flutter` (mobile, web, desktop),
+command-line/server Dart VM, and `AngularDart`.
 
 Versions below `3.0.1` are deprecated.
 
@@ -81,7 +81,7 @@ main() async {
 ##### Tips for catching errors
 
 - Use a `try/catch` block, like in the example above.
-- Create a `Zone` with an error handler, e.g. using [runZonedGuarded][run_zoned_guarded].
+- Create a `Zone` with an error handler, e.g. using `runZonedGuarded`.
 
   ```dart
   var sentry = SentryClient(dsn: "https://...");
@@ -102,7 +102,7 @@ main() async {
     },
   );
   ```
-- For Flutter-specific errors (such as layout failures), use [FlutterError.onError][flutter_error]. For example:
+- For Flutter-specific errors (such as layout failures), use `FlutterError.onError`. For example:
 
   ```dart
   var sentry = SentryClient(dsn: "https://...");

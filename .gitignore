@@ -15,4 +15,6 @@ ios/
 build/
 .cxx/
 
+
 .test_coverage.dart
+dart/coverage/*

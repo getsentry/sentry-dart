@@ -1,7 +1,7 @@
 import '../utils.dart';
-import 'level.dart';
+import 'sentry_level.dart';
 
-/// Structed data to describe more information pior to the event [captured][SentryClient.captureEvent].
+/// Structed data to describe more information pior to the event [captured][Sentry.captureEvent].
 ///
 /// The outgoing JSON representation is:
 ///
@@ -19,14 +19,14 @@ import 'level.dart';
 /// * https://docs.sentry.io/development/sdk-dev/event-payloads/breadcrumbs/
 class Breadcrumb {
   /// Creates a breadcrumb that can be attached to an [Event].
-  const Breadcrumb(
+  Breadcrumb({
     this.message,
-    this.timestamp, {
+    DateTime timestamp,
     this.category,
     this.data,
-    this.level = SeverityLevel.info,
+    this.level = SentryLevel.info,
     this.type,
-  }) : assert(timestamp != null);
+  }) : timestamp = timestamp ?? getUtcDateTime();
 
   /// Describes the breadcrumb.
   ///
@@ -47,12 +47,12 @@ class Breadcrumb {
   /// See also:
   ///
   /// * https://docs.sentry.io/development/sdk-dev/event-payloads/breadcrumbs/#breadcrumb-types
-  final Map<String, String> data;
+  final Map<String, dynamic> data;
 
   /// Severity of the breadcrumb.
   ///
   /// This field is optional and may be set to null.
-  final SeverityLevel level;
+  final SentryLevel level;
 
   /// Describes what type of breadcrumb this is.
   ///
@@ -85,7 +85,7 @@ class Breadcrumb {
       json['category'] = category;
     }
     if (data != null && data.isNotEmpty) {
-      json['data'] = Map.of(data);
+      json['data'] = data;
     }
     if (level != null) {
       json['level'] = level.name;

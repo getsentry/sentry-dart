@@ -3,16 +3,18 @@
 // found in the LICENSE file.
 
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/stack_trace.dart';
+import 'package:sentry/src/utils.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group(Event, () {
+  group(SentryEvent, () {
     test('$Breadcrumb serializes', () {
       expect(
         Breadcrumb(
-          'example log',
-          DateTime.utc(2019),
-          level: SeverityLevel.debug,
+          message: 'example log',
+          timestamp: DateTime.utc(2019),
+          level: SentryLevel.debug,
           category: 'test',
         ).toJson(),
         <String, dynamic>{
@@ -24,14 +26,23 @@ void main() {
       );
     });
     test('$Sdk serializes', () {
-      const event = Event(
-          sdk: Sdk(
-              name: 'sentry.dart.flutter',
-              version: '4.3.2',
-              integrations: <String>['integration'],
-              packages: <Package>[Package('npm:@sentry/javascript', '1.3.4')]));
+      final event = SentryEvent(
+        eventId: SentryId.empty(),
+        timestamp: DateTime.utc(2019),
+        platform: sdkPlatform,
+        sdk: Sdk(
+          name: 'sentry.dart.flutter',
+          version: '4.3.2',
+          integrations: <String>['integration'],
+          packages: <Package>[
+            Package('npm:@sentry/javascript', '1.3.4'),
+          ],
+        ),
+      );
       expect(event.toJson(), <String, dynamic>{
-        'platform': 'dart',
+        'platform': isWeb ? 'javascript' : 'dart',
+        'event_id': '00000000000000000000000000000000',
+        'timestamp': '2019-01-01T00:00:00',
         'sdk': {
           'name': 'sentry.dart.flutter',
           'version': '4.3.2',
@@ -43,6 +54,7 @@ void main() {
       });
     });
     test('serializes to JSON', () {
+      final timestamp = DateTime.utc(2019);
       const user = User(
           id: 'user_id',
           username: 'username',
@@ -51,20 +63,28 @@ void main() {
           extras: <String, String>{'foo': 'bar'});
 
       final breadcrumbs = [
-        Breadcrumb('test log', DateTime.utc(2019),
-            level: SeverityLevel.debug, category: 'test'),
+        Breadcrumb(
+            message: 'test log',
+            timestamp: timestamp,
+            level: SentryLevel.debug,
+            category: 'test'),
       ];
 
+      final error = StateError('test-error');
+
       expect(
-        Event(
+        SentryEvent(
+          eventId: SentryId.empty(),
+          timestamp: timestamp,
+          platform: sdkPlatform,
           message: Message(
-            formatted: 'test-message 1 2',
-            message: 'test-message %d %d',
+            'test-message 1 2',
+            template: 'test-message %d %d',
             params: ['1', '2'],
           ),
           transaction: '/test/1',
-          exception: StateError('test-error'),
-          level: SeverityLevel.debug,
+          exception: error,
+          level: SentryLevel.debug,
           culprit: 'Professor Moriarty',
           tags: const <String, String>{
             'a': 'b',
@@ -74,13 +94,15 @@ void main() {
             'e': 'f',
             'g': 2,
           },
-          fingerprint: const <String>[Event.defaultFingerprint, 'foo'],
-          userContext: user,
+          fingerprint: const <String>[SentryEvent.defaultFingerprint, 'foo'],
+          user: user,
           breadcrumbs: breadcrumbs,
         ).toJson(),
         <String, dynamic>{
-          'platform': 'dart',
-          'sdk': {'version': sdkVersion, 'name': 'sentry.dart'},
+          'platform': isWeb ? 'javascript' : 'dart',
+          'event_id': '00000000000000000000000000000000',
+          'timestamp': '2019-01-01T00:00:00',
+          'sdk': {'version': sdkVersion, 'name': sdkName},
           'message': {
             'formatted': 'test-message 1 2',
             'message': 'test-message %d %d',
@@ -112,7 +134,18 @@ void main() {
               },
             ]
           },
-        },
+        }..addAll(
+            error.stackTrace == null
+                ? {}
+                : {
+                    'stacktrace': {
+                      'frames': encodeStackTrace(
+                        error.stackTrace,
+                        origin: null,
+                      )
+                    }
+                  },
+          ),
       );
     });
   });

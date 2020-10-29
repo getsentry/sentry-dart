@@ -2,17 +2,24 @@ import 'package:meta/meta.dart';
 
 import '../protocol.dart';
 import '../stack_trace.dart';
+import '../utils.dart';
 import '../version.dart';
 
 /// An event to be reported to Sentry.io.
 @immutable
-class Event {
+class SentryEvent {
   /// Creates an event.
-  const Event({
-    this.loggerName,
+  SentryEvent({
+    SentryId eventId,
+    DateTime timestamp,
+    this.sdk,
+    this.platform,
+    this.logger,
     this.serverName,
     this.release,
+    this.dist,
     this.environment,
+    this.modules,
     this.message,
     this.transaction,
     this.exception,
@@ -22,11 +29,11 @@ class Event {
     this.tags,
     this.extra,
     this.fingerprint,
-    this.userContext,
+    this.user,
     this.contexts,
     this.breadcrumbs,
-    this.sdk,
-  });
+  })  : eventId = eventId ?? SentryId.newId(),
+        timestamp = timestamp ?? getUtcDateTime();
 
   /// Refers to the default fingerprinting algorithm.
   ///
@@ -34,8 +41,17 @@ class Event {
   /// fingerprint with custom fingerprints.
   static const String defaultFingerprint = '{{ default }}';
 
+  /// The ID Sentry.io assigned to the submitted event for future reference.
+  final SentryId eventId;
+
+  /// A timestamp representing when the breadcrumb occurred.
+  final DateTime timestamp;
+
+  /// A string representing the platform the SDK is submitting from. This will be used by the Sentry interface to customize various components in the interface.
+  final String platform;
+
   /// The logger that logged the event.
-  final String loggerName;
+  final String logger;
 
   /// Identifies the server that logged this event.
   final String serverName;
@@ -43,8 +59,14 @@ class Event {
   /// The version of the application that logged the event.
   final String release;
 
+  /// The distribution of the application.
+  final String dist;
+
   /// The environment that logged the event, e.g. "production", "staging".
   final String environment;
+
+  /// A list of relevant modules and their versions.
+  final Map<String, String> modules;
 
   /// Event message.
   ///
@@ -67,7 +89,7 @@ class Event {
   final String transaction;
 
   /// How important this event is.
-  final SeverityLevel level;
+  final SentryLevel level;
 
   /// What caused this event to be logged.
   final String culprit;
@@ -90,8 +112,8 @@ class Event {
   /// Information about the current user.
   ///
   /// The value in this field overrides the user context
-  /// set in [SentryClient.userContext] for this logged event.
-  final User userContext;
+  /// set in [Scope.user] for this logged event.
+  final User user;
 
   /// The context interfaces provide additional context data.
   /// Typically this is data related to the current user,
@@ -111,35 +133,46 @@ class Event {
   ///     // A completely custom fingerprint:
   ///     var custom = ['foo', 'bar', 'baz'];
   ///     // A fingerprint that supplements the default one with value 'foo':
-  ///     var supplemented = [Event.defaultFingerprint, 'foo'];
+  ///     var supplemented = [SentryEvent.defaultFingerprint, 'foo'];
   final List<String> fingerprint;
 
+  /// The SDK Interface describes the Sentry SDK and its configuration used to capture and transmit an event.
   final Sdk sdk;
 
-  Event copyWith({
-    String loggerName,
+  SentryEvent copyWith({
+    SentryId eventId,
+    DateTime timestamp,
+    String platform,
+    String logger,
     String serverName,
     String release,
+    String dist,
     String environment,
+    Map<String, String> modules,
     Message message,
     String transaction,
     dynamic exception,
     dynamic stackTrace,
-    SeverityLevel level,
+    SentryLevel level,
     String culprit,
     Map<String, String> tags,
     Map<String, dynamic> extra,
     List<String> fingerprint,
-    User userContext,
+    User user,
     Contexts contexts,
     List<Breadcrumb> breadcrumbs,
     Sdk sdk,
   }) =>
-      Event(
-        loggerName: loggerName ?? this.loggerName,
+      SentryEvent(
+        eventId: eventId ?? this.eventId,
+        timestamp: timestamp ?? this.timestamp,
+        platform: platform ?? this.platform,
+        logger: logger ?? this.logger,
         serverName: serverName ?? this.serverName,
         release: release ?? this.release,
+        dist: dist ?? this.dist,
         environment: environment ?? this.environment,
+        modules: modules ?? this.modules,
         message: message ?? this.message,
         transaction: transaction ?? this.transaction,
         exception: exception ?? this.exception,
@@ -149,21 +182,30 @@ class Event {
         tags: tags ?? this.tags,
         extra: extra ?? this.extra,
         fingerprint: fingerprint ?? this.fingerprint,
-        userContext: userContext ?? this.userContext,
+        user: user ?? this.user,
         contexts: contexts ?? this.contexts,
         breadcrumbs: breadcrumbs ?? this.breadcrumbs,
         sdk: sdk ?? this.sdk,
       );
 
   /// Serializes this event to JSON.
-  Map<String, dynamic> toJson(
-      {StackFrameFilter stackFrameFilter, String origin}) {
-    final json = <String, dynamic>{
-      'platform': sdkPlatform,
-    };
+  Map<String, dynamic> toJson({String origin}) {
+    final json = <String, dynamic>{};
 
-    if (loggerName != null) {
-      json['logger'] = loggerName;
+    if (eventId != null) {
+      json['event_id'] = eventId.toString();
+    }
+
+    if (timestamp != null) {
+      json['timestamp'] = formatDateAsIso8601WithSecondPrecision(timestamp);
+    }
+
+    if (platform != null) {
+      json['platform'] = platform;
+    }
+
+    if (logger != null) {
+      json['logger'] = logger;
     }
 
     if (serverName != null) {
@@ -174,8 +216,16 @@ class Event {
       json['release'] = release;
     }
 
+    if (dist != null) {
+      json['dist'] = dist;
+    }
+
     if (environment != null) {
       json['environment'] = environment;
+    }
+
+    if (modules != null && modules.isNotEmpty) {
+      json['modules'] = modules;
     }
 
     if (message != null) {
@@ -193,13 +243,20 @@ class Event {
           'value': '$exception',
         }
       ];
+      if (exception is Error && exception.stackTrace != null) {
+        json['stacktrace'] = <String, dynamic>{
+          'frames': encodeStackTrace(
+            exception.stackTrace,
+            origin: origin,
+          ),
+        };
+      }
     }
 
     if (stackTrace != null) {
       json['stacktrace'] = <String, dynamic>{
         'frames': encodeStackTrace(
           stackTrace,
-          stackFrameFilter: stackFrameFilter,
           origin: origin,
         ),
       };
@@ -226,10 +283,9 @@ class Event {
       json['contexts'] = contextsMap;
     }
 
-    Map<String, dynamic> userContextMap;
-    if (userContext != null &&
-        (userContextMap = userContext.toJson()).isNotEmpty) {
-      json['user'] = userContextMap;
+    Map<String, dynamic> userMap;
+    if (user != null && (userMap = user.toJson()).isNotEmpty) {
+      json['user'] = userMap;
     }
 
     if (fingerprint != null && fingerprint.isNotEmpty) {

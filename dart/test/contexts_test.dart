@@ -52,7 +52,7 @@ void main() {
         browser: testBrowser,
       );
 
-      final event = Event(contexts: contexts);
+      final event = SentryEvent(contexts: contexts);
 
       expect(
         event.toJson()['contexts'],

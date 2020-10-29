@@ -1,25 +1,26 @@
 # `package:sentry` and `package:sentry-flutter` changelog
 
 ## 4.0.0
+- Development
 
-- BREAKING CHANGE: Fixed context screenDensity is of type double #53
-- BREAKING CHANGE: Fixed context screenDpi is of type int #58
-- BREAKING CHANGE: Renamed capture method to captureEvent #64
-- BREAKING CHANGE: `package:http` min version bumped to 0.12.0 #104
-- BREAKING CHANGE: replace the `package:usage` by `package:uuid` #94
-- BREAKING CHANGE: `Event.message` must now be an instance of `Message`
-- By default no logger it set #63
-- Added missing Contexts to Event.copyWith() #62 
-- remove the `package:args` dependency #94
-- move the `package:pedantic` to dev depencies #94
-- Added GH Action Changelog verifier #95
-- Added GH Action (CI) for Dart
-- new Dart code file structure #96 
-- Base the sdk name on the platform (`sentry.dart` for io & flutter, `sentry.dart.browser` in a browser context) #103 
-- Single changelog and readme for both packages #105
-- expect a sdkName based on the test platform #105
 
 # `package:sentry` changelog
+
+## 4.0.0-alpha.1
+
+First Release of Sentry's new SDK for Dart/Flutter.
+
+New features not offered by <= v3.0.0:
+
+- Sentry's [Unified API](https://develop.sentry.dev/sdk/unified-api/).
+- Complete Sentry [Protocol](https://develop.sentry.dev/sdk/event-payloads/) available.
+- Docs and Migration is under review on this [PR](https://github.com/getsentry/sentry-docs/pull/2599)
+- For all the breaking changes follow this [PR](https://github.com/getsentry/sentry-dart/pull/117), they'll be soon available on the Migration page.
+
+Packages were released on [pubdev](https://pub.dev/packages/sentry)
+
+We'd love to get feedback and we'll work in getting the GA 4.0.0 out soon.
+Until then, the stable SDK offered by Sentry is at version [3.0.1](https://github.com/getsentry/sentry-dart/releases/tag/3.0.1)
 
 ## 3.0.1
 
