@@ -155,7 +155,6 @@ class Contexts extends MapView {
   }
 
   Contexts clone() {
-    // TODO ? make each class cloneable ?
     final copy = Contexts(
       device: device?.clone(),
       operatingSystem: operatingSystem?.clone(),
