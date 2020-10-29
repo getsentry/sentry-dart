@@ -1,56 +1,26 @@
 # `package:sentry` and `package:sentry-flutter` changelog
 
-## 4.0.0-alpha.1
+## 4.0.0
+- Development
 
-- BREAKING CHANGE: Fixed context screenDensity is of type double #53
-- BREAKING CHANGE: Fixed context screenDpi is of type int #58
-- BREAKING CHANGE: Renamed capture method to captureEvent #64
-- BREAKING CHANGE: `package:http` min version bumped to 0.12.0 #104
-- BREAKING CHANGE: replace the `package:usage` by `package:uuid` #94
-- BREAKING CHANGE: `Event.message` must now be an instance of `Message`
-- BREAKING CHANGE: SentryClient must now be initialized with a SentryOptions #118
-- By default no logger it set #63
-- Added missing Contexts to Event.copyWith() #62 
-- remove the `package:args` dependency #94
-- move the `package:pedantic` to dev depencies #94
-- Added GH Action Changelog verifier #95
-- Added GH Action (CI) for Dart #97
-- new Dart code file structure #96 
-- Base the sdk name on the platform (`sentry.dart` for io & flutter, `sentry.dart.browser` in a browser context) #103 
-- Single changelog and readme for both packages #105
-- new static API : Sentry.init(), Sentry.captureEvent() #108
-- expect a sdkName based on the test platform #105
-- Added Scope and Breadcrumb ring buffer #109
-- Added Hub to SDK #113
-- Ref: Hub passes the Scope to SentryClient #114
-- Feature: sentry options #116
-- Ref: SentryId generates UUID #119
-- Ref: Event now is SentryEvent and added GPU #121
-- Feat: before breadcrumb and scope ref. #122
-- Ref: Sentry init with null and empty DSN and close method #126
-- Ref: Hint is passed across Sentry static class, Hub and Client #124
-- Ref: Remove stackFrameFilter in favor of beforeSendCallback #125
-- Ref: added Transport #123
-- Feat: apply sample rate
-- Ref: execute before send callback
-- Feat: add lastEventId to the Sentry static API
-- Feat: addBreadcrumb on Static API
-- Add a Dart web example
-- Fix: Integrations are executed on Hub creation
-- Fix: NoOp encode for Web
-- Fix: Breadcrumb data should accept serializable types and not only String values
-- Ref: added Scope.applyToEvent
-- Ref: rename sdk files accordely to their content
-- chore: new analysis options rules
-- Ref: rename the `throwable` argument name to `exception` in `captureEvents(...)`
-- Ref : remove dsn from Transport public Api
-- update the Dart sdk constraint
-- fix : throws on invalid dsn
-- GH Action ( CI ) run test on vm and on browser
-- ref: remove SentryBrowserClient & SentryIOClient, all platform can use SentryClient 
-- fix: example_web pubspec
 
 # `package:sentry` changelog
+
+## 4.0.0-alpha.1
+
+First Release of Sentry's new SDK for Dart/Flutter.
+
+New features not offered by <= v3.0.0:
+
+- Sentry's [Unified API](https://develop.sentry.dev/sdk/unified-api/).
+- Complete Sentry [Protocol](https://develop.sentry.dev/sdk/event-payloads/) available.
+- Docs and Migration is under review on this [PR](https://github.com/getsentry/sentry-docs/pull/2599)
+- For all the breaking changes follow this [PR](https://github.com/getsentry/sentry-dart/pull/117), they'll be soon available on the Migration page.
+
+Packages were released on [pubdev](https://pub.dev/packages/sentry)
+
+We'd love to get feedback and we'll work in getting the GA 4.0.0 out soon.
+Until then, the stable SDK offered by Sentry is at version [3.0.1](https://github.com/getsentry/sentry-dart/releases/tag/3.0.1)
 
 ## 3.0.1
 
