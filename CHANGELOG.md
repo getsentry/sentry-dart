@@ -6,6 +6,10 @@
 
 # `package:sentry` changelog
 
+## 4.0.0-alpha.2
+
+- 
+
 ## 4.0.0-alpha.1
 
 First Release of Sentry's new SDK for Dart/Flutter.
