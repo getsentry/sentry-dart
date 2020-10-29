@@ -224,6 +224,42 @@ void main() {
     expect(sut.eventProcessors.length, 0);
   });
 
+  test('apply context to event', () {
+    final user = User(
+      id: '800',
+      username: 'first-user',
+      email: 'first@user.lan',
+      ipAddress: '127.0.0.1',
+      extras: <String, String>{'first-sign-in': '2020-01-01'},
+    );
+    final breadcrumb = Breadcrumb(message: 'Authenticated');
+
+    final event = SentryEvent();
+    final scope = Scope(SentryOptions())
+      ..user = user
+      ..fingerprint = ['example-dart']
+      ..addBreadcrumb(breadcrumb)
+      ..transaction = '/example/app'
+      ..level = SentryLevel.warning
+      ..setTag('build', '579')
+      ..setExtra('company-name', 'Dart Inc')
+      ..setContexts(key: 'theme', value: 'material')
+      ..addEventProcessor(
+        (event, hint) => event..tags.addAll({'page-locale': 'en-us'}),
+      );
+
+    final updatedEvent = scope.applyToEvent(event, null);
+
+    expect(updatedEvent.user, user);
+    expect(updatedEvent.transaction, '/example/app');
+    expect(updatedEvent.fingerprint, ['example-dart']);
+    expect(updatedEvent.breadcrumbs, [breadcrumb]);
+    expect(updatedEvent.level, SentryLevel.warning);
+    expect(updatedEvent.tags, {'build': '579', 'page-locale': 'en-us'});
+    expect(updatedEvent.extra, {'company-name': 'Dart Inc'});
+    expect(updatedEvent.contexts['theme'], 'material');
+  });
+
   test('clones', () {
     final sut = fixture.getSut();
     final clone = sut.clone();
@@ -232,6 +268,7 @@ void main() {
     expect(sut.extra, clone.extra);
     expect(sut.tags, clone.tags);
     expect(sut.breadcrumbs, clone.breadcrumbs);
+    expect(sut.contexts, clone.contexts);
     expect(ListEquality().equals(sut.fingerprint, clone.fingerprint), true);
     expect(
       ListEquality().equals(sut.eventProcessors, clone.eventProcessors),
