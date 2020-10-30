@@ -241,7 +241,7 @@ void main() {
       ..level = SentryLevel.warning
       ..setTag('build', '579')
       ..setExtra('company-name', 'Dart Inc')
-      ..setContexts(key: 'theme', value: 'material')
+      ..setContexts('theme', 'material')
       ..addEventProcessor(
         (event, hint) => event..tags.addAll({'page-locale': 'en-us'}),
       );

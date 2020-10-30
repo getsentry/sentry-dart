@@ -57,7 +57,7 @@ class Scope {
 
   Contexts get contexts => _contexts;
 
-  void setContexts({String key, dynamic value}) {
+  void setContexts(String key, dynamic value) {
     _contexts[key] = value;
   }
 
@@ -219,7 +219,7 @@ class Scope {
 
     contexts.forEach((key, value) {
       if (value != null) {
-        clone.setContexts(key: key, value: value);
+        clone.setContexts(key, value);
       }
     });
 
