@@ -162,19 +162,19 @@ class Scope {
 
   SentryEvent applyToEvent(SentryEvent event, dynamic hint) {
     event = event.copyWith(
-        transaction: event.transaction ?? transaction,
-        user: event.user ?? user,
-        fingerprint: event.fingerprint ?? fingerprint,
-        breadcrumbs: event.breadcrumbs ?? breadcrumbs,
-        tags: tags.isNotEmpty ? _mergeEventTags(event) : event.tags,
-        extra: extra.isNotEmpty ? _mergeEventExtra(event) : event.extra,
-        level: level ?? event.level,
-        contexts: _contexts.clone());
+      transaction: event.transaction ?? transaction,
+      user: event.user ?? user,
+      fingerprint: event.fingerprint ?? fingerprint,
+      breadcrumbs: event.breadcrumbs ?? breadcrumbs,
+      tags: tags.isNotEmpty ? _mergeEventTags(event) : event.tags,
+      extra: extra.isNotEmpty ? _mergeEventExtra(event) : event.extra,
+      level: level ?? event.level,
+    );
 
     _contexts.clone().forEach((key, value) {
       // add the contexts runtime list to the event.contexts.runtimes
       if (key == Runtime.listType && value is List && value.isNotEmpty) {
-        value.forEach((runtime) => event.contexts.addRuntime(runtime));
+        _mergeEventContextsRuntimes(value, event);
       } else if (key != Runtime.listType &&
           (!event.contexts.containsKey(key) || event.contexts[key] == null) &&
           value != null) {
@@ -200,8 +200,12 @@ class Scope {
     return event;
   }
 
-  /// the event tags will be kept
+  /// merge the scope contexts runtimes and the event contexts runtimes
+  void _mergeEventContextsRuntimes(List value, SentryEvent event) =>
+      value.forEach((runtime) => event.contexts.addRuntime(runtime));
+
   /// if the scope and the event have tag entries with the same key,
+  /// the event tags will be kept
   Map<String, String> _mergeEventTags(SentryEvent event) =>
       tags.map((key, value) => MapEntry(key, value))..addAll(event.tags ?? {});
 
