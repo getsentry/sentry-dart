@@ -55,7 +55,7 @@ class Scope {
 
   final Contexts _contexts = Contexts();
 
-  Contexts get contexts => _contexts;
+  Contexts get contexts => Map.unmodifiable(_contexts);
 
   /// add an entry to the Scope's contexts
   void setContexts(String key, Object value) {
