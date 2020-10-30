@@ -279,7 +279,8 @@ void main() {
       expect(updatedEvent.contexts['theme'], {'value': 'material'});
     });
 
-    test('should not apply context properties when event has already it ', () {
+    test('should not apply the scope properties when event already has it ',
+        () {
       final eventUser = User(id: '123');
       final eventBreadcrumb = Breadcrumb(message: 'event-breadcrumb');
 
@@ -301,6 +302,94 @@ void main() {
       expect(updatedEvent.transaction, '/event/transaction');
       expect(updatedEvent.fingerprint, ['event-fingerprint']);
       expect(updatedEvent.breadcrumbs, [eventBreadcrumb]);
+    });
+
+    test(
+        'should not apply the scope.contexts values if the event already has it',
+        () {
+      final event = SentryEvent(
+        contexts: Contexts(
+            device: Device(name: 'event-device'),
+            app: App(name: 'event-app'),
+            gpu: Gpu(name: 'event-gpu'),
+            runtimes: [Runtime(name: 'event-runtime')],
+            browser: Browser(name: 'event-browser'),
+            operatingSystem: OperatingSystem(name: 'event-os')),
+      );
+      final scope = Scope(SentryOptions())
+        ..setContexts(
+          Device.type,
+          Device(name: 'context-device'),
+        )
+        ..setContexts(
+          App.type,
+          App(name: 'context-app'),
+        )
+        ..setContexts(
+          Gpu.type,
+          Gpu(name: 'context-gpu'),
+        )
+        ..setContexts(
+          Runtime.listType,
+          [Runtime(name: 'context-runtime')],
+        )
+        ..setContexts(
+          Browser.type,
+          Browser(name: 'context-browser'),
+        )
+        ..setContexts(
+          OperatingSystem.type,
+          OperatingSystem(name: 'context-os'),
+        );
+
+      final updatedEvent = scope.applyToEvent(event, null);
+
+      expect(updatedEvent.contexts[Device.type].name, 'event-device');
+      expect(updatedEvent.contexts[App.type].name, 'event-app');
+      expect(updatedEvent.contexts[Gpu.type].name, 'event-gpu');
+      expect(
+          updatedEvent.contexts[Runtime.listType].first.name, 'event-runtime');
+      expect(updatedEvent.contexts[Browser.type].name, 'event-browser');
+      expect(updatedEvent.contexts[OperatingSystem.type].name, 'event-os');
+    });
+
+    test('should apply the scope.contexts values ', () {
+      final event = SentryEvent();
+      final scope = Scope(SentryOptions())
+        ..setContexts(
+          Device.type,
+          Device(name: 'context-device'),
+        )
+        ..setContexts(
+          App.type,
+          App(name: 'context-app'),
+        )
+        ..setContexts(
+          Gpu.type,
+          Gpu(name: 'context-gpu'),
+        )
+        ..setContexts(
+          Runtime.listType,
+          [Runtime(name: 'context-runtime')],
+        )
+        ..setContexts(
+          Browser.type,
+          Browser(name: 'context-browser'),
+        )
+        ..setContexts(
+          OperatingSystem.type,
+          OperatingSystem(name: 'context-os'),
+        );
+
+      final updatedEvent = scope.applyToEvent(event, null);
+
+      expect(updatedEvent.contexts[Device.type].name, 'context-device');
+      expect(updatedEvent.contexts[App.type].name, 'context-app');
+      expect(updatedEvent.contexts[Gpu.type].name, 'context-gpu');
+      expect(updatedEvent.contexts[Runtime.listType].first.name,
+          'context-runtime');
+      expect(updatedEvent.contexts[Browser.type].name, 'context-browser');
+      expect(updatedEvent.contexts[OperatingSystem.type].name, 'context-os');
     });
 
     test('should apply the scope level', () {

@@ -172,7 +172,12 @@ class Scope {
     );
 
     _contexts.clone().forEach((key, value) {
-      if (!event.contexts.containsKey(key) && value != null) {
+      // add the runtime list to the event.contexts.runtimes
+      if (key == Runtime.listType && value is List && value.isNotEmpty) {
+        value.forEach((runtime) => event.contexts.addRuntime(runtime));
+      } else if ((!event.contexts.containsKey(key) ||
+              event.contexts[key] == null) &&
+          value != null) {
         event.contexts[key] = value;
       }
     });
