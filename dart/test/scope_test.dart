@@ -278,7 +278,7 @@ void main() {
           {'etag': '987', 'build': '579', 'page-locale': 'en-us'});
       expect(
           updatedEvent.extra, {'e-infos': 'abc', 'company-name': 'Dart Inc'});
-      expect(updatedEvent.contexts['theme'], 'material');
+      expect(updatedEvent.contexts['theme'], {'value': 'material'});
     });
 
     test('should not apply context properties when event has already it ', () {
