@@ -15,6 +15,8 @@ class Scope {
   /// Information about the current user.
   User user;
 
+  List<String> _fingerprint;
+
   /// Used to deduplicate events by grouping ones with the same fingerprint
   /// together.
   ///
@@ -22,8 +24,6 @@ class Scope {
   ///
   ///     // A completely custom fingerprint:
   ///     var custom = ['foo', 'bar', 'baz'];
-  List<String> _fingerprint;
-
   List<String> get fingerprint =>
       _fingerprint != null ? List.unmodifiable(_fingerprint) : null;
 
@@ -32,37 +32,40 @@ class Scope {
   }
 
   /// List of breadcrumbs for this scope.
-  ///
-  /// See also:
-  /// * https://docs.sentry.io/enriching-error-data/breadcrumbs/?platform=javascript
   final Queue<Breadcrumb> _breadcrumbs = Queue();
 
   /// Unmodifiable List of breadcrumbs
+  /// See also:
+  /// * https://docs.sentry.io/enriching-error-data/breadcrumbs/?platform=javascript
   List<Breadcrumb> get breadcrumbs => List.unmodifiable(_breadcrumbs);
 
-  /// Name/value pairs that events can be searched by.
   final Map<String, String> _tags = {};
 
+  /// Name/value pairs that events can be searched by.
   Map<String, String> get tags => Map.unmodifiable(_tags);
+
+  final Map<String, dynamic> _extra = {};
 
   /// Arbitrary name/value pairs attached to the scope.
   ///
   /// Sentry.io docs do not talk about restrictions on the values, other than
   /// they must be JSON-serializable.
-  final Map<String, dynamic> _extra = {};
-
   Map<String, dynamic> get extra => Map.unmodifiable(_extra);
 
   final Contexts _contexts = Contexts();
 
+  /// Unmodifiable map of the scope contexts key/value
+  /// See also:
+  /// * https://docs.sentry.io/platforms/java/enriching-events/context/
   Map<String, dynamic> get contexts => Map.unmodifiable(_contexts);
 
   /// add an entry to the Scope's contexts
-  void setContexts(String key, Object value) {
-    if ((key != null && value != null) &&
-        !(value is num || value is bool || value is String)) return;
+  void setContexts(String key, dynamic value) {
+    if (key == null || value == null) return;
 
-    _contexts[key] = value;
+    _contexts[key] = (value is num || value is bool || value is String)
+        ? {'value': value}
+        : value;
   }
 
   /// Removes a value from the Scope's contexts
