@@ -249,8 +249,6 @@ void main() {
 
     final breadcrumb = Breadcrumb(message: 'Authenticated');
 
-    setUp(() {});
-
     test('apply context to event', () {
       final event =
           SentryEvent(tags: {'etag': '987'}, extra: {'e-infos': 'abc'});
