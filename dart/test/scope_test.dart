@@ -222,42 +222,6 @@ void main() {
     expect(sut.eventProcessors.length, 0);
   });
 
-  test('apply context to event', () {
-    final user = User(
-      id: '800',
-      username: 'first-user',
-      email: 'first@user.lan',
-      ipAddress: '127.0.0.1',
-      extras: <String, String>{'first-sign-in': '2020-01-01'},
-    );
-    final breadcrumb = Breadcrumb(message: 'Authenticated');
-
-    final event = SentryEvent();
-    final scope = Scope(SentryOptions())
-      ..user = user
-      ..fingerprint = ['example-dart']
-      ..addBreadcrumb(breadcrumb)
-      ..transaction = '/example/app'
-      ..level = SentryLevel.warning
-      ..setTag('build', '579')
-      ..setExtra('company-name', 'Dart Inc')
-      ..setContexts('theme', 'material')
-      ..addEventProcessor(
-        (event, hint) => event..tags.addAll({'page-locale': 'en-us'}),
-      );
-
-    final updatedEvent = scope.applyToEvent(event, null);
-
-    expect(updatedEvent.user, user);
-    expect(updatedEvent.transaction, '/example/app');
-    expect(updatedEvent.fingerprint, ['example-dart']);
-    expect(updatedEvent.breadcrumbs, [breadcrumb]);
-    expect(updatedEvent.level, SentryLevel.warning);
-    expect(updatedEvent.tags, {'build': '579', 'page-locale': 'en-us'});
-    expect(updatedEvent.extra, {'company-name': 'Dart Inc'});
-    expect(updatedEvent.contexts['theme'], 'material');
-  });
-
   test('clones', () {
     final sut = fixture.getSut();
     final clone = sut.clone();
@@ -272,6 +236,80 @@ void main() {
       ListEquality().equals(sut.eventProcessors, clone.eventProcessors),
       true,
     );
+  });
+
+  group('Scope apply', () {
+    final scopeUser = User(
+      id: '800',
+      username: 'first-user',
+      email: 'first@user.lan',
+      ipAddress: '127.0.0.1',
+      extras: <String, String>{'first-sign-in': '2020-01-01'},
+    );
+
+    final breadcrumb = Breadcrumb(message: 'Authenticated');
+
+    setUp(() {});
+
+    test('apply context to event', () {
+      final event = SentryEvent();
+      final scope = Scope(SentryOptions())
+        ..user = scopeUser
+        ..fingerprint = ['example-dart']
+        ..addBreadcrumb(breadcrumb)
+        ..transaction = '/example/app'
+        ..level = SentryLevel.warning
+        ..setTag('build', '579')
+        ..setExtra('company-name', 'Dart Inc')
+        ..setContexts('theme', 'material')
+        ..addEventProcessor(
+          (event, hint) => event..tags.addAll({'page-locale': 'en-us'}),
+        );
+
+      final updatedEvent = scope.applyToEvent(event, null);
+
+      expect(updatedEvent.user, scopeUser);
+      expect(updatedEvent.transaction, '/example/app');
+      expect(updatedEvent.fingerprint, ['example-dart']);
+      expect(updatedEvent.breadcrumbs, [breadcrumb]);
+      expect(updatedEvent.level, SentryLevel.warning);
+      expect(updatedEvent.tags, {'build': '579', 'page-locale': 'en-us'});
+      expect(updatedEvent.extra, {'company-name': 'Dart Inc'});
+      expect(updatedEvent.contexts['theme'], 'material');
+    });
+
+    test('should not apply context properties when event has already it ', () {
+      final eventUser = User(id: '123');
+      final eventBreadcrumb = Breadcrumb(message: 'event-breadcrumb');
+
+      final event = SentryEvent(
+        transaction: '/event/transaction',
+        user: eventUser,
+        fingerprint: ['event-fingerprint'],
+        breadcrumbs: [eventBreadcrumb],
+      );
+      final scope = Scope(SentryOptions())
+        ..user = scopeUser
+        ..fingerprint = ['example-dart']
+        ..addBreadcrumb(breadcrumb)
+        ..transaction = '/example/app';
+
+      final updatedEvent = scope.applyToEvent(event, null);
+
+      expect(updatedEvent.user, eventUser);
+      expect(updatedEvent.transaction, '/event/transaction');
+      expect(updatedEvent.fingerprint, ['event-fingerprint']);
+      expect(updatedEvent.breadcrumbs, [eventBreadcrumb]);
+    });
+
+    test('should apply the scope level', () {
+      final event = SentryEvent(level: SentryLevel.warning);
+      final scope = Scope(SentryOptions())..level = SentryLevel.error;
+
+      final updatedEvent = scope.applyToEvent(event, null);
+
+      expect(updatedEvent.level, SentryLevel.error);
+    });
   });
 }
 

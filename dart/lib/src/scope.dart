@@ -55,7 +55,7 @@ class Scope {
 
   final Contexts _contexts = Contexts();
 
-  Contexts get contexts => Map.unmodifiable(_contexts);
+  Map<String, dynamic> get contexts => Map.unmodifiable(_contexts);
 
   /// add an entry to the Scope's contexts
   void setContexts(String key, Object value) {
@@ -168,7 +168,7 @@ class Scope {
       level: level ?? event.level,
     );
 
-    contexts.clone().forEach((key, value) {
+    _contexts.clone().forEach((key, value) {
       if (!event.contexts.containsKey(key) && value != null) {
         event.contexts[key] = value;
       }
