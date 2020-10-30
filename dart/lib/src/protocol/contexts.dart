@@ -13,7 +13,7 @@ import 'runtime.dart';
 /// the current HTTP request.
 ///
 /// See also: https://docs.sentry.io/development/sdk-dev/event-payloads/contexts/.
-class Contexts extends MapView {
+class Contexts extends MapView<String, dynamic> {
   Contexts({
     Device device,
     OperatingSystem operatingSystem,
