@@ -162,21 +162,21 @@ class Scope {
 
   SentryEvent applyToEvent(SentryEvent event, dynamic hint) {
     event = event.copyWith(
-      transaction: event.transaction ?? transaction,
-      user: event.user ?? user,
-      fingerprint: event.fingerprint ?? fingerprint,
-      breadcrumbs: event.breadcrumbs ?? breadcrumbs,
-      tags: tags.isNotEmpty ? _mergeEventTags(event) : event.tags,
-      extra: extra.isNotEmpty ? _mergeEventExtra(event) : event.extra,
-      level: level ?? event.level,
-    );
+        transaction: event.transaction ?? transaction,
+        user: event.user ?? user,
+        fingerprint: event.fingerprint ?? fingerprint,
+        breadcrumbs: event.breadcrumbs ?? breadcrumbs,
+        tags: tags.isNotEmpty ? _mergeEventTags(event) : event.tags,
+        extra: extra.isNotEmpty ? _mergeEventExtra(event) : event.extra,
+        level: level ?? event.level,
+        contexts: _contexts.clone());
 
     _contexts.clone().forEach((key, value) {
-      // add the runtime list to the event.contexts.runtimes
+      // add the contexts runtime list to the event.contexts.runtimes
       if (key == Runtime.listType && value is List && value.isNotEmpty) {
         value.forEach((runtime) => event.contexts.addRuntime(runtime));
-      } else if ((!event.contexts.containsKey(key) ||
-              event.contexts[key] == null) &&
+      } else if (key != Runtime.listType &&
+          (!event.contexts.containsKey(key) || event.contexts[key] == null) &&
           value != null) {
         event.contexts[key] = value;
       }
