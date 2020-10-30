@@ -2,6 +2,8 @@ enum Orientation { portrait, landscape }
 
 /// This describes the device that caused the event.
 class Device {
+  static const type = 'device';
+
   const Device({
     this.name,
     this.family,
@@ -230,4 +232,32 @@ class Device {
 
     return json;
   }
+
+  Device clone() => Device(
+        name: name,
+        family: family,
+        model: model,
+        modelId: modelId,
+        arch: arch,
+        batteryLevel: batteryLevel,
+        orientation: orientation,
+        manufacturer: manufacturer,
+        brand: brand,
+        screenResolution: screenResolution,
+        screenDensity: screenDensity,
+        screenDpi: screenDpi,
+        online: online,
+        charging: charging,
+        lowMemory: lowMemory,
+        simulator: simulator,
+        memorySize: memorySize,
+        freeMemory: freeMemory,
+        usableMemory: usableMemory,
+        storageSize: storageSize,
+        freeStorage: freeStorage,
+        externalStorageSize: externalStorageSize,
+        externalFreeStorage: externalFreeStorage,
+        bootTime: bootTime,
+        timezone: timezone,
+      );
 }

@@ -3,6 +3,8 @@
 /// As opposed to the runtime, this is the actual application that was
 /// running and carries metadata about the current session.
 class App {
+  static const type = 'app';
+
   const App({
     this.name,
     this.version,
@@ -68,4 +70,14 @@ class App {
 
     return json;
   }
+
+  App clone() => App(
+        name: name,
+        version: version,
+        identifier: identifier,
+        build: build,
+        buildType: buildType,
+        startTime: startTime,
+        deviceAppHash: deviceAppHash,
+      );
 }

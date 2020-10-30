@@ -15,6 +15,8 @@ class Scope {
   /// Information about the current user.
   User user;
 
+  List<String> _fingerprint;
+
   /// Used to deduplicate events by grouping ones with the same fingerprint
   /// together.
   ///
@@ -22,8 +24,6 @@ class Scope {
   ///
   ///     // A completely custom fingerprint:
   ///     var custom = ['foo', 'bar', 'baz'];
-  List<String> _fingerprint;
-
   List<String> get fingerprint =>
       _fingerprint != null ? List.unmodifiable(_fingerprint) : null;
 
@@ -32,28 +32,46 @@ class Scope {
   }
 
   /// List of breadcrumbs for this scope.
-  ///
-  /// See also:
-  /// * https://docs.sentry.io/enriching-error-data/breadcrumbs/?platform=javascript
   final Queue<Breadcrumb> _breadcrumbs = Queue();
 
   /// Unmodifiable List of breadcrumbs
+  /// See also:
+  /// * https://docs.sentry.io/enriching-error-data/breadcrumbs/?platform=javascript
   List<Breadcrumb> get breadcrumbs => List.unmodifiable(_breadcrumbs);
 
-  /// Name/value pairs that events can be searched by.
   final Map<String, String> _tags = {};
 
+  /// Name/value pairs that events can be searched by.
   Map<String, String> get tags => Map.unmodifiable(_tags);
+
+  final Map<String, dynamic> _extra = {};
 
   /// Arbitrary name/value pairs attached to the scope.
   ///
   /// Sentry.io docs do not talk about restrictions on the values, other than
   /// they must be JSON-serializable.
-  final Map<String, dynamic> _extra = {};
-
   Map<String, dynamic> get extra => Map.unmodifiable(_extra);
 
-  // TODO: Contexts
+  final Contexts _contexts = Contexts();
+
+  /// Unmodifiable map of the scope contexts key/value
+  /// See also:
+  /// * https://docs.sentry.io/platforms/java/enriching-events/context/
+  Map<String, dynamic> get contexts => Map.unmodifiable(_contexts);
+
+  /// add an entry to the Scope's contexts
+  void setContexts(String key, dynamic value) {
+    if (key == null || value == null) return;
+
+    _contexts[key] = (value is num || value is bool || value is String)
+        ? {'value': value}
+        : value;
+  }
+
+  /// Removes a value from the Scope's contexts
+  void removeContexts(String key) {
+    _contexts.remove(key);
+  }
 
   /// Scope's event processor list
   final List<EventProcessor> _eventProcessors = [];
@@ -153,6 +171,17 @@ class Scope {
       level: level ?? event.level,
     );
 
+    _contexts.clone().forEach((key, value) {
+      // add the contexts runtime list to the event.contexts.runtimes
+      if (key == Runtime.listType && value is List && value.isNotEmpty) {
+        _mergeEventContextsRuntimes(value, event);
+      } else if (key != Runtime.listType &&
+          (!event.contexts.containsKey(key) || event.contexts[key] == null) &&
+          value != null) {
+        event.contexts[key] = value;
+      }
+    });
+
     for (final processor in _eventProcessors) {
       try {
         event = processor(event, hint);
@@ -171,8 +200,12 @@ class Scope {
     return event;
   }
 
-  /// the event tags will be kept
+  /// merge the scope contexts runtimes and the event contexts runtimes
+  void _mergeEventContextsRuntimes(List value, SentryEvent event) =>
+      value.forEach((runtime) => event.contexts.addRuntime(runtime));
+
   /// if the scope and the event have tag entries with the same key,
+  /// the event tags will be kept
   Map<String, String> _mergeEventTags(SentryEvent event) =>
       tags.map((key, value) => MapEntry(key, value))..addAll(event.tags ?? {});
 
@@ -204,6 +237,12 @@ class Scope {
     for (final eventProcessor in _eventProcessors) {
       clone.addEventProcessor(eventProcessor);
     }
+
+    contexts.forEach((key, value) {
+      if (value != null) {
+        clone.setContexts(key, value);
+      }
+    });
 
     return clone;
   }

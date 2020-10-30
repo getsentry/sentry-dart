@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import '../protocol.dart';
 import 'app.dart';
 import 'browser.dart';
@@ -11,107 +13,169 @@ import 'runtime.dart';
 /// the current HTTP request.
 ///
 /// See also: https://docs.sentry.io/development/sdk-dev/event-payloads/contexts/.
-class Contexts {
-  const Contexts({
-    this.device,
-    this.operatingSystem,
-    this.runtimes,
-    this.app,
-    this.browser,
-    this.gpu,
-  });
+class Contexts extends MapView<String, dynamic> {
+  Contexts({
+    Device device,
+    OperatingSystem operatingSystem,
+    List<Runtime> runtimes,
+    App app,
+    Browser browser,
+    Gpu gpu,
+  }) : super({
+          Device.type: device,
+          OperatingSystem.type: operatingSystem,
+          Runtime.listType: runtimes ?? [],
+          App.type: app,
+          Browser.type: browser,
+          Gpu.type: gpu,
+        });
 
   /// This describes the device that caused the event.
-  final Device device;
+  Device get device => this[Device.type];
+
+  set device(Device device) => this[Device.type] = device;
 
   /// Describes the operating system on which the event was created.
   ///
   /// In web contexts, this is the operating system of the browse
   /// (normally pulled from the User-Agent string).
-  final OperatingSystem operatingSystem;
+  OperatingSystem get operatingSystem => this[OperatingSystem.type];
 
-  /// Describes a runtime in more detail.
-  ///
-  /// Typically this context is used multiple times if multiple runtimes
-  /// are involved (for instance if you have a JavaScript application running
-  /// on top of JVM).
-  final List<Runtime> runtimes;
+  set operatingSystem(OperatingSystem operatingSystem) =>
+      this[OperatingSystem.type] = operatingSystem;
+
+  /// Describes a list of runtimes in more detail
+  /// (for instance if you have a Flutter application running
+  /// on top of Android).
+  List<Runtime> get runtimes => List.unmodifiable(this[Runtime.listType]);
+
+  void addRuntime(Runtime runtime) => this[Runtime.listType].add(runtime);
+
+  void removeRuntime(Runtime runtime) => this[Runtime.listType].remove(runtime);
 
   /// App context describes the application.
   ///
   /// As opposed to the runtime, this is the actual application that was
   /// running and carries metadata about the current session.
-  final App app;
+  App get app => this[App.type];
+
+  set app(App app) => this[App.type] = app;
 
   /// Carries information about the browser or user agent for web-related
   /// errors.
   ///
   /// This can either be the browser this event ocurred in, or the user
   /// agent of a web request that triggered the event.
-  final Browser browser;
+  Browser get browser => this[Browser.type];
+
+  set browser(Browser browser) => this[Browser.type] = browser;
 
   /// GPU context describes the GPU of the device.
-  final Gpu gpu;
+  Gpu get gpu => this[Gpu.type];
 
-  // TODO: contexts should accept arbitrary values
+  set gpu(Gpu gpu) => this[Gpu.type] = gpu;
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 
-    Map<String, dynamic> deviceMap;
-    if (device != null && (deviceMap = device.toJson()).isNotEmpty) {
-      json['device'] = deviceMap;
-    }
+    forEach((key, value) {
+      if (value == null) return;
+      switch (key) {
+        case Device.type:
+          Map<String, dynamic> deviceMap;
+          if ((deviceMap = device.toJson()).isNotEmpty) {
+            json[Device.type] = deviceMap;
+          }
+          break;
+        case OperatingSystem.type:
+          Map<String, dynamic> osMap;
+          if ((osMap = operatingSystem.toJson()).isNotEmpty) {
+            json[OperatingSystem.type] = osMap;
+          }
+          break;
 
-    Map<String, dynamic> osMap;
-    if (operatingSystem != null &&
-        (osMap = operatingSystem.toJson()).isNotEmpty) {
-      json['os'] = osMap;
-    }
+        case App.type:
+          Map<String, dynamic> appMap;
+          if ((appMap = app.toJson()).isNotEmpty) {
+            json[App.type] = appMap;
+          }
+          break;
 
-    Map<String, dynamic> appMap;
-    if (app != null && (appMap = app.toJson()).isNotEmpty) {
-      json['app'] = appMap;
-    }
+        case Browser.type:
+          Map<String, dynamic> browserMap;
+          if ((browserMap = browser.toJson()).isNotEmpty) {
+            json[Browser.type] = browserMap;
+          }
+          break;
 
-    Map<String, dynamic> browserMap;
-    if (browser != null && (browserMap = browser.toJson()).isNotEmpty) {
-      json['browser'] = browserMap;
-    }
+        case Gpu.type:
+          Map<String, dynamic> gpuMap;
+          if ((gpuMap = gpu.toJson()).isNotEmpty) {
+            json[Gpu.type] = gpuMap;
+          }
+          break;
 
-    Map<String, dynamic> gpuMap;
-    if (gpu != null && (gpuMap = gpu.toJson()).isNotEmpty) {
-      json['gpu'] = gpuMap;
-    }
+        case Runtime.listType:
+          if (runtimes != null) {
+            if (runtimes.length == 1) {
+              final runtime = runtimes[0];
+              if (runtime != null) {
+                final key = runtime.key ?? Runtime.type;
+                json[key] = runtime.toJson();
+              }
+            } else if (runtimes.length > 1) {
+              for (final runtime in runtimes) {
+                if (runtime != null) {
+                  var key = runtime.key ?? runtime.name.toLowerCase();
 
-    if (runtimes != null) {
-      if (runtimes.length == 1) {
-        final runtime = runtimes[0];
-        if (runtime != null) {
-          final key = runtime.key ?? 'runtime';
-          json[key] = runtime.toJson();
-        }
-      } else if (runtimes.length > 1) {
-        for (final runtime in runtimes) {
-          if (runtime != null) {
-            var key = runtime.key ?? runtime.name.toLowerCase();
+                  if (json.containsKey(key)) {
+                    var k = 0;
+                    while (json.containsKey(key)) {
+                      key = '$key$k';
+                      k++;
+                    }
+                  }
 
-            if (json.containsKey(key)) {
-              var k = 0;
-              while (json.containsKey(key)) {
-                key = '$key$k';
-                k++;
+                  json[key] = runtime.toJson()
+                    ..addAll(<String, String>{'type': Runtime.type});
+                }
               }
             }
-
-            json[key] = runtime.toJson()
-              ..addAll(<String, String>{'type': 'runtime'});
           }
-        }
+
+          break;
+
+        default:
+          json[key] = value;
       }
-    }
+    });
 
     return json;
   }
+
+  Contexts clone() {
+    final copy = Contexts(
+      device: device?.clone(),
+      operatingSystem: operatingSystem?.clone(),
+      app: app?.clone(),
+      browser: browser?.clone(),
+      gpu: gpu?.clone(),
+      runtimes: runtimes.map((runtime) => runtime.clone()).toList(),
+    )..addEntries(
+        entries.where((element) => !_defaultFields.contains(element.key)),
+      );
+
+    return copy;
+  }
+
+  static const _defaultFields = [
+    App.type,
+    Device.type,
+    OperatingSystem.type,
+    Runtime.listType,
+    Runtime.type,
+    Gpu.type,
+    Browser.type,
+  ];
 }
