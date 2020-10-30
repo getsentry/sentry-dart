@@ -55,7 +55,9 @@ void main() {
       app: testApp,
       browser: testBrowser,
       gpu: gpu,
-    )..['theme'] = {'value': 'material'};
+    )
+      ..['theme'] = {'value': 'material'}
+      ..['version'] = {'value': 9};
 
     test('serializes to JSON', () {
       final event = SentryEvent(contexts: contexts);
@@ -99,6 +101,7 @@ void main() {
           'browser': {'version': '12.3.4'},
           'gpu': {'name': 'Radeon', 'version': '1'},
           'theme': {'value': 'material'},
+          'version': {'value': 9},
         },
       );
     });
@@ -122,6 +125,7 @@ void main() {
       });
 
       expect(clone['theme'], {'value': 'material'});
+      expect(clone['version'], {'value': 9});
     });
   });
 }
