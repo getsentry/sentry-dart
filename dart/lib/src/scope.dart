@@ -59,9 +59,8 @@ class Scope {
 
   /// add an entry to the Scope's contexts
   void setContexts(String key, Object value) {
-    // TODO replace all assertions with ArgumentError ?
-    assert(key != null && value != null);
-    assert(value is num || value is bool || value is String);
+    if ((key != null && value != null) &&
+        !(value is num || value is bool || value is String)) return;
 
     _contexts[key] = value;
   }
