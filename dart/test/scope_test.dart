@@ -309,12 +309,13 @@ void main() {
         () {
       final event = SentryEvent(
         contexts: Contexts(
-            device: Device(name: 'event-device'),
-            app: App(name: 'event-app'),
-            gpu: Gpu(name: 'event-gpu'),
-            runtimes: [Runtime(name: 'event-runtime')],
-            browser: Browser(name: 'event-browser'),
-            operatingSystem: OperatingSystem(name: 'event-os')),
+          device: Device(name: 'event-device'),
+          app: App(name: 'event-app'),
+          gpu: Gpu(name: 'event-gpu'),
+          runtimes: [Runtime(name: 'event-runtime')],
+          browser: Browser(name: 'event-browser'),
+          operatingSystem: OperatingSystem(name: 'event-os'),
+        ),
       );
       final scope = Scope(SentryOptions())
         ..setContexts(
@@ -356,40 +357,30 @@ void main() {
     test('should apply the scope.contexts values ', () {
       final event = SentryEvent();
       final scope = Scope(SentryOptions())
-        ..setContexts(
-          Device.type,
-          Device(name: 'context-device'),
-        )
-        ..setContexts(
-          App.type,
-          App(name: 'context-app'),
-        )
-        ..setContexts(
-          Gpu.type,
-          Gpu(name: 'context-gpu'),
-        )
-        ..setContexts(
-          Runtime.listType,
-          [Runtime(name: 'context-runtime')],
-        )
-        ..setContexts(
-          Browser.type,
-          Browser(name: 'context-browser'),
-        )
-        ..setContexts(
-          OperatingSystem.type,
-          OperatingSystem(name: 'context-os'),
-        );
+        ..setContexts(Device.type, Device(name: 'context-device'))
+        ..setContexts(App.type, App(name: 'context-app'))
+        ..setContexts(Gpu.type, Gpu(name: 'context-gpu'))
+        ..setContexts(Runtime.listType, [Runtime(name: 'context-runtime')])
+        ..setContexts(Browser.type, Browser(name: 'context-browser'))
+        ..setContexts(OperatingSystem.type, OperatingSystem(name: 'context-os'))
+        ..setContexts('theme', 'material')
+        ..setContexts('version', 9)
+        ..setContexts('location', {'city': 'London'});
 
       final updatedEvent = scope.applyToEvent(event, null);
 
       expect(updatedEvent.contexts[Device.type].name, 'context-device');
       expect(updatedEvent.contexts[App.type].name, 'context-app');
       expect(updatedEvent.contexts[Gpu.type].name, 'context-gpu');
-      expect(updatedEvent.contexts[Runtime.listType].first.name,
-          'context-runtime');
+      expect(
+        updatedEvent.contexts[Runtime.listType].first.name,
+        'context-runtime',
+      );
       expect(updatedEvent.contexts[Browser.type].name, 'context-browser');
       expect(updatedEvent.contexts[OperatingSystem.type].name, 'context-os');
+      expect(updatedEvent.contexts['theme']['value'], 'material');
+      expect(updatedEvent.contexts['version']['value'], 9);
+      expect(updatedEvent.contexts['location'], {'city': 'London'});
     });
 
     test('should apply the scope level', () {
