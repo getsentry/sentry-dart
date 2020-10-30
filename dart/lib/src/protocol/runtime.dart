@@ -1,11 +1,10 @@
-const runtimesType = 'runtimes';
-
 /// Describes a runtime in more detail.
 ///
 /// Typically this context is used multiple times if multiple runtimes
 /// are involved (for instance if you have a JavaScript application running
 /// on top of JVM).
 class Runtime {
+  static const listType = 'runtimes';
   static const type = 'runtime';
 
   const Runtime({this.key, this.name, this.version, this.rawDescription})

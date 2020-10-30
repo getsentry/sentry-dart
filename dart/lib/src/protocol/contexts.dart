@@ -24,7 +24,7 @@ class Contexts extends MapView<String, dynamic> {
   }) : super({
           Device.type: device,
           OperatingSystem.type: operatingSystem,
-          runtimesType: runtimes ?? [],
+          Runtime.listType: runtimes ?? [],
           App.type: app,
           Browser.type: browser,
           Gpu.type: gpu,
@@ -47,11 +47,11 @@ class Contexts extends MapView<String, dynamic> {
   /// Describes a list of runtimes in more detail
   /// (for instance if you have a Flutter application running
   /// on top of Android).
-  List<Runtime> get runtimes => List.unmodifiable(this[runtimesType]);
+  List<Runtime> get runtimes => List.unmodifiable(this[Runtime.listType]);
 
-  void addRuntime(Runtime runtime) => this[runtimesType].add(runtime);
+  void addRuntime(Runtime runtime) => this[Runtime.listType].add(runtime);
 
-  void removeRuntime(Runtime runtime) => this[runtimesType].remove(runtime);
+  void removeRuntime(Runtime runtime) => this[Runtime.listType].remove(runtime);
 
   /// App context describes the application.
   ///
@@ -116,7 +116,7 @@ class Contexts extends MapView<String, dynamic> {
           }
           break;
 
-        case runtimesType:
+        case Runtime.listType:
           if (runtimes != null) {
             if (runtimes.length == 1) {
               final runtime = runtimes[0];
@@ -173,7 +173,7 @@ class Contexts extends MapView<String, dynamic> {
     App.type,
     Device.type,
     OperatingSystem.type,
-    runtimesType,
+    Runtime.listType,
     Runtime.type,
     Gpu.type,
     Browser.type,
