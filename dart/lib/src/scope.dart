@@ -57,12 +57,18 @@ class Scope {
 
   Contexts get contexts => _contexts;
 
+  /// add an entry to the Scope's contexts
   void setContexts(String key, Object value) {
     // TODO replace all assertions with ArgumentError ?
     assert(key != null && value != null);
     assert(value is num || value is bool || value is String);
 
     _contexts[key] = value;
+  }
+
+  /// Removes a value from the Scope's contexts
+  void removeContexts(String key) {
+    _contexts.remove(key);
   }
 
   /// Scope's event processor list
