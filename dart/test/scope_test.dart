@@ -252,7 +252,8 @@ void main() {
     setUp(() {});
 
     test('apply context to event', () {
-      final event = SentryEvent();
+      final event =
+          SentryEvent(tags: {'etag': '987'}, extra: {'e-infos': 'abc'});
       final scope = Scope(SentryOptions())
         ..user = scopeUser
         ..fingerprint = ['example-dart']
@@ -273,8 +274,10 @@ void main() {
       expect(updatedEvent.fingerprint, ['example-dart']);
       expect(updatedEvent.breadcrumbs, [breadcrumb]);
       expect(updatedEvent.level, SentryLevel.warning);
-      expect(updatedEvent.tags, {'build': '579', 'page-locale': 'en-us'});
-      expect(updatedEvent.extra, {'company-name': 'Dart Inc'});
+      expect(updatedEvent.tags,
+          {'etag': '987', 'build': '579', 'page-locale': 'en-us'});
+      expect(
+          updatedEvent.extra, {'e-infos': 'abc', 'company-name': 'Dart Inc'});
       expect(updatedEvent.contexts['theme'], 'material');
     });
 
