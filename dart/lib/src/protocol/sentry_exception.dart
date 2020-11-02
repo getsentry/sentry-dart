@@ -1,16 +1,28 @@
+import 'package:meta/meta.dart';
+
 import 'mechanism.dart';
 import 'sentry_stack_trace.dart';
 
+/// The Exception Interface specifies an exception or error that occurred in a program.
 class SentryException {
+  /// The type of exception
   String type;
+
+  /// The value of the exception
   String value;
+
+  /// The optional module, or package which the exception type lives in.
   String module;
+
+  /// An optional stack trace object
   SentryStackTrace stacktrace;
+
+  /// An optional object describing the [Mechanism] that created this exception
   Mechanism mechanism;
 
   SentryException({
-    this.type,
-    this.value,
+    @required this.type,
+    @required this.value,
     this.module,
     this.stacktrace,
     this.mechanism,

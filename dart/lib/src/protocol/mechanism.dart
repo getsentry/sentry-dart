@@ -1,3 +1,5 @@
+import 'package:meta/meta.dart';
+
 /// Sentry Exception Mechanism
 /// The exception mechanism is an optional field residing
 /// in the Exception Interface. It carries additional information about
@@ -35,7 +37,7 @@ class Mechanism {
   final bool synthetic;
 
   Mechanism({
-    this.type,
+    @required this.type,
     this.description,
     this.helpLink,
     this.handled,

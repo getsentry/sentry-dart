@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:sentry/src/stack_trace.dart';
 import 'package:sentry/src/utils.dart';
 import 'package:test/test.dart';
@@ -83,7 +84,8 @@ void main() {
             params: ['1', '2'],
           ),
           transaction: '/test/1',
-          exception: error,
+          exception:
+              SentryException(type: 'Exception', value: 'An error occured'),
           level: SentryLevel.debug,
           culprit: 'Professor Moriarty',
           tags: const <String, String>{
@@ -139,10 +141,8 @@ void main() {
                 ? {}
                 : {
                     'stacktrace': {
-                      'frames': encodeStackTrace(
-                        error.stackTrace,
-                        origin: null,
-                      )
+                      'frames': SentryStackTraceFactory()
+                          .getStackFrames(error.stackTrace)
                     }
                   },
           ),

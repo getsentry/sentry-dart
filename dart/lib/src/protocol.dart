@@ -14,5 +14,6 @@ export 'protocol/sentry_event.dart';
 export 'protocol/sentry_exception.dart';
 export 'protocol/sentry_id.dart';
 export 'protocol/sentry_level.dart';
+export 'protocol/sentry_stack_trace.dart';
 export 'protocol/system.dart';
 export 'protocol/user.dart';

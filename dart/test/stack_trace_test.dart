@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:sentry/src/stack_trace.dart';
+import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:stack_trace/stack_trace.dart';
 import 'package:test/test.dart';
 
@@ -10,7 +10,7 @@ void main() {
   group('encodeStackTraceFrame', () {
     test('marks dart: frames as not app frames', () {
       final frame = Frame(Uri.parse('dart:core'), 1, 2, 'buzz');
-      expect(encodeStackTraceFrame(frame), {
+      expect(SentryStackTraceFactory().encodeStackTraceFrame(frame).toJson(), {
         'abs_path': 'dart:core',
         'function': 'buzz',
         'lineno': 1,
@@ -22,13 +22,17 @@ void main() {
 
     test('cleanses absolute paths', () {
       final frame = Frame(Uri.parse('file://foo/bar/baz.dart'), 1, 2, 'buzz');
-      expect(encodeStackTraceFrame(frame)['abs_path'], 'baz.dart');
+      expect(
+          SentryStackTraceFactory()
+              .encodeStackTraceFrame(frame)
+              .toJson()['abs_path'],
+          'baz.dart');
     });
   });
 
   group('encodeStackTrace', () {
     test('encodes a simple stack trace', () {
-      expect(encodeStackTrace('''
+      expect(SentryStackTraceFactory().getStackFrames('''
 #0      baz (file:///pathto/test.dart:50:3)
 #1      bar (file:///pathto/test.dart:46:9)
       '''), [
@@ -52,7 +56,7 @@ void main() {
     });
 
     test('encodes an asynchronous stack trace', () {
-      expect(encodeStackTrace('''
+      expect(SentryStackTraceFactory().getStackFrames('''
 #0      baz (file:///pathto/test.dart:50:3)
 <asynchronous suspension>
 #1      bar (file:///pathto/test.dart:46:9)

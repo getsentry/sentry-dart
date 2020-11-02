@@ -7,7 +7,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart';
 import 'package:http/testing.dart';
-import 'package:sentry/sentry.dart';
+import 'package:sentry/sentry.dart' hide Request;
 import 'package:test/test.dart';
 
 const String testDsn = 'https://public:secret@sentry.example.com/1';
@@ -382,12 +382,10 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
       final eventWithoutContext = SentryEvent(
         eventId: SentryId.empty(),
         exception: error,
-        stackTrace: stackTrace,
       );
       final eventWithContext = SentryEvent(
         eventId: SentryId.empty(),
         exception: error,
-        stackTrace: stackTrace,
         user: eventUser,
       );
       await client.captureEvent(eventWithoutContext,

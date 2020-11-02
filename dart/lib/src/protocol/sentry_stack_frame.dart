@@ -1,4 +1,7 @@
 class SentryStackFrame {
+  static final SentryStackFrame asynchronousGapFrameJson = SentryStackFrame()
+    ..absPath = '<asynchronous suspension>';
+
   List<String> preContext;
   List<String> postContext;
   Map<String, String> vars;

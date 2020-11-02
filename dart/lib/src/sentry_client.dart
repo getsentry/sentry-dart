@@ -87,7 +87,6 @@ class SentryClient {
   }) {
     final event = SentryEvent(
       exception: exception,
-      stackTrace: stackTrace,
       timestamp: _options.clock(),
     );
     return captureEvent(event, scope: scope, hint: hint);

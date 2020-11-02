@@ -59,7 +59,6 @@ void main() {
       ).captured.first) as SentryEvent;
 
       expect(capturedEvent.exception, error);
-      expect(capturedEvent.stackTrace, stackTrace);
     });
   });
 
