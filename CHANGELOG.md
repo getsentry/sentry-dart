@@ -9,6 +9,7 @@
 ## 4.0.0-alpha.2
 
 - feat: add contexts to scope
+- feat: add missing protocol classes : Request, Mechanism
 
 ## 4.0.0-alpha.1
 
