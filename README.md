@@ -88,7 +88,7 @@ main() async {
   // Run the whole app in a zone to capture all uncaught errors.
   runZonedGuarded(
     () => runApp(MyApp()),
-    (error, stackTrace) {
+    (error, stackTrace) async {
       try {
         sentry.captureException(
           exception: error,
