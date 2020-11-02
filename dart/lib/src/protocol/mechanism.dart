@@ -56,7 +56,7 @@ class Mechanism {
     }
 
     if (helpLink != null) {
-      json['helpLink'] = helpLink;
+      json['help_link'] = helpLink;
     }
 
     if (handled != null) {
