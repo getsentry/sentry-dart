@@ -27,10 +27,10 @@ class Mechanism {
   /// descriptions for well known error codes, as it will be filled out by
   /// Sentry. For proprietary or vendor-specific error codes,
   /// adding these values will give additional information to the user.
-  final Map<String, Object> meta;
+  final Map<String, dynamic> meta;
 
   /// Arbitrary extra data that might help the user understand the error thrown by this mechanism
-  final Map<String, Object> data;
+  final Map<String, dynamic> data;
 
   final bool synthetic;
 
