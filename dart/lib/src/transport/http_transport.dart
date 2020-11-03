@@ -29,9 +29,8 @@ class HttpTransport implements Transport {
     return HttpTransport._(options);
   }
 
-  HttpTransport._(SentryOptions options)
-      : _options = options,
-        _dsn = Dsn.parse(options.dsn),
+  HttpTransport._(this._options)
+      : _dsn = Dsn.parse(_options.dsn),
         _headers = _buildHeaders(options.sdk.identifier) {
     _credentialBuilder = _CredentialBuilder(
       _dsn,
