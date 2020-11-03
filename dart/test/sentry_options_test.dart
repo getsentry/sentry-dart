@@ -1,5 +1,6 @@
 import 'package:http/http.dart';
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/diagnostic_logger.dart';
 import 'package:sentry/src/noop_client.dart';
 import 'package:test/test.dart';
 
@@ -61,5 +62,12 @@ void main() {
     options.logger = null;
 
     expect(noOpLogger, options.logger);
+  });
+
+  test('$Logger sets a diagnostic logger', () {
+    final options = SentryOptions();
+    options.logger = dartLogger;
+
+    expect(false, options.logger == noOpLogger);
   });
 }
