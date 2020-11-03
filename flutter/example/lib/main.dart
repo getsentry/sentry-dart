@@ -1,10 +1,8 @@
 import 'dart:async';
-import 'dart:isolate';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
 
@@ -12,70 +10,26 @@ const String _release =
     String.fromEnvironment('SENTRY_RELEASE', defaultValue: 'unknown');
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
-const String exampleDsn =
+const String _exampleDsn =
     'https://cb0fad6f5d4e42ebb9c956cb0463edc9@o447951.ingest.sentry.io/5428562';
-
-// NOTE: Add your DSN below to get the events in your Sentry project.
-final SentryClient _sentry = SentryClient(SentryOptions(dsn: exampleDsn));
 
 // Proposed init:
 // https://github.com/bruno-garcia/badges.bar/blob/2450ed9125f7b73d2baad1fa6d676cc71858116c/lib/src/sentry.dart#L9-L32
-Future<void> main() async {
-  // Needs to move into the library
-  FlutterError.onError = (FlutterErrorDetails details) async {
-    print('Capture from FlutterError ${details.exception}');
-    Zone.current.handleUncaughtError(details.exception, details.stack);
-  };
+void main() {
+  SentryFlutter.init(
+      (options) => {
+            options.dsn = _exampleDsn,
 
-  if (!kIsWeb) {
-    // Throws when running on the browser
-    Isolate.current.addSentryErrorListener(_sentry);
-  }
-
-  runZonedGuarded<Future<void>>(() async {
-    runApp(MyApp());
-  }, (error, stackTrace) async {
-    print('Capture from runZonedGuarded $error');
-    final event = SentryEvent(
-      exception: error,
-      stackTrace: stackTrace,
-      // release is required on Web to match the source maps
-      release: _release,
-
-      // sdk: const Sdk(name: sdkName, version: sdkVersion),
-    );
-    await _sentry.captureEvent(event);
-  });
+            // release is required on Web to match the source maps
+            options.release = _release,
+          },
+      initMyApp);
 }
 
-// Candidate API for the SDK
-extension IsolateExtensions on Isolate {
-  void addSentryErrorListener(SentryClient sentry) {
-    final receivePort = RawReceivePort(
-      (dynamic values) async {
-        await sentry.captureIsolateError(values);
-      },
-    );
-
-    Isolate.current.addErrorListener(receivePort.sendPort);
-  }
-}
-
-// Candidate API for the SDK
-extension SentryExtensions on SentryClient {
-  Future<void> captureIsolateError(dynamic error) {
-    print('Capture from IsolateError $error');
-
-    if (error is List<dynamic> && error.length != 2) {
-      dynamic stackTrace = error[1];
-      if (stackTrace != null) {
-        stackTrace = StackTrace.fromString(stackTrace as String);
-      }
-      return captureException(error[0], stackTrace: stackTrace);
-    } else {
-      return Future.value();
-    }
-  }
+void initMyApp() {
+  // code before
+  runApp(MyApp());
+  // code after
 }
 
 class MyApp extends StatefulWidget {

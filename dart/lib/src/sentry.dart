@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import 'hub.dart';
+import 'hub_adapter.dart';
 import 'noop_hub.dart';
 import 'protocol.dart';
 import 'sentry_client.dart';
@@ -45,6 +46,11 @@ class Sentry {
     final hub = currentHub;
     _hub = Hub(options);
     hub.close();
+
+    // execute integrations
+    options.integrations.forEach((integration) {
+      integration(HubAdapter(), options);
+    });
   }
 
   /// Reports an [event] to Sentry.io.
