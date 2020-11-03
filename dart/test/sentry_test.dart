@@ -15,7 +15,7 @@ void main() {
       anException = Exception('anException');
 
       client = MockSentryClient();
-      Sentry.initClient(client);
+      Sentry.bindClient(client);
     });
     tearDown(() {
       Sentry.close();
@@ -57,7 +57,7 @@ void main() {
       ).called(1);
     });
   });
-  group('Sentry is enabled or closed', () {
+  group('Sentry is enabled or disabled', () {
     test('null DSN', () {
       expect(
         () => Sentry.init((options) => options.dsn = null),
@@ -71,16 +71,34 @@ void main() {
       expect(Sentry.isEnabled, false);
     });
 
-    test('empty DSN', () {
+    test('close disables the SDK', () {
       Sentry.init((options) => options.dsn = fakeDsn);
 
-      Sentry.initClient(MockSentryClient());
+      Sentry.bindClient(MockSentryClient());
 
       expect(Sentry.isEnabled, true);
 
       Sentry.close();
 
       expect(Sentry.isEnabled, false);
+    });
+  });
+
+  group('Sentry init', () {
+    tearDown(() {
+      Sentry.close();
+    });
+
+    test('should install integrations', () {
+      var called = false;
+      void integration(Hub hub, SentryOptions options) => called = true;
+
+      Sentry.init((options) {
+        options.dsn = fakeDsn;
+        options.addIntegration(integration);
+      });
+
+      expect(called, true);
     });
   });
 }

@@ -1,8 +1,7 @@
 import 'dart:async';
 
-import 'package:meta/meta.dart';
-
 import 'hub.dart';
+import 'hub_adapter.dart';
 import 'noop_hub.dart';
 import 'protocol.dart';
 import 'sentry_client.dart';
@@ -37,7 +36,7 @@ class Sentry {
       );
     }
 
-    // if there's an empty DSN, SDK is disabled
+    // let's set the default values to options
     if (!_setDefaultConfiguration(options)) {
       return;
     }
@@ -45,6 +44,11 @@ class Sentry {
     final hub = currentHub;
     _hub = Hub(options);
     hub.close();
+
+    // execute integrations after hub being enabled
+    options.integrations.forEach((integration) {
+      integration(HubAdapter(), options);
+    });
   }
 
   /// Reports an [event] to Sentry.io.
@@ -129,8 +133,4 @@ class Sentry {
     }
     return true;
   }
-
-  /// client injector only use for testing
-  @visibleForTesting
-  static void initClient(SentryClient client) => currentHub.bindClient(client);
 }
