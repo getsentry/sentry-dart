@@ -69,7 +69,7 @@ class HttpTransport implements Transport {
     } else {
       _options.logger(
         SentryLevel.debug,
-        'Event ${event.eventId} was sent suceffully.',
+        'Event ${event.eventId} was sent successfully.',
       );
     }
 

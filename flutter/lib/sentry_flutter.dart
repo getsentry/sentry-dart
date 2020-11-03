@@ -44,13 +44,16 @@ mixin SentryFlutter {
       (dynamic error) async {
         options.logger(SentryLevel.debug, 'Capture from IsolateError $error');
 
-        // is it a list? cond. error.length != 2 is probably wrong
-        if (error is List<dynamic> && error.length != 2) {
-          dynamic stackTrace = error[1];
+        // TODO: create mechanism
+
+        // https://api.dartlang.org/stable/2.7.0/dart-isolate/Isolate/addErrorListener.html
+        // error is a list of 2 elements
+        if (error is List<dynamic> && error.length == 2) {
+          dynamic stackTrace = error.last;
           if (stackTrace != null) {
             stackTrace = StackTrace.fromString(stackTrace as String);
           }
-          await Sentry.captureException(error[0], stackTrace: stackTrace);
+          await Sentry.captureException(error.first, stackTrace: stackTrace);
         }
       },
     );
@@ -59,11 +62,10 @@ mixin SentryFlutter {
   }
 
   static Integration _runZonedGuardedIntegration(
-      Function callback,
+    Function callback,
   ) {
     void integration(Hub hub, SentryOptions options) {
       runZonedGuarded(() {
-
         // it is necessary to initialize Flutter method channels so that
         // our plugin can call into the native code.
         WidgetsFlutterBinding.ensureInitialized();
@@ -73,6 +75,8 @@ mixin SentryFlutter {
 
         callback();
       }, (exception, stackTrace) async {
+        // TODO: create mechanism
+
         await Sentry.captureException(
           exception,
           stackTrace: stackTrace,
@@ -105,5 +109,3 @@ mixin SentryFlutter {
     });
   }
 }
-
-// typedef InitCallback = void Function();
