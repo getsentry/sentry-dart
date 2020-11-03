@@ -2,6 +2,7 @@ import 'package:http/http.dart';
 
 import 'diagnostic_logger.dart';
 import 'hub.dart';
+import 'noop_client.dart';
 import 'protocol.dart';
 import 'transport/noop_transport.dart';
 import 'transport/transport.dart';
@@ -13,7 +14,7 @@ const defaultEnvironment = 'production';
 /// Sentry SDK options
 class SentryOptions {
   /// Default Log level if not specified Default is DEBUG
-  static final SentryLevel defaultDiagnosticLevel = SentryLevel.debug;
+  static final SentryLevel _defaultDiagnosticLevel = SentryLevel.debug;
 
   /// The DSN tells the SDK where to send the events to. If this value is not provided, the SDK will
   ///  just not send any events.
@@ -29,13 +30,13 @@ class SentryOptions {
   set compressPayload(bool compressPayload) =>
       _compressPayload = compressPayload ?? _compressPayload;
 
-  Client _httpClient = Client();
+  Client _httpClient = NoOpClient();
 
   /// If [httpClient] is provided, it is used instead of the default client to
   /// make HTTP calls to Sentry.io. This is useful in tests.
   Client get httpClient => _httpClient;
 
-  set httpClient(Client httpClient) => _httpClient = httpClient ?? _httpClient;
+  set httpClient(Client httpClient) => _httpClient = httpClient ?? NoOpClient();
 
   ClockProvider _clock = getUtcDateTime;
 
@@ -45,8 +46,16 @@ class SentryOptions {
 
   set clock(ClockProvider clock) => _clock = clock ?? _clock;
 
+  int _maxBreadcrumbs = 100;
+
   /// This variable controls the total amount of breadcrumbs that should be captured Default is 100
-  int maxBreadcrumbs = 100;
+  int get maxBreadcrumbs => _maxBreadcrumbs;
+
+  set maxBreadcrumbs(int maxBreadcrumbs) {
+    _maxBreadcrumbs = (maxBreadcrumbs != null && maxBreadcrumbs >= 0)
+        ? maxBreadcrumbs
+        : _maxBreadcrumbs;
+  }
 
   Logger _logger = noOpLogger;
 
@@ -54,7 +63,7 @@ class SentryOptions {
   Logger get logger => _logger;
 
   set logger(Logger logger) {
-    _logger = logger != null ? DiagnosticLogger(logger, this) : noOpLogger;
+    _logger = logger != null ? DiagnosticLogger(logger, this).log : noOpLogger;
   }
 
   final List<EventProcessor> _eventProcessors = [];
@@ -77,10 +86,10 @@ class SentryOptions {
   /// information if something goes wrong. Default is disabled.
   bool debug = false;
 
-  SentryLevel _diagnosticLevel = defaultDiagnosticLevel;
+  SentryLevel _diagnosticLevel = _defaultDiagnosticLevel;
 
   set diagnosticLevel(SentryLevel level) {
-    _diagnosticLevel = level ?? defaultDiagnosticLevel;
+    _diagnosticLevel = level ?? _defaultDiagnosticLevel;
   }
 
   /// minimum LogLevel to be used if debug is enabled

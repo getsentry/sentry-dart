@@ -11,18 +11,23 @@ import 'version.dart';
 /// Logs crash reports and events to the Sentry.io service.
 class SentryClient {
   /// Instantiates a client using [SentryOptions]
-  SentryClient(SentryOptions options) : _options = options {
-    _random = _options.sampleRate == null ? null : Random();
-    if (_options.transport is NoOpTransport) {
-      _options.transport = HttpTransport(options: _options);
+  factory SentryClient(SentryOptions options) {
+    if (options.transport is NoOpTransport) {
+      options.transport = HttpTransport(options);
     }
+    return SentryClient._(options);
   }
 
   final SentryOptions _options;
 
-  Random _random;
+  final Random _random;
 
   static final _sentryId = Future.value(SentryId.empty());
+
+  /// Instantiates a client using [SentryOptions]
+  SentryClient._(SentryOptions options)
+      : _options = options,
+        _random = options.sampleRate == null ? null : Random();
 
   /// Reports an [event] to Sentry.io.
   Future<SentryId> captureEvent(
