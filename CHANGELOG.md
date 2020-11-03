@@ -9,6 +9,7 @@
 ## 4.0.0-alpha.2
 
 - feat: add contexts to scope
+- fix: logger method and refactoring little things
 
 ## 4.0.0-alpha.1
 
