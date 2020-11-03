@@ -22,6 +22,8 @@ class SentryEvent {
     this.modules,
     this.message,
     this.transaction,
+    this.throwable,
+    this.stackTrace,
     this.exception,
     this.level,
     this.culprit,
@@ -74,7 +76,20 @@ class SentryEvent {
   /// Generally an event either contains a [message] or an [exception].
   final Message message;
 
+  /// An object that was thrown.
+  ///
+  /// It's `runtimeType` and `toString()` are logged.
+  /// If it's an Error, with a stackTrace, the stackTrace is logged.
+  /// If this behavior is undesirable, consider using a custom formatted [message] instead.
+  final dynamic throwable;
+
+  /// The stack trace corresponding to the thrown [exception].
+  ///
+  /// Can be `null`, a [String], or a [StackTrace].
+  final dynamic stackTrace;
+
   /// an exception or error that occurred in a program
+  /// TODO more doc
   final SentryException exception;
 
   /// The name of the transaction which generated this event,
@@ -149,7 +164,8 @@ class SentryEvent {
     Map<String, String> modules,
     Message message,
     String transaction,
-    dynamic exception,
+    dynamic throwable,
+    SentryException exception,
     dynamic stackTrace,
     SentryLevel level,
     String culprit,
@@ -174,7 +190,9 @@ class SentryEvent {
         modules: modules ?? this.modules,
         message: message ?? this.message,
         transaction: transaction ?? this.transaction,
+        throwable: throwable ?? this.throwable,
         exception: exception ?? this.exception,
+        stackTrace: stackTrace ?? this.stackTrace,
         level: level ?? this.level,
         culprit: culprit ?? this.culprit,
         tags: tags ?? this.tags,

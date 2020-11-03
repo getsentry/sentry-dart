@@ -4,6 +4,7 @@ import 'dart:math';
 import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_options.dart';
+import 'sentry_stack_trace_factory.dart';
 import 'transport/http_transport.dart';
 import 'transport/noop_transport.dart';
 import 'version.dart';
@@ -68,15 +69,35 @@ class SentryClient {
     return _options.transport.send(event);
   }
 
-  SentryEvent _prepareEvent(SentryEvent event) => event.copyWith(
-        serverName: event.serverName ?? _options.serverName,
-        dist: event.dist ?? _options.dist,
-        environment:
-            event.environment ?? _options.environment ?? defaultEnvironment,
-        release: event.release ?? _options.release,
-        sdk: event.sdk ?? _options.sdk,
-        platform: event.platform ?? sdkPlatform,
+  SentryEvent _prepareEvent(SentryEvent event) {
+    event = event.copyWith(
+      serverName: event.serverName ?? _options.serverName,
+      dist: event.dist ?? _options.dist,
+      environment:
+          event.environment ?? _options.environment ?? defaultEnvironment,
+      release: event.release ?? _options.release,
+      sdk: event.sdk ?? _options.sdk,
+      platform: event.platform ?? sdkPlatform,
+    );
+
+    if (event.throwable != null) {
+      SentryStackTrace sentryStackTrace;
+      if (event.throwable is Error) {
+        final stackTrace = event.throwable.stackTrace;
+        sentryStackTrace = SentryStackTrace()
+          ..frames = SentryStackTraceFactory().getStackFrames(stackTrace);
+      }
+      event = event.copyWith(
+        exception: SentryException(
+          type: '${event.throwable.runtimeType}',
+          value: '${event.throwable}',
+          stacktrace: sentryStackTrace,
+        ),
       );
+    }
+
+    return event;
+  }
 
   /// Reports the [exception] and optionally its [stackTrace] to Sentry.io.
   Future<SentryId> captureException(
@@ -86,7 +107,8 @@ class SentryClient {
     dynamic hint,
   }) {
     final event = SentryEvent(
-      exception: exception,
+      throwable: exception,
+      stackTrace: stackTrace,
       timestamp: _options.clock(),
     );
     return captureEvent(event, scope: scope, hint: hint);
