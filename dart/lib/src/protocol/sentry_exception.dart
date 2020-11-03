@@ -31,7 +31,7 @@ class SentryException {
     this.mechanism,
   });
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toJson([String origin = '']) {
     final json = <String, dynamic>{};
 
     if (type != null) {
@@ -47,7 +47,7 @@ class SentryException {
     }
 
     if (stacktrace != null) {
-      json['stacktrace'] = stacktrace.toJson();
+      json['stacktrace'] = stacktrace.toJson(origin);
     }
 
     if (mechanism != null) {

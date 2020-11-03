@@ -3,7 +3,11 @@ import 'package:stack_trace/stack_trace.dart';
 import 'protocol/sentry_stack_frame.dart';
 
 class SentryStackTraceFactory {
+  const SentryStackTraceFactory();
+
   List<SentryStackFrame> getStackFrames(dynamic stackTrace) {
+    if (stackTrace == null) return [];
+
     final chain = stackTrace is StackTrace
         ? Chain.forTrace(stackTrace)
         : Chain.parse(stackTrace as String);
@@ -25,7 +29,6 @@ class SentryStackTraceFactory {
 
   SentryStackFrame encodeStackTraceFrame(Frame frame) {
     final sentryStackFrame = SentryStackFrame()
-      // TODO add the origin to absPath before sending
       ..absPath = '${_absolutePathForCrashReport(frame)}'
       ..function = frame.member
       ..lineno = '${frame.line}'

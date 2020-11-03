@@ -109,21 +109,17 @@ Future testCaptureException(
   // so we assert the generated and returned id
   data['event_id'] = sentryId.toString();
 
-  final stacktrace = data.remove('stacktrace') as Map<String, dynamic>;
+  final stacktrace = data['exception'].first['stacktrace'];
 
   expect(stacktrace['frames'], const TypeMatcher<List>());
   expect(stacktrace['frames'], isNotEmpty);
 
   final topFrame =
       (stacktrace['frames'] as Iterable<dynamic>).last as Map<String, dynamic>;
-  expect(topFrame.keys, <String>[
-    'abs_path',
-    'function',
-    'lineno',
-    'colno',
-    'in_app',
-    'filename',
-  ]);
+  expect(
+    topFrame.keys,
+    <String>['filename', 'function', 'lineno', 'colno', 'abs_path', 'in_app'],
+  );
 
   if (isWeb) {
     // can't test the full url
@@ -138,7 +134,17 @@ Future testCaptureException(
     );
     expect(topFrame['function'], 'Object.wrapException');
 
-    expect(data, {
+    expect(data['event_id'], sentryId.toString());
+    expect(data['timestamp'], '2017-01-02T00:00:00');
+    expect(data['platform'], 'javascript');
+    expect(data['sdk'], {'version': sdkVersion, 'name': sdkName});
+    expect(data['server_name'], 'test.server.com');
+    expect(data['release'], '1.2.3');
+    expect(data['environment'], 'staging');
+    expect(data['exception'].first['type'], 'ArgumentError');
+    expect(data['exception'].first['value'], 'Invalid argument(s): Test error');
+
+    /*expect(data, {
       'event_id': sentryId.toString(),
       'timestamp': '2017-01-02T00:00:00',
       'platform': 'javascript',
@@ -149,27 +155,24 @@ Future testCaptureException(
       'exception': [
         {'type': 'ArgumentError', 'value': 'Invalid argument(s): Test error'}
       ],
-    });
+    });*/
   } else {
     expect(topFrame['abs_path'], 'test_utils.dart');
     expect(topFrame['filename'], 'test_utils.dart');
     expect(topFrame['function'], 'testCaptureException');
 
-    expect(data, {
-      'event_id': sentryId.toString(),
-      'timestamp': '2017-01-02T00:00:00',
-      'platform': 'dart',
-      'exception': [
-        {'type': 'ArgumentError', 'value': 'Invalid argument(s): Test error'}
-      ],
-      'sdk': {'version': sdkVersion, 'name': 'sentry.dart'},
-      'server_name': 'test.server.com',
-      'release': '1.2.3',
-      'environment': 'staging',
-    });
+    expect(data['event_id'], sentryId.toString());
+    expect(data['timestamp'], '2017-01-02T00:00:00');
+    expect(data['platform'], 'dart');
+    expect(data['sdk'], {'version': sdkVersion, 'name': 'sentry.dart'});
+    expect(data['server_name'], 'test.server.com');
+    expect(data['release'], '1.2.3');
+    expect(data['environment'], 'staging');
+    expect(data['exception'].first['type'], 'ArgumentError');
+    expect(data['exception'].first['value'], 'Invalid argument(s): Test error');
   }
 
-  expect(topFrame['lineno'], greaterThan(0));
+  expect(int.tryParse(topFrame['lineno']), greaterThan(0));
   expect(topFrame['in_app'], true);
 
   await client.close();
@@ -378,14 +381,14 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
 
     try {
       throw ArgumentError('Test error');
-    } catch (error, stackTrace) {
+    } catch (error) {
       final eventWithoutContext = SentryEvent(
         eventId: SentryId.empty(),
-        exception: error,
+        throwable: error,
       );
       final eventWithContext = SentryEvent(
         eventId: SentryId.empty(),
-        exception: error,
+        throwable: error,
         user: eventUser,
       );
       await client.captureEvent(eventWithoutContext,

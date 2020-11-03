@@ -22,7 +22,7 @@ class SentryStackFrame {
   String instructionAddr;
   String rawFunction;
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toJson([String origin = '']) {
     final json = <String, dynamic>{};
 
     if (preContext?.isNotEmpty ?? false) {
@@ -62,7 +62,7 @@ class SentryStackFrame {
     }
 
     if (absPath != null) {
-      json['abs_path'] = absPath;
+      json['abs_path'] = '$origin$absPath';
     }
 
     if (contextLine != null) {

@@ -6,8 +6,9 @@ import 'sentry_stack_trace_factory.dart';
 class SentryExceptionFactory {
   final SentryStackTraceFactory _stacktraceFactory;
 
-  SentryExceptionFactory({SentryStackTraceFactory stacktraceFactory})
-      : _stacktraceFactory = stacktraceFactory;
+  const SentryExceptionFactory({
+    SentryStackTraceFactory stacktraceFactory = const SentryStackTraceFactory(),
+  }) : _stacktraceFactory = stacktraceFactory;
 
   SentryException getSentryException(
     dynamic exception, {

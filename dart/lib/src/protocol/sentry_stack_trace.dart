@@ -17,11 +17,11 @@ class SentryStackTrace {
     _registers = registers;
   }
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toJson([String origin = '']) {
     final json = <String, dynamic>{};
 
     if (_frames?.isNotEmpty ?? false) {
-      json['frames'] = _frames.map((frame) => frame.toJson()).toList();
+      json['frames'] = _frames.map((frame) => frame.toJson(origin)).toList();
     }
 
     if (_registers?.isNotEmpty ?? false) {

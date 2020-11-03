@@ -1,1 +1,1 @@
-String eventOrigin;
+String eventOrigin = '';

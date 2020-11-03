@@ -33,7 +33,7 @@ class HttpTransport implements Transport {
 
   @override
   Future<SentryId> send(SentryEvent event) async {
-    final data = event.toJson(origin: eventOrigin);
+    final data = event.toJson(eventOrigin);
 
     final body = _bodyEncoder(
       data,

@@ -58,7 +58,8 @@ void main() {
         options.transport.send(captureAny),
       ).captured.first) as SentryEvent;
 
-      expect(capturedEvent.exception, error);
+      expect(capturedEvent.throwable, error);
+      expect(capturedEvent.exception is SentryException, true);
     });
   });
 

@@ -3,8 +3,8 @@ import 'dart:math';
 
 import 'protocol.dart';
 import 'scope.dart';
+import 'sentry_exception_factory.dart';
 import 'sentry_options.dart';
-import 'sentry_stack_trace_factory.dart';
 import 'transport/http_transport.dart';
 import 'transport/noop_transport.dart';
 import 'version.dart';
@@ -22,6 +22,9 @@ class SentryClient {
   final SentryOptions _options;
 
   Random _random;
+
+  final SentryExceptionFactory _exceptionFactory =
+      const SentryExceptionFactory();
 
   static final _sentryId = Future.value(SentryId.empty());
 
@@ -81,19 +84,10 @@ class SentryClient {
     );
 
     if (event.throwable != null) {
-      SentryStackTrace sentryStackTrace;
-      if (event.throwable is Error) {
-        final stackTrace = event.throwable.stackTrace;
-        sentryStackTrace = SentryStackTrace()
-          ..frames = SentryStackTraceFactory().getStackFrames(stackTrace);
-      }
-      event = event.copyWith(
-        exception: SentryException(
-          type: '${event.throwable.runtimeType}',
-          value: '${event.throwable}',
-          stacktrace: sentryStackTrace,
-        ),
-      );
+      final sentryException = _exceptionFactory
+          .getSentryException(event.throwable, stackTrace: event.stackTrace);
+
+      event = event.copyWith(exception: sentryException);
     }
 
     return event;
