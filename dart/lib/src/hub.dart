@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
 
-import 'noop_client.dart';
+import 'noop_sentry_client.dart';
 import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_client.dart';
@@ -28,7 +28,7 @@ class Hub {
     return Hub._(options);
   }
 
-  Hub._(SentryOptions options) : _options = options {
+  Hub._(this._options) {
     _stack.add(_StackItem(_getClient(_options), Scope(_options)));
     _isEnabled = true;
   }
