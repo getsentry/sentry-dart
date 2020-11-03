@@ -31,11 +31,11 @@ class HttpTransport implements Transport {
 
   HttpTransport._(this._options)
       : _dsn = Dsn.parse(_options.dsn),
-        _headers = _buildHeaders(options.sdk.identifier) {
+        _headers = _buildHeaders(_options.sdk.identifier) {
     _credentialBuilder = _CredentialBuilder(
       _dsn,
-      options.sdk.identifier,
-      options.clock,
+      _options.sdk.identifier,
+      _options.clock,
     );
   }
 

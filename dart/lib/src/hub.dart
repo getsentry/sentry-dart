@@ -28,7 +28,7 @@ class Hub {
     return Hub._(options);
   }
 
-  Hub._(SentryOptions options) : _options = options {
+  Hub._(this._options) {
     _stack.add(_StackItem(_getClient(_options), Scope(_options)));
     _isEnabled = true;
   }
