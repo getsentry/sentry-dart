@@ -3,6 +3,7 @@ import 'dart:isolate';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:sentry/sentry.dart';
 
 mixin SentryFlutter {
@@ -62,6 +63,14 @@ mixin SentryFlutter {
   ) {
     void integration(Hub hub, SentryOptions options) {
       runZonedGuarded(() {
+
+        // it is necessary to initialize Flutter method channels so that
+        // our plugin can call into the native code.
+        WidgetsFlutterBinding.ensureInitialized();
+
+        // TODO: we could read the window and add some stuff on contexts
+        // final window = WidgetsBinding.instance.window;
+
         callback();
       }, (exception, stackTrace) async {
         await Sentry.captureException(
@@ -80,6 +89,10 @@ mixin SentryFlutter {
   ) {
     Sentry.init((options) {
       options.debug = kDebugMode;
+
+      if (!kReleaseMode) {
+        options.environment = 'staging';
+      }
 
       // Throws when running on the browser
       if (!kIsWeb) {
