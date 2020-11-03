@@ -95,7 +95,7 @@ mixin SentryFlutter {
       options.debug = kDebugMode;
 
       if (!kReleaseMode) {
-        options.environment = 'staging';
+        options.environment = 'debug';
       }
 
       // Throws when running on the browser
