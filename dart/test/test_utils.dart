@@ -7,7 +7,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart';
 import 'package:http/testing.dart';
-import 'package:sentry/sentry.dart' hide Request;
+import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
 const String testDsn = 'https://public:secret@sentry.example.com/1';

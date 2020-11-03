@@ -132,6 +132,9 @@ class SentryEvent {
   /// The SDK Interface describes the Sentry SDK and its configuration used to capture and transmit an event.
   final Sdk sdk;
 
+  ///  contains information on a HTTP request related to the event.
+  ///  In client, this can be an outgoing request, or the request that rendered the current web page.
+  ///  On server, this could be the incoming web request that is being handled
   final Request request;
 
   SentryEvent copyWith({

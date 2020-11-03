@@ -4,7 +4,6 @@
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
-import 'package:sentry/src/stack_trace.dart';
 import 'package:sentry/src/utils.dart';
 import 'package:test/test.dart';
 

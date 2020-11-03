@@ -14,8 +14,8 @@ class SentryStackFrame {
   String absPath;
   String contextLine;
   bool inApp;
-  String _package;
-  bool _native;
+  String package;
+  bool native;
   String platform;
   String imageAddr;
   String symbolAddr;
@@ -73,12 +73,12 @@ class SentryStackFrame {
       json['in_app'] = inApp;
     }
 
-    if (_package != null) {
-      json['package'] = _package;
+    if (package != null) {
+      json['package'] = package;
     }
 
-    if (_native != null) {
-      json['native'] = _native;
+    if (native != null) {
+      json['native'] = native;
     }
 
     if (platform != null) {

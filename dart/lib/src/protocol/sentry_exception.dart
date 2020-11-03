@@ -20,6 +20,9 @@ class SentryException {
   /// An optional object describing the [Mechanism] that created this exception
   Mechanism mechanism;
 
+  /// Represents a thread id. not available in Dart
+  int threadId;
+
   SentryException({
     @required this.type,
     @required this.value,
