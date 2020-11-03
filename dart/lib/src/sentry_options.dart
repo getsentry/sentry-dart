@@ -36,7 +36,7 @@ class SentryOptions {
   /// make HTTP calls to Sentry.io. This is useful in tests.
   Client get httpClient => _httpClient;
 
-  set httpClient(Client httpClient) => _httpClient = httpClient ?? NoOpClient();
+  set httpClient(Client httpClient) => _httpClient = httpClient ?? _httpClient;
 
   ClockProvider _clock = getUtcDateTime;
 
@@ -63,7 +63,7 @@ class SentryOptions {
   Logger get logger => _logger;
 
   set logger(Logger logger) {
-    _logger = logger != null ? DiagnosticLogger(logger, this).log : noOpLogger;
+    _logger = logger != null ? DiagnosticLogger(logger, this).log : _logger;
   }
 
   final List<EventProcessor> _eventProcessors = [];
@@ -82,14 +82,20 @@ class SentryOptions {
   /// along with code that inserts those bindings and activates them.
   List<Integration> get integrations => List.unmodifiable(_integrations);
 
+  bool _debug = false;
+
   /// Turns debug mode on or off. If debug is enabled SDK will attempt to print out useful debugging
   /// information if something goes wrong. Default is disabled.
-  bool debug = false;
+  bool get debug => _debug;
+
+  set debug(bool debug) {
+    _debug = debug ?? _debug;
+  }
 
   SentryLevel _diagnosticLevel = _defaultDiagnosticLevel;
 
   set diagnosticLevel(SentryLevel level) {
-    _diagnosticLevel = level ?? _defaultDiagnosticLevel;
+    _diagnosticLevel = level ?? _diagnosticLevel;
   }
 
   /// minimum LogLevel to be used if debug is enabled
@@ -137,8 +143,7 @@ class SentryOptions {
 
   Transport get transport => _transport;
 
-  set transport(Transport transport) =>
-      _transport = transport ?? NoOpTransport();
+  set transport(Transport transport) => _transport = transport ?? _transport;
 
   /// Sets the distribution. Think about it together with release and environment
   String dist;
