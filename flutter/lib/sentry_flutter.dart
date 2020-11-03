@@ -32,10 +32,6 @@ mixin SentryFlutter {
       if (defaultOnError != null) {
         defaultOnError(errorDetails);
       }
-
-      // do we need this?
-      // print('Capture from FlutterError ${details.exception}');
-      // Zone.current.handleUncaughtError(details.exception, details.stack);
     };
   }
 
