@@ -21,7 +21,7 @@ void main() {
             options.dsn = _exampleDsn,
 
             // release is required on Web to match the source maps
-            options.release = _release,
+            // options.release = _release,
           },
       initMyApp);
 }

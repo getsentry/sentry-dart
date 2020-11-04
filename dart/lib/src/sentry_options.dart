@@ -165,7 +165,9 @@ class SentryOptions {
   // TODO: sendDefaultPii
 
   // TODO: those ctor params could be set on Sentry._setDefaultConfiguration or instantiate by default here
-  SentryOptions({this.dsn});
+  SentryOptions({this.dsn}) {
+    sdk.addPackage('pub:sentry', sdkVersion);
+  }
 
   /// Adds an event processor
   void addEventProcessor(EventProcessor eventProcessor) {

@@ -1,11 +1,12 @@
 import 'dart:async';
-import 'dart:isolate';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:package_info/package_info.dart';
 import 'package:sentry/sentry.dart';
 
+import 'default_integrations.dart';
 import 'version.dart';
 
 mixin SentryFlutter {
@@ -16,97 +17,68 @@ mixin SentryFlutter {
     return version;
   }
 
-  static void _flutterErrorIntegration(Hub hub, SentryOptions options) {
-    final defaultOnError = FlutterError.onError;
-
-    FlutterError.onError = (FlutterErrorDetails errorDetails) async {
-      options.logger(
-          SentryLevel.debug, 'Capture from onError ${errorDetails.exception}');
-
-      // TODO: create mechanism
-
-      await hub.captureException(
-        errorDetails.exception,
-        stackTrace: errorDetails.stack,
-      );
-
-      // call original handler
-      if (defaultOnError != null) {
-        defaultOnError(errorDetails);
-      }
-    };
-  }
-
-  static void _isolateErrorIntegration(Hub hub, SentryOptions options) {
-    final receivePort = RawReceivePort(
-      (dynamic error) async {
-        options.logger(SentryLevel.debug, 'Capture from IsolateError $error');
-
-        // TODO: create mechanism
-
-        // https://api.dartlang.org/stable/2.7.0/dart-isolate/Isolate/addErrorListener.html
-        // error is a list of 2 elements
-        if (error is List<dynamic> && error.length == 2) {
-          dynamic stackTrace = error.last;
-          if (stackTrace != null) {
-            stackTrace = StackTrace.fromString(stackTrace as String);
-          }
-          await Sentry.captureException(error.first, stackTrace: stackTrace);
-        }
-      },
-    );
-
-    Isolate.current.addErrorListener(receivePort.sendPort);
-  }
-
-  static Integration _runZonedGuardedIntegration(
-    Function callback,
-  ) {
-    void integration(Hub hub, SentryOptions options) {
-      runZonedGuarded(() {
-        // it is necessary to initialize Flutter method channels so that
-        // our plugin can call into the native code.
-        WidgetsFlutterBinding.ensureInitialized();
-
-        // TODO: we could read the window and add some stuff on contexts
-        // final window = WidgetsBinding.instance.window;
-
-        callback();
-      }, (exception, stackTrace) async {
-        // TODO: create mechanism
-
-        await Sentry.captureException(
-          exception,
-          stackTrace: stackTrace,
-        );
-      });
-    }
-
-    return integration;
-  }
-
   static void init(
     OptionsConfiguration optionsConfiguration,
     Function callback,
   ) {
-    Sentry.init((options) {
-      options.debug = kDebugMode;
-
-      if (!kReleaseMode) {
-        options.environment = 'debug';
-      }
-
-      // overwrite sdk info with current flutter sdk
-      options.sdk = const Sdk(name: sdkName, version: sdkVersion);
-
-      // Throws when running on the browser
-      if (!kIsWeb) {
-        options.addIntegration(_isolateErrorIntegration);
-      }
-      options.addIntegration(_flutterErrorIntegration);
-      options.addIntegration(_runZonedGuardedIntegration(callback));
+    Sentry.init((options) async {
+      await _initDefaultValues(options, callback);
 
       optionsConfiguration(options);
     });
+  }
+
+  static Future<void> _initDefaultValues(
+      SentryOptions options, Function callback) async {
+    // it is necessary to initialize Flutter method channels so that
+    // our plugin can call into the native code.
+    WidgetsFlutterBinding.ensureInitialized();
+
+    // TODO: we could read the window and add some stuff on contexts
+    // final window = WidgetsBinding.instance.window;
+
+    options.debug = kDebugMode;
+
+    if (!kReleaseMode) {
+      options.environment = 'debug';
+    }
+
+    options.release = await _formatRelease(options);
+
+    _addDefaultIntegrations(options, callback);
+
+    _setSdk(options);
+  }
+
+  static Future<String> _formatRelease(SentryOptions options) async {
+    final packageInfo = await PackageInfo.fromPlatform();
+
+    final release =
+        '${packageInfo.packageName}@${packageInfo.version}+${packageInfo.buildNumber}';
+    options.logger(SentryLevel.debug, 'release: $release');
+    return release;
+  }
+
+  static void _addDefaultIntegrations(
+      SentryOptions options, Function callback) {
+    // Throws when running on the browser
+    if (!kIsWeb) {
+      options.addIntegration(isolateErrorIntegration);
+    }
+    options.addIntegration(flutterErrorIntegration);
+    options.addIntegration(runZonedGuardedIntegration(callback));
+  }
+
+  static void _setSdk(SentryOptions options) {
+    // overwrite sdk info with current flutter sdk
+    final sdk = Sdk(
+      name: sdkName,
+      version: sdkVersion,
+      integrations:
+          List.from(options.sdk.integrations), // otherwise its readonly
+      packages: List.from(options.sdk.packages),
+    );
+    sdk.addPackage('pub:sentry_flutter', sdkVersion);
+    options.sdk = sdk;
   }
 }
