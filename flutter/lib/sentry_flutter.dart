@@ -17,14 +17,14 @@ mixin SentryFlutter {
     return version;
   }
 
-  static void init(
+  static Future<void> init(
     OptionsConfiguration optionsConfiguration,
     Function callback,
-  ) {
-    Sentry.init((options) async {
+  ) async {
+    await Sentry.init((options) async {
       await _initDefaultValues(options, callback);
 
-      optionsConfiguration(options);
+      await optionsConfiguration(options);
     });
   }
 

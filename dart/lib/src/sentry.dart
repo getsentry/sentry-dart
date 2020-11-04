@@ -8,7 +8,7 @@ import 'sentry_client.dart';
 import 'sentry_options.dart';
 
 /// Configuration options callback
-typedef OptionsConfiguration = void Function(SentryOptions);
+typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
 
 /// Sentry SDK main entry point
 ///
@@ -21,9 +21,9 @@ class Sentry {
   static Hub get currentHub => _hub;
 
   /// Initializes the SDK
-  static void init(OptionsConfiguration optionsConfiguration) {
+  static Future<void> init(OptionsConfiguration optionsConfiguration) async {
     final options = SentryOptions();
-    optionsConfiguration(options);
+    await optionsConfiguration(options);
     _init(options);
   }
 

@@ -15,15 +15,10 @@ const String _exampleDsn =
 
 // Proposed init:
 // https://github.com/bruno-garcia/badges.bar/blob/2450ed9125f7b73d2baad1fa6d676cc71858116c/lib/src/sentry.dart#L9-L32
-void main() {
-  SentryFlutter.init(
-      (options) => {
-            options.dsn = _exampleDsn,
-
-            // release is required on Web to match the source maps
-            // options.release = _release,
-          },
-      initMyApp);
+Future<void> main() async {
+  await SentryFlutter.init((options) {
+    options.dsn = _exampleDsn;
+  }, initMyApp);
 }
 
 void initMyApp() {
