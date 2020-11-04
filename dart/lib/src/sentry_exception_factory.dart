@@ -12,14 +12,18 @@ class SentryExceptionFactory {
 
   SentryException getSentryException(
     dynamic exception, {
-    StackTrace stackTrace,
+    dynamic stackTrace,
     Mechanism mechanism,
   }) {
     if (stackTrace == null && exception is Error) {
       stackTrace = exception.stackTrace;
+    } else {
+      stackTrace ??= StackTrace.current;
     }
-    final sentryStackTrace = SentryStackTrace()
-      ..frames = _stacktraceFactory.getStackFrames(stackTrace);
+
+    final sentryStackTrace = SentryStackTrace(
+      frames: _stacktraceFactory.getStackFrames(stackTrace),
+    );
 
     final sentryException = SentryException(
       type: '${exception.runtimeType}',

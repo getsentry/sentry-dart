@@ -1,21 +1,19 @@
 import 'sentry_stack_frame.dart';
 
 class SentryStackTrace {
-  List<SentryStackFrame> _frames;
+  const SentryStackTrace({
+    List<SentryStackFrame> frames,
+    Map<String, String> registers,
+  })  : _frames = frames,
+        _registers = registers;
+
+  final List<SentryStackFrame> _frames;
 
   List<SentryStackFrame> get frames => List.unmodifiable(_frames);
 
-  set frames(List<SentryStackFrame> frames) {
-    _frames = frames;
-  }
-
-  Map<String, String> _registers;
+  final Map<String, String> _registers;
 
   Map<String, String> get registers => Map.unmodifiable(_registers);
-
-  set registers(Map<String, String> registers) {
-    _registers = registers;
-  }
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
