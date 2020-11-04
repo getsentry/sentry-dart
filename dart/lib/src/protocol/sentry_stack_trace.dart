@@ -28,4 +28,13 @@ class SentryStackTrace {
 
     return json;
   }
+
+  SentryStackTrace copyWith({
+    List<SentryStackFrame> frames,
+    Map<String, String> registers,
+  }) =>
+      SentryStackTrace(
+        frames: frames ?? this.frames,
+        registers: registers ?? this.registers,
+      );
 }
