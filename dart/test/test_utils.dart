@@ -172,7 +172,7 @@ Future testCaptureException(
     expect(data['exception'].first['value'], 'Invalid argument(s): Test error');
   }
 
-  expect(int.tryParse(topFrame['lineno']), greaterThan(0));
+  expect(topFrame['lineno'], greaterThan(0));
   expect(topFrame['in_app'], true);
 
   await client.close();

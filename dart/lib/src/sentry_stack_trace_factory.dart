@@ -31,8 +31,8 @@ class SentryStackTraceFactory {
     final sentryStackFrame = SentryStackFrame()
       ..absPath = '${_absolutePathForCrashReport(frame)}'
       ..function = frame.member
-      ..lineno = '${frame.line}'
-      ..colno = '${frame.column}'
+      ..lineNo = frame.line
+      ..colNo = frame.column
       ..inApp = !frame.isCore;
 
     if (frame.uri.pathSegments.isNotEmpty) {

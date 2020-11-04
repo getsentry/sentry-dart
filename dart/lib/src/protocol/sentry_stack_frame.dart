@@ -9,8 +9,8 @@ class SentryStackFrame {
   String filename;
   String function;
   String module;
-  String lineno;
-  String colno;
+  int lineNo;
+  int colNo;
   String absPath;
   String contextLine;
   bool inApp;
@@ -53,12 +53,12 @@ class SentryStackFrame {
       json['module'] = module;
     }
 
-    if (lineno != null) {
-      json['lineno'] = lineno;
+    if (lineNo != null) {
+      json['lineno'] = lineNo;
     }
 
-    if (colno != null) {
-      json['colno'] = colno;
+    if (colNo != null) {
+      json['colno'] = colNo;
     }
 
     if (absPath != null) {
