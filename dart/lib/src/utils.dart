@@ -16,4 +16,4 @@ String formatDateAsIso8601WithSecondPrecision(DateTime date) {
 }
 
 /// helper to detect a browser context
-const isWeb = identical(1.0, 1);
+const isWeb = identical(0, 0.0);

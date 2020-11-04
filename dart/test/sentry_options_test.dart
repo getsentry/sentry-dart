@@ -1,6 +1,5 @@
 import 'package:http/http.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/diagnostic_logger.dart';
 import 'package:sentry/src/noop_client.dart';
 import 'package:test/test.dart';
 
