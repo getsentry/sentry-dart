@@ -93,7 +93,7 @@ mixin SentryFlutter {
       options.debug = kDebugMode;
 
       if (!kReleaseMode) {
-        options.environment = 'staging';
+        options.environment = 'debug';
       }
 
       // overwrite sdk info with current flutter sdk
