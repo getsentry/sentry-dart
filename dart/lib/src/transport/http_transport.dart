@@ -69,7 +69,7 @@ class HttpTransport implements Transport {
     } else {
       _options.logger(
         SentryLevel.debug,
-        'Event ${event.eventId} was sent suceffully.',
+        'Event ${event.eventId} was sent successfully.',
       );
     }
 
@@ -103,11 +103,12 @@ class _CredentialBuilder {
       : _authHeader = authHeader,
         _clock = clock;
 
-  factory _CredentialBuilder(Dsn dsn, String clientId, ClockProvider clock) {
+  factory _CredentialBuilder(
+      Dsn dsn, String sdkIdentifier, ClockProvider clock) {
     final authHeader = _buildAuthHeader(
       publicKey: dsn.publicKey,
       secretKey: dsn.secretKey,
-      clientId: clientId,
+      sdkIdentifier: sdkIdentifier,
     );
 
     return _CredentialBuilder._(authHeader, clock);
@@ -116,9 +117,9 @@ class _CredentialBuilder {
   static String _buildAuthHeader({
     String publicKey,
     String secretKey,
-    String clientId,
+    String sdkIdentifier,
   }) {
-    var header = 'Sentry sentry_version=6, sentry_client=$clientId, '
+    var header = 'Sentry sentry_version=7, sentry_client=$sdkIdentifier, '
         'sentry_key=$publicKey';
 
     if (secretKey != null) {
