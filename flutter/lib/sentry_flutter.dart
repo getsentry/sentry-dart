@@ -6,6 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:sentry/sentry.dart';
 
+import 'version.dart';
+
 mixin SentryFlutter {
   static const _channel = MethodChannel('sentry_flutter');
 
@@ -93,6 +95,9 @@ mixin SentryFlutter {
       if (!kReleaseMode) {
         options.environment = 'staging';
       }
+
+      // overwrite sdk info with current flutter sdk
+      options.sdk = const Sdk(name: sdkName, version: sdkVersion);
 
       // Throws when running on the browser
       if (!kIsWeb) {
