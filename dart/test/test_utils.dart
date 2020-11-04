@@ -391,9 +391,12 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
         throwable: error,
         user: eventUser,
       );
-      await client.captureEvent(eventWithoutContext,
-          scope: Scope(options)..user = clientUser);
+      await client.captureEvent(
+        eventWithoutContext,
+        scope: Scope(options)..user = clientUser,
+      );
       expect(loggedUserId, clientUser.id);
+
       await client.captureEvent(
         eventWithContext,
         scope: Scope(options)..user = clientUser,

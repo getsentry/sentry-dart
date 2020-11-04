@@ -8,6 +8,5 @@ export 'src/scope.dart';
 export 'src/sentry.dart';
 export 'src/sentry_client.dart';
 export 'src/sentry_options.dart';
-export 'src/sentry_stack_trace_factory.dart';
 export 'src/transport/transport.dart';
 export 'src/version.dart';
