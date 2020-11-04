@@ -207,7 +207,6 @@ class SentryEvent {
 
   /// Serializes this event to JSON.
   Map<String, dynamic> toJson([String origin = '']) {
-    print('SentryEvent.toJson  $origin');
     final json = <String, dynamic>{};
 
     if (eventId != null) {

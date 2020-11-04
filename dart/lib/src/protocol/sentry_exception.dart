@@ -6,29 +6,30 @@ import 'sentry_stack_trace.dart';
 /// The Exception Interface specifies an exception or error that occurred in a program.
 class SentryException {
   /// The type of exception
-  String type;
+  final String type;
 
   /// The value of the exception
-  String value;
+  final String value;
 
   /// The optional module, or package which the exception type lives in.
-  String module;
+  final String module;
 
   /// An optional stack trace object
-  SentryStackTrace stacktrace;
+  final SentryStackTrace stacktrace;
 
   /// An optional object describing the [Mechanism] that created this exception
-  Mechanism mechanism;
+  final Mechanism mechanism;
 
   /// Represents a thread id. not available in Dart
-  int threadId;
+  final int threadId;
 
-  SentryException({
+  const SentryException({
     @required this.type,
     @required this.value,
     this.module,
     this.stacktrace,
     this.mechanism,
+    this.threadId,
   });
 
   Map<String, dynamic> toJson([String origin = '']) {
