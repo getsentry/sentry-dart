@@ -206,7 +206,7 @@ class SentryEvent {
       );
 
   /// Serializes this event to JSON.
-  Map<String, dynamic> toJson([String origin = '']) {
+  Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 
     if (eventId != null) {
@@ -254,7 +254,7 @@ class SentryEvent {
     }
 
     if (exception != null) {
-      json['exception'] = [exception.toJson(origin)];
+      json['exception'] = [exception.toJson()];
     }
 
     if (level != null) {

@@ -7,7 +7,6 @@ import '../protocol.dart';
 import '../sentry_options.dart';
 import '../utils.dart';
 import 'noop_encode.dart' if (dart.library.io) 'encode.dart';
-import 'noop_origin.dart' if (dart.library.html) 'origin.dart';
 import 'transport.dart';
 
 /// A transport is in charge of sending the event to the Sentry server.
@@ -33,7 +32,7 @@ class HttpTransport implements Transport {
 
   @override
   Future<SentryId> send(SentryEvent event) async {
-    final data = event.toJson(eventOrigin);
+    final data = event.toJson();
 
     final body = _bodyEncoder(
       data,
@@ -61,7 +60,7 @@ class HttpTransport implements Transport {
     } else {
       _options.logger(
         SentryLevel.debug,
-        'Event ${event.eventId} was sent suceffully.',
+        'Event ${event.eventId} was sent successfully.',
       );
     }
 

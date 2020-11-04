@@ -32,7 +32,7 @@ class SentryException {
     this.threadId,
   });
 
-  Map<String, dynamic> toJson([String origin = '']) {
+  Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 
     if (type != null) {
@@ -48,7 +48,7 @@ class SentryException {
     }
 
     if (stacktrace != null) {
-      json['stacktrace'] = stacktrace.toJson(origin);
+      json['stacktrace'] = stacktrace.toJson();
     }
 
     if (mechanism != null) {

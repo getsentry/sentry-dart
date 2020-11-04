@@ -1,5 +1,7 @@
 import 'package:stack_trace/stack_trace.dart';
 
+import 'protocol/noop_origin.dart'
+    if (dart.library.html) 'protocol/origin.dart';
 import 'protocol/sentry_stack_frame.dart';
 
 class SentryStackTraceFactory {
@@ -28,16 +30,18 @@ class SentryStackTraceFactory {
   }
 
   SentryStackFrame encodeStackTraceFrame(Frame frame) {
-    final sentryStackFrame = SentryStackFrame()
-      ..absPath = '${_absolutePathForCrashReport(frame)}'
-      ..function = frame.member
-      ..lineNo = frame.line
-      ..colNo = frame.column
-      ..inApp = !frame.isCore;
+    final filename =
+        frame.uri.pathSegments.isNotEmpty ? frame.uri.pathSegments.last : null;
 
-    if (frame.uri.pathSegments.isNotEmpty) {
-      sentryStackFrame.filename = frame.uri.pathSegments.last;
-    }
+    final sentryStackFrame = SentryStackFrame(
+      origin: eventOrigin,
+      absPath: '${_absolutePathForCrashReport(frame)}',
+      function: frame.member,
+      lineNo: frame.line,
+      colNo: frame.column,
+      inApp: !frame.isCore,
+      filename: filename,
+    );
 
     return sentryStackFrame;
   }
