@@ -1,14 +1,19 @@
+import 'package:meta/meta.dart';
+
 import 'protocol/sentry_stack_trace.dart';
 import 'protocol.dart';
+import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
 
 /// class to convert Dart Error and exception to SentryException
 class SentryExceptionFactory {
   final SentryStackTraceFactory _stacktraceFactory;
 
-  const SentryExceptionFactory({
-    SentryStackTraceFactory stacktraceFactory = const SentryStackTraceFactory(),
-  }) : _stacktraceFactory = stacktraceFactory;
+  SentryExceptionFactory({
+    SentryStackTraceFactory stacktraceFactory,
+    @required SentryOptions options,
+  }) : _stacktraceFactory =
+            stacktraceFactory ?? SentryStackTraceFactory(options);
 
   SentryException getSentryException(
     dynamic exception, {

@@ -23,14 +23,14 @@ class SentryClient {
 
   final Random _random;
 
-  final SentryExceptionFactory _exceptionFactory =
-      const SentryExceptionFactory();
+  final SentryExceptionFactory _exceptionFactory;
 
   static final _sentryId = Future.value(SentryId.empty());
 
   /// Instantiates a client using [SentryOptions]
   SentryClient._(this._options)
-      : _random = _options.sampleRate == null ? null : Random();
+      : _exceptionFactory = SentryExceptionFactory(options: _options),
+        _random = _options.sampleRate == null ? null : Random();
 
   /// Reports an [event] to Sentry.io.
   Future<SentryId> captureEvent(

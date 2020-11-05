@@ -4,12 +4,24 @@ import 'package:stack_trace/stack_trace.dart';
 import 'protocol/noop_origin.dart'
     if (dart.library.html) 'protocol/origin.dart';
 import 'protocol/sentry_stack_frame.dart';
+import 'sentry_options.dart';
 
-/// Default factory to SentryStackTrace from an Exception
+/// converts [StackTrace] to [SentryStackFrames]
 class SentryStackTraceFactory {
-  const SentryStackTraceFactory();
+  /// A list of string prefixes of module names that do not belong to the app, but rather third-party
+  /// packages. Modules considered not to be part of the app will be hidden from stack traces by
+  /// default.
+  final List<String> _inAppExcludes;
 
-  /// returns the list stackFrames from a stackTrace ([StackTrace] or [String])
+  /// A list of string prefixes of module names that belong to the app. This option takes precedence
+  /// over inAppExcludes.
+  final List<String> _inAppIncludes;
+
+  SentryStackTraceFactory(SentryOptions options)
+      : _inAppExcludes = options?.inAppExcludes,
+        _inAppIncludes = options?.inAppIncludes;
+
+  /// returns the [SentryStackFrame] list from a stackTrace ([StackTrace] or [String])
   List<SentryStackFrame> getStackFrames(dynamic stackTrace) {
     if (stackTrace == null) return null;
 
@@ -43,8 +55,12 @@ class SentryStackTraceFactory {
       function: frame.member,
       lineNo: frame.line,
       colNo: frame.column,
-      inApp: !frame.isCore,
+      inApp: !frame.isCore /* TODO className != null ? isInApp(className) :*/,
       fileName: fileName,
+      module: frame.library,
+      package: frame.package,
+      // TODO platform, postContext, preContext, rawFunction,
+      // TODO ? native, frame, contextLine, framesOmitted, imageAddr,... ?
     );
 
     return sentryStackFrame;
@@ -64,5 +80,28 @@ class SentryStackTraceFactory {
     }
 
     return '${frame.uri}';
+  }
+
+  ///  Is the className InApp or not.
+  bool isInApp(String className) {
+    if (className == null || className.isEmpty) {
+      return true;
+    }
+
+    if (_inAppIncludes != null) {
+      for (final include in _inAppIncludes) {
+        if (className.startsWith(include)) {
+          return true;
+        }
+      }
+    }
+    if (_inAppExcludes != null) {
+      for (final exclude in _inAppExcludes) {
+        if (className.startsWith(exclude)) {
+          return false;
+        }
+      }
+    }
+    return false;
   }
 }
