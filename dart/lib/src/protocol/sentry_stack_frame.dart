@@ -113,12 +113,12 @@ class SentryStackFrame {
       json['post_context'] = _postContext;
     }
 
-    if (vars?.isNotEmpty ?? false) {
-      json['vars'] = vars;
+    if (_vars != null && _vars.isNotEmpty) {
+      json['vars'] = _vars;
     }
 
-    if (framesOmitted?.isNotEmpty ?? false) {
-      json['frames_omitted'] = framesOmitted;
+    if (_framesOmitted != null && _framesOmitted.isNotEmpty) {
+      json['frames_omitted'] = _framesOmitted;
     }
 
     if (filename != null) {

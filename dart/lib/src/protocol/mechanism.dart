@@ -22,6 +22,8 @@ class Mechanism {
   /// Optional flag indicating whether the exception has been handled by the user (e.g. via try..catch)
   final bool handled;
 
+  final Map<String, dynamic> _meta;
+
   /// Optional information from the operating system or runtime on the exception mechanism
   /// The mechanism meta data usually carries error codes reported by
   /// the runtime or operating system, along with a platform dependent
@@ -29,22 +31,47 @@ class Mechanism {
   /// descriptions for well known error codes, as it will be filled out by
   /// Sentry. For proprietary or vendor-specific error codes,
   /// adding these values will give additional information to the user.
-  final Map<String, dynamic> meta;
+  Map<String, dynamic> get meta => Map.unmodifiable(_meta);
+
+  final Map<String, dynamic> _data;
 
   /// Arbitrary extra data that might help the user understand the error thrown by this mechanism
-  final Map<String, dynamic> data;
+  Map<String, dynamic> get data => Map.unmodifiable(_meta);
 
+  /// An optional flag indicating that this error is synthetic.
+  /// Synthetic errors are errors that carry little meaning by themselves.
+  /// This may be because they are created at a central place (like a crash handler), and are all called the same: Error, Segfault etc. When the flag is set, Sentry will then try to use other information (top in-app frame function) rather than exception type and value in the UI for the primary event display. This flag should be set for all "segfaults" for instance as every single error group would look very similar otherwise.
   final bool synthetic;
 
-  Mechanism({
+  const Mechanism({
     @required this.type,
     this.description,
     this.helpLink,
     this.handled,
-    this.meta,
-    this.data,
     this.synthetic,
-  });
+    Map<String, dynamic> meta,
+    Map<String, dynamic> data,
+  })  : _meta = meta,
+        _data = data;
+
+  Mechanism copyWith({
+    String type,
+    String description,
+    String helpLink,
+    bool handled,
+    Map<String, dynamic> meta,
+    Map<String, dynamic> data,
+    bool synthetic,
+  }) =>
+      Mechanism(
+        type: type ?? this.type,
+        description: description ?? this.description,
+        helpLink: helpLink ?? this.helpLink,
+        handled: handled ?? this.handled,
+        meta: meta ?? this.meta,
+        data: data ?? this.data,
+        synthetic: synthetic ?? this.synthetic,
+      );
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -65,11 +92,11 @@ class Mechanism {
       json['handled'] = handled;
     }
 
-    if (meta != null && meta.isNotEmpty) {
-      json['meta'] = meta;
+    if (_meta != null && _meta.isNotEmpty) {
+      json['meta'] = _meta;
     }
 
-    if (data != null && data.isNotEmpty) {
+    if (_data != null && _data.isNotEmpty) {
       json['data'] = data;
     }
 
