@@ -55,7 +55,7 @@ class SentryStackTraceFactory {
       function: frame.member,
       lineNo: frame.line,
       colNo: frame.column,
-      inApp: !frame.isCore /* TODO className != null ? isInApp(className) :*/,
+      inApp: !frame.isCore && isInApp(frame.uri.scheme),
       fileName: fileName,
       module: frame.library,
       package: frame.package,
