@@ -12,7 +12,7 @@ String formatDateAsIso8601WithSecondPrecision(DateTime date) {
   if (millisecondSeparatorIndex != -1) {
     iso = iso.substring(0, millisecondSeparatorIndex);
   }
-  return iso;
+  return iso + 'Z';
 }
 
 /// helper to detect a browser context

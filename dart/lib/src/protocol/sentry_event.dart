@@ -140,6 +140,8 @@ class SentryEvent {
   /// The SDK Interface describes the Sentry SDK and its configuration used to capture and transmit an event.
   final Sdk sdk;
 
+  final String type = 'event';
+
   SentryEvent copyWith({
     SentryId eventId,
     DateTime timestamp,
@@ -238,12 +240,16 @@ class SentryEvent {
     }
 
     if (exception != null) {
-      json['exception'] = [
-        <String, dynamic>{
-          'type': '${exception.runtimeType}',
-          'value': '$exception',
-        }
-      ];
+      final item = <String, dynamic>{
+        'type': '${exception.runtimeType}',
+        'value': '$exception',
+      };
+      final list = [item];
+
+      json['exception'] = <String, List<Map<String, dynamic>>>{
+        'values': list.map((b) => b).toList(growable: false)
+      };
+
       if (exception is Error && exception.stackTrace != null) {
         json['stacktrace'] = <String, dynamic>{
           'frames': encodeStackTrace(

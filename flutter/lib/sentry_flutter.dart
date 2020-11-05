@@ -1,16 +1,18 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 // import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:package_info/package_info.dart';
 import 'package:sentry/sentry.dart';
 
+import 'FileSystemTransport.dart';
 import 'default_integrations.dart';
 import 'version.dart';
 
 mixin SentryFlutter {
-  // static const _channel = MethodChannel('sentry_flutter');
+  static const _channel = MethodChannel('sentry_flutter');
 
   // static Future<String> get platformVersion async {
   //   final String version = await _channel.invokeMethod('getPlatformVersion');
@@ -38,6 +40,7 @@ mixin SentryFlutter {
     // final window = WidgetsBinding.instance.window;
 
     options.debug = kDebugMode;
+    options.transport = FileSystemTransport(_channel, options);
 
     if (!kReleaseMode) {
       options.environment = 'debug';
@@ -60,13 +63,15 @@ mixin SentryFlutter {
   }
 
   static void _addDefaultIntegrations(
-      SentryOptions options, Function callback) {
+    SentryOptions options,
+    Function callback,
+  ) {
     // Throws when running on the browser
     if (!kIsWeb) {
       options.addIntegration(isolateErrorIntegration);
     }
     options.addIntegration(flutterErrorIntegration);
-    options.addIntegration(nativeSdkIntegration(options));
+    options.addIntegration(nativeSdkIntegration(options, _channel));
     options.addIntegration(runZonedGuardedIntegration(callback));
   }
 

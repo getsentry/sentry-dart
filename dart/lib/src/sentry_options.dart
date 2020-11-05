@@ -162,6 +162,22 @@ class SentryOptions {
     _sdk = sdk ?? _sdk;
   }
 
+  bool _autoSessionTracking = true;
+
+  bool get autoSessionTracking => _autoSessionTracking;
+
+  set autoSessionTracking(bool autoSessionTracking) {
+    _autoSessionTracking = autoSessionTracking ?? _autoSessionTracking;
+  }
+
+  bool _nativeCrashHandling = true;
+
+  bool get nativeCrashHandling => _nativeCrashHandling;
+
+  set nativeCrashHandling(bool nativeCrashHandling) {
+    _nativeCrashHandling = nativeCrashHandling ?? _nativeCrashHandling;
+  }
+
   // TODO: Scope observers, enableScopeSync
 
   // TODO: sendDefaultPii

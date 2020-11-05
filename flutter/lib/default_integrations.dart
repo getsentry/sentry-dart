@@ -80,17 +80,22 @@ Integration runZonedGuardedIntegration(
   return integration;
 }
 
-Integration nativeSdkIntegration(SentryOptions options) {
+Integration nativeSdkIntegration(SentryOptions options, MethodChannel channel) {
   Future<void> integration(Hub hub, SentryOptions options) async {
-    const channel = MethodChannel('sentry_flutter');
 
     await channel.invokeMethod('initNativeSdk', <String, dynamic>{
       'dsn': options.dsn,
       'debug': options.debug,
       'environment': options.environment,
       'release': options.release,
+      'autoSessionTracking': options.autoSessionTracking,
+      'nativeCrashHandling': options.nativeCrashHandling,
       'platform': 'flutter',
-      'web': kIsWeb
+      'web': kIsWeb,
+      'dist': options.dist,
+      'integrations': options.sdk.integrations,
+      'packages':
+          options.sdk.packages.map((e) => e.toJson()).toList(growable: false)
     });
 
     options.sdk.addIntegration('nativeSdkIntegration');
