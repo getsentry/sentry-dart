@@ -55,7 +55,7 @@ class SentryStackTraceFactory {
       function: frame.member,
       lineNo: frame.line,
       colNo: frame.column,
-      inApp: !frame.isCore && isInApp(frame.uri.scheme),
+      inApp: isInApp(frame),
       fileName: fileName,
       module: frame.library,
       package: frame.package,
@@ -82,22 +82,26 @@ class SentryStackTraceFactory {
     return '${frame.uri}';
   }
 
-  ///  Is the className InApp or not.
-  bool isInApp(String className) {
-    if (className == null || className.isEmpty) {
+  /// whether this frame comes from the app and not from Dart core or 3rd party librairies
+  bool isInApp(Frame frame) {
+    if (frame.isCore) return false;
+
+    final scheme = frame.uri.scheme;
+
+    if (scheme == null || scheme.isEmpty) {
       return true;
     }
 
     if (_inAppIncludes != null) {
       for (final include in _inAppIncludes) {
-        if (className.startsWith(include)) {
+        if (scheme.startsWith(include)) {
           return true;
         }
       }
     }
     if (_inAppExcludes != null) {
       for (final exclude in _inAppExcludes) {
-        if (className.startsWith(exclude)) {
+        if (scheme.startsWith(exclude)) {
           return false;
         }
       }
