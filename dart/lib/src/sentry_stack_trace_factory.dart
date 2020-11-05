@@ -84,8 +84,6 @@ class SentryStackTraceFactory {
 
   /// whether this frame comes from the app and not from Dart core or 3rd party librairies
   bool isInApp(Frame frame) {
-    if (frame.isCore || frame.uri.scheme == 'package') return false;
-
     final scheme = frame.uri.scheme;
 
     if (scheme == null || scheme.isEmpty) {
@@ -106,6 +104,8 @@ class SentryStackTraceFactory {
         }
       }
     }
+
+    if (frame.isCore || frame.uri.scheme == 'package') return false;
 
     return true;
   }
