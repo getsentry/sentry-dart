@@ -1,12 +1,15 @@
+import 'package:meta/meta.dart';
 import 'package:stack_trace/stack_trace.dart';
 
 import 'protocol/noop_origin.dart'
     if (dart.library.html) 'protocol/origin.dart';
 import 'protocol/sentry_stack_frame.dart';
 
+/// Default factory to SentryStackTrace from an Exception
 class SentryStackTraceFactory {
   const SentryStackTraceFactory();
 
+  /// returns the list stackFrames from a stackTrace ([StackTrace] or [String])
   List<SentryStackFrame> getStackFrames(dynamic stackTrace) {
     if (stackTrace == null) return [];
 
@@ -29,13 +32,14 @@ class SentryStackTraceFactory {
     return frames.reversed.toList();
   }
 
+  /// converts [Frame] to [SentryStackFrame]
+  @visibleForTesting
   SentryStackFrame encodeStackTraceFrame(Frame frame) {
     final filename =
         frame.uri.pathSegments.isNotEmpty ? frame.uri.pathSegments.last : null;
 
     final sentryStackFrame = SentryStackFrame(
-      origin: eventOrigin,
-      absPath: '${_absolutePathForCrashReport(frame)}',
+      absPath: '$eventOrigin${_absolutePathForCrashReport(frame)}',
       function: frame.member,
       lineNo: frame.line,
       colNo: frame.column,

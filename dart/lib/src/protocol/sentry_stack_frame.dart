@@ -95,9 +95,6 @@ class SentryStackFrame {
   /// The original function name, if the function name is shortened or demangled. Sentry shows the raw function when clicking on the shortened one in the UI.
   final String rawFunction;
 
-  ///
-  final String origin;
-
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 
@@ -138,7 +135,7 @@ class SentryStackFrame {
     }
 
     if (absPath != null) {
-      json['abs_path'] = '$origin$absPath';
+      json['abs_path'] = absPath;
     }
 
     if (contextLine != null) {
