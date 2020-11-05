@@ -45,15 +45,13 @@ void main() async {
 
 ```dart
 import 'dart:async';
-
-import 'package:flutter/material.dart';
-
+import 'package:flutter/widgets.dart';
 import 'package:sentry/sentry.dart';
 
 // Wrap your 'runApp(MyApp())' as follows:
 
-Future<void> main() async {
-  runZonedGuarded<Future<void>>(() async {
+void main() {
+  runZonedGuarded(() {
     runApp(MyApp());
   }, (exception, stackTrace) async {
     await Sentry.captureException(
@@ -67,13 +65,10 @@ Future<void> main() async {
 - For Flutter-specific errors (such as layout failures), use `FlutterError.onError`. For example:
 
 ```dart
-import 'dart:async';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:sentry/sentry.dart';
 
-// Wrap your 'runApp(MyApp())' as follows:
-
-Future<void> main() async {
+void main() {
   FlutterError.onError = (FlutterErrorDetails details) async {
     await Sentry.captureException(
       details.exception,

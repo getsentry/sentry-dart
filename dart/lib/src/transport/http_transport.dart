@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:meta/meta.dart';
+import 'package:http/http.dart';
 
+import '../noop_client.dart';
 import '../protocol.dart';
 import '../sentry_options.dart';
 import '../utils.dart';
@@ -15,18 +16,25 @@ class HttpTransport implements Transport {
 
   final Dsn _dsn;
 
-  CredentialBuilder _credentialBuilder;
+  _CredentialBuilder _credentialBuilder;
 
   final Map<String, String> _headers;
 
-  HttpTransport({@required SentryOptions options})
-      : _options = options,
-        _dsn = Dsn.parse(options.dsn),
-        _headers = _buildHeaders(sdkIdentifier: options.sdk.identifier) {
-    _credentialBuilder = CredentialBuilder(
-      dsn: _dsn,
-      clientId: options.sdk.identifier,
-      clock: options.clock,
+  factory HttpTransport(SentryOptions options) {
+    if (options.httpClient is NoOpClient) {
+      options.httpClient = Client();
+    }
+
+    return HttpTransport._(options);
+  }
+
+  HttpTransport._(this._options)
+      : _dsn = Dsn.parse(_options.dsn),
+        _headers = _buildHeaders(_options.sdk.identifier) {
+    _credentialBuilder = _CredentialBuilder(
+      _dsn,
+      _options.sdk.identifier,
+      _options.clock,
     );
   }
 
@@ -83,30 +91,38 @@ class HttpTransport implements Transport {
   }
 }
 
-class CredentialBuilder {
+class _CredentialBuilder {
   final String _authHeader;
 
-  final ClockProvider clock;
+  final ClockProvider _clock;
 
-  int get timestamp => clock().millisecondsSinceEpoch;
+  int get timestamp => _clock().millisecondsSinceEpoch;
 
-  CredentialBuilder({@required Dsn dsn, String clientId, @required this.clock})
-      : _authHeader = buildAuthHeader(
-          publicKey: dsn.publicKey,
-          secretKey: dsn.secretKey,
-          clientId: clientId,
-        );
+  _CredentialBuilder._(String authHeader, ClockProvider clock)
+      : _authHeader = authHeader,
+        _clock = clock;
 
-  static String buildAuthHeader({
+  factory _CredentialBuilder(
+      Dsn dsn, String sdkIdentifier, ClockProvider clock) {
+    final authHeader = _buildAuthHeader(
+      publicKey: dsn.publicKey,
+      secretKey: dsn.secretKey,
+      sdkIdentifier: sdkIdentifier,
+    );
+
+    return _CredentialBuilder._(authHeader, clock);
+  }
+
+  static String _buildAuthHeader({
     String publicKey,
     String secretKey,
-    String clientId,
+    String sdkIdentifier,
   }) {
-    var header = 'Sentry sentry_version=6, sentry_client=$clientId, '
-        'sentry_key=${publicKey}';
+    var header = 'Sentry sentry_version=7, sentry_client=$sdkIdentifier, '
+        'sentry_key=$publicKey';
 
     if (secretKey != null) {
-      header += ', sentry_secret=${secretKey}';
+      header += ', sentry_secret=$secretKey';
     }
 
     return header;
@@ -122,7 +138,7 @@ class CredentialBuilder {
   }
 }
 
-Map<String, String> _buildHeaders({String sdkIdentifier}) {
+Map<String, String> _buildHeaders(String sdkIdentifier) {
   final headers = {'Content-Type': 'application/json'};
   // NOTE(lejard_h) overriding user agent on VM and Flutter not sure why
   // for web it use browser user agent

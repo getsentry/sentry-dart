@@ -10,6 +10,8 @@
 
 - feat: add contexts to scope
 - feat: add missing protocol classes : Request, Mechanism
+- fix: logger method and refactoring little things
+- fix: sentry protocol is v7
 
 ## 4.0.0-alpha.1
 
