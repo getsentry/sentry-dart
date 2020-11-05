@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:isolate';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:sentry/sentry.dart';
 
 // TODO: we might need flags on options to disable those integrations
@@ -29,6 +30,8 @@ void isolateErrorIntegration(Hub hub, SentryOptions options) {
   );
 
   Isolate.current.addErrorListener(receivePort.sendPort);
+
+  options.sdk.addIntegration('isolateErrorIntegration');
 }
 
 /// integration that capture errors on the FlutterError handler
@@ -51,6 +54,8 @@ void flutterErrorIntegration(Hub hub, SentryOptions options) {
       defaultOnError(errorDetails);
     }
   };
+
+  options.sdk.addIntegration('flutterErrorIntegration');
 }
 
 /// integration that capture errors on the runZonedGuarded error handler
@@ -68,6 +73,27 @@ Integration runZonedGuardedIntegration(
         stackTrace: stackTrace,
       );
     });
+
+    options.sdk.addIntegration('runZonedGuardedIntegration');
+  }
+
+  return integration;
+}
+
+Integration nativeSdkIntegration(SentryOptions options) {
+  Future<void> integration(Hub hub, SentryOptions options) async {
+    const channel = MethodChannel('sentry_flutter');
+
+    await channel.invokeMethod('initNativeSdk', <String, dynamic>{
+      'dsn': options.dsn,
+      'debug': options.debug,
+      'environment': options.environment,
+      'release': options.release,
+      'platform': 'flutter',
+      'web': kIsWeb
+    });
+
+    options.sdk.addIntegration('nativeSdkIntegration');
   }
 
   return integration;

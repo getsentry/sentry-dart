@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:http/http.dart';
 
 import 'diagnostic_logger.dart';
@@ -210,7 +212,7 @@ typedef BeforeBreadcrumbCallback = Breadcrumb Function(
 
 typedef EventProcessor = SentryEvent Function(SentryEvent event, dynamic hint);
 
-typedef Integration = Function(Hub hub, SentryOptions options);
+typedef Integration = FutureOr<void> Function(Hub hub, SentryOptions options);
 
 typedef Logger = Function(SentryLevel level, String message);
 

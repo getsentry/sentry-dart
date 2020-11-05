@@ -1,1 +1,11 @@
-<manifest package="io.sentry.flutter" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="io.sentry.flutter">
+    <application>
+        <provider
+            android:name="io.sentry.android.core.SentryInitProvider"
+            android:authorities="${applicationId}.SentryInitProvider"
+            tools:node="remove" />
+<!--        <meta-data android:name="io.sentry.auto-init" android:value="false" />-->
+    </application>
+</manifest>

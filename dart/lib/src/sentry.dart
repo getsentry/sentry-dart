@@ -24,11 +24,11 @@ class Sentry {
   static Future<void> init(OptionsConfiguration optionsConfiguration) async {
     final options = SentryOptions();
     await optionsConfiguration(options);
-    _init(options);
+    await _init(options);
   }
 
   /// Initializes the SDK
-  static void _init(SentryOptions options) {
+  static Future<void> _init(SentryOptions options) async {
     if (isEnabled) {
       options.logger(
         SentryLevel.warning,
@@ -46,9 +46,9 @@ class Sentry {
     hub.close();
 
     // execute integrations after hub being enabled
-    options.integrations.forEach((integration) {
-      integration(HubAdapter(), options);
-    });
+    for (final integration in options.integrations) {
+      await integration(HubAdapter(), options);
+    }
   }
 
   /// Reports an [event] to Sentry.io.
