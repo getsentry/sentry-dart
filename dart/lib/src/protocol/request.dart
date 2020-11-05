@@ -13,11 +13,20 @@ class Request {
   /// Sentry moves it to the query string.
   final String queryString;
 
+  final dynamic _data;
+
   /// Submitted data in a format that makes the most sense.
   /// SDKs should discard large bodies by default.
   /// Can be given as string or structural data of any format.
-  final dynamic _data;
-  dynamic get data => _data;
+  dynamic get data {
+    if (data is List) {
+      return List.unmodifiable(_data);
+    } else if (data is Map) {
+      return Map.unmodifiable(_data);
+    }
+
+    return _data;
+  }
 
   /// The cookie values as string.
   final String cookies;
@@ -36,8 +45,9 @@ class Request {
   /// This is where information such as CGI/WSGI/Rack keys go that are not HTTP headers.
   Map<String, String> get env => Map.unmodifiable(_env);
 
-  Map<String, String> get other => Map.unmodifiable(_other);
   final Map<String, String> _other;
+
+  Map<String, String> get other => Map.unmodifiable(_other);
 
   const Request({
     this.url,
