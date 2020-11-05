@@ -35,7 +35,7 @@ class SentryStackTraceFactory {
   /// converts [Frame] to [SentryStackFrame]
   @visibleForTesting
   SentryStackFrame encodeStackTraceFrame(Frame frame) {
-    final filename =
+    final fileName =
         frame.uri.pathSegments.isNotEmpty ? frame.uri.pathSegments.last : null;
 
     final sentryStackFrame = SentryStackFrame(
@@ -44,7 +44,7 @@ class SentryStackTraceFactory {
       lineNo: frame.line,
       colNo: frame.column,
       inApp: !frame.isCore,
-      filename: filename,
+      fileName: fileName,
     );
 
     return sentryStackFrame;

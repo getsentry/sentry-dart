@@ -4,7 +4,7 @@ class SentryStackFrame {
 
   SentryStackFrame({
     this.absPath,
-    this.filename,
+    this.fileName,
     this.function,
     this.module,
     this.lineNo,
@@ -59,7 +59,7 @@ class SentryStackFrame {
   List<int> get framesOmitted => List.unmodifiable(_framesOmitted);
 
   /// The relative file path to the call.
-  final String filename;
+  final String fileName;
 
   /// The name of the function being called.
   final String function;
@@ -121,8 +121,8 @@ class SentryStackFrame {
       json['frames_omitted'] = _framesOmitted;
     }
 
-    if (filename != null) {
-      json['filename'] = filename;
+    if (fileName != null) {
+      json['filename'] = fileName;
     }
 
     if (function != null) {
@@ -186,7 +186,7 @@ class SentryStackFrame {
 
   SentryStackFrame copyWith({
     String absPath,
-    String filename,
+    String fileName,
     String function,
     String module,
     int lineNo,
@@ -207,7 +207,7 @@ class SentryStackFrame {
   }) =>
       SentryStackFrame(
         absPath: absPath ?? this.absPath,
-        filename: filename ?? this.filename,
+        fileName: fileName ?? this.fileName,
         function: function ?? this.function,
         module: module ?? this.module,
         lineNo: lineNo ?? this.lineNo,
