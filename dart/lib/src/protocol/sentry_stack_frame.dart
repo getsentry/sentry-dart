@@ -21,7 +21,6 @@ class SentryStackFrame {
     this.symbolAddr,
     this.instructionAddr,
     this.rawFunction,
-    this.origin = '',
     List<int> framesOmitted,
     List<String> preContrxt,
   }) : _framesOmitted = framesOmitted;
