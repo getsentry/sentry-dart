@@ -15,8 +15,8 @@ class SentryExceptionFactory {
     dynamic stackTrace,
     Mechanism mechanism,
   }) {
-    if (stackTrace == null && exception is Error) {
-      stackTrace = exception.stackTrace;
+    if (exception is Error) {
+      stackTrace ??= exception.stackTrace;
     } else {
       stackTrace ??= StackTrace.current;
     }

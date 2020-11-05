@@ -11,7 +11,7 @@ class SentryStackTraceFactory {
 
   /// returns the list stackFrames from a stackTrace ([StackTrace] or [String])
   List<SentryStackFrame> getStackFrames(dynamic stackTrace) {
-    if (stackTrace == null) return [];
+    if (stackTrace == null) return null;
 
     final chain = stackTrace is StackTrace
         ? Chain.forTrace(stackTrace)

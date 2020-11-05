@@ -5,10 +5,10 @@ import 'sentry_stack_trace.dart';
 
 /// The Exception Interface specifies an exception or error that occurred in a program.
 class SentryException {
-  /// The type of exception
+  /// Required. The type of exception
   final String type;
 
-  /// The value of the exception
+  /// Required. The value of the exception
   final String value;
 
   /// The optional module, or package which the exception type lives in.
