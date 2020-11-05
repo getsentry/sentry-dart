@@ -4,9 +4,6 @@ class SentryStackFrame {
 
   SentryStackFrame({
     this.absPath,
-    this.preContext,
-    this.postContext,
-    this.vars,
     this.filename,
     this.function,
     this.module,
@@ -22,20 +19,33 @@ class SentryStackFrame {
     this.instructionAddr,
     this.rawFunction,
     List<int> framesOmitted,
-    List<String> preContrxt,
-  }) : _framesOmitted = framesOmitted;
+    List<String> preContext,
+    List<String> postContext,
+    Map<String, String> vars,
+  })  : _framesOmitted = framesOmitted,
+        _preContext = preContext,
+        _postContext = postContext,
+        _vars = vars;
 
   /// The absolute path to filename.
   final String absPath;
 
-  /// A list of source code lines before context_line (in order) – usually [lineno - 5:lineno].
-  final List<String> preContext;
+  final List<String> _preContext;
 
-  /// A list of source code lines after context_line (in order) – usually [lineno + 1:lineno + 5].
-  final List<String> postContext;
+  /// An immutable list of source code lines before context_line (in order) – usually [lineno - 5:lineno].
+  List<String> get preContext => List.unmodifiable(_preContext);
 
-  /// A mapping of variables which were available within this frame (usually context-locals).
-  final Map<String, String> vars;
+  final List<String> _postContext;
+
+  /// An immutable list of source code lines after context_line (in order) – usually [lineno + 1:lineno + 5].
+  List<String> get postContext => List.unmodifiable(_postContext);
+
+  final Map<String, String> _vars;
+
+  /// An immutable mapping of variables which were available within this frame (usually context-locals).
+  Map<String, String> get vars => Map.unmodifiable(_vars);
+
+  final List<int> _framesOmitted;
 
   /// Which frames were omitted, if any.
   ///
@@ -46,8 +56,6 @@ class SentryStackFrame {
   /// Example : If you only removed the 8th frame, the value would be (8, 9),
   /// meaning it started at the 8th frame, and went untilthe 9th (the number of frames omitted is end-start).
   /// The values should be based on a one-index.
-  final List<int> _framesOmitted;
-
   List<int> get framesOmitted => List.unmodifiable(_framesOmitted);
 
   /// The relative file path to the call.
@@ -97,12 +105,12 @@ class SentryStackFrame {
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 
-    if (preContext?.isNotEmpty ?? false) {
-      json['pre_context'] = preContext;
+    if (_preContext != null && _preContext.isNotEmpty) {
+      json['pre_context'] = _preContext;
     }
 
-    if (postContext?.isNotEmpty ?? false) {
-      json['post_context'] = postContext;
+    if (_postContext != null && _postContext.isNotEmpty) {
+      json['post_context'] = _postContext;
     }
 
     if (vars?.isNotEmpty ?? false) {
@@ -175,4 +183,47 @@ class SentryStackFrame {
 
     return json;
   }
+
+  SentryStackFrame copyWith({
+    String absPath,
+    String filename,
+    String function,
+    String module,
+    int lineNo,
+    int colNo,
+    String contextLine,
+    bool inApp,
+    String package,
+    bool native,
+    String platform,
+    String imageAddr,
+    String symbolAddr,
+    String instructionAddr,
+    String rawFunction,
+    List<int> framesOmitted,
+    List<String> preContext,
+    List<String> postContext,
+    Map<String, String> vars,
+  }) =>
+      SentryStackFrame(
+        absPath: absPath ?? this.absPath,
+        filename: filename ?? this.filename,
+        function: function ?? this.function,
+        module: module ?? this.module,
+        lineNo: lineNo ?? this.lineNo,
+        colNo: colNo ?? this.colNo,
+        contextLine: contextLine ?? this.contextLine,
+        inApp: inApp ?? this.inApp,
+        package: package ?? this.package,
+        native: native ?? this.native,
+        platform: platform ?? this.platform,
+        imageAddr: imageAddr ?? this.imageAddr,
+        symbolAddr: symbolAddr ?? this.symbolAddr,
+        instructionAddr: instructionAddr ?? this.instructionAddr,
+        rawFunction: rawFunction ?? this.rawFunction,
+        framesOmitted: framesOmitted ?? _framesOmitted,
+        preContext: preContext ?? _preContext,
+        postContext: postContext ?? _postContext,
+        vars: vars ?? _vars,
+      );
 }
