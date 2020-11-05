@@ -13,6 +13,9 @@ class Request {
   /// Sentry moves it to the query string.
   final String queryString;
 
+  /// The cookie values as string.
+  final String cookies;
+
   final dynamic _data;
 
   /// Submitted data in a format that makes the most sense.
@@ -27,9 +30,6 @@ class Request {
 
     return _data;
   }
-
-  /// The cookie values as string.
-  final String cookies;
 
   final Map<String, String> _headers;
 

@@ -87,7 +87,7 @@ class SentryClient {
       platform: event.platform ?? sdkPlatform,
     );
 
-    if (event.throwable != null) {
+    if (event.throwable != null && event.exception == null) {
       final sentryException = _exceptionFactory
           .getSentryException(event.throwable, stackTrace: event.stackTrace);
 
