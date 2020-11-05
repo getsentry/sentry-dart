@@ -240,32 +240,25 @@ class SentryEvent {
     }
 
     if (exception != null) {
-      final item = <String, dynamic>{
-        'type': '${exception.runtimeType}',
-        'value': '$exception',
-      };
-      final list = [item];
-
-      json['exception'] = <String, List<Map<String, dynamic>>>{
-        'values': list.map((b) => b).toList(growable: false)
-      };
-
-      if (exception is Error && exception.stackTrace != null) {
-        json['stacktrace'] = <String, dynamic>{
+      var stacktrace = null;
+      if (exception is Error) {
+        stacktrace = <String, dynamic>{
           'frames': encodeStackTrace(
-            exception.stackTrace,
+            exception.stackTrace ?? stackTrace,
             origin: origin,
           ),
         };
       }
-    }
 
-    if (stackTrace != null) {
-      json['stacktrace'] = <String, dynamic>{
-        'frames': encodeStackTrace(
-          stackTrace,
-          origin: origin,
-        ),
+      final item = <String, dynamic>{
+        'type': '${exception.runtimeType}',
+        'value': '$exception',
+        'stacktrace': stacktrace,
+      };
+      final list = [item];
+
+      json['exception'] = <String, List<Map<String, dynamic>>>{
+        'values': list.map((b) => b).toList(growable: false),
       };
     }
 

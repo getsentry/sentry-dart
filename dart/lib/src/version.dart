@@ -29,7 +29,7 @@ String get sdkPlatform => isWeb ? _browserPlatform : _ioSdkPlatform;
 /// The name of the SDK platform reported to Sentry.io in the submitted events.
 ///
 /// Used for IO version.
-const String _ioSdkPlatform = 'dart';
+const String _ioSdkPlatform = 'other';
 
 /// Used to report browser Stacktrace to sentry.
 const String _browserPlatform = 'javascript';
