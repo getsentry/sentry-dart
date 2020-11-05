@@ -12,8 +12,6 @@ void main() {
     test('marks dart: frames as not app frames', () {
       final frame = Frame(Uri.parse('dart:core'), 1, 2, 'buzz');
 
-      print(frame.uri.scheme);
-
       expect(
           SentryStackTraceFactory(SentryOptions())
               .encodeStackTraceFrame(frame)

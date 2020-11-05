@@ -57,10 +57,10 @@ class SentryStackTraceFactory {
       colNo: frame.column,
       inApp: isInApp(frame),
       fileName: fileName,
-      module: frame.library,
       package: frame.package,
       // TODO platform, postContext, preContext, rawFunction,
-      // TODO ? native, frame, contextLine, framesOmitted, imageAddr,... ?
+      // TODO ? module, native, frame, contextLine, framesOmitted, imageAddr,... ?
+      // module: frame.library,
     );
 
     return sentryStackFrame;
@@ -84,7 +84,7 @@ class SentryStackTraceFactory {
 
   /// whether this frame comes from the app and not from Dart core or 3rd party librairies
   bool isInApp(Frame frame) {
-    if (frame.isCore) return false;
+    if (frame.isCore || frame.uri.scheme == 'package') return false;
 
     final scheme = frame.uri.scheme;
 
@@ -106,6 +106,7 @@ class SentryStackTraceFactory {
         }
       }
     }
-    return false;
+
+    return true;
   }
 }
