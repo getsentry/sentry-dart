@@ -34,6 +34,7 @@ class SentryEvent {
     Contexts contexts,
     this.breadcrumbs,
     this.request,
+    this.debugMeta,
   })  : eventId = eventId ?? SentryId.newId(),
         timestamp = timestamp ?? getUtcDateTime(),
         contexts = contexts ?? Contexts();
@@ -152,6 +153,9 @@ class SentryEvent {
   ///  On server, this could be the incoming web request that is being handled
   final Request request;
 
+  /// The debug meta interface carries debug information for processing errors and crash reports.
+  final DebugMeta debugMeta;
+
   SentryEvent copyWith({
     SentryId eventId,
     DateTime timestamp,
@@ -177,6 +181,7 @@ class SentryEvent {
     List<Breadcrumb> breadcrumbs,
     SdkVersion sdk,
     Request request,
+    DebugMeta debugMeta,
   }) =>
       SentryEvent(
         eventId: eventId ?? this.eventId,
@@ -203,6 +208,7 @@ class SentryEvent {
         breadcrumbs: breadcrumbs ?? this.breadcrumbs,
         sdk: sdk ?? this.sdk,
         request: request ?? this.request,
+        debugMeta: debugMeta ?? this.debugMeta,
       );
 
   /// Serializes this event to JSON.
@@ -301,6 +307,10 @@ class SentryEvent {
 
     if (request != null) {
       json['request'] = request.toJson();
+    }
+
+    if (debugMeta != null) {
+      json['debugMeta'] = debugMeta.toJson();
     }
 
     return json;
