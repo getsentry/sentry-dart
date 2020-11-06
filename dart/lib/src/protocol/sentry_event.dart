@@ -240,7 +240,7 @@ class SentryEvent {
     }
 
     if (exception != null) {
-      var stacktrace = null;
+      var stacktrace;
       if (exception is Error) {
         stacktrace = <String, dynamic>{
           'frames': encodeStackTrace(

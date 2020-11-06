@@ -31,9 +31,11 @@ class FileSystemTransport implements Transport {
     final itemHeaderString = _jsonEncoder.convert(itemHeaderMap);
     final envelopeString = '$headerString\n$itemHeaderString\n$eventString';
 
-    await _channel.invokeMethod('captureEnvelope', <String, dynamic>{
-      'event': envelopeString,
-    });
+    // await _channel.invokeMethod('captureEnvelope', <String, dynamic>{
+    //   'event': envelopeString,
+    // });
+    final args = [envelopeString];
+    await _channel.invokeMethod('captureEnvelope', args);
 
     return event.eventId;
   }

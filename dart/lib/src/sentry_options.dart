@@ -162,20 +162,43 @@ class SentryOptions {
     _sdk = sdk ?? _sdk;
   }
 
-  bool _autoSessionTracking = true;
+  bool _enableAutoSessionTracking = true;
 
-  bool get autoSessionTracking => _autoSessionTracking;
+  bool get enableAutoSessionTracking => _enableAutoSessionTracking;
 
-  set autoSessionTracking(bool autoSessionTracking) {
-    _autoSessionTracking = autoSessionTracking ?? _autoSessionTracking;
+  set enableAutoSessionTracking(bool enableAutoSessionTracking) {
+    _enableAutoSessionTracking =
+        enableAutoSessionTracking ?? _enableAutoSessionTracking;
   }
 
-  bool _nativeCrashHandling = true;
+  bool _enableNativeCrashHandling = true;
 
-  bool get nativeCrashHandling => _nativeCrashHandling;
+  bool get enableNativeCrashHandling => _enableNativeCrashHandling;
 
-  set nativeCrashHandling(bool nativeCrashHandling) {
-    _nativeCrashHandling = nativeCrashHandling ?? _nativeCrashHandling;
+  set enableNativeCrashHandling(bool nativeCrashHandling) {
+    _enableNativeCrashHandling =
+        nativeCrashHandling ?? _enableNativeCrashHandling;
+  }
+
+  bool _attachStacktrace = true;
+
+  bool get attachStacktrace => _attachStacktrace;
+
+  set attachStacktrace(bool attachStacktrace) {
+    _attachStacktrace = attachStacktrace ?? _attachStacktrace;
+  }
+
+  int _autoSessionTrackingIntervalMillis = 30000;
+
+  int get autoSessionTrackingIntervalMillis =>
+      _autoSessionTrackingIntervalMillis;
+
+  set autoSessionTrackingIntervalMillis(int autoSessionTrackingIntervalMillis) {
+    _autoSessionTrackingIntervalMillis =
+        (autoSessionTrackingIntervalMillis != null &&
+                autoSessionTrackingIntervalMillis >= 0)
+            ? autoSessionTrackingIntervalMillis
+            : _autoSessionTrackingIntervalMillis;
   }
 
   // TODO: Scope observers, enableScopeSync

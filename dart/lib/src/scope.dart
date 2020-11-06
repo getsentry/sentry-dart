@@ -1,5 +1,7 @@
 import 'dart:collection';
 
+import 'package:sentry/src/utils.dart';
+
 import 'protocol.dart';
 import 'sentry_options.dart';
 
@@ -81,7 +83,15 @@ class Scope {
 
   final SentryOptions _options;
 
-  Scope(this._options) : assert(_options != null, 'SentryOptions is required');
+  Scope(this._options) : assert(_options != null, 'SentryOptions is required') {
+    _addDefaultTags();
+  }
+
+  /// Adds default tags to the Scope
+  void _addDefaultTags() {
+    // TODO: maybe this sgould be a field on options with default values?
+    _tags['flutter_web'] = isWeb.toString();
+  }
 
   /// Adds a breadcrumb to the breadcrumbs queue
   void addBreadcrumb(Breadcrumb breadcrumb, {dynamic hint}) {

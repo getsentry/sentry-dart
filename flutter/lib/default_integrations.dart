@@ -82,14 +82,16 @@ Integration runZonedGuardedIntegration(
 
 Integration nativeSdkIntegration(SentryOptions options, MethodChannel channel) {
   Future<void> integration(Hub hub, SentryOptions options) async {
-
     await channel.invokeMethod('initNativeSdk', <String, dynamic>{
       'dsn': options.dsn,
       'debug': options.debug,
       'environment': options.environment,
       'release': options.release,
-      'autoSessionTracking': options.autoSessionTracking,
-      'nativeCrashHandling': options.nativeCrashHandling,
+      'enableAutoSessionTracking': options.enableAutoSessionTracking,
+      'enableNativeCrashHandling': options.enableNativeCrashHandling,
+      'attachStacktrace': options.attachStacktrace,
+      'autoSessionTrackingIntervalMillis':
+          options.autoSessionTrackingIntervalMillis,
       'platform': 'flutter',
       'web': kIsWeb,
       'dist': options.dist,

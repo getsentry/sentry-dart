@@ -40,26 +40,32 @@ mixin SentryFlutter {
     // final window = WidgetsBinding.instance.window;
 
     options.debug = kDebugMode;
-    options.transport = FileSystemTransport(_channel, options);
+
+    // web still uses a http transport
+    if (!kIsWeb) {
+      options.transport = FileSystemTransport(_channel, options);
+    }
 
     if (!kReleaseMode) {
       options.environment = 'debug';
     }
 
-    options.release = await _formatRelease(options);
+    await _setReleaseAndDist(options);
 
     _addDefaultIntegrations(options, callback);
 
     _setSdk(options);
   }
 
-  static Future<String> _formatRelease(SentryOptions options) async {
+  static Future<void> _setReleaseAndDist(SentryOptions options) async {
     final packageInfo = await PackageInfo.fromPlatform();
 
     final release =
         '${packageInfo.packageName}@${packageInfo.version}+${packageInfo.buildNumber}';
     options.logger(SentryLevel.debug, 'release: $release');
-    return release;
+
+    options.release = release;
+    options.dist = packageInfo.buildNumber;
   }
 
   static void _addDefaultIntegrations(
