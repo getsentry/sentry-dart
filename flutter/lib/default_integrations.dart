@@ -97,7 +97,12 @@ Integration nativeSdkIntegration(SentryOptions options, MethodChannel channel) {
       'dist': options.dist,
       'integrations': options.sdk.integrations,
       'packages':
-          options.sdk.packages.map((e) => e.toJson()).toList(growable: false)
+          options.sdk.packages.map((e) => e.toJson()).toList(growable: false),
+      'diagnosticLevel': options.diagnosticLevel.name,
+      'maxBreadcrumbs': options.maxBreadcrumbs,
+      'anrTimeoutIntervalMillis': options.anrTimeoutIntervalMillis,
+      'enableAutoNativeBreadcrumbs': options.enableAutoNativeBreadcrumbs,
+      'cacheDirSize': options.cacheDirSize,
     });
 
     options.sdk.addIntegration('nativeSdkIntegration');

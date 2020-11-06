@@ -10,10 +10,12 @@ import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
 import io.sentry.android.core.SentryAndroid
 import android.content.Context
-import io.sentry.core.SentryEvent
-import io.sentry.core.SentryOptions
+import io.sentry.SentryEvent
+import io.sentry.SentryLevel
+import io.sentry.SentryOptions
+import io.sentry.protocol.SdkVersion
 import java.io.File
-import java.util.UUID
+import java.util.*
 
 // TODO: maybe this should be done in Java, to avoid stdlib
 // libflutter.so is already 11mb each archie
@@ -28,7 +30,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "sentry_flutter")
     channel.setMethodCallHandler(this)
   }
-
+  // TODO: should we remove this if we do minSDK flutter >= that?
   // Required by Flutter Android projects v1.12 and older
   companion object {
     @JvmStatic
@@ -83,8 +85,22 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
       options.isDebug = args["debug"] as Boolean
       options.isEnableSessionTracking = args["enableAutoSessionTracking"] as Boolean
       options.sessionTrackingIntervalMillis = (args["autoSessionTrackingIntervalMillis"] as Int).toLong()
+      options.anrTimeoutIntervalMillis = (args["anrTimeoutIntervalMillis"] as Int).toLong()
       options.isAttachThreads = false
       options.isAttachStacktrace = args["attachStacktrace"] as Boolean
+
+      val enableAutoNativeBreadcrumbs = args["enableAutoNativeBreadcrumbs"] as Boolean
+      options.isEnableActivityLifecycleBreadcrumbs = enableAutoNativeBreadcrumbs
+      options.isEnableAppLifecycleBreadcrumbs = enableAutoNativeBreadcrumbs
+      options.isEnableSystemEventBreadcrumbs = enableAutoNativeBreadcrumbs
+      options.isEnableAppComponentBreadcrumbs = enableAutoNativeBreadcrumbs
+
+      options.maxBreadcrumbs = args["maxBreadcrumbs"] as Int
+      options.cacheDirSize = args["cacheDirSize"] as Int
+
+      val level = args["diagnosticLevel"] as String
+      val sentryLevel = SentryLevel.valueOf(level.toUpperCase(Locale.ROOT))
+      options.setDiagnosticLevel(sentryLevel)
 
       val nativeCrashHandling = args["enableNativeCrashHandling"] as Boolean
 
@@ -96,12 +112,12 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
 
       options.setBeforeSend { event, _ ->
         setEventOriginTag(event)
+        addPackages(event, options.sdkVersion)
 
         event
       }
 
-      // missing maxBreadcrumbs, diagnosticLevel
-      // add flutter to sdk to packages + integrations
+      // missing proxy, inappincludes/excludes, sendDefaultPii, enableScopeSync
 
       this.options = options
     }
@@ -128,7 +144,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
 
   private fun setEventOriginTag(event: SentryEvent) {
     val sdk = event.sdk
-    if (sdk != null && !sdk.name.isNullOrEmpty()) {
+    if (isValidSdk(sdk)) {
       when (sdk.name) {
         "sentry.dart.flutter" -> setEventEnvironmentTag(event, "flutter", "dart")
         "sentry.java.android" -> setEventEnvironmentTag(event, environment = "java")
@@ -142,7 +158,22 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
     event.setTag("event.environment", environment)
   }
 
-  private fun addPackages(event: SentryEvent) {
+  private fun isValidSdk(sdk: SdkVersion?): Boolean {
+    return (sdk != null && !sdk.name.isNullOrEmpty())
+  }
 
+  private fun addPackages(event: SentryEvent, sdk: SdkVersion?) {
+    if (isValidSdk(event.sdk)) {
+      when (event.sdk.name) {
+        "sentry.dart.flutter" -> {
+          sdk?.packages?.forEach { sentryPackage ->
+            event.sdk.addPackage(sentryPackage.name, sentryPackage.version)
+          }
+          sdk?.integrations?.forEach { integration ->
+            event.sdk.addIntegration(integration)
+          }
+        }
+      }
+    }
   }
 }

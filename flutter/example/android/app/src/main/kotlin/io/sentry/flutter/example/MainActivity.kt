@@ -9,7 +9,7 @@ import androidx.work.WorkerParameters
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
-import io.sentry.core.Sentry
+import io.sentry.Sentry
 
 class MainActivity : FlutterActivity() {
   private val _channel = "example.flutter.sentry.io"
@@ -65,7 +65,6 @@ class MainActivity : FlutterActivity() {
   class BrokenWorker(appContext: Context, workerParams: WorkerParameters) : Worker(appContext, workerParams) {
     override fun doWork(): Result {
       throw RuntimeException("Kotlin background task")
-      return Result.success()
     }
   }
 }

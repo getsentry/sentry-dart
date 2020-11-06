@@ -201,6 +201,36 @@ class SentryOptions {
             : _autoSessionTrackingIntervalMillis;
   }
 
+  int _anrTimeoutIntervalMillis = 5000;
+
+  int get anrTimeoutIntervalMillis => _anrTimeoutIntervalMillis;
+
+  set anrTimeoutIntervalMillis(int anrTimeoutIntervalMillis) {
+    _anrTimeoutIntervalMillis =
+        (anrTimeoutIntervalMillis != null && anrTimeoutIntervalMillis >= 0)
+            ? anrTimeoutIntervalMillis
+            : _anrTimeoutIntervalMillis;
+  }
+
+  bool _enableAutoNativeBreadcrumbs = true;
+
+  get enableAutoNativeBreadcrumbs => _enableAutoNativeBreadcrumbs;
+
+  set enableAutoNativeBreadcrumbs(bool enableAutoNativeBreadcrumbs) {
+    _enableAutoNativeBreadcrumbs =
+        enableAutoNativeBreadcrumbs ?? _enableAutoNativeBreadcrumbs;
+  }
+
+  int _cacheDirSize = 30;
+
+  int get cacheDirSize => _cacheDirSize;
+
+  set cacheDirSize(int cacheDirSize) {
+    _cacheDirSize = (cacheDirSize != null && cacheDirSize >= 0)
+        ? cacheDirSize
+        : _cacheDirSize;
+  }
+
   // TODO: Scope observers, enableScopeSync
 
   // TODO: sendDefaultPii
