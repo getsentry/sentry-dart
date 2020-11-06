@@ -28,8 +28,9 @@ class SentryClient {
   static final _sentryId = Future.value(SentryId.empty());
 
   /// Instantiates a client using [SentryOptions]
-  SentryClient._(this._options)
-      : _exceptionFactory = SentryExceptionFactory(options: _options),
+  SentryClient._(this._options, {SentryExceptionFactory exceptionFactory})
+      : _exceptionFactory =
+            exceptionFactory ?? SentryExceptionFactory(options: _options),
         _random = _options.sampleRate == null ? null : Random();
 
   /// Reports an [event] to Sentry.io.
