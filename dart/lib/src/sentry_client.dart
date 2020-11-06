@@ -13,6 +13,10 @@ import 'version.dart';
 class SentryClient {
   /// Instantiates a client using [SentryOptions]
   factory SentryClient(SentryOptions options) {
+    if (options == null) {
+      throw ArgumentError.notNull('options');
+    }
+
     if (options.transport is NoOpTransport) {
       options.transport = HttpTransport(options);
     }

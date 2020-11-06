@@ -18,8 +18,8 @@ class SentryStackTraceFactory {
   final List<String> _inAppIncludes;
 
   SentryStackTraceFactory(SentryOptions options)
-      : _inAppExcludes = options?.inAppExcludes,
-        _inAppIncludes = options?.inAppIncludes;
+      : _inAppExcludes = options.inAppExcludes,
+        _inAppIncludes = options.inAppIncludes;
 
   /// returns the [SentryStackFrame] list from a stackTrace ([StackTrace] or [String])
   List<SentryStackFrame> getStackFrames(dynamic stackTrace) {

@@ -24,6 +24,11 @@ class Sentry {
   static void init(OptionsConfiguration optionsConfiguration) {
     final options = SentryOptions();
     optionsConfiguration(options);
+
+    if (options == null) {
+      throw ArgumentError('SentryOptions is required.');
+    }
+
     _init(options);
   }
 

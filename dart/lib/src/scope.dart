@@ -81,7 +81,11 @@ class Scope {
 
   final SentryOptions _options;
 
-  Scope(this._options) : assert(_options != null, 'SentryOptions is required');
+  Scope(this._options) {
+    if (_options == null) {
+      throw ArgumentError('SentryOptions is required');
+    }
+  }
 
   /// Adds a breadcrumb to the breadcrumbs queue
   void addBreadcrumb(Breadcrumb breadcrumb, {dynamic hint}) {

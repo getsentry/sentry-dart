@@ -35,11 +35,11 @@ class Hub {
 
   static void _validateOptions(SentryOptions options) {
     if (options == null) {
-      throw ArgumentError.notNull('SentryOptions is required.');
+      throw ArgumentError('SentryOptions is required.');
     }
 
     if (options.dsn?.isNotEmpty != true) {
-      throw ArgumentError.notNull('DSN is required.');
+      throw ArgumentError('DSN is required.');
     }
   }
 

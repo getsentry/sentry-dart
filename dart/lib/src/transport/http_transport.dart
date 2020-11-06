@@ -21,6 +21,10 @@ class HttpTransport implements Transport {
   final Map<String, String> _headers;
 
   factory HttpTransport(SentryOptions options) {
+    if (options == null) {
+      throw ArgumentError.notNull('options');
+    }
+
     if (options.httpClient is NoOpClient) {
       options.httpClient = Client();
     }
