@@ -25,7 +25,7 @@ class NoOpHub implements Hub {
 
   @override
   Future<SentryId> captureException(
-    dynamic exception, {
+    dynamic throwable, {
     dynamic stackTrace,
     dynamic hint,
   }) =>
