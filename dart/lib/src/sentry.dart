@@ -120,8 +120,9 @@ class Sentry {
   static bool _setDefaultConfiguration(SentryOptions options) {
     // if DSN is null, let's crash the App.
     if (options.dsn == null) {
-      throw ArgumentError.notNull(
-          'DSN is required. Use empty string to disable SDK.');
+      throw ArgumentError(
+        'DSN is required. Use empty string to disable SDK.',
+      );
     }
     // if the DSN is empty, let's disable the SDK
     if (options.dsn.isEmpty) {
