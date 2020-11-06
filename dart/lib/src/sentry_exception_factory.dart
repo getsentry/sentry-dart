@@ -7,13 +7,18 @@ import 'sentry_stack_trace_factory.dart';
 
 /// class to convert Dart Error and exception to SentryException
 class SentryExceptionFactory {
-  final SentryStackTraceFactory _stacktraceFactory;
+  SentryStackTraceFactory _stacktraceFactory;
 
   SentryExceptionFactory({
     SentryStackTraceFactory stacktraceFactory,
     @required SentryOptions options,
-  }) : _stacktraceFactory =
-            stacktraceFactory ?? SentryStackTraceFactory(options);
+  }) {
+    if (options == null) {
+      throw ArgumentError('SentryOptions is required.');
+    }
+
+    _stacktraceFactory = stacktraceFactory ?? SentryStackTraceFactory(options);
+  }
 
   SentryException getSentryException(
     dynamic exception, {

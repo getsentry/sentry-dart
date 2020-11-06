@@ -14,7 +14,7 @@ class SentryClient {
   /// Instantiates a client using [SentryOptions]
   factory SentryClient(SentryOptions options) {
     if (options == null) {
-      throw ArgumentError.notNull('options');
+      throw ArgumentError('SentryOptions is required.');
     }
 
     if (options.transport is NoOpTransport) {

@@ -11,15 +11,20 @@ class SentryStackTraceFactory {
   /// A list of string prefixes of module names that do not belong to the app, but rather third-party
   /// packages. Modules considered not to be part of the app will be hidden from stack traces by
   /// default.
-  final List<String> _inAppExcludes;
+  List<String> _inAppExcludes;
 
   /// A list of string prefixes of module names that belong to the app. This option takes precedence
   /// over inAppExcludes.
-  final List<String> _inAppIncludes;
+  List<String> _inAppIncludes;
 
-  SentryStackTraceFactory(SentryOptions options)
-      : _inAppExcludes = options.inAppExcludes,
-        _inAppIncludes = options.inAppIncludes;
+  SentryStackTraceFactory(SentryOptions options) {
+    if (options == null) {
+      throw ArgumentError('SentryOptions is required.');
+    }
+
+    _inAppExcludes = options.inAppExcludes;
+    _inAppIncludes = options.inAppIncludes;
+  }
 
   /// returns the [SentryStackFrame] list from a stackTrace ([StackTrace] or [String])
   List<SentryStackFrame> getStackFrames(dynamic stackTrace) {
