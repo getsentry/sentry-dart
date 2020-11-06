@@ -53,7 +53,6 @@ class SentryStackTraceFactory {
     var sentryStackFrame = SentryStackFrame(
       absPath: '$eventOrigin${_absolutePathForCrashReport(frame)}',
       function: frame.member,
-      colNo: frame.column,
       // https://docs.sentry.io/development/sdk-dev/features/#in-app-frames
       inApp: isInApp(frame),
       fileName: fileName,
@@ -62,10 +61,10 @@ class SentryStackTraceFactory {
       // TODO ? module, native, frame, contextLine, framesOmitted, imageAddr,... ?
       // module: frame.library,
     );
-    if (frame.line >= 0) {
+    if (frame.line != null && frame.line >= 0) {
       sentryStackFrame = sentryStackFrame.copyWith(lineNo: frame.line);
     }
-    if (frame.column >= 0) {
+    if (frame.column != null && frame.column >= 0) {
       sentryStackFrame = sentryStackFrame.copyWith(colNo: frame.column);
     }
 
