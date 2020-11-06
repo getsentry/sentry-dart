@@ -3,17 +3,17 @@
 /// Typically this context is used multiple times if multiple runtimes
 /// are involved (for instance if you have a JavaScript application running
 /// on top of JVM).
-class Runtime {
+class SentryRuntime {
   static const listType = 'runtimes';
   static const type = 'runtime';
 
-  const Runtime({this.key, this.name, this.version, this.rawDescription})
+  const SentryRuntime({this.key, this.name, this.version, this.rawDescription})
       : assert(key == null || key.length >= 1);
 
   /// Key used in the JSON and which will be displayed
   /// in the Sentry UI. Defaults to lower case version of [name].
   ///
-  /// Unused if only one [Runtime] is provided in [Contexts].
+  /// Unused if only one [SentryRuntime] is provided in [Contexts].
   final String key;
 
   /// The name of the runtime.
@@ -47,7 +47,7 @@ class Runtime {
     return json;
   }
 
-  Runtime clone() => Runtime(
+  SentryRuntime clone() => SentryRuntime(
         key: key,
         name: name,
         version: version,

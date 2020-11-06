@@ -33,8 +33,8 @@ void main() {
           name: 'sentry.dart.flutter',
           version: '4.3.2',
           integrations: <String>['integration'],
-          packages: <Package>[
-            Package('npm:@sentry/javascript', '1.3.4'),
+          packages: <SentryPackage>[
+            SentryPackage('npm:@sentry/javascript', '1.3.4'),
           ],
         ),
       );

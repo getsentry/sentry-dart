@@ -5,7 +5,7 @@ import 'app.dart';
 import 'browser.dart';
 import 'device.dart';
 import 'gpu.dart';
-import 'runtime.dart';
+import 'sentry_runtime.dart';
 
 /// The context interfaces provide additional context data.
 ///
@@ -17,14 +17,14 @@ class Contexts extends MapView<String, dynamic> {
   Contexts({
     Device device,
     OperatingSystem operatingSystem,
-    List<Runtime> runtimes,
+    List<SentryRuntime> runtimes,
     App app,
     Browser browser,
     Gpu gpu,
   }) : super({
           Device.type: device,
           OperatingSystem.type: operatingSystem,
-          Runtime.listType: runtimes ?? [],
+          SentryRuntime.listType: runtimes ?? [],
           App.type: app,
           Browser.type: browser,
           Gpu.type: gpu,
@@ -47,11 +47,14 @@ class Contexts extends MapView<String, dynamic> {
   /// Describes a list of runtimes in more detail
   /// (for instance if you have a Flutter application running
   /// on top of Android).
-  List<Runtime> get runtimes => List.unmodifiable(this[Runtime.listType]);
+  List<SentryRuntime> get runtimes =>
+      List.unmodifiable(this[SentryRuntime.listType]);
 
-  void addRuntime(Runtime runtime) => this[Runtime.listType].add(runtime);
+  void addRuntime(SentryRuntime runtime) =>
+      this[SentryRuntime.listType].add(runtime);
 
-  void removeRuntime(Runtime runtime) => this[Runtime.listType].remove(runtime);
+  void removeRuntime(SentryRuntime runtime) =>
+      this[SentryRuntime.listType].remove(runtime);
 
   /// App context describes the application.
   ///
@@ -116,12 +119,12 @@ class Contexts extends MapView<String, dynamic> {
           }
           break;
 
-        case Runtime.listType:
+        case SentryRuntime.listType:
           if (runtimes != null) {
             if (runtimes.length == 1) {
               final runtime = runtimes[0];
               if (runtime != null) {
-                final key = runtime.key ?? Runtime.type;
+                final key = runtime.key ?? SentryRuntime.type;
                 json[key] = runtime.toJson();
               }
             } else if (runtimes.length > 1) {
@@ -138,7 +141,7 @@ class Contexts extends MapView<String, dynamic> {
                   }
 
                   json[key] = runtime.toJson()
-                    ..addAll(<String, String>{'type': Runtime.type});
+                    ..addAll(<String, String>{'type': SentryRuntime.type});
                 }
               }
             }
@@ -173,8 +176,8 @@ class Contexts extends MapView<String, dynamic> {
     App.type,
     Device.type,
     OperatingSystem.type,
-    Runtime.listType,
-    Runtime.type,
+    SentryRuntime.listType,
+    SentryRuntime.type,
     Gpu.type,
     Browser.type,
   ];

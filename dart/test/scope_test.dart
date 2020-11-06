@@ -312,7 +312,7 @@ void main() {
           device: Device(name: 'event-device'),
           app: App(name: 'event-app'),
           gpu: Gpu(name: 'event-gpu'),
-          runtimes: [Runtime(name: 'event-runtime')],
+          runtimes: [SentryRuntime(name: 'event-runtime')],
           browser: Browser(name: 'event-browser'),
           operatingSystem: OperatingSystem(name: 'event-os'),
         ),
@@ -331,8 +331,8 @@ void main() {
           Gpu(name: 'context-gpu'),
         )
         ..setContexts(
-          Runtime.listType,
-          [Runtime(name: 'context-runtime')],
+          SentryRuntime.listType,
+          [SentryRuntime(name: 'context-runtime')],
         )
         ..setContexts(
           Browser.type,
@@ -348,8 +348,8 @@ void main() {
       expect(updatedEvent.contexts[Device.type].name, 'event-device');
       expect(updatedEvent.contexts[App.type].name, 'event-app');
       expect(updatedEvent.contexts[Gpu.type].name, 'event-gpu');
-      expect(
-          updatedEvent.contexts[Runtime.listType].first.name, 'event-runtime');
+      expect(updatedEvent.contexts[SentryRuntime.listType].first.name,
+          'event-runtime');
       expect(updatedEvent.contexts[Browser.type].name, 'event-browser');
       expect(updatedEvent.contexts[OperatingSystem.type].name, 'event-os');
     });
@@ -360,7 +360,8 @@ void main() {
         ..setContexts(Device.type, Device(name: 'context-device'))
         ..setContexts(App.type, App(name: 'context-app'))
         ..setContexts(Gpu.type, Gpu(name: 'context-gpu'))
-        ..setContexts(Runtime.listType, [Runtime(name: 'context-runtime')])
+        ..setContexts(
+            SentryRuntime.listType, [SentryRuntime(name: 'context-runtime')])
         ..setContexts(Browser.type, Browser(name: 'context-browser'))
         ..setContexts(OperatingSystem.type, OperatingSystem(name: 'context-os'))
         ..setContexts('theme', 'material')
@@ -373,7 +374,7 @@ void main() {
       expect(updatedEvent.contexts[App.type].name, 'context-app');
       expect(updatedEvent.contexts[Gpu.type].name, 'context-gpu');
       expect(
-        updatedEvent.contexts[Runtime.listType].first.name,
+        updatedEvent.contexts[SentryRuntime.listType].first.name,
         'context-runtime',
       );
       expect(updatedEvent.contexts[Browser.type].name, 'context-browser');
