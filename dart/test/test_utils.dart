@@ -109,7 +109,7 @@ Future testCaptureException(
   // so we assert the generated and returned id
   data['event_id'] = sentryId.toString();
 
-  final stacktrace = data['exception'].first['stacktrace'];
+  final stacktrace = data['exception']['values'].first['stacktrace'];
 
   expect(stacktrace['frames'], const TypeMatcher<List>());
   expect(stacktrace['frames'], isNotEmpty);
@@ -168,8 +168,9 @@ Future testCaptureException(
     expect(data['server_name'], 'test.server.com');
     expect(data['release'], '1.2.3');
     expect(data['environment'], 'staging');
-    expect(data['exception'].first['type'], 'ArgumentError');
-    expect(data['exception'].first['value'], 'Invalid argument(s): Test error');
+    expect(data['exception']['values'].first['type'], 'ArgumentError');
+    expect(data['exception']['values'].first['value'],
+        'Invalid argument(s): Test error');
   }
 
   expect(topFrame['lineno'], greaterThan(0));
