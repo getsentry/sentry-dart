@@ -151,12 +151,12 @@ class SentryOptions {
   /// The server name used in the Sentry messages.
   String serverName;
 
-  Sdk _sdk = Sdk(name: sdkName, version: sdkVersion);
+  SdkVersion _sdk = SdkVersion(name: sdkName, version: sdkVersion);
 
   /// Sdk object that contains the Sentry Client Name and its version
-  Sdk get sdk => _sdk;
+  SdkVersion get sdk => _sdk;
 
-  set sdk(Sdk sdk) {
+  set sdk(SdkVersion sdk) {
     _sdk = sdk ?? _sdk;
   }
 

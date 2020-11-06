@@ -33,9 +33,9 @@ import 'package.dart';
 /// }
 /// ```
 @immutable
-class Sdk {
-  /// Creates an [Sdk] object which represents the SDK that created an [Event].
-  const Sdk({
+class SdkVersion {
+  /// Creates an [SdkVersion] object which represents the SDK that created an [Event].
+  const SdkVersion({
     @required this.name,
     @required this.version,
     this.integrations,

@@ -24,12 +24,12 @@ void main() {
         },
       );
     });
-    test('$Sdk serializes', () {
+    test('$SdkVersion serializes', () {
       final event = SentryEvent(
         eventId: SentryId.empty(),
         timestamp: DateTime.utc(2019),
         platform: sdkPlatform,
-        sdk: Sdk(
+        sdk: SdkVersion(
           name: 'sentry.dart.flutter',
           version: '4.3.2',
           integrations: <String>['integration'],
