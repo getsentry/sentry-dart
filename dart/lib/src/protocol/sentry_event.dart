@@ -260,7 +260,9 @@ class SentryEvent {
     }
 
     if (exception != null) {
-      json['exception'] = [exception.toJson()];
+      json['exception'] = {
+        'values': [exception.toJson()].toList(growable: false)
+      };
     }
 
     if (level != null) {
