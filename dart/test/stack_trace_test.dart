@@ -41,12 +41,29 @@ void main() {
 
     test('send exception package', () {
       final frame = Frame(Uri.parse('package:toolkit/baz.dart'), 1, 2, 'buzz');
-      expect(
-        SentryStackTraceFactory(SentryOptions())
-            .encodeStackTraceFrame(frame)
-            .toJson()['package'],
-        'toolkit',
-      );
+      final serializedFrame =
+          SentryStackTraceFactory(SentryOptions()..addInAppExclude('toolkit'))
+              .encodeStackTraceFrame(frame)
+              .toJson();
+      expect(serializedFrame['package'], 'toolkit');
+    });
+
+    test('send exception inAppExcludes', () {
+      final frame = Frame(Uri.parse('package:toolkit/baz.dart'), 1, 2, 'buzz');
+      final serializedFrame =
+          SentryStackTraceFactory(SentryOptions()..addInAppExclude('toolkit'))
+              .encodeStackTraceFrame(frame)
+              .toJson();
+      expect(serializedFrame['in_app'], false);
+    });
+
+    test('send exception inAppIncludes', () {
+      final frame = Frame(Uri.parse('package:toolkit/baz.dart'), 1, 2, 'buzz');
+      final serializedFrame =
+          SentryStackTraceFactory(SentryOptions()..addInAppInclude('toolkit'))
+              .encodeStackTraceFrame(frame)
+              .toJson();
+      expect(serializedFrame['in_app'], true);
     });
   });
 

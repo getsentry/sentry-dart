@@ -128,14 +128,14 @@ class SentryOptions {
 
   final List<String> _inAppExcludes = [];
 
-  /// A list of string prefixes of module names that do not belong to the app, but rather third-party
+  /// A list of string prefixes of packages names that do not belong to the app, but rather third-party
   /// packages. Modules considered not to be part of the app will be hidden from stack traces by
   /// default.
   List<String> get inAppExcludes => List.unmodifiable(_inAppExcludes);
 
   final List<String> _inAppIncludes = [];
 
-  /// A list of string prefixes of module names that belong to the app. This option takes precedence
+  /// A list of string prefixes of packages names that belong to the app. This option takes precedence
   /// over inAppExcludes.
   List<String> get inAppIncludes => List.unmodifiable(_inAppIncludes);
 
