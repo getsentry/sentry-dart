@@ -48,7 +48,7 @@ void main() {
       expect(serializedFrame['package'], 'toolkit');
     });
 
-    test('send exception inAppExcludes', () {
+    test('apply inAppExcludes', () {
       final frame = Frame(Uri.parse('package:toolkit/baz.dart'), 1, 2, 'buzz');
       final serializedFrame =
           SentryStackTraceFactory(SentryOptions()..addInAppExclude('toolkit'))
@@ -57,7 +57,7 @@ void main() {
       expect(serializedFrame['in_app'], false);
     });
 
-    test('send exception inAppIncludes', () {
+    test('apply inAppIncludes', () {
       final frame = Frame(Uri.parse('package:toolkit/baz.dart'), 1, 2, 'buzz');
       final serializedFrame =
           SentryStackTraceFactory(SentryOptions()..addInAppInclude('toolkit'))
@@ -66,7 +66,7 @@ void main() {
       expect(serializedFrame['in_app'], true);
     });
 
-    test('send exception inAppIncludes precedence', () {
+    test('apply inAppIncludes with precedence', () {
       final frame = Frame(Uri.parse('package:toolkit/baz.dart'), 1, 2, 'buzz');
       final serializedFrame = SentryStackTraceFactory(SentryOptions()
             ..addInAppInclude('toolkit')
