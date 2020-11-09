@@ -65,6 +65,16 @@ void main() {
               .toJson();
       expect(serializedFrame['in_app'], true);
     });
+
+    test('send exception inAppIncludes precedence', () {
+      final frame = Frame(Uri.parse('package:toolkit/baz.dart'), 1, 2, 'buzz');
+      final serializedFrame = SentryStackTraceFactory(SentryOptions()
+            ..addInAppInclude('toolkit')
+            ..addInAppExclude('toolkit'))
+          .encodeStackTraceFrame(frame)
+          .toJson();
+      expect(serializedFrame['in_app'], true);
+    });
   });
 
   group('encodeStackTrace', () {
