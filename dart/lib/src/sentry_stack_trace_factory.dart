@@ -3,7 +3,7 @@ import 'package:stack_trace/stack_trace.dart';
 
 import 'protocol/noop_origin.dart'
     if (dart.library.html) 'protocol/origin.dart';
-import 'protocol/sentry_stack_frame.dart';
+import 'protocol.dart';
 import 'sentry_options.dart';
 
 /// converts [StackTrace] to [SentryStackFrames]

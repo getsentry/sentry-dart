@@ -1,7 +1,6 @@
 import 'package:meta/meta.dart';
 
-import 'mechanism.dart';
-import 'sentry_stack_trace.dart';
+import '../protocol.dart';
 
 /// The Exception Interface specifies an exception or error that occurred in a program.
 class SentryException {

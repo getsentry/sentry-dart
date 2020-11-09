@@ -1,11 +1,6 @@
 import 'dart:collection';
 
 import '../protocol.dart';
-import 'app.dart';
-import 'browser.dart';
-import 'device.dart';
-import 'gpu.dart';
-import 'sentry_runtime.dart';
 
 /// The context interfaces provide additional context data.
 ///
