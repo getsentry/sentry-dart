@@ -104,6 +104,18 @@ void main() {
               versionMinor: 1,
               versionPatchlevel: 2,
             ),
+            images: [
+              DebugImage(
+                type: 'macho',
+                debugId: '84a04d24-0e60-3810-a8c0-90a65e2df61a',
+                debugFile: 'libDiagnosticMessagesClient.dylib',
+                codeFile: '/usr/lib/libDiagnosticMessagesClient.dylib',
+                imageAddr: '0x7fffe668e000',
+                imageSize: 8192,
+                arch: 'x86_64',
+                codeId: '123',
+              )
+            ],
           ),
         ).toJson(),
         <String, dynamic>{
@@ -149,7 +161,19 @@ void main() {
               'version_major': 4,
               'version_minor': 1,
               'version_patchlevel': 2
-            }
+            },
+            'images': [
+              <String, dynamic>{
+                'type': 'macho',
+                'debug_id': '84a04d24-0e60-3810-a8c0-90a65e2df61a',
+                'debug_file': 'libDiagnosticMessagesClient.dylib',
+                'code_file': '/usr/lib/libDiagnosticMessagesClient.dylib',
+                'image_addr': '0x7fffe668e000',
+                'image_size': 8192,
+                'arch': 'x86_64',
+                'code_id': '123',
+              },
+            ]
           }
         },
       );

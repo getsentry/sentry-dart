@@ -67,7 +67,7 @@ class DebugImage {
     }
 
     if (codeFile != null) {
-      json['codeFile'] = codeFile;
+      json['code_file'] = codeFile;
     }
 
     if (imageAddr != null) {
@@ -75,7 +75,7 @@ class DebugImage {
     }
 
     if (imageSize != null) {
-      json['imageSize'] = imageSize;
+      json['image_size'] = imageSize;
     }
 
     if (arch != null) {
@@ -83,7 +83,7 @@ class DebugImage {
     }
 
     if (codeId != null) {
-      json['codeId'] = codeId;
+      json['code_id'] = codeId;
     }
 
     return json;
