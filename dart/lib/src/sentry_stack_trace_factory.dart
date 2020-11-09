@@ -101,14 +101,14 @@ class SentryStackTraceFactory {
 
     if (_inAppIncludes != null) {
       for (final include in _inAppIncludes) {
-        if (frame.package.startsWith(include)) {
+        if (frame.package != null && frame.package.startsWith(include)) {
           return true;
         }
       }
     }
     if (_inAppExcludes != null) {
       for (final exclude in _inAppExcludes) {
-        if (frame.package.startsWith(exclude)) {
+        if (frame.package != null && frame.package.startsWith(exclude)) {
           return false;
         }
       }
