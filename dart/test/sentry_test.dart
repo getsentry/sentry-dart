@@ -101,4 +101,8 @@ void main() {
       expect(called, true);
     });
   });
+
+  test("options can't be null", () {
+    expect(() => Sentry.init((options) => options = null), throwsArgumentError);
+  });
 }

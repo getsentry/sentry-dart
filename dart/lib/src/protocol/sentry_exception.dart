@@ -55,6 +55,10 @@ class SentryException {
       json['mechanism'] = mechanism.toJson();
     }
 
+    if (threadId != null) {
+      json['thread_id'] = threadId;
+    }
+
     return json;
   }
 }

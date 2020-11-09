@@ -229,6 +229,10 @@ void main() {
       verify(options.transport.send(any)).called(1);
     });
   });
+
+  test("options can't be null", () {
+    expect(() => SentryClient(null), throwsArgumentError);
+  });
 }
 
 SentryEvent beforeSendCallbackDropEvent(SentryEvent event, dynamic hint) =>

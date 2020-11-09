@@ -125,6 +125,10 @@ class SentryStackFrame {
       json['filename'] = fileName;
     }
 
+    if (package != null) {
+      json['package'] = package;
+    }
+
     if (function != null) {
       json['function'] = function;
     }

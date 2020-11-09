@@ -393,6 +393,10 @@ void main() {
       expect(updatedEvent.level, SentryLevel.error);
     });
   });
+
+  test("options can't be null", () {
+    expect(() => Scope(null), throwsArgumentError);
+  });
 }
 
 class Fixture {

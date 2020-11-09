@@ -62,13 +62,12 @@ class SentryStackTraceFactory {
       inApp: isInApp(frame),
       fileName: fileName,
       package: frame.package,
-      // TODO platform, postContext, preContext, rawFunction,
-      // TODO ? module, native, frame, contextLine, framesOmitted, imageAddr,... ?
-      // module: frame.library,
     );
+
     if (frame.line != null && frame.line >= 0) {
       sentryStackFrame = sentryStackFrame.copyWith(lineNo: frame.line);
     }
+
     if (frame.column != null && frame.column >= 0) {
       sentryStackFrame = sentryStackFrame.copyWith(colNo: frame.column);
     }

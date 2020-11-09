@@ -1,3 +1,6 @@
+/// The Request interface contains information on a HTTP request related to the event.
+/// In client SDKs, this can be an outgoing request, or the request that rendered the current web page.
+/// On server SDKs, this could be the incoming web request that is being handled.
 class Request {
   ///The URL of the request if available.
   ///The query string can be declared either as part of the url,
@@ -22,9 +25,9 @@ class Request {
   /// SDKs should discard large bodies by default.
   /// Can be given as string or structural data of any format.
   dynamic get data {
-    if (data is List) {
+    if (_data is List) {
       return List.unmodifiable(_data);
-    } else if (data is Map) {
+    } else if (_data is Map) {
       return Map.unmodifiable(_data);
     }
 
@@ -37,17 +40,19 @@ class Request {
   /// If a header appears multiple times it,
   /// needs to be merged according to the HTTP standard for header merging.
   /// Header names are treated case-insensitively by Sentry.
-  Map<String, String> get headers => Map.unmodifiable(_headers);
+  Map<String, String> get headers =>
+      _headers != null ? Map.unmodifiable(_headers) : null;
 
   final Map<String, String> _env;
 
   /// A dictionary containing environment information passed from the server.
   /// This is where information such as CGI/WSGI/Rack keys go that are not HTTP headers.
-  Map<String, String> get env => Map.unmodifiable(_env);
+  Map<String, String> get env => _env != null ? Map.unmodifiable(_env) : null;
 
   final Map<String, String> _other;
 
-  Map<String, String> get other => Map.unmodifiable(_other);
+  Map<String, String> get other =>
+      _other != null ? Map.unmodifiable(_other) : null;
 
   const Request({
     this.url,
@@ -78,8 +83,8 @@ class Request {
       json['query_string'] = queryString;
     }
 
-    if (data != null) {
-      json['data'] = data;
+    if (_data != null) {
+      json['data'] = _data;
     }
 
     if (cookies != null) {

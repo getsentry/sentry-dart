@@ -34,6 +34,15 @@ void main() {
               .toJson()['abs_path'],
           'baz.dart');
     });
+
+    test('send exception package', () {
+      final frame = Frame(Uri.parse('package:toolkit/baz.dart'), 1, 2, 'buzz');
+      expect(
+          SentryStackTraceFactory(SentryOptions())
+              .encodeStackTraceFrame(frame)
+              .toJson()['package'],
+          'toolkit');
+    });
   });
 
   group('encodeStackTrace', () {

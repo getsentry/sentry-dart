@@ -143,19 +143,6 @@ Future testCaptureException(
     expect(data['environment'], 'staging');
     expect(data['exception'].first['type'], 'ArgumentError');
     expect(data['exception'].first['value'], 'Invalid argument(s): Test error');
-
-    /*expect(data, {
-      'event_id': sentryId.toString(),
-      'timestamp': '2017-01-02T00:00:00',
-      'platform': 'javascript',
-      'sdk': {'version': sdkVersion, 'name': sdkName},
-      'server_name': 'test.server.com',
-      'release': '1.2.3',
-      'environment': 'staging',
-      'exception': [
-        {'type': 'ArgumentError', 'value': 'Invalid argument(s): Test error'}
-      ],
-    });*/
   } else {
     expect(topFrame['abs_path'], 'test_utils.dart');
     expect(topFrame['filename'], 'test_utils.dart');

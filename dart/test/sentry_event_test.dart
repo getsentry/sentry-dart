@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/protocol/request.dart';
 import 'package:sentry/src/utils.dart';
 import 'package:test/test.dart';
 
@@ -69,34 +70,39 @@ void main() {
             category: 'test'),
       ];
 
-      final error = StateError('test-error');
+      final request = Request(url: 'https://api.com/users', method: 'GET');
 
       expect(
         SentryEvent(
-          eventId: SentryId.empty(),
-          timestamp: timestamp,
-          platform: sdkPlatform,
-          message: Message(
-            'test-message 1 2',
-            template: 'test-message %d %d',
-            params: ['1', '2'],
-          ),
-          transaction: '/test/1',
-          throwable: error,
-          level: SentryLevel.debug,
-          culprit: 'Professor Moriarty',
-          tags: const <String, String>{
-            'a': 'b',
-            'c': 'd',
-          },
-          extra: const <String, dynamic>{
-            'e': 'f',
-            'g': 2,
-          },
-          fingerprint: const <String>[SentryEvent.defaultFingerprint, 'foo'],
-          user: user,
-          breadcrumbs: breadcrumbs,
-        ).toJson(),
+                eventId: SentryId.empty(),
+                timestamp: timestamp,
+                platform: sdkPlatform,
+                message: Message(
+                  'test-message 1 2',
+                  template: 'test-message %d %d',
+                  params: ['1', '2'],
+                ),
+                transaction: '/test/1',
+                level: SentryLevel.debug,
+                culprit: 'Professor Moriarty',
+                tags: const <String, String>{
+                  'a': 'b',
+                  'c': 'd',
+                },
+                extra: const <String, dynamic>{
+                  'e': 'f',
+                  'g': 2,
+                },
+                fingerprint: const <String>[
+                  SentryEvent.defaultFingerprint,
+                  'foo'
+                ],
+                user: user,
+                breadcrumbs: breadcrumbs,
+                request: request,
+                debugMeta: DebugMeta(
+                    sdk: SdkInfo(sdkName: 'sentry.dart', versionMajor: 4)))
+            .toJson(),
         <String, dynamic>{
           'platform': isWeb ? 'javascript' : 'dart',
           'event_id': '00000000000000000000000000000000',
@@ -130,6 +136,58 @@ void main() {
               },
             ]
           },
+          'request': {
+            'url': request.url,
+            'method': request.method,
+          }
+        },
+      );
+    });
+
+    test('should not serialize throwable', () {
+      final error = StateError('test-error');
+
+      final serialized = SentryEvent(throwable: error).toJson();
+      expect(serialized['throwable'], null);
+      expect(serialized['stacktrace'], null);
+      expect(serialized['exception'], null);
+    });
+
+    test('serializes to JSON with sentryException', () {
+      var sentryException;
+      try {
+        throw StateError('an error');
+      } catch (err) {
+        sentryException = SentryException(
+          type: '${err.runtimeType}',
+          value: '$err',
+          mechanism: Mechanism(
+            type: 'mech-type',
+            description: 'a description',
+            helpLink: 'https://help.com',
+            synthetic: false,
+            handled: true,
+            meta: {},
+            data: {},
+          ),
+        );
+      }
+
+      final serialized = SentryEvent(exception: sentryException).toJson();
+
+      expect(serialized['exception']['values'].first['type'], 'StateError');
+      expect(
+        serialized['exception']['values'].first['value'],
+        'Bad state: an error',
+      );
+      expect(
+        serialized['exception']['values'].first['mechanism'],
+        {
+          'type': 'mech-type',
+          'description': 'a description',
+          'help_link': 'https://help.com',
+          'synthetic': false,
+          'handled': true,
         },
       );
     });

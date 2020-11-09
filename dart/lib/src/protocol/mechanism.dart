@@ -36,7 +36,7 @@ class Mechanism {
   final Map<String, dynamic> _data;
 
   /// Arbitrary extra data that might help the user understand the error thrown by this mechanism
-  Map<String, dynamic> get data => Map.unmodifiable(_meta);
+  Map<String, dynamic> get data => Map.unmodifiable(_data);
 
   /// An optional flag indicating that this error is synthetic.
   /// Synthetic errors are errors that carry little meaning by themselves.
@@ -97,7 +97,7 @@ class Mechanism {
     }
 
     if (_data != null && _data.isNotEmpty) {
-      json['data'] = data;
+      json['data'] = _data;
     }
 
     if (synthetic != null) {
