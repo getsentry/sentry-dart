@@ -24,6 +24,11 @@ class Sentry {
   static void init(OptionsConfiguration optionsConfiguration) {
     final options = SentryOptions();
     optionsConfiguration(options);
+
+    if (options == null) {
+      throw ArgumentError('SentryOptions is required.');
+    }
+
     _init(options);
   }
 
@@ -58,14 +63,14 @@ class Sentry {
   }) async =>
       currentHub.captureEvent(event, hint: hint);
 
-  /// Reports the [exception] and optionally its [stackTrace] to Sentry.io.
+  /// Reports the [throwable] and optionally its [stackTrace] to Sentry.io.
   static Future<SentryId> captureException(
-    dynamic exception, {
+    dynamic throwable, {
     dynamic stackTrace,
     dynamic hint,
   }) async =>
       currentHub.captureException(
-        exception,
+        throwable,
         stackTrace: stackTrace,
         hint: hint,
       );
@@ -115,8 +120,9 @@ class Sentry {
   static bool _setDefaultConfiguration(SentryOptions options) {
     // if DSN is null, let's crash the App.
     if (options.dsn == null) {
-      throw ArgumentError.notNull(
-          'DSN is required. Use empty string to disable SDK.');
+      throw ArgumentError(
+        'DSN is required. Use empty string to disable SDK.',
+      );
     }
     // if the DSN is empty, let's disable the SDK
     if (options.dsn.isEmpty) {

@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/stack_trace.dart';
+import 'package:sentry/src/protocol/request.dart';
 import 'package:sentry/src/utils.dart';
 import 'package:test/test.dart';
 
@@ -25,17 +25,17 @@ void main() {
         },
       );
     });
-    test('$Sdk serializes', () {
+    test('$SdkVersion serializes', () {
       final event = SentryEvent(
         eventId: SentryId.empty(),
         timestamp: DateTime.utc(2019),
         platform: sdkPlatform,
-        sdk: Sdk(
+        sdk: SdkVersion(
           name: 'sentry.dart.flutter',
           version: '4.3.2',
           integrations: <String>['integration'],
-          packages: <Package>[
-            Package('npm:@sentry/javascript', '1.3.4'),
+          packages: <SentryPackage>[
+            SentryPackage('npm:@sentry/javascript', '1.3.4'),
           ],
         ),
       );
@@ -70,7 +70,7 @@ void main() {
             category: 'test'),
       ];
 
-      final error = StateError('test-error');
+      final request = Request(url: 'https://api.com/users', method: 'GET');
 
       expect(
         SentryEvent(
@@ -83,7 +83,6 @@ void main() {
             params: ['1', '2'],
           ),
           transaction: '/test/1',
-          exception: error,
           level: SentryLevel.debug,
           culprit: 'Professor Moriarty',
           tags: const <String, String>{
@@ -97,6 +96,27 @@ void main() {
           fingerprint: const <String>[SentryEvent.defaultFingerprint, 'foo'],
           user: user,
           breadcrumbs: breadcrumbs,
+          request: request,
+          debugMeta: DebugMeta(
+            sdk: SdkInfo(
+              sdkName: 'sentry.dart',
+              versionMajor: 4,
+              versionMinor: 1,
+              versionPatchlevel: 2,
+            ),
+            images: [
+              DebugImage(
+                type: 'macho',
+                debugId: '84a04d24-0e60-3810-a8c0-90a65e2df61a',
+                debugFile: 'libDiagnosticMessagesClient.dylib',
+                codeFile: '/usr/lib/libDiagnosticMessagesClient.dylib',
+                imageAddr: '0x7fffe668e000',
+                imageSize: 8192,
+                arch: 'x86_64',
+                codeId: '123',
+              )
+            ],
+          ),
         ).toJson(),
         <String, dynamic>{
           'platform': isWeb ? 'javascript' : 'dart',
@@ -109,9 +129,6 @@ void main() {
             'params': ['1', '2']
           },
           'transaction': '/test/1',
-          'exception': [
-            {'type': 'StateError', 'value': 'Bad state: test-error'}
-          ],
           'level': 'debug',
           'culprit': 'Professor Moriarty',
           'tags': {'a': 'b', 'c': 'd'},
@@ -134,18 +151,79 @@ void main() {
               },
             ]
           },
-        }..addAll(
-            error.stackTrace == null
-                ? {}
-                : {
-                    'stacktrace': {
-                      'frames': encodeStackTrace(
-                        error.stackTrace,
-                        origin: null,
-                      )
-                    }
-                  },
+          'request': {
+            'url': request.url,
+            'method': request.method,
+          },
+          'debug_meta': {
+            'sdk_info': {
+              'sdk_name': 'sentry.dart',
+              'version_major': 4,
+              'version_minor': 1,
+              'version_patchlevel': 2
+            },
+            'images': [
+              <String, dynamic>{
+                'type': 'macho',
+                'debug_id': '84a04d24-0e60-3810-a8c0-90a65e2df61a',
+                'debug_file': 'libDiagnosticMessagesClient.dylib',
+                'code_file': '/usr/lib/libDiagnosticMessagesClient.dylib',
+                'image_addr': '0x7fffe668e000',
+                'image_size': 8192,
+                'arch': 'x86_64',
+                'code_id': '123',
+              },
+            ]
+          }
+        },
+      );
+    });
+
+    test('should not serialize throwable', () {
+      final error = StateError('test-error');
+
+      final serialized = SentryEvent(throwable: error).toJson();
+      expect(serialized['throwable'], null);
+      expect(serialized['stacktrace'], null);
+      expect(serialized['exception'], null);
+    });
+
+    test('serializes to JSON with sentryException', () {
+      var sentryException;
+      try {
+        throw StateError('an error');
+      } catch (err) {
+        sentryException = SentryException(
+          type: '${err.runtimeType}',
+          value: '$err',
+          mechanism: Mechanism(
+            type: 'mech-type',
+            description: 'a description',
+            helpLink: 'https://help.com',
+            synthetic: false,
+            handled: true,
+            meta: {},
+            data: {},
           ),
+        );
+      }
+
+      final serialized = SentryEvent(exception: sentryException).toJson();
+
+      expect(serialized['exception']['values'].first['type'], 'StateError');
+      expect(
+        serialized['exception']['values'].first['value'],
+        'Bad state: an error',
+      );
+      expect(
+        serialized['exception']['values'].first['mechanism'],
+        {
+          'type': 'mech-type',
+          'description': 'a description',
+          'help_link': 'https://help.com',
+          'synthetic': false,
+          'handled': true,
+        },
       );
     });
   });

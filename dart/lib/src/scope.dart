@@ -81,7 +81,11 @@ class Scope {
 
   final SentryOptions _options;
 
-  Scope(this._options) : assert(_options != null, 'SentryOptions is required');
+  Scope(this._options) {
+    if (_options == null) {
+      throw ArgumentError('SentryOptions is required');
+    }
+  }
 
   /// Adds a breadcrumb to the breadcrumbs queue
   void addBreadcrumb(Breadcrumb breadcrumb, {dynamic hint}) {
@@ -173,9 +177,9 @@ class Scope {
 
     _contexts.clone().forEach((key, value) {
       // add the contexts runtime list to the event.contexts.runtimes
-      if (key == Runtime.listType && value is List && value.isNotEmpty) {
+      if (key == SentryRuntime.listType && value is List && value.isNotEmpty) {
         _mergeEventContextsRuntimes(value, event);
-      } else if (key != Runtime.listType &&
+      } else if (key != SentryRuntime.listType &&
           (!event.contexts.containsKey(key) || event.contexts[key] == null) &&
           value != null) {
         event.contexts[key] = value;

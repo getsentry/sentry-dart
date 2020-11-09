@@ -1,9 +1,6 @@
 import 'dart:async';
 
 import 'hub.dart';
-import 'protocol/sentry_event.dart';
-import 'protocol/sentry_id.dart';
-import 'protocol/sentry_level.dart';
 import 'protocol.dart';
 import 'sentry_client.dart';
 
@@ -25,7 +22,7 @@ class NoOpHub implements Hub {
 
   @override
   Future<SentryId> captureException(
-    dynamic exception, {
+    dynamic throwable, {
     dynamic stackTrace,
     dynamic hint,
   }) =>

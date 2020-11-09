@@ -37,7 +37,7 @@ Future<void> main() async {
   }, (error, stackTrace) async {
     print('Capture from runZonedGuarded $error');
     final event = SentryEvent(
-      exception: error,
+      throwable: error,
       stackTrace: stackTrace,
       // release is required on Web to match the source maps
       release: _release,

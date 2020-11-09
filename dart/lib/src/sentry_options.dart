@@ -128,15 +128,17 @@ class SentryOptions {
 
   final List<String> _inAppExcludes = [];
 
-  /// A list of string prefixes of module names that do not belong to the app, but rather third-party
-  /// packages. Modules considered not to be part of the app will be hidden from stack traces by
+  /// A list of string prefixes of packages names that do not belong to the app, but rather third-party
+  /// packages. Packages considered not to be part of the app will be hidden from stack traces by
   /// default.
+  /// example : ['sentry'] will exclude exception from 'package:sentry/sentry.dart'
   List<String> get inAppExcludes => List.unmodifiable(_inAppExcludes);
 
   final List<String> _inAppIncludes = [];
 
-  /// A list of string prefixes of module names that belong to the app. This option takes precedence
+  /// A list of string prefixes of packages names that belong to the app. This option takes precedence
   /// over inAppExcludes.
+  /// example : ['sentry'] will include exception from 'package:sentry/sentry.dart'
   List<String> get inAppIncludes => List.unmodifiable(_inAppIncludes);
 
   Transport _transport = NoOpTransport();
@@ -151,12 +153,12 @@ class SentryOptions {
   /// The server name used in the Sentry messages.
   String serverName;
 
-  Sdk _sdk = Sdk(name: sdkName, version: sdkVersion);
+  SdkVersion _sdk = SdkVersion(name: sdkName, version: sdkVersion);
 
   /// Sdk object that contains the Sentry Client Name and its version
-  Sdk get sdk => _sdk;
+  SdkVersion get sdk => _sdk;
 
-  set sdk(Sdk sdk) {
+  set sdk(SdkVersion sdk) {
     _sdk = sdk ?? _sdk;
   }
 

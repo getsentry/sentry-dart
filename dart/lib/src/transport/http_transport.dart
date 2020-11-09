@@ -8,7 +8,6 @@ import '../protocol.dart';
 import '../sentry_options.dart';
 import '../utils.dart';
 import 'noop_encode.dart' if (dart.library.io) 'encode.dart';
-import 'noop_origin.dart' if (dart.library.html) 'origin.dart';
 import 'transport.dart';
 
 /// A transport is in charge of sending the event to the Sentry server.
@@ -22,6 +21,10 @@ class HttpTransport implements Transport {
   final Map<String, String> _headers;
 
   factory HttpTransport(SentryOptions options) {
+    if (options == null) {
+      throw ArgumentError('SentryOptions is required.');
+    }
+
     if (options.httpClient is NoOpClient) {
       options.httpClient = Client();
     }
@@ -41,7 +44,7 @@ class HttpTransport implements Transport {
 
   @override
   Future<SentryId> send(SentryEvent event) async {
-    final data = event.toJson(origin: eventOrigin);
+    final data = event.toJson();
 
     final body = _bodyEncoder(
       data,

@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import 'package.dart';
+import 'sentry_package.dart';
 
 /// Describes the SDK that is submitting events to Sentry.
 ///
@@ -33,9 +33,9 @@ import 'package.dart';
 /// }
 /// ```
 @immutable
-class Sdk {
-  /// Creates an [Sdk] object which represents the SDK that created an [Event].
-  const Sdk({
+class SdkVersion {
+  /// Creates an [SdkVersion] object which represents the SDK that created an [Event].
+  const SdkVersion({
     @required this.name,
     @required this.version,
     this.integrations,
@@ -52,7 +52,7 @@ class Sdk {
   final List<String> integrations;
 
   /// A list of packages that compose this SDK.
-  final List<Package> packages;
+  final List<SentryPackage> packages;
 
   String get identifier => '${name}/${version}';
 

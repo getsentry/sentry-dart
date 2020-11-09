@@ -40,8 +40,8 @@ void main() {
     );
     const testOS = OperatingSystem(name: 'testOS');
     final testRuntimes = [
-      const Runtime(name: 'testRT1', version: '1.0'),
-      const Runtime(name: 'testRT2', version: '2.3.1'),
+      const SentryRuntime(name: 'testRT1', version: '1.0'),
+      const SentryRuntime(name: 'testRT2', version: '2.3.1'),
     ];
     const testApp = App(version: '1.2.3');
     const testBrowser = Browser(version: '12.3.4');

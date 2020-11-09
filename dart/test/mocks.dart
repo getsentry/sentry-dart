@@ -48,7 +48,7 @@ final fakeEvent = SentryEvent(
         kernelVersion:
             'Linux version 3.4.39-5726670 (dpi@SWHC3807) (gcc version 4.8 (GCC) ) #1 SMP PREEMPT Thu Dec 1 19:42:39 KST 2016',
         rooted: false),
-    runtimes: [const Runtime(name: 'ART', version: '5')],
+    runtimes: [const SentryRuntime(name: 'ART', version: '5')],
     app: App(
         name: 'Example Dart App',
         version: '1.42.0',
