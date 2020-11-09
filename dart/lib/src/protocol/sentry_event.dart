@@ -312,7 +312,7 @@ class SentryEvent {
     }
 
     if (debugMeta != null) {
-      json['debugMeta'] = debugMeta.toJson();
+      json['debug_meta'] = debugMeta.toJson();
     }
 
     return json;

@@ -74,35 +74,38 @@ void main() {
 
       expect(
         SentryEvent(
-                eventId: SentryId.empty(),
-                timestamp: timestamp,
-                platform: sdkPlatform,
-                message: Message(
-                  'test-message 1 2',
-                  template: 'test-message %d %d',
-                  params: ['1', '2'],
-                ),
-                transaction: '/test/1',
-                level: SentryLevel.debug,
-                culprit: 'Professor Moriarty',
-                tags: const <String, String>{
-                  'a': 'b',
-                  'c': 'd',
-                },
-                extra: const <String, dynamic>{
-                  'e': 'f',
-                  'g': 2,
-                },
-                fingerprint: const <String>[
-                  SentryEvent.defaultFingerprint,
-                  'foo'
-                ],
-                user: user,
-                breadcrumbs: breadcrumbs,
-                request: request,
-                debugMeta: DebugMeta(
-                    sdk: SdkInfo(sdkName: 'sentry.dart', versionMajor: 4)))
-            .toJson(),
+          eventId: SentryId.empty(),
+          timestamp: timestamp,
+          platform: sdkPlatform,
+          message: Message(
+            'test-message 1 2',
+            template: 'test-message %d %d',
+            params: ['1', '2'],
+          ),
+          transaction: '/test/1',
+          level: SentryLevel.debug,
+          culprit: 'Professor Moriarty',
+          tags: const <String, String>{
+            'a': 'b',
+            'c': 'd',
+          },
+          extra: const <String, dynamic>{
+            'e': 'f',
+            'g': 2,
+          },
+          fingerprint: const <String>[SentryEvent.defaultFingerprint, 'foo'],
+          user: user,
+          breadcrumbs: breadcrumbs,
+          request: request,
+          debugMeta: DebugMeta(
+            sdk: SdkInfo(
+              sdkName: 'sentry.dart',
+              versionMajor: 4,
+              versionMinor: 1,
+              versionPatchlevel: 2,
+            ),
+          ),
+        ).toJson(),
         <String, dynamic>{
           'platform': isWeb ? 'javascript' : 'dart',
           'event_id': '00000000000000000000000000000000',
@@ -139,6 +142,14 @@ void main() {
           'request': {
             'url': request.url,
             'method': request.method,
+          },
+          'debug_meta': {
+            'sdk_info': {
+              'sdk_name': 'sentry.dart',
+              'version_major': 4,
+              'version_minor': 1,
+              'version_patchlevel': 2
+            }
           }
         },
       );

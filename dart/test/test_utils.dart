@@ -141,8 +141,10 @@ Future testCaptureException(
     expect(data['server_name'], 'test.server.com');
     expect(data['release'], '1.2.3');
     expect(data['environment'], 'staging');
-    expect(data['exception'].first['type'], 'ArgumentError');
-    expect(data['exception'].first['value'], 'Invalid argument(s): Test error');
+
+    expect(data['exception']['values'].first['type'], 'ArgumentError');
+    expect(data['exception']['values'].first['value'],
+        'Invalid argument(s): Test error');
   } else {
     expect(topFrame['abs_path'], 'test_utils.dart');
     expect(topFrame['filename'], 'test_utils.dart');

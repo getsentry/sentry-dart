@@ -3,6 +3,8 @@
 // found in the LICENSE file.
 
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/protocol/noop_origin.dart'
+    if (dart.library.html) 'package:sentry/src/protocol/origin.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:stack_trace/stack_trace.dart';
 import 'package:test/test.dart';
@@ -13,35 +15,38 @@ void main() {
       final frame = Frame(Uri.parse('dart:core'), 1, 2, 'buzz');
 
       expect(
-          SentryStackTraceFactory(SentryOptions())
-              .encodeStackTraceFrame(frame)
-              .toJson(),
-          {
-            'abs_path': 'dart:core',
-            'function': 'buzz',
-            'lineno': 1,
-            'colno': 2,
-            'in_app': false,
-            'filename': 'core'
-          });
+        SentryStackTraceFactory(SentryOptions())
+            .encodeStackTraceFrame(frame)
+            .toJson(),
+        {
+          'abs_path': '${eventOrigin}dart:core',
+          'function': 'buzz',
+          'lineno': 1,
+          'colno': 2,
+          'in_app': false,
+          'filename': 'core'
+        },
+      );
     });
 
     test('cleanses absolute paths', () {
       final frame = Frame(Uri.parse('file://foo/bar/baz.dart'), 1, 2, 'buzz');
       expect(
-          SentryStackTraceFactory(SentryOptions())
-              .encodeStackTraceFrame(frame)
-              .toJson()['abs_path'],
-          'baz.dart');
+        SentryStackTraceFactory(SentryOptions())
+            .encodeStackTraceFrame(frame)
+            .toJson()['abs_path'],
+        '${eventOrigin}baz.dart',
+      );
     });
 
     test('send exception package', () {
       final frame = Frame(Uri.parse('package:toolkit/baz.dart'), 1, 2, 'buzz');
       expect(
-          SentryStackTraceFactory(SentryOptions())
-              .encodeStackTraceFrame(frame)
-              .toJson()['package'],
-          'toolkit');
+        SentryStackTraceFactory(SentryOptions())
+            .encodeStackTraceFrame(frame)
+            .toJson()['package'],
+        'toolkit',
+      );
     });
   });
 
@@ -52,7 +57,7 @@ void main() {
 #1      bar (file:///pathto/test.dart:46:9)
       ''').map((frame) => frame.toJson()), [
         {
-          'abs_path': 'test.dart',
+          'abs_path': '${eventOrigin}test.dart',
           'function': 'bar',
           'lineno': 46,
           'colno': 9,
@@ -60,7 +65,7 @@ void main() {
           'filename': 'test.dart'
         },
         {
-          'abs_path': 'test.dart',
+          'abs_path': '${eventOrigin}test.dart',
           'function': 'baz',
           'lineno': 50,
           'colno': 3,
@@ -77,7 +82,7 @@ void main() {
 #1      bar (file:///pathto/test.dart:46:9)
       ''').map((frame) => frame.toJson()), [
         {
-          'abs_path': 'test.dart',
+          'abs_path': '${eventOrigin}test.dart',
           'function': 'bar',
           'lineno': 46,
           'colno': 9,
@@ -88,7 +93,7 @@ void main() {
           'abs_path': '<asynchronous suspension>',
         },
         {
-          'abs_path': 'test.dart',
+          'abs_path': '${eventOrigin}test.dart',
           'function': 'baz',
           'lineno': 50,
           'colno': 3,
