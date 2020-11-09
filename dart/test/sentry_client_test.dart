@@ -43,7 +43,7 @@ void main() {
       options.transport = MockTransport();
     });
 
-    test('should capture exception', () async {
+    test('should capture error', () async {
       try {
         throw StateError('Error');
       } on Error catch (err, stack) {
@@ -60,6 +60,86 @@ void main() {
 
       expect(capturedEvent.throwable, error);
       expect(capturedEvent.exception is SentryException, true);
+      expect(capturedEvent.exception.stacktrace, isNotNull);
+    });
+  });
+
+  group('SentryClient captures exception and stacktrace', () {
+    SentryOptions options;
+
+    Error error;
+
+    final stacktrace = '''
+#0      baz (file:///pathto/test.dart:50:3)
+<asynchronous suspension>
+#1      bar (file:///pathto/test.dart:46:9)
+      ''';
+
+    setUp(() {
+      options = SentryOptions(dsn: fakeDsn);
+      options.transport = MockTransport();
+    });
+
+    test('should capture error', () async {
+      try {
+        throw StateError('Error');
+      } on Error catch (err) {
+        error = err;
+      }
+
+      final client = SentryClient(options);
+      await client.captureException(error, stackTrace: stacktrace);
+
+      final capturedEvent = (verify(
+        options.transport.send(captureAny),
+      ).captured.first) as SentryEvent;
+
+      expect(capturedEvent.throwable, error);
+      expect(capturedEvent.exception is SentryException, true);
+      expect(capturedEvent.exception.stacktrace, isNotNull);
+      expect(capturedEvent.exception.stacktrace.frames.first.fileName,
+          'test.dart');
+      expect(capturedEvent.exception.stacktrace.frames.first.lineNo, 46);
+      expect(capturedEvent.exception.stacktrace.frames.first.colNo, 9);
+    });
+  });
+
+  group('SentryClient captures exception and stacktrace', () {
+    SentryOptions options;
+
+    Exception exception;
+
+    setUp(() {
+      options = SentryOptions(dsn: fakeDsn);
+      options.transport = MockTransport();
+    });
+
+    test('should capture exception', () async {
+      try {
+        throw Exception('Error');
+      } catch (err) {
+        exception = err;
+      }
+
+      final stacktrace = '''
+#0      baz (file:///pathto/test.dart:50:3)
+<asynchronous suspension>
+#1      bar (file:///pathto/test.dart:46:9)
+      ''';
+
+      final client = SentryClient(options);
+      await client.captureException(exception, stackTrace: stacktrace);
+
+      final capturedEvent = (verify(
+        options.transport.send(captureAny),
+      ).captured.first) as SentryEvent;
+
+      expect(capturedEvent.throwable, exception);
+      expect(capturedEvent.exception is SentryException, true);
+      expect(capturedEvent.exception.stacktrace.frames.first.fileName,
+          'test.dart');
+      expect(capturedEvent.exception.stacktrace.frames.first.lineNo, 46);
+      expect(capturedEvent.exception.stacktrace.frames.first.colNo, 9);
     });
   });
 
