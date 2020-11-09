@@ -10,6 +10,26 @@ void main() {
       SentryException sentryException;
       try {
         throw StateError('a state error');
+      } catch (err, stacktrace) {
+        final mechanism = Mechanism(
+          type: 'example',
+          description: 'a mechanism',
+        );
+        sentryException = exceptionFactory.getSentryException(
+          err,
+          mechanism: mechanism,
+          stackTrace: stacktrace,
+        );
+      }
+
+      expect(sentryException.type, 'StateError');
+      expect(sentryException.stacktrace.frames, isNotEmpty);
+    });
+
+    test('should not override event.stacktrace', () {
+      SentryException sentryException;
+      try {
+        throw StateError('a state error');
       } catch (err) {
         final mechanism = Mechanism(
           type: 'example',
@@ -18,11 +38,18 @@ void main() {
         sentryException = exceptionFactory.getSentryException(
           err,
           mechanism: mechanism,
+          stackTrace: '''
+#0      baz (file:///pathto/test.dart:50:3)
+<asynchronous suspension>
+#1      bar (file:///pathto/test.dart:46:9)
+      ''',
         );
       }
 
       expect(sentryException.type, 'StateError');
-      expect(sentryException.stacktrace.frames, isNotEmpty);
+      expect(sentryException.stacktrace.frames.first.lineNo, 46);
+      expect(sentryException.stacktrace.frames.first.colNo, 9);
+      expect(sentryException.stacktrace.frames.first.fileName, 'test.dart');
     });
   });
 
