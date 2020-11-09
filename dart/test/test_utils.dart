@@ -5,7 +5,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
@@ -60,12 +60,12 @@ Future testCaptureException(
   String postUri;
   Map<String, String> headers;
   List<int> body;
-  final httpMock = MockClient((Request request) async {
+  final httpMock = MockClient((http.Request request) async {
     if (request.method == 'POST') {
       postUri = request.url.toString();
       headers = request.headers;
       body = request.bodyBytes;
-      return Response('{"id": "test-event-id"}', 200);
+      return http.Response('{"id": "test-event-id"}', 200);
     }
     fail('Unexpected request on ${request.method} ${request.url} in HttpMock');
   });
@@ -240,10 +240,10 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
 
     Map<String, String> headers;
 
-    final httpMock = MockClient((Request request) async {
+    final httpMock = MockClient((http.Request request) async {
       if (request.method == 'POST') {
         headers = request.headers;
-        return Response('{"id": "testeventid"}', 200);
+        return http.Response('{"id": "testeventid"}', 200);
       }
       fail(
           'Unexpected request on ${request.method} ${request.url} in HttpMock');
@@ -292,9 +292,9 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
   test('reads error message from the x-sentry-error header', () async {
     final fakeClockProvider = () => DateTime.utc(2017, 1, 2);
 
-    final httpMock = MockClient((Request request) async {
+    final httpMock = MockClient((http.Request request) async {
       if (request.method == 'POST') {
-        return Response('', 401, headers: <String, String>{
+        return http.Response('', 401, headers: <String, String>{
           'x-sentry-error': 'Invalid api key',
         });
       }
@@ -329,13 +329,13 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     final fakeClockProvider = () => DateTime.utc(2017, 1, 2);
 
     String loggedUserId; // used to find out what user context was sent
-    final httpMock = MockClient((Request request) async {
+    final httpMock = MockClient((http.Request request) async {
       if (request.method == 'POST') {
         final bodyData = request.bodyBytes;
         final decoded = const Utf8Codec().decode(bodyData);
         final dynamic decodedJson = const JsonDecoder().convert(decoded);
         loggedUserId = decodedJson['user']['id'] as String;
-        return Response('', 401, headers: <String, String>{
+        return http.Response('', 401, headers: <String, String>{
           'x-sentry-error': 'Invalid api key',
         });
       }

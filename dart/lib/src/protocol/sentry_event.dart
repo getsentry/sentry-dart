@@ -3,7 +3,6 @@ import 'package:meta/meta.dart';
 import '../protocol.dart';
 import '../utils.dart';
 import '../version.dart';
-import 'request.dart';
 
 /// An event to be reported to Sentry.io.
 @immutable

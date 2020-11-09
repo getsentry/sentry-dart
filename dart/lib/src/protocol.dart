@@ -10,6 +10,7 @@ export 'protocol/gpu.dart';
 export 'protocol/mechanism.dart';
 export 'protocol/message.dart';
 export 'protocol/operating_system.dart';
+export 'protocol/request.dart';
 export 'protocol/sdk_info.dart';
 export 'protocol/sdk_version.dart';
 export 'protocol/sentry_event.dart';
