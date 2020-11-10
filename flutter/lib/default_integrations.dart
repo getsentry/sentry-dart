@@ -43,7 +43,7 @@ void flutterErrorIntegration(Hub hub, SentryOptions options) {
     options.logger(
         SentryLevel.debug, 'Capture from onError ${errorDetails.exception}');
 
-    const mechanism = Mechanism(type: 'FlutterError', handled: true);
+    const mechanism = Mechanism(type: 'FlutterError', handled: false);
     final throwableMechanism =
         ThrowableMechanism(mechanism, errorDetails.exception);
 

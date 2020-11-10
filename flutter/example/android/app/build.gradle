@@ -59,7 +59,8 @@ android {
         }
 
         ndk {
-            abiFilters("x86", "armeabi-v7a", "x86_64", "arm64-v8a")
+            // Flutter does not currently support building for x86 Android (See Issue 9253).
+            abiFilters("armeabi-v7a", "x86_64", "arm64-v8a")
         }
     }
     ndkVersion "21.3.6528147"
