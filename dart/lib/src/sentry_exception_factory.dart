@@ -8,19 +8,20 @@ import 'sentry_stack_trace_factory.dart';
 class SentryExceptionFactory {
   final SentryOptions _options;
 
-  SentryStackTraceFactory _stacktraceFactory;
-
-  SentryStackTraceFactory get stacktraceFactory => _stacktraceFactory;
+  final SentryStackTraceFactory _stacktraceFactory;
 
   SentryExceptionFactory({
-    SentryStackTraceFactory stacktraceFactory,
+    @required SentryStackTraceFactory stacktraceFactory,
     @required SentryOptions options,
-  }) : _options = options {
+  })  : _options = options,
+        _stacktraceFactory = stacktraceFactory {
     if (_options == null) {
       throw ArgumentError('SentryOptions is required.');
     }
 
-    _stacktraceFactory = stacktraceFactory ?? SentryStackTraceFactory(_options);
+    if (_stacktraceFactory == null) {
+      throw ArgumentError('SentryStackTraceFactory is required.');
+    }
   }
 
   SentryException getSentryException(

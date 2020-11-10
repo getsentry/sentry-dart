@@ -1,10 +1,13 @@
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_exception_factory.dart';
+import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:test/test.dart';
 
 void main() {
   group('Exception factory', () {
-    final exceptionFactory = SentryExceptionFactory(options: SentryOptions());
+    final options = SentryOptions();
+    final exceptionFactory = SentryExceptionFactory(
+        options: options, stacktraceFactory: SentryStackTraceFactory(options));
 
     test('exceptionFactory.getSentryException', () {
       SentryException sentryException;
@@ -54,6 +57,19 @@ void main() {
   });
 
   test("options can't be null", () {
-    expect(() => SentryExceptionFactory(options: null), throwsArgumentError);
+    expect(
+        () => SentryExceptionFactory(
+              options: null,
+              stacktraceFactory: SentryStackTraceFactory(SentryOptions()),
+            ),
+        throwsArgumentError);
+  });
+
+  test("stacktraceFactory can't be null", () {
+    expect(
+      () => SentryExceptionFactory(
+          options: SentryOptions(), stacktraceFactory: null),
+      throwsArgumentError,
+    );
   });
 }
