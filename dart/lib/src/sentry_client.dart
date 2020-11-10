@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'protocol.dart';
 import 'scope.dart';
+import 'sentry_exception_factory.dart';
 import 'sentry_options.dart';
 import 'transport/http_transport.dart';
 import 'transport/noop_transport.dart';
@@ -12,6 +13,10 @@ import 'version.dart';
 class SentryClient {
   /// Instantiates a client using [SentryOptions]
   factory SentryClient(SentryOptions options) {
+    if (options == null) {
+      throw ArgumentError('SentryOptions is required.');
+    }
+
     if (options.transport is NoOpTransport) {
       options.transport = HttpTransport(options);
     }
@@ -22,11 +27,15 @@ class SentryClient {
 
   final Random _random;
 
+  final SentryExceptionFactory _exceptionFactory;
+
   static final _sentryId = Future.value(SentryId.empty());
 
   /// Instantiates a client using [SentryOptions]
-  SentryClient._(this._options)
-      : _random = _options.sampleRate == null ? null : Random();
+  SentryClient._(this._options, {SentryExceptionFactory exceptionFactory})
+      : _exceptionFactory =
+            exceptionFactory ?? SentryExceptionFactory(options: _options),
+        _random = _options.sampleRate == null ? null : Random();
 
   /// Reports an [event] to Sentry.io.
   Future<SentryId> captureEvent(
@@ -72,25 +81,36 @@ class SentryClient {
     return _options.transport.send(event);
   }
 
-  SentryEvent _prepareEvent(SentryEvent event) => event.copyWith(
-        serverName: event.serverName ?? _options.serverName,
-        dist: event.dist ?? _options.dist,
-        environment:
-            event.environment ?? _options.environment ?? defaultEnvironment,
-        release: event.release ?? _options.release,
-        sdk: event.sdk ?? _options.sdk,
-        platform: event.platform ?? sdkPlatform,
-      );
+  SentryEvent _prepareEvent(SentryEvent event) {
+    event = event.copyWith(
+      serverName: event.serverName ?? _options.serverName,
+      dist: event.dist ?? _options.dist,
+      environment:
+          event.environment ?? _options.environment ?? defaultEnvironment,
+      release: event.release ?? _options.release,
+      sdk: event.sdk ?? _options.sdk,
+      platform: event.platform ?? sdkPlatform,
+    );
 
-  /// Reports the [exception] and optionally its [stackTrace] to Sentry.io.
+    if (event.throwable != null && event.exception == null) {
+      final sentryException = _exceptionFactory
+          .getSentryException(event.throwable, stackTrace: event.stackTrace);
+
+      event = event.copyWith(exception: sentryException);
+    }
+
+    return event;
+  }
+
+  /// Reports the [throwable] and optionally its [stackTrace] to Sentry.io.
   Future<SentryId> captureException(
-    dynamic exception, {
+    dynamic throwable, {
     dynamic stackTrace,
     Scope scope,
     dynamic hint,
   }) {
     final event = SentryEvent(
-      exception: exception,
+      throwable: throwable,
       stackTrace: stackTrace,
       timestamp: _options.clock(),
     );

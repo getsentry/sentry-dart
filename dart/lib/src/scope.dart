@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-import 'package:sentry/src/utils.dart';
+import 'utils.dart';
 
 import 'protocol.dart';
 import 'sentry_options.dart';
@@ -83,14 +83,17 @@ class Scope {
 
   final SentryOptions _options;
 
-  Scope(this._options) : assert(_options != null, 'SentryOptions is required') {
+  Scope(this._options) {
+    if (_options == null) {
+      throw ArgumentError('SentryOptions is required');
+    }
     _addDefaultTags();
   }
 
   /// Adds default tags to the Scope
   void _addDefaultTags() {
-    // TODO: maybe this sgould be a field on options with default values?
-    _tags['flutter_web'] = isWeb.toString();
+    // TODO: maybe this should be a field on options with default values?
+    // _tags['flutter_web'] = isWeb.toString();
   }
 
   /// Adds a breadcrumb to the breadcrumbs queue
@@ -183,9 +186,9 @@ class Scope {
 
     _contexts.clone().forEach((key, value) {
       // add the contexts runtime list to the event.contexts.runtimes
-      if (key == Runtime.listType && value is List && value.isNotEmpty) {
+      if (key == SentryRuntime.listType && value is List && value.isNotEmpty) {
         _mergeEventContextsRuntimes(value, event);
-      } else if (key != Runtime.listType &&
+      } else if (key != SentryRuntime.listType &&
           (!event.contexts.containsKey(key) || event.contexts[key] == null) &&
           value != null) {
         event.contexts[key] = value;

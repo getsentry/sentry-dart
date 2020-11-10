@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import 'package.dart';
+import 'sentry_package.dart';
 
 /// Describes the SDK that is submitting events to Sentry.
 ///
@@ -33,13 +33,13 @@ import 'package.dart';
 /// }
 /// ```
 @immutable
-class Sdk {
-  /// Creates an [Sdk] object which represents the SDK that created an [Event].
-  Sdk({
+class SdkVersion {
+  /// Creates an [SdkVersion] object which represents the SDK that created an [Event].
+  SdkVersion({
     @required this.name,
     @required this.version,
     List<String> integrations,
-    List<Package> packages,
+    List<SentryPackage> packages,
   })  : assert(name != null || version != null),
         _integrations = integrations ?? [],
         _packages = packages ?? [];
@@ -55,10 +55,10 @@ class Sdk {
   /// A list of integrations enabled in the SDK that created the [Event].
   List<String> get integrations => List.unmodifiable(_integrations);
 
-  final List<Package> _packages;
+  final List<SentryPackage> _packages;
 
   /// A list of packages that compose this SDK.
-  List<Package> get packages => List.unmodifiable(_packages);
+  List<SentryPackage> get packages => List.unmodifiable(_packages);
 
   String get identifier => '${name}/${version}';
 
@@ -81,7 +81,7 @@ class Sdk {
 
   /// Adds a package
   void addPackage(String name, String version) {
-    final package = Package(name, version);
+    final package = SentryPackage(name, version);
     _packages.add(package);
   }
 

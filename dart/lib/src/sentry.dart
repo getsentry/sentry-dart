@@ -22,6 +22,9 @@ class Sentry {
 
   /// Initializes the SDK
   static Future<void> init(OptionsConfiguration optionsConfiguration) async {
+    if (optionsConfiguration == null) {
+      throw ArgumentError('OptionsConfiguration is required.');
+    }
     final options = SentryOptions();
     await optionsConfiguration(options);
     await _init(options);
@@ -45,6 +48,9 @@ class Sentry {
     _hub = Hub(options);
     hub.close();
 
+    // currentHub.close();
+    // _hub = Hub(options);
+
     // execute integrations after hub being enabled
     for (final integration in options.integrations) {
       await integration(HubAdapter(), options);
@@ -58,14 +64,14 @@ class Sentry {
   }) async =>
       currentHub.captureEvent(event, hint: hint);
 
-  /// Reports the [exception] and optionally its [stackTrace] to Sentry.io.
+  /// Reports the [throwable] and optionally its [stackTrace] to Sentry.io.
   static Future<SentryId> captureException(
-    dynamic exception, {
+    dynamic throwable, {
     dynamic stackTrace,
     dynamic hint,
   }) async =>
       currentHub.captureException(
-        exception,
+        throwable,
         stackTrace: stackTrace,
         hint: hint,
       );
@@ -89,7 +95,7 @@ class Sentry {
   static void close() {
     final hub = currentHub;
     _hub = NoOpHub();
-    return hub.close();
+    hub.close();
   }
 
   /// Check if the current Hub is enabled/active.
@@ -115,8 +121,9 @@ class Sentry {
   static bool _setDefaultConfiguration(SentryOptions options) {
     // if DSN is null, let's crash the App.
     if (options.dsn == null) {
-      throw ArgumentError.notNull(
-          'DSN is required. Use empty string to disable SDK.');
+      throw ArgumentError(
+        'DSN is required. Use empty string to disable SDK.',
+      );
     }
     // if the DSN is empty, let's disable the SDK
     if (options.dsn.isEmpty) {

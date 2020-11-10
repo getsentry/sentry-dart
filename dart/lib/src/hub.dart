@@ -35,11 +35,11 @@ class Hub {
 
   static void _validateOptions(SentryOptions options) {
     if (options == null) {
-      throw ArgumentError.notNull('SentryOptions is required.');
+      throw ArgumentError('SentryOptions is required.');
     }
 
     if (options.dsn?.isNotEmpty != true) {
-      throw ArgumentError.notNull('DSN is required.');
+      throw ArgumentError('DSN is required.');
     }
   }
 
@@ -96,7 +96,7 @@ class Hub {
 
   /// Captures the exception
   Future<SentryId> captureException(
-    dynamic exception, {
+    dynamic throwable, {
     dynamic stackTrace,
     dynamic hint,
   }) async {
@@ -107,7 +107,7 @@ class Hub {
         SentryLevel.warning,
         "Instance is disabled and this 'captureException' call is a no-op.",
       );
-    } else if (exception == null) {
+    } else if (throwable == null) {
       _options.logger(
         SentryLevel.warning,
         'captureException called with null parameter.',
@@ -117,7 +117,7 @@ class Hub {
       if (item != null) {
         try {
           sentryId = await item.client.captureException(
-            exception,
+            throwable,
             stackTrace: stackTrace,
             scope: item.scope,
             hint: hint,
@@ -125,7 +125,7 @@ class Hub {
         } catch (err) {
           _options.logger(
             SentryLevel.error,
-            'Error while capturing exception : ${exception}',
+            'Error while capturing exception : ${throwable}',
           );
         } finally {
           _lastEventId = sentryId;

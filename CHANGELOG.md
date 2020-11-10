@@ -9,6 +9,7 @@
 ## 4.0.0-alpha.2
 
 - feat: add contexts to scope
+- feat: add missing protocol classes
 - fix: logger method and refactoring little things
 - fix: sentry protocol is v7
 

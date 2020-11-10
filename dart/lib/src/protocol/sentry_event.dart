@@ -1,7 +1,6 @@
 import 'package:meta/meta.dart';
 
 import '../protocol.dart';
-import '../stack_trace.dart';
 import '../utils.dart';
 import '../version.dart';
 
@@ -22,8 +21,9 @@ class SentryEvent {
     this.modules,
     this.message,
     this.transaction,
-    this.exception,
+    this.throwable,
     this.stackTrace,
+    this.exception,
     this.level,
     this.culprit,
     this.tags,
@@ -32,6 +32,8 @@ class SentryEvent {
     this.user,
     Contexts contexts,
     this.breadcrumbs,
+    this.request,
+    this.debugMeta,
   })  : eventId = eventId ?? SentryId.newId(),
         timestamp = timestamp ?? getUtcDateTime(),
         contexts = contexts ?? Contexts();
@@ -76,14 +78,19 @@ class SentryEvent {
 
   /// An object that was thrown.
   ///
-  /// It's `runtimeType` and `toString()` are logged. If this behavior is
-  /// undesirable, consider using a custom formatted [message] instead.
-  final dynamic exception;
+  /// It's `runtimeType` and `toString()` are logged.
+  /// If it's an Error, with a stackTrace, the stackTrace is logged.
+  /// If this behavior is undesirable, consider using a custom formatted [message] instead.
+  final dynamic throwable;
 
   /// The stack trace corresponding to the thrown [exception].
   ///
   /// Can be `null`, a [String], or a [StackTrace].
   final dynamic stackTrace;
+
+  /// an exception or error that occurred in a program
+  /// TODO more doc
+  final SentryException exception;
 
   /// The name of the transaction which generated this event,
   /// for example, the route name: `"/users/<username>/"`.
@@ -138,7 +145,15 @@ class SentryEvent {
   final List<String> fingerprint;
 
   /// The SDK Interface describes the Sentry SDK and its configuration used to capture and transmit an event.
-  final Sdk sdk;
+  final SdkVersion sdk;
+
+  ///  contains information on a HTTP request related to the event.
+  ///  In client, this can be an outgoing request, or the request that rendered the current web page.
+  ///  On server, this could be the incoming web request that is being handled
+  final Request request;
+
+  /// The debug meta interface carries debug information for processing errors and crash reports.
+  final DebugMeta debugMeta;
 
   final String type = 'event';
 
@@ -154,7 +169,8 @@ class SentryEvent {
     Map<String, String> modules,
     Message message,
     String transaction,
-    dynamic exception,
+    dynamic throwable,
+    SentryException exception,
     dynamic stackTrace,
     SentryLevel level,
     String culprit,
@@ -164,7 +180,9 @@ class SentryEvent {
     User user,
     Contexts contexts,
     List<Breadcrumb> breadcrumbs,
-    Sdk sdk,
+    SdkVersion sdk,
+    Request request,
+    DebugMeta debugMeta,
   }) =>
       SentryEvent(
         eventId: eventId ?? this.eventId,
@@ -178,6 +196,7 @@ class SentryEvent {
         modules: modules ?? this.modules,
         message: message ?? this.message,
         transaction: transaction ?? this.transaction,
+        throwable: throwable ?? this.throwable,
         exception: exception ?? this.exception,
         stackTrace: stackTrace ?? this.stackTrace,
         level: level ?? this.level,
@@ -189,10 +208,12 @@ class SentryEvent {
         contexts: contexts ?? this.contexts,
         breadcrumbs: breadcrumbs ?? this.breadcrumbs,
         sdk: sdk ?? this.sdk,
+        request: request ?? this.request,
+        debugMeta: debugMeta ?? this.debugMeta,
       );
 
   /// Serializes this event to JSON.
-  Map<String, dynamic> toJson({String origin}) {
+  Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 
     if (eventId != null) {
@@ -240,25 +261,8 @@ class SentryEvent {
     }
 
     if (exception != null) {
-      var stacktrace;
-      if (exception is Error) {
-        stacktrace = <String, dynamic>{
-          'frames': encodeStackTrace(
-            exception.stackTrace ?? stackTrace,
-            origin: origin,
-          ),
-        };
-      }
-
-      final item = <String, dynamic>{
-        'type': '${exception.runtimeType}',
-        'value': '$exception',
-        'stacktrace': stacktrace,
-      };
-      final list = [item];
-
-      json['exception'] = <String, List<Map<String, dynamic>>>{
-        'values': list.map((b) => b).toList(growable: false),
+      json['exception'] = {
+        'values': [exception.toJson()].toList(growable: false)
       };
     }
 
@@ -303,6 +307,14 @@ class SentryEvent {
           'name': sdkName,
           'version': sdkVersion,
         };
+
+    if (request != null) {
+      json['request'] = request.toJson();
+    }
+
+    if (debugMeta != null) {
+      json['debug_meta'] = debugMeta.toJson();
+    }
 
     return json;
   }
