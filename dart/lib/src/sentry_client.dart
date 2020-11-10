@@ -5,7 +5,6 @@ import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_exception_factory.dart';
 import 'sentry_options.dart';
-import 'sentry_stack_trace_factory.dart';
 import 'transport/http_transport.dart';
 import 'transport/noop_transport.dart';
 import 'version.dart';
@@ -103,8 +102,8 @@ class SentryClient {
     if (_options.attachStackTrace &&
         event.throwable == null &&
         event.exception == null) {
-      final frames =
-          SentryStackTraceFactory(_options).getStackFrames(StackTrace.current);
+      final frames = _exceptionFactory.stacktraceFactory
+          .getStackFrames(StackTrace.current);
 
       event = event.copyWith(stackTrace: SentryStackTrace(frames: frames));
     }

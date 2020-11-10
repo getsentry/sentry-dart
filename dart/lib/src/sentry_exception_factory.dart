@@ -8,6 +8,8 @@ import 'sentry_stack_trace_factory.dart';
 class SentryExceptionFactory {
   SentryStackTraceFactory _stacktraceFactory;
 
+  SentryStackTraceFactory get stacktraceFactory => _stacktraceFactory;
+
   SentryExceptionFactory({
     SentryStackTraceFactory stacktraceFactory,
     @required SentryOptions options,
