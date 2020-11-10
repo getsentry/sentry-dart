@@ -155,6 +155,40 @@ void main() {
       expect(capturedEvent.exception.stacktrace.frames.first.colNo, 9);
     });
 
+    test('should capture exception with Stackframe.current', () async {
+      try {
+        throw Exception('Error');
+      } catch (err) {
+        exception = err;
+      }
+
+      final client = SentryClient(options);
+      await client.captureException(exception);
+
+      final capturedEvent = (verify(
+        options.transport.send(captureAny),
+      ).captured.first) as SentryEvent;
+
+      expect(capturedEvent.exception.stacktrace, isNotNull);
+    });
+
+    test('should capture exception without Stackframe.current', () async {
+      try {
+        throw Exception('Error');
+      } catch (err) {
+        exception = err;
+      }
+
+      final client = SentryClient(options..attachStackTrace = false);
+      await client.captureException(exception);
+
+      final capturedEvent = (verify(
+        options.transport.send(captureAny),
+      ).captured.first) as SentryEvent;
+
+      expect(capturedEvent.exception.stacktrace, isNull);
+    });
+
     test('should not capture sentry frames exception', () async {
       try {
         throw Exception('Error');

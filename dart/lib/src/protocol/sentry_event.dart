@@ -263,7 +263,14 @@ class SentryEvent {
         'values': [exception.toJson()].toList(growable: false)
       };
     } else if (stackTrace is SentryStackTrace) {
-      json['stacktrace'] = (stackTrace as SentryStackTrace).toJson();
+      json['threads'] = {
+        'values': [
+          {
+            'id': 0,
+            'stacktrace': (stackTrace as SentryStackTrace).toJson(),
+          }
+        ]
+      };
     }
 
     if (level != null) {
