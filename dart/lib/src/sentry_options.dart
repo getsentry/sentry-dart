@@ -162,6 +162,14 @@ class SentryOptions {
     _sdk = sdk ?? _sdk;
   }
 
+  bool _attachStacktrace = true;
+
+  bool get attachStacktrace => _attachStacktrace;
+
+  set attachStacktrace(bool attachStacktrace) {
+    _attachStacktrace = attachStacktrace ?? _attachStacktrace;
+  }
+
   // TODO: Scope observers, enableScopeSync
 
   // TODO: sendDefaultPii

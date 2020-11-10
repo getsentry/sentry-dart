@@ -29,6 +29,19 @@ void main() {
       expect(capturedEvent.message.formatted, 'simple message 1');
       expect(capturedEvent.message.template, 'simple message %d');
       expect(capturedEvent.message.params, [1]);
+
+      expect(capturedEvent.stackTrace is SentryStackTrace, true);
+    });
+
+    test('should capture message without stacktrace', () async {
+      final client = SentryClient(options..attachStacktrace = false);
+      await client.captureMessage('message', level: SentryLevel.error);
+
+      final capturedEvent = (verify(
+        options.transport.send(captureAny),
+      ).captured.first) as SentryEvent;
+
+      expect(capturedEvent.stackTrace, isNull);
     });
   });
 
@@ -140,6 +153,34 @@ void main() {
           'test.dart');
       expect(capturedEvent.exception.stacktrace.frames.first.lineNo, 46);
       expect(capturedEvent.exception.stacktrace.frames.first.colNo, 9);
+    });
+
+    test('should not capture sentry frames exception', () async {
+      try {
+        throw Exception('Error');
+      } catch (err) {
+        exception = err;
+      }
+
+      final stacktrace = '''
+#0      init (package:sentry/sentry.dart:46:9)
+#1      bar (file:///pathto/test.dart:46:9)
+<asynchronous suspension>
+#2      capture (package:sentry/sentry.dart:46:9)
+      ''';
+
+      final client = SentryClient(options);
+      await client.captureException(exception, stackTrace: stacktrace);
+
+      final capturedEvent = (verify(
+        options.transport.send(captureAny),
+      ).captured.first) as SentryEvent;
+
+      expect(
+        capturedEvent.exception.stacktrace.frames
+            .every((frame) => frame.package != 'sentry'),
+        true,
+      );
     });
   });
 

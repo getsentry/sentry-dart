@@ -262,6 +262,8 @@ class SentryEvent {
       json['exception'] = {
         'values': [exception.toJson()].toList(growable: false)
       };
+    } else if (stackTrace is SentryStackTrace) {
+      json['stacktrace'] = (stackTrace as SentryStackTrace).toJson();
     }
 
     if (level != null) {
