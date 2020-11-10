@@ -164,6 +164,15 @@ class SentryOptions {
 
   bool _attachStackTrace = true;
 
+  /// When enabled, stack traces are automatically attached to all messages logged.
+  /// Stack traces are always attached to exceptions;
+  /// however, when this option is set, stack traces are also sent with messages.
+  /// This option, for instance, means that stack traces appear next to all log messages.
+  ///
+  /// This option is true` by default.
+  ///
+  /// Grouping in Sentry is different for events with stack traces and without.
+  /// As a result, you will get new groups as you enable or disable this flag for certain events.
   bool get attachStackTrace => _attachStackTrace;
 
   set attachStackTrace(bool attachStacktrace) {
