@@ -192,7 +192,7 @@ void main() {
       final stacktrace =
           SentryStackTrace(frames: [SentryStackFrame(function: 'main')]);
       final serialized = SentryEvent(stackTrace: stacktrace).toJson();
-      expect(serialized['stacktrace'], isNotNull);
+      expect(serialized['threads']['values'].first['stacktrace'], isNotNull);
     });
 
     test('should not serialize event.stacktrace if event.exception is set', () {
