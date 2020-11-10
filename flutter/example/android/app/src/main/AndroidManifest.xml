@@ -44,22 +44,7 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <!-- In order to capture crashes caused by the native layer early during Init.
-             This is relevant for errors that happen before Flutter runs far enough to run init -->
-<!--        <meta-data-->
-<!--            android:name="io.sentry.dsn"-->
-<!--            android:value="https://39226a237e6b4fa5aae9191fa5732814@o19635.ingest.sentry.io/2078115" />-->
-<!--        <meta-data -->
-<!--            android:name="io.sentry.debug"-->
-<!--            android:value="true" />-->
-        <!-- Will be enabled by default from version 3.0 -->
-<!--        <meta-data-->
-<!--            android:name="io.sentry.session-tracking.enable"-->
-<!--            android:value="true" />-->
-        <!-- To quickly demonstrate the ANR capture. Default is 5 seconds. -->
-<!--        <meta-data-->
-<!--            android:name="io.sentry.anr.timeout-interval-mills"-->
-<!--            android:value="2000" />-->
+
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

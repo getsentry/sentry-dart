@@ -14,7 +14,8 @@ import io.sentry.SentryLevel
 import io.sentry.SentryOptions
 import io.sentry.protocol.SdkVersion
 import java.io.File
-import java.util.*
+import java.util.UUID
+import java.util.Locale
 
 // TODO: maybe this should be done in Java, to avoid stdlib
 // libflutter.so is already 11mb each archie

@@ -15,7 +15,6 @@ dependencies:
     sdk: flutter
   sentry: #^4.0.0 uncomment before publishing
     path: ../dart
-  #device_info: ^1.0.0
   package_info: ^0.4.0
 
 dev_dependencies:

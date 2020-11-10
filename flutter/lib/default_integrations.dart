@@ -114,7 +114,7 @@ Integration nativeSdkIntegration(SentryOptions options, MethodChannel channel) {
     } catch (error) {
       options.logger(
         SentryLevel.error,
-        'nativeSdkIntegration failed to be installed: ${error.toString()}',
+        'nativeSdkIntegration failed to be installed: $error',
       );
     }
   }

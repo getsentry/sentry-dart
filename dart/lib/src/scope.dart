@@ -87,13 +87,6 @@ class Scope {
     if (_options == null) {
       throw ArgumentError('SentryOptions is required');
     }
-    _addDefaultTags();
-  }
-
-  /// Adds default tags to the Scope
-  void _addDefaultTags() {
-    // TODO: maybe this should be a field on options with default values?
-    // _tags['flutter_web'] = isWeb.toString();
   }
 
   /// Adds a breadcrumb to the breadcrumbs queue

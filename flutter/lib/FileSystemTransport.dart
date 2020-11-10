@@ -1,14 +1,15 @@
-import 'package:flutter/services.dart';
-import 'package:sentry/sentry.dart';
 import 'dart:convert';
 
+import 'package:flutter/services.dart';
+import 'package:sentry/sentry.dart';
+
 class FileSystemTransport implements Transport {
+  FileSystemTransport(this._channel, this._options);
+
   final MethodChannel _channel;
   final SentryOptions _options;
 
   final _jsonEncoder = const JsonEncoder();
-
-  FileSystemTransport(this._channel, this._options);
 
   @override
   Future<SentryId> send(SentryEvent event) async {
@@ -23,7 +24,6 @@ class FileSystemTransport implements Transport {
     final itemHeaderMap = {
       'content_type': 'application/json',
       'type': event.type,
-      // TODO: real length in String
       'length': eventString.length,
     };
 
@@ -31,11 +31,16 @@ class FileSystemTransport implements Transport {
     final itemHeaderString = _jsonEncoder.convert(itemHeaderMap);
     final envelopeString = '$headerString\n$itemHeaderString\n$eventString';
 
-    // await _channel.invokeMethod('captureEnvelope', <String, dynamic>{
-    //   'event': envelopeString,
-    // });
     final args = [envelopeString];
-    await _channel.invokeMethod('captureEnvelope', args);
+    try {
+      await _channel.invokeMethod('captureEnvelope', args);
+    } catch (error) {
+      _options.logger(
+        SentryLevel.error,
+        'Failed to save envelope: $error',
+      );
+      return SentryId.empty();
+    }
 
     return event.eventId;
   }

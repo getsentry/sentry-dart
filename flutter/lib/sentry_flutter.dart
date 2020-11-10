@@ -30,9 +30,6 @@ mixin SentryFlutter {
     // our plugin can call into the native code.
     WidgetsFlutterBinding.ensureInitialized();
 
-    // TODO: we could read the window and add some stuff on contexts
-    // final window = WidgetsBinding.instance.window;
-
     options.debug = kDebugMode;
 
     // web still uses a http transport
