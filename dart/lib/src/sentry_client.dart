@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:meta/meta.dart';
+import 'package:sentry/src/sentry_stack_trace_factory.dart';
+
 import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_exception_factory.dart';
@@ -11,6 +14,16 @@ import 'version.dart';
 
 /// Logs crash reports and events to the Sentry.io service.
 class SentryClient {
+  final SentryOptions _options;
+
+  final Random _random;
+
+  final SentryExceptionFactory _exceptionFactory;
+
+  final SentryStackTraceFactory _stackTraceFactory;
+
+  static final _sentryId = Future.value(SentryId.empty());
+
   /// Instantiates a client using [SentryOptions]
   factory SentryClient(SentryOptions options) {
     if (options == null) {
@@ -20,21 +33,22 @@ class SentryClient {
     if (options.transport is NoOpTransport) {
       options.transport = HttpTransport(options);
     }
-    return SentryClient._(options);
+
+    return SentryClient._(
+      options,
+      stackTraceFactory: SentryStackTraceFactory(options),
+    );
   }
 
-  final SentryOptions _options;
-
-  final Random _random;
-
-  final SentryExceptionFactory _exceptionFactory;
-
-  static final _sentryId = Future.value(SentryId.empty());
-
   /// Instantiates a client using [SentryOptions]
-  SentryClient._(this._options, {SentryExceptionFactory exceptionFactory})
-      : _exceptionFactory =
-            exceptionFactory ?? SentryExceptionFactory(options: _options),
+  SentryClient._(
+    this._options, {
+    @required SentryStackTraceFactory stackTraceFactory,
+  })  : _stackTraceFactory = stackTraceFactory,
+        _exceptionFactory = SentryExceptionFactory(
+          options: _options,
+          stacktraceFactory: stackTraceFactory,
+        ),
         _random = _options.sampleRate == null ? null : Random();
 
   /// Reports an [event] to Sentry.io.
@@ -102,8 +116,7 @@ class SentryClient {
     if (_options.attachStackTrace &&
         event.throwable == null &&
         event.exception == null) {
-      final frames = _exceptionFactory.stacktraceFactory
-          .getStackFrames(StackTrace.current);
+      final frames = _stackTraceFactory.getStackFrames(StackTrace.current);
 
       event = event.copyWith(stackTrace: SentryStackTrace(frames: frames));
     }
