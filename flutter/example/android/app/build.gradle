@@ -28,7 +28,7 @@ apply plugin: 'com.ydq.android.gradle.native-aar.import'
 
 // uncomment this to upload proguard mapping file and debug symbols to Sentry
 // and also set the token (sentry.properties) file
-// apply plugin: 'io.sentry.android.gradle'
+apply plugin: 'io.sentry.android.gradle'
 
 android {
     compileOptions {
@@ -73,6 +73,8 @@ android {
 
     buildTypes {
         release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.debug
         }
     }
@@ -90,7 +92,7 @@ dependencies {
 }
 
 // uncomment this to upload debug symbols to Sentry
-// sentry {
-//     uploadNativeSymbols true
-//     includeNativeSources true
-// }
+ sentry {
+     uploadNativeSymbols true
+     includeNativeSources true
+ }

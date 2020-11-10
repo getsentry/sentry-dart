@@ -74,8 +74,14 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
     }
 
     val args = call.arguments() as Map<String, Any>
+    if (args.isEmpty()) {
+      result.error("4", "Arguments is null or empty", null)
+      return
+    }
 
     SentryAndroid.init(context) { options ->
+      // TODO: check if args exist before assigning the values
+
       options.dsn = args["dsn"] as String?
       options.isDebug = args["debug"] as Boolean
       options.environment = args["environment"] as String?
@@ -112,7 +118,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
       options.setBeforeSend { event, _ ->
         setEventOriginTag(event)
         addPackages(event, options.sdkVersion)
-        removeThreadsIfNotNative(event)
+        removeThreadsIfNotAndroid(event)
 
         event
       }
@@ -177,7 +183,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
     }
   }
 
-  private fun removeThreadsIfNotNative(event: SentryEvent) {
+  private fun removeThreadsIfNotAndroid(event: SentryEvent) {
     if (isValidSdk(event.sdk)) {
       // we do not want the thread list if not an android event, the thread info is mostly about
       // the file observer anyway

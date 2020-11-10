@@ -3,9 +3,9 @@ set -e
 
 # Build a release version of the app for a platform and upload symbols
 
-export SENTRY_PROJECT=flutter
-export SENTRY_ORG=sentry-test
-# export SENTRY_LOG_LEVEL=debug
+export SENTRY_PROJECT=sentry-flutter
+export SENTRY_ORG=sentry-sdks
+export SENTRY_LOG_LEVEL=info
 export OUTPUT_FOLDER_WEB=./build/web/
 
 export SENTRY_RELEASE=$(date +%Y-%m-%d_%H-%M-%S)
