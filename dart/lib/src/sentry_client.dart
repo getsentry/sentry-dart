@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:meta/meta.dart';
-
 import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_exception_factory.dart';
@@ -18,11 +16,11 @@ class SentryClient {
 
   final Random _random;
 
-  final SentryExceptionFactory _exceptionFactory;
-
-  final SentryStackTraceFactory _stackTraceFactory;
-
   static final _sentryId = Future.value(SentryId.empty());
+
+  SentryExceptionFactory _exceptionFactory;
+
+  SentryStackTraceFactory _stackTraceFactory;
 
   /// Instantiates a client using [SentryOptions]
   factory SentryClient(SentryOptions options) {
@@ -34,22 +32,18 @@ class SentryClient {
       options.transport = HttpTransport(options);
     }
 
-    return SentryClient._(
-      options,
-      stackTraceFactory: SentryStackTraceFactory(options),
-    );
+    return SentryClient._(options);
   }
 
   /// Instantiates a client using [SentryOptions]
-  SentryClient._(
-    this._options, {
-    @required SentryStackTraceFactory stackTraceFactory,
-  })  : _stackTraceFactory = stackTraceFactory,
-        _exceptionFactory = SentryExceptionFactory(
-          options: _options,
-          stacktraceFactory: stackTraceFactory,
-        ),
-        _random = _options.sampleRate == null ? null : Random();
+  SentryClient._(this._options)
+      : _random = _options.sampleRate == null ? null : Random() {
+    _stackTraceFactory = SentryStackTraceFactory(_options);
+    _exceptionFactory = SentryExceptionFactory(
+      options: _options,
+      stacktraceFactory: _stackTraceFactory,
+    );
+  }
 
   /// Reports an [event] to Sentry.io.
   Future<SentryId> captureEvent(
