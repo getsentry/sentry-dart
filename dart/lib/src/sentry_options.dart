@@ -162,12 +162,12 @@ class SentryOptions {
     _sdk = sdk ?? _sdk;
   }
 
-  bool _attachStacktrace = true;
+  bool _attachStackTrace = true;
 
-  bool get attachStacktrace => _attachStacktrace;
+  bool get attachStackTrace => _attachStackTrace;
 
-  set attachStacktrace(bool attachStacktrace) {
-    _attachStacktrace = attachStacktrace ?? _attachStacktrace;
+  set attachStackTrace(bool attachStacktrace) {
+    _attachStackTrace = attachStacktrace ?? _attachStackTrace;
   }
 
   // TODO: Scope observers, enableScopeSync

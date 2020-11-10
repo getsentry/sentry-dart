@@ -100,7 +100,7 @@ class SentryClient {
       event = event.copyWith(exception: sentryException);
     }
 
-    if (_options.attachStacktrace &&
+    if (_options.attachStackTrace &&
         event.throwable == null &&
         event.exception == null) {
       final frames =

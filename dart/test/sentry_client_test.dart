@@ -34,7 +34,7 @@ void main() {
     });
 
     test('should capture message without stacktrace', () async {
-      final client = SentryClient(options..attachStacktrace = false);
+      final client = SentryClient(options..attachStackTrace = false);
       await client.captureMessage('message', level: SentryLevel.error);
 
       final capturedEvent = (verify(
