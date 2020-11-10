@@ -51,8 +51,8 @@ void main() {
 
     test(
       'should capture event with the default scope',
-      () {
-        hub.captureEvent(fakeEvent);
+      () async {
+        await hub.captureEvent(fakeEvent);
         expect(
           scopeEquals(
             verify(
@@ -68,15 +68,15 @@ void main() {
       },
     );
 
-    test('should capture exception', () {
-      hub.captureException(fakeException);
+    test('should capture exception', () async {
+      await hub.captureException(fakeException);
 
       verify(client.captureException(fakeException, scope: anyNamed('scope')))
           .called(1);
     });
 
-    test('should capture message', () {
-      hub.captureMessage(fakeMessage.formatted, level: SentryLevel.info);
+    test('should capture message', () async {
+      await hub.captureMessage(fakeMessage.formatted, level: SentryLevel.info);
       verify(
         client.captureMessage(
           fakeMessage.formatted,
@@ -109,16 +109,16 @@ void main() {
       hub.bindClient(client);
     });
 
-    test('should configure its scope', () {
+    test('should configure its scope', () async {
       hub.configureScope((Scope scope) {
         scope
           ..level = SentryLevel.debug
           ..user = fakeUser
           ..fingerprint = ['1', '2'];
       });
-      hub.captureEvent(fakeEvent);
+      await hub.captureEvent(fakeEvent);
 
-      hub.captureEvent(fakeEvent);
+      await hub.captureEvent(fakeEvent);
       expect(
         scopeEquals(
           verify(
@@ -160,10 +160,10 @@ void main() {
       hub.bindClient(client);
     });
 
-    test('should bind a new client', () {
+    test('should bind a new client', () async {
       final client2 = MockSentryClient();
       hub.bindClient(client2);
-      hub.captureEvent(fakeEvent);
+      await hub.captureEvent(fakeEvent);
       verify(
         client2.captureEvent(
           fakeEvent,

@@ -43,7 +43,8 @@ class SentryClient {
     Scope scope,
     dynamic hint,
   }) async {
-    event = _processEvent(event, eventProcessors: _options.eventProcessors);
+    event =
+        await _processEvent(event, eventProcessors: _options.eventProcessors);
 
     // dropped by sampling or event processors
     if (event == null) {
@@ -137,11 +138,11 @@ class SentryClient {
 
   void close() => _options.httpClient?.close();
 
-  SentryEvent _processEvent(
+  Future<SentryEvent> _processEvent(
     SentryEvent event, {
     dynamic hint,
     List<EventProcessor> eventProcessors,
-  }) {
+  }) async {
     if (_sampleRate()) {
       _options.logger(
         SentryLevel.debug,
@@ -152,7 +153,7 @@ class SentryClient {
 
     for (final processor in eventProcessors) {
       try {
-        event = processor(event, hint);
+        event = await processor(event, hint);
       } catch (err) {
         _options.logger(
           SentryLevel.error,
