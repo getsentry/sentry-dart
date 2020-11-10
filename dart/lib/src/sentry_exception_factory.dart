@@ -3,6 +3,7 @@ import 'package:meta/meta.dart';
 import 'protocol.dart';
 import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
+import 'throwable_mechanism.dart';
 
 /// class to convert Dart Error and exception to SentryException
 class SentryExceptionFactory {
@@ -22,10 +23,16 @@ class SentryExceptionFactory {
   SentryException getSentryException(
     dynamic exception, {
     dynamic stackTrace,
-    Mechanism mechanism,
   }) {
-    if (exception is Error) {
-      stackTrace ??= exception.stackTrace;
+    var throwable = exception;
+    var mechanism;
+    if (exception is ThrowableMechanism) {
+      throwable = exception.throwable;
+      mechanism = exception.mechanism;
+    }
+
+    if (throwable is Error) {
+      stackTrace ??= throwable.stackTrace;
     } else {
       stackTrace ??= StackTrace.current;
     }
@@ -35,8 +42,8 @@ class SentryExceptionFactory {
     );
 
     final sentryException = SentryException(
-      type: '${exception.runtimeType}',
-      value: '$exception',
+      type: '${throwable.runtimeType}',
+      value: '$throwable',
       mechanism: mechanism,
       stacktrace: sentryStackTrace,
     );

@@ -27,6 +27,11 @@ class Sentry {
     }
     final options = SentryOptions();
     await optionsConfiguration(options);
+
+    if (options == null) {
+      throw ArgumentError('SentryOptions is required.');
+    }
+
     await _init(options);
   }
 
@@ -47,9 +52,6 @@ class Sentry {
     final hub = currentHub;
     _hub = Hub(options);
     hub.close();
-
-    // currentHub.close();
-    // _hub = Hub(options);
 
     // execute integrations after hub being enabled
     for (final integration in options.integrations) {

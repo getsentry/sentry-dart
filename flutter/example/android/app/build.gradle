@@ -39,20 +39,16 @@ android {
         jvmTarget = JavaVersion.VERSION_1_8
     }
 
-    compileSdkVersion 29
+    compileSdkVersion 30
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
 
-//    lintOptions {
-//        disable 'InvalidPackage'
-//    }
-
     defaultConfig {
         applicationId "io.sentry.flutter.example"
         minSdkVersion 16
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
 

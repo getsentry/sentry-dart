@@ -15,16 +15,17 @@ void isolateErrorIntegration(Hub hub, SentryOptions options) {
     (dynamic error) async {
       options.logger(SentryLevel.debug, 'Capture from IsolateError $error');
 
-      // TODO: create mechanism
-
       // https://api.dartlang.org/stable/2.7.0/dart-isolate/Isolate/addErrorListener.html
       // error is a list of 2 elements
       if (error is List<dynamic> && error.length == 2) {
-        dynamic stackTrace = error.last;
-        if (stackTrace != null) {
-          stackTrace = StackTrace.fromString(stackTrace as String);
-        }
-        await Sentry.captureException(error.first, stackTrace: stackTrace);
+        final dynamic throwable = error.first;
+        final dynamic stackTrace = error.last;
+
+        const mechanism = Mechanism(type: 'isolateError', handled: false);
+        final throwableMechanism = ThrowableMechanism(mechanism, throwable);
+
+        await Sentry.captureException(throwableMechanism,
+            stackTrace: stackTrace);
       }
     },
   );
@@ -42,10 +43,12 @@ void flutterErrorIntegration(Hub hub, SentryOptions options) {
     options.logger(
         SentryLevel.debug, 'Capture from onError ${errorDetails.exception}');
 
-    // TODO: create mechanism
+    const mechanism = Mechanism(type: 'FlutterError', handled: true);
+    final throwableMechanism =
+        ThrowableMechanism(mechanism, errorDetails.exception);
 
     await hub.captureException(
-      errorDetails.exception,
+      throwableMechanism,
       stackTrace: errorDetails.stack,
     );
 
@@ -66,10 +69,11 @@ Integration runZonedGuardedIntegration(
     runZonedGuarded(() {
       callback();
     }, (exception, stackTrace) async {
-      // TODO: create mechanism
+      const mechanism = Mechanism(type: 'runZonedGuarded', handled: false);
+      final throwableMechanism = ThrowableMechanism(mechanism, exception);
 
       await Sentry.captureException(
-        exception,
+        throwableMechanism,
         stackTrace: stackTrace,
       );
     });
@@ -82,30 +86,37 @@ Integration runZonedGuardedIntegration(
 
 Integration nativeSdkIntegration(SentryOptions options, MethodChannel channel) {
   Future<void> integration(Hub hub, SentryOptions options) async {
-    await channel.invokeMethod('initNativeSdk', <String, dynamic>{
-      'dsn': options.dsn,
-      'debug': options.debug,
-      'environment': options.environment,
-      'release': options.release,
-      'enableAutoSessionTracking': options.enableAutoSessionTracking,
-      'enableNativeCrashHandling': options.enableNativeCrashHandling,
-      'attachStacktrace': options.attachStacktrace,
-      'autoSessionTrackingIntervalMillis':
-          options.autoSessionTrackingIntervalMillis,
-      'platform': 'flutter',
-      'web': kIsWeb,
-      'dist': options.dist,
-      'integrations': options.sdk.integrations,
-      'packages':
-          options.sdk.packages.map((e) => e.toJson()).toList(growable: false),
-      'diagnosticLevel': options.diagnosticLevel.name,
-      'maxBreadcrumbs': options.maxBreadcrumbs,
-      'anrTimeoutIntervalMillis': options.anrTimeoutIntervalMillis,
-      'enableAutoNativeBreadcrumbs': options.enableAutoNativeBreadcrumbs,
-      'cacheDirSize': options.cacheDirSize,
-    });
+    try {
+      await channel.invokeMethod('initNativeSdk', <String, dynamic>{
+        'dsn': options.dsn,
+        'debug': options.debug,
+        'environment': options.environment,
+        'release': options.release,
+        'enableAutoSessionTracking': options.enableAutoSessionTracking,
+        'enableNativeCrashHandling': options.enableNativeCrashHandling,
+        'attachStacktrace': options.attachStacktrace,
+        'autoSessionTrackingIntervalMillis':
+            options.autoSessionTrackingIntervalMillis,
+        'platform': 'flutter',
+        'web': kIsWeb,
+        'dist': options.dist,
+        'integrations': options.sdk.integrations,
+        'packages':
+            options.sdk.packages.map((e) => e.toJson()).toList(growable: false),
+        'diagnosticLevel': options.diagnosticLevel.name,
+        'maxBreadcrumbs': options.maxBreadcrumbs,
+        'anrTimeoutIntervalMillis': options.anrTimeoutIntervalMillis,
+        'enableAutoNativeBreadcrumbs': options.enableAutoNativeBreadcrumbs,
+        'cacheDirSize': options.cacheDirSize,
+      });
 
-    options.sdk.addIntegration('nativeSdkIntegration');
+      options.sdk.addIntegration('nativeSdkIntegration');
+    } catch (error) {
+      options.logger(
+        SentryLevel.error,
+        'nativeSdkIntegration failed to be installed: ${error.toString()}',
+      );
+    }
   }
 
   return integration;

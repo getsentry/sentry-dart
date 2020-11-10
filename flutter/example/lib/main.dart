@@ -18,6 +18,8 @@ const String _exampleDsn =
 Future<void> main() async {
   await SentryFlutter.init((options) {
     options.dsn = _exampleDsn;
+    // TODO: we probably need to solve this
+    options.addInAppInclude('sentry_flutter_example');
   }, initMyApp);
 }
 

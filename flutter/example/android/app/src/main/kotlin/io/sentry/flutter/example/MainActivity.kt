@@ -53,8 +53,8 @@ class MainActivity : FlutterActivity() {
     }
   }
 
-  external fun crash(): Unit?
-  external fun message(): Unit?
+  private external fun crash()
+  private external fun message()
 
   companion object {
     init {

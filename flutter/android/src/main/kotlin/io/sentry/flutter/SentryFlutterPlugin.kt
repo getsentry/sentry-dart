@@ -1,6 +1,5 @@
 package io.sentry.flutter
 
-import android.os.Build
 import androidx.annotation.NonNull
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
@@ -42,7 +41,6 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
 
   override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
     when(call.method) {
-      "getPlatformVersion" -> result.success("Android ${Build.VERSION.RELEASE}") // TODO remove it
       "initNativeSdk" -> initNativeSdk(call, result)
       "captureEnvelope" -> captureEnvelope(call, result)
       else -> result.notImplemented()
@@ -113,11 +111,12 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
       options.setBeforeSend { event, _ ->
         setEventOriginTag(event)
         addPackages(event, options.sdkVersion)
+        removeThreadsIfNotNative(event)
 
         event
       }
 
-      // missing proxy, inappincludes/excludes, sendDefaultPii, enableScopeSync
+      // missing proxy, sendDefaultPii, enableScopeSync
 
       this.options = options
     }
@@ -173,6 +172,16 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
             event.sdk.addIntegration(integration)
           }
         }
+      }
+    }
+  }
+
+  private fun removeThreadsIfNotNative(event: SentryEvent) {
+    if (isValidSdk(event.sdk)) {
+      // we do not want the thread list if not an android event, the thread info is mostly about
+      // the file observer anyway
+      if (event.sdk.name != "sentry.java.android" && event.threads != null) {
+        event.threads.clear()
       }
     }
   }
