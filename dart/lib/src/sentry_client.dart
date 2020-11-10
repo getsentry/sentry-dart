@@ -2,12 +2,12 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:meta/meta.dart';
-import 'package:sentry/src/sentry_stack_trace_factory.dart';
 
 import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_exception_factory.dart';
 import 'sentry_options.dart';
+import 'sentry_stack_trace_factory.dart';
 import 'transport/http_transport.dart';
 import 'transport/noop_transport.dart';
 import 'version.dart';
