@@ -107,7 +107,6 @@ class SentryClient {
       event = event.copyWith(exception: sentryException);
     } else if (_options.attachStackTrace &&
         event.stackTrace == null &&
-        event.throwable == null &&
         event.exception == null) {
       final frames = _stackTraceFactory.getStackFrames(StackTrace.current);
 
