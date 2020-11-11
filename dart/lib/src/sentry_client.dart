@@ -65,20 +65,12 @@ class SentryClient {
       _options.logger(SentryLevel.debug, 'No scope is defined');
     }
 
-    if (stackTrace != null) {
-      event = event.copyWith(
-        stackTrace: SentryStackTrace(
-          frames: _stackTraceFactory.getStackFrames(stackTrace),
-        ),
-      );
-    }
-
     // dropped by scope event processors
     if (event == null) {
       return _sentryId;
     }
 
-    event = _prepareEvent(event);
+    event = _prepareEvent(event, stackTrace: stackTrace);
 
     if (_options.beforeSend != null) {
       try {
@@ -98,7 +90,7 @@ class SentryClient {
     return _options.transport.send(event);
   }
 
-  SentryEvent _prepareEvent(SentryEvent event) {
+  SentryEvent _prepareEvent(SentryEvent event, {dynamic stackTrace}) {
     event = event.copyWith(
       serverName: event.serverName ?? _options.serverName,
       dist: event.dist ?? _options.dist,
@@ -109,14 +101,18 @@ class SentryClient {
       platform: event.platform ?? sdkPlatform,
     );
 
-    if (event.throwable != null && event.exception == null) {
+    if (stackTrace != null && event.throwable == null) {
+      final frames = _stackTraceFactory.getStackFrames(stackTrace);
+
+      if (frames != null && frames.isNotEmpty) {
+        event = event.copyWith(stackTrace: SentryStackTrace(frames: frames));
+      }
+    } else if (event.throwable != null && event.exception == null) {
       final sentryException = _exceptionFactory
-          .getSentryException(event.throwable, stackTrace: event.stackTrace);
+          .getSentryException(event.throwable, stackTrace: stackTrace);
 
       event = event.copyWith(exception: sentryException);
-    } else if (_options.attachStackTrace &&
-        event.stackTrace == null &&
-        event.exception == null) {
+    } else if (_options.attachStackTrace && event.exception == null) {
       final frames = _stackTraceFactory.getStackFrames(StackTrace.current);
 
       if (frames != null && frames.isNotEmpty) {
@@ -139,8 +135,12 @@ class SentryClient {
       timestamp: _options.clock(),
     );
 
-    return captureEvent(event,
-        stackTrace: stackTrace, scope: scope, hint: hint);
+    return captureEvent(
+      event,
+      stackTrace: stackTrace,
+      scope: scope,
+      hint: hint,
+    );
   }
 
   /// Reports the [template]

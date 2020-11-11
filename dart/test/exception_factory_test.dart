@@ -21,10 +21,7 @@ void main() {
         sentryException = exceptionFactory.getSentryException(
           err,
           mechanism: mechanism,
-          stackTrace: SentryStackTrace(
-            frames: SentryStackTraceFactory(SentryOptions())
-                .getStackFrames(stacktrace),
-          ),
+          stackTrace: stacktrace,
         );
       }
 
@@ -41,13 +38,11 @@ void main() {
           type: 'example',
           description: 'a mechanism',
         );
-        final stackTrace = SentryStackTrace(
-          frames: SentryStackTraceFactory(SentryOptions()).getStackFrames('''
+        final stackTrace = '''
 #0      baz (file:///pathto/test.dart:50:3)
 <asynchronous suspension>
 #1      bar (file:///pathto/test.dart:46:9)
-      '''),
-        );
+      ''';
         sentryException = exceptionFactory.getSentryException(
           err,
           mechanism: mechanism,
