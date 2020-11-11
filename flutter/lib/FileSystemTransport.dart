@@ -21,7 +21,6 @@ class FileSystemTransport implements Transport {
     final eventMap = event.toJson();
 
     final eventString = _jsonEncoder.convert(eventMap);
-    _options.logger(SentryLevel.debug, 'event string: $eventString');
 
     final itemHeaderMap = {
       'content_type': 'application/json',
@@ -30,18 +29,12 @@ class FileSystemTransport implements Transport {
     };
 
     final headerString = _jsonEncoder.convert(headerMap);
-    _options.logger(SentryLevel.debug, 'header string: $headerString');
-
     final itemHeaderString = _jsonEncoder.convert(itemHeaderMap);
-    _options.logger(SentryLevel.debug, 'item header string: $itemHeaderString');
-
     final envelopeString = '$headerString\n$itemHeaderString\n$eventString';
-
-    _options.logger(SentryLevel.debug, 'envelope string: $envelopeString');
 
     final args = [envelopeString];
     try {
-      await _channel.invokeMethod('captureEnvelope', args);
+      await _channel.invokeMethod<void>('captureEnvelope', args);
     } catch (error) {
       _options.logger(
         SentryLevel.error,

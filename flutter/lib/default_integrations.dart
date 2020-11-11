@@ -87,7 +87,7 @@ Integration runZonedGuardedIntegration(
 Integration nativeSdkIntegration(SentryOptions options, MethodChannel channel) {
   Future<void> integration(Hub hub, SentryOptions options) async {
     try {
-      await channel.invokeMethod('initNativeSdk', <String, dynamic>{
+      await channel.invokeMethod<void>('initNativeSdk', <String, dynamic>{
         'dsn': options.dsn,
         'debug': options.debug,
         'environment': options.environment,

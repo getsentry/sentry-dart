@@ -79,7 +79,7 @@ class SentryStackTraceFactory {
       inApp: isInApp(frame),
       fileName: fileName,
       package: frame.package,
-      platform: 'native', // TODO: only if necessary to symbolicate
+      // platform: 'native', // TODO: only if necessary to symbolicate
     );
 
     if (frame.line != null && frame.line >= 0) {

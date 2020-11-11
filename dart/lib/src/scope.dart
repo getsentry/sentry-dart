@@ -1,7 +1,4 @@
 import 'dart:collection';
-
-import 'utils.dart';
-
 import 'protocol.dart';
 import 'sentry_options.dart';
 

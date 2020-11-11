@@ -281,7 +281,8 @@ typedef BeforeBreadcrumbCallback = Breadcrumb Function(
   dynamic hint,
 );
 
-typedef EventProcessor = FutureOr<SentryEvent> Function(SentryEvent event, dynamic hint);
+typedef EventProcessor = FutureOr<SentryEvent> Function(
+    SentryEvent event, dynamic hint);
 
 typedef Integration = FutureOr<void> Function(Hub hub, SentryOptions options);
 
