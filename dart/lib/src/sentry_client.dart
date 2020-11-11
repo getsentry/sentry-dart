@@ -112,7 +112,9 @@ class SentryClient {
           .getSentryException(event.throwable, stackTrace: stackTrace);
 
       event = event.copyWith(exception: sentryException);
-    } else if (_options.attachStackTrace && event.exception == null) {
+    } else if (stackTrace == null &&
+        _options.attachStackTrace &&
+        event.exception == null) {
       final frames = _stackTraceFactory.getStackFrames(StackTrace.current);
 
       if (frames != null && frames.isNotEmpty) {
