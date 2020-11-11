@@ -1,5 +1,3 @@
-import 'dart:isolate';
-
 import 'package:meta/meta.dart';
 
 import '../protocol.dart';
@@ -263,15 +261,14 @@ class SentryEvent {
       json['exception'] = {
         'values': [exception.toJson()].toList(growable: false)
       };
-    }
-
-    if (stackTrace != null) {
+    } else if (stackTrace != null) {
       json['threads'] = {
         'values': [
           {
-            'id': Isolate.current.debugName,
+            'id': 0,
             'stacktrace': stackTrace.toJson(),
             'crashed': true,
+            'name': 'Current Isolate',
           }
         ]
       };
