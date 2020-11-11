@@ -26,19 +26,16 @@ class SentryExceptionFactory {
 
   SentryException getSentryException(
     dynamic exception, {
-    dynamic stackTrace,
+    SentryStackTrace stackTrace,
     Mechanism mechanism,
   }) {
     if (exception is Error) {
-      stackTrace ??= exception.stackTrace;
+      stackTrace ??= SentryStackTrace(
+        frames: _stacktraceFactory.getStackFrames(exception.stackTrace),
+      );
     } else if (_options.attachStackTrace) {
-      stackTrace ??= StackTrace.current;
-    }
-
-    SentryStackTrace sentryStackTrace;
-    if (stackTrace != null) {
-      sentryStackTrace = SentryStackTrace(
-        frames: _stacktraceFactory.getStackFrames(stackTrace),
+      stackTrace ??= SentryStackTrace(
+        frames: _stacktraceFactory.getStackFrames(StackTrace.current),
       );
     }
 
@@ -46,7 +43,7 @@ class SentryExceptionFactory {
       type: '${exception.runtimeType}',
       value: '$exception',
       mechanism: mechanism,
-      stacktrace: sentryStackTrace,
+      stacktrace: stackTrace,
     );
 
     return sentryException;

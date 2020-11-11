@@ -23,7 +23,11 @@ class HubAdapter implements Hub {
   void bindClient(SentryClient client) => Sentry.bindClient(client);
 
   @override
-  Future<SentryId> captureEvent(SentryEvent event, {dynamic hint}) =>
+  Future<SentryId> captureEvent(
+    SentryEvent event, {
+    dynamic stackTrace,
+    dynamic hint,
+  }) =>
       Sentry.captureEvent(event, hint: hint);
 
   @override

@@ -49,6 +49,7 @@ class SentryClient {
   Future<SentryId> captureEvent(
     SentryEvent event, {
     Scope scope,
+    dynamic stackTrace,
     dynamic hint,
   }) async {
     event = _processEvent(event, eventProcessors: _options.eventProcessors);
@@ -62,6 +63,14 @@ class SentryClient {
       event = scope.applyToEvent(event, hint);
     } else {
       _options.logger(SentryLevel.debug, 'No scope is defined');
+    }
+
+    if (stackTrace != null) {
+      event = event.copyWith(
+        stackTrace: SentryStackTrace(
+          frames: _stackTraceFactory.getStackFrames(stackTrace),
+        ),
+      );
     }
 
     // dropped by scope event processors
@@ -125,11 +134,17 @@ class SentryClient {
     Scope scope,
     dynamic hint,
   }) {
-    final event = SentryEvent(
+    var event = SentryEvent(
       throwable: throwable,
-      stackTrace: stackTrace,
       timestamp: _options.clock(),
     );
+    if (stackTrace != null) {
+      event = event.copyWith(
+        stackTrace: SentryStackTrace(
+          frames: _stackTraceFactory.getStackFrames(stackTrace),
+        ),
+      );
+    }
     return captureEvent(event, scope: scope, hint: hint);
   }
 

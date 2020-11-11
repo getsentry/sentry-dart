@@ -4,6 +4,7 @@
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/protocol/request.dart';
+import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:sentry/src/utils.dart';
 import 'package:test/test.dart';
 
@@ -206,7 +207,10 @@ void main() {
     });
 
     test('should not serialize stacktrace if not SentryStacktrace', () {
-      final stacktrace = '#0      baz (file:///pathto/test.dart:50:3)';
+      final stacktrace = SentryStackTrace(
+        frames: SentryStackTraceFactory(SentryOptions())
+            .getStackFrames('#0      baz (file:///pathto/test.dart:50:3)'),
+      );
       final serialized = SentryEvent(stackTrace: stacktrace).toJson();
       expect(serialized['stacktrace'], isNull);
     });

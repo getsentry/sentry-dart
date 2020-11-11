@@ -38,13 +38,12 @@ Future<void> main() async {
     print('Capture from runZonedGuarded $error');
     final event = SentryEvent(
       throwable: error,
-      stackTrace: stackTrace,
       // release is required on Web to match the source maps
       release: _release,
 
       // sdk: const Sdk(name: sdkName, version: sdkVersion),
     );
-    await _sentry.captureEvent(event);
+    await _sentry.captureEvent(event, stackTrace: stackTrace);
   });
 }
 

@@ -1,3 +1,5 @@
+import 'dart:isolate';
+
 import 'package:meta/meta.dart';
 
 import '../protocol.dart';
@@ -83,10 +85,9 @@ class SentryEvent {
   /// If this behavior is undesirable, consider using a custom formatted [message] instead.
   final dynamic throwable;
 
-  /// The stack trace corresponding to the thrown [exception].
-  ///
-  /// Can be `null`, a [String], or a [StackTrace].
-  final dynamic stackTrace;
+  /// The stack trace corresponding to the thrown [exception] or attachedStackTrace
+  /// see [SentryOptions.attachStackTrace]
+  final SentryStackTrace stackTrace;
 
   /// an exception or error that occurred in a program
   /// TODO more doc
@@ -262,12 +263,15 @@ class SentryEvent {
       json['exception'] = {
         'values': [exception.toJson()].toList(growable: false)
       };
-    } else if (stackTrace is SentryStackTrace) {
+    }
+
+    if (stackTrace != null) {
       json['threads'] = {
         'values': [
           {
-            'id': 0,
-            'stacktrace': (stackTrace as SentryStackTrace).toJson(),
+            'id': Isolate.current.debugName,
+            'stacktrace': stackTrace.toJson(),
+            'crashed': true,
           }
         ]
       };
