@@ -26,7 +26,7 @@ void main() {
       }
 
       expect(sentryException.type, 'StateError');
-      expect(sentryException.stacktrace.frames, isNotEmpty);
+      expect(sentryException.stackTrace.frames, isNotEmpty);
     });
 
     test('should not override event.stacktrace', () {
@@ -51,9 +51,9 @@ void main() {
       }
 
       expect(sentryException.type, 'StateError');
-      expect(sentryException.stacktrace.frames.first.lineNo, 46);
-      expect(sentryException.stacktrace.frames.first.colNo, 9);
-      expect(sentryException.stacktrace.frames.first.fileName, 'test.dart');
+      expect(sentryException.stackTrace.frames.first.lineNo, 46);
+      expect(sentryException.stackTrace.frames.first.colNo, 9);
+      expect(sentryException.stackTrace.frames.first.fileName, 'test.dart');
     });
   });
 

@@ -48,7 +48,7 @@ class SentryExceptionFactory {
       type: '${exception.runtimeType}',
       value: '$exception',
       mechanism: mechanism,
-      stacktrace: sentryStackTrace,
+      stackTrace: sentryStackTrace,
     );
 
     return sentryException;
