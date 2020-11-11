@@ -138,14 +138,9 @@ class SentryClient {
       throwable: throwable,
       timestamp: _options.clock(),
     );
-    if (stackTrace != null) {
-      event = event.copyWith(
-        stackTrace: SentryStackTrace(
-          frames: _stackTraceFactory.getStackFrames(stackTrace),
-        ),
-      );
-    }
-    return captureEvent(event, scope: scope, hint: hint);
+
+    return captureEvent(event,
+        stackTrace: stackTrace, scope: scope, hint: hint);
   }
 
   /// Reports the [template]
