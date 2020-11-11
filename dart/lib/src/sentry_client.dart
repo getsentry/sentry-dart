@@ -101,20 +101,16 @@ class SentryClient {
       platform: event.platform ?? sdkPlatform,
     );
 
-    if (stackTrace != null &&
-        event.throwable == null &&
-        event.exception == null) {
-      final frames = _stackTraceFactory.getStackFrames(stackTrace);
+    if (event.exception != null) return event;
 
-      if (frames != null && frames.isNotEmpty) {
-        event = event.copyWith(stackTrace: SentryStackTrace(frames: frames));
-      }
-    } else if (event.throwable != null && event.exception == null) {
+    if (event.throwable != null) {
       final sentryException = _exceptionFactory
           .getSentryException(event.throwable, stackTrace: stackTrace);
 
-      event = event.copyWith(exception: sentryException);
-    } else if (_options.attachStackTrace && event.exception == null) {
+      return event.copyWith(exception: sentryException);
+    }
+
+    if (stackTrace != null || _options.attachStackTrace) {
       stackTrace ??= StackTrace.current;
       final frames = _stackTraceFactory.getStackFrames(stackTrace);
 
