@@ -31,15 +31,15 @@ class SentryExceptionFactory {
   }) {
     SentryStackTrace sentryStackTrace;
     if (stackTrace != null) {
-      sentryStackTrace ??= SentryStackTrace(
+      sentryStackTrace = SentryStackTrace(
         frames: _stacktraceFactory.getStackFrames(stackTrace),
       );
     } else if (exception is Error) {
-      sentryStackTrace ??= SentryStackTrace(
+      sentryStackTrace = SentryStackTrace(
         frames: _stacktraceFactory.getStackFrames(exception.stackTrace),
       );
     } else if (_options.attachStackTrace) {
-      sentryStackTrace ??= SentryStackTrace(
+      sentryStackTrace = SentryStackTrace(
         frames: _stacktraceFactory.getStackFrames(StackTrace.current),
       );
     }
