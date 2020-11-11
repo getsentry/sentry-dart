@@ -101,7 +101,9 @@ class SentryClient {
       platform: event.platform ?? sdkPlatform,
     );
 
-    if (stackTrace != null && event.throwable == null) {
+    if (stackTrace != null &&
+        event.throwable == null &&
+        event.exception == null) {
       final frames = _stackTraceFactory.getStackFrames(stackTrace);
 
       if (frames != null && frames.isNotEmpty) {
