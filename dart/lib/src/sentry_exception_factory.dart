@@ -8,6 +8,7 @@ import 'throwable_mechanism.dart';
 /// class to convert Dart Error and exception to SentryException
 class SentryExceptionFactory {
   SentryStackTraceFactory _stacktraceFactory;
+  SentryOptions _options;
 
   SentryExceptionFactory({
     SentryStackTraceFactory stacktraceFactory,
@@ -17,6 +18,7 @@ class SentryExceptionFactory {
       throw ArgumentError('SentryOptions is required.');
     }
 
+    _options = options;
     _stacktraceFactory = stacktraceFactory ?? SentryStackTraceFactory(options);
   }
 

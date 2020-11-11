@@ -74,7 +74,10 @@ class SentryClient {
         );
       }
       if (event == null) {
-        _options.logger(SentryLevel.debug, 'Event was dropped by a processor');
+        _options.logger(
+          SentryLevel.debug,
+          'Event was dropped by BeforeSend callback',
+        );
         return _sentryId;
       }
     }

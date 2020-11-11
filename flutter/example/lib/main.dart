@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry/sentry.dart';
 import 'package:universal_platform/universal_platform.dart';
 
 const String _release =
@@ -72,6 +73,10 @@ class _MyAppState extends State<MyApp> {
           children: [
             Center(child: Text('Running on: $_platformVersion\n')),
             const Center(child: Text('Release: $_release\n')),
+            RaisedButton(
+              child: const Text('Dart: try catch'),
+              onPressed: () => tryCatch(),
+            ),
             RaisedButton(
               child: const Text('Dart: throw null'),
               // Warning : not captured if a debugger is attached
@@ -163,6 +168,14 @@ class AndroidExample extends StatelessWidget {
         },
       ),
     ]);
+  }
+}
+
+Future<void> tryCatch() async {
+  try {
+    throw StateError('whats happening here');
+  } catch (error, stackTrace) {
+    await Sentry.captureException(error, stackTrace: stackTrace);
   }
 }
 

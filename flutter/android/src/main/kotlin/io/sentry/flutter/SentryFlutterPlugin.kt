@@ -12,6 +12,8 @@ import android.content.Context
 import io.sentry.SentryEvent
 import io.sentry.SentryLevel
 import io.sentry.SentryOptions
+//import io.sentry.protocol.DebugImage
+//import io.sentry.protocol.DebugMeta
 import io.sentry.protocol.SdkVersion
 import java.io.File
 import java.util.UUID
@@ -115,10 +117,20 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
         options.isEnableNdk = false
       }
 
+//      var debugImage: DebugMeta? = null
+
       options.setBeforeSend { event, _ ->
         setEventOriginTag(event)
         addPackages(event, options.sdkVersion)
         removeThreadsIfNotAndroid(event)
+
+//        if (event.debugMeta != null &&
+//                debugImage == null &&
+//                event.debugMeta.images != null &&
+//                event.debugMeta.images.isNotEmpty()) {
+//          debugImage = event.debugMeta
+//        }
+//        addDebugImagesIfFlutterEvent(event, debugImage)
 
         event
       }
@@ -192,4 +204,13 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
       }
     }
   }
+
+//  private fun addDebugImagesIfFlutterEvent(event: SentryEvent, meta: DebugMeta?) {
+//    if (isValidSdk(event.sdk)) {
+//      // cal sentry-native to load debug meta
+//      if (event.sdk.name == "sentry.dart.flutter" && meta != null && event.debugMeta == null) {
+//        event.debugMeta = meta
+//      }
+//    }
+//  }
 }
