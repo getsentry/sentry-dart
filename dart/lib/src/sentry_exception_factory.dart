@@ -34,7 +34,7 @@ class SentryExceptionFactory {
       sentryStackTrace = SentryStackTrace(
         frames: _stacktraceFactory.getStackFrames(stackTrace),
       );
-    } else if (exception is Error) {
+    } else if (exception is Error && exception.stackTrace != null) {
       sentryStackTrace = SentryStackTrace(
         frames: _stacktraceFactory.getStackFrames(exception.stackTrace),
       );

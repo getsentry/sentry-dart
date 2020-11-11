@@ -129,7 +129,7 @@ class SentryClient {
     Scope scope,
     dynamic hint,
   }) {
-    var event = SentryEvent(
+    final event = SentryEvent(
       throwable: throwable,
       timestamp: _options.clock(),
     );
