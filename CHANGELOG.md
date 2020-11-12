@@ -12,6 +12,7 @@
 - feat: add missing protocol classes
 - fix: logger method and refactoring little things
 - fix: sentry protocol is v7
+- feat: add an attachStackTrace options
 
 ## 4.0.0-alpha.1
 

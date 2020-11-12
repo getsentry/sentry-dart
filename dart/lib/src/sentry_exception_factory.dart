@@ -7,17 +7,22 @@ import 'throwable_mechanism.dart';
 
 /// class to convert Dart Error and exception to SentryException
 class SentryExceptionFactory {
-  SentryStackTraceFactory _stacktraceFactory;
+  final SentryOptions _options;
+
+  final SentryStackTraceFactory _stacktraceFactory;
 
   SentryExceptionFactory({
-    SentryStackTraceFactory stacktraceFactory,
+    @required SentryStackTraceFactory stacktraceFactory,
     @required SentryOptions options,
-  }) {
-    if (options == null) {
+  })  : _options = options,
+        _stacktraceFactory = stacktraceFactory {
+    if (_options == null) {
       throw ArgumentError('SentryOptions is required.');
     }
 
-    _stacktraceFactory = stacktraceFactory ?? SentryStackTraceFactory(options);
+    if (_stacktraceFactory == null) {
+      throw ArgumentError('SentryStackTraceFactory is required.');
+    }
   }
 
   SentryException getSentryException(
@@ -33,19 +38,21 @@ class SentryExceptionFactory {
 
     if (throwable is Error) {
       stackTrace ??= throwable.stackTrace;
-    } else {
+    } else if(_options.attachStackTrace){
       stackTrace ??= StackTrace.current;
     }
 
-    final sentryStackTrace = SentryStackTrace(
-      frames: _stacktraceFactory.getStackFrames(stackTrace),
-    );
-
+    SentryStackTrace sentryStackTrace;
+    if( stackTrace != null) {
+      sentryStackTrace = SentryStackTrace(
+        frames: _stacktraceFactory.getStackFrames(stackTrace),
+      );
+    }
     final sentryException = SentryException(
       type: '${throwable.runtimeType}',
       value: '$throwable',
       mechanism: mechanism,
-      stacktrace: sentryStackTrace,
+      stackTrace: sentryStackTrace,
     );
 
     return sentryException;

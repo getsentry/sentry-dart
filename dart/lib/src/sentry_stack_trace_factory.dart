@@ -41,8 +41,10 @@ class SentryStackTraceFactory {
 
     final frames = <SentryStackFrame>[];
     for (var t = 0; t < chain.traces.length; t += 1) {
-      final encodedFrames =
-          chain.traces[t].frames.map((f) => encodeStackTraceFrame(f));
+      final encodedFrames = chain.traces[t].frames
+          // we don't want to add our own frames
+          .where((frame) => frame.package != 'sentry')
+          .map((f) => encodeStackTraceFrame(f));
 
       frames.addAll(encodedFrames);
 
@@ -122,14 +124,14 @@ class SentryStackTraceFactory {
 
     if (_options.inAppIncludes != null) {
       for (final include in _options.inAppIncludes) {
-        if (frame.package != null && frame.package.startsWith(include)) {
+        if (frame.package != null && frame.package == include) {
           return true;
         }
       }
     }
     if (_options.inAppExcludes != null) {
       for (final exclude in _options.inAppExcludes) {
-        if (frame.package != null && frame.package.startsWith(exclude)) {
+        if (frame.package != null && frame.package == exclude) {
           return false;
         }
       }

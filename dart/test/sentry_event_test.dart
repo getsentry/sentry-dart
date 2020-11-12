@@ -4,6 +4,7 @@
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/protocol/request.dart';
+import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:sentry/src/utils.dart';
 import 'package:test/test.dart';
 import 'package:sentry/src/version.dart';
@@ -187,6 +188,32 @@ void main() {
       expect(serialized['throwable'], null);
       expect(serialized['stacktrace'], null);
       expect(serialized['exception'], null);
+    });
+
+    test('should serialize stacktrace if SentryStacktrace', () {
+      final stacktrace =
+          SentryStackTrace(frames: [SentryStackFrame(function: 'main')]);
+      final serialized = SentryEvent(stackTrace: stacktrace).toJson();
+      expect(serialized['threads']['values'].first['stacktrace'], isNotNull);
+    });
+
+    test('should not serialize event.stacktrace if event.exception is set', () {
+      final stacktrace =
+          SentryStackTrace(frames: [SentryStackFrame(function: 'main')]);
+      final serialized = SentryEvent(
+        exception: SentryException(value: 'Bad state', type: 'StateError'),
+        stackTrace: stacktrace,
+      ).toJson();
+      expect(serialized['stacktrace'], isNull);
+    });
+
+    test('should not serialize stacktrace if not SentryStacktrace', () {
+      final stacktrace = SentryStackTrace(
+        frames: SentryStackTraceFactory(SentryOptions())
+            .getStackFrames('#0      baz (file:///pathto/test.dart:50:3)'),
+      );
+      final serialized = SentryEvent(stackTrace: stacktrace).toJson();
+      expect(serialized['stacktrace'], isNull);
     });
 
     test('serializes to JSON with sentryException', () {

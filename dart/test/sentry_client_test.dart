@@ -1,5 +1,6 @@
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
@@ -11,6 +12,94 @@ void main() {
     setUp(() {
       options = SentryOptions(dsn: fakeDsn);
       options.transport = MockTransport();
+    });
+
+    test('should capture event stacktrace', () async {
+      final client = SentryClient(options..attachStackTrace = false);
+      final event = SentryEvent();
+      await client.captureEvent(
+        event,
+        stackTrace: '#0      baz (file:///pathto/test.dart:50:3)',
+      );
+
+      final capturedEvent = (verify(
+        options.transport.send(captureAny),
+      ).captured.first) as SentryEvent;
+
+      expect(capturedEvent.stackTrace is SentryStackTrace, true);
+    });
+
+    test('should attach event stacktrace', () async {
+      final client = SentryClient(options);
+      final event = SentryEvent();
+      await client.captureEvent(event);
+
+      final capturedEvent = (verify(
+        options.transport.send(captureAny),
+      ).captured.first) as SentryEvent;
+
+      expect(capturedEvent.stackTrace is SentryStackTrace, true);
+    });
+
+    test('should not attach event stacktrace', () async {
+      final client = SentryClient(options..attachStackTrace = false);
+      final event = SentryEvent();
+      await client.captureEvent(event);
+
+      final capturedEvent = (verify(
+        options.transport.send(captureAny),
+      ).captured.first) as SentryEvent;
+
+      expect(capturedEvent.stackTrace, isNull);
+    });
+
+    test('should not attach event stacktrace if event has throwable', () async {
+      final client = SentryClient(options);
+
+      SentryEvent event;
+      try {
+        throw StateError('Error');
+      } on Error catch (err) {
+        event = SentryEvent(throwable: err);
+      }
+
+      await client.captureEvent(
+        event,
+        stackTrace: '#0      baz (file:///pathto/test.dart:50:3)',
+      );
+
+      final capturedEvent = (verify(
+        options.transport.send(captureAny),
+      ).captured.first) as SentryEvent;
+
+      expect(capturedEvent.stackTrace, isNull);
+      expect(capturedEvent.exception.stackTrace, isNotNull);
+    });
+
+    test('should not attach event stacktrace if event has exception', () async {
+      final client = SentryClient(options);
+
+      final exception = SentryException(
+        type: 'Exception',
+        value: 'an exception',
+        stackTrace: SentryStackTrace(
+          frames: SentryStackTraceFactory(options)
+              .getStackFrames('#0      baz (file:///pathto/test.dart:50:3)'),
+        ),
+      );
+      final event = SentryEvent(exception: exception);
+
+      await client.captureEvent(
+        event,
+        stackTrace: '#0      baz (file:///pathto/test.dart:50:3)',
+      );
+
+      final capturedEvent = (verify(
+        options.transport.send(captureAny),
+      ).captured.first) as SentryEvent;
+
+      expect(capturedEvent.stackTrace, isNull);
+      expect(capturedEvent.exception.stackTrace, isNotNull);
     });
 
     test('should capture message', () async {
@@ -29,6 +118,19 @@ void main() {
       expect(capturedEvent.message.formatted, 'simple message 1');
       expect(capturedEvent.message.template, 'simple message %d');
       expect(capturedEvent.message.params, [1]);
+
+      expect(capturedEvent.stackTrace is SentryStackTrace, true);
+    });
+
+    test('should capture message without stacktrace', () async {
+      final client = SentryClient(options..attachStackTrace = false);
+      await client.captureMessage('message', level: SentryLevel.error);
+
+      final capturedEvent = (verify(
+        options.transport.send(captureAny),
+      ).captured.first) as SentryEvent;
+
+      expect(capturedEvent.stackTrace, isNull);
     });
   });
 
@@ -60,7 +162,7 @@ void main() {
 
       expect(capturedEvent.throwable, error);
       expect(capturedEvent.exception is SentryException, true);
-      expect(capturedEvent.exception.stacktrace, isNotNull);
+      expect(capturedEvent.exception.stackTrace, isNotNull);
     });
   });
 
@@ -96,11 +198,11 @@ void main() {
 
       expect(capturedEvent.throwable, error);
       expect(capturedEvent.exception is SentryException, true);
-      expect(capturedEvent.exception.stacktrace, isNotNull);
-      expect(capturedEvent.exception.stacktrace.frames.first.fileName,
+      expect(capturedEvent.exception.stackTrace, isNotNull);
+      expect(capturedEvent.exception.stackTrace.frames.first.fileName,
           'test.dart');
-      expect(capturedEvent.exception.stacktrace.frames.first.lineNo, 46);
-      expect(capturedEvent.exception.stacktrace.frames.first.colNo, 9);
+      expect(capturedEvent.exception.stackTrace.frames.first.lineNo, 46);
+      expect(capturedEvent.exception.stackTrace.frames.first.colNo, 9);
     });
   });
 
@@ -136,10 +238,72 @@ void main() {
 
       expect(capturedEvent.throwable, exception);
       expect(capturedEvent.exception is SentryException, true);
-      expect(capturedEvent.exception.stacktrace.frames.first.fileName,
+      expect(capturedEvent.exception.stackTrace.frames.first.fileName,
           'test.dart');
-      expect(capturedEvent.exception.stacktrace.frames.first.lineNo, 46);
-      expect(capturedEvent.exception.stacktrace.frames.first.colNo, 9);
+      expect(capturedEvent.exception.stackTrace.frames.first.lineNo, 46);
+      expect(capturedEvent.exception.stackTrace.frames.first.colNo, 9);
+    });
+
+    test('should capture exception with Stackframe.current', () async {
+      try {
+        throw Exception('Error');
+      } catch (err) {
+        exception = err;
+      }
+
+      final client = SentryClient(options);
+      await client.captureException(exception);
+
+      final capturedEvent = (verify(
+        options.transport.send(captureAny),
+      ).captured.first) as SentryEvent;
+
+      expect(capturedEvent.exception.stackTrace, isNotNull);
+    });
+
+    test('should capture exception without Stackframe.current', () async {
+      try {
+        throw Exception('Error');
+      } catch (err) {
+        exception = err;
+      }
+
+      final client = SentryClient(options..attachStackTrace = false);
+      await client.captureException(exception);
+
+      final capturedEvent = (verify(
+        options.transport.send(captureAny),
+      ).captured.first) as SentryEvent;
+
+      expect(capturedEvent.exception.stackTrace, isNull);
+    });
+
+    test('should not capture sentry frames exception', () async {
+      try {
+        throw Exception('Error');
+      } catch (err) {
+        exception = err;
+      }
+
+      final stacktrace = '''
+#0      init (package:sentry/sentry.dart:46:9)
+#1      bar (file:///pathto/test.dart:46:9)
+<asynchronous suspension>
+#2      capture (package:sentry/sentry.dart:46:9)
+      ''';
+
+      final client = SentryClient(options);
+      await client.captureException(exception, stackTrace: stacktrace);
+
+      final capturedEvent = (verify(
+        options.transport.send(captureAny),
+      ).captured.first) as SentryEvent;
+
+      expect(
+        capturedEvent.exception.stackTrace.frames
+            .every((frame) => frame.package != 'sentry'),
+        true,
+      );
     });
   });
 

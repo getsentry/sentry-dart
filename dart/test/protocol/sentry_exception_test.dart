@@ -41,7 +41,7 @@ void main() {
       type: 'StateError',
       value: 'Bad state: error',
       module: 'example.module',
-      stacktrace: stacktrace,
+      stackTrace: stacktrace,
       mechanism: mechanism,
       threadId: 123456,
     );
