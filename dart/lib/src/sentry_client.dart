@@ -5,12 +5,23 @@ import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_exception_factory.dart';
 import 'sentry_options.dart';
+import 'sentry_stack_trace_factory.dart';
 import 'transport/http_transport.dart';
 import 'transport/noop_transport.dart';
 import 'version.dart';
 
 /// Logs crash reports and events to the Sentry.io service.
 class SentryClient {
+  final SentryOptions _options;
+
+  final Random _random;
+
+  static final _sentryId = Future.value(SentryId.empty());
+
+  SentryExceptionFactory _exceptionFactory;
+
+  SentryStackTraceFactory _stackTraceFactory;
+
   /// Instantiates a client using [SentryOptions]
   factory SentryClient(SentryOptions options) {
     if (options == null) {
@@ -20,27 +31,25 @@ class SentryClient {
     if (options.transport is NoOpTransport) {
       options.transport = HttpTransport(options);
     }
+
     return SentryClient._(options);
   }
 
-  final SentryOptions _options;
-
-  final Random _random;
-
-  final SentryExceptionFactory _exceptionFactory;
-
-  static final _sentryId = Future.value(SentryId.empty());
-
   /// Instantiates a client using [SentryOptions]
-  SentryClient._(this._options, {SentryExceptionFactory exceptionFactory})
-      : _exceptionFactory =
-            exceptionFactory ?? SentryExceptionFactory(options: _options),
-        _random = _options.sampleRate == null ? null : Random();
+  SentryClient._(this._options)
+      : _random = _options.sampleRate == null ? null : Random() {
+    _stackTraceFactory = SentryStackTraceFactory(_options);
+    _exceptionFactory = SentryExceptionFactory(
+      options: _options,
+      stacktraceFactory: _stackTraceFactory,
+    );
+  }
 
   /// Reports an [event] to Sentry.io.
   Future<SentryId> captureEvent(
     SentryEvent event, {
     Scope scope,
+    dynamic stackTrace,
     dynamic hint,
   }) async {
     event = _processEvent(event, eventProcessors: _options.eventProcessors);
@@ -61,7 +70,7 @@ class SentryClient {
       return _sentryId;
     }
 
-    event = _prepareEvent(event);
+    event = _prepareEvent(event, stackTrace: stackTrace);
 
     if (_options.beforeSend != null) {
       try {
@@ -81,7 +90,7 @@ class SentryClient {
     return _options.transport.send(event);
   }
 
-  SentryEvent _prepareEvent(SentryEvent event) {
+  SentryEvent _prepareEvent(SentryEvent event, {dynamic stackTrace}) {
     event = event.copyWith(
       serverName: event.serverName ?? _options.serverName,
       dist: event.dist ?? _options.dist,
@@ -92,11 +101,22 @@ class SentryClient {
       platform: event.platform ?? sdkPlatform,
     );
 
-    if (event.throwable != null && event.exception == null) {
-      final sentryException = _exceptionFactory
-          .getSentryException(event.throwable, stackTrace: event.stackTrace);
+    if (event.exception != null) return event;
 
-      event = event.copyWith(exception: sentryException);
+    if (event.throwable != null) {
+      final sentryException = _exceptionFactory
+          .getSentryException(event.throwable, stackTrace: stackTrace);
+
+      return event.copyWith(exception: sentryException);
+    }
+
+    if (stackTrace != null || _options.attachStackTrace) {
+      stackTrace ??= StackTrace.current;
+      final frames = _stackTraceFactory.getStackFrames(stackTrace);
+
+      if (frames != null && frames.isNotEmpty) {
+        event = event.copyWith(stackTrace: SentryStackTrace(frames: frames));
+      }
     }
 
     return event;
@@ -111,10 +131,15 @@ class SentryClient {
   }) {
     final event = SentryEvent(
       throwable: throwable,
-      stackTrace: stackTrace,
       timestamp: _options.clock(),
     );
-    return captureEvent(event, scope: scope, hint: hint);
+
+    return captureEvent(
+      event,
+      stackTrace: stackTrace,
+      scope: scope,
+      hint: hint,
+    );
   }
 
   /// Reports the [template]

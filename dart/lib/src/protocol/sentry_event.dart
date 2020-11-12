@@ -83,10 +83,9 @@ class SentryEvent {
   /// If this behavior is undesirable, consider using a custom formatted [message] instead.
   final dynamic throwable;
 
-  /// The stack trace corresponding to the thrown [exception].
-  ///
-  /// Can be `null`, a [String], or a [StackTrace].
-  final dynamic stackTrace;
+  /// an optional attached StackTrace
+  /// used when event has no throwable or exception, see [SentryOptions.attachStackTrace]
+  final SentryStackTrace stackTrace;
 
   /// an exception or error that occurred in a program
   /// TODO more doc
@@ -261,6 +260,17 @@ class SentryEvent {
     if (exception != null) {
       json['exception'] = {
         'values': [exception.toJson()].toList(growable: false)
+      };
+    } else if (stackTrace != null) {
+      json['threads'] = {
+        'values': [
+          {
+            'id': 0,
+            'stacktrace': stackTrace.toJson(),
+            'crashed': true,
+            'name': 'Current Isolate',
+          }
+        ]
       };
     }
 

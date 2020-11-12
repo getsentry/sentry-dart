@@ -16,6 +16,7 @@ class NoOpSentryClient implements SentryClient {
   @override
   Future<SentryId> captureEvent(
     SentryEvent event, {
+    dynamic stackTrace,
     Scope scope,
     dynamic hint,
   }) =>

@@ -54,7 +54,11 @@ class Hub {
   SentryId get lastEventId => _lastEventId;
 
   /// Captures the event.
-  Future<SentryId> captureEvent(SentryEvent event, {dynamic hint}) async {
+  Future<SentryId> captureEvent(
+    SentryEvent event, {
+    dynamic stackTrace,
+    dynamic hint,
+  }) async {
     var sentryId = SentryId.empty();
 
     if (!_isEnabled) {
@@ -73,6 +77,7 @@ class Hub {
         try {
           sentryId = await item.client.captureEvent(
             event,
+            stackTrace: stackTrace,
             scope: item.scope,
             hint: hint,
           );

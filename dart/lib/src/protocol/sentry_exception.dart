@@ -14,7 +14,7 @@ class SentryException {
   final String module;
 
   /// An optional stack trace object
-  final SentryStackTrace stacktrace;
+  final SentryStackTrace stackTrace;
 
   /// An optional object describing the [Mechanism] that created this exception
   final Mechanism mechanism;
@@ -26,7 +26,7 @@ class SentryException {
     @required this.type,
     @required this.value,
     this.module,
-    this.stacktrace,
+    this.stackTrace,
     this.mechanism,
     this.threadId,
   });
@@ -46,8 +46,8 @@ class SentryException {
       json['module'] = module;
     }
 
-    if (stacktrace != null) {
-      json['stacktrace'] = stacktrace.toJson();
+    if (stackTrace != null) {
+      json['stacktrace'] = stackTrace.toJson();
     }
 
     if (mechanism != null) {

@@ -59,9 +59,10 @@ class Sentry {
   /// Reports an [event] to Sentry.io.
   static Future<SentryId> captureEvent(
     SentryEvent event, {
+    dynamic stackTrace,
     dynamic hint,
   }) async =>
-      currentHub.captureEvent(event, hint: hint);
+      currentHub.captureEvent(event, stackTrace: stackTrace, hint: hint);
 
   /// Reports the [throwable] and optionally its [stackTrace] to Sentry.io.
   static Future<SentryId> captureException(
