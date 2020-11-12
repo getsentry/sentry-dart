@@ -86,7 +86,9 @@ class SentryStackTraceFactory {
   /// "dart:" and "package:" imports are always relative and are OK to send in
   /// full.
   String _absolutePathForCrashReport(Frame frame) {
-    if (frame.uri.scheme != 'dart' && frame.uri.scheme != 'package') {
+    if (frame.uri.scheme != 'dart' &&
+        frame.uri.scheme != 'package' &&
+        frame.uri.pathSegments.isNotEmpty) {
       return frame.uri.pathSegments.last;
     }
 

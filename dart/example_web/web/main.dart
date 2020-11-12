@@ -92,9 +92,9 @@ void captureException() async {
 }
 
 Future<void> captureCompleteExampleEvent() async {
+  print('\nReporting a complete event example: ${sdkName}');
   final sentryId = await Sentry.captureEvent(event);
 
-  print('\nReporting a complete event example: ${sdkName}');
   print('Response SentryId: ${sentryId}');
 
   if (sentryId != SentryId.empty()) {
