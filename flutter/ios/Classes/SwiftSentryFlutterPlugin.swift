@@ -88,18 +88,4 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
     private func captureEnvelope(_ call: FlutterMethodCall, result: @escaping FlutterResult){
         result("iOS captureEnvelope" )
     }
-
-    /*override init() {
-     if let path = Bundle.main.path(forResource: "Info", ofType: "plist") {
-     if let resource = NSDictionary(contentsOfFile: path) {
-     if let dsn = resource.object(forKey: "SentryDsn") {
-     SentrySDK.start { options in
-     options.dsn = dsn as? String
-     options.debug = resource["SentryDebug"] as? Bool ?? false
-     options.attachStacktrace = true
-     }
-     }
-     }
-     }
-     }*/
 }
