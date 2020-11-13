@@ -3,6 +3,8 @@ import Sentry
 import UIKit
 
 public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
+    var options: Options?
+    
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "sentry_flutter", binaryMessenger: registrar.messenger())
         let instance = SwiftSentryFlutterPlugin()
@@ -21,12 +23,12 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
 
     private func initNativeSdk(_ call: FlutterMethodCall, result: @escaping FlutterResult){
         guard let arguments = call.arguments as? [String: Any] else {
-            result(FlutterError(code: "0", message: "invalid args", details: nil) )
+            result(FlutterError(code: "4", message: "Arguments is null or empty", details: nil) )
             return
         }
 
         if (arguments.isEmpty) {
-            result("Arguments is null or empty")
+            result(FlutterError(code: "4", message: "Arguments is null or empty", details: nil) )
             return
         }
 
@@ -53,6 +55,8 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
                 /// TODO ? addPackages, removeThreadsIfNotAndroid
                 return event
             }
+            
+            self.options = options
         }
 
         result("iOS initNativeSdk" )
@@ -86,6 +90,31 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
     }
 
     private func captureEnvelope(_ call: FlutterMethodCall, result: @escaping FlutterResult){
-        result("iOS captureEnvelope" )
+        guard let arguments = call.arguments as? [Any],
+              !arguments.isEmpty,
+              let event = arguments.first as? String else {
+            result(FlutterError(code: "2", message: "Envelope is null or empty", details: nil) )
+            return
+        }
+        
+        guard writeEnvelope(envelope: event) == true else {
+            result(FlutterError(code: "3", message: "SentryOptions or outboxPath are null or empty", details: nil) )
+            return
+        }
+        result("")
+    }
+    
+    private func writeEnvelope(envelope: String) -> Bool{
+        if let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            let filePath = dir.appendingPathComponent(UUID().uuidString)
+            do{
+                try envelope.write(to: filePath, atomically: false, encoding: .utf8)
+                return true
+            } catch {
+                print("writeEnvelope fail")
+                // logger ?
+            }
+        }
+        return false;
     }
 }
