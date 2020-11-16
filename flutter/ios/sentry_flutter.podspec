@@ -11,11 +11,11 @@ Sentry SDK for Flutter with support to native through sentry-cocoa.
   s.source           = { :git => "https://github.com/getsentry/sentry-dart.git",
                          :tag => s.version.to_s }
   s.source_files = 'Classes/**/*'
-  s.dependency 'Sentry', '~> 6.0.1'
+  s.dependency 'Sentry', '~> 6.0.9'
   s.dependency 'Flutter'
   s.platform = :ios, '9.0'
 
   # Flutter.framework does not contain a i386 slice. Only x86_64 simulators are supported.
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'VALID_ARCHS[sdk=iphonesimulator*]' => 'x86_64' }
-  s.swift_version = '5.0'
+  s.swift_version = '5.1'
 end

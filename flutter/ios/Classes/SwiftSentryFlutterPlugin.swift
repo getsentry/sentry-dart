@@ -12,12 +12,18 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        if call.method == "initNativeSdk" {
+        switch call.method as String{
+            case "initNativeSdk" :
             initNativeSdk(call, result: result)
+                break
 
-        } else if call.method == "captureEnvelope"{
+        case "captureEnvelope" :
             captureEnvelope(call, result: result)
+            break
+        default:
+            result(FlutterMethodNotImplemented)
         }
+
 
     }
 
@@ -33,16 +39,44 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
         }
 
         SentrySDK.start { options in
-            options.dsn = arguments["dsn"] as? String
-            options.debug = arguments["debug"] as? Bool ?? false
-            options.environment = arguments["environment"] as? String
-            options.releaseName = arguments["release"] as? String
-            options.enableAutoSessionTracking = arguments["enableAutoSessionTracking"] as? Bool ?? false
-            options.attachStacktrace = arguments["sessionTrackingIntervalMillis"] as? Bool ?? true
-            options.sessionTrackingIntervalMillis = arguments["sessionTrackingIntervalMillis"] as? UInt ?? 30000
-            options.dist = arguments["dist"] as? String
-            options.integrations = arguments["integrations"] as? [String] ?? []
-            options.maxBreadcrumbs = arguments["maxBreadcrumbs"] as? UInt ?? 100
+            if(arguments["dsn"] != nil ){
+                options.dsn = arguments["dsn"] as? String
+            } else {
+                result(FlutterError(code: "4", message: "A valid Dsn must be provided", details: nil) )
+            }
+            if let isDebug = arguments["debug"] as? Bool {
+                options.debug = isDebug
+            }
+
+            if let environment = arguments["environment"] as? String{
+                options.environment = environment
+            }
+            if let releaseName = arguments["release"] as? String{
+                options.releaseName = releaseName
+            }
+
+            if let enableAutoSessionTracking = arguments["enableAutoSessionTracking"] as? Bool {
+                options.enableAutoSessionTracking = enableAutoSessionTracking
+            }
+
+            if let attachStacktrace = arguments["sessionTrackingIntervalMillis"] as? Bool {
+                options.attachStacktrace = attachStacktrace
+            }
+
+            if let sessionTrackingIntervalMillis = arguments["sessionTrackingIntervalMillis"] as? UInt{
+                options.sessionTrackingIntervalMillis = sessionTrackingIntervalMillis
+            }
+
+            if let dist = arguments["dist"] as? String{
+                options.dist = dist
+            }
+
+            if let integrations = arguments["integrations"] as? [String]{
+                options.integrations = integrations
+            }
+            if let maxBreadcrumbs = arguments["maxBreadcrumbs"] as? UInt{
+                options.maxBreadcrumbs = maxBreadcrumbs
+            }
 
             /*
              missing fields : enableAutoNativeBreadcrumbs, diagnostic level,
@@ -52,7 +86,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
 
             options.beforeSend = { event in
                 self.setEventOriginTag(event: event)
-                /// TODO ? addPackages, removeThreadsIfNotAndroid
+                /// TODO ? addPackages
                 return event
             }
             
@@ -63,7 +97,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
     }
 
     private func setEventOriginTag(event: Event){
-        guard let sdk = event.sdk else { return  };
+        guard let sdk = event.sdk else { return  }
         if self.isValidSdk(sdk:sdk){
 
             switch sdk["name"] as! String{
@@ -79,7 +113,6 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
         }
     }
 
-
     private func setEventEnvironmentTag(event: Event, origin: String = "ios", environment: String) {
         event.tags?["event.origin"] = origin
         event.tags?["event.environment"] = environment
@@ -89,6 +122,18 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
         return (sdk["name"] != nil && !(sdk["name"] as! String).isEmpty)
     }
 
+    func convertStringToDictionary(text: String) -> [String:AnyObject]? {
+        if let data = text.data(using: .utf8) {
+            do {
+                let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? [String:AnyObject]
+                return json
+            } catch {
+                print("Something went wrong")
+            }
+        }
+        return nil
+    }
+
     private func captureEnvelope(_ call: FlutterMethodCall, result: @escaping FlutterResult){
         guard let arguments = call.arguments as? [Any],
               !arguments.isEmpty,
@@ -96,12 +141,39 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
             result(FlutterError(code: "2", message: "Envelope is null or empty", details: nil) )
             return
         }
-        
-        guard writeEnvelope(envelope: event) == true else {
-            result(FlutterError(code: "3", message: "SentryOptions or outboxPath are null or empty", details: nil) )
+
+
+        let parts = event.split(separator: "\n")
+        let envelopeParts: [[String: Any]] = try! parts.map ({ part in
+            convertStringToDictionary(text: "\(part)")!
+        })
+
+        guard let envelopeHeaderDict = envelopeParts[0] as? [String: Any],
+              let eventSdk =  envelopeHeaderDict as? [String: Any],
+              let eventId =  envelopeHeaderDict["event_id"] as? String,
+              let itemHeader = envelopeParts[1] as? [String: Any] ,
+              let itemType = itemHeader["type"] as? String,
+              let itemLength = itemHeader["length"] as? UInt else {
+            result(FlutterError(code: "2", message: "Cannot serialize event", details: nil) )
             return
         }
-        result("")
+
+        let sdkInfo = SentrySdkInfo(dict: eventSdk)
+        let sentryId = SentryId(uuidString: eventId)
+        let envelopeHeader = SentryEnvelopeHeader.init(id: sentryId, andSdkInfo: sdkInfo)
+
+        let sentryItemHeader = SentryEnvelopeItemHeader(type: itemType, length: itemLength)
+        
+        do {
+            let data = NSKeyedArchiver.archivedData(withRootObject: envelopeParts[2])
+            // TODO Fix Sentry - Error:: Failed to parse envelope item header Error Domain=NSCocoaErrorDomain Code=3840
+            let sentryEnvelopeItem = SentryEnvelopeItem( header: sentryItemHeader, data: data)
+            let envelope = SentryEnvelope.init(header: envelopeHeader, singleItem: sentryEnvelopeItem)
+            SentrySDK.currentHub().getClient()?.capture(envelope: envelope)
+            result("")
+        } catch {
+            result(FlutterError(code: "2", message: "Cannot serialize event payload", details: nil) )
+        }
     }
     
     private func writeEnvelope(envelope: String) -> Bool{
@@ -115,6 +187,6 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
                 // logger ?
             }
         }
-        return false;
+        return false
     }
 }
