@@ -3,7 +3,6 @@ import Sentry
 import UIKit
 
 public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
-    var options: Options?
 
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "sentry_flutter", binaryMessenger: registrar.messenger())
@@ -112,11 +111,15 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
 
             options.beforeSend = { event in
                 self.setEventOriginTag(event: event)
-                /// TODO ? addPackages
+                if let packages = arguments["packages"] as? [String]{
+                    if let sdk = event.sdk, var eventPackages = sdk["packages"] as? [String]{
+                        event.sdk!["packages"] = eventPackages.append(contentsOf: packages)
+                    } else {
+                        event.sdk = ["packages":packages]
+                    }
+                }
                 return event
             }
-
-            self.options = options
         }
 
         result("iOS initNativeSdk" )
