@@ -77,6 +77,14 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
             if let integrations = arguments["integrations"] as? [String]{
                 options.integrations?.append(contentsOf: integrations)
             }
+
+            if let enableAutoNativeBreadcrumbs = arguments["enableAutoNativeBreadcrumbs"] as? Bool,
+               enableAutoNativeBreadcrumbs == false {
+                options.integrations = options.integrations?.filter { (name) -> Bool in
+                    return name != "SentryAutoBreadcrumbTrackingIntegration"
+                }
+            }
+
             if let maxBreadcrumbs = arguments["maxBreadcrumbs"] as? UInt{
                 options.maxBreadcrumbs = maxBreadcrumbs
             }
@@ -157,8 +165,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
         
         guard
               let eventId = envelopeHeaderDict["event_id"] as? String,
-              let itemType = itemHeader["type"] as? String,
-              let itemLength = itemHeader["length"] as? UInt else {
+              let itemType = itemHeader["type"] as? String else {
             result(FlutterError(code: "2", message: "Cannot serialize event", details: nil) )
             return
         }
@@ -174,7 +181,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
         let envelope = SentryEnvelope.init(header: envelopeHeader, singleItem: sentryEnvelopeItem)
 
         SentrySDK.currentHub().getClient()?.capture(envelope: envelope)
-
+        
         result("")
         //result(FlutterError(code: "2", message: "Cannot serialize event payload", details: nil) )
     }
