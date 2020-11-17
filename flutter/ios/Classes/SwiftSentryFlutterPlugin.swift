@@ -44,6 +44,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
             } else {
                 result(FlutterError(code: "4", message: "A valid Dsn must be provided", details: nil) )
             }
+
             if let isDebug = arguments["debug"] as? Bool {
                 options.debug = isDebug
             }
@@ -51,6 +52,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
             if let environment = arguments["environment"] as? String{
                 options.environment = environment
             }
+
             if let releaseName = arguments["release"] as? String{
                 options.releaseName = releaseName
             }
@@ -60,8 +62,25 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
             }
 
             if let attachStacktrace = arguments["attachStacktrace"] as? Bool {
-                print("attachStacktrace \(attachStacktrace)")
                 options.attachStacktrace = attachStacktrace
+            }
+
+            if let diagnosticLevel = arguments["diagnosticLevel"] as? String, options.debug == true {
+
+                switch (diagnosticLevel) {
+                case "fatal", "error":
+                    options.logLevel = .error
+                    break;
+                case "debug":
+                    options.logLevel = .debug
+                    break;
+                case "warning", "info":
+                    options.logLevel = .verbose
+                    break;
+                default:
+                    options.logLevel = .none
+                    break;
+                }
             }
 
             if let sessionTrackingIntervalMillis = arguments["sessionTrackingIntervalMillis"] as? UInt{
@@ -88,9 +107,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
             }
 
             /*
-             missing fields : enableAutoNativeBreadcrumbs, diagnostic level,
-             enableNativeCrashHandling,platform, web, packages,anrTimeoutIntervalMillis
-             diagnosticLevel, cacheDirSize
+             missing fields : enableNativeCrashHandling, packages,anrTimeoutIntervalMillis, cacheDirSize
              */
 
             options.beforeSend = { event in
