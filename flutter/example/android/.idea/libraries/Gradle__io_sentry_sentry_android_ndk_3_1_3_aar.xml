@@ -1,0 +1,16 @@
+<component name="libraryTable">
+  <library name="Gradle: io.sentry:sentry-android-ndk:3.1.3@aar">
+    <CLASSES>
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/03a1dcd59ccb38bd47b6b8c26a0754f8/jetified-sentry-android-ndk-3.1.3/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/8d78e0adf09fea4b06122b8c9d725562/jetified-sentry-android-ndk-3.1.3/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/8d78e0adf09fea4b06122b8c9d725562/jetified-sentry-android-ndk-3.1.3/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/8d78e0adf09fea4b06122b8c9d725562/jetified-sentry-android-ndk-3.1.3/jars/classes.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.sentry/sentry-android-ndk/3.1.3/b691f73b1fa7a1249231788e5a5aaee7294de32e/sentry-android-ndk-3.1.3-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.sentry/sentry-android-ndk/3.1.3/6bd343639f7eca83fceb40c01b4624d656833fbc/sentry-android-ndk-3.1.3-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

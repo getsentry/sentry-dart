@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AndroidLogFilters">
+    <option name="TOOL_WINDOW_CUSTOM_FILTER" value="member:" />
+    <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="No Filters" />
+  </component>
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="NONE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="263a3791-9818-4fa7-8684-a3a69e8e58c8" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/../../android/src/main/kotlin/io/sentry/flutter/SentryFlutterPlugin.kt" beforeDir="false" afterPath="$PROJECT_DIR$/../../android/src/main/kotlin/io/sentry/flutter/SentryFlutterPlugin.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../run.sh" beforeDir="false" afterPath="$PROJECT_DIR$/../run.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../lib/default_integrations.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../../lib/default_integrations.dart" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[]" />
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <projects_view />
+      </state>
+    </system>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../.." />
+  </component>
+  <component name="ProjectId" id="1iBTleN9379sjDX6rek5IQ1tbVP" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="AnalyzeApkAction.lastApkPath" value="$PROJECT_DIR$/../build/app/outputs/apk/debug/app-debug.apk" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="android.sdk.path" value="$USER_HOME$/Library/Android/sdk" />
+    <property name="dart.analysis.tool.window.visible" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="project.structure.last.edited" value="Modules" />
+    <property name="project.structure.proportion" value="0.17" />
+    <property name="project.structure.side.proportion" value="0.44035533" />
+    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+    <property name="show.migrate.to.gradle.popup" value="false" />
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="AndroidJUnit" factoryName="Android JUnit">
+      <option name="TEST_OBJECT" value="class" />
+      <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+      <method v="2">
+        <option name="Android.Gradle.BeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="app" type="AndroidRunConfigurationType" factoryName="Android App" activateToolWindowBeforeRun="false">
+      <module name="android.app" />
+      <option name="DEPLOY" value="true" />
+      <option name="DEPLOY_APK_FROM_BUNDLE" value="false" />
+      <option name="DEPLOY_AS_INSTANT" value="false" />
+      <option name="ARTIFACT_NAME" value="" />
+      <option name="PM_INSTALL_OPTIONS" value="" />
+      <option name="ALL_USERS" value="false" />
+      <option name="DYNAMIC_FEATURES_DISABLED_LIST" value="" />
+      <option name="ACTIVITY_EXTRA_FLAGS" value="" />
+      <option name="MODE" value="default_activity" />
+      <option name="CLEAR_LOGCAT" value="false" />
+      <option name="SHOW_LOGCAT_AUTOMATICALLY" value="false" />
+      <option name="SKIP_NOOP_APK_INSTALLATIONS" value="true" />
+      <option name="FORCE_STOP_RUNNING_APP" value="true" />
+      <option name="TARGET_SELECTION_MODE" value="DEVICE_AND_SNAPSHOT_COMBO_BOX" />
+      <option name="DEBUGGER_TYPE" value="Auto" />
+      <Auto>
+        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
+        <option name="SHOW_STATIC_VARS" value="true" />
+        <option name="WORKING_DIR" value="" />
+        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
+        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
+      </Auto>
+      <Hybrid>
+        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
+        <option name="SHOW_STATIC_VARS" value="true" />
+        <option name="WORKING_DIR" value="" />
+        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
+        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
+      </Hybrid>
+      <Java />
+      <Native>
+        <option name="USE_JAVA_AWARE_DEBUGGER" value="false" />
+        <option name="SHOW_STATIC_VARS" value="true" />
+        <option name="WORKING_DIR" value="" />
+        <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" />
+        <option name="SHOW_OPTIMIZED_WARNING" value="true" />
+      </Native>
+      <Profilers>
+        <option name="ADVANCED_PROFILING_ENABLED" value="false" />
+        <option name="STARTUP_PROFILING_ENABLED" value="false" />
+        <option name="STARTUP_CPU_PROFILING_ENABLED" value="false" />
+        <option name="STARTUP_CPU_PROFILING_CONFIGURATION_NAME" value="Sample Java Methods" />
+        <option name="STARTUP_NATIVE_MEMORY_PROFILING_ENABLED" value="false" />
+        <option name="NATIVE_MEMORY_SAMPLE_RATE_BYTES" value="2048" />
+      </Profilers>
+      <option name="DEEP_LINK" value="" />
+      <option name="ACTIVITY_CLASS" value="" />
+      <option name="SEARCH_ACTIVITY_IN_GLOBAL_SCOPE" value="false" />
+      <option name="SKIP_ACTIVITY_VALIDATION" value="false" />
+      <method v="2">
+        <option name="Android.Gradle.BeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="2165" y="290" key="#PSD" timestamp="1604998865059">
+      <screen x="1680" y="23" width="1920" height="1057" />
+    </state>
+    <state x="2165" y="290" key="#PSD/1680.23.1920.1057/0.23.1680.947@1680.23.1920.1057" timestamp="1604998865059" />
+    <state x="2470" y="471" key="#xdebugger.evaluate" timestamp="1604657609632">
+      <screen x="1680" y="23" width="1920" height="1057" />
+    </state>
+    <state x="2470" y="471" key="#xdebugger.evaluate/1680.23.1920.1057/0.23.1680.947@1680.23.1920.1057" timestamp="1604657609632" />
+    <state x="2409" y="305" key="AndroidProcessChooserDialog" timestamp="1605023556192">
+      <screen x="1680" y="23" width="1920" height="1057" />
+    </state>
+    <state x="2409" y="305" key="AndroidProcessChooserDialog/1680.23.1920.1057/0.23.1680.947@1680.23.1920.1057" timestamp="1605023556192" />
+    <state x="2409" y="305" key="AndroidProcessChooserDialog/1680.23.1920.1057/0.23.1680.949@1680.23.1920.1057" timestamp="1605000412066" />
+    <state width="516" height="466" key="DebuggerActiveHint" timestamp="1605023838985">
+      <screen x="1680" y="23" width="1920" height="1057" />
+    </state>
+    <state width="516" height="466" key="DebuggerActiveHint/1680.23.1920.1057/0.23.1680.947@1680.23.1920.1057" timestamp="1605023838985" />
+    <state x="1780" y="123" width="1720" height="857" key="DiffContextDialog" timestamp="1605011405732">
+      <screen x="1680" y="23" width="1920" height="1057" />
+    </state>
+    <state x="1780" y="123" width="1720" height="857" key="DiffContextDialog/1680.23.1920.1057/0.23.1680.947@1680.23.1920.1057" timestamp="1604666737424" />
+    <state x="1780" y="123" width="1720" height="857" key="DiffContextDialog/1680.23.1920.1057/0.23.1680.949@1680.23.1920.1057" timestamp="1605011405732" />
+    <state width="939" height="533" key="GridCell.Tab.0.bottom" timestamp="1605083155453">
+      <screen x="1680" y="23" width="1920" height="1057" />
+    </state>
+    <state width="1638" height="491" key="GridCell.Tab.0.bottom/1680.23.1920.1057/0.23.1680.947@0.23.1680.947" timestamp="1605045563655" />
+    <state width="939" height="533" key="GridCell.Tab.0.bottom/1680.23.1920.1057/0.23.1680.947@1680.23.1920.1057" timestamp="1605083155453" />
+    <state width="1878" height="520" key="GridCell.Tab.0.bottom/1680.23.1920.1057/0.23.1680.949@1680.23.1920.1057" timestamp="1605011420440" />
+    <state width="939" height="533" key="GridCell.Tab.0.center" timestamp="1605083155452">
+      <screen x="1680" y="23" width="1920" height="1057" />
+    </state>
+    <state width="1638" height="491" key="GridCell.Tab.0.center/1680.23.1920.1057/0.23.1680.947@0.23.1680.947" timestamp="1605045563654" />
+    <state width="939" height="533" key="GridCell.Tab.0.center/1680.23.1920.1057/0.23.1680.947@1680.23.1920.1057" timestamp="1605083155452" />
+    <state width="1878" height="520" key="GridCell.Tab.0.center/1680.23.1920.1057/0.23.1680.949@1680.23.1920.1057" timestamp="1605011420439" />
+    <state width="939" height="533" key="GridCell.Tab.0.left" timestamp="1605083155452">
+      <screen x="1680" y="23" width="1920" height="1057" />
+    </state>
+    <state width="1638" height="491" key="GridCell.Tab.0.left/1680.23.1920.1057/0.23.1680.947@0.23.1680.947" timestamp="1605045563653" />
+    <state width="939" height="533" key="GridCell.Tab.0.left/1680.23.1920.1057/0.23.1680.947@1680.23.1920.1057" timestamp="1605083155452" />
+    <state width="1878" height="520" key="GridCell.Tab.0.left/1680.23.1920.1057/0.23.1680.949@1680.23.1920.1057" timestamp="1605011420439" />
+    <state width="939" height="533" key="GridCell.Tab.0.right" timestamp="1605083155453">
+      <screen x="1680" y="23" width="1920" height="1057" />
+    </state>
+    <state width="1638" height="491" key="GridCell.Tab.0.right/1680.23.1920.1057/0.23.1680.947@0.23.1680.947" timestamp="1605045563654" />
+    <state width="939" height="533" key="GridCell.Tab.0.right/1680.23.1920.1057/0.23.1680.947@1680.23.1920.1057" timestamp="1605083155453" />
+    <state width="1878" height="520" key="GridCell.Tab.0.right/1680.23.1920.1057/0.23.1680.949@1680.23.1920.1057" timestamp="1605011420440" />
+    <state x="2120" y="153" key="SettingsEditor" timestamp="1605083376154">
+      <screen x="1680" y="23" width="1920" height="1057" />
+    </state>
+    <state x="2120" y="153" key="SettingsEditor/1680.23.1920.1057/0.23.1680.947@1680.23.1920.1057" timestamp="1605083376154" />
+    <state x="2141" y="190" key="SettingsEditor/1680.23.1920.1057/0.23.1680.949@1680.23.1920.1057" timestamp="1604394696127" />
+    <state width="960" height="528" key="XDebugger.FullValuePopup" timestamp="1604651378791">
+      <screen x="1680" y="23" width="1920" height="1057" />
+    </state>
+    <state width="960" height="528" key="XDebugger.FullValuePopup/1680.23.1920.1057/0.23.1680.947@1680.23.1920.1057" timestamp="1604651378791" />
+    <state x="2255" y="169" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1605014899936">
+      <screen x="1680" y="23" width="1920" height="1057" />
+    </state>
+    <state x="2255" y="169" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/1680.23.1920.1057/0.23.1680.949@1680.23.1920.1057" timestamp="1605014899936" />
+    <state x="2292" y="308" width="884" height="518" key="find.popup" timestamp="1605019254669">
+      <screen x="1680" y="23" width="1920" height="1057" />
+    </state>
+    <state x="2292" y="308" width="884" height="518" key="find.popup/1680.23.1920.1057/0.23.1680.947@1680.23.1920.1057" timestamp="1605019254669" />
+    <state x="2292" y="308" width="884" height="518" key="find.popup/1680.23.1920.1057/0.23.1680.949@1680.23.1920.1057" timestamp="1604999802922" />
+    <state x="2292" y="308" width="884" height="518" key="find.popup/1680.23.1920.1057/0.23.1680.952@1680.23.1920.1057" timestamp="1605011888701" />
+    <state x="2305" y="258" width="670" height="676" key="search.everywhere.popup" timestamp="1605011882674">
+      <screen x="1680" y="23" width="1920" height="1057" />
+    </state>
+    <state x="2305" y="258" width="670" height="676" key="search.everywhere.popup/1680.23.1920.1057/0.23.1680.947@1680.23.1920.1057" timestamp="1604662282941" />
+    <state x="2305" y="258" width="670" height="676" key="search.everywhere.popup/1680.23.1920.1057/0.23.1680.949@1680.23.1920.1057" timestamp="1605001070903" />
+    <state x="2305" y="258" width="670" height="676" key="search.everywhere.popup/1680.23.1920.1057/0.23.1680.952@1680.23.1920.1057" timestamp="1605011882674" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
+          <url>jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.sentry/sentry-core/2.3.0/dc8cb745f6496c7321f95b595edd804377087363/sentry-core-2.3.0-sources.jar!/io/sentry/core/transport/HttpTransport.java</url>
+          <line>276</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
+          <url>jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.sentry/sentry-android-core/3.1.2/8e870a2701163aff325fef34fe781dfda0d43bb0/sentry-android-core-3.1.2-sources.jar!/io/sentry/android/core/AndroidOptionsInitializer.java</url>
+          <line>35</line>
+          <option name="timeStamp" value="28" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
+          <url>jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.sentry/sentry/3.1.3/cb482e0a729602e1297dd4c3fd5322bd8707732e/sentry-3.1.3-sources.jar!/io/sentry/UncaughtExceptionHandlerIntegration.java</url>
+          <line>86</line>
+          <option name="timeStamp" value="54" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="java-line">
+          <url>file://$USER_HOME$/Library/Android/sdk/sources/android-30/java/lang/Thread.java</url>
+          <line>2140</line>
+          <option name="timeStamp" value="58" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="kotlin-line">
+          <url>file://$PROJECT_DIR$/app/src/main/kotlin/io/sentry/flutter/example/MainActivity.kt</url>
+          <line>21</line>
+          <option name="timeStamp" value="15" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="kotlin-line">
+          <url>file://$PROJECT_DIR$/../../android/src/main/kotlin/io/sentry/flutter/SentryFlutterPlugin.kt</url>
+          <line>122</line>
+          <option name="timeStamp" value="49" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="kotlin-line">
+          <url>file://$PROJECT_DIR$/app/src/main/kotlin/io/sentry/flutter/example/MainActivity.kt</url>
+          <line>66</line>
+          <option name="timeStamp" value="50" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

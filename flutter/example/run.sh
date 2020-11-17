@@ -17,7 +17,7 @@ if [ "$1" == "ios" ]; then
     # TODO: Install the iOS app via CLI
     #.. install build/ios/Release-iphoneos/Runner.app
 elif [ "$1" == "android" ]; then
-    flutter build apk --dart-define=SENTRY_RELEASE=$SENTRY_RELEASE --split-debug-info=symbols --obfuscate
+    flutter build apk --dart-define=SENTRY_RELEASE=$SENTRY_RELEASE
     adb install build/app/outputs/flutter-apk/app-release.apk 
     adb shell am start -n io.sentry.flutter.example/io.sentry.flutter.example.MainActivity
     echo -e "[\033[92mrun\033[0m] Android app installed"
@@ -56,6 +56,6 @@ if [ "$1" == "web" ]; then
 else
     echo -e "[\033[92mrun\033[0m] Uploading debug information files"
     # directory 'symbols' contain the Dart debug info files but to include platform ones, use current dir.
-    sentry-cli upload-dif --org $SENTRY_ORG --project $SENTRY_PROJECT .
+    #sentry-cli upload-dif --org $SENTRY_ORG --project $SENTRY_PROJECT .
 fi
 

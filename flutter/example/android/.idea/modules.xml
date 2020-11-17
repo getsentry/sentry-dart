@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/android.iml" filepath="$PROJECT_DIR$/.idea/modules/android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/android.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/android.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-562604151/android.package_info.iml" filepath="$PROJECT_DIR$/.idea/modules/-562604151/android.package_info.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/2059836281/android.sentry_flutter.iml" filepath="$PROJECT_DIR$/.idea/modules/2059836281/android.sentry_flutter.iml" />
+    </modules>
+  </component>
+</project>

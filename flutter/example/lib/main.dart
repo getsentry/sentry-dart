@@ -28,6 +28,10 @@ Future<void> main() async {
 void initMyApp() {
   // code before
   runApp(MyApp());
+
+  // uncomment this to cause a runZonedGuarded error
+  // throw StateError('oh my god');
+
   // code after
 }
 
@@ -104,8 +108,6 @@ class AndroidExample extends StatelessWidget {
       RaisedButton(
         child: const Text('Kotlin Throw unhandled exception'),
         onPressed: () async {
-          // throws No implementation found for method throw on channel example.flutter.sentry.io
-          // because the channel wont emit a result
           await execute('throw');
         },
       ),
@@ -116,14 +118,9 @@ class AndroidExample extends StatelessWidget {
         },
       ),
       RaisedButton(
-        child: const Text('Kotlin Background thread error'),
-        onPressed: () async {
-          await execute('background');
-        },
-      ),
-      RaisedButton(
         child: const Text('ANR: UI blocked 6 seconds'),
         onPressed: () async {
+          // ANR is disabled by default, enable it to test it
           await execute('anr');
         },
       ),
