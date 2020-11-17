@@ -136,7 +136,7 @@ Future testCaptureException(
     expect(topFrame['function'], 'Object.wrapException');
 
     expect(data['event_id'], sentryId.toString());
-    expect(data['timestamp'], '2017-01-02T00:00:00Z');
+    expect(data['timestamp'], '2017-01-02T00:00:00.000Z');
     expect(data['platform'], 'javascript');
     expect(data['sdk'], {'version': sdkVersion, 'name': sdkName});
     expect(data['server_name'], 'test.server.com');
@@ -152,7 +152,7 @@ Future testCaptureException(
     expect(topFrame['function'], 'testCaptureException');
 
     expect(data['event_id'], sentryId.toString());
-    expect(data['timestamp'], '2017-01-02T00:00:00Z');
+    expect(data['timestamp'], '2017-01-02T00:00:00.000Z');
     expect(data['platform'], 'other');
     expect(data['sdk'], {
       'version': sdkVersion,

@@ -20,7 +20,7 @@ void main() {
           category: 'test',
         ).toJson(),
         <String, dynamic>{
-          'timestamp': '2019-01-01T00:00:00Z',
+          'timestamp': '2019-01-01T00:00:00.000Z',
           'message': 'example log',
           'category': 'test',
           'level': 'debug',
@@ -44,7 +44,7 @@ void main() {
       expect(event.toJson(), <String, dynamic>{
         'platform': isWeb ? 'javascript' : 'other',
         'event_id': '00000000000000000000000000000000',
-        'timestamp': '2019-01-01T00:00:00Z',
+        'timestamp': '2019-01-01T00:00:00.000Z',
         'sdk': {
           'name': 'sentry.dart.flutter',
           'version': '4.3.2',
@@ -123,7 +123,7 @@ void main() {
         <String, dynamic>{
           'platform': isWeb ? 'javascript' : 'other',
           'event_id': '00000000000000000000000000000000',
-          'timestamp': '2019-01-01T00:00:00Z',
+          'timestamp': '2019-01-01T00:00:00.000Z',
           'sdk': {'version': sdkVersion, 'name': sdkName},
           'message': {
             'formatted': 'test-message 1 2',
@@ -146,7 +146,7 @@ void main() {
           'breadcrumbs': {
             'values': [
               {
-                'timestamp': '2019-01-01T00:00:00Z',
+                'timestamp': '2019-01-01T00:00:00.000Z',
                 'message': 'test log',
                 'category': 'test',
                 'level': 'debug',

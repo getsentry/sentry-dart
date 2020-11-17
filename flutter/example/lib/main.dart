@@ -7,6 +7,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
 
+// TODO: read conf. using fromEnvironment
 const String _release =
     String.fromEnvironment('SENTRY_RELEASE', defaultValue: 'unknown');
 
@@ -36,32 +37,9 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
-
   @override
   void initState() {
     super.initState();
-    initPlatformState();
-  }
-
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    try {
-      // platformVersion = await SentryFlutter.platformVersion;
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) {
-      return;
-    }
-
-    setState(() => _platformVersion = platformVersion);
   }
 
   @override
@@ -71,7 +49,6 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(title: const Text('Sentry Flutter Example')),
         body: Column(
           children: [
-            Center(child: Text('Running on: $_platformVersion\n')),
             const Center(child: Text('Release: $_release\n')),
             RaisedButton(
               child: const Text('Dart: try catch'),
@@ -95,6 +72,8 @@ class _MyAppState extends State<MyApp> {
             RaisedButton(
               child: const Text('Dart: Fail in microtask.'),
               onPressed: () async => {
+                // throwing Unhandled Exception: Bad state: Failure in a microtask
+                // and not getting events
                 await Future.microtask(
                   () => throw StateError('Failure in a microtask'),
                 )
@@ -102,12 +81,7 @@ class _MyAppState extends State<MyApp> {
             ),
             RaisedButton(
               child: const Text('Dart: Fail in isolate'),
-              onPressed: () async => {
-                await compute(
-                  (Object _) => throw StateError('from an isolate'),
-                  null,
-                )
-              },
+              onPressed: () async => {await compute(loop, 10)},
             ),
             if (UniversalPlatform.isIOS) const CocoaExample(),
             if (UniversalPlatform.isAndroid) const AndroidExample(),
@@ -122,52 +96,58 @@ class _MyAppState extends State<MyApp> {
 class AndroidExample extends StatelessWidget {
   const AndroidExample({Key key}) : super(key: key);
 
+  final channel = const MethodChannel('example.flutter.sentry.io');
+
   @override
   Widget build(BuildContext context) {
     return Column(children: [
       RaisedButton(
         child: const Text('Kotlin Throw unhandled exception'),
         onPressed: () async {
-          const channel = MethodChannel('example.flutter.sentry.io');
-          await channel.invokeMethod<void>('throw');
+          // throws No implementation found for method throw on channel example.flutter.sentry.io
+          // because the channel wont emit a result
+          await execute('throw');
         },
       ),
       RaisedButton(
         child: const Text('Kotlin Capture Exception'),
         onPressed: () async {
-          const channel = MethodChannel('example.flutter.sentry.io');
-          await channel.invokeMethod<void>('capture');
+          await execute('capture');
         },
       ),
       RaisedButton(
         child: const Text('Kotlin Background thread error'),
         onPressed: () async {
-          const channel = MethodChannel('example.flutter.sentry.io');
-          await channel.invokeMethod<void>('background');
+          await execute('background');
         },
       ),
       RaisedButton(
         child: const Text('ANR: UI blocked 6 seconds'),
         onPressed: () async {
-          const channel = MethodChannel('example.flutter.sentry.io');
-          await channel.invokeMethod<void>('anr');
+          await execute('anr');
         },
       ),
       RaisedButton(
         child: const Text('C++ Capture message'),
         onPressed: () async {
-          const channel = MethodChannel('example.flutter.sentry.io');
-          await channel.invokeMethod<void>('cpp_capture_message');
+          await execute('cpp_capture_message');
         },
       ),
       RaisedButton(
         child: const Text('C++ SEGFAULT'),
         onPressed: () async {
-          const channel = MethodChannel('example.flutter.sentry.io');
-          await channel.invokeMethod<void>('crash');
+          await execute('crash');
         },
       ),
     ]);
+  }
+
+  Future<void> execute(String method) async {
+    try {
+      await channel.invokeMethod<void>(method);
+    } catch (error, stackTrace) {
+      await Sentry.captureException(error, stackTrace: stackTrace);
+    }
   }
 }
 
@@ -243,4 +223,16 @@ class WebExample extends StatelessWidget {
       ],
     );
   }
+}
+
+/// compute can only take a top-level function, but not instance or static methods.
+// Top-level functions are functions declared not inside a class and not inside another function
+int loop(int val) {
+  int count = 0;
+  for (int i = 1; i <= val; i++) {
+    count += i;
+  }
+  // Unhandled Exception: Exception: Bad state: from an isolate
+  // and not sending events to sentry
+  throw StateError('from an isolate $count');
 }
