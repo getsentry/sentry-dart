@@ -84,10 +84,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
       options.environment = args["environment"] as String?
       options.release = args["release"] as String?
       options.dist = args["dist"] as String?
-      options.isDebug = args["debug"] as Boolean
       options.isEnableSessionTracking = args["enableAutoSessionTracking"] as Boolean
       options.sessionTrackingIntervalMillis = (args["autoSessionTrackingIntervalMillis"] as Int).toLong()
       options.anrTimeoutIntervalMillis = (args["anrTimeoutIntervalMillis"] as Int).toLong()
+      // expose options for Android?
       options.isAttachThreads = false
       options.isAttachStacktrace = args["attachStacktrace"] as Boolean
 
@@ -154,13 +154,17 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
     result.error("2", "Envelope is null or empty", null)
   }
 
+  private val flutterSdk = "sentry.dart.flutter"
+  private val androidSdk = "sentry.java.android"
+  private val nativeSdk = "sentry.native"
+
   private fun setEventOriginTag(event: SentryEvent) {
     val sdk = event.sdk
     if (isValidSdk(sdk)) {
       when (sdk.name) {
-        "sentry.dart.flutter" -> setEventEnvironmentTag(event, "flutter", "dart")
-        "sentry.java.android" -> setEventEnvironmentTag(event, environment = "java")
-        "sentry.native" -> setEventEnvironmentTag(event, environment = "native")
+        flutterSdk -> setEventEnvironmentTag(event, "flutter", "dart")
+        androidSdk -> setEventEnvironmentTag(event, environment = "java")
+        nativeSdk -> setEventEnvironmentTag(event, environment = "native")
       }
     }
   }
@@ -177,7 +181,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
   private fun addPackages(event: SentryEvent, sdk: SdkVersion?) {
     if (isValidSdk(event.sdk)) {
       when (event.sdk.name) {
-        "sentry.dart.flutter" -> {
+        flutterSdk -> {
           sdk?.packages?.forEach { sentryPackage ->
             event.sdk.addPackage(sentryPackage.name, sentryPackage.version)
           }
@@ -193,7 +197,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
     if (isValidSdk(event.sdk)) {
       // we do not want the thread list if not an android event, the thread info is mostly about
       // the file observer anyway
-      if (event.sdk.name != "sentry.java.android" && event.threads != null) {
+      if (event.sdk.name != androidSdk && event.threads != null) {
         event.threads.clear()
       }
     }
