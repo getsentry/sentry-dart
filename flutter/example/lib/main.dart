@@ -234,5 +234,5 @@ int loop(int val) {
   }
   // Unhandled Exception: Exception: Bad state: from an isolate
   // and not sending events to sentry
-  throw StateError('from an isolate');
+  throw StateError('from an isolate $count');
 }
