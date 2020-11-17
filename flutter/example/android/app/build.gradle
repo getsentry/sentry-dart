@@ -64,6 +64,10 @@ android {
         }
     }
 
+    // TODO: we need to fix CI as the version 21.1 (default) is not installed by default on
+    // GH Actions.
+    ndkVersion "21.3.6528147"
+
     externalNativeBuild {
         cmake {
             setPath("CMakeLists.txt")
