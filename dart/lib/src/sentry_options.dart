@@ -145,6 +145,7 @@ class SentryOptions {
 
   Transport _transport = NoOpTransport();
 
+  /// The transport is an internal construct of the client that abstracts away the event sending.
   Transport get transport => _transport;
 
   set transport(Transport transport) => _transport = transport ?? _transport;
@@ -166,6 +167,7 @@ class SentryOptions {
 
   bool _enableAutoSessionTracking = true;
 
+  /// Enable or disable the Auto session tracking on the Native SDKs (Android/iOS)
   bool get enableAutoSessionTracking => _enableAutoSessionTracking;
 
   set enableAutoSessionTracking(bool enableAutoSessionTracking) {
@@ -175,6 +177,7 @@ class SentryOptions {
 
   bool _enableNativeCrashHandling = true;
 
+  /// Enable or Disable the Crash handling on the Native SDKs (Android/iOS)
   bool get enableNativeCrashHandling => _enableNativeCrashHandling;
 
   set enableNativeCrashHandling(bool nativeCrashHandling) {
@@ -184,6 +187,9 @@ class SentryOptions {
 
   bool _attachStacktrace = true;
 
+  /// When enabled, stack traces are automatically attached to all logged events. Stack traces are
+  /// always attached to exceptions but when this is set stack traces are also sent with messages. If
+  /// no stack traces are logged, we log the current stack trace automatically.
   bool get attachStacktrace => _attachStacktrace;
 
   set attachStacktrace(bool attachStacktrace) {
@@ -192,6 +198,9 @@ class SentryOptions {
 
   int _autoSessionTrackingIntervalMillis = 30000;
 
+  /// The session tracking interval in millis. This is the interval to end a session if the App goes
+  /// to the background.
+  /// See: enableAutoSessionTracking
   int get autoSessionTrackingIntervalMillis =>
       _autoSessionTrackingIntervalMillis;
 
@@ -203,8 +212,21 @@ class SentryOptions {
             : _autoSessionTrackingIntervalMillis;
   }
 
+  bool _anrEnabled = true;
+
+  /// Enable or disable ANR (Application Not Responding) Default is enabled Used by AnrIntegration.
+  /// Available only for Android.
+  bool get anrEnabled => _anrEnabled;
+
+  set anrEnabled(bool anrEnabled) {
+    _anrEnabled = anrEnabled ?? _anrEnabled;
+  }
+
   int _anrTimeoutIntervalMillis = 5000;
 
+  /// ANR Timeout internal in Millis Default is 5000 = 5s Used by AnrIntegration.
+  /// Available only for Android.
+  /// See: anrEnabled
   int get anrTimeoutIntervalMillis => _anrTimeoutIntervalMillis;
 
   set anrTimeoutIntervalMillis(int anrTimeoutIntervalMillis) {
@@ -216,6 +238,8 @@ class SentryOptions {
 
   bool _enableAutoNativeBreadcrumbs = true;
 
+  /// Enable or disable the Automatic breadcrumbs on the Native platforms (Android/iOS)
+  /// Screen's lifecycle, App's lifecycle, System events, etc...
   bool get enableAutoNativeBreadcrumbs => _enableAutoNativeBreadcrumbs;
 
   set enableAutoNativeBreadcrumbs(bool enableAutoNativeBreadcrumbs) {
@@ -225,6 +249,8 @@ class SentryOptions {
 
   int _cacheDirSize = 30;
 
+  /// The cache dir. size for capping the number of events Default is 30.
+  /// Only available for Android.
   int get cacheDirSize => _cacheDirSize;
 
   set cacheDirSize(int cacheDirSize) {
@@ -237,7 +263,6 @@ class SentryOptions {
 
   // TODO: sendDefaultPii
 
-  // TODO: those ctor params could be set on Sentry._setDefaultConfiguration or instantiate by default here
   SentryOptions({this.dsn}) {
     sdk.addPackage('pub:sentry', sdkVersion);
   }

@@ -24,7 +24,7 @@ class FileSystemTransport implements Transport {
 
     final itemHeaderMap = {
       'content_type': 'application/json',
-      'type': event.type,
+      'type': 'event',
       'length': eventString.length,
     };
 

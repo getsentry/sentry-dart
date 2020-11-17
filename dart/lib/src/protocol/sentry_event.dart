@@ -155,8 +155,6 @@ class SentryEvent {
   /// The debug meta interface carries debug information for processing errors and crash reports.
   final DebugMeta debugMeta;
 
-  final String type = 'event';
-
   SentryEvent copyWith({
     SentryId eventId,
     DateTime timestamp,
@@ -221,7 +219,7 @@ class SentryEvent {
     }
 
     if (timestamp != null) {
-      json['timestamp'] = formatDateAsIso8601WithSecondPrecision(timestamp);
+      json['timestamp'] = formatDateAsIso8601WithMillisPrecision(timestamp);
     }
 
     if (platform != null) {

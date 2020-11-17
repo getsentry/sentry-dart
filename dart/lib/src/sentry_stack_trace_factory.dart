@@ -21,11 +21,13 @@ class SentryStackTraceFactory {
   List<SentryStackFrame> getStackFrames(dynamic stackTrace) {
     if (stackTrace == null) return null;
 
-    final chain = stackTrace is StackTrace
+    final chain = (stackTrace is StackTrace)
         ? Chain.forTrace(stackTrace)
-        : Chain.parse(stackTrace as String);
+        : (stackTrace is String)
+            ? Chain.parse(stackTrace)
+            : Chain.parse('');
 
-    // if strip symbols are enabled, thats what we see:
+    // TODO: if strip symbols are enabled, thats what we see:
     // warning:  This VM has been configured to produce stack traces that violate the Dart standard.
     // ***       *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
     // unparsed  pid: 30930, tid: 30990, name 1.ui
@@ -37,7 +39,10 @@ class SentryStackTraceFactory {
     // unparsed      #02 abs 000000723d4a41a7 virt 000000000005d1a7 _kDartIsolateSnapshotInstructions+0x521a7
     // unparsed      #03 abs 000000723d624663 virt 00000000001dd663 _kDartIsolateSnapshotInstructions+0x1d2663
     // unparsed      #04 abs 000000723d4b8c3b virt 0000000000071c3b _kDartIsolateSnapshotInstructions+0x66c3b
-    // unparsed      #05 abs 000000723d5ffe27 virt 00000000001b8e27 _kDartIsolateSna
+    // unparsed      #05 abs 000000723d5ffe27 virt 00000000001b8e27 _kDartIsolateSna...
+
+    // abs => instruction_addr
+    // build_id => debug_images
 
     final frames = <SentryStackFrame>[];
     for (var t = 0; t < chain.traces.length; t += 1) {
@@ -57,20 +62,10 @@ class SentryStackTraceFactory {
   /// converts [Frame] to [SentryStackFrame]
   @visibleForTesting
   SentryStackFrame encodeStackTraceFrame(Frame frame) {
-    _options.logger(SentryLevel.debug,
-        'frame uri: ${frame.uri}'); // warning if split symbols
-    _options.logger(SentryLevel.debug,
-        'frame uri segs: ${frame.uri.pathSegments}'); // segs []
     final fileName =
         frame.uri.pathSegments.isNotEmpty ? frame.uri.pathSegments.last : null;
 
-    _options.logger(SentryLevel.debug, 'file name: ${fileName}');
-
     final abs = '$eventOrigin${_absolutePathForCrashReport(frame)}';
-    _options.logger(SentryLevel.debug, 'abs: ${abs}');
-    _options.logger(SentryLevel.debug, 'member: ${frame.member}');
-    _options.logger(SentryLevel.debug, 'inapp: ${isInApp(frame)}');
-    _options.logger(SentryLevel.debug, 'package: ${frame.package}');
 
     var sentryStackFrame = SentryStackFrame(
       absPath: abs,
@@ -79,8 +74,8 @@ class SentryStackTraceFactory {
       inApp: isInApp(frame),
       fileName: fileName,
       package: frame.package,
-      // platform: 'native', // TODO: only if necessary to symbolicate
     );
+    // platform: 'native' if strip symbols are enabled
 
     if (frame.line != null && frame.line >= 0) {
       sentryStackFrame = sentryStackFrame.copyWith(lineNo: frame.line);
@@ -102,7 +97,6 @@ class SentryStackTraceFactory {
   /// "dart:" and "package:" imports are always relative and are OK to send in
   /// full.
   String _absolutePathForCrashReport(Frame frame) {
-    _options.logger(SentryLevel.debug, 'scheme ${frame.uri.scheme}');
     if (frame.uri.scheme != 'dart' &&
         frame.uri.scheme != 'package' &&
         frame.uri.pathSegments.isNotEmpty) {
