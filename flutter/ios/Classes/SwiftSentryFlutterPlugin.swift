@@ -188,7 +188,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
         let sentryId = SentryId(uuidString: eventId)
         let envelopeHeader = SentryEnvelopeHeader.init(id: sentryId, andSdkInfo: sdkInfo)
 
-        let data = NSKeyedArchiver.archivedData(withRootObject: envelopeParts[2])
+        let data = try! JSONSerialization.data(withJSONObject: envelopeParts[2], options: .init(rawValue: 0))
         let sentryItemHeader = SentryEnvelopeItemHeader(type: itemType, length: UInt(data.count))
         let sentryEnvelopeItem = SentryEnvelopeItem( header: sentryItemHeader, data: data)
 
