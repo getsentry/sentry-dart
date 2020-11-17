@@ -1,3 +1,5 @@
+// swiftlint:disable all
+
 import Flutter
 import Sentry
 import UIKit
@@ -59,7 +61,8 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
                 options.enableAutoSessionTracking = enableAutoSessionTracking
             }
 
-            if let attachStacktrace = arguments["sessionTrackingIntervalMillis"] as? Bool {
+            if let attachStacktrace = arguments["attachStacktrace"] as? Bool {
+                print("attachStacktrace \(attachStacktrace)")
                 options.attachStacktrace = attachStacktrace
             }
 
@@ -72,7 +75,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
             }
 
             if let integrations = arguments["integrations"] as? [String]{
-                options.integrations = integrations
+                options.integrations?.append(contentsOf: integrations)
             }
             if let maxBreadcrumbs = arguments["maxBreadcrumbs"] as? UInt{
                 options.maxBreadcrumbs = maxBreadcrumbs
@@ -144,14 +147,16 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
 
 
         let parts = event.split(separator: "\n")
-        let envelopeParts: [[String: Any]] = try! parts.map ({ part in
+        let envelopeParts: [[String: Any]] = parts.map ({ part in
             convertStringToDictionary(text: "\(part)")!
         })
-
-        guard let envelopeHeaderDict = envelopeParts[0] as? [String: Any],
-              let eventSdk =  envelopeHeaderDict as? [String: Any],
-              let eventId =  envelopeHeaderDict["event_id"] as? String,
-              let itemHeader = envelopeParts[1] as? [String: Any] ,
+        
+        let envelopeHeaderDict = envelopeParts[0]
+        let eventSdk = envelopeHeaderDict
+        let itemHeader = envelopeParts[1]
+        
+        guard
+              let eventId = envelopeHeaderDict["event_id"] as? String,
               let itemType = itemHeader["type"] as? String,
               let itemLength = itemHeader["length"] as? UInt else {
             result(FlutterError(code: "2", message: "Cannot serialize event", details: nil) )
@@ -162,18 +167,16 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
         let sentryId = SentryId(uuidString: eventId)
         let envelopeHeader = SentryEnvelopeHeader.init(id: sentryId, andSdkInfo: sdkInfo)
 
-        let sentryItemHeader = SentryEnvelopeItemHeader(type: itemType, length: itemLength)
-        
-        do {
-            let data = NSKeyedArchiver.archivedData(withRootObject: envelopeParts[2])
-            // TODO Fix Sentry - Error:: Failed to parse envelope item header Error Domain=NSCocoaErrorDomain Code=3840
-            let sentryEnvelopeItem = SentryEnvelopeItem( header: sentryItemHeader, data: data)
-            let envelope = SentryEnvelope.init(header: envelopeHeader, singleItem: sentryEnvelopeItem)
-            SentrySDK.currentHub().getClient()?.capture(envelope: envelope)
-            result("")
-        } catch {
-            result(FlutterError(code: "2", message: "Cannot serialize event payload", details: nil) )
-        }
+        let data = NSKeyedArchiver.archivedData(withRootObject: envelopeParts[2])
+        let sentryItemHeader = SentryEnvelopeItemHeader(type: itemType, length: UInt(data.count))
+        let sentryEnvelopeItem = SentryEnvelopeItem( header: sentryItemHeader, data: data)
+
+        let envelope = SentryEnvelope.init(header: envelopeHeader, singleItem: sentryEnvelopeItem)
+
+        SentrySDK.currentHub().getClient()?.capture(envelope: envelope)
+
+        result("")
+        //result(FlutterError(code: "2", message: "Cannot serialize event payload", details: nil) )
     }
     
     private func writeEnvelope(envelope: String) -> Bool{
