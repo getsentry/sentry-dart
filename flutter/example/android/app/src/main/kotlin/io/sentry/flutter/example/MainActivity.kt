@@ -50,6 +50,7 @@ class MainActivity : FlutterActivity() {
           result.notImplemented()
         }
       }
+      result.success("")
     }
   }
 

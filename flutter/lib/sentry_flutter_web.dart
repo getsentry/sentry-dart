@@ -29,6 +29,10 @@ class SentryFlutterWeb {
       case 'getPlatformVersion':
         return getPlatformVersion();
         break;
+      case 'initNativeSdk':
+        // TODO: init SDK
+        return '';
+        break;
       default:
         throw PlatformException(
           code: 'Unimplemented',

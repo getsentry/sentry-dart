@@ -33,7 +33,7 @@ mixin SentryFlutter {
     // options.debug = kDebugMode;
     options.debug = true;
 
-    // web still uses a http transport
+    // web still uses a http transport for Web which is set by default
     if (!kIsWeb) {
       options.transport = FileSystemTransport(_channel, options);
     }
@@ -44,20 +44,26 @@ mixin SentryFlutter {
 
     await _setReleaseAndDist(options);
 
+    // TODO: load debug images when split symbols are enabled.
+
     _addDefaultIntegrations(options, callback);
 
     _setSdk(options);
   }
 
   static Future<void> _setReleaseAndDist(SentryOptions options) async {
-    final packageInfo = await PackageInfo.fromPlatform();
+    if (!kIsWeb) {
+      final packageInfo = await PackageInfo.fromPlatform();
 
-    final release =
-        '${packageInfo.packageName}@${packageInfo.version}+${packageInfo.buildNumber}';
-    options.logger(SentryLevel.debug, 'release: $release');
+      final release =
+          '${packageInfo.packageName}@${packageInfo.version}+${packageInfo.buildNumber}';
+      options.logger(SentryLevel.debug, 'release: $release');
 
-    options.release = release;
-    options.dist = packageInfo.buildNumber;
+      options.release = release;
+      options.dist = packageInfo.buildNumber;
+    } else {
+      // TODO: web release
+    }
   }
 
   static void _addDefaultIntegrations(
@@ -78,8 +84,7 @@ mixin SentryFlutter {
     final sdk = SdkVersion(
       name: sdkName,
       version: sdkVersion,
-      integrations:
-          List.from(options.sdk.integrations), // otherwise its readonly
+      integrations: List.from(options.sdk.integrations),
       packages: List.from(options.sdk.packages),
     );
     sdk.addPackage('pub:sentry_flutter', sdkVersion);

@@ -28,7 +28,7 @@ apply plugin: 'com.ydq.android.gradle.native-aar.import'
 
 // uncomment this to upload proguard mapping file and debug symbols to Sentry
 // and also set the token (sentry.properties) file
-//apply plugin: 'io.sentry.android.gradle'
+// apply plugin: 'io.sentry.android.gradle'
 
 android {
     compileOptions {
@@ -63,6 +63,9 @@ android {
             abiFilters("armeabi-v7a", "x86_64", "arm64-v8a")
         }
     }
+
+    // TODO: we need to fix CI as the version 21.1 (default) is not installed by default on
+    // GH Actions.
     ndkVersion "21.3.6528147"
 
     externalNativeBuild {
@@ -73,8 +76,9 @@ android {
 
     buildTypes {
         release {
-//            minifyEnabled true
-//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            // looks like Flutter requires minifyEnabled to be enabled or it throws
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.debug
         }
     }

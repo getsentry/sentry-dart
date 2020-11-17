@@ -76,7 +76,7 @@ class Breadcrumb {
   /// to the Sentry protocol.
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{
-      'timestamp': formatDateAsIso8601WithSecondPrecision(timestamp),
+      'timestamp': formatDateAsIso8601WithMillisPrecision(timestamp),
     };
     if (message != null) {
       json['message'] = message;

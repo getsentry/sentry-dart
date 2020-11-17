@@ -97,14 +97,13 @@ Integration nativeSdkIntegration(SentryOptions options, MethodChannel channel) {
         'attachStacktrace': options.attachStacktrace,
         'autoSessionTrackingIntervalMillis':
             options.autoSessionTrackingIntervalMillis,
-        'platform': 'flutter',
-        'web': kIsWeb,
         'dist': options.dist,
         'integrations': options.sdk.integrations,
         'packages':
             options.sdk.packages.map((e) => e.toJson()).toList(growable: false),
         'diagnosticLevel': options.diagnosticLevel.name,
         'maxBreadcrumbs': options.maxBreadcrumbs,
+        'anrEnabled': options.anrEnabled,
         'anrTimeoutIntervalMillis': options.anrTimeoutIntervalMillis,
         'enableAutoNativeBreadcrumbs': options.enableAutoNativeBreadcrumbs,
         'cacheDirSize': options.cacheDirSize,

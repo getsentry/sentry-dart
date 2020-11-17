@@ -12,15 +12,10 @@ import android.content.Context
 import io.sentry.SentryEvent
 import io.sentry.SentryLevel
 import io.sentry.SentryOptions
-//import io.sentry.protocol.DebugImage
-//import io.sentry.protocol.DebugMeta
 import io.sentry.protocol.SdkVersion
 import java.io.File
 import java.util.UUID
 import java.util.Locale
-
-// TODO: maybe this should be done in Java, to avoid stdlib
-// libflutter.so is already 11mb each archie
 
 class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
   private lateinit var channel: MethodChannel
@@ -32,7 +27,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "sentry_flutter")
     channel.setMethodCallHandler(this)
   }
-  // TODO: should we remove this if we do minSDK flutter >= that?
+  // Should we remove this if we do minSDK flutter >= that?
   // Required by Flutter Android projects v1.12 and older
   companion object {
     @JvmStatic
@@ -109,28 +104,27 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
       val sentryLevel = SentryLevel.valueOf(level.toUpperCase(Locale.ROOT))
       options.setDiagnosticLevel(sentryLevel)
 
+      val anrEnabled = args["anrEnabled"] as Boolean
+      options.isEnableNdk = anrEnabled
+
       val nativeCrashHandling = args["enableNativeCrashHandling"] as Boolean
 
+      // nativeCrashHandling has priority over anrEnabled
       if (!nativeCrashHandling) {
         options.isEnableUncaughtExceptionHandler = false
         options.isAnrEnabled = false
-        options.isEnableNdk = false
-      }
 
-//      var debugImage: DebugMeta? = null
+        // if split symbols are enabled, we need Ndk integration so we can't really offer the option
+        // to turn it off
+        // options.isEnableNdk = false
+      }
 
       options.setBeforeSend { event, _ ->
         setEventOriginTag(event)
         addPackages(event, options.sdkVersion)
         removeThreadsIfNotAndroid(event)
 
-//        if (event.debugMeta != null &&
-//                debugImage == null &&
-//                event.debugMeta.images != null &&
-//                event.debugMeta.images.isNotEmpty()) {
-//          debugImage = event.debugMeta
-//        }
-//        addDebugImagesIfFlutterEvent(event, debugImage)
+        // TODO: merge debug images from Native
 
         event
       }
@@ -204,13 +198,4 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
       }
     }
   }
-
-//  private fun addDebugImagesIfFlutterEvent(event: SentryEvent, meta: DebugMeta?) {
-//    if (isValidSdk(event.sdk)) {
-//      // cal sentry-native to load debug meta
-//      if (event.sdk.name == "sentry.dart.flutter" && meta != null && event.debugMeta == null) {
-//        event.debugMeta = meta
-//      }
-//    }
-//  }
 }

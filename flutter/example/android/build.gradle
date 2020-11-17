@@ -8,6 +8,8 @@ buildscript {
 
     dependencies {
         classpath 'io.sentry:sentry-android-gradle-plugin:1.7.36'
+        // Flutter is incompatible with AGP 4.1.x yet
+        //  No such property: scope for class: com.android.build.gradle.internal.variant.ApplicationVariantData
         classpath 'com.android.tools.build:gradle:4.0.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'com.ydq.android.gradle.build.tool:nativeBundle:1.0.6'
