@@ -25,9 +25,12 @@ void isolateErrorIntegration(Hub hub, SentryOptions options) {
         // assuming false as I could not see the App crashing so far.
         const mechanism = Mechanism(type: 'isolateError', handled: true);
         final throwableMechanism = ThrowableMechanism(mechanism, throwable);
+        final event = SentryEvent(
+          throwable: throwableMechanism,
+          level: SentryLevel.fatal,
+        );
 
-        await Sentry.captureException(throwableMechanism,
-            stackTrace: stackTrace);
+        await Sentry.captureEvent(event, stackTrace: stackTrace);
       }
     },
   );
@@ -50,10 +53,12 @@ void flutterErrorIntegration(Hub hub, SentryOptions options) {
     final throwableMechanism =
         ThrowableMechanism(mechanism, errorDetails.exception);
 
-    await hub.captureException(
-      throwableMechanism,
-      stackTrace: errorDetails.stack,
+    final event = SentryEvent(
+      throwable: throwableMechanism,
+      level: SentryLevel.fatal,
     );
+
+    await hub.captureEvent(event, stackTrace: errorDetails.stack);
 
     // call original handler
     if (defaultOnError != null) {
@@ -76,10 +81,12 @@ Integration runZonedGuardedIntegration(
       const mechanism = Mechanism(type: 'runZonedGuarded', handled: true);
       final throwableMechanism = ThrowableMechanism(mechanism, exception);
 
-      await Sentry.captureException(
-        throwableMechanism,
-        stackTrace: stackTrace,
+      final event = SentryEvent(
+        throwable: throwableMechanism,
+        level: SentryLevel.fatal,
       );
+
+      await Sentry.captureEvent(event, stackTrace: stackTrace);
     });
 
     options.sdk.addIntegration('runZonedGuardedIntegration');

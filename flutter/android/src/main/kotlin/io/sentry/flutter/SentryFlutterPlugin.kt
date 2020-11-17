@@ -87,8 +87,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
       options.isEnableSessionTracking = args["enableAutoSessionTracking"] as Boolean
       options.sessionTrackingIntervalMillis = (args["autoSessionTrackingIntervalMillis"] as Int).toLong()
       options.anrTimeoutIntervalMillis = (args["anrTimeoutIntervalMillis"] as Int).toLong()
-      // expose options for Android?
-      options.isAttachThreads = false
+      options.isAttachThreads = false // expose options for Android?
       options.isAttachStacktrace = args["attachStacktrace"] as Boolean
 
       val enableAutoNativeBreadcrumbs = args["enableAutoNativeBreadcrumbs"] as Boolean
