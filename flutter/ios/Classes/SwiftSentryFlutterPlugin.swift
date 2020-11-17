@@ -1,12 +1,10 @@
-// swiftlint:disable all
-
 import Flutter
 import Sentry
 import UIKit
 
 public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
     var options: Options?
-    
+
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "sentry_flutter", binaryMessenger: registrar.messenger())
         let instance = SwiftSentryFlutterPlugin()
@@ -100,7 +98,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
                 /// TODO ? addPackages
                 return event
             }
-            
+
             self.options = options
         }
 
@@ -153,16 +151,15 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
             return
         }
 
-
         let parts = event.split(separator: "\n")
         let envelopeParts: [[String: Any]] = parts.map ({ part in
             convertStringToDictionary(text: "\(part)")!
         })
-        
+
         let envelopeHeaderDict = envelopeParts[0]
         let eventSdk = envelopeHeaderDict
         let itemHeader = envelopeParts[1]
-        
+
         guard
               let eventId = envelopeHeaderDict["event_id"] as? String,
               let itemType = itemHeader["type"] as? String else {
@@ -179,13 +176,12 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
         let sentryEnvelopeItem = SentryEnvelopeItem( header: sentryItemHeader, data: data)
 
         let envelope = SentryEnvelope.init(header: envelopeHeader, singleItem: sentryEnvelopeItem)
-
         SentrySDK.currentHub().getClient()?.capture(envelope: envelope)
-        
+
         result("")
         //result(FlutterError(code: "2", message: "Cannot serialize event payload", details: nil) )
     }
-    
+
     private func writeEnvelope(envelope: String) -> Bool{
         if let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
             let filePath = dir.appendingPathComponent(UUID().uuidString)
