@@ -26,12 +26,8 @@ class SentryFlutterWeb {
   /// https://flutter.dev/go/federated-plugins
   Future<dynamic> handleMethodCall(MethodCall call) async {
     switch (call.method) {
-      case 'getPlatformVersion':
+      case 'platformVersion':
         return getPlatformVersion();
-        break;
-      case 'initNativeSdk':
-        // TODO: init SDK
-        return '';
         break;
       default:
         throw PlatformException(
