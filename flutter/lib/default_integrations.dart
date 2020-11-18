@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:sentry/sentry.dart';
 
 /// integration that capture errors on the current Isolate Error handler
+/// which is the main thread.
 void isolateErrorIntegration(Hub hub, SentryOptions options) {
   final receivePort = RawReceivePort(
     (dynamic error) async {

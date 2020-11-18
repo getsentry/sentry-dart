@@ -237,5 +237,5 @@ int loop(int val) {
     count += i;
   }
 
-  throw StateError('from an compute isolate $count');
+  throw StateError('from a compute isolate $count');
 }
