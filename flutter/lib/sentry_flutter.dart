@@ -68,6 +68,8 @@ mixin SentryFlutter {
     }
   }
 
+  /// Install default integrations
+  /// https://medium.com/flutter-community/error-handling-in-flutter-98fce88a34f0
   static void _addDefaultIntegrations(
     SentryOptions options,
     Function callback,
@@ -75,13 +77,20 @@ mixin SentryFlutter {
     // the ordering here matters, as we'd like to first start the native integration
     // that allow us to send events to the network and then the Flutter integrations.
     options.addIntegration(nativeSdkIntegration(options, _channel));
-    options.addIntegration(runZonedGuardedIntegration(callback));
+
+    // will catch any errors that may occur in the Flutter framework itself.
     options.addIntegration(flutterErrorIntegration);
 
     // Throws when running on the browser
     if (!kIsWeb) {
+      // catch any errors that may occur within the entry function, main()
+      // in the ‘root zone’ where all Dart programs start
       options.addIntegration(isolateErrorIntegration);
     }
+
+    // finally the runZonedGuarded, catch any errors in Dart code running
+    // ‘outside’ the Flutter framework
+    options.addIntegration(runZonedGuardedIntegration(callback));
   }
 
   static void _setSdk(SentryOptions options) {
