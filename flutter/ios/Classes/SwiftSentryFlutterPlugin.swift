@@ -4,6 +4,8 @@ import UIKit
 
 public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
 
+    var sentryOptions: Options?
+
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "sentry_flutter", binaryMessenger: registrar.messenger())
         let instance = SwiftSentryFlutterPlugin()
@@ -35,11 +37,16 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
             let serializedScope = scope.serialize()
             let contexts = serializedScope["context"]
 
+            var infos = ["contexts":contexts]
             print("contexts \(String(describing: contexts))")
             // TODO DEBUG context
 
-            // TODO add sdk.packages & sdk.integration
-            result(contexts)
+            if let integrations = self.sentryOptions?.integrations {
+                infos["integrations"] = integrations
+            }
+
+            // TODO add sdk.packages
+            result(infos)
         }
     }
 
@@ -119,7 +126,11 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
                 options.maxBreadcrumbs = maxBreadcrumbs
             }
 
+            print("------ options.integrations =======> \(String(describing: options.integrations))")
+            //print("------ packages =======> \(String(describing: arguments["packages"] as? [String]))")
+            //print("------ integrations =======> \(String(describing: arguments["integrations"] as? [String]))")
 
+            self.sentryOptions = options
             /*
              TODO : beforeSend alternative =>
               - eventOrigin

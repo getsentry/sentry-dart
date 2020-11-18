@@ -93,15 +93,28 @@ Integration deviceInfosIntegration(
       final Map<String, dynamic> infos =
           Map<String, dynamic>.from(await channel.invokeMethod('deviceInfos'));
 
-      options.addEventProcessor((event, dynamic hint) {
-        event = event.copyWith(
-          contexts: Contexts.fromJson(infos),
-        );
-        return event;
-      });
+      if (infos['contexts'] != null) {
+        options.addEventProcessor((event, dynamic hint) {
+          event = event.copyWith(
+            contexts: Contexts.fromJson(
+              Map<String, dynamic>.from(infos['contexts'] as Map),
+            ),
+          );
+          return event;
+        });
+      }
+
+      if (infos['integrations'] != null) {
+        final integrations = List<String>.from(infos['integrations'] as List);
+        options.addEventProcessor((event, dynamic hint) {
+          final sdk = event.sdk ?? options.sdk;
+          integrations.forEach(sdk.addIntegration);
+          return event.copyWith(sdk: sdk);
+        });
+      }
 
       //TODO packages and integrations
-
+      options.sdk.addIntegration('deviceInfosIntegration');
     } catch (error) {
       options.logger(
         SentryLevel.error,
