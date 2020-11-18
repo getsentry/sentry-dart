@@ -42,11 +42,13 @@ mixin SentryFlutter {
       options.environment = 'debug';
     }
 
-    await _setReleaseAndDist(options);
-
     // TODO: load debug images when split symbols are enabled.
 
+    // first step is to install the native integration and set default values,
+    // so we are able to capture future errors.
     _addDefaultIntegrations(options, callback);
+
+    await _setReleaseAndDist(options);
 
     _setSdk(options);
   }
@@ -70,13 +72,16 @@ mixin SentryFlutter {
     SentryOptions options,
     Function callback,
   ) {
+    // the ordering here matters, as we'd like to first start the native integration
+    // that allow us to send events to the network and then the Flutter integrations.
+    options.addIntegration(nativeSdkIntegration(options, _channel));
+    options.addIntegration(runZonedGuardedIntegration(callback));
+    options.addIntegration(flutterErrorIntegration);
+
     // Throws when running on the browser
     if (!kIsWeb) {
       options.addIntegration(isolateErrorIntegration);
     }
-    options.addIntegration(flutterErrorIntegration);
-    options.addIntegration(nativeSdkIntegration(options, _channel));
-    options.addIntegration(runZonedGuardedIntegration(callback));
   }
 
   static void _setSdk(SentryOptions options) {

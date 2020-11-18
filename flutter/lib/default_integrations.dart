@@ -64,6 +64,9 @@ void flutterErrorIntegration(Hub hub, SentryOptions options) {
     if (defaultOnError != null) {
       defaultOnError(errorDetails);
     }
+
+    // we don't call Zone.current.handleUncaughtError because we'd like
+    // to set a specific mechanism for FlutterError.onError.
   };
 
   options.sdk.addIntegration('flutterErrorIntegration');
@@ -123,7 +126,7 @@ Integration nativeSdkIntegration(SentryOptions options, MethodChannel channel) {
       options.sdk.addIntegration('nativeSdkIntegration');
     } catch (error) {
       options.logger(
-        SentryLevel.error,
+        SentryLevel.fatal,
         'nativeSdkIntegration failed to be installed: $error',
       );
     }
