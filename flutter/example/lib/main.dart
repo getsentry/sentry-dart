@@ -18,11 +18,14 @@ const String _exampleDsn =
 // Proposed init:
 // https://github.com/bruno-garcia/badges.bar/blob/2450ed9125f7b73d2baad1fa6d676cc71858116c/lib/src/sentry.dart#L9-L32
 Future<void> main() async {
-  await SentryFlutter.init((options) {
-    options.dsn = _exampleDsn;
-    // TODO: we probably need to solve this
-    options.addInAppInclude('sentry_flutter_example');
-  }, initMyApp);
+  await SentryFlutter.init(
+    (options) {
+      options.dsn = _exampleDsn;
+      // TODO: we probably need to solve this
+      options.addInAppInclude('sentry_flutter_example');
+    },
+    initMyApp,
+  );
 }
 
 void initMyApp() {

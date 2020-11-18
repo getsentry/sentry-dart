@@ -84,6 +84,35 @@ Integration runZonedGuardedIntegration(
   return integration;
 }
 
+Integration deviceInfosIntegration(
+  SentryOptions options,
+  MethodChannel channel,
+) {
+  Future<void> integration(Hub hub, SentryOptions options) async {
+    try {
+      final Map<String, dynamic> infos =
+          Map<String, dynamic>.from(await channel.invokeMethod('deviceInfos'));
+
+      options.addEventProcessor((event, dynamic hint) {
+        event = event.copyWith(
+          contexts: Contexts.fromJson(infos),
+        );
+        return event;
+      });
+
+      //TODO packages and integrations
+
+    } catch (error) {
+      options.logger(
+        SentryLevel.error,
+        'nativeSdkIntegration failed to be installed: $error',
+      );
+    }
+  }
+
+  return integration;
+}
+
 Integration nativeSdkIntegration(SentryOptions options, MethodChannel channel) {
   Future<void> integration(Hub hub, SentryOptions options) async {
     try {

@@ -12,9 +12,13 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method as String{
+            case "deviceInfos" :
+              deviceInfos(result: result)
+              break
+
             case "initNativeSdk" :
-            initNativeSdk(call, result: result)
-                break
+              initNativeSdk(call, result: result)
+              break
 
         case "captureEnvelope" :
             captureEnvelope(call, result: result)
@@ -24,6 +28,19 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
         }
 
 
+    }
+
+    private func deviceInfos(result: @escaping FlutterResult){
+        SentrySDK.configureScope{ scope in
+            let serializedScope = scope.serialize()
+            let contexts = serializedScope["context"]
+
+            print("contexts \(String(describing: contexts))")
+            // TODO DEBUG context
+
+            // TODO add sdk.packages & sdk.integration
+            result(contexts)
+        }
     }
 
     private func initNativeSdk(_ call: FlutterMethodCall, result: @escaping FlutterResult){
@@ -90,9 +107,6 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
                 options.dist = dist
             }
 
-            if let integrations = arguments["integrations"] as? [String]{
-                options.integrations?.append(contentsOf: integrations)
-            }
 
             if let enableAutoNativeBreadcrumbs = arguments["enableAutoNativeBreadcrumbs"] as? Bool,
                enableAutoNativeBreadcrumbs == false {
@@ -105,21 +119,35 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
                 options.maxBreadcrumbs = maxBreadcrumbs
             }
 
+
             /*
-             missing fields : enableNativeCrashHandling, packages,anrTimeoutIntervalMillis, cacheDirSize
+             TODO : beforeSend alternative =>
+              - eventOrigin
              */
 
+            /* for now, in sentry-cocoa, beforeSend is not called before captureEnvelope
             options.beforeSend = { event in
                 self.setEventOriginTag(event: event)
-                if let packages = arguments["packages"] as? [String]{
-                    if let sdk = event.sdk, var eventPackages = sdk["packages"] as? [String]{
-                        event.sdk!["packages"] = eventPackages.append(contentsOf: packages)
-                    } else {
-                        event.sdk = ["packages":packages]
+
+                if let sdk = event.sdk, self.isValidSdk(sdk: sdk){
+                    if let packages = arguments["packages"] as? [String]{
+                        if  var sdkPackages = sdk["packages"] as? [String]{
+                            event.sdk!["packages"] = sdkPackages.append(contentsOf: packages)
+                        } else {
+                            event.sdk = ["packages":packages]
+                        }
+                    }
+
+                    if let integrations = arguments["integrations"] as? [String]{
+                        if  var sdkIntegrations = sdk["integrations"] as? [String]{
+                            event.sdk!["integrations"] = sdkIntegrations.append(contentsOf: integrations)
+                        } else {
+                            event.sdk = ["integrations":integrations]
+                        }
                     }
                 }
                 return event
-            }
+            }*/
         }
 
         result("iOS initNativeSdk" )
@@ -181,8 +209,8 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
         let itemHeader = envelopeParts[1]
 
         guard
-              let eventId = envelopeHeaderDict["event_id"] as? String,
-              let itemType = itemHeader["type"] as? String else {
+            let eventId = envelopeHeaderDict["event_id"] as? String,
+            let itemType = itemHeader["type"] as? String else {
             result(FlutterError(code: "2", message: "Cannot serialize event", details: nil) )
             return
         }
@@ -191,7 +219,9 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
         let sentryId = SentryId(uuidString: eventId)
         let envelopeHeader = SentryEnvelopeHeader.init(id: sentryId, andSdkInfo: sdkInfo)
 
-        let data = try! JSONSerialization.data(withJSONObject: envelopeParts[2], options: .init(rawValue: 0))
+        let payload = envelopeParts[2]
+
+        let data = try! JSONSerialization.data(withJSONObject: payload, options: .init(rawValue: 0))
         let sentryItemHeader = SentryEnvelopeItemHeader(type: itemType, length: UInt(data.count))
         let sentryEnvelopeItem = SentryEnvelopeItem( header: sentryItemHeader, data: data)
 

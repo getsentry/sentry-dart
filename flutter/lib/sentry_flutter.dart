@@ -75,6 +75,7 @@ mixin SentryFlutter {
       options.addIntegration(isolateErrorIntegration);
     }
     options.addIntegration(flutterErrorIntegration);
+    options.addIntegration(deviceInfosIntegration(options, _channel));
     options.addIntegration(nativeSdkIntegration(options, _channel));
     options.addIntegration(runZonedGuardedIntegration(callback));
   }
