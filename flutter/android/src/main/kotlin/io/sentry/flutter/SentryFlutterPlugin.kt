@@ -38,7 +38,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
   }
 
   override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
-    when(call.method) {
+    when (call.method) {
       "initNativeSdk" -> initNativeSdk(call, result)
       "captureEnvelope" -> captureEnvelope(call, result)
       else -> result.notImplemented()

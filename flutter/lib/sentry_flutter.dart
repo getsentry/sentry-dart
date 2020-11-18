@@ -54,17 +54,23 @@ mixin SentryFlutter {
   }
 
   static Future<void> _setReleaseAndDist(SentryOptions options) async {
-    if (!kIsWeb) {
-      final packageInfo = await PackageInfo.fromPlatform();
+    try {
+      if (!kIsWeb) {
+        final packageInfo = await PackageInfo.fromPlatform();
 
-      final release =
-          '${packageInfo.packageName}@${packageInfo.version}+${packageInfo.buildNumber}';
-      options.logger(SentryLevel.debug, 'release: $release');
+        final release =
+            '${packageInfo.packageName}@${packageInfo.version}+${packageInfo.buildNumber}';
+        options.logger(SentryLevel.debug, 'release: $release');
 
-      options.release = release;
-      options.dist = packageInfo.buildNumber;
-    } else {
-      // TODO: web release
+        options.release = release;
+        options.dist = packageInfo.buildNumber;
+      } else {
+        final String release = await _channel.invokeMethod('platformVersion');
+        options.release = release;
+      }
+    } catch (error) {
+      options.logger(
+          SentryLevel.error, 'Failed to load release and dist: $error');
     }
   }
 
@@ -76,7 +82,10 @@ mixin SentryFlutter {
   ) {
     // the ordering here matters, as we'd like to first start the native integration
     // that allow us to send events to the network and then the Flutter integrations.
-    options.addIntegration(nativeSdkIntegration(options, _channel));
+    // Flutter Web doesn't need that, only Android and iOS.
+    if (!kIsWeb) {
+      options.addIntegration(nativeSdkIntegration(options, _channel));
+    }
 
     // will catch any errors that may occur in the Flutter framework itself.
     options.addIntegration(flutterErrorIntegration);
