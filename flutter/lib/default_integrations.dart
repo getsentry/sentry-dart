@@ -113,7 +113,8 @@ Integration deviceInfosIntegration(
         });
       }
 
-      //TODO packages and integrations
+      //TODO packages
+
       options.sdk.addIntegration('deviceInfosIntegration');
     } catch (error) {
       options.logger(
