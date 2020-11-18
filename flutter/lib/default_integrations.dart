@@ -5,11 +5,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:sentry/sentry.dart';
 
-// TODO: we might need flags on options to disable those integrations
-// not sure if its possible to use removeIntegration for runZonedGuardedIntegration
-// because its an internal method
-
 /// integration that capture errors on the current Isolate Error handler
+/// which is the main thread.
 void isolateErrorIntegration(Hub hub, SentryOptions options) {
   final receivePort = RawReceivePort(
     (dynamic error) async {
@@ -21,11 +18,15 @@ void isolateErrorIntegration(Hub hub, SentryOptions options) {
         final dynamic throwable = error.first;
         final dynamic stackTrace = error.last;
 
-        const mechanism = Mechanism(type: 'isolateError', handled: false);
+        //  Isolate errors don't crash the App.
+        const mechanism = Mechanism(type: 'isolateError', handled: true);
         final throwableMechanism = ThrowableMechanism(mechanism, throwable);
+        final event = SentryEvent(
+          throwable: throwableMechanism,
+          level: SentryLevel.fatal,
+        );
 
-        await Sentry.captureException(throwableMechanism,
-            stackTrace: stackTrace);
+        await hub.captureEvent(event, stackTrace: stackTrace);
       }
     },
   );
@@ -43,19 +44,25 @@ void flutterErrorIntegration(Hub hub, SentryOptions options) {
     options.logger(
         SentryLevel.debug, 'Capture from onError ${errorDetails.exception}');
 
-    const mechanism = Mechanism(type: 'FlutterError', handled: false);
+    // FlutterError doesn't crash the App.
+    const mechanism = Mechanism(type: 'FlutterError', handled: true);
     final throwableMechanism =
         ThrowableMechanism(mechanism, errorDetails.exception);
 
-    await hub.captureException(
-      throwableMechanism,
-      stackTrace: errorDetails.stack,
+    final event = SentryEvent(
+      throwable: throwableMechanism,
+      level: SentryLevel.fatal,
     );
+
+    await hub.captureEvent(event, stackTrace: errorDetails.stack);
 
     // call original handler
     if (defaultOnError != null) {
       defaultOnError(errorDetails);
     }
+
+    // we don't call Zone.current.handleUncaughtError because we'd like
+    // to set a specific mechanism for FlutterError.onError.
   };
 
   options.sdk.addIntegration('flutterErrorIntegration');
@@ -69,13 +76,16 @@ Integration runZonedGuardedIntegration(
     runZonedGuarded(() {
       callback();
     }, (exception, stackTrace) async {
-      const mechanism = Mechanism(type: 'runZonedGuarded', handled: false);
+      // runZonedGuarded doesn't crash the App.
+      const mechanism = Mechanism(type: 'runZonedGuarded', handled: true);
       final throwableMechanism = ThrowableMechanism(mechanism, exception);
 
-      await Sentry.captureException(
-        throwableMechanism,
-        stackTrace: stackTrace,
+      final event = SentryEvent(
+        throwable: throwableMechanism,
+        level: SentryLevel.fatal,
       );
+
+      await hub.captureEvent(event, stackTrace: stackTrace);
     });
 
     options.sdk.addIntegration('runZonedGuardedIntegration');
@@ -112,7 +122,7 @@ Integration nativeSdkIntegration(SentryOptions options, MethodChannel channel) {
       options.sdk.addIntegration('nativeSdkIntegration');
     } catch (error) {
       options.logger(
-        SentryLevel.error,
+        SentryLevel.fatal,
         'nativeSdkIntegration failed to be installed: $error',
       );
     }
