@@ -21,8 +21,7 @@ void isolateErrorIntegration(Hub hub, SentryOptions options) {
         final dynamic throwable = error.first;
         final dynamic stackTrace = error.last;
 
-        // TODO: validate if handled should be true or flalse
-        // assuming false as I could not see the App crashing so far.
+        // // isolateError doesn't crash the App.
         const mechanism = Mechanism(type: 'isolateError', handled: true);
         final throwableMechanism = ThrowableMechanism(mechanism, throwable);
         final event = SentryEvent(
