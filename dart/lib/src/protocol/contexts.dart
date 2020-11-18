@@ -25,6 +25,13 @@ class Contexts extends MapView<String, dynamic> {
           Gpu.type: gpu,
         });
 
+  factory Contexts.fromJson(Map<String, dynamic> data) => Contexts(
+        device: Device.fromJson(Map<String, dynamic>.from(data['device'])),
+        operatingSystem:
+            OperatingSystem.fromJson(Map<String, dynamic>.from(data['device'])),
+        app: App.fromJson(Map<String, dynamic>.from(data['app'])),
+      );
+
   /// This describes the device that caused the event.
   Device get device => this[Device.type];
 
