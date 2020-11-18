@@ -5,10 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:sentry/sentry.dart';
 
-// TODO: we might need flags on options to disable those integrations
-// not sure if its possible to use removeIntegration for runZonedGuardedIntegration
-// because its an internal method
-
 /// integration that capture errors on the current Isolate Error handler
 void isolateErrorIntegration(Hub hub, SentryOptions options) {
   final receivePort = RawReceivePort(
@@ -29,7 +25,7 @@ void isolateErrorIntegration(Hub hub, SentryOptions options) {
           level: SentryLevel.fatal,
         );
 
-        await Sentry.captureEvent(event, stackTrace: stackTrace);
+        await hub.captureEvent(event, stackTrace: stackTrace);
       }
     },
   );
@@ -88,7 +84,7 @@ Integration runZonedGuardedIntegration(
         level: SentryLevel.fatal,
       );
 
-      await Sentry.captureEvent(event, stackTrace: stackTrace);
+      await hub.captureEvent(event, stackTrace: stackTrace);
     });
 
     options.sdk.addIntegration('runZonedGuardedIntegration');

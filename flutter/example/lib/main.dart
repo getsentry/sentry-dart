@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:isolate';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -70,18 +71,20 @@ class _MyAppState extends State<MyApp> {
               },
             ),
             RaisedButton(
+                child: const Text('Dart: async throws'),
+                onPressed: () async => asyncThrows().catchError(handleError)),
+            RaisedButton(
               child: const Text('Dart: Fail in microtask.'),
               onPressed: () async => {
-                // throwing Unhandled Exception: Bad state: Failure in a microtask
-                // and not getting events
                 await Future.microtask(
                   () => throw StateError('Failure in a microtask'),
-                )
+                ).catchError(handleError)
               },
             ),
             RaisedButton(
-              child: const Text('Dart: Fail in isolate'),
-              onPressed: () async => {await compute(loop, 10)},
+              child: const Text('Dart: Fail in compute'),
+              onPressed: () async =>
+                  {await compute(loop, 10).catchError(handleError)},
             ),
             if (UniversalPlatform.isIOS) const CocoaExample(),
             if (UniversalPlatform.isAndroid) const AndroidExample(),
@@ -146,10 +149,18 @@ class AndroidExample extends StatelessWidget {
 
 Future<void> tryCatch() async {
   try {
-    throw StateError('whats happening here');
+    throw StateError('try catch');
   } catch (error, stackTrace) {
     await Sentry.captureException(error, stackTrace: stackTrace);
   }
+}
+
+Future<void> handleError(dynamic error, dynamic stackTrace) async {
+  await Sentry.captureException(error, stackTrace: stackTrace);
+}
+
+Future<void> asyncThrows() async {
+  throw StateError('async throws');
 }
 
 class CocoaExample extends StatelessWidget {
@@ -225,7 +236,6 @@ int loop(int val) {
   for (int i = 1; i <= val; i++) {
     count += i;
   }
-  // Unhandled Exception: Exception: Bad state: from an isolate
-  // and not sending events to sentry
-  throw StateError('from an isolate $count');
+
+  throw StateError('from an compute isolate $count');
 }
