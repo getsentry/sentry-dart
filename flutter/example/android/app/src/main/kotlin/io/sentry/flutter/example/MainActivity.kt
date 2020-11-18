@@ -1,6 +1,5 @@
 package io.sentry.flutter.example
 
-import android.content.Context
 import androidx.annotation.NonNull
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
