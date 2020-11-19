@@ -231,7 +231,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
     func parseJson(text: String)->[String:Any]?  {
         if let data = text.data(using: .utf8) {
             do {
-                let json = try JSONSerialization.jsonObject(with: data) as? [String:AnyObject]
+                let json = try JSONSerialization.jsonObject(with: data) as? [String:Any]
                 return json
             } catch {
                 print("json parsing error !")
