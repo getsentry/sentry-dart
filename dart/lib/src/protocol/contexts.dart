@@ -26,10 +26,29 @@ class Contexts extends MapView<String, dynamic> {
         });
 
   factory Contexts.fromJson(Map<String, dynamic> data) => Contexts(
-        device: Device.fromJson(Map<String, dynamic>.from(data['device'])),
-        operatingSystem:
-            OperatingSystem.fromJson(Map<String, dynamic>.from(data['device'])),
-        app: App.fromJson(Map<String, dynamic>.from(data['app'])),
+        device: data[Device.type] != null
+            ? Device.fromJson(Map<String, dynamic>.from(data[Device.type]))
+            : null,
+        operatingSystem: data[OperatingSystem.type] != null
+            ? OperatingSystem.fromJson(
+                Map<String, dynamic>.from(data[OperatingSystem.type]))
+            : null,
+        app: data[App.type] != null
+            ? App.fromJson(Map<String, dynamic>.from(data[App.type]))
+            : null,
+        browser: data[Browser.type] != null
+            ? Browser.fromJson(Map<String, dynamic>.from(data[Browser.type]))
+            : null,
+        gpu: data[Gpu.type] != null
+            ? Gpu.fromJson(Map<String, dynamic>.from(data[Gpu.type]))
+            : null,
+        runtimes: data[SentryRuntime.type] != null
+            ? [
+                SentryRuntime.fromJson(
+                  Map<String, dynamic>.from(data[SentryRuntime.type]),
+                ),
+              ]
+            : null,
       );
 
   /// This describes the device that caused the event.
