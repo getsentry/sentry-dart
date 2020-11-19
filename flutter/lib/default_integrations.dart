@@ -91,7 +91,7 @@ Integration loadContextsIntegration(
   Future<void> integration(Hub hub, SentryOptions options) async {
     try {
       final Map<String, dynamic> infos =
-          Map<String, dynamic>.from(await channel.invokeMethod('deviceInfos'));
+          Map<String, dynamic>.from(await channel.invokeMethod('loadContexts'));
 
       options.addEventProcessor((event, dynamic hint) {
         if (infos['contexts'] != null) {

@@ -29,8 +29,6 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
             default:
                 result(FlutterMethodNotImplemented)
         }
-
-
     }
 
     private func loadContexts(result: @escaping FlutterResult){
@@ -50,7 +48,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
 
             // TODO get the sdkVersion from SDK
             infos["package"] = ["version": "6.0.9" ,"sdk_name":"cocoapods:sentry-cocoa"]
-            
+
             result(infos)
         }
     }
@@ -180,17 +178,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
         return (sdk["name"] != nil && !(sdk["name"] as! String).isEmpty)
     }
 
-    func convertStringToDictionary(text: String) -> [String:Any]? {
-        if let data = text.data(using: .utf8) {
-            do {
-                let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? [String:AnyObject]
-                return json
-            } catch {
-                print("Something went wrong")
-            }
-        }
-        return nil
-    }
+    
 
     private func captureEnvelope(_ call: FlutterMethodCall, result: @escaping FlutterResult){
         guard let arguments = call.arguments as? [Any],
@@ -199,19 +187,33 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
             result(FlutterError(code: "2", message: "Envelope is null or empty", details: nil) )
             return
         }
-
-        let parts = event.split(separator: "\n")
-        let envelopeParts: [[String: Any]] = parts.map ({ part in
-            convertStringToDictionary(text: "\(part)")!
-        })
-
-        let rawEnvelopeHeader = envelopeParts[0]
-
-        guard
-            let eventId = rawEnvelopeHeader["event_id"] as? String,
-            let itemType = envelopeParts[1]["type"] as? String else {
-            result(FlutterError(code: "2", message: "Cannot serialize event", details: nil) )
+        
+        do{
+            let envelope = try parseJsonEnvelope( event )
+            
+            SentrySDK.currentHub().getClient()?.capture(envelope: envelope)
+            result("")
+            
+        } catch{
+            result(FlutterError(code: "3", message: "Cannot serialize event payload", details: nil) )
             return
+        }
+    }
+    
+    private func parseJsonEnvelope(_ data : String ) throws -> SentryEnvelope{
+        let parts = data.split(separator: "\n")
+        
+        let envelopeParts: [[String: Any]] = try parts.map ({ part in
+            guard let dict = parseJson(text: "\(part)") else {
+                throw NSError()
+            }
+            return dict
+        })
+        
+        let rawEnvelopeHeader = envelopeParts[0]
+        guard let eventId = rawEnvelopeHeader["event_id"] as? String,
+            let itemType = envelopeParts[1]["type"] as? String else {
+            throw NSError()
         }
 
         let sdkInfo = SentrySdkInfo(dict: rawEnvelopeHeader)
@@ -219,19 +221,24 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
         let envelopeHeader = SentryEnvelopeHeader.init(id: sentryId, andSdkInfo: sdkInfo)
 
         let payload = envelopeParts[2]
-
-        do{
-            let data = try JSONSerialization.data(withJSONObject: payload, options: .init(rawValue: 0))
         
-            let itemHeader = SentryEnvelopeItemHeader(type: itemType, length: UInt(data.count))
-            let sentryItem = SentryEnvelopeItem( header: itemHeader, data: data)
+        let data = try JSONSerialization.data(withJSONObject: payload, options: .init(rawValue: 0))
 
-            let envelope = SentryEnvelope.init(header: envelopeHeader, singleItem: sentryItem)
-            SentrySDK.currentHub().getClient()?.capture(envelope: envelope)
+        let itemHeader = SentryEnvelopeItemHeader(type: itemType, length: UInt(data.count))
+        let sentryItem = SentryEnvelopeItem( header: itemHeader, data: data)
 
-            result("")
-        } catch{
-            result(FlutterError(code: "2", message: "Cannot serialize event payload", details: nil) )
+        return SentryEnvelope.init(header: envelopeHeader, singleItem: sentryItem)
+    }
+    
+    func parseJson(text: String)->[String:Any]?  {
+        if let data = text.data(using: .utf8) {
+            do {
+                let json = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String:AnyObject]
+                return json
+            } catch {
+                print("envelope parsing error !")
+            }
         }
+        return nil
     }
 }
