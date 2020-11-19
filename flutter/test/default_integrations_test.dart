@@ -23,6 +23,9 @@ void main() {
   });
 
   test('FlutterError capture errors', () async {
+    // replace default error otherwise it fails on testing
+    FlutterError.onError = (FlutterErrorDetails errorDetails) async {};
+
     flutterErrorIntegration(fixture.hub, fixture.options);
 
     final throwable = StateError('error');
