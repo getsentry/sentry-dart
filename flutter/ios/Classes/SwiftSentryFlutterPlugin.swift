@@ -35,10 +35,9 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
     private func deviceInfos(result: @escaping FlutterResult){
         SentrySDK.configureScope{ scope in
             let serializedScope = scope.serialize()
-            let contexts = serializedScope["context"]
+            let context = serializedScope["context"]
 
-            var infos = ["contexts":contexts]
-            print("contexts \(String(describing: contexts))")
+            var infos = ["contexts":context]
             // TODO DEBUG context
 
             if let integrations = self.sentryOptions?.integrations {
