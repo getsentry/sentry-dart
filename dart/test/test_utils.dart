@@ -340,7 +340,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
       if (request.method == 'POST') {
         final bodyData = request.bodyBytes;
         final decoded = const Utf8Codec().decode(bodyData);
-        final dynamic decodedJson = const JsonDecoder().convert(decoded);
+        final dynamic decodedJson = jsonDecode(decoded);
         loggedUserId = decodedJson['user']['id'] as String;
         return http.Response('', 401, headers: <String, String>{
           'x-sentry-error': 'Invalid api key',

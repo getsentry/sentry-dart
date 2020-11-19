@@ -6,8 +6,8 @@ import 'package:flutter/widgets.dart';
 import 'package:package_info/package_info.dart';
 import 'package:sentry/sentry.dart';
 
-import 'FileSystemTransport.dart';
 import 'default_integrations.dart';
+import 'file_system_transport.dart';
 import 'version.dart';
 
 mixin SentryFlutter {
@@ -15,31 +15,49 @@ mixin SentryFlutter {
 
   static Future<void> init(
     OptionsConfiguration optionsConfiguration,
-    Function callback,
-  ) async {
+    Function callback, {
+    PackageLoader packageLoader = _loadPackageInfo,
+  }) async {
     await Sentry.init((options) async {
-      await _initDefaultValues(options, callback);
+      await _initDefaultValues(options, callback, packageLoader);
 
       await optionsConfiguration(options);
     });
   }
 
   static Future<void> _initDefaultValues(
-      SentryOptions options, Function callback) async {
+    SentryOptions options,
+    Function callback,
+    PackageLoader packageLoader,
+  ) async {
     // it is necessary to initialize Flutter method channels so that
     // our plugin can call into the native code.
     WidgetsFlutterBinding.ensureInitialized();
 
-    // options.debug = kDebugMode;
-    options.debug = true;
+    options.debug = kDebugMode;
 
     // web still uses a http transport for Web which is set by default
     if (!kIsWeb) {
       options.transport = FileSystemTransport(_channel, options);
     }
 
-    if (!kReleaseMode) {
+    // if no environment is set, we set 'production' by default, but if we know it's
+    // a non release mode, we set it as 'debug'.
+    // we special case to system env for Flutter web.
+    if (!kReleaseMode && !kIsWeb) {
       options.environment = 'debug';
+    } else if (kIsWeb) {
+      if (const bool.hasEnvironment('SENTRY_ENVIRONMENT') || !kReleaseMode) {
+        options.environment = const String.fromEnvironment('SENTRY_ENVIRONMENT',
+            defaultValue: 'debug');
+      }
+    }
+
+    // special case for Flutter Web, Mobile does not load system envs.
+    if (kIsWeb) {
+      options.dsn = const bool.hasEnvironment('SENTRY_DSN')
+          ? const String.fromEnvironment('SENTRY_DSN')
+          : options.dsn;
     }
 
     // TODO: load debug images when split symbols are enabled.
@@ -48,16 +66,22 @@ mixin SentryFlutter {
     // so we are able to capture future errors.
     _addDefaultIntegrations(options, callback);
 
-    await _setReleaseAndDist(options);
+    await _setReleaseAndDist(options, packageLoader);
 
     _setSdk(options);
   }
 
-  static Future<void> _setReleaseAndDist(SentryOptions options) async {
+  static Future<void> _setReleaseAndDist(
+    SentryOptions options,
+    PackageLoader packageLoader,
+  ) async {
     try {
       if (!kIsWeb) {
-        final packageInfo = await PackageInfo.fromPlatform();
-
+        if (packageLoader == null) {
+          options.logger(SentryLevel.debug, 'Package loader is null.');
+          return;
+        }
+        final packageInfo = await packageLoader();
         final release =
             '${packageInfo.packageName}@${packageInfo.version}+${packageInfo.buildNumber}';
         options.logger(SentryLevel.debug, 'release: $release');
@@ -65,8 +89,12 @@ mixin SentryFlutter {
         options.release = release;
         options.dist = packageInfo.buildNumber;
       } else {
-        final String release = await _channel.invokeMethod('platformVersion');
-        options.release = release;
+        options.release = const bool.hasEnvironment('SENTRY_RELEASE')
+            ? const String.fromEnvironment('SENTRY_RELEASE')
+            : options.release;
+        options.dist = const bool.hasEnvironment('SENTRY_DIST')
+            ? const String.fromEnvironment('SENTRY_DIST')
+            : options.dist;
       }
     } catch (error) {
       options.logger(
@@ -113,4 +141,11 @@ mixin SentryFlutter {
     sdk.addPackage('pub:sentry_flutter', sdkVersion);
     options.sdk = sdk;
   }
+}
+
+typedef PackageLoader = Future<PackageInfo> Function();
+
+/// Package info loader.
+Future<PackageInfo> _loadPackageInfo() async {
+  return await PackageInfo.fromPlatform();
 }

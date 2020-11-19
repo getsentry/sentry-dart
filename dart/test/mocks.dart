@@ -6,6 +6,8 @@ class MockSentryClient extends Mock implements SentryClient {}
 
 class MockTransport extends Mock implements Transport {}
 
+class MockHub extends Mock implements Hub {}
+
 final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
 final fakeException = Exception('Error');
