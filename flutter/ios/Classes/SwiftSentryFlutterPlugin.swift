@@ -111,10 +111,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
             }
 
             self.sentryOptions = options
-            /*
-             TODO : beforeSend alternative =>
-              - eventOrigin
-             */
+
 
             // note : for now, in sentry-cocoa, beforeSend is not called before captureEnvelope
             options.beforeSend = { event in
@@ -143,7 +140,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
 
         result("")
     }
-    
+
     private func logLevelFrom(diagnosticLevel:String)->SentryLogLevel{
         switch (diagnosticLevel) {
         case "fatal", "error":
@@ -234,7 +231,6 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
 
             result("")
         } catch{
-            
             result(FlutterError(code: "2", message: "Cannot serialize event payload", details: nil) )
         }
     }
