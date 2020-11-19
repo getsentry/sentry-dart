@@ -1,5 +1,3 @@
-import 'dart:isolate';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -14,22 +12,25 @@ void main() {
 
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  Fixture fixture;
+
+  setUp(() {
+    fixture = Fixture();
+  });
+
   tearDown(() {
     _channel.setMockMethodCallHandler(null);
   });
 
   test('FlutterError capture errors', () async {
-    final hub = MockHub();
-    final options = SentryOptions();
-
-    flutterErrorIntegration(hub, options);
+    flutterErrorIntegration(fixture.hub, fixture.options);
 
     final throwable = StateError('error');
     final details = FlutterErrorDetails(exception: throwable);
     FlutterError.reportError(details);
 
     final event = verify(
-      await hub.captureEvent(captureAny),
+      await fixture.hub.captureEvent(captureAny),
     ).captured.first as SentryEvent;
 
     expect(SentryLevel.fatal, event.level);
@@ -41,50 +42,40 @@ void main() {
   });
 
   test('FlutterError calls default error', () async {
-    final hub = MockHub();
-    final options = SentryOptions();
-
     var called = false;
     final defaultError = (FlutterErrorDetails errorDetails) async {
       called = true;
     };
     FlutterError.onError = defaultError;
 
-    flutterErrorIntegration(hub, options);
+    flutterErrorIntegration(fixture.hub, fixture.options);
 
     final throwable = StateError('error');
     final details = FlutterErrorDetails(exception: throwable);
     FlutterError.reportError(details);
 
     verify(
-      await hub.captureEvent(captureAny),
+      await fixture.hub.captureEvent(captureAny),
     ).captured.first as SentryEvent;
 
     expect(true, called);
   });
 
   test('FlutterError adds integration', () async {
-    final hub = MockHub();
-    final options = SentryOptions();
+    flutterErrorIntegration(fixture.hub, fixture.options);
 
-    flutterErrorIntegration(hub, options);
-
-    expect(true, options.sdk.integrations.contains('flutterErrorIntegration'));
+    expect(true,
+        fixture.options.sdk.integrations.contains('flutterErrorIntegration'));
   });
 
   test('Isolate error adds integration', () async {
-    final hub = MockHub();
-    final options = SentryOptions();
+    isolateErrorIntegration(fixture.hub, fixture.options);
 
-    isolateErrorIntegration(hub, options);
-
-    expect(true, options.sdk.integrations.contains('isolateErrorIntegration'));
+    expect(true,
+        fixture.options.sdk.integrations.contains('isolateErrorIntegration'));
   });
 
   test('Isolate error capture errors', () async {
-    final hub = MockHub();
-    final options = SentryOptions();
-
     final throwable = StateError('error');
     final stackTrace = StackTrace.current;
     final error = [throwable, stackTrace];
@@ -92,11 +83,11 @@ void main() {
     // we could not find a way to trigger an error to the current Isolate
     // and unit test its error handling, so instead we exposed the method,
     // that handles and captures it.
-    handleIsolateError(hub, options, error);
+    await handleIsolateError(fixture.hub, fixture.options, error);
 
     final event = verify(
-      await hub.captureEvent(captureAny,
-          stackTrace: captureAnyNamed('stackTrace')),
+      await fixture.hub
+          .captureEvent(captureAny, stackTrace: captureAnyNamed('stackTrace')),
     ).captured.first as SentryEvent;
 
     expect(SentryLevel.fatal, event.level);
@@ -108,25 +99,21 @@ void main() {
   });
 
   test('Run zoned guarded adds integration', () async {
-    final hub = MockHub();
-    final options = SentryOptions();
-
-    isolateErrorIntegration(hub, options);
+    isolateErrorIntegration(fixture.hub, fixture.options);
 
     void callback() {}
     final integration = runZonedGuardedIntegration(callback);
 
-    integration(hub, options);
+    await integration(fixture.hub, fixture.options);
 
     expect(
-        true, options.sdk.integrations.contains('runZonedGuardedIntegration'));
+        true,
+        fixture.options.sdk.integrations
+            .contains('runZonedGuardedIntegration'));
   });
 
   test('Run zoned guarded calls callback', () async {
-    final hub = MockHub();
-    final options = SentryOptions();
-
-    isolateErrorIntegration(hub, options);
+    isolateErrorIntegration(fixture.hub, fixture.options);
 
     var called = false;
     void callback() {
@@ -135,26 +122,23 @@ void main() {
 
     final integration = runZonedGuardedIntegration(callback);
 
-    integration(hub, options);
+    await integration(fixture.hub, fixture.options);
 
     expect(true, called);
   });
 
   test('Run zoned guarded calls catches error', () async {
-    final hub = MockHub();
-    final options = SentryOptions();
-
     final throwable = StateError('error');
     void callback() {
       throw throwable;
     }
 
     final integration = runZonedGuardedIntegration(callback);
-    integration(hub, options);
+    await integration(fixture.hub, fixture.options);
 
     final event = verify(
-      await hub.captureEvent(captureAny,
-          stackTrace: captureAnyNamed('stackTrace')),
+      await fixture.hub
+          .captureEvent(captureAny, stackTrace: captureAnyNamed('stackTrace')),
     ).captured.first as SentryEvent;
 
     expect(SentryLevel.fatal, event.level);
@@ -168,14 +152,12 @@ void main() {
   test('nativeSdkIntegration adds integration', () async {
     _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
 
-    final hub = MockHub();
-    final options = SentryOptions();
+    final integration = nativeSdkIntegration(fixture.options, _channel);
 
-    final integration = nativeSdkIntegration(options, _channel);
+    await integration(fixture.hub, fixture.options);
 
-    await integration(hub, options);
-
-    expect(true, options.sdk.integrations.contains('nativeSdkIntegration'));
+    expect(true,
+        fixture.options.sdk.integrations.contains('nativeSdkIntegration'));
   });
 
   test('nativeSdkIntegration do not throw', () async {
@@ -183,13 +165,16 @@ void main() {
       throw null;
     });
 
-    final hub = MockHub();
-    final options = SentryOptions();
+    final integration = nativeSdkIntegration(fixture.options, _channel);
 
-    final integration = nativeSdkIntegration(options, _channel);
+    await integration(fixture.hub, fixture.options);
 
-    await integration(hub, options);
-
-    expect(false, options.sdk.integrations.contains('nativeSdkIntegration'));
+    expect(false,
+        fixture.options.sdk.integrations.contains('nativeSdkIntegration'));
   });
+}
+
+class Fixture {
+  final hub = MockHub();
+  final options = SentryOptions();
 }

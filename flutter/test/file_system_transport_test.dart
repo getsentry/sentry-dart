@@ -13,6 +13,12 @@ void main() {
 
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  Fixture fixture;
+
+  setUp(() {
+    fixture = Fixture();
+  });
+
   tearDown(() {
     _channel.setMockMethodCallHandler(null);
   });
@@ -20,9 +26,7 @@ void main() {
   test('FileSystemTransport wont throw', () async {
     _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
 
-    final options = SentryOptions();
-    final transport = FileSystemTransport(_channel, options);
-
+    final transport = fixture.getSut(_channel);
     final event = SentryEvent();
 
     final sentryId = await transport.send(event);
@@ -35,8 +39,7 @@ void main() {
       throw null;
     });
 
-    final options = SentryOptions();
-    final transport = FileSystemTransport(_channel, options);
+    final transport = fixture.getSut(_channel);
 
     final sentryId = await transport.send(SentryEvent());
 
@@ -49,8 +52,7 @@ void main() {
       arguments = methodCall.arguments;
     });
 
-    final options = SentryOptions();
-    final transport = FileSystemTransport(_channel, options);
+    final transport = fixture.getSut(_channel);
 
     final event = SentryEvent();
     await transport.send(event);
@@ -81,4 +83,11 @@ void main() {
 
     expect(item, eventString);
   });
+}
+
+class Fixture {
+  FileSystemTransport getSut(MethodChannel channel) {
+    final options = SentryOptions();
+    return FileSystemTransport(channel, options);
+  }
 }

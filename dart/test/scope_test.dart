@@ -3,7 +3,11 @@ import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
 void main() {
-  final fixture = Fixture();
+  Fixture fixture;
+
+  setUp(() {
+    fixture = Fixture();
+  });
 
   test('sets $SentryLevel', () {
     final sut = fixture.getSut();
