@@ -178,8 +178,6 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
         return (sdk["name"] != nil && !(sdk["name"] as! String).isEmpty)
     }
 
-    
-
     private func captureEnvelope(_ call: FlutterMethodCall, result: @escaping FlutterResult){
         guard let arguments = call.arguments as? [Any],
               !arguments.isEmpty,
@@ -192,9 +190,9 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
             let envelope = try parseJsonEnvelope( event )
             
             SentrySDK.currentHub().getClient()?.capture(envelope: envelope)
-            result("")
-            
+            result("")            
         } catch{
+            print("envelope parsing error !")
             result(FlutterError(code: "3", message: "Cannot serialize event payload", details: nil) )
             return
         }
@@ -236,7 +234,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
                 let json = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String:AnyObject]
                 return json
             } catch {
-                print("envelope parsing error !")
+                print("json parsing error !")
             }
         }
         return nil
