@@ -73,9 +73,6 @@ void main() {
   });
 
   test('Isolate error adds integration', () async {
-    // we could not find a way to trigger an error to the current Isolate
-    // and unit test its error handling.
-
     final hub = MockHub();
     final options = SentryOptions();
 
@@ -92,6 +89,9 @@ void main() {
     final stackTrace = StackTrace.current;
     final error = [throwable, stackTrace];
 
+    // we could not find a way to trigger an error to the current Isolate
+    // and unit test its error handling, so instead we exposed the method,
+    // that handles and captures it.
     handleIsolateError(hub, options, error);
 
     final event = verify(

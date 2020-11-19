@@ -134,7 +134,7 @@ packages:
       name: pedantic
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.9.0"
+    version: "1.10.0-nullsafety.2"
   sentry:
     dependency: transitive
     description:

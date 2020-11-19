@@ -15,17 +15,21 @@ mixin SentryFlutter {
 
   static Future<void> init(
     OptionsConfiguration optionsConfiguration,
-    Function callback,
-  ) async {
+    Function callback, {
+    PackageLoader packageLoader = _loadPackageInfo,
+  }) async {
     await Sentry.init((options) async {
-      await _initDefaultValues(options, callback);
+      await _initDefaultValues(options, callback, packageLoader);
 
       await optionsConfiguration(options);
     });
   }
 
   static Future<void> _initDefaultValues(
-      SentryOptions options, Function callback) async {
+    SentryOptions options,
+    Function callback,
+    PackageLoader packageLoader,
+  ) async {
     // it is necessary to initialize Flutter method channels so that
     // our plugin can call into the native code.
     WidgetsFlutterBinding.ensureInitialized();
@@ -62,16 +66,19 @@ mixin SentryFlutter {
     // so we are able to capture future errors.
     _addDefaultIntegrations(options, callback);
 
-    await _setReleaseAndDist(options);
+    await _setReleaseAndDist(options, packageLoader);
 
     _setSdk(options);
   }
 
-  static Future<void> _setReleaseAndDist(SentryOptions options) async {
+  static Future<void> _setReleaseAndDist(
+    SentryOptions options,
+    PackageLoader packageLoader,
+  ) async {
     try {
       if (!kIsWeb) {
         // TODO wrap this to be unit testable
-        final packageInfo = await PackageInfo.fromPlatform();
+        final packageInfo = await packageLoader();
 
         final release =
             '${packageInfo.packageName}@${packageInfo.version}+${packageInfo.buildNumber}';
@@ -132,4 +139,11 @@ mixin SentryFlutter {
     sdk.addPackage('pub:sentry_flutter', sdkVersion);
     options.sdk = sdk;
   }
+}
+
+typedef PackageLoader = Future<PackageInfo> Function();
+
+/// Package info loader.
+Future<PackageInfo> _loadPackageInfo() async {
+  return await PackageInfo.fromPlatform();
 }
