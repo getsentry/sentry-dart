@@ -92,28 +92,31 @@ Integration loadContextsIntegration(
     try {
       final Map<String, dynamic> infos =
           Map<String, dynamic>.from(await channel.invokeMethod('deviceInfos'));
-
-      if (infos['contexts'] != null) {
-        options.addEventProcessor((event, dynamic hint) {
+      options.addEventProcessor((event, dynamic hint) {
+        if (infos['contexts'] != null) {
           event = event.copyWith(
             contexts: Contexts.fromJson(
               Map<String, dynamic>.from(infos['contexts'] as Map),
             ),
           );
-          return event;
-        });
-      }
+        }
 
-      if (infos['integrations'] != null) {
-        final integrations = List<String>.from(infos['integrations'] as List);
-        options.addEventProcessor((event, dynamic hint) {
+        if (infos['integrations'] != null) {
+          final integrations = List<String>.from(infos['integrations'] as List);
           final sdk = event.sdk ?? options.sdk;
           integrations.forEach(sdk.addIntegration);
-          return event.copyWith(sdk: sdk);
-        });
-      }
+          event = event.copyWith(sdk: sdk);
+        }
 
-      //TODO packages
+        if (infos['package'] != null) {
+          final package = Map<String, String>.from(infos['package'] as Map);
+          final sdk = event.sdk ?? options.sdk;
+          sdk.addPackage(package['name'], package['version']);
+          event = event.copyWith(sdk: sdk);
+        }
+
+        return event;
+      });
 
       options.sdk.addIntegration('deviceInfosIntegration');
     } catch (error) {
