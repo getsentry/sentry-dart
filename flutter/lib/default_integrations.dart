@@ -92,13 +92,26 @@ Integration loadContextsIntegration(
     try {
       final Map<String, dynamic> infos =
           Map<String, dynamic>.from(await channel.invokeMethod('deviceInfos'));
+
       options.addEventProcessor((event, dynamic hint) {
         if (infos['contexts'] != null) {
-          event = event.copyWith(
-            contexts: Contexts.fromJson(
-              Map<String, dynamic>.from(infos['contexts'] as Map),
-            ),
+          final contexts = Contexts.fromJson(
+            Map<String, dynamic>.from(infos['contexts'] as Map),
           );
+          final eventContexts = event.contexts.clone();
+
+          contexts.forEach(
+            (key, dynamic value) {
+              if (value != null) {
+                if (key == SentryRuntime.listType) {
+                  contexts.runtimes.forEach(eventContexts.addRuntime);
+                } else if (eventContexts[key] == null) {
+                  eventContexts[key] = value;
+                }
+              }
+            },
+          );
+          event = event.copyWith(contexts: eventContexts);
         }
 
         if (infos['integrations'] != null) {
