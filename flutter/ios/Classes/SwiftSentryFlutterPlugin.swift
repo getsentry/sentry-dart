@@ -4,7 +4,7 @@ import UIKit
 
 public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
 
-    var sentryOptions: Options?
+    private var sentryOptions: Options?
 
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "sentry_flutter", binaryMessenger: registrar.messenger())
