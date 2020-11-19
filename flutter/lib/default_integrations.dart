@@ -28,7 +28,10 @@ RawReceivePort _createPort(Hub hub, SentryOptions options) {
 /// Parse and raise an event out of the Isolate error.
 /// Visible for testing.
 Future<void> handleIsolateError(
-    Hub hub, SentryOptions options, dynamic error) async {
+  Hub hub,
+  SentryOptions options,
+  dynamic error,
+) async {
   options.logger(SentryLevel.debug, 'Capture from IsolateError $error');
 
   // https://api.dartlang.org/stable/2.7.0/dart-isolate/Isolate/addErrorListener.html

@@ -8,9 +8,6 @@ import 'package:sentry_flutter/file_system_transport.dart';
 void main() {
   const MethodChannel _channel = MethodChannel('sentry_flutter');
 
-  const _jsonDecoder = JsonDecoder();
-  const _jsonEncoder = JsonEncoder();
-
   TestWidgetsFlutterBinding.ensureInitialized();
 
   Fixture fixture;
@@ -65,17 +62,16 @@ void main() {
     final item = lines[2];
 
     final envelopeHeaderMap =
-        _jsonDecoder.convert(envelopeHeader) as Map<String, dynamic>;
+        jsonDecode(envelopeHeader) as Map<String, dynamic>;
     expect(event.eventId.toString(), envelopeHeaderMap['event_id']);
 
     // just checking its there, the sdk serialization is already unit tested on
     // the dart module
     expect(envelopeHeaderMap.containsKey('sdk'), isNotNull);
 
-    final itemHeaderMap =
-        _jsonDecoder.convert(itemHeader) as Map<String, dynamic>;
+    final itemHeaderMap = jsonDecode(itemHeader) as Map<String, dynamic>;
 
-    final eventString = _jsonEncoder.convert(event.toJson());
+    final eventString = jsonEncode(event.toJson());
 
     expect('application/json', itemHeaderMap['content_type']);
     expect('event', itemHeaderMap['type']);

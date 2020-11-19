@@ -9,8 +9,6 @@ class FileSystemTransport implements Transport {
   final MethodChannel _channel;
   final SentryOptions _options;
 
-  final _jsonEncoder = const JsonEncoder();
-
   @override
   Future<SentryId> send(SentryEvent event) async {
     final headerMap = {
@@ -20,7 +18,7 @@ class FileSystemTransport implements Transport {
 
     final eventMap = event.toJson();
 
-    final eventString = _jsonEncoder.convert(eventMap);
+    final eventString = jsonEncode(eventMap);
 
     final itemHeaderMap = {
       'content_type': 'application/json',
@@ -28,8 +26,8 @@ class FileSystemTransport implements Transport {
       'length': eventString.length,
     };
 
-    final headerString = _jsonEncoder.convert(headerMap);
-    final itemHeaderString = _jsonEncoder.convert(itemHeaderMap);
+    final headerString = jsonEncode(headerMap);
+    final itemHeaderString = jsonEncode(itemHeaderMap);
     final envelopeString = '$headerString\n$itemHeaderString\n$eventString';
 
     final args = [envelopeString];

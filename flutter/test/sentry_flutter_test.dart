@@ -4,7 +4,7 @@ import 'package:package_info/package_info.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
-import 'sentry_flutter_util_test.dart';
+import 'sentry_flutter_util.dart';
 
 void main() {
   const MethodChannel _channel = MethodChannel('sentry_flutter');

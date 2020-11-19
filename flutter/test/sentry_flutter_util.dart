@@ -9,8 +9,10 @@ import 'package:sentry_flutter/version.dart';
 
 import 'mocks.dart';
 
-FutureOr<void> configurationTester(SentryOptions options,
-    {bool isWeb = false}) async {
+FutureOr<void> configurationTester(
+  SentryOptions options, {
+  bool isWeb = false,
+}) async {
   options.dsn = fakeDsn;
 
   expect(kDebugMode, options.debug);
