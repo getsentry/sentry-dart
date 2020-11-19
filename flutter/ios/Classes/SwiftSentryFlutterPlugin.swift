@@ -88,21 +88,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
             }
 
             if let diagnosticLevel = arguments["diagnosticLevel"] as? String, options.debug == true {
-
-                switch (diagnosticLevel) {
-                case "fatal", "error":
-                    options.logLevel = .error
-                    break;
-                case "debug":
-                    options.logLevel = .debug
-                    break;
-                case "warning", "info":
-                    options.logLevel = .verbose
-                    break;
-                default:
-                    options.logLevel = .none
-                    break;
-                }
+                options.logLevel = self.logLevelFrom(diagnosticLevel: diagnosticLevel)
             }
 
             if let sessionTrackingIntervalMillis = arguments["sessionTrackingIntervalMillis"] as? UInt{
@@ -157,6 +143,23 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
         }
 
         result("" )
+    }
+    
+    private func logLevelFrom(diagnosticLevel:String)->SentryLogLevel{
+        switch (diagnosticLevel) {
+        case "fatal", "error":
+            return .error
+            break;
+        case "debug":
+            return .debug
+            break;
+        case "warning", "info":
+            return .verbose
+            break;
+        default:
+            return .none
+            break;
+        }
     }
 
     private func setEventOriginTag(event: Event){
