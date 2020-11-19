@@ -131,7 +131,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
               - eventOrigin
              */
 
-            /* for now, in sentry-cocoa, beforeSend is not called before captureEnvelope
+            // note : for now, in sentry-cocoa, beforeSend is not called before captureEnvelope
             options.beforeSend = { event in
                 self.setEventOriginTag(event: event)
 
@@ -153,7 +153,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
                     }
                 }
                 return event
-            }*/
+            }
         }
 
         result("iOS initNativeSdk" )
