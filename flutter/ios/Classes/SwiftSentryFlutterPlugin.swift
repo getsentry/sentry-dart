@@ -52,12 +52,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
     }
 
     private func initNativeSdk(_ call: FlutterMethodCall, result: @escaping FlutterResult){
-        guard let arguments = call.arguments as? [String: Any] else {
-            result(FlutterError(code: "4", message: "Arguments is null or empty", details: nil) )
-            return
-        }
-
-        if (arguments.isEmpty) {
+        guard let arguments = call.arguments as? [String: Any], !arguments.isEmpty else {
             result(FlutterError(code: "4", message: "Arguments is null or empty", details: nil) )
             return
         }
@@ -149,16 +144,12 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
         switch (diagnosticLevel) {
         case "fatal", "error":
             return .error
-            break;
         case "debug":
             return .debug
-            break;
         case "warning", "info":
             return .verbose
-            break;
         default:
             return .none
-            break;
         }
     }
 
