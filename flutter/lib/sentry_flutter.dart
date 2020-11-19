@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -76,7 +77,10 @@ mixin SentryFlutter {
     }
     options.addIntegration(flutterErrorIntegration);
     options.addIntegration(nativeSdkIntegration(options, _channel));
-    options.addIntegration(deviceInfosIntegration(options, _channel));
+
+    if (Platform.isIOS) {
+      options.addIntegration(loadInfosIntegration(options, _channel));
+    }
     options.addIntegration(runZonedGuardedIntegration(callback));
   }
 
