@@ -126,10 +126,6 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
                 options.maxBreadcrumbs = maxBreadcrumbs
             }
 
-            print("------ options.integrations =======> \(String(describing: options.integrations))")
-            //print("------ packages =======> \(String(describing: arguments["packages"] as? [String]))")
-            //print("------ integrations =======> \(String(describing: arguments["integrations"] as? [String]))")
-
             self.sentryOptions = options
             /*
              TODO : beforeSend alternative =>
