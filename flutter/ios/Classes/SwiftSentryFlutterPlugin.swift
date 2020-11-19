@@ -40,7 +40,6 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
             let context = serializedScope["context"]
 
             var infos = ["contexts":context]
-            // TODO DEBUG context
 
             if let integrations = self.sentryOptions?.integrations {
                 infos["integrations"] = integrations
