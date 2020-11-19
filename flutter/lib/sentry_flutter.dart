@@ -37,10 +37,23 @@ mixin SentryFlutter {
       options.transport = FileSystemTransport(_channel, options);
     }
 
-    if (!kReleaseMode) {
-      options.environment = bool.hasEnvironment('SENTRY_ENVIRONMENT')
-          ? String.fromEnvironment('SENTRY_ENVIRONMENT')
-          : 'debug';
+    // if no environment is set, we set 'production' by default, but if we know it's
+    // a non release mode, we set it as 'debug'.
+    // we special case to system env for Flutter web.
+    if (!kReleaseMode && !kIsWeb) {
+      options.environment = 'debug';
+    } else if (kIsWeb) {
+      if (bool.hasEnvironment('SENTRY_ENVIRONMENT') || !kReleaseMode) {
+        options.environment =
+            String.fromEnvironment('SENTRY_ENVIRONMENT', defaultValue: 'debug');
+      }
+    }
+
+    // special case for Flutter Web, Mobile does not load system envs.
+    if (kIsWeb) {
+      options.dsn = bool.hasEnvironment('SENTRY_DSN')
+          ? const String.fromEnvironment('SENTRY_DSN')
+          : options.dsn;
     }
 
     // TODO: load debug images when split symbols are enabled.
@@ -57,6 +70,7 @@ mixin SentryFlutter {
   static Future<void> _setReleaseAndDist(SentryOptions options) async {
     try {
       if (!kIsWeb) {
+        // TODO wrap this to be unit testable
         final packageInfo = await PackageInfo.fromPlatform();
 
         final release =

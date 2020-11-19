@@ -1,3 +1,5 @@
+import 'dart:isolate';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -80,6 +82,29 @@ void main() {
     isolateErrorIntegration(hub, options);
 
     expect(true, options.sdk.integrations.contains('isolateErrorIntegration'));
+  });
+
+  test('Isolate error capture errors', () async {
+    final hub = MockHub();
+    final options = SentryOptions();
+
+    final throwable = StateError('error');
+    final stackTrace = StackTrace.current;
+    final error = [throwable, stackTrace];
+
+    handleIsolateError(hub, options, error);
+
+    final event = verify(
+      await hub.captureEvent(captureAny,
+          stackTrace: captureAnyNamed('stackTrace')),
+    ).captured.first as SentryEvent;
+
+    expect(SentryLevel.fatal, event.level);
+
+    final throwableMechanism = event.throwable as ThrowableMechanism;
+    expect('isolateError', throwableMechanism.mechanism.type);
+    expect(true, throwableMechanism.mechanism.handled);
+    expect(throwable, throwableMechanism.throwable);
   });
 
   test('Run zoned guarded adds integration', () async {
