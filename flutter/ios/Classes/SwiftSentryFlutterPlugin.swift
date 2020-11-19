@@ -55,6 +55,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
 
     private func initNativeSdk(_ call: FlutterMethodCall, result: @escaping FlutterResult){
         guard let arguments = call.arguments as? [String: Any], !arguments.isEmpty else {
+            print("Arguments is null or empty")
             result(FlutterError(code: "4", message: "Arguments is null or empty", details: nil) )
             return
         }
@@ -182,6 +183,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
         guard let arguments = call.arguments as? [Any],
               !arguments.isEmpty,
               let event = arguments.first as? String else {
+            print("Envelope is null or empty !")
             result(FlutterError(code: "2", message: "Envelope is null or empty", details: nil) )
             return
         }
@@ -192,8 +194,8 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
             SentrySDK.currentHub().getClient()?.capture(envelope: envelope)
             result("")
         } catch{
-            print("envelope parsing error !")
-            result(FlutterError(code: "3", message: "Cannot serialize event payload", details: nil) )
+            print("Cannot parse the envelope json !")
+            result(FlutterError(code: "3", message: "Cannot parse the envelope json", details: nil) )
             return
         }
     }
