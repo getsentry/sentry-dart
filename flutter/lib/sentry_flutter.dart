@@ -47,15 +47,15 @@ mixin SentryFlutter {
     if (!kReleaseMode && !kIsWeb) {
       options.environment = 'debug';
     } else if (kIsWeb) {
-      if (bool.hasEnvironment('SENTRY_ENVIRONMENT') || !kReleaseMode) {
-        options.environment =
-            String.fromEnvironment('SENTRY_ENVIRONMENT', defaultValue: 'debug');
+      if (const bool.hasEnvironment('SENTRY_ENVIRONMENT') || !kReleaseMode) {
+        options.environment = const String.fromEnvironment('SENTRY_ENVIRONMENT',
+            defaultValue: 'debug');
       }
     }
 
     // special case for Flutter Web, Mobile does not load system envs.
     if (kIsWeb) {
-      options.dsn = bool.hasEnvironment('SENTRY_DSN')
+      options.dsn = const bool.hasEnvironment('SENTRY_DSN')
           ? const String.fromEnvironment('SENTRY_DSN')
           : options.dsn;
     }
@@ -82,7 +82,6 @@ mixin SentryFlutter {
           return;
         }
         final packageInfo = await packageLoader();
-
         final release =
             '${packageInfo.packageName}@${packageInfo.version}+${packageInfo.buildNumber}';
         options.logger(SentryLevel.debug, 'release: $release');
@@ -90,10 +89,10 @@ mixin SentryFlutter {
         options.release = release;
         options.dist = packageInfo.buildNumber;
       } else {
-        options.release = bool.hasEnvironment('SENTRY_RELEASE')
+        options.release = const bool.hasEnvironment('SENTRY_RELEASE')
             ? const String.fromEnvironment('SENTRY_RELEASE')
             : options.release;
-        options.dist = bool.hasEnvironment('SENTRY_DIST')
+        options.dist = const bool.hasEnvironment('SENTRY_DIST')
             ? const String.fromEnvironment('SENTRY_DIST')
             : options.dist;
       }
