@@ -237,18 +237,4 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
         result("")
         //result(FlutterError(code: "2", message: "Cannot serialize event payload", details: nil) )
     }
-
-    private func writeEnvelope(envelope: String) -> Bool{
-        if let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-            let filePath = dir.appendingPathComponent(UUID().uuidString)
-            do{
-                try envelope.write(to: filePath, atomically: false, encoding: .utf8)
-                return true
-            } catch {
-                print("writeEnvelope fail")
-                // logger ?
-            }
-        }
-        return false
-    }
 }
