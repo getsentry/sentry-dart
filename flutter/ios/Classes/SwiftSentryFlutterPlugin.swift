@@ -44,6 +44,8 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
                 infos["integrations"] = integrations
             }
 
+            //infos["package"] = ["version": SentryMeta.versionString ,"sdk_name":"cocoapods:\(SentryMeta.sdkName)"]
+
             // TODO add sdk.packages
             result(infos)
         }
@@ -61,10 +63,8 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
         }
 
         SentrySDK.start { options in
-            if(arguments["dsn"] != nil ){
-                options.dsn = arguments["dsn"] as? String
-            } else {
-                result(FlutterError(code: "4", message: "A valid Dsn must be provided", details: nil) )
+            if let dsn = arguments["dsn"] as? String {
+                options.dsn = dsn
             }
 
             if let isDebug = arguments["debug"] as? Bool {
@@ -156,7 +156,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
             }
         }
 
-        result("iOS initNativeSdk" )
+        result("" )
     }
 
     private func setEventOriginTag(event: Event){
@@ -185,7 +185,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
         return (sdk["name"] != nil && !(sdk["name"] as! String).isEmpty)
     }
 
-    func convertStringToDictionary(text: String) -> [String:AnyObject]? {
+    func convertStringToDictionary(text: String) -> [String:Any]? {
         if let data = text.data(using: .utf8) {
             do {
                 let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers) as? [String:AnyObject]
@@ -210,31 +210,34 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
             convertStringToDictionary(text: "\(part)")!
         })
 
-        let envelopeHeaderDict = envelopeParts[0]
-        let eventSdk = envelopeHeaderDict
-        let itemHeader = envelopeParts[1]
+        let rawEnvelopeHeader = envelopeParts[0]
 
         guard
-            let eventId = envelopeHeaderDict["event_id"] as? String,
-            let itemType = itemHeader["type"] as? String else {
+            let eventId = rawEnvelopeHeader["event_id"] as? String,
+            let itemType = envelopeParts[1]["type"] as? String else {
             result(FlutterError(code: "2", message: "Cannot serialize event", details: nil) )
             return
         }
 
-        let sdkInfo = SentrySdkInfo(dict: eventSdk)
+        let sdkInfo = SentrySdkInfo(dict: rawEnvelopeHeader)
         let sentryId = SentryId(uuidString: eventId)
         let envelopeHeader = SentryEnvelopeHeader.init(id: sentryId, andSdkInfo: sdkInfo)
 
         let payload = envelopeParts[2]
 
-        let data = try! JSONSerialization.data(withJSONObject: payload, options: .init(rawValue: 0))
-        let sentryItemHeader = SentryEnvelopeItemHeader(type: itemType, length: UInt(data.count))
-        let sentryEnvelopeItem = SentryEnvelopeItem( header: sentryItemHeader, data: data)
+        do{
+            let data = try JSONSerialization.data(withJSONObject: payload, options: .init(rawValue: 0))
+        
+            let itemHeader = SentryEnvelopeItemHeader(type: itemType, length: UInt(data.count))
+            let sentryItem = SentryEnvelopeItem( header: itemHeader, data: data)
 
-        let envelope = SentryEnvelope.init(header: envelopeHeader, singleItem: sentryEnvelopeItem)
-        SentrySDK.currentHub().getClient()?.capture(envelope: envelope)
+            let envelope = SentryEnvelope.init(header: envelopeHeader, singleItem: sentryItem)
+            SentrySDK.currentHub().getClient()?.capture(envelope: envelope)
 
-        result("")
-        //result(FlutterError(code: "2", message: "Cannot serialize event payload", details: nil) )
+            result("")
+        } catch{
+            
+            result(FlutterError(code: "2", message: "Cannot serialize event payload", details: nil) )
+        }
     }
 }
