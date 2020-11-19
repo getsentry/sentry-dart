@@ -44,9 +44,9 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
                 infos["integrations"] = integrations
             }
 
-            //infos["package"] = ["version": SentryMeta.versionString ,"sdk_name":"cocoapods:\(SentryMeta.sdkName)"]
-
-            // TODO add sdk.packages
+            // TODO get the sdkVersion from SDK
+            infos["package"] = ["version": "6.0.9" ,"sdk_name":"cocoapods:sentry-cocoa"]
+            
             result(infos)
         }
     }
@@ -142,7 +142,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
             }
         }
 
-        result("" )
+        result("")
     }
     
     private func logLevelFrom(diagnosticLevel:String)->SentryLogLevel{
