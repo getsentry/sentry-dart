@@ -6,8 +6,8 @@ import 'package:flutter/widgets.dart';
 import 'package:package_info/package_info.dart';
 import 'package:sentry/sentry.dart';
 
-import 'FileSystemTransport.dart';
 import 'default_integrations.dart';
+import 'file_system_transport.dart';
 import 'version.dart';
 
 mixin SentryFlutter {
@@ -30,8 +30,7 @@ mixin SentryFlutter {
     // our plugin can call into the native code.
     WidgetsFlutterBinding.ensureInitialized();
 
-    // options.debug = kDebugMode;
-    options.debug = true;
+    options.debug = kDebugMode;
 
     // web still uses a http transport for Web which is set by default
     if (!kIsWeb) {
@@ -39,7 +38,9 @@ mixin SentryFlutter {
     }
 
     if (!kReleaseMode) {
-      options.environment = 'debug';
+      options.environment = bool.hasEnvironment('SENTRY_ENVIRONMENT')
+          ? String.fromEnvironment('SENTRY_ENVIRONMENT')
+          : 'debug';
     }
 
     // TODO: load debug images when split symbols are enabled.
@@ -65,8 +66,12 @@ mixin SentryFlutter {
         options.release = release;
         options.dist = packageInfo.buildNumber;
       } else {
-        final String release = await _channel.invokeMethod('platformVersion');
-        options.release = release;
+        options.release = bool.hasEnvironment('SENTRY_RELEASE')
+            ? const String.fromEnvironment('SENTRY_RELEASE')
+            : options.release;
+        options.dist = bool.hasEnvironment('SENTRY_DIST')
+            ? const String.fromEnvironment('SENTRY_DIST')
+            : options.dist;
       }
     } catch (error) {
       options.logger(

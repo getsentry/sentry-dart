@@ -102,8 +102,8 @@ void main() {
     });
   });
 
-  test("options can't be null", () {
-    expect(() async => await Sentry.init((options) => options = null),
+  test("options can't be null", () async {
+    await expect(() async => await Sentry.init((options) => options = null),
         throwsArgumentError);
   });
 }
