@@ -77,7 +77,10 @@ mixin SentryFlutter {
   ) async {
     try {
       if (!kIsWeb) {
-        // TODO wrap this to be unit testable
+        if (packageLoader == null) {
+          options.logger(SentryLevel.debug, 'Package loader is null.');
+          return;
+        }
         final packageInfo = await packageLoader();
 
         final release =
