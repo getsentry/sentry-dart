@@ -14,25 +14,29 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method as String{
-            case "deviceInfos" :
-              deviceInfos(result: result)
-              break
+            case "loadContexts" :
+                loadContexts(result: result)
+                break
 
             case "initNativeSdk" :
-              initNativeSdk(call, result: result)
-              break
+                initNativeSdk(call, result: result)
+                break
 
-        case "captureEnvelope" :
-            captureEnvelope(call, result: result)
-            break
-        default:
-            result(FlutterMethodNotImplemented)
+            case "captureEnvelope" :
+                captureEnvelope(call, result: result)
+                break
+
+            default:
+                result(FlutterMethodNotImplemented)
         }
 
 
     }
 
-    private func deviceInfos(result: @escaping FlutterResult){
+    private func loadContexts(result: @escaping FlutterResult){
+        /*
+         TODO ? eventOrigin beforeSend alternative
+         */
         SentrySDK.configureScope{ scope in
             let serializedScope = scope.serialize()
             let context = serializedScope["context"]
