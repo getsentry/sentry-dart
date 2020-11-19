@@ -84,7 +84,7 @@ Integration runZonedGuardedIntegration(
   return integration;
 }
 
-Integration loadInfosIntegration(
+Integration loadContextsIntegration(
   SentryOptions options,
   MethodChannel channel,
 ) {

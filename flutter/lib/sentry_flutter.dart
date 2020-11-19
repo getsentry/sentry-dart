@@ -79,7 +79,7 @@ mixin SentryFlutter {
     options.addIntegration(nativeSdkIntegration(options, _channel));
 
     if (Platform.isIOS) {
-      options.addIntegration(loadInfosIntegration(options, _channel));
+      options.addIntegration(loadContextsIntegration(options, _channel));
     }
     options.addIntegration(runZonedGuardedIntegration(callback));
   }
