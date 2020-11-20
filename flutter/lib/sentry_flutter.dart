@@ -42,23 +42,16 @@ mixin SentryFlutter {
     }
 
     // if no environment is set, we set 'production' by default, but if we know it's
-    // a non release mode, we set it as 'debug'.
-    // we special case to system env for Flutter web.
-    if (!kReleaseMode && !kIsWeb) {
-      options.environment = 'debug';
-    } else if (kIsWeb) {
-      if (const bool.hasEnvironment('SENTRY_ENVIRONMENT') || !kReleaseMode) {
-        options.environment = const String.fromEnvironment('SENTRY_ENVIRONMENT',
-            defaultValue: 'debug');
-      }
+    // a non-release build, or the SENTRY_ENVIRONMENT is set, we read from it.
+    if (const bool.hasEnvironment('SENTRY_ENVIRONMENT') || !kReleaseMode) {
+      options.environment = const String.fromEnvironment('SENTRY_ENVIRONMENT',
+          defaultValue: 'debug');
     }
 
-    // special case for Flutter Web, Mobile does not load system envs.
-    if (kIsWeb) {
-      options.dsn = const bool.hasEnvironment('SENTRY_DSN')
-          ? const String.fromEnvironment('SENTRY_DSN')
-          : options.dsn;
-    }
+    // if the SENTRY_DSN is set, we read from it.
+    options.dsn = const bool.hasEnvironment('SENTRY_DSN')
+        ? const String.fromEnvironment('SENTRY_DSN')
+        : options.dsn;
 
     // TODO: load debug images when split symbols are enabled.
 
@@ -89,6 +82,8 @@ mixin SentryFlutter {
         options.release = release;
         options.dist = packageInfo.buildNumber;
       } else {
+        // for non-mobile builds, we read the release and dist from the
+        // system variables (SENTRY_RELEASE and SENTRY_DIST).
         options.release = const bool.hasEnvironment('SENTRY_RELEASE')
             ? const String.fromEnvironment('SENTRY_RELEASE')
             : options.release;
