@@ -5,7 +5,7 @@
   <br />
 </p>
 
-Sentry SDK for Dart and Flutter (without the Native integrations (Android/Apple)
+Sentry SDK for Dart and Flutter
 ===========
 
 | package | build | pub | likes | popularity | pub points |
@@ -48,7 +48,7 @@ void aMethodThatMightFail() {
 
 #### Flutter SDK Integration
 
-- Check out the [Flutter SDK](https://github.com/getsentry/sentry-dart/tree/main/flutter) without the Native integrations (Android/Apple).
+- Check out the [Flutter SDK](https://github.com/getsentry/sentry-dart/tree/main/flutter) with the Native integrations (Android/Apple).
 
 #### Resources
 

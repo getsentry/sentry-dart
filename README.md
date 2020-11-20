@@ -5,7 +5,7 @@
   <br />
 </p>
 
-Sentry SDK for Dart and Flutter
+Sentry SDK for Flutter and its Native integrations (Android/Apple)
 ===========
 
 | package | build | pub | likes | popularity | pub points |
