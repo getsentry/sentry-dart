@@ -131,7 +131,7 @@ Integration loadContextsIntegration(
         } catch (error) {
           options.logger(
             SentryLevel.error,
-            'nativeSdkIntegration failed to be installed: $error',
+            'loadContextsIntegration failed : $error',
           );
         }
 
