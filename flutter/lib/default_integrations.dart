@@ -89,55 +89,57 @@ Integration loadContextsIntegration(
   MethodChannel channel,
 ) {
   Future<void> integration(Hub hub, SentryOptions options) async {
-    try {
-      final Map<String, dynamic> infos =
-          Map<String, dynamic>.from(await channel.invokeMethod('loadContexts'));
+    options.addEventProcessor(
+      (event, dynamic hint) async {
+        try {
+          final Map<String, dynamic> infos = Map<String, dynamic>.from(
+              await channel.invokeMethod('loadContexts'));
+          if (infos['contexts'] != null) {
+            final contexts = Contexts.fromJson(
+              Map<String, dynamic>.from(infos['contexts'] as Map),
+            );
+            final eventContexts = event.contexts.clone();
 
-      options.addEventProcessor((event, dynamic hint) {
-        if (infos['contexts'] != null) {
-          final contexts = Contexts.fromJson(
-            Map<String, dynamic>.from(infos['contexts'] as Map),
-          );
-          final eventContexts = event.contexts.clone();
-
-          contexts.forEach(
-            (key, dynamic value) {
-              if (value != null) {
-                if (key == SentryRuntime.listType) {
-                  contexts.runtimes.forEach(eventContexts.addRuntime);
-                } else if (eventContexts[key] == null) {
-                  eventContexts[key] = value;
+            contexts.forEach(
+              (key, dynamic value) {
+                if (value != null) {
+                  if (key == SentryRuntime.listType) {
+                    contexts.runtimes.forEach(eventContexts.addRuntime);
+                  } else if (eventContexts[key] == null) {
+                    eventContexts[key] = value;
+                  }
                 }
-              }
-            },
+              },
+            );
+            event = event.copyWith(contexts: eventContexts);
+          }
+
+          if (infos['integrations'] != null) {
+            final integrations =
+                List<String>.from(infos['integrations'] as List);
+            final sdk = event.sdk ?? options.sdk;
+            integrations.forEach(sdk.addIntegration);
+            event = event.copyWith(sdk: sdk);
+          }
+
+          if (infos['package'] != null) {
+            final package = Map<String, String>.from(infos['package'] as Map);
+            final sdk = event.sdk ?? options.sdk;
+            sdk.addPackage(package['name'], package['version']);
+            event = event.copyWith(sdk: sdk);
+          }
+        } catch (error) {
+          options.logger(
+            SentryLevel.error,
+            'nativeSdkIntegration failed to be installed: $error',
           );
-          event = event.copyWith(contexts: eventContexts);
-        }
-
-        if (infos['integrations'] != null) {
-          final integrations = List<String>.from(infos['integrations'] as List);
-          final sdk = event.sdk ?? options.sdk;
-          integrations.forEach(sdk.addIntegration);
-          event = event.copyWith(sdk: sdk);
-        }
-
-        if (infos['package'] != null) {
-          final package = Map<String, String>.from(infos['package'] as Map);
-          final sdk = event.sdk ?? options.sdk;
-          sdk.addPackage(package['name'], package['version']);
-          event = event.copyWith(sdk: sdk);
         }
 
         return event;
-      });
+      },
+    );
 
-      options.sdk.addIntegration('deviceInfosIntegration');
-    } catch (error) {
-      options.logger(
-        SentryLevel.error,
-        'nativeSdkIntegration failed to be installed: $error',
-      );
-    }
+    options.sdk.addIntegration('deviceInfosIntegration');
   }
 
   return integration;
