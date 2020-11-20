@@ -32,7 +32,6 @@ The current stable version is the Dart SDK, [3.0.1](https://pub.dev/packages/sen
 
 ```dart
 import 'package:flutter/widgets.dart';
-import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 Future<void> main() async {

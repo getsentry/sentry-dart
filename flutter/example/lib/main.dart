@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
 
@@ -45,6 +44,7 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(title: const Text('Sentry Flutter Example')),
         body: Column(
           children: [
+            const Center(child: Text('Trigger an action:\n')),
             RaisedButton(
               child: const Text('Dart: try catch'),
               onPressed: () => tryCatch(),

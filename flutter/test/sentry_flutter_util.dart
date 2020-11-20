@@ -3,10 +3,9 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry_flutter/default_integrations.dart';
-import 'package:sentry_flutter/file_system_transport.dart';
-import 'package:sentry_flutter/version.dart';
-
+import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/file_system_transport.dart';
+import 'package:sentry_flutter/src/version.dart';
 import 'mocks.dart';
 
 FutureOr<void> configurationTester(
