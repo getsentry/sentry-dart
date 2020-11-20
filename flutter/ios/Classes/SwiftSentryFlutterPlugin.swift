@@ -115,23 +115,25 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
             options.beforeSend = { event in
                 self.setEventOriginTag(event: event)
 
-                if let sdk = event.sdk, self.isValidSdk(sdk: sdk){
+                if var sdk = event.sdk, self.isValidSdk(sdk: sdk){
                     if let packages = arguments["packages"] as? [String]{
                         if  var sdkPackages = sdk["packages"] as? [String]{
-                            event.sdk!["packages"] = sdkPackages.append(contentsOf: packages)
+                            sdk["packages"] = sdkPackages.append(contentsOf: packages)
                         } else {
-                            event.sdk = ["packages":packages]
+                            sdk["packages"] = packages
                         }
                     }
 
                     if let integrations = arguments["integrations"] as? [String]{
                         if  var sdkIntegrations = sdk["integrations"] as? [String]{
-                            event.sdk!["integrations"] = sdkIntegrations.append(contentsOf: integrations)
+                            sdk["integrations"] = sdkIntegrations.append(contentsOf: integrations)
                         } else {
-                            event.sdk = ["integrations":integrations]
+                            sdk["integrations"] = integrations
                         }
                     }
+                    event.sdk = sdk
                 }
+
                 return event
             }
         }
@@ -186,10 +188,10 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
             result(FlutterError(code: "2", message: "Envelope is null or empty", details: nil) )
             return
         }
-        
+
         do{
             let envelope = try parseJsonEnvelope( event )
-            
+
             SentrySDK.currentHub().getClient()?.capture(envelope: envelope)
             result("")
         } catch{
@@ -198,17 +200,17 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
             return
         }
     }
-    
+
     private func parseJsonEnvelope(_ data : String ) throws -> SentryEnvelope{
         let parts = data.split(separator: "\n")
-        
+
         let envelopeParts: [[String: Any]] = try parts.map ({ part in
             guard let dict = parseJson(text: "\(part)") else {
                 throw NSError()
             }
             return dict
         })
-        
+
         let rawEnvelopeHeader = envelopeParts[0]
         guard let eventId = rawEnvelopeHeader["event_id"] as? String,
             let itemType = envelopeParts[1]["type"] as? String else {
@@ -220,7 +222,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
         let envelopeHeader = SentryEnvelopeHeader.init(id: sentryId, andSdkInfo: sdkInfo)
 
         let payload = envelopeParts[2]
-        
+
         let data = try JSONSerialization.data(withJSONObject: payload, options: .init(rawValue: 0))
 
         let itemHeader = SentryEnvelopeItemHeader(type: itemType, length: UInt(data.count))
@@ -228,13 +230,13 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
 
         return SentryEnvelope.init(header: envelopeHeader, singleItem: sentryItem)
     }
-    
+
     func parseJson(text: String)->[String:Any]?  {
         guard let data = text.data(using: .utf8) else {
             print("Invalid UTF8 String : \(text)")
             return nil
         }
-        
+
         do {
             let json = try JSONSerialization.jsonObject(with: data) as? [String:Any]
             return json
