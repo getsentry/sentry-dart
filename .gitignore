@@ -19,3 +19,4 @@ build/
 .test_coverage.dart
 dart/coverage/*
 pubspec.lock
+Podfile.lock
