@@ -12,6 +12,12 @@ Sentry SDK for Dart and Flutter
 | ------- | ------- | ------- | ------- | ------- | ------- |
 | sentry | [![build](https://github.com/getsentry/sentry-dart/workflows/sentry-dart/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=workflow%3Asentry-dart) | [![pub package](https://img.shields.io/pub/v/sentry.svg)](https://pub.dev/packages/sentry) | [![likes](https://badges.bar/sentry/likes)](https://pub.dev/packages/sentry/score) | [![popularity](https://badges.bar/sentry/popularity)](https://pub.dev/packages/sentry/score) | [![pub points](https://badges.bar/sentry/pub%20points)](https://pub.dev/packages/sentry/score)
 
+#### Versions
+
+Versions `^4.0.0` are `Prereleases` and are under improvements/testing.
+
+The current stable version is the Dart SDK, [3.0.1](https://pub.dev/packages/sentry).
+
 #### Usage
 
 - Sign up for a Sentry.io account and get a DSN at http://sentry.io.
