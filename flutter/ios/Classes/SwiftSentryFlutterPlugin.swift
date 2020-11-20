@@ -16,15 +16,12 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
     switch call.method as String {
     case "loadContexts":
       loadContexts(result: result)
-      break
 
     case "initNativeSdk":
       initNativeSdk(call, result: result)
-      break
 
     case "captureEnvelope":
       captureEnvelope(call, result: result)
-      break
 
     default:
       result(FlutterMethodNotImplemented)
@@ -106,7 +103,6 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
 
       self.sentryOptions = options
 
-
       // note : for now, in sentry-cocoa, beforeSend is not called before captureEnvelope
       options.beforeSend = { event in
         self.setEventOriginTag(event: event)
@@ -138,7 +134,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
   }
 
   private func logLevelFrom(diagnosticLevel: String) -> SentryLogLevel {
-    switch (diagnosticLevel) {
+    switch diagnosticLevel {
     case "fatal", "error":
       return .error
     case "debug":
@@ -156,7 +152,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
     }
     if self.isValidSdk(sdk: sdk) {
 
-      switch sdk["name"] as! String {
+      switch sdk["name"] as? String {
       case "sentry.dart.flutter":
         setEventEnvironmentTag(event: event, origin: "flutter", environment: "dart")
       case "sentry.cocoa":
@@ -175,7 +171,10 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
   }
 
   private func isValidSdk(sdk: [String: Any]) -> Bool {
-    (sdk["name"] != nil && !(sdk["name"] as! String).isEmpty)
+    guard let name = sdk["name"] as? String else {
+      return false
+    }
+    return !name.isEmpty
   }
 
   private func captureEnvelope(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
