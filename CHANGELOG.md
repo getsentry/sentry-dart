@@ -1,18 +1,25 @@
-# `package:sentry` and `package:sentry-flutter` changelog
+# `package:sentry` and `package:sentry_flutter` changelog
 
-## 4.0.0
-- Development
-
-
-# `package:sentry` changelog
+## Next
 
 ## 4.0.0-alpha.2
 
-- feat: add contexts to scope
-- feat: add missing protocol classes
-- fix: logger method and refactoring little things
-- fix: sentry protocol is v7
-- feat: add an attachStackTrace options
+- Enhancement: `Contexts` were added to the `Scope` #154
+- Fix: App. would hang if `debug` mode was enabled and refactoring ##157
+- Enhancement: Sentry Protocol v7
+- Enhancement: Added missing Protocol fields, `Request`, `SentryStackTrace`...) #155
+- Feat: Added `attachStackTrace` options to attach stack traces on `captureMessage` calls
+- Feat: Flutter SDK has the Native SDKs embedded (Android and Apple) #158
+
+### Breaking changes
+
+- `Sentry.init` returns a `Future`
+- Dart min. SDK is `2.8.0`
+- Flutter min. SDK is `1.17.0`
+- Timestamp has millis precision.
+- For better groupping, add your own package to the `addInAppInclude` list, e.g.  `options.addInAppInclude('sentry_flutter_example');`
+
+# `package:sentry` changelog
 
 ## 4.0.0-alpha.1
 
