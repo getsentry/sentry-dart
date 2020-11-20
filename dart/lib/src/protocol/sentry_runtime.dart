@@ -10,6 +10,12 @@ class SentryRuntime {
   const SentryRuntime({this.key, this.name, this.version, this.rawDescription})
       : assert(key == null || key.length >= 1);
 
+  factory SentryRuntime.fromJson(Map<String, dynamic> data) => SentryRuntime(
+        name: data['name'],
+        version: data['version'],
+        rawDescription: data['raw_description'],
+      );
+
   /// Key used in the JSON and which will be displayed
   /// in the Sentry UI. Defaults to lower case version of [name].
   ///

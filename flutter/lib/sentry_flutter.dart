@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -120,6 +121,10 @@ mixin SentryFlutter {
       options.addIntegration(isolateErrorIntegration);
     }
 
+    // TODO: make it testable/mockable
+    if (Platform.isIOS) {
+      options.addIntegration(loadContextsIntegration(options, _channel));
+    }
     // finally the runZonedGuarded, catch any errors in Dart code running
     // ‘outside’ the Flutter framework
     options.addIntegration(runZonedGuardedIntegration(callback));

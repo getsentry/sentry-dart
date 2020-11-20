@@ -110,6 +110,73 @@ Integration runZonedGuardedIntegration(
   return integration;
 }
 
+/// (iOS only)
+/// add an event processor to call a native channel method to load :
+/// - the device Contexts,
+/// - and the native sdk integrations and packages
+///
+Integration loadContextsIntegration(
+  SentryOptions options,
+  MethodChannel channel,
+) {
+  Future<void> integration(Hub hub, SentryOptions options) async {
+    options.addEventProcessor(
+      (event, dynamic hint) async {
+        try {
+          final Map<String, dynamic> infos = Map<String, dynamic>.from(
+            await channel.invokeMethod('loadContexts'),
+          );
+          if (infos['contexts'] != null) {
+            final contexts = Contexts.fromJson(
+              Map<String, dynamic>.from(infos['contexts'] as Map),
+            );
+            final eventContexts = event.contexts.clone();
+
+            contexts.forEach(
+              (key, dynamic value) {
+                if (value != null) {
+                  if (key == SentryRuntime.listType) {
+                    contexts.runtimes.forEach(eventContexts.addRuntime);
+                  } else if (eventContexts[key] == null) {
+                    eventContexts[key] = value;
+                  }
+                }
+              },
+            );
+            event = event.copyWith(contexts: eventContexts);
+          }
+
+          if (infos['integrations'] != null) {
+            final integrations =
+                List<String>.from(infos['integrations'] as List);
+            final sdk = event.sdk ?? options.sdk;
+            integrations.forEach(sdk.addIntegration);
+            event = event.copyWith(sdk: sdk);
+          }
+
+          if (infos['package'] != null) {
+            final package = Map<String, String>.from(infos['package'] as Map);
+            final sdk = event.sdk ?? options.sdk;
+            sdk.addPackage(package['name'], package['version']);
+            event = event.copyWith(sdk: sdk);
+          }
+        } catch (error) {
+          options.logger(
+            SentryLevel.error,
+            'loadContextsIntegration failed : $error',
+          );
+        }
+
+        return event;
+      },
+    );
+
+    options.sdk.addIntegration('loadContextsIntegration');
+  }
+
+  return integration;
+}
+
 Integration nativeSdkIntegration(SentryOptions options, MethodChannel channel) {
   Future<void> integration(Hub hub, SentryOptions options) async {
     try {

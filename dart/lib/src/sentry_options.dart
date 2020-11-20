@@ -339,5 +339,5 @@ typedef ClockProvider = DateTime Function();
 void noOpLogger(SentryLevel level, String message) {}
 
 void dartLogger(SentryLevel level, String message) {
-  print('[$level] $message');
+  print('[${level.name}] $message');
 }

@@ -15,6 +15,18 @@ class App {
     this.deviceAppHash,
   });
 
+  factory App.fromJson(Map<String, dynamic> data) => App(
+        name: data['app_name'],
+        version: data['app_version'],
+        identifier: data['app_identifier'],
+        build: data['app_build'],
+        buildType: data['build_type'],
+        startTime: data['app_start_time'] != null
+            ? DateTime.tryParse(data['app_start_time'])
+            : null,
+        deviceAppHash: data['device_app_hash'],
+      );
+
   /// Human readable application name, as it appears on the platform.
   final String name;
 

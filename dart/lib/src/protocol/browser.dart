@@ -8,6 +8,11 @@ class Browser {
   /// Creates an instance of [Browser].
   const Browser({this.name, this.version});
 
+  factory Browser.fromJson(Map<String, dynamic> data) => Browser(
+        name: data['name'],
+        version: data['version'],
+      );
+
   /// Human readable application name, as it appears on the platform.
   final String name;
 

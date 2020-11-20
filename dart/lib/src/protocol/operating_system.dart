@@ -14,6 +14,16 @@ class OperatingSystem {
     this.rawDescription,
   });
 
+  factory OperatingSystem.fromJson(Map<String, dynamic> data) =>
+      OperatingSystem(
+        name: data['name'],
+        version: data['version'],
+        build: data['build'],
+        kernelVersion: data['kernel_version'],
+        rooted: data['rooted'],
+        rawDescription: data['raw_description'],
+      );
+
   /// The name of the operating system.
   final String name;
 
