@@ -8,8 +8,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:sentry/sentry.dart';
-import 'package:test/test.dart';
 import 'package:sentry/src/version.dart';
+import 'package:test/test.dart';
 
 const String testDsn = 'https://public:secret@sentry.example.com/1';
 const String _testDsnWithoutSecret = 'https://public@sentry.example.com/1';
@@ -138,7 +138,13 @@ Future testCaptureException(
     expect(data['event_id'], sentryId.toString());
     expect(data['timestamp'], '2017-01-02T00:00:00.000Z');
     expect(data['platform'], 'javascript');
-    expect(data['sdk'], {'version': sdkVersion, 'name': sdkName});
+    expect(data['sdk'], {
+      'version': sdkVersion,
+      'name': sdkName,
+      'packages': [
+        {'name': 'pub:sentry', 'version': '4.0.0-alpha.2'}
+      ]
+    });
     expect(data['server_name'], 'test.server.com');
     expect(data['release'], '1.2.3');
     expect(data['environment'], 'staging');
