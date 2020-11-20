@@ -18,6 +18,7 @@
 - Flutter min. SDK is `1.17.0`
 - Timestamp has millis precision.
 - For better groupping, add your own package to the `addInAppInclude` list, e.g.  `options.addInAppInclude('sentry_flutter_example');`
+- A few classes of the `Protocol` were renamed.
 
 # `package:sentry` changelog
 
