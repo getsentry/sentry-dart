@@ -90,8 +90,6 @@ flutter {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation 'androidx.work:work-runtime:2.4.0'
-    implementation 'androidx.work:work-runtime-ktx:2.4.0'
     implementation "androidx.annotation:annotation:1.1.0"
 }
 

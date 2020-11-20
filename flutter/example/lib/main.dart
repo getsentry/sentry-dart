@@ -7,10 +7,6 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
 
-// TODO: read conf. using fromEnvironment
-const String _release =
-    String.fromEnvironment('SENTRY_RELEASE', defaultValue: 'unknown');
-
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
 const String _exampleDsn =
     'https://cb0fad6f5d4e42ebb9c956cb0463edc9@o447951.ingest.sentry.io/5428562';
@@ -52,7 +48,6 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(title: const Text('Sentry Flutter Example')),
         body: Column(
           children: [
-            const Center(child: Text('Release: $_release\n')),
             RaisedButton(
               child: const Text('Dart: try catch'),
               onPressed: () => tryCatch(),
@@ -73,18 +68,20 @@ class _MyAppState extends State<MyApp> {
               },
             ),
             RaisedButton(
+                child: const Text('Dart: async throws'),
+                onPressed: () async => asyncThrows().catchError(handleError)),
+            RaisedButton(
               child: const Text('Dart: Fail in microtask.'),
               onPressed: () async => {
-                // throwing Unhandled Exception: Bad state: Failure in a microtask
-                // and not getting events
                 await Future.microtask(
                   () => throw StateError('Failure in a microtask'),
-                )
+                ).catchError(handleError)
               },
             ),
             RaisedButton(
-              child: const Text('Dart: Fail in isolate'),
-              onPressed: () async => {await compute(loop, 10)},
+              child: const Text('Dart: Fail in compute'),
+              onPressed: () async =>
+                  {await compute(loop, 10).catchError(handleError)},
             ),
             if (UniversalPlatform.isIOS) const CocoaExample(),
             if (UniversalPlatform.isAndroid) const AndroidExample(),
@@ -107,8 +104,6 @@ class AndroidExample extends StatelessWidget {
       RaisedButton(
         child: const Text('Kotlin Throw unhandled exception'),
         onPressed: () async {
-          // throws No implementation found for method throw on channel example.flutter.sentry.io
-          // because the channel wont emit a result
           await execute('throw');
         },
       ),
@@ -119,12 +114,7 @@ class AndroidExample extends StatelessWidget {
         },
       ),
       RaisedButton(
-        child: const Text('Kotlin Background thread error'),
-        onPressed: () async {
-          await execute('background');
-        },
-      ),
-      RaisedButton(
+        // ANR is disabled by default, enable it to test it
         child: const Text('ANR: UI blocked 6 seconds'),
         onPressed: () async {
           await execute('anr');
@@ -156,10 +146,18 @@ class AndroidExample extends StatelessWidget {
 
 Future<void> tryCatch() async {
   try {
-    throw StateError('whats happening here');
+    throw StateError('try catch');
   } catch (error, stackTrace) {
     await Sentry.captureException(error, stackTrace: stackTrace);
   }
+}
+
+Future<void> handleError(dynamic error, dynamic stackTrace) async {
+  await Sentry.captureException(error, stackTrace: stackTrace);
+}
+
+Future<void> asyncThrows() async {
+  throw StateError('async throws');
 }
 
 class CocoaExample extends StatelessWidget {
@@ -235,7 +233,6 @@ int loop(int val) {
   for (int i = 1; i <= val; i++) {
     count += i;
   }
-  // Unhandled Exception: Exception: Bad state: from an isolate
-  // and not sending events to sentry
-  throw StateError('from an isolate $count');
+
+  throw StateError('from a compute isolate $count');
 }
