@@ -170,7 +170,7 @@ Integration loadContextsIntegration(
       },
     );
 
-    options.sdk.addIntegration('deviceInfosIntegration');
+    options.sdk.addIntegration('loadContextsIntegration');
   }
 
   return integration;

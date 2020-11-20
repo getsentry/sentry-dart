@@ -175,6 +175,30 @@ void main() {
     expect(false,
         fixture.options.sdk.integrations.contains('nativeSdkIntegration'));
   });
+
+  test('loadContextsIntegration adds integration on ios', () async {
+    _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
+
+    final integration = loadContextsIntegration(fixture.options, _channel);
+
+    await integration(fixture.hub, fixture.options);
+
+    expect(true,
+        fixture.options.sdk.integrations.contains('loadContextsIntegration'));
+  });
+
+  test('loadContextsIntegration do not throw', () async {
+    _channel.setMockMethodCallHandler((MethodCall methodCall) async {
+      throw null;
+    });
+
+    final integration = loadContextsIntegration(fixture.options, _channel);
+
+    await integration(fixture.hub, fixture.options);
+
+    expect(false,
+        fixture.options.sdk.integrations.contains('loadContextsIntegration'));
+  });
 }
 
 class Fixture {
