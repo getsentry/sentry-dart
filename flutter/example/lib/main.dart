@@ -27,12 +27,6 @@ Future<void> main() async {
   );
 }
 
-void initMyApp() {
-  // code before
-  runApp(MyApp());
-  // code after
-}
-
 class MyApp extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();

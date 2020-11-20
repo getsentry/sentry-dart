@@ -15,8 +15,6 @@ void isolateErrorIntegration(Hub hub, SentryOptions options) {
   options.sdk.addIntegration('isolateErrorIntegration');
 }
 
-void captureIsolateError(Hub hub, SentryOptions options, dynamic error) {}
-
 RawReceivePort _createPort(Hub hub, SentryOptions options) {
   return RawReceivePort(
     (dynamic error) async {
