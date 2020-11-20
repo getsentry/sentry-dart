@@ -155,7 +155,7 @@ Integration loadContextsIntegration(
           if (infos['package'] != null) {
             final package = Map<String, String>.from(infos['package'] as Map);
             final sdk = event.sdk ?? options.sdk;
-            sdk.addPackage(package['name'], package['version']);
+            sdk.addPackage(package['sdk_name'], package['version']);
             event = event.copyWith(sdk: sdk);
           }
         } catch (error) {
