@@ -13,10 +13,10 @@ dependencies:
     sdk: flutter
   flutter_web_plugins:
     sdk: flutter
-  sentry: #4.0.0-alpha.2
+  sentry: ">=4.0.0-alpha.2 <4.1.0"
     # TODO: we need the specific version for publishing it, but the relative path for development.
     # Figure out how to do it via Craft for releases.
-    path: ../dart
+    # path: ../dart
   package_info: ^0.4.0
 
 dev_dependencies:
