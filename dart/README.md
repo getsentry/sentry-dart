@@ -10,9 +10,13 @@ Sentry SDK for Dart and Flutter
 
 ##### Usage
 
-Sign up for a Sentry.io account and get a DSN at http://sentry.io.
+- Sign up for a Sentry.io account and get a DSN at http://sentry.io.
 
-In your Dart code, import `package:sentry/sentry.dart` and initialize the Sentry SDK using the DSN issued by Sentry.io:
+- Follow the installing instructions on [pub.dev](https://pub.dev/packages/sentry/install).
+
+- The code snippet below reflects the latest `Prerelease` version.
+
+- Initialize the Sentry SDK using the DSN issued by Sentry.io:
 
 ```dart
 import 'package:sentry/sentry.dart';
@@ -26,7 +30,11 @@ In an exception handler, call `captureException()`:
 import 'dart:async';
 import 'package:sentry/sentry.dart';
 
-void main() async {
+Future<void> main() async {
+  await Sentry.init(
+    (options) => options.dsn = 'https://example@sentry.io/add-your-dsn-here',
+  );
+
   try {
     aMethodThatMightFail();
   } catch (exception, stackTrace) {
@@ -36,50 +44,15 @@ void main() async {
     );
   }
 }
-```
 
-##### Tips for catching errors
-
-- Use a `try/catch` block, like in the example above.
-- Create a `Zone` with an error handler, e.g. using `runZonedGuarded`.
-
-```dart
-import 'dart:async';
-import 'package:flutter/widgets.dart';
-import 'package:sentry/sentry.dart';
-
-// Wrap your 'runApp(MyApp())' as follows:
-
-void main() {
-  runZonedGuarded(() {
-    runApp(MyApp());
-  }, (exception, stackTrace) async {
-    await Sentry.captureException(
-      exception,
-      stackTrace: stackTrace,
-    );
-  });
+void aMethodThatMightFail() {
+  throw null;
 }
 ```
 
-- For Flutter-specific errors (such as layout failures), use `FlutterError.onError`. For example:
+##### Flutter SDK Integration
 
-```dart
-import 'package:flutter/foundation.dart';
-import 'package:sentry/sentry.dart';
-
-void main() {
-  FlutterError.onError = (FlutterErrorDetails details) async {
-    await Sentry.captureException(
-      details.exception,
-      stackTrace: details.stack,
-    );
-  };
-}
-```
-  
-- Use `Isolate.current.addErrorListener` to capture uncaught errors
-  in the root zone.
+- Check out the [Flutter SDK Integration](https://github.com/getsentry/sentry-dart/tree/main/flutter)
 
 #### Resources
 
