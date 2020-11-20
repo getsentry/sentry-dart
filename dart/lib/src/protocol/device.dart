@@ -57,7 +57,9 @@ class Device {
         freeStorage: data['free_storage'],
         externalStorageSize: data['external_storage_size'],
         externalFreeStorage: data['external_free_storage'],
-        bootTime: DateTime.parse(data['boot_time']),
+        bootTime: data['boot_time'] != null
+            ? DateTime.tryParse(data['boot_time'])
+            : null,
         timezone: data['timezone'],
       );
 

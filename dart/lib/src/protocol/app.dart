@@ -21,7 +21,9 @@ class App {
         identifier: data['app_identifier'],
         build: data['app_build'],
         buildType: data['build_type'],
-        startTime: DateTime.parse(data['app_start_time']),
+        startTime: data['app_start_time'] != null
+            ? DateTime.tryParse(data['app_start_time'])
+            : null,
         deviceAppHash: data['device_app_hash'],
       );
 
