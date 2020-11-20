@@ -8,9 +8,9 @@
 Sentry SDK for Flutter and its Native integrations (Android/Apple)
 ===========
 
-| package | build | pub | likes | popularity | pub points |
-| ------- | ------- | ------- | ------- | ------- | ------- |
-| sentry_flutter | [![build](https://github.com/getsentry/sentry-dart/workflows/sentry-flutter/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=workflow%3Asentry-flutter) | | | |
+| package | build |
+| ------- | ------- |
+| sentry_flutter | [![build](https://github.com/getsentry/sentry-dart/workflows/sentry-flutter/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=workflow%3Asentry-flutter) |
 
 #### Versions
 

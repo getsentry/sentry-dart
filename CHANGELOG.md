@@ -1,6 +1,8 @@
 # `package:sentry` and `package:sentry_flutter` changelog
 
-## Next
+## 4.0.0-alpha.3 (Next)
+
+- Development.
 
 ## 4.0.0-alpha.2
 
@@ -13,7 +15,7 @@
 
 ### Breaking changes
 
-- `Sentry.init` returns a `Future`
+- `Sentry.init` returns a `Future`.
 - Dart min. SDK is `2.8.0`
 - Flutter min. SDK is `1.17.0`
 - Timestamp has millis precision.

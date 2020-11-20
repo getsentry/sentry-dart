@@ -20,6 +20,10 @@ command-line/server Dart VM, and `AngularDart`.
 
 Versions below `3.0.1` are deprecated.
 
+###### Preleases (v4.0.0)
+
+- If you wish to try out our Prelease versions, check out the inner [dart](https://github.com/getsentry/sentry-dart/tree/main/dart) and [flutter](https://github.com/getsentry/sentry-dart/tree/main/flutter) folders. 
+
 ##### Usage
 
 Sign up for a Sentry.io account and get a DSN at http://sentry.io.
