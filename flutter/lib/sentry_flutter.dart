@@ -120,7 +120,6 @@ mixin SentryFlutter {
       // in the ‘root zone’ where all Dart programs start
       options.addIntegration(isolateErrorIntegration);
     }
-    options.addIntegration(flutterErrorIntegration);
 
     // TODO: make it testable/mockable
     if (Platform.isIOS) {
