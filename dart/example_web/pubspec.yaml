@@ -1,6 +1,8 @@
 name: sentry_dart_web_example
 description: An absolute bare-bones web app.
 
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
 environment:
   sdk: ^2.8.0
 
