@@ -124,7 +124,8 @@ Integration loadContextsIntegration(
       (event, dynamic hint) async {
         try {
           final Map<String, dynamic> infos = Map<String, dynamic>.from(
-              await channel.invokeMethod('loadContexts'));
+            await channel.invokeMethod('loadContexts'),
+          );
           if (infos['contexts'] != null) {
             final contexts = Contexts.fromJson(
               Map<String, dynamic>.from(infos['contexts'] as Map),

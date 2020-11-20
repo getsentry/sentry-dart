@@ -196,7 +196,7 @@ void main() {
 
     await integration(fixture.hub, fixture.options);
 
-    expect(false,
+    expect(true,
         fixture.options.sdk.integrations.contains('loadContextsIntegration'));
   });
 }
