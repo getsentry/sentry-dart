@@ -16,6 +16,7 @@ Sentry SDK for Dart and Flutter
 ##### Versions
 
 Versions `^4.0.0` are `Prereleases` and are under improvements/testing.
+
 Versions `^4.0.0` integrate our Native SDKs ([Android](https://github.com/getsentry/sentry-java) and [Apple](https://github.com/getsentry/sentry-cocoa)), so you are able to capture errors on Native code as well (Java/Kotlin/C/C++ for Android and Objective-C/Swift for Apple).
 
 The current stable version is the Dart SDK, [3.0.1](https://pub.dev/packages/sentry).
