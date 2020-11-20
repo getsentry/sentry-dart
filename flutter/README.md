@@ -42,7 +42,7 @@ Future<void> main() async {
       // For better groupping, change the 'example' below with your own App's package.
       options.addInAppInclude('sentry_flutter_example');
     },
-    (Function callback) => {
+    () {
       // Init your App.
       runApp(MyApp()),
     },
