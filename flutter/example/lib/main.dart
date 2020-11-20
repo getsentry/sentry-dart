@@ -1,80 +1,29 @@
 import 'dart:async';
-import 'dart:isolate';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
 
-const String _release =
-    String.fromEnvironment('SENTRY_RELEASE', defaultValue: 'unknown');
-
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
-const String exampleDsn =
+const String _exampleDsn =
     'https://cb0fad6f5d4e42ebb9c956cb0463edc9@o447951.ingest.sentry.io/5428562';
-
-// NOTE: Add your DSN below to get the events in your Sentry project.
-final SentryClient _sentry = SentryClient(SentryOptions(dsn: exampleDsn));
 
 // Proposed init:
 // https://github.com/bruno-garcia/badges.bar/blob/2450ed9125f7b73d2baad1fa6d676cc71858116c/lib/src/sentry.dart#L9-L32
 Future<void> main() async {
-  // Needs to move into the library
-  FlutterError.onError = (FlutterErrorDetails details) async {
-    print('Capture from FlutterError ${details.exception}');
-    Zone.current.handleUncaughtError(details.exception, details.stack);
-  };
-
-  if (!kIsWeb) {
-    // Throws when running on the browser
-    Isolate.current.addSentryErrorListener(_sentry);
-  }
-
-  runZonedGuarded<Future<void>>(() async {
-    runApp(MyApp());
-  }, (error, stackTrace) async {
-    print('Capture from runZonedGuarded $error');
-    final event = SentryEvent(
-      throwable: error,
-      // release is required on Web to match the source maps
-      release: _release,
-
-      // sdk: const Sdk(name: sdkName, version: sdkVersion),
-    );
-    await _sentry.captureEvent(event, stackTrace: stackTrace);
-  });
-}
-
-// Candidate API for the SDK
-extension IsolateExtensions on Isolate {
-  void addSentryErrorListener(SentryClient sentry) {
-    final receivePort = RawReceivePort(
-      (dynamic values) async {
-        await sentry.captureIsolateError(values);
-      },
-    );
-
-    Isolate.current.addErrorListener(receivePort.sendPort);
-  }
-}
-
-// Candidate API for the SDK
-extension SentryExtensions on SentryClient {
-  Future<void> captureIsolateError(dynamic error) {
-    print('Capture from IsolateError $error');
-
-    if (error is List<dynamic> && error.length != 2) {
-      dynamic stackTrace = error[1];
-      if (stackTrace != null) {
-        stackTrace = StackTrace.fromString(stackTrace as String);
-      }
-      return captureException(error[0], stackTrace: stackTrace);
-    } else {
-      return Future.value();
-    }
-  }
+  await SentryFlutter.init(
+    (options) {
+      options.dsn = _exampleDsn;
+      // Change the 'sentry_flutter_example' below with your own package.
+      options.addInAppInclude('sentry_flutter_example');
+    },
+    () {
+      // Init your App.
+      runApp(MyApp());
+    },
+  );
 }
 
 class MyApp extends StatefulWidget {
@@ -83,32 +32,9 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
-
   @override
   void initState() {
     super.initState();
-    initPlatformState();
-  }
-
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    try {
-      platformVersion = await SentryFlutter.platformVersion;
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
-    }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) {
-      return;
-    }
-
-    setState(() => _platformVersion = platformVersion);
   }
 
   @override
@@ -118,8 +44,11 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(title: const Text('Sentry Flutter Example')),
         body: Column(
           children: [
-            Center(child: Text('Running on: $_platformVersion\n')),
-            const Center(child: Text('Release: $_release\n')),
+            const Center(child: Text('Trigger an action:\n')),
+            RaisedButton(
+              child: const Text('Dart: try catch'),
+              onPressed: () => tryCatch(),
+            ),
             RaisedButton(
               child: const Text('Dart: throw null'),
               // Warning : not captured if a debugger is attached
@@ -136,21 +65,20 @@ class _MyAppState extends State<MyApp> {
               },
             ),
             RaisedButton(
+                child: const Text('Dart: async throws'),
+                onPressed: () async => asyncThrows().catchError(handleError)),
+            RaisedButton(
               child: const Text('Dart: Fail in microtask.'),
               onPressed: () async => {
                 await Future.microtask(
                   () => throw StateError('Failure in a microtask'),
-                )
+                ).catchError(handleError)
               },
             ),
             RaisedButton(
-              child: const Text('Dart: Fail in isolate'),
-              onPressed: () async => {
-                await compute(
-                  (Object _) => throw StateError('from an isolate'),
-                  null,
-                )
-              },
+              child: const Text('Dart: Fail in compute'),
+              onPressed: () async =>
+                  {await compute(loop, 10).catchError(handleError)},
             ),
             if (UniversalPlatform.isIOS) const CocoaExample(),
             if (UniversalPlatform.isAndroid) const AndroidExample(),
@@ -165,53 +93,68 @@ class _MyAppState extends State<MyApp> {
 class AndroidExample extends StatelessWidget {
   const AndroidExample({Key key}) : super(key: key);
 
+  final channel = const MethodChannel('example.flutter.sentry.io');
+
   @override
   Widget build(BuildContext context) {
     return Column(children: [
       RaisedButton(
         child: const Text('Kotlin Throw unhandled exception'),
         onPressed: () async {
-          const channel = MethodChannel('example.flutter.sentry.io');
-          await channel.invokeMethod<void>('throw');
+          await execute('throw');
         },
       ),
       RaisedButton(
         child: const Text('Kotlin Capture Exception'),
         onPressed: () async {
-          const channel = MethodChannel('example.flutter.sentry.io');
-          await channel.invokeMethod<void>('capture');
+          await execute('capture');
         },
       ),
       RaisedButton(
-        child: const Text('Kotlin Background thread error'),
-        onPressed: () async {
-          const channel = MethodChannel('example.flutter.sentry.io');
-          await channel.invokeMethod<void>('background');
-        },
-      ),
-      RaisedButton(
+        // ANR is disabled by default, enable it to test it
         child: const Text('ANR: UI blocked 6 seconds'),
         onPressed: () async {
-          const channel = MethodChannel('example.flutter.sentry.io');
-          await channel.invokeMethod<void>('anr');
+          await execute('anr');
         },
       ),
       RaisedButton(
         child: const Text('C++ Capture message'),
         onPressed: () async {
-          const channel = MethodChannel('example.flutter.sentry.io');
-          await channel.invokeMethod<void>('cpp_capture_message');
+          await execute('cpp_capture_message');
         },
       ),
       RaisedButton(
         child: const Text('C++ SEGFAULT'),
         onPressed: () async {
-          const channel = MethodChannel('example.flutter.sentry.io');
-          await channel.invokeMethod<void>('crash');
+          await execute('crash');
         },
       ),
     ]);
   }
+
+  Future<void> execute(String method) async {
+    try {
+      await channel.invokeMethod<void>(method);
+    } catch (error, stackTrace) {
+      await Sentry.captureException(error, stackTrace: stackTrace);
+    }
+  }
+}
+
+Future<void> tryCatch() async {
+  try {
+    throw StateError('try catch');
+  } catch (error, stackTrace) {
+    await Sentry.captureException(error, stackTrace: stackTrace);
+  }
+}
+
+Future<void> handleError(dynamic error, dynamic stackTrace) async {
+  await Sentry.captureException(error, stackTrace: stackTrace);
+}
+
+Future<void> asyncThrows() async {
+  throw StateError('async throws');
 }
 
 class CocoaExample extends StatelessWidget {
@@ -278,4 +221,15 @@ class WebExample extends StatelessWidget {
       ],
     );
   }
+}
+
+/// compute can only take a top-level function, but not instance or static methods.
+// Top-level functions are functions declared not inside a class and not inside another function
+int loop(int val) {
+  int count = 0;
+  for (int i = 1; i <= val; i++) {
+    count += i;
+  }
+
+  throw StateError('from a compute isolate $count');
 }

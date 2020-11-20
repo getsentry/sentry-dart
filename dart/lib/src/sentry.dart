@@ -8,7 +8,7 @@ import 'sentry_client.dart';
 import 'sentry_options.dart';
 
 /// Configuration options callback
-typedef OptionsConfiguration = void Function(SentryOptions);
+typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
 
 /// Sentry SDK main entry point
 ///
@@ -21,19 +21,22 @@ class Sentry {
   static Hub get currentHub => _hub;
 
   /// Initializes the SDK
-  static void init(OptionsConfiguration optionsConfiguration) {
+  static Future<void> init(OptionsConfiguration optionsConfiguration) async {
+    if (optionsConfiguration == null) {
+      throw ArgumentError('OptionsConfiguration is required.');
+    }
     final options = SentryOptions();
-    optionsConfiguration(options);
+    await optionsConfiguration(options);
 
     if (options == null) {
       throw ArgumentError('SentryOptions is required.');
     }
 
-    _init(options);
+    await _init(options);
   }
 
   /// Initializes the SDK
-  static void _init(SentryOptions options) {
+  static Future<void> _init(SentryOptions options) async {
     if (isEnabled) {
       options.logger(
         SentryLevel.warning,
@@ -51,9 +54,9 @@ class Sentry {
     hub.close();
 
     // execute integrations after hub being enabled
-    options.integrations.forEach((integration) {
-      integration(HubAdapter(), options);
-    });
+    for (final integration in options.integrations) {
+      await integration(HubAdapter(), options);
+    }
   }
 
   /// Reports an [event] to Sentry.io.
@@ -95,7 +98,7 @@ class Sentry {
   static void close() {
     final hub = currentHub;
     _hub = NoOpHub();
-    return hub.close();
+    hub.close();
   }
 
   /// Check if the current Hub is enabled/active.

@@ -8,6 +8,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/version.dart';
 import 'package:test/test.dart';
 
 const String testDsn = 'https://public:secret@sentry.example.com/1';
@@ -135,9 +136,15 @@ Future testCaptureException(
     expect(topFrame['function'], 'Object.wrapException');
 
     expect(data['event_id'], sentryId.toString());
-    expect(data['timestamp'], '2017-01-02T00:00:00');
+    expect(data['timestamp'], '2017-01-02T00:00:00.000Z');
     expect(data['platform'], 'javascript');
-    expect(data['sdk'], {'version': sdkVersion, 'name': sdkName});
+    expect(data['sdk'], {
+      'version': sdkVersion,
+      'name': sdkName,
+      'packages': [
+        {'name': 'pub:sentry', 'version': '4.0.0-alpha.2'}
+      ]
+    });
     expect(data['server_name'], 'test.server.com');
     expect(data['release'], '1.2.3');
     expect(data['environment'], 'staging');
@@ -151,9 +158,15 @@ Future testCaptureException(
     expect(topFrame['function'], 'testCaptureException');
 
     expect(data['event_id'], sentryId.toString());
-    expect(data['timestamp'], '2017-01-02T00:00:00');
-    expect(data['platform'], 'dart');
-    expect(data['sdk'], {'version': sdkVersion, 'name': 'sentry.dart'});
+    expect(data['timestamp'], '2017-01-02T00:00:00.000Z');
+    expect(data['platform'], 'other');
+    expect(data['sdk'], {
+      'version': sdkVersion,
+      'name': 'sentry.dart',
+      'packages': [
+        {'name': 'pub:sentry', 'version': sdkVersion}
+      ]
+    });
     expect(data['server_name'], 'test.server.com');
     expect(data['release'], '1.2.3');
     expect(data['environment'], 'staging');
@@ -333,7 +346,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
       if (request.method == 'POST') {
         final bodyData = request.bodyBytes;
         final decoded = const Utf8Codec().decode(bodyData);
-        final dynamic decodedJson = const JsonDecoder().convert(decoded);
+        final dynamic decodedJson = jsonDecode(decoded);
         loggedUserId = decodedJson['user']['id'] as String;
         return http.Response('', 401, headers: <String, String>{
           'x-sentry-error': 'Invalid api key',

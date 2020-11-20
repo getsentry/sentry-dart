@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:http/http.dart';
 
 import 'diagnostic_logger.dart';
@@ -143,6 +145,7 @@ class SentryOptions {
 
   Transport _transport = NoOpTransport();
 
+  /// The transport is an internal construct of the client that abstracts away the event sending.
   Transport get transport => _transport;
 
   set transport(Transport transport) => _transport = transport ?? _transport;
@@ -160,6 +163,103 @@ class SentryOptions {
 
   set sdk(SdkVersion sdk) {
     _sdk = sdk ?? _sdk;
+  }
+
+  bool _enableAutoSessionTracking = true;
+
+  /// Enable or disable the Auto session tracking on the Native SDKs (Android/iOS)
+  bool get enableAutoSessionTracking => _enableAutoSessionTracking;
+
+  set enableAutoSessionTracking(bool enableAutoSessionTracking) {
+    _enableAutoSessionTracking =
+        enableAutoSessionTracking ?? _enableAutoSessionTracking;
+  }
+
+  bool _enableNativeCrashHandling = true;
+
+  /// Enable or Disable the Crash handling on the Native SDKs (Android/iOS)
+  bool get enableNativeCrashHandling => _enableNativeCrashHandling;
+
+  set enableNativeCrashHandling(bool nativeCrashHandling) {
+    _enableNativeCrashHandling =
+        nativeCrashHandling ?? _enableNativeCrashHandling;
+  }
+
+  bool _attachStacktrace = true;
+
+  /// When enabled, stack traces are automatically attached to all logged events. Stack traces are
+  /// always attached to exceptions but when this is set stack traces are also sent with messages. If
+  /// no stack traces are logged, we log the current stack trace automatically.
+  bool get attachStacktrace => _attachStacktrace;
+
+  set attachStacktrace(bool attachStacktrace) {
+    _attachStacktrace = attachStacktrace ?? _attachStacktrace;
+  }
+
+  int _autoSessionTrackingIntervalMillis = 30000;
+
+  /// The session tracking interval in millis. This is the interval to end a session if the App goes
+  /// to the background.
+  /// See: enableAutoSessionTracking
+  int get autoSessionTrackingIntervalMillis =>
+      _autoSessionTrackingIntervalMillis;
+
+  set autoSessionTrackingIntervalMillis(int autoSessionTrackingIntervalMillis) {
+    _autoSessionTrackingIntervalMillis =
+        (autoSessionTrackingIntervalMillis != null &&
+                autoSessionTrackingIntervalMillis >= 0)
+            ? autoSessionTrackingIntervalMillis
+            : _autoSessionTrackingIntervalMillis;
+  }
+
+  bool _anrEnabled = false;
+
+  /// Enable or disable ANR (Application Not Responding) Default is enabled Used by AnrIntegration.
+  /// Available only for Android.
+  /// Disabled by default as the stack trace most of the time is hanging on
+  /// the MessageChannel from Flutter, but you can enable it if you have
+  /// Java/Kotlin code as well.
+  bool get anrEnabled => _anrEnabled;
+
+  set anrEnabled(bool anrEnabled) {
+    _anrEnabled = anrEnabled ?? _anrEnabled;
+  }
+
+  int _anrTimeoutIntervalMillis = 5000;
+
+  /// ANR Timeout internal in Millis Default is 5000 = 5s Used by AnrIntegration.
+  /// Available only for Android.
+  /// See: anrEnabled
+  int get anrTimeoutIntervalMillis => _anrTimeoutIntervalMillis;
+
+  set anrTimeoutIntervalMillis(int anrTimeoutIntervalMillis) {
+    _anrTimeoutIntervalMillis =
+        (anrTimeoutIntervalMillis != null && anrTimeoutIntervalMillis >= 0)
+            ? anrTimeoutIntervalMillis
+            : _anrTimeoutIntervalMillis;
+  }
+
+  bool _enableAutoNativeBreadcrumbs = true;
+
+  /// Enable or disable the Automatic breadcrumbs on the Native platforms (Android/iOS)
+  /// Screen's lifecycle, App's lifecycle, System events, etc...
+  bool get enableAutoNativeBreadcrumbs => _enableAutoNativeBreadcrumbs;
+
+  set enableAutoNativeBreadcrumbs(bool enableAutoNativeBreadcrumbs) {
+    _enableAutoNativeBreadcrumbs =
+        enableAutoNativeBreadcrumbs ?? _enableAutoNativeBreadcrumbs;
+  }
+
+  int _cacheDirSize = 30;
+
+  /// The cache dir. size for capping the number of events Default is 30.
+  /// Only available for Android.
+  int get cacheDirSize => _cacheDirSize;
+
+  set cacheDirSize(int cacheDirSize) {
+    _cacheDirSize = (cacheDirSize != null && cacheDirSize >= 0)
+        ? cacheDirSize
+        : _cacheDirSize;
   }
 
   bool _attachStackTrace = true;
@@ -183,8 +283,9 @@ class SentryOptions {
 
   // TODO: sendDefaultPii
 
-  // TODO: those ctor params could be set on Sentry._setDefaultConfiguration or instantiate by default here
-  SentryOptions({this.dsn});
+  SentryOptions({this.dsn}) {
+    sdk.addPackage('pub:sentry', sdkVersion);
+  }
 
   /// Adds an event processor
   void addEventProcessor(EventProcessor eventProcessor) {
@@ -225,9 +326,10 @@ typedef BeforeBreadcrumbCallback = Breadcrumb Function(
   dynamic hint,
 );
 
-typedef EventProcessor = SentryEvent Function(SentryEvent event, dynamic hint);
+typedef EventProcessor = FutureOr<SentryEvent> Function(
+    SentryEvent event, dynamic hint);
 
-typedef Integration = Function(Hub hub, SentryOptions options);
+typedef Integration = FutureOr<void> Function(Hub hub, SentryOptions options);
 
 typedef Logger = Function(SentryLevel level, String message);
 
@@ -237,5 +339,5 @@ typedef ClockProvider = DateTime Function();
 void noOpLogger(SentryLevel level, String message) {}
 
 void dartLogger(SentryLevel level, String message) {
-  print('[$level] $message');
+  print('[${level.name}] $message');
 }

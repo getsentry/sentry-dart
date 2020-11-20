@@ -10,32 +10,8 @@ Sentry SDK for Dart and Flutter
 
 | package | build | pub | likes | popularity | pub points |
 | ------- | ------- | ------- | ------- | ------- | ------- |
-| sentry | [![build](https://github.com/getsentry/sentry-dart/workflows/sentry-dart/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=workflow%3Asentry-dart) | [![pub package](https://img.shields.io/pub/v/sentry.svg)](https://pub.dev/packages/sentry) | [![likes](https://badges.bar/sentry/likes)](https://pub.dev/packages/sentry/score) | [![popularity](https://badges.bar/sentry/popularity)](https://pub.dev/packages/sentry/score) | [![pub points](https://badges.bar/sentry/pub%20points)](https://pub.dev/packages/sentry/score)  
-| sentry-flutter | [![build](https://github.com/getsentry/sentry-dart/workflows/sentry-flutter/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=workflow%3Asentry-flutter) | | | |
-
-## Contributing
-
-### Dart
-
-All you need is the Dart SDK. The `sentry` package doesn't depend on the Flutter SDK.
-
-### Flutter
-
-The SDK currently supports Android, iOS and Web. We build the example app for these targets in 3 platforms: Windows, macOS and Linux.
-This is to make sure you'd be able to contribute to this project if you're using any of these operating systems.
-
-We also run CI against the Flutter `stable` and `beta` channels so you should be able to build it if you're in one of those.
-
-### Dependencies
-
-* The Dart SDK (if you want to change `sentry-dart`)
-* The Flutter SDK (if you want to change `sentry-dart` or `sentry-flutter`)
-* Android: Android SDK with NDK: The example project includes C++.
-* iOS: You'll need a Mac with xcode installed.
-* Web: No additional dependencies.
-
-#### Sentry Dart
-
+| sentry | [![build](https://github.com/getsentry/sentry-dart/workflows/sentry-dart/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=workflow%3Asentry-dart) | [![pub package](https://img.shields.io/pub/v/sentry.svg)](https://pub.dev/packages/sentry) | [![likes](https://badges.bar/sentry/likes)](https://pub.dev/packages/sentry/score) | [![popularity](https://badges.bar/sentry/popularity)](https://pub.dev/packages/sentry/score) | [![pub points](https://badges.bar/sentry/pub%20points)](https://pub.dev/packages/sentry/score)
+| sentry_flutter | [![build](https://github.com/getsentry/sentry-dart/workflows/sentry-flutter/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=workflow%3Asentry-flutter) | | | |
 
 ##### Versions
 
@@ -43,6 +19,10 @@ Versions `3.0.1` and higher support `Flutter` (mobile, web, desktop),
 command-line/server Dart VM, and `AngularDart`.
 
 Versions below `3.0.1` are deprecated.
+
+###### Preleases (v4.0.0)
+
+- If you wish to try out our Prelease versions, check out the inner [dart](https://github.com/getsentry/sentry-dart/tree/main/dart) and [flutter](https://github.com/getsentry/sentry-dart/tree/main/flutter) folders. 
 
 ##### Usage
 

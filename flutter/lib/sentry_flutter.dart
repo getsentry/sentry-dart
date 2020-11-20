@@ -1,12 +1,5 @@
-import 'dart:async';
+/// A Flutter client for Sentry.io crash reporting.
+export 'package:sentry/sentry.dart';
 
-import 'package:flutter/services.dart';
-
-mixin SentryFlutter {
-  static const _channel = MethodChannel('sentry_flutter');
-
-  static Future<String> get platformVersion async {
-    final String version = await _channel.invokeMethod('getPlatformVersion');
-    return version;
-  }
-}
+export 'src/default_integrations.dart';
+export 'src/sentry_flutter.dart';

@@ -52,6 +52,18 @@ class Gpu {
     this.npotSupport,
   });
 
+  factory Gpu.fromJson(Map<String, dynamic> data) => Gpu(
+        name: data['name'],
+        id: data['id'],
+        vendorId: data['vendor_id'],
+        vendorName: data['vendor_name'],
+        memorySize: data['memory_size'],
+        apiType: data['api_type'],
+        multiThreadedRendering: data['multi_threaded_rendering'],
+        version: data['version'],
+        npotSupport: data['npot_support'],
+      );
+
   Gpu clone() => Gpu(
         name: name,
         id: id,

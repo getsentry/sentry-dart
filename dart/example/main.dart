@@ -17,7 +17,7 @@ Future<void> main() async {
   SentryEvent processTagEvent(SentryEvent event, Object hint) =>
       event..tags.addAll({'page-locale': 'en-us'});
 
-  Sentry.init((options) => options
+  await Sentry.init((options) => options
     ..dsn = dsn
     ..addEventProcessor(processTagEvent));
 

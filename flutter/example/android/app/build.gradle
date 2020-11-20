@@ -39,20 +39,16 @@ android {
         jvmTarget = JavaVersion.VERSION_1_8
     }
 
-    compileSdkVersion 29
+    compileSdkVersion 30
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
 
-    lintOptions {
-        disable 'InvalidPackage'
-    }
-
     defaultConfig {
         applicationId "io.sentry.flutter.example"
         minSdkVersion 16
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
 
@@ -63,9 +59,13 @@ android {
         }
 
         ndk {
-            abiFilters("x86", "armeabi-v7a", "x86_64", "arm64-v8a")
+            // Flutter does not currently support building for x86 Android (See Issue 9253).
+            abiFilters("armeabi-v7a", "x86_64", "arm64-v8a")
         }
     }
+
+    // TODO: we need to fix CI as the version 21.1 (default) is not installed by default on
+    // GH Actions.
     ndkVersion "21.3.6528147"
 
     externalNativeBuild {
@@ -76,6 +76,9 @@ android {
 
     buildTypes {
         release {
+            // looks like Flutter requires minifyEnabled to be enabled or it throws
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.debug
         }
     }
@@ -86,9 +89,7 @@ flutter {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'androidx.work:work-runtime:2.4.0'
-    implementation 'androidx.work:work-runtime-ktx:2.4.0'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation "androidx.annotation:annotation:1.1.0"
 }
 

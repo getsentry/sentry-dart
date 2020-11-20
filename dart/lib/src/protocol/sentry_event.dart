@@ -218,7 +218,7 @@ class SentryEvent {
     }
 
     if (timestamp != null) {
-      json['timestamp'] = formatDateAsIso8601WithSecondPrecision(timestamp);
+      json['timestamp'] = formatDateAsIso8601WithMillisPrecision(timestamp);
     }
 
     if (platform != null) {

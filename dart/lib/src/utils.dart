@@ -6,13 +6,16 @@
 /// submitted in UTC timezone.
 DateTime getUtcDateTime() => DateTime.now().toUtc();
 
-String formatDateAsIso8601WithSecondPrecision(DateTime date) {
+/// Formats a Date as ISO8601 and UTC with millis precision
+String formatDateAsIso8601WithMillisPrecision(DateTime date) {
   var iso = date.toIso8601String();
   final millisecondSeparatorIndex = iso.lastIndexOf('.');
   if (millisecondSeparatorIndex != -1) {
-    iso = iso.substring(0, millisecondSeparatorIndex);
+    // + 4 for millis precision
+    iso = iso.substring(0, millisecondSeparatorIndex + 4);
   }
-  return iso;
+  // appends Z because the substring removed it
+  return '${iso}Z';
 }
 
 /// helper to detect a browser context

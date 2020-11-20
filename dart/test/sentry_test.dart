@@ -10,8 +10,8 @@ void main() {
 
     Exception anException;
 
-    setUp(() {
-      Sentry.init((options) => options.dsn = fakeDsn);
+    setUp(() async {
+      await Sentry.init((options) => options.dsn = fakeDsn);
       anException = Exception('anException');
 
       client = MockSentryClient();
@@ -60,19 +60,19 @@ void main() {
   group('Sentry is enabled or disabled', () {
     test('null DSN', () {
       expect(
-        () => Sentry.init((options) => options.dsn = null),
+        () async => await Sentry.init((options) => options.dsn = null),
         throwsArgumentError,
       );
       expect(Sentry.isEnabled, false);
     });
 
-    test('empty DSN', () {
-      Sentry.init((options) => options.dsn = '');
+    test('empty DSN', () async {
+      await Sentry.init((options) => options.dsn = '');
       expect(Sentry.isEnabled, false);
     });
 
-    test('close disables the SDK', () {
-      Sentry.init((options) => options.dsn = fakeDsn);
+    test('close disables the SDK', () async {
+      await Sentry.init((options) => options.dsn = fakeDsn);
 
       Sentry.bindClient(MockSentryClient());
 
@@ -89,11 +89,11 @@ void main() {
       Sentry.close();
     });
 
-    test('should install integrations', () {
+    test('should install integrations', () async {
       var called = false;
       void integration(Hub hub, SentryOptions options) => called = true;
 
-      Sentry.init((options) {
+      await Sentry.init((options) {
         options.dsn = fakeDsn;
         options.addIntegration(integration);
       });
@@ -103,6 +103,7 @@ void main() {
   });
 
   test("options can't be null", () {
-    expect(() => Sentry.init((options) => options = null), throwsArgumentError);
+    expect(() async => await Sentry.init((options) => options = null),
+        throwsArgumentError);
   });
 }

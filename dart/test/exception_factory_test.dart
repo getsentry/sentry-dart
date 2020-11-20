@@ -14,13 +14,8 @@ void main() {
       try {
         throw StateError('a state error');
       } catch (err, stacktrace) {
-        final mechanism = Mechanism(
-          type: 'example',
-          description: 'a mechanism',
-        );
         sentryException = exceptionFactory.getSentryException(
           err,
-          mechanism: mechanism,
           stackTrace: stacktrace,
         );
       }
@@ -34,19 +29,13 @@ void main() {
       try {
         throw StateError('a state error');
       } catch (err) {
-        final mechanism = Mechanism(
-          type: 'example',
-          description: 'a mechanism',
-        );
-        final stackTrace = '''
+        sentryException = exceptionFactory.getSentryException(
+          err,
+          stackTrace: '''
 #0      baz (file:///pathto/test.dart:50:3)
 <asynchronous suspension>
 #1      bar (file:///pathto/test.dart:46:9)
-      ''';
-        sentryException = exceptionFactory.getSentryException(
-          err,
-          mechanism: mechanism,
-          stackTrace: stackTrace,
+      ''',
         );
       }
 

@@ -424,26 +424,26 @@ void main() {
       options.transport = MockTransport();
     });
 
-    test('captures event, sample rate is 100% enabled', () {
+    test('captures event, sample rate is 100% enabled', () async {
       options.sampleRate = 1.0;
       final client = SentryClient(options);
-      client.captureEvent(fakeEvent);
+      await client.captureEvent(fakeEvent);
 
       verify(options.transport.send(any)).called(1);
     });
 
-    test('do not capture event, sample rate is 0% disabled', () {
+    test('do not capture event, sample rate is 0% disabled', () async {
       options.sampleRate = 0.0;
       final client = SentryClient(options);
-      client.captureEvent(fakeEvent);
+      await client.captureEvent(fakeEvent);
 
       verifyNever(options.transport.send(any));
     });
 
-    test('captures event, sample rate is null, disabled', () {
+    test('captures event, sample rate is null, disabled', () async {
       options.sampleRate = null;
       final client = SentryClient(options);
-      client.captureEvent(fakeEvent);
+      await client.captureEvent(fakeEvent);
 
       verify(options.transport.send(any)).called(1);
     });
@@ -457,18 +457,18 @@ void main() {
       options.transport = MockTransport();
     });
 
-    test('before send drops event', () {
+    test('before send drops event', () async {
       options.beforeSend = beforeSendCallbackDropEvent;
       final client = SentryClient(options);
-      client.captureEvent(fakeEvent);
+      await client.captureEvent(fakeEvent);
 
       verifyNever(options.transport.send(any));
     });
 
-    test('before send returns an event and event is captured', () {
+    test('before send returns an event and event is captured', () async {
       options.beforeSend = beforeSendCallback;
       final client = SentryClient(options);
-      client.captureEvent(fakeEvent);
+      await client.captureEvent(fakeEvent);
 
       verify(options.transport.send(any)).called(1);
     });

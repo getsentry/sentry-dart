@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:html';
 
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/version.dart';
 
 import 'event.dart';
 
@@ -9,7 +10,7 @@ import 'event.dart';
 const dsn =
     'https://cb0fad6f5d4e42ebb9c956cb0463edc9@o447951.ingest.sentry.io/5428562';
 
-void main() {
+Future<void> main() async {
   querySelector('#output').text = 'Your Dart app is running.';
 
   querySelector('#btEvent')
@@ -18,14 +19,14 @@ void main() {
   querySelector('#btMessage').onClick.listen((event) => captureMessage());
   querySelector('#btException').onClick.listen((event) => captureException());
 
-  initSentry();
+  await initSentry();
 }
 
-void initSentry() {
+Future<void> initSentry() async {
   SentryEvent processTagEvent(SentryEvent event, Object hint) =>
       event..tags.addAll({'page-locale': 'en-us'});
 
-  Sentry.init((options) => options
+  await Sentry.init((options) => options
     ..dsn = dsn
     ..addEventProcessor(processTagEvent));
 

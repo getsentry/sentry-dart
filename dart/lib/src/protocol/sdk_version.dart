@@ -35,12 +35,14 @@ import 'sentry_package.dart';
 @immutable
 class SdkVersion {
   /// Creates an [SdkVersion] object which represents the SDK that created an [Event].
-  const SdkVersion({
+  SdkVersion({
     @required this.name,
     @required this.version,
-    this.integrations,
-    this.packages,
-  }) : assert(name != null || version != null);
+    List<String> integrations,
+    List<SentryPackage> packages,
+  })  : assert(name != null || version != null),
+        _integrations = integrations ?? [],
+        _packages = packages ?? [];
 
   /// The name of the SDK.
   final String name;
@@ -48,11 +50,15 @@ class SdkVersion {
   /// The version of the SDK.
   final String version;
 
+  final List<String> _integrations;
+
   /// A list of integrations enabled in the SDK that created the [Event].
-  final List<String> integrations;
+  List<String> get integrations => List.unmodifiable(_integrations);
+
+  final List<SentryPackage> _packages;
 
   /// A list of packages that compose this SDK.
-  final List<SentryPackage> packages;
+  List<SentryPackage> get packages => List.unmodifiable(_packages);
 
   String get identifier => '${name}/${version}';
 
@@ -61,13 +67,26 @@ class SdkVersion {
     final json = <String, dynamic>{};
     json['name'] = name;
     json['version'] = version;
+
     if (packages != null && packages.isNotEmpty) {
       json['packages'] =
           packages.map((p) => p.toJson()).toList(growable: false);
     }
+
     if (integrations != null && integrations.isNotEmpty) {
       json['integrations'] = integrations;
     }
     return json;
+  }
+
+  /// Adds a package
+  void addPackage(String name, String version) {
+    final package = SentryPackage(name, version);
+    _packages.add(package);
+  }
+
+  // Adds an integration
+  void addIntegration(String integration) {
+    _integrations.add(integration);
   }
 }
