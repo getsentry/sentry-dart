@@ -12,7 +12,7 @@ Sentry SDK for Dart and Flutter
 | ------- | ------- | ------- | ------- | ------- | ------- |
 | sentry_flutter | [![build](https://github.com/getsentry/sentry-dart/workflows/sentry-flutter/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=workflow%3Asentry-flutter) | | | |
 
-##### Versions
+#### Versions
 
 Versions `^4.0.0` are `Prereleases` and are under improvements/testing.
 
@@ -24,7 +24,7 @@ command-line/server Dart VM, and `AngularDart`.
 
 Versions below `3.0.1` are deprecated.
 
-##### Usage
+#### Usage
 
 - Sign up for a Sentry.io account and get a DSN at http://sentry.io.
 

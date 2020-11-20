@@ -5,14 +5,14 @@
   <br />
 </p>
 
-Sentry SDK for Dart and Flutter
+Sentry SDK for Dart and Flutter (without the Native integrations (Android/Apple)
 ===========
 
 | package | build | pub | likes | popularity | pub points |
 | ------- | ------- | ------- | ------- | ------- | ------- |
 | sentry | [![build](https://github.com/getsentry/sentry-dart/workflows/sentry-dart/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=workflow%3Asentry-dart) | [![pub package](https://img.shields.io/pub/v/sentry.svg)](https://pub.dev/packages/sentry) | [![likes](https://badges.bar/sentry/likes)](https://pub.dev/packages/sentry/score) | [![popularity](https://badges.bar/sentry/popularity)](https://pub.dev/packages/sentry/score) | [![pub points](https://badges.bar/sentry/pub%20points)](https://pub.dev/packages/sentry/score)
 
-##### Usage
+#### Usage
 
 - Sign up for a Sentry.io account and get a DSN at http://sentry.io.
 
@@ -46,9 +46,9 @@ void aMethodThatMightFail() {
 }
 ```
 
-##### Flutter SDK Integration
+#### Flutter SDK Integration
 
-- Check out the [Flutter SDK Integration](https://github.com/getsentry/sentry-dart/tree/main/flutter)
+- Check out the [Flutter SDK](https://github.com/getsentry/sentry-dart/tree/main/flutter) without the Native integrations (Android/Apple).
 
 #### Resources
 
