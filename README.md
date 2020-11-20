@@ -5,76 +5,103 @@
   <br />
 </p>
 
-Sentry SDK for Flutter and its Native integrations (Android/Apple)
+Sentry SDK for Dart and Flutter
 ===========
 
 | package | build | pub | likes | popularity | pub points |
 | ------- | ------- | ------- | ------- | ------- | ------- |
+| sentry | [![build](https://github.com/getsentry/sentry-dart/workflows/sentry-dart/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=workflow%3Asentry-dart) | [![pub package](https://img.shields.io/pub/v/sentry.svg)](https://pub.dev/packages/sentry) | [![likes](https://badges.bar/sentry/likes)](https://pub.dev/packages/sentry/score) | [![popularity](https://badges.bar/sentry/popularity)](https://pub.dev/packages/sentry/score) | [![pub points](https://badges.bar/sentry/pub%20points)](https://pub.dev/packages/sentry/score)
 | sentry_flutter | [![build](https://github.com/getsentry/sentry-dart/workflows/sentry-flutter/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=workflow%3Asentry-flutter) | | | |
 
-#### Versions
+##### Versions
 
-Versions `^4.0.0` are `Prereleases` and are under improvements/testing.
-
-Versions `^4.0.0` integrate our Native SDKs ([Android](https://github.com/getsentry/sentry-java) and [Apple](https://github.com/getsentry/sentry-cocoa)), so you are able to capture errors on Native code as well (Java/Kotlin/C/C++ for Android and Objective-C/Swift for Apple).
-
-The current stable version is the Dart SDK, [3.0.1](https://pub.dev/packages/sentry).
-Versions `3.0.1` and higher support `Flutter` (mobile, web, desktop) but they don't integrate the Native SDKs (Apple/Android),
+Versions `3.0.1` and higher support `Flutter` (mobile, web, desktop),
 command-line/server Dart VM, and `AngularDart`.
 
 Versions below `3.0.1` are deprecated.
 
-#### Usage
+###### Preleases (v4.0.0)
 
-- Sign up for a Sentry.io account and get a DSN at http://sentry.io.
+- If you wish to try out our Prelease versions, check out the inner [dart](https://github.com/getsentry/sentry-dart/tree/main/dart) and [flutter](https://github.com/getsentry/sentry-dart/tree/main/flutter) folders. 
 
-- Follow the installing instructions on [pub.dev](https://pub.dev/packages/sentry_flutter/install).
+##### Usage
 
-- The code snippet below reflects the latest `Prerelease` version.
+Sign up for a Sentry.io account and get a DSN at http://sentry.io.
 
-- Initialize the Sentry SDK using the DSN issued by Sentry.io:
+Add `sentry` dependency to your `pubspec.yaml`:
+
+```yaml
+dependencies:
+  sentry: ">=3.0.1 <4.0.0"
+```
+
+In your Dart code, import `package:sentry/sentry.dart` and create a `SentryClient` using the DSN issued by Sentry.io:
 
 ```dart
-import 'package:flutter/widgets.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 
-Future<void> main() async {
-  await SentryFlutter.init(
-    (options) {
-      options.dsn = 'https://example@sentry.io/add-your-dsn-here';
-      // Change the 'sentry_flutter_example' below with your own App's package.
-      options.addInAppInclude('sentry_flutter_example');
-    },
-    (Function callback) => {
-      // Init your App.
-      runApp(MyApp()),
-    },
-  );
+final SentryClient sentry = new SentryClient(dsn: YOUR_DSN);
+```
 
+In an exception handler, call `captureException()`:
+
+```dart
+main() async {
   try {
-    aMethodThatMightFail();
-  } catch (exception, stackTrace) {
-    await Sentry.captureException(
-      exception,
+    doSomethingThatMightThrowAnError();
+  } catch(error, stackTrace) {
+    await sentry.captureException(
+      exception: error,
       stackTrace: stackTrace,
     );
   }
-}
-
-void aMethodThatMightFail() {
-  throw null;
 }
 ```
 
 ##### Tips for catching errors
 
 - Use a `try/catch` block, like in the example above.
-- Use a `catchError` block for `Futures`, examples on [dart.dev](https://dart.dev/guides/libraries/futures-error-handling).
-- The SDK already runs your `callback` on an error handler, e.g. using [runZonedGuarded](https://api.flutter.dev/flutter/dart-async/runZonedGuarded.html), events caught by the `runZonedGuarded` are captured automatically.
-- [Flutter-specific errors](https://api.flutter.dev/flutter/foundation/FlutterError/onError.html) (such as layout failures) are captured automatically.
-- [Current Isolate errors](https://api.flutter.dev/flutter/dart-isolate/Isolate/addErrorListener.html) which is the equivalent of a main or UI thread, are captured automatically.
-- For your own `Isolates`, add an [Error Listener]((https://api.flutter.dev/flutter/dart-isolate/Isolate/addErrorListener.html)) and call `Sentry.captureException`.
+- Create a `Zone` with an error handler, e.g. using `runZonedGuarded`.
+
+  ```dart
+  var sentry = SentryClient(dsn: "https://...");
+  // Run the whole app in a zone to capture all uncaught errors.
+  runZonedGuarded(
+    () => runApp(MyApp()),
+    (error, stackTrace) {
+      try {
+        sentry.captureException(
+          exception: error,
+          stackTrace: stackTrace,
+        );
+        print('Error sent to sentry.io: $error');
+      } catch (e) {
+        print('Sending report to sentry.io failed: $e');
+        print('Original error: $error');
+      }
+    },
+  );
+  ```
+- For Flutter-specific errors (such as layout failures), use `FlutterError.onError`. For example:
+
+  ```dart
+  var sentry = SentryClient(dsn: "https://...");
+  FlutterError.onError = (details, {bool forceReport = false}) {
+    try {
+      sentry.captureException(
+        exception: details.exception,
+        stackTrace: details.stack,
+      );
+    } catch (e) {
+      print('Sending report to sentry.io failed: $e');
+    } finally {
+      // Also use Flutter's pretty error logging to the device's console.
+      FlutterError.dumpErrorToConsole(details, forceReport: forceReport);
+    }
+  };
+  ```
+- Use `Isolate.current.addErrorListener` to capture uncaught errors
+  in the root zone.
 
 #### Resources
 

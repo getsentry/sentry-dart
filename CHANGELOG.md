@@ -1,6 +1,8 @@
 # `package:sentry` and `package:sentry_flutter` changelog
 
-## Next
+## 4.0.0-alpha.3 (Next)
+
+- Development.
 
 ## 4.0.0-alpha.2
 
@@ -13,12 +15,16 @@
 
 ### Breaking changes
 
-- `Sentry.init` returns a `Future`
+- `Sentry.init` returns a `Future`.
 - Dart min. SDK is `2.8.0`
 - Flutter min. SDK is `1.17.0`
 - Timestamp has millis precision.
 - For better groupping, add your own package to the `addInAppInclude` list, e.g.  `options.addInAppInclude('sentry_flutter_example');`
 - A few classes of the `Protocol` were renamed.
+
+#### Sentry Self Hosted Compatibility
+
+- Since version `4.0.0` of the `sentry_flutter`, `Sentry` version >= `v20.6.0` is required. This only applies to on-premise Sentry, if you are using sentry.io no action is needed.
 
 # `package:sentry` changelog
 
