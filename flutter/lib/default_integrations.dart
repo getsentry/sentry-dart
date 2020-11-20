@@ -84,6 +84,11 @@ Integration runZonedGuardedIntegration(
   return integration;
 }
 
+/// (iOS only)
+/// add an event processor to call a native channel method to load :
+/// - the device Contexts,
+/// - and the native sdk integrations and packages
+///
 Integration loadContextsIntegration(
   SentryOptions options,
   MethodChannel channel,

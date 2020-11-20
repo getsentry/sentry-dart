@@ -78,6 +78,7 @@ mixin SentryFlutter {
     options.addIntegration(flutterErrorIntegration);
     options.addIntegration(nativeSdkIntegration(options, _channel));
 
+    // TODO: make it testable/mockable
     if (Platform.isIOS) {
       options.addIntegration(loadContextsIntegration(options, _channel));
     }
