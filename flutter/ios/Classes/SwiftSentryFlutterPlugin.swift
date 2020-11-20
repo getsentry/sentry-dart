@@ -32,9 +32,6 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
     }
 
     private func loadContexts(result: @escaping FlutterResult){
-        /*
-         TODO ? eventOrigin beforeSend alternative
-         */
         SentrySDK.configureScope{ scope in
             let serializedScope = scope.serialize()
             let context = serializedScope["context"]
