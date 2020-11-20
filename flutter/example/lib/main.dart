@@ -17,10 +17,13 @@ Future<void> main() async {
   await SentryFlutter.init(
     (options) {
       options.dsn = _exampleDsn;
-      // TODO: we probably need to solve this
+      // Change the 'sentry_flutter_example' below with your own package.
       options.addInAppInclude('sentry_flutter_example');
     },
-    initMyApp,
+    (Function callback) => {
+      // Init your App.
+      runApp(MyApp()),
+    },
   );
 }
 
