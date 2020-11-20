@@ -18,7 +18,7 @@ Sentry SDK for Dart and Flutter
 Versions `^4.0.0` are `Prereleases` and are under improvements/testing.
 Versions `^4.0.0` integrate our Native SDKs ([Android](https://github.com/getsentry/sentry-java) and [Apple](https://github.com/getsentry/sentry-cocoa)), so you are able to capture errors on Native code as well (Java/Kotlin/C/C++ for Android and Objective-C/Swift for Apple).
 
-The current stable version is `3.0.1`.
+The current stable version is the Dart SDK, [3.0.1](https://pub.dev/packages/sentry).
 Versions `3.0.1` and higher support `Flutter` (mobile, web, desktop) but they don't integrate the Native SDKs (Apple/Android),
 command-line/server Dart VM, and `AngularDart`.
 
@@ -71,9 +71,9 @@ void aMethodThatMightFail() {
 
 - Use a `try/catch` block, like in the example above.
 - Use a `catchError` block for `Futures`, examples on [dart.dev](https://dart.dev/guides/libraries/futures-error-handling).
-- The SDK already runs your App. on an error handler, e.g. using [runZonedGuarded](https://api.flutter.dev/flutter/dart-async/runZonedGuarded.html), events caught by the `runZonedGuarded` are captured automatically.
+- The SDK already runs your `callback` on an error handler, e.g. using [runZonedGuarded](https://api.flutter.dev/flutter/dart-async/runZonedGuarded.html), events caught by the `runZonedGuarded` are captured automatically.
 - [Flutter-specific errors](https://api.flutter.dev/flutter/foundation/FlutterError/onError.html) (such as layout failures) are captured automatically.
-- [Current Isolate errors](https://api.flutter.dev/flutter/dart-isolate/Isolate/addErrorListener.html) are captured automatically.
+- [Current Isolate errors](https://api.flutter.dev/flutter/dart-isolate/Isolate/addErrorListener.html) which is the equivalent of a main or UI thread, are captured automatically.
 - For your own `Isolates`, add an [Error Listener]((https://api.flutter.dev/flutter/dart-isolate/Isolate/addErrorListener.html)) and call `Sentry.captureException`.
 
 #### Resources
