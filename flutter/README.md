@@ -63,6 +63,11 @@ void aMethodThatMightFail() {
 }
 ```
 
+##### Known limitations
+
+- We don't support the Flutter `split-debug-info` yet, if this feature is enabled, it'll give useless stack traces.
+- For the Flutter [obfuscate](https://flutter.dev/docs/deployment/obfuscate) feature, you'll need to upload the Debug symbols manually yet, See the section below.
+
 ##### Debug Symbols for the Native integrations (Android and Apple)
 
 [Uploading Debug Symbols](https://docs.sentry.io/platforms/apple/dsym/) for Apple.
