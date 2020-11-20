@@ -19,14 +19,6 @@ Sentry SDK for Dart and Flutter
 - Initialize the Sentry SDK using the DSN issued by Sentry.io:
 
 ```dart
-import 'package:sentry/sentry.dart';
-
-Sentry.init((options) => options.dsn = 'https://example@sentry.io/add-your-dsn-here');
-```
-
-In an exception handler, call `captureException()`:
-
-```dart
 import 'dart:async';
 import 'package:sentry/sentry.dart';
 
