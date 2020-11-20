@@ -20,9 +20,9 @@ Future<void> main() async {
       // Change the 'sentry_flutter_example' below with your own package.
       options.addInAppInclude('sentry_flutter_example');
     },
-    (Function callback) => {
+    () {
       // Init your App.
-      runApp(MyApp()),
+      runApp(MyApp());
     },
   );
 }
