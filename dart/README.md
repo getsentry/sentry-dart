@@ -5,12 +5,19 @@
   <br />
 </p>
 
-Sentry SDK for Dart and Flutter
+Sentry SDK for Dart
 ===========
 
 | package | build | pub | likes | popularity | pub points |
 | ------- | ------- | ------- | ------- | ------- | ------- |
 | sentry | [![build](https://github.com/getsentry/sentry-dart/workflows/sentry-dart/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=workflow%3Asentry-dart) | [![pub package](https://img.shields.io/pub/v/sentry.svg)](https://pub.dev/packages/sentry) | [![likes](https://badges.bar/sentry/likes)](https://pub.dev/packages/sentry/score) | [![popularity](https://badges.bar/sentry/popularity)](https://pub.dev/packages/sentry/score) | [![pub points](https://badges.bar/sentry/pub%20points)](https://pub.dev/packages/sentry/score)
+
+Pure Dart SDK used by any Dart application like AngularDart, CLI and server. 
+
+#### Flutter
+
+For Flutter applications there's [`sentry_flutter`](https://pub.dev/packages/sentry_flutter) which builds on top of this package.
+That will give you native crash support (for Android and iOS), [release health](https://docs.sentry.io/product/releases/health/), offline caching and more.
 
 #### Versions
 
@@ -53,10 +60,6 @@ void aMethodThatMightFail() {
   throw null;
 }
 ```
-
-#### Flutter SDK Integration
-
-- Check out the [Flutter SDK](https://github.com/getsentry/sentry-dart/tree/main/flutter) with the Native integrations (Android/Apple).
 
 #### Resources
 
