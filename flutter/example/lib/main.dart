@@ -44,6 +44,7 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(title: const Text('Sentry Flutter Example')),
         body: Column(
           children: [
+            const Center(child: Text('Trigger an action:\n')),
             RaisedButton(
               child: const Text('Dart: try catch'),
               onPressed: () => tryCatch(),
