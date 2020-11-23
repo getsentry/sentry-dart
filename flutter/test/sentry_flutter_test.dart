@@ -22,9 +22,20 @@ void main() {
 
   test('Flutter init for mobile will run default configurations', () async {
     await SentryFlutter.init(
-      configurationTester,
+      getConfigurationTester(false),
       callback,
       packageLoader: loadTestPackage,
+      iOSPlatformChecker: () => false,
+    );
+  });
+
+  test('Flutter init for mobile will run default configurations on ios',
+      () async {
+    await SentryFlutter.init(
+      getConfigurationTester(true),
+      callback,
+      packageLoader: loadTestPackage,
+      iOSPlatformChecker: () => true,
     );
   });
 }

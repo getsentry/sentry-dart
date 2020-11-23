@@ -18,9 +18,15 @@ mixin SentryFlutter {
     OptionsConfiguration optionsConfiguration,
     Function callback, {
     PackageLoader packageLoader = _loadPackageInfo,
+    iOSPlatformChecker iOSPlatformChecker = _platformChecker,
   }) async {
     await Sentry.init((options) async {
-      await _initDefaultValues(options, callback, packageLoader);
+      await _initDefaultValues(
+        options,
+        callback,
+        packageLoader,
+        iOSPlatformChecker,
+      );
 
       await optionsConfiguration(options);
     });
@@ -30,6 +36,7 @@ mixin SentryFlutter {
     SentryOptions options,
     Function callback,
     PackageLoader packageLoader,
+    iOSPlatformChecker iOSPlatformChecker,
   ) async {
     // it is necessary to initialize Flutter method channels so that
     // our plugin can call into the native code.
@@ -58,7 +65,7 @@ mixin SentryFlutter {
 
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
-    _addDefaultIntegrations(options, callback);
+    _addDefaultIntegrations(options, callback, iOSPlatformChecker);
 
     await _setReleaseAndDist(options, packageLoader);
 
@@ -103,6 +110,7 @@ mixin SentryFlutter {
   static void _addDefaultIntegrations(
     SentryOptions options,
     Function callback,
+    iOSPlatformChecker isIOS,
   ) {
     // the ordering here matters, as we'd like to first start the native integration
     // that allow us to send events to the network and then the Flutter integrations.
@@ -121,8 +129,7 @@ mixin SentryFlutter {
       options.addIntegration(isolateErrorIntegration);
     }
 
-    // TODO: make it testable/mockable
-    if (Platform.isIOS) {
+    if (isIOS()) {
       options.addIntegration(loadContextsIntegration(options, _channel));
     }
     // finally the runZonedGuarded, catch any errors in Dart code running
@@ -145,7 +152,11 @@ mixin SentryFlutter {
 
 typedef PackageLoader = Future<PackageInfo> Function();
 
+typedef iOSPlatformChecker = bool Function();
+
 /// Package info loader.
 Future<PackageInfo> _loadPackageInfo() async {
   return await PackageInfo.fromPlatform();
 }
+
+bool _platformChecker() => Platform.isIOS;
