@@ -3,6 +3,7 @@
 ## 4.0.0-alpha.3 (Next)
 
 - Development.
+- add loadContextsIntegration tests
 
 ## 4.0.0-alpha.2
 

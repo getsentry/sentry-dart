@@ -6,36 +6,42 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/file_system_transport.dart';
 import 'package:sentry_flutter/src/version.dart';
+
 import 'mocks.dart';
 
-FutureOr<void> configurationTester(
-  SentryOptions options, {
+FutureOr<void> Function(SentryOptions) getConfigurationTester({
+  bool isIOS = false,
   bool isWeb = false,
-}) async {
-  options.dsn = fakeDsn;
+}) =>
+    (SentryOptions options) async {
+      options.dsn = fakeDsn;
 
-  expect(kDebugMode, options.debug);
-  expect('debug', options.environment);
+      expect(kDebugMode, options.debug);
+      expect('debug', options.environment);
 
-  expect(true, options.transport is FileSystemTransport);
+      expect(true, options.transport is FileSystemTransport);
 
-  expect(
-      options.integrations
-          .where((element) => element == flutterErrorIntegration),
-      isNotEmpty);
+      expect(
+          options.integrations
+              .where((element) => element == flutterErrorIntegration),
+          isNotEmpty);
 
-  expect(
-      options.integrations
-          .where((element) => element == isolateErrorIntegration),
-      isNotEmpty);
+      expect(
+          options.integrations
+              .where((element) => element == isolateErrorIntegration),
+          isNotEmpty);
 
-  expect(4, options.integrations.length);
+      if (isIOS) {
+        expect(5, options.integrations.length);
+      } else {
+        expect(4, options.integrations.length);
+      }
 
-  expect(sdkName, options.sdk.name);
-  expect(sdkVersion, options.sdk.version);
-  expect('pub:sentry_flutter', options.sdk.packages.last.name);
-  expect(sdkVersion, options.sdk.packages.last.version);
+      expect(sdkName, options.sdk.name);
+      expect(sdkVersion, options.sdk.version);
+      expect('pub:sentry_flutter', options.sdk.packages.last.name);
+      expect(sdkVersion, options.sdk.packages.last.version);
 
-  expect('packageName@version+buildNumber', options.release);
-  expect('buildNumber', options.dist);
-}
+      expect('packageName@version+buildNumber', options.release);
+      expect('buildNumber', options.dist);
+    };
