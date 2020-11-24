@@ -1,4 +1,3 @@
-//@TestOn('ios')
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
@@ -64,5 +63,109 @@ void main() {
       true,
     );
     expect(event.sdk.integrations.contains('NativeIntegration'), true);
+  });
+
+  test('should not throw', () async {
+    final options = SentryOptions()..dsn = fakeDsn;
+    final hub = Hub(options);
+
+    loadContextsIntegration(options, _channel)(hub, options);
+
+    final e = SentryEvent();
+    final event = await options.eventProcessors.first(e, null);
+
+    expect(called, true);
+    expect(event.contexts.device.name, 'Device1');
+    expect(event.contexts.app.name, 'test-app');
+    expect(event.contexts.operatingSystem.name, 'os1');
+    expect(event.contexts.gpu.name, 'gpu1');
+    expect(event.contexts.browser.name, 'browser1');
+    expect(
+        event.contexts.runtimes.any((element) => element.name == 'RT1'), true);
+    expect(event.contexts['theme'], 'material');
+    expect(
+      event.sdk.packages.any((element) => element.name == 'native-package'),
+      true,
+    );
+    expect(event.sdk.integrations.contains('NativeIntegration'), true);
+  });
+
+  test(
+      'should not override event contexts with the loadContextsIntegration infos',
+      () async {
+    final options = SentryOptions()..dsn = fakeDsn;
+    final hub = Hub(options);
+
+    loadContextsIntegration(options, _channel)(hub, options);
+
+    expect(options.eventProcessors.length, 1);
+
+    final eventContexts = Contexts(
+        device: const Device(name: 'eDevice'),
+        app: const App(name: 'eApp'),
+        operatingSystem: const OperatingSystem(name: 'eOS'),
+        gpu: const Gpu(name: 'eGpu'),
+        browser: const Browser(name: 'eBrowser'),
+        runtimes: [const SentryRuntime(name: 'eRT')])
+      ..['theme'] = 'cuppertino';
+    final e = SentryEvent(contexts: eventContexts);
+    final event = await options.eventProcessors.first(e, null);
+
+    expect(called, true);
+    expect(event.contexts.device.name, 'eDevice');
+    expect(event.contexts.app.name, 'eApp');
+    expect(event.contexts.operatingSystem.name, 'eOS');
+    expect(event.contexts.gpu.name, 'eGpu');
+    expect(event.contexts.browser.name, 'eBrowser');
+    expect(
+        event.contexts.runtimes.any((element) => element.name == 'RT1'), true);
+    expect(
+        event.contexts.runtimes.any((element) => element.name == 'eRT'), true);
+    expect(event.contexts['theme'], 'cuppertino');
+  });
+
+  test(
+    'should merge event and loadContextsIntegration sdk packages and integration',
+    () async {
+      final options = SentryOptions()..dsn = fakeDsn;
+      final hub = Hub(options);
+
+      loadContextsIntegration(options, _channel)(hub, options);
+
+      final eventSdk = SdkVersion(
+        name: 'sdk1',
+        version: '1.0',
+        integrations: ['EventIntegration'],
+        packages: [const SentryPackage('event-package', '2.0')],
+      );
+      final e = SentryEvent(sdk: eventSdk);
+      final event = await options.eventProcessors.first(e, null);
+
+      expect(
+        event.sdk.packages.any((element) => element.name == 'native-package'),
+        true,
+      );
+      expect(
+        event.sdk.packages.any((element) => element.name == 'event-package'),
+        true,
+      );
+      expect(event.sdk.integrations.contains('NativeIntegration'), true);
+      expect(event.sdk.integrations.contains('EventIntegration'), true);
+    },
+  );
+
+  test('should not throw on loadContextsIntegration exception', () async {
+    _channel.setMockMethodCallHandler((MethodCall methodCall) async {
+      throw null;
+    });
+    final options = SentryOptions()..dsn = fakeDsn;
+    final hub = Hub(options);
+
+    loadContextsIntegration(options, _channel)(hub, options);
+
+    final e = SentryEvent();
+    final event = await options.eventProcessors.first(e, null);
+
+    expect(event, isNotNull);
   });
 }
