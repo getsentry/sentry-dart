@@ -130,7 +130,7 @@ class SentryStackTraceFactory {
       }
     }
 
-    if (frame.isCore || frame.uri.scheme == 'package') return false;
+    if (frame.isCore) return false;
 
     return true;
   }
