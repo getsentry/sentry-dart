@@ -65,31 +65,6 @@ void main() {
     expect(event.sdk.integrations.contains('NativeIntegration'), true);
   });
 
-  test('should not throw', () async {
-    final options = SentryOptions()..dsn = fakeDsn;
-    final hub = Hub(options);
-
-    loadContextsIntegration(options, _channel)(hub, options);
-
-    final e = SentryEvent();
-    final event = await options.eventProcessors.first(e, null);
-
-    expect(called, true);
-    expect(event.contexts.device.name, 'Device1');
-    expect(event.contexts.app.name, 'test-app');
-    expect(event.contexts.operatingSystem.name, 'os1');
-    expect(event.contexts.gpu.name, 'gpu1');
-    expect(event.contexts.browser.name, 'browser1');
-    expect(
-        event.contexts.runtimes.any((element) => element.name == 'RT1'), true);
-    expect(event.contexts['theme'], 'material');
-    expect(
-      event.sdk.packages.any((element) => element.name == 'native-package'),
-      true,
-    );
-    expect(event.sdk.integrations.contains('NativeIntegration'), true);
-  });
-
   test(
       'should not override event contexts with the loadContextsIntegration infos',
       () async {
