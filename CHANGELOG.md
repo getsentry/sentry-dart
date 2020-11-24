@@ -1,10 +1,13 @@
 # `package:sentry` and `package:sentry_flutter` changelog
 
-## 4.0.0-alpha.3 (Next)
+## vNext
 
 - Development.
 - Fix: StackTrace frames with 'package' uri.scheme are inApp by default #185
 - Enhancement: add loadContextsIntegration tests
+- StackTrace factory : package are inApp by default 
+- Fix: missing app's stack traces for Flutter errors
+- add loadContextsIntegration tests
 
 ## 4.0.0-alpha.2
 
