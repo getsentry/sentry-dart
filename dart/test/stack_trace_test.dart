@@ -69,10 +69,9 @@ void main() {
     test('flutter package is not inApp', () {
       final frame =
           Frame(Uri.parse('package:flutter/material.dart'), 1, 2, 'buzz');
-      final serializedFrame =
-          SentryStackTraceFactory(SentryOptions()..addInAppInclude('toolkit'))
-              .encodeStackTraceFrame(frame)
-              .toJson();
+      final serializedFrame = SentryStackTraceFactory(SentryOptions())
+          .encodeStackTraceFrame(frame)
+          .toJson();
       expect(serializedFrame['in_app'], false);
     });
 
