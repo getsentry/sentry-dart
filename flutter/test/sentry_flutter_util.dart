@@ -28,7 +28,11 @@ FutureOr<void> Function(SentryOptions) getConfigurationTester(bool onIOS) =>
               .where((element) => element == isolateErrorIntegration),
           isNotEmpty);
 
-      expect(onIOS ? 5 : 4, options.integrations.length);
+      if (onIOS) {
+        expect(5, options.integrations.length);
+      } else {
+        expect(4, options.integrations.length);
+      }
 
       expect(sdkName, options.sdk.name);
       expect(sdkVersion, options.sdk.version);
