@@ -66,6 +66,16 @@ void main() {
       expect(serializedFrame['in_app'], true);
     });
 
+    test('flutter package is not inApp', () {
+      final frame =
+          Frame(Uri.parse('package:flutter/material.dart'), 1, 2, 'buzz');
+      final serializedFrame =
+          SentryStackTraceFactory(SentryOptions()..addInAppInclude('toolkit'))
+              .encodeStackTraceFrame(frame)
+              .toJson();
+      expect(serializedFrame['in_app'], false);
+    });
+
     test('apply inAppIncludes with precedence', () {
       final frame = Frame(Uri.parse('package:toolkit/baz.dart'), 1, 2, 'buzz');
       final serializedFrame = SentryStackTraceFactory(SentryOptions()
