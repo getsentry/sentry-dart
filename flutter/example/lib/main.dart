@@ -210,13 +210,6 @@ class CocoaExample extends StatelessWidget {
             await channel.invokeMethod<void>('crash');
           },
         ),
-        RaisedButton(
-          child: const Text('Crash swift'),
-          onPressed: () async {
-            const channel = MethodChannel('example.flutter.sentry.io');
-            await channel.invokeMethod<void>('crashSwift');
-          },
-        ),
       ],
     );
   }

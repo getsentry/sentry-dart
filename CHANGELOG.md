@@ -3,8 +3,8 @@
 ## 4.0.0-alpha.3 (Next)
 
 - Development.
-- StackTrace factory : package are inApp by default 
-- add loadContextsIntegration tests
+- Fix: StackTrace frames with 'package' uri.scheme are inApp by default #185
+- Enhancement: add loadContextsIntegration tests
 
 ## 4.0.0-alpha.2
 
