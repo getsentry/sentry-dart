@@ -48,6 +48,8 @@ void main() {
       _channel.setMockMethodCallHandler(
         (MethodCall methodCall) async => <String, dynamic>{},
       );
+      when(transport.send(any))
+          .thenAnswer((realInvocation) => Future.value(SentryId.newId()));
     });
 
     tearDown(() {
@@ -56,9 +58,6 @@ void main() {
     });
 
     test('should add loadContextsIntegration on ios', () async {
-      when(transport.send(any))
-          .thenAnswer((realInvocation) => Future.value(SentryId.newId()));
-
       await SentryFlutter.init(
         (options) => options
           ..dsn = fakeDsn
@@ -78,9 +77,6 @@ void main() {
     });
 
     test('should not add loadContextsIntegration if not ios', () async {
-      when(transport.send(any))
-          .thenAnswer((realInvocation) => Future.value(SentryId.newId()));
-
       await SentryFlutter.init(
         (options) => options
           ..dsn = fakeDsn
