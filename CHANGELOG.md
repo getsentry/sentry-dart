@@ -1,8 +1,8 @@
 # `package:sentry` and `package:sentry_flutter` changelog
 
-## 4.0.0-alpha.3 (Next)
+## vNext
 
-- Development.
+- Fix: missing app's stack traces for Flutter errors
 
 ## 4.0.0-alpha.2
 
