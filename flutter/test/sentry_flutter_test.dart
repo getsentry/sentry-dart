@@ -24,7 +24,7 @@ void main() {
 
   test('Flutter init for mobile will run default configurations', () async {
     await SentryFlutter.init(
-      getConfigurationTester(false),
+      getConfigurationTester(),
       callback,
       packageLoader: loadTestPackage,
       iOSPlatformChecker: () => false,
@@ -34,7 +34,7 @@ void main() {
   test('Flutter init for mobile will run default configurations on ios',
       () async {
     await SentryFlutter.init(
-      getConfigurationTester(true),
+      getConfigurationTester(isIOS: true),
       callback,
       packageLoader: loadTestPackage,
       iOSPlatformChecker: () => true,

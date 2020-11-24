@@ -9,7 +9,10 @@ import 'package:sentry_flutter/src/version.dart';
 
 import 'mocks.dart';
 
-FutureOr<void> Function(SentryOptions) getConfigurationTester(bool onIOS) =>
+FutureOr<void> Function(SentryOptions) getConfigurationTester({
+  bool isIOS = false,
+  bool isWeb = false,
+}) =>
     (SentryOptions options) async {
       options.dsn = fakeDsn;
 
@@ -28,7 +31,7 @@ FutureOr<void> Function(SentryOptions) getConfigurationTester(bool onIOS) =>
               .where((element) => element == isolateErrorIntegration),
           isNotEmpty);
 
-      if (onIOS) {
+      if (isIOS) {
         expect(5, options.integrations.length);
       } else {
         expect(4, options.integrations.length);
