@@ -3,6 +3,7 @@
 ## vNext
 
 - Fix: missing app's stack traces for Flutter errors
+- add loadContextsIntegration tests
 
 ## 4.0.0-alpha.2
 
