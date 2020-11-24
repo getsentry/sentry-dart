@@ -18,7 +18,7 @@ mixin SentryFlutter {
     OptionsConfiguration optionsConfiguration,
     Function callback, {
     PackageLoader packageLoader = _loadPackageInfo,
-    iOSPlatformChecker iOSPlatformChecker = _platformChecker,
+    iOSPlatformChecker iOSPlatformChecker = _iOSPlatformChecker,
   }) async {
     await Sentry.init((options) async {
       await _initDefaultValues(
@@ -159,4 +159,5 @@ Future<PackageInfo> _loadPackageInfo() async {
   return await PackageInfo.fromPlatform();
 }
 
-bool _platformChecker() => Platform.isIOS;
+/// verify if the platform is iOS
+bool _iOSPlatformChecker() => Platform.isIOS;
