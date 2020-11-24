@@ -2,7 +2,6 @@
 
 ## vNext
 
-- Development.
 - Fix: StackTrace frames with 'package' uri.scheme are inApp by default #185
 - Enhancement: add loadContextsIntegration tests
 - StackTrace factory : package are inApp by default 
