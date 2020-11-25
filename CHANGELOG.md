@@ -7,6 +7,7 @@
 - StackTrace factory : package are inApp by default 
 - Fix: missing app's stack traces for Flutter errors
 - add loadContextsIntegration tests
+- Ref: add missing docs and move sentry web plugin to the inner src folder
 
 ## 4.0.0-alpha.2
 

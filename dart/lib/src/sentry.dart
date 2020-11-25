@@ -11,7 +11,6 @@ import 'sentry_options.dart';
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
 
 /// Sentry SDK main entry point
-///
 class Sentry {
   static Hub _hub = NoOpHub();
 

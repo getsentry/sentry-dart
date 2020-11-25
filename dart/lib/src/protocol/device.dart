@@ -1,3 +1,4 @@
+/// If a device is on portrairt or landscape mode
 enum Orientation { portrait, landscape }
 
 /// This describes the device that caused the event.
