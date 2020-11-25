@@ -96,6 +96,7 @@ flutter {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation "androidx.annotation:annotation:1.1.0"
 }
 
 // uncomment this to upload debug symbols to Sentry
