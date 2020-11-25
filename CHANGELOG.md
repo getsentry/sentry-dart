@@ -7,6 +7,7 @@
 - StackTrace factory : package are inApp by default 
 - Fix: missing app's stack traces for Flutter errors
 - add loadContextsIntegration tests
+- Ref: Remove deprecated classes (Flutter Plugin for Android) and cleaning up #186
 
 ## 4.0.0-alpha.2
 

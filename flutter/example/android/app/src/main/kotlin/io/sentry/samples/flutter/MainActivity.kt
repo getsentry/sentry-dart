@@ -1,6 +1,5 @@
-package io.sentry.flutter.example
+package io.sentry.samples.flutter
 
-import androidx.annotation.NonNull
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -10,7 +9,7 @@ import kotlin.concurrent.thread
 class MainActivity : FlutterActivity() {
   private val _channel = "example.flutter.sentry.io"
 
-  override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
+  override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
     super.configureFlutterEngine(flutterEngine)
     MethodChannel(flutterEngine.dartExecutor.binaryMessenger, _channel).setMethodCallHandler {
       call, result ->
