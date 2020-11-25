@@ -48,7 +48,7 @@ Future<void> main() async {
   );
 }
 
-void initApp(){
+void initApp() {
   try {
     aMethodThatMightFail();
   } catch (exception, stackTrace) {
