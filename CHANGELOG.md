@@ -5,7 +5,7 @@
 - Fix: StackTrace frames with 'package' uri.scheme are inApp by default #185
 - Enhancement: add loadContextsIntegration tests
 - Fix: missing app's stack traces for Flutter errors
-- Fix: move isolateErrorIntegration and runZonedGuardedIntegration to sentry-dart
+- Enhancement: add isolateErrorIntegration and runZonedGuardedIntegration to default integration in sentry-dart
 
 ## 4.0.0-alpha.2
 

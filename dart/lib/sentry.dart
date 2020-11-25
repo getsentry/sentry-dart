@@ -5,6 +5,8 @@
 /// A pure Dart client for Sentry.io crash reporting.
 export 'src/default_integrations.dart';
 export 'src/hub.dart';
+export 'src/noop_isolate_error_integration.dart'
+    if (dart.library.io) 'src/isolate_error_integration.dart';
 export 'src/protocol.dart';
 export 'src/scope.dart';
 export 'src/sentry.dart';

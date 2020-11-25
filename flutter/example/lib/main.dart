@@ -50,9 +50,8 @@ class _MyAppState extends State<MyApp> {
               ),
               RaisedButton(
                 child: const Text('Flutter error : Scaffold.of()'),
-                onPressed: () => Scaffold.of(context).showSnackBar(SnackBar(
-                  content: Text(''),
-                )),
+                onPressed: () => Scaffold.of(context)
+                    .showBottomSheet<dynamic>((context) => null),
               ),
               RaisedButton(
                 child: const Text('Dart: throw null'),

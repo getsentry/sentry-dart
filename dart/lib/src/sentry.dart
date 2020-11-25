@@ -1,14 +1,21 @@
 import 'dart:async';
 
+import 'default_integrations.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
 import 'noop_hub.dart';
+import 'noop_isolate_error_integration.dart'
+    if (dart.library.io) 'isolate_error_integration.dart';
 import 'protocol.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
+import 'utils.dart';
 
 /// Configuration options callback
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
+
+// run main app callback
+typedef AppRunner = void Function();
 
 /// Sentry SDK main entry point
 ///
@@ -21,11 +28,19 @@ class Sentry {
   static Hub get currentHub => _hub;
 
   /// Initializes the SDK
-  static Future<void> init(OptionsConfiguration optionsConfiguration) async {
+  static Future<void> init(
+    OptionsConfiguration optionsConfiguration,
+    AppRunner callback,
+  ) async {
     if (optionsConfiguration == null) {
       throw ArgumentError('OptionsConfiguration is required.');
     }
+    if (callback == null) {
+      throw ArgumentError('AppRunner is required.');
+    }
     final options = SentryOptions();
+    await _initDefaultValues(options, callback);
+
     await optionsConfiguration(options);
 
     if (options == null) {
@@ -33,6 +48,36 @@ class Sentry {
     }
 
     await _init(options);
+  }
+
+  static Future<void> _initDefaultValues(
+    SentryOptions options,
+    Function callback,
+  ) async {
+    // if no environment is set, we set 'production' by default, but if we know it's
+    // a non-release build, or the SENTRY_ENVIRONMENT is set, we read from it.
+    if (const bool.hasEnvironment('SENTRY_ENVIRONMENT') || !isReleaseMode) {
+      options.environment = const String.fromEnvironment(
+        'SENTRY_ENVIRONMENT',
+        defaultValue: 'debug',
+      );
+    }
+
+    // if the SENTRY_DSN is set, we read from it.
+    options.dsn = const bool.hasEnvironment('SENTRY_DSN')
+        ? const String.fromEnvironment('SENTRY_DSN')
+        : options.dsn;
+
+    // Throws when running on the browser
+    if (!isWeb) {
+      // catch any errors that may occur within the entry function, main()
+      // in the ‘root zone’ where all Dart programs start
+      options.addIntegration(isolateErrorIntegration);
+    }
+
+    // finally the runZonedGuarded, catch any errors in Dart code running
+    // ‘outside’ the Flutter framework
+    options.addIntegration(runZonedGuardedIntegration(callback));
   }
 
   /// Initializes the SDK

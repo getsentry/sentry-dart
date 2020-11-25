@@ -16,25 +16,26 @@ mixin SentryFlutter {
 
   static Future<void> init(
     OptionsConfiguration optionsConfiguration,
-    Function callback, {
+    AppRunner callback, {
     PackageLoader packageLoader = _loadPackageInfo,
     iOSPlatformChecker iOSPlatformChecker = _iOSPlatformChecker,
   }) async {
-    await Sentry.init((options) async {
-      await _initDefaultValues(
-        options,
-        callback,
-        packageLoader,
-        iOSPlatformChecker,
-      );
+    await Sentry.init(
+      (options) async {
+        await _initDefaultValues(
+          options,
+          packageLoader,
+          iOSPlatformChecker,
+        );
 
-      await optionsConfiguration(options);
-    });
+        await optionsConfiguration(options);
+      },
+      callback,
+    );
   }
 
   static Future<void> _initDefaultValues(
     SentryOptions options,
-    Function callback,
     PackageLoader packageLoader,
     iOSPlatformChecker iOSPlatformChecker,
   ) async {
@@ -49,23 +50,11 @@ mixin SentryFlutter {
       options.transport = FileSystemTransport(_channel, options);
     }
 
-    // if no environment is set, we set 'production' by default, but if we know it's
-    // a non-release build, or the SENTRY_ENVIRONMENT is set, we read from it.
-    if (const bool.hasEnvironment('SENTRY_ENVIRONMENT') || !kReleaseMode) {
-      options.environment = const String.fromEnvironment('SENTRY_ENVIRONMENT',
-          defaultValue: 'debug');
-    }
-
-    // if the SENTRY_DSN is set, we read from it.
-    options.dsn = const bool.hasEnvironment('SENTRY_DSN')
-        ? const String.fromEnvironment('SENTRY_DSN')
-        : options.dsn;
-
     // TODO: load debug images when split symbols are enabled.
 
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
-    _addDefaultIntegrations(options, callback, iOSPlatformChecker);
+    _addDefaultIntegrations(options, iOSPlatformChecker);
 
     await _setReleaseAndDist(options, packageLoader);
 
@@ -109,7 +98,6 @@ mixin SentryFlutter {
   /// https://medium.com/flutter-community/error-handling-in-flutter-98fce88a34f0
   static void _addDefaultIntegrations(
     SentryOptions options,
-    Function callback,
     iOSPlatformChecker isIOS,
   ) {
     // the ordering here matters, as we'd like to first start the native integration
@@ -122,21 +110,10 @@ mixin SentryFlutter {
     // will catch any errors that may occur in the Flutter framework itself.
     options.addIntegration(flutterErrorIntegration);
 
-    // Throws when running on the browser
-    if (!kIsWeb) {
-      // catch any errors that may occur within the entry function, main()
-      // in the ‘root zone’ where all Dart programs start
-      options.addIntegration(isolateErrorIntegration);
-    }
-
     // will enrich the events with the device context and native packages and integrations
     if (isIOS()) {
       options.addIntegration(loadContextsIntegration(options, _channel));
     }
-
-    // finally the runZonedGuarded, catch any errors in Dart code running
-    // ‘outside’ the Flutter framework
-    options.addIntegration(runZonedGuardedIntegration(callback));
   }
 
   static void _setSdk(SentryOptions options) {
