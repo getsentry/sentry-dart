@@ -130,7 +130,10 @@ class SentryStackTraceFactory {
       }
     }
 
-    if (frame.isCore || frame.uri.scheme == 'package') return false;
+    if (frame.isCore ||
+        (frame.uri.scheme == 'package' && frame.package == 'flutter')) {
+      return false;
+    }
 
     return true;
   }

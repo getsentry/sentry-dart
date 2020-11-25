@@ -16,8 +16,6 @@ Future<void> main() async {
   await SentryFlutter.init(
     (options) {
       options.dsn = _exampleDsn;
-      // Change the 'sentry_flutter_example' below with your own package.
-      options.addInAppInclude('sentry_flutter_example');
     },
     () {
       // Init your App.
@@ -42,48 +40,61 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(title: const Text('Sentry Flutter Example')),
-        body: Column(
-          children: [
-            const Center(child: Text('Trigger an action:\n')),
-            RaisedButton(
-              child: const Text('Dart: try catch'),
-              onPressed: () => tryCatch(),
-            ),
-            RaisedButton(
-              child: const Text('Dart: throw null'),
-              // Warning : not captured if a debugger is attached
-              // https://github.com/flutter/flutter/issues/48972
-              onPressed: () => throw null,
-            ),
-            RaisedButton(
-              child: const Text('Dart: assert'),
-              onPressed: () {
-                // Only relevant in debug builds
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              const Center(child: Text('Trigger an action:\n')),
+              RaisedButton(
+                child: const Text('Dart: try catch'),
+                onPressed: () => tryCatch(),
+              ),
+              RaisedButton(
+                child: const Text('Flutter error : Scaffold.of()'),
+                onPressed: () => Scaffold.of(context).showSnackBar(SnackBar(
+                  content: Text(''),
+                )),
+              ),
+              RaisedButton(
+                child: const Text('Dart: throw null'),
                 // Warning : not captured if a debugger is attached
                 // https://github.com/flutter/flutter/issues/48972
-                assert(false, 'assert failure');
-              },
-            ),
-            RaisedButton(
-                child: const Text('Dart: async throws'),
-                onPressed: () async => asyncThrows().catchError(handleError)),
-            RaisedButton(
-              child: const Text('Dart: Fail in microtask.'),
-              onPressed: () async => {
-                await Future.microtask(
-                  () => throw StateError('Failure in a microtask'),
-                ).catchError(handleError)
-              },
-            ),
-            RaisedButton(
-              child: const Text('Dart: Fail in compute'),
-              onPressed: () async =>
-                  {await compute(loop, 10).catchError(handleError)},
-            ),
-            if (UniversalPlatform.isIOS) const CocoaExample(),
-            if (UniversalPlatform.isAndroid) const AndroidExample(),
-            if (UniversalPlatform.isWeb) const WebExample(),
-          ],
+                onPressed: () => throw null,
+              ),
+              RaisedButton(
+                child: const Text('Dart: assert'),
+                onPressed: () {
+                  // Only relevant in debug builds
+                  // Warning : not captured if a debugger is attached
+                  // https://github.com/flutter/flutter/issues/48972
+                  assert(false, 'assert failure');
+                },
+              ),
+              RaisedButton(
+                  child: const Text('Dart: async throws'),
+                  onPressed: () async => asyncThrows().catchError(handleError)),
+              RaisedButton(
+                child: const Text('Dart: Fail in microtask.'),
+                onPressed: () async => {
+                  await Future.microtask(
+                    () => throw StateError('Failure in a microtask'),
+                  ).catchError(handleError)
+                },
+              ),
+              RaisedButton(
+                child: const Text('Dart: Fail in compute'),
+                onPressed: () async =>
+                    {await compute(loop, 10).catchError(handleError)},
+              ),
+              RaisedButton(
+                child: const Text('Dart: Fail in compute'),
+                onPressed: () async =>
+                    {await compute(loop, 10).catchError(handleError)},
+              ),
+              if (UniversalPlatform.isIOS) const CocoaExample(),
+              if (UniversalPlatform.isAndroid) const AndroidExample(),
+              if (UniversalPlatform.isWeb) const WebExample(),
+            ],
+          ),
         ),
       ),
     );

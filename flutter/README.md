@@ -33,12 +33,10 @@ Future<void> main() async {
   await SentryFlutter.init(
     (options) {
       options.dsn = 'https://example@sentry.io/add-your-dsn-here';
-      // For better groupping, change the 'example' below with your own App's package.
-      options.addInAppInclude('sentry_flutter_example');
     },
     () {
       // Init your App.
-      runApp(MyApp()),
+      runApp(MyApp());
     },
   );
 
