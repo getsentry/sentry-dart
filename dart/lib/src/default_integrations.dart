@@ -2,12 +2,13 @@ import 'dart:async';
 
 import 'hub.dart';
 import 'protocol.dart';
+import 'sentry.dart';
 import 'sentry_options.dart';
 import 'throwable_mechanism.dart';
 
 /// integration that capture errors on the runZonedGuarded error handler
 Integration runZonedGuardedIntegration(
-  Function callback,
+  AppRunner callback,
 ) {
   void integration(Hub hub, SentryOptions options) {
     runZonedGuarded(() {
