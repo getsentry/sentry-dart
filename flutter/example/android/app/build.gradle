@@ -41,6 +41,10 @@ android {
 
     compileSdkVersion 30
 
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+
     defaultConfig {
         applicationId "io.sentry.samples.flutter"
         minSdkVersion 16
