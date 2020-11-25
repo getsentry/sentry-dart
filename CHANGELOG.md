@@ -7,6 +7,10 @@
 - Fix: missing app's stack traces for Flutter errors
 - Enhancement: add isolateErrorIntegration and runZonedGuardedIntegration to default integrations in sentry-dart
 
+### Breaking changes
+
+- `Sentry.init` now needs a callback argument which must run the host app after Sentry initialization.
+
 ## 4.0.0-alpha.2
 
 - Enhancement: `Contexts` were added to the `Scope` #154
@@ -24,7 +28,6 @@
 - Timestamp has millis precision.
 - For better groupping, add your own package to the `addInAppInclude` list, e.g.  `options.addInAppInclude('sentry_flutter_example');`
 - A few classes of the `Protocol` were renamed.
-- Sentry.init() now needs a callback argument which must run the host app after Sentry initialization. 
 
 #### Sentry Self Hosted Compatibility
 
