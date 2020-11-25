@@ -5,7 +5,7 @@
 - Fix: StackTrace frames with 'package' uri.scheme are inApp by default #185
 - Enhancement: add loadContextsIntegration tests
 - Fix: missing app's stack traces for Flutter errors
-- Enhancement: add isolateErrorIntegration and runZonedGuardedIntegration to default integration in sentry-dart
+- Enhancement: add isolateErrorIntegration and runZonedGuardedIntegration to default integrations in sentry-dart
 
 ## 4.0.0-alpha.2
 
@@ -24,6 +24,7 @@
 - Timestamp has millis precision.
 - For better groupping, add your own package to the `addInAppInclude` list, e.g.  `options.addInAppInclude('sentry_flutter_example');`
 - A few classes of the `Protocol` were renamed.
+- Sentry.init() now needs a callback argument which must run the host app after Sentry initialization. 
 
 #### Sentry Self Hosted Compatibility
 
