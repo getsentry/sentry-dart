@@ -57,7 +57,6 @@ void initApp() {
       stackTrace: stackTrace,
     );
   }
-  // ...
 }
 
 
