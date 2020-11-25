@@ -27,7 +27,7 @@ void main() {
       getConfigurationTester(),
       callback,
       packageLoader: loadTestPackage,
-      iOSPlatformChecker: () => false,
+      isIOSChecker: () => false,
     );
   });
 
@@ -37,7 +37,7 @@ void main() {
       getConfigurationTester(isIOS: true),
       callback,
       packageLoader: loadTestPackage,
-      iOSPlatformChecker: () => true,
+      isIOSChecker: () => true,
     );
   });
 
@@ -64,7 +64,7 @@ void main() {
           ..transport = transport,
         callback,
         packageLoader: loadTestPackage,
-        iOSPlatformChecker: () => true,
+        isIOSChecker: () => true,
       );
 
       await Sentry.captureMessage('a message');
@@ -83,7 +83,7 @@ void main() {
           ..transport = transport,
         callback,
         packageLoader: loadTestPackage,
-        iOSPlatformChecker: () => false,
+        isIOSChecker: () => false,
       );
 
       await Sentry.captureMessage('a message');

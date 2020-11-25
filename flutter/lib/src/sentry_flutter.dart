@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -10,6 +9,7 @@ import 'package:sentry/sentry.dart';
 import 'default_integrations.dart';
 import 'file_system_transport.dart';
 import 'version.dart';
+import 'web_platform_checker.dart' if (dart.library.io) 'platform_checker.dart';
 
 mixin SentryFlutter {
   static const _channel = MethodChannel('sentry_flutter');
@@ -18,14 +18,14 @@ mixin SentryFlutter {
     OptionsConfiguration optionsConfiguration,
     AppRunner callback, {
     PackageLoader packageLoader = _loadPackageInfo,
-    iOSPlatformChecker iOSPlatformChecker = _iOSPlatformChecker,
+    iOSPlatformChecker isIOSChecker = isIOS,
   }) async {
     await Sentry.init(
       (options) async {
         await _initDefaultValues(
           options,
           packageLoader,
-          iOSPlatformChecker,
+          isIOSChecker,
         );
 
         await optionsConfiguration(options);
@@ -37,7 +37,7 @@ mixin SentryFlutter {
   static Future<void> _initDefaultValues(
     SentryOptions options,
     PackageLoader packageLoader,
-    iOSPlatformChecker iOSPlatformChecker,
+    iOSPlatformChecker isIOSChecker,
   ) async {
     // it is necessary to initialize Flutter method channels so that
     // our plugin can call into the native code.
@@ -54,7 +54,7 @@ mixin SentryFlutter {
 
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
-    _addDefaultIntegrations(options, iOSPlatformChecker);
+    _addDefaultIntegrations(options, isIOSChecker);
 
     await _setReleaseAndDist(options, packageLoader);
 
@@ -137,6 +137,3 @@ typedef iOSPlatformChecker = bool Function();
 Future<PackageInfo> _loadPackageInfo() async {
   return await PackageInfo.fromPlatform();
 }
-
-/// verify if the platform is iOS
-bool _iOSPlatformChecker() => Platform.isIOS;
