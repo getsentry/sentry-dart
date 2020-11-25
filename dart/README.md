@@ -42,8 +42,6 @@ import 'package:sentry/sentry.dart';
 Future<void> main() async {
   await Sentry.init((options) {
     options.dsn = 'https://example@sentry.io/add-your-dsn-here';
-    // For better groupping, change the 'example' below with your own App's package.
-    options.addInAppInclude('example');
   });
 
   try {

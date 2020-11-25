@@ -129,9 +129,11 @@ mixin SentryFlutter {
       options.addIntegration(isolateErrorIntegration);
     }
 
+    // will enrich the events with the device context and native packages and integrations
     if (isIOS()) {
       options.addIntegration(loadContextsIntegration(options, _channel));
     }
+
     // finally the runZonedGuarded, catch any errors in Dart code running
     // ‘outside’ the Flutter framework
     options.addIntegration(runZonedGuardedIntegration(callback));
