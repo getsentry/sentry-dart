@@ -40,10 +40,15 @@ import 'dart:async';
 import 'package:sentry/sentry.dart';
 
 Future<void> main() async {
-  await Sentry.init((options) {
-    options.dsn = 'https://example@sentry.io/add-your-dsn-here';
-  });
+  await Sentry.init(
+    (options) {
+      options.dsn = 'https://example@sentry.io/add-your-dsn-here';
+    }, 
+    initApp, // Init your App.
+  );
+}
 
+void initApp(){
   try {
     aMethodThatMightFail();
   } catch (exception, stackTrace) {
@@ -52,7 +57,9 @@ Future<void> main() async {
       stackTrace: stackTrace,
     );
   }
+  // ...
 }
+
 
 void aMethodThatMightFail() {
   throw null;
