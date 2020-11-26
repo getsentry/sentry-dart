@@ -11,6 +11,7 @@ import android.content.Context
 import io.sentry.SentryEvent
 import io.sentry.SentryLevel
 import io.sentry.android.core.SentryAndroidOptions
+import io.sentry.protocol.DebugImage
 import io.sentry.protocol.SdkVersion
 import java.io.File
 import java.util.UUID
@@ -31,7 +32,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
     when (call.method) {
       "initNativeSdk" -> initNativeSdk(call, result)
       "captureEnvelope" -> captureEnvelope(call, result)
-      "loadImageList" -> captureEnvelope(call, result)
+      "loadImageList" -> loadImageList(call, result)
       else -> result.notImplemented()
     }
   }
@@ -95,7 +96,6 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
       options.setDiagnosticLevel(sentryLevel)
 
       val anrEnabled = args["anrEnabled"] as Boolean
-      options.isEnableNdk = anrEnabled
 
       val nativeCrashHandling = args["enableNativeCrashHandling"] as Boolean
 
@@ -108,6 +108,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
         // to turn it off
         // options.isEnableNdk = false
       }
+      options.isEnableNdk = true
 
       options.setBeforeSend { event, _ ->
         setEventOriginTag(event)
@@ -146,10 +147,30 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
 
   private fun loadImageList(call: MethodCall, result: Result) {
     if (!this::options.isInitialized) {
+      result.error("5", "SentryOptions is null", null)
       return
     }
-    val debugImages = options.debugImagesLoader.loadDebugImages()
-    result.success
+
+    val newDebugImages = mutableListOf<Map<String, Any?>>()
+    val debugImages: List<DebugImage>? = options.debugImagesLoader.loadDebugImages()
+
+    debugImages?.let {
+      it.forEach { image ->
+        val item = mutableMapOf<String, Any?>()
+
+        item["image_addr"] = image.imageAddr
+        item["image_size"] = image.imageSize
+        item["code_file"] = image.codeFile
+        item["type"] = image.type
+        item["debug_id"] = image.debugId
+        item["code_id"] = image.codeId
+        item["debug_file"] = image.debugFile
+
+        newDebugImages.add(item)
+      }
+    }
+
+    result.success(newDebugImages)
   }
 
   private val flutterSdk = "sentry.dart.flutter"

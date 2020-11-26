@@ -218,22 +218,53 @@ Integration loadImageList(
 ) {
   // TODO: ideally this would be already set
   final versions = options.sdk.version.split('.');
+  final fullPatch = versions[2];
+  // because of -alpha sufix
+  final path = fullPatch.split('-');
+
   final sdkInfo = SdkInfo(
       sdkName: options.sdk.name,
       versionMajor: int.parse(versions[0]),
       versionMinor: int.parse(versions[1]),
-      versionPatchlevel: int.parse(versions[2]));
-
-  final debugMeta = DebugMeta(sdk: sdkInfo);
+      versionPatchlevel: int.parse(path[0]));
 
   Future<void> integration(Hub hub, SentryOptions options) async {
     options.addEventProcessor(
       (event, dynamic hint) async {
         try {
-          final Map<String, dynamic> imageList = Map<String, dynamic>.from(
+          final List<Map<dynamic, dynamic>> imageList =
+              List<Map<dynamic, dynamic>>.from(
             await channel.invokeMethod('loadImageList'),
           );
-          
+
+          if (imageList.isEmpty) {
+            return event;
+          }
+
+          final List<DebugImage> newDebugImages = [];
+
+          for (final item in imageList) {
+            final image_addr = item['image_addr'] as String;
+            final image_size = item['image_size'] as int;
+            final code_file = item['code_file'] as String;
+            final type = item['type'] as String;
+            final debug_id = item['debug_id'] as String;
+            final code_id = item['code_id'] as String;
+            final debug_file = item['debug_file'] as String;
+
+            final image = DebugImage(
+              type: type,
+              imageAddr: image_addr,
+              imageSize: image_size,
+              codeFile: code_file,
+              debugId: debug_id,
+              codeId: code_id,
+              debugFile: debug_file,
+            );
+            newDebugImages.add(image);
+          }
+
+          final debugMeta = DebugMeta(sdk: sdkInfo, images: newDebugImages);
 
           event = event.copyWith(debugMeta: debugMeta);
         } catch (error) {

@@ -44,46 +44,94 @@ class SentryStackTraceFactory {
     // build_id => debug_images
 
     final frames = <SentryStackFrame>[];
-    for (var t = 0; t < chain.traces.length; t += 1) {
-      final encodedFrames = chain.traces[t].frames
-          // we don't want to add our own frames
-          .where((frame) => frame.package != 'sentry')
-          .map((f) => encodeStackTraceFrame(f));
+    var nativeStackTraces = false;
 
-      frames.addAll(encodedFrames);
+    for (final trace in chain.traces) {
+      for (final frame in trace.frames) {
+        // we don't want to add our own frames
+        if (frame.package == 'sentry') {
+          continue;
+        }
 
-      if (t < chain.traces.length - 1) {
-        frames.add(SentryStackFrame.asynchronousGapFrameJson);
+        final member = frame.member;
+        if (member != null &&
+            member.contains(
+              'This VM has been configured to produce stack traces that violate the Dart standard.',
+            )) {
+          nativeStackTraces = true;
+        }
+
+        final stackTraceFrame = encodeStackTraceFrame(
+          frame,
+          nativeStackTraces,
+        );
+
+        if (stackTraceFrame == null) {
+          continue;
+        }
+        frames.add(stackTraceFrame);
       }
     }
+
+    // for (var t = 0; t < chain.traces.length; t += 1) {
+    //   final encodedFrames = chain.traces[t].frames
+    //       // we don't want to add our own frames
+    //       .where((frame) => frame.package != 'sentry')
+    //       .map((f) => encodeStackTraceFrame(f, nativeStackTraces));
+
+    //   frames.addAll(encodedFrames);
+
+    //   if (t < chain.traces.length - 1) {
+    //     frames.add(SentryStackFrame.asynchronousGapFrameJson);
+    //   }
+    // }
 
     return frames.reversed.toList();
   }
 
   /// converts [Frame] to [SentryStackFrame]
   @visibleForTesting
-  SentryStackFrame encodeStackTraceFrame(Frame frame) {
-    final fileName =
-        frame.uri.pathSegments.isNotEmpty ? frame.uri.pathSegments.last : null;
+  SentryStackFrame encodeStackTraceFrame(Frame frame, bool nativeStackTraces) {
+    final member = frame.member;
 
-    final abs = '$eventOrigin${_absolutePathForCrashReport(frame)}';
+    SentryStackFrame sentryStackFrame;
 
-    var sentryStackFrame = SentryStackFrame(
-      absPath: abs,
-      function: frame.member,
-      // https://docs.sentry.io/development/sdk-dev/features/#in-app-frames
-      inApp: isInApp(frame),
-      fileName: fileName,
-      package: frame.package,
-    );
-    // platform: 'native' if strip symbols are enabled
+    if (!nativeStackTraces) {
+      final fileName = frame.uri.pathSegments.isNotEmpty
+          ? frame.uri.pathSegments.last
+          : null;
 
-    if (frame.line != null && frame.line >= 0) {
-      sentryStackFrame = sentryStackFrame.copyWith(lineNo: frame.line);
-    }
+      final abs = '$eventOrigin${_absolutePathForCrashReport(frame)}';
 
-    if (frame.column != null && frame.column >= 0) {
-      sentryStackFrame = sentryStackFrame.copyWith(colNo: frame.column);
+      sentryStackFrame = SentryStackFrame(
+        absPath: abs,
+        function: member,
+        // https://docs.sentry.io/development/sdk-dev/features/#in-app-frames
+        inApp: isInApp(frame),
+        fileName: fileName,
+        package: frame.package,
+      );
+
+      if (frame.line != null && frame.line >= 0) {
+        sentryStackFrame = sentryStackFrame.copyWith(lineNo: frame.line);
+      }
+
+      if (frame.column != null && frame.column >= 0) {
+        sentryStackFrame = sentryStackFrame.copyWith(colNo: frame.column);
+      }
+    } else {
+      // TODO: use proper Regex
+      if (member.contains('abs')) {
+        final indexAbs = member.indexOf('abs');
+        final indexVirt = member.indexOf('virt');
+        final instructionAddr = member.substring(indexAbs + 4, indexVirt - 1);
+        print('instructionAddr: ${instructionAddr}');
+
+        sentryStackFrame = SentryStackFrame(
+          instructionAddr: instructionAddr,
+          platform: 'native',
+        );
+      }
     }
 
     return sentryStackFrame;

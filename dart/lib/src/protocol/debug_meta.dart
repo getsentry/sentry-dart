@@ -20,7 +20,7 @@ class DebugMeta {
     }
 
     if (_images != null && _images.isNotEmpty) {
-      json['images'] = _images.map((e) => e.toJson());
+      json['images'] = _images.map((e) => e.toJson()).toList();
     }
 
     return json;
