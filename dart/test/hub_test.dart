@@ -118,8 +118,6 @@ void main() {
       });
       await hub.captureEvent(fakeEvent);
 
-      //await hub.captureEvent(fakeEvent);
-
       final scope = verify(
         client.captureEvent(
           fakeEvent,
