@@ -9,7 +9,7 @@
 
 ### Breaking changes
 
-- `Sentry.init` now needs a callback argument which must run the host app after Sentry initialization.
+- `Sentry.init` has an optional callback argument which runs the host app after Sentry initialization.
 
 ## 4.0.0-alpha.2
 
