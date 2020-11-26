@@ -8,6 +8,7 @@
 - Fix: missing app's stack traces for Flutter errors
 - add loadContextsIntegration tests
 - Ref: Remove deprecated classes (Flutter Plugin for Android) and cleaning up #186
+- Fix: Handle immutable event lists and maps 
 
 ## 4.0.0-alpha.2
 
