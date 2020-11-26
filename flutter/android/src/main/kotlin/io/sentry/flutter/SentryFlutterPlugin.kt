@@ -94,7 +94,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
       options.setDiagnosticLevel(sentryLevel)
 
       val anrEnabled = args["anrEnabled"] as Boolean
-      options.isEnableNdk = anrEnabled
+      options.isAnrEnabled = anrEnabled
 
       val nativeCrashHandling = args["enableNativeCrashHandling"] as Boolean
 
