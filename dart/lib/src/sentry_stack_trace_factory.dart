@@ -124,7 +124,8 @@ class SentryStackTraceFactory {
       if (member.contains('abs')) {
         final indexAbs = member.indexOf('abs');
         final indexVirt = member.indexOf('virt');
-        final instructionAddr = member.substring(indexAbs + 4, indexVirt - 1);
+        final instructionAddr =
+            '0x${member.substring(indexAbs + 4, indexVirt - 1)}';
         print('instructionAddr: ${instructionAddr}');
 
         sentryStackFrame = SentryStackFrame(
