@@ -26,9 +26,9 @@ class Request {
   /// Can be given as string or structural data of any format.
   dynamic get data {
     if (_data is List) {
-      return List.unmodifiable(_data);
+      return List.from(_data);
     } else if (_data is Map) {
-      return Map.unmodifiable(_data);
+      return Map.from(_data);
     }
 
     return _data;
@@ -41,20 +41,19 @@ class Request {
   /// needs to be merged according to the HTTP standard for header merging.
   /// Header names are treated case-insensitively by Sentry.
   Map<String, String> get headers =>
-      _headers != null ? Map.unmodifiable(_headers) : null;
+      _headers != null ? Map.from(_headers) : null;
 
   final Map<String, String> _env;
 
   /// A dictionary containing environment information passed from the server.
   /// This is where information such as CGI/WSGI/Rack keys go that are not HTTP headers.
-  Map<String, String> get env => _env != null ? Map.unmodifiable(_env) : null;
+  Map<String, String> get env => _env != null ? Map.from(_env) : null;
 
   final Map<String, String> _other;
 
-  Map<String, String> get other =>
-      _other != null ? Map.unmodifiable(_other) : null;
+  Map<String, String> get other => _other != null ? Map.from(_other) : null;
 
-  const Request({
+  Request({
     this.url,
     this.method,
     this.queryString,
@@ -64,9 +63,9 @@ class Request {
     Map<String, String> env,
     Map<String, String> other,
   })  : _data = data,
-        _headers = headers,
-        _env = env,
-        _other = other;
+        _headers = headers != null ? Map.from(headers) : null,
+        _env = env != null ? Map.from(env) : null,
+        _other = other != null ? Map.from(other) : null;
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
