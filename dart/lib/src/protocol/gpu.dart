@@ -10,6 +10,7 @@
 //   "npot_support": "Full"
 // }
 
+/// GPU context describes the GPU of the device.
 class Gpu {
   static const type = 'gpu';
 

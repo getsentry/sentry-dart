@@ -11,6 +11,7 @@ import 'file_system_transport.dart';
 import 'version.dart';
 import 'web_platform_checker.dart' if (dart.library.io) 'platform_checker.dart';
 
+/// Sentry Flutter SDK main entry point
 mixin SentryFlutter {
   static const _channel = MethodChannel('sentry_flutter');
 
@@ -129,8 +130,10 @@ mixin SentryFlutter {
   }
 }
 
+/// a PackageInfo wrapper to make it testable
 typedef PackageLoader = Future<PackageInfo> Function();
 
+/// an iOS PlatformChecker wrapper to make it testable
 typedef iOSPlatformChecker = bool Function();
 
 /// Package info loader.

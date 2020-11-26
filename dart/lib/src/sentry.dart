@@ -18,7 +18,6 @@ typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
 typedef AppRunner = void Function();
 
 /// Sentry SDK main entry point
-///
 class Sentry {
   static Hub _hub = NoOpHub();
 

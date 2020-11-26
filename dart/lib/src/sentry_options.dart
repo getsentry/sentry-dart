@@ -11,6 +11,7 @@ import 'transport/transport.dart';
 import 'utils.dart';
 import 'version.dart';
 
+/// Default Environment is none is set
 const defaultEnvironment = 'production';
 
 /// Sentry SDK options
@@ -318,26 +319,37 @@ class SentryOptions {
   }
 }
 
+/// This function is called with an SDK specific event object and can return a modified event
+/// object or nothing to skip reporting the event
 typedef BeforeSendCallback = SentryEvent Function(
     SentryEvent event, dynamic hint);
 
+/// This function is called with an SDK specific breadcrumb object before the breadcrumb is added
+/// to the scope. When nothing is returned from the function, the breadcrumb is dropped
 typedef BeforeBreadcrumbCallback = Breadcrumb Function(
   Breadcrumb breadcrumb,
   dynamic hint,
 );
 
+/// Are callbacks that run for every event. They can either return a new event which in most cases
+/// means just adding data OR return null in case the event will be dropped and not sent.
 typedef EventProcessor = FutureOr<SentryEvent> Function(
     SentryEvent event, dynamic hint);
 
+/// Code that provides middlewares, bindings or hooks into certain frameworks or environments,
+/// along with code that inserts those bindings and activates them.
 typedef Integration = FutureOr<void> Function(Hub hub, SentryOptions options);
 
+/// Logger interface to log useful debugging information if debug is enabled
 typedef Logger = Function(SentryLevel level, String message);
 
 /// Used to provide timestamp for logging.
 typedef ClockProvider = DateTime Function();
 
+/// A NoOp logger that does nothing
 void noOpLogger(SentryLevel level, String message) {}
 
+/// A Logger that prints out the level and message
 void dartLogger(SentryLevel level, String message) {
   print('[${level.name}] $message');
 }

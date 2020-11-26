@@ -1,6 +1,5 @@
 package io.sentry.flutter
 
-import androidx.annotation.NonNull
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -22,22 +21,13 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
   private lateinit var context: Context
   private lateinit var options: SentryOptions
 
-  override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
+  override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     context = flutterPluginBinding.applicationContext
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "sentry_flutter")
     channel.setMethodCallHandler(this)
   }
-  // Should we remove this if we do minSDK flutter >= that?
-  // Required by Flutter Android projects v1.12 and older
-  companion object {
-    @JvmStatic
-    fun registerWith(registrar: Registrar) {
-      val channel = MethodChannel(registrar.messenger(), "sentry_flutter")
-      channel.setMethodCallHandler(SentryFlutterPlugin())
-    }
-  }
 
-  override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
+  override fun onMethodCall(call: MethodCall, result: Result) {
     when (call.method) {
       "initNativeSdk" -> initNativeSdk(call, result)
       "captureEnvelope" -> captureEnvelope(call, result)
@@ -45,7 +35,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
     }
   }
 
-  override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
+  override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
     if (!this::channel.isInitialized) {
       return
     }
@@ -87,7 +77,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
       options.isEnableSessionTracking = args["enableAutoSessionTracking"] as Boolean
       options.sessionTrackingIntervalMillis = (args["autoSessionTrackingIntervalMillis"] as Int).toLong()
       options.anrTimeoutIntervalMillis = (args["anrTimeoutIntervalMillis"] as Int).toLong()
-      options.isAttachThreads = false // expose options for Android?
+      // expose options for isAttachThreads?
       options.isAttachStacktrace = args["attachStacktrace"] as Boolean
 
       val enableAutoNativeBreadcrumbs = args["enableAutoNativeBreadcrumbs"] as Boolean
@@ -104,7 +94,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
       options.setDiagnosticLevel(sentryLevel)
 
       val anrEnabled = args["anrEnabled"] as Boolean
-      options.isEnableNdk = anrEnabled
+      options.isAnrEnabled = anrEnabled
 
       val nativeCrashHandling = args["enableNativeCrashHandling"] as Boolean
 
