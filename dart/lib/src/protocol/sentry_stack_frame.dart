@@ -1,3 +1,5 @@
+/// Frames belong to a StackTrace
+/// It should contain at least a filename, function or instruction_addr
 class SentryStackFrame {
   static final SentryStackFrame asynchronousGapFrameJson =
       SentryStackFrame(absPath: '<asynchronous suspension>');

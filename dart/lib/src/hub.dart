@@ -7,6 +7,7 @@ import 'scope.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 
+/// Configures the scope through the callback.
 typedef ScopeCallback = void Function(Scope);
 
 /// SDK API contract which combines a client and scope management
