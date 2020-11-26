@@ -181,7 +181,7 @@ class SentryClient {
 
     for (final processor in eventProcessors) {
       try {
-        event = await processor(event, hint);
+        event = await processor(event.copyWith(), hint);
       } catch (err) {
         _options.logger(
           SentryLevel.error,

@@ -168,8 +168,8 @@ class Scope {
     event = event.copyWith(
       transaction: event.transaction ?? transaction,
       user: event.user ?? user,
-      fingerprint: event.fingerprint ?? fingerprint,
-      breadcrumbs: event.breadcrumbs ?? breadcrumbs,
+      fingerprint: event.fingerprint ?? List.from(_fingerprint),
+      breadcrumbs: event.breadcrumbs ?? List.from(_breadcrumbs),
       tags: tags.isNotEmpty ? _mergeEventTags(event) : event.tags,
       extra: extra.isNotEmpty ? _mergeEventExtra(event) : event.extra,
       level: level ?? event.level,
