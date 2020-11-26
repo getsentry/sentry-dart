@@ -10,7 +10,7 @@ import io.sentry.android.core.SentryAndroid
 import android.content.Context
 import io.sentry.SentryEvent
 import io.sentry.SentryLevel
-import io.sentry.SentryOptions
+import io.sentry.android.core.SentryAndroidOptions
 import io.sentry.protocol.SdkVersion
 import java.io.File
 import java.util.UUID
@@ -19,7 +19,7 @@ import java.util.Locale
 class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
   private lateinit var channel: MethodChannel
   private lateinit var context: Context
-  private lateinit var options: SentryOptions
+  private lateinit var options: SentryAndroidOptions
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     context = flutterPluginBinding.applicationContext
@@ -31,6 +31,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
     when (call.method) {
       "initNativeSdk" -> initNativeSdk(call, result)
       "captureEnvelope" -> captureEnvelope(call, result)
+      "loadImageList" -> captureEnvelope(call, result)
       else -> result.notImplemented()
     }
   }
@@ -141,6 +142,14 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
     }
 
     result.error("2", "Envelope is null or empty", null)
+  }
+
+  private fun loadImageList(call: MethodCall, result: Result) {
+    if (!this::options.isInitialized) {
+      return
+    }
+    val debugImages = options.debugImagesLoader.loadDebugImages()
+    result.success
   }
 
   private val flutterSdk = "sentry.dart.flutter"

@@ -211,3 +211,44 @@ Integration nativeSdkIntegration(SentryOptions options, MethodChannel channel) {
 
   return integration;
 }
+
+Integration loadImageList(
+  SentryOptions options,
+  MethodChannel channel,
+) {
+  // TODO: ideally this would be already set
+  final versions = options.sdk.version.split('.');
+  final sdkInfo = SdkInfo(
+      sdkName: options.sdk.name,
+      versionMajor: int.parse(versions[0]),
+      versionMinor: int.parse(versions[1]),
+      versionPatchlevel: int.parse(versions[2]));
+
+  final debugMeta = DebugMeta(sdk: sdkInfo);
+
+  Future<void> integration(Hub hub, SentryOptions options) async {
+    options.addEventProcessor(
+      (event, dynamic hint) async {
+        try {
+          final Map<String, dynamic> imageList = Map<String, dynamic>.from(
+            await channel.invokeMethod('loadImageList'),
+          );
+          
+
+          event = event.copyWith(debugMeta: debugMeta);
+        } catch (error) {
+          options.logger(
+            SentryLevel.error,
+            'loadImageList failed : $error',
+          );
+        }
+
+        return event;
+      },
+    );
+
+    options.sdk.addIntegration('loadContextsIntegration');
+  }
+
+  return integration;
+}

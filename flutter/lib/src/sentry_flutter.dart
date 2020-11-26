@@ -132,6 +132,9 @@ mixin SentryFlutter {
     if (isIOS()) {
       options.addIntegration(loadContextsIntegration(options, _channel));
     }
+    if (Platform.isAndroid) {
+      options.addIntegration(loadImageList(options, _channel));
+    }
     // finally the runZonedGuarded, catch any errors in Dart code running
     // ‘outside’ the Flutter framework
     options.addIntegration(runZonedGuardedIntegration(callback));
