@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 
+/// The Data Source Name (DSN) tells the SDK where to send the events
 class Dsn {
   Dsn({
     @required this.publicKey,

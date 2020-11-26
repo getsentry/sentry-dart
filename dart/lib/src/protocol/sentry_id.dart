@@ -1,5 +1,6 @@
 import 'package:uuid/uuid.dart';
 
+/// Hexadecimal string representing a uuid4 value
 class SentryId {
   static final SentryId _emptyId =
       SentryId.fromId('00000000-0000-0000-0000-000000000000');

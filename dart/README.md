@@ -42,8 +42,6 @@ import 'package:sentry/sentry.dart';
 Future<void> main() async {
   await Sentry.init((options) {
     options.dsn = 'https://example@sentry.io/add-your-dsn-here';
-    // For better groupping, change the 'example' below with your own App's package.
-    options.addInAppInclude('example');
   });
 
   try {
@@ -63,7 +61,7 @@ void aMethodThatMightFail() {
 
 #### Resources
 
-* [![Documentation](https://img.shields.io/badge/documentation-sentry.io-green.svg)](https://docs.sentry.io/platforms/flutter/)
+* [![Documentation](https://img.shields.io/badge/documentation-sentry.io-green.svg)](https://docs.sentry.io/platforms/dart/)
 * [![Forum](https://img.shields.io/badge/forum-sentry-green.svg)](https://forum.sentry.io/c/sdks)
 * [![Discord](https://img.shields.io/discord/621778831602221064)](https://discord.gg/Ww9hbqr)
 * [![Stack Overflow](https://img.shields.io/badge/stack%20overflow-sentry-green.svg)](https://stackoverflow.com/questions/tagged/sentry)
