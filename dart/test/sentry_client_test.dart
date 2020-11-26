@@ -312,22 +312,23 @@ void main() {
     Scope scope;
 
     final level = SentryLevel.error;
-    final transaction = '/test/scope';
-    final fingerprint = ['foo', 'bar', 'baz'];
+    const transaction = '/test/scope';
+    const fingerprint = ['foo', 'bar', 'baz'];
     final user = User(id: '123', username: 'test');
     final crumb = Breadcrumb(message: 'bread');
-    final scopeTagKey = 'scope-tag';
-    final scopeTagValue = 'scope-tag-value';
-    final eventTagKey = 'event-tag';
-    final eventTagValue = 'event-tag-value';
-    final scopeExtraKey = 'scope-extra';
-    final scopeExtraValue = 'scope-extra-value';
-    final eventExtraKey = 'event-extra';
-    final eventExtraValue = 'event-extra-value';
+    const scopeTagKey = 'scope-tag';
+    const scopeTagValue = 'scope-tag-value';
+    const eventTagKey = 'event-tag';
+    const eventTagValue = 'event-tag-value';
+    const scopeExtraKey = 'scope-extra';
+    const scopeExtraValue = 'scope-extra-value';
+    const eventExtraKey = 'event-extra';
+    const eventExtraValue = 'event-extra-value';
 
     final event = SentryEvent(
-      tags: {eventTagKey: eventTagValue},
-      extra: {eventExtraKey: eventExtraValue},
+      tags: const {eventTagKey: eventTagValue},
+      extra: const {eventExtraKey: eventExtraValue},
+      modules: const {eventExtraKey: eventExtraValue},
       level: SentryLevel.warning,
     );
 
@@ -375,8 +376,8 @@ void main() {
 
     final transaction = '/test/scope';
     final eventTransaction = '/event/transaction';
-    final fingerprint = ['foo', 'bar', 'baz'];
-    final eventFingerprint = ['123', '456', '798'];
+    const fingerprint = ['foo', 'bar', 'baz'];
+    const eventFingerprint = ['123', '456', '798'];
     final user = User(id: '123');
     final eventUser = User(id: '987');
     final crumb = Breadcrumb(message: 'bread');

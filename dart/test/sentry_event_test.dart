@@ -62,17 +62,22 @@ void main() {
           username: 'username',
           email: 'email@email.com',
           ipAddress: '127.0.0.1',
-          extras: <String, String>{'foo': 'bar'});
+          extras: const <String, String>{'foo': 'bar'});
 
       final breadcrumbs = [
         Breadcrumb(
-            message: 'test log',
-            timestamp: timestamp,
-            level: SentryLevel.debug,
-            category: 'test'),
+          message: 'test log',
+          timestamp: timestamp,
+          level: SentryLevel.debug,
+          category: 'test',
+        ),
       ];
 
-      final request = Request(url: 'https://api.com/users', method: 'GET');
+      final request = Request(
+        url: 'https://api.com/users',
+        method: 'GET',
+        headers: const {'authorization': '123456'},
+      );
 
       expect(
         SentryEvent(
@@ -106,7 +111,7 @@ void main() {
               versionMinor: 1,
               versionPatchlevel: 2,
             ),
-            images: [
+            images: const <DebugImage>[
               DebugImage(
                 type: 'macho',
                 debugId: '84a04d24-0e60-3810-a8c0-90a65e2df61a',
@@ -156,6 +161,7 @@ void main() {
           'request': {
             'url': request.url,
             'method': request.method,
+            'headers': {'authorization': '123456'}
           },
           'debug_meta': {
             'sdk_info': {
