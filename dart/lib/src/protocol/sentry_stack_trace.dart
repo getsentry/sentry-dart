@@ -28,7 +28,7 @@ class SentryStackTrace {
     final json = <String, dynamic>{};
 
     if (_frames != null && _frames.isNotEmpty) {
-      json['frames'] = _frames.map((frame) => frame.toJson()).toList();
+      json['frames'] = _frames.map((frame) => frame.toJson()).toList(growable: false);
     }
 
     if (_registers != null && _registers.isNotEmpty ?? false) {
