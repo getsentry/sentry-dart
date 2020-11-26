@@ -14,7 +14,7 @@ class DebugMeta {
   List<DebugImage> get images => List.from(_images);
 
   DebugMeta({this.sdk, List<DebugImage> images})
-      : _images = images != null ? List.from(images) : null;
+      : _images = images != null ? List.unmodifiable(images) : null;
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};

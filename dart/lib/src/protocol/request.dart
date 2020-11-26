@@ -26,9 +26,9 @@ class Request {
   /// Can be given as string or structural data of any format.
   dynamic get data {
     if (_data is List) {
-      return List.from(_data);
+      return List.unmodifiable(_data);
     } else if (_data is Map) {
-      return Map.from(_data);
+      return Map.unmodifiable(_data);
     }
 
     return _data;
@@ -41,17 +41,18 @@ class Request {
   /// needs to be merged according to the HTTP standard for header merging.
   /// Header names are treated case-insensitively by Sentry.
   Map<String, String> get headers =>
-      _headers != null ? Map.from(_headers) : null;
+      _headers != null ? Map.unmodifiable(_headers) : null;
 
   final Map<String, String> _env;
 
   /// A dictionary containing environment information passed from the server.
   /// This is where information such as CGI/WSGI/Rack keys go that are not HTTP headers.
-  Map<String, String> get env => _env != null ? Map.from(_env) : null;
+  Map<String, String> get env => _env != null ? Map.unmodifiable(_env) : null;
 
   final Map<String, String> _other;
 
-  Map<String, String> get other => _other != null ? Map.from(_other) : null;
+  Map<String, String> get other =>
+      _other != null ? Map.unmodifiable(_other) : null;
 
   Request({
     this.url,

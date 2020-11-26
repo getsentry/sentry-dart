@@ -54,12 +54,12 @@ class SdkVersion {
   final List<String> _integrations;
 
   /// A list of integrations enabled in the SDK that created the [Event].
-  List<String> get integrations => List.from(_integrations);
+  List<String> get integrations => List.unmodifiable(_integrations);
 
   final List<SentryPackage> _packages;
 
   /// A list of packages that compose this SDK.
-  List<SentryPackage> get packages => List.from(_packages);
+  List<SentryPackage> get packages => List.unmodifiable(_packages);
 
   String get identifier => '${name}/${version}';
 
