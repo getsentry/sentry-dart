@@ -478,6 +478,47 @@ void main() {
   test("options can't be null", () {
     expect(() => SentryClient(null), throwsArgumentError);
   });
+
+  group('EventProcessors', () {
+    SentryOptions options;
+
+    setUp(() {
+      options = SentryOptions(dsn: fakeDsn);
+      options.addEventProcessor(
+        (event, hint) => event
+          ..tags.addAll({'theme': 'material'})
+          ..extra['host'] = '0.0.0.1'
+          ..modules.addAll({'core': '1.0'})
+          ..breadcrumbs.add(Breadcrumb(message: 'processor crumb'))
+          ..fingerprint.add('process')
+          ..sdk.addIntegration('testIntegration')
+          ..sdk.addPackage('test-pkg', '1.0'),
+      );
+      options.transport = MockTransport();
+    });
+
+    test('should execute eventProcessors', () async {
+      final client = SentryClient(options);
+      await client.captureEvent(fakeEvent);
+
+      final event = verify(options.transport.send(captureAny)).captured.first
+          as SentryEvent;
+      expect(event.tags.containsKey('theme'), true);
+      expect(event.extra.containsKey('host'), true);
+      expect(event.modules.containsKey('core'), true);
+      expect(event.sdk.integrations.contains('testIntegration'), true);
+      expect(
+        event.sdk.packages.any((element) => element.name == 'test-pkg'),
+        true,
+      );
+      expect(
+        event.breadcrumbs
+            .any((element) => element.message == 'processor crumb'),
+        true,
+      );
+      expect(event.fingerprint.contains('process'), true);
+    });
+  });
 }
 
 SentryEvent beforeSendCallbackDropEvent(SentryEvent event, dynamic hint) =>
