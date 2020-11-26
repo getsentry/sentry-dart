@@ -112,21 +112,24 @@ void main() {
     test('should configure its scope', () async {
       hub.configureScope((Scope scope) {
         scope
-          ..level = SentryLevel.debug
           ..user = fakeUser
+          ..level = SentryLevel.debug
           ..fingerprint = ['1', '2'];
       });
       await hub.captureEvent(fakeEvent);
 
-      await hub.captureEvent(fakeEvent);
+      //await hub.captureEvent(fakeEvent);
+
+      final scope = verify(
+        client.captureEvent(
+          fakeEvent,
+          scope: captureAnyNamed('scope'),
+        ),
+      ).captured.first as Scope;
+
       expect(
         scopeEquals(
-          verify(
-            client.captureEvent(
-              fakeEvent,
-              scope: captureAnyNamed('scope'),
-            ),
-          ).captured.first,
+          scope,
           Scope(SentryOptions(dsn: fakeDsn))
             ..level = SentryLevel.debug
             ..user = fakeUser

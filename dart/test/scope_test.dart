@@ -248,14 +248,16 @@ void main() {
       username: 'first-user',
       email: 'first@user.lan',
       ipAddress: '127.0.0.1',
-      extras: <String, String>{'first-sign-in': '2020-01-01'},
+      extras: const <String, String>{'first-sign-in': '2020-01-01'},
     );
 
     final breadcrumb = Breadcrumb(message: 'Authenticated');
 
     test('apply context to event', () {
-      final event =
-          SentryEvent(tags: {'etag': '987'}, extra: {'e-infos': 'abc'});
+      final event = SentryEvent(
+        tags: const {'etag': '987'},
+        extra: const {'e-infos': 'abc'},
+      );
       final scope = Scope(SentryOptions())
         ..user = scopeUser
         ..fingerprint = ['example-dart']

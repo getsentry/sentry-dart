@@ -6,8 +6,8 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/protocol/request.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:sentry/src/utils.dart';
-import 'package:test/test.dart';
 import 'package:sentry/src/version.dart';
+import 'package:test/test.dart';
 
 void main() {
   group(SentryEvent, () {
@@ -57,7 +57,7 @@ void main() {
     });
     test('serializes to JSON', () {
       final timestamp = DateTime.utc(2019);
-      const user = User(
+      final user = User(
           id: 'user_id',
           username: 'username',
           email: 'email@email.com',

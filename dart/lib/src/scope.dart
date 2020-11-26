@@ -28,7 +28,7 @@ class Scope {
       _fingerprint != null ? List.unmodifiable(_fingerprint) : null;
 
   set fingerprint(List<String> fingerprint) {
-    _fingerprint = fingerprint;
+    _fingerprint = (fingerprint != null ? List.from(fingerprint) : fingerprint);
   }
 
   /// List of breadcrumbs for this scope.
