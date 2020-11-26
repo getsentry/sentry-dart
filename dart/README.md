@@ -59,6 +59,38 @@ void initApp() {
   }
 }
 
+void aMethodThatMightFail() {
+  throw null;
+}
+```
+
+Or, if you don't want to run your app in its own error zone [runZonedGuarded] : 
+
+```dart
+import 'dart:async';
+import 'package:sentry/sentry.dart';
+
+Future<void> main() async {
+  await Sentry.init(
+    (options) {
+      options.dsn = 'https://example@sentry.io/add-your-dsn-here';
+    }, 
+  );
+
+  // Init your App.
+  initApp();
+}
+
+void initApp() {
+  try {
+    aMethodThatMightFail();
+  } catch (exception, stackTrace) {
+    await Sentry.captureException(
+      exception,
+      stackTrace: stackTrace,
+    );
+  }
+}
 
 void aMethodThatMightFail() {
   throw null;

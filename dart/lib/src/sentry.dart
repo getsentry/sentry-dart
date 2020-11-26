@@ -28,16 +28,16 @@ class Sentry {
   static Hub get currentHub => _hub;
 
   /// Initializes the SDK
+  /// passing a [AppRunner] callback allows to run the app within its own error zone (`runZonedGuarded`)
+  /// https://api.dart.dev/stable/2.10.4/dart-async/runZonedGuarded.html
   static Future<void> init(
-    OptionsConfiguration optionsConfiguration,
+    OptionsConfiguration optionsConfiguration, [
     AppRunner callback,
-  ) async {
+  ]) async {
     if (optionsConfiguration == null) {
       throw ArgumentError('OptionsConfiguration is required.');
     }
-    if (callback == null) {
-      throw ArgumentError('AppRunner is required.');
-    }
+
     final options = SentryOptions();
     await _initDefaultValues(options, callback);
 
@@ -77,7 +77,9 @@ class Sentry {
 
     // finally the runZonedGuarded, catch any errors in Dart code running
     // ‘outside’ the Flutter framework
-    options.addIntegration(runZonedGuardedIntegration(callback));
+    if (callback != null) {
+      options.addIntegration(runZonedGuardedIntegration(callback));
+    }
   }
 
   /// Initializes the SDK
