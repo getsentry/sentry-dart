@@ -175,6 +175,7 @@ Integration loadContextsIntegration(
   return integration;
 }
 
+/// Enables Sentry's native SDKs (Android and iOS)
 Integration nativeSdkIntegration(SentryOptions options, MethodChannel channel) {
   Future<void> integration(Hub hub, SentryOptions options) async {
     try {
