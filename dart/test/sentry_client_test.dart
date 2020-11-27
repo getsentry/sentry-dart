@@ -471,8 +471,6 @@ void main() {
       final client = SentryClient(options);
       await client.captureEvent(fakeEvent);
 
-      //verify(options.transport.send(any)).called(1);
-
       final event = verify(options.transport.send(captureAny)).captured.first
           as SentryEvent;
 
