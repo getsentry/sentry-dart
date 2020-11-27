@@ -35,7 +35,6 @@ jobs:
           with:
             release-channel: ${{ matrix.sdk }}
         - uses: actions/checkout@v2
-        - run: pub get
         # consider -p "chrome,vm" and --coverage=coverage
         - name: Test (VM and browser)
           run: |
@@ -59,9 +58,10 @@ jobs:
         with:
           release-channel: stable
       - uses: actions/checkout@v2
-      - run: pub get
-      - run: dartanalyzer --fatal-warnings ./
-      - run: dartfmt -n --set-exit-if-changed ./
+      - run: |
+          pub get
+          dartanalyzer --fatal-warnings ./
+          dartfmt -n --set-exit-if-changed ./
 
   package-analysis:
     runs-on: ubuntu-latest
