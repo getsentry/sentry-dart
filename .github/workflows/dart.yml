@@ -44,7 +44,7 @@ jobs:
           if: runner.os == 'Linux'
           with:
             name: sentry
-            directory: ./coverage
+            directory: ./dart/coverage
 
   analyze:
     runs-on: ubuntu-latest
