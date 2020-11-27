@@ -52,7 +52,8 @@ jobs:
             flutter pub get
             flutter test --coverage test
 
-        - uses: codecov/codecov-action@v1.0.2
+        - uses: codecov/codecov-action@v1
+          if: {{ runner.os == 'Linux' && matrix.target == 'android' && matrix.channel == 'stable' }}
           with:
             name: sentry_flutter
 
