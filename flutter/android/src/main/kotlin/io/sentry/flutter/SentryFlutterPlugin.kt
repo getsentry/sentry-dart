@@ -1,20 +1,19 @@
 package io.sentry.flutter
 
+import android.content.Context
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-import io.flutter.plugin.common.PluginRegistry.Registrar
-import io.sentry.android.core.SentryAndroid
-import android.content.Context
 import io.sentry.SentryEvent
 import io.sentry.SentryLevel
 import io.sentry.SentryOptions
+import io.sentry.android.core.SentryAndroid
 import io.sentry.protocol.SdkVersion
 import java.io.File
-import java.util.UUID
 import java.util.Locale
+import java.util.UUID
 
 class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
   private lateinit var channel: MethodChannel
