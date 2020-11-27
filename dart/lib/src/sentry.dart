@@ -69,6 +69,9 @@ class Sentry {
         ? const String.fromEnvironment('SENTRY_DSN')
         : options.dsn;
 
+    // we need to execute integrations in a specific order sometimes,
+    // and this initialIntegrations list makes it possible to inject and add
+    // integrations before the runZonedGuardedIntegration gets added
     if (initialIntegrations != null && initialIntegrations.isNotEmpty) {
       initialIntegrations
           .forEach((integration) => options.addIntegration(integration));
