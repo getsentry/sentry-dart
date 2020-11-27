@@ -31,7 +31,7 @@ class Sentry {
   /// https://api.dart.dev/stable/2.10.4/dart-async/runZonedGuarded.html
   static Future<void> init(
     OptionsConfiguration optionsConfiguration, [
-    AppRunner callback,
+    AppRunner appRunner,
   ]) async {
     if (optionsConfiguration == null) {
       throw ArgumentError('OptionsConfiguration is required.');
