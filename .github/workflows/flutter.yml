@@ -51,6 +51,7 @@ jobs:
         - uses: stelynx/dart-full-coverage@v1.0.3
           with:
             package: sentry_flutter
+            main_dir: flutter/
         # - run: flutter analyze
         - run: flutter test --coverage .
 
