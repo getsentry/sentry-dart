@@ -53,7 +53,7 @@ jobs:
           run: |
             cd flutter
             flutter pub get
-            flutter test --coverage .
+            flutter test --coverage test
 
         # - run: flutter analyze
         # - name: Test with coverage
