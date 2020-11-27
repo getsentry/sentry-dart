@@ -57,7 +57,7 @@ jobs:
           if: runner.os == 'Linux'
           with:
             name: sentry_flutter
-            file: ./coverage/lcov.info
+            file: /coverage/lcov.info
 
         - name: Build ${{ matrix.target }}
           env:
