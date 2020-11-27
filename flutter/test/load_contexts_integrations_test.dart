@@ -106,8 +106,8 @@ void main() {
       final eventSdk = SdkVersion(
         name: 'sdk1',
         version: '1.0',
-        integrations: ['EventIntegration'],
-        packages: [const SentryPackage('event-package', '2.0')],
+        integrations: const ['EventIntegration'],
+        packages: const [SentryPackage('event-package', '2.0')],
       );
       final e = SentryEvent(sdk: eventSdk);
       final event = await options.eventProcessors.first(e, null);

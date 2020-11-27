@@ -7,7 +7,7 @@ import 'package:test/test.dart';
 // import 'sentry_flutter_util_test.dart';
 
 Future<void> main() async {
-  // TODO: validate if flag isWeb will work as intended
+  // TODO(todo): validate if flag isWeb will work as intended
 
   // final options = SentryOptions();
   // await SentryFlutter.init(configurationTester(options, isWeb: true), callback);
