@@ -8,11 +8,11 @@ import 'throwable_mechanism.dart';
 
 /// integration that capture errors on the runZonedGuarded error handler
 Integration runZonedGuardedIntegration(
-  AppRunner callback,
+  AppRunner appRunner,
 ) {
   void integration(Hub hub, SentryOptions options) {
     runZonedGuarded(() {
-      callback();
+      appRunner();
     }, (exception, stackTrace) async {
       // runZonedGuarded doesn't crash the App.
       const mechanism = Mechanism(type: 'runZonedGuarded', handled: true);

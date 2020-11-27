@@ -38,7 +38,7 @@ class Sentry {
     }
 
     final options = SentryOptions();
-    await _initDefaultValues(options, callback);
+    await _initDefaultValues(options, appRunner);
 
     await optionsConfiguration(options);
 
@@ -51,7 +51,7 @@ class Sentry {
 
   static Future<void> _initDefaultValues(
     SentryOptions options,
-    Function callback,
+    AppRunner appRunner,
   ) async {
     // if no environment is set, we set 'production' by default, but if we know it's
     // a non-release build, or the SENTRY_ENVIRONMENT is set, we read from it.
@@ -76,8 +76,8 @@ class Sentry {
 
     // finally the runZonedGuarded, catch any errors in Dart code running
     // ‘outside’ the Flutter framework
-    if (callback != null) {
-      options.addIntegration(runZonedGuardedIntegration(callback));
+    if (appRunner != null) {
+      options.addIntegration(runZonedGuardedIntegration(appRunner));
     }
   }
 
