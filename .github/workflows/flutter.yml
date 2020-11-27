@@ -136,6 +136,6 @@ jobs:
       - uses: actions/checkout@v2
       - run: brew install ktlint
         run: ktlint --reporter=checkstyle,output=build/ktlint-report.xml || true
-      - uses: yutailang0119/action-ktlint@v1.0.0
+      - uses: yutailang0119/action-ktlint@v1
         with:
           xml_path: build/ktlint-report.xml
