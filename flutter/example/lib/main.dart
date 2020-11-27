@@ -48,7 +48,8 @@ class _MyAppState extends State<MyApp> {
               ),
               RaisedButton(
                 child: const Text('Flutter error : Scaffold.of()'),
-                onPressed: () => Scaffold.of(context).showSnackBar(const SnackBar(
+                onPressed: () =>
+                    Scaffold.of(context).showSnackBar(const SnackBar(
                   content: Text(''),
                 )),
               ),
