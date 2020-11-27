@@ -54,7 +54,7 @@ jobs:
 
         - uses: codecov/codecov-action@v1.0.2
           with:
-          name: sentry_flutter
+            name: sentry_flutter
 
         - name: Build ${{ matrix.target }}
           env:
