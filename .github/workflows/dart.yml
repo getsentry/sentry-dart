@@ -35,7 +35,7 @@ jobs:
           with:
             release-channel: ${{ matrix.sdk }}
         - uses: actions/checkout@v2
-           run: pub get
+        - run: pub get
         - name: Test (VM and browser)
           # consider -p "chrome,vm" and --coverage=coverage
            run: pub run test --coverage=coverage
