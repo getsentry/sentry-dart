@@ -48,23 +48,12 @@ Future<void> main() async {
   );
 }
 
-void initApp() {
-  try {
-    aMethodThatMightFail();
-  } catch (exception, stackTrace) {
-    await Sentry.captureException(
-      exception,
-      stackTrace: stackTrace,
-    );
-  }
-}
-
-void aMethodThatMightFail() {
-  throw null;
+Future<void> initApp() async {{
+  // your app code
 }
 ```
 
-Or, if you don't want to run your app in its own error zone [runZonedGuarded] : 
+Or, if you want to run your app in your own error zone [runZonedGuarded] :  
 
 ```dart
 import 'dart:async';
@@ -81,20 +70,10 @@ Future<void> main() async {
   initApp();
 }
 
-void initApp() {
-  try {
-    aMethodThatMightFail();
-  } catch (exception, stackTrace) {
-    await Sentry.captureException(
-      exception,
-      stackTrace: stackTrace,
-    );
-  }
+Future<void> initApp() async {
+  // your app code
 }
 
-void aMethodThatMightFail() {
-  throw null;
-}
 ```
 
 #### Resources
