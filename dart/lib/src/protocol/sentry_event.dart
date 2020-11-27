@@ -190,8 +190,8 @@ class SentryEvent {
         release: release ?? this.release,
         dist: dist ?? this.dist,
         environment: environment ?? this.environment,
-        modules:
-            modules ?? (this.modules != null ? Map.from(this.modules) : null),
+        modules: (modules != null ? Map.from(modules) : null) ??
+            (this.modules != null ? Map.from(this.modules) : null),
         message: message ?? this.message,
         transaction: transaction ?? this.transaction,
         throwable: throwable ?? this.throwable,
@@ -199,13 +199,15 @@ class SentryEvent {
         stackTrace: stackTrace ?? this.stackTrace,
         level: level ?? this.level,
         culprit: culprit ?? this.culprit,
-        tags: tags ?? (this.tags != null ? Map.from(this.tags) : null),
-        extra: extra ?? (this.extra != null ? Map.from(this.extra) : null),
-        fingerprint: fingerprint ??
+        tags: (tags != null ? Map.from(tags) : null) ??
+            (this.tags != null ? Map.from(this.tags) : null),
+        extra: (extra != null ? Map.from(extra) : null) ??
+            (this.extra != null ? Map.from(this.extra) : null),
+        fingerprint: (fingerprint != null ? List.from(fingerprint) : null) ??
             (this.fingerprint != null ? List.from(this.fingerprint) : null),
         user: user ?? this.user,
         contexts: contexts ?? this.contexts,
-        breadcrumbs: breadcrumbs ??
+        breadcrumbs: (breadcrumbs != null ? List.from(breadcrumbs) : null) ??
             (this.breadcrumbs != null ? List.from(this.breadcrumbs) : null),
         sdk: sdk ?? this.sdk,
         request: request ?? this.request,
