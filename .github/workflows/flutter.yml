@@ -76,12 +76,21 @@ jobs:
             ;;
             esac
 
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: subosito/flutter-action@v1
+        run: |
+          cd flutter
+          flutter pub get
+          flutter format --set-exit-if-changed .
+
   analyze:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: subosito/flutter-action@v1
-      - name: Analyze
         run: |
           cd flutter
           flutter pub get
@@ -126,7 +135,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: brew install ktlint
-      - name: run ktlint
         run: ktlint --reporter=checkstyle,output=build/ktlint-report.xml || true
       - uses: yutailang0119/action-ktlint@v1.0.0
         with:
