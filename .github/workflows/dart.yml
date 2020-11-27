@@ -71,6 +71,7 @@ jobs:
         id: analysis
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
+          relativePath: dart/
       - name: Check scores
         env:
           TOTAL: ${{ steps.analysis.outputs.total }}
