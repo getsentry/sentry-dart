@@ -53,7 +53,8 @@ jobs:
             flutter test --coverage test
 
         - uses: codecov/codecov-action@v1
-          if: {{ runner.os == 'Linux' && matrix.target == 'android' && matrix.channel == 'stable' }}
+          #if: {{ runner.os == 'Linux' && matrix.target == 'android' && matrix.channel == 'stable' }}
+          if: runner.os == 'Linux'
           with:
             name: sentry_flutter
 
