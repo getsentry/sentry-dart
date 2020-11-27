@@ -52,7 +52,6 @@ class SentryClient {
     dynamic stackTrace,
     dynamic hint,
   }) async {
-    event = event.copyWith(); // clone with mutable list and map fields
     event =
         await _processEvent(event, eventProcessors: _options.eventProcessors);
 

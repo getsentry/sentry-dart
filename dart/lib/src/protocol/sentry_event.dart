@@ -11,6 +11,11 @@ class SentryEvent {
   SentryEvent({
     SentryId eventId,
     DateTime timestamp,
+    Map<String, String> modules,
+    Map<String, String> tags,
+    Map<String, dynamic> extra,
+    List<String> fingerprint,
+    List<Breadcrumb> breadcrumbs,
     this.sdk,
     this.platform,
     this.logger,
@@ -18,7 +23,6 @@ class SentryEvent {
     this.release,
     this.dist,
     this.environment,
-    this.modules,
     this.message,
     this.transaction,
     this.throwable,
@@ -26,17 +30,18 @@ class SentryEvent {
     this.exception,
     this.level,
     this.culprit,
-    this.tags,
-    this.extra,
-    this.fingerprint,
     this.user,
     Contexts contexts,
-    this.breadcrumbs,
     this.request,
     this.debugMeta,
   })  : eventId = eventId ?? SentryId.newId(),
         timestamp = timestamp ?? getUtcDateTime(),
-        contexts = contexts ?? Contexts();
+        contexts = contexts ?? Contexts(),
+        modules = modules != null ? Map.from(modules) : null,
+        tags = tags != null ? Map.from(tags) : null,
+        extra = extra != null ? Map.from(extra) : null,
+        fingerprint = fingerprint != null ? List.from(fingerprint) : null,
+        breadcrumbs = breadcrumbs != null ? List.from(breadcrumbs) : null;
 
   /// Refers to the default fingerprinting algorithm.
   ///
@@ -190,8 +195,7 @@ class SentryEvent {
         release: release ?? this.release,
         dist: dist ?? this.dist,
         environment: environment ?? this.environment,
-        modules: (modules != null ? Map.from(modules) : null) ??
-            (this.modules != null ? Map.from(this.modules) : null),
+        modules: (modules != null ? Map.from(modules) : null) ?? this.modules,
         message: message ?? this.message,
         transaction: transaction ?? this.transaction,
         throwable: throwable ?? this.throwable,
@@ -199,16 +203,14 @@ class SentryEvent {
         stackTrace: stackTrace ?? this.stackTrace,
         level: level ?? this.level,
         culprit: culprit ?? this.culprit,
-        tags: (tags != null ? Map.from(tags) : null) ??
-            (this.tags != null ? Map.from(this.tags) : null),
-        extra: (extra != null ? Map.from(extra) : null) ??
-            (this.extra != null ? Map.from(this.extra) : null),
+        tags: (tags != null ? Map.from(tags) : null) ?? this.tags,
+        extra: (extra != null ? Map.from(extra) : null) ?? this.extra,
         fingerprint: (fingerprint != null ? List.from(fingerprint) : null) ??
-            (this.fingerprint != null ? List.from(this.fingerprint) : null),
+            this.fingerprint,
         user: user ?? this.user,
         contexts: contexts ?? this.contexts,
         breadcrumbs: (breadcrumbs != null ? List.from(breadcrumbs) : null) ??
-            (this.breadcrumbs != null ? List.from(this.breadcrumbs) : null),
+            this.breadcrumbs,
         sdk: sdk ?? this.sdk,
         request: request ?? this.request,
         debugMeta: debugMeta ?? this.debugMeta,
