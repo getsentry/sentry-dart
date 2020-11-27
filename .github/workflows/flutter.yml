@@ -41,11 +41,24 @@ jobs:
         - name: Fix iOS build bug
           if: matrix.target == 'ios'
           run: rm flutter/example/ios/Podfile
-        - name: Test
-          run: |
-            cd flutter
-            flutter pub get
-            flutter test
+        # - name: Test
+        #   run: |
+        #     cd flutter
+        #     flutter pub get
+        #     flutter test
+        
+        - name: Tests
+        - uses: stelynx/dart-full-coverage@v1.0.3
+          with:
+            package: sentry_flutter
+        # - run: flutter analyze
+        - run: flutter test --coverage .
+
+        - name: Upload coverage to Codecov
+        - uses: codecov/codecov-action@v1
+          with:
+            name: sentry_flutter
+
         - name: Build ${{ matrix.target }}
           env:
             SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
