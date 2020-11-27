@@ -37,10 +37,10 @@ jobs:
           with:
             channel: ${{ matrix.channel }}
 
-        - uses: stelynx/dart-full-coverage@v1.0.3
-          with:
-            package: sentry_flutter
-            main_dir: flutter/
+        # - uses: stelynx/dart-full-coverage@v1.0.3
+        #   with:
+        #     package: sentry_flutter
+        #     main_dir: flutter/
 
         - name: enable web
           if: matrix.target == 'web'
