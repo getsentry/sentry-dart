@@ -23,8 +23,14 @@
 /// ```
 class User {
   /// At a minimum you must set an [id] or an [ipAddress].
-  const User({this.id, this.username, this.email, this.ipAddress, this.extras})
-      : assert(id != null || ipAddress != null);
+  User(
+      {this.id,
+      this.username,
+      this.email,
+      this.ipAddress,
+      Map<String, dynamic> extras})
+      : assert(id != null || ipAddress != null),
+        extras = extras != null ? Map.from(extras) : null;
 
   /// A unique identifier of the user.
   final String id;

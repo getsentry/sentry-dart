@@ -312,22 +312,23 @@ void main() {
     Scope scope;
 
     final level = SentryLevel.error;
-    final transaction = '/test/scope';
-    final fingerprint = ['foo', 'bar', 'baz'];
+    const transaction = '/test/scope';
+    const fingerprint = ['foo', 'bar', 'baz'];
     final user = User(id: '123', username: 'test');
     final crumb = Breadcrumb(message: 'bread');
-    final scopeTagKey = 'scope-tag';
-    final scopeTagValue = 'scope-tag-value';
-    final eventTagKey = 'event-tag';
-    final eventTagValue = 'event-tag-value';
-    final scopeExtraKey = 'scope-extra';
-    final scopeExtraValue = 'scope-extra-value';
-    final eventExtraKey = 'event-extra';
-    final eventExtraValue = 'event-extra-value';
+    const scopeTagKey = 'scope-tag';
+    const scopeTagValue = 'scope-tag-value';
+    const eventTagKey = 'event-tag';
+    const eventTagValue = 'event-tag-value';
+    const scopeExtraKey = 'scope-extra';
+    const scopeExtraValue = 'scope-extra-value';
+    const eventExtraKey = 'event-extra';
+    const eventExtraValue = 'event-extra-value';
 
     final event = SentryEvent(
-      tags: {eventTagKey: eventTagValue},
-      extra: {eventExtraKey: eventExtraValue},
+      tags: const {eventTagKey: eventTagValue},
+      extra: const {eventExtraKey: eventExtraValue},
+      modules: const {eventExtraKey: eventExtraValue},
       level: SentryLevel.warning,
     );
 
@@ -375,8 +376,8 @@ void main() {
 
     final transaction = '/test/scope';
     final eventTransaction = '/event/transaction';
-    final fingerprint = ['foo', 'bar', 'baz'];
-    final eventFingerprint = ['123', '456', '798'];
+    const fingerprint = ['foo', 'bar', 'baz'];
+    const eventFingerprint = ['123', '456', '798'];
     final user = User(id: '123');
     final eventUser = User(id: '987');
     final crumb = Breadcrumb(message: 'bread');
@@ -470,16 +471,82 @@ void main() {
       final client = SentryClient(options);
       await client.captureEvent(fakeEvent);
 
-      verify(options.transport.send(any)).called(1);
+      final event = verify(options.transport.send(captureAny)).captured.first
+          as SentryEvent;
+
+      expect(event.tags.containsKey('theme'), true);
+      expect(event.extra.containsKey('host'), true);
+      expect(event.modules.containsKey('core'), true);
+      expect(event.sdk.integrations.contains('testIntegration'), true);
+      expect(
+        event.sdk.packages.any((element) => element.name == 'test-pkg'),
+        true,
+      );
+      expect(
+        event.breadcrumbs
+            .any((element) => element.message == 'processor crumb'),
+        true,
+      );
+      expect(event.fingerprint.contains('process'), true);
     });
   });
 
   test("options can't be null", () {
     expect(() => SentryClient(null), throwsArgumentError);
   });
+
+  group('EventProcessors', () {
+    SentryOptions options;
+
+    setUp(() {
+      options = SentryOptions(dsn: fakeDsn);
+      options.addEventProcessor(
+        (event, hint) => event
+          ..tags.addAll({'theme': 'material'})
+          ..extra['host'] = '0.0.0.1'
+          ..modules.addAll({'core': '1.0'})
+          ..breadcrumbs.add(Breadcrumb(message: 'processor crumb'))
+          ..fingerprint.add('process')
+          ..sdk.addIntegration('testIntegration')
+          ..sdk.addPackage('test-pkg', '1.0'),
+      );
+      options.transport = MockTransport();
+    });
+
+    test('should execute eventProcessors', () async {
+      final client = SentryClient(options);
+      await client.captureEvent(fakeEvent);
+
+      final event = verify(options.transport.send(captureAny)).captured.first
+          as SentryEvent;
+      expect(event.tags.containsKey('theme'), true);
+      expect(event.extra.containsKey('host'), true);
+      expect(event.modules.containsKey('core'), true);
+      expect(event.sdk.integrations.contains('testIntegration'), true);
+      expect(
+        event.sdk.packages.any((element) => element.name == 'test-pkg'),
+        true,
+      );
+      expect(
+        event.breadcrumbs
+            .any((element) => element.message == 'processor crumb'),
+        true,
+      );
+      expect(event.fingerprint.contains('process'), true);
+    });
+  });
 }
 
 SentryEvent beforeSendCallbackDropEvent(SentryEvent event, dynamic hint) =>
     null;
 
-SentryEvent beforeSendCallback(SentryEvent event, dynamic hint) => event;
+SentryEvent beforeSendCallback(SentryEvent event, dynamic hint) {
+  return event
+    ..tags.addAll({'theme': 'material'})
+    ..extra['host'] = '0.0.0.1'
+    ..modules.addAll({'core': '1.0'})
+    ..breadcrumbs.add(Breadcrumb(message: 'processor crumb'))
+    ..fingerprint.add('process')
+    ..sdk.addIntegration('testIntegration')
+    ..sdk.addPackage('test-pkg', '1.0');
+}

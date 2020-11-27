@@ -13,6 +13,7 @@
 - add loadContextsIntegration tests
 - Ref: add missing docs and move sentry web plugin to the inner src folder
 - Ref: Remove deprecated classes (Flutter Plugin for Android) and cleaning up #186
+- Fix: Handle immutable event lists and maps 
 - Fix: NDK integration was being disabled by a typo
 - Fix: missing toList for debug meta #192
 

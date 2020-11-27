@@ -6,8 +6,8 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/protocol/request.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:sentry/src/utils.dart';
-import 'package:test/test.dart';
 import 'package:sentry/src/version.dart';
+import 'package:test/test.dart';
 
 void main() {
   group(SentryEvent, () {
@@ -57,22 +57,27 @@ void main() {
     });
     test('serializes to JSON', () {
       final timestamp = DateTime.utc(2019);
-      const user = User(
+      final user = User(
           id: 'user_id',
           username: 'username',
           email: 'email@email.com',
           ipAddress: '127.0.0.1',
-          extras: <String, String>{'foo': 'bar'});
+          extras: const <String, String>{'foo': 'bar'});
 
       final breadcrumbs = [
         Breadcrumb(
-            message: 'test log',
-            timestamp: timestamp,
-            level: SentryLevel.debug,
-            category: 'test'),
+          message: 'test log',
+          timestamp: timestamp,
+          level: SentryLevel.debug,
+          category: 'test',
+        ),
       ];
 
-      final request = Request(url: 'https://api.com/users', method: 'GET');
+      final request = Request(
+        url: 'https://api.com/users',
+        method: 'GET',
+        headers: const {'authorization': '123456'},
+      );
 
       expect(
         SentryEvent(
@@ -106,7 +111,7 @@ void main() {
               versionMinor: 1,
               versionPatchlevel: 2,
             ),
-            images: [
+            images: const <DebugImage>[
               DebugImage(
                 type: 'macho',
                 debugId: '84a04d24-0e60-3810-a8c0-90a65e2df61a',
@@ -156,6 +161,7 @@ void main() {
           'request': {
             'url': request.url,
             'method': request.method,
+            'headers': {'authorization': '123456'}
           },
           'debug_meta': {
             'sdk_info': {

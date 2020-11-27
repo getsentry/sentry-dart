@@ -35,7 +35,7 @@ class DebugImage {
   /// Optional. Identifier of the dynamic library or executable. It is the value of the LC_UUID load command in the Mach header, formatted as UUID. Can be empty for Mach images, as it is equivalent to the debug identifier.
   final String codeId;
 
-  DebugImage({
+  const DebugImage({
     this.type,
     this.imageAddr,
     this.debugId,

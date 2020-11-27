@@ -7,10 +7,14 @@ class DebugMeta {
 
   final List<DebugImage> _images;
 
-  /// An immutable list of dynamic libraries loaded into the process (see below).
+  /// The immutable list of debug images contains all dynamic libraries loaded
+  /// into the process and their memory addresses.
+  /// Instruction addresses in the Stack Trace are mapped into the list of debug
+  /// images in order to retrieve debug files for symbolication.
   List<DebugImage> get images => List.unmodifiable(_images);
 
-  DebugMeta({this.sdk, List<DebugImage> images}) : _images = images;
+  DebugMeta({this.sdk, List<DebugImage> images})
+      : _images = images != null ? List.from(images) : null;
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};

@@ -28,7 +28,7 @@ class Scope {
       _fingerprint != null ? List.unmodifiable(_fingerprint) : null;
 
   set fingerprint(List<String> fingerprint) {
-    _fingerprint = fingerprint;
+    _fingerprint = (fingerprint != null ? List.from(fingerprint) : fingerprint);
   }
 
   /// List of breadcrumbs for this scope.
@@ -168,8 +168,10 @@ class Scope {
     event = event.copyWith(
       transaction: event.transaction ?? transaction,
       user: event.user ?? user,
-      fingerprint: event.fingerprint ?? fingerprint,
-      breadcrumbs: event.breadcrumbs ?? breadcrumbs,
+      fingerprint: event.fingerprint ??
+          (_fingerprint != null ? List.from(_fingerprint) : null),
+      breadcrumbs: event.breadcrumbs ??
+          (_breadcrumbs != null ? List.from(_breadcrumbs) : null),
       tags: tags.isNotEmpty ? _mergeEventTags(event) : event.tags,
       extra: extra.isNotEmpty ? _mergeEventExtra(event) : event.extra,
       level: level ?? event.level,
