@@ -15,7 +15,7 @@ import 'utils.dart';
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
 
 // run main app callback
-typedef AppRunner = void Function();
+typedef AppRunner = FutureOr<void> Function();
 
 /// Sentry SDK main entry point
 class Sentry {

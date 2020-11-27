@@ -82,7 +82,10 @@ void captureException() async {
   } catch (error, stackTrace) {
     print('\nReporting the following stack trace: ');
     print(stackTrace);
-    final sentryId = await Sentry.captureException(error);
+    final sentryId = await Sentry.captureException(
+      error,
+      stackTrace: stackTrace,
+    );
 
     print('Capture exception : SentryId: ${sentryId}');
 

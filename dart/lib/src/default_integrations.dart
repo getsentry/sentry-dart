@@ -11,8 +11,8 @@ Integration runZonedGuardedIntegration(
   AppRunner appRunner,
 ) {
   void integration(Hub hub, SentryOptions options) {
-    runZonedGuarded(() {
-      appRunner();
+    runZonedGuarded(() async {
+      await appRunner();
     }, (exception, stackTrace) async {
       // runZonedGuarded doesn't crash the App.
       const mechanism = Mechanism(type: 'runZonedGuarded', handled: true);
