@@ -80,11 +80,6 @@ class _MyAppState extends State<MyApp> {
                 onPressed: () async =>
                     {await compute(loop, 10).catchError(handleError)},
               ),
-              RaisedButton(
-                child: const Text('Dart: Fail in compute'),
-                onPressed: () async =>
-                    {await compute(loop, 10).catchError(handleError)},
-              ),
               if (UniversalPlatform.isIOS) const CocoaExample(),
               if (UniversalPlatform.isAndroid) const AndroidExample(),
               if (UniversalPlatform.isWeb) const WebExample(),
