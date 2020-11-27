@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 import 'dart:async';
-import 'dart:io';
 
 import 'package:sentry/sentry.dart';
 
@@ -88,8 +87,6 @@ void runApp() async {
   } finally {
     await Sentry.close();
   }
-
-  exit(0);
 }
 
 Future<void> loadConfig() async {
