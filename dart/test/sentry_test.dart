@@ -69,12 +69,10 @@ void main() {
       expect(Sentry.isEnabled, false);
     });
 
-    test('null appRunner', () {
-      expect(
-        () async => await Sentry.init((options) => options.dsn = fakeDsn, null),
-        throwsArgumentError,
-      );
+    test('appRunner should be optional', () async {
       expect(Sentry.isEnabled, false);
+      await Sentry.init((options) => options.dsn = fakeDsn, null);
+      expect(Sentry.isEnabled, true);
     });
 
     test('empty DSN', () async {
