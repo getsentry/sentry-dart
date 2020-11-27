@@ -45,28 +45,17 @@ jobs:
         - name: enable web
           if: matrix.target == 'web'
           run: flutter config --enable-web
+
         # https://github.com/flutter/flutter/issues/59522#issuecomment-646208247
         - name: Fix iOS build bug
           if: matrix.target == 'ios'
           run: rm flutter/example/ios/Podfile
+
         - name: Test
           run: |
             cd flutter
             flutter pub get
             flutter test --coverage test
-
-        # - run: flutter analyze
-        # - name: Test with coverage
-        #   if: runner.os == 'Linux'
-        #   run: flutter test --coverage .
-
-        # - name: Upload coverage to Codecov
-        #   if: runner.os == 'Linux'
-        #   if: matrix.target == 'android'
-        #   if: matrix.channel == 'stable'
-        # - uses: codecov/codecov-action@v1
-        #   with:
-        #     name: sentry_flutter
 
         - name: Build ${{ matrix.target }}
           env:
@@ -85,6 +74,26 @@ jobs:
             flutter build web
             ;;
             esac
+
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: subosito/flutter-action@v1
+      - name: Analyze
+        run: |
+          cd flutter
+          flutter pub get
+          flutter analyze
+
+        # - name: Upload coverage to Codecov
+        #   if: runner.os == 'Linux'
+        #   if: matrix.target == 'android'
+        #   if: matrix.channel == 'stable'
+        # - uses: codecov/codecov-action@v1
+        #   with:
+        #     name: sentry_flutter
+
   package-analysis:
     runs-on: ubuntu-latest
     steps:
@@ -105,17 +114,20 @@ jobs:
             echo Score too low!
             exit 1
           fi
+
   pod-lint:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
       # https://github.com/CocoaPods/CocoaPods/issues/5275#issuecomment-315461879
       - run: pod lib lint flutter/ios/sentry_flutter.podspec --skip-import-validation --allow-warnings
+
   swift-lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: norio-nomura/action-swiftlint@3.2.1
+
   ktlint:
     runs-on: ubuntu-latest
     steps:
