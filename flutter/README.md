@@ -53,7 +53,7 @@ void aMethodThatMightFail() {
 }
 ```
 
-Or, if you don't want to run your app in its own error zone [runZonedGuarded] :
+Or, if you want to run your app in your own error zone [runZonedGuarded] :
 
 ```dart
 import 'package:flutter/widgets.dart';
