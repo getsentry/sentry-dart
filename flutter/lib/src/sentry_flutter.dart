@@ -62,7 +62,7 @@ mixin SentryFlutter {
         ? const String.fromEnvironment('SENTRY_DSN')
         : options.dsn;
 
-    // TODO: load debug images when split symbols are enabled.
+    // TODO(todo): load debug images when split symbols are enabled.
 
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
