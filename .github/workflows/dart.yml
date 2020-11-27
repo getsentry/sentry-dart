@@ -38,9 +38,9 @@ jobs:
         - run: pub get
         - name: Test (VM and browser)
           # consider -p "chrome,vm" and --coverage=coverage
-        - run: pub run test --coverage=coverage
+          run: pub run test --coverage=coverage
         - name: format coverage
-        - run: pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.packages --report-on=lib
+          run: pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.packages --report-on=lib
 
         - uses: codecov/codecov-action@v1
           if: runner.os == 'Linux'
