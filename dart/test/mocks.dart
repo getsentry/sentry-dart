@@ -27,7 +27,9 @@ final fakeEvent = SentryEvent(
   tags: const <String, String>{'project-id': '7371'},
   extra: const <String, String>{'company-name': 'Dart Inc'},
   fingerprint: const <String>['example-dart'],
-  user: const User(
+  modules: const {'module1': 'factory'},
+  sdk: SdkVersion(name: 'sdk1', version: '1.0.0'),
+  user: User(
       id: '800',
       username: 'first-user',
       email: 'first@user.lan',

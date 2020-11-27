@@ -143,8 +143,8 @@ mixin SentryFlutter {
     final sdk = SdkVersion(
       name: sdkName,
       version: sdkVersion,
-      integrations: List.from(options.sdk.integrations),
-      packages: List.from(options.sdk.packages),
+      integrations: options.sdk.integrations,
+      packages: options.sdk.packages,
     );
     sdk.addPackage('pub:sentry_flutter', sdkVersion);
     options.sdk = sdk;
