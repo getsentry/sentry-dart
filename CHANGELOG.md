@@ -9,7 +9,7 @@
 
 ### Breaking changes
 
-- `Sentry.init` has an optional callback argument which runs the host app after Sentry initialization.
+- `Sentry.init` and `SentryFlutter.init` have an optional callback argument which runs the host app after Sentry initialization.
 - add loadContextsIntegration tests
 - Ref: add missing docs and move sentry web plugin to the inner src folder
 - Ref: Remove deprecated classes (Flutter Plugin for Android) and cleaning up #186

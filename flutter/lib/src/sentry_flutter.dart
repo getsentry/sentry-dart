@@ -16,8 +16,8 @@ mixin SentryFlutter {
   static const _channel = MethodChannel('sentry_flutter');
 
   static Future<void> init(
-    OptionsConfiguration optionsConfiguration,
-    AppRunner callback, {
+    OptionsConfiguration optionsConfiguration, {
+    AppRunner appRunner,
     PackageLoader packageLoader = _loadPackageInfo,
     iOSPlatformChecker isIOSChecker = isIOS,
   }) async {
@@ -31,7 +31,7 @@ mixin SentryFlutter {
 
         await optionsConfiguration(options);
       },
-      callback,
+      appRunner,
     );
   }
 
