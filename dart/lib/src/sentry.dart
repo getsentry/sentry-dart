@@ -32,13 +32,14 @@ class Sentry {
   static Future<void> init(
     OptionsConfiguration optionsConfiguration, [
     AppRunner appRunner,
+    List<Integration> initialIntegrations,
   ]) async {
     if (optionsConfiguration == null) {
       throw ArgumentError('OptionsConfiguration is required.');
     }
 
     final options = SentryOptions();
-    await _initDefaultValues(options, appRunner);
+    await _initDefaultValues(options, appRunner, initialIntegrations);
 
     await optionsConfiguration(options);
 
@@ -52,6 +53,7 @@ class Sentry {
   static Future<void> _initDefaultValues(
     SentryOptions options,
     AppRunner appRunner,
+    List<Integration> initialIntegrations,
   ) async {
     // if no environment is set, we set 'production' by default, but if we know it's
     // a non-release build, or the SENTRY_ENVIRONMENT is set, we read from it.
@@ -66,6 +68,11 @@ class Sentry {
     options.dsn = const bool.hasEnvironment('SENTRY_DSN')
         ? const String.fromEnvironment('SENTRY_DSN')
         : options.dsn;
+
+    if (initialIntegrations != null && initialIntegrations.isNotEmpty) {
+      initialIntegrations
+          .forEach((integration) => options.addIntegration(integration));
+    }
 
     // Throws when running on the browser
     if (!isWeb) {

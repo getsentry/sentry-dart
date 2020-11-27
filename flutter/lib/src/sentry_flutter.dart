@@ -32,6 +32,9 @@ mixin SentryFlutter {
         await optionsConfiguration(options);
       },
       appRunner,
+      // first integration to add
+      // will catch any errors that may occur in the Flutter framework itself.
+      [flutterErrorIntegration],
     );
   }
 
@@ -107,9 +110,6 @@ mixin SentryFlutter {
     if (!kIsWeb) {
       options.addIntegration(nativeSdkIntegration(options, _channel));
     }
-
-    // will catch any errors that may occur in the Flutter framework itself.
-    options.addIntegration(flutterErrorIntegration);
 
     // will enrich the events with the device context and native packages and integrations
     if (isIOS()) {

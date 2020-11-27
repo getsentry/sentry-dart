@@ -113,6 +113,17 @@ void main() {
       expect(called, true);
     });
 
+    test('should add initial integrations first', () async {
+      await Sentry.init(
+        (options) {
+          options.dsn = fakeDsn;
+          expect(options.integrations.first, initialIntegration);
+        },
+        callback,
+        [initialIntegration],
+      );
+    });
+
     test('should add default integrations', () async {
       await Sentry.init(
         (options) {
@@ -147,3 +158,5 @@ void main() {
     },
   );
 }
+
+void initialIntegration(Hub hub, SentryOptions options) {}
