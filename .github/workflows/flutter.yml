@@ -60,13 +60,13 @@ jobs:
         #   if: runner.os == 'Linux'
         #   run: flutter test --coverage .
 
-        - name: Upload coverage to Codecov
-          if: runner.os == 'Linux'
-          if: matrix.target == 'android'
-          if: matrix.channel == 'stable'
-        - uses: codecov/codecov-action@v1
-          with:
-            name: sentry_flutter
+        # - name: Upload coverage to Codecov
+        #   if: runner.os == 'Linux'
+        #   if: matrix.target == 'android'
+        #   if: matrix.channel == 'stable'
+        # - uses: codecov/codecov-action@v1
+        #   with:
+        #     name: sentry_flutter
 
         - name: Build ${{ matrix.target }}
           env:
