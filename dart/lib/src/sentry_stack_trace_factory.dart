@@ -26,23 +26,6 @@ class SentryStackTraceFactory {
             ? Chain.parse(stackTrace)
             : Chain.parse('');
 
-    // TODO: if strip symbols are enabled, thats what we see:
-    // warning:  This VM has been configured to produce stack traces that violate the Dart standard.
-    // ***       *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
-    // unparsed  pid: 30930, tid: 30990, name 1.ui
-    // unparsed  build_id: '5346e01103ffeed44e97094ff7bfcc19'
-    // unparsed  isolate_dso_base: 723d447000, vm_dso_base: 723d447000
-    // unparsed  isolate_instructions: 723d452000, vm_instructions: 723d449000
-    // unparsed      #00 abs 000000723d6346d7 virt 00000000001ed6d7 _kDartIsolateSnapshotInstructions+0x1e26d7
-    // unparsed      #01 abs 000000723d637527 virt 00000000001f0527 _kDartIsolateSnapshotInstructions+0x1e5527
-    // unparsed      #02 abs 000000723d4a41a7 virt 000000000005d1a7 _kDartIsolateSnapshotInstructions+0x521a7
-    // unparsed      #03 abs 000000723d624663 virt 00000000001dd663 _kDartIsolateSnapshotInstructions+0x1d2663
-    // unparsed      #04 abs 000000723d4b8c3b virt 0000000000071c3b _kDartIsolateSnapshotInstructions+0x66c3b
-    // unparsed      #05 abs 000000723d5ffe27 virt 00000000001b8e27 _kDartIsolateSna...
-
-    // abs => instruction_addr
-    // build_id => debug_images
-
     final frames = <SentryStackFrame>[];
     var nativeStackTraces = false;
 
@@ -54,6 +37,7 @@ class SentryStackTraceFactory {
         }
 
         final member = frame.member;
+        print(member);
         if (member != null &&
             member.contains(
               'This VM has been configured to produce stack traces that violate the Dart standard.',
@@ -120,17 +104,29 @@ class SentryStackTraceFactory {
         sentryStackFrame = sentryStackFrame.copyWith(colNo: frame.column);
       }
     } else {
+      // if --split-debug-info is enabled, thats what we see:
+      // warning:  This VM has been configured to produce stack traces that violate the Dart standard.
+      // ***       *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+      // unparsed  pid: 30930, tid: 30990, name 1.ui
+      // unparsed  build_id: '5346e01103ffeed44e97094ff7bfcc19'
+      // unparsed  isolate_dso_base: 723d447000, vm_dso_base: 723d447000
+      // unparsed  isolate_instructions: 723d452000, vm_instructions: 723d449000
+      // unparsed      #00 abs 000000723d6346d7 virt 00000000001ed6d7 _kDartIsolateSnapshotInstructions+0x1e26d7
+      // unparsed      #01 abs 000000723d637527 virt 00000000001f0527 _kDartIsolateSnapshotInstructions+0x1e5527
+      // unparsed      #02 abs 000000723d4a41a7 virt 000000000005d1a7 _kDartIsolateSnapshotInstructions+0x521a7
+      // unparsed      #03 abs 000000723d624663 virt 00000000001dd663 _kDartIsolateSnapshotInstructions+0x1d2663
+      // unparsed      #04 abs 000000723d4b8c3b virt 0000000000071c3b _kDartIsolateSnapshotInstructions+0x66c3b
+
       // TODO: use proper Regex
       if (member.contains('abs')) {
         final indexAbs = member.indexOf('abs');
         final indexVirt = member.indexOf('virt');
         final instructionAddr =
             '0x${member.substring(indexAbs + 4, indexVirt - 1)}';
-        print('instructionAddr: ${instructionAddr}');
 
         sentryStackFrame = SentryStackFrame(
           instructionAddr: instructionAddr,
-          platform: 'native',
+          platform: 'native', // to trigger symbolication
         );
       }
     }

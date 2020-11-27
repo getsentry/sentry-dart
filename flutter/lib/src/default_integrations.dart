@@ -39,7 +39,11 @@ Future<void> handleIsolateError(
     final dynamic stackTrace = error.last;
 
     //  Isolate errors don't crash the App.
-    const mechanism = Mechanism(type: 'isolateError', handled: true);
+    const mechanism = Mechanism(
+      type: 'isolateError',
+      handled: true,
+      synthetic: true,
+    );
     final throwableMechanism = ThrowableMechanism(mechanism, throwable);
     final event = SentryEvent(
       throwable: throwableMechanism,
@@ -59,7 +63,11 @@ void flutterErrorIntegration(Hub hub, SentryOptions options) {
         SentryLevel.debug, 'Capture from onError ${errorDetails.exception}');
 
     // FlutterError doesn't crash the App.
-    const mechanism = Mechanism(type: 'FlutterError', handled: true);
+    const mechanism = Mechanism(
+      type: 'FlutterError',
+      handled: true,
+      synthetic: true,
+    );
     final throwableMechanism =
         ThrowableMechanism(mechanism, errorDetails.exception);
 
@@ -91,7 +99,11 @@ Integration runZonedGuardedIntegration(
       callback();
     }, (exception, stackTrace) async {
       // runZonedGuarded doesn't crash the App.
-      const mechanism = Mechanism(type: 'runZonedGuarded', handled: true);
+      const mechanism = Mechanism(
+        type: 'runZonedGuarded',
+        handled: true,
+        synthetic: true,
+      );
       final throwableMechanism = ThrowableMechanism(mechanism, exception);
 
       final event = SentryEvent(

@@ -102,6 +102,11 @@ class SentryStackFrame {
   /// The original function name, if the function name is shortened or demangled. Sentry shows the raw function when clicking on the shortened one in the UI.
   final String rawFunction;
 
+  // bool _nativeStackTraces = false;
+  // bool get nativeStackTraces => _nativeStackTraces;
+  // set nativeStackTraces(bool nativeStackTraces) =>
+  //     _nativeStackTraces = nativeStackTraces ?? _nativeStackTraces;
+
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 
