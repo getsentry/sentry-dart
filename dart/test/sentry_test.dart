@@ -4,7 +4,7 @@ import 'package:test/test.dart';
 
 import 'mocks.dart';
 
-Function callback = () {};
+Function appRunner = () {};
 
 void main() {
   group('Sentry capture methods', () {
@@ -13,7 +13,7 @@ void main() {
     Exception anException;
 
     setUp(() async {
-      await Sentry.init((options) => options.dsn = fakeDsn, callback);
+      await Sentry.init((options) => options.dsn = fakeDsn, appRunner);
       anException = Exception('anException');
 
       client = MockSentryClient();
@@ -63,7 +63,7 @@ void main() {
     test('null DSN', () {
       expect(
         () async =>
-            await Sentry.init((options) => options.dsn = null, callback),
+            await Sentry.init((options) => options.dsn = null, appRunner),
         throwsArgumentError,
       );
       expect(Sentry.isEnabled, false);
@@ -76,12 +76,12 @@ void main() {
     });
 
     test('empty DSN', () async {
-      await Sentry.init((options) => options.dsn = '', callback);
+      await Sentry.init((options) => options.dsn = '', appRunner);
       expect(Sentry.isEnabled, false);
     });
 
     test('close disables the SDK', () async {
-      await Sentry.init((options) => options.dsn = fakeDsn, callback);
+      await Sentry.init((options) => options.dsn = fakeDsn, appRunner);
 
       Sentry.bindClient(MockSentryClient());
 
@@ -107,7 +107,7 @@ void main() {
           options.dsn = fakeDsn;
           options.addIntegration(integration);
         },
-        callback,
+        appRunner,
       );
 
       expect(called, true);
@@ -119,7 +119,7 @@ void main() {
           options.dsn = fakeDsn;
           expect(options.integrations.first, initialIntegration);
         },
-        callback,
+        appRunner,
         [initialIntegration],
       );
     });
@@ -134,7 +134,7 @@ void main() {
           );
           expect(options.integrations.length, 2);
         },
-        callback,
+        appRunner,
       );
     }, onPlatform: {'browser': Skip()});
 
@@ -144,7 +144,7 @@ void main() {
           options.dsn = fakeDsn;
           expect(options.integrations.length, 1);
         },
-        callback,
+        appRunner,
       );
     }, onPlatform: {'vm': Skip()});
   });
@@ -153,7 +153,7 @@ void main() {
     "options can't be null",
     () {
       expect(
-          () async => await Sentry.init((options) => options = null, callback),
+          () async => await Sentry.init((options) => options = null, appRunner),
           throwsArgumentError);
     },
   );
