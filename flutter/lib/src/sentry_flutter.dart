@@ -9,6 +9,10 @@ import 'package:sentry/sentry.dart';
 import 'default_integrations.dart';
 import 'file_system_transport.dart';
 import 'version.dart';
+// conditional import for the iOSPlatformChecker
+// in browser, the iOSPlatformChecker will always return false
+// the iOSPlatformChecker is used to run the loadContextsIntegration only on iOS.
+// this injected PlatformChecker allows to test this behavior
 import 'web_platform_checker.dart' if (dart.library.io) 'platform_checker.dart';
 
 /// Sentry Flutter SDK main entry point
