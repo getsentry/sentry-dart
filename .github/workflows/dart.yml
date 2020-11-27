@@ -48,6 +48,9 @@ jobs:
 
   analyze:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./dart
     steps:
       - uses: cedx/setup-dart@v2
         with:
@@ -59,13 +62,15 @@ jobs:
 
   package-analysis:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./dart
     steps:
       - uses: actions/checkout@v2
       - uses: axel-op/dart-package-analyzer@v3
         id: analysis
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-          relativePath: dart/
       - name: Check scores
         env:
           TOTAL: ${{ steps.analysis.outputs.total }}
