@@ -28,12 +28,20 @@ jobs:
             target: web
     steps:
         - uses: actions/checkout@v2
+
         - uses: actions/setup-java@v1
           with:
               java-version: '8'
+
         - uses: subosito/flutter-action@v1
           with:
             channel: ${{ matrix.channel }}
+
+        - uses: stelynx/dart-full-coverage@v1.0.3
+          with:
+            package: sentry_flutter
+            main_dir: flutter/
+
         - name: enable web
           if: matrix.target == 'web'
           run: flutter config --enable-web
@@ -41,21 +49,21 @@ jobs:
         - name: Fix iOS build bug
           if: matrix.target == 'ios'
           run: rm flutter/example/ios/Podfile
-        # - name: Test
-        #   run: |
-        #     cd flutter
-        #     flutter pub get
-        #     flutter test
+        - name: Test
+          run: |
+            cd flutter
+            flutter pub get
+            flutter test --coverage .
 
-        - uses: stelynx/dart-full-coverage@v1.0.3
-          with:
-            package: sentry_flutter
-            main_dir: flutter/
         # - run: flutter analyze
-        - name: Tests
-          run: flutter test --coverage .
+        # - name: Test with coverage
+        #   if: runner.os == 'Linux'
+        #   run: flutter test --coverage .
 
         - name: Upload coverage to Codecov
+          if: runner.os == 'Linux'
+          if: matrix.target == 'android'
+          if: matrix.channel == 'stable'
         - uses: codecov/codecov-action@v1
           with:
             name: sentry_flutter
