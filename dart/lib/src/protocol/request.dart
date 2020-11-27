@@ -36,7 +36,7 @@ class Request {
 
   final Map<String, String> _headers;
 
-  /// A dictionary of submitted headers.
+  /// An immutable dictionary of submitted headers.
   /// If a header appears multiple times it,
   /// needs to be merged according to the HTTP standard for header merging.
   /// Header names are treated case-insensitively by Sentry.
@@ -45,7 +45,7 @@ class Request {
 
   final Map<String, String> _env;
 
-  /// A dictionary containing environment information passed from the server.
+  /// An immutable dictionary containing environment information passed from the server.
   /// This is where information such as CGI/WSGI/Rack keys go that are not HTTP headers.
   Map<String, String> get env => _env != null ? Map.unmodifiable(_env) : null;
 

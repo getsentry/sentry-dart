@@ -12,7 +12,7 @@ class SentryStackTrace {
 
   final List<SentryStackFrame> _frames;
 
-  /// Required. A non-empty list of stack frames (see below).
+  /// Required. A non-empty immutable list of stack frames (see below).
   /// The list is ordered from caller to callee, or oldest to youngest.
   /// The last frame is the one creating the exception.
   List<SentryStackFrame> get frames => List.unmodifiable(_frames);

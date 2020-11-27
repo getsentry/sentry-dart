@@ -73,7 +73,7 @@ class Contexts extends MapView<String, dynamic> {
   set operatingSystem(OperatingSystem operatingSystem) =>
       this[OperatingSystem.type] = operatingSystem;
 
-  /// Describes a list of runtimes in more detail
+  /// Describes an immutable list of runtimes in more detail
   /// (for instance if you have a Flutter application running
   /// on top of Android).
   List<SentryRuntime> get runtimes =>

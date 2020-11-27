@@ -7,7 +7,7 @@ class DebugMeta {
 
   final List<DebugImage> _images;
 
-  /// The list of debug images contains all dynamic libraries loaded
+  /// The immutable list of debug images contains all dynamic libraries loaded
   /// into the process and their memory addresses.
   /// Instruction addresses in the Stack Trace are mapped into the list of debug
   /// images in order to retrieve debug files for symbolication.
