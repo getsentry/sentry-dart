@@ -3,7 +3,7 @@ version: 4.0.0-alpha.3
 description: >
   A crash reporting library for Dart that sends crash reports to Sentry.io.
   This library supports Dart VM and Web. For Flutter consider sentry_flutter instead.
-homepage: https://github.com/getsentry/sentry-dart
+homepage: https://docs.sentry.io/platforms/dart/
 repository: https://github.com/getsentry/sentry-dart
 
 environment:

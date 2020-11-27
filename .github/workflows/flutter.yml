@@ -44,6 +44,7 @@ jobs:
         - name: Test
           run: |
             cd flutter
+            flutter pub get
             flutter test
         - name: Build ${{ matrix.target }}
           env:
@@ -56,7 +57,7 @@ jobs:
             flutter build ios --release --no-codesign
             ;;
             android)
-            flutter build appbundle
+            flutter build appbundle --release
             ;;
             web)
             flutter build web
@@ -77,7 +78,7 @@ jobs:
           TOTAL_MAX: ${{ steps.analysis.outputs.total_max }}
         run: |
           PERCENTAGE=$(( $TOTAL * 100 / $TOTAL_MAX ))
-          if (( $PERCENTAGE < 90 ))
+          if (( $PERCENTAGE < 100 ))
           then
             echo Score too low!
             exit 1
@@ -92,7 +93,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: norio-nomura/action-swiftlint@3.1.0
+      - uses: norio-nomura/action-swiftlint@3.2.1
   ktlint:
     runs-on: ubuntu-latest
     steps:
