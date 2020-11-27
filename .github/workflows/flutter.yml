@@ -37,11 +37,6 @@ jobs:
           with:
             channel: ${{ matrix.channel }}
 
-        # - uses: stelynx/dart-full-coverage@v1.0.3
-        #   with:
-        #     package: sentry_flutter
-        #     main_dir: flutter/
-
         - name: enable web
           if: matrix.target == 'web'
           run: flutter config --enable-web
@@ -56,6 +51,10 @@ jobs:
             cd flutter
             flutter pub get
             flutter test --coverage test
+
+        - uses: codecov/codecov-action@v1.0.2
+          with:
+          name: sentry_flutter
 
         - name: Build ${{ matrix.target }}
           env:
@@ -85,14 +84,6 @@ jobs:
           cd flutter
           flutter pub get
           flutter analyze
-
-        # - name: Upload coverage to Codecov
-        #   if: runner.os == 'Linux'
-        #   if: matrix.target == 'android'
-        #   if: matrix.channel == 'stable'
-        # - uses: codecov/codecov-action@v1
-        #   with:
-        #     name: sentry_flutter
 
   package-analysis:
     runs-on: ubuntu-latest
