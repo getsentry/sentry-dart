@@ -34,10 +34,8 @@ Future<void> main() async {
     (options) {
       options.dsn = 'https://example@sentry.io/add-your-dsn-here';
     },
-    appRunner : () {
-      // Init your App.
-      runApp(MyApp());
-    },
+    // Init your App.
+    () => runApp(MyApp()),
   );
 
   try {

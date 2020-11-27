@@ -16,11 +16,11 @@ mixin SentryFlutter {
   static const _channel = MethodChannel('sentry_flutter');
 
   static Future<void> init(
-    OptionsConfiguration optionsConfiguration, {
+    OptionsConfiguration optionsConfiguration, [
     AppRunner appRunner,
     PackageLoader packageLoader = _loadPackageInfo,
     iOSPlatformChecker isIOSChecker = isIOS,
-  }) async {
+  ]) async {
     await Sentry.init(
       (options) async {
         await _initDefaultValues(
