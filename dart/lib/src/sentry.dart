@@ -14,7 +14,7 @@ import 'utils.dart';
 /// Configuration options callback
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
 
-// run main app callback
+/// Runs a callback inside of the `runZonedGuarded` method, useful for running your `runApp(MyApp())`
 typedef AppRunner = FutureOr<void> Function();
 
 /// Sentry SDK main entry point

@@ -48,7 +48,7 @@ Future<void> main() async {
   );
 }
 
-Future<void> initApp() async {{
+void initApp() {
   // your app code
 }
 ```
@@ -70,7 +70,7 @@ Future<void> main() async {
   initApp();
 }
 
-Future<void> initApp() async {
+void initApp() {
   // your app code
 }
 
