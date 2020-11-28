@@ -1,14 +1,21 @@
 import 'dart:async';
 
+import 'default_integrations.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
 import 'noop_hub.dart';
+import 'noop_isolate_error_integration.dart'
+    if (dart.library.io) 'isolate_error_integration.dart';
 import 'protocol.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
+import 'utils.dart';
 
 /// Configuration options callback
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
+
+/// Runs a callback inside of the `runZonedGuarded` method, useful for running your `runApp(MyApp())`
+typedef AppRunner = FutureOr<void> Function();
 
 /// Sentry SDK main entry point
 class Sentry {
@@ -20,11 +27,20 @@ class Sentry {
   static Hub get currentHub => _hub;
 
   /// Initializes the SDK
-  static Future<void> init(OptionsConfiguration optionsConfiguration) async {
+  /// passing a [AppRunner] callback allows to run the app within its own error zone (`runZonedGuarded`)
+  /// https://api.dart.dev/stable/2.10.4/dart-async/runZonedGuarded.html
+  static Future<void> init(
+    OptionsConfiguration optionsConfiguration, [
+    AppRunner appRunner,
+    List<Integration> initialIntegrations,
+  ]) async {
     if (optionsConfiguration == null) {
       throw ArgumentError('OptionsConfiguration is required.');
     }
+
     final options = SentryOptions();
+    await _initDefaultValues(options, appRunner, initialIntegrations);
+
     await optionsConfiguration(options);
 
     if (options == null) {
@@ -32,6 +48,47 @@ class Sentry {
     }
 
     await _init(options);
+  }
+
+  static Future<void> _initDefaultValues(
+    SentryOptions options,
+    AppRunner appRunner,
+    List<Integration> initialIntegrations,
+  ) async {
+    // if no environment is set, we set 'production' by default, but if we know it's
+    // a non-release build, or the SENTRY_ENVIRONMENT is set, we read from it.
+    if (const bool.hasEnvironment('SENTRY_ENVIRONMENT') || !isReleaseMode) {
+      options.environment = const String.fromEnvironment(
+        'SENTRY_ENVIRONMENT',
+        defaultValue: 'debug',
+      );
+    }
+
+    // if the SENTRY_DSN is set, we read from it.
+    options.dsn = const bool.hasEnvironment('SENTRY_DSN')
+        ? const String.fromEnvironment('SENTRY_DSN')
+        : options.dsn;
+
+    // we need to execute integrations in a specific order sometimes,
+    // and this initialIntegrations list makes it possible to inject and add
+    // integrations before the runZonedGuardedIntegration gets added
+    if (initialIntegrations != null && initialIntegrations.isNotEmpty) {
+      initialIntegrations
+          .forEach((integration) => options.addIntegration(integration));
+    }
+
+    // Throws when running on the browser
+    if (!isWeb) {
+      // catch any errors that may occur within the entry function, main()
+      // in the ‘root zone’ where all Dart programs start
+      options.addIntegration(isolateErrorIntegration);
+    }
+
+    // finally the runZonedGuarded, catch any errors in Dart code running
+    // ‘outside’ the Flutter framework
+    if (appRunner != null) {
+      options.addIntegration(runZonedGuardedIntegration(appRunner));
+    }
   }
 
   /// Initializes the SDK

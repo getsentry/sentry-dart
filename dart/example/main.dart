@@ -17,9 +17,12 @@ Future<void> main() async {
   SentryEvent processTagEvent(SentryEvent event, Object hint) =>
       event..tags.addAll({'page-locale': 'en-us'});
 
-  await Sentry.init((options) => options
-    ..dsn = dsn
-    ..addEventProcessor(processTagEvent));
+  await Sentry.init(
+    (options) => options
+      ..dsn = dsn
+      ..addEventProcessor(processTagEvent),
+    runApp,
+  );
 
   Sentry.addBreadcrumb(
     Breadcrumb(
@@ -48,7 +51,9 @@ Future<void> main() async {
       ..setTag('build', '579')
       ..setExtra('company-name', 'Dart Inc');
   });
+}
 
+void runApp() async {
   print('\nReporting a complete event example: ');
 
   // Sends a full Sentry event payload to show the different parts of the UI.

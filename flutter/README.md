@@ -34,10 +34,8 @@ Future<void> main() async {
     (options) {
       options.dsn = 'https://example@sentry.io/add-your-dsn-here';
     },
-    () {
-      // Init your App.
-      runApp(MyApp());
-    },
+    // Init your App.
+    () => runApp(MyApp()),
   );
 
   try {
@@ -52,6 +50,23 @@ Future<void> main() async {
 
 void aMethodThatMightFail() {
   throw null;
+}
+```
+
+Or, if you want to run your app in your own error zone [runZonedGuarded](https://api.flutter.dev/flutter/dart-async/runZonedGuarded.html):
+
+```dart
+import 'package:flutter/widgets.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+
+Future<void> main() async {
+  await SentryFlutter.init(
+    (options) {
+      options.dsn = 'https://example@sentry.io/add-your-dsn-here';
+    },
+  );
+
+  runApp(MyApp());
 }
 ```
 

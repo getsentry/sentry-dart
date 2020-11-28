@@ -4,8 +4,12 @@
 
 - Fix: StackTrace frames with 'package' uri.scheme are inApp by default #185
 - Enhancement: add loadContextsIntegration tests
-- StackTrace factory : package are inApp by default 
 - Fix: missing app's stack traces for Flutter errors
+- Enhancement: add isolateErrorIntegration and runZonedGuardedIntegration to default integrations in sentry-dart
+
+### Breaking changes
+
+- `Sentry.init` and `SentryFlutter.init` have an optional callback argument which runs the host app after Sentry initialization.
 - add loadContextsIntegration tests
 - Ref: add missing docs and move sentry web plugin to the inner src folder
 - Ref: Remove deprecated classes (Flutter Plugin for Android) and cleaning up #186
