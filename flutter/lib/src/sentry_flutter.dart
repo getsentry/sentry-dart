@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -10,34 +9,43 @@ import 'package:sentry/sentry.dart';
 import 'default_integrations.dart';
 import 'file_system_transport.dart';
 import 'version.dart';
+// conditional import for the iOSPlatformChecker
+// in browser, the iOSPlatformChecker will always return false
+// the iOSPlatformChecker is used to run the loadContextsIntegration only on iOS.
+// this injected PlatformChecker allows to test this behavior
+import 'web_platform_checker.dart' if (dart.library.io) 'platform_checker.dart';
 
 /// Sentry Flutter SDK main entry point
 mixin SentryFlutter {
   static const _channel = MethodChannel('sentry_flutter');
 
   static Future<void> init(
-    OptionsConfiguration optionsConfiguration,
-    Function callback, {
+    OptionsConfiguration optionsConfiguration, [
+    AppRunner appRunner,
     PackageLoader packageLoader = _loadPackageInfo,
-    iOSPlatformChecker iOSPlatformChecker = _iOSPlatformChecker,
-  }) async {
-    await Sentry.init((options) async {
-      await _initDefaultValues(
-        options,
-        callback,
-        packageLoader,
-        iOSPlatformChecker,
-      );
+    iOSPlatformChecker isIOSChecker = isIOS,
+  ]) async {
+    await Sentry.init(
+      (options) async {
+        await _initDefaultValues(
+          options,
+          packageLoader,
+          isIOSChecker,
+        );
 
-      await optionsConfiguration(options);
-    });
+        await optionsConfiguration(options);
+      },
+      appRunner,
+      // first integration to add
+      // will catch any errors that may occur in the Flutter framework itself.
+      [flutterErrorIntegration],
+    );
   }
 
   static Future<void> _initDefaultValues(
     SentryOptions options,
-    Function callback,
     PackageLoader packageLoader,
-    iOSPlatformChecker iOSPlatformChecker,
+    iOSPlatformChecker isIOSChecker,
   ) async {
     // it is necessary to initialize Flutter method channels so that
     // our plugin can call into the native code.
@@ -50,23 +58,11 @@ mixin SentryFlutter {
       options.transport = FileSystemTransport(_channel, options);
     }
 
-    // if no environment is set, we set 'production' by default, but if we know it's
-    // a non-release build, or the SENTRY_ENVIRONMENT is set, we read from it.
-    if (const bool.hasEnvironment('SENTRY_ENVIRONMENT') || !kReleaseMode) {
-      options.environment = const String.fromEnvironment('SENTRY_ENVIRONMENT',
-          defaultValue: 'debug');
-    }
-
-    // if the SENTRY_DSN is set, we read from it.
-    options.dsn = const bool.hasEnvironment('SENTRY_DSN')
-        ? const String.fromEnvironment('SENTRY_DSN')
-        : options.dsn;
-
     // TODO(todo): load debug images when split symbols are enabled.
 
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
-    _addDefaultIntegrations(options, callback, iOSPlatformChecker);
+    _addDefaultIntegrations(options, isIOSChecker);
 
     await _setReleaseAndDist(options, packageLoader);
 
@@ -110,7 +106,6 @@ mixin SentryFlutter {
   /// https://medium.com/flutter-community/error-handling-in-flutter-98fce88a34f0
   static void _addDefaultIntegrations(
     SentryOptions options,
-    Function callback,
     iOSPlatformChecker isIOS,
   ) {
     // the ordering here matters, as we'd like to first start the native integration
@@ -120,22 +115,10 @@ mixin SentryFlutter {
       options.addIntegration(nativeSdkIntegration(options, _channel));
     }
 
-    // will catch any errors that may occur in the Flutter framework itself.
-    options.addIntegration(flutterErrorIntegration);
-
-    // Throws when running on the browser
-    if (!kIsWeb) {
-      // catch any errors that may occur within the entry function, main()
-      // in the ‘root zone’ where all Dart programs start
-      options.addIntegration(isolateErrorIntegration);
-    }
-
+    // will enrich the events with the device context and native packages and integrations
     if (isIOS()) {
       options.addIntegration(loadContextsIntegration(options, _channel));
     }
-    // finally the runZonedGuarded, catch any errors in Dart code running
-    // ‘outside’ the Flutter framework
-    options.addIntegration(runZonedGuardedIntegration(callback));
   }
 
   static void _setSdk(SentryOptions options) {
@@ -161,6 +144,3 @@ typedef iOSPlatformChecker = bool Function();
 Future<PackageInfo> _loadPackageInfo() async {
   return await PackageInfo.fromPlatform();
 }
-
-/// verify if the platform is iOS
-bool _iOSPlatformChecker() => Platform.isIOS;

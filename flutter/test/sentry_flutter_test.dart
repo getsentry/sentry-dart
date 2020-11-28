@@ -25,9 +25,9 @@ void main() {
   test('Flutter init for mobile will run default configurations', () async {
     await SentryFlutter.init(
       getConfigurationTester(),
-      callback,
-      packageLoader: loadTestPackage,
-      iOSPlatformChecker: () => false,
+      appRunner,
+      loadTestPackage,
+      () => false,
     );
   });
 
@@ -35,9 +35,9 @@ void main() {
       () async {
     await SentryFlutter.init(
       getConfigurationTester(isIOS: true),
-      callback,
-      packageLoader: loadTestPackage,
-      iOSPlatformChecker: () => true,
+      appRunner,
+      loadTestPackage,
+      () => true,
     );
   });
 
@@ -62,9 +62,9 @@ void main() {
         (options) => options
           ..dsn = fakeDsn
           ..transport = transport,
-        callback,
-        packageLoader: loadTestPackage,
-        iOSPlatformChecker: () => true,
+        appRunner,
+        loadTestPackage,
+        () => true,
       );
 
       await Sentry.captureMessage('a message');
@@ -81,9 +81,9 @@ void main() {
         (options) => options
           ..dsn = fakeDsn
           ..transport = transport,
-        callback,
-        packageLoader: loadTestPackage,
-        iOSPlatformChecker: () => false,
+        appRunner,
+        loadTestPackage,
+        () => false,
       );
 
       await Sentry.captureMessage('a message');
@@ -97,7 +97,7 @@ void main() {
   });
 }
 
-void callback() {}
+void appRunner() {}
 
 Future<PackageInfo> loadTestPackage() async {
   return PackageInfo(

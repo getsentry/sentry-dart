@@ -15,10 +15,8 @@ Future<void> main() async {
     (options) {
       options.dsn = _exampleDsn;
     },
-    () {
-      // Init your App.
-      runApp(MyApp());
-    },
+    // Init your App.
+    () => runApp(MyApp()),
   );
 }
 
@@ -48,10 +46,8 @@ class _MyAppState extends State<MyApp> {
               ),
               RaisedButton(
                 child: const Text('Flutter error : Scaffold.of()'),
-                onPressed: () =>
-                    Scaffold.of(context).showSnackBar(const SnackBar(
-                  content: Text(''),
-                )),
+                onPressed: () => Scaffold.of(context)
+                    .showBottomSheet<dynamic>((context) => null),
               ),
               RaisedButton(
                 child: const Text('Dart: throw null'),
@@ -78,11 +74,6 @@ class _MyAppState extends State<MyApp> {
                     () => throw StateError('Failure in a microtask'),
                   ).catchError(handleError)
                 },
-              ),
-              RaisedButton(
-                child: const Text('Dart: Fail in compute'),
-                onPressed: () async =>
-                    {await compute(loop, 10).catchError(handleError)},
               ),
               RaisedButton(
                 child: const Text('Dart: Fail in compute'),

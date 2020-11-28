@@ -11,24 +11,15 @@ const dsn =
     'https://cb0fad6f5d4e42ebb9c956cb0463edc9@o447951.ingest.sentry.io/5428562';
 
 Future<void> main() async {
-  querySelector('#output').text = 'Your Dart app is running.';
-
-  querySelector('#btEvent')
-      .onClick
-      .listen((event) => captureCompleteExampleEvent());
-  querySelector('#btMessage').onClick.listen((event) => captureMessage());
-  querySelector('#btException').onClick.listen((event) => captureException());
-
-  await initSentry();
-}
-
-Future<void> initSentry() async {
   SentryEvent processTagEvent(SentryEvent event, Object hint) =>
       event..tags.addAll({'page-locale': 'en-us'});
 
-  await Sentry.init((options) => options
-    ..dsn = dsn
-    ..addEventProcessor(processTagEvent));
+  await Sentry.init(
+    (options) => options
+      ..dsn = dsn
+      ..addEventProcessor(processTagEvent),
+    runApp,
+  );
 
   Sentry.addBreadcrumb(
     Breadcrumb(
@@ -59,6 +50,18 @@ Future<void> initSentry() async {
   });
 }
 
+void runApp() {
+  print('runApp');
+
+  querySelector('#output').text = 'Your Dart app is running.';
+
+  querySelector('#btEvent')
+      .onClick
+      .listen((event) => captureCompleteExampleEvent());
+  querySelector('#btMessage').onClick.listen((event) => captureMessage());
+  querySelector('#btException').onClick.listen((event) => captureException());
+}
+
 void captureMessage() async {
   print('Capturing Message :  ');
   final sentryId = await Sentry.captureMessage(
@@ -81,7 +84,8 @@ void captureException() async {
     print(stackTrace);
     final sentryId = await Sentry.captureException(
       error,
-      stackTrace: stackTrace,
+      stackTrace: stackTrace
+          .toString() /* on safari (14.0) passing a stacktrace object fails */,
     );
 
     print('Capture exception : SentryId: ${sentryId}');
