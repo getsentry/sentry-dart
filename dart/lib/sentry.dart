@@ -8,6 +8,8 @@ export 'src/scope.dart';
 export 'src/sentry.dart';
 export 'src/sentry_client.dart';
 export 'src/hub.dart';
+// useful for test
+export 'src/hub_adapter.dart';
 export 'src/sentry_options.dart';
 export 'src/transport/transport.dart';
 // useful for integrations
