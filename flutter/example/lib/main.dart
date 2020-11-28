@@ -46,6 +46,11 @@ class _MyAppState extends State<MyApp> {
             children: [
               const Center(child: Text('Trigger an action:\n')),
               RaisedButton(
+                child: const Text('Open another Scaffold'),
+                onPressed: () =>
+                    SecondaryScaffold.openSecondaryScaffold(context),
+              ),
+              RaisedButton(
                 child: const Text('Dart: try catch'),
                 onPressed: () => tryCatch(),
               ),
@@ -246,4 +251,44 @@ int loop(int val) {
   }
 
   throw StateError('from a compute isolate $count');
+}
+
+class SecondaryScaffold extends StatelessWidget {
+  static Future<void> openSecondaryScaffold(BuildContext context) {
+    return Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        settings:
+            const RouteSettings(name: 'SecondaryScaffold', arguments: 'foobar'),
+        builder: (context) {
+          return SecondaryScaffold();
+        },
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('SecondaryScaffold'),
+      ),
+      body: Center(
+        child: Column(
+          children: [
+            const Text(
+              'You have added a navigation event '
+              'to the crash reports breadcrumbs.',
+            ),
+            MaterialButton(
+              child: const Text('Go back'),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
