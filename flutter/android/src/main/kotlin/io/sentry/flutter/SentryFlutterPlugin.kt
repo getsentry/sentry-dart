@@ -66,36 +66,55 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
     }
 
     SentryAndroid.init(context) { options ->
-      // TODO: check if args exist before assigning the values
-
-      options.dsn = args["dsn"] as String?
-      options.isDebug = args["debug"] as Boolean
-      options.environment = args["environment"] as String?
-      options.release = args["release"] as String?
-      options.dist = args["dist"] as String?
-      options.isEnableSessionTracking = args["enableAutoSessionTracking"] as Boolean
-      options.sessionTrackingIntervalMillis = (args["autoSessionTrackingIntervalMillis"] as Int).toLong()
-      options.anrTimeoutIntervalMillis = (args["anrTimeoutIntervalMillis"] as Int).toLong()
+      (args["dsn"] as? String)?.let {
+        options.dsn = it
+      }
+      (args["debug"] as? Boolean)?.let {
+        options.isDebug = it
+      }
+      (args["environment"] as? String)?.let {
+        options.environment = it
+      }
+      (args["release"] as? String)?.let {
+        options.release = it
+      }
+      (args["dist"] as? String)?.let {
+        options.dist = it
+      }
+      (args["enableAutoSessionTracking"] as? Boolean)?.let {
+        options.isEnableSessionTracking = it
+      }
+      (args["autoSessionTrackingIntervalMillis"] as? Long)?.let {
+        options.sessionTrackingIntervalMillis = it
+      }
+      (args["anrTimeoutIntervalMillis"] as? Long)?.let {
+        options.anrTimeoutIntervalMillis = it
+      }
       // expose options for isAttachThreads?
-      options.isAttachStacktrace = args["attachStacktrace"] as Boolean
+      (args["attachStacktrace"] as? Boolean)?.let {
+        options.isAttachStacktrace = it
+      }
+      (args["enableAutoNativeBreadcrumbs"] as? Boolean)?.let {
+        options.isEnableActivityLifecycleBreadcrumbs = it
+        options.isEnableAppLifecycleBreadcrumbs = it
+        options.isEnableSystemEventBreadcrumbs = it
+        options.isEnableAppComponentBreadcrumbs = it
+      }
+      (args["maxBreadcrumbs"] as? Int)?.let {
+        options.maxBreadcrumbs = it
+      }
+      (args["cacheDirSize"] as? Int)?.let {
+        options.cacheDirSize = it
+      }
+      (args["diagnosticLevel"] as? String)?.let {
+        val sentryLevel = SentryLevel.valueOf(it.toUpperCase(Locale.ROOT))
+        options.setDiagnosticLevel(sentryLevel)
+      }
 
-      val enableAutoNativeBreadcrumbs = args["enableAutoNativeBreadcrumbs"] as Boolean
-      options.isEnableActivityLifecycleBreadcrumbs = enableAutoNativeBreadcrumbs
-      options.isEnableAppLifecycleBreadcrumbs = enableAutoNativeBreadcrumbs
-      options.isEnableSystemEventBreadcrumbs = enableAutoNativeBreadcrumbs
-      options.isEnableAppComponentBreadcrumbs = enableAutoNativeBreadcrumbs
-
-      options.maxBreadcrumbs = args["maxBreadcrumbs"] as Int
-      options.cacheDirSize = args["cacheDirSize"] as Int
-
-      val level = args["diagnosticLevel"] as String
-      val sentryLevel = SentryLevel.valueOf(level.toUpperCase(Locale.ROOT))
-      options.setDiagnosticLevel(sentryLevel)
-
-      val anrEnabled = args["anrEnabled"] as Boolean
+      val anrEnabled = (args["anrEnabled"] as? Boolean) ?: options.isAnrEnabled
       options.isAnrEnabled = anrEnabled
 
-      val nativeCrashHandling = args["enableNativeCrashHandling"] as Boolean
+      val nativeCrashHandling = (args["enableNativeCrashHandling"] as? Boolean) ?: false
 
       // nativeCrashHandling has priority over anrEnabled
       if (!nativeCrashHandling) {
