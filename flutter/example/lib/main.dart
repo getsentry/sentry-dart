@@ -94,6 +94,7 @@ class _MyAppState extends State<MyApp> {
 class AndroidExample extends StatelessWidget {
   const AndroidExample({Key key}) : super(key: key);
 
+  // ignore: avoid_field_initializers_in_const_classes
   final channel = const MethodChannel('example.flutter.sentry.io');
 
   @override

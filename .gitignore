@@ -21,3 +21,4 @@ build/
 dart/coverage/*
 pubspec.lock
 Podfile.lock
+flutter/coverage/*

@@ -35,11 +35,34 @@ jobs:
           with:
             release-channel: ${{ matrix.sdk }}
         - uses: actions/checkout@v2
-        - run: pub get
+        # consider -p "chrome,vm" and --coverage=coverage
         - name: Test (VM and browser)
-          run: pub run test test
-        - run: dartanalyzer --fatal-warnings ./
-        - run: dartfmt -n --set-exit-if-changed ./
+          run: |
+            pub get
+            pub run test --coverage=coverage
+            pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.packages --report-on=lib
+
+        - uses: codecov/codecov-action@v1
+          if: runner.os == 'Linux'
+          with:
+            name: sentry
+            file: ./dart/coverage/lcov.info
+
+  analyze:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./dart
+    steps:
+      - uses: cedx/setup-dart@v2
+        with:
+          release-channel: stable
+      - uses: actions/checkout@v2
+      - run: |
+          pub get
+          dartanalyzer --fatal-warnings ./
+          dartfmt -n --set-exit-if-changed ./
+
   package-analysis:
     runs-on: ubuntu-latest
     steps:

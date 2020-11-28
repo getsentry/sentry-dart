@@ -58,7 +58,7 @@ mixin SentryFlutter {
       options.transport = FileSystemTransport(_channel, options);
     }
 
-    // TODO: load debug images when split symbols are enabled.
+    // TODO(todo): load debug images when split symbols are enabled.
 
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
