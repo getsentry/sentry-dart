@@ -11,10 +11,23 @@ import 'navigation_breadcrumb.dart';
 /// The RouteSettings are null if a developer has not specified any
 /// RouteSettings.
 ///
+/// SentryNavigationObserver must be added to the navigation observer of
+/// your used app. This is an example for [MaterialApp](https://api.flutter.dev/flutter/material/MaterialApp/navigatorObservers.html),
+/// but the integration for [CupertinoApp](https://api.flutter.dev/flutter/cupertino/CupertinoApp/navigatorObservers.html)
+/// and [WidgetsApp](https://api.flutter.dev/flutter/widgets/WidgetsApp/navigatorObservers.html) is the same.
+/// ´´´dart
+/// MaterialApp(
+///   navigatorObservers: [
+///     SentryNavigatorObserver(),
+///   ],
+///   // other parameter ...
+/// )
+/// ´´´
+///
 /// See also:
 ///   - https://api.flutter.dev/flutter/widgets/RouteObserver-class.html
 class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
-  factory SentryNavigatorObserver(Hub hub) {
+  factory SentryNavigatorObserver({Hub hub}) {
     if (hub != null) {
       return SentryNavigatorObserver._(hub);
     }

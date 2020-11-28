@@ -36,6 +36,9 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorObservers: [
+        SentryNavigatorObserver(),
+      ],
       home: Scaffold(
         appBar: AppBar(title: const Text('Sentry Flutter Example')),
         body: SingleChildScrollView(

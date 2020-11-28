@@ -55,6 +55,26 @@ void aMethodThatMightFail() {
 }
 ```
 
+##### Tracking navigation events
+
+In order to track navigation events you have to add the 
+`SentryNavigationObserver` to your `MaterialApp`, `WidgetsApp` or `CupertinoApp`.
+
+```dart
+import 'package:flutter/widgets.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+
+// ...
+MaterialApp(
+  navigatorObservers: [
+    SentryNavigatorObserver(),
+  ],
+  // other parameters
+)
+// ...
+```
+For a more throughout example see the [example](example/lib/main.dart).
+
 ##### Known limitations
 
 - We don't support the Flutter `split-debug-info` yet, if this feature is enabled, it'll give useless stack traces.

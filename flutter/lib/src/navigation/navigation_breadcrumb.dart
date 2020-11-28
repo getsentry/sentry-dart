@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:sentry/sentry.dart';
 
+/// This key must be used so that the web interface displays the events nicely
+/// See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
+const _navigationKey = 'navigation';
+
 /// This class makes it easier to record breadcrumbs for navigation events by
 /// accepting Flutters [RouteSettings](https://api.flutter.dev/flutter/widgets/RouteSettings-class.html).
 ///
@@ -36,10 +40,11 @@ class NavigationBreadcrumb extends Breadcrumb {
     SentryLevel level = SentryLevel.info,
   })  : assert(navigationType != null),
         super(
-            category: 'navigation',
-            type: navigationType,
+            category: _navigationKey,
+            type: _navigationKey,
             level: level,
             data: <String, dynamic>{
+              'state': navigationType,
               if (from != null) 'from': from,
               if (fromArgs != null) 'from_arguments': fromArgs,
               if (to != null) 'to': to,
