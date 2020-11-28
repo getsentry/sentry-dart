@@ -192,14 +192,14 @@ void main() {
       final to = route(null);
       final previous = route(null);
 
-      observer.didPush(to, previous);
+      observer.didReplace(newRoute: to, oldRoute: previous);
 
       final dynamic breadcrumb =
           verify(hub.addBreadcrumb(captureAny)).captured.single as Breadcrumb;
       expect(
         breadcrumb.data,
         RouteObserverBreadcrumb(
-          navigationType: 'didPush',
+          navigationType: 'didReplace',
         ).data,
       );
     });
@@ -215,14 +215,14 @@ void main() {
       final to = route();
       final previous = route();
 
-      observer.didPush(to, previous);
+      observer.didPop(to, previous);
 
       final dynamic breadcrumb =
           verify(hub.addBreadcrumb(captureAny)).captured.single as Breadcrumb;
       expect(
         breadcrumb.data,
         RouteObserverBreadcrumb(
-          navigationType: 'didPush',
+          navigationType: 'didPop',
         ).data,
       );
     });
