@@ -29,11 +29,6 @@ class MainActivity : FlutterActivity() {
           } catch (e: Exception) {
             Sentry.captureException(e)
           }
-          try {
-            throw Exception("just a test!")
-          } catch (e: Exception) {
-            Sentry.captureException(e)
-          }
         }
         "crash" -> {
           crash()
