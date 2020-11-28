@@ -39,8 +39,9 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
         infos["integrations"] = integrations
       }
 
-      let options = self.sentryOptions ?? Options()
-      infos["package"] = ["version": options.sdkInfo.version, "sdk_name": "cocoapods:sentry-cocoa"]
+      if let sentryOptions = self.sentryOptions {
+        infos["package"] = ["version": sentryOptions.sdkInfo.version, "sdk_name": "cocoapods:sentry-cocoa"]
+      }
 
       result(infos)
     }
