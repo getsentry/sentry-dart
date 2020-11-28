@@ -115,6 +115,7 @@ Integration nativeSdkIntegration(SentryOptions options, MethodChannel channel) {
         'enableAutoSessionTracking': options.enableAutoSessionTracking,
         'enableNativeCrashHandling': options.enableNativeCrashHandling,
         'attachStacktrace': options.attachStacktrace,
+        'attachThreads': options.attachThreads,
         'autoSessionTrackingIntervalMillis':
             options.autoSessionTrackingIntervalMillis,
         'dist': options.dist,

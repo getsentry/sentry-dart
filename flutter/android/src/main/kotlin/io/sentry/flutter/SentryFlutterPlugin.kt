@@ -90,7 +90,9 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
       (args["anrTimeoutIntervalMillis"] as? Long)?.let {
         options.anrTimeoutIntervalMillis = it
       }
-      // expose options for isAttachThreads?
+      (args["attachThreads"] as? Boolean)?.let {
+        options.isAttachThreads = it
+      }
       (args["attachStacktrace"] as? Boolean)?.let {
         options.isAttachStacktrace = it
       }

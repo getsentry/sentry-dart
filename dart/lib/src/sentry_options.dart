@@ -197,6 +197,15 @@ class SentryOptions {
     _attachStacktrace = attachStacktrace ?? _attachStacktrace;
   }
 
+  bool _attachThreads = false;
+
+  /// When enabled, all the threads are automatically attached to all logged events (Android).
+  bool get attachThreads => _attachThreads;
+
+  set attachThreads(bool attachThreads) {
+    _attachThreads = attachThreads ?? _attachThreads;
+  }
+  
   int _autoSessionTrackingIntervalMillis = 30000;
 
   /// The session tracking interval in millis. This is the interval to end a session if the App goes
