@@ -2,6 +2,10 @@ import 'package:flutter/widgets.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+/// This key must be used so that the web interface displays the events nicely
+/// See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
+const _navigationKey = 'navigation';
+
 /// This is a navigation observer to record navigational breadcrumbs.
 /// For now it only records navigation events and no gestures.
 ///
@@ -14,6 +18,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 /// your used app. This is an example for [MaterialApp](https://api.flutter.dev/flutter/material/MaterialApp/navigatorObservers.html),
 /// but the integration for [CupertinoApp](https://api.flutter.dev/flutter/cupertino/CupertinoApp/navigatorObservers.html)
 /// and [WidgetsApp](https://api.flutter.dev/flutter/widgets/WidgetsApp/navigatorObservers.html) is the same.
+///
 /// ´´´dart
 /// MaterialApp(
 ///   navigatorObservers: [
@@ -25,6 +30,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 ///
 /// See also:
 ///   - https://api.flutter.dev/flutter/widgets/RouteObserver-class.html
+///   - https://flutter.dev/docs/cookbook/navigation/navigate-with-arguments
 class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   factory SentryNavigatorObserver({Hub hub}) {
     return SentryNavigatorObserver._(hub ?? HubAdapter());
@@ -71,10 +77,69 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     RouteSettings from,
     RouteSettings to,
   }) {
-    hub.addBreadcrumb(NavigationBreadcrumb(
+    hub.addBreadcrumb(RouteObserverBreadcrumb(
       navigationType: type,
       from: from,
       to: to,
     ));
+  }
+}
+
+/// This class makes it easier to record breadcrumbs for events of Flutters
+/// NavigationObserver by accepting
+/// [RouteSettings](https://api.flutter.dev/flutter/widgets/RouteSettings-class.html).
+///
+/// See also:
+///   - https://flutter.dev/docs/cookbook/navigation/navigate-with-arguments
+class RouteObserverBreadcrumb extends Breadcrumb {
+  factory RouteObserverBreadcrumb({
+    /// This should correspond to Flutters navigation events.
+    /// See https://api.flutter.dev/flutter/widgets/RouteObserver-class.html
+    @required String navigationType,
+    RouteSettings from,
+    RouteSettings to,
+    SentryLevel level = SentryLevel.info,
+  }) {
+    final dynamic fromArgs = _formatArgs(from?.arguments);
+    final dynamic toArgs = _formatArgs(to?.arguments);
+    return RouteObserverBreadcrumb._(
+      from: from?.name,
+      fromArgs: fromArgs,
+      to: to?.name,
+      toArgs: toArgs,
+      navigationType: navigationType,
+      level: level,
+    );
+  }
+
+  RouteObserverBreadcrumb._({
+    @required String navigationType,
+    String from,
+    dynamic fromArgs,
+    String to,
+    dynamic toArgs,
+    SentryLevel level = SentryLevel.info,
+  })  : assert(navigationType != null),
+        super(
+            category: _navigationKey,
+            type: _navigationKey,
+            level: level,
+            data: <String, dynamic>{
+              if (navigationType != null) 'state': navigationType,
+              if (from != null) 'from': from,
+              if (fromArgs != null) 'from_arguments': fromArgs,
+              if (to != null) 'to': to,
+              if (toArgs != null) 'to_arguments': toArgs,
+            });
+
+  static dynamic _formatArgs(Object args) {
+    if (args == null) {
+      return null;
+    }
+    if (args is Map<String, dynamic>) {
+      return args.map<String, dynamic>((key, dynamic value) =>
+          MapEntry<String, String>(key, value.toString()));
+    }
+    return args.toString();
   }
 }

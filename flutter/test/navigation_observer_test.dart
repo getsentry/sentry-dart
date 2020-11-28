@@ -6,7 +6,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'mocks.dart';
 
 void main() {
-  group('NavigationBreadcrumb', () {
+  group('RouteObserverBreadcrumb', () {
     test('happy path with string route agrument', () {
       const fromRouteSettings = RouteSettings(
         name: 'from',
@@ -18,7 +18,7 @@ void main() {
         arguments: 'PageTitle2',
       );
 
-      final breadcrumb = NavigationBreadcrumb(
+      final breadcrumb = RouteObserverBreadcrumb(
         navigationType: 'didPush',
         from: fromRouteSettings,
         to: toRouteSettings,
@@ -48,7 +48,7 @@ void main() {
         },
       );
 
-      final breadcrumb = NavigationBreadcrumb(
+      final breadcrumb = RouteObserverBreadcrumb(
         navigationType: 'didPush',
         from: fromRouteSettings,
         to: toRouteSettings,
@@ -69,7 +69,7 @@ void main() {
 
     test('routes are null', () {
       // both routes are null
-      final breadcrumb = NavigationBreadcrumb(
+      final breadcrumb = RouteObserverBreadcrumb(
         navigationType: 'didPush',
         from: null,
         to: null,
@@ -92,7 +92,7 @@ void main() {
       );
 
       // both routes are null
-      final breadcrumb = NavigationBreadcrumb(
+      final breadcrumb = RouteObserverBreadcrumb(
         navigationType: 'didPush',
         from: fromRouteSettings,
         to: toRouteSettings,
@@ -117,7 +117,7 @@ void main() {
       );
 
       // both routes are null
-      final breadcrumb = NavigationBreadcrumb(
+      final breadcrumb = RouteObserverBreadcrumb(
         navigationType: 'didPush',
         from: fromRouteSettings,
         to: toRouteSettings,
@@ -156,7 +156,7 @@ void main() {
           verify(hub.addBreadcrumb(captureAny)).captured.single as Breadcrumb;
       expect(
         breadcrumb.data,
-        NavigationBreadcrumb(
+        RouteObserverBreadcrumb(
           navigationType: 'didPush',
           from: previous,
           to: to,
@@ -177,7 +177,7 @@ void main() {
           verify(hub.addBreadcrumb(captureAny)).captured.single as Breadcrumb;
       expect(
         breadcrumb.data,
-        NavigationBreadcrumb(
+        RouteObserverBreadcrumb(
           navigationType: 'didPush',
           from: previous,
           to: to,
@@ -198,7 +198,7 @@ void main() {
           verify(hub.addBreadcrumb(captureAny)).captured.single as Breadcrumb;
       expect(
         breadcrumb.data,
-        NavigationBreadcrumb(
+        RouteObserverBreadcrumb(
           navigationType: 'didPush',
         ).data,
       );
@@ -221,7 +221,7 @@ void main() {
           verify(hub.addBreadcrumb(captureAny)).captured.single as Breadcrumb;
       expect(
         breadcrumb.data,
-        NavigationBreadcrumb(
+        RouteObserverBreadcrumb(
           navigationType: 'didPush',
         ).data,
       );
