@@ -147,4 +147,4 @@ jobs:
       - uses: actions/checkout@v2
       - uses: natiginfo/action-detekt-all@1.15.0-RC1
         with:
-          args: --baseline flutter/config/detekt-bl.xml
+          args: -i flutter --baseline flutter/config/detekt-bl.xml
