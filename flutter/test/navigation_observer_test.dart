@@ -1,6 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+
+import 'mocks.dart';
 
 void main() {
   group('NavigationBreadcrumb', () {
@@ -132,49 +135,58 @@ void main() {
   });
 
   group('SentryNavigationObserver', () {
-    PageRoute route(String name, [Object arguments]) => PageRouteBuilder<void>(
+    PageRoute route(RouteSettings settings) => PageRouteBuilder<void>(
           pageBuilder: (_, __, ___) => null,
-          settings: RouteSettings(name: name, arguments: arguments),
+          settings: settings,
         );
 
+    RouteSettings routeSettings(String name, [Object arguments]) =>
+        RouteSettings(name: name, arguments: arguments);
+
     test('Test recording of Breadcrumbs', () {
-      final hub = _FakeHub();
+      final hub = MockHub();
       final observer = SentryNavigatorObserver(hub: hub);
 
-      final to = route('to', 'foobar');
-      final previous = route('previous', 'foobar');
+      final to = routeSettings('to', 'foobar');
+      final previous = routeSettings('previous', 'foobar');
 
-      observer.didPush(to, previous);
+      observer.didPush(route(to), route(previous));
 
-      expect(hub.breadcrumbs.length, 1);
-      expect(hub.breadcrumbs.first.data, <String, dynamic>{
-        'state': 'didPush',
-        'from': 'previous',
-        'from_arguments': 'foobar',
-        'to': 'to',
-        'to_arguments': 'foobar',
-      });
+      final dynamic breadcrumb =
+          verify(hub.addBreadcrumb(captureAny)).captured.single as Breadcrumb;
+      expect(
+        breadcrumb.data,
+        NavigationBreadcrumb(
+          navigationType: 'didPush',
+          from: previous,
+          to: to,
+        ).data,
+      );
     });
 
     test('No arguments', () {
-      final hub = _FakeHub();
+      final hub = MockHub();
       final observer = SentryNavigatorObserver(hub: hub);
 
-      final to = route('to');
-      final previous = route('previous');
+      final to = routeSettings('to');
+      final previous = routeSettings('previous');
 
-      observer.didPush(to, previous);
+      observer.didPush(route(to), route(previous));
 
-      expect(hub.breadcrumbs.length, 1);
-      expect(hub.breadcrumbs.first.data, <String, dynamic>{
-        'state': 'didPush',
-        'from': 'previous',
-        'to': 'to',
-      });
+      final dynamic breadcrumb =
+          verify(hub.addBreadcrumb(captureAny)).captured.single as Breadcrumb;
+      expect(
+        breadcrumb.data,
+        NavigationBreadcrumb(
+          navigationType: 'didPush',
+          from: previous,
+          to: to,
+        ).data,
+      );
     });
 
     test('No arguments & no name', () {
-      final hub = _FakeHub();
+      final hub = MockHub();
       final observer = SentryNavigatorObserver(hub: hub);
 
       final to = route(null);
@@ -182,10 +194,14 @@ void main() {
 
       observer.didPush(to, previous);
 
-      expect(hub.breadcrumbs.length, 1);
-      expect(hub.breadcrumbs.first.data, <String, dynamic>{
-        'state': 'didPush',
-      });
+      final dynamic breadcrumb =
+          verify(hub.addBreadcrumb(captureAny)).captured.single as Breadcrumb;
+      expect(
+        breadcrumb.data,
+        NavigationBreadcrumb(
+          navigationType: 'didPush',
+        ).data,
+      );
     });
 
     test('No RouteSettings', () {
@@ -193,7 +209,7 @@ void main() {
             pageBuilder: (_, __, ___) => null,
           );
 
-      final hub = _FakeHub();
+      final hub = MockHub();
       final observer = SentryNavigatorObserver(hub: hub);
 
       final to = route();
@@ -201,70 +217,14 @@ void main() {
 
       observer.didPush(to, previous);
 
-      expect(hub.breadcrumbs.length, 1);
-      expect(hub.breadcrumbs.first.data, <String, dynamic>{
-        'state': 'didPush',
-      });
+      final dynamic breadcrumb =
+          verify(hub.addBreadcrumb(captureAny)).captured.single as Breadcrumb;
+      expect(
+        breadcrumb.data,
+        NavigationBreadcrumb(
+          navigationType: 'didPush',
+        ).data,
+      );
     });
   });
-}
-
-/// Used to test if breadcrumbs are really added.
-class _FakeHub implements Hub {
-  List<Breadcrumb> breadcrumbs = [];
-
-  @override
-  void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) {
-    assert(crumb != null);
-    breadcrumbs.add(crumb);
-  }
-
-  @override
-  void bindClient(SentryClient client) {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<SentryId> captureEvent(SentryEvent event,
-      {dynamic stackTrace, dynamic hint}) {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<SentryId> captureException(dynamic throwable,
-      {dynamic stackTrace, dynamic hint}) {
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<SentryId> captureMessage(String message,
-      {SentryLevel level = SentryLevel.info,
-      String template,
-      List params,
-      dynamic hint}) {
-    throw UnimplementedError();
-  }
-
-  @override
-  Hub clone() {
-    throw UnimplementedError();
-  }
-
-  @override
-  void close() {
-    throw UnimplementedError();
-  }
-
-  @override
-  void configureScope(callback) {
-    throw UnimplementedError();
-  }
-
-  @override
-  // TODO: implement isEnabled
-  bool get isEnabled => throw UnimplementedError();
-
-  @override
-  // TODO: implement lastEventId
-  SentryId get lastEventId => throw UnimplementedError();
 }

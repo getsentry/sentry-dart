@@ -34,8 +34,8 @@ class NavigationBreadcrumb extends Breadcrumb {
   NavigationBreadcrumb._({
     @required String navigationType,
     String from,
-    String to,
     dynamic fromArgs,
+    String to,
     dynamic toArgs,
     SentryLevel level = SentryLevel.info,
   })  : assert(navigationType != null),
@@ -44,7 +44,7 @@ class NavigationBreadcrumb extends Breadcrumb {
             type: _navigationKey,
             level: level,
             data: <String, dynamic>{
-              'state': navigationType,
+              if (navigationType != null) 'state': navigationType,
               if (from != null) 'from': from,
               if (fromArgs != null) 'from_arguments': fromArgs,
               if (to != null) 'to': to,

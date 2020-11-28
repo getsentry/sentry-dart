@@ -1,7 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:sentry/sentry.dart';
-
-import 'navigation_breadcrumb.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 /// This is a navigation observer to record navigational breadcrumbs.
 /// For now it only records navigation events and no gestures.
@@ -73,9 +72,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     RouteSettings to,
   }) {
     hub.addBreadcrumb(NavigationBreadcrumb(
+      navigationType: type,
       from: from,
       to: to,
-      navigationType: type,
     ));
   }
 }
