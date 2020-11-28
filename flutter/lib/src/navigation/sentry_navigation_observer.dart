@@ -27,8 +27,8 @@ import 'navigation_breadcrumb.dart';
 /// See also:
 ///   - https://api.flutter.dev/flutter/widgets/RouteObserver-class.html
 class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
-  factory SentryNavigatorObserver({Hub hub = HubAdapter()}) {
-    return SentryNavigatorObserver._(hub);
+  factory SentryNavigatorObserver({Hub hub}) {
+    return SentryNavigatorObserver._(hub ?? HubAdapter());
   }
 
   SentryNavigatorObserver._(this.hub) : assert(hub != null);
