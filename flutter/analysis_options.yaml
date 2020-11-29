@@ -13,7 +13,6 @@ analyzer:
     deprecated_member_use_from_same_package: warning
   exclude:
     - example/**
-    - example_web/**
 
 linter:
   rules:

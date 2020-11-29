@@ -6,7 +6,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/src/file_system_transport.dart';
 
 void main() {
-  const MethodChannel _channel = MethodChannel('sentry_flutter');
+  const _channel = MethodChannel('sentry_flutter');
 
   TestWidgetsFlutterBinding.ensureInitialized();
 

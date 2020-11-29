@@ -49,7 +49,7 @@ Integration loadContextsIntegration(
     options.addEventProcessor(
       (event, dynamic hint) async {
         try {
-          final Map<String, dynamic> infos = Map<String, dynamic>.from(
+          final infos = Map<String, dynamic>.from(
             await channel.invokeMethod('loadContexts'),
           );
           if (infos['contexts'] != null) {
