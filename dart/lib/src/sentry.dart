@@ -63,16 +63,10 @@ class Sentry {
             ? 'profile'
             : 'debug';
 
-    // If the environment variable is set, we read it and fallback to the
-    // previously infered constant if it could not be read.
-    if (const bool.hasEnvironment('SENTRY_ENVIRONMENT')) {
-      options.environment = const String.fromEnvironment(
-        'SENTRY_ENVIRONMENT',
-        defaultValue: environment,
-      );
-    } else {
-      options.environment = environment;
-    }
+    // if the SENTRY_ENVIRONMENT is set, we read from it.
+    options.environment = const bool.hasEnvironment('SENTRY_ENVIRONMENT')
+        ? const String.fromEnvironment('SENTRY_ENVIRONMENT')
+        : environment;
 
     // if the SENTRY_DSN is set, we read from it.
     options.dsn = const bool.hasEnvironment('SENTRY_DSN')
