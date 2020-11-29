@@ -72,7 +72,7 @@ void main() {
       final event =
           verify(transport.send(captureAny)).captured.first as SentryEvent;
 
-      expect(event.sdk.integrations.length, 5);
+      expect(event.sdk.integrations.length, 6);
       expect(event.sdk.integrations.contains('loadContextsIntegration'), true);
     });
 
@@ -91,7 +91,7 @@ void main() {
       final event =
           verify(transport.send(captureAny)).captured.first as SentryEvent;
 
-      expect(event.sdk.integrations.length, 4);
+      expect(event.sdk.integrations.length, 5);
       expect(event.sdk.integrations.contains('loadContextsIntegration'), false);
     });
   });

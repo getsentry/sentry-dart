@@ -32,9 +32,9 @@ FutureOr<void> Function(SentryOptions) getConfigurationTester({
           isNotEmpty);
 
       if (isIOS) {
-        expect(5, options.integrations.length);
+        expect(6, options.integrations.length);
       } else {
-        expect(4, options.integrations.length);
+        expect(5, options.integrations.length);
       }
 
       expect(sdkName, options.sdk.name);
