@@ -21,6 +21,7 @@ typedef AppRunner = FutureOr<void> Function();
 /// Sentry SDK main entry point
 class Sentry {
   static Hub _hub = NoOpHub();
+  static const PlatformChecker _platformChecker = PlatformChecker();
 
   Sentry._();
 
@@ -34,7 +35,7 @@ class Sentry {
     OptionsConfiguration optionsConfiguration, [
     AppRunner appRunner,
     List<Integration> initialIntegrations,
-    PlatformChecker platformChecker = platformChecker,
+    PlatformChecker platformChecker = _platformChecker,
   ]) async {
     if (optionsConfiguration == null) {
       throw ArgumentError('OptionsConfiguration is required.');
@@ -208,5 +209,3 @@ class Sentry {
     return true;
   }
 }
-
-const PlatformChecker platformChecker = PlatformChecker();
