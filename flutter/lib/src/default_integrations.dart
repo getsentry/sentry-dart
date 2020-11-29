@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter/services.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/src/widgets_binding_observer.dart';
@@ -144,7 +144,8 @@ Integration nativeSdkIntegration(SentryOptions options, MethodChannel channel) {
 }
 
 /// Integration that captures certain window and device events.
-/// See https://api.flutter.dev/flutter/widgets/WidgetsBindingObserver-class.html
+/// See also:
+///   - [WidgetsBindingObserver](https://api.flutter.dev/flutter/widgets/WidgetsBindingObserver-class.html)
 void widgetsBindingIntegration(Hub hub, SentryOptions options) {
   // We don't need to call `WidgetsFlutterBinding.ensureInitialized()`
   // because `FlutterSentry.init` already calls it.

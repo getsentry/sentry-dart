@@ -119,6 +119,9 @@ mixin SentryFlutter {
     if (isIOS()) {
       options.addIntegration(loadContextsIntegration(options, _channel));
     }
+
+    // track Flutter application events
+    options.addIntegration(widgetsBindingIntegration);
   }
 
   static void _setSdk(SentryOptions options) {
