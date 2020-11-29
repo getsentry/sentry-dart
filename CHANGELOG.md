@@ -6,6 +6,8 @@
 - Enhancement: add loadContextsIntegration tests
 - Fix: missing app's stack traces for Flutter errors
 - Enhancement: add isolateErrorIntegration and runZonedGuardedIntegration to default integrations in sentry-dart
+- Enhancement: only assign non-null option values in Android native integration in order preserve default values
+- Add 'attachThreads' in options. When enabled, threads are attached to all logged events for Android
 
 ### Breaking changes
 
