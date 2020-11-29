@@ -140,3 +140,11 @@ jobs:
       - uses: yutailang0119/action-ktlint@v1
         with:
           xml_path: build/ktlint-report.xml
+
+  detekt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: natiginfo/action-detekt-all@1.15.0-RC1
+        with:
+          args: -i flutter --baseline flutter/config/detekt-bl.xml

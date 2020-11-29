@@ -149,14 +149,12 @@ void main() {
             'extras': {'foo': 'bar'}
           },
           'breadcrumbs': {
-            'values': [
-              {
-                'timestamp': '2019-01-01T00:00:00.000Z',
-                'message': 'test log',
-                'category': 'test',
-                'level': 'debug',
-              },
-            ]
+            {
+              'timestamp': '2019-01-01T00:00:00.000Z',
+              'message': 'test log',
+              'category': 'test',
+              'level': 'debug',
+            },
           },
           'request': {
             'url': request.url,
