@@ -14,6 +14,7 @@
 - Enhancement: NavigationObserver to record Breadcrumbs for navigation events #197
 - Fix: the event payload must never serialize null or empty fields
 - Enhancement: SentryWidgetsBindingObserver
+- Enhancement: Add SentryWidgetsBindingObservern an Integration that captures certain window and device events.
 
 ### Breaking changes
 
