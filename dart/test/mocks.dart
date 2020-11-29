@@ -1,5 +1,7 @@
+import 'package:meta/meta.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/platform_checker.dart';
 import 'package:sentry/src/protocol.dart';
 
 class MockSentryClient extends Mock implements SentryClient {}
@@ -91,3 +93,42 @@ final fakeEvent = SentryEvent(
     ),
   ),
 );
+
+class MockPlatformChecker implements PlatformChecker {
+  MockPlatformChecker.releaseMode() {
+    _releaseMode = true;
+    _debugMode = false;
+    _profileMode = false;
+  }
+
+  MockPlatformChecker.debugMode() {
+    _releaseMode = false;
+    _debugMode = true;
+    _profileMode = false;
+  }
+
+  MockPlatformChecker.profileMode() {
+    _releaseMode = false;
+    _debugMode = false;
+    _profileMode = true;
+  }
+
+  bool _releaseMode;
+  bool _debugMode;
+  bool _profileMode;
+
+  @override
+  bool isReleaseMode() {
+    return _releaseMode;
+  }
+
+  @override
+  bool isDebugMode() {
+    return _debugMode;
+  }
+
+  @override
+  bool isProfileMode() {
+    return _profileMode;
+  }
+}

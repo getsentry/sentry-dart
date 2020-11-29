@@ -10,6 +10,7 @@ import 'protocol.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'utils.dart';
+import 'platform_checker.dart';
 
 /// Configuration options callback
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
@@ -33,13 +34,15 @@ class Sentry {
     OptionsConfiguration optionsConfiguration, [
     AppRunner appRunner,
     List<Integration> initialIntegrations,
+    PlatformChecker platformChecker = platformChecker,
   ]) async {
     if (optionsConfiguration == null) {
       throw ArgumentError('OptionsConfiguration is required.');
     }
 
     final options = SentryOptions();
-    await _initDefaultValues(options, appRunner, initialIntegrations);
+    await _initDefaultValues(
+        options, appRunner, initialIntegrations, platformChecker);
 
     await optionsConfiguration(options);
 
@@ -54,12 +57,13 @@ class Sentry {
     SentryOptions options,
     AppRunner appRunner,
     List<Integration> initialIntegrations,
+    PlatformChecker platformChecker,
   ) async {
     // We infer the enviroment based on the release/non-release and profile
     // constants.
-    const environment = isReleaseMode
+    var environment = platformChecker.isReleaseMode()
         ? defaultEnvironment
-        : isProfileMode
+        : platformChecker.isProfileMode()
             ? 'profile'
             : 'debug';
 
@@ -204,3 +208,5 @@ class Sentry {
     return true;
   }
 }
+
+const PlatformChecker platformChecker = PlatformChecker();

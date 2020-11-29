@@ -158,14 +158,31 @@ void main() {
     },
   );
 
-  test('options.environment not null', () async {
-    await Sentry.init(
-      (options) {
-        options.dsn = fakeDsn;
-        expect(options.environment, isNotNull);
-      },
-      appRunner,
-    );
+  test('options.environment debug', () async {
+    var platformChecker = MockPlatformChecker.debugMode();
+
+    await Sentry.init((options) {
+      options.dsn = fakeDsn;
+      expect(options.environment, 'debug');
+    }, appRunner, [], platformChecker);
+  });
+
+  test('options.environment profile', () async {
+    var platformChecker = MockPlatformChecker.profileMode();
+
+    await Sentry.init((options) {
+      options.dsn = fakeDsn;
+      expect(options.environment, 'profile');
+    }, appRunner, [], platformChecker);
+  });
+
+  test('options.environment production (defaultEnvironment)', () async {
+    var platformChecker = MockPlatformChecker.releaseMode();
+
+    await Sentry.init((options) {
+      options.dsn = fakeDsn;
+      expect(options.environment, defaultEnvironment);
+    }, appRunner, [], platformChecker);
   });
 }
 
