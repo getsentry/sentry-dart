@@ -312,9 +312,8 @@ class SentryEvent {
     }
 
     if (breadcrumbs != null && breadcrumbs.isNotEmpty) {
-      json['breadcrumbs'] = <String, List<Map<String, dynamic>>>{
-        'values': breadcrumbs.map((b) => b.toJson()).toList(growable: false)
-      };
+      json['breadcrumbs'] =
+          breadcrumbs.map((b) => b.toJson()).toList(growable: false);
     }
 
     json['sdk'] = sdk?.toJson() ??
