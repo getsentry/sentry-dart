@@ -34,57 +34,75 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Sentry Flutter Example')),
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              const Center(child: Text('Trigger an action:\n')),
-              RaisedButton(
-                child: const Text('Dart: try catch'),
-                onPressed: () => tryCatch(),
-              ),
-              RaisedButton(
-                child: const Text('Flutter error : Scaffold.of()'),
-                onPressed: () => Scaffold.of(context)
-                    .showBottomSheet<dynamic>((context) => null),
-              ),
-              RaisedButton(
-                child: const Text('Dart: throw null'),
+      navigatorObservers: [
+        SentryNavigatorObserver(),
+      ],
+      home: const MainScaffold(),
+    );
+  }
+}
+
+class MainScaffold extends StatelessWidget {
+  const MainScaffold({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Sentry Flutter Example')),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            const Center(child: Text('Trigger an action:\n')),
+            RaisedButton(
+              child: const Text('Open another Scaffold'),
+              onPressed: () => SecondaryScaffold.openSecondaryScaffold(context),
+            ),
+            RaisedButton(
+              child: const Text('Dart: try catch'),
+              onPressed: () => tryCatch(),
+            ),
+            RaisedButton(
+              child: const Text('Flutter error : Scaffold.of()'),
+              onPressed: () => Scaffold.of(context)
+                  .showBottomSheet<dynamic>((context) => null),
+            ),
+            RaisedButton(
+              child: const Text('Dart: throw null'),
+              // Warning : not captured if a debugger is attached
+              // https://github.com/flutter/flutter/issues/48972
+              onPressed: () => throw null,
+            ),
+            RaisedButton(
+              child: const Text('Dart: assert'),
+              onPressed: () {
+                // Only relevant in debug builds
                 // Warning : not captured if a debugger is attached
                 // https://github.com/flutter/flutter/issues/48972
-                onPressed: () => throw null,
-              ),
-              RaisedButton(
-                child: const Text('Dart: assert'),
-                onPressed: () {
-                  // Only relevant in debug builds
-                  // Warning : not captured if a debugger is attached
-                  // https://github.com/flutter/flutter/issues/48972
-                  assert(false, 'assert failure');
-                },
-              ),
-              RaisedButton(
-                  child: const Text('Dart: async throws'),
-                  onPressed: () async => asyncThrows().catchError(handleError)),
-              RaisedButton(
-                child: const Text('Dart: Fail in microtask.'),
-                onPressed: () async => {
-                  await Future.microtask(
-                    () => throw StateError('Failure in a microtask'),
-                  ).catchError(handleError)
-                },
-              ),
-              RaisedButton(
-                child: const Text('Dart: Fail in compute'),
-                onPressed: () async =>
-                    {await compute(loop, 10).catchError(handleError)},
-              ),
-              if (UniversalPlatform.isIOS) const CocoaExample(),
-              if (UniversalPlatform.isAndroid) const AndroidExample(),
-              if (UniversalPlatform.isWeb) const WebExample(),
-            ],
-          ),
+                assert(false, 'assert failure');
+              },
+            ),
+            RaisedButton(
+                child: const Text('Dart: async throws'),
+                onPressed: () async => asyncThrows().catchError(handleError)),
+            RaisedButton(
+              child: const Text('Dart: Fail in microtask.'),
+              onPressed: () async => {
+                await Future.microtask(
+                  () => throw StateError('Failure in a microtask'),
+                ).catchError(handleError)
+              },
+            ),
+            RaisedButton(
+              child: const Text('Dart: Fail in compute'),
+              onPressed: () async =>
+                  {await compute(loop, 10).catchError(handleError)},
+            ),
+            if (UniversalPlatform.isIOS) const CocoaExample(),
+            if (UniversalPlatform.isAndroid) const AndroidExample(),
+            if (UniversalPlatform.isWeb) const WebExample(),
+          ],
         ),
       ),
     );
@@ -234,4 +252,44 @@ int loop(int val) {
   }
 
   throw StateError('from a compute isolate $count');
+}
+
+class SecondaryScaffold extends StatelessWidget {
+  static Future<void> openSecondaryScaffold(BuildContext context) {
+    return Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        settings:
+            const RouteSettings(name: 'SecondaryScaffold', arguments: 'foobar'),
+        builder: (context) {
+          return SecondaryScaffold();
+        },
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('SecondaryScaffold'),
+      ),
+      body: Center(
+        child: Column(
+          children: [
+            const Text(
+              'You have added a navigation event '
+              'to the crash reports breadcrumbs.',
+            ),
+            MaterialButton(
+              child: const Text('Go back'),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
