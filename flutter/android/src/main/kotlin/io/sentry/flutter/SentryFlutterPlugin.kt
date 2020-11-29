@@ -108,7 +108,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
       (args["cacheDirSize"] as? Int)?.let {
         options.cacheDirSize = it
       }
-      (args["diagnosticLevel"] as? String)?.let {
+      (args["diagnosticLevel"] as? String)?.takeUnless { options.isDebug == false }?.let {
         val sentryLevel = SentryLevel.valueOf(it.toUpperCase(Locale.ROOT))
         options.setDiagnosticLevel(sentryLevel)
       }
