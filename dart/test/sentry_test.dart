@@ -157,6 +157,16 @@ void main() {
           throwsArgumentError);
     },
   );
+
+  test('options.environment not null', () async {
+    await Sentry.init(
+      (options) {
+        options.dsn = fakeDsn;
+        expect(options.environment, isNotNull);
+      },
+      appRunner,
+    );
+  });
 }
 
 void initialIntegration(Hub hub, SentryOptions options) {}

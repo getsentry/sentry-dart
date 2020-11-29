@@ -24,3 +24,7 @@ const isWeb = identical(0, 0.0);
 /// helper to detect if app is in release mode
 const isReleaseMode =
     bool.fromEnvironment('dart.vm.product', defaultValue: false);
+
+/// helper to detect if app is in profile mode
+const isProfileMode =
+    bool.fromEnvironment('dart.vm.profile', defaultValue: false);
