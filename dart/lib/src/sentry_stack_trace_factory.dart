@@ -124,7 +124,7 @@ class SentryStackTraceFactory {
           // remove abs as the Regex has no 2nd group
           final abs = group.substring(4, group.length);
           sentryStackFrame = SentryStackFrame(
-            instructionAddr: abs,
+            instructionAddr: '0x$abs',
             platform: 'native', // to trigger symbolication
           );
         }

@@ -93,21 +93,6 @@ void main() {
     expect(1, event.debugMeta.images.length);
   });
 
-  test('Event processor sets sdk version to the event', () async {
-    final options = SentryOptions()..dsn = fakeDsn;
-    final hub = Hub(options);
-
-    loadAndroidImageListIntegration(options, _channel)(hub, options);
-    final ep = options.eventProcessors.first;
-    var event = getEvent();
-    event = await ep(event, null);
-
-    expect(options.sdk.name, event.debugMeta.sdk.sdkName);
-    expect(event.debugMeta.sdk.versionMajor, isNotNull);
-    expect(event.debugMeta.sdk.versionMinor, isNotNull);
-    expect(event.debugMeta.sdk.versionPatchlevel, isNotNull);
-  });
-
   test('Event processor asserts image list', () async {
     final options = SentryOptions()..dsn = fakeDsn;
     final hub = Hub(options);

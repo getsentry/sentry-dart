@@ -177,13 +177,13 @@ Integration loadAndroidImageListIntegration(
           final newDebugImages = <DebugImage>[];
 
           for (final item in imageList) {
-            final codeFile = item['codeFile'] as String;
-            final codeId = item['codeId'] as String;
-            final imageAddr = item['imageAddr'] as String;
-            final imageSize = item['imageSize'] as int;
+            final codeFile = item['code_file'] as String;
+            final codeId = item['code_id'] as String;
+            final imageAddr = item['image_addr'] as String;
+            final imageSize = item['image_size'] as int;
             final type = item['type'] as String;
-            final debugId = item['debugId'] as String;
-            final debugFile = item['debugFile'] as String;
+            final debugId = item['debug_id'] as String;
+            final debugFile = item['debug_file'] as String;
 
             final image = DebugImage(
               type: type,
