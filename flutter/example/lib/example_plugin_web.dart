@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
-/// A web implementation of the SentryFlutter plugin.
 class ExamplePluginWeb {
   static void registerWith(Registrar registrar) {
     final channel = MethodChannel(
