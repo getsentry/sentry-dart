@@ -12,6 +12,7 @@
 - Fix: NDK integration was being disabled by a typo
 - Fix: missing toList for debug meta #192
 - Enhancement: NavigationObserver to record Breadcrumbs for navigation events #197
+- Feat: Support split-debug-info for Android #191
 
 ### Breaking changes
 
