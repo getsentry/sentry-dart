@@ -1,6 +1,5 @@
 import 'package:mockito/mockito.dart';
-import 'package:sentry/sentry.dart' hide isolateErrorIntegration;
-import 'package:sentry/src/isolate_error_integration.dart';
+import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
@@ -15,7 +14,9 @@ void main() {
   test(
     'Isolate error adds integration',
     () async {
-      isolateErrorIntegration(fixture.hub, fixture.options);
+      final integration =
+          initIsolateErrorIntegration((Function receivePortDisposer) {});
+      await integration(fixture.hub, fixture.options);
 
       expect(
         true,
@@ -59,8 +60,6 @@ void main() {
   test(
     'Run zoned guarded adds integration',
     () async {
-      isolateErrorIntegration(fixture.hub, fixture.options);
-
       void callback() {}
       final integration = runZonedGuardedIntegration(callback);
 
@@ -77,8 +76,6 @@ void main() {
   );
 
   test('Run zoned guarded calls callback', () async {
-    isolateErrorIntegration(fixture.hub, fixture.options);
-
     var called = false;
     void callback() {
       called = true;

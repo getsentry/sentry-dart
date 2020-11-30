@@ -26,11 +26,6 @@ FutureOr<void> Function(SentryOptions) getConfigurationTester({
               .where((element) => element == flutterErrorIntegration),
           isNotEmpty);
 
-      expect(
-          options.integrations
-              .where((element) => element == isolateErrorIntegration),
-          isNotEmpty);
-
       if (isIOS) {
         expect(5, options.integrations.length);
       } else {

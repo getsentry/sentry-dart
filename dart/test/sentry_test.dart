@@ -128,10 +128,6 @@ void main() {
       await Sentry.init(
         (options) {
           options.dsn = fakeDsn;
-          expect(
-            options.integrations.contains(isolateErrorIntegration),
-            true,
-          );
           expect(options.integrations.length, 2);
         },
         appRunner,

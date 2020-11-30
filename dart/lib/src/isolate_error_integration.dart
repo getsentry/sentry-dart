@@ -5,36 +5,17 @@ import 'protocol.dart';
 import 'sentry_options.dart';
 import 'throwable_mechanism.dart';
 
-/*
-void addIsolateErrorIntegration(SentryOptions options) {
-  options
-      .addIntegration(initIsolateErrorIntegration((RawReceivePort receivePort) {
-    _disposeIsolate = receivePort.close;
-  }));
-}
-*/
-
 Integration initIsolateErrorIntegration(
-    void Function(Function) receivePortWatcher) {
-  return (Hub hub, SentryOptions options) {
-    final receivePort = _createPort(hub, options);
+  void Function(Function) getPortDisposer,
+) =>
+    (Hub hub, SentryOptions options) {
+      final receivePort = _createPort(hub, options);
 
-    Isolate.current.addErrorListener(receivePort.sendPort);
+      Isolate.current.addErrorListener(receivePort.sendPort);
 
-    options.sdk.addIntegration('isolateErrorIntegration');
-    receivePortWatcher(receivePort.close);
-  };
-}
-
-/// integration that capture errors on the current Isolate Error handler
-/// which is the main thread.
-void isolateErrorIntegration(Hub hub, SentryOptions options) {
-  final receivePort = _createPort(hub, options);
-
-  Isolate.current.addErrorListener(receivePort.sendPort);
-
-  options.sdk.addIntegration('isolateErrorIntegration');
-}
+      options.sdk.addIntegration('isolateErrorIntegration');
+      getPortDisposer(receivePort.close);
+    };
 
 RawReceivePort _createPort(Hub hub, SentryOptions options) {
   return RawReceivePort(
