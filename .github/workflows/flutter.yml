@@ -84,8 +84,8 @@ jobs:
       - run: |
           cd flutter
           flutter pub get
-          flutter analyze ./
           flutter format -n --set-exit-if-changed ./
+          flutter analyze ./
 
   package-analysis:
     runs-on: ubuntu-latest
