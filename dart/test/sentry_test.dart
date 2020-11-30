@@ -3,6 +3,7 @@ import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
+import 'fake_platform_checker.dart';
 
 Function appRunner = () {};
 
@@ -159,7 +160,7 @@ void main() {
   );
 
   test('options.environment debug', () async {
-    var platformChecker = MockPlatformChecker.debugMode();
+    var platformChecker = FakePlatformChecker.debugMode();
 
     await Sentry.init((options) {
       options.dsn = fakeDsn;
@@ -168,7 +169,7 @@ void main() {
   });
 
   test('options.environment profile', () async {
-    var platformChecker = MockPlatformChecker.profileMode();
+    var platformChecker = FakePlatformChecker.profileMode();
 
     await Sentry.init((options) {
       options.dsn = fakeDsn;
@@ -177,7 +178,7 @@ void main() {
   });
 
   test('options.environment production (defaultEnvironment)', () async {
-    var platformChecker = MockPlatformChecker.releaseMode();
+    var platformChecker = FakePlatformChecker.releaseMode();
 
     await Sentry.init((options) {
       options.dsn = fakeDsn;
