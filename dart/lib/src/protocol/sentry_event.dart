@@ -323,11 +323,6 @@ class SentryEvent {
     Map<String, dynamic> sdkMap;
     if (sdk != null && (sdkMap = sdk.toJson()).isNotEmpty) {
       json['sdk'] = sdkMap;
-    } else {
-      json['sdk'] = <String, String>{
-        'name': sdkName,
-        'version': sdkVersion,
-      };
     }
 
     Map<String, dynamic> requestMap;
