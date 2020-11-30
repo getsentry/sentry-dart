@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/services.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry_flutter/src/widgets_binding_observer.dart';
+import 'widgets_binding_observer.dart';
 
 /// integration that capture errors on the FlutterError handler
 void flutterErrorIntegration(Hub hub, SentryOptions options) {

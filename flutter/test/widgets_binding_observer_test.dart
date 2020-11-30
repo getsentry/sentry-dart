@@ -19,7 +19,7 @@ void main() {
       final observer = SentryWidgetsBindingObserver(hub: hub);
       WidgetsBinding.instance.addObserver(observer);
 
-      final ByteData message = const JSONMessageCodec()
+      final message = const JSONMessageCodec()
           .encodeMessage(<String, dynamic>{'type': 'memoryPressure'});
 
       await WidgetsBinding.instance.defaultBinaryMessenger
@@ -60,7 +60,7 @@ void main() {
       WidgetsBinding.instance.addObserver(observer);
 
       // paused lifecycle event
-      sendLifecycle('paused');
+      await sendLifecycle('paused');
 
       var breadcrumb =
           verify(hub.addBreadcrumb(captureAny)).captured.last as Breadcrumb;
@@ -70,7 +70,7 @@ void main() {
       expect(breadcrumb.level, SentryLevel.info);
 
       // resumed lifecycle event
-      sendLifecycle('resumed');
+      await sendLifecycle('resumed');
 
       breadcrumb =
           verify(hub.addBreadcrumb(captureAny)).captured.last as Breadcrumb;
@@ -80,7 +80,7 @@ void main() {
       expect(breadcrumb.level, SentryLevel.info);
 
       // inactive lifecycle event
-      sendLifecycle('inactive');
+      await sendLifecycle('inactive');
 
       breadcrumb =
           verify(hub.addBreadcrumb(captureAny)).captured.last as Breadcrumb;
@@ -90,7 +90,7 @@ void main() {
       expect(breadcrumb.level, SentryLevel.info);
 
       // detached lifecycle event
-      sendLifecycle('detached');
+      await sendLifecycle('detached');
 
       breadcrumb =
           verify(hub.addBreadcrumb(captureAny)).captured.last as Breadcrumb;
