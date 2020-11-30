@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -25,6 +24,7 @@ mixin SentryFlutter {
     AppRunner appRunner,
     PackageLoader packageLoader = _loadPackageInfo,
     iOSPlatformChecker isIOSChecker = isIOS,
+    AndroidPlatformChecker isAndroidChecker = isAndroid,
   ]) async {
     await Sentry.init(
       (options) async {
@@ -32,6 +32,7 @@ mixin SentryFlutter {
           options,
           packageLoader,
           isIOSChecker,
+          isAndroidChecker,
         );
 
         await optionsConfiguration(options);
@@ -47,6 +48,7 @@ mixin SentryFlutter {
     SentryOptions options,
     PackageLoader packageLoader,
     iOSPlatformChecker isIOSChecker,
+    AndroidPlatformChecker isAndroidChecker,
   ) async {
     // it is necessary to initialize Flutter method channels so that
     // our plugin can call into the native code.
@@ -63,7 +65,7 @@ mixin SentryFlutter {
 
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
-    _addDefaultIntegrations(options, isIOSChecker);
+    _addDefaultIntegrations(options, isIOSChecker, isAndroidChecker);
 
     await _setReleaseAndDist(options, packageLoader);
 
@@ -108,6 +110,7 @@ mixin SentryFlutter {
   static void _addDefaultIntegrations(
     SentryOptions options,
     iOSPlatformChecker isIOS,
+    AndroidPlatformChecker isAndroidChecker,
   ) {
     // the ordering here matters, as we'd like to first start the native integration
     // that allow us to send events to the network and then the Flutter integrations.
@@ -121,7 +124,7 @@ mixin SentryFlutter {
       options.addIntegration(loadContextsIntegration(options, _channel));
     }
 
-    if (Platform.isAndroid) {
+    if (isAndroidChecker()) {
       options.addIntegration(loadImageList(options, _channel));
     }
   }
@@ -144,6 +147,9 @@ typedef PackageLoader = Future<PackageInfo> Function();
 
 /// an iOS PlatformChecker wrapper to make it testable
 typedef iOSPlatformChecker = bool Function();
+
+/// an Android PlatformChecker wrapper to make it testable
+typedef AndroidPlatformChecker = bool Function();
 
 /// Package info loader.
 Future<PackageInfo> _loadPackageInfo() async {

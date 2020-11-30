@@ -108,7 +108,6 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
         // to turn it off
         // options.isEnableNdk = false
       }
-      options.isEnableNdk = true
 
       options.setBeforeSend { event, _ ->
         setEventOriginTag(event)

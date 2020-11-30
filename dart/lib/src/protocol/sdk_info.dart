@@ -1,3 +1,5 @@
+import '../../sentry.dart';
+
 /// An object describing the system SDK.
 class SdkInfo {
   final String sdkName;
@@ -11,6 +13,31 @@ class SdkInfo {
     this.versionMinor,
     this.versionPatchlevel,
   });
+
+  /// Creates a SdkInfo out of a SdkVersion
+  factory SdkInfo.fromSdkVersion(SdkVersion sdkversion) {
+    var major;
+    var minor;
+    var patch;
+    try {
+      final versions = sdkversion.version.split('.');
+      final fullPatch = versions[2];
+      // because of prereleases (eg -alpha) sufix
+      final path = fullPatch.split('-');
+
+      major = int.parse(versions[0]);
+      minor = int.parse(versions[1]);
+      patch = int.parse(path[0]);
+    } catch (error) {
+      // something is wrong but keep going
+    }
+
+    return SdkInfo(
+        sdkName: sdkversion.name,
+        versionMajor: major,
+        versionMinor: minor,
+        versionPatchlevel: patch);
+  }
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};

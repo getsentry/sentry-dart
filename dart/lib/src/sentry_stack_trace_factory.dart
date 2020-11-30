@@ -31,6 +31,8 @@ class SentryStackTraceFactory {
     var nativeStackTraces = false;
 
     for (final trace in chain.traces) {
+      var hasFrames = false;
+
       for (final frame in trace.frames) {
         // we don't want to add our own frames
         if (frame.package == 'sentry') {
@@ -38,7 +40,7 @@ class SentryStackTraceFactory {
         }
 
         final member = frame.member;
-        print(member);
+        // ideally the language would offer us a native way of parsing it.
         if (member != null &&
             member.contains(
               'This VM has been configured to produce stack traces that violate the Dart standard.',
@@ -55,21 +57,14 @@ class SentryStackTraceFactory {
           continue;
         }
         frames.add(stackTraceFrame);
+        hasFrames = true;
+      }
+
+      // gap if stack trace has no frames
+      if (!hasFrames) {
+        frames.add(SentryStackFrame.asynchronousGapFrameJson);
       }
     }
-
-    // for (var t = 0; t < chain.traces.length; t += 1) {
-    //   final encodedFrames = chain.traces[t].frames
-    //       // we don't want to add our own frames
-    //       .where((frame) => frame.package != 'sentry')
-    //       .map((f) => encodeStackTraceFrame(f, nativeStackTraces));
-
-    //   frames.addAll(encodedFrames);
-
-    //   if (t < chain.traces.length - 1) {
-    //     frames.add(SentryStackFrame.asynchronousGapFrameJson);
-    //   }
-    // }
 
     return frames.reversed.toList();
   }
@@ -118,8 +113,9 @@ class SentryStackTraceFactory {
       // unparsed      #03 abs 000000723d624663 virt 00000000001dd663 _kDartIsolateSnapshotInstructions+0x1d2663
       // unparsed      #04 abs 000000723d4b8c3b virt 0000000000071c3b _kDartIsolateSnapshotInstructions+0x66c3b
 
-      // TODO: use proper Regex
-      if (member.contains('abs')) {
+      // we are only interested on the #01, 02... which contains the 'abs' addresses.
+      if (member.contains('abs') && member.contains('virt')) {
+        // TODO: use proper Regex, this works for now
         final indexAbs = member.indexOf('abs');
         final indexVirt = member.indexOf('virt');
         final instructionAddr =

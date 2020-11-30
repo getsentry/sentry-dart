@@ -13,11 +13,7 @@ void flutterErrorIntegration(Hub hub, SentryOptions options) {
         SentryLevel.debug, 'Capture from onError ${errorDetails.exception}');
 
     // FlutterError doesn't crash the App.
-    const mechanism = Mechanism(
-      type: 'FlutterError',
-      handled: true,
-      synthetic: true,
-    );
+    const mechanism = Mechanism(type: 'FlutterError', handled: true);
     final throwableMechanism =
         ThrowableMechanism(mechanism, errorDetails.exception);
 
@@ -149,24 +145,13 @@ Integration loadImageList(
   SentryOptions options,
   MethodChannel channel,
 ) {
-  // TODO: ideally this would be already set
-  final versions = options.sdk.version.split('.');
-  final fullPatch = versions[2];
-  // because of -alpha sufix
-  final path = fullPatch.split('-');
-
-  final sdkInfo = SdkInfo(
-      sdkName: options.sdk.name,
-      versionMajor: int.parse(versions[0]),
-      versionMinor: int.parse(versions[1]),
-      versionPatchlevel: int.parse(path[0]));
+  final sdkInfo = SdkInfo.fromSdkVersion(options.sdk);
 
   Future<void> integration(Hub hub, SentryOptions options) async {
     options.addEventProcessor(
       (event, dynamic hint) async {
         try {
-          final List<Map<dynamic, dynamic>> imageList =
-              List<Map<dynamic, dynamic>>.from(
+          final imageList = List<Map<dynamic, dynamic>>.from(
             await channel.invokeMethod('loadImageList'),
           );
 
@@ -174,7 +159,7 @@ Integration loadImageList(
             return event;
           }
 
-          final List<DebugImage> newDebugImages = [];
+          final newDebugImages = <DebugImage>[];
 
           for (final item in imageList) {
             final image_addr = item['image_addr'] as String;
