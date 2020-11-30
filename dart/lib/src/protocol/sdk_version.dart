@@ -66,11 +66,11 @@ class SdkVersion {
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
-    if( name != null) {
+    if (name != null) {
       json['name'] = name;
     }
 
-    if( version != null) {
+    if (version != null) {
       json['version'] = version;
     }
 
