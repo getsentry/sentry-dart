@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:isolate';
 
 import 'default_integrations.dart';
 import 'hub.dart';
