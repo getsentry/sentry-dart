@@ -28,10 +28,10 @@ class SentryStackTraceFactory {
             : Chain.parse('');
 
     final frames = <SentryStackFrame>[];
-    var nativeStackTraces = false;
+    var symbolicated = true;
 
-    for (final trace in chain.traces) {
-      var hasFrames = false;
+    for (var t = 0; t < chain.traces.length; t += 1) {
+      final trace = chain.traces[t];
 
       for (final frame in trace.frames) {
         // we don't want to add our own frames
@@ -45,23 +45,22 @@ class SentryStackTraceFactory {
             member.contains(
               'This VM has been configured to produce stack traces that violate the Dart standard.',
             )) {
-          nativeStackTraces = true;
+          symbolicated = false;
         }
 
         final stackTraceFrame = encodeStackTraceFrame(
           frame,
-          nativeStackTraces,
+          symbolicated: symbolicated,
         );
 
         if (stackTraceFrame == null) {
           continue;
         }
         frames.add(stackTraceFrame);
-        hasFrames = true;
       }
 
-      // gap if stack trace has no frames
-      if (!hasFrames) {
+      // fill asynchronous gap
+      if (t < chain.traces.length - 1) {
         frames.add(SentryStackFrame.asynchronousGapFrameJson);
       }
     }
@@ -71,12 +70,13 @@ class SentryStackTraceFactory {
 
   /// converts [Frame] to [SentryStackFrame]
   @visibleForTesting
-  SentryStackFrame encodeStackTraceFrame(Frame frame, bool nativeStackTraces) {
+  SentryStackFrame encodeStackTraceFrame(Frame frame,
+      {bool symbolicated = true}) {
     final member = frame.member;
 
     SentryStackFrame sentryStackFrame;
 
-    if (!nativeStackTraces) {
+    if (symbolicated) {
       final fileName = frame.uri.pathSegments.isNotEmpty
           ? frame.uri.pathSegments.last
           : null;
