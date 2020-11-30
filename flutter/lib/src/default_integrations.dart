@@ -141,16 +141,33 @@ Integration nativeSdkIntegration(SentryOptions options, MethodChannel channel) {
   return integration;
 }
 
-Integration loadImageList(
+Integration loadAndroidImageListIntegration(
   SentryOptions options,
   MethodChannel channel,
 ) {
-  final sdkInfo = SdkInfo.fromSdkVersion(options.sdk);
-
   Future<void> integration(Hub hub, SentryOptions options) async {
+    final sdkInfo = SdkInfo.fromSdkVersion(options.sdk);
+
     options.addEventProcessor(
       (event, dynamic hint) async {
         try {
+          if (event.exception != null &&
+              event.exception.stackTrace != null &&
+              event.exception.stackTrace.frames != null) {
+            final needsSymbolication = event.exception.stackTrace.frames
+                .any((element) => !element.symbolicated);
+
+            // if there are no frames that require symbolication, we don't
+            // load the debug image list.
+            if (!needsSymbolication) {
+              return event;
+            }
+          } else {
+            return event;
+          }
+
+          // we call on every event because the loaded image list is cached
+          // and it could be changed on the Native side.
           final imageList = List<Map<dynamic, dynamic>>.from(
             await channel.invokeMethod('loadImageList'),
           );
@@ -196,7 +213,7 @@ Integration loadImageList(
       },
     );
 
-    options.sdk.addIntegration('loadContextsIntegration');
+    options.sdk.addIntegration('loadAndroidImageListIntegration');
   }
 
   return integration;

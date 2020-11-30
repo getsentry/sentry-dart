@@ -24,6 +24,7 @@ class SentryStackFrame {
     List<String> preContext,
     List<String> postContext,
     Map<String, String> vars,
+    this.symbolicated = true,
   })  : _framesOmitted = framesOmitted,
         _preContext = preContext,
         _postContext = postContext,
@@ -103,6 +104,11 @@ class SentryStackFrame {
 
   /// The original function name, if the function name is shortened or demangled. Sentry shows the raw function when clicking on the shortened one in the UI.
   final String rawFunction;
+
+  /// This is not serializable, but only for internal usage.
+  /// When this flag is false means that the frame is not human readable
+  /// and needs symbolication on the server.
+  final bool symbolicated;
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -210,6 +216,7 @@ class SentryStackFrame {
     List<String> preContext,
     List<String> postContext,
     Map<String, String> vars,
+    bool symbolicated,
   }) =>
       SentryStackFrame(
         absPath: absPath ?? this.absPath,
@@ -231,5 +238,6 @@ class SentryStackFrame {
         preContext: preContext ?? _preContext,
         postContext: postContext ?? _postContext,
         vars: vars ?? _vars,
+        symbolicated: symbolicated ?? this.symbolicated,
       );
 }

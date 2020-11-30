@@ -15,25 +15,27 @@ class SdkInfo {
   });
 
   /// Creates a SdkInfo out of a SdkVersion
-  factory SdkInfo.fromSdkVersion(SdkVersion sdkversion) {
+  factory SdkInfo.fromSdkVersion(SdkVersion sdkVersion) {
+    var name;
     var major;
     var minor;
     var patch;
     try {
-      final versions = sdkversion.version.split('.');
+      name = sdkVersion.name;
+      final versions = sdkVersion.version.split('.');
       final fullPatch = versions[2];
       // because of prereleases (eg -alpha) sufix
-      final path = fullPatch.split('-');
+      final singlePatch = fullPatch.split('-');
 
       major = int.parse(versions[0]);
       minor = int.parse(versions[1]);
-      patch = int.parse(path[0]);
+      patch = int.parse(singlePatch[0]);
     } catch (error) {
       // something is wrong but keep going
     }
 
     return SdkInfo(
-        sdkName: sdkversion.name,
+        sdkName: name,
         versionMajor: major,
         versionMinor: minor,
         versionPatchlevel: patch);

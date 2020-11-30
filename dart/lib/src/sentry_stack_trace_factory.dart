@@ -124,6 +124,7 @@ class SentryStackTraceFactory {
         sentryStackFrame = SentryStackFrame(
           instructionAddr: instructionAddr,
           platform: 'native', // to trigger symbolication
+          symbolicated: false, // signal to load image list from Native SDKs
         );
       }
     }
