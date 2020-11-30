@@ -12,7 +12,7 @@ class SentryStackTrace {
 
   final List<SentryStackFrame> _frames;
 
-  /// Required. A non-empty list of stack frames (see below).
+  /// Required. A non-empty immutable list of stack frames (see below).
   /// The list is ordered from caller to callee, or oldest to youngest.
   /// The last frame is the one creating the exception.
   List<SentryStackFrame> get frames => List.unmodifiable(_frames);
@@ -28,7 +28,8 @@ class SentryStackTrace {
     final json = <String, dynamic>{};
 
     if (_frames != null && _frames.isNotEmpty) {
-      json['frames'] = _frames.map((frame) => frame.toJson()).toList();
+      json['frames'] =
+          _frames.map((frame) => frame.toJson()).toList(growable: false);
     }
 
     if (_registers != null && _registers.isNotEmpty ?? false) {

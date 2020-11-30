@@ -41,8 +41,9 @@ class SdkVersion {
     List<String> integrations,
     List<SentryPackage> packages,
   })  : assert(name != null || version != null),
-        _integrations = integrations ?? [],
-        _packages = packages ?? [];
+        // List.from prevents from having immutable lists
+        _integrations = integrations != null ? List.from(integrations) : [],
+        _packages = packages != null ? List.from(packages) : [];
 
   /// The name of the SDK.
   final String name;
@@ -52,15 +53,15 @@ class SdkVersion {
 
   final List<String> _integrations;
 
-  /// A list of integrations enabled in the SDK that created the [Event].
+  /// An immutable list of integrations enabled in the SDK that created the [Event].
   List<String> get integrations => List.unmodifiable(_integrations);
 
   final List<SentryPackage> _packages;
 
-  /// A list of packages that compose this SDK.
+  /// An immutable list of packages that compose this SDK.
   List<SentryPackage> get packages => List.unmodifiable(_packages);
 
-  String get identifier => '${name}/${version}';
+  String get identifier => '$name/$version';
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {

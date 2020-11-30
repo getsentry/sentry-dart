@@ -40,30 +40,45 @@ import 'dart:async';
 import 'package:sentry/sentry.dart';
 
 Future<void> main() async {
-  await Sentry.init((options) {
-    options.dsn = 'https://example@sentry.io/add-your-dsn-here';
-    // For better groupping, change the 'example' below with your own App's package.
-    options.addInAppInclude('example');
-  });
-
-  try {
-    aMethodThatMightFail();
-  } catch (exception, stackTrace) {
-    await Sentry.captureException(
-      exception,
-      stackTrace: stackTrace,
-    );
-  }
+  await Sentry.init(
+    (options) {
+      options.dsn = 'https://example@sentry.io/add-your-dsn-here';
+    }, 
+    initApp, // Init your App.
+  );
 }
 
-void aMethodThatMightFail() {
-  throw null;
+void initApp() {
+  // your app code
 }
+```
+
+Or, if you want to run your app in your own error zone [runZonedGuarded] :  
+
+```dart
+import 'dart:async';
+import 'package:sentry/sentry.dart';
+
+Future<void> main() async {
+  await Sentry.init(
+    (options) {
+      options.dsn = 'https://example@sentry.io/add-your-dsn-here';
+    }, 
+  );
+
+  // Init your App.
+  initApp();
+}
+
+void initApp() {
+  // your app code
+}
+
 ```
 
 #### Resources
 
-* [![Documentation](https://img.shields.io/badge/documentation-sentry.io-green.svg)](https://docs.sentry.io/platforms/flutter/)
+* [![Documentation](https://img.shields.io/badge/documentation-sentry.io-green.svg)](https://docs.sentry.io/platforms/dart/)
 * [![Forum](https://img.shields.io/badge/forum-sentry-green.svg)](https://forum.sentry.io/c/sdks)
 * [![Discord](https://img.shields.io/discord/621778831602221064)](https://discord.gg/Ww9hbqr)
 * [![Stack Overflow](https://img.shields.io/badge/stack%20overflow-sentry-green.svg)](https://stackoverflow.com/questions/tagged/sentry)

@@ -34,10 +34,8 @@ Future<void> main() async {
     (options) {
       options.dsn = 'https://example@sentry.io/add-your-dsn-here';
     },
-    () {
-      // Init your App.
-      runApp(MyApp());
-    },
+    // Init your App.
+    () => runApp(MyApp()),
   );
 
   try {
@@ -54,6 +52,43 @@ void aMethodThatMightFail() {
   throw null;
 }
 ```
+
+Or, if you want to run your app in your own error zone [runZonedGuarded](https://api.flutter.dev/flutter/dart-async/runZonedGuarded.html):
+
+```dart
+import 'package:flutter/widgets.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+
+Future<void> main() async {
+  await SentryFlutter.init(
+    (options) {
+      options.dsn = 'https://example@sentry.io/add-your-dsn-here';
+    },
+  );
+
+  runApp(MyApp());
+}
+```
+
+##### Tracking navigation events
+
+In order to track navigation events you have to add the 
+`SentryNavigationObserver` to your `MaterialApp`, `WidgetsApp` or `CupertinoApp`.
+
+```dart
+import 'package:flutter/widgets.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+
+// ...
+MaterialApp(
+  navigatorObservers: [
+    SentryNavigatorObserver(),
+  ],
+  // other parameters
+)
+// ...
+```
+For a more throughout example see the [example](example/lib/main.dart).
 
 ##### Known limitations
 

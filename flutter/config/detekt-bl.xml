@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>ForbiddenComment:SentryFlutterPlugin.kt$SentryFlutterPlugin$// TODO: check if args exist before assigning the values</ID>
+    <ID>ForbiddenComment:SentryFlutterPlugin.kt$SentryFlutterPlugin$// TODO: merge debug images from Native</ID>
+    <ID>MagicNumber:MainActivity.kt$MainActivity$6_000</ID>
+    <ID>TooGenericExceptionCaught:MainActivity.kt$MainActivity$e: Exception</ID>
+    <ID>TooGenericExceptionThrown:MainActivity.kt$MainActivity$throw Exception("Thrown from Kotlin!")</ID>
+    <ID>TooGenericExceptionThrown:MainActivity.kt$MainActivity$throw RuntimeException("Catch this exception!")</ID>
+    <ID>TooManyFunctions:SentryFlutterPlugin.kt$SentryFlutterPlugin : FlutterPluginMethodCallHandler</ID>
+  </CurrentIssues>
+</SmellBaseline>

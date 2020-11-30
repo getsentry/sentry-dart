@@ -36,7 +36,7 @@ class Request {
 
   final Map<String, String> _headers;
 
-  /// A dictionary of submitted headers.
+  /// An immutable dictionary of submitted headers.
   /// If a header appears multiple times it,
   /// needs to be merged according to the HTTP standard for header merging.
   /// Header names are treated case-insensitively by Sentry.
@@ -45,7 +45,7 @@ class Request {
 
   final Map<String, String> _env;
 
-  /// A dictionary containing environment information passed from the server.
+  /// An immutable dictionary containing environment information passed from the server.
   /// This is where information such as CGI/WSGI/Rack keys go that are not HTTP headers.
   Map<String, String> get env => _env != null ? Map.unmodifiable(_env) : null;
 
@@ -54,7 +54,7 @@ class Request {
   Map<String, String> get other =>
       _other != null ? Map.unmodifiable(_other) : null;
 
-  const Request({
+  Request({
     this.url,
     this.method,
     this.queryString,
@@ -64,9 +64,9 @@ class Request {
     Map<String, String> env,
     Map<String, String> other,
   })  : _data = data,
-        _headers = headers,
-        _env = env,
-        _other = other;
+        _headers = headers != null ? Map.from(headers) : null,
+        _env = env != null ? Map.from(env) : null,
+        _other = other != null ? Map.from(other) : null;
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};

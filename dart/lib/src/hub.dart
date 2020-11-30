@@ -7,6 +7,7 @@ import 'scope.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 
+/// Configures the scope through the callback.
 typedef ScopeCallback = void Function(Scope);
 
 /// SDK API contract which combines a client and scope management
@@ -130,7 +131,7 @@ class Hub {
         } catch (err) {
           _options.logger(
             SentryLevel.error,
-            'Error while capturing exception : ${throwable}',
+            'Error while capturing exception : $throwable',
           );
         } finally {
           _lastEventId = sentryId;
@@ -181,7 +182,7 @@ class Hub {
         } catch (err) {
           _options.logger(
             SentryLevel.error,
-            'Error while capturing message with id: ${message}',
+            'Error while capturing message with id: $message',
           );
         } finally {
           _lastEventId = sentryId;

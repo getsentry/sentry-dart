@@ -4,10 +4,18 @@
 
 - Fix: StackTrace frames with 'package' uri.scheme are inApp by default #185
 - Enhancement: add loadContextsIntegration tests
-- StackTrace factory : package are inApp by default 
 - Fix: missing app's stack traces for Flutter errors
-- add loadContextsIntegration tests
+- Enhancement: add isolateErrorIntegration and runZonedGuardedIntegration to default integrations in sentry-dart
+- Fix: Breadcrumb list is a plain list instead of a values list #201
 - Ref: Remove deprecated classes (Flutter Plugin for Android) and cleaning up #186
+- Fix: Handle immutable event lists and maps
+- Fix: NDK integration was being disabled by a typo
+- Fix: missing toList for debug meta #192
+- Enhancement: NavigationObserver to record Breadcrumbs for navigation events #197
+
+### Breaking changes
+
+- `Sentry.init` and `SentryFlutter.init` have an optional callback argument which runs the host app after Sentry initialization.
 
 ## 4.0.0-alpha.2
 

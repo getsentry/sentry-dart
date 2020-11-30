@@ -28,23 +28,36 @@ jobs:
             target: web
     steps:
         - uses: actions/checkout@v2
+
         - uses: actions/setup-java@v1
           with:
               java-version: '8'
+
         - uses: subosito/flutter-action@v1
           with:
             channel: ${{ matrix.channel }}
+
         - name: enable web
           if: matrix.target == 'web'
           run: flutter config --enable-web
+
         # https://github.com/flutter/flutter/issues/59522#issuecomment-646208247
         - name: Fix iOS build bug
           if: matrix.target == 'ios'
           run: rm flutter/example/ios/Podfile
+
         - name: Test
           run: |
             cd flutter
-            flutter test
+            flutter pub get
+            flutter test --coverage test
+
+        - uses: codecov/codecov-action@v1
+          if: runner.os == 'Linux'
+          with:
+            name: sentry_flutter
+            file: ./flutter/coverage/lcov.info
+
         - name: Build ${{ matrix.target }}
           env:
             SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
@@ -56,12 +69,33 @@ jobs:
             flutter build ios --release --no-codesign
             ;;
             android)
-            flutter build appbundle
+            flutter build appbundle --release
             ;;
             web)
             flutter build web
             ;;
             esac
+
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: subosito/flutter-action@v1
+      - run: |
+          cd flutter
+          flutter pub get
+          flutter format --set-exit-if-changed .
+
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: subosito/flutter-action@v1
+      - run: |
+          cd flutter
+          flutter pub get
+          flutter analyze
+
   package-analysis:
     runs-on: ubuntu-latest
     steps:
@@ -77,29 +111,40 @@ jobs:
           TOTAL_MAX: ${{ steps.analysis.outputs.total_max }}
         run: |
           PERCENTAGE=$(( $TOTAL * 100 / $TOTAL_MAX ))
-          if (( $PERCENTAGE < 90 ))
+          if (( $PERCENTAGE < 100 ))
           then
             echo Score too low!
             exit 1
           fi
+
   pod-lint:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
       # https://github.com/CocoaPods/CocoaPods/issues/5275#issuecomment-315461879
       - run: pod lib lint flutter/ios/sentry_flutter.podspec --skip-import-validation --allow-warnings
+
   swift-lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: norio-nomura/action-swiftlint@3.1.0
+      - uses: norio-nomura/action-swiftlint@3.2.1
+
   ktlint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: brew install ktlint
-      - name: run ktlint
-        run: ktlint --reporter=checkstyle,output=build/ktlint-report.xml || true
-      - uses: yutailang0119/action-ktlint@v1.0.0
+      - run: |
+          brew install ktlint
+          ktlint --reporter=checkstyle,output=build/ktlint-report.xml || true
+      - uses: yutailang0119/action-ktlint@v1
         with:
           xml_path: build/ktlint-report.xml
+
+  detekt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: natiginfo/action-detekt-all@1.15.0-RC1
+        with:
+          args: -i flutter --baseline flutter/config/detekt-bl.xml

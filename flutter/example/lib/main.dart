@@ -15,10 +15,8 @@ Future<void> main() async {
     (options) {
       options.dsn = _exampleDsn;
     },
-    () {
-      // Init your App.
-      runApp(MyApp());
-    },
+    // Init your App.
+    () => runApp(MyApp()),
   );
 }
 
@@ -36,63 +34,75 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Sentry Flutter Example')),
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              const Center(child: Text('Trigger an action:\n')),
-              RaisedButton(
-                child: const Text('Dart: try catch'),
-                onPressed: () => tryCatch(),
-              ),
-              RaisedButton(
-                child: const Text('Flutter error : Scaffold.of()'),
-                onPressed: () => Scaffold.of(context).showSnackBar(SnackBar(
-                  content: Text(''),
-                )),
-              ),
-              RaisedButton(
-                child: const Text('Dart: throw null'),
+      navigatorObservers: [
+        SentryNavigatorObserver(),
+      ],
+      home: const MainScaffold(),
+    );
+  }
+}
+
+class MainScaffold extends StatelessWidget {
+  const MainScaffold({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Sentry Flutter Example')),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            const Center(child: Text('Trigger an action:\n')),
+            RaisedButton(
+              child: const Text('Open another Scaffold'),
+              onPressed: () => SecondaryScaffold.openSecondaryScaffold(context),
+            ),
+            RaisedButton(
+              child: const Text('Dart: try catch'),
+              onPressed: () => tryCatch(),
+            ),
+            RaisedButton(
+              child: const Text('Flutter error : Scaffold.of()'),
+              onPressed: () => Scaffold.of(context)
+                  .showBottomSheet<dynamic>((context) => null),
+            ),
+            RaisedButton(
+              child: const Text('Dart: throw null'),
+              // Warning : not captured if a debugger is attached
+              // https://github.com/flutter/flutter/issues/48972
+              onPressed: () => throw null,
+            ),
+            RaisedButton(
+              child: const Text('Dart: assert'),
+              onPressed: () {
+                // Only relevant in debug builds
                 // Warning : not captured if a debugger is attached
                 // https://github.com/flutter/flutter/issues/48972
-                onPressed: () => throw null,
-              ),
-              RaisedButton(
-                child: const Text('Dart: assert'),
-                onPressed: () {
-                  // Only relevant in debug builds
-                  // Warning : not captured if a debugger is attached
-                  // https://github.com/flutter/flutter/issues/48972
-                  assert(false, 'assert failure');
-                },
-              ),
-              RaisedButton(
-                  child: const Text('Dart: async throws'),
-                  onPressed: () async => asyncThrows().catchError(handleError)),
-              RaisedButton(
-                child: const Text('Dart: Fail in microtask.'),
-                onPressed: () async => {
-                  await Future.microtask(
-                    () => throw StateError('Failure in a microtask'),
-                  ).catchError(handleError)
-                },
-              ),
-              RaisedButton(
-                child: const Text('Dart: Fail in compute'),
-                onPressed: () async =>
-                    {await compute(loop, 10).catchError(handleError)},
-              ),
-              RaisedButton(
-                child: const Text('Dart: Fail in compute'),
-                onPressed: () async =>
-                    {await compute(loop, 10).catchError(handleError)},
-              ),
-              if (UniversalPlatform.isIOS) const CocoaExample(),
-              if (UniversalPlatform.isAndroid) const AndroidExample(),
-              if (UniversalPlatform.isWeb) const WebExample(),
-            ],
-          ),
+                assert(false, 'assert failure');
+              },
+            ),
+            RaisedButton(
+                child: const Text('Dart: async throws'),
+                onPressed: () async => asyncThrows().catchError(handleError)),
+            RaisedButton(
+              child: const Text('Dart: Fail in microtask.'),
+              onPressed: () async => {
+                await Future.microtask(
+                  () => throw StateError('Failure in a microtask'),
+                ).catchError(handleError)
+              },
+            ),
+            RaisedButton(
+              child: const Text('Dart: Fail in compute'),
+              onPressed: () async =>
+                  {await compute(loop, 10).catchError(handleError)},
+            ),
+            if (UniversalPlatform.isIOS) const CocoaExample(),
+            if (UniversalPlatform.isAndroid) const AndroidExample(),
+            if (UniversalPlatform.isWeb) const WebExample(),
+          ],
         ),
       ),
     );
@@ -102,6 +112,7 @@ class _MyAppState extends State<MyApp> {
 class AndroidExample extends StatelessWidget {
   const AndroidExample({Key key}) : super(key: key);
 
+  // ignore: avoid_field_initializers_in_const_classes
   final channel = const MethodChannel('example.flutter.sentry.io');
 
   @override
@@ -169,6 +180,8 @@ Future<void> asyncThrows() async {
 class CocoaExample extends StatelessWidget {
   const CocoaExample({Key key}) : super(key: key);
 
+  final channel = const MethodChannel('example.flutter.sentry.io');
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -176,35 +189,30 @@ class CocoaExample extends StatelessWidget {
         RaisedButton(
           child: const Text('Swift fatalError'),
           onPressed: () async {
-            const channel = MethodChannel('example.flutter.sentry.io');
             await channel.invokeMethod<void>('fatalError');
           },
         ),
         RaisedButton(
           child: const Text('Swift Capture NSException'),
           onPressed: () async {
-            const channel = MethodChannel('example.flutter.sentry.io');
             await channel.invokeMethod<void>('capture');
           },
         ),
         RaisedButton(
           child: const Text('Swift Capture message'),
           onPressed: () async {
-            const channel = MethodChannel('example.flutter.sentry.io');
             await channel.invokeMethod<void>('capture_message');
           },
         ),
         RaisedButton(
           child: const Text('Objective-C Throw unhandled exception'),
           onPressed: () async {
-            const channel = MethodChannel('example.flutter.sentry.io');
             await channel.invokeMethod<void>('throw');
           },
         ),
         RaisedButton(
           child: const Text('Objective-C SEGFAULT'),
           onPressed: () async {
-            const channel = MethodChannel('example.flutter.sentry.io');
             await channel.invokeMethod<void>('crash');
           },
         ),
@@ -216,6 +224,8 @@ class CocoaExample extends StatelessWidget {
 class WebExample extends StatelessWidget {
   const WebExample({Key key}) : super(key: key);
 
+  final channel = const MethodChannel('example.flutter.sentry.io');
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -223,8 +233,7 @@ class WebExample extends StatelessWidget {
         RaisedButton(
           child: const Text('Web: console.log'),
           onPressed: () async {
-            const channel = MethodChannel('example.flutter.sentry.io');
-            await channel.invokeMethod<void>('console.log');
+            await channel.invokeMethod<void>('console.log', 'log me');
           },
         ),
       ],
@@ -235,10 +244,50 @@ class WebExample extends StatelessWidget {
 /// compute can only take a top-level function, but not instance or static methods.
 // Top-level functions are functions declared not inside a class and not inside another function
 int loop(int val) {
-  int count = 0;
-  for (int i = 1; i <= val; i++) {
+  var count = 0;
+  for (var i = 1; i <= val; i++) {
     count += i;
   }
 
   throw StateError('from a compute isolate $count');
+}
+
+class SecondaryScaffold extends StatelessWidget {
+  static Future<void> openSecondaryScaffold(BuildContext context) {
+    return Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        settings:
+            const RouteSettings(name: 'SecondaryScaffold', arguments: 'foobar'),
+        builder: (context) {
+          return SecondaryScaffold();
+        },
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('SecondaryScaffold'),
+      ),
+      body: Center(
+        child: Column(
+          children: [
+            const Text(
+              'You have added a navigation event '
+              'to the crash reports breadcrumbs.',
+            ),
+            MaterialButton(
+              child: const Text('Go back'),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

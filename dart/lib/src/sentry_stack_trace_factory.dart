@@ -20,6 +20,7 @@ class SentryStackTraceFactory {
   List<SentryStackFrame> getStackFrames(dynamic stackTrace) {
     if (stackTrace == null) return null;
 
+    // TODO : fix : in release mode on Safari passing a stacktrace object fails, but works if it's passed as String
     final chain = (stackTrace is StackTrace)
         ? Chain.forTrace(stackTrace)
         : (stackTrace is String)

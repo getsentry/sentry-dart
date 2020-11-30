@@ -1,58 +1,8 @@
 import 'dart:async';
-import 'dart:isolate';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:sentry/sentry.dart';
-
-/// integration that capture errors on the current Isolate Error handler
-/// which is the main thread.
-void isolateErrorIntegration(Hub hub, SentryOptions options) {
-  final receivePort = _createPort(hub, options);
-
-  Isolate.current.addErrorListener(receivePort.sendPort);
-
-  options.sdk.addIntegration('isolateErrorIntegration');
-}
-
-RawReceivePort _createPort(Hub hub, SentryOptions options) {
-  return RawReceivePort(
-    (dynamic error) async {
-      await handleIsolateError(hub, options, error);
-    },
-  );
-}
-
-/// Parse and raise an event out of the Isolate error.
-/// Visible for testing.
-Future<void> handleIsolateError(
-  Hub hub,
-  SentryOptions options,
-  dynamic error,
-) async {
-  options.logger(SentryLevel.debug, 'Capture from IsolateError $error');
-
-  // https://api.dartlang.org/stable/2.7.0/dart-isolate/Isolate/addErrorListener.html
-  // error is a list of 2 elements
-  if (error is List<dynamic> && error.length == 2) {
-    final dynamic throwable = error.first;
-    final dynamic stackTrace = error.last;
-
-    //  Isolate errors don't crash the App.
-    const mechanism = Mechanism(
-      type: 'isolateError',
-      handled: true,
-      synthetic: true,
-    );
-    final throwableMechanism = ThrowableMechanism(mechanism, throwable);
-    final event = SentryEvent(
-      throwable: throwableMechanism,
-      level: SentryLevel.fatal,
-    );
-
-    await hub.captureEvent(event, stackTrace: stackTrace);
-  }
-}
 
 /// integration that capture errors on the FlutterError handler
 void flutterErrorIntegration(Hub hub, SentryOptions options) {
@@ -90,36 +40,6 @@ void flutterErrorIntegration(Hub hub, SentryOptions options) {
   options.sdk.addIntegration('flutterErrorIntegration');
 }
 
-/// integration that capture errors on the runZonedGuarded error handler
-Integration runZonedGuardedIntegration(
-  Function callback,
-) {
-  void integration(Hub hub, SentryOptions options) {
-    runZonedGuarded(() {
-      callback();
-    }, (exception, stackTrace) async {
-      // runZonedGuarded doesn't crash the App.
-      const mechanism = Mechanism(
-        type: 'runZonedGuarded',
-        handled: true,
-        synthetic: true,
-      );
-      final throwableMechanism = ThrowableMechanism(mechanism, exception);
-
-      final event = SentryEvent(
-        throwable: throwableMechanism,
-        level: SentryLevel.fatal,
-      );
-
-      await hub.captureEvent(event, stackTrace: stackTrace);
-    });
-
-    options.sdk.addIntegration('runZonedGuardedIntegration');
-  }
-
-  return integration;
-}
-
 /// (iOS only)
 /// add an event processor to call a native channel method to load :
 /// - the device Contexts,
@@ -133,7 +53,7 @@ Integration loadContextsIntegration(
     options.addEventProcessor(
       (event, dynamic hint) async {
         try {
-          final Map<String, dynamic> infos = Map<String, dynamic>.from(
+          final infos = Map<String, dynamic>.from(
             await channel.invokeMethod('loadContexts'),
           );
           if (infos['contexts'] != null) {
@@ -187,6 +107,7 @@ Integration loadContextsIntegration(
   return integration;
 }
 
+/// Enables Sentry's native SDKs (Android and iOS)
 Integration nativeSdkIntegration(SentryOptions options, MethodChannel channel) {
   Future<void> integration(Hub hub, SentryOptions options) async {
     try {
