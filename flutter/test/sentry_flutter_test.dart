@@ -94,6 +94,27 @@ void main() {
       expect(event.sdk.integrations.length, 4);
       expect(event.sdk.integrations.contains('loadContextsIntegration'), false);
     });
+
+    test('should not add loadAndroidImageListIntegration if not Android',
+        () async {
+      await SentryFlutter.init(
+          (options) => options
+            ..dsn = fakeDsn
+            ..transport = transport,
+          appRunner,
+          loadTestPackage,
+          () => false,
+          () => false);
+
+      await Sentry.captureMessage('a message');
+
+      final event =
+          verify(transport.send(captureAny)).captured.first as SentryEvent;
+
+      expect(event.sdk.integrations.length, 4);
+      expect(event.sdk.integrations.contains('loadAndroidImageListIntegration'),
+          false);
+    });
   });
 }
 
