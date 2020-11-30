@@ -22,11 +22,11 @@ class Message {
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 
-    if (formatted != null && formatted.isNotEmpty) {
+    if (formatted != null) {
       json['formatted'] = formatted;
     }
 
-    if (template != null && template.isNotEmpty) {
+    if (template != null) {
       json['message'] = template;
     }
 
