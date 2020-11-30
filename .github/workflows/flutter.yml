@@ -76,16 +76,6 @@ jobs:
             ;;
             esac
 
-  format:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: subosito/flutter-action@v1
-      - run: |
-          cd flutter
-          flutter pub get
-          flutter format --set-exit-if-changed .
-
   analyze:
     runs-on: ubuntu-latest
     steps:
@@ -94,7 +84,8 @@ jobs:
       - run: |
           cd flutter
           flutter pub get
-          flutter analyze
+          flutter analyze ./
+          flutter format -n --set-exit-if-changed .
 
   package-analysis:
     runs-on: ubuntu-latest
