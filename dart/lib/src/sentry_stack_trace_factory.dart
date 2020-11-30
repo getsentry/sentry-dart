@@ -10,6 +10,8 @@ class SentryStackTraceFactory {
   SentryOptions _options;
 
   final _absRegex = RegExp('abs +([A-Fa-f0-9]+)');
+  static const _stackTraceViolateDartStandard =
+      'This VM has been configured to produce stack traces that violate the Dart standard.';
 
   SentryStackTraceFactory(SentryOptions options) {
     if (options == null) {
@@ -43,10 +45,7 @@ class SentryStackTraceFactory {
 
         final member = frame.member;
         // ideally the language would offer us a native way of parsing it.
-        if (member != null &&
-            member.contains(
-              'This VM has been configured to produce stack traces that violate the Dart standard.',
-            )) {
+        if (member != null && member.contains(_stackTraceViolateDartStandard)) {
           symbolicated = false;
         }
 

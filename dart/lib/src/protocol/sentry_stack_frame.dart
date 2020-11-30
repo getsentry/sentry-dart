@@ -210,7 +210,6 @@ class SentryStackFrame {
     List<String> preContext,
     List<String> postContext,
     Map<String, String> vars,
-    bool symbolicated,
   }) =>
       SentryStackFrame(
         absPath: absPath ?? this.absPath,
