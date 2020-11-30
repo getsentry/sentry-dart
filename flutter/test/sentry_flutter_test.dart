@@ -9,7 +9,7 @@ import 'mocks.dart';
 import 'sentry_flutter_util.dart';
 
 void main() {
-  const MethodChannel _channel = MethodChannel('sentry_flutter');
+  const _channel = MethodChannel('sentry_flutter');
 
   TestWidgetsFlutterBinding.ensureInitialized();
 

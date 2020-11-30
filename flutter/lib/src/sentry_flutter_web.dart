@@ -6,7 +6,7 @@ import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 /// A web implementation of the SentryFlutter plugin.
 class SentryFlutterWeb {
   static void registerWith(Registrar registrar) {
-    final MethodChannel channel = MethodChannel(
+    final channel = MethodChannel(
       'sentry_flutter',
       const StandardMethodCodec(),
       registrar.messenger,
