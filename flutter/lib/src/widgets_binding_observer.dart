@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'sentry_flutter_options.dart';
 import '../sentry_flutter.dart';
 
 /// This is a `WidgetsBindingObserver` which can observe some events of a
 /// Flutter application.
 /// These are for example events related to its lifecycle, accessibility
 /// features, display features and more.
+///
+/// The tracking of each event can be configured via [SentryFlutterOptions]
 ///
 /// This class calls `WidgetsBinding.instance` but we don't need to call
 /// `WidgetsFlutterBinding.ensureInitialized()` because we can only add this
@@ -15,11 +18,17 @@ import '../sentry_flutter.dart';
 /// See also:
 ///   - [WidgetsBindingObserver](https://api.flutter.dev/flutter/widgets/WidgetsBindingObserver-class.html)
 class SentryWidgetsBindingObserver with WidgetsBindingObserver {
-  SentryWidgetsBindingObserver({Hub hub}) {
+  SentryWidgetsBindingObserver({
+    Hub hub,
+    @required SentryFlutterOptions options,
+  }) {
     this.hub = hub ?? HubAdapter();
+    assert(options != null);
+    this.options = options;
   }
 
   Hub hub;
+  SentryFlutterOptions options;
 
   /// This method records lifecycle events.
   /// It tries to mimic the behavior of ActivityBreadcrumbsIntegration of Sentry
@@ -28,14 +37,13 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   /// On Android and iOS this records lifecycle event breadcrumbs which loosely
   /// correspond to their respectiv platforms lifecycle events.
   ///
-  /// Does this need to be tracked? The nativ Android an iOS integration
-  /// also tracks this but what about Web, Linux, Windows and MacOS?
-  /// The message could include that this is a Flutter message.
-  ///
   /// See also:
   ///   - [WidgetsBindingObserver](https://api.flutter.dev/flutter/widgets/WidgetsBindingObserver-class.html)
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (!options.enableLifecycleBreadcrumbs) {
+      return;
+    }
     // According to
     // https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
     // this is of the type navigation.
@@ -55,6 +63,9 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   ///   - [Window.onMetricsChanged](https://api.flutter.dev/flutter/dart-ui/Window/onMetricsChanged.html)
   @override
   void didChangeMetrics() {
+    if (!options.enableWindowMetricBreadcrumbs) {
+      return;
+    }
     final window = WidgetsBinding.instance.window;
     hub.addBreadcrumb(Breadcrumb(
       message: 'Screen size changed',
@@ -72,6 +83,9 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   ///   - [Window.onPlatformBrightnessChanged](https://api.flutter.dev/flutter/dart-ui/Window/onPlatformBrightnessChanged.html)
   @override
   void didChangePlatformBrightness() {
+    if (!options.enableBrightnessChangeBreadcrumbs) {
+      return;
+    }
     final brightness = WidgetsBinding.instance.window.platformBrightness;
     final brightnessDescription =
         brightness == Brightness.dark ? 'dark' : 'light';
@@ -90,6 +104,9 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   ///   - [Window.onTextScaleFactorChanged]https://api.flutter.dev/flutter/dart-ui/Window/onTextScaleFactorChanged.html)
   @override
   void didChangeTextScaleFactor() {
+    if (!options.enableTextScaleChangeBreadcrumbs) {
+      return;
+    }
     final newTextScaleFactor = WidgetsBinding.instance.window.textScaleFactor;
     hub.addBreadcrumb(Breadcrumb(
       message: 'Text scale factor changed to $newTextScaleFactor.',
@@ -105,6 +122,9 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   /// applications to release caches to free up more memory.
   @override
   void didHaveMemoryPressure() {
+    if (!options.enableMemoryPressureBreadcrumbs) {
+      return;
+    }
     // See
     // - https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
     // - https://github.com/getsentry/sentry-java/blob/main/sentry-android-core/src/main/java/io/sentry/android/core/AppComponentsBreadcrumbsIntegration.java#L98-L135
@@ -144,6 +164,8 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   for each method. If these methods are implemented the class definition should
   be changed from `class SentryWidgetsBindingObserver with WidgetsBindingObserver`
   to `class SentryWidgetsBindingObserver implements WidgetsBindingObserver`.
+  You should also add options SentryFlutterOptions to configure if these 
+  events should be tracked.
 
   // Figure out which accessibility features changed
   @override

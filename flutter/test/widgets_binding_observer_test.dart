@@ -3,20 +3,35 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/sentry_flutter_options.dart';
 import 'package:sentry_flutter/src/widgets_binding_observer.dart';
 
 import 'mocks.dart';
 
 void main() {
   group('WidgetsBindingObserver', () {
+    SentryFlutterOptions flutterTrackingEnabledOptions;
+    SentryFlutterOptions flutterTrackingDisabledOptions;
+
     setUp(() {
       WidgetsFlutterBinding.ensureInitialized();
+
+      flutterTrackingEnabledOptions =
+          SentryFlutterOptions(options: SentryOptions());
+      flutterTrackingEnabledOptions.useFlutterBreadcrumbTracking();
+
+      flutterTrackingDisabledOptions =
+          SentryFlutterOptions(options: SentryOptions());
+      flutterTrackingDisabledOptions.useNativeBreadcrumbTracking();
     });
 
     testWidgets('memory pressure breadcrumb', (WidgetTester tester) async {
       final hub = MockHub();
 
-      final observer = SentryWidgetsBindingObserver(hub: hub);
+      final observer = SentryWidgetsBindingObserver(
+        hub: hub,
+        options: flutterTrackingEnabledOptions,
+      );
       WidgetsBinding.instance.addObserver(observer);
 
       final message = const JSONMessageCodec()
@@ -41,6 +56,27 @@ void main() {
       WidgetsBinding.instance.removeObserver(observer);
     });
 
+    testWidgets('disable memory pressure breadcrumb',
+        (WidgetTester tester) async {
+      final hub = MockHub();
+
+      final observer = SentryWidgetsBindingObserver(
+        hub: hub,
+        options: flutterTrackingDisabledOptions,
+      );
+      WidgetsBinding.instance.addObserver(observer);
+
+      final message = const JSONMessageCodec()
+          .encodeMessage(<String, dynamic>{'type': 'memoryPressure'});
+
+      await WidgetsBinding.instance.defaultBinaryMessenger
+          .handlePlatformMessage('flutter/system', message, (_) {});
+
+      verifyNever(hub.addBreadcrumb(captureAny));
+
+      WidgetsBinding.instance.removeObserver(observer);
+    });
+
     testWidgets('lifecycle breadcrumbs', (WidgetTester tester) async {
       Future<void> sendLifecycle(String event) async {
         final messenger = ServicesBinding.instance.defaultBinaryMessenger;
@@ -56,7 +92,10 @@ void main() {
 
       final hub = MockHub();
 
-      final observer = SentryWidgetsBindingObserver(hub: hub);
+      final observer = SentryWidgetsBindingObserver(
+        hub: hub,
+        options: flutterTrackingEnabledOptions,
+      );
       WidgetsBinding.instance.addObserver(observer);
 
       // paused lifecycle event
@@ -102,10 +141,37 @@ void main() {
       WidgetsBinding.instance.removeObserver(observer);
     });
 
+    testWidgets('disable lifecycle breadcrumbs', (WidgetTester tester) async {
+      Future<void> sendLifecycle(String event) async {
+        final messenger = ServicesBinding.instance.defaultBinaryMessenger;
+        final message =
+            const StringCodec().encodeMessage('AppLifecycleState.$event');
+        await messenger.handlePlatformMessage(
+            'flutter/lifecycle', message, (_) {});
+      }
+
+      final hub = MockHub();
+
+      final observer = SentryWidgetsBindingObserver(
+        hub: hub,
+        options: flutterTrackingDisabledOptions,
+      );
+      WidgetsBinding.instance.addObserver(observer);
+
+      await sendLifecycle('paused');
+
+      verifyNever(hub.addBreadcrumb(captureAny));
+
+      WidgetsBinding.instance.removeObserver(observer);
+    });
+
     testWidgets('metrics changed breadcrumb', (WidgetTester tester) async {
       final hub = MockHub();
 
-      final observer = SentryWidgetsBindingObserver(hub: hub);
+      final observer = SentryWidgetsBindingObserver(
+        hub: hub,
+        options: flutterTrackingEnabledOptions,
+      );
       WidgetsBinding.instance.addObserver(observer);
 
       final window = WidgetsBinding.instance.window;
@@ -128,10 +194,32 @@ void main() {
       WidgetsBinding.instance.removeObserver(observer);
     });
 
+    testWidgets('disable metrics changed breadcrumb',
+        (WidgetTester tester) async {
+      final hub = MockHub();
+
+      final observer = SentryWidgetsBindingObserver(
+        hub: hub,
+        options: flutterTrackingDisabledOptions,
+      );
+      WidgetsBinding.instance.addObserver(observer);
+
+      final window = WidgetsBinding.instance.window;
+
+      window.onMetricsChanged();
+
+      verifyNever(hub.addBreadcrumb(captureAny));
+
+      WidgetsBinding.instance.removeObserver(observer);
+    });
+
     testWidgets('platform brightness breadcrumb', (WidgetTester tester) async {
       final hub = MockHub();
 
-      final observer = SentryWidgetsBindingObserver(hub: hub);
+      final observer = SentryWidgetsBindingObserver(
+        hub: hub,
+        options: flutterTrackingEnabledOptions,
+      );
       WidgetsBinding.instance.addObserver(observer);
 
       final window = WidgetsBinding.instance.window;
@@ -158,11 +246,33 @@ void main() {
       WidgetsBinding.instance.removeObserver(observer);
     });
 
+    testWidgets('disable platform brightness breadcrumb',
+        (WidgetTester tester) async {
+      final hub = MockHub();
+
+      final observer = SentryWidgetsBindingObserver(
+        hub: hub,
+        options: flutterTrackingDisabledOptions,
+      );
+      WidgetsBinding.instance.addObserver(observer);
+
+      final window = WidgetsBinding.instance.window;
+
+      window.onPlatformBrightnessChanged();
+
+      verifyNever(hub.addBreadcrumb(captureAny));
+
+      WidgetsBinding.instance.removeObserver(observer);
+    });
+
     testWidgets('text scale factor brightness changed breadcrumb',
         (WidgetTester tester) async {
       final hub = MockHub();
 
-      final observer = SentryWidgetsBindingObserver(hub: hub);
+      final observer = SentryWidgetsBindingObserver(
+        hub: hub,
+        options: flutterTrackingEnabledOptions,
+      );
       WidgetsBinding.instance.addObserver(observer);
 
       final window = WidgetsBinding.instance.window;
@@ -182,6 +292,23 @@ void main() {
       expect(breadcrumb.data, <String, String>{
         'action': 'TEXT_SCALE_CHANGED_TO_$newTextScaleFactor'
       });
+
+      WidgetsBinding.instance.removeObserver(observer);
+    });
+
+    testWidgets('disable text scale factor brightness changed breadcrumb',
+        (WidgetTester tester) async {
+      final hub = MockHub();
+
+      final observer = SentryWidgetsBindingObserver(
+          hub: hub, options: flutterTrackingDisabledOptions);
+      WidgetsBinding.instance.addObserver(observer);
+
+      final window = WidgetsBinding.instance.window;
+
+      window.onTextScaleFactorChanged();
+
+      verifyNever(hub.addBreadcrumb(captureAny));
 
       WidgetsBinding.instance.removeObserver(observer);
     });

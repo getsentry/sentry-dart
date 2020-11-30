@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/services.dart';
 import 'package:sentry/sentry.dart';
+import 'sentry_flutter_options.dart';
 import 'widgets_binding_observer.dart';
 
 /// integration that capture errors on the FlutterError handler
@@ -146,9 +147,17 @@ Integration nativeSdkIntegration(SentryOptions options, MethodChannel channel) {
 /// Integration that captures certain window and device events.
 /// See also:
 ///   - [WidgetsBindingObserver](https://api.flutter.dev/flutter/widgets/WidgetsBindingObserver-class.html)
-void widgetsBindingIntegration(Hub hub, SentryOptions options) {
+void widgetsBindingIntegration(
+  Hub hub,
+  SentryOptions options,
+  SentryFlutterOptions flutterOptions,
+) {
   // We don't need to call `WidgetsFlutterBinding.ensureInitialized()`
   // because `FlutterSentry.init` already calls it.
-  WidgetsBinding.instance.addObserver(SentryWidgetsBindingObserver(hub: hub));
+  WidgetsBinding.instance.addObserver(SentryWidgetsBindingObserver(
+    hub: hub,
+    options: flutterOptions,
+  ));
+
   options.sdk.addIntegration('widgetsBindingIntegration');
 }

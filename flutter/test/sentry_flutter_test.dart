@@ -59,7 +59,7 @@ void main() {
 
     test('should add loadContextsIntegration on ios', () async {
       await SentryFlutter.init(
-        (options) => options
+        (options, flutterOptions) => options
           ..dsn = fakeDsn
           ..transport = transport,
         appRunner,
@@ -78,7 +78,7 @@ void main() {
 
     test('should not add loadContextsIntegration if not ios', () async {
       await SentryFlutter.init(
-        (options) => options
+        (options, flutterOptions) => options
           ..dsn = fakeDsn
           ..transport = transport,
         appRunner,
