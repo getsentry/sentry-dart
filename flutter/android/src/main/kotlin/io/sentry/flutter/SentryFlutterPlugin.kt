@@ -116,7 +116,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
       val anrEnabled = (args["anrEnabled"] as? Boolean) ?: options.isAnrEnabled
       options.isAnrEnabled = anrEnabled
 
-      val nativeCrashHandling = (args["enableNativeCrashHandling"] as? Boolean) ?: false
+      val nativeCrashHandling = (args["enableNativeCrashHandling"] as? Boolean) ?: true
 
       // nativeCrashHandling has priority over anrEnabled
       if (!nativeCrashHandling) {
