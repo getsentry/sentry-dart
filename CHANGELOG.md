@@ -12,6 +12,7 @@
 - Fix: NDK integration was being disabled by a typo
 - Fix: missing toList for debug meta #192
 - Enhancement: NavigationObserver to record Breadcrumbs for navigation events #197
+- Fix: the event payload must never serialize null or empty fields
 
 ### Breaking changes
 

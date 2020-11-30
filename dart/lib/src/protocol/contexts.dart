@@ -116,34 +116,35 @@ class Contexts extends MapView<String, dynamic> {
       switch (key) {
         case Device.type:
           Map<String, dynamic> deviceMap;
-          if ((deviceMap = device.toJson()).isNotEmpty) {
+          if (device != null && (deviceMap = device.toJson()).isNotEmpty) {
             json[Device.type] = deviceMap;
           }
           break;
         case OperatingSystem.type:
           Map<String, dynamic> osMap;
-          if ((osMap = operatingSystem.toJson()).isNotEmpty) {
+          if (operatingSystem != null &&
+              (osMap = operatingSystem.toJson()).isNotEmpty) {
             json[OperatingSystem.type] = osMap;
           }
           break;
 
         case App.type:
           Map<String, dynamic> appMap;
-          if ((appMap = app.toJson()).isNotEmpty) {
+          if (app != null && (appMap = app.toJson()).isNotEmpty) {
             json[App.type] = appMap;
           }
           break;
 
         case Browser.type:
           Map<String, dynamic> browserMap;
-          if ((browserMap = browser.toJson()).isNotEmpty) {
+          if (browser != null && (browserMap = browser.toJson()).isNotEmpty) {
             json[Browser.type] = browserMap;
           }
           break;
 
         case Gpu.type:
           Map<String, dynamic> gpuMap;
-          if ((gpuMap = gpu.toJson()).isNotEmpty) {
+          if (gpu != null && (gpuMap = gpu.toJson()).isNotEmpty) {
             json[Gpu.type] = gpuMap;
           }
           break;
@@ -152,13 +153,18 @@ class Contexts extends MapView<String, dynamic> {
           if (runtimes != null) {
             if (runtimes.length == 1) {
               final runtime = runtimes[0];
-              if (runtime != null) {
+              Map<String, dynamic> runtimeMap;
+              if (runtime != null &&
+                  (runtimeMap = runtime.toJson()).isNotEmpty) {
                 final key = runtime.key ?? SentryRuntime.type;
-                json[key] = runtime.toJson();
+
+                json[key] = runtimeMap;
               }
             } else if (runtimes.length > 1) {
               for (final runtime in runtimes) {
-                if (runtime != null) {
+                Map<String, dynamic> runtimeMap;
+                if (runtime != null &&
+                    (runtimeMap = runtime.toJson()).isNotEmpty) {
                   var key = runtime.key ?? runtime.name.toLowerCase();
 
                   if (json.containsKey(key)) {
@@ -168,8 +174,7 @@ class Contexts extends MapView<String, dynamic> {
                       k++;
                     }
                   }
-
-                  json[key] = runtime.toJson()
+                  json[key] = runtimeMap
                     ..addAll(<String, String>{'type': SentryRuntime.type});
                 }
               }
@@ -179,7 +184,9 @@ class Contexts extends MapView<String, dynamic> {
           break;
 
         default:
-          json[key] = value;
+          if (value != null) {
+            json[key] = value;
+          }
       }
     });
 
