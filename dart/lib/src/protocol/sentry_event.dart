@@ -256,24 +256,28 @@ class SentryEvent {
       json['modules'] = modules;
     }
 
-    if (message != null) {
-      json['message'] = message.toJson();
+    Map<String, dynamic> messageMap;
+    if (message != null && (messageMap = message.toJson()).isNotEmpty) {
+      json['message'] = messageMap;
     }
 
     if (transaction != null) {
       json['transaction'] = transaction;
     }
 
-    if (exception != null) {
+    Map<String, dynamic> exceptionMap;
+    Map<String, dynamic> stackTraceMap;
+    if (exception != null && (exceptionMap = exception.toJson()).isNotEmpty) {
       json['exception'] = {
-        'values': [exception.toJson()].toList(growable: false)
+        'values': [exceptionMap].toList(growable: false)
       };
-    } else if (stackTrace != null) {
+    } else if (stackTrace != null &&
+        (stackTraceMap = stackTrace.toJson()).isNotEmpty) {
       json['threads'] = {
         'values': [
           {
             'id': 0,
-            'stacktrace': stackTrace.toJson(),
+            'stacktrace': stackTraceMap,
             'crashed': true,
             'name': 'Current Isolate',
           }
@@ -316,18 +320,24 @@ class SentryEvent {
           breadcrumbs.map((b) => b.toJson()).toList(growable: false);
     }
 
-    json['sdk'] = sdk?.toJson() ??
-        <String, String>{
-          'name': sdkName,
-          'version': sdkVersion,
-        };
-
-    if (request != null) {
-      json['request'] = request.toJson();
+    Map<String, dynamic> sdkMap;
+    if (sdk != null && (sdkMap = sdk.toJson()).isNotEmpty) {
+      json['sdk'] = sdkMap;
+    } else {
+      json['sdk'] = <String, String>{
+        'name': sdkName,
+        'version': sdkVersion,
+      };
     }
 
-    if (debugMeta != null) {
-      json['debug_meta'] = debugMeta.toJson();
+    Map<String, dynamic> requestMap;
+    if (request != null && (requestMap = request.toJson()).isNotEmpty) {
+      json['request'] = requestMap;
+    }
+
+    Map<String, dynamic> debugMetaMap;
+    if (debugMeta != null && (debugMetaMap = debugMeta.toJson()).isNotEmpty) {
+      json['debug_meta'] = debugMetaMap;
     }
 
     return json;

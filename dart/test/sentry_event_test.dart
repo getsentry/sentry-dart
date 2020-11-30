@@ -258,5 +258,34 @@ void main() {
         },
       );
     });
+
+    test('should not serialize null or empty fields', () {
+      final event = SentryEvent(
+        message: Message(null),
+        modules: {},
+        exception: SentryException(type: null, value: null),
+        stackTrace: SentryStackTrace(frames: []),
+        tags: {},
+        extra: {},
+        contexts: Contexts(),
+        fingerprint: [],
+        breadcrumbs: [Breadcrumb()],
+        request: Request(),
+        debugMeta: DebugMeta(images: []),
+      );
+      final eventMap = event.toJson();
+
+      expect(eventMap['message'], isNull);
+      expect(eventMap['modules'], isNull);
+      expect(eventMap['exception'], isNull);
+      expect(eventMap['stacktrace'], isNull);
+      expect(eventMap['tags'], isNull);
+      expect(eventMap['extra'], isNull);
+      expect(eventMap['contexts'], isNull);
+      expect(eventMap['fingerprint'], isNull);
+      expect(eventMap['request'], isNull);
+      expect(eventMap['debug_meta'], isNull);
+      expect(eventMap['sdk'], isNotNull, reason: 'should have a default value');
+    });
   });
 }
