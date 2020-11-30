@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:sentry/src/platform_checker.dart';
+
 import 'default_integrations.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
@@ -10,7 +12,6 @@ import 'protocol.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'utils.dart';
-import 'platform_checker.dart';
 
 /// Configuration options callback
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
@@ -21,7 +22,6 @@ typedef AppRunner = FutureOr<void> Function();
 /// Sentry SDK main entry point
 class Sentry {
   static Hub _hub = NoOpHub();
-  static const PlatformChecker _platformChecker = PlatformChecker();
 
   Sentry._();
 
@@ -35,15 +35,15 @@ class Sentry {
     OptionsConfiguration optionsConfiguration, [
     AppRunner appRunner,
     List<Integration> initialIntegrations,
-    PlatformChecker platformChecker = _platformChecker,
-  ]) async {
+    PlatformChecker platformChecker
+    ]) async {
     if (optionsConfiguration == null) {
       throw ArgumentError('OptionsConfiguration is required.');
     }
 
-    final options = SentryOptions();
-    await _initDefaultValues(
-        options, appRunner, initialIntegrations, platformChecker);
+    final options = SentryOptions()..platformChecker = platformChecker;
+
+    await _initDefaultValues(options, appRunner, initialIntegrations);
 
     await optionsConfiguration(options);
 
@@ -57,14 +57,13 @@ class Sentry {
   static Future<void> _initDefaultValues(
     SentryOptions options,
     AppRunner appRunner,
-    List<Integration> initialIntegrations,
-    PlatformChecker platformChecker,
+    List<Integration> initialIntegrations
   ) async {
     // We infer the enviroment based on the release/non-release and profile
     // constants.
-    var environment = platformChecker.isReleaseMode()
+    var environment = options.platformChecker.isReleaseMode()
         ? defaultEnvironment
-        : platformChecker.isProfileMode()
+        : options.platformChecker.isProfileMode()
             ? 'profile'
             : 'debug';
 
