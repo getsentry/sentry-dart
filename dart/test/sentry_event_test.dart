@@ -129,7 +129,6 @@ void main() {
           'platform': isWeb ? 'javascript' : 'other',
           'event_id': '00000000000000000000000000000000',
           'timestamp': '2019-01-01T00:00:00.000Z',
-          'sdk': {'version': sdkVersion, 'name': sdkName},
           'message': {
             'formatted': 'test-message 1 2',
             'message': 'test-message %d %d',
@@ -285,7 +284,6 @@ void main() {
       expect(eventMap['fingerprint'], isNull);
       expect(eventMap['request'], isNull);
       expect(eventMap['debug_meta'], isNull);
-      expect(eventMap['sdk'], isNotNull, reason: 'should have a default value');
     });
   });
 }
