@@ -61,7 +61,7 @@ jobs:
       - run: |
           pub get
           dartanalyzer --fatal-warnings ./
-          dartfmt -n ./
+          dartfmt -n --set-exit-if-changed ./
 
   package-analysis:
     runs-on: ubuntu-latest
