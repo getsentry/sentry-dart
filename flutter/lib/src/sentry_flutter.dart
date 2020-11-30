@@ -125,7 +125,8 @@ mixin SentryFlutter {
     }
 
     if (isAndroidChecker()) {
-      options.addIntegration(loadAndroidImageListIntegration(options, _channel));
+      options
+          .addIntegration(loadAndroidImageListIntegration(options, _channel));
     }
   }
 
