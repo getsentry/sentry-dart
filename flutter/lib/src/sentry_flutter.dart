@@ -36,9 +36,13 @@ mixin SentryFlutter {
         await optionsConfiguration(options);
       },
       appRunner,
-      // first integration to add
-      // will catch any errors that may occur in the Flutter framework itself.
-      [flutterErrorIntegration],
+      [
+        // The first integration to add
+        // will catch any errors that may occur in the Flutter framework itself.
+        flutterErrorIntegration,
+        // This tracks Flutter application events, such as lifecycle events.
+        widgetsBindingIntegration,
+      ],
     );
   }
 
@@ -119,9 +123,6 @@ mixin SentryFlutter {
     if (isIOS()) {
       options.addIntegration(loadContextsIntegration(options, _channel));
     }
-
-    // track Flutter application events
-    options.addIntegration(widgetsBindingIntegration);
   }
 
   static void _setSdk(SentryOptions options) {

@@ -34,10 +34,10 @@ void main() {
         'would like applications to release caches to free up more memory.',
       );
 
-      expect(
-        breadcrumb.level,
-        SentryLevel.warning,
-      );
+      expect(breadcrumb.level, SentryLevel.warning);
+      expect(breadcrumb.type, 'system');
+      expect(breadcrumb.category, 'device.event');
+
       WidgetsBinding.instance.removeObserver(observer);
     });
 
@@ -48,6 +48,10 @@ void main() {
             const StringCodec().encodeMessage('AppLifecycleState.$event');
         await messenger.handlePlatformMessage(
             'flutter/lifecycle', message, (_) {});
+      }
+
+      Map<String, String> mapForLifecycle(String state) {
+        return <String, String>{'state': state};
       }
 
       final hub = MockHub();
@@ -62,7 +66,8 @@ void main() {
           verify(hub.addBreadcrumb(captureAny)).captured.last as Breadcrumb;
       expect(breadcrumb.category, 'ui.lifecycle');
       expect(breadcrumb.type, 'navigation');
-      expect(breadcrumb.message, 'paused');
+      expect(breadcrumb.data, mapForLifecycle('paused'));
+      expect(breadcrumb.level, SentryLevel.info);
 
       // resumed lifecycle event
       sendLifecycle('resumed');
@@ -71,7 +76,8 @@ void main() {
           verify(hub.addBreadcrumb(captureAny)).captured.last as Breadcrumb;
       expect(breadcrumb.category, 'ui.lifecycle');
       expect(breadcrumb.type, 'navigation');
-      expect(breadcrumb.message, 'resumed');
+      expect(breadcrumb.data, mapForLifecycle('resumed'));
+      expect(breadcrumb.level, SentryLevel.info);
 
       // inactive lifecycle event
       sendLifecycle('inactive');
@@ -80,7 +86,8 @@ void main() {
           verify(hub.addBreadcrumb(captureAny)).captured.last as Breadcrumb;
       expect(breadcrumb.category, 'ui.lifecycle');
       expect(breadcrumb.type, 'navigation');
-      expect(breadcrumb.message, 'inactive');
+      expect(breadcrumb.data, mapForLifecycle('inactive'));
+      expect(breadcrumb.level, SentryLevel.info);
 
       // detached lifecycle event
       sendLifecycle('detached');
@@ -89,7 +96,8 @@ void main() {
           verify(hub.addBreadcrumb(captureAny)).captured.last as Breadcrumb;
       expect(breadcrumb.category, 'ui.lifecycle');
       expect(breadcrumb.type, 'navigation');
-      expect(breadcrumb.message, 'detached');
+      expect(breadcrumb.data, mapForLifecycle('detached'));
+      expect(breadcrumb.level, SentryLevel.info);
 
       WidgetsBinding.instance.removeObserver(observer);
     });
@@ -107,20 +115,20 @@ void main() {
       final breadcrumb =
           verify(hub.addBreadcrumb(captureAny)).captured.single as Breadcrumb;
 
-      expect(breadcrumb.message, 'Screen sized changed');
-
-      expect(breadcrumb.category, 'ui.lifecycle');
-
+      expect(breadcrumb.message, 'Screen size changed');
+      expect(breadcrumb.category, 'device.screen');
+      expect(breadcrumb.type, 'navigation');
+      expect(breadcrumb.level, SentryLevel.info);
       expect(breadcrumb.data, <String, dynamic>{
         'new_pixel_ratio': window.devicePixelRatio,
         'new_height': window.physicalSize.height,
         'new_width': window.physicalSize.width,
       });
+
       WidgetsBinding.instance.removeObserver(observer);
     });
 
-    testWidgets('platform brightness changed breadcrumb',
-        (WidgetTester tester) async {
+    testWidgets('platform brightness breadcrumb', (WidgetTester tester) async {
       final hub = MockHub();
 
       final observer = SentryWidgetsBindingObserver(hub: hub);
@@ -130,15 +138,22 @@ void main() {
 
       window.onPlatformBrightnessChanged();
 
+      final brightness = WidgetsBinding.instance.window.platformBrightness;
+      final brightnessDescription =
+          brightness == Brightness.dark ? 'dark' : 'light';
+
       final breadcrumb =
           verify(hub.addBreadcrumb(captureAny)).captured.single as Breadcrumb;
 
-      expect(
-        breadcrumb.message,
-        'Platform brightness was changed to light.',
-      );
+      expect(breadcrumb.message,
+          'Platform brightness was changed to $brightnessDescription.');
 
-      expect(breadcrumb.category, 'ui.lifecycle');
+      expect(breadcrumb.category, 'device.event');
+      expect(breadcrumb.type, 'system');
+      expect(breadcrumb.level, SentryLevel.info);
+      expect(breadcrumb.data, <String, String>{
+        'action': 'BRIGHTNESS_CHANGED_TO_${brightnessDescription.toUpperCase()}'
+      });
 
       WidgetsBinding.instance.removeObserver(observer);
     });
@@ -154,15 +169,19 @@ void main() {
 
       window.onTextScaleFactorChanged();
 
+      final newTextScaleFactor = WidgetsBinding.instance.window.textScaleFactor;
+
       final breadcrumb =
           verify(hub.addBreadcrumb(captureAny)).captured.single as Breadcrumb;
 
-      expect(
-        breadcrumb.message,
-        'Text scale factor changed to 1.0.',
-      );
-
-      expect(breadcrumb.category, 'ui');
+      expect(breadcrumb.message,
+          'Text scale factor changed to $newTextScaleFactor.');
+      expect(breadcrumb.level, SentryLevel.info);
+      expect(breadcrumb.type, 'system');
+      expect(breadcrumb.category, 'device.event');
+      expect(breadcrumb.data, <String, String>{
+        'action': 'TEXT_SCALE_CHANGED_TO_$newTextScaleFactor'
+      });
 
       WidgetsBinding.instance.removeObserver(observer);
     });

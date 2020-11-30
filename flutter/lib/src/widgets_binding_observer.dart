@@ -40,9 +40,11 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     // https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
     // this is of the type navigation.
     hub.addBreadcrumb(Breadcrumb(
-      message: _lifecycleToString(state),
       category: 'ui.lifecycle',
       type: 'navigation',
+      data: <String, String>{
+        'state': _lifecycleToString(state),
+      },
     ));
   }
 
@@ -53,11 +55,11 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   ///   - [Window.onMetricsChanged](https://api.flutter.dev/flutter/dart-ui/Window/onMetricsChanged.html)
   @override
   void didChangeMetrics() {
-    // Should this method push a new scope with a new Device Context?
     final window = WidgetsBinding.instance.window;
     hub.addBreadcrumb(Breadcrumb(
-      message: 'Screen sized changed',
-      category: 'ui.lifecycle',
+      message: 'Screen size changed',
+      category: 'device.screen',
+      type: 'navigation',
       data: <String, dynamic>{
         'new_pixel_ratio': window.devicePixelRatio,
         'new_height': window.physicalSize.height,
@@ -76,7 +78,11 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
 
     hub.addBreadcrumb(Breadcrumb(
       message: 'Platform brightness was changed to $brightnessDescription.',
-      category: 'ui.lifecycle',
+      type: 'system',
+      category: 'device.event',
+      data: <String, String>{
+        'action': 'BRIGHTNESS_CHANGED_TO_${brightnessDescription.toUpperCase()}'
+      },
     ));
   }
 
@@ -87,8 +93,11 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     final newTextScaleFactor = WidgetsBinding.instance.window.textScaleFactor;
     hub.addBreadcrumb(Breadcrumb(
       message: 'Text scale factor changed to $newTextScaleFactor.',
-      category: 'ui',
-      level: SentryLevel.warning,
+      type: 'system',
+      category: 'device.event',
+      data: <String, String>{
+        'action': 'TEXT_SCALE_CHANGED_TO_$newTextScaleFactor'
+      },
     ));
   }
 
@@ -96,11 +105,20 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   /// applications to release caches to free up more memory.
   @override
   void didHaveMemoryPressure() {
+    // See
+    // - https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
+    // - https://github.com/getsentry/sentry-java/blob/main/sentry-android-core/src/main/java/io/sentry/android/core/AppComponentsBreadcrumbsIntegration.java#L98-L135
+    // on why this breadcrumb looks like this.
     const message =
         'App had memory pressure. This indicates that the operating system '
         'would like applications to release caches to free up more memory.';
     hub.addBreadcrumb(Breadcrumb(
       message: message,
+      type: 'system',
+      category: 'device.event',
+      data: <String, String>{
+        'action': 'LOW_MEMORY',
+      },
       // This is kinda bad. Therefore this gets added as a warning.
       level: SentryLevel.warning,
     ));
