@@ -146,8 +146,6 @@ Integration loadAndroidImageListIntegration(
   MethodChannel channel,
 ) {
   Future<void> integration(Hub hub, SentryOptions options) async {
-    final sdkInfo = SdkInfo.fromSdkVersion(options.sdk);
-
     options.addEventProcessor(
       (event, dynamic hint) async {
         try {
@@ -155,7 +153,7 @@ Integration loadAndroidImageListIntegration(
               event.exception.stackTrace != null &&
               event.exception.stackTrace.frames != null) {
             final needsSymbolication = event.exception.stackTrace.frames
-                .any((element) => !element.symbolicated);
+                .any((element) => 'native' == element.platform);
 
             // if there are no frames that require symbolication, we don't
             // load the debug image list.
@@ -179,27 +177,27 @@ Integration loadAndroidImageListIntegration(
           final newDebugImages = <DebugImage>[];
 
           for (final item in imageList) {
-            final code_file = item['code_file'] as String;
-            final code_id = item['code_id'] as String;
-            final image_addr = item['image_addr'] as String;
-            final image_size = item['image_size'] as int;
+            final codeFile = item['codeFile'] as String;
+            final codeId = item['codeId'] as String;
+            final imageAddr = item['imageAddr'] as String;
+            final imageSize = item['imageSize'] as int;
             final type = item['type'] as String;
-            final debug_id = item['debug_id'] as String;
-            final debug_file = item['debug_file'] as String;
+            final debugId = item['debugId'] as String;
+            final debugFile = item['debugFile'] as String;
 
             final image = DebugImage(
               type: type,
-              imageAddr: image_addr,
-              imageSize: image_size,
-              codeFile: code_file,
-              debugId: debug_id,
-              codeId: code_id,
-              debugFile: debug_file,
+              imageAddr: imageAddr,
+              imageSize: imageSize,
+              codeFile: codeFile,
+              debugId: debugId,
+              codeId: codeId,
+              debugFile: debugFile,
             );
             newDebugImages.add(image);
           }
 
-          final debugMeta = DebugMeta(sdk: sdkInfo, images: newDebugImages);
+          final debugMeta = DebugMeta(images: newDebugImages);
 
           event = event.copyWith(debugMeta: debugMeta);
         } catch (error) {

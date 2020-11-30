@@ -130,7 +130,7 @@ void main() {
 }
 
 SentryEvent getEvent({bool symbolicated = false}) {
-  final frame = SentryStackFrame(symbolicated: symbolicated);
+  final frame = SentryStackFrame(platform: 'native');
   final st = SentryStackTrace(frames: [frame]);
   final ex = SentryException(
     type: 'type',

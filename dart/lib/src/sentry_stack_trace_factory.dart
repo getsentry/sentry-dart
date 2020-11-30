@@ -9,6 +9,8 @@ import 'sentry_options.dart';
 class SentryStackTraceFactory {
   SentryOptions _options;
 
+  final _absRegex = RegExp('abs +([A-Fa-f0-9]+)');
+
   SentryStackTraceFactory(SentryOptions options) {
     if (options == null) {
       throw ArgumentError('SentryOptions is required.');
@@ -113,19 +115,20 @@ class SentryStackTraceFactory {
       // unparsed      #03 abs 000000723d624663 virt 00000000001dd663 _kDartIsolateSnapshotInstructions+0x1d2663
       // unparsed      #04 abs 000000723d4b8c3b virt 0000000000071c3b _kDartIsolateSnapshotInstructions+0x66c3b
 
-      // we are only interested on the #01, 02... which contains the 'abs' addresses.
-      if (member.contains('abs') && member.contains('virt')) {
-        // TODO: use proper Regex, this works for now
-        final indexAbs = member.indexOf('abs');
-        final indexVirt = member.indexOf('virt');
-        final instructionAddr =
-            '0x${member.substring(indexAbs + 4, indexVirt - 1)}';
+      // we are only interested on the #01, 02... items which contains the 'abs' addresses.
+      final matches = _absRegex.allMatches(member);
 
-        sentryStackFrame = SentryStackFrame(
-          instructionAddr: instructionAddr,
-          platform: 'native', // to trigger symbolication
-          symbolicated: false, // signal to load image list from Native SDKs
-        );
+      if (matches.isNotEmpty) {
+        final element = matches.elementAt(0);
+        final group = element.group(0);
+        if (group != null) {
+          // remove abs as the Regex has no 2nd group
+          final abs = group.substring(4, group.length);
+          sentryStackFrame = SentryStackFrame(
+            instructionAddr: abs,
+            platform: 'native', // to trigger symbolication
+          );
+        }
       }
     }
 
