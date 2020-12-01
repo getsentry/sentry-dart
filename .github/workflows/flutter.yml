@@ -81,6 +81,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: subosito/flutter-action@v1
+        with:
+          channel: 'beta'
       - run: |
           cd flutter
           flutter pub get
