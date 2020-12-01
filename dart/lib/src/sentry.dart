@@ -26,7 +26,8 @@ class Sentry {
   /// Returns the current hub
   static Hub get currentHub => _hub;
 
-  static Function _disposeIsolate;
+  /// function to close the isolateErrorListener port
+  static Function _isolatePortDisposer;
 
   /// Initializes the SDK
   /// passing a [AppRunner] callback allows to run the app within its own error zone (`runZonedGuarded`)
@@ -83,8 +84,11 @@ class Sentry {
     if (!isWeb) {
       // catch any errors that may occur within the entry function, main()
       // in the ‘root zone’ where all Dart programs start
-      options.addIntegration(initIsolateErrorIntegration(_initIsolateDisposer));
-      //options.addIntegration(isolateErrorIntegration);
+      options.addIntegration(
+        initIsolateErrorIntegration(
+          (Function portDisposer) => _isolatePortDisposer = portDisposer,
+        ),
+      );
     }
 
     // finally the runZonedGuarded, catch any errors in Dart code running
@@ -92,10 +96,6 @@ class Sentry {
     if (appRunner != null) {
       options.addIntegration(runZonedGuardedIntegration(appRunner));
     }
-  }
-
-  static void _initIsolateDisposer(Function receivePortDisposer) {
-    _disposeIsolate = receivePortDisposer;
   }
 
   /// Initializes the SDK
@@ -163,7 +163,7 @@ class Sentry {
     _hub = NoOpHub();
     hub.close();
 
-    _disposeIsolate?.call();
+    _isolatePortDisposer?.call();
   }
 
   /// Check if the current Hub is enabled/active.

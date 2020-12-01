@@ -59,6 +59,7 @@ void main() {
       ).called(1);
     });
   });
+
   group('Sentry is enabled or disabled', () {
     test('null DSN', () {
       expect(

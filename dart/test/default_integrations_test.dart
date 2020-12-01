@@ -14,14 +14,19 @@ void main() {
   test(
     'Isolate error adds integration',
     () async {
-      final integration =
-          initIsolateErrorIntegration((Function receivePortDisposer) {});
+      Function isolateDisposer;
+
+      final integration = initIsolateErrorIntegration(
+        (Function receivePortDisposer) => isolateDisposer = receivePortDisposer,
+      );
       await integration(fixture.hub, fixture.options);
 
       expect(
         true,
         fixture.options.sdk.integrations.contains('isolateErrorIntegration'),
       );
+
+      expect(isolateDisposer, isNotNull);
     },
     onPlatform: {
       'browser': Skip(),
@@ -41,8 +46,10 @@ void main() {
       await handleIsolateError(fixture.hub, fixture.options, error);
 
       final event = verify(
-        await fixture.hub.captureEvent(captureAny,
-            stackTrace: captureAnyNamed('stackTrace')),
+        await fixture.hub.captureEvent(
+          captureAny,
+          stackTrace: captureAnyNamed('stackTrace'),
+        ),
       ).captured.first as SentryEvent;
 
       expect(SentryLevel.fatal, event.level);
