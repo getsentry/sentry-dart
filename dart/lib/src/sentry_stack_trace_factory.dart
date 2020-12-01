@@ -118,11 +118,8 @@ class SentryStackTraceFactory {
       final matches = _absRegex.allMatches(member);
 
       if (matches.isNotEmpty) {
-        final element = matches.elementAt(0);
-        final group = element.group(0);
-        if (group != null) {
-          // remove abs as the Regex has no 2nd group
-          final abs = group.substring(4, group.length);
+        final abs = matches.elementAt(0).group(1);
+        if (abs != null) {
           sentryStackFrame = SentryStackFrame(
             instructionAddr: '0x$abs',
             platform: 'native', // to trigger symbolication
