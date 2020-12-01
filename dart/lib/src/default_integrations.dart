@@ -1,18 +1,22 @@
 import 'dart:async';
 
 import 'hub.dart';
+import 'integration.dart';
 import 'protocol.dart';
 import 'sentry.dart';
 import 'sentry_options.dart';
 import 'throwable_mechanism.dart';
 
 /// integration that capture errors on the runZonedGuarded error handler
-Integration runZonedGuardedIntegration(
-  AppRunner appRunner,
-) {
-  void integration(Hub hub, SentryOptions options) {
+class RunZonedGuardedIntegration extends Integration {
+  final AppRunner _appRunner;
+
+  RunZonedGuardedIntegration(this._appRunner);
+
+  @override
+  FutureOr<void> call(Hub hub, SentryOptions options) {
     runZonedGuarded(() async {
-      await appRunner();
+      await _appRunner();
     }, (exception, stackTrace) async {
       // runZonedGuarded doesn't crash the App.
       const mechanism = Mechanism(type: 'runZonedGuarded', handled: true);
@@ -28,6 +32,4 @@ Integration runZonedGuardedIntegration(
 
     options.sdk.addIntegration('runZonedGuardedIntegration');
   }
-
-  return integration;
 }

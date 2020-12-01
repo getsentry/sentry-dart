@@ -26,7 +26,7 @@ void main() {
     // replace default error otherwise it fails on testing
     FlutterError.onError = (FlutterErrorDetails errorDetails) async {};
 
-    flutterErrorIntegration(fixture.hub, fixture.options);
+    FlutterErrorIntegration()(fixture.hub, fixture.options);
 
     final throwable = StateError('error');
     final details = FlutterErrorDetails(exception: throwable);
@@ -51,7 +51,7 @@ void main() {
     };
     FlutterError.onError = defaultError;
 
-    flutterErrorIntegration(fixture.hub, fixture.options);
+    FlutterErrorIntegration()(fixture.hub, fixture.options);
 
     final throwable = StateError('error');
     final details = FlutterErrorDetails(exception: throwable);
@@ -65,7 +65,7 @@ void main() {
   });
 
   test('FlutterError adds integration', () async {
-    flutterErrorIntegration(fixture.hub, fixture.options);
+    FlutterErrorIntegration()(fixture.hub, fixture.options);
 
     expect(true,
         fixture.options.sdk.integrations.contains('flutterErrorIntegration'));
@@ -74,7 +74,7 @@ void main() {
   test('nativeSdkIntegration adds integration', () async {
     _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
 
-    final integration = nativeSdkIntegration(fixture.options, _channel);
+    final integration = NativeSdkIntegration(_channel);
 
     await integration(fixture.hub, fixture.options);
 
@@ -87,7 +87,7 @@ void main() {
       throw null;
     });
 
-    final integration = nativeSdkIntegration(fixture.options, _channel);
+    final integration = NativeSdkIntegration(_channel);
 
     await integration(fixture.hub, fixture.options);
 
@@ -98,7 +98,7 @@ void main() {
   test('loadContextsIntegration adds integration', () async {
     _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
 
-    final integration = loadContextsIntegration(fixture.options, _channel);
+    final integration = LoadContextsIntegration(_channel);
 
     await integration(fixture.hub, fixture.options);
 

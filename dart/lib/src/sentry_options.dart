@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:http/http.dart';
 
 import 'diagnostic_logger.dart';
-import 'hub.dart';
+import 'integration.dart';
 import 'noop_client.dart';
 import 'protocol.dart';
 import 'transport/noop_transport.dart';
@@ -333,10 +333,6 @@ typedef BeforeBreadcrumbCallback = Breadcrumb Function(Breadcrumb breadcrumb,
 /// means just adding data OR return null in case the event will be dropped and not sent.
 typedef EventProcessor = FutureOr<SentryEvent> Function(SentryEvent event,
     {dynamic hint});
-
-/// Code that provides middlewares, bindings or hooks into certain frameworks or environments,
-/// along with code that inserts those bindings and activates them.
-typedef Integration = FutureOr<void> Function(Hub hub, SentryOptions options);
 
 /// Logger interface to log useful debugging information if debug is enabled
 typedef Logger = Function(SentryLevel level, String message);

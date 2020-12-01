@@ -22,14 +22,9 @@ FutureOr<void> Function(SentryOptions) getConfigurationTester({
       expect(true, options.transport is FileSystemTransport);
 
       expect(
-          options.integrations
-              .where((element) => element == flutterErrorIntegration),
-          isNotEmpty);
-
-      expect(
-          options.integrations
-              .where((element) => element == isolateErrorIntegration),
-          isNotEmpty);
+        options.integrations.whereType<FlutterErrorIntegration>().length,
+        1,
+      );
 
       if (isIOS) {
         expect(5, options.integrations.length);
