@@ -56,6 +56,6 @@ if [ "$1" == "web" ]; then
 else
     echo -e "[\033[92mrun\033[0m] Uploading debug information files"
     # directory 'symbols' contain the Dart debug info files but to include platform ones, use current dir.
-    sentry-cli upload-dif --org $SENTRY_ORG --project $SENTRY_PROJECT .
+    sentry-cli upload-dif --org $SENTRY_ORG --project $SENTRY_PROJECT symbols
 fi
 
