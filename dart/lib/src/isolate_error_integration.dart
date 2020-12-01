@@ -22,7 +22,10 @@ class IsolateErrorIntegration extends Integration {
   }
 
   @override
-  void close() => _receivePort.close();
+  void close() {
+    _receivePort.close();
+    Isolate.current.removeErrorListener(_receivePort.sendPort);
+  }
 }
 
 RawReceivePort _createPort(Hub hub, SentryOptions options) {

@@ -9,6 +9,6 @@ abstract class Integration {
   /// A Callable method for the Integration interface
   FutureOr<void> call(Hub hub, SentryOptions options);
 
-  // /NoOp by default : only closeable integrations need to override
+  /// NoOp by default : only closeable integrations need to override
   void close() {}
 }
