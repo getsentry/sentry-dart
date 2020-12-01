@@ -13,6 +13,7 @@
 - Fix: missing toList for debug meta #192
 - Enhancement: NavigationObserver to record Breadcrumbs for navigation events #197
 - Feat: Support split-debug-info for Android #191
+- Fix: the event payload must never serialize null or empty fields
 
 ### Breaking changes
 
