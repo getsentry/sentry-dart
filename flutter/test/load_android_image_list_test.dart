@@ -88,7 +88,7 @@ void main() {
     LoadAndroidImageListIntegration(_channel).run(hub, options);
     final ep = options.eventProcessors.first;
     var event = getEvent();
-    event = await ep(event, null);
+    event = await ep(event);
 
     expect(1, event.debugMeta.images.length);
   });
@@ -100,7 +100,7 @@ void main() {
     LoadAndroidImageListIntegration(_channel).run(hub, options);
     final ep = options.eventProcessors.first;
     var event = getEvent();
-    event = await ep(event, null);
+    event = await ep(event);
 
     final image = event.debugMeta.images.first;
 

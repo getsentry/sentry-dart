@@ -53,7 +53,7 @@ class LoadContextsIntegration extends Integration {
   @override
   FutureOr<void> run(Hub hub, SentryOptions options) async {
     options.addEventProcessor(
-      (event, dynamic hint) async {
+      (event, {hint}) async {
         try {
           final infos = Map<String, dynamic>.from(
             await _channel.invokeMethod('loadContexts'),
@@ -154,7 +154,7 @@ class LoadAndroidImageListIntegration extends Integration {
   @override
   FutureOr<void> run(Hub hub, SentryOptions options) {
     options.addEventProcessor(
-      (event, dynamic hint) async {
+      (event, {hint}) async {
         try {
           if (event.exception != null &&
               event.exception.stackTrace != null &&
