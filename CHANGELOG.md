@@ -12,7 +12,7 @@
 - Fix: NDK integration was being disabled by a typo
 - Fix: missing toList for debug meta #192
 - Enhancement: NavigationObserver to record Breadcrumbs for navigation events #197
-- Fix: close the isolateErrorIntegration receivePort on Sentry.close()
+- Fix: add an integration closing system
 
 ### Breaking changes
 
