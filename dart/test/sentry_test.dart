@@ -110,7 +110,7 @@ void main() {
         appRunner,
       );
 
-      verify(integration.run(any, any)).called(1);
+      verify(integration(any, any)).called(1);
     });
 
     test('should add initial integrations first', () async {
@@ -158,7 +158,7 @@ void main() {
 
       await Sentry.close();
 
-      verify(integration.run(any, any)).called(1);
+      verify(integration(any, any)).called(1);
       verify(integration.close()).called(1);
     });
   });

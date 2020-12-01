@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:isolate';
 
-import '../sentry.dart';
+import 'package:meta/meta.dart';
+
 import 'hub.dart';
+import 'integration.dart';
 import 'protocol.dart';
 import 'sentry_options.dart';
 import 'throwable_mechanism.dart';
@@ -11,7 +13,7 @@ class IsolateErrorIntegration extends Integration {
   RawReceivePort _receivePort;
 
   @override
-  FutureOr<void> run(Hub hub, SentryOptions options) async {
+  FutureOr<void> call(Hub hub, SentryOptions options) async {
     _receivePort = _createPort(hub, options);
 
     Isolate.current.addErrorListener(_receivePort.sendPort);
@@ -32,7 +34,7 @@ RawReceivePort _createPort(Hub hub, SentryOptions options) {
 }
 
 /// Parse and raise an event out of the Isolate error.
-/// Visible for testing.
+@visibleForTesting
 Future<void> handleIsolateError(
   Hub hub,
   SentryOptions options,

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'default_integrations.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
+import 'integration.dart';
 import 'noop_isolate_error_integration.dart'
     if (dart.library.io) 'isolate_error_integration.dart';
 import 'noop_hub.dart';
@@ -84,7 +85,7 @@ class Sentry {
       options.addIntegration(IsolateErrorIntegration());
     }
 
-    // finally the RunZonedGuarded, catch any errors in Dart code running
+    // finally the runZonedGuarded, catch any errors in Dart code running
     // ‘outside’ the Flutter framework
     if (appRunner != null) {
       options.addIntegration(RunZonedGuardedIntegration(appRunner));
@@ -111,7 +112,7 @@ class Sentry {
 
     // execute integrations after hub being enabled
     for (final integration in options.integrations) {
-      await integration.run(HubAdapter(), options);
+      await integration(HubAdapter(), options);
     }
   }
 

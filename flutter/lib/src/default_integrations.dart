@@ -7,7 +7,7 @@ import 'package:sentry/sentry.dart';
 /// integration that capture errors on the FlutterError handler
 class FlutterErrorIntegration extends Integration {
   @override
-  void run(Hub hub, SentryOptions options) {
+  void call(Hub hub, SentryOptions options) {
     final defaultOnError = FlutterError.onError;
 
     FlutterError.onError = (FlutterErrorDetails errorDetails) async {
@@ -43,15 +43,13 @@ class FlutterErrorIntegration extends Integration {
 /// add an event processor to call a native channel method to load :
 /// - the device Contexts,
 /// - and the native sdk integrations and packages
-///
-
 class LoadContextsIntegration extends Integration {
   final MethodChannel _channel;
 
   LoadContextsIntegration(this._channel);
 
   @override
-  FutureOr<void> run(Hub hub, SentryOptions options) async {
+  FutureOr<void> call(Hub hub, SentryOptions options) async {
     options.addEventProcessor(
       (event, {hint}) async {
         try {
@@ -106,13 +104,14 @@ class LoadContextsIntegration extends Integration {
   }
 }
 
+/// Enables Sentry's native SDKs (Android and iOS)
 class NativeSdkIntegration extends Integration {
   final MethodChannel _channel;
 
   NativeSdkIntegration(this._channel);
 
   @override
-  FutureOr<void> run(Hub hub, SentryOptions options) async {
+  FutureOr<void> call(Hub hub, SentryOptions options) async {
     try {
       await _channel.invokeMethod<void>('initNativeSdk', <String, dynamic>{
         'dsn': options.dsn,
@@ -146,13 +145,14 @@ class NativeSdkIntegration extends Integration {
   }
 }
 
+/// Loads the Android Image list for stack trace symbolication
 class LoadAndroidImageListIntegration extends Integration {
   final MethodChannel _channel;
 
   LoadAndroidImageListIntegration(this._channel);
 
   @override
-  FutureOr<void> run(Hub hub, SentryOptions options) {
+  FutureOr<void> call(Hub hub, SentryOptions options) {
     options.addEventProcessor(
       (event, {hint}) async {
         try {

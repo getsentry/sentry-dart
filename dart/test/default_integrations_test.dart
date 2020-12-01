@@ -15,7 +15,7 @@ void main() {
     'Isolate error adds integration',
     () async {
       final integration = IsolateErrorIntegration();
-      await integration.run(
+      await integration(
         fixture.hub,
         fixture.options,
       );
@@ -67,7 +67,7 @@ void main() {
       void callback() {}
       final integration = RunZonedGuardedIntegration(callback);
 
-      await integration.run(fixture.hub, fixture.options);
+      await integration(fixture.hub, fixture.options);
 
       expect(
           true,
@@ -87,7 +87,7 @@ void main() {
 
     final integration = RunZonedGuardedIntegration(callback);
 
-    await integration.run(fixture.hub, fixture.options);
+    await integration(fixture.hub, fixture.options);
 
     expect(true, called);
   }, onPlatform: {'browser': Skip()});
@@ -99,7 +99,7 @@ void main() {
     }
 
     final integration = RunZonedGuardedIntegration(callback);
-    await integration.run(fixture.hub, fixture.options);
+    await integration(fixture.hub, fixture.options);
 
     final event = verify(
       await fixture.hub

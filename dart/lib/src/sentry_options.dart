@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:http/http.dart';
 
-import 'default_integrations.dart';
 import 'diagnostic_logger.dart';
+import 'integration.dart';
 import 'noop_client.dart';
 import 'protocol.dart';
 import 'transport/noop_transport.dart';

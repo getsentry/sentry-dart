@@ -1,18 +1,11 @@
 import 'dart:async';
 
 import 'hub.dart';
+import 'integration.dart';
 import 'protocol.dart';
 import 'sentry.dart';
 import 'sentry_options.dart';
 import 'throwable_mechanism.dart';
-
-// integration interface
-abstract class Integration {
-  FutureOr<void> run(Hub hub, SentryOptions options);
-
-  // noop by default : only closable integrations need to override
-  void close() {}
-}
 
 /// integration that capture errors on the runZonedGuarded error handler
 class RunZonedGuardedIntegration extends Integration {
@@ -21,7 +14,7 @@ class RunZonedGuardedIntegration extends Integration {
   RunZonedGuardedIntegration(this._appRunner);
 
   @override
-  FutureOr<void> run(Hub hub, SentryOptions options) {
+  FutureOr<void> call(Hub hub, SentryOptions options) {
     runZonedGuarded(() async {
       await _appRunner();
     }, (exception, stackTrace) async {
