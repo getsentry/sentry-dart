@@ -83,7 +83,7 @@ class SentryClient {
 
     if (_options.beforeSend != null) {
       try {
-        event = _options.beforeSend(event, hint);
+        event = _options.beforeSend(event, hint: hint);
       } catch (err) {
         _options.logger(
           SentryLevel.error,

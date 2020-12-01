@@ -16,7 +16,10 @@ Future<void> main() async {
       options.dsn = _exampleDsn;
     },
     // Init your App.
-    () => runApp(MyApp()),
+    () {
+      // Run your App
+      runApp(MyApp());
+    },
   );
 }
 

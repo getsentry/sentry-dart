@@ -98,7 +98,7 @@ class Scope {
 
     // run before breadcrumb callback if set
     if (_options.beforeBreadcrumb != null) {
-      breadcrumb = _options.beforeBreadcrumb(breadcrumb, hint);
+      breadcrumb = _options.beforeBreadcrumb(breadcrumb, hint: hint);
 
       if (breadcrumb == null) {
         _options.logger(
