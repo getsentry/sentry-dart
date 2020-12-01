@@ -14,6 +14,7 @@
 - Enhancement: NavigationObserver to record Breadcrumbs for navigation events #197
 - Feat: Support split-debug-info for Android #191
 - Fix: the event payload must never serialize null or empty fields
+- Ref: Make hints optional
 
 ### Breaking changes
 
