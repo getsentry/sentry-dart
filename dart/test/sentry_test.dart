@@ -101,7 +101,12 @@ void main() {
 
     test('should install integrations', () async {
       var called = false;
-      void integration(Hub hub, SentryOptions options) => called = true;
+      void integration(
+        Hub hub,
+        SentryOptions options, [
+        AddIntegrationDisposer addDisposer,
+      ]) =>
+          called = true;
 
       await Sentry.init(
         (options) {
@@ -144,6 +149,29 @@ void main() {
         appRunner,
       );
     }, onPlatform: {'vm': Skip()});
+
+    test('should dispose integrations', () async {
+      var called = false;
+      void integration(
+        Hub hub,
+        SentryOptions options, [
+        AddIntegrationDisposer addDisposer,
+      ]) {
+        addDisposer(() => called = true);
+      }
+
+      await Sentry.init(
+        (options) {
+          options.dsn = fakeDsn;
+          options.addIntegration(integration);
+        },
+        appRunner,
+      );
+
+      await Sentry.close();
+
+      expect(called, true);
+    });
   });
 
   test(
@@ -156,4 +184,8 @@ void main() {
   );
 }
 
-void initialIntegration(Hub hub, SentryOptions options) {}
+void initialIntegration(
+  Hub hub,
+  SentryOptions options, [
+  AddIntegrationDisposer addDisposer,
+]) {}

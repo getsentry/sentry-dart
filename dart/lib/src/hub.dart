@@ -18,6 +18,9 @@ class Hub {
 
   final ListQueue<_StackItem> _stack = ListQueue();
 
+  /// list of callable to dispose integrations
+  final List<IntegrationDisposer> _integrationDisposers = [];
+
   /// if stack is empty, it throws IterableElementError.noElement()
   _StackItem _peek() => _stack.isNotEmpty ? _stack.first : null;
 
@@ -266,6 +269,12 @@ class Hub {
         "Instance is disabled and this 'close' call is a no-op.",
       );
     } else {
+      // dispose integrations
+      for (final disposeIntegration in _integrationDisposers) {
+        disposeIntegration();
+      }
+      _integrationDisposers.clear();
+
       final item = _peek();
       if (item != null) {
         try {
@@ -312,6 +321,11 @@ class Hub {
       }
     }
   }
+
+  /// add an integration disposer
+  /// disposers are called on [Hub.close]
+  void addIntegrationDisposer(IntegrationDisposer disposer) =>
+      _integrationDisposers.add(disposer);
 }
 
 class _StackItem {

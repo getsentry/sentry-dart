@@ -5,7 +5,11 @@ import 'package:flutter/services.dart';
 import 'package:sentry/sentry.dart';
 
 /// integration that capture errors on the FlutterError handler
-void flutterErrorIntegration(Hub hub, SentryOptions options) {
+void flutterErrorIntegration(
+  Hub hub,
+  SentryOptions options, [
+  AddIntegrationDisposer addDisposer,
+]) {
   final defaultOnError = FlutterError.onError;
 
   FlutterError.onError = (FlutterErrorDetails errorDetails) async {
@@ -45,7 +49,11 @@ Integration loadContextsIntegration(
   SentryOptions options,
   MethodChannel channel,
 ) {
-  Future<void> integration(Hub hub, SentryOptions options) async {
+  Future<void> integration(
+    Hub hub,
+    SentryOptions options, [
+    AddIntegrationDisposer addDisposer,
+  ]) async {
     options.addEventProcessor(
       (event, dynamic hint) async {
         try {
@@ -104,8 +112,15 @@ Integration loadContextsIntegration(
 }
 
 /// Enables Sentry's native SDKs (Android and iOS)
-Integration nativeSdkIntegration(SentryOptions options, MethodChannel channel) {
-  Future<void> integration(Hub hub, SentryOptions options) async {
+Integration nativeSdkIntegration(
+  SentryOptions options,
+  MethodChannel channel,
+) {
+  Future<void> integration(
+    Hub hub,
+    SentryOptions options, [
+    AddIntegrationDisposer addDisposer,
+  ]) async {
     try {
       await channel.invokeMethod<void>('initNativeSdk', <String, dynamic>{
         'dsn': options.dsn,

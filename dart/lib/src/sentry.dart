@@ -3,9 +3,8 @@ import 'dart:async';
 import 'default_integrations.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
+import 'isolate_error_integration.dart';
 import 'noop_hub.dart';
-import 'noop_isolate_error_integration.dart'
-    if (dart.library.io) 'isolate_error_integration.dart';
 import 'protocol.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
@@ -25,9 +24,6 @@ class Sentry {
 
   /// Returns the current hub
   static Hub get currentHub => _hub;
-
-  /// function to close the isolateErrorListener port
-  static Function _isolatePortDisposer;
 
   /// Initializes the SDK
   /// passing a [AppRunner] callback allows to run the app within its own error zone (`runZonedGuarded`)
@@ -84,11 +80,7 @@ class Sentry {
     if (!isWeb) {
       // catch any errors that may occur within the entry function, main()
       // in the ‘root zone’ where all Dart programs start
-      options.addIntegration(
-        isolateErrorIntegration(
-          (Function portDisposer) => _isolatePortDisposer = portDisposer,
-        ),
-      );
+      options.addIntegration(isolateErrorIntegration);
     }
 
     // finally the runZonedGuarded, catch any errors in Dart code running
@@ -118,7 +110,11 @@ class Sentry {
 
     // execute integrations after hub being enabled
     for (final integration in options.integrations) {
-      await integration(HubAdapter(), options);
+      await integration(
+        HubAdapter(),
+        options,
+        (IntegrationDisposer disposer) => _hub.addIntegrationDisposer(disposer),
+      );
     }
   }
 
@@ -162,8 +158,6 @@ class Sentry {
     final hub = currentHub;
     _hub = NoOpHub();
     hub.close();
-
-    _isolatePortDisposer?.call();
   }
 
   /// Check if the current Hub is enabled/active.

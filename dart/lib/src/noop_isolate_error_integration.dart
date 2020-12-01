@@ -2,10 +2,11 @@ import 'hub.dart';
 import 'sentry_options.dart';
 
 // noop web integration : isolate doesnt' work in browser
-Integration isolateErrorIntegration(
-  void Function(Function) receivePortWatcher,
-) =>
-    (Hub hub, SentryOptions options) {};
+void isolateErrorIntegration(
+  Hub hub,
+  SentryOptions options, [
+  AddIntegrationDisposer addDisposer,
+]) {}
 
 Future<void> handleIsolateError(
   Hub hub,

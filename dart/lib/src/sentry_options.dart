@@ -338,7 +338,15 @@ typedef EventProcessor = FutureOr<SentryEvent> Function(
 
 /// Code that provides middlewares, bindings or hooks into certain frameworks or environments,
 /// along with code that inserts those bindings and activates them.
-typedef Integration = FutureOr<void> Function(Hub hub, SentryOptions options);
+typedef Integration = FutureOr<void> Function(
+  Hub hub,
+  SentryOptions options, [
+  AddIntegrationDisposer addDisposer,
+]);
+
+typedef IntegrationDisposer = void Function();
+
+typedef AddIntegrationDisposer = void Function(IntegrationDisposer);
 
 /// Logger interface to log useful debugging information if debug is enabled
 typedef Logger = Function(SentryLevel level, String message);

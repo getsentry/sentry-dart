@@ -77,4 +77,7 @@ class HubAdapter implements Hub {
 
   @override
   SentryId get lastEventId => Sentry.lastEventId;
+
+  @override
+  void addIntegrationDisposer(disposer) {}
 }

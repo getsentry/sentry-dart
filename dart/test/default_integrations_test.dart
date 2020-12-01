@@ -14,12 +14,14 @@ void main() {
   test(
     'Isolate error adds integration',
     () async {
-      Function isolateDisposer;
+      IntegrationDisposer isolateDisposer;
 
-      final integration = isolateErrorIntegration(
-        (Function receivePortDisposer) => isolateDisposer = receivePortDisposer,
+      final integration = isolateErrorIntegration;
+      await integration(
+        fixture.hub,
+        fixture.options,
+        (disposer) => isolateDisposer = disposer,
       );
-      await integration(fixture.hub, fixture.options);
 
       expect(
         true,

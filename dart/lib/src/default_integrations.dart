@@ -10,7 +10,11 @@ import 'throwable_mechanism.dart';
 Integration runZonedGuardedIntegration(
   AppRunner appRunner,
 ) {
-  void integration(Hub hub, SentryOptions options) {
+  void integration(
+    Hub hub,
+    SentryOptions options, [
+    AddIntegrationDisposer getPortDisposer,
+  ]) {
     runZonedGuarded(() async {
       await appRunner();
     }, (exception, stackTrace) async {

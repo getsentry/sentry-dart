@@ -5,17 +5,18 @@ import 'protocol.dart';
 import 'sentry_options.dart';
 import 'throwable_mechanism.dart';
 
-Integration isolateErrorIntegration(
-  void Function(Function) getPortDisposer,
-) =>
-    (Hub hub, SentryOptions options) {
-      final receivePort = _createPort(hub, options);
+void isolateErrorIntegration(
+  Hub hub,
+  SentryOptions options, [
+  AddIntegrationDisposer addDisposer,
+]) {
+  final receivePort = _createPort(hub, options);
 
-      Isolate.current.addErrorListener(receivePort.sendPort);
+  Isolate.current.addErrorListener(receivePort.sendPort);
 
-      options.sdk.addIntegration('isolateErrorIntegration');
-      getPortDisposer(receivePort.close);
-    };
+  options.sdk.addIntegration('isolateErrorIntegration');
+  addDisposer(receivePort.close);
+}
 
 RawReceivePort _createPort(Hub hub, SentryOptions options) {
   return RawReceivePort(
