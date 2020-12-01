@@ -3,7 +3,8 @@ import 'dart:async';
 import 'default_integrations.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
-import 'isolate_error_integration.dart';
+import 'noop_isolate_error_integration.dart'
+    if (dart.library.io) 'isolate_error_integration.dart';
 import 'noop_hub.dart';
 import 'protocol.dart';
 import 'sentry_client.dart';
