@@ -69,20 +69,6 @@ void main() {
     expect(sut.breadcrumbs.length, 0);
   });
 
-  test('Executes and drops $Breadcrumb without a hint', () {
-    final sut = fixture.getSut(
-      beforeBreadcrumbCallback: fixture.beforeBreadcrumbCallback,
-    );
-
-    final breadcrumb = Breadcrumb(
-      message: 'test log',
-      timestamp: DateTime.utc(2019),
-    );
-    sut.addBreadcrumb(breadcrumb);
-
-    expect(sut.breadcrumbs.length, 0);
-  });
-
   test('adds $EventProcessor', () {
     final sut = fixture.getSut();
 
@@ -282,7 +268,7 @@ void main() {
         ..setExtra('company-name', 'Dart Inc')
         ..setContexts('theme', 'material')
         ..addEventProcessor(
-          (event, hint) => event..tags.addAll({'page-locale': 'en-us'}),
+          (event, {hint}) => event..tags.addAll({'page-locale': 'en-us'}),
         );
 
       final updatedEvent = scope.applyToEvent(event, null);
@@ -430,7 +416,7 @@ class Fixture {
     return Scope(options);
   }
 
-  SentryEvent processor(SentryEvent event, dynamic hint) => null;
+  SentryEvent processor(SentryEvent event, {dynamic hint}) => null;
 
   Breadcrumb beforeBreadcrumbCallback(Breadcrumb breadcrumb, {dynamic hint}) =>
       null;
