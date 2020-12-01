@@ -6,17 +6,24 @@ import 'sentry.dart';
 import 'sentry_options.dart';
 import 'throwable_mechanism.dart';
 
+// integration interface
+abstract class Integration {
+  FutureOr<void> run(Hub hub, SentryOptions options);
+
+  // noop by default : only closable integrations need to override
+  void close() {}
+}
+
 /// integration that capture errors on the runZonedGuarded error handler
-Integration runZonedGuardedIntegration(
-  AppRunner appRunner,
-) {
-  void integration(
-    Hub hub,
-    SentryOptions options, [
-    AddIntegrationDisposer getPortDisposer,
-  ]) {
+class RunZonedGuardedIntegration extends Integration {
+  final AppRunner _appRunner;
+
+  RunZonedGuardedIntegration(this._appRunner);
+
+  @override
+  FutureOr<void> run(Hub hub, SentryOptions options) {
     runZonedGuarded(() async {
-      await appRunner();
+      await _appRunner();
     }, (exception, stackTrace) async {
       // runZonedGuarded doesn't crash the App.
       const mechanism = Mechanism(type: 'runZonedGuarded', handled: true);
@@ -32,6 +39,4 @@ Integration runZonedGuardedIntegration(
 
     options.sdk.addIntegration('runZonedGuardedIntegration');
   }
-
-  return integration;
 }

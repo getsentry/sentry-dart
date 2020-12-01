@@ -1,21 +1,26 @@
+import 'dart:async';
 import 'dart:isolate';
 
+import '../sentry.dart';
 import 'hub.dart';
 import 'protocol.dart';
 import 'sentry_options.dart';
 import 'throwable_mechanism.dart';
 
-void isolateErrorIntegration(
-  Hub hub,
-  SentryOptions options, [
-  AddIntegrationDisposer addDisposer,
-]) {
-  final receivePort = _createPort(hub, options);
+class IsolateErrorIntegration extends Integration {
+  RawReceivePort _receivePort;
 
-  Isolate.current.addErrorListener(receivePort.sendPort);
+  @override
+  FutureOr<void> run(Hub hub, SentryOptions options) async {
+    _receivePort = _createPort(hub, options);
 
-  options.sdk.addIntegration('isolateErrorIntegration');
-  addDisposer(receivePort.close);
+    Isolate.current.addErrorListener(_receivePort.sendPort);
+
+    options.sdk.addIntegration('isolateErrorIntegration');
+  }
+
+  @override
+  void close() => _receivePort.close();
 }
 
 RawReceivePort _createPort(Hub hub, SentryOptions options) {

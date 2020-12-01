@@ -38,7 +38,7 @@ void main() {
     final options = SentryOptions()..dsn = fakeDsn;
     final hub = Hub(options);
 
-    loadContextsIntegration(options, _channel)(hub, options);
+    LoadContextsIntegration(_channel).run(hub, options);
 
     expect(options.eventProcessors.length, 1);
 
@@ -67,7 +67,7 @@ void main() {
     final options = SentryOptions()..dsn = fakeDsn;
     final hub = Hub(options);
 
-    loadContextsIntegration(options, _channel)(hub, options);
+    LoadContextsIntegration(_channel).run(hub, options);
 
     expect(options.eventProcessors.length, 1);
 
@@ -101,7 +101,7 @@ void main() {
       final options = SentryOptions()..dsn = fakeDsn;
       final hub = Hub(options);
 
-      loadContextsIntegration(options, _channel)(hub, options);
+      LoadContextsIntegration(_channel).run(hub, options);
 
       final eventSdk = SdkVersion(
         name: 'sdk1',
@@ -132,7 +132,7 @@ void main() {
     final options = SentryOptions()..dsn = fakeDsn;
     final hub = Hub(options);
 
-    loadContextsIntegration(options, _channel)(hub, options);
+    LoadContextsIntegration(_channel).run(hub, options);
 
     final e = SentryEvent();
     final event = await options.eventProcessors.first(e, null);

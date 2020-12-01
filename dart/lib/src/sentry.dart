@@ -81,13 +81,13 @@ class Sentry {
     if (!isWeb) {
       // catch any errors that may occur within the entry function, main()
       // in the ‘root zone’ where all Dart programs start
-      options.addIntegration(isolateErrorIntegration);
+      options.addIntegration(IsolateErrorIntegration());
     }
 
-    // finally the runZonedGuarded, catch any errors in Dart code running
+    // finally the RunZonedGuarded, catch any errors in Dart code running
     // ‘outside’ the Flutter framework
     if (appRunner != null) {
-      options.addIntegration(runZonedGuardedIntegration(appRunner));
+      options.addIntegration(RunZonedGuardedIntegration(appRunner));
     }
   }
 
@@ -111,11 +111,7 @@ class Sentry {
 
     // execute integrations after hub being enabled
     for (final integration in options.integrations) {
-      await integration(
-        HubAdapter(),
-        options,
-        (IntegrationDisposer disposer) => _hub.addIntegrationDisposer(disposer),
-      );
+      await integration.run(HubAdapter(), options);
     }
   }
 

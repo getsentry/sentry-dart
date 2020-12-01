@@ -14,21 +14,16 @@ void main() {
   test(
     'Isolate error adds integration',
     () async {
-      IntegrationDisposer isolateDisposer;
-
-      final integration = isolateErrorIntegration;
-      await integration(
+      final integration = IsolateErrorIntegration();
+      await integration.run(
         fixture.hub,
         fixture.options,
-        (disposer) => isolateDisposer = disposer,
       );
 
       expect(
         true,
         fixture.options.sdk.integrations.contains('isolateErrorIntegration'),
       );
-
-      expect(isolateDisposer, isNotNull);
     },
     onPlatform: {
       'browser': Skip(),
@@ -70,9 +65,9 @@ void main() {
     'Run zoned guarded adds integration',
     () async {
       void callback() {}
-      final integration = runZonedGuardedIntegration(callback);
+      final integration = RunZonedGuardedIntegration(callback);
 
-      await integration(fixture.hub, fixture.options);
+      await integration.run(fixture.hub, fixture.options);
 
       expect(
           true,
@@ -90,9 +85,9 @@ void main() {
       called = true;
     }
 
-    final integration = runZonedGuardedIntegration(callback);
+    final integration = RunZonedGuardedIntegration(callback);
 
-    await integration(fixture.hub, fixture.options);
+    await integration.run(fixture.hub, fixture.options);
 
     expect(true, called);
   }, onPlatform: {'browser': Skip()});
@@ -103,8 +98,8 @@ void main() {
       throw throwable;
     }
 
-    final integration = runZonedGuardedIntegration(callback);
-    await integration(fixture.hub, fixture.options);
+    final integration = RunZonedGuardedIntegration(callback);
+    await integration.run(fixture.hub, fixture.options);
 
     final event = verify(
       await fixture.hub

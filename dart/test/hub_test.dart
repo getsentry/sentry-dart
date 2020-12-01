@@ -179,16 +179,6 @@ void main() {
       expect(hub.isEnabled, false);
       verify(client.close()).called(1);
     });
-
-    test('should close its integrations', () {
-      var called = false;
-
-      hub.addIntegrationDisposer(() => called = true);
-
-      hub.close();
-
-      expect(called, true);
-    });
   });
 
   test('clones', () {

@@ -59,7 +59,4 @@ class NoOpHub implements Hub {
 
   @override
   void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) {}
-
-  @override
-  void addIntegrationDisposer(disposer) {}
 }
