@@ -19,12 +19,16 @@ class DebugMeta {
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 
-    if (sdk != null) {
-      json['sdk_info'] = sdk.toJson();
+    Map<String, dynamic> sdkInfo;
+    if (sdk != null && (sdkInfo = sdk.toJson()).isNotEmpty) {
+      json['sdk_info'] = sdkInfo;
     }
 
     if (_images != null && _images.isNotEmpty) {
-      json['images'] = _images.map((e) => e.toJson()).toList(growable: false);
+      json['images'] = _images
+          .map((e) => e.toJson())
+          .where((element) => element.isNotEmpty)
+          .toList(growable: false);
     }
 
     return json;

@@ -155,3 +155,79 @@ Integration nativeSdkIntegration(
 
   return integration;
 }
+
+Integration loadAndroidImageListIntegration(
+  SentryOptions options,
+  MethodChannel channel,
+) {
+  Future<void> integration(Hub hub, SentryOptions options) async {
+    options.addEventProcessor(
+      (event, dynamic hint) async {
+        try {
+          if (event.exception != null &&
+              event.exception.stackTrace != null &&
+              event.exception.stackTrace.frames != null) {
+            final needsSymbolication = event.exception.stackTrace.frames
+                .any((element) => 'native' == element.platform);
+
+            // if there are no frames that require symbolication, we don't
+            // load the debug image list.
+            if (!needsSymbolication) {
+              return event;
+            }
+          } else {
+            return event;
+          }
+
+          // we call on every event because the loaded image list is cached
+          // and it could be changed on the Native side.
+          final imageList = List<Map<dynamic, dynamic>>.from(
+            await channel.invokeMethod('loadImageList'),
+          );
+
+          if (imageList.isEmpty) {
+            return event;
+          }
+
+          final newDebugImages = <DebugImage>[];
+
+          for (final item in imageList) {
+            final codeFile = item['code_file'] as String;
+            final codeId = item['code_id'] as String;
+            final imageAddr = item['image_addr'] as String;
+            final imageSize = item['image_size'] as int;
+            final type = item['type'] as String;
+            final debugId = item['debug_id'] as String;
+            final debugFile = item['debug_file'] as String;
+
+            final image = DebugImage(
+              type: type,
+              imageAddr: imageAddr,
+              imageSize: imageSize,
+              codeFile: codeFile,
+              debugId: debugId,
+              codeId: codeId,
+              debugFile: debugFile,
+            );
+            newDebugImages.add(image);
+          }
+
+          final debugMeta = DebugMeta(images: newDebugImages);
+
+          event = event.copyWith(debugMeta: debugMeta);
+        } catch (error) {
+          options.logger(
+            SentryLevel.error,
+            'loadImageList failed : $error',
+          );
+        }
+
+        return event;
+      },
+    );
+
+    options.sdk.addIntegration('loadAndroidImageListIntegration');
+  }
+
+  return integration;
+}
