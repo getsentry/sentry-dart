@@ -4,6 +4,7 @@ import 'hub.dart';
 import 'protocol.dart';
 import 'sentry.dart';
 import 'sentry_client.dart';
+import 'sentry_options.dart';
 
 /// Hub adapter to make Integrations testable
 class HubAdapter implements Hub {
@@ -79,5 +80,5 @@ class HubAdapter implements Hub {
   SentryId get lastEventId => Sentry.lastEventId;
 
   @override
-  void addIntegrationDisposer(disposer) {}
+  void addIntegrationDisposer(IntegrationDisposer disposer) {}
 }
