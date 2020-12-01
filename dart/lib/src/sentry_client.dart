@@ -52,13 +52,15 @@ class SentryClient {
     dynamic stackTrace,
     dynamic hint,
   }) async {
-    event =
-        await _processEvent(event, eventProcessors: _options.eventProcessors);
-
-    // dropped by sampling or event processors
-    if (event == null) {
+    if (_sampleRate()) {
+      _options.logger(
+        SentryLevel.debug,
+        'Event ${event.eventId.toString()} was dropped due to sampling decision.',
+      );
       return _sentryId;
     }
+
+    event = _prepareEvent(event, stackTrace: stackTrace);
 
     if (scope != null) {
       event = scope.applyToEvent(event, hint);
@@ -71,7 +73,13 @@ class SentryClient {
       return _sentryId;
     }
 
-    event = _prepareEvent(event, stackTrace: stackTrace);
+    event =
+        await _processEvent(event, eventProcessors: _options.eventProcessors);
+
+    // dropped by event processors
+    if (event == null) {
+      return _sentryId;
+    }
 
     if (_options.beforeSend != null) {
       try {
@@ -171,14 +179,6 @@ class SentryClient {
     dynamic hint,
     List<EventProcessor> eventProcessors,
   }) async {
-    if (_sampleRate()) {
-      _options.logger(
-        SentryLevel.debug,
-        'Event ${event.eventId.toString()} was dropped due to sampling decision.',
-      );
-      return null;
-    }
-
     for (final processor in eventProcessors) {
       try {
         event = await processor(event, hint);

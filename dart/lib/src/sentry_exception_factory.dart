@@ -48,6 +48,9 @@ class SentryExceptionFactory {
         frames: _stacktraceFactory.getStackFrames(stackTrace),
       );
     }
+
+    // if --obfuscate feature is enabled, 'type' won't be human readable.
+    // https://flutter.dev/docs/deployment/obfuscate#caveat
     final sentryException = SentryException(
       type: '${throwable.runtimeType}',
       value: '$throwable',

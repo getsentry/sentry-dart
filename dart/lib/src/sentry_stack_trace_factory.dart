@@ -9,6 +9,10 @@ import 'sentry_options.dart';
 class SentryStackTraceFactory {
   SentryOptions _options;
 
+  final _absRegex = RegExp('abs +([A-Fa-f0-9]+)');
+  static const _stackTraceViolateDartStandard =
+      'This VM has been configured to produce stack traces that violate the Dart standard.';
+
   SentryStackTraceFactory(SentryOptions options) {
     if (options == null) {
       throw ArgumentError('SentryOptions is required.');
@@ -27,32 +31,36 @@ class SentryStackTraceFactory {
             ? Chain.parse(stackTrace)
             : Chain.parse('');
 
-    // TODO: if strip symbols are enabled, thats what we see:
-    // warning:  This VM has been configured to produce stack traces that violate the Dart standard.
-    // ***       *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
-    // unparsed  pid: 30930, tid: 30990, name 1.ui
-    // unparsed  build_id: '5346e01103ffeed44e97094ff7bfcc19'
-    // unparsed  isolate_dso_base: 723d447000, vm_dso_base: 723d447000
-    // unparsed  isolate_instructions: 723d452000, vm_instructions: 723d449000
-    // unparsed      #00 abs 000000723d6346d7 virt 00000000001ed6d7 _kDartIsolateSnapshotInstructions+0x1e26d7
-    // unparsed      #01 abs 000000723d637527 virt 00000000001f0527 _kDartIsolateSnapshotInstructions+0x1e5527
-    // unparsed      #02 abs 000000723d4a41a7 virt 000000000005d1a7 _kDartIsolateSnapshotInstructions+0x521a7
-    // unparsed      #03 abs 000000723d624663 virt 00000000001dd663 _kDartIsolateSnapshotInstructions+0x1d2663
-    // unparsed      #04 abs 000000723d4b8c3b virt 0000000000071c3b _kDartIsolateSnapshotInstructions+0x66c3b
-    // unparsed      #05 abs 000000723d5ffe27 virt 00000000001b8e27 _kDartIsolateSna...
-
-    // abs => instruction_addr
-    // build_id => debug_images
-
     final frames = <SentryStackFrame>[];
+    var symbolicated = true;
+
     for (var t = 0; t < chain.traces.length; t += 1) {
-      final encodedFrames = chain.traces[t].frames
-          // we don't want to add our own frames
-          .where((frame) => frame.package != 'sentry')
-          .map((f) => encodeStackTraceFrame(f));
+      final trace = chain.traces[t];
 
-      frames.addAll(encodedFrames);
+      for (final frame in trace.frames) {
+        // we don't want to add our own frames
+        if (frame.package == 'sentry') {
+          continue;
+        }
 
+        final member = frame.member;
+        // ideally the language would offer us a native way of parsing it.
+        if (member != null && member.contains(_stackTraceViolateDartStandard)) {
+          symbolicated = false;
+        }
+
+        final stackTraceFrame = encodeStackTraceFrame(
+          frame,
+          symbolicated: symbolicated,
+        );
+
+        if (stackTraceFrame == null) {
+          continue;
+        }
+        frames.add(stackTraceFrame);
+      }
+
+      // fill asynchronous gap
       if (t < chain.traces.length - 1) {
         frames.add(SentryStackFrame.asynchronousGapFrameJson);
       }
@@ -63,28 +71,61 @@ class SentryStackTraceFactory {
 
   /// converts [Frame] to [SentryStackFrame]
   @visibleForTesting
-  SentryStackFrame encodeStackTraceFrame(Frame frame) {
-    final fileName =
-        frame.uri.pathSegments.isNotEmpty ? frame.uri.pathSegments.last : null;
+  SentryStackFrame encodeStackTraceFrame(Frame frame,
+      {bool symbolicated = true}) {
+    final member = frame.member;
 
-    final abs = '$eventOrigin${_absolutePathForCrashReport(frame)}';
+    SentryStackFrame sentryStackFrame;
 
-    var sentryStackFrame = SentryStackFrame(
-      absPath: abs,
-      function: frame.member,
-      // https://docs.sentry.io/development/sdk-dev/features/#in-app-frames
-      inApp: isInApp(frame),
-      fileName: fileName,
-      package: frame.package,
-    );
-    // platform: 'native' if strip symbols are enabled
+    if (symbolicated) {
+      final fileName = frame.uri.pathSegments.isNotEmpty
+          ? frame.uri.pathSegments.last
+          : null;
 
-    if (frame.line != null && frame.line >= 0) {
-      sentryStackFrame = sentryStackFrame.copyWith(lineNo: frame.line);
-    }
+      final abs = '$eventOrigin${_absolutePathForCrashReport(frame)}';
 
-    if (frame.column != null && frame.column >= 0) {
-      sentryStackFrame = sentryStackFrame.copyWith(colNo: frame.column);
+      sentryStackFrame = SentryStackFrame(
+        absPath: abs,
+        function: member,
+        // https://docs.sentry.io/development/sdk-dev/features/#in-app-frames
+        inApp: isInApp(frame),
+        fileName: fileName,
+        package: frame.package,
+      );
+
+      if (frame.line != null && frame.line >= 0) {
+        sentryStackFrame = sentryStackFrame.copyWith(lineNo: frame.line);
+      }
+
+      if (frame.column != null && frame.column >= 0) {
+        sentryStackFrame = sentryStackFrame.copyWith(colNo: frame.column);
+      }
+    } else {
+      // if --split-debug-info is enabled, thats what we see:
+      // warning:  This VM has been configured to produce stack traces that violate the Dart standard.
+      // ***       *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+      // unparsed  pid: 30930, tid: 30990, name 1.ui
+      // unparsed  build_id: '5346e01103ffeed44e97094ff7bfcc19'
+      // unparsed  isolate_dso_base: 723d447000, vm_dso_base: 723d447000
+      // unparsed  isolate_instructions: 723d452000, vm_instructions: 723d449000
+      // unparsed      #00 abs 000000723d6346d7 virt 00000000001ed6d7 _kDartIsolateSnapshotInstructions+0x1e26d7
+      // unparsed      #01 abs 000000723d637527 virt 00000000001f0527 _kDartIsolateSnapshotInstructions+0x1e5527
+      // unparsed      #02 abs 000000723d4a41a7 virt 000000000005d1a7 _kDartIsolateSnapshotInstructions+0x521a7
+      // unparsed      #03 abs 000000723d624663 virt 00000000001dd663 _kDartIsolateSnapshotInstructions+0x1d2663
+      // unparsed      #04 abs 000000723d4b8c3b virt 0000000000071c3b _kDartIsolateSnapshotInstructions+0x66c3b
+
+      // we are only interested on the #01, 02... items which contains the 'abs' addresses.
+      final matches = _absRegex.allMatches(member);
+
+      if (matches.isNotEmpty) {
+        final abs = matches.elementAt(0).group(1);
+        if (abs != null) {
+          sentryStackFrame = SentryStackFrame(
+            instructionAddr: '0x$abs',
+            platform: 'native', // to trigger symbolication
+          );
+        }
+      }
     }
 
     return sentryStackFrame;

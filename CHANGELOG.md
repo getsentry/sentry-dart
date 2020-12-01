@@ -12,6 +12,7 @@
 - Fix: NDK integration was being disabled by a typo
 - Fix: missing toList for debug meta #192
 - Enhancement: NavigationObserver to record Breadcrumbs for navigation events #197
+- Feat: Support split-debug-info for Android #191
 - Fix: the event payload must never serialize null or empty fields
 - Enhancement: Add SentryWidgetsBindingObserver, an Integration that captures certain window and device events.
 
