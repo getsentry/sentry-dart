@@ -12,7 +12,7 @@ const String _exampleDsn =
 
 Future<void> main() async {
   await SentryFlutter.init(
-    (options, flutterOptions) {
+    (options) {
       options.dsn = _exampleDsn;
     },
     // Init your App.
