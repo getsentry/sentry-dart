@@ -2,44 +2,78 @@ import 'package:flutter/foundation.dart' as foundation;
 
 import '../sentry_flutter.dart';
 
-// TODO: add getter and setter to make sure the user does not set null values
 // TODO: add tests
 
 /// This class add options which are only availble in a Flutter environment.
-class SentryFlutterOptions {
-  SentryOptions options;
-
-  SentryFlutterOptions({this.options});
-
+class SentryFlutterOptions extends SentryOptions {
   /// Consider disabling [SentryOptions.enableAutoNativeBreadcrumbs] if you
   /// enable this. Otherwise you might record lifecycle events twice.
   /// Also consider using [enableBreadcrumbTrackingForCurrentPlatform()]
   /// instead for more sensible defaults.
-  bool enableLifecycleBreadcrumbs = false;
+  bool get enableLifecycleBreadcrumbs => _enableLifecycleBreadcrumbs ?? false;
+
+  set enableLifecycleBreadcrumbs(bool value) {
+    assert(value != null);
+    _enableLifecycleBreadcrumbs = value;
+  }
+
+  bool _enableLifecycleBreadcrumbs = false;
 
   /// Consider disabling [SentryOptions.enableAutoNativeBreadcrumbs] if you
   /// enable this. Otherwise you might record window metric events twice.
   /// Also consider using [enableBreadcrumbTrackingForCurrentPlatform()]
   /// instead for more sensible defaults.
-  bool enableWindowMetricBreadcrumbs = false;
+  bool get enableWindowMetricBreadcrumbs =>
+      _enableWindowMetricBreadcrumbs ?? false;
+
+  set enableWindowMetricBreadcrumbs(bool value) {
+    assert(value != null);
+    _enableWindowMetricBreadcrumbs = value;
+  }
+
+  bool _enableWindowMetricBreadcrumbs = false;
 
   /// Consider disabling [SentryOptions.enableAutoNativeBreadcrumbs] if you
   /// enable this. Otherwise you might record brightness change events twice.
   /// Also consider using [enableBreadcrumbTrackingForCurrentPlatform()]
   /// instead for more sensible defaults.
-  bool enableBrightnessChangeBreadcrumbs = false;
+  bool get enableBrightnessChangeBreadcrumbs =>
+      _enableBrightnessChangeBreadcrumbs ?? false;
+
+  set enableBrightnessChangeBreadcrumbs(bool value) {
+    assert(value != null);
+    _enableBrightnessChangeBreadcrumbs = value;
+  }
+
+  bool _enableBrightnessChangeBreadcrumbs = false;
 
   /// Consider disabling [SentryOptions.enableAutoNativeBreadcrumbs] if you
   /// enable this. Otherwise you might record text scale change events twice.
   /// Also consider using [enableBreadcrumbTrackingForCurrentPlatform()]
   /// instead for more sensible defaults.
-  bool enableTextScaleChangeBreadcrumbs = false;
+  bool get enableTextScaleChangeBreadcrumbs =>
+      _enableTextScaleChangeBreadcrumbs ?? false;
+
+  set enableTextScaleChangeBreadcrumbs(bool value) {
+    assert(value != null);
+    _enableTextScaleChangeBreadcrumbs = value;
+  }
+
+  bool _enableTextScaleChangeBreadcrumbs = false;
 
   /// Consider disabling [SentryOptions.enableAutoNativeBreadcrumbs] if you
   /// enable this. Otherwise you might record memory pressure events twice.
   /// Also consider using [enableBreadcrumbTrackingForCurrentPlatform()]
   /// instead for more sensible defaults.
-  bool enableMemoryPressureBreadcrumbs = false;
+  bool get enableMemoryPressureBreadcrumbs =>
+      _enableMemoryPressureBreadcrumbs ?? false;
+
+  set enableMemoryPressureBreadcrumbs(bool value) {
+    assert(value != null);
+    _enableMemoryPressureBreadcrumbs = value;
+  }
+
+  bool _enableMemoryPressureBreadcrumbs = false;
 
   /// By using this, you are disabling native [Breadcrumb] tracking and instead
   /// you are just tracking [Breadcrumb]s which result from events available
@@ -54,7 +88,7 @@ class SentryFlutterOptions {
     // as there is no native integration for these platforms.
     // However this prevents accidentily recording
     // breadcrumbs twice, in case a native integration gets added.
-    options.enableAutoNativeBreadcrumbs = false;
+    enableAutoNativeBreadcrumbs = false;
     // do not set enableNativeCrashHandling and co as it has nothing to do
     // with breadcrumbs
   }
@@ -68,7 +102,7 @@ class SentryFlutterOptions {
     enableBrightnessChangeBreadcrumbs = false;
     enableTextScaleChangeBreadcrumbs = false;
     enableMemoryPressureBreadcrumbs = false;
-    options.enableAutoNativeBreadcrumbs = true;
+    enableAutoNativeBreadcrumbs = true;
     // do not set enableNativeCrashHandling and co as they have nothing to do
     // with breadcrumbs
   }
@@ -92,13 +126,11 @@ class SentryFlutterOptions {
   /// You should probably use [enableBreadcrumbTrackingForCurrentPlatform()].
   /// This should only be used if you really want to override the default
   /// platform behavior.
-  ///
-  /// Should this method be visible for users of this SDK?
-  /// If so, discourage users from using it, otherwise make it package private
-  /// either via extension method or just a method.
   @foundation.visibleForTesting
   void configureBreadcrumbTrackingForPlatform(
       foundation.TargetPlatform platform) {
+    assert(platform != null);
+
     // Bacause platform reports the Operating System and not if it is running
     // in a browser. So we have to check if this is Flutter for web.
     // See https://github.com/flutter/flutter/blob/c5a69b9b8ad186e9fce017fd4bfb8ce63f9f4d13/packages/flutter/lib/src/foundation/_platform_web.dart

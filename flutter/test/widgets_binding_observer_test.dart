@@ -16,12 +16,10 @@ void main() {
     setUp(() {
       WidgetsFlutterBinding.ensureInitialized();
 
-      flutterTrackingEnabledOptions =
-          SentryFlutterOptions(options: SentryOptions());
+      flutterTrackingEnabledOptions = SentryFlutterOptions();
       flutterTrackingEnabledOptions.useFlutterBreadcrumbTracking();
 
-      flutterTrackingDisabledOptions =
-          SentryFlutterOptions(options: SentryOptions());
+      flutterTrackingDisabledOptions = SentryFlutterOptions();
       flutterTrackingDisabledOptions.useNativeBreadcrumbTracking();
     });
 

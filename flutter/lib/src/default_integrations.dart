@@ -150,14 +150,21 @@ Integration nativeSdkIntegration(SentryOptions options, MethodChannel channel) {
 void widgetsBindingIntegration(
   Hub hub,
   SentryOptions options,
-  SentryFlutterOptions flutterOptions,
 ) {
-  // We don't need to call `WidgetsFlutterBinding.ensureInitialized()`
-  // because `FlutterSentry.init` already calls it.
-  WidgetsBinding.instance.addObserver(SentryWidgetsBindingObserver(
-    hub: hub,
-    options: flutterOptions,
-  ));
+  if (options is SentryFlutterOptions) {
+    // We don't need to call `WidgetsFlutterBinding.ensureInitialized()`
+    // because `FlutterSentry.init` already calls it.
+    WidgetsBinding.instance.addObserver(SentryWidgetsBindingObserver(
+      hub: hub,
+      options: options,
+    ));
 
-  options.sdk.addIntegration('widgetsBindingIntegration');
+    options.sdk.addIntegration('widgetsBindingIntegration');
+  } else {
+    options.logger(
+      SentryLevel.fatal,
+      'widgetsBindingIntegration failed to be installed because options is '
+      'not an instance of SentryFlutterOptions',
+    );
+  }
 }

@@ -16,18 +16,12 @@ import 'version.dart';
 // this injected PlatformChecker allows to test this behavior
 import 'web_platform_checker.dart' if (dart.library.io) 'platform_checker.dart';
 
-/// Configuration options callback
-typedef OptionsFlutterConfiguration = FutureOr<void> Function(
-  SentryOptions options,
-  SentryFlutterOptions flutterOptions,
-);
-
 /// Sentry Flutter SDK main entry point
 mixin SentryFlutter {
   static const _channel = MethodChannel('sentry_flutter');
 
   static Future<void> init(
-    OptionsFlutterConfiguration optionsConfiguration, [
+    OptionsConfiguration optionsConfiguration, [
     AppRunner appRunner,
     PackageLoader packageLoader = _loadPackageInfo,
     iOSPlatformChecker isIOSChecker = isIOS,
@@ -39,15 +33,14 @@ mixin SentryFlutter {
     final flutterOptions = SentryFlutterOptions();
     await Sentry.init(
       (options) async {
+        assert(options is SentryFlutterOptions);
         await _initDefaultValues(
           options,
           packageLoader,
           isIOSChecker,
         );
 
-        flutterOptions.options = options;
-
-        await optionsConfiguration(options, flutterOptions);
+        await optionsConfiguration(options);
       },
       appRunner,
       [
@@ -55,9 +48,9 @@ mixin SentryFlutter {
         // will catch any errors that may occur in the Flutter framework itself.
         flutterErrorIntegration,
         // This tracks Flutter application events, such as lifecycle events.
-        (hub, options) =>
-            widgetsBindingIntegration(hub, options, flutterOptions),
+        widgetsBindingIntegration,
       ],
+      flutterOptions,
     );
   }
 

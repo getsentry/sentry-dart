@@ -33,12 +33,13 @@ class Sentry {
     OptionsConfiguration optionsConfiguration, [
     AppRunner appRunner,
     List<Integration> initialIntegrations,
+    SentryOptions sentryOptions,
   ]) async {
     if (optionsConfiguration == null) {
       throw ArgumentError('OptionsConfiguration is required.');
     }
 
-    final options = SentryOptions();
+    final options = sentryOptions ?? SentryOptions();
     await _initDefaultValues(options, appRunner, initialIntegrations);
 
     await optionsConfiguration(options);
