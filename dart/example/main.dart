@@ -59,7 +59,7 @@ void runApp() async {
   // Sends a full Sentry event payload to show the different parts of the UI.
   final sentryId = await Sentry.captureEvent(event);
 
-  print('Capture event result : SentryId : ${sentryId}');
+  print('Capture event result : SentryId : $sentryId');
 
   print('\nCapture message: ');
 
@@ -71,7 +71,7 @@ void runApp() async {
     params: ['1'],
   );
 
-  print('Capture message result : SentryId : ${messageSentryId}');
+  print('Capture message result : SentryId : $messageSentryId');
 
   try {
     await loadConfig();
@@ -83,7 +83,7 @@ void runApp() async {
       stackTrace: stackTrace,
     );
 
-    print('Capture exception result : SentryId : ${sentryId}');
+    print('Capture exception result : SentryId : $sentryId');
   } finally {
     await Sentry.close();
   }

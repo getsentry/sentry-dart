@@ -21,7 +21,7 @@ class ExamplePluginWeb {
   /// https://flutter.dev/go/federated-plugins
   Future<dynamic> handleMethodCall(MethodCall call) async {
     if (call.method == 'console.log') {
-      Sentry.captureMessage(call.toString());
+      await Sentry.captureMessage(call.toString());
     }
     return '';
   }

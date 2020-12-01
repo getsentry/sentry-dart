@@ -321,20 +321,18 @@ class SentryOptions {
 
 /// This function is called with an SDK specific event object and can return a modified event
 /// object or nothing to skip reporting the event
-typedef BeforeSendCallback = SentryEvent Function(
-    SentryEvent event, dynamic hint);
+typedef BeforeSendCallback = SentryEvent Function(SentryEvent event,
+    {dynamic hint});
 
 /// This function is called with an SDK specific breadcrumb object before the breadcrumb is added
 /// to the scope. When nothing is returned from the function, the breadcrumb is dropped
-typedef BeforeBreadcrumbCallback = Breadcrumb Function(
-  Breadcrumb breadcrumb,
-  dynamic hint,
-);
+typedef BeforeBreadcrumbCallback = Breadcrumb Function(Breadcrumb breadcrumb,
+    {dynamic hint});
 
 /// Are callbacks that run for every event. They can either return a new event which in most cases
 /// means just adding data OR return null in case the event will be dropped and not sent.
-typedef EventProcessor = FutureOr<SentryEvent> Function(
-    SentryEvent event, dynamic hint);
+typedef EventProcessor = FutureOr<SentryEvent> Function(SentryEvent event,
+    {dynamic hint});
 
 /// Code that provides middlewares, bindings or hooks into certain frameworks or environments,
 /// along with code that inserts those bindings and activates them.

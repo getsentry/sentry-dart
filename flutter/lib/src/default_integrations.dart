@@ -47,7 +47,7 @@ Integration loadContextsIntegration(
 ) {
   Future<void> integration(Hub hub, SentryOptions options) async {
     options.addEventProcessor(
-      (event, dynamic hint) async {
+      (event, {hint}) async {
         try {
           final infos = Map<String, dynamic>.from(
             await channel.invokeMethod('loadContexts'),
@@ -147,7 +147,7 @@ Integration loadAndroidImageListIntegration(
 ) {
   Future<void> integration(Hub hub, SentryOptions options) async {
     options.addEventProcessor(
-      (event, dynamic hint) async {
+      (event, {hint}) async {
         try {
           if (event.exception != null &&
               event.exception.stackTrace != null &&
