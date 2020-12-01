@@ -190,7 +190,7 @@ class Scope {
 
     for (final processor in _eventProcessors) {
       try {
-        event = processor(event, hint);
+        event = processor(event, hint: hint);
       } catch (err) {
         _options.logger(
           SentryLevel.error,
