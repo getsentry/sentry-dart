@@ -180,6 +180,8 @@ Future<void> asyncThrows() async {
 class CocoaExample extends StatelessWidget {
   const CocoaExample({Key key}) : super(key: key);
 
+  final channel = const MethodChannel('example.flutter.sentry.io');
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -187,35 +189,30 @@ class CocoaExample extends StatelessWidget {
         RaisedButton(
           child: const Text('Swift fatalError'),
           onPressed: () async {
-            const channel = MethodChannel('example.flutter.sentry.io');
             await channel.invokeMethod<void>('fatalError');
           },
         ),
         RaisedButton(
           child: const Text('Swift Capture NSException'),
           onPressed: () async {
-            const channel = MethodChannel('example.flutter.sentry.io');
             await channel.invokeMethod<void>('capture');
           },
         ),
         RaisedButton(
           child: const Text('Swift Capture message'),
           onPressed: () async {
-            const channel = MethodChannel('example.flutter.sentry.io');
             await channel.invokeMethod<void>('capture_message');
           },
         ),
         RaisedButton(
           child: const Text('Objective-C Throw unhandled exception'),
           onPressed: () async {
-            const channel = MethodChannel('example.flutter.sentry.io');
             await channel.invokeMethod<void>('throw');
           },
         ),
         RaisedButton(
           child: const Text('Objective-C SEGFAULT'),
           onPressed: () async {
-            const channel = MethodChannel('example.flutter.sentry.io');
             await channel.invokeMethod<void>('crash');
           },
         ),
@@ -227,6 +224,8 @@ class CocoaExample extends StatelessWidget {
 class WebExample extends StatelessWidget {
   const WebExample({Key key}) : super(key: key);
 
+  final channel = const MethodChannel('example.flutter.sentry.io');
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -234,8 +233,7 @@ class WebExample extends StatelessWidget {
         RaisedButton(
           child: const Text('Web: console.log'),
           onPressed: () async {
-            const channel = MethodChannel('example.flutter.sentry.io');
-            await channel.invokeMethod<void>('console.log');
+            await channel.invokeMethod<void>('console.log', 'log me');
           },
         ),
       ],
@@ -246,8 +244,8 @@ class WebExample extends StatelessWidget {
 /// compute can only take a top-level function, but not instance or static methods.
 // Top-level functions are functions declared not inside a class and not inside another function
 int loop(int val) {
-  int count = 0;
-  for (int i = 1; i <= val; i++) {
+  var count = 0;
+  for (var i = 1; i <= val; i++) {
     count += i;
   }
 
