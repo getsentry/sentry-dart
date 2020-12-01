@@ -160,7 +160,11 @@ Integration loadAndroidImageListIntegration(
   SentryOptions options,
   MethodChannel channel,
 ) {
-  Future<void> integration(Hub hub, SentryOptions options) async {
+  Future<void> integration(
+    Hub hub,
+    SentryOptions options, [
+    AddIntegrationDisposer addDisposer,
+  ]) async {
     options.addEventProcessor(
       (event, dynamic hint) async {
         try {
