@@ -85,7 +85,7 @@ class Sentry {
       // catch any errors that may occur within the entry function, main()
       // in the ‘root zone’ where all Dart programs start
       options.addIntegration(
-        initIsolateErrorIntegration(
+        isolateErrorIntegration(
           (Function portDisposer) => _isolatePortDisposer = portDisposer,
         ),
       );

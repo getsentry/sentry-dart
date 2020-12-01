@@ -16,7 +16,7 @@ void main() {
     () async {
       Function isolateDisposer;
 
-      final integration = initIsolateErrorIntegration(
+      final integration = isolateErrorIntegration(
         (Function receivePortDisposer) => isolateDisposer = receivePortDisposer,
       );
       await integration(fixture.hub, fixture.options);

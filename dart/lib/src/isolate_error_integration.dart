@@ -5,7 +5,7 @@ import 'protocol.dart';
 import 'sentry_options.dart';
 import 'throwable_mechanism.dart';
 
-Integration initIsolateErrorIntegration(
+Integration isolateErrorIntegration(
   void Function(Function) getPortDisposer,
 ) =>
     (Hub hub, SentryOptions options) {
