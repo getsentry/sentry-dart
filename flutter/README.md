@@ -21,8 +21,6 @@ It will capture errors in the native layer, including (Java/Kotlin/C/C++ for And
 
 - Follow the installing instructions on [pub.dev](https://pub.dev/packages/sentry_flutter/install).
 
-- The code snippet below reflects the latest `Prerelease` version.
-
 - Initialize the Sentry SDK using the DSN issued by Sentry.io:
 
 ```dart
@@ -37,19 +35,6 @@ Future<void> main() async {
     // Init your App.
     () => runApp(MyApp()),
   );
-
-  try {
-    aMethodThatMightFail();
-  } catch (exception, stackTrace) {
-    await Sentry.captureException(
-      exception,
-      stackTrace: stackTrace,
-    );
-  }
-}
-
-void aMethodThatMightFail() {
-  throw null;
 }
 ```
 
@@ -92,22 +77,23 @@ For a more throughout example see the [example](example/lib/main.dart).
 
 ##### Known limitations
 
-- We don't support the Flutter `split-debug-info` yet, if this feature is enabled, it'll give useless stack traces.
-- For the Flutter [obfuscate](https://flutter.dev/docs/deployment/obfuscate) feature, you'll need to upload the Debug symbols manually yet, See the section below.
+- Flutter `split-debug-info` and `obfuscate` flag aren't supported on iOS yet, but only on Android, if this feature is enabled, Dart stack traces are not human readable
+- If you enable the `split-debug-info` feature, you must upload the Debug Symbols manually.
 
-##### Debug Symbols for the Native integrations (Android and Apple)
+##### Uploading Debug Symbols (Android and iOS)
 
-[Uploading Debug Symbols](https://docs.sentry.io/platforms/apple/dsym/) for Apple.
-
-[Uploading Proguard Mappings and Debug Symbols](https://docs.sentry.io/platforms/android/proguard/) for Android.
+- [iOS dSYM files](https://docs.sentry.io/platforms/apple/dsym/)
+- [Android NDK](https://docs.sentry.io/product/cli/dif/#uploading-files), You've to do it manually, Do not use the `uploadNativeSymbols` flag from the [Sentry Gradle Plugin](https://docs.sentry.io/platforms/android/proguard/), it's not supported yet.
+- [Android Proguard/R8 mapping file](https://docs.sentry.io/platforms/android/proguard/)
+- [Source maps for Flutter Web](https://docs.sentry.io/product/cli/releases/#managing-release-artifacts)
 
 ##### Tips for catching errors
 
-- Use a `try/catch` block, like in the example above.
+- Use a `try/catch` block.
 - Use a `catchError` block for `Futures`, examples on [dart.dev](https://dart.dev/guides/libraries/futures-error-handling).
 - The SDK already runs your `callback` on an error handler, e.g. using [runZonedGuarded](https://api.flutter.dev/flutter/dart-async/runZonedGuarded.html), events caught by the `runZonedGuarded` are captured automatically.
 - [Flutter-specific errors](https://api.flutter.dev/flutter/foundation/FlutterError/onError.html) (such as layout failures) are captured automatically.
-- [Current Isolate errors](https://api.flutter.dev/flutter/dart-isolate/Isolate/addErrorListener.html) which is the equivalent of a main or UI thread, are captured automatically.
+- [Current Isolate errors](https://api.flutter.dev/flutter/dart-isolate/Isolate/addErrorListener.html) which is the equivalent of a main or UI thread, are captured automatically (Only for non-Web Apps).
 - For your own `Isolates`, add an [Error Listener](https://api.flutter.dev/flutter/dart-isolate/Isolate/addErrorListener.html) and call `Sentry.captureException`.
 
 #### Resources

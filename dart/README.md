@@ -21,7 +21,7 @@ That will give you native crash support (for Android and iOS), [release health](
 
 #### Versions
 
-Versions `^4.0.0` are `Prereleases` and are under improvements/testing.
+Versions `^4.0.0-alpha.1` are `Prereleases` and are under improvements/testing.
 
 The current stable version is the Dart SDK, [3.0.1](https://pub.dev/packages/sentry).
 
@@ -73,8 +73,15 @@ Future<void> main() async {
 void initApp() {
   // your app code
 }
-
 ```
+
+##### Tips for catching errors
+
+- Use a `try/catch` block.
+- Use a `catchError` block for `Futures`, examples on [dart.dev](https://dart.dev/guides/libraries/futures-error-handling).
+- The SDK already runs your `callback` on an error handler, e.g. using [runZonedGuarded](https://api.flutter.dev/flutter/dart-async/runZonedGuarded.html), events caught by the `runZonedGuarded` are captured automatically.
+- [Current Isolate errors](https://api.flutter.dev/flutter/dart-isolate/Isolate/addErrorListener.html) which is the equivalent of a main or UI thread, are captured automatically (Only for non-Web Apps).
+- For your own `Isolates`, add an [Error Listener](https://api.flutter.dev/flutter/dart-isolate/Isolate/addErrorListener.html) and call `Sentry.captureException`.
 
 #### Resources
 
