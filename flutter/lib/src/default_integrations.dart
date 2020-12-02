@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:package_info/package_info.dart';
 import 'package:sentry/sentry.dart';
 import 'sentry_flutter_options.dart';
 
@@ -221,5 +222,47 @@ class LoadAndroidImageListIntegration
     );
 
     options.sdk.addIntegration('loadAndroidImageListIntegration');
+  }
+}
+
+/// a PackageInfo wrapper to make it testable
+typedef PackageLoader = Future<PackageInfo> Function();
+
+class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
+  final PackageLoader _packageLoader;
+
+  LoadReleaseIntegration(this._packageLoader);
+
+  @override
+  FutureOr<void> call(Hub hub, SentryFlutterOptions options) async {
+    try {
+      if (!kIsWeb) {
+        if (_packageLoader == null) {
+          options.logger(SentryLevel.debug, 'Package loader is null.');
+          return;
+        }
+        final packageInfo = await _packageLoader();
+        final release =
+            '${packageInfo.packageName}@${packageInfo.version}+${packageInfo.buildNumber}';
+        options.logger(SentryLevel.debug, 'release: $release');
+
+        options.release = release;
+        options.dist = packageInfo.buildNumber;
+      } else {
+        // for non-mobile builds, we read the release and dist from the
+        // system variables (SENTRY_RELEASE and SENTRY_DIST).
+        options.release = const bool.hasEnvironment('SENTRY_RELEASE')
+            ? const String.fromEnvironment('SENTRY_RELEASE')
+            : options.release;
+        options.dist = const bool.hasEnvironment('SENTRY_DIST')
+            ? const String.fromEnvironment('SENTRY_DIST')
+            : options.dist;
+      }
+    } catch (error) {
+      options.logger(
+          SentryLevel.error, 'Failed to load release and dist: $error');
+    }
+
+    options.sdk.addIntegration('loadReleaseIntegration');
   }
 }
