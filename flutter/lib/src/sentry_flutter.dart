@@ -8,6 +8,7 @@ import 'package:sentry/sentry.dart';
 
 import 'default_integrations.dart';
 import 'file_system_transport.dart';
+import 'sentry_flutter_options.dart';
 import 'version.dart';
 // conditional import for the iOSPlatformChecker
 // in browser, the iOSPlatformChecker will always return false
@@ -20,12 +21,20 @@ mixin SentryFlutter {
   static const _channel = MethodChannel('sentry_flutter');
 
   static Future<void> init(
-    OptionsConfiguration optionsConfiguration, [
+    OptionsConfiguration optionsConfiguration, {
     AppRunner appRunner,
     PackageLoader packageLoader = _loadPackageInfo,
     iOSPlatformChecker isIOSChecker = isIOS,
     AndroidPlatformChecker isAndroidChecker = isAndroid,
-  ]) async {
+  }) async {
+    if (optionsConfiguration == null) {
+      throw ArgumentError('OptionsConfiguration is required.');
+    }
+    final flutterOptions = SentryFlutterOptions();
+    // first step is to install the native integration and set default values,
+    // so we are able to capture future errors.
+    _addDefaultIntegrations(flutterOptions, isIOS, isAndroidChecker);
+
     await Sentry.init(
       (options) async {
         await _initDefaultValues(
@@ -37,15 +46,13 @@ mixin SentryFlutter {
 
         await optionsConfiguration(options);
       },
-      appRunner,
-      // first integration to add
-      // will catch any errors that may occur in the Flutter framework itself.
-      [FlutterErrorIntegration()],
+      appRunner: appRunner,
+      options: flutterOptions,
     );
   }
 
   static Future<void> _initDefaultValues(
-    SentryOptions options,
+    SentryFlutterOptions options,
     PackageLoader packageLoader,
     iOSPlatformChecker isIOSChecker,
     AndroidPlatformChecker isAndroidChecker,
@@ -61,19 +68,13 @@ mixin SentryFlutter {
       options.transport = FileSystemTransport(_channel, options);
     }
 
-    // TODO(todo): load debug images when split symbols are enabled.
-
-    // first step is to install the native integration and set default values,
-    // so we are able to capture future errors.
-    _addDefaultIntegrations(options, isIOSChecker, isAndroidChecker);
-
     await _setReleaseAndDist(options, packageLoader);
 
     _setSdk(options);
   }
 
   static Future<void> _setReleaseAndDist(
-    SentryOptions options,
+    SentryFlutterOptions options,
     PackageLoader packageLoader,
   ) async {
     try {
@@ -108,10 +109,13 @@ mixin SentryFlutter {
   /// Install default integrations
   /// https://medium.com/flutter-community/error-handling-in-flutter-98fce88a34f0
   static void _addDefaultIntegrations(
-    SentryOptions options,
+    SentryFlutterOptions options,
     iOSPlatformChecker isIOS,
     AndroidPlatformChecker isAndroidChecker,
   ) {
+    // will catch any errors that may occur in the Flutter framework itself.
+    options.addIntegration(FlutterErrorIntegration());
+
     // the ordering here matters, as we'd like to first start the native integration
     // that allow us to send events to the network and then the Flutter integrations.
     // Flutter Web doesn't need that, only Android and iOS.
@@ -129,7 +133,7 @@ mixin SentryFlutter {
     }
   }
 
-  static void _setSdk(SentryOptions options) {
+  static void _setSdk(SentryFlutterOptions options) {
     // overwrite sdk info with current flutter sdk
     final sdk = SdkVersion(
       name: sdkName,
