@@ -46,9 +46,9 @@ mixin SentryFlutter {
       },
       appRunner,
       [
-        // The first integration to add
+        // first integration to add
         // will catch any errors that may occur in the Flutter framework itself.
-        flutterErrorIntegration,
+        FlutterErrorIntegration(),
         // This tracks Flutter application events, such as lifecycle events.
         widgetsBindingIntegration,
       ],
@@ -128,17 +128,16 @@ mixin SentryFlutter {
     // that allow us to send events to the network and then the Flutter integrations.
     // Flutter Web doesn't need that, only Android and iOS.
     if (!kIsWeb) {
-      options.addIntegration(nativeSdkIntegration(options, _channel));
+      options.addIntegration(NativeSdkIntegration(_channel));
     }
 
     // will enrich the events with the device context and native packages and integrations
     if (isIOS()) {
-      options.addIntegration(loadContextsIntegration(options, _channel));
+      options.addIntegration(LoadContextsIntegration(_channel));
     }
 
     if (isAndroidChecker()) {
-      options
-          .addIntegration(loadAndroidImageListIntegration(options, _channel));
+      options.addIntegration(LoadAndroidImageListIntegration(_channel));
     }
   }
 

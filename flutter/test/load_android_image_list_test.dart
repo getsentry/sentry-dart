@@ -40,7 +40,7 @@ void main() {
     final options = SentryOptions()..dsn = fakeDsn;
     final hub = Hub(options);
 
-    loadAndroidImageListIntegration(options, _channel)(hub, options);
+    LoadAndroidImageListIntegration(_channel)(hub, options);
 
     expect(options.eventProcessors.length, 1);
 
@@ -54,7 +54,7 @@ void main() {
     final options = SentryOptions()..dsn = fakeDsn;
     final hub = Hub(options);
 
-    loadAndroidImageListIntegration(options, _channel)(hub, options);
+    LoadAndroidImageListIntegration(_channel)(hub, options);
 
     await hub.captureException(StateError('error'));
 
@@ -65,7 +65,7 @@ void main() {
     final options = SentryOptions()..dsn = fakeDsn;
     final hub = Hub(options);
 
-    loadAndroidImageListIntegration(options, _channel)(hub, options);
+    LoadAndroidImageListIntegration(_channel)(hub, options);
 
     await hub.captureException(StateError('error'), stackTrace: '''
       warning:  This VM has been configured to produce stack traces that violate the Dart standard.
@@ -85,10 +85,10 @@ void main() {
     final options = SentryOptions()..dsn = fakeDsn;
     final hub = Hub(options);
 
-    loadAndroidImageListIntegration(options, _channel)(hub, options);
+    LoadAndroidImageListIntegration(_channel)(hub, options);
     final ep = options.eventProcessors.first;
     var event = getEvent();
-    event = await ep(event, null);
+    event = await ep(event);
 
     expect(1, event.debugMeta.images.length);
   });
@@ -97,10 +97,10 @@ void main() {
     final options = SentryOptions()..dsn = fakeDsn;
     final hub = Hub(options);
 
-    loadAndroidImageListIntegration(options, _channel)(hub, options);
+    LoadAndroidImageListIntegration(_channel)(hub, options);
     final ep = options.eventProcessors.first;
     var event = getEvent();
-    event = await ep(event, null);
+    event = await ep(event);
 
     final image = event.debugMeta.images.first;
 

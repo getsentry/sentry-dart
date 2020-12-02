@@ -8,52 +8,56 @@ import 'sentry_flutter_options.dart';
 import 'widgets_binding_observer.dart';
 
 /// integration that capture errors on the FlutterError handler
-void flutterErrorIntegration(Hub hub, SentryOptions options) {
-  final defaultOnError = FlutterError.onError;
+class FlutterErrorIntegration extends Integration {
+  @override
+  void call(Hub hub, SentryOptions options) {
+    final defaultOnError = FlutterError.onError;
 
-  FlutterError.onError = (FlutterErrorDetails errorDetails) async {
-    options.logger(
-        SentryLevel.debug, 'Capture from onError ${errorDetails.exception}');
+    FlutterError.onError = (FlutterErrorDetails errorDetails) async {
+      options.logger(
+          SentryLevel.debug, 'Capture from onError ${errorDetails.exception}');
 
-    // FlutterError doesn't crash the App.
-    const mechanism = Mechanism(type: 'FlutterError', handled: true);
-    final throwableMechanism =
-        ThrowableMechanism(mechanism, errorDetails.exception);
+      // FlutterError doesn't crash the App.
+      const mechanism = Mechanism(type: 'FlutterError', handled: true);
+      final throwableMechanism =
+          ThrowableMechanism(mechanism, errorDetails.exception);
 
-    final event = SentryEvent(
-      throwable: throwableMechanism,
-      level: SentryLevel.fatal,
-    );
+      final event = SentryEvent(
+        throwable: throwableMechanism,
+        level: SentryLevel.fatal,
+      );
 
-    await hub.captureEvent(event, stackTrace: errorDetails.stack);
+      await hub.captureEvent(event, stackTrace: errorDetails.stack);
 
-    // call original handler
-    if (defaultOnError != null) {
-      defaultOnError(errorDetails);
-    }
+      // call original handler
+      if (defaultOnError != null) {
+        defaultOnError(errorDetails);
+      }
 
-    // we don't call Zone.current.handleUncaughtError because we'd like
-    // to set a specific mechanism for FlutterError.onError.
-  };
+      // we don't call Zone.current.handleUncaughtError because we'd like
+      // to set a specific mechanism for FlutterError.onError.
+    };
 
-  options.sdk.addIntegration('flutterErrorIntegration');
+    options.sdk.addIntegration('flutterErrorIntegration');
+  }
 }
 
 /// (iOS only)
 /// add an event processor to call a native channel method to load :
 /// - the device Contexts,
 /// - and the native sdk integrations and packages
-///
-Integration loadContextsIntegration(
-  SentryOptions options,
-  MethodChannel channel,
-) {
-  Future<void> integration(Hub hub, SentryOptions options) async {
+class LoadContextsIntegration extends Integration {
+  final MethodChannel _channel;
+
+  LoadContextsIntegration(this._channel);
+
+  @override
+  FutureOr<void> call(Hub hub, SentryOptions options) async {
     options.addEventProcessor(
-      (event, dynamic hint) async {
+      (event, {hint}) async {
         try {
           final infos = Map<String, dynamic>.from(
-            await channel.invokeMethod('loadContexts'),
+            await _channel.invokeMethod('loadContexts'),
           );
           if (infos['contexts'] != null) {
             final contexts = Contexts.fromJson(
@@ -99,18 +103,20 @@ Integration loadContextsIntegration(
         return event;
       },
     );
-
     options.sdk.addIntegration('loadContextsIntegration');
   }
-
-  return integration;
 }
 
 /// Enables Sentry's native SDKs (Android and iOS)
-Integration nativeSdkIntegration(SentryOptions options, MethodChannel channel) {
-  Future<void> integration(Hub hub, SentryOptions options) async {
+class NativeSdkIntegration extends Integration {
+  final MethodChannel _channel;
+
+  NativeSdkIntegration(this._channel);
+
+  @override
+  FutureOr<void> call(Hub hub, SentryOptions options) async {
     try {
-      await channel.invokeMethod<void>('initNativeSdk', <String, dynamic>{
+      await _channel.invokeMethod<void>('initNativeSdk', <String, dynamic>{
         'dsn': options.dsn,
         'debug': options.debug,
         'environment': options.environment,
@@ -140,8 +146,6 @@ Integration nativeSdkIntegration(SentryOptions options, MethodChannel channel) {
       );
     }
   }
-
-  return integration;
 }
 
 /// Integration that captures certain window and device events.
@@ -169,13 +173,16 @@ void widgetsBindingIntegration(
   }
 }
 
-Integration loadAndroidImageListIntegration(
-  SentryOptions options,
-  MethodChannel channel,
-) {
-  Future<void> integration(Hub hub, SentryOptions options) async {
+/// Loads the Android Image list for stack trace symbolication
+class LoadAndroidImageListIntegration extends Integration {
+  final MethodChannel _channel;
+
+  LoadAndroidImageListIntegration(this._channel);
+
+  @override
+  FutureOr<void> call(Hub hub, SentryOptions options) {
     options.addEventProcessor(
-      (event, dynamic hint) async {
+      (event, {hint}) async {
         try {
           if (event.exception != null &&
               event.exception.stackTrace != null &&
@@ -195,7 +202,7 @@ Integration loadAndroidImageListIntegration(
           // we call on every event because the loaded image list is cached
           // and it could be changed on the Native side.
           final imageList = List<Map<dynamic, dynamic>>.from(
-            await channel.invokeMethod('loadImageList'),
+            await _channel.invokeMethod('loadImageList'),
           );
 
           if (imageList.isEmpty) {
@@ -241,6 +248,4 @@ Integration loadAndroidImageListIntegration(
 
     options.sdk.addIntegration('loadAndroidImageListIntegration');
   }
-
-  return integration;
 }

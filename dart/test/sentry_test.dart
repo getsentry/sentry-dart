@@ -59,6 +59,7 @@ void main() {
       ).called(1);
     });
   });
+
   group('Sentry is enabled or disabled', () {
     test('null DSN', () {
       expect(
@@ -99,8 +100,7 @@ void main() {
     });
 
     test('should install integrations', () async {
-      var called = false;
-      void integration(Hub hub, SentryOptions options) => called = true;
+      final integration = MockIntegration();
 
       await Sentry.init(
         (options) {
@@ -110,10 +110,11 @@ void main() {
         appRunner,
       );
 
-      expect(called, true);
+      verify(integration(any, any)).called(1);
     });
 
     test('should add initial integrations first', () async {
+      final initialIntegration = MockIntegration();
       await Sentry.init(
         (options) {
           options.dsn = fakeDsn;
@@ -128,10 +129,6 @@ void main() {
       await Sentry.init(
         (options) {
           options.dsn = fakeDsn;
-          expect(
-            options.integrations.contains(isolateErrorIntegration),
-            true,
-          );
           expect(options.integrations.length, 2);
         },
         appRunner,
@@ -147,6 +144,23 @@ void main() {
         appRunner,
       );
     }, onPlatform: {'vm': Skip()});
+
+    test('should close integrations', () async {
+      final integration = MockIntegration();
+
+      await Sentry.init(
+        (options) {
+          options.dsn = fakeDsn;
+          options.addIntegration(integration);
+        },
+        appRunner,
+      );
+
+      await Sentry.close();
+
+      verify(integration(any, any)).called(1);
+      verify(integration.close()).called(1);
+    });
   });
 
   test(
@@ -158,5 +172,3 @@ void main() {
     },
   );
 }
-
-void initialIntegration(Hub hub, SentryOptions options) {}

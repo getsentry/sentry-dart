@@ -17,3 +17,4 @@ export 'src/sentry_options.dart';
 // useful for integrations
 export 'src/throwable_mechanism.dart';
 export 'src/transport/transport.dart';
+export 'src/integration.dart';
