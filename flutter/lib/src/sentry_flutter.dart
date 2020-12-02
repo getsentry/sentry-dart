@@ -44,7 +44,7 @@ mixin SentryFlutter {
           isAndroidChecker,
         );
 
-        await optionsConfiguration(options);
+        await optionsConfiguration<SentryFlutterOptions>(options);
       },
       appRunner: appRunner,
       options: flutterOptions,
