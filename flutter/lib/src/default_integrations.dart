@@ -228,6 +228,8 @@ class LoadAndroidImageListIntegration
 /// a PackageInfo wrapper to make it testable
 typedef PackageLoader = Future<PackageInfo> Function();
 
+/// an Integration that loads the Release version from Native Apps
+/// or SENTRY_RELEASE and SENTRY_DIST variables
 class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
   final PackageLoader _packageLoader;
 

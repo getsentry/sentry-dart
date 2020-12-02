@@ -13,8 +13,6 @@ import 'utils.dart';
 
 /// Configuration options callback
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
-// typedef OptionsConfiguration = FutureOr<void> Function<T extends SentryOptions>(
-//     T);
 
 /// Runs a callback inside of the `runZonedGuarded` method, useful for running your `runApp(MyApp())`
 typedef AppRunner = FutureOr<void> Function();

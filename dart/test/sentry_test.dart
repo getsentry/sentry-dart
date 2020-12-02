@@ -115,8 +115,16 @@ void main() {
       await Sentry.init(
         (options) {
           options.dsn = fakeDsn;
-          expect(options.integrations.length, 1);
+          expect(
+            options.integrations.whereType<IsolateErrorIntegration>().length,
+            1,
+          );
+          expect(
+            options.integrations.whereType<RunZonedGuardedIntegration>().length,
+            1,
+          );
         },
+        appRunner: appRunner,
       );
     }, onPlatform: {'browser': Skip()});
 
@@ -124,7 +132,10 @@ void main() {
       await Sentry.init(
         (options) {
           options.dsn = fakeDsn;
-          expect(options.integrations.length, 1);
+          expect(
+            options.integrations.whereType<IsolateErrorIntegration>().length,
+            0,
+          );
         },
       );
     }, onPlatform: {'vm': Skip()});

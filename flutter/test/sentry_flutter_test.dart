@@ -79,7 +79,6 @@ void main() {
           ..dsn = fakeDsn
           ..transport = transport,
         isIOSChecker: () => false,
-        // packageLoader: loadTestPackage,
       );
 
       await Sentry.captureMessage('a message');
@@ -98,7 +97,6 @@ void main() {
           ..dsn = fakeDsn
           ..transport = transport,
         isAndroidChecker: () => false,
-        // packageLoader: loadTestPackage,
       );
 
       await Sentry.captureMessage('a message');
