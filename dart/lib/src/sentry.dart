@@ -28,8 +28,12 @@ class Sentry {
   static Hub get currentHub => _hub;
 
   /// Initializes the SDK
-  /// passing a [AppRunner] callback allows to run the app within its own error zone (`runZonedGuarded`)
-  /// https://api.dart.dev/stable/2.10.4/dart-async/runZonedGuarded.html
+  /// passing a [AppRunner] callback allows to run the app within its own error
+  /// zone ([`runZonedGuarded`](https://api.dart.dev/stable/2.10.4/dart-async/runZonedGuarded.html))
+  ///
+  /// You should use [optionsConfiguration] instead of passing [sentryOptions]
+  /// yourself. [sentryOptions] is mainly intendet for use by other Sentry clients
+  /// such as SentryFlutter.
   static Future<void> init(
     OptionsConfiguration optionsConfiguration, [
     AppRunner appRunner,
