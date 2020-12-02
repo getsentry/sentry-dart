@@ -50,7 +50,7 @@ mixin SentryFlutter {
         // will catch any errors that may occur in the Flutter framework itself.
         FlutterErrorIntegration(),
         // This tracks Flutter application events, such as lifecycle events.
-        widgetsBindingIntegration,
+        WidgetsBindingIntegration(),
       ],
       flutterOptions,
     );

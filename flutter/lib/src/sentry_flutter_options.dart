@@ -2,8 +2,6 @@ import 'package:flutter/foundation.dart' as foundation;
 
 import '../sentry_flutter.dart';
 
-// TODO: add tests
-
 /// This class add options which are only availble in a Flutter environment.
 class SentryFlutterOptions extends SentryOptions {
   /// Consider disabling [SentryOptions.enableAutoNativeBreadcrumbs] if you

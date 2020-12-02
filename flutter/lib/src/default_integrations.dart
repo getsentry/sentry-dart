@@ -150,26 +150,27 @@ class NativeSdkIntegration extends Integration {
 
 /// Integration that captures certain window and device events.
 /// See also:
+///   - [SentryWidgetsBindingObserver]
 ///   - [WidgetsBindingObserver](https://api.flutter.dev/flutter/widgets/WidgetsBindingObserver-class.html)
-void widgetsBindingIntegration(
-  Hub hub,
-  SentryOptions options,
-) {
-  if (options is SentryFlutterOptions) {
-    // We don't need to call `WidgetsFlutterBinding.ensureInitialized()`
-    // because `FlutterSentry.init` already calls it.
-    WidgetsBinding.instance.addObserver(SentryWidgetsBindingObserver(
-      hub: hub,
-      options: options,
-    ));
+class WidgetsBindingIntegration extends Integration {
+  @override
+  FutureOr<void> call(Hub hub, SentryOptions options) {
+    if (options is SentryFlutterOptions) {
+      // We don't need to call `WidgetsFlutterBinding.ensureInitialized()`
+      // because `FlutterSentry.init` already calls it.
+      WidgetsBinding.instance.addObserver(SentryWidgetsBindingObserver(
+        hub: hub,
+        options: options,
+      ));
 
-    options.sdk.addIntegration('widgetsBindingIntegration');
-  } else {
-    options.logger(
-      SentryLevel.fatal,
-      'widgetsBindingIntegration failed to be installed because options is '
-      'not an instance of SentryFlutterOptions',
-    );
+      options.sdk.addIntegration('widgetsBindingIntegration');
+    } else {
+      options.logger(
+        SentryLevel.fatal,
+        'widgetsBindingIntegration failed to be installed because options is '
+        'not an instance of SentryFlutterOptions',
+      );
+    }
   }
 }
 
