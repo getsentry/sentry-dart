@@ -17,7 +17,6 @@
 - Feat: Support split-debug-info for Android #191
 - Fix: the event payload must never serialize null or empty fields
 - Enhancement: Add SentryWidgetsBindingObserver, an Integration that captures certain window and device events.
-- Fix: The event payload must never serialize null or empty fields
 - Ref: Make hints optional
 
 ### Breaking changes
