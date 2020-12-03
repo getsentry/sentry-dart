@@ -8,9 +8,9 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.sentry.SentryEvent
 import io.sentry.SentryLevel
+import io.sentry.android.core.SentryAndroid
 import io.sentry.android.core.SentryAndroidOptions
 import io.sentry.protocol.DebugImage
-import io.sentry.android.core.SentryAndroid
 import io.sentry.protocol.SdkVersion
 import java.io.File
 import java.util.Locale

@@ -1,27 +1,29 @@
 # `package:sentry` and `package:sentry_flutter` changelog
 
-## vNext
+## 4.0.0-beta.1
 
 - Fix: StackTrace frames with 'package' uri.scheme are inApp by default #185
-- Enhancement: add loadContextsIntegration tests
-- Fix: missing app's stack traces for Flutter errors
+- Fix: Missing App's StackTrace frames for Flutter errors
 - Enhancement: add isolateErrorIntegration and runZonedGuardedIntegration to default integrations in sentry-dart
 - Fix: Breadcrumb list is a plain list instead of a values list #201
 - Ref: Remove deprecated classes (Flutter Plugin for Android) and cleaning up #186
 - Fix: Handle immutable event lists and maps
 - Fix: NDK integration was being disabled by a typo
-- Fix: missing toList for debug meta #192
+- Fix: Missing toList for debug meta #192
 - Enhancement: NavigationObserver to record Breadcrumbs for navigation events #197
 - Fix: Integrations should be closeable
 - Feat: Support split-debug-info for Android #191
+- Fix: The event payload must never serialize null or empty fields
+- Ref: Make hints an optional param
 - Fix: the event payload must never serialize null or empty fields
 - Ref: Make hints optional
-- Fix: Swift lints
 
 ### Breaking changes
 
-- `Sentry.init` and `SentryFlutter.init` have an optional callback argument which runs the host app after Sentry initialization.
+- `Sentry.init` and `SentryFlutter.init` have an optional callback argument which runs the host App after Sentry initialization.
 - `Integration` is an `Interface` instead of a pure Function
+- `Hints` are optional arguments
+- Sentry Dart SDK adds an `IsolateError` handler by default
 
 ## 4.0.0-alpha.2
 

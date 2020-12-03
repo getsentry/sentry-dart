@@ -142,7 +142,7 @@ Future testCaptureException(
       'version': sdkVersion,
       'name': sdkName,
       'packages': [
-        {'name': 'pub:sentry', 'version': '4.0.0-alpha.3'}
+        {'name': 'pub:sentry', 'version': sdkVersion}
       ]
     });
     expect(data['server_name'], 'test.server.com');
