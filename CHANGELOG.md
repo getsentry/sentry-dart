@@ -17,12 +17,13 @@
 - Ref: Make hints an optional param
 - Fix: the event payload must never serialize null or empty fields
 - Ref: Make hints optional
-- Fix: Swift lints
 
 ### Breaking changes
 
-- `Sentry.init` and `SentryFlutter.init` have an optional callback argument which runs the host app after Sentry initialization.
+- `Sentry.init` and `SentryFlutter.init` have an optional callback argument which runs the host App after Sentry initialization.
 - `Integration` is an `Interface` instead of a pure Function
+- `Hints` are optional arguments
+- Sentry Dart SDK adds an `IsolateError` handler by default
 
 ## 4.0.0-alpha.2
 
