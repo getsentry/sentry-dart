@@ -83,7 +83,7 @@ For a more throughout example see the [example](example/lib/main.dart).
 ##### Uploading Debug Symbols (Android and iOS)
 
 - [iOS dSYM files](https://docs.sentry.io/platforms/apple/dsym/)
-- [Android NDK](https://docs.sentry.io/product/cli/dif/#uploading-files), You've to do it manually, Do not use the `uploadNativeSymbols` flag from the [Sentry Gradle Plugin](https://docs.sentry.io/platforms/android/proguard/), it's not supported yet.
+- [Android NDK](https://docs.sentry.io/product/cli/dif/#uploading-files), You must to do it manually. Do not use the `uploadNativeSymbols` flag from the [Sentry Gradle Plugin](https://docs.sentry.io/platforms/android/proguard/), because it's not yet supported.
 - [Android Proguard/R8 mapping file](https://docs.sentry.io/platforms/android/proguard/)
 - [Source maps for Flutter Web](https://docs.sentry.io/product/cli/releases/#managing-release-artifacts)
 
