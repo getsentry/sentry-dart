@@ -11,13 +11,18 @@
 - Fix: NDK integration was being disabled by a typo
 - Fix: Missing toList for debug meta #192
 - Enhancement: NavigationObserver to record Breadcrumbs for navigation events #197
+- Fix: Integrations should be closeable
 - Feat: Support split-debug-info for Android #191
 - Fix: The event payload must never serialize null or empty fields
 - Ref: Make hints an optional param
+- Fix: the event payload must never serialize null or empty fields
+- Ref: Make hints optional
+- Fix: Swift lints
 
 ### Breaking changes
 
 - `Sentry.init` and `SentryFlutter.init` have an optional callback argument which runs the host app after Sentry initialization.
+- `Integration` is an `Interface` instead of a pure Function
 
 ## 4.0.0-alpha.2
 

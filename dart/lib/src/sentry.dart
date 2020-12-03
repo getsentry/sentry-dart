@@ -3,9 +3,10 @@ import 'dart:async';
 import 'default_integrations.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
-import 'noop_hub.dart';
+import 'integration.dart';
 import 'noop_isolate_error_integration.dart'
     if (dart.library.io) 'isolate_error_integration.dart';
+import 'noop_hub.dart';
 import 'protocol.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
@@ -81,13 +82,13 @@ class Sentry {
     if (!isWeb) {
       // catch any errors that may occur within the entry function, main()
       // in the ‘root zone’ where all Dart programs start
-      options.addIntegration(isolateErrorIntegration);
+      options.addIntegration(IsolateErrorIntegration());
     }
 
     // finally the runZonedGuarded, catch any errors in Dart code running
     // ‘outside’ the Flutter framework
     if (appRunner != null) {
-      options.addIntegration(runZonedGuardedIntegration(appRunner));
+      options.addIntegration(RunZonedGuardedIntegration(appRunner));
     }
   }
 

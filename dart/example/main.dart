@@ -14,7 +14,7 @@ Future<void> main() async {
   const dsn =
       'https://cb0fad6f5d4e42ebb9c956cb0463edc9@o447951.ingest.sentry.io/5428562';
 
-  SentryEvent processTagEvent(SentryEvent event, Object hint) =>
+  SentryEvent processTagEvent(SentryEvent event, {dynamic hint}) =>
       event..tags.addAll({'page-locale': 'en-us'});
 
   await Sentry.init(

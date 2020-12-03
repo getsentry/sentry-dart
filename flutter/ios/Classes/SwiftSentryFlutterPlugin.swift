@@ -55,52 +55,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
     }
 
     SentrySDK.start { options in
-      if let dsn = arguments["dsn"] as? String {
-        options.dsn = dsn
-      }
-
-      if let isDebug = arguments["debug"] as? Bool {
-        options.debug = isDebug
-      }
-
-      if let environment = arguments["environment"] as? String {
-        options.environment = environment
-      }
-
-      if let releaseName = arguments["release"] as? String {
-        options.releaseName = releaseName
-      }
-
-      if let enableAutoSessionTracking = arguments["enableAutoSessionTracking"] as? Bool {
-        options.enableAutoSessionTracking = enableAutoSessionTracking
-      }
-
-      if let attachStacktrace = arguments["attachStacktrace"] as? Bool {
-        options.attachStacktrace = attachStacktrace
-      }
-
-      if let diagnosticLevel = arguments["diagnosticLevel"] as? String, options.debug == true {
-        options.logLevel = self.logLevelFrom(diagnosticLevel: diagnosticLevel)
-      }
-
-      if let sessionTrackingIntervalMillis = arguments["sessionTrackingIntervalMillis"] as? UInt {
-        options.sessionTrackingIntervalMillis = sessionTrackingIntervalMillis
-      }
-
-      if let dist = arguments["dist"] as? String {
-        options.dist = dist
-      }
-
-      if let enableAutoNativeBreadcrumbs = arguments["enableAutoNativeBreadcrumbs"] as? Bool,
-         enableAutoNativeBreadcrumbs == false {
-        options.integrations = options.integrations?.filter { (name) -> Bool in
-          name != "SentryAutoBreadcrumbTrackingIntegration"
-        }
-      }
-
-      if let maxBreadcrumbs = arguments["maxBreadcrumbs"] as? UInt {
-        options.maxBreadcrumbs = maxBreadcrumbs
-      }
+      self.updateOptions(arguments: arguments, options: options)
 
       self.sentryOptions = options
 
@@ -134,6 +89,56 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
     result("")
   }
 
+  // swiftlint:disable:next cyclomatic_complexity
+  private func updateOptions(arguments: [String: Any], options: Options) {
+    if let dsn = arguments["dsn"] as? String {
+      options.dsn = dsn
+    }
+
+    if let isDebug = arguments["debug"] as? Bool {
+      options.debug = isDebug
+    }
+
+    if let environment = arguments["environment"] as? String {
+      options.environment = environment
+    }
+
+    if let releaseName = arguments["release"] as? String {
+      options.releaseName = releaseName
+    }
+
+    if let enableAutoSessionTracking = arguments["enableAutoSessionTracking"] as? Bool {
+      options.enableAutoSessionTracking = enableAutoSessionTracking
+    }
+
+    if let attachStacktrace = arguments["attachStacktrace"] as? Bool {
+      options.attachStacktrace = attachStacktrace
+    }
+
+    if let diagnosticLevel = arguments["diagnosticLevel"] as? String, options.debug == true {
+      options.logLevel = logLevelFrom(diagnosticLevel: diagnosticLevel)
+    }
+
+    if let sessionTrackingIntervalMillis = arguments["sessionTrackingIntervalMillis"] as? UInt {
+      options.sessionTrackingIntervalMillis = sessionTrackingIntervalMillis
+    }
+
+    if let dist = arguments["dist"] as? String {
+      options.dist = dist
+    }
+
+    if let enableAutoNativeBreadcrumbs = arguments["enableAutoNativeBreadcrumbs"] as? Bool,
+       enableAutoNativeBreadcrumbs == false {
+      options.integrations = options.integrations?.filter { (name) -> Bool in
+        name != "SentryAutoBreadcrumbTrackingIntegration"
+      }
+    }
+
+    if let maxBreadcrumbs = arguments["maxBreadcrumbs"] as? UInt {
+      options.maxBreadcrumbs = maxBreadcrumbs
+    }
+  }
+
   private func logLevelFrom(diagnosticLevel: String) -> SentryLogLevel {
     switch diagnosticLevel {
     case "fatal", "error":
@@ -151,7 +156,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
     guard let sdk = event.sdk else {
       return
     }
-    if self.isValidSdk(sdk: sdk) {
+    if isValidSdk(sdk: sdk) {
 
       switch sdk["name"] as? String {
       case "sentry.dart.flutter":

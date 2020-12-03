@@ -266,6 +266,11 @@ class Hub {
         "Instance is disabled and this 'close' call is a no-op.",
       );
     } else {
+      // close integrations
+      for (final integration in _options.integrations) {
+        integration.close();
+      }
+
       final item = _peek();
       if (item != null) {
         try {
