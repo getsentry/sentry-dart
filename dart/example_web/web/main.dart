@@ -18,7 +18,7 @@ Future<void> main() async {
     (options) => options
       ..dsn = dsn
       ..addEventProcessor(processTagEvent),
-    runApp,
+    appRunner: runApp,
   );
 
   Sentry.addBreadcrumb(
@@ -62,7 +62,7 @@ void runApp() {
   querySelector('#btException').onClick.listen((event) => captureException());
 }
 
-void captureMessage() async {
+Future<void> captureMessage() async {
   print('Capturing Message :  ');
   final sentryId = await Sentry.captureMessage(
     'Message 2',
@@ -76,7 +76,7 @@ void captureMessage() async {
   await Sentry.close();
 }
 
-void captureException() async {
+Future<void> captureException() async {
   try {
     await buildCard();
   } catch (error, stackTrace) {
