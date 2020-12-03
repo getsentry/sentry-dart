@@ -4,3 +4,4 @@ export 'package:sentry/sentry.dart';
 export 'src/default_integrations.dart';
 export 'src/navigation/sentry_navigation_observer.dart';
 export 'src/sentry_flutter.dart';
+export 'src/sentry_flutter_options.dart';

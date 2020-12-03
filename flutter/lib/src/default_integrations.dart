@@ -2,12 +2,14 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:package_info/package_info.dart';
 import 'package:sentry/sentry.dart';
+import 'sentry_flutter_options.dart';
 
 /// integration that capture errors on the FlutterError handler
-class FlutterErrorIntegration extends Integration {
+class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
   @override
-  void call(Hub hub, SentryOptions options) {
+  void call(Hub hub, SentryFlutterOptions options) {
     final defaultOnError = FlutterError.onError;
 
     FlutterError.onError = (FlutterErrorDetails errorDetails) async {
@@ -43,13 +45,13 @@ class FlutterErrorIntegration extends Integration {
 /// add an event processor to call a native channel method to load :
 /// - the device Contexts,
 /// - and the native sdk integrations and packages
-class LoadContextsIntegration extends Integration {
+class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
   final MethodChannel _channel;
 
   LoadContextsIntegration(this._channel);
 
   @override
-  FutureOr<void> call(Hub hub, SentryOptions options) async {
+  FutureOr<void> call(Hub hub, SentryFlutterOptions options) async {
     options.addEventProcessor(
       (event, {hint}) async {
         try {
@@ -105,13 +107,13 @@ class LoadContextsIntegration extends Integration {
 }
 
 /// Enables Sentry's native SDKs (Android and iOS)
-class NativeSdkIntegration extends Integration {
+class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
   final MethodChannel _channel;
 
   NativeSdkIntegration(this._channel);
 
   @override
-  FutureOr<void> call(Hub hub, SentryOptions options) async {
+  FutureOr<void> call(Hub hub, SentryFlutterOptions options) async {
     try {
       await _channel.invokeMethod<void>('initNativeSdk', <String, dynamic>{
         'dsn': options.dsn,
@@ -146,13 +148,14 @@ class NativeSdkIntegration extends Integration {
 }
 
 /// Loads the Android Image list for stack trace symbolication
-class LoadAndroidImageListIntegration extends Integration {
+class LoadAndroidImageListIntegration
+    extends Integration<SentryFlutterOptions> {
   final MethodChannel _channel;
 
   LoadAndroidImageListIntegration(this._channel);
 
   @override
-  FutureOr<void> call(Hub hub, SentryOptions options) {
+  FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
     options.addEventProcessor(
       (event, {hint}) async {
         try {
@@ -219,5 +222,49 @@ class LoadAndroidImageListIntegration extends Integration {
     );
 
     options.sdk.addIntegration('loadAndroidImageListIntegration');
+  }
+}
+
+/// a PackageInfo wrapper to make it testable
+typedef PackageLoader = Future<PackageInfo> Function();
+
+/// an Integration that loads the Release version from Native Apps
+/// or SENTRY_RELEASE and SENTRY_DIST variables
+class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
+  final PackageLoader _packageLoader;
+
+  LoadReleaseIntegration(this._packageLoader);
+
+  @override
+  FutureOr<void> call(Hub hub, SentryFlutterOptions options) async {
+    try {
+      if (!kIsWeb) {
+        if (_packageLoader == null) {
+          options.logger(SentryLevel.debug, 'Package loader is null.');
+          return;
+        }
+        final packageInfo = await _packageLoader();
+        final release =
+            '${packageInfo.packageName}@${packageInfo.version}+${packageInfo.buildNumber}';
+        options.logger(SentryLevel.debug, 'release: $release');
+
+        options.release = release;
+        options.dist = packageInfo.buildNumber;
+      } else {
+        // for non-mobile builds, we read the release and dist from the
+        // system variables (SENTRY_RELEASE and SENTRY_DIST).
+        options.release = const bool.hasEnvironment('SENTRY_RELEASE')
+            ? const String.fromEnvironment('SENTRY_RELEASE')
+            : options.release;
+        options.dist = const bool.hasEnvironment('SENTRY_DIST')
+            ? const String.fromEnvironment('SENTRY_DIST')
+            : options.dist;
+      }
+    } catch (error) {
+      options.logger(
+          SentryLevel.error, 'Failed to load release and dist: $error');
+    }
+
+    options.sdk.addIntegration('loadReleaseIntegration');
   }
 }
