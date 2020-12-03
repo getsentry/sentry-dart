@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/sentry_flutter_options.dart';
 
 import 'mocks.dart';
 
@@ -35,7 +36,7 @@ void main() {
   });
 
   test('should apply the loadContextsIntegration eventProcessor', () async {
-    final options = SentryOptions()..dsn = fakeDsn;
+    final options = SentryFlutterOptions()..dsn = fakeDsn;
     final hub = Hub(options);
 
     LoadContextsIntegration(_channel)(hub, options);
@@ -64,7 +65,7 @@ void main() {
   test(
       'should not override event contexts with the loadContextsIntegration infos',
       () async {
-    final options = SentryOptions()..dsn = fakeDsn;
+    final options = SentryFlutterOptions()..dsn = fakeDsn;
     final hub = Hub(options);
 
     LoadContextsIntegration(_channel)(hub, options);
@@ -98,7 +99,7 @@ void main() {
   test(
     'should merge event and loadContextsIntegration sdk packages and integration',
     () async {
-      final options = SentryOptions()..dsn = fakeDsn;
+      final options = SentryFlutterOptions()..dsn = fakeDsn;
       final hub = Hub(options);
 
       LoadContextsIntegration(_channel)(hub, options);
@@ -129,7 +130,7 @@ void main() {
     _channel.setMockMethodCallHandler((MethodCall methodCall) async {
       throw null;
     });
-    final options = SentryOptions()..dsn = fakeDsn;
+    final options = SentryFlutterOptions()..dsn = fakeDsn;
     final hub = Hub(options);
 
     LoadContextsIntegration(_channel)(hub, options);

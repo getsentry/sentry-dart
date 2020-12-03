@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/sentry_flutter_options.dart';
 
 import 'mocks.dart';
 
@@ -37,7 +38,7 @@ void main() {
   });
 
   test('Native layer is not called as the event is symbolicated', () async {
-    final options = SentryOptions()..dsn = fakeDsn;
+    final options = SentryFlutterOptions()..dsn = fakeDsn;
     final hub = Hub(options);
 
     LoadAndroidImageListIntegration(_channel)(hub, options);
@@ -51,7 +52,7 @@ void main() {
   });
 
   test('Native layer is not called as the event has no stack traces', () async {
-    final options = SentryOptions()..dsn = fakeDsn;
+    final options = SentryFlutterOptions()..dsn = fakeDsn;
     final hub = Hub(options);
 
     LoadAndroidImageListIntegration(_channel)(hub, options);
@@ -62,7 +63,7 @@ void main() {
   });
 
   test('Native layer is called as stack traces are not symbolicated', () async {
-    final options = SentryOptions()..dsn = fakeDsn;
+    final options = SentryFlutterOptions()..dsn = fakeDsn;
     final hub = Hub(options);
 
     LoadAndroidImageListIntegration(_channel)(hub, options);
@@ -82,7 +83,7 @@ void main() {
   });
 
   test('Event processor adds image list to the event', () async {
-    final options = SentryOptions()..dsn = fakeDsn;
+    final options = SentryFlutterOptions()..dsn = fakeDsn;
     final hub = Hub(options);
 
     LoadAndroidImageListIntegration(_channel)(hub, options);
@@ -94,7 +95,7 @@ void main() {
   });
 
   test('Event processor asserts image list', () async {
-    final options = SentryOptions()..dsn = fakeDsn;
+    final options = SentryFlutterOptions()..dsn = fakeDsn;
     final hub = Hub(options);
 
     LoadAndroidImageListIntegration(_channel)(hub, options);

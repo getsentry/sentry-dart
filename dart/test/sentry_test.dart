@@ -13,7 +13,7 @@ void main() {
     Exception anException;
 
     setUp(() async {
-      await Sentry.init((options) => options.dsn = fakeDsn, appRunner);
+      await Sentry.init((options) => options.dsn = fakeDsn);
       anException = Exception('anException');
 
       client = MockSentryClient();
@@ -63,8 +63,7 @@ void main() {
   group('Sentry is enabled or disabled', () {
     test('null DSN', () {
       expect(
-        () async =>
-            await Sentry.init((options) => options.dsn = null, appRunner),
+        () async => await Sentry.init((options) => options.dsn = null),
         throwsArgumentError,
       );
       expect(Sentry.isEnabled, false);
@@ -72,17 +71,17 @@ void main() {
 
     test('appRunner should be optional', () async {
       expect(Sentry.isEnabled, false);
-      await Sentry.init((options) => options.dsn = fakeDsn, null);
+      await Sentry.init((options) => options.dsn = fakeDsn);
       expect(Sentry.isEnabled, true);
     });
 
     test('empty DSN', () async {
-      await Sentry.init((options) => options.dsn = '', appRunner);
+      await Sentry.init((options) => options.dsn = '');
       expect(Sentry.isEnabled, false);
     });
 
     test('close disables the SDK', () async {
-      await Sentry.init((options) => options.dsn = fakeDsn, appRunner);
+      await Sentry.init((options) => options.dsn = fakeDsn);
 
       Sentry.bindClient(MockSentryClient());
 
@@ -107,31 +106,25 @@ void main() {
           options.dsn = fakeDsn;
           options.addIntegration(integration);
         },
-        appRunner,
       );
 
       verify(integration(any, any)).called(1);
-    });
-
-    test('should add initial integrations first', () async {
-      final initialIntegration = MockIntegration();
-      await Sentry.init(
-        (options) {
-          options.dsn = fakeDsn;
-          expect(options.integrations.first, initialIntegration);
-        },
-        appRunner,
-        [initialIntegration],
-      );
     });
 
     test('should add default integrations', () async {
       await Sentry.init(
         (options) {
           options.dsn = fakeDsn;
-          expect(options.integrations.length, 2);
+          expect(
+            options.integrations.whereType<IsolateErrorIntegration>().length,
+            1,
+          );
+          expect(
+            options.integrations.whereType<RunZonedGuardedIntegration>().length,
+            1,
+          );
         },
-        appRunner,
+        appRunner: appRunner,
       );
     }, onPlatform: {'browser': Skip()});
 
@@ -139,9 +132,11 @@ void main() {
       await Sentry.init(
         (options) {
           options.dsn = fakeDsn;
-          expect(options.integrations.length, 1);
+          expect(
+            options.integrations.whereType<IsolateErrorIntegration>().length,
+            0,
+          );
         },
-        appRunner,
       );
     }, onPlatform: {'vm': Skip()});
 
@@ -153,7 +148,6 @@ void main() {
           options.dsn = fakeDsn;
           options.addIntegration(integration);
         },
-        appRunner,
       );
 
       await Sentry.close();
@@ -167,7 +161,9 @@ void main() {
     "options can't be null",
     () {
       expect(
-          () async => await Sentry.init((options) => options = null, appRunner),
+          () async => await Sentry.init(
+                (options) => options = null,
+              ),
           throwsArgumentError);
     },
   );

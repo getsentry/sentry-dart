@@ -24,10 +24,11 @@ void main() {
 
   test('Flutter init for mobile will run default configurations', () async {
     await SentryFlutter.init(
-      getConfigurationTester(),
-      appRunner,
-      loadTestPackage,
-      () => false,
+      getConfigurationTester(isIOS: true, isAndroid: true),
+      appRunner: appRunner,
+      packageLoader: loadTestPackage,
+      isIOSChecker: () => true,
+      isAndroidChecker: () => true,
     );
   });
 
@@ -35,9 +36,7 @@ void main() {
       () async {
     await SentryFlutter.init(
       getConfigurationTester(isIOS: true),
-      appRunner,
-      loadTestPackage,
-      () => true,
+      isIOSChecker: () => true,
     );
   });
 
@@ -62,9 +61,7 @@ void main() {
         (options) => options
           ..dsn = fakeDsn
           ..transport = transport,
-        appRunner,
-        loadTestPackage,
-        () => true,
+        isIOSChecker: () => true,
       );
 
       await Sentry.captureMessage('a message');
@@ -81,9 +78,7 @@ void main() {
         (options) => options
           ..dsn = fakeDsn
           ..transport = transport,
-        appRunner,
-        loadTestPackage,
-        () => false,
+        isIOSChecker: () => false,
       );
 
       await Sentry.captureMessage('a message');
@@ -98,13 +93,11 @@ void main() {
     test('should not add loadAndroidImageListIntegration if not Android',
         () async {
       await SentryFlutter.init(
-          (options) => options
-            ..dsn = fakeDsn
-            ..transport = transport,
-          appRunner,
-          loadTestPackage,
-          () => false,
-          () => false);
+        (options) => options
+          ..dsn = fakeDsn
+          ..transport = transport,
+        isAndroidChecker: () => false,
+      );
 
       await Sentry.captureMessage('a message');
 

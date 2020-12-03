@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/sentry_flutter_options.dart';
 
 import 'mocks.dart';
 
@@ -109,5 +110,5 @@ void main() {
 
 class Fixture {
   final hub = MockHub();
-  final options = SentryOptions();
+  final options = SentryFlutterOptions();
 }
