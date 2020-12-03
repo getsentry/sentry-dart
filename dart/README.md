@@ -43,8 +43,8 @@ Future<void> main() async {
   await Sentry.init(
     (options) {
       options.dsn = 'https://example@sentry.io/add-your-dsn-here';
-    }, 
-    initApp, // Init your App.
+    },
+    appRunner: initApp, // Init your App.
   );
 }
 
@@ -53,7 +53,7 @@ void initApp() {
 }
 ```
 
-Or, if you want to run your app in your own error zone [runZonedGuarded] :  
+Or, if you want to run your app in your own error zone [runZonedGuarded]:  
 
 ```dart
 import 'dart:async';
@@ -63,7 +63,7 @@ Future<void> main() async {
   await Sentry.init(
     (options) {
       options.dsn = 'https://example@sentry.io/add-your-dsn-here';
-    }, 
+    },
   );
 
   // Init your App.
