@@ -36,6 +36,7 @@ void main() {
       () async {
     await SentryFlutter.init(
       getConfigurationTester(isIOS: true),
+      packageLoader: loadTestPackage,
       isIOSChecker: () => true,
     );
   });
@@ -61,6 +62,7 @@ void main() {
         (options) => options
           ..dsn = fakeDsn
           ..transport = transport,
+        packageLoader: loadTestPackage,
         isIOSChecker: () => true,
       );
 
@@ -78,6 +80,7 @@ void main() {
         (options) => options
           ..dsn = fakeDsn
           ..transport = transport,
+        packageLoader: loadTestPackage,
         isIOSChecker: () => false,
       );
 
@@ -96,6 +99,7 @@ void main() {
         (options) => options
           ..dsn = fakeDsn
           ..transport = transport,
+        packageLoader: loadTestPackage,
         isAndroidChecker: () => false,
       );
 
