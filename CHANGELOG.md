@@ -14,8 +14,6 @@
 - Fix: Integrations should be closeable
 - Feat: Support split-debug-info for Android #191
 - Fix: The event payload must never serialize null or empty fields
-- Ref: Make hints an optional param
-- Fix: the event payload must never serialize null or empty fields
 - Ref: Make hints optional
 
 ### Breaking changes
