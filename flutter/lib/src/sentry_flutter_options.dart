@@ -1,7 +1,4 @@
 import 'package:flutter/foundation.dart' as foundation;
-
-import '../sentry_flutter.dart';
-
 import 'package:sentry/sentry.dart';
 
 /// This class add options which are only availble in a Flutter environment.
