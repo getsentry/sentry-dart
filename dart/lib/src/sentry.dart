@@ -3,7 +3,6 @@ import 'dart:async';
 import 'default_integrations.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
-import 'integration.dart';
 import 'noop_isolate_error_integration.dart'
     if (dart.library.io) 'isolate_error_integration.dart';
 import 'noop_hub.dart';
@@ -35,31 +34,29 @@ class Sentry {
   /// yourself. [sentryOptions] is mainly intendet for use by other Sentry clients
   /// such as SentryFlutter.
   static Future<void> init(
-    OptionsConfiguration optionsConfiguration, [
+    OptionsConfiguration optionsConfiguration, {
     AppRunner appRunner,
-    List<Integration> initialIntegrations,
-    SentryOptions sentryOptions,
-  ]) async {
+    SentryOptions options,
+  }) async {
     if (optionsConfiguration == null) {
       throw ArgumentError('OptionsConfiguration is required.');
     }
 
-    final options = sentryOptions ?? SentryOptions();
-    await _initDefaultValues(options, appRunner, initialIntegrations);
+    final sentryOptions = options ?? SentryOptions();
+    await _initDefaultValues(sentryOptions, appRunner);
 
-    await optionsConfiguration(options);
+    await optionsConfiguration(sentryOptions);
 
-    if (options == null) {
+    if (sentryOptions == null) {
       throw ArgumentError('SentryOptions is required.');
     }
 
-    await _init(options);
+    await _init(sentryOptions);
   }
 
   static Future<void> _initDefaultValues(
     SentryOptions options,
     AppRunner appRunner,
-    List<Integration> initialIntegrations,
   ) async {
     // if no environment is set, we set 'production' by default, but if we know it's
     // a non-release build, or the SENTRY_ENVIRONMENT is set, we read from it.
@@ -75,19 +72,11 @@ class Sentry {
         ? const String.fromEnvironment('SENTRY_DSN')
         : options.dsn;
 
-    // we need to execute integrations in a specific order sometimes,
-    // and this initialIntegrations list makes it possible to inject and add
-    // integrations before the runZonedGuardedIntegration gets added
-    if (initialIntegrations != null && initialIntegrations.isNotEmpty) {
-      initialIntegrations
-          .forEach((integration) => options.addIntegration(integration));
-    }
-
     // Throws when running on the browser
     if (!isWeb) {
       // catch any errors that may occur within the entry function, main()
       // in the ‘root zone’ where all Dart programs start
-      options.addIntegration(IsolateErrorIntegration());
+      options.addIntegrationByIndex(0, IsolateErrorIntegration());
     }
 
     // finally the runZonedGuarded, catch any errors in Dart code running

@@ -21,7 +21,7 @@ Future<void> main() async {
     (options) => options
       ..dsn = dsn
       ..addEventProcessor(processTagEvent),
-    runApp,
+    appRunner: runApp,
   );
 
   Sentry.addBreadcrumb(
@@ -53,7 +53,7 @@ Future<void> main() async {
   });
 }
 
-void runApp() async {
+Future<void> runApp() async {
   print('\nReporting a complete event example: ');
 
   // Sends a full Sentry event payload to show the different parts of the UI.
