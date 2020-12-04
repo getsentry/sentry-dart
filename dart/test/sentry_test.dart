@@ -61,6 +61,9 @@ void main() {
   });
 
   group('Sentry is enabled or disabled', () {
+    tearDown(() {
+      Sentry.close();
+    });
     test('null DSN', () {
       expect(
         () async => await Sentry.init((options) => options.dsn = null),
