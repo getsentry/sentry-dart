@@ -30,6 +30,7 @@ jobs:
             sdk: dev
           - os: macos-latest
             sdk: beta
+
     steps:
         - uses: cedx/setup-dart@v2
           with:
