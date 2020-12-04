@@ -14,6 +14,10 @@ Future<void> main() async {
   await SentryFlutter.init(
     (options) {
       options.dsn = _exampleDsn;
+      // use breadcrumb tracking of WidgetsBindingObserver
+      //options.useFlutterBreadcrumbTracking();
+      // use breadcrumb tracking of platform Sentry SDKs
+      options.useNativeBreadcrumbTracking();
     },
     // Init your App.
     appRunner: () => runApp(MyApp()),

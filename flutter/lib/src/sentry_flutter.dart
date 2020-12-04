@@ -5,10 +5,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:package_info/package_info.dart';
 import 'package:sentry/sentry.dart';
+import 'sentry_flutter_options.dart';
 
 import 'default_integrations.dart';
 import 'file_system_transport.dart';
-import 'sentry_flutter_options.dart';
 import 'version.dart';
 // conditional import for the iOSPlatformChecker
 // in browser, the iOSPlatformChecker will always return false
@@ -82,6 +82,9 @@ mixin SentryFlutter {
   ) {
     // will catch any errors that may occur in the Flutter framework itself.
     options.addIntegration(FlutterErrorIntegration());
+
+    // This tracks Flutter application events, such as lifecycle events.
+    options.addIntegration(WidgetsBindingIntegration());
 
     // the ordering here matters, as we'd like to first start the native integration
     // that allow us to send events to the network and then the Flutter integrations.

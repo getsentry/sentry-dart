@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/file_system_transport.dart';
+import 'package:sentry_flutter/src/sentry_flutter_options.dart';
 import 'package:sentry_flutter/src/version.dart';
 
 import 'mocks.dart';
@@ -14,6 +15,8 @@ FutureOr<void> Function(SentryOptions) getConfigurationTester({
   bool isAndroid = false,
 }) =>
     (options) async {
+      assert(options is SentryFlutterOptions);
+
       options.dsn = fakeDsn;
 
       expect(kDebugMode, options.debug);

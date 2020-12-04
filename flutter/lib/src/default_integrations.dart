@@ -1,10 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter/services.dart';
 import 'package:package_info/package_info.dart';
 import 'package:sentry/sentry.dart';
 import 'sentry_flutter_options.dart';
+import 'widgets_binding_observer.dart';
 
 /// integration that capture errors on the FlutterError handler
 class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
@@ -145,6 +147,31 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
       );
     }
   }
+}
+
+/// Integration that captures certain window and device events.
+/// See also:
+///   - [SentryWidgetsBindingObserver]
+///   - [WidgetsBindingObserver](https://api.flutter.dev/flutter/widgets/WidgetsBindingObserver-class.html)
+class WidgetsBindingIntegration extends Integration<SentryFlutterOptions> {
+  SentryWidgetsBindingObserver _observer;
+
+  @override
+  FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
+    _observer = SentryWidgetsBindingObserver(
+      hub: hub,
+      options: options,
+    );
+
+    // We don't need to call `WidgetsFlutterBinding.ensureInitialized()`
+    // because `FlutterSentry.init` already calls it.
+    WidgetsBinding.instance.addObserver(_observer);
+
+    options.sdk.addIntegration('widgetsBindingIntegration');
+  }
+
+  @override
+  void close() => WidgetsBinding.instance.removeObserver(_observer);
 }
 
 /// Loads the Android Image list for stack trace symbolication
