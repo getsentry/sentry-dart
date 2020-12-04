@@ -95,11 +95,11 @@ class SentryFlutterOptions extends SentryOptions {
   /// enable this. Otherwise you might record lifecycle events twice.
   /// Also consider using [enableBreadcrumbTrackingForCurrentPlatform()]
   /// instead for more sensible defaults.
-  bool get enableLifecycleBreadcrumbs => _enableLifecycleBreadcrumbs ?? false;
+  bool get enableLifecycleBreadcrumbs => _enableLifecycleBreadcrumbs;
 
   set enableLifecycleBreadcrumbs(bool value) {
     assert(value != null);
-    _enableLifecycleBreadcrumbs = value;
+    _enableLifecycleBreadcrumbs = value ?? _enableLifecycleBreadcrumbs;
   }
 
   bool _enableLifecycleBreadcrumbs = false;
@@ -108,12 +108,11 @@ class SentryFlutterOptions extends SentryOptions {
   /// enable this. Otherwise you might record window metric events twice.
   /// Also consider using [enableBreadcrumbTrackingForCurrentPlatform()]
   /// instead for more sensible defaults.
-  bool get enableWindowMetricBreadcrumbs =>
-      _enableWindowMetricBreadcrumbs ?? false;
+  bool get enableWindowMetricBreadcrumbs => _enableWindowMetricBreadcrumbs;
 
   set enableWindowMetricBreadcrumbs(bool value) {
     assert(value != null);
-    _enableWindowMetricBreadcrumbs = value;
+    _enableWindowMetricBreadcrumbs = value ?? _enableWindowMetricBreadcrumbs;
   }
 
   bool _enableWindowMetricBreadcrumbs = false;
@@ -123,11 +122,12 @@ class SentryFlutterOptions extends SentryOptions {
   /// Also consider using [enableBreadcrumbTrackingForCurrentPlatform()]
   /// instead for more sensible defaults.
   bool get enableBrightnessChangeBreadcrumbs =>
-      _enableBrightnessChangeBreadcrumbs ?? false;
+      _enableBrightnessChangeBreadcrumbs;
 
   set enableBrightnessChangeBreadcrumbs(bool value) {
     assert(value != null);
-    _enableBrightnessChangeBreadcrumbs = value;
+    _enableBrightnessChangeBreadcrumbs =
+        value ?? _enableBrightnessChangeBreadcrumbs;
   }
 
   bool _enableBrightnessChangeBreadcrumbs = false;
@@ -137,11 +137,12 @@ class SentryFlutterOptions extends SentryOptions {
   /// Also consider using [enableBreadcrumbTrackingForCurrentPlatform()]
   /// instead for more sensible defaults.
   bool get enableTextScaleChangeBreadcrumbs =>
-      _enableTextScaleChangeBreadcrumbs ?? false;
+      _enableTextScaleChangeBreadcrumbs;
 
   set enableTextScaleChangeBreadcrumbs(bool value) {
     assert(value != null);
-    _enableTextScaleChangeBreadcrumbs = value;
+    _enableTextScaleChangeBreadcrumbs =
+        value ?? _enableTextScaleChangeBreadcrumbs;
   }
 
   bool _enableTextScaleChangeBreadcrumbs = false;
@@ -150,12 +151,12 @@ class SentryFlutterOptions extends SentryOptions {
   /// enable this. Otherwise you might record memory pressure events twice.
   /// Also consider using [enableBreadcrumbTrackingForCurrentPlatform()]
   /// instead for more sensible defaults.
-  bool get enableMemoryPressureBreadcrumbs =>
-      _enableMemoryPressureBreadcrumbs ?? false;
+  bool get enableMemoryPressureBreadcrumbs => _enableMemoryPressureBreadcrumbs;
 
   set enableMemoryPressureBreadcrumbs(bool value) {
     assert(value != null);
-    _enableMemoryPressureBreadcrumbs = value;
+    _enableMemoryPressureBreadcrumbs =
+        value ?? _enableMemoryPressureBreadcrumbs;
   }
 
   bool _enableMemoryPressureBreadcrumbs = false;

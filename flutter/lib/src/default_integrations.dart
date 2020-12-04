@@ -154,17 +154,24 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
 ///   - [SentryWidgetsBindingObserver]
 ///   - [WidgetsBindingObserver](https://api.flutter.dev/flutter/widgets/WidgetsBindingObserver-class.html)
 class WidgetsBindingIntegration extends Integration<SentryFlutterOptions> {
+  SentryWidgetsBindingObserver observer;
+
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
-    // We don't need to call `WidgetsFlutterBinding.ensureInitialized()`
-    // because `FlutterSentry.init` already calls it.
-    WidgetsBinding.instance.addObserver(SentryWidgetsBindingObserver(
+    observer = SentryWidgetsBindingObserver(
       hub: hub,
       options: options,
-    ));
+    );
+
+    // We don't need to call `WidgetsFlutterBinding.ensureInitialized()`
+    // because `FlutterSentry.init` already calls it.
+    WidgetsBinding.instance.addObserver(observer);
 
     options.sdk.addIntegration('widgetsBindingIntegration');
   }
+
+  @override
+  void close() => WidgetsBinding.instance.removeObserver(observer);
 }
 
 /// Loads the Android Image list for stack trace symbolication
