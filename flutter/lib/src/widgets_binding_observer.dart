@@ -22,13 +22,13 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     Hub hub,
     @required SentryFlutterOptions options,
   }) {
-    this.hub = hub ?? HubAdapter();
+    _hub = hub ?? HubAdapter();
     assert(options != null);
-    this.options = options;
+    _options = options;
   }
 
-  Hub hub;
-  SentryFlutterOptions options;
+  Hub _hub;
+  SentryFlutterOptions _options;
 
   /// This method records lifecycle events.
   /// It tries to mimic the behavior of ActivityBreadcrumbsIntegration of Sentry
@@ -41,13 +41,13 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   ///   - [WidgetsBindingObserver](https://api.flutter.dev/flutter/widgets/WidgetsBindingObserver-class.html)
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (!options.enableLifecycleBreadcrumbs) {
+    if (!_options.enableLifecycleBreadcrumbs) {
       return;
     }
     // According to
     // https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
     // this is of the type navigation.
-    hub.addBreadcrumb(Breadcrumb(
+    _hub.addBreadcrumb(Breadcrumb(
       category: 'ui.lifecycle',
       type: 'navigation',
       data: <String, String>{
@@ -63,11 +63,11 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   ///   - [Window.onMetricsChanged](https://api.flutter.dev/flutter/dart-ui/Window/onMetricsChanged.html)
   @override
   void didChangeMetrics() {
-    if (!options.enableWindowMetricBreadcrumbs) {
+    if (!_options.enableWindowMetricBreadcrumbs) {
       return;
     }
     final window = WidgetsBinding.instance.window;
-    hub.addBreadcrumb(Breadcrumb(
+    _hub.addBreadcrumb(Breadcrumb(
       message: 'Screen size changed',
       category: 'device.screen',
       type: 'navigation',
@@ -83,14 +83,14 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   ///   - [Window.onPlatformBrightnessChanged](https://api.flutter.dev/flutter/dart-ui/Window/onPlatformBrightnessChanged.html)
   @override
   void didChangePlatformBrightness() {
-    if (!options.enableBrightnessChangeBreadcrumbs) {
+    if (!_options.enableBrightnessChangeBreadcrumbs) {
       return;
     }
     final brightness = WidgetsBinding.instance.window.platformBrightness;
     final brightnessDescription =
         brightness == Brightness.dark ? 'dark' : 'light';
 
-    hub.addBreadcrumb(Breadcrumb(
+    _hub.addBreadcrumb(Breadcrumb(
       message: 'Platform brightness was changed to $brightnessDescription.',
       type: 'system',
       category: 'device.event',
@@ -104,11 +104,11 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   ///   - [Window.onTextScaleFactorChanged]https://api.flutter.dev/flutter/dart-ui/Window/onTextScaleFactorChanged.html)
   @override
   void didChangeTextScaleFactor() {
-    if (!options.enableTextScaleChangeBreadcrumbs) {
+    if (!_options.enableTextScaleChangeBreadcrumbs) {
       return;
     }
     final newTextScaleFactor = WidgetsBinding.instance.window.textScaleFactor;
-    hub.addBreadcrumb(Breadcrumb(
+    _hub.addBreadcrumb(Breadcrumb(
       message: 'Text scale factor changed to $newTextScaleFactor.',
       type: 'system',
       category: 'device.event',
@@ -122,7 +122,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   /// applications to release caches to free up more memory.
   @override
   void didHaveMemoryPressure() {
-    if (!options.enableMemoryPressureBreadcrumbs) {
+    if (!_options.enableMemoryPressureBreadcrumbs) {
       return;
     }
     // See
@@ -132,7 +132,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     const message =
         'App had memory pressure. This indicates that the operating system '
         'would like applications to release caches to free up more memory.';
-    hub.addBreadcrumb(Breadcrumb(
+    _hub.addBreadcrumb(Breadcrumb(
       message: message,
       type: 'system',
       category: 'device.event',
