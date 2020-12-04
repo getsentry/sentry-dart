@@ -88,7 +88,7 @@ class SentryEvent {
   final dynamic throwable;
 
   /// an optional attached StackTrace
-  /// used when event has no throwable or exception, see [SentryOptions.attachStackTrace]
+  /// used when event has no throwable or exception, see [SentryOptions.attachStacktrace]
   final SentryStackTrace stackTrace;
 
   /// an exception or error that occurred in a program

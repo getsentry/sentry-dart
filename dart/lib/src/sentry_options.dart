@@ -168,17 +168,6 @@ class SentryOptions {
 
   bool _attachStacktrace = true;
 
-  /// When enabled, stack traces are automatically attached to all logged events. Stack traces are
-  /// always attached to exceptions but when this is set stack traces are also sent with messages. If
-  /// no stack traces are logged, we log the current stack trace automatically.
-  bool get attachStacktrace => _attachStacktrace;
-
-  set attachStacktrace(bool attachStacktrace) {
-    _attachStacktrace = attachStacktrace ?? _attachStacktrace;
-  }
-
-  bool _attachStackTrace = true;
-
   /// When enabled, stack traces are automatically attached to all messages logged.
   /// Stack traces are always attached to exceptions;
   /// however, when this option is set, stack traces are also sent with messages.
@@ -188,10 +177,10 @@ class SentryOptions {
   ///
   /// Grouping in Sentry is different for events with stack traces and without.
   /// As a result, you will get new groups as you enable or disable this flag for certain events.
-  bool get attachStackTrace => _attachStackTrace;
+  bool get attachStacktrace => _attachStacktrace;
 
-  set attachStackTrace(bool attachStacktrace) {
-    _attachStackTrace = attachStacktrace ?? _attachStackTrace;
+  set attachStacktrace(bool attachStacktrace) {
+    _attachStacktrace = attachStacktrace ?? _attachStacktrace;
   }
 
   // TODO: Scope observers, enableScopeSync

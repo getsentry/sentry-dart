@@ -16,6 +16,7 @@ FutureOr<void> Function(SentryOptions) getConfigurationTester({
 }) =>
     (options) async {
       assert(options is SentryFlutterOptions);
+
       options.dsn = fakeDsn;
 
       expect(kDebugMode, options.debug);
