@@ -4,6 +4,7 @@
 
 - Ref: Remove duplicated attachStackTrace field
 - Fix: Flutter Configurations should be able to mutate the SentryFlutterOptions
+- Enhancement: Add SentryWidgetsBindingObserver, an Integration that captures certain window and device events.
 
 ## 4.0.0-beta.1
 
@@ -19,7 +20,6 @@
 - Fix: Integrations should be closeable
 - Feat: Support split-debug-info for Android #191
 - Fix: the event payload must never serialize null or empty fields
-- Enhancement: Add SentryWidgetsBindingObserver, an Integration that captures certain window and device events.
 - Ref: Make hints optional
 
 ### Breaking changes
