@@ -38,7 +38,7 @@ class SentryExceptionFactory {
 
     if (throwable is Error) {
       stackTrace ??= throwable.stackTrace;
-    } else if (_options.attachStackTrace) {
+    } else if (_options.attachStacktrace) {
       stackTrace ??= StackTrace.current;
     }
 
