@@ -13,7 +13,7 @@ FutureOr<void> Function(SentryOptions) getConfigurationTester({
   bool isWeb = false,
   bool isAndroid = false,
 }) =>
-    (SentryOptions options) async {
+    (options) async {
       options.dsn = fakeDsn;
 
       expect(kDebugMode, options.debug);

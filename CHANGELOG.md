@@ -3,6 +3,7 @@
 ## vNext
 
 - Ref: Remove duplicated attachStackTrace field
+- Fix: Flutter Configurations should be able to mutate the SentryFlutterOptions
 
 ## 4.0.0-beta.1
 
