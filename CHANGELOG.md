@@ -2,6 +2,8 @@
 
 ## vNext
 
+- Fix: Flutter Configurations should be able to mutate the SentryFlutterOptions
+
 ## 4.0.0-beta.1
 
 - Fix: StackTrace frames with 'package' uri.scheme are inApp by default #185

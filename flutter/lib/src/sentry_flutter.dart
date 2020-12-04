@@ -16,12 +16,16 @@ import 'version.dart';
 // this injected PlatformChecker allows to test this behavior
 import 'web_platform_checker.dart' if (dart.library.io) 'platform_checker.dart';
 
+/// Configuration options callback
+typedef FlutterOptionsConfiguration = FutureOr<void> Function(
+    SentryFlutterOptions);
+
 /// Sentry Flutter SDK main entry point
 mixin SentryFlutter {
   static const _channel = MethodChannel('sentry_flutter');
 
   static Future<void> init(
-    OptionsConfiguration optionsConfiguration, {
+    FlutterOptionsConfiguration optionsConfiguration, {
     AppRunner appRunner,
     PackageLoader packageLoader = _loadPackageInfo,
     iOSPlatformChecker isIOSChecker = isIOS,
