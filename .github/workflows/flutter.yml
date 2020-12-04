@@ -50,7 +50,7 @@ jobs:
           run: |
             cd flutter
             flutter pub get
-            flutter test --coverage test
+            flutter test --coverage
 
         - uses: codecov/codecov-action@v1
           if: runner.os == 'Linux'
@@ -87,7 +87,7 @@ jobs:
           cd flutter
           flutter pub get
           flutter format -n --set-exit-if-changed ./
-          flutter analyze ./
+          flutter analyze
 
   package-analysis:
     runs-on: ubuntu-latest
