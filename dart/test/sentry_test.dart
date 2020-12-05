@@ -176,12 +176,10 @@ void main() {
     final sentryOptions = SentryOptions()
       ..platformChecker = FakePlatformChecker.debugMode();
 
-    await Sentry.init(
-        (options) {
-          options.dsn = fakeDsn;
-          expect(options.environment, 'debug');
-        }, options: sentryOptions
-      );
+    await Sentry.init((options) {
+      options.dsn = fakeDsn;
+      expect(options.environment, 'debug');
+    }, options: sentryOptions);
   });
 
   test('options.environment profile', () async {
