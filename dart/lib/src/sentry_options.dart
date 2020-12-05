@@ -205,7 +205,7 @@ class SentryOptions {
   set attachThreads(bool attachThreads) {
     _attachThreads = attachThreads ?? _attachThreads;
   }
-  
+
   int _autoSessionTrackingIntervalMillis = 30000;
 
   /// The session tracking interval in millis. This is the interval to end a session if the App goes
