@@ -66,63 +66,37 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
     }
 
     SentryAndroid.init(context) { options ->
-      (args["dsn"] as? String)?.let {
-        options.dsn = it
-      }
-      (args["debug"] as? Boolean)?.let {
-        options.isDebug = it
-      }
-      (args["environment"] as? String)?.let {
-        options.environment = it
-      }
-      (args["release"] as? String)?.let {
-        options.release = it
-      }
-      (args["dist"] as? String)?.let {
-        options.dist = it
-      }
-      (args["enableAutoSessionTracking"] as? Boolean)?.let {
-        options.isEnableSessionTracking = it
-      }
-      (args["autoSessionTrackingIntervalMillis"] as? Long)?.let {
-        options.sessionTrackingIntervalMillis = it
-      }
-      (args["anrTimeoutIntervalMillis"] as? Long)?.let {
-        options.anrTimeoutIntervalMillis = it
-      }
-      (args["attachThreads"] as? Boolean)?.let {
-        options.isAttachThreads = it
-      }
-      (args["attachStacktrace"] as? Boolean)?.let {
-        options.isAttachStacktrace = it
-      }
-      (args["enableAutoNativeBreadcrumbs"] as? Boolean)?.let {
+      args.getIfNotNull<String>("dsn") { options.dsn = it }
+      args.getIfNotNull<Boolean>("debug") { options.isDebug = it }
+      args.getIfNotNull<String>("environment") { options.environment = it }
+      args.getIfNotNull<String>("release") { options.release = it }
+      args.getIfNotNull<String>("dist") { options.dist = it }
+      args.getIfNotNull<Boolean>("enableAutoSessionTracking") { options.isEnableSessionTracking = it }
+      args.getIfNotNull<Long>("autoSessionTrackingIntervalMillis") { options.sessionTrackingIntervalMillis = it }
+      args.getIfNotNull<Long>("anrTimeoutIntervalMillis") { options.anrTimeoutIntervalMillis = it }
+      args.getIfNotNull<Boolean>("attachThreads") { options.isAttachThreads = it }
+      args.getIfNotNull<Boolean>("attachStacktrace") { options.isAttachStacktrace = it }
+      args.getIfNotNull<Boolean>("enableAutoNativeBreadcrumbs") {
         options.isEnableActivityLifecycleBreadcrumbs = it
         options.isEnableAppLifecycleBreadcrumbs = it
         options.isEnableSystemEventBreadcrumbs = it
         options.isEnableAppComponentBreadcrumbs = it
       }
-      (args["maxBreadcrumbs"] as? Int)?.let {
-        options.maxBreadcrumbs = it
+      args.getIfNotNull<Int>("maxBreadcrumbs") { options.maxBreadcrumbs = it }
+      args.getIfNotNull<Int>("cacheDirSize") { options.cacheDirSize = it }
+      args.getIfNotNull<String>("diagnosticLevel") {
+        if (options.isDebug == true) {
+          val sentryLevel = SentryLevel.valueOf(it.toUpperCase(Locale.ROOT))
+          options.setDiagnosticLevel(sentryLevel)
+        }
       }
-      (args["cacheDirSize"] as? Int)?.let {
-        options.cacheDirSize = it
-      }
-      (args["diagnosticLevel"] as? String)?.takeUnless { options.isDebug == false }?.let {
-        val sentryLevel = SentryLevel.valueOf(it.toUpperCase(Locale.ROOT))
-        options.setDiagnosticLevel(sentryLevel)
-      }
-
-      val anrEnabled = (args["anrEnabled"] as? Boolean) ?: options.isAnrEnabled
-      options.isAnrEnabled = anrEnabled
+      args.getIfNotNull<Boolean>("anrEnabled") { options.isAnrEnabled = anrEnabled }
 
       val nativeCrashHandling = (args["enableNativeCrashHandling"] as? Boolean) ?: true
-
       // nativeCrashHandling has priority over anrEnabled
       if (!nativeCrashHandling) {
         options.isEnableUncaughtExceptionHandler = false
         options.isAnrEnabled = false
-
         // if split symbols are enabled, we need Ndk integration so we can't really offer the option
         // to turn it off
         // options.isEnableNdk = false
@@ -132,19 +106,17 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
         setEventOriginTag(event)
         addPackages(event, options.sdkVersion)
         removeThreadsIfNotAndroid(event)
-
         // TODO: merge debug images from Native
-
         event
       }
 
       // missing proxy, sendDefaultPii, enableScopeSync
-
       this.options = options
     }
-
     result.success("")
   }
+
+
 
   private fun captureEnvelope(call: MethodCall, result: Result) {
     val args = call.arguments() as List<Any>
@@ -210,5 +182,12 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
         event.threads.clear()
       }
     }
+  }
+}
+
+// Call the `completion` closure if cast to map value with `key` and type `T` is successful.
+private fun <T> Map<String, Any>.getIfNotNull(key: String, callback: (T) -> Unit) {
+  (get(key) as? T)?.let {
+    callback(it)
   }
 }
