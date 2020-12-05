@@ -5,6 +5,7 @@
 - Ref: Remove duplicated attachStackTrace field
 - Fix: Flutter Configurations should be able to mutate the SentryFlutterOptions
 - Enhancement: Add SentryWidgetsBindingObserver, an Integration that captures certain window and device events.
+- Enhancement: Set `options.environment` on SDK init based on the flags (kReleaseMode, kDebugMode, kProfileMode or SENTRY_ENVIRONMENT).
 
 ## 4.0.0-beta.1
 
