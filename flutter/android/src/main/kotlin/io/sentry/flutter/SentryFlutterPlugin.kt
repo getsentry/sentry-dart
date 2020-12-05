@@ -92,7 +92,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
           options.setDiagnosticLevel(sentryLevel)
         }
       }
-      args.getIfNotNull<Boolean>("anrEnabled") { options.isAnrEnabled = anrEnabled }
+      args.getIfNotNull<Boolean>("anrEnabled") { options.isAnrEnabled = it }
 
       val nativeCrashHandling = (args["enableNativeCrashHandling"] as? Boolean) ?: true
       // nativeCrashHandling has priority over anrEnabled
@@ -117,7 +117,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
     }
     result.success("")
   }
-  
+
   private fun captureEnvelope(call: MethodCall, result: Result) {
     val args = call.arguments() as List<Any>
     if (args.isNotEmpty()) {
