@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:sentry/src/platform_checker.dart';
-
 import 'default_integrations.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';

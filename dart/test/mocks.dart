@@ -1,4 +1,3 @@
-import 'package:meta/meta.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/protocol.dart';
