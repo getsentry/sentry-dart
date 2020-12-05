@@ -1,15 +1,16 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/sentry_flutter_options.dart';
 
 import 'mocks.dart';
 
 void main() {
-  const MethodChannel _channel = MethodChannel('sentry_flutter');
+  const _channel = MethodChannel('sentry_flutter');
 
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  bool called = false;
+  var called = false;
 
   setUp(() {
     _channel.setMockMethodCallHandler((MethodCall methodCall) async {
@@ -35,15 +36,15 @@ void main() {
   });
 
   test('should apply the loadContextsIntegration eventProcessor', () async {
-    final options = SentryOptions()..dsn = fakeDsn;
+    final options = SentryFlutterOptions()..dsn = fakeDsn;
     final hub = Hub(options);
 
-    loadContextsIntegration(options, _channel)(hub, options);
+    LoadContextsIntegration(_channel)(hub, options);
 
     expect(options.eventProcessors.length, 1);
 
     final e = SentryEvent();
-    final event = await options.eventProcessors.first(e, null);
+    final event = await options.eventProcessors.first(e);
 
     expect(called, true);
     expect(event.contexts.device.name, 'Device1');
@@ -64,10 +65,10 @@ void main() {
   test(
       'should not override event contexts with the loadContextsIntegration infos',
       () async {
-    final options = SentryOptions()..dsn = fakeDsn;
+    final options = SentryFlutterOptions()..dsn = fakeDsn;
     final hub = Hub(options);
 
-    loadContextsIntegration(options, _channel)(hub, options);
+    LoadContextsIntegration(_channel)(hub, options);
 
     expect(options.eventProcessors.length, 1);
 
@@ -80,7 +81,7 @@ void main() {
         runtimes: [const SentryRuntime(name: 'eRT')])
       ..['theme'] = 'cuppertino';
     final e = SentryEvent(contexts: eventContexts);
-    final event = await options.eventProcessors.first(e, null);
+    final event = await options.eventProcessors.first(e);
 
     expect(called, true);
     expect(event.contexts.device.name, 'eDevice');
@@ -98,10 +99,10 @@ void main() {
   test(
     'should merge event and loadContextsIntegration sdk packages and integration',
     () async {
-      final options = SentryOptions()..dsn = fakeDsn;
+      final options = SentryFlutterOptions()..dsn = fakeDsn;
       final hub = Hub(options);
 
-      loadContextsIntegration(options, _channel)(hub, options);
+      LoadContextsIntegration(_channel)(hub, options);
 
       final eventSdk = SdkVersion(
         name: 'sdk1',
@@ -110,7 +111,7 @@ void main() {
         packages: const [SentryPackage('event-package', '2.0')],
       );
       final e = SentryEvent(sdk: eventSdk);
-      final event = await options.eventProcessors.first(e, null);
+      final event = await options.eventProcessors.first(e);
 
       expect(
         event.sdk.packages.any((element) => element.name == 'native-package'),
@@ -129,13 +130,13 @@ void main() {
     _channel.setMockMethodCallHandler((MethodCall methodCall) async {
       throw null;
     });
-    final options = SentryOptions()..dsn = fakeDsn;
+    final options = SentryFlutterOptions()..dsn = fakeDsn;
     final hub = Hub(options);
 
-    loadContextsIntegration(options, _channel)(hub, options);
+    LoadContextsIntegration(_channel)(hub, options);
 
     final e = SentryEvent();
-    final event = await options.eventProcessors.first(e, null);
+    final event = await options.eventProcessors.first(e);
 
     expect(event, isNotNull);
   });

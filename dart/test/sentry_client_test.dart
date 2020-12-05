@@ -15,7 +15,7 @@ void main() {
     });
 
     test('should capture event stacktrace', () async {
-      final client = SentryClient(options..attachStackTrace = false);
+      final client = SentryClient(options..attachStacktrace = false);
       final event = SentryEvent();
       await client.captureEvent(
         event,
@@ -42,7 +42,7 @@ void main() {
     });
 
     test('should not attach event stacktrace', () async {
-      final client = SentryClient(options..attachStackTrace = false);
+      final client = SentryClient(options..attachStacktrace = false);
       final event = SentryEvent();
       await client.captureEvent(event);
 
@@ -123,7 +123,7 @@ void main() {
     });
 
     test('should capture message without stacktrace', () async {
-      final client = SentryClient(options..attachStackTrace = false);
+      final client = SentryClient(options..attachStacktrace = false);
       await client.captureMessage('message', level: SentryLevel.error);
 
       final capturedEvent = (verify(
@@ -268,7 +268,7 @@ void main() {
         exception = err;
       }
 
-      final client = SentryClient(options..attachStackTrace = false);
+      final client = SentryClient(options..attachStacktrace = false);
       await client.captureException(exception);
 
       final capturedEvent = (verify(
@@ -501,7 +501,7 @@ void main() {
     setUp(() {
       options = SentryOptions(dsn: fakeDsn);
       options.addEventProcessor(
-        (event, hint) => event
+        (event, {hint}) => event
           ..tags.addAll({'theme': 'material'})
           ..extra['host'] = '0.0.0.1'
           ..modules.addAll({'core': '1.0'})
@@ -537,10 +537,10 @@ void main() {
   });
 }
 
-SentryEvent beforeSendCallbackDropEvent(SentryEvent event, dynamic hint) =>
+SentryEvent beforeSendCallbackDropEvent(SentryEvent event, {dynamic hint}) =>
     null;
 
-SentryEvent beforeSendCallback(SentryEvent event, dynamic hint) {
+SentryEvent beforeSendCallback(SentryEvent event, {dynamic hint}) {
   return event
     ..tags.addAll({'theme': 'material'})
     ..extra['host'] = '0.0.0.1'

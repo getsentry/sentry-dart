@@ -39,7 +39,7 @@ jobs:
         - name: Test (VM and browser)
           run: |
             pub get
-            pub run test --coverage=coverage
+            pub run test -p "chrome,vm" --coverage=coverage
             pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.packages --report-on=lib
 
         - uses: codecov/codecov-action@v1
@@ -60,7 +60,7 @@ jobs:
       - uses: actions/checkout@v2
       - run: |
           pub get
-          dartanalyzer --fatal-warnings ./
+          dartanalyzer --fatal-infos --fatal-warnings ./
           dartfmt -n --set-exit-if-changed ./
 
   package-analysis:

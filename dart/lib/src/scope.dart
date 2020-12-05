@@ -98,7 +98,7 @@ class Scope {
 
     // run before breadcrumb callback if set
     if (_options.beforeBreadcrumb != null) {
-      breadcrumb = _options.beforeBreadcrumb(breadcrumb, hint);
+      breadcrumb = _options.beforeBreadcrumb(breadcrumb, hint: hint);
 
       if (breadcrumb == null) {
         _options.logger(
@@ -190,7 +190,7 @@ class Scope {
 
     for (final processor in _eventProcessors) {
       try {
-        event = processor(event, hint);
+        event = processor(event, hint: hint);
       } catch (err) {
         _options.logger(
           SentryLevel.error,

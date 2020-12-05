@@ -61,13 +61,18 @@ class SdkVersion {
   /// An immutable list of packages that compose this SDK.
   List<SentryPackage> get packages => List.unmodifiable(_packages);
 
-  String get identifier => '${name}/${version}';
+  String get identifier => '$name/$version';
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
-    json['name'] = name;
-    json['version'] = version;
+    if (name != null) {
+      json['name'] = name;
+    }
+
+    if (version != null) {
+      json['version'] = version;
+    }
 
     if (packages != null && packages.isNotEmpty) {
       json['packages'] =

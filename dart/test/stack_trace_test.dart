@@ -138,5 +138,44 @@ void main() {
         },
       ]);
     });
+
+    test('sets instruction_addr if stack trace violates dart standard', () {
+      expect(SentryStackTraceFactory(SentryOptions()).getStackFrames('''
+      warning:  This VM has been configured to produce stack traces that violate the Dart standard.
+      unparsed      #00 abs 000000723d6346d7 virt 00000000001ed6d7 _kDartIsolateSnapshotInstructions+0x1e26d7
+      unparsed      #01 abs 000000723d637527 virt 00000000001f0527 _kDartIsolateSnapshotInstructions+0x1e5527
+      ''').map((frame) => frame.toJson()), [
+        {
+          'platform': 'native',
+          'instruction_addr': '0x000000723d637527',
+        },
+        {
+          'platform': 'native',
+          'instruction_addr': '0x000000723d6346d7',
+        },
+      ]);
+    });
+
+    test('sets instruction_addr and ignores noise', () {
+      expect(SentryStackTraceFactory(SentryOptions()).getStackFrames('''
+      warning:  This VM has been configured to produce stack traces that violate the Dart standard.
+      ***       *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+      unparsed  pid: 30930, tid: 30990, name 1.ui
+      unparsed  build_id: '5346e01103ffeed44e97094ff7bfcc19'
+      unparsed  isolate_dso_base: 723d447000, vm_dso_base: 723d447000
+      unparsed  isolate_instructions: 723d452000, vm_instructions: 723d449000
+      unparsed      #00 abs 000000723d6346d7 virt 00000000001ed6d7 _kDartIsolateSnapshotInstructions+0x1e26d7
+      unparsed      #01 abs 000000723d637527 virt 00000000001f0527 _kDartIsolateSnapshotInstructions+0x1e5527
+      ''').map((frame) => frame.toJson()), [
+        {
+          'platform': 'native',
+          'instruction_addr': '0x000000723d637527',
+        },
+        {
+          'platform': 'native',
+          'instruction_addr': '0x000000723d6346d7',
+        },
+      ]);
+    });
   });
 }

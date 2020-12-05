@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
+import '../../sentry_flutter.dart';
 
 /// This key must be used so that the web interface displays the events nicely
 /// See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/

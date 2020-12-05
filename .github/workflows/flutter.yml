@@ -50,7 +50,7 @@ jobs:
           run: |
             cd flutter
             flutter pub get
-            flutter test --coverage test
+            flutter test --coverage
 
         - uses: codecov/codecov-action@v1
           if: runner.os == 'Linux'
@@ -76,24 +76,17 @@ jobs:
             ;;
             esac
 
-  format:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: subosito/flutter-action@v1
-      - run: |
-          cd flutter
-          flutter pub get
-          flutter format --set-exit-if-changed .
-
   analyze:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: subosito/flutter-action@v1
+        with:
+          channel: 'beta'
       - run: |
           cd flutter
           flutter pub get
+          flutter format -n --set-exit-if-changed ./
           flutter analyze
 
   package-analysis:
