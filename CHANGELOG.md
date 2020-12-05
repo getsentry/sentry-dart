@@ -11,9 +11,8 @@
 ## 4.0.0-beta.1
 
 - Fix: StackTrace frames with 'package' uri.scheme are inApp by default #185
-- Fix: missing app's stack traces for Flutter errors
-- Enhancement: Add isolateErrorIntegration and runZonedGuardedIntegration to default integrations in sentry-dart
 - Fix: Missing App's StackTrace frames for Flutter errors
+- Enhancement: Add isolateErrorIntegration and runZonedGuardedIntegration to default integrations in sentry-dart
 - Fix: Breadcrumb list is a plain list instead of a values list #201
 - Ref: Remove deprecated classes (Flutter Plugin for Android) and cleaning up #186
 - Fix: Handle immutable event lists and maps
