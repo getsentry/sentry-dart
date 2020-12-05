@@ -192,7 +192,6 @@ class SentryOptions {
     _attachThreads = attachThreads ?? _attachThreads;
   }
 
-
   // TODO: Scope observers, enableScopeSync
 
   // TODO: sendDefaultPii
