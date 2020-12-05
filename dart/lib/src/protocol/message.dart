@@ -20,10 +20,20 @@ class Message {
   Message(this.formatted, {this.template, this.params});
 
   Map<String, dynamic> toJson() {
-    return {
-      'formatted': formatted,
-      'message': template,
-      'params': params,
-    };
+    final json = <String, dynamic>{};
+
+    if (formatted != null) {
+      json['formatted'] = formatted;
+    }
+
+    if (template != null) {
+      json['message'] = template;
+    }
+
+    if (params != null && params.isNotEmpty) {
+      json['params'] = params;
+    }
+
+    return json;
   }
 }

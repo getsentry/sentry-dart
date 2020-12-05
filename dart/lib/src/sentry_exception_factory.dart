@@ -38,7 +38,7 @@ class SentryExceptionFactory {
 
     if (throwable is Error) {
       stackTrace ??= throwable.stackTrace;
-    } else if (_options.attachStackTrace) {
+    } else if (_options.attachStacktrace) {
       stackTrace ??= StackTrace.current;
     }
 
@@ -48,6 +48,9 @@ class SentryExceptionFactory {
         frames: _stacktraceFactory.getStackFrames(stackTrace),
       );
     }
+
+    // if --obfuscate feature is enabled, 'type' won't be human readable.
+    // https://flutter.dev/docs/deployment/obfuscate#caveat
     final sentryException = SentryException(
       type: '${throwable.runtimeType}',
       value: '$throwable',

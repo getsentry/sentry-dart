@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:http/http.dart';
 
 import 'diagnostic_logger.dart';
-import 'hub.dart';
+import 'integration.dart';
 import 'noop_client.dart';
 import 'protocol.dart';
 import 'transport/noop_transport.dart';
@@ -167,104 +167,7 @@ class SentryOptions {
     _sdk = sdk ?? _sdk;
   }
 
-  bool _enableAutoSessionTracking = true;
-
-  /// Enable or disable the Auto session tracking on the Native SDKs (Android/iOS)
-  bool get enableAutoSessionTracking => _enableAutoSessionTracking;
-
-  set enableAutoSessionTracking(bool enableAutoSessionTracking) {
-    _enableAutoSessionTracking =
-        enableAutoSessionTracking ?? _enableAutoSessionTracking;
-  }
-
-  bool _enableNativeCrashHandling = true;
-
-  /// Enable or Disable the Crash handling on the Native SDKs (Android/iOS)
-  bool get enableNativeCrashHandling => _enableNativeCrashHandling;
-
-  set enableNativeCrashHandling(bool nativeCrashHandling) {
-    _enableNativeCrashHandling =
-        nativeCrashHandling ?? _enableNativeCrashHandling;
-  }
-
   bool _attachStacktrace = true;
-
-  /// When enabled, stack traces are automatically attached to all logged events. Stack traces are
-  /// always attached to exceptions but when this is set stack traces are also sent with messages. If
-  /// no stack traces are logged, we log the current stack trace automatically.
-  bool get attachStacktrace => _attachStacktrace;
-
-  set attachStacktrace(bool attachStacktrace) {
-    _attachStacktrace = attachStacktrace ?? _attachStacktrace;
-  }
-
-  int _autoSessionTrackingIntervalMillis = 30000;
-
-  /// The session tracking interval in millis. This is the interval to end a session if the App goes
-  /// to the background.
-  /// See: enableAutoSessionTracking
-  int get autoSessionTrackingIntervalMillis =>
-      _autoSessionTrackingIntervalMillis;
-
-  set autoSessionTrackingIntervalMillis(int autoSessionTrackingIntervalMillis) {
-    _autoSessionTrackingIntervalMillis =
-        (autoSessionTrackingIntervalMillis != null &&
-                autoSessionTrackingIntervalMillis >= 0)
-            ? autoSessionTrackingIntervalMillis
-            : _autoSessionTrackingIntervalMillis;
-  }
-
-  bool _anrEnabled = false;
-
-  /// Enable or disable ANR (Application Not Responding) Default is enabled Used by AnrIntegration.
-  /// Available only for Android.
-  /// Disabled by default as the stack trace most of the time is hanging on
-  /// the MessageChannel from Flutter, but you can enable it if you have
-  /// Java/Kotlin code as well.
-  bool get anrEnabled => _anrEnabled;
-
-  set anrEnabled(bool anrEnabled) {
-    _anrEnabled = anrEnabled ?? _anrEnabled;
-  }
-
-  int _anrTimeoutIntervalMillis = 5000;
-
-  /// ANR Timeout internal in Millis Default is 5000 = 5s Used by AnrIntegration.
-  /// Available only for Android.
-  /// See: anrEnabled
-  int get anrTimeoutIntervalMillis => _anrTimeoutIntervalMillis;
-
-  set anrTimeoutIntervalMillis(int anrTimeoutIntervalMillis) {
-    _anrTimeoutIntervalMillis =
-        (anrTimeoutIntervalMillis != null && anrTimeoutIntervalMillis >= 0)
-            ? anrTimeoutIntervalMillis
-            : _anrTimeoutIntervalMillis;
-  }
-
-  bool _enableAutoNativeBreadcrumbs = true;
-
-  /// Enable or disable the Automatic breadcrumbs on the Native platforms (Android/iOS)
-  /// Screen's lifecycle, App's lifecycle, System events, etc...
-  bool get enableAutoNativeBreadcrumbs => _enableAutoNativeBreadcrumbs;
-
-  set enableAutoNativeBreadcrumbs(bool enableAutoNativeBreadcrumbs) {
-    _enableAutoNativeBreadcrumbs =
-        enableAutoNativeBreadcrumbs ?? _enableAutoNativeBreadcrumbs;
-  }
-
-  int _cacheDirSize = 30;
-
-  /// The cache dir. size for capping the number of events Default is 30.
-  /// Only available for Android.
-  int get cacheDirSize => _cacheDirSize;
-
-  set cacheDirSize(int cacheDirSize) {
-    _cacheDirSize = (cacheDirSize != null && cacheDirSize >= 0)
-        ? cacheDirSize
-        : _cacheDirSize;
-  }
-
-  bool _attachStackTrace = true;
 
   /// When enabled, stack traces are automatically attached to all messages logged.
   /// Stack traces are always attached to exceptions;
@@ -275,10 +178,10 @@ class SentryOptions {
   ///
   /// Grouping in Sentry is different for events with stack traces and without.
   /// As a result, you will get new groups as you enable or disable this flag for certain events.
-  bool get attachStackTrace => _attachStackTrace;
+  bool get attachStacktrace => _attachStacktrace;
 
-  set attachStackTrace(bool attachStacktrace) {
-    _attachStackTrace = attachStacktrace ?? _attachStackTrace;
+  set attachStacktrace(bool attachStacktrace) {
+    _attachStacktrace = attachStacktrace ?? _attachStacktrace;
   }
 
   PlatformChecker _platformChecker = PlatformChecker();
@@ -313,6 +216,11 @@ class SentryOptions {
     _integrations.add(integration);
   }
 
+  /// Adds an integration in the given index
+  void addIntegrationByIndex(int index, Integration integration) {
+    _integrations.insert(index, integration);
+  }
+
   /// Removes an integration
   void removeIntegration(Integration integration) {
     _integrations.remove(integration);
@@ -331,24 +239,18 @@ class SentryOptions {
 
 /// This function is called with an SDK specific event object and can return a modified event
 /// object or nothing to skip reporting the event
-typedef BeforeSendCallback = SentryEvent Function(
-    SentryEvent event, dynamic hint);
+typedef BeforeSendCallback = SentryEvent Function(SentryEvent event,
+    {dynamic hint});
 
 /// This function is called with an SDK specific breadcrumb object before the breadcrumb is added
 /// to the scope. When nothing is returned from the function, the breadcrumb is dropped
-typedef BeforeBreadcrumbCallback = Breadcrumb Function(
-  Breadcrumb breadcrumb,
-  dynamic hint,
-);
+typedef BeforeBreadcrumbCallback = Breadcrumb Function(Breadcrumb breadcrumb,
+    {dynamic hint});
 
 /// Are callbacks that run for every event. They can either return a new event which in most cases
 /// means just adding data OR return null in case the event will be dropped and not sent.
-typedef EventProcessor = FutureOr<SentryEvent> Function(
-    SentryEvent event, dynamic hint);
-
-/// Code that provides middlewares, bindings or hooks into certain frameworks or environments,
-/// along with code that inserts those bindings and activates them.
-typedef Integration = FutureOr<void> Function(Hub hub, SentryOptions options);
+typedef EventProcessor = FutureOr<SentryEvent> Function(SentryEvent event,
+    {dynamic hint});
 
 /// Logger interface to log useful debugging information if debug is enabled
 typedef Logger = Function(SentryLevel level, String message);

@@ -1,6 +1,5 @@
 import 'package:mockito/mockito.dart';
-import 'package:sentry/sentry.dart' hide isolateErrorIntegration;
-import 'package:sentry/src/isolate_error_integration.dart';
+import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
@@ -15,7 +14,11 @@ void main() {
   test(
     'Isolate error adds integration',
     () async {
-      isolateErrorIntegration(fixture.hub, fixture.options);
+      final integration = IsolateErrorIntegration();
+      await integration(
+        fixture.hub,
+        fixture.options,
+      );
 
       expect(
         true,
@@ -40,8 +43,10 @@ void main() {
       await handleIsolateError(fixture.hub, fixture.options, error);
 
       final event = verify(
-        await fixture.hub.captureEvent(captureAny,
-            stackTrace: captureAnyNamed('stackTrace')),
+        await fixture.hub.captureEvent(
+          captureAny,
+          stackTrace: captureAnyNamed('stackTrace'),
+        ),
       ).captured.first as SentryEvent;
 
       expect(SentryLevel.fatal, event.level);
@@ -59,10 +64,8 @@ void main() {
   test(
     'Run zoned guarded adds integration',
     () async {
-      isolateErrorIntegration(fixture.hub, fixture.options);
-
       void callback() {}
-      final integration = runZonedGuardedIntegration(callback);
+      final integration = RunZonedGuardedIntegration(callback);
 
       await integration(fixture.hub, fixture.options);
 
@@ -77,14 +80,12 @@ void main() {
   );
 
   test('Run zoned guarded calls callback', () async {
-    isolateErrorIntegration(fixture.hub, fixture.options);
-
     var called = false;
     void callback() {
       called = true;
     }
 
-    final integration = runZonedGuardedIntegration(callback);
+    final integration = RunZonedGuardedIntegration(callback);
 
     await integration(fixture.hub, fixture.options);
 
@@ -97,7 +98,7 @@ void main() {
       throw throwable;
     }
 
-    final integration = runZonedGuardedIntegration(callback);
+    final integration = RunZonedGuardedIntegration(callback);
     await integration(fixture.hub, fixture.options);
 
     final event = verify(

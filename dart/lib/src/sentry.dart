@@ -5,9 +5,9 @@ import 'package:sentry/src/platform_checker.dart';
 import 'default_integrations.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
-import 'noop_hub.dart';
 import 'noop_isolate_error_integration.dart'
     if (dart.library.io) 'isolate_error_integration.dart';
+import 'noop_hub.dart';
 import 'protocol.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
@@ -29,35 +29,36 @@ class Sentry {
   static Hub get currentHub => _hub;
 
   /// Initializes the SDK
-  /// passing a [AppRunner] callback allows to run the app within its own error zone (`runZonedGuarded`)
-  /// https://api.dart.dev/stable/2.10.4/dart-async/runZonedGuarded.html
+  /// passing a [AppRunner] callback allows to run the app within its own error
+  /// zone ([`runZonedGuarded`](https://api.dart.dev/stable/2.10.4/dart-async/runZonedGuarded.html))
+  ///
+  /// You should use [optionsConfiguration] instead of passing [sentryOptions]
+  /// yourself. [sentryOptions] is mainly intendet for use by other Sentry clients
+  /// such as SentryFlutter.
   static Future<void> init(
-    OptionsConfiguration optionsConfiguration, [
+    OptionsConfiguration optionsConfiguration, {
     AppRunner appRunner,
-    List<Integration> initialIntegrations,
-    PlatformChecker platformChecker
-    ]) async {
+    SentryOptions options,
+  }) async {
     if (optionsConfiguration == null) {
       throw ArgumentError('OptionsConfiguration is required.');
     }
 
-    final options = SentryOptions()..platformChecker = platformChecker;
+    final sentryOptions = options ?? SentryOptions();
+    await _initDefaultValues(sentryOptions, appRunner);
 
-    await _initDefaultValues(options, appRunner, initialIntegrations);
+    await optionsConfiguration(sentryOptions);
 
-    await optionsConfiguration(options);
-
-    if (options == null) {
+    if (sentryOptions == null) {
       throw ArgumentError('SentryOptions is required.');
     }
 
-    await _init(options);
+    await _init(sentryOptions);
   }
 
   static Future<void> _initDefaultValues(
     SentryOptions options,
     AppRunner appRunner,
-    List<Integration> initialIntegrations
   ) async {
     // We infer the enviroment based on the release/non-release and profile
     // constants.
@@ -77,25 +78,17 @@ class Sentry {
         ? const String.fromEnvironment('SENTRY_DSN')
         : options.dsn;
 
-    // we need to execute integrations in a specific order sometimes,
-    // and this initialIntegrations list makes it possible to inject and add
-    // integrations before the runZonedGuardedIntegration gets added
-    if (initialIntegrations != null && initialIntegrations.isNotEmpty) {
-      initialIntegrations
-          .forEach((integration) => options.addIntegration(integration));
-    }
-
     // Throws when running on the browser
     if (!isWeb) {
       // catch any errors that may occur within the entry function, main()
       // in the ‘root zone’ where all Dart programs start
-      options.addIntegration(isolateErrorIntegration);
+      options.addIntegrationByIndex(0, IsolateErrorIntegration());
     }
 
     // finally the runZonedGuarded, catch any errors in Dart code running
     // ‘outside’ the Flutter framework
     if (appRunner != null) {
-      options.addIntegration(runZonedGuardedIntegration(appRunner));
+      options.addIntegration(RunZonedGuardedIntegration(appRunner));
     }
   }
 

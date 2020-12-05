@@ -14,7 +14,7 @@ void main() {
     Exception anException;
 
     setUp(() async {
-      await Sentry.init((options) => options.dsn = fakeDsn, appRunner);
+      await Sentry.init((options) => options.dsn = fakeDsn);
       anException = Exception('anException');
 
       client = MockSentryClient();
@@ -60,11 +60,14 @@ void main() {
       ).called(1);
     });
   });
+
   group('Sentry is enabled or disabled', () {
+    tearDown(() {
+      Sentry.close();
+    });
     test('null DSN', () {
       expect(
-        () async =>
-            await Sentry.init((options) => options.dsn = null, appRunner),
+        () async => await Sentry.init((options) => options.dsn = null),
         throwsArgumentError,
       );
       expect(Sentry.isEnabled, false);
@@ -72,17 +75,17 @@ void main() {
 
     test('appRunner should be optional', () async {
       expect(Sentry.isEnabled, false);
-      await Sentry.init((options) => options.dsn = fakeDsn, null);
+      await Sentry.init((options) => options.dsn = fakeDsn);
       expect(Sentry.isEnabled, true);
     });
 
     test('empty DSN', () async {
-      await Sentry.init((options) => options.dsn = '', appRunner);
+      await Sentry.init((options) => options.dsn = '');
       expect(Sentry.isEnabled, false);
     });
 
     test('close disables the SDK', () async {
-      await Sentry.init((options) => options.dsn = fakeDsn, appRunner);
+      await Sentry.init((options) => options.dsn = fakeDsn);
 
       Sentry.bindClient(MockSentryClient());
 
@@ -100,29 +103,16 @@ void main() {
     });
 
     test('should install integrations', () async {
-      var called = false;
-      void integration(Hub hub, SentryOptions options) => called = true;
+      final integration = MockIntegration();
 
       await Sentry.init(
         (options) {
           options.dsn = fakeDsn;
           options.addIntegration(integration);
         },
-        appRunner,
       );
 
-      expect(called, true);
-    });
-
-    test('should add initial integrations first', () async {
-      await Sentry.init(
-        (options) {
-          options.dsn = fakeDsn;
-          expect(options.integrations.first, initialIntegration);
-        },
-        appRunner,
-        [initialIntegration],
-      );
+      verify(integration(any, any)).called(1);
     });
 
     test('should add default integrations', () async {
@@ -130,12 +120,15 @@ void main() {
         (options) {
           options.dsn = fakeDsn;
           expect(
-            options.integrations.contains(isolateErrorIntegration),
-            true,
+            options.integrations.whereType<IsolateErrorIntegration>().length,
+            1,
           );
-          expect(options.integrations.length, 2);
+          expect(
+            options.integrations.whereType<RunZonedGuardedIntegration>().length,
+            1,
+          );
         },
-        appRunner,
+        appRunner: appRunner,
       );
     }, onPlatform: {'browser': Skip()});
 
@@ -143,48 +136,69 @@ void main() {
       await Sentry.init(
         (options) {
           options.dsn = fakeDsn;
-          expect(options.integrations.length, 1);
+          expect(
+            options.integrations.whereType<IsolateErrorIntegration>().length,
+            0,
+          );
         },
-        appRunner,
       );
     }, onPlatform: {'vm': Skip()});
+
+    test('should close integrations', () async {
+      final integration = MockIntegration();
+
+      await Sentry.init(
+        (options) {
+          options.dsn = fakeDsn;
+          options.addIntegration(integration);
+        },
+      );
+
+      await Sentry.close();
+
+      verify(integration(any, any)).called(1);
+      verify(integration.close()).called(1);
+    });
   });
 
   test(
     "options can't be null",
     () {
       expect(
-          () async => await Sentry.init((options) => options = null, appRunner),
+          () async => await Sentry.init(
+                (options) => options = null,
+              ),
           throwsArgumentError);
     },
   );
 
   test('options.environment debug', () async {
-    var platformChecker = FakePlatformChecker.debugMode();
+    final sentryOptions = SentryOptions()
+      ..platformChecker = FakePlatformChecker.debugMode();
 
-    await Sentry.init((options) {
-      options.dsn = fakeDsn;
-      expect(options.environment, 'debug');
-    }, appRunner, [], platformChecker);
+    await Sentry.init(
+        (options) {
+          options.dsn = fakeDsn;
+          expect(options.environment, 'debug');
+        }, options: sentryOptions
+      );
   });
 
   test('options.environment profile', () async {
-    var platformChecker = FakePlatformChecker.profileMode();
-
+    final sentryOptions = SentryOptions()
+      ..platformChecker = FakePlatformChecker.profileMode();
     await Sentry.init((options) {
       options.dsn = fakeDsn;
       expect(options.environment, 'profile');
-    }, appRunner, [], platformChecker);
+    }, options: sentryOptions);
   });
 
   test('options.environment production (defaultEnvironment)', () async {
-    var platformChecker = FakePlatformChecker.releaseMode();
-
+    final sentryOptions = SentryOptions()
+      ..platformChecker = FakePlatformChecker.releaseMode();
     await Sentry.init((options) {
       options.dsn = fakeDsn;
       expect(options.environment, defaultEnvironment);
-    }, appRunner, [], platformChecker);
+    }, options: sentryOptions);
   });
 }
-
-void initialIntegration(Hub hub, SentryOptions options) {}

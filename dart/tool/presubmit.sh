@@ -4,6 +4,6 @@ set -e
 set -x
 
 pub get
-dartanalyzer --fatal-warnings ./
-pub run test -p vm -p chrome
+dartanalyzer --fatal-infos --fatal-warnings ./
+pub run test -p "chrome,vm"
 dartfmt -n --set-exit-if-changed ./

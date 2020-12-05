@@ -136,7 +136,7 @@ class _CredentialBuilder {
     return headers
       ..addAll(
         <String, String>{
-          'X-Sentry-Auth': '$_authHeader, sentry_timestamp=${timestamp}'
+          'X-Sentry-Auth': '$_authHeader, sentry_timestamp=$timestamp'
         },
       );
   }

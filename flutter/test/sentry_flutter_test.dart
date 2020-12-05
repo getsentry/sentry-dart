@@ -9,7 +9,7 @@ import 'mocks.dart';
 import 'sentry_flutter_util.dart';
 
 void main() {
-  const MethodChannel _channel = MethodChannel('sentry_flutter');
+  const _channel = MethodChannel('sentry_flutter');
 
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -24,10 +24,11 @@ void main() {
 
   test('Flutter init for mobile will run default configurations', () async {
     await SentryFlutter.init(
-      getConfigurationTester(),
-      appRunner,
-      loadTestPackage,
-      () => false,
+      getConfigurationTester(isIOS: true, isAndroid: true),
+      appRunner: appRunner,
+      packageLoader: loadTestPackage,
+      isIOSChecker: () => true,
+      isAndroidChecker: () => true,
     );
   });
 
@@ -35,9 +36,8 @@ void main() {
       () async {
     await SentryFlutter.init(
       getConfigurationTester(isIOS: true),
-      appRunner,
-      loadTestPackage,
-      () => true,
+      packageLoader: loadTestPackage,
+      isIOSChecker: () => true,
     );
   });
 
@@ -62,9 +62,8 @@ void main() {
         (options) => options
           ..dsn = fakeDsn
           ..transport = transport,
-        appRunner,
-        loadTestPackage,
-        () => true,
+        packageLoader: loadTestPackage,
+        isIOSChecker: () => true,
       );
 
       await Sentry.captureMessage('a message');
@@ -72,7 +71,7 @@ void main() {
       final event =
           verify(transport.send(captureAny)).captured.first as SentryEvent;
 
-      expect(event.sdk.integrations.length, 5);
+      expect(event.sdk.integrations.length, 6);
       expect(event.sdk.integrations.contains('loadContextsIntegration'), true);
     });
 
@@ -81,9 +80,8 @@ void main() {
         (options) => options
           ..dsn = fakeDsn
           ..transport = transport,
-        appRunner,
-        loadTestPackage,
-        () => false,
+        packageLoader: loadTestPackage,
+        isIOSChecker: () => false,
       );
 
       await Sentry.captureMessage('a message');
@@ -91,8 +89,28 @@ void main() {
       final event =
           verify(transport.send(captureAny)).captured.first as SentryEvent;
 
-      expect(event.sdk.integrations.length, 4);
+      expect(event.sdk.integrations.length, 5);
       expect(event.sdk.integrations.contains('loadContextsIntegration'), false);
+    });
+
+    test('should not add loadAndroidImageListIntegration if not Android',
+        () async {
+      await SentryFlutter.init(
+        (options) => options
+          ..dsn = fakeDsn
+          ..transport = transport,
+        packageLoader: loadTestPackage,
+        isAndroidChecker: () => false,
+      );
+
+      await Sentry.captureMessage('a message');
+
+      final event =
+          verify(transport.send(captureAny)).captured.first as SentryEvent;
+
+      expect(event.sdk.integrations.length, 5);
+      expect(event.sdk.integrations.contains('loadAndroidImageListIntegration'),
+          false);
     });
   });
 }

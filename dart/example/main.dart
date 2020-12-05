@@ -14,14 +14,14 @@ Future<void> main() async {
   const dsn =
       'https://cb0fad6f5d4e42ebb9c956cb0463edc9@o447951.ingest.sentry.io/5428562';
 
-  SentryEvent processTagEvent(SentryEvent event, Object hint) =>
+  SentryEvent processTagEvent(SentryEvent event, {dynamic hint}) =>
       event..tags.addAll({'page-locale': 'en-us'});
 
   await Sentry.init(
     (options) => options
       ..dsn = dsn
       ..addEventProcessor(processTagEvent),
-    runApp,
+    appRunner: runApp,
   );
 
   Sentry.addBreadcrumb(
@@ -53,13 +53,13 @@ Future<void> main() async {
   });
 }
 
-void runApp() async {
+Future<void> runApp() async {
   print('\nReporting a complete event example: ');
 
   // Sends a full Sentry event payload to show the different parts of the UI.
   final sentryId = await Sentry.captureEvent(event);
 
-  print('Capture event result : SentryId : ${sentryId}');
+  print('Capture event result : SentryId : $sentryId');
 
   print('\nCapture message: ');
 
@@ -71,7 +71,7 @@ void runApp() async {
     params: ['1'],
   );
 
-  print('Capture message result : SentryId : ${messageSentryId}');
+  print('Capture message result : SentryId : $messageSentryId');
 
   try {
     await loadConfig();
@@ -83,7 +83,7 @@ void runApp() async {
       stackTrace: stackTrace,
     );
 
-    print('Capture exception result : SentryId : ${sentryId}');
+    print('Capture exception result : SentryId : $sentryId');
   } finally {
     await Sentry.close();
   }

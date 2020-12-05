@@ -1,0 +1,195 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+import 'sentry_flutter_options.dart';
+import '../sentry_flutter.dart';
+
+/// This is a `WidgetsBindingObserver` which can observe some events of a
+/// Flutter application.
+/// These are for example events related to its lifecycle, accessibility
+/// features, display features and more.
+///
+/// The tracking of each event can be configured via [SentryFlutterOptions]
+///
+/// This class calls `WidgetsBinding.instance` but we don't need to call
+/// `WidgetsFlutterBinding.ensureInitialized()` because we can only add this
+/// class to an instance of `WidgetsBinding`.
+///
+/// See also:
+///   - [WidgetsBindingObserver](https://api.flutter.dev/flutter/widgets/WidgetsBindingObserver-class.html)
+class SentryWidgetsBindingObserver with WidgetsBindingObserver {
+  SentryWidgetsBindingObserver({
+    Hub hub,
+    @required SentryFlutterOptions options,
+  }) {
+    _hub = hub ?? HubAdapter();
+    assert(options != null);
+    _options = options;
+  }
+
+  Hub _hub;
+  SentryFlutterOptions _options;
+
+  /// This method records lifecycle events.
+  /// It tries to mimic the behavior of ActivityBreadcrumbsIntegration of Sentry
+  /// Android for lifecycle events.
+  ///
+  /// On Android and iOS this records lifecycle event breadcrumbs which loosely
+  /// correspond to their respectiv platforms lifecycle events.
+  ///
+  /// See also:
+  ///   - [WidgetsBindingObserver](https://api.flutter.dev/flutter/widgets/WidgetsBindingObserver-class.html)
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (!_options.enableLifecycleBreadcrumbs) {
+      return;
+    }
+    // According to
+    // https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
+    // this is of the type navigation.
+    _hub.addBreadcrumb(Breadcrumb(
+      category: 'ui.lifecycle',
+      type: 'navigation',
+      data: <String, String>{
+        'state': _lifecycleToString(state),
+      },
+    ));
+  }
+
+  /// Called when the application's dimensions change. For example,
+  /// when a phone is rotated or an application window is resized.
+  ///
+  /// See also:
+  ///   - [Window.onMetricsChanged](https://api.flutter.dev/flutter/dart-ui/Window/onMetricsChanged.html)
+  @override
+  void didChangeMetrics() {
+    if (!_options.enableWindowMetricBreadcrumbs) {
+      return;
+    }
+    final window = WidgetsBinding.instance.window;
+    _hub.addBreadcrumb(Breadcrumb(
+      message: 'Screen size changed',
+      category: 'device.screen',
+      type: 'navigation',
+      data: <String, dynamic>{
+        'new_pixel_ratio': window.devicePixelRatio,
+        'new_height': window.physicalSize.height,
+        'new_width': window.physicalSize.width,
+      },
+    ));
+  }
+
+  /// See also:
+  ///   - [Window.onPlatformBrightnessChanged](https://api.flutter.dev/flutter/dart-ui/Window/onPlatformBrightnessChanged.html)
+  @override
+  void didChangePlatformBrightness() {
+    if (!_options.enableBrightnessChangeBreadcrumbs) {
+      return;
+    }
+    final brightness = WidgetsBinding.instance.window.platformBrightness;
+    final brightnessDescription =
+        brightness == Brightness.dark ? 'dark' : 'light';
+
+    _hub.addBreadcrumb(Breadcrumb(
+      message: 'Platform brightness was changed to $brightnessDescription.',
+      type: 'system',
+      category: 'device.event',
+      data: <String, String>{
+        'action': 'BRIGHTNESS_CHANGED_TO_${brightnessDescription.toUpperCase()}'
+      },
+    ));
+  }
+
+  /// See also:
+  ///   - [Window.onTextScaleFactorChanged]https://api.flutter.dev/flutter/dart-ui/Window/onTextScaleFactorChanged.html)
+  @override
+  void didChangeTextScaleFactor() {
+    if (!_options.enableTextScaleChangeBreadcrumbs) {
+      return;
+    }
+    final newTextScaleFactor = WidgetsBinding.instance.window.textScaleFactor;
+    _hub.addBreadcrumb(Breadcrumb(
+      message: 'Text scale factor changed to $newTextScaleFactor.',
+      type: 'system',
+      category: 'device.event',
+      data: <String, String>{
+        'action': 'TEXT_SCALE_CHANGED_TO_$newTextScaleFactor'
+      },
+    ));
+  }
+
+  /// A call to this method indicates that the operating system would like
+  /// applications to release caches to free up more memory.
+  @override
+  void didHaveMemoryPressure() {
+    if (!_options.enableMemoryPressureBreadcrumbs) {
+      return;
+    }
+    // See
+    // - https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
+    // - https://github.com/getsentry/sentry-java/blob/main/sentry-android-core/src/main/java/io/sentry/android/core/AppComponentsBreadcrumbsIntegration.java#L98-L135
+    // on why this breadcrumb looks like this.
+    const message =
+        'App had memory pressure. This indicates that the operating system '
+        'would like applications to release caches to free up more memory.';
+    _hub.addBreadcrumb(Breadcrumb(
+      message: message,
+      type: 'system',
+      category: 'device.event',
+      data: <String, String>{
+        'action': 'LOW_MEMORY',
+      },
+      // This is kinda bad. Therefore this gets added as a warning.
+      level: SentryLevel.warning,
+    ));
+  }
+
+  static String _lifecycleToString(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        return 'resumed';
+      case AppLifecycleState.inactive:
+        return 'inactive';
+      case AppLifecycleState.paused:
+        return 'paused';
+      case AppLifecycleState.detached:
+        return 'detached';
+    }
+    return '';
+  }
+
+  /* 
+  These are also methods of `WidgetsBindingObserver` but are currently not
+  implemented because I'm not sure what to do with them. See the reasoning 
+  for each method. If these methods are implemented the class definition should
+  be changed from `class SentryWidgetsBindingObserver with WidgetsBindingObserver`
+  to `class SentryWidgetsBindingObserver implements WidgetsBindingObserver`.
+  You should also add options SentryFlutterOptions to configure if these 
+  events should be tracked.
+
+  // Figure out which accessibility features changed
+  @override
+  void didChangeAccessibilityFeatures() {}
+
+  // Figure out which locales changed
+  @override
+  void didChangeLocales(List<Locale> locale) {}
+  
+  // Does this need to be considered?
+  // On the one side this is already included in the SentryNavigationObserver
+  // but on the other side, SentryNavigationObserver must be manually added by 
+  // the user.
+  @override
+  Future<bool> didPopRoute() => Future<bool>.value(false);
+  
+  // See explanation of didPopRoute
+  @override
+  Future<bool> didPushRoute(String route) => Future<bool>.value(false);
+  
+  // See explanation of didPopRoute
+  @override
+  Future<bool> didPushRouteInformation(RouteInformation routeInformation) {
+    return didPushRoute(routeInformation.location);
+  }
+  */
+}
