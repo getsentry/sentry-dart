@@ -125,6 +125,7 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
         'enableAutoSessionTracking': options.enableAutoSessionTracking,
         'enableNativeCrashHandling': options.enableNativeCrashHandling,
         'attachStacktrace': options.attachStacktrace,
+        'attachThreads': options.attachThreads,
         'autoSessionTrackingIntervalMillis':
             options.autoSessionTrackingIntervalMillis,
         'dist': options.dist,
