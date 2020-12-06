@@ -50,20 +50,20 @@ void main() {
     expect(200, options.maxBreadcrumbs);
   });
 
-  test('$Logger is NoOp by default', () {
+  test('$SentryLogger is NoOp by default', () {
     final options = SentryOptions();
 
     expect(noOpLogger, options.logger);
   });
 
-  test('$Logger is NoOp if null is set', () {
+  test('$SentryLogger is NoOp if null is set', () {
     final options = SentryOptions();
     options.logger = null;
 
     expect(noOpLogger, options.logger);
   });
 
-  test('$Logger sets a diagnostic logger', () {
+  test('$SentryLogger sets a diagnostic logger', () {
     final options = SentryOptions();
     options.logger = dartLogger;
 

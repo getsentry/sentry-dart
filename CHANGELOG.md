@@ -7,6 +7,11 @@
 * Feature: SentryHttpClient to capture HTTP requests as breadcrumbs
 * Ref: Only assign non-null option values in Android native integration in order preserve default values
 * Enhancement: Add 'attachThreads' in options. When enabled, threads are attached to all logged events for Android
+* Ref: Rename typedef `Logger` to `SentryLogger` to prevent name clashes with logging packages
+
+## Breaking changes
+
+* `Logger` typedef is renamed to `SentryLogger`
 
 # 4.0.0-beta.1
 
