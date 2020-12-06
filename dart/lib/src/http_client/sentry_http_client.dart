@@ -58,7 +58,6 @@ class SentryHttpClient extends BaseClient {
   Future<StreamedResponse> send(BaseRequest request) async {
     final response = await _client.send(request);
     // See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
-    // for how the breadcrumb should look like
     _hub.addBreadcrumb(
       Breadcrumb(
         type: 'http',
