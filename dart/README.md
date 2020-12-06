@@ -75,6 +75,40 @@ void initApp() {
 }
 ```
 
+##### Breadcrumbs for HTTP Requests
+
+The `SentryHttpClient` can be used as a standalone client like this:
+```dart
+import 'package:sentry/sentry.dart';
+
+var client = SentryHttpClient();
+try {
+ var uriResponse = await client.post('https://example.com/whatsit/create',
+     body: {'name': 'doodle', 'color': 'blue'});
+ print(await client.get(uriResponse.bodyFields['uri']));
+} finally {
+ client.close();
+}
+```
+
+The `SentryHttpClient` can also be used as a wrapper for your own
+HTTP [Client](https://pub.dev/documentation/http/latest/http/Client-class.html):
+```dart
+import 'package:sentry/sentry.dart';
+import 'package:http/http.dart' as http;
+
+final myClient = http.Client();
+
+var client = SentryHttpClient(client: myClient);
+try {
+var uriResponse = await client.post('https://example.com/whatsit/create',
+     body: {'name': 'doodle', 'color': 'blue'});
+ print(await client.get(uriResponse.bodyFields['uri']));
+} finally {
+ client.close();
+}
+```
+
 ##### Tips for catching errors
 
 - Use a `try/catch` block.
