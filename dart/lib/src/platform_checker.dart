@@ -5,7 +5,7 @@ class PlatformChecker {
 
   /// Check if running in release/production environment
   bool isReleaseMode() {
-    return bool.fromEnvironment('dart.vm.product', defaultValue: false);
+    return const bool.fromEnvironment('dart.vm.product', defaultValue: false);
   }
 
   /// Check if running in debug environment
@@ -15,6 +15,6 @@ class PlatformChecker {
 
   /// Check if running in profile environment
   bool isProfileMode() {
-    return bool.fromEnvironment('dart.vm.profile', defaultValue: false);
+    return const bool.fromEnvironment('dart.vm.profile', defaultValue: false);
   }
 }
