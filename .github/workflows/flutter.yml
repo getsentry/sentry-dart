@@ -137,8 +137,9 @@ jobs:
         with:
           java-version: '8'
       - run: |
-          brew install ktlint
-          ktlint --reporter=checkstyle,output=build/ktlint-report.xml || true
+          curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.40.0/ktlint
+          chmod a+x ktlint
+          ./ktlint --reporter=checkstyle,output=build/ktlint-report.xml || true
       - uses: yutailang0119/action-ktlint@v1
         with:
           xml_path: build/ktlint-report.xml
