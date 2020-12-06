@@ -10,6 +10,7 @@ import 'transport/noop_transport.dart';
 import 'transport/transport.dart';
 import 'utils.dart';
 import 'version.dart';
+import 'platform_checker.dart';
 
 /// Default Environment is none is set
 const defaultEnvironment = 'production';
@@ -182,6 +183,15 @@ class SentryOptions {
   set attachStacktrace(bool attachStacktrace) {
     _attachStacktrace = attachStacktrace ?? _attachStacktrace;
   }
+
+  PlatformChecker _platformChecker = PlatformChecker();
+
+  /// If [platformChecker] is provided, it is used get the envirnoment.
+  /// This is useful in tests. Should be an implementation of [PlatformChecker].
+  PlatformChecker get platformChecker => _platformChecker;
+
+  set platformChecker(PlatformChecker platformChecker) =>
+      _platformChecker = platformChecker ?? _platformChecker;
 
   bool _attachThreads = false;
 

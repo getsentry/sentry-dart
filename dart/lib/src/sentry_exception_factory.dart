@@ -11,18 +11,20 @@ class SentryExceptionFactory {
 
   final SentryStackTraceFactory _stacktraceFactory;
 
-  SentryExceptionFactory({
-    @required SentryStackTraceFactory stacktraceFactory,
+  SentryExceptionFactory._(this._options, this._stacktraceFactory);
+
+  factory SentryExceptionFactory({
     @required SentryOptions options,
-  })  : _options = options,
-        _stacktraceFactory = stacktraceFactory {
-    if (_options == null) {
+    @required SentryStackTraceFactory stacktraceFactory,
+  }) {
+    if (options == null) {
       throw ArgumentError('SentryOptions is required.');
     }
 
-    if (_stacktraceFactory == null) {
+    if (stacktraceFactory == null) {
       throw ArgumentError('SentryStackTraceFactory is required.');
     }
+    return SentryExceptionFactory._(options, stacktraceFactory);
   }
 
   SentryException getSentryException(

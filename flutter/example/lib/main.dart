@@ -103,6 +103,10 @@ class MainScaffold extends StatelessWidget {
               onPressed: () async =>
                   {await compute(loop, 10).catchError(handleError)},
             ),
+            RaisedButton(
+              child: const Text('Dart: Web request'),
+              onPressed: () => makeWebRequest(context),
+            ),
             if (UniversalPlatform.isIOS) const CocoaExample(),
             if (UniversalPlatform.isAndroid) const AndroidExample(),
             if (UniversalPlatform.isWeb) const WebExample(),
@@ -294,4 +298,33 @@ class SecondaryScaffold extends StatelessWidget {
       ),
     );
   }
+}
+
+Future<void> makeWebRequest(BuildContext context) async {
+  final client = SentryHttpClient();
+  // We don't do any exception handling here.
+  // In case of an exception, let it get caught and reported to Sentry
+  final response = await client.get('https://flutter.dev/');
+
+  await showDialog<void>(
+    context: context,
+    // gets tracked if using SentryNavigationObserver
+    routeSettings: RouteSettings(
+      name: 'flutter.dev dialog',
+    ),
+    builder: (context) {
+      return AlertDialog(
+        title: Text('Response ${response.statusCode}'),
+        content: SingleChildScrollView(
+          child: Text(response.body),
+        ),
+        actions: [
+          MaterialButton(
+            child: Text('Close'),
+            onPressed: () => Navigator.pop(context),
+          )
+        ],
+      );
+    },
+  );
 }
