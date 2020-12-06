@@ -20,7 +20,3 @@ String formatDateAsIso8601WithMillisPrecision(DateTime date) {
 
 /// helper to detect a browser context
 const isWeb = identical(0, 0.0);
-
-/// helper to detect if app is in release mode
-const isReleaseMode =
-    bool.fromEnvironment('dart.vm.product', defaultValue: false);

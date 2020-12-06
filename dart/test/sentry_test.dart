@@ -3,6 +3,7 @@ import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
+import 'fake_platform_checker.dart';
 
 Function appRunner = () {};
 
@@ -170,4 +171,32 @@ void main() {
           throwsArgumentError);
     },
   );
+
+  test('options.environment debug', () async {
+    final sentryOptions = SentryOptions()
+      ..platformChecker = FakePlatformChecker.debugMode();
+
+    await Sentry.init((options) {
+      options.dsn = fakeDsn;
+      expect(options.environment, 'debug');
+    }, options: sentryOptions);
+  });
+
+  test('options.environment profile', () async {
+    final sentryOptions = SentryOptions()
+      ..platformChecker = FakePlatformChecker.profileMode();
+    await Sentry.init((options) {
+      options.dsn = fakeDsn;
+      expect(options.environment, 'profile');
+    }, options: sentryOptions);
+  });
+
+  test('options.environment production (defaultEnvironment)', () async {
+    final sentryOptions = SentryOptions()
+      ..platformChecker = FakePlatformChecker.releaseMode();
+    await Sentry.init((options) {
+      options.dsn = fakeDsn;
+      expect(options.environment, defaultEnvironment);
+    }, options: sentryOptions);
+  });
 }

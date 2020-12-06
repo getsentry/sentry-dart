@@ -106,8 +106,7 @@ class SentryClient {
     event = event.copyWith(
       serverName: event.serverName ?? _options.serverName,
       dist: event.dist ?? _options.dist,
-      environment:
-          event.environment ?? _options.environment ?? defaultEnvironment,
+      environment: event.environment ?? _options.environment,
       release: event.release ?? _options.release,
       sdk: event.sdk ?? _options.sdk,
       platform: event.platform ?? sdkPlatform,
