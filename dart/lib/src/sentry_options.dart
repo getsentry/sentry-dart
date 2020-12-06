@@ -60,12 +60,12 @@ class SentryOptions {
         : _maxBreadcrumbs;
   }
 
-  Logger _logger = noOpLogger;
+  SentryLogger _logger = noOpLogger;
 
   /// Logger interface to log useful debugging information if debug is enabled
-  Logger get logger => _logger;
+  SentryLogger get logger => _logger;
 
-  set logger(Logger logger) {
+  set logger(SentryLogger logger) {
     _logger = logger != null ? DiagnosticLogger(logger, this).log : _logger;
   }
 
@@ -252,7 +252,7 @@ typedef EventProcessor = FutureOr<SentryEvent> Function(SentryEvent event,
     {dynamic hint});
 
 /// Logger interface to log useful debugging information if debug is enabled
-typedef Logger = Function(SentryLevel level, String message);
+typedef SentryLogger = Function(SentryLevel level, String message);
 
 /// Used to provide timestamp for logging.
 typedef ClockProvider = DateTime Function();
