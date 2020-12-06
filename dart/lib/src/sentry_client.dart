@@ -63,7 +63,7 @@ class SentryClient {
     event = _prepareEvent(event, stackTrace: stackTrace);
 
     if (scope != null) {
-      event = scope.applyToEvent(event, hint);
+      event = await scope.applyToEvent(event, hint);
     } else {
       _options.logger(SentryLevel.debug, 'No scope is defined');
     }

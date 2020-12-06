@@ -253,7 +253,7 @@ void main() {
 
     final breadcrumb = Breadcrumb(message: 'Authenticated');
 
-    test('apply context to event', () {
+    test('apply context to event', () async {
       final event = SentryEvent(
         tags: const {'etag': '987'},
         extra: const {'e-infos': 'abc'},
@@ -271,7 +271,7 @@ void main() {
           (event, {hint}) => event..tags.addAll({'page-locale': 'en-us'}),
         );
 
-      final updatedEvent = scope.applyToEvent(event, null);
+      final updatedEvent = await scope.applyToEvent(event, null);
 
       expect(updatedEvent.user, scopeUser);
       expect(updatedEvent.transaction, '/example/app');
@@ -286,7 +286,7 @@ void main() {
     });
 
     test('should not apply the scope properties when event already has it ',
-        () {
+        () async {
       final eventUser = User(id: '123');
       final eventBreadcrumb = Breadcrumb(message: 'event-breadcrumb');
 
@@ -302,7 +302,7 @@ void main() {
         ..addBreadcrumb(breadcrumb)
         ..transaction = '/example/app';
 
-      final updatedEvent = scope.applyToEvent(event, null);
+      final updatedEvent = await scope.applyToEvent(event, null);
 
       expect(updatedEvent.user, eventUser);
       expect(updatedEvent.transaction, '/event/transaction');
@@ -312,7 +312,7 @@ void main() {
 
     test(
         'should not apply the scope.contexts values if the event already has it',
-        () {
+        () async {
       final event = SentryEvent(
         contexts: Contexts(
           device: Device(name: 'event-device'),
@@ -349,7 +349,7 @@ void main() {
           OperatingSystem(name: 'context-os'),
         );
 
-      final updatedEvent = scope.applyToEvent(event, null);
+      final updatedEvent = await scope.applyToEvent(event, null);
 
       expect(updatedEvent.contexts[Device.type].name, 'event-device');
       expect(updatedEvent.contexts[App.type].name, 'event-app');
@@ -360,7 +360,7 @@ void main() {
       expect(updatedEvent.contexts[OperatingSystem.type].name, 'event-os');
     });
 
-    test('should apply the scope.contexts values ', () {
+    test('should apply the scope.contexts values ', () async {
       final event = SentryEvent();
       final scope = Scope(SentryOptions())
         ..setContexts(Device.type, Device(name: 'context-device'))
@@ -374,7 +374,7 @@ void main() {
         ..setContexts('version', 9)
         ..setContexts('location', {'city': 'London'});
 
-      final updatedEvent = scope.applyToEvent(event, null);
+      final updatedEvent = await scope.applyToEvent(event, null);
 
       expect(updatedEvent.contexts[Device.type].name, 'context-device');
       expect(updatedEvent.contexts[App.type].name, 'context-app');
@@ -390,11 +390,11 @@ void main() {
       expect(updatedEvent.contexts['location'], {'city': 'London'});
     });
 
-    test('should apply the scope level', () {
+    test('should apply the scope level', () async {
       final event = SentryEvent(level: SentryLevel.warning);
       final scope = Scope(SentryOptions())..level = SentryLevel.error;
 
-      final updatedEvent = scope.applyToEvent(event, null);
+      final updatedEvent = await scope.applyToEvent(event, null);
 
       expect(updatedEvent.level, SentryLevel.error);
     });
