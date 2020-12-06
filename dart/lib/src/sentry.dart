@@ -58,14 +58,18 @@ class Sentry {
     SentryOptions options,
     AppRunner appRunner,
   ) async {
-    // if no environment is set, we set 'production' by default, but if we know it's
-    // a non-release build, or the SENTRY_ENVIRONMENT is set, we read from it.
-    if (const bool.hasEnvironment('SENTRY_ENVIRONMENT') || !isReleaseMode) {
-      options.environment = const String.fromEnvironment(
-        'SENTRY_ENVIRONMENT',
-        defaultValue: 'debug',
-      );
-    }
+    // We infer the enviroment based on the release/non-release and profile
+    // constants.
+    var environment = options.platformChecker.isReleaseMode()
+        ? defaultEnvironment
+        : options.platformChecker.isProfileMode()
+            ? 'profile'
+            : 'debug';
+
+    // if the SENTRY_ENVIRONMENT is set, we read from it.
+    options.environment = const bool.hasEnvironment('SENTRY_ENVIRONMENT')
+        ? const String.fromEnvironment('SENTRY_ENVIRONMENT')
+        : environment;
 
     // if the SENTRY_DSN is set, we read from it.
     options.dsn = const bool.hasEnvironment('SENTRY_DSN')
