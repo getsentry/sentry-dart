@@ -2,7 +2,7 @@ import 'protocol.dart';
 import 'sentry_options.dart';
 
 class DiagnosticLogger {
-  final Logger _logger;
+  final SentryLogger _logger;
   final SentryOptions _options;
 
   DiagnosticLogger(this._logger, this._options);
