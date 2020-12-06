@@ -39,11 +39,12 @@ jobs:
           with:
             release-channel: ${{ matrix.sdk }}
         - uses: actions/checkout@v2
-        # consider -p "chrome,vm" and --coverage=coverage
+        # coverage with 'chrome' platform hangs the build
         - name: Test (VM and browser)
           run: |
             pub get
-            pub run test -p "chrome,vm" --coverage=coverage
+            pub run test -p chrome
+            pub run test -p vm --coverage=coverage
             pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.packages --report-on=lib
 
         - uses: codecov/codecov-action@v1
