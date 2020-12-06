@@ -28,35 +28,9 @@ void main() {
           .captured
           .single as Breadcrumb;
 
-      expect(breadcrumb.type, 'https');
-      expect(breadcrumb.data, <String, dynamic>{
-        'url': 'https://example.com',
-        'method': 'GET',
-        'status_code': 200,
-        'reason': 'OK',
-      });
-    });
-
-    test('GET: happy path with only http', () async {
-      final mockHub = MockHub();
-
-      final mockClient = MockClient((request) async {
-        expect(request.url, Uri.parse('http://example.com'));
-        return Response('', 200, reasonPhrase: 'OK');
-      });
-
-      final client = SentryHttpClient(client: mockClient, hub: mockHub);
-
-      final response = await client.get('http://example.com');
-      expect(response.statusCode, 200);
-
-      final breadcrumb = verify(mockHub.addBreadcrumb(captureAny))
-          .captured
-          .single as Breadcrumb;
-
       expect(breadcrumb.type, 'http');
       expect(breadcrumb.data, <String, dynamic>{
-        'url': 'http://example.com',
+        'url': 'https://example.com',
         'method': 'GET',
         'status_code': 200,
         'reason': 'OK',
@@ -80,7 +54,7 @@ void main() {
           .captured
           .single as Breadcrumb;
 
-      expect(breadcrumb.type, 'https');
+      expect(breadcrumb.type, 'http');
       expect(breadcrumb.data, <String, dynamic>{
         'url': 'https://example.com',
         'method': 'GET',
@@ -106,7 +80,7 @@ void main() {
           .captured
           .single as Breadcrumb;
 
-      expect(breadcrumb.type, 'https');
+      expect(breadcrumb.type, 'http');
       expect(breadcrumb.data, <String, dynamic>{
         'url': 'https://example.com',
         'method': 'POST',
@@ -131,7 +105,7 @@ void main() {
           .captured
           .single as Breadcrumb;
 
-      expect(breadcrumb.type, 'https');
+      expect(breadcrumb.type, 'http');
       expect(breadcrumb.data, <String, dynamic>{
         'url': 'https://example.com',
         'method': 'PUT',
@@ -156,7 +130,7 @@ void main() {
           .captured
           .single as Breadcrumb;
 
-      expect(breadcrumb.type, 'https');
+      expect(breadcrumb.type, 'http');
       expect(breadcrumb.data, <String, dynamic>{
         'url': 'https://example.com',
         'method': 'DELETE',
@@ -218,7 +192,7 @@ void main() {
       verifyNever(mockHub.captureException(captureAny));
     });
 
-    test('close does not get called for user defined client', () async {
+    test('close does get called for user defined client', () async {
       final mockHub = MockHub();
 
       final mockClient = CloseableMockClient();
@@ -228,7 +202,7 @@ void main() {
 
       verifyNever(mockHub.addBreadcrumb(captureAny));
       verifyNever(mockHub.captureException(captureAny));
-      verifyNever(mockClient.close());
+      verify(mockClient.close());
     });
   });
 }

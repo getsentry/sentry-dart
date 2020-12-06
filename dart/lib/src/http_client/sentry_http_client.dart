@@ -6,7 +6,7 @@ import '../../sentry.dart';
 /// which records requests as breadcrumbs.
 ///
 /// Remarks:
-/// If this client is used as a wrapper, a call to close does not close the
+/// If this client is used as a wrapper, a call to close also closes the
 /// given client.
 ///
 /// The `SentryHttpClient` can be used as a standalone client like this:
@@ -48,17 +48,11 @@ import '../../sentry.dart';
 class SentryHttpClient extends BaseClient {
   SentryHttpClient({Client client, Hub hub}) {
     _hub = hub ?? HubAdapter();
-    if (client != null) {
-      _client = client;
-      _userdefinedClient = true;
-    } else {
-      _client == Client();
-    }
+    _client = client ?? Client();
   }
 
   Client _client;
   Hub _hub;
-  bool _userdefinedClient = false;
 
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
@@ -67,9 +61,8 @@ class SentryHttpClient extends BaseClient {
     // for how the breadcrumb should look like
     _hub.addBreadcrumb(
       Breadcrumb(
-        // TODO: should this always be `http`?
-        // Otherwise use http or https depending on the request.
-        type: request.url.scheme,
+        type: 'http',
+        category: 'http',
         data: {
           'url': request.url.toString(),
           'method': request.method,
@@ -84,16 +77,7 @@ class SentryHttpClient extends BaseClient {
 
   @override
   void close() {
-    // In case the user did not specify a client himself
-    // we should close the client we initialized.
-    //
-    // If the user did specifiy a client himself,
-    // the user is in charge of closing his own client.
-    // Thus we don't close it here.
-    if (!_userdefinedClient) {
-      // TODO: how to test this?
-      // There is no property on a Client which indicates its status.
-      _client.close();
-    }
+    // See https://github.com/getsentry/sentry-dart/pull/226#discussion_r536984785
+    _client.close();
   }
 }
