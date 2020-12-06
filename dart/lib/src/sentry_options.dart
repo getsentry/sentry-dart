@@ -193,6 +193,15 @@ class SentryOptions {
   set platformChecker(PlatformChecker platformChecker) =>
       _platformChecker = platformChecker ?? _platformChecker;
 
+  bool _attachThreads = false;
+
+  /// When enabled, all the threads are automatically attached to all logged events (Android).
+  bool get attachThreads => _attachThreads;
+
+  set attachThreads(bool attachThreads) {
+    _attachThreads = attachThreads ?? _attachThreads;
+  }
+
   // TODO: Scope observers, enableScopeSync
 
   // TODO: sendDefaultPii
