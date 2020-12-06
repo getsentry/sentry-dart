@@ -5,12 +5,14 @@
 - Ref: Remove duplicated attachStackTrace field
 - Fix: Flutter Configurations should be able to mutate the SentryFlutterOptions
 - Enhancement: Add SentryWidgetsBindingObserver, an Integration that captures certain window and device events.
+- Ref: Only assign non-null option values in Android native integration in order preserve default values
+- Enhancement: Add 'attachThreads' in options. When enabled, threads are attached to all logged events for Android
 
 ## 4.0.0-beta.1
 
 - Fix: StackTrace frames with 'package' uri.scheme are inApp by default #185
 - Fix: Missing App's StackTrace frames for Flutter errors
-- Enhancement: add isolateErrorIntegration and runZonedGuardedIntegration to default integrations in sentry-dart
+- Enhancement: Add isolateErrorIntegration and runZonedGuardedIntegration to default integrations in sentry-dart
 - Fix: Breadcrumb list is a plain list instead of a values list #201
 - Ref: Remove deprecated classes (Flutter Plugin for Android) and cleaning up #186
 - Fix: Handle immutable event lists and maps
