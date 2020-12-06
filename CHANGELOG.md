@@ -50,6 +50,62 @@
 ### Sentry Self Hosted Compatibility
 
 * Since version `4.0.0` of the `sentry_flutter`, `Sentry` version >= `v20.6.0` is required. This only applies to on-premise Sentry, if you are using sentry.io no action is needed.
+# `package:sentry` and `package:sentry_flutter` changelog
+
+## vNext
+
+- Ref: Remove duplicated attachStackTrace field
+- Fix: Flutter Configurations should be able to mutate the SentryFlutterOptions
+- Enhancement: Add SentryWidgetsBindingObserver, an Integration that captures certain window and device events.
+- Feature: SentryHttpClient to capture HTTP requests as breadcrumbs
+- Enhancement: Set `options.environment` on SDK init based on the flags (kReleaseMode, kDebugMode, kProfileMode or SENTRY_ENVIRONMENT).
+- Ref: Only assign non-null option values in Android native integration in order preserve default values
+- Enhancement: Add 'attachThreads' in options. When enabled, threads are attached to all logged events for Android
+
+## 4.0.0-beta.1
+
+- Fix: StackTrace frames with 'package' uri.scheme are inApp by default #185
+- Fix: Missing App's StackTrace frames for Flutter errors
+- Enhancement: Add isolateErrorIntegration and runZonedGuardedIntegration to default integrations in sentry-dart
+- Fix: Breadcrumb list is a plain list instead of a values list #201
+- Ref: Remove deprecated classes (Flutter Plugin for Android) and cleaning up #186
+- Fix: Handle immutable event lists and maps
+- Fix: NDK integration was being disabled by a typo
+- Fix: Missing toList for debug meta #192
+- Enhancement: NavigationObserver to record Breadcrumbs for navigation events #197
+- Fix: Integrations should be closeable
+- Feat: Support split-debug-info for Android #191
+- Fix: the event payload must never serialize null or empty fields
+- Ref: Make hints optional
+
+### Breaking changes
+
+- `Sentry.init` and `SentryFlutter.init` have an optional callback argument which runs the host App after Sentry initialization.
+- `Integration` is an `Interface` instead of a pure Function
+- `Hints` are optional arguments
+- Sentry Dart SDK adds an `IsolateError` handler by default
+
+## 4.0.0-alpha.2
+
+- Enhancement: `Contexts` were added to the `Scope` #154
+- Fix: App. would hang if `debug` mode was enabled and refactoring ##157
+- Enhancement: Sentry Protocol v7
+- Enhancement: Added missing Protocol fields, `Request`, `SentryStackTrace`...) #155
+- Feat: Added `attachStackTrace` options to attach stack traces on `captureMessage` calls
+- Feat: Flutter SDK has the Native SDKs embedded (Android and Apple) #158
+
+### Breaking changes
+
+- `Sentry.init` returns a `Future`.
+- Dart min. SDK is `2.8.0`
+- Flutter min. SDK is `1.17.0`
+- Timestamp has millis precision.
+- For better groupping, add your own package to the `addInAppInclude` list, e.g.  `options.addInAppInclude('sentry_flutter_example');`
+- A few classes of the `Protocol` were renamed.
+
+#### Sentry Self Hosted Compatibility
+
+- Since version `4.0.0` of the `sentry_flutter`, `Sentry` version >= `v20.6.0` is required. This only applies to on-premise Sentry, if you are using sentry.io no action is needed.
 
 # `package:sentry` changelog
 
