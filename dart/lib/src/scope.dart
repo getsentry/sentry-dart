@@ -164,7 +164,7 @@ class Scope {
   /// Removes an extra from the Scope
   void removeExtra(String key) => _extra.remove(key);
 
-  SentryEvent applyToEvent(SentryEvent event, dynamic hint) {
+  Future<SentryEvent> applyToEvent(SentryEvent event, dynamic hint) async {
     event = event.copyWith(
       transaction: event.transaction ?? transaction,
       user: event.user ?? user,
@@ -190,7 +190,7 @@ class Scope {
 
     for (final processor in _eventProcessors) {
       try {
-        event = processor(event, hint: hint);
+        event = await processor(event, hint: hint);
       } catch (err) {
         _options.logger(
           SentryLevel.error,
