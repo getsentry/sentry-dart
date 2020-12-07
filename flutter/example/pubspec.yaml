@@ -10,11 +10,14 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  sentry_flutter: any
+  universal_platform: ^0.1.3
 
+dependency_overrides:
+  sentry:
+    path: ../../dart
   sentry_flutter:
     path: ../
-
-  universal_platform: ^0.1.3
 
 flutter:
   uses-material-design: true
