@@ -42,10 +42,10 @@ jobs:
         # coverage with 'chrome' platform hangs the build
         - name: Test (VM and browser)
           run: |
-            pub get
-            pub run test -p chrome
-            pub run test -p vm --coverage=coverage
-            pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.packages --report-on=lib
+            dart pub get
+            dart test -p chrome
+            dart test -p vm --coverage=coverage
+            dart pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.packages --report-on=lib
 
         - uses: codecov/codecov-action@v1
           if: runner.os == 'Linux'
@@ -64,9 +64,9 @@ jobs:
           release-channel: stable
       - uses: actions/checkout@v2
       - run: |
-          pub get
-          dartanalyzer --fatal-infos --fatal-warnings ./
-          dartfmt -n --set-exit-if-changed ./
+          dart pub get
+          dart analyze --fatal-infos
+          dart format --set-exit-if-changed ./
 
   package-analysis:
     runs-on: ubuntu-latest

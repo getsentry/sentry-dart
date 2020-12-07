@@ -3,6 +3,8 @@
 set -e
 set -x
 
+# https://flutter.dev/docs/reference/flutter-cli
+
 # get current package's dependencies
 flutter pub get
 # static code analyzer
@@ -14,4 +16,4 @@ flutter format -n --set-exit-if-changed ./
 # pub score
 pana
 # dry publish
-pub publish --dry-run
+dart pub publish --dry-run
