@@ -45,7 +45,7 @@ jobs:
             dart pub get
             dart test -p chrome
             dart test -p vm --coverage=coverage
-            dart pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.packages --report-on=lib
+            dart run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.packages --report-on=lib
 
         - uses: codecov/codecov-action@v1
           if: runner.os == 'Linux'
