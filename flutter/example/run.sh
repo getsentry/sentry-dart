@@ -13,7 +13,8 @@ export SENTRY_RELEASE=$(date +%Y-%m-%d_%H-%M-%S)
 echo -e "[\033[92mrun\033[0m] $1"
 
 if [ "$1" == "ios" ]; then
-    flutter build ios --dart-define=SENTRY_RELEASE=$SENTRY_RELEASE --split-debug-info=symbols --obfuscate
+    # iOS does not support split-debug-info and obfuscate yet
+    flutter build ios
     # TODO: Install the iOS app via CLI
     #.. install build/ios/Release-iphoneos/Runner.app
 elif [ "$1" == "android" ]; then
@@ -56,6 +57,6 @@ if [ "$1" == "web" ]; then
 else
     echo -e "[\033[92mrun\033[0m] Uploading debug information files"
     # directory 'symbols' contain the Dart debug info files but to include platform ones, use current dir.
-    sentry-cli upload-dif --org $SENTRY_ORG --project $SENTRY_PROJECT symbols
+    sentry-cli upload-dif --org $SENTRY_ORG --project $SENTRY_PROJECT .
 fi
 
