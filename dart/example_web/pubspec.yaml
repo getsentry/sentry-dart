@@ -7,7 +7,7 @@ environment:
   sdk: ^2.8.0
 
 dependencies:
-  sentry:
+  sentry: any
 
 dev_dependencies:
   build_runner: ^1.10.0

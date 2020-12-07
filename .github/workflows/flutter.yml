@@ -108,9 +108,10 @@ jobs:
         env:
           TOTAL: ${{ steps.analysis.outputs.total }}
           TOTAL_MAX: ${{ steps.analysis.outputs.total_max }}
+        # PERCENTAGE=90 due to 'pana' dependencies score when using 'dependency_overrides'
         run: |
           PERCENTAGE=$(( $TOTAL * 100 / $TOTAL_MAX ))
-          if (( $PERCENTAGE < 100 ))
+          if (( $PERCENTAGE < 90 ))
           then
             echo Score too low!
             exit 1
