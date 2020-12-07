@@ -1,5 +1,7 @@
 # vNext
 
+# 4.0.0-beta.2
+
 * Ref: Remove duplicated attachStackTrace field
 * Fix: Flutter Configurations should be able to mutate the SentryFlutterOptions
 * Enhancement: Add SentryWidgetsBindingObserver, an Integration that captures certain window and device events.
@@ -9,6 +11,7 @@
 * Enhancement: Add 'attachThreads' in options. When enabled, threads are attached to all logged events for Android
 * Ref: Rename typedef `Logger` to `SentryLogger` to prevent name clashes with logging packages
 * Fix: Scope Event processors should be awaited
+* Fix: Package usage as git dependency
 
 ## Breaking changes
 
