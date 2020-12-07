@@ -13,6 +13,7 @@
 ## Breaking changes
 
 * `Logger` typedef is renamed to `SentryLogger`
+* `attachStackTrace` is renamed to `attachStacktrace`
 
 # 4.0.0-beta.1
 
