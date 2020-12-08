@@ -3,15 +3,17 @@
 set -e
 set -x
 
+# https://dart.dev/tools/dart-tool
+
 # get current package's dependencies
-pub get
+dart pub get
 # static code analyzer
-dartanalyzer --fatal-infos --fatal-warnings ./
+dart analyze --fatal-infos
 # tests
-pub run test -p "chrome,vm"
+dart test -p "chrome,vm"
 # formatting
-dartfmt -n --set-exit-if-changed ./
+dart format --set-exit-if-changed ./
 # pub score
 pana
 # dry publish
-pub publish --dry-run
+dart pub publish --dry-run
