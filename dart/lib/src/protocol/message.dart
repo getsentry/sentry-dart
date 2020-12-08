@@ -1,3 +1,5 @@
+import 'package:meta/meta.dart';
+
 /// The Message Interface carries a log message that describes an event or error.
 /// Optionally, it can carry a format string and structured parameters. This can help to group similar messages into the same issue.
 /// example of a serialized message : {
@@ -6,6 +8,7 @@
 ///     "params": ["this"]
 ///   }
 /// }
+@immutable
 class Message {
   /// The fully formatted message. If missing, Sentry will try to interpolate the message.
   final String formatted;
@@ -36,4 +39,15 @@ class Message {
 
     return json;
   }
+
+  Message copyWith({
+    String formatted,
+    String template,
+    List<dynamic> params,
+  }) =>
+      Message(
+        formatted ?? this.formatted,
+        template: template ?? this.template,
+        params: params ?? this.params,
+      );
 }

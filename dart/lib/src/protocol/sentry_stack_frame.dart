@@ -1,5 +1,8 @@
+import 'package:meta/meta.dart';
+
 /// Frames belong to a StackTrace
 /// It should contain at least a filename, function or instruction_addr
+@immutable
 class SentryStackFrame {
   static final SentryStackFrame asynchronousGapFrameJson =
       SentryStackFrame(absPath: '<asynchronous suspension>');

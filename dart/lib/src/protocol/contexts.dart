@@ -208,6 +208,25 @@ class Contexts extends MapView<String, dynamic> {
     return copy;
   }
 
+  Contexts copyWith({
+    Device device,
+    OperatingSystem operatingSystem,
+    List<SentryRuntime> runtimes,
+    App app,
+    Browser browser,
+    Gpu gpu,
+  }) =>
+      Contexts(
+        device: device ?? this.device,
+        operatingSystem: operatingSystem ?? this.operatingSystem,
+        runtimes: runtimes ?? this.runtimes,
+        app: app ?? this.app,
+        browser: browser ?? this.browser,
+        gpu: gpu ?? this.app,
+      )..addEntries(
+          entries.where((element) => !_defaultFields.contains(element.key)),
+        );
+
   static const _defaultFields = [
     App.type,
     Device.type,

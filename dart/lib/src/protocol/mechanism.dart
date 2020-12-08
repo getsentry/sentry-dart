@@ -6,6 +6,7 @@ import 'package:meta/meta.dart';
 /// the way the exception was created on the target system.
 /// This includes general exception values obtained from operating system or
 /// runtime APIs, as well as mechanism-specific values.
+@immutable
 class Mechanism {
   /// Required unique identifier of this mechanism determining rendering and processing of the mechanism data
   /// The type attribute is required to send any exception mechanism attribute,

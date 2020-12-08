@@ -3,6 +3,7 @@ import 'package:meta/meta.dart';
 import '../protocol.dart';
 
 /// The Exception Interface specifies an exception or error that occurred in a program.
+@immutable
 class SentryException {
   /// Required. The type of exception
   final String type;
@@ -60,4 +61,21 @@ class SentryException {
 
     return json;
   }
+
+  SentryException copyWith({
+    String type,
+    String value,
+    String module,
+    SentryStackTrace stackTrace,
+    Mechanism mechanism,
+    int threadId,
+  }) =>
+      SentryException(
+        type: type ?? this.type,
+        value: value ?? this.value,
+        module: module ?? this.module,
+        stackTrace: stackTrace ?? this.stackTrace,
+        mechanism: mechanism ?? this.mechanism,
+        threadId: threadId ?? this.threadId,
+      );
 }

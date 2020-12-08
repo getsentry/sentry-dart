@@ -95,4 +95,13 @@ class SdkVersion {
   void addIntegration(String integration) {
     _integrations.add(integration);
   }
+
+  SdkVersion copyWith({
+    String name,
+    String version,
+  }) =>
+      SdkVersion(
+        name: name ?? this.name,
+        version: version ?? this.version,
+      );
 }

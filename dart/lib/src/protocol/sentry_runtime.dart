@@ -1,8 +1,11 @@
+import 'package:meta/meta.dart';
+
 /// Describes a runtime in more detail.
 ///
 /// Typically this context is used multiple times if multiple runtimes
 /// are involved (for instance if you have a JavaScript application running
 /// on top of JVM).
+@immutable
 class SentryRuntime {
   static const listType = 'runtimes';
   static const type = 'runtime';
@@ -58,5 +61,18 @@ class SentryRuntime {
         name: name,
         version: version,
         rawDescription: rawDescription,
+      );
+
+  SentryRuntime copyWith({
+    String key,
+    String name,
+    String version,
+    String rawDescription,
+  }) =>
+      SentryRuntime(
+        key: key ?? this.key,
+        name: name ?? this.name,
+        version: version ?? this.version,
+        rawDescription: rawDescription ?? this.rawDescription,
       );
 }

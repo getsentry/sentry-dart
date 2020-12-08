@@ -1,6 +1,9 @@
+import 'package:meta/meta.dart';
+
 import '../protocol.dart';
 
 /// The debug meta interface carries debug information for processing errors and crash reports.
+@immutable
 class DebugMeta {
   /// An object describing the system SDK.
   final SdkInfo sdk;
@@ -34,6 +37,12 @@ class DebugMeta {
     return json;
   }
 
-  DebugMeta copyWith({SdkVersion sdk, List<DebugImage> images}) =>
-      DebugMeta(sdk: sdk ?? this.sdk, images: images ?? _images);
+  DebugMeta copyWith({
+    SdkVersion sdk,
+    List<DebugImage> images,
+  }) =>
+      DebugMeta(
+        sdk: sdk ?? this.sdk,
+        images: images ?? _images,
+      );
 }

@@ -1,3 +1,5 @@
+import 'package:meta/meta.dart';
+
 /// The list of debug images contains all dynamic libraries loaded into
 /// the process and their memory addresses.
 /// Instruction addresses in the Stack Trace are mapped into the list of debug
@@ -7,6 +9,7 @@
 /// Native debug images with types macho, elf, and pe
 /// Android debug images with type proguard
 /// more details : https://develop.sentry.dev/sdk/event-payloads/debugmeta/
+@immutable
 class DebugImage {
   final String uuid;
 

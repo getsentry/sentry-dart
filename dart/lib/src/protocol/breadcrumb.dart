@@ -1,3 +1,5 @@
+import 'package:meta/meta.dart';
+
 import '../utils.dart';
 import 'sentry_level.dart';
 
@@ -17,6 +19,7 @@ import 'sentry_level.dart';
 /// ```
 /// See also:
 /// * https://docs.sentry.io/development/sdk-dev/event-payloads/breadcrumbs/
+@immutable
 class Breadcrumb {
   /// Creates a breadcrumb that can be attached to an [Event].
   Breadcrumb({
@@ -95,4 +98,21 @@ class Breadcrumb {
     }
     return json;
   }
+
+  Breadcrumb copyWith({
+    String message,
+    String category,
+    Map<String, dynamic> data,
+    SentryLevel level,
+    String type,
+    DateTime timestamp,
+  }) =>
+      Breadcrumb(
+        message: message ?? this.message,
+        category: category ?? this.category,
+        data: data ?? this.data,
+        level: level ?? this.level,
+        type: type ?? this.type,
+        timestamp: timestamp ?? this.timestamp,
+      );
 }

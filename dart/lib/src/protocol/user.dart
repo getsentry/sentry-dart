@@ -1,3 +1,5 @@
+import 'package:meta/meta.dart';
+
 /// Describes the current user associated with the application, such as the
 /// currently signed in user.
 ///
@@ -21,15 +23,16 @@
 ///   "subscription": "basic"
 /// }
 /// ```
+@immutable
 class User {
   /// At a minimum you must set an [id] or an [ipAddress].
-  User(
-      {this.id,
-      this.username,
-      this.email,
-      this.ipAddress,
-      Map<String, dynamic> extras})
-      : assert(id != null || ipAddress != null),
+  User({
+    this.id,
+    this.username,
+    this.email,
+    this.ipAddress,
+    Map<String, dynamic> extras,
+  })  : assert(id != null || ipAddress != null),
         extras = extras != null ? Map.from(extras) : null;
 
   /// A unique identifier of the user.
@@ -60,4 +63,19 @@ class User {
       'extras': extras,
     };
   }
+
+  User copyWith({
+    String id,
+    String username,
+    String email,
+    String ipAddress,
+    Map<String, dynamic> extras,
+  }) =>
+      User(
+        id: id ?? this.id,
+        username: username ?? this.username,
+        email: email ?? this.email,
+        ipAddress: ipAddress ?? this.ipAddress,
+        extras: extras ?? this.extras,
+      );
 }

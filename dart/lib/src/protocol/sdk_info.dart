@@ -1,4 +1,7 @@
+import 'package:meta/meta.dart';
+
 /// An object describing the system SDK.
+@immutable
 class SdkInfo {
   final String sdkName;
   final int versionMajor;
