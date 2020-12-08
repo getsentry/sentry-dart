@@ -1,5 +1,7 @@
 # vNext
 
+* Feat: Added a copyWith method to all the protocol classes
+
 # 4.0.0-beta.2
 
 * Ref: Remove duplicated attachStackTrace field
