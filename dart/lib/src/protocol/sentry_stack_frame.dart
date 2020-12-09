@@ -1,5 +1,8 @@
+import 'package:meta/meta.dart';
+
 /// Frames belong to a StackTrace
 /// It should contain at least a filename, function or instruction_addr
+@immutable
 class SentryStackFrame {
   static final SentryStackFrame asynchronousGapFrameJson =
       SentryStackFrame(absPath: '<asynchronous suspension>');
@@ -24,10 +27,11 @@ class SentryStackFrame {
     List<String> preContext,
     List<String> postContext,
     Map<String, String> vars,
-  })  : _framesOmitted = framesOmitted,
-        _preContext = preContext,
-        _postContext = postContext,
-        _vars = vars;
+  })  : _framesOmitted =
+            framesOmitted != null ? List.from(framesOmitted) : null,
+        _preContext = preContext != null ? List.from(preContext) : null,
+        _postContext = postContext != null ? List.from(postContext) : null,
+        _vars = vars != null ? Map.from(vars) : null;
 
   /// The absolute path to filename.
   final String absPath;

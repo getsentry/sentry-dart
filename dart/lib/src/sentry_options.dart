@@ -74,6 +74,8 @@ class SentryOptions {
 
   /// Are callbacks that run for every event. They can either return a new event which in most cases
   /// means just adding data OR return null in case the event will be dropped and not sent.
+  ///
+  /// Global Event processors are executed after the Scope's processors
   List<EventProcessor> get eventProcessors =>
       List.unmodifiable(_eventProcessors);
 

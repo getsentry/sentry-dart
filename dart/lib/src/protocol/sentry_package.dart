@@ -20,4 +20,13 @@ class SentryPackage {
       'version': version,
     };
   }
+
+  SentryPackage copyWith({
+    String name,
+    String version,
+  }) =>
+      SentryPackage(
+        name ?? this.name,
+        version ?? this.version,
+      );
 }

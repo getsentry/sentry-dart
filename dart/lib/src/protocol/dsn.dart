@@ -1,8 +1,9 @@
 import 'package:meta/meta.dart';
 
 /// The Data Source Name (DSN) tells the SDK where to send the events
+@immutable
 class Dsn {
-  Dsn({
+  const Dsn({
     @required this.publicKey,
     @required this.projectId,
     this.uri,
@@ -43,7 +44,8 @@ class Dsn {
     return '${uri.scheme}://${uri.host}$port/$apiPath/$projectId/store/';
   }
 
-  static Dsn parse(String dsn) {
+  /// Parses a DSN String to a Dsn object
+  factory Dsn.parse(String dsn) {
     final uri = Uri.parse(dsn);
     final userInfo = uri.userInfo.split(':');
 

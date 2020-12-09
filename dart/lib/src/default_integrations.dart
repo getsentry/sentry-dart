@@ -19,7 +19,7 @@ class RunZonedGuardedIntegration extends Integration {
       await _appRunner();
     }, (exception, stackTrace) async {
       // runZonedGuarded doesn't crash the App.
-      const mechanism = Mechanism(type: 'runZonedGuarded', handled: true);
+      final mechanism = Mechanism(type: 'runZonedGuarded', handled: true);
       final throwableMechanism = ThrowableMechanism(mechanism, exception);
 
       final event = SentryEvent(

@@ -1,7 +1,10 @@
+import 'package:meta/meta.dart';
+
 /// If a device is on portrait or landscape mode
 enum Orientation { portrait, landscape }
 
 /// This describes the device that caused the event.
+@immutable
 class Device {
   static const type = 'device';
 
@@ -290,5 +293,60 @@ class Device {
         externalFreeStorage: externalFreeStorage,
         bootTime: bootTime,
         timezone: timezone,
+      );
+
+  Device copyWith({
+    String name,
+    String family,
+    String model,
+    String modelId,
+    String arch,
+    double batteryLevel,
+    Orientation orientation,
+    String manufacturer,
+    String brand,
+    String screenResolution,
+    double screenDensity,
+    int screenDpi,
+    bool online,
+    bool charging,
+    bool lowMemory,
+    bool simulator,
+    int memorySize,
+    int freeMemory,
+    int usableMemory,
+    int storageSize,
+    int freeStorage,
+    int externalStorageSize,
+    int externalFreeStorage,
+    DateTime bootTime,
+    String timezone,
+  }) =>
+      Device(
+        name: name ?? this.name,
+        family: family ?? this.family,
+        model: model ?? this.model,
+        modelId: modelId ?? this.modelId,
+        arch: arch ?? this.arch,
+        batteryLevel: batteryLevel ?? this.batteryLevel,
+        orientation: orientation ?? this.orientation,
+        manufacturer: manufacturer ?? this.manufacturer,
+        brand: brand ?? this.brand,
+        screenResolution: screenResolution ?? this.screenResolution,
+        screenDensity: screenDensity ?? this.screenDensity,
+        screenDpi: screenDpi ?? this.screenDpi,
+        online: online ?? this.online,
+        charging: charging ?? this.charging,
+        lowMemory: lowMemory ?? this.lowMemory,
+        simulator: simulator ?? this.simulator,
+        memorySize: memorySize ?? this.memorySize,
+        freeMemory: freeMemory ?? this.freeMemory,
+        usableMemory: usableMemory ?? this.usableMemory,
+        storageSize: storageSize ?? this.storageSize,
+        freeStorage: freeStorage ?? this.freeStorage,
+        externalStorageSize: externalStorageSize ?? this.externalStorageSize,
+        externalFreeStorage: externalFreeStorage ?? this.externalFreeStorage,
+        bootTime: bootTime ?? this.bootTime,
+        timezone: timezone ?? this.timezone,
       );
 }

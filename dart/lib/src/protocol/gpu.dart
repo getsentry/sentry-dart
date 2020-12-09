@@ -10,7 +10,10 @@
 //   "npot_support": "Full"
 // }
 
+import 'package:meta/meta.dart';
+
 /// GPU context describes the GPU of the device.
+@immutable
 class Gpu {
   static const type = 'gpu';
 
@@ -119,4 +122,28 @@ class Gpu {
 
     return json;
   }
+
+  Gpu copyWith({
+    String name,
+    int id,
+    int vendorId,
+    String vendorName,
+    int memorySize,
+    String apiType,
+    bool multiThreadedRendering,
+    String version,
+    String npotSupport,
+  }) =>
+      Gpu(
+        name: name ?? this.name,
+        id: id ?? this.id,
+        vendorId: vendorId ?? this.vendorId,
+        vendorName: vendorName ?? this.vendorName,
+        memorySize: memorySize ?? this.memorySize,
+        apiType: apiType ?? this.apiType,
+        multiThreadedRendering:
+            multiThreadedRendering ?? this.multiThreadedRendering,
+        version: version ?? this.version,
+        npotSupport: npotSupport ?? this.npotSupport,
+      );
 }

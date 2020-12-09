@@ -3,6 +3,7 @@ import 'package:meta/meta.dart';
 import 'sentry_stack_frame.dart';
 
 /// Stacktrace holds information about the frames of the stack.
+@immutable
 class SentryStackTrace {
   const SentryStackTrace({
     @required List<SentryStackFrame> frames,

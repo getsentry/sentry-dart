@@ -1,7 +1,10 @@
+import 'package:meta/meta.dart';
+
 /// App context describes the application.
 ///
 /// As opposed to the runtime, this is the actual application that was
 /// running and carries metadata about the current session.
+@immutable
 class App {
   static const type = 'app';
 
@@ -91,5 +94,24 @@ class App {
         buildType: buildType,
         startTime: startTime,
         deviceAppHash: deviceAppHash,
+      );
+
+  App copyWith({
+    String name,
+    String version,
+    String identifier,
+    String build,
+    String buildType,
+    DateTime startTime,
+    String deviceAppHash,
+  }) =>
+      App(
+        name: name ?? this.name,
+        version: version ?? this.version,
+        identifier: identifier ?? this.identifier,
+        build: build ?? this.build,
+        buildType: buildType ?? this.buildType,
+        startTime: startTime ?? this.startTime,
+        deviceAppHash: deviceAppHash ?? this.deviceAppHash,
       );
 }

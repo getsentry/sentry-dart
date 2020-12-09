@@ -1,7 +1,10 @@
+import 'package:meta/meta.dart';
+
 /// Carries information about the browser or user agent for web-related errors.
 ///
 /// This can either be the browser this event ocurred in, or the user
 /// agent of a web request that triggered the event.
+@immutable
 class Browser {
   static const type = 'browser';
 
@@ -35,4 +38,13 @@ class Browser {
   }
 
   Browser clone() => Browser(name: name, version: version);
+
+  Browser copyWith({
+    String name,
+    String version,
+  }) =>
+      Browser(
+        name: name ?? this.name,
+        version: version ?? this.version,
+      );
 }

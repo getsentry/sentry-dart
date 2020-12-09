@@ -19,7 +19,7 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
           SentryLevel.debug, 'Capture from onError ${errorDetails.exception}');
 
       // FlutterError doesn't crash the App.
-      const mechanism = Mechanism(type: 'FlutterError', handled: true);
+      final mechanism = Mechanism(type: 'FlutterError', handled: true);
       final throwableMechanism =
           ThrowableMechanism(mechanism, errorDetails.exception);
 
@@ -43,10 +43,21 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
   }
 }
 
-/// (iOS only)
-/// add an event processor to call a native channel method to load :
-/// - the device Contexts,
-/// - and the native sdk integrations and packages
+/// Load Device's Contexts from the iOS SDK.
+///
+/// This integration calls the iOS SDK via Message channel to load the
+/// Device's contexts before sending the event back to the iOS SDK via
+/// Message channel (already enriched with all the information).
+///
+/// The Device's contexts are:
+/// App, Device and OS.
+///
+/// ps. This integration won't be run on Android because the Device's Contexts
+/// is set on Android when the event is sent to the Android SDK via
+/// the Message channel.
+/// We intend to unify this behaviour in the future.
+///
+/// This integration is only executed on iOS Apps.
 class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
   final MethodChannel _channel;
 

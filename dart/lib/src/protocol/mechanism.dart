@@ -6,6 +6,7 @@ import 'package:meta/meta.dart';
 /// the way the exception was created on the target system.
 /// This includes general exception values obtained from operating system or
 /// runtime APIs, as well as mechanism-specific values.
+@immutable
 class Mechanism {
   /// Required unique identifier of this mechanism determining rendering and processing of the mechanism data
   /// The type attribute is required to send any exception mechanism attribute,
@@ -43,7 +44,7 @@ class Mechanism {
   /// This may be because they are created at a central place (like a crash handler), and are all called the same: Error, Segfault etc. When the flag is set, Sentry will then try to use other information (top in-app frame function) rather than exception type and value in the UI for the primary event display. This flag should be set for all "segfaults" for instance as every single error group would look very similar otherwise.
   final bool synthetic;
 
-  const Mechanism({
+  Mechanism({
     @required this.type,
     this.description,
     this.helpLink,
@@ -51,8 +52,8 @@ class Mechanism {
     this.synthetic,
     Map<String, dynamic> meta,
     Map<String, dynamic> data,
-  })  : _meta = meta,
-        _data = data;
+  })  : _meta = meta != null ? Map.from(meta) : null,
+        _data = data != null ? Map.from(data) : null;
 
   Mechanism copyWith({
     String type,

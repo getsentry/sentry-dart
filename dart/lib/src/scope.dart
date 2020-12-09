@@ -74,6 +74,8 @@ class Scope {
   }
 
   /// Scope's event processor list
+  ///
+  /// Scope's event processors are executed before the global Event processors
   final List<EventProcessor> _eventProcessors = [];
 
   List<EventProcessor> get eventProcessors =>

@@ -16,4 +16,4 @@ flutter format -n --set-exit-if-changed ./
 # pub score
 pana
 # dry publish
-dart pub publish --dry-run
+flutter pub publish --dry-run

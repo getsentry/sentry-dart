@@ -1,7 +1,10 @@
+import 'package:meta/meta.dart';
+
 /// Describes the operating system on which the event was created.
 ///
 /// In web contexts, this is the operating system of the browse
 /// (normally pulled from the User-Agent string).
+@immutable
 class OperatingSystem {
   static const type = 'os';
 
@@ -85,5 +88,22 @@ class OperatingSystem {
         kernelVersion: kernelVersion,
         rooted: rooted,
         rawDescription: rawDescription,
+      );
+
+  OperatingSystem copyWith({
+    String name,
+    String version,
+    String build,
+    String kernelVersion,
+    bool rooted,
+    String rawDescription,
+  }) =>
+      OperatingSystem(
+        name: name ?? this.name,
+        version: version ?? this.version,
+        build: build ?? this.build,
+        kernelVersion: kernelVersion ?? this.kernelVersion,
+        rooted: rooted ?? this.rooted,
+        rawDescription: rawDescription ?? this.rawDescription,
       );
 }

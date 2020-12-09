@@ -1,6 +1,9 @@
+import 'package:meta/meta.dart';
+
 /// The Request interface contains information on a HTTP request related to the event.
 /// In client SDKs, this can be an outgoing request, or the request that rendered the current web page.
 /// On server SDKs, this could be the incoming web request that is being handled.
+@immutable
 class Request {
   ///The URL of the request if available.
   ///The query string can be declared either as part of the url,
