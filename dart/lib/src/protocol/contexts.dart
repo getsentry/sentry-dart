@@ -4,10 +4,10 @@ import '../protocol.dart';
 
 /// The context interfaces provide additional context data.
 ///
-/// Typically this is data related to the current user,
-/// the current HTTP request.
+/// Typically this is data related to the Device, OS, Runtime, App,
+/// Browser, GPU and State context.
 ///
-/// See also: https://docs.sentry.io/development/sdk-dev/event-payloads/contexts/.
+/// See also: https://develop.sentry.dev/sdk/event-payloads/contexts/.
 class Contexts extends MapView<String, dynamic> {
   Contexts({
     Device device,
@@ -222,7 +222,7 @@ class Contexts extends MapView<String, dynamic> {
         runtimes: runtimes ?? this.runtimes,
         app: app ?? this.app,
         browser: browser ?? this.browser,
-        gpu: gpu ?? this.app,
+        gpu: gpu ?? this.gpu,
       )..addEntries(
           entries.where((element) => !_defaultFields.contains(element.key)),
         );
