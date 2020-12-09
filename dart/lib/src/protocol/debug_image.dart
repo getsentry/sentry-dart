@@ -107,6 +107,7 @@ class DebugImage {
         uuid: uuid ?? this.uuid,
         type: type ?? this.type,
         debugId: debugId ?? this.debugId,
+        debugFile: debugFile ?? this.debugFile,
         codeFile: codeFile ?? this.codeFile,
         imageAddr: imageAddr ?? this.imageAddr,
         imageSize: imageSize ?? this.imageSize,

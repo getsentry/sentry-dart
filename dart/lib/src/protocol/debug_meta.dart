@@ -38,7 +38,7 @@ class DebugMeta {
   }
 
   DebugMeta copyWith({
-    SdkVersion sdk,
+    SdkInfo sdk,
     List<DebugImage> images,
   }) =>
       DebugMeta(

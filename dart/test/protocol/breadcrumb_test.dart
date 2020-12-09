@@ -4,28 +4,29 @@ import 'package:test/test.dart';
 
 void main() {
   test('copyWith keeps unchanged', () {
-    final breadcrumb = _getBreadcrumb();
+    final data = _generate();
 
-    final copy = breadcrumb.copyWith();
+    final copy = data.copyWith();
 
     expect(
-      MapEquality().equals(breadcrumb.toJson(), copy.toJson()),
+      MapEquality().equals(data.toJson(), copy.toJson()),
       true,
     );
   });
 
   test('copyWith takes new values', () {
-    final breadcrumb = _getBreadcrumb();
+    final data = _generate();
 
     final timestamp = DateTime.now();
 
-    final copy = breadcrumb.copyWith(
-        message: 'message1',
-        timestamp: timestamp,
-        data: {'key1': 'value1'},
-        level: SentryLevel.fatal,
-        category: 'category1',
-        type: 'type1');
+    final copy = data.copyWith(
+      message: 'message1',
+      timestamp: timestamp,
+      data: {'key1': 'value1'},
+      level: SentryLevel.fatal,
+      category: 'category1',
+      type: 'type1',
+    );
 
     expect('message1', copy.message);
     expect(timestamp, copy.timestamp);
@@ -36,10 +37,11 @@ void main() {
   });
 }
 
-Breadcrumb _getBreadcrumb({DateTime timestamp}) => Breadcrumb(
-    message: 'message',
-    timestamp: timestamp ?? DateTime.now(),
-    data: {'key': 'value'},
-    level: SentryLevel.warning,
-    category: 'category',
-    type: 'type');
+Breadcrumb _generate({DateTime timestamp}) => Breadcrumb(
+      message: 'message',
+      timestamp: timestamp ?? DateTime.now(),
+      data: {'key': 'value'},
+      level: SentryLevel.warning,
+      category: 'category',
+      type: 'type',
+    );
