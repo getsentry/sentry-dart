@@ -61,7 +61,7 @@ In order to track navigation events you have to add the
 `SentryNavigationObserver` to your `MaterialApp`, `WidgetsApp` or `CupertinoApp`.
 
 ```dart
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 // ...

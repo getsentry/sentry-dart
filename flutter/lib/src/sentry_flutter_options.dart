@@ -91,9 +91,9 @@ class SentryFlutterOptions extends SentryOptions {
         : _cacheDirSize;
   }
 
-  /// Consider disabling [SentryOptions.enableAutoNativeBreadcrumbs] if you
+  /// Consider disabling [enableAutoNativeBreadcrumbs] if you
   /// enable this. Otherwise you might record lifecycle events twice.
-  /// Also consider using [enableBreadcrumbTrackingForCurrentPlatform()]
+  /// Also consider using [enableBreadcrumbTrackingForCurrentPlatform]
   /// instead for more sensible defaults.
   bool get enableLifecycleBreadcrumbs => _enableLifecycleBreadcrumbs;
 
@@ -104,9 +104,9 @@ class SentryFlutterOptions extends SentryOptions {
 
   bool _enableLifecycleBreadcrumbs = false;
 
-  /// Consider disabling [SentryOptions.enableAutoNativeBreadcrumbs] if you
+  /// Consider disabling [enableAutoNativeBreadcrumbs] if you
   /// enable this. Otherwise you might record window metric events twice.
-  /// Also consider using [enableBreadcrumbTrackingForCurrentPlatform()]
+  /// Also consider using [enableBreadcrumbTrackingForCurrentPlatform]
   /// instead for more sensible defaults.
   bool get enableWindowMetricBreadcrumbs => _enableWindowMetricBreadcrumbs;
 
@@ -117,9 +117,9 @@ class SentryFlutterOptions extends SentryOptions {
 
   bool _enableWindowMetricBreadcrumbs = false;
 
-  /// Consider disabling [SentryOptions.enableAutoNativeBreadcrumbs] if you
+  /// Consider disabling [enableAutoNativeBreadcrumbs] if you
   /// enable this. Otherwise you might record brightness change events twice.
-  /// Also consider using [enableBreadcrumbTrackingForCurrentPlatform()]
+  /// Also consider using [enableBreadcrumbTrackingForCurrentPlatform]
   /// instead for more sensible defaults.
   bool get enableBrightnessChangeBreadcrumbs =>
       _enableBrightnessChangeBreadcrumbs;
@@ -132,9 +132,9 @@ class SentryFlutterOptions extends SentryOptions {
 
   bool _enableBrightnessChangeBreadcrumbs = false;
 
-  /// Consider disabling [SentryOptions.enableAutoNativeBreadcrumbs] if you
+  /// Consider disabling [enableAutoNativeBreadcrumbs] if you
   /// enable this. Otherwise you might record text scale change events twice.
-  /// Also consider using [enableBreadcrumbTrackingForCurrentPlatform()]
+  /// Also consider using [enableBreadcrumbTrackingForCurrentPlatform]
   /// instead for more sensible defaults.
   bool get enableTextScaleChangeBreadcrumbs =>
       _enableTextScaleChangeBreadcrumbs;
@@ -147,9 +147,9 @@ class SentryFlutterOptions extends SentryOptions {
 
   bool _enableTextScaleChangeBreadcrumbs = false;
 
-  /// Consider disabling [SentryOptions.enableAutoNativeBreadcrumbs] if you
+  /// Consider disabling [enableAutoNativeBreadcrumbs] if you
   /// enable this. Otherwise you might record memory pressure events twice.
-  /// Also consider using [enableBreadcrumbTrackingForCurrentPlatform()]
+  /// Also consider using [enableBreadcrumbTrackingForCurrentPlatform]
   /// instead for more sensible defaults.
   bool get enableMemoryPressureBreadcrumbs => _enableMemoryPressureBreadcrumbs;
 
@@ -209,7 +209,7 @@ class SentryFlutterOptions extends SentryOptions {
     configureBreadcrumbTrackingForPlatform(foundation.defaultTargetPlatform);
   }
 
-  /// You should probably use [enableBreadcrumbTrackingForCurrentPlatform()].
+  /// You should probably use [enableBreadcrumbTrackingForCurrentPlatform].
   /// This should only be used if you really want to override the default
   /// platform behavior.
   @foundation.visibleForTesting
