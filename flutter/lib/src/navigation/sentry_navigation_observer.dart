@@ -9,28 +9,31 @@ const _navigationKey = 'navigation';
 /// This is a navigation observer to record navigational breadcrumbs.
 /// For now it only records navigation events and no gestures.
 ///
-/// Routes can always be null and their settings can also always be null.
+/// [Route]s can always be null and their [Route.settings] can also always be null.
 /// For example, if the application starts, there is no previous route.
-/// The RouteSettings are null if a developer has not specified any
+/// The [RouteSettings] is null if a developer has not specified any
 /// RouteSettings.
 ///
-/// SentryNavigationObserver must be added to the navigation observer of
+/// [SentryNavigatorObserver] must be added to the [navigation observer](https://api.flutter.dev/flutter/material/MaterialApp/navigatorObservers.html) of
 /// your used app. This is an example for [MaterialApp](https://api.flutter.dev/flutter/material/MaterialApp/navigatorObservers.html),
 /// but the integration for [CupertinoApp](https://api.flutter.dev/flutter/cupertino/CupertinoApp/navigatorObservers.html)
 /// and [WidgetsApp](https://api.flutter.dev/flutter/widgets/WidgetsApp/navigatorObservers.html) is the same.
 ///
-/// ´´´dart
+/// ```dart
+/// import 'package:flutter/material.dart';
+/// import 'package:sentry_flutter/sentry_flutter.dart';
+///
 /// MaterialApp(
 ///   navigatorObservers: [
 ///     SentryNavigatorObserver(),
 ///   ],
 ///   // other parameter ...
 /// )
-/// ´´´
+/// ```
 ///
 /// See also:
-///   - https://api.flutter.dev/flutter/widgets/RouteObserver-class.html
-///   - https://flutter.dev/docs/cookbook/navigation/navigate-with-arguments
+///   - [RouteObserver](https://api.flutter.dev/flutter/widgets/RouteObserver-class.html)
+///   - [Navigating with arguments](https://flutter.dev/docs/cookbook/navigation/navigate-with-arguments)
 class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   factory SentryNavigatorObserver({Hub hub}) {
     return SentryNavigatorObserver._(hub ?? HubAdapter());
@@ -87,10 +90,10 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
 /// This class makes it easier to record breadcrumbs for events of Flutters
 /// NavigationObserver by accepting
-/// [RouteSettings](https://api.flutter.dev/flutter/widgets/RouteSettings-class.html).
+/// [RouteSettings].
 ///
 /// See also:
-///   - https://flutter.dev/docs/cookbook/navigation/navigate-with-arguments
+///   - [Navigating with arguments](https://flutter.dev/docs/cookbook/navigation/navigate-with-arguments)
 class RouteObserverBreadcrumb extends Breadcrumb {
   factory RouteObserverBreadcrumb({
     /// This should correspond to Flutters navigation events.
