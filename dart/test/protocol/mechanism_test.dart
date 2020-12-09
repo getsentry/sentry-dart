@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
@@ -8,10 +7,7 @@ void main() {
 
     final copy = data.copyWith();
 
-    expect(
-      MapEquality().equals(data.toJson(), copy.toJson()),
-      true,
-    );
+    expect(data.toJson(), copy.toJson());
   });
 
   test('copyWith takes new values', () {
