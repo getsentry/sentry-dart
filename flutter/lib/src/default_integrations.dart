@@ -19,7 +19,7 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
           SentryLevel.debug, 'Capture from onError ${errorDetails.exception}');
 
       // FlutterError doesn't crash the App.
-      const mechanism = Mechanism(type: 'FlutterError', handled: true);
+      final mechanism = Mechanism(type: 'FlutterError', handled: true);
       final throwableMechanism =
           ThrowableMechanism(mechanism, errorDetails.exception);
 

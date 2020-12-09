@@ -52,7 +52,7 @@ Future<void> handleIsolateError(
     final dynamic stackTrace = error.last;
 
     //  Isolate errors don't crash the App.
-    const mechanism = Mechanism(type: 'isolateError', handled: true);
+    final mechanism = Mechanism(type: 'isolateError', handled: true);
     final throwableMechanism = ThrowableMechanism(mechanism, throwable);
     final event = SentryEvent(
       throwable: throwableMechanism,

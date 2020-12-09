@@ -20,7 +20,7 @@ class Message {
   /// A list of formatting parameters, preferably strings. Non-strings will be coerced to strings.
   final List<dynamic> params;
 
-  Message(this.formatted, {this.template, this.params});
+  const Message(this.formatted, {this.template, this.params});
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};

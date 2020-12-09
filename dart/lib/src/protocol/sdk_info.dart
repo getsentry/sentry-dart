@@ -8,7 +8,7 @@ class SdkInfo {
   final int versionMinor;
   final int versionPatchlevel;
 
-  SdkInfo({
+  const SdkInfo({
     this.sdkName,
     this.versionMajor,
     this.versionMinor,

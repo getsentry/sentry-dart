@@ -96,12 +96,15 @@ class SdkVersion {
     _integrations.add(integration);
   }
 
-  SdkVersion copyWith({
-    String name,
-    String version,
-  }) =>
+  SdkVersion copyWith(
+          {String name,
+          String version,
+          List<String> integrations,
+          List<SentryPackage> packages}) =>
       SdkVersion(
         name: name ?? this.name,
         version: version ?? this.version,
+        integrations: integrations ?? _integrations,
+        packages: packages ?? _packages,
       );
 }
