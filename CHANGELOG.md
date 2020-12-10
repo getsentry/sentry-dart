@@ -2,7 +2,7 @@
 
 Release of Sentry's new SDK for Dart/Flutter.
 
-New features not offered by <= v3.0.0:
+New features not offered by <= v4.0.0:
 
 ## Dart SDK
 
@@ -109,7 +109,7 @@ We'd love to get feedback.
 
 First Release of Sentry's new SDK for Dart/Flutter.
 
-New features not offered by <= v3.0.0:
+New features not offered by <= v4.0.0:
 
 * Sentry's [Unified API](https://develop.sentry.dev/sdk/unified-api/).
 * Complete Sentry [Protocol](https://develop.sentry.dev/sdk/event-payloads/) available.
