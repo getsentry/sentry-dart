@@ -1,6 +1,44 @@
-# vNext
+# 4.0.0
+
+Release of Sentry's new SDK for Dart/Flutter.
+
+New features not offered by <= v4.0.0:
+
+## Dart SDK
+
+* Sentry's [Unified API](https://develop.sentry.dev/sdk/unified-api/).
+* Complete Sentry's [Protocol](https://develop.sentry.dev/sdk/event-payloads/) available.
+* [Dart SDK](https://docs.sentry.io/platforms/dart/) docs.
+* Automatic [HTTP Breadcrumbs](https://docs.sentry.io/platforms/dart/usage/advanced-usage/#automatic-breadcrumbs) for [http.Client](https://pub.dev/documentation/http/latest/http/Client-class.html)
+* No boilerplate for `runZonedGuarded` and `Isolate.current.addErrorListener`
+* All events are enriched with [Scope's Contexts](https://develop.sentry.dev/sdk/event-payloads/#scope-interfaces), this includes Breadcrumbs, tags, User, etc...
+
+## Flutter SDK
+
+* The Flutter SDK is built on top of the Dart SDK, so it includes all the available features, plus
+* [Flutter SDK](https://docs.sentry.io/platforms/flutter/) docs.
+* Automatic [NavigatorObserver Breadcrumbs](https://docs.sentry.io/platforms/flutter/usage/advanced-usage/#automatic-breadcrumbs)
+* Automatic [Device's Breadcrumbs](https://docs.sentry.io/platforms/flutter/usage/advanced-usage/#automatic-breadcrumbs) through the Android and iOS SDKs or via Sentry's `WidgetsBindingObserver` wrapper
+* No boilerplate for `FlutterError.onError`
+* All events are enriched with [Contexts's data](https://develop.sentry.dev/sdk/event-payloads/contexts/), this includes Device's, OS, App info, etc...
+* Offline caching
+* [Release health](https://docs.sentry.io/product/releases/health/)
+* Captures not only Dart and Flutter errors, but also errors caused on the native platforms, Like Kotlin, Java, C and C++ for Android and Swift, ObjC, C, C++ for iOS
+* Supports Fatal crashes, Event is going to be sent on App's restart
+* Supports `split-debug-info` for Android only
+* Flutter Android, iOS and limited support for Flutter Web
+
+Improvements:
 
 * Feat: Added a copyWith method to all the protocol classes
+
+Packages were released on [sentry pubdev](https://pub.dev/packages/sentry) and [sentry_flutter pubdev](https://pub.dev/packages/sentry_flutter)
+
+## Sentry Self Hosted Compatibility
+
+* Since version `4.0.0` of the `sentry_flutter`, [Sentry's version >= v20.6.0](https://github.com/getsentry/onpremise/releases) is required. This only applies to on-premise Sentry, if you are using sentry.io no action is needed.
+
+We'd love to get feedback.
 
 # 4.0.0-beta.2
 
@@ -71,7 +109,7 @@
 
 First Release of Sentry's new SDK for Dart/Flutter.
 
-New features not offered by <= v3.0.0:
+New features not offered by <= v4.0.0:
 
 * Sentry's [Unified API](https://develop.sentry.dev/sdk/unified-api/).
 * Complete Sentry [Protocol](https://develop.sentry.dev/sdk/event-payloads/) available.

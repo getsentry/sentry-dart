@@ -19,12 +19,6 @@ Pure Dart SDK used by any Dart application like AngularDart, CLI and server.
 For Flutter applications there's [`sentry_flutter`](https://pub.dev/packages/sentry_flutter) which builds on top of this package.
 That will give you native crash support (for Android and iOS), [release health](https://docs.sentry.io/product/releases/health/), offline caching and more.
 
-#### Versions
-
-Versions `^4.0.0-alpha.1` are `Prereleases` and are under improvements/testing.
-
-The current stable version is the Dart SDK, [3.0.1](https://pub.dev/packages/sentry).
-
 #### Usage
 
 - Sign up for a Sentry.io account and get a DSN at http://sentry.io.
