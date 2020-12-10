@@ -36,7 +36,7 @@ Packages were released on [sentry pubdev](https://pub.dev/packages/sentry) and [
 
 ## Sentry Self Hosted Compatibility
 
-* Since version `4.0.0` of the `sentry_flutter`, `Sentry` version >= `v20.6.0` is required. This only applies to on-premise Sentry, if you are using sentry.io no action is needed.
+* Since version `4.0.0` of the `sentry_flutter`, [Sentry's version >= v20.6.0](https://github.com/getsentry/onpremise/releases) is required. This only applies to on-premise Sentry, if you are using sentry.io no action is needed.
 
 We'd love to get feedback.
 
