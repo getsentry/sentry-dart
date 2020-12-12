@@ -46,7 +46,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     }
     // References:
     // https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
-    // https://github.com/getsentry/sentry-java/blob/main/sentry-android-core/src/main/java/io/sentry/android/core/LifecycleWatcher.java#L119-L128
+    // https://github.com/getsentry/sentry-java/blob/de00462e3499fa9a21a7992317503f1ccda7d226/sentry-android-core/src/main/java/io/sentry/android/core/LifecycleWatcher.java#L119-L128
     _hub.addBreadcrumb(Breadcrumb(
       category: 'app.lifecycle',
       type: 'navigation',
