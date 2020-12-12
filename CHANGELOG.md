@@ -1,5 +1,7 @@
 # vNext
 
+* Ref: Changed category of Flutter lifecycle tracking [#240](https://github.com/getsentry/sentry-dart/issues/240)
+
 # 4.0.0
 
 Release of Sentry's new SDK for Dart/Flutter.
