@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart' as foundation;
 import 'package:sentry/sentry.dart';
 
-/// This class add options which are only availble in a Flutter environment.
+/// This class adds options which are only availble in a Flutter environment.
+/// Note that some of these options require native Sentry integration, which is
+/// not available on all platforms.
 class SentryFlutterOptions extends SentryOptions {
   SentryFlutterOptions() : super();
 
@@ -17,7 +19,7 @@ class SentryFlutterOptions extends SentryOptions {
 
   bool _enableNativeCrashHandling = true;
 
-  /// Enable or Disable the Crash handling on the Native SDKs (Android/iOS)
+  /// Enable or disable the Crash handling on the Native SDKs (Android/iOS)
   bool get enableNativeCrashHandling => _enableNativeCrashHandling;
 
   set enableNativeCrashHandling(bool nativeCrashHandling) {
@@ -27,9 +29,9 @@ class SentryFlutterOptions extends SentryOptions {
 
   int _autoSessionTrackingIntervalMillis = 30000;
 
-  /// The session tracking interval in millis. This is the interval to end a session if the App goes
-  /// to the background.
-  /// See: enableAutoSessionTracking
+  /// The session tracking interval in millis. This is the interval to end a
+  /// session if the App goes to the background.
+  /// See: [enableAutoSessionTracking]
   int get autoSessionTrackingIntervalMillis =>
       _autoSessionTrackingIntervalMillis;
 
@@ -58,7 +60,7 @@ class SentryFlutterOptions extends SentryOptions {
 
   /// ANR Timeout internal in Millis Default is 5000 = 5s Used by AnrIntegration.
   /// Available only for Android.
-  /// See: anrEnabled
+  /// See: [anrEnabled]
   int get anrTimeoutIntervalMillis => _anrTimeoutIntervalMillis;
 
   set anrTimeoutIntervalMillis(int anrTimeoutIntervalMillis) {
@@ -72,6 +74,9 @@ class SentryFlutterOptions extends SentryOptions {
 
   /// Enable or disable the Automatic breadcrumbs on the Native platforms (Android/iOS)
   /// Screen's lifecycle, App's lifecycle, System events, etc...
+  ///
+  /// If you only want to record breadcrumbs inside the Flutter environment
+  /// consider using [useFlutterBreadcrumbTracking].
   bool get enableAutoNativeBreadcrumbs => _enableAutoNativeBreadcrumbs;
 
   set enableAutoNativeBreadcrumbs(bool enableAutoNativeBreadcrumbs) {
@@ -91,18 +96,37 @@ class SentryFlutterOptions extends SentryOptions {
         : _cacheDirSize;
   }
 
+  @Deprecated('Use enableAppLifecycleBreadcrumbs instead')
+  bool get enableLifecycleBreadcrumbs => _enableAppLifecycleBreadcrumbs;
+
+  @Deprecated('Use enableAppLifecycleBreadcrumbs instead')
+  set enableLifecycleBreadcrumbs(bool value) =>
+      enableAppLifecycleBreadcrumbs = value;
+
   /// Consider disabling [enableAutoNativeBreadcrumbs] if you
-  /// enable this. Otherwise you might record lifecycle events twice.
+  /// enable this. Otherwise you might record app lifecycle events twice.
   /// Also consider using [enableBreadcrumbTrackingForCurrentPlatform]
   /// instead for more sensible defaults.
-  bool get enableLifecycleBreadcrumbs => _enableLifecycleBreadcrumbs;
+  ///
+  /// Android:
+  /// This is more or less equivalent to the [Activity Lifecycle](https://developer.android.com/guide/components/activities/activity-lifecycle).
+  /// However because an Android Flutter application lives inside a single
+  /// [Activity](https://developer.android.com/reference/android/app/Activity)
+  /// this is an application wide lifecycle event.
+  ///
+  /// iOS:
+  /// This is more or less equivalent to the [UIViewController](https://developer.apple.com/documentation/uikit/uiviewcontroller)s
+  /// [lifecycle](https://developer.apple.com/documentation/uikit/app_and_environment/managing_your_app_s_life_cycle).
+  /// However because an iOS Flutter application lives inside a single
+  /// `UIViewController` this is an application wide lifecycle event.
+  bool get enableAppLifecycleBreadcrumbs => _enableAppLifecycleBreadcrumbs;
 
-  set enableLifecycleBreadcrumbs(bool value) {
+  set enableAppLifecycleBreadcrumbs(bool value) {
     assert(value != null);
-    _enableLifecycleBreadcrumbs = value ?? _enableLifecycleBreadcrumbs;
+    _enableAppLifecycleBreadcrumbs = value ?? _enableAppLifecycleBreadcrumbs;
   }
 
-  bool _enableLifecycleBreadcrumbs = false;
+  bool _enableAppLifecycleBreadcrumbs = false;
 
   /// Consider disabling [enableAutoNativeBreadcrumbs] if you
   /// enable this. Otherwise you might record window metric events twice.
@@ -165,7 +189,7 @@ class SentryFlutterOptions extends SentryOptions {
   /// you are just tracking [Breadcrumb]s which result from events available
   /// in the current Flutter environment.
   void useFlutterBreadcrumbTracking() {
-    enableLifecycleBreadcrumbs = true;
+    enableAppLifecycleBreadcrumbs = true;
     enableWindowMetricBreadcrumbs = true;
     enableBrightnessChangeBreadcrumbs = true;
     enableTextScaleChangeBreadcrumbs = true;
@@ -183,7 +207,7 @@ class SentryFlutterOptions extends SentryOptions {
   /// tracking [Breadcrumb]s which result from events available
   /// in the current Flutter environment.
   void useNativeBreadcrumbTracking() {
-    enableLifecycleBreadcrumbs = false;
+    enableAppLifecycleBreadcrumbs = false;
     enableWindowMetricBreadcrumbs = false;
     enableBrightnessChangeBreadcrumbs = false;
     enableTextScaleChangeBreadcrumbs = false;
