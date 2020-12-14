@@ -99,7 +99,7 @@ class SentryFlutterOptions extends SentryOptions {
   @Deprecated('Use enableAppLifecycleBreadcrumbs instead. This option gets removed in Sentry 5.0.0')
   bool get enableLifecycleBreadcrumbs => _enableAppLifecycleBreadcrumbs;
 
-  @Deprecated('Use enableAppLifecycleBreadcrumbs instead')
+  @Deprecated('Use enableAppLifecycleBreadcrumbs instead. This option gets removed in Sentry 5.0.0')
   set enableLifecycleBreadcrumbs(bool value) =>
       enableAppLifecycleBreadcrumbs = value;
 
