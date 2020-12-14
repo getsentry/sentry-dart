@@ -41,14 +41,14 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   ///   - [WidgetsBindingObserver](https://api.flutter.dev/flutter/widgets/WidgetsBindingObserver-class.html)
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (!_options.enableLifecycleBreadcrumbs) {
+    if (!_options.enableAppLifecycleBreadcrumbs) {
       return;
     }
-    // According to
+    // References:
     // https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
-    // this is of the type navigation.
+    // https://github.com/getsentry/sentry-java/blob/de00462e3499fa9a21a7992317503f1ccda7d226/sentry-android-core/src/main/java/io/sentry/android/core/LifecycleWatcher.java#L119-L128
     _hub.addBreadcrumb(Breadcrumb(
-      category: 'ui.lifecycle',
+      category: 'app.lifecycle',
       type: 'navigation',
       data: <String, String>{
         'state': _lifecycleToString(state),

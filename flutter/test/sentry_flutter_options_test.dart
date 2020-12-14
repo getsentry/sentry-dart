@@ -9,7 +9,7 @@ void main() {
       final options = SentryFlutterOptions();
       options.configureBreadcrumbTrackingForPlatform(TargetPlatform.android);
 
-      expect(options.enableLifecycleBreadcrumbs, isFalse);
+      expect(options.enableAppLifecycleBreadcrumbs, isFalse);
       expect(options.enableWindowMetricBreadcrumbs, isFalse);
       expect(options.enableBrightnessChangeBreadcrumbs, isFalse);
       expect(options.enableTextScaleChangeBreadcrumbs, isFalse);
@@ -18,7 +18,7 @@ void main() {
 
       options.configureBreadcrumbTrackingForPlatform(TargetPlatform.iOS);
 
-      expect(options.enableLifecycleBreadcrumbs, isFalse);
+      expect(options.enableAppLifecycleBreadcrumbs, isFalse);
       expect(options.enableWindowMetricBreadcrumbs, isFalse);
       expect(options.enableBrightnessChangeBreadcrumbs, isFalse);
       expect(options.enableTextScaleChangeBreadcrumbs, isFalse);
@@ -36,7 +36,7 @@ void main() {
       for (final platform in platforms) {
         options.configureBreadcrumbTrackingForPlatform(platform);
 
-        expect(options.enableLifecycleBreadcrumbs, isTrue);
+        expect(options.enableAppLifecycleBreadcrumbs, isTrue);
         expect(options.enableWindowMetricBreadcrumbs, isTrue);
         expect(options.enableBrightnessChangeBreadcrumbs, isTrue);
         expect(options.enableTextScaleChangeBreadcrumbs, isTrue);
@@ -49,7 +49,7 @@ void main() {
       final options = SentryFlutterOptions();
       options.useNativeBreadcrumbTracking();
 
-      expect(options.enableLifecycleBreadcrumbs, isFalse);
+      expect(options.enableAppLifecycleBreadcrumbs, isFalse);
       expect(options.enableWindowMetricBreadcrumbs, isFalse);
       expect(options.enableBrightnessChangeBreadcrumbs, isFalse);
       expect(options.enableTextScaleChangeBreadcrumbs, isFalse);
@@ -61,7 +61,7 @@ void main() {
       final options = SentryFlutterOptions();
       options.useFlutterBreadcrumbTracking();
 
-      expect(options.enableLifecycleBreadcrumbs, isTrue);
+      expect(options.enableAppLifecycleBreadcrumbs, isTrue);
       expect(options.enableWindowMetricBreadcrumbs, isTrue);
       expect(options.enableBrightnessChangeBreadcrumbs, isTrue);
       expect(options.enableTextScaleChangeBreadcrumbs, isTrue);

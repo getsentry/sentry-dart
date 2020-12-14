@@ -101,7 +101,7 @@ void main() {
 
       var breadcrumb =
           verify(hub.addBreadcrumb(captureAny)).captured.last as Breadcrumb;
-      expect(breadcrumb.category, 'ui.lifecycle');
+      expect(breadcrumb.category, 'app.lifecycle');
       expect(breadcrumb.type, 'navigation');
       expect(breadcrumb.data, mapForLifecycle('paused'));
       expect(breadcrumb.level, SentryLevel.info);
@@ -111,7 +111,7 @@ void main() {
 
       breadcrumb =
           verify(hub.addBreadcrumb(captureAny)).captured.last as Breadcrumb;
-      expect(breadcrumb.category, 'ui.lifecycle');
+      expect(breadcrumb.category, 'app.lifecycle');
       expect(breadcrumb.type, 'navigation');
       expect(breadcrumb.data, mapForLifecycle('resumed'));
       expect(breadcrumb.level, SentryLevel.info);
@@ -121,7 +121,7 @@ void main() {
 
       breadcrumb =
           verify(hub.addBreadcrumb(captureAny)).captured.last as Breadcrumb;
-      expect(breadcrumb.category, 'ui.lifecycle');
+      expect(breadcrumb.category, 'app.lifecycle');
       expect(breadcrumb.type, 'navigation');
       expect(breadcrumb.data, mapForLifecycle('inactive'));
       expect(breadcrumb.level, SentryLevel.info);
@@ -131,7 +131,7 @@ void main() {
 
       breadcrumb =
           verify(hub.addBreadcrumb(captureAny)).captured.last as Breadcrumb;
-      expect(breadcrumb.category, 'ui.lifecycle');
+      expect(breadcrumb.category, 'app.lifecycle');
       expect(breadcrumb.type, 'navigation');
       expect(breadcrumb.data, mapForLifecycle('detached'));
       expect(breadcrumb.level, SentryLevel.info);
