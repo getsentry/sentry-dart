@@ -51,7 +51,7 @@ void main() {
 
     final transport = fixture.getSut(_channel);
 
-    final event = SentryEvent();
+    final event = SentryEvent(message: Message('hi I am a special char ◤'));
     await transport.send(event);
 
     final envelopeList = arguments as List;
@@ -72,10 +72,11 @@ void main() {
     final itemHeaderMap = jsonDecode(itemHeader) as Map<String, dynamic>;
 
     final eventString = jsonEncode(event.toJson());
+    final eventUtf = utf8.encode(eventString);
 
     expect('application/json', itemHeaderMap['content_type']);
     expect('event', itemHeaderMap['type']);
-    expect(eventString.length, itemHeaderMap['length']);
+    expect(eventUtf.length, itemHeaderMap['length']);
 
     expect(item, eventString);
   });

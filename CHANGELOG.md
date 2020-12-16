@@ -1,6 +1,7 @@
 # vNext
 
 * Ref: Changed category of Flutter lifecycle tracking [#240](https://github.com/getsentry/sentry-dart/issues/240)
+* Fix: Envelope length should be based on the UTF8 array instead of String length
 
 # 4.0.0
 
