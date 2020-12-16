@@ -19,11 +19,12 @@ class FileSystemTransport implements Transport {
     final eventMap = event.toJson();
 
     final eventString = jsonEncode(eventMap);
+    final eventUtf8 = utf8.encode(eventString);
 
     final itemHeaderMap = {
       'content_type': 'application/json',
       'type': 'event',
-      'length': eventString.length,
+      'length': eventUtf8.length,
     };
 
     final headerString = jsonEncode(headerMap);
