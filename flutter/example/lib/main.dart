@@ -15,7 +15,7 @@ Future<void> main() async {
     (options) {
       options.dsn = _exampleDsn;
       // use breadcrumb tracking of WidgetsBindingObserver
-      options.useFlutterBreadcrumbTracking();
+      // options.useFlutterBreadcrumbTracking();
       // use breadcrumb tracking of platform Sentry SDKs
       options.useNativeBreadcrumbTracking();
     },
