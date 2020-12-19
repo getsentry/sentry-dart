@@ -12,7 +12,7 @@ import 'widgets_binding_observer.dart';
 ///
 /// Remarks:
 ///   - Most UI and layout related errors (such as
-///     [these](https://flutter.dev/docs/testing/errors)) are AssertionErrors
+///     [these](https://flutter.dev/docs/testing/common-errors)) are AssertionErrors
 ///     and are stripped in release mode. See [Flutter build modes](https://flutter.dev/docs/testing/build-modes).
 ///     So they only get caught in debug mode.
 class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
