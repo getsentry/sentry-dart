@@ -34,6 +34,11 @@ mixin SentryFlutter {
     if (optionsConfiguration == null) {
       throw ArgumentError('OptionsConfiguration is required.');
     }
+
+    // It is necessary to initialize Flutter method channels so that
+    // our plugin can call into the native code.
+    WidgetsFlutterBinding.ensureInitialized();
+
     final flutterOptions = SentryFlutterOptions();
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
@@ -58,10 +63,6 @@ mixin SentryFlutter {
   static Future<void> _initDefaultValues(
     SentryFlutterOptions options,
   ) async {
-    // it is necessary to initialize Flutter method channels so that
-    // our plugin can call into the native code.
-    WidgetsFlutterBinding.ensureInitialized();
-
     options.debug = kDebugMode;
 
     // web still uses a http transport for Web which is set by default
