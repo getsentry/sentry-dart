@@ -23,7 +23,7 @@ _Platform installed with:_
 - [ ] pub.dev
 - [ ] GitHub
 
-Output of the command `flutter doctor` below::
+Output of the command `flutter doctor -v` below:
 
 The output goes here...
 
