@@ -21,30 +21,39 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
     final defaultOnError = FlutterError.onError;
 
     FlutterError.onError = (FlutterErrorDetails errorDetails) async {
+      dynamic exception = errorDetails.exception;
+
       options.logger(
         SentryLevel.debug,
-        'Capture from onError ${errorDetails.exception}',
+        'Capture from onError $exception',
       );
 
-      // FlutterError doesn't crash the App.
-      final mechanism = Mechanism(type: 'FlutterError', handled: true);
-      final throwableMechanism =
-          ThrowableMechanism(mechanism, errorDetails.exception);
+      if (errorDetails.silent != true || options.reportSilentFlutterErrors) {
+        // FlutterError doesn't crash the App.
+        final mechanism = Mechanism(type: 'FlutterError', handled: true);
+        final throwableMechanism = ThrowableMechanism(mechanism, exception);
 
-      final event = SentryEvent(
-        throwable: throwableMechanism,
-        level: SentryLevel.fatal,
-      );
+        var event = SentryEvent(
+          throwable: throwableMechanism,
+          level: SentryLevel.fatal,
+        );
 
-      await hub.captureEvent(event, stackTrace: errorDetails.stack);
+        await hub.captureEvent(event, stackTrace: errorDetails.stack);
 
-      // call original handler
-      if (defaultOnError != null) {
-        defaultOnError(errorDetails);
+        // call original handler
+        if (defaultOnError != null) {
+          defaultOnError(errorDetails);
+        }
+
+        // we don't call Zone.current.handleUncaughtError because we'd like
+        // to set a specific mechanism for FlutterError.onError.
+      } else {
+        options.logger(
+            SentryLevel.debug,
+            'Error not captured due to [FlutterErrorDetails.silent], '
+            'Enable [SentryFlutterOptions.reportSilentFlutterErrors] '
+            'if you wish to capture silent errors');
       }
-
-      // we don't call Zone.current.handleUncaughtError because we'd like
-      // to set a specific mechanism for FlutterError.onError.
     };
 
     options.sdk.addIntegration('flutterErrorIntegration');
