@@ -1,5 +1,8 @@
 # vNext
 
+* Fix: Deprecated binaryMessenger (MethodChannel member) for Flutter Web
+* Ref: Make `WidgetsFlutterBinding.ensureInitialized();` the first thing the Sentry SDK calls.
+
 # 4.0.1
 
 * Ref: Changed category of Flutter lifecycle tracking [#240](https://github.com/getsentry/sentry-dart/issues/240)

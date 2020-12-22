@@ -8,7 +8,13 @@ import 'package:sentry/sentry.dart';
 import 'sentry_flutter_options.dart';
 import 'widgets_binding_observer.dart';
 
-/// integration that capture errors on the FlutterError handler
+/// Integration that capture errors on the [FlutterError.onError] handler.
+///
+/// Remarks:
+///   - Most UI and layout related errors (such as
+///     [these](https://flutter.dev/docs/testing/common-errors)) are AssertionErrors
+///     and are stripped in release mode. See [Flutter build modes](https://flutter.dev/docs/testing/build-modes).
+///     So they only get caught in debug mode.
 class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
   @override
   void call(Hub hub, SentryFlutterOptions options) {
@@ -17,7 +23,10 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
     FlutterError.onError = (FlutterErrorDetails errorDetails) async {
       dynamic exception = errorDetails.exception;
 
-      options.logger(SentryLevel.debug, 'Capture from onError $exception');
+      options.logger(
+        SentryLevel.debug,
+        'Capture from onError $exception',
+      );
 
       if (errorDetails.silent != true || options.reportSilentFlutterErrors) {
         // FlutterError doesn't crash the App.

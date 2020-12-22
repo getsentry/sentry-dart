@@ -9,7 +9,7 @@ class SentryFlutterWeb {
     final channel = MethodChannel(
       'sentry_flutter',
       const StandardMethodCodec(),
-      registrar.messenger,
+      registrar,
     );
 
     final pluginInstance = SentryFlutterWeb();

@@ -23,15 +23,28 @@ void main() {
     _channel.setMockMethodCallHandler(null);
   });
 
-  test('FlutterError capture errors', () async {
+  void _reportError({
+    bool silent = false,
+    FlutterExceptionHandler handler,
+    dynamic exception,
+  }) {
     // replace default error otherwise it fails on testing
-    FlutterError.onError = (FlutterErrorDetails errorDetails) async {};
+    FlutterError.onError =
+        handler ?? (FlutterErrorDetails errorDetails) async {};
 
     FlutterErrorIntegration()(fixture.hub, fixture.options);
 
-    final throwable = StateError('error');
-    final details = FlutterErrorDetails(exception: throwable);
+    final throwable = exception ?? StateError('error');
+    final details = FlutterErrorDetails(
+      exception: throwable,
+      silent: silent,
+    );
     FlutterError.reportError(details);
+  }
+
+  test('FlutterError capture errors', () async {
+    final exception = StateError('error');
+    _reportError(exception: exception);
 
     final event = verify(
       await fixture.hub.captureEvent(captureAny),
@@ -42,7 +55,7 @@ void main() {
     final throwableMechanism = event.throwable as ThrowableMechanism;
     expect('FlutterError', throwableMechanism.mechanism.type);
     expect(true, throwableMechanism.mechanism.handled);
-    expect(throwable, throwableMechanism.throwable);
+    expect(exception, throwableMechanism.throwable);
   });
 
   test('FlutterError calls default error', () async {
@@ -50,19 +63,26 @@ void main() {
     final defaultError = (FlutterErrorDetails errorDetails) async {
       called = true;
     };
-    FlutterError.onError = defaultError;
 
-    FlutterErrorIntegration()(fixture.hub, fixture.options);
+    _reportError(handler: defaultError);
 
-    final throwable = StateError('error');
-    final details = FlutterErrorDetails(exception: throwable);
-    FlutterError.reportError(details);
-
-    verify(
-      await fixture.hub.captureEvent(captureAny),
-    ).captured.first as SentryEvent;
+    verify(await fixture.hub.captureEvent(captureAny));
 
     expect(true, called);
+  });
+
+  test('FlutterError do not capture if silent error', () async {
+    _reportError(silent: true);
+
+    verifyNever(await fixture.hub.captureEvent(captureAny));
+  });
+
+  test('FlutterError captures if silent error but reportSilentFlutterErrors',
+      () async {
+    fixture.options.reportSilentFlutterErrors = true;
+    _reportError(silent: true);
+
+    verify(await fixture.hub.captureEvent(captureAny));
   });
 
   test('FlutterError adds integration', () async {
