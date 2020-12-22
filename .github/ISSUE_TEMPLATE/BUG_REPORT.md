@@ -1,3 +1,9 @@
+---
+name: Bug report
+about: Create a report to help us improve
+
+---
+
 _Platform:_
 - [ ]  Dart
 - [ ]  Flutter Android or iOS
