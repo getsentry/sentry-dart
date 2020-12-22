@@ -12,9 +12,9 @@ class SentryFlutterOptions extends SentryOptions {
   /// Enable or disable the Auto session tracking on the Native SDKs (Android/iOS)
   bool get enableAutoSessionTracking => _enableAutoSessionTracking;
 
-  set enableAutoSessionTracking(bool enableAutoSessionTracking) {
-    _enableAutoSessionTracking =
-        enableAutoSessionTracking ?? _enableAutoSessionTracking;
+  set enableAutoSessionTracking(bool value) {
+    assert(value != null);
+    _enableAutoSessionTracking = value ?? _enableAutoSessionTracking;
   }
 
   bool _enableNativeCrashHandling = true;
@@ -22,9 +22,9 @@ class SentryFlutterOptions extends SentryOptions {
   /// Enable or disable the Crash handling on the Native SDKs (Android/iOS)
   bool get enableNativeCrashHandling => _enableNativeCrashHandling;
 
-  set enableNativeCrashHandling(bool nativeCrashHandling) {
-    _enableNativeCrashHandling =
-        nativeCrashHandling ?? _enableNativeCrashHandling;
+  set enableNativeCrashHandling(bool value) {
+    assert(value != null);
+    _enableNativeCrashHandling = value ?? _enableNativeCrashHandling;
   }
 
   int _autoSessionTrackingIntervalMillis = 30000;
@@ -35,12 +35,11 @@ class SentryFlutterOptions extends SentryOptions {
   int get autoSessionTrackingIntervalMillis =>
       _autoSessionTrackingIntervalMillis;
 
-  set autoSessionTrackingIntervalMillis(int autoSessionTrackingIntervalMillis) {
-    _autoSessionTrackingIntervalMillis =
-        (autoSessionTrackingIntervalMillis != null &&
-                autoSessionTrackingIntervalMillis >= 0)
-            ? autoSessionTrackingIntervalMillis
-            : _autoSessionTrackingIntervalMillis;
+  set autoSessionTrackingIntervalMillis(int value) {
+    assert(value != null);
+    _autoSessionTrackingIntervalMillis = (value != null && value >= 0)
+        ? value
+        : _autoSessionTrackingIntervalMillis;
   }
 
   bool _anrEnabled = false;
@@ -52,8 +51,9 @@ class SentryFlutterOptions extends SentryOptions {
   /// Java/Kotlin code as well.
   bool get anrEnabled => _anrEnabled;
 
-  set anrEnabled(bool anrEnabled) {
-    _anrEnabled = anrEnabled ?? _anrEnabled;
+  set anrEnabled(bool value) {
+    assert(value != null);
+    _anrEnabled = value ?? _anrEnabled;
   }
 
   int _anrTimeoutIntervalMillis = 5000;
@@ -63,11 +63,10 @@ class SentryFlutterOptions extends SentryOptions {
   /// See: [anrEnabled]
   int get anrTimeoutIntervalMillis => _anrTimeoutIntervalMillis;
 
-  set anrTimeoutIntervalMillis(int anrTimeoutIntervalMillis) {
+  set anrTimeoutIntervalMillis(int value) {
+    assert(value != null);
     _anrTimeoutIntervalMillis =
-        (anrTimeoutIntervalMillis != null && anrTimeoutIntervalMillis >= 0)
-            ? anrTimeoutIntervalMillis
-            : _anrTimeoutIntervalMillis;
+        (value != null && value >= 0) ? value : _anrTimeoutIntervalMillis;
   }
 
   bool _enableAutoNativeBreadcrumbs = true;
@@ -79,9 +78,9 @@ class SentryFlutterOptions extends SentryOptions {
   /// consider using [useFlutterBreadcrumbTracking].
   bool get enableAutoNativeBreadcrumbs => _enableAutoNativeBreadcrumbs;
 
-  set enableAutoNativeBreadcrumbs(bool enableAutoNativeBreadcrumbs) {
-    _enableAutoNativeBreadcrumbs =
-        enableAutoNativeBreadcrumbs ?? _enableAutoNativeBreadcrumbs;
+  set enableAutoNativeBreadcrumbs(bool value) {
+    assert(value != null);
+    _enableAutoNativeBreadcrumbs = value ?? _enableAutoNativeBreadcrumbs;
   }
 
   int _cacheDirSize = 30;
@@ -90,10 +89,9 @@ class SentryFlutterOptions extends SentryOptions {
   /// Only available for Android.
   int get cacheDirSize => _cacheDirSize;
 
-  set cacheDirSize(int cacheDirSize) {
-    _cacheDirSize = (cacheDirSize != null && cacheDirSize >= 0)
-        ? cacheDirSize
-        : _cacheDirSize;
+  set cacheDirSize(int value) {
+    assert(value != null);
+    _cacheDirSize = (value != null && value >= 0) ? value : _cacheDirSize;
   }
 
   @Deprecated(
@@ -190,6 +188,18 @@ class SentryFlutterOptions extends SentryOptions {
   }
 
   bool _enableMemoryPressureBreadcrumbs = false;
+
+  /// By default, we don't report [FlutterErrorDetails.silent] errors,
+  /// but you can by enabling this flag.
+  /// See https://api.flutter.dev/flutter/foundation/FlutterErrorDetails/silent.html
+  bool get reportSilentFlutterErrors => _reportSilentFlutterErrors;
+
+  set reportSilentFlutterErrors(bool value) {
+    assert(value != null);
+    _reportSilentFlutterErrors = value ?? _reportSilentFlutterErrors;
+  }
+
+  bool _reportSilentFlutterErrors = false;
 
   /// By using this, you are disabling native [Breadcrumb] tracking and instead
   /// you are just tracking [Breadcrumb]s which result from events available

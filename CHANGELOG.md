@@ -2,6 +2,7 @@
 
 * Fix: Deprecated binaryMessenger (MethodChannel member) for Flutter Web
 * Ref: Make `WidgetsFlutterBinding.ensureInitialized();` the first thing the Sentry SDK calls.
+* Feat: Respect FlutterError silent flag #248
 
 # 4.0.1
 
