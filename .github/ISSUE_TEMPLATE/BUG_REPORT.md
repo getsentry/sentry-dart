@@ -1,21 +1,45 @@
 ---
-name: Report a bug
-about: A bug you encountered with the sentry_flutter package.
+name: Bug report
+about: Create a report to help us improve
+
 ---
 
-<!-- Continue to report a bug on the **Sentry Flutter SDK**.
-For bug reports for the core sentry package, please use the the sentry-dart issue tracker:
-http://github.com/getsentry/sentry-dart/issues  -->
+_Platform:_
+- [ ]  Dart
+- [ ]  Flutter Android or iOS
+- [ ]  Flutter Web
 
-1. Please describe the issue and how to reproduce it, or link to a small reproducible application:
+_IDE:_
+- [ ]  VSCode
+- [ ]  IntelliJ/AS
+- [ ]  XCode
+- [ ]  Other, which one?
 
+_split-debug-info and obfuscate (Flutter Android or iOS) or CanvasKit (Flutter Web):_
+- [ ]  Enabled
+- [ ]  Disabled
 
+_Platform installed with:_
+- [ ] pub.dev
+- [ ] GitHub
 
+Output of the command `flutter doctor -v` below:
 
-2. Include the output of the command `flutter doctor` below:
+The output goes here...
 
-```sh
+The version of the SDK (See pubspec.lock):
+**4.x.x**
 
+---
+I have the following issue:
 
+The description goes here ...
 
-```
+**Steps to reproduce:**
+- Step
+
+**Actual result:**
+- Actual
+
+**Expected result:**
+- Result
