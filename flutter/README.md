@@ -79,7 +79,7 @@ For a more throughout example see the [example](example/lib/main.dart).
 
 - Flutter `split-debug-info` and `obfuscate` flag aren't supported on iOS yet, but only on Android, if this feature is enabled, Dart stack traces are not human readable
 - If you enable the `split-debug-info` feature, you must upload the Debug Symbols manually.
-- Layout related errors are only catched by [FlutterError.onError](https://api.flutter.dev/flutter/foundation/FlutterError/onError.html) in debug mode. In release mode they are removed by the Flutter framework. See [Flutter build modes](https://flutter.dev/docs/testing/build-modes). 
+- Layout related errors are only caught by [FlutterError.onError](https://api.flutter.dev/flutter/foundation/FlutterError/onError.html) in debug mode. In release mode, they are removed by the Flutter framework. See [Flutter build modes](https://flutter.dev/docs/testing/build-modes). 
 
 ##### Uploading Debug Symbols (Android and iOS)
 
