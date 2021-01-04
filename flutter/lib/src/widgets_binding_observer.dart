@@ -158,13 +158,13 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     return '';
   }
 
-  /* 
+  /*
   These are also methods of `WidgetsBindingObserver` but are currently not
-  implemented because I'm not sure what to do with them. See the reasoning 
+  implemented because I'm not sure what to do with them. See the reasoning
   for each method. If these methods are implemented the class definition should
   be changed from `class SentryWidgetsBindingObserver with WidgetsBindingObserver`
   to `class SentryWidgetsBindingObserver implements WidgetsBindingObserver`.
-  You should also add options SentryFlutterOptions to configure if these 
+  You should also add options SentryFlutterOptions to configure if these
   events should be tracked.
 
   // Figure out which accessibility features changed
@@ -174,18 +174,18 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   // Figure out which locales changed
   @override
   void didChangeLocales(List<Locale> locale) {}
-  
+
   // Does this need to be considered?
-  // On the one side this is already included in the SentryNavigationObserver
-  // but on the other side, SentryNavigationObserver must be manually added by 
+  // On the one side this is already included in the SentryNavigatorObserver
+  // but on the other side, SentryNavigatorObserver must be manually added by
   // the user.
   @override
   Future<bool> didPopRoute() => Future<bool>.value(false);
-  
+
   // See explanation of didPopRoute
   @override
   Future<bool> didPushRoute(String route) => Future<bool>.value(false);
-  
+
   // See explanation of didPopRoute
   @override
   Future<bool> didPushRouteInformation(RouteInformation routeInformation) {

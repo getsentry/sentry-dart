@@ -308,7 +308,7 @@ Future<void> makeWebRequest(BuildContext context) async {
 
   await showDialog<void>(
     context: context,
-    // gets tracked if using SentryNavigationObserver
+    // gets tracked if using SentryNavigatorObserver
     routeSettings: RouteSettings(
       name: 'flutter.dev dialog',
     ),
