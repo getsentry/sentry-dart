@@ -134,7 +134,7 @@ void main() {
     });
   });
 
-  group('SentryNavigationObserver', () {
+  group('SentryNavigatorObserver', () {
     PageRoute route(RouteSettings settings) => PageRouteBuilder<void>(
           pageBuilder: (_, __, ___) => null,
           settings: settings,

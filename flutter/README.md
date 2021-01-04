@@ -58,7 +58,7 @@ Future<void> main() async {
 ##### Tracking navigation events
 
 In order to track navigation events you have to add the 
-`SentryNavigationObserver` to your `MaterialApp`, `WidgetsApp` or `CupertinoApp`.
+`SentryNavigatorObserver` to your `MaterialApp`, `WidgetsApp` or `CupertinoApp`.
 
 ```dart
 import 'package:flutter/material.dart';
