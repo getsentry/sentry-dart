@@ -4,6 +4,7 @@
 * Ref: Make `WidgetsFlutterBinding.ensureInitialized();` the first thing the Sentry SDK calls.
 * Bump: Sentry-cocoa to 6.0.12
 * Feat: Respect FlutterError silent flag #248
+* Documentation: Added FlutterError.onError limitations
 
 # 4.0.1
 
