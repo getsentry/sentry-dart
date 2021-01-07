@@ -199,11 +199,21 @@ class WidgetsBindingIntegration extends Integration<SentryFlutterOptions> {
     if (instance != null) {
       instance.addObserver(_observer);
       options.sdk.addIntegration('widgetsBindingIntegration');
+    } else {
+      options.logger(
+        SentryLevel.error,
+        'widgetsBindingIntegration failed to be installed',
+      );
     }
   }
 
   @override
-  void close() => WidgetsBinding.instance.removeObserver(_observer);
+  void close() {
+    final instance = WidgetsBinding.instance;
+    if (instance != null) {
+      instance.removeObserver(_observer);
+    }
+  }
 }
 
 /// Loads the Android Image list for stack trace symbolication
