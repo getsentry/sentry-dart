@@ -194,13 +194,26 @@ class WidgetsBindingIntegration extends Integration<SentryFlutterOptions> {
 
     // We don't need to call `WidgetsFlutterBinding.ensureInitialized()`
     // because `FlutterSentry.init` already calls it.
-    WidgetsBinding.instance.addObserver(_observer);
-
-    options.sdk.addIntegration('widgetsBindingIntegration');
+    // If the instance is not created, we skip it to keep going.
+    final instance = WidgetsBinding.instance;
+    if (instance != null) {
+      instance.addObserver(_observer);
+      options.sdk.addIntegration('widgetsBindingIntegration');
+    } else {
+      options.logger(
+        SentryLevel.error,
+        'widgetsBindingIntegration failed to be installed',
+      );
+    }
   }
 
   @override
-  void close() => WidgetsBinding.instance.removeObserver(_observer);
+  void close() {
+    final instance = WidgetsBinding.instance;
+    if (instance != null) {
+      instance.removeObserver(_observer);
+    }
+  }
 }
 
 /// Loads the Android Image list for stack trace symbolication
