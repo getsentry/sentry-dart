@@ -119,7 +119,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
       options.logLevel = logLevelFrom(diagnosticLevel: diagnosticLevel)
     }
 
-    if let sessionTrackingIntervalMillis = arguments["sessionTrackingIntervalMillis"] as? UInt {
+    if let sessionTrackingIntervalMillis = arguments["autoSessionTrackingIntervalMillis"] as? UInt {
       options.sessionTrackingIntervalMillis = sessionTrackingIntervalMillis
     }
 
@@ -194,7 +194,6 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
 
     do {
       let envelope = try parseJsonEnvelope(event)
-
       SentrySDK.currentHub().getClient()?.capture(envelope: envelope)
       result("")
     } catch {
