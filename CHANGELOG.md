@@ -1,5 +1,6 @@
 # vNext
 
+* fix: Mark session as `errored` in iOS #270
 * Fix: Pass auto session tracking interval to iOS
 * Fix: Deprecated binaryMessenger (MethodChannel member) for Flutter Web
 * Ref: Make `WidgetsFlutterBinding.ensureInitialized();` the first thing the Sentry SDK calls.
