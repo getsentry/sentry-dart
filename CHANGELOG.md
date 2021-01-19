@@ -1,4 +1,4 @@
-# vNext
+# 4.0.2
 
 * fix: Mark session as `errored` in iOS #270
 * Fix: Pass auto session tracking interval to iOS
