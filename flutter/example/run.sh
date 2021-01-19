@@ -18,7 +18,7 @@ if [ "$1" == "ios" ]; then
     # TODO: Install the iOS app via CLI
     #.. install build/ios/Release-iphoneos/Runner.app
 elif [ "$1" == "android" ]; then
-    flutter build apk --dart-define=SENTRY_RELEASE=$SENTRY_RELEASE --split-debug-info=symbols --obfuscate
+    flutter build apk --split-debug-info=symbols --obfuscate
     adb install build/app/outputs/flutter-apk/app-release.apk 
     adb shell am start -n io.sentry.samples.flutter/io.sentry.samples.flutter.MainActivity
     echo -e "[\033[92mrun\033[0m] Android app installed"
