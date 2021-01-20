@@ -109,7 +109,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
             }
         }
         
-        if (startSession) {
+        if (startSession && sentryOptions?.enableAutoSessionTracking == true) {
             // only this is not enough, we need to mimics SentrySessionTracker.didBecomeActive
             // how to call that from here?
             // it'd also be nice to know if theres already a running session, so we dont do twice, lets say that
