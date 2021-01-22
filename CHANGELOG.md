@@ -1,5 +1,7 @@
 # vNext
 
+* Bump: Sentry-cocoa to 6.0.14
+
 # 4.0.2
 
 * fix: Mark session as `errored` in iOS #270
