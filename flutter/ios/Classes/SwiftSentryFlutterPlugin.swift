@@ -109,10 +109,13 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
             }
         }
 
+      // checking enableAutoSessionTracking is actually not necessary, but we'd spare the sent bits.
        if startSession && sentryOptions?.enableAutoSessionTracking == true {
             // we send a SentryHybridSdkDidBecomeActive to the Sentry Cocoa SDK, so the SDK will mimics
             // the didBecomeActiveNotification notification and start a session if not yet.
            NotificationCenter.default.post(name: Notification.Name("SentryHybridSdkDidBecomeActive"), object: nil)
+           // we reset the flag for the sake of correctness
+           startSession = false
        }
 
         result("")
