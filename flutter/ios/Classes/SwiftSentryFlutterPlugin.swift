@@ -109,13 +109,11 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
             }
         }
 
-        if startSession && sentryOptions?.enableAutoSessionTracking == true {
-            // only this is not enough, we need to mimics SentrySessionTracker.didBecomeActive
-            // how to call that from here?
-            // it'd also be nice to know if theres already a running session, so we dont do twice, lets say that
-            // not always the SDK is init. too late.
-            SentrySDK.currentHub().startSession()
-        }
+       if startSession && sentryOptions?.enableAutoSessionTracking == true {
+            // we send a SentryHybridSdkDidBecomeActive to the Sentry Cocoa SDK, so the SDK will mimics
+            // the didBecomeActiveNotification notification and start a session if not yet.
+           NotificationCenter.default.post(name: Notification.Name("SentryHybridSdkDidBecomeActive"), object: nil)
+       }
 
         result("")
     }
