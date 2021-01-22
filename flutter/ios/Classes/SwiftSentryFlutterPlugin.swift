@@ -8,7 +8,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
 
     // The Cocoa SDK is init. after the notification didBecomeActiveNotification is registered.
     // We need to be able to receive this notification and start a session when the SDK is fully operational.
-    private var startSession = false
+    private var didReceiveDidBecomeActiveNotification = false
 
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "sentry_flutter", binaryMessenger: registrar.messenger())
@@ -27,7 +27,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
     }
 
     @objc private func applicationDidBecomeActive() {
-        startSession = true
+        didReceiveDidBecomeActiveNotification = true
 
         // we only need to do that in the 1st time, so removing it
         NotificationCenter.default.removeObserver(self,
@@ -110,12 +110,12 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
         }
 
       // checking enableAutoSessionTracking is actually not necessary, but we'd spare the sent bits.
-       if startSession && sentryOptions?.enableAutoSessionTracking == true {
+       if didReceiveDidBecomeActiveNotification && sentryOptions?.enableAutoSessionTracking == true {
             // we send a SentryHybridSdkDidBecomeActive to the Sentry Cocoa SDK, so the SDK will mimics
             // the didBecomeActiveNotification notification and start a session if not yet.
            NotificationCenter.default.post(name: Notification.Name("SentryHybridSdkDidBecomeActive"), object: nil)
            // we reset the flag for the sake of correctness
-           startSession = false
+           didReceiveDidBecomeActiveNotification = false
        }
 
         result("")
