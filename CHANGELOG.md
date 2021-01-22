@@ -1,6 +1,6 @@
 # vNext
 
-* Bump: Sentry-cocoa to 6.0.14
+* Bump: Sentry-cocoa to 6.1.4
 
 # 4.0.2
 
