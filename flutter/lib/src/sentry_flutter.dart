@@ -35,19 +35,31 @@ mixin SentryFlutter {
       throw ArgumentError('OptionsConfiguration is required.');
     }
 
-    // It is necessary to initialize Flutter method channels so that
-    // our plugin can call into the native code.
-    WidgetsFlutterBinding.ensureInitialized();
-
     final flutterOptions = SentryFlutterOptions();
+
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
-    _addDefaultIntegrations(
-      flutterOptions,
+    final defaultIntegrations = _createDefaultIntegrations(
       isIOSChecker,
       isAndroidChecker,
       packageLoader,
     );
+
+    if (appRunner != null) {
+      final runBefore = () => WidgetsFlutterBinding.ensureInitialized();
+      final runAfter = () => appRunner();
+      final rzgi = RunZoneGuardedIntegration(runBefore, runAfter);
+      flutterOptions.addIntegration(rzgi);
+
+      for (final defaultIntegration in defaultIntegrations) {
+        flutterOptions.addIntegration(defaultIntegration);
+      }
+    } else {
+      WidgetsFlutterBinding.ensureInitialized();
+      for (final defaultIntegration in defaultIntegrations) {
+        flutterOptions.addIntegration(defaultIntegration);
+      }
+    }
 
     await _initDefaultValues(flutterOptions);
 
@@ -55,7 +67,7 @@ mixin SentryFlutter {
       (options) async {
         await optionsConfiguration(options);
       },
-      appRunner: appRunner,
+      appRunner: null, // Handled by RunZoneGuardedIntegration
       options: flutterOptions,
     );
   }
@@ -75,38 +87,41 @@ mixin SentryFlutter {
 
   /// Install default integrations
   /// https://medium.com/flutter-community/error-handling-in-flutter-98fce88a34f0
-  static void _addDefaultIntegrations(
-    SentryFlutterOptions options,
+  static List<Integration> _createDefaultIntegrations(
     iOSPlatformChecker isIOS,
     AndroidPlatformChecker isAndroid,
     PackageLoader packageLoader,
   ) {
+    final integrations = <Integration>[];
+
     // will catch any errors that may occur in the Flutter framework itself.
-    options.addIntegration(FlutterErrorIntegration());
+    integrations.add(FlutterErrorIntegration());
 
     // This tracks Flutter application events, such as lifecycle events.
-    options.addIntegration(WidgetsBindingIntegration());
+    integrations.add(WidgetsBindingIntegration());
 
     // the ordering here matters, as we'd like to first start the native integration
     // that allow us to send events to the network and then the Flutter integrations.
     // Flutter Web doesn't need that, only Android and iOS.
     if (!kIsWeb) {
-      options.addIntegration(NativeSdkIntegration(_channel));
+      integrations.add(NativeSdkIntegration(_channel));
     }
 
     // will enrich the events with the device context and native packages and integrations
     if (isIOS()) {
-      options.addIntegration(LoadContextsIntegration(_channel));
+      integrations.add(LoadContextsIntegration(_channel));
     }
 
     if (isAndroid()) {
-      options.addIntegration(LoadAndroidImageListIntegration(_channel));
+      integrations.add(LoadAndroidImageListIntegration(_channel));
     }
 
     // this is an Integration because we want to execute after all the
     // error handlers are in place, calling a Channel might result
     // in errors.
-    options.addIntegration(LoadReleaseIntegration(packageLoader));
+    integrations.add(LoadReleaseIntegration(packageLoader));
+
+    return integrations;
   }
 
   static void _setSdk(SentryFlutterOptions options) {

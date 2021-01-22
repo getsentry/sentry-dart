@@ -8,6 +8,40 @@ import 'package:sentry/sentry.dart';
 import 'sentry_flutter_options.dart';
 import 'widgets_binding_observer.dart';
 
+class RunZoneGuardedIntegration extends Integration<SentryFlutterOptions> {
+  RunZoneGuardedIntegration(this._runBeforeIntegrations, this._runAfterIntegrations);
+
+  final Function() _runBeforeIntegrations;
+  final Function() _runAfterIntegrations;
+
+  @override
+  FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
+    runZonedGuarded(() async {
+      await _runBeforeIntegrations();
+      for (final integration in options.integrations) {
+        if (integration != this && !integration.called) {
+          integration(hub, options);
+          integration.called = true;
+        }
+      }
+      await _runAfterIntegrations();
+    }, (exception, stackTrace) async {
+      // runZonedGuarded doesn't crash the App.
+      final mechanism = Mechanism(type: 'runZonedGuarded', handled: true);
+      final throwableMechanism = ThrowableMechanism(mechanism, exception);
+
+      final event = SentryEvent(
+        throwable: throwableMechanism,
+        level: SentryLevel.fatal,
+      );
+
+      await hub.captureEvent(event, stackTrace: stackTrace);
+    });
+
+    options.sdk.addIntegration('runZonedGuardedIntegration');
+  }
+}
+
 /// Integration that capture errors on the [FlutterError.onError] handler.
 ///
 /// Remarks:

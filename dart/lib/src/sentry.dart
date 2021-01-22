@@ -110,7 +110,9 @@ class Sentry {
 
     // execute integrations after hub being enabled
     for (final integration in options.integrations) {
-      await integration(HubAdapter(), options);
+      if (!integration.called) {
+        await integration(HubAdapter(), options);
+      }
     }
   }
 
