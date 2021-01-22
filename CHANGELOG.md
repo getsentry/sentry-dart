@@ -1,6 +1,7 @@
 # vNext
 
 Fix: Auto session tracking start on iOS #274
+* Bump: Sentry-cocoa to 6.1.4
 
 # 4.0.2
 
