@@ -15,10 +15,11 @@ class RunZonedGuardedIntegration extends Integration {
 
   @override
   FutureOr<void> call(Hub hub, SentryOptions options) {
+    if (runner == null) {
+      return;
+    }
     runZonedGuarded(() async {
-      if (runner != null) {
-        await runner();
-      }
+      await runner();
     }, (exception, stackTrace) async {
       // runZonedGuarded doesn't crash the App.
       final mechanism = Mechanism(type: 'runZonedGuarded', handled: true);
