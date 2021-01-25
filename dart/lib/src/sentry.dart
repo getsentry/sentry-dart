@@ -110,9 +110,13 @@ class Sentry {
         }
         await appRunner();
       };
-      final runZonedGuardedIntegration =
-          RunZonedGuardedIntegration(runIntegrationsAndAppRunner);
+
+      final runZonedGuardedIntegration = RunZonedGuardedIntegration(runIntegrationsAndAppRunner);
       options.addIntegrationByIndex(0, runZonedGuardedIntegration);
+
+      // RunZonedGuardedIntegration will run other integrations and appRunner
+      // runZonedGuarded so all exception caught in the error handler are
+      // handled
       await runZonedGuardedIntegration(HubAdapter(), options);
     } else {
       for (final integration in options.integrations) {
