@@ -1,8 +1,13 @@
 # vNext
 
+# 4.0.3
+
+* Fix: Auto session tracking start on iOS #274
+* Bump: Sentry-cocoa to 6.1.4
+
 # 4.0.2
 
-* fix: Mark session as `errored` in iOS #270
+* Fix: Mark session as `errored` in iOS #270
 * Fix: Pass auto session tracking interval to iOS
 * Fix: Deprecated binaryMessenger (MethodChannel member) for Flutter Web
 * Ref: Make `WidgetsFlutterBinding.ensureInitialized();` the first thing the Sentry SDK calls.
