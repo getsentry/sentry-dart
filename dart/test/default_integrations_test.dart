@@ -3,6 +3,7 @@ import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
+import 'dart:async';
 
 void main() {
   Fixture fixture;
@@ -62,10 +63,10 @@ void main() {
   );
 
   test(
-    'Run zoned guarded adds integration',
+    'Run zoned guarded adds integrations',
     () async {
       void callback() {}
-      final integration = RunZonedGuardedIntegration([]);
+      final integration = RunZonedGuardedIntegration([CallbackIntegration(callback)]);
 
       await integration(fixture.hub, fixture.options);
 
@@ -73,32 +74,44 @@ void main() {
           true,
           fixture.options.sdk.integrations
               .contains('runZonedGuardedIntegration'));
+
+      expect(
+          true,
+          fixture.options.sdk.integrations
+              .contains('callbackIntegration'));
     },
     onPlatform: {
       'browser': Skip(),
     },
   );
 
-  test('Run zoned guarded calls callback', () async {
-    var called = false;
-    void callback() {
-      called = true;
+  test('Run zoned guarded calls integrations', () async {
+    var calledA = false;
+    void callbackA() {
+      calledA = true;
+    }
+    var calledB = false;
+    void callbackB() {
+      calledB = true;
     }
 
-    final integration = RunZonedGuardedIntegration(callback);
+    final integration = RunZonedGuardedIntegration(
+      [CallbackIntegration(callbackA), CallbackIntegration(callbackB)]
+    );
 
     await integration(fixture.hub, fixture.options);
 
-    expect(true, called);
+    expect(true, calledA);
+    expect(true, calledB);
   }, onPlatform: {'browser': Skip()});
 
-  test('Run zoned guarded calls catches error', () async {
+  test('Run zoned guarded calls catches integrations errors', () async {
     final throwable = StateError('error');
     void callback() {
       throw throwable;
     }
 
-    final integration = RunZonedGuardedIntegration(callback);
+    final integration = RunZonedGuardedIntegration([CallbackIntegration(callback)]);
     await integration(fixture.hub, fixture.options);
 
     final event = verify(
@@ -113,9 +126,63 @@ void main() {
     expect(true, throwableMechanism.mechanism.handled);
     expect(throwable, throwableMechanism.throwable);
   });
+
+  test(
+    'No zoned guarded adds integrations',
+    () async {
+      void callback() {}
+      final integration = NoZonedGuardedIntegration([CallbackIntegration(callback)]);
+
+      await integration(fixture.hub, fixture.options);
+
+      expect(
+          true,
+          fixture.options.sdk.integrations
+              .contains('noZonedGuardedIntegration'));
+
+      expect(
+          true,
+          fixture.options.sdk.integrations
+              .contains('callbackIntegration'));
+    },
+    onPlatform: {
+      'browser': Skip(),
+    },
+  );
+
+  test('No zoned guarded calls integrations', () async {
+    var calledA = false;
+    void callbackA() {
+      calledA = true;
+    }
+    var calledB = false;
+    void callbackB() {
+      calledB = true;
+    }
+
+    final integration = NoZonedGuardedIntegration(
+      [CallbackIntegration(callbackA), CallbackIntegration(callbackB)]
+    );
+
+    await integration(fixture.hub, fixture.options);
+
+    expect(true, calledA);
+    expect(true, calledB);
+  }, onPlatform: {'browser': Skip()});
 }
 
 class Fixture {
   final hub = MockHub();
   final options = SentryOptions();
+}
+
+class CallbackIntegration extends Integration {
+  CallbackIntegration(this.callback);
+  Function() callback;
+
+  @override
+  FutureOr<void> call(Hub hub, SentryOptions options) async {
+    await callback();
+    options.sdk.addIntegration('callbackIntegration');
+  }
 }
