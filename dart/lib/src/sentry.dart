@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:sentry/src/integration.dart';
+
 import 'default_integrations.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
@@ -83,10 +85,9 @@ class Sentry {
       options.addIntegrationByIndex(0, IsolateErrorIntegration());
     }
 
-    // finally the runZonedGuarded, catch any errors in Dart code running
-    // ‘outside’ the Flutter framework
+    // finally the AppRunnerIntegration to be run as last integration
     if (appRunner != null) {
-      options.addIntegration(RunZonedGuardedIntegration(appRunner));
+      options.addIntegration(AppRunnerIntegration(appRunner));
     }
   }
 
@@ -108,12 +109,23 @@ class Sentry {
     _hub = Hub(options);
     hub.close();
 
-    // execute integrations after hub being enabled
-    for (final integration in options.integrations) {
-      if (!integration.called) {
-        await integration(HubAdapter(), options);
+    if (_containsAppRunnerIntegration(options.integrations)) {
+      // catch any errors in Dart code running ‘outside’ the Flutter framework
+      final runZonedGuardedIntegration = RunZonedGuardedIntegration(options.integrations);
+      await runZonedGuardedIntegration(HubAdapter(), options);
+    } else {
+      final noZonedGuardedIntegration = NoZonedGuardedIntegration(options.integrations);
+      await noZonedGuardedIntegration(HubAdapter(), options);
+    }
+  }
+
+  static bool _containsAppRunnerIntegration(List<Integration> integrations) {
+    for (final integration in integrations) {
+      if (integration is AppRunnerIntegration) {
+        return true;
       }
     }
+    return false;
   }
 
   /// Reports an [event] to Sentry.io.

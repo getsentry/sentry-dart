@@ -65,7 +65,7 @@ void main() {
     'Run zoned guarded adds integration',
     () async {
       void callback() {}
-      final integration = RunZonedGuardedIntegration(callback);
+      final integration = RunZonedGuardedIntegration([]);
 
       await integration(fixture.hub, fixture.options);
 

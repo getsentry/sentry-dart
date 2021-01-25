@@ -44,21 +44,8 @@ mixin SentryFlutter {
       isAndroidChecker,
       packageLoader,
     );
-
-    if (appRunner != null) {
-      final runBefore = () => WidgetsFlutterBinding.ensureInitialized();
-      final runAfter = () => appRunner();
-      final rzgi = RunZoneGuardedIntegration(runBefore, runAfter);
-      flutterOptions.addIntegration(rzgi);
-
-      for (final defaultIntegration in defaultIntegrations) {
-        flutterOptions.addIntegration(defaultIntegration);
-      }
-    } else {
-      WidgetsFlutterBinding.ensureInitialized();
-      for (final defaultIntegration in defaultIntegrations) {
-        flutterOptions.addIntegration(defaultIntegration);
-      }
+    for (final defaultIntegration in defaultIntegrations) {
+      flutterOptions.addIntegration(defaultIntegration);
     }
 
     await _initDefaultValues(flutterOptions);
@@ -67,7 +54,7 @@ mixin SentryFlutter {
       (options) async {
         await optionsConfiguration(options);
       },
-      appRunner: null, // Handled by RunZoneGuardedIntegration
+      appRunner: appRunner,
       options: flutterOptions,
     );
   }
@@ -93,6 +80,9 @@ mixin SentryFlutter {
     PackageLoader packageLoader,
   ) {
     final integrations = <Integration>[];
+
+    // Will call WidgetsFlutterBinding.ensureInitialized() before all other integrations.
+    integrations.add(WidgetsFlutterBindingIntegration());
 
     // will catch any errors that may occur in the Flutter framework itself.
     integrations.add(FlutterErrorIntegration());
