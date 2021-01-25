@@ -10,16 +10,19 @@ import 'throwable_mechanism.dart';
 /// integration that runs other integrations within runZonedGuarded to catch any
 /// errors in Dart code running ‘outside’ the Flutter framework
 class RunZonedGuardedIntegration extends Integration {
-  RunZonedGuardedIntegration(this._integrations);
+  RunZonedGuardedIntegration(this._integrations, this._appRunner);
 
-  final List <Integration>_integrations;
+  final List<Integration> _integrations;
+  final AppRunner _appRunner;
 
   @override
   FutureOr<void> call(Hub hub, SentryOptions options) async {
-    await runZonedGuarded(() {
+    await runZonedGuarded(() async {
       for (final integration in _integrations) {
-         integration(hub, options); // TODO(denis) When using await here, the unit test with error expectation does not finish.
+        await integration(hub,
+            options);
       }
+      await _appRunner();
     }, (exception, stackTrace) async {
       // runZonedGuarded doesn't crash the App.
       final mechanism = Mechanism(type: 'runZonedGuarded', handled: true);

@@ -44,7 +44,7 @@ class Sentry {
     }
 
     final sentryOptions = options ?? SentryOptions();
-    await _initDefaultValues(sentryOptions, appRunner);
+    await _initDefaultValues(sentryOptions);
 
     await optionsConfiguration(sentryOptions);
 
@@ -52,12 +52,11 @@ class Sentry {
       throw ArgumentError('SentryOptions is required.');
     }
 
-    await _init(sentryOptions);
+    await _init(sentryOptions, appRunner);
   }
 
   static Future<void> _initDefaultValues(
-    SentryOptions options,
-    AppRunner appRunner,
+    SentryOptions options
   ) async {
     // We infer the enviroment based on the release/non-release and profile
     // constants.
@@ -83,15 +82,13 @@ class Sentry {
       // in the ‘root zone’ where all Dart programs start
       options.addIntegrationByIndex(0, IsolateErrorIntegration());
     }
-
-    // finally the AppRunnerIntegration to be run as last integration
-    if (appRunner != null) {
-      options.addIntegration(AppRunnerIntegration(appRunner));
-    }
   }
 
   /// Initializes the SDK
-  static Future<void> _init(SentryOptions options) async {
+  static Future<void> _init(
+    SentryOptions options,
+    AppRunner appRunner
+  ) async {
     if (isEnabled) {
       options.logger(
         SentryLevel.warning,
@@ -108,9 +105,9 @@ class Sentry {
     _hub = Hub(options);
     hub.close();
 
-    if (_containsAppRunnerIntegration(options.integrations)) {
+    if (appRunner != null) {
       // catch any errors in Dart code running ‘outside’ the Flutter framework
-      final runZonedGuardedIntegration = RunZonedGuardedIntegration(options.integrations);
+      final runZonedGuardedIntegration = RunZonedGuardedIntegration(options.integrations, appRunner);
       await runZonedGuardedIntegration(HubAdapter(), options);
     } else {
       for (final integration in options.integrations) {
@@ -118,16 +115,7 @@ class Sentry {
       }
     }
   }
-
-  static bool _containsAppRunnerIntegration(List<Integration> integrations) {
-    for (final integration in integrations) {
-      if (integration is AppRunnerIntegration) {
-        return true;
-      }
-    }
-    return false;
-  }
-
+  
   /// Reports an [event] to Sentry.io.
   static Future<SentryId> captureEvent(
     SentryEvent event, {
