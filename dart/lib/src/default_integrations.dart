@@ -18,7 +18,7 @@ class RunZonedGuardedIntegration extends Integration {
   FutureOr<void> call(Hub hub, SentryOptions options) async {
     await runZonedGuarded(() {
       for (final integration in _integrations) {
-         integration(hub, options);
+         integration(hub, options); // TODO(denis) When using await here, the unit test with error expectation does not finish.
       }
     }, (exception, stackTrace) async {
       // runZonedGuarded doesn't crash the App.
@@ -34,21 +34,6 @@ class RunZonedGuardedIntegration extends Integration {
     });
 
     options.sdk.addIntegration('runZonedGuardedIntegration');
-  }
-}
-
-/// integration that runs other integrations
-class NoZonedGuardedIntegration extends Integration {
-  NoZonedGuardedIntegration(this._integrations);
-
-  final List <Integration>_integrations;
-
-  @override
-  FutureOr<void> call(Hub hub, SentryOptions options) async {
-    for (final integration in _integrations) {
-      await integration(hub, options);
-    }
-    options.sdk.addIntegration('noZonedGuardedIntegration');
   }
 }
 

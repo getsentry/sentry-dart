@@ -126,49 +126,6 @@ void main() {
     expect(true, throwableMechanism.mechanism.handled);
     expect(throwable, throwableMechanism.throwable);
   });
-
-  test(
-    'No zoned guarded adds integrations',
-    () async {
-      void callback() {}
-      final integration = NoZonedGuardedIntegration([CallbackIntegration(callback)]);
-
-      await integration(fixture.hub, fixture.options);
-
-      expect(
-          true,
-          fixture.options.sdk.integrations
-              .contains('noZonedGuardedIntegration'));
-
-      expect(
-          true,
-          fixture.options.sdk.integrations
-              .contains('callbackIntegration'));
-    },
-    onPlatform: {
-      'browser': Skip(),
-    },
-  );
-
-  test('No zoned guarded calls integrations', () async {
-    var calledA = false;
-    void callbackA() {
-      calledA = true;
-    }
-    var calledB = false;
-    void callbackB() {
-      calledB = true;
-    }
-
-    final integration = NoZonedGuardedIntegration(
-      [CallbackIntegration(callbackA), CallbackIntegration(callbackB)]
-    );
-
-    await integration(fixture.hub, fixture.options);
-
-    expect(true, calledA);
-    expect(true, calledB);
-  }, onPlatform: {'browser': Skip()});
 }
 
 class Fixture {

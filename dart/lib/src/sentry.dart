@@ -113,8 +113,9 @@ class Sentry {
       final runZonedGuardedIntegration = RunZonedGuardedIntegration(options.integrations);
       await runZonedGuardedIntegration(HubAdapter(), options);
     } else {
-      final noZonedGuardedIntegration = NoZonedGuardedIntegration(options.integrations);
-      await noZonedGuardedIntegration(HubAdapter(), options);
+      for (final integration in options.integrations) {
+        await integration(hub, options);
+      }
     }
   }
 
