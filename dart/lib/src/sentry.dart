@@ -100,6 +100,7 @@ class Sentry {
     _hub = Hub(options);
     hub.close();
 
+    // execute integrations after hub being enabled
     if (appRunner != null) {
       var runIntegrationsAndAppRunner = () async {
         final integrations = options.integrations
