@@ -3,7 +3,6 @@ import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
-import 'dart:async';
 
 void main() {
   Fixture fixture;
