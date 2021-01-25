@@ -9,17 +9,14 @@ import 'throwable_mechanism.dart';
 /// integration that runs runner function within runZonedGuarded and capture
 /// errors on the runZonedGuarded error handler
 class RunZonedGuardedIntegration extends Integration {
-  RunZonedGuardedIntegration();
+  RunZonedGuardedIntegration(this._runner);
 
-  FutureOr<void> Function() runner;
+  final FutureOr<void> Function() _runner;
 
   @override
   FutureOr<void> call(Hub hub, SentryOptions options) {
-    if (runner == null) {
-      return null;
-    }
     runZonedGuarded(() async {
-      await runner();
+      await _runner();
     }, (exception, stackTrace) async {
       // runZonedGuarded doesn't crash the App.
       final mechanism = Mechanism(type: 'runZonedGuarded', handled: true);

@@ -10,6 +10,7 @@ import 'protocol.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'utils.dart';
+import 'integration.dart';
 
 /// Configuration options callback
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
@@ -80,12 +81,6 @@ class Sentry {
       // in the ‘root zone’ where all Dart programs start
       options.addIntegrationByIndex(0, IsolateErrorIntegration());
     }
-
-    // finally the runZonedGuarded, catch any errors in Dart code running
-    // ‘outside’ the Flutter framework
-    if (appRunner != null) {
-      options.addIntegration(RunZonedGuardedIntegration());
-    }
   }
 
   /// Initializes the SDK
@@ -107,22 +102,16 @@ class Sentry {
     hub.close();
 
     if (appRunner != null) {
-      final runZonedGuardedIntegration = options.integrations
-        .whereType<RunZonedGuardedIntegration>().first;
-      assert(
-        runZonedGuardedIntegration != null, 
-        'RunZonedGuardedIntegration should have been added when there is an appRunner.'
-      );
-
-      runZonedGuardedIntegration.runner = () async {
+      var runIntegrationsAndAppRunner = () async {
         final integrations = options.integrations
-            .where((i) => i != runZonedGuardedIntegration);
+            .where((i) => !(i is RunZonedGuardedIntegration));
         for (final integration in integrations) {
           await integration(HubAdapter(), options);
         }
         await appRunner();
       };
-
+      final runZonedGuardedIntegration = RunZonedGuardedIntegration(runIntegrationsAndAppRunner);
+      options.addIntegrationByIndex(0, runZonedGuardedIntegration);
       await runZonedGuardedIntegration(HubAdapter(), options);
     } else {
       for (final integration in options.integrations) {
@@ -130,7 +119,7 @@ class Sentry {
       }
     }
   }
-
+  
   /// Reports an [event] to Sentry.io.
   static Future<SentryId> captureEvent(
     SentryEvent event, {
