@@ -43,7 +43,7 @@ class Sentry {
     }
 
     final sentryOptions = options ?? SentryOptions();
-    await _initDefaultValues(sentryOptions);
+    await _initDefaultValues(sentryOptions, appRunner);
 
     await optionsConfiguration(sentryOptions);
 
@@ -54,7 +54,8 @@ class Sentry {
     await _init(sentryOptions, appRunner);
   }
 
-  static Future<void> _initDefaultValues(SentryOptions options) async {
+  static Future<void> _initDefaultValues(
+      SentryOptions options, AppRunner appRunner) async {
     // We infer the enviroment based on the release/non-release and profile
     // constants.
     var environment = options.platformChecker.isReleaseMode()
@@ -79,6 +80,12 @@ class Sentry {
       // in the ‘root zone’ where all Dart programs start
       options.addIntegrationByIndex(0, IsolateErrorIntegration());
     }
+
+    // finally the runZonedGuarded, catch any errors in Dart code running
+    // ‘outside’ the Flutter framework
+    if (appRunner != null) {
+      options.addIntegration(RunZonedGuardedIntegration());
+    }
   }
 
   /// Initializes the SDK
@@ -100,11 +107,16 @@ class Sentry {
     hub.close();
 
     if (appRunner != null) {
-      final runZonedGuardedIntegration = RunZonedGuardedIntegration();
-      options.addIntegrationByIndex(0, runZonedGuardedIntegration);
+      final runZonedGuardedIntegration = options.integrations
+        .whereType<RunZonedGuardedIntegration>().first;
+      assert(
+        runZonedGuardedIntegration != null, 
+        'RunZonedGuardedIntegration should have been added when there is an appRunner.'
+      );
 
       runZonedGuardedIntegration.runner = () async {
-        final integrations = options.integrations.where((i) => i != runZonedGuardedIntegration);
+        final integrations = options.integrations
+            .where((i) => i != runZonedGuardedIntegration);
         for (final integration in integrations) {
           await integration(hub, options);
         }
