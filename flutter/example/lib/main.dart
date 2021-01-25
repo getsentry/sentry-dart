@@ -20,9 +20,7 @@ Future<void> main() async {
       options.useNativeBreadcrumbTracking();
     },
     // Init your App.
-    appRunner: () => {
-      runApp(MyApp())
-    },
+    appRunner: () => runApp(MyApp()),
   );
 }
 
@@ -64,7 +62,7 @@ class MainScaffold extends StatelessWidget {
             RaisedButton(
               child: const Text('Throws in Future.delayed'),
               onPressed: () =>
-                  Future.delayed(Duration(milliseconds: 100), () => throw Exception('Throws in Future.delayed')), // <-- THIS IS THE CRUCIAL LINE!
+                  Future.delayed(Duration(milliseconds: 100), () => throw Exception('Throws in Future.delayed')),
             ),
             RaisedButton(
               child: const Text('Open another Scaffold'),
