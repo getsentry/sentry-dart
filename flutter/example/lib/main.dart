@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-// import 'package:universal_platform/universal_platform.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
 const String _exampleDsn =
@@ -114,9 +114,9 @@ class MainScaffold extends StatelessWidget {
               child: const Text('Dart: Web request'),
               onPressed: () => makeWebRequest(context),
             ),
-            // if (UniversalPlatform.isIOS) const CocoaExample(),
-            // if (UniversalPlatform.isAndroid) const AndroidExample(),
-            // if (UniversalPlatform.isWeb) const WebExample(),
+            if (UniversalPlatform.isIOS) const CocoaExample(),
+            if (UniversalPlatform.isAndroid) const AndroidExample(),
+            if (UniversalPlatform.isWeb) const WebExample(),
           ],
         ),
       ),
