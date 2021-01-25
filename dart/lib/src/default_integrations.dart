@@ -35,16 +35,3 @@ class RunZonedGuardedIntegration extends Integration {
     options.sdk.addIntegration('runZonedGuardedIntegration');
   }
 }
-
-// integration calling _appRunner. Should always be the last integration run
-class AppRunnerIntegration extends Integration {
-  AppRunnerIntegration(this._appRunner);
-
-  final AppRunner _appRunner;
-
-  @override
-  FutureOr<void> call(Hub hub, SentryOptions options) {
-    _appRunner();
-    options.sdk.addIntegration('appRunnerIntegration');
-  }
-}
