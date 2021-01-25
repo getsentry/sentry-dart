@@ -124,14 +124,3 @@ class Fixture {
   final hub = MockHub();
   final options = SentryOptions();
 }
-
-class CallbackIntegration extends Integration {
-  CallbackIntegration(this.callback);
-  Function() callback;
-
-  @override
-  FutureOr<void> call(Hub hub, SentryOptions options) async {
-    await callback();
-    options.sdk.addIntegration('callbackIntegration');
-  }
-}
