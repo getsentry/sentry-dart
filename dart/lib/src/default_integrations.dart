@@ -7,22 +7,18 @@ import 'sentry.dart';
 import 'sentry_options.dart';
 import 'throwable_mechanism.dart';
 
-/// integration that runs other integrations within runZonedGuarded to catch any
-/// errors in Dart code running ‘outside’ the Flutter framework
+/// Integration that runs runner function within runZonedGuarded
 class RunZonedGuardedIntegration extends Integration {
-  RunZonedGuardedIntegration(this._integrations, this._appRunner);
+  RunZonedGuardedIntegration();
 
-  final List<Integration> _integrations;
-  final AppRunner _appRunner;
+  FutureOr<void> Function() runner;
 
   @override
   FutureOr<void> call(Hub hub, SentryOptions options) async {
     await runZonedGuarded(() async {
-      for (final integration in _integrations) {
-        await integration(hub,
-            options);
+      if (runner != null) {
+        await runner();
       }
-      await _appRunner();
     }, (exception, stackTrace) async {
       // runZonedGuarded doesn't crash the App.
       final mechanism = Mechanism(type: 'runZonedGuarded', handled: true);

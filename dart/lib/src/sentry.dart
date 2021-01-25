@@ -10,7 +10,6 @@ import 'protocol.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'utils.dart';
-import 'integration.dart';
 
 /// Configuration options callback
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
@@ -55,9 +54,7 @@ class Sentry {
     await _init(sentryOptions, appRunner);
   }
 
-  static Future<void> _initDefaultValues(
-    SentryOptions options
-  ) async {
+  static Future<void> _initDefaultValues(SentryOptions options) async {
     // We infer the enviroment based on the release/non-release and profile
     // constants.
     var environment = options.platformChecker.isReleaseMode()
@@ -85,10 +82,7 @@ class Sentry {
   }
 
   /// Initializes the SDK
-  static Future<void> _init(
-    SentryOptions options,
-    AppRunner appRunner
-  ) async {
+  static Future<void> _init(SentryOptions options, AppRunner appRunner) async {
     if (isEnabled) {
       options.logger(
         SentryLevel.warning,
@@ -106,16 +100,25 @@ class Sentry {
     hub.close();
 
     if (appRunner != null) {
-      // catch any errors in Dart code running ‘outside’ the Flutter framework
-      final runZonedGuardedIntegration = RunZonedGuardedIntegration(options.integrations, appRunner);
+      final runZonedGuardedIntegration = RunZonedGuardedIntegration();
+      options.addIntegrationByIndex(0, runZonedGuardedIntegration);
+
+      runZonedGuardedIntegration.runner = () async {
+        final integrations = options.integrations.where((i) => i != runZonedGuardedIntegration);
+        for (final integration in integrations) {
+          await integration(hub, options);
+        }
+        await appRunner();
+      };
+
       await runZonedGuardedIntegration(HubAdapter(), options);
     } else {
       for (final integration in options.integrations) {
-        await integration(hub, options);
+        await integration(HubAdapter(), options);
       }
     }
   }
-  
+
   /// Reports an [event] to Sentry.io.
   static Future<SentryId> captureEvent(
     SentryEvent event, {
