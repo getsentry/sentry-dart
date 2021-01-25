@@ -3,7 +3,6 @@ import 'dart:async';
 import 'hub.dart';
 import 'integration.dart';
 import 'protocol.dart';
-import 'sentry.dart';
 import 'sentry_options.dart';
 import 'throwable_mechanism.dart';
 
@@ -17,7 +16,7 @@ class RunZonedGuardedIntegration extends Integration {
   @override
   FutureOr<void> call(Hub hub, SentryOptions options) {
     if (runner == null) {
-      return;
+      return null;
     }
     runZonedGuarded(() async {
       await runner();
