@@ -8,7 +8,7 @@ import 'package:sentry/sentry.dart';
 import 'sentry_flutter_options.dart';
 import 'widgets_binding_observer.dart';
 
-/// It is necessary to initialize Flutter method channels so that our plugin can 
+/// It is necessary to initialize Flutter method channels so that our plugin can
 /// call into the native code.
 class WidgetsFlutterBindingIntegration
     extends Integration<SentryFlutterOptions> {
