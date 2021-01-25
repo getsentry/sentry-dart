@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:package_info/package_info.dart';
 import 'package:sentry/sentry.dart';
 import 'sentry_flutter_options.dart';

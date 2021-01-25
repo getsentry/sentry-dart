@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:sentry/src/integration.dart';
-
 import 'default_integrations.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
@@ -12,6 +10,7 @@ import 'protocol.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'utils.dart';
+import 'integration.dart';
 
 /// Configuration options callback
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
