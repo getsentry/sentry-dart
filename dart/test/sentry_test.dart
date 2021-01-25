@@ -121,7 +121,6 @@ void main() {
         (options) {
           options.dsn = fakeDsn;
           optionsReference = options;
-          
         },
         appRunner: appRunner,
       );

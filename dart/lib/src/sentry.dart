@@ -10,7 +10,6 @@ import 'protocol.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'utils.dart';
-import 'integration.dart';
 
 /// Configuration options callback
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
@@ -110,7 +109,8 @@ class Sentry {
         }
         await appRunner();
       };
-      final runZonedGuardedIntegration = RunZonedGuardedIntegration(runIntegrationsAndAppRunner);
+      final runZonedGuardedIntegration =
+          RunZonedGuardedIntegration(runIntegrationsAndAppRunner);
       options.addIntegrationByIndex(0, runZonedGuardedIntegration);
       await runZonedGuardedIntegration(HubAdapter(), options);
     } else {
@@ -119,7 +119,7 @@ class Sentry {
       }
     }
   }
-  
+
   /// Reports an [event] to Sentry.io.
   static Future<SentryId> captureEvent(
     SentryEvent event, {
