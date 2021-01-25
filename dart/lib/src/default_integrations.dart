@@ -14,8 +14,8 @@ class RunZonedGuardedIntegration extends Integration {
   FutureOr<void> Function() runner;
 
   @override
-  FutureOr<void> call(Hub hub, SentryOptions options) async {
-    await runZonedGuarded(() async {
+  FutureOr<void> call(Hub hub, SentryOptions options) {
+    runZonedGuarded(() async {
       if (runner != null) {
         await runner();
       }

@@ -66,7 +66,8 @@ void main() {
     'Run zoned guarded adds integrations',
     () async {
       void callback() {}
-      final integration = RunZonedGuardedIntegration([CallbackIntegration(callback)]);
+      final integration = RunZonedGuardedIntegration();
+      integration.runner = callback;
 
       await integration(fixture.hub, fixture.options);
 
@@ -74,35 +75,24 @@ void main() {
           true,
           fixture.options.sdk.integrations
               .contains('runZonedGuardedIntegration'));
-
-      expect(
-          true,
-          fixture.options.sdk.integrations
-              .contains('callbackIntegration'));
     },
     onPlatform: {
       'browser': Skip(),
     },
   );
 
-  test('Run zoned guarded calls integrations', () async {
-    var calledA = false;
-    void callbackA() {
-      calledA = true;
-    }
-    var calledB = false;
-    void callbackB() {
-      calledB = true;
+  test('Run zoned guarded calls callback', () async {
+    var called = false;
+    void callback() {
+      called = true;
     }
 
-    final integration = RunZonedGuardedIntegration(
-      [CallbackIntegration(callbackA), CallbackIntegration(callbackB)]
-    );
+    final integration = RunZonedGuardedIntegration();
+    integration.runner = callback;
 
     await integration(fixture.hub, fixture.options);
 
-    expect(true, calledA);
-    expect(true, calledB);
+    expect(true, called);
   }, onPlatform: {'browser': Skip()});
 
   test('Run zoned guarded calls catches integrations errors', () async {
@@ -111,7 +101,9 @@ void main() {
       throw throwable;
     }
 
-    final integration = RunZonedGuardedIntegration([CallbackIntegration(callback)]);
+    final integration = RunZonedGuardedIntegration();
+    integration.runner = callback;
+
     await integration(fixture.hub, fixture.options);
 
     final event = verify(
