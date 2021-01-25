@@ -7,7 +7,8 @@ import 'sentry.dart';
 import 'sentry_options.dart';
 import 'throwable_mechanism.dart';
 
-/// Integration that runs runner function within runZonedGuarded
+/// integration that runs runner function within runZonedGuarded and capture
+/// errors on the runZonedGuarded error handler
 class RunZonedGuardedIntegration extends Integration {
   RunZonedGuardedIntegration();
 
