@@ -118,7 +118,7 @@ class Sentry {
         final integrations = options.integrations
             .where((i) => i != runZonedGuardedIntegration);
         for (final integration in integrations) {
-          await integration(hub, options);
+          await integration(HubAdapter(), options);
         }
         await appRunner();
       };
