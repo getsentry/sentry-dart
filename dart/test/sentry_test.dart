@@ -125,11 +125,15 @@ void main() {
         appRunner: appRunner,
       );
       expect(
-        optionsReference.integrations.whereType<IsolateErrorIntegration>().length,
+        optionsReference.integrations
+            .whereType<IsolateErrorIntegration>()
+            .length,
         1,
       );
       expect(
-        optionsReference.integrations.whereType<RunZonedGuardedIntegration>().length,
+        optionsReference.integrations
+            .whereType<RunZonedGuardedIntegration>()
+            .length,
         1,
       );
     }, onPlatform: {'browser': Skip()});

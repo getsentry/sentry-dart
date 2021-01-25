@@ -111,7 +111,8 @@ class Sentry {
         await appRunner();
       };
 
-      final runZonedGuardedIntegration = RunZonedGuardedIntegration(runIntegrationsAndAppRunner);
+      final runZonedGuardedIntegration =
+          RunZonedGuardedIntegration(runIntegrationsAndAppRunner);
       options.addIntegrationByIndex(0, runZonedGuardedIntegration);
 
       // RunZonedGuardedIntegration will run other integrations and appRunner
