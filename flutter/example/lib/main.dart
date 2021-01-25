@@ -61,8 +61,8 @@ class MainScaffold extends StatelessWidget {
             const Center(child: Text('Trigger an action:\n')),
             RaisedButton(
               child: const Text('Throws in Future.delayed'),
-              onPressed: () =>
-                  Future.delayed(Duration(milliseconds: 100), () => throw Exception('Throws in Future.delayed')),
+              onPressed: () => Future.delayed(Duration(milliseconds: 100),
+                  () => throw Exception('Throws in Future.delayed')),
             ),
             RaisedButton(
               child: const Text('Open another Scaffold'),
