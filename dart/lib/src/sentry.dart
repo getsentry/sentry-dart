@@ -123,7 +123,7 @@ class Sentry {
     }
   }
 
-  static FutureOr<void> _callIntegrations(
+  static Future<void> _callIntegrations(
       Iterable<Integration> integrations, SentryOptions options) async {
     for (final integration in integrations) {
       await integration(HubAdapter(), options);
