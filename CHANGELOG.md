@@ -1,4 +1,4 @@
-# vNext
+# 4.0.4
 
 * Fix: Call WidgetsFlutterBinding.ensureInitialized() within runZoneGuarded
 
