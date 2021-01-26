@@ -87,26 +87,26 @@ class MainScaffold extends StatelessWidget {
                 assert(false, 'assert failure');
               },
             ),
+            // Calling the SDK with an appRunner will handle errors from Futures
+            // in SDKs runZonedGuarded onError handler
             RaisedButton(
                 child: const Text('Dart: async throws'),
-                onPressed: () async => asyncThrows().catchError(handleError)),
+                onPressed: () async => asyncThrows()),
             RaisedButton(
               child: const Text('Dart: Fail in microtask.'),
               onPressed: () async => {
                 await Future.microtask(
                   () => throw StateError('Failure in a microtask'),
-                ).catchError(handleError)
+                )
               },
             ),
             RaisedButton(
               child: const Text('Dart: Fail in compute'),
               onPressed: () async =>
-                  {await compute(loop, 10).catchError(handleError)},
+                  {await compute(loop, 10)},
             ),
-            // Calling the SDK with an appRunner will handle errors from Futures
-            // in SDKs runZonedGuarded onError handler
             RaisedButton(
-              child: const Text('Throws in Future.delayed without catchError'),
+              child: const Text('Throws in Future.delayed'),
               onPressed: () => Future.delayed(Duration(milliseconds: 100),
                   () => throw Exception('Throws in Future.delayed')),
             ),
@@ -182,10 +182,6 @@ Future<void> tryCatch() async {
   } catch (error, stackTrace) {
     await Sentry.captureException(error, stackTrace: stackTrace);
   }
-}
-
-Future<void> handleError(dynamic error, dynamic stackTrace) async {
-  await Sentry.captureException(error, stackTrace: stackTrace);
 }
 
 Future<void> asyncThrows() async {
