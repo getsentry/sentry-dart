@@ -127,13 +127,15 @@ void main() {
     expect(true,
         fixture.options.sdk.integrations.contains('loadContextsIntegration'));
   });
-  
+
   test('WidgetsFlutterBindingIntegration adds integration', () async {
     final integration = WidgetsFlutterBindingIntegration();
     await integration(fixture.hub, fixture.options);
 
-    expect(true,
-        fixture.options.sdk.integrations.contains('widgetsFlutterBindingIntegration'));
+    expect(
+        true,
+        fixture.options.sdk.integrations
+            .contains('widgetsFlutterBindingIntegration'));
   });
 }
 

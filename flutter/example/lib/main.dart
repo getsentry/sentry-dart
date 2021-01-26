@@ -108,7 +108,7 @@ class MainScaffold extends StatelessWidget {
             RaisedButton(
               child: const Text('Throws in Future.delayed without catchError'),
               onPressed: () => Future.delayed(Duration(milliseconds: 100),
-                      () => throw Exception('Throws in Future.delayed')),
+                  () => throw Exception('Throws in Future.delayed')),
             ),
             RaisedButton(
               child: const Text('Dart: Web request'),
