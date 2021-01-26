@@ -11,7 +11,7 @@ import 'throwable_mechanism.dart';
 class RunZonedGuardedIntegration extends Integration {
   RunZonedGuardedIntegration(this._runner);
 
-  final FutureOr<void> Function() _runner;
+  final Future<void> Function() _runner;
 
   @override
   FutureOr<void> call(Hub hub, SentryOptions options) {
