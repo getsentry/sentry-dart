@@ -105,8 +105,7 @@ class Sentry {
     if (appRunner != null) {
       var runIntegrationsAndAppRunner = () async {
         final integrations = options.integrations
-            .where((i) => !(i is RunZonedGuardedIntegration))
-            .toList();
+            .where((i) => !(i is RunZonedGuardedIntegration));
         await _callIntegrations(integrations, options);
         await appRunner();
       };
@@ -125,7 +124,7 @@ class Sentry {
   }
 
   static FutureOr<void> _callIntegrations(
-      List<Integration> integrations, SentryOptions options) async {
+      Iterable<Integration> integrations, SentryOptions options) async {
     for (final integration in integrations) {
       await integration(HubAdapter(), options);
     }
