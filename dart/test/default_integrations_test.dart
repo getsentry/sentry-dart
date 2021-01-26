@@ -62,9 +62,9 @@ void main() {
   );
 
   test(
-    'Run zoned guarded adds integration',
+    'Run zoned guarded adds integrations',
     () async {
-      void callback() {}
+      Future<void> callback() async {}
       final integration = RunZonedGuardedIntegration(callback);
 
       await integration(fixture.hub, fixture.options);
@@ -81,7 +81,7 @@ void main() {
 
   test('Run zoned guarded calls callback', () async {
     var called = false;
-    void callback() {
+    Future<void> callback() async {
       called = true;
     }
 
@@ -92,13 +92,14 @@ void main() {
     expect(true, called);
   }, onPlatform: {'browser': Skip()});
 
-  test('Run zoned guarded calls catches error', () async {
+  test('Run zoned guarded calls catches integrations errors', () async {
     final throwable = StateError('error');
-    void callback() {
+    Future<void> callback() async {
       throw throwable;
     }
 
     final integration = RunZonedGuardedIntegration(callback);
+
     await integration(fixture.hub, fixture.options);
 
     final event = verify(

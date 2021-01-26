@@ -116,19 +116,25 @@ void main() {
     });
 
     test('should add default integrations', () async {
+      SentryOptions optionsReference;
       await Sentry.init(
         (options) {
           options.dsn = fakeDsn;
-          expect(
-            options.integrations.whereType<IsolateErrorIntegration>().length,
-            1,
-          );
-          expect(
-            options.integrations.whereType<RunZonedGuardedIntegration>().length,
-            1,
-          );
+          optionsReference = options;
         },
         appRunner: appRunner,
+      );
+      expect(
+        optionsReference.integrations
+            .whereType<IsolateErrorIntegration>()
+            .length,
+        1,
+      );
+      expect(
+        optionsReference.integrations
+            .whereType<RunZonedGuardedIntegration>()
+            .length,
+        1,
       );
     }, onPlatform: {'browser': Skip()});
 

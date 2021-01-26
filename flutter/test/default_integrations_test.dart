@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
@@ -125,6 +126,28 @@ void main() {
 
     expect(true,
         fixture.options.sdk.integrations.contains('loadContextsIntegration'));
+  });
+
+  test('WidgetsFlutterBindingIntegration adds integration', () async {
+    final integration = WidgetsFlutterBindingIntegration();
+    await integration(fixture.hub, fixture.options);
+
+    expect(
+        true,
+        fixture.options.sdk.integrations
+            .contains('widgetsFlutterBindingIntegration'));
+  });
+
+  test('WidgetsFlutterBindingIntegration calls ensureInitialized', () async {
+    var called = false;
+    var ensureInitialized = () {
+      called = true;
+      return WidgetsBinding.instance;
+    };
+    final integration = WidgetsFlutterBindingIntegration(ensureInitialized);
+    await integration(fixture.hub, fixture.options);
+
+    expect(true, called);
   });
 }
 

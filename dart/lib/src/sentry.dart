@@ -10,6 +10,7 @@ import 'protocol.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'utils.dart';
+import 'integration.dart';
 
 /// Configuration options callback
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
@@ -51,13 +52,11 @@ class Sentry {
       throw ArgumentError('SentryOptions is required.');
     }
 
-    await _init(sentryOptions);
+    await _init(sentryOptions, appRunner);
   }
 
   static Future<void> _initDefaultValues(
-    SentryOptions options,
-    AppRunner appRunner,
-  ) async {
+      SentryOptions options, AppRunner appRunner) async {
     // We infer the enviroment based on the release/non-release and profile
     // constants.
     var environment = options.platformChecker.isReleaseMode()
@@ -82,16 +81,10 @@ class Sentry {
       // in the ‘root zone’ where all Dart programs start
       options.addIntegrationByIndex(0, IsolateErrorIntegration());
     }
-
-    // finally the runZonedGuarded, catch any errors in Dart code running
-    // ‘outside’ the Flutter framework
-    if (appRunner != null) {
-      options.addIntegration(RunZonedGuardedIntegration(appRunner));
-    }
   }
 
   /// Initializes the SDK
-  static Future<void> _init(SentryOptions options) async {
+  static Future<void> _init(SentryOptions options, AppRunner appRunner) async {
     if (isEnabled) {
       options.logger(
         SentryLevel.warning,
@@ -109,7 +102,30 @@ class Sentry {
     hub.close();
 
     // execute integrations after hub being enabled
-    for (final integration in options.integrations) {
+    if (appRunner != null) {
+      var runIntegrationsAndAppRunner = () async {
+        final integrations = options.integrations
+            .where((i) => !(i is RunZonedGuardedIntegration));
+        await _callIntegrations(integrations, options);
+        await appRunner();
+      };
+
+      final runZonedGuardedIntegration =
+          RunZonedGuardedIntegration(runIntegrationsAndAppRunner);
+      options.addIntegrationByIndex(0, runZonedGuardedIntegration);
+
+      // RunZonedGuardedIntegration will run other integrations and appRunner
+      // runZonedGuarded so all exception caught in the error handler are
+      // handled
+      await runZonedGuardedIntegration(HubAdapter(), options);
+    } else {
+      await _callIntegrations(options.integrations, options);
+    }
+  }
+
+  static Future<void> _callIntegrations(
+      Iterable<Integration> integrations, SentryOptions options) async {
+    for (final integration in integrations) {
       await integration(HubAdapter(), options);
     }
   }

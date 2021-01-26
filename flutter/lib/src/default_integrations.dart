@@ -8,6 +8,24 @@ import 'package:sentry/sentry.dart';
 import 'sentry_flutter_options.dart';
 import 'widgets_binding_observer.dart';
 
+/// It is necessary to initialize Flutter method channels so that our plugin can
+/// call into the native code.
+class WidgetsFlutterBindingIntegration
+    extends Integration<SentryFlutterOptions> {
+  WidgetsFlutterBindingIntegration(
+      [WidgetsBinding Function() ensureInitialized])
+      : _ensureInitialized =
+            ensureInitialized ?? WidgetsFlutterBinding.ensureInitialized;
+
+  final WidgetsBinding Function() _ensureInitialized;
+
+  @override
+  FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
+    _ensureInitialized();
+    options.sdk.addIntegration('widgetsFlutterBindingIntegration');
+  }
+}
+
 /// Integration that capture errors on the [FlutterError.onError] handler.
 ///
 /// Remarks:
@@ -193,7 +211,7 @@ class WidgetsBindingIntegration extends Integration<SentryFlutterOptions> {
     );
 
     // We don't need to call `WidgetsFlutterBinding.ensureInitialized()`
-    // because `FlutterSentry.init` already calls it.
+    // because `WidgetsFlutterBindingIntegration` already calls it.
     // If the instance is not created, we skip it to keep going.
     final instance = WidgetsBinding.instance;
     if (instance != null) {
