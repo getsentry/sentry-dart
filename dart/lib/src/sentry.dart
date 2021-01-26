@@ -10,6 +10,7 @@ import 'protocol.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'utils.dart';
+import 'integration.dart';
 
 /// Configuration options callback
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
@@ -104,10 +105,9 @@ class Sentry {
     if (appRunner != null) {
       var runIntegrationsAndAppRunner = () async {
         final integrations = options.integrations
-            .where((i) => !(i is RunZonedGuardedIntegration));
-        for (final integration in integrations) {
-          await integration(HubAdapter(), options);
-        }
+            .where((i) => !(i is RunZonedGuardedIntegration))
+            .toList();
+        await _callIntegrations(integrations, options);
         await appRunner();
       };
 
@@ -120,9 +120,14 @@ class Sentry {
       // handled
       await runZonedGuardedIntegration(HubAdapter(), options);
     } else {
-      for (final integration in options.integrations) {
-        await integration(HubAdapter(), options);
-      }
+      await _callIntegrations(options.integrations, options);
+    }
+  }
+
+  static FutureOr<void> _callIntegrations(
+      List<Integration> integrations, SentryOptions options) async {
+    for (final integration in integrations) {
+      await integration(HubAdapter(), options);
     }
   }
 
