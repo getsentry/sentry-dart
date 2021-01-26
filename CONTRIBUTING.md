@@ -27,7 +27,7 @@ The Flutter SDK has our Native SDKs embedded, if you wish to learn more about th
 
 ### Static Code Analysis, Tests, Formatting, Pub Score and Dry publish
 
-* Dart code
+* Dar/Flutter
   * Execute `./tool/presubmit.sh` within the `dart` and `flutter` folders
 * Swift/CocoaPods
   * Use `swiftlint` and `pod lib lint`
