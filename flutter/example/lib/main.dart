@@ -102,8 +102,7 @@ class MainScaffold extends StatelessWidget {
             ),
             RaisedButton(
               child: const Text('Dart: Fail in compute'),
-              onPressed: () async =>
-                  {await compute(loop, 10)},
+              onPressed: () async => {await compute(loop, 10)},
             ),
             RaisedButton(
               child: const Text('Throws in Future.delayed'),
