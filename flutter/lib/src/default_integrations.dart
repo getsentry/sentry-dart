@@ -206,7 +206,7 @@ class WidgetsBindingIntegration extends Integration<SentryFlutterOptions> {
     );
 
     // We don't need to call `WidgetsFlutterBinding.ensureInitialized()`
-    // because `FlutterSentry.init` already calls it.
+    // because `WidgetsFlutterBindingIntegration` already calls it.
     // If the instance is not created, we skip it to keep going.
     final instance = WidgetsBinding.instance;
     if (instance != null) {
