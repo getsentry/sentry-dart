@@ -60,11 +60,6 @@ class MainScaffold extends StatelessWidget {
           children: [
             const Center(child: Text('Trigger an action:\n')),
             RaisedButton(
-              child: const Text('Throws in Future.delayed'),
-              onPressed: () => Future.delayed(Duration(milliseconds: 100),
-                  () => throw Exception('Throws in Future.delayed')),
-            ),
-            RaisedButton(
               child: const Text('Open another Scaffold'),
               onPressed: () => SecondaryScaffold.openSecondaryScaffold(context),
             ),
@@ -107,6 +102,13 @@ class MainScaffold extends StatelessWidget {
               child: const Text('Dart: Fail in compute'),
               onPressed: () async =>
                   {await compute(loop, 10).catchError(handleError)},
+            ),
+            // Calling the SDK with an appRunner will handle errors from Futures
+            // in SDKs runZonedGuarded onError handler
+            RaisedButton(
+              child: const Text('Throws in Future.delayed without catchError'),
+              onPressed: () => Future.delayed(Duration(milliseconds: 100),
+                      () => throw Exception('Throws in Future.delayed')),
             ),
             RaisedButton(
               child: const Text('Dart: Web request'),
