@@ -137,6 +137,18 @@ void main() {
         fixture.options.sdk.integrations
             .contains('widgetsFlutterBindingIntegration'));
   });
+
+  test('WidgetsFlutterBindingIntegration calls ensureInitialized', () async {
+    var called = false;
+    var ensureInitialized = () {
+      called = true;
+      return WidgetsBinding.instance;
+    };
+    final integration = WidgetsFlutterBindingIntegration(ensureInitialized);
+    await integration(fixture.hub, fixture.options);
+
+    expect(true, called);
+  });
 }
 
 class Fixture {
