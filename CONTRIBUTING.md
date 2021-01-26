@@ -24,3 +24,12 @@ The Flutter SDK has our Native SDKs embedded, if you wish to learn more about th
 * Android: Android SDK (`sentry-java`) with NDK (`sentry-native`): The example project includes C++.
 * iOS: Cocoa SDK (`sentry-cocoa`), you'll need a Mac with xcode installed.
 * Web: No additional dependencies.
+
+### Static Code Analysis, Tests, Formatting, Pub Score and Dry publish
+
+* Dart code
+  * Execute `./tool/presubmit.sh` within the `dart` and `flutter` folders
+* Swift/CocoaPods
+  * Use `swiftlint` and `pod lib lint`
+* Kotlin
+  * Use `ktlint` and `detekt`
