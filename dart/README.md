@@ -12,7 +12,7 @@ Sentry SDK for Dart
 | ------- | ------- | ------- | ------- | ------- | ------- |
 | sentry | [![build](https://github.com/getsentry/sentry-dart/workflows/sentry-dart/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=workflow%3Asentry-dart) | [![pub package](https://img.shields.io/pub/v/sentry.svg)](https://pub.dev/packages/sentry) | [![likes](https://badges.bar/sentry/likes)](https://pub.dev/packages/sentry/score) | [![popularity](https://badges.bar/sentry/popularity)](https://pub.dev/packages/sentry/score) | [![pub points](https://badges.bar/sentry/pub%20points)](https://pub.dev/packages/sentry/score)
 
-Pure Dart SDK used by any Dart application like AngularDart, CLI and server. 
+Pure Dart SDK used by any Dart application like AngularDart, CLI and Server.
 
 #### Flutter
 
@@ -25,12 +25,9 @@ That will give you native crash support (for Android and iOS), [release health](
 
 - Follow the installing instructions on [pub.dev](https://pub.dev/packages/sentry/install).
 
-- The code snippet below reflects the latest `Prerelease` version.
-
 - Initialize the Sentry SDK using the DSN issued by Sentry.io:
 
 ```dart
-import 'dart:async';
 import 'package:sentry/sentry.dart';
 
 Future<void> main() async {
@@ -51,17 +48,22 @@ Or, if you want to run your app in your own error zone [runZonedGuarded]:
 
 ```dart
 import 'dart:async';
+
 import 'package:sentry/sentry.dart';
 
 Future<void> main() async {
-  await Sentry.init(
-    (options) {
-      options.dsn = 'https://example@sentry.io/add-your-dsn-here';
-    },
-  );
+  runZonedGuarded(() async {
+    await Sentry.init(
+      (options) {
+        options.dsn = 'https://example@sentry.io/add-your-dsn-here';
+      },
+    );
 
-  // Init your App.
-  initApp();
+    // Init your App.
+    initApp();
+  }, (exception, stackTrace) async {
+    await Sentry.captureException(exception, stackTrace: stackTrace);
+  });
 }
 
 void initApp() {
