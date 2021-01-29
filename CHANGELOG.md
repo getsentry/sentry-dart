@@ -1,5 +1,7 @@
 # vNext
 
+* Bump: sentry-android to v4.0.0
+
 # 4.0.4
 
 * Fix: Call WidgetsFlutterBinding.ensureInitialized() within runZoneGuarded
