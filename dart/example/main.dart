@@ -12,7 +12,7 @@ import 'event_example.dart';
 Future<void> main() async {
   // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
   const dsn =
-      'https://cb0fad6f5d4e42ebb9c956cb0463edc9@o447951.ingest.sentry.io/5428562';
+      'https://8b83cb94764f4701bee40028c2f29e72@o447951.ingest.sentry.io/5428562';
 
   SentryEvent processTagEvent(SentryEvent event, {dynamic hint}) =>
       event..tags.addAll({'page-locale': 'en-us'});
