@@ -1,6 +1,7 @@
 # vNext
 
 * Bump: sentry-android to v4.0.0
+* Fix: Pana Flutter upper bound deprecation
 
 # 4.0.4
 
