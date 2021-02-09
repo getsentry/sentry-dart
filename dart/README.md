@@ -33,7 +33,7 @@ import 'package:sentry/sentry.dart';
 Future<void> main() async {
   await Sentry.init(
     (options) {
-      options.dsn = 'https://example@sentry.io/add-your-dsn-here';
+      options.dsn = 'https://example@sentry.io/example';
     },
     appRunner: initApp, // Init your App.
   );
@@ -55,7 +55,7 @@ Future<void> main() async {
   runZonedGuarded(() async {
     await Sentry.init(
       (options) {
-        options.dsn = 'https://example@sentry.io/add-your-dsn-here';
+        options.dsn = 'https://example@sentry.io/example';
       },
     );
 
