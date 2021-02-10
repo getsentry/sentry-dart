@@ -24,7 +24,7 @@ class Breadcrumb {
   /// Creates a breadcrumb that can be attached to an [Event].
   Breadcrumb({
     this.message,
-    DateTime timestamp,
+    DateTime? timestamp,
     this.category,
     this.data,
     this.level = SentryLevel.info,
@@ -34,12 +34,12 @@ class Breadcrumb {
   /// Describes the breadcrumb.
   ///
   /// This field is optional and may be set to null.
-  final String message;
+  final String? message;
 
   /// A dot-separated string describing the source of the breadcrumb, e.g. "ui.click".
   ///
   /// This field is optional and may be set to null.
-  final String category;
+  final String? category;
 
   /// Data associated with the breadcrumb.
   ///
@@ -50,7 +50,7 @@ class Breadcrumb {
   /// See also:
   ///
   /// * https://docs.sentry.io/development/sdk-dev/event-payloads/breadcrumbs/#breadcrumb-types
-  final Map<String, dynamic> data;
+  final Map<String, dynamic>? data;
 
   /// Severity of the breadcrumb.
   ///
@@ -66,7 +66,7 @@ class Breadcrumb {
   /// See also:
   ///
   /// * https://docs.sentry.io/development/sdk-dev/event-payloads/breadcrumbs/#breadcrumb-types
-  final String type;
+  final String? type;
 
   /// The time the breadcrumb was recorded.
   ///
@@ -87,7 +87,7 @@ class Breadcrumb {
     if (category != null) {
       json['category'] = category;
     }
-    if (data != null && data.isNotEmpty) {
+    if (data != null && data!.isNotEmpty) {
       json['data'] = data;
     }
     if (level != null) {
@@ -100,12 +100,12 @@ class Breadcrumb {
   }
 
   Breadcrumb copyWith({
-    String message,
-    String category,
-    Map<String, dynamic> data,
-    SentryLevel level,
-    String type,
-    DateTime timestamp,
+    String? message,
+    String? category,
+    Map<String, dynamic>? data,
+    SentryLevel? level,
+    String? type,
+    DateTime? timestamp,
   }) =>
       Breadcrumb(
         message: message ?? this.message,

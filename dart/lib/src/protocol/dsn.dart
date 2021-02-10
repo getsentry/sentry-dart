@@ -4,8 +4,8 @@ import 'package:meta/meta.dart';
 @immutable
 class Dsn {
   const Dsn({
-    @required this.publicKey,
-    @required this.projectId,
+    required this.publicKey,
+    required this.projectId,
     this.uri,
     this.secretKey,
   });
@@ -14,7 +14,7 @@ class Dsn {
   final String publicKey;
 
   /// The Sentry.io secret key for the project.
-  final String secretKey;
+  final String? secretKey;
 
   /// The ID issued by Sentry.io to your project.
   ///
@@ -22,27 +22,27 @@ class Dsn {
   final String projectId;
 
   /// The DSN URI.
-  final Uri uri;
+  final Uri? uri;
 
   Uri get postUri {
-    final port = uri.hasPort &&
-            ((uri.scheme == 'http' && uri.port != 80) ||
-                (uri.scheme == 'https' && uri.port != 443))
-        ? ':${uri.port}'
+    final port = uri!.hasPort &&
+            ((uri!.scheme == 'http' && uri!.port != 80) ||
+                (uri!.scheme == 'https' && uri!.port != 443))
+        ? ':${uri!.port}'
         : '';
 
-    final pathLength = uri.pathSegments.length;
+    final pathLength = uri!.pathSegments.length;
 
     String apiPath;
     if (pathLength > 1) {
       // some paths would present before the projectID in the uri
       apiPath =
-          (uri.pathSegments.sublist(0, pathLength - 1) + ['api']).join('/');
+          (uri!.pathSegments.sublist(0, pathLength - 1) + ['api']).join('/');
     } else {
       apiPath = 'api';
     }
     return Uri.parse(
-      '${uri.scheme}://${uri.host}$port/$apiPath/$projectId/store/',
+      '${uri!.scheme}://${uri!.host}$port/$apiPath/$projectId/store/',
     );
   }
 

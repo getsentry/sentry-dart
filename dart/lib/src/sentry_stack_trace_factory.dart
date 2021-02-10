@@ -17,8 +17,6 @@ class SentryStackTraceFactory {
 
   /// returns the [SentryStackFrame] list from a stackTrace ([StackTrace] or [String])
   List<SentryStackFrame> getStackFrames(dynamic stackTrace) {
-    if (stackTrace == null) return null;
-
     // TODO : fix : in release mode on Safari passing a stacktrace object fails, but works if it's passed as String
     final chain = (stackTrace is StackTrace)
         ? Chain.forTrace(stackTrace)
@@ -66,11 +64,11 @@ class SentryStackTraceFactory {
 
   /// converts [Frame] to [SentryStackFrame]
   @visibleForTesting
-  SentryStackFrame encodeStackTraceFrame(Frame frame,
+  SentryStackFrame? encodeStackTraceFrame(Frame frame,
       {bool symbolicated = true}) {
     final member = frame.member;
 
-    SentryStackFrame sentryStackFrame;
+    SentryStackFrame? sentryStackFrame;
 
     if (symbolicated) {
       final fileName = frame.uri.pathSegments.isNotEmpty
@@ -88,11 +86,11 @@ class SentryStackTraceFactory {
         package: frame.package,
       );
 
-      if (frame.line != null && frame.line >= 0) {
+      if (frame.line != null && frame.line! >= 0) {
         sentryStackFrame = sentryStackFrame.copyWith(lineNo: frame.line);
       }
 
-      if (frame.column != null && frame.column >= 0) {
+      if (frame.column != null && frame.column! >= 0) {
         sentryStackFrame = sentryStackFrame.copyWith(colNo: frame.column);
       }
     } else {
@@ -110,7 +108,7 @@ class SentryStackTraceFactory {
       // unparsed      #04 abs 000000723d4b8c3b virt 0000000000071c3b _kDartIsolateSnapshotInstructions+0x66c3b
 
       // we are only interested on the #01, 02... items which contains the 'abs' addresses.
-      final matches = _absRegex.allMatches(member);
+      final matches = _absRegex.allMatches(member!);
 
       if (matches.isNotEmpty) {
         final abs = matches.elementAt(0).group(1);
@@ -148,7 +146,7 @@ class SentryStackTraceFactory {
   bool isInApp(Frame frame) {
     final scheme = frame.uri.scheme;
 
-    if (scheme == null || scheme.isEmpty) {
+    if (scheme.isEmpty) {
       return true;
     }
 

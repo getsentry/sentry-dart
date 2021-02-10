@@ -9,9 +9,9 @@ import 'package:test/test.dart';
 import 'mocks.dart';
 
 void main() {
-  bool scopeEquals(Scope a, Scope b) {
+  bool scopeEquals(Scope? a, Scope b) {
     return identical(a, b) ||
-        a.level == b.level &&
+        a!.level == b.level &&
             a.transaction == b.transaction &&
             a.user == b.user &&
             IterableEquality().equals(a.fingerprint, b.fingerprint) &&
@@ -28,9 +28,9 @@ void main() {
   });
 
   group('Hub captures', () {
-    Hub hub;
-    SentryOptions options;
-    MockSentryClient client;
+    late Hub hub;
+    late SentryOptions options;
+    late MockSentryClient client;
 
     setUp(() {
       options = SentryOptions(dsn: fakeDsn);
@@ -90,8 +90,8 @@ void main() {
   });
 
   group('Hub scope', () {
-    Hub hub;
-    SentryClient client;
+    late Hub hub;
+    late SentryClient client;
 
     setUp(() {
       hub = Hub(SentryOptions(dsn: fakeDsn));
@@ -113,7 +113,7 @@ void main() {
           fakeEvent,
           scope: captureAnyNamed('scope'),
         ),
-      ).captured.first as Scope;
+      ).captured.first as Scope?;
 
       expect(
         scopeEquals(
@@ -140,8 +140,8 @@ void main() {
   });
 
   group('Hub Client', () {
-    Hub hub;
-    SentryClient client;
+    late Hub hub;
+    late SentryClient client;
     SentryOptions options;
 
     setUp(() {

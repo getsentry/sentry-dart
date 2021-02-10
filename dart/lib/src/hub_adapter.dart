@@ -16,7 +16,7 @@ class HubAdapter implements Hub {
   }
 
   @override
-  void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) =>
+  void addBreadcrumb(Breadcrumb? crumb, {dynamic hint}) =>
       Sentry.addBreadcrumb(crumb, hint: hint);
 
   @override
@@ -24,7 +24,7 @@ class HubAdapter implements Hub {
 
   @override
   Future<SentryId> captureEvent(
-    SentryEvent event, {
+    SentryEvent? event, {
     dynamic stackTrace,
     dynamic hint,
   }) =>
@@ -48,10 +48,10 @@ class HubAdapter implements Hub {
 
   @override
   Future<SentryId> captureMessage(
-    String message, {
-    SentryLevel level = SentryLevel.info,
-    String template,
-    List params,
+    String? message, {
+    SentryLevel? level = SentryLevel.info,
+    String? template,
+    List? params,
     dynamic hint,
   }) =>
       Sentry.captureMessage(

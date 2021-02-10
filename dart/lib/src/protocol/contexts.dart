@@ -10,12 +10,12 @@ import '../protocol.dart';
 /// See also: https://develop.sentry.dev/sdk/event-payloads/contexts/.
 class Contexts extends MapView<String, dynamic> {
   Contexts({
-    Device device,
-    OperatingSystem operatingSystem,
-    List<SentryRuntime> runtimes,
-    App app,
-    Browser browser,
-    Gpu gpu,
+    Device? device,
+    OperatingSystem? operatingSystem,
+    List<SentryRuntime>? runtimes,
+    App? app,
+    Browser? browser,
+    Gpu? gpu,
   }) : super({
           Device.type: device,
           OperatingSystem.type: operatingSystem,
@@ -60,17 +60,17 @@ class Contexts extends MapView<String, dynamic> {
   }
 
   /// This describes the device that caused the event.
-  Device/*?*/ get device => this[Device.type];
+  Device? get device => this[Device.type];
 
-  set device(Device device) => this[Device.type] = device;
+  set device(Device? device) => this[Device.type] = device;
 
   /// Describes the operating system on which the event was created.
   ///
   /// In web contexts, this is the operating system of the browse
   /// (normally pulled from the User-Agent string).
-  OperatingSystem/*?*/ get operatingSystem => this[OperatingSystem.type];
+  OperatingSystem? get operatingSystem => this[OperatingSystem.type];
 
-  set operatingSystem(OperatingSystem operatingSystem) =>
+  set operatingSystem(OperatingSystem? operatingSystem) =>
       this[OperatingSystem.type] = operatingSystem;
 
   /// Describes an immutable list of runtimes in more detail
@@ -89,23 +89,23 @@ class Contexts extends MapView<String, dynamic> {
   ///
   /// As opposed to the runtime, this is the actual application that was
   /// running and carries metadata about the current session.
-  App/*?*/ get app => this[App.type];
+  App? get app => this[App.type];
 
-  set app(App app) => this[App.type] = app;
+  set app(App? app) => this[App.type] = app;
 
   /// Carries information about the browser or user agent for web-related
   /// errors.
   ///
   /// This can either be the browser this event ocurred in, or the user
   /// agent of a web request that triggered the event.
-  Browser/*?*/ get browser => this[Browser.type];
+  Browser? get browser => this[Browser.type];
 
-  set browser(Browser browser) => this[Browser.type] = browser;
+  set browser(Browser? browser) => this[Browser.type] = browser;
 
   /// GPU context describes the GPU of the device.
-  Gpu/*?*/ get gpu => this[Gpu.type];
+  Gpu? get gpu => this[Gpu.type];
 
-  set gpu(Gpu gpu) => this[Gpu.type] = gpu;
+  set gpu(Gpu? gpu) => this[Gpu.type] = gpu;
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
@@ -116,35 +116,35 @@ class Contexts extends MapView<String, dynamic> {
       switch (key) {
         case Device.type:
           Map<String, dynamic> deviceMap;
-          if (device != null && (deviceMap = device.toJson()).isNotEmpty) {
+          if (device != null && (deviceMap = device!.toJson()).isNotEmpty) {
             json[Device.type] = deviceMap;
           }
           break;
         case OperatingSystem.type:
           Map<String, dynamic> osMap;
           if (operatingSystem != null &&
-              (osMap = operatingSystem.toJson()).isNotEmpty) {
+              (osMap = operatingSystem!.toJson()).isNotEmpty) {
             json[OperatingSystem.type] = osMap;
           }
           break;
 
         case App.type:
           Map<String, dynamic> appMap;
-          if (app != null && (appMap = app.toJson()).isNotEmpty) {
+          if (app != null && (appMap = app!.toJson()).isNotEmpty) {
             json[App.type] = appMap;
           }
           break;
 
         case Browser.type:
           Map<String, dynamic> browserMap;
-          if (browser != null && (browserMap = browser.toJson()).isNotEmpty) {
+          if (browser != null && (browserMap = browser!.toJson()).isNotEmpty) {
             json[Browser.type] = browserMap;
           }
           break;
 
         case Gpu.type:
           Map<String, dynamic> gpuMap;
-          if (gpu != null && (gpuMap = gpu.toJson()).isNotEmpty) {
+          if (gpu != null && (gpuMap = gpu!.toJson()).isNotEmpty) {
             json[Gpu.type] = gpuMap;
           }
           break;
@@ -165,7 +165,7 @@ class Contexts extends MapView<String, dynamic> {
                 Map<String, dynamic> runtimeMap;
                 if (runtime != null &&
                     (runtimeMap = runtime.toJson()).isNotEmpty) {
-                  var key = runtime.key ?? runtime.name.toLowerCase();
+                  var key = runtime.key ?? runtime.name!.toLowerCase();
 
                   if (json.containsKey(key)) {
                     var k = 0;
@@ -209,12 +209,12 @@ class Contexts extends MapView<String, dynamic> {
   }
 
   Contexts copyWith({
-    Device device,
-    OperatingSystem operatingSystem,
-    List<SentryRuntime> runtimes,
-    App app,
-    Browser browser,
-    Gpu gpu,
+    Device? device,
+    OperatingSystem? operatingSystem,
+    List<SentryRuntime>? runtimes,
+    App? app,
+    Browser? browser,
+    Gpu? gpu,
   }) =>
       Contexts(
         device: device ?? this.device,

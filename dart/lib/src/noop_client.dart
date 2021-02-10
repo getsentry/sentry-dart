@@ -24,38 +24,38 @@ class NoOpClient implements Client {
   @override
   Future<Response> delete(
     Uri url, {
-    Map<String, String> headers,
-    Object body,
-    Encoding encoding,
+    Map<String, String>? headers,
+    Object? body,
+    Encoding? encoding,
   }) =>
       _response;
 
   @override
-  Future<Response> get(url, {Map<String, String> headers}) => _response;
+  Future<Response> get(url, {Map<String, String>? headers}) => _response;
 
   @override
-  Future<Response> head(url, {Map<String, String> headers}) => _response;
+  Future<Response> head(url, {Map<String, String>? headers}) => _response;
 
   @override
   Future<Response> patch(url,
-          {Map<String, String> headers, body, Encoding encoding}) =>
+          {Map<String, String>? headers, body, Encoding? encoding}) =>
       _response;
 
   @override
   Future<Response> post(url,
-          {Map<String, String> headers, body, Encoding encoding}) =>
+          {Map<String, String>? headers, body, Encoding? encoding}) =>
       _response;
 
   @override
   Future<Response> put(url,
-          {Map<String, String> headers, body, Encoding encoding}) =>
+          {Map<String, String>? headers, body, Encoding? encoding}) =>
       _response;
 
   @override
-  Future<String> read(url, {Map<String, String> headers}) => _string;
+  Future<String> read(url, {Map<String, String>? headers}) => _string;
 
   @override
-  Future<Uint8List> readBytes(url, {Map<String, String> headers}) => _intList;
+  Future<Uint8List> readBytes(url, {Map<String, String>? headers}) => _intList;
 
   @override
   Future<StreamedResponse> send(BaseRequest request) => _streamedResponse;

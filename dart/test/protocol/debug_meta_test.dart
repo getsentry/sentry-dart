@@ -30,7 +30,7 @@ void main() {
       true,
     );
     expect(
-      MapEquality().equals(newSdkInfo.toJson(), copy.sdk.toJson()),
+      MapEquality().equals(newSdkInfo.toJson(), copy.sdk!.toJson()),
       true,
     );
   });

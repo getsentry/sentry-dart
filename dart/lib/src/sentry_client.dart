@@ -14,16 +14,16 @@ import 'version.dart';
 class SentryClient {
   final SentryOptions _options;
 
-  final Random _random;
+  final Random? _random;
 
   static final _sentryId = Future.value(SentryId.empty());
 
-  SentryExceptionFactory _exceptionFactory;
+  late SentryExceptionFactory _exceptionFactory;
 
-  SentryStackTraceFactory _stackTraceFactory;
+  SentryStackTraceFactory? _stackTraceFactory;
 
   /// Instantiates a client using [SentryOptions]
-  factory SentryClient(SentryOptions /*!*/ options) {
+  factory SentryClient(SentryOptions options) {
     if (options == null) {
       throw ArgumentError('SentryOptions is required.');
     }
@@ -47,8 +47,8 @@ class SentryClient {
 
   /// Reports an [event] to Sentry.io.
   Future<SentryId> captureEvent(
-    SentryEvent /*!*/ event, {
-    Scope scope,
+    SentryEvent event, {
+    Scope? scope,
     dynamic stackTrace,
     dynamic hint,
   }) async {
@@ -60,10 +60,10 @@ class SentryClient {
       return _sentryId;
     }
 
-    var preparedEvent = _prepareEvent(event, stackTrace: stackTrace);
+    SentryEvent? preparedEvent = _prepareEvent(event, stackTrace: stackTrace);
 
     if (scope != null) {
-      preparedEvent = await scope.applyToEvent(preparedEvent, hint);
+      preparedEvent = await scope.applyToEvent(preparedEvent!, hint);
     } else {
       _options.logger(SentryLevel.debug, 'No scope is defined');
     }
@@ -85,7 +85,7 @@ class SentryClient {
 
     if (_options.beforeSend != null) {
       try {
-        preparedEvent = _options.beforeSend(preparedEvent, hint: hint);
+        preparedEvent = _options.beforeSend!(preparedEvent, hint: hint);
       } catch (err) {
         _options.logger(
           SentryLevel.error,
@@ -125,7 +125,7 @@ class SentryClient {
 
     if (stackTrace != null || _options.attachStacktrace) {
       stackTrace ??= StackTrace.current;
-      final frames = _stackTraceFactory.getStackFrames(stackTrace);
+      final frames = _stackTraceFactory!.getStackFrames(stackTrace);
 
       if (frames != null && frames.isNotEmpty) {
         event = event.copyWith(stackTrace: SentryStackTrace(frames: frames));
@@ -139,7 +139,7 @@ class SentryClient {
   Future<SentryId> captureException(
     dynamic throwable, {
     dynamic stackTrace,
-    Scope scope,
+    Scope? scope,
     dynamic hint,
   }) {
     final event = SentryEvent(
@@ -157,11 +157,11 @@ class SentryClient {
 
   /// Reports the [template]
   Future<SentryId> captureMessage(
-    String formatted, {
-    SentryLevel level = SentryLevel.info,
-    String template,
-    List<dynamic> params,
-    Scope scope,
+    String? formatted, {
+    SentryLevel? level = SentryLevel.info,
+    String? template,
+    List<dynamic>? params,
+    Scope? scope,
     dynamic hint,
   }) {
     final event = SentryEvent(
@@ -173,16 +173,16 @@ class SentryClient {
     return captureEvent(event, scope: scope, hint: hint);
   }
 
-  void close() => _options.httpClient?.close();
+  void close() => _options.httpClient.close();
 
   Future<SentryEvent> _processEvent(
     SentryEvent event, {
     dynamic hint,
-    List<EventProcessor> eventProcessors,
+    required List<EventProcessor> eventProcessors,
   }) async {
     for (final processor in eventProcessors) {
       try {
-        event = await processor(event, hint: hint);
+        event = await processor(event, hint: hint)!;
       } catch (err) {
         _options.logger(
           SentryLevel.error,
@@ -199,7 +199,7 @@ class SentryClient {
 
   bool _sampleRate() {
     if (_options.sampleRate != null && _random != null) {
-      return (_options.sampleRate < _random.nextDouble());
+      return (_options.sampleRate! < _random!.nextDouble());
     }
     return false;
   }

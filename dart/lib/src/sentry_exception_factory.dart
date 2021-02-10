@@ -14,8 +14,8 @@ class SentryExceptionFactory {
   SentryExceptionFactory._(this._options, this._stacktraceFactory);
 
   factory SentryExceptionFactory({
-    @required SentryOptions options,
-    @required SentryStackTraceFactory stacktraceFactory,
+    required SentryOptions? options,
+    required SentryStackTraceFactory? stacktraceFactory,
   }) {
     if (options == null) {
       throw ArgumentError('SentryOptions is required.');
@@ -44,7 +44,7 @@ class SentryExceptionFactory {
       stackTrace ??= StackTrace.current;
     }
 
-    SentryStackTrace sentryStackTrace;
+    SentryStackTrace? sentryStackTrace;
     if (stackTrace != null) {
       sentryStackTrace = SentryStackTrace(
         frames: _stacktraceFactory.getStackFrames(stackTrace),

@@ -11,14 +11,14 @@ import 'package:meta/meta.dart';
 @immutable
 class Message {
   /// The fully formatted message. If missing, Sentry will try to interpolate the message.
-  final String formatted;
+  final String? formatted;
 
   /// The raw message string (uninterpolated).
   /// example : "My raw message with interpreted strings like %s",
-  final String template;
+  final String? template;
 
   /// A list of formatting parameters, preferably strings. Non-strings will be coerced to strings.
-  final List<dynamic> params;
+  final List<dynamic>? params;
 
   const Message(this.formatted, {this.template, this.params});
 
@@ -33,7 +33,7 @@ class Message {
       json['message'] = template;
     }
 
-    if (params != null && params.isNotEmpty) {
+    if (params != null && params!.isNotEmpty) {
       json['params'] = params;
     }
 
@@ -41,9 +41,9 @@ class Message {
   }
 
   Message copyWith({
-    String formatted,
-    String template,
-    List<dynamic> params,
+    String? formatted,
+    String? template,
+    List<dynamic>? params,
   }) =>
       Message(
         formatted ?? this.formatted,

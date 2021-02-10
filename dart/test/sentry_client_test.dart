@@ -7,7 +7,7 @@ import 'mocks.dart';
 
 void main() {
   group('SentryClient captures message', () {
-    SentryOptions options;
+    late SentryOptions options;
 
     setUp(() {
       options = SentryOptions(dsn: fakeDsn);
@@ -73,7 +73,7 @@ void main() {
       ).captured.first) as SentryEvent;
 
       expect(capturedEvent.stackTrace, isNull);
-      expect(capturedEvent.exception.stackTrace, isNotNull);
+      expect(capturedEvent.exception!.stackTrace, isNotNull);
     });
 
     test('should not attach event stacktrace if event has exception', () async {
@@ -99,7 +99,7 @@ void main() {
       ).captured.first) as SentryEvent;
 
       expect(capturedEvent.stackTrace, isNull);
-      expect(capturedEvent.exception.stackTrace, isNotNull);
+      expect(capturedEvent.exception!.stackTrace, isNotNull);
     });
 
     test('should capture message', () async {
@@ -115,9 +115,9 @@ void main() {
         options.transport.send(captureAny),
       ).captured.first) as SentryEvent;
 
-      expect(capturedEvent.message.formatted, 'simple message 1');
-      expect(capturedEvent.message.template, 'simple message %d');
-      expect(capturedEvent.message.params, [1]);
+      expect(capturedEvent.message!.formatted, 'simple message 1');
+      expect(capturedEvent.message!.template, 'simple message %d');
+      expect(capturedEvent.message!.params, [1]);
 
       expect(capturedEvent.stackTrace is SentryStackTrace, true);
     });
@@ -135,7 +135,7 @@ void main() {
   });
 
   group('SentryClient captures exception', () {
-    SentryOptions options;
+    late SentryOptions options;
 
     Error error;
     StackTrace stackTrace;
@@ -162,12 +162,12 @@ void main() {
 
       expect(capturedEvent.throwable, error);
       expect(capturedEvent.exception is SentryException, true);
-      expect(capturedEvent.exception.stackTrace, isNotNull);
+      expect(capturedEvent.exception!.stackTrace, isNotNull);
     });
   });
 
   group('SentryClient captures exception and stacktrace', () {
-    SentryOptions options;
+    late SentryOptions options;
 
     Error error;
 
@@ -198,18 +198,18 @@ void main() {
 
       expect(capturedEvent.throwable, error);
       expect(capturedEvent.exception is SentryException, true);
-      expect(capturedEvent.exception.stackTrace, isNotNull);
-      expect(capturedEvent.exception.stackTrace.frames.first.fileName,
+      expect(capturedEvent.exception!.stackTrace, isNotNull);
+      expect(capturedEvent.exception!.stackTrace!.frames.first.fileName,
           'test.dart');
-      expect(capturedEvent.exception.stackTrace.frames.first.lineNo, 46);
-      expect(capturedEvent.exception.stackTrace.frames.first.colNo, 9);
+      expect(capturedEvent.exception!.stackTrace!.frames.first.lineNo, 46);
+      expect(capturedEvent.exception!.stackTrace!.frames.first.colNo, 9);
     });
   });
 
   group('SentryClient captures exception and stacktrace', () {
-    SentryOptions options;
+    late SentryOptions options;
 
-    Exception exception;
+    dynamic exception;
 
     setUp(() {
       options = SentryOptions(dsn: fakeDsn);
@@ -238,10 +238,10 @@ void main() {
 
       expect(capturedEvent.throwable, exception);
       expect(capturedEvent.exception is SentryException, true);
-      expect(capturedEvent.exception.stackTrace.frames.first.fileName,
+      expect(capturedEvent.exception!.stackTrace!.frames.first.fileName,
           'test.dart');
-      expect(capturedEvent.exception.stackTrace.frames.first.lineNo, 46);
-      expect(capturedEvent.exception.stackTrace.frames.first.colNo, 9);
+      expect(capturedEvent.exception!.stackTrace!.frames.first.lineNo, 46);
+      expect(capturedEvent.exception!.stackTrace!.frames.first.colNo, 9);
     });
 
     test('should capture exception with Stackframe.current', () async {
@@ -258,7 +258,7 @@ void main() {
         options.transport.send(captureAny),
       ).captured.first) as SentryEvent;
 
-      expect(capturedEvent.exception.stackTrace, isNotNull);
+      expect(capturedEvent.exception!.stackTrace, isNotNull);
     });
 
     test('should capture exception without Stackframe.current', () async {
@@ -275,7 +275,7 @@ void main() {
         options.transport.send(captureAny),
       ).captured.first) as SentryEvent;
 
-      expect(capturedEvent.exception.stackTrace, isNull);
+      expect(capturedEvent.exception!.stackTrace, isNull);
     });
 
     test('should not capture sentry frames exception', () async {
@@ -300,7 +300,7 @@ void main() {
       ).captured.first) as SentryEvent;
 
       expect(
-        capturedEvent.exception.stackTrace.frames
+        capturedEvent.exception!.stackTrace!.frames
             .every((frame) => frame.package != 'sentry'),
         true,
       );
@@ -308,8 +308,8 @@ void main() {
   });
 
   group('SentryClient : apply scope to the captured event', () {
-    SentryOptions options;
-    Scope scope;
+    late SentryOptions options;
+    late Scope scope;
 
     final level = SentryLevel.error;
     const transaction = '/test/scope';
@@ -355,10 +355,10 @@ void main() {
       ).captured.first) as SentryEvent;
 
       expect(capturedEvent.user?.id, user.id);
-      expect(capturedEvent.level.name, SentryLevel.error.name);
+      expect(capturedEvent.level!.name, SentryLevel.error.name);
       expect(capturedEvent.transaction, transaction);
       expect(capturedEvent.fingerprint, fingerprint);
-      expect(capturedEvent.breadcrumbs.first, crumb);
+      expect(capturedEvent.breadcrumbs!.first, crumb);
       expect(capturedEvent.tags, {
         scopeTagKey: scopeTagValue,
         eventTagKey: eventTagValue,
@@ -371,8 +371,8 @@ void main() {
   });
 
   group('SentryClient : apply partial scope to the captured event', () {
-    SentryOptions options;
-    Scope scope;
+    late SentryOptions options;
+    late Scope scope;
 
     final transaction = '/test/scope';
     final eventTransaction = '/event/transaction';
@@ -409,8 +409,8 @@ void main() {
         options.transport.send(captureAny),
       ).captured.first) as SentryEvent;
 
-      expect(capturedEvent.user.id, eventUser.id);
-      expect(capturedEvent.level.name, SentryLevel.warning.name);
+      expect(capturedEvent.user!.id, eventUser.id);
+      expect(capturedEvent.level!.name, SentryLevel.warning.name);
       expect(capturedEvent.transaction, eventTransaction);
       expect(capturedEvent.fingerprint, eventFingerprint);
       expect(capturedEvent.breadcrumbs, eventCrumbs);
@@ -418,7 +418,7 @@ void main() {
   });
 
   group('SentryClient sampling', () {
-    SentryOptions options;
+    late SentryOptions options;
 
     setUp(() {
       options = SentryOptions(dsn: fakeDsn);
@@ -451,7 +451,7 @@ void main() {
   });
 
   group('SentryClient before send', () {
-    SentryOptions options;
+    late SentryOptions options;
 
     setUp(() {
       options = SentryOptions(dsn: fakeDsn);
@@ -474,41 +474,37 @@ void main() {
       final event = verify(options.transport.send(captureAny)).captured.first
           as SentryEvent;
 
-      expect(event.tags.containsKey('theme'), true);
-      expect(event.extra.containsKey('host'), true);
-      expect(event.modules.containsKey('core'), true);
-      expect(event.sdk.integrations.contains('testIntegration'), true);
+      expect(event.tags!.containsKey('theme'), true);
+      expect(event.extra!.containsKey('host'), true);
+      expect(event.modules!.containsKey('core'), true);
+      expect(event.sdk!.integrations.contains('testIntegration'), true);
       expect(
-        event.sdk.packages.any((element) => element.name == 'test-pkg'),
+        event.sdk!.packages.any((element) => element.name == 'test-pkg'),
         true,
       );
       expect(
-        event.breadcrumbs
+        event.breadcrumbs!
             .any((element) => element.message == 'processor crumb'),
         true,
       );
-      expect(event.fingerprint.contains('process'), true);
+      expect(event.fingerprint!.contains('process'), true);
     });
   });
 
-  test("options can't be null", () {
-    expect(() => SentryClient(null), throwsArgumentError);
-  });
-
   group('EventProcessors', () {
-    SentryOptions options;
+    late SentryOptions options;
 
     setUp(() {
       options = SentryOptions(dsn: fakeDsn);
       options.addEventProcessor(
         (event, {hint}) => event
-          ..tags.addAll({'theme': 'material'})
-          ..extra['host'] = '0.0.0.1'
-          ..modules.addAll({'core': '1.0'})
-          ..breadcrumbs.add(Breadcrumb(message: 'processor crumb'))
-          ..fingerprint.add('process')
-          ..sdk.addIntegration('testIntegration')
-          ..sdk.addPackage('test-pkg', '1.0'),
+          ..tags!.addAll({'theme': 'material'})
+          ..extra!['host'] = '0.0.0.1'
+          ..modules!.addAll({'core': '1.0'})
+          ..breadcrumbs!.add(Breadcrumb(message: 'processor crumb'))
+          ..fingerprint!.add('process')
+          ..sdk!.addIntegration('testIntegration')
+          ..sdk!.addPackage('test-pkg', '1.0'),
       );
       options.transport = MockTransport();
     });
@@ -519,34 +515,34 @@ void main() {
 
       final event = verify(options.transport.send(captureAny)).captured.first
           as SentryEvent;
-      expect(event.tags.containsKey('theme'), true);
-      expect(event.extra.containsKey('host'), true);
-      expect(event.modules.containsKey('core'), true);
-      expect(event.sdk.integrations.contains('testIntegration'), true);
+      expect(event.tags!.containsKey('theme'), true);
+      expect(event.extra!.containsKey('host'), true);
+      expect(event.modules!.containsKey('core'), true);
+      expect(event.sdk!.integrations.contains('testIntegration'), true);
       expect(
-        event.sdk.packages.any((element) => element.name == 'test-pkg'),
+        event.sdk!.packages.any((element) => element.name == 'test-pkg'),
         true,
       );
       expect(
-        event.breadcrumbs
+        event.breadcrumbs!
             .any((element) => element.message == 'processor crumb'),
         true,
       );
-      expect(event.fingerprint.contains('process'), true);
+      expect(event.fingerprint!.contains('process'), true);
     });
   });
 }
 
-SentryEvent beforeSendCallbackDropEvent(SentryEvent event, {dynamic hint}) =>
+SentryEvent? beforeSendCallbackDropEvent(SentryEvent event, {dynamic hint}) =>
     null;
 
 SentryEvent beforeSendCallback(SentryEvent event, {dynamic hint}) {
   return event
-    ..tags.addAll({'theme': 'material'})
-    ..extra['host'] = '0.0.0.1'
-    ..modules.addAll({'core': '1.0'})
-    ..breadcrumbs.add(Breadcrumb(message: 'processor crumb'))
-    ..fingerprint.add('process')
-    ..sdk.addIntegration('testIntegration')
-    ..sdk.addPackage('test-pkg', '1.0');
+    ..tags!.addAll({'theme': 'material'})
+    ..extra!['host'] = '0.0.0.1'
+    ..modules!.addAll({'core': '1.0'})
+    ..breadcrumbs!.add(Breadcrumb(message: 'processor crumb'))
+    ..fingerprint!.add('process')
+    ..sdk!.addIntegration('testIntegration')
+    ..sdk!.addPackage('test-pkg', '1.0');
 }

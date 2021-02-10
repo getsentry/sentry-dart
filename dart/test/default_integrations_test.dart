@@ -5,7 +5,7 @@ import 'package:test/test.dart';
 import 'mocks.dart';
 
 void main() {
-  Fixture fixture;
+  late Fixture fixture;
 
   setUp(() {
     fixture = Fixture();

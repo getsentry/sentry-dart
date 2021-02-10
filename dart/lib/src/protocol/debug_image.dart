@@ -11,32 +11,32 @@ import 'package:meta/meta.dart';
 /// more details : https://develop.sentry.dev/sdk/event-payloads/debugmeta/
 @immutable
 class DebugImage {
-  final String uuid;
+  final String? uuid;
 
   /// Required. Type of the debug image. Must be "macho".
-  final String type;
+  final String? type;
 
   /// Required. Identifier of the dynamic library or executable. It is the value of the LC_UUID load command in the Mach header, formatted as UUID.
-  final String debugId;
+  final String? debugId;
 
   /// Required. Memory address, at which the image is mounted in the virtual address space of the process.
   /// Should be a string in hex representation prefixed with "0x".
-  final String imageAddr;
+  final String? imageAddr;
 
   /// Required. The size of the image in virtual memory. If missing, Sentry will assume that the image spans up to the next image, which might lead to invalid stack traces.
-  final int imageSize;
+  final int? imageSize;
 
   /// OptionalName or absolute path to the dSYM file containing debug information for this image. This value might be required to retrieve debug files from certain symbol servers.
-  final String debugFile;
+  final String? debugFile;
 
   /// Optional. The absolute path to the dynamic library or executable. This helps to locate the file if it is missing on Sentry.
-  final String codeFile;
+  final String? codeFile;
 
   /// Optional Architecture of the module. If missing, this will be backfilled by Sentry.
-  final String arch;
+  final String? arch;
 
   /// Optional. Identifier of the dynamic library or executable. It is the value of the LC_UUID load command in the Mach header, formatted as UUID. Can be empty for Mach images, as it is equivalent to the debug identifier.
-  final String codeId;
+  final String? codeId;
 
   const DebugImage({
     this.type,
@@ -93,15 +93,15 @@ class DebugImage {
   }
 
   DebugImage copyWith({
-    String uuid,
-    String type,
-    String debugId,
-    String debugFile,
-    String codeFile,
-    String imageAddr,
-    int imageSize,
-    String arch,
-    String codeId,
+    String? uuid,
+    String? type,
+    String? debugId,
+    String? debugFile,
+    String? codeFile,
+    String? imageAddr,
+    int? imageSize,
+    String? arch,
+    String? codeId,
   }) =>
       DebugImage(
         uuid: uuid ?? this.uuid,

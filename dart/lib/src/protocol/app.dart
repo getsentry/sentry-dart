@@ -31,29 +31,29 @@ class App {
       );
 
   /// Human readable application name, as it appears on the platform.
-  final String name;
+  final String? name;
 
   /// Human readable application version, as it appears on the platform.
-  final String version;
+  final String? version;
 
   /// Version-independent application identifier, often a dotted bundle ID.
-  final String identifier;
+  final String? identifier;
 
   /// Internal build identifier, as it appears on the platform.
-  final String build;
+  final String? build;
 
   /// String identifying the kind of build, e.g. `testflight`.
-  final String buildType;
+  final String? buildType;
 
   /// When the application was started by the user.
-  final DateTime startTime;
+  final DateTime? startTime;
 
   /// Application specific device identifier.
-  final String deviceAppHash;
+  final String? deviceAppHash;
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    final json = <String, String>{};
+    final json = <String, String?>{};
 
     if (name != null) {
       json['app_name'] = name;
@@ -76,7 +76,7 @@ class App {
     }
 
     if (startTime != null) {
-      json['app_start_time'] = startTime.toIso8601String();
+      json['app_start_time'] = startTime!.toIso8601String();
     }
 
     if (deviceAppHash != null) {
@@ -97,13 +97,13 @@ class App {
       );
 
   App copyWith({
-    String name,
-    String version,
-    String identifier,
-    String build,
-    String buildType,
-    DateTime startTime,
-    String deviceAppHash,
+    String? name,
+    String? version,
+    String? identifier,
+    String? build,
+    String? buildType,
+    DateTime? startTime,
+    String? deviceAppHash,
   }) =>
       App(
         name: name ?? this.name,

@@ -19,9 +19,9 @@ const String _testDsnWithPort =
     'https://public:secret@sentry.example.com:8888/1';
 
 void testHeaders(
-  Map<String, String> headers,
+  Map<String, String>? headers,
   ClockProvider fakeClockProvider, {
-  String sdkName,
+  String? sdkName,
   bool withUserAgent = true,
   bool compressPayload = true,
   bool withSecret = true,
@@ -34,10 +34,11 @@ void testHeaders(
   };
 
   if (withSecret) {
-    expectedHeaders['X-Sentry-Auth'] += 'sentry_secret=secret, ';
+    expectedHeaders['X-Sentry-Auth'] =
+        expectedHeaders['X-Sentry-Auth']! + 'sentry_secret=secret, ';
   }
 
-  expectedHeaders['X-Sentry-Auth'] +=
+  expectedHeaders['X-Sentry-Auth'] = expectedHeaders['X-Sentry-Auth']! +
       'sentry_timestamp=${fakeClockProvider().millisecondsSinceEpoch}';
 
   if (withUserAgent) {
@@ -53,14 +54,14 @@ void testHeaders(
 
 Future testCaptureException(
   bool compressPayload,
-  Codec<List<int>, List<int>> gzip,
+  Codec<List<int>, List<int>?>? gzip,
   bool isWeb,
 ) async {
   final fakeClockProvider = () => DateTime.utc(2017, 1, 2);
 
-  Uri postUri;
-  Map<String, String> headers;
-  List<int> body;
+  Uri? postUri;
+  Map<String, String>? headers;
+  List<int>? body;
   final httpMock = MockClient((http.Request request) async {
     if (request.method == 'POST') {
       postUri = request.url;
@@ -100,15 +101,16 @@ Future testCaptureException(
     sdkName: sdkName,
   );
 
-  Map<String, dynamic> data;
+  Map<String, dynamic>? data;
   if (compressPayload) {
-    data = json.decode(utf8.decode(gzip.decode(body))) as Map<String, dynamic>;
+    data =
+        json.decode(utf8.decode(gzip!.decode(body))) as Map<String, dynamic>?;
   } else {
-    data = json.decode(utf8.decode(body)) as Map<String, dynamic>;
+    data = json.decode(utf8.decode(body!)) as Map<String, dynamic>?;
   }
 
   // so we assert the generated and returned id
-  data['event_id'] = sentryId.toString();
+  data!['event_id'] = sentryId.toString();
 
   final stacktrace = data['exception']['values'].first['stacktrace'];
 
@@ -178,10 +180,10 @@ Future testCaptureException(
   expect(topFrame['lineno'], greaterThan(0));
   expect(topFrame['in_app'], true);
 
-  await client.close();
+  client.close();
 }
 
-void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
+void runTest({Codec<List<int>, List<int>?>? gzip, bool isWeb = false}) {
   test('can parse DSN', () async {
     final options = SentryOptions(dsn: testDsn);
     final client = SentryClient(options);
@@ -196,7 +198,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     expect(dsn.publicKey, 'public');
     expect(dsn.secretKey, 'secret');
     expect(dsn.projectId, '1');
-    await client.close();
+    client.close();
   });
 
   test('can parse DSN without secret', () async {
@@ -213,7 +215,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     expect(dsn.publicKey, 'public');
     expect(dsn.secretKey, null);
     expect(dsn.projectId, '1');
-    await client.close();
+    client.close();
   });
 
   test('can parse DSN with path', () async {
@@ -230,7 +232,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     expect(dsn.publicKey, 'public');
     expect(dsn.secretKey, 'secret');
     expect(dsn.projectId, '1');
-    await client.close();
+    client.close();
   });
   test('can parse DSN with port', () async {
     final options = SentryOptions(dsn: _testDsnWithPort);
@@ -246,12 +248,12 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     expect(dsn.publicKey, 'public');
     expect(dsn.secretKey, 'secret');
     expect(dsn.projectId, '1');
-    await client.close();
+    client.close();
   });
   test('sends client auth header without secret', () async {
     final fakeClockProvider = () => DateTime.utc(2017, 1, 2);
 
-    Map<String, String> headers;
+    Map<String, String>? headers;
 
     final httpMock = MockClient((http.Request request) async {
       if (request.method == 'POST') {
@@ -290,7 +292,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
       sdkName: sdkName,
     );
 
-    await client.close();
+    client.close();
   });
 
   test('sends an exception report (compressed)', () async {
@@ -337,19 +339,19 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
       expect('$sentryId', '00000000000000000000000000000000');
     }
 
-    await client.close();
+    client.close();
   });
 
   test('$SentryEvent user overrides client', () async {
     final fakeClockProvider = () => DateTime.utc(2017, 1, 2);
 
-    String loggedUserId; // used to find out what user context was sent
+    String? loggedUserId; // used to find out what user context was sent
     final httpMock = MockClient((http.Request request) async {
       if (request.method == 'POST') {
         final bodyData = request.bodyBytes;
         final decoded = const Utf8Codec().decode(bodyData);
         final dynamic decodedJson = jsonDecode(decoded);
-        loggedUserId = decodedJson['user']['id'] as String;
+        loggedUserId = decodedJson['user']['id'] as String?;
         return http.Response(
           '',
           401,
@@ -414,6 +416,6 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
       expect(loggedUserId, eventUser.id);
     }
 
-    await client.close();
+    client.close();
   });
 }

@@ -19,12 +19,11 @@ class Hub {
   final ListQueue<_StackItem> _stack = ListQueue();
 
   /// if stack is empty, it throws IterableElementError.noElement()
-  _StackItem _peek() => _stack.isNotEmpty ? _stack.first : null;
+  _StackItem? _peek() => _stack.isNotEmpty ? _stack.first : null;
 
   final SentryOptions _options;
 
   factory Hub(SentryOptions options) {
-    assert(options != null, 'SentryOptions is required.');
     _validateOptions(options);
 
     return Hub._(options);
@@ -36,7 +35,7 @@ class Hub {
   }
 
   static void _validateOptions(SentryOptions options) {
-    if (options.dsn?.isNotEmpty != true) {
+    if (options.dsn.isEmpty) {
       throw ArgumentError('DSN is required.');
     }
   }
@@ -53,7 +52,7 @@ class Hub {
 
   /// Captures the event.
   Future<SentryId> captureEvent(
-    SentryEvent /*?*/ event, {
+    SentryEvent? event, {
     dynamic stackTrace,
     dynamic hint,
   }) async {
@@ -146,10 +145,10 @@ class Hub {
 
   /// Captures the message.
   Future<SentryId> captureMessage(
-    String /*?*/ message, {
-    SentryLevel level = SentryLevel.info,
-    String template,
-    List<dynamic> params,
+    String? message, {
+    SentryLevel? level = SentryLevel.info,
+    String? template,
+    List<dynamic>? params,
     dynamic hint,
   }) async {
     var sentryId = SentryId.empty();
@@ -195,7 +194,7 @@ class Hub {
   }
 
   /// Adds a breacrumb to the current Scope
-  void addBreadcrumb(Breadcrumb /*?*/ crumb, {dynamic hint}) {
+  void addBreadcrumb(Breadcrumb? crumb, {dynamic hint}) {
     if (!_isEnabled) {
       _options.logger(
         SentryLevel.warning,

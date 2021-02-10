@@ -6,16 +6,16 @@ import 'sentry_options.dart';
 /// Scope data to be sent with the event
 class Scope {
   /// How important this event is.
-  SentryLevel level;
+  SentryLevel? level;
 
   /// The name of the transaction which generated this event,
   /// for example, the route name: `"/users/<username>/"`.
-  String transaction;
+  String? transaction;
 
   /// Information about the current user.
-  User user;
+  User? user;
 
-  List<String> _fingerprint;
+  List<String>? _fingerprint;
 
   /// Used to deduplicate events by grouping ones with the same fingerprint
   /// together.
@@ -24,15 +24,15 @@ class Scope {
   ///
   ///     // A completely custom fingerprint:
   ///     var custom = ['foo', 'bar', 'baz'];
-  List<String> get fingerprint =>
-      _fingerprint != null ? List.unmodifiable(_fingerprint) : null;
+  List<String>? get fingerprint =>
+      _fingerprint != null ? List.unmodifiable(_fingerprint!) : null;
 
-  set fingerprint(List<String> fingerprint) {
+  set fingerprint(List<String>? fingerprint) {
     _fingerprint = (fingerprint != null ? List.from(fingerprint) : fingerprint);
   }
 
   /// List of breadcrumbs for this scope.
-  final Queue<Breadcrumb> _breadcrumbs = Queue();
+  final Queue<Breadcrumb?> _breadcrumbs = Queue();
 
   /// Unmodifiable List of breadcrumbs
   /// See also:
@@ -81,12 +81,12 @@ class Scope {
   List<EventProcessor> get eventProcessors =>
       List.unmodifiable(_eventProcessors);
 
-  final SentryOptions /*!*/ _options;
+  final SentryOptions _options;
 
   Scope(this._options);
 
   /// Adds a breadcrumb to the breadcrumbs queue
-  void addBreadcrumb(Breadcrumb /*?*/ breadcrumb, {dynamic hint}) {
+  void addBreadcrumb(Breadcrumb? breadcrumb, {dynamic hint}) {
     // bail out if maxBreadcrumbs is zero
     if (_options.maxBreadcrumbs == 0) {
       return;
@@ -94,7 +94,7 @@ class Scope {
 
     // run before breadcrumb callback if set
     if (_options.beforeBreadcrumb != null) {
-      breadcrumb = _options.beforeBreadcrumb(breadcrumb, hint: hint);
+      breadcrumb = _options.beforeBreadcrumb!(breadcrumb, hint: hint);
 
       if (breadcrumb == null) {
         _options.logger(
@@ -118,7 +118,7 @@ class Scope {
   }
 
   /// Adds an event processor
-  void addEventProcessor(EventProcessor /*!*/ eventProcessor) {
+  void addEventProcessor(EventProcessor eventProcessor) {
     assert(eventProcessor != null, "EventProcessor can't be null");
 
     _eventProcessors.add(eventProcessor);
@@ -137,7 +137,7 @@ class Scope {
   }
 
   /// Sets a tag to the Scope
-  void setTag(String /*!*/ key, String /*!*/ value) {
+  void setTag(String key, String value) {
     assert(key != null, "Key can't be null");
     assert(value != null, "Key can't be null");
 
@@ -145,12 +145,12 @@ class Scope {
   }
 
   /// Removes a tag from the Scope
-  void removeTag(String /*!*/ key) {
+  void removeTag(String key) {
     _tags.remove(key);
   }
 
   /// Sets an extra to the Scope
-  void setExtra(String /*!*/ key, dynamic value) {
+  void setExtra(String key, dynamic value) {
     assert(key != null, "Key can't be null");
     assert(value != null, "Value can't be null");
 
@@ -158,15 +158,15 @@ class Scope {
   }
 
   /// Removes an extra from the Scope
-  void removeExtra(String /*!*/ key) => _extra.remove(key);
+  void removeExtra(String key) => _extra.remove(key);
 
   Future<SentryEvent> applyToEvent(
-      SentryEvent /*!*/ event, dynamic hint) async {
+      SentryEvent event, dynamic hint) async {
     event = event.copyWith(
       transaction: event.transaction ?? transaction,
       user: event.user ?? user,
       fingerprint: event.fingerprint ??
-          (_fingerprint != null ? List.from(_fingerprint) : null),
+          (_fingerprint != null ? List.from(_fingerprint!) : null),
       breadcrumbs: event.breadcrumbs ??
           (_breadcrumbs != null ? List.from(_breadcrumbs) : null),
       tags: tags.isNotEmpty ? _mergeEventTags(event) : event.tags,
@@ -187,7 +187,7 @@ class Scope {
 
     for (final processor in _eventProcessors) {
       try {
-        event = await processor(event, hint: hint);
+        event = await processor(event, hint: hint)!;
       } catch (err) {
         _options.logger(
           SentryLevel.error,
@@ -204,7 +204,7 @@ class Scope {
   }
 
   /// merge the scope contexts runtimes and the event contexts runtimes
-  void _mergeEventContextsRuntimes(List /*!*/ value, SentryEvent /*!*/ event) =>
+  void _mergeEventContextsRuntimes(List value, SentryEvent event) =>
       value.forEach((runtime) => event.contexts.addRuntime(runtime));
 
   /// if the scope and the event have tag entries with the same key,
@@ -222,11 +222,11 @@ class Scope {
   Scope clone() {
     final clone = Scope(_options)
       ..user = user
-      ..fingerprint = fingerprint != null ? List.from(fingerprint) : null
+      ..fingerprint = fingerprint != null ? List.from(fingerprint!) : null
       ..transaction = transaction;
 
     for (final tag in _tags.keys) {
-      clone.setTag(tag, _tags[tag]);
+      clone.setTag(tag, _tags[tag]!);
     }
 
     for (final extraKey in _extra.keys) {

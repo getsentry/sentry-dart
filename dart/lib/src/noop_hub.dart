@@ -18,7 +18,7 @@ class NoOpHub implements Hub {
 
   @override
   Future<SentryId> captureEvent(
-    SentryEvent event, {
+    SentryEvent? event, {
     dynamic stackTrace,
     dynamic hint,
   }) =>
@@ -34,10 +34,10 @@ class NoOpHub implements Hub {
 
   @override
   Future<SentryId> captureMessage(
-    String message, {
-    SentryLevel level = SentryLevel.info,
-    String template,
-    List params,
+    String? message, {
+    SentryLevel? level = SentryLevel.info,
+    String? template,
+    List? params,
     dynamic hint,
   }) =>
       Future.value(SentryId.empty());
@@ -58,5 +58,5 @@ class NoOpHub implements Hub {
   SentryId get lastEventId => SentryId.empty();
 
   @override
-  void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) {}
+  void addBreadcrumb(Breadcrumb? crumb, {dynamic hint}) {}
 }

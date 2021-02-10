@@ -18,7 +18,7 @@ void main() {
 
       expect(
         SentryStackTraceFactory(SentryOptions(dsn: fakeDsn))
-            .encodeStackTraceFrame(frame)
+            .encodeStackTraceFrame(frame)!
             .toJson(),
         {
           'abs_path': '${eventOrigin}dart:core',
@@ -35,7 +35,7 @@ void main() {
       final frame = Frame(Uri.parse('file://foo/bar/baz.dart'), 1, 2, 'buzz');
       expect(
         SentryStackTraceFactory(SentryOptions(dsn: fakeDsn))
-            .encodeStackTraceFrame(frame)
+            .encodeStackTraceFrame(frame)!
             .toJson()['abs_path'],
         '${eventOrigin}baz.dart',
       );
@@ -45,7 +45,7 @@ void main() {
       final frame = Frame(Uri.parse('package:toolkit/baz.dart'), 1, 2, 'buzz');
       final serializedFrame = SentryStackTraceFactory(
               SentryOptions(dsn: fakeDsn)..addInAppExclude('toolkit'))
-          .encodeStackTraceFrame(frame)
+          .encodeStackTraceFrame(frame)!
           .toJson();
       expect(serializedFrame['package'], 'toolkit');
     });
@@ -54,7 +54,7 @@ void main() {
       final frame = Frame(Uri.parse('package:toolkit/baz.dart'), 1, 2, 'buzz');
       final serializedFrame = SentryStackTraceFactory(
               SentryOptions(dsn: fakeDsn)..addInAppExclude('toolkit'))
-          .encodeStackTraceFrame(frame)
+          .encodeStackTraceFrame(frame)!
           .toJson();
       expect(serializedFrame['in_app'], false);
     });
@@ -63,7 +63,7 @@ void main() {
       final frame = Frame(Uri.parse('package:toolkit/baz.dart'), 1, 2, 'buzz');
       final serializedFrame = SentryStackTraceFactory(
               SentryOptions(dsn: fakeDsn)..addInAppInclude('toolkit'))
-          .encodeStackTraceFrame(frame)
+          .encodeStackTraceFrame(frame)!
           .toJson();
       expect(serializedFrame['in_app'], true);
     });
@@ -73,7 +73,7 @@ void main() {
           Frame(Uri.parse('package:flutter/material.dart'), 1, 2, 'buzz');
       final serializedFrame =
           SentryStackTraceFactory(SentryOptions(dsn: fakeDsn))
-              .encodeStackTraceFrame(frame)
+              .encodeStackTraceFrame(frame)!
               .toJson();
       expect(serializedFrame['in_app'], false);
     });
@@ -84,7 +84,7 @@ void main() {
           SentryStackTraceFactory(SentryOptions(dsn: fakeDsn)
                 ..addInAppInclude('toolkit')
                 ..addInAppExclude('toolkit'))
-              .encodeStackTraceFrame(frame)
+              .encodeStackTraceFrame(frame)!
               .toJson();
       expect(serializedFrame['in_app'], true);
     });

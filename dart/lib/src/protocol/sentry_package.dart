@@ -22,8 +22,8 @@ class SentryPackage {
   }
 
   SentryPackage copyWith({
-    String name,
-    String version,
+    String? name,
+    String? version,
   }) =>
       SentryPackage(
         name ?? this.name,

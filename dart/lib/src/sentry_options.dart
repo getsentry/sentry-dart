@@ -23,7 +23,7 @@ class SentryOptions {
 
   /// The DSN tells the SDK where to send the events to. If an empty string is
   /// used, the SDK will not send any events.
-  String /*!*/ dsn = '';
+  String dsn = '';
 
   /// If [compressPayload] is `true` the outgoing HTTP payloads are compressed
   /// using gzip. Otherwise, the payloads are sent in plain UTF8-encoded JSON
@@ -85,28 +85,28 @@ class SentryOptions {
 
   /// Sentry client name used for the HTTP authHeader and userAgent eg
   /// sentry.{language}.{platform}/{version} eg sentry.java.android/2.0.0 would be a valid case
-  String sentryClientName;
+  String? sentryClientName;
 
   /// This function is called with an SDK specific event object and can return a modified event
   /// object or nothing to skip reporting the event
-  BeforeSendCallback /*?*/ beforeSend;
+  BeforeSendCallback? beforeSend;
 
   /// This function is called with an SDK specific breadcrumb object before the breadcrumb is added
   /// to the scope. When nothing is returned from the function, the breadcrumb is dropped
-  BeforeBreadcrumbCallback /*?*/ beforeBreadcrumb;
+  BeforeBreadcrumbCallback? beforeBreadcrumb;
 
   /// Sets the release. SDK will try to automatically configure a release out of the box
-  String release;
+  String? release;
 
   /// Sets the environment. This string is freeform and not set by default. A release can be
   /// associated with more than one environment to separate them in the UI Think staging vs prod or
   /// similar.
-  String environment;
+  String? environment;
 
   /// Configures the sample rate as a percentage of events to be sent in the range of 0.0 to 1.0. if
   /// 1.0 is set it means that 100% of events are sent. If set to 0.1 only 10% of events will be
   /// sent. Events are picked randomly. Default is null (disabled)
-  double sampleRate;
+  double? sampleRate;
 
   final List<String> _inAppExcludes = [];
 
@@ -127,10 +127,10 @@ class SentryOptions {
   Transport transport = NoOpTransport();
 
   /// Sets the distribution. Think about it together with release and environment
-  String dist;
+  String? dist;
 
   /// The server name used in the Sentry messages.
-  String serverName;
+  String? serverName;
 
   /// Sdk object that contains the Sentry Client Name and its version
   SdkVersion sdk = SdkVersion(name: sdkName, version: sdkVersion);
@@ -157,7 +157,7 @@ class SentryOptions {
 
   // TODO: sendDefaultPii
 
-  SentryOptions({@required this.dsn}) : assert(dsn != null) {
+  SentryOptions({required this.dsn}) : assert(dsn != null) {
     sdk.addPackage('pub:sentry', sdkVersion);
   }
 
@@ -199,17 +199,17 @@ class SentryOptions {
 
 /// This function is called with an SDK specific event object and can return a modified event
 /// object or nothing to skip reporting the event
-typedef BeforeSendCallback = SentryEvent Function(SentryEvent event,
+typedef BeforeSendCallback = SentryEvent? Function(SentryEvent event,
     {dynamic hint});
 
 /// This function is called with an SDK specific breadcrumb object before the breadcrumb is added
 /// to the scope. When nothing is returned from the function, the breadcrumb is dropped
-typedef BeforeBreadcrumbCallback = Breadcrumb Function(Breadcrumb breadcrumb,
+typedef BeforeBreadcrumbCallback = Breadcrumb? Function(Breadcrumb? breadcrumb,
     {dynamic hint});
 
 /// Are callbacks that run for every event. They can either return a new event which in most cases
 /// means just adding data OR return null in case the event will be dropped and not sent.
-typedef EventProcessor = FutureOr<SentryEvent> Function(SentryEvent event,
+typedef EventProcessor = FutureOr<SentryEvent>? Function(SentryEvent event,
     {dynamic hint});
 
 /// Logger interface to log useful debugging information if debug is enabled

@@ -16,15 +16,11 @@ class HttpTransport implements Transport {
 
   final Dsn _dsn;
 
-  _CredentialBuilder _credentialBuilder;
+  late _CredentialBuilder _credentialBuilder;
 
   final Map<String, String> _headers;
 
-  factory HttpTransport(SentryOptions/*!*/ options) {
-    if (options == null) {
-      throw ArgumentError('SentryOptions is required.');
-    }
-
+  factory HttpTransport(SentryOptions options) {
     if (options.httpClient is NoOpClient) {
       options.httpClient = Client();
     }
@@ -54,7 +50,7 @@ class HttpTransport implements Transport {
 
     final response = await _options.httpClient.post(
       _dsn.postUri,
-      headers: _credentialBuilder.configure(_headers),
+      headers: _credentialBuilder.configure(_headers) as Map<String, String>?,
       body: body,
     );
 
@@ -83,7 +79,7 @@ class HttpTransport implements Transport {
   List<int> _bodyEncoder(
     Map<String, dynamic> data,
     Map<String, String> headers, {
-    bool compressPayload,
+    required bool compressPayload,
   }) {
     // [SentryIOClient] implement gzip compression
     // gzip compression is not available on browser
@@ -118,9 +114,9 @@ class _CredentialBuilder {
   }
 
   static String _buildAuthHeader({
-    String publicKey,
-    String secretKey,
-    String sdkIdentifier,
+    String? publicKey,
+    String? secretKey,
+    String? sdkIdentifier,
   }) {
     var header = 'Sentry sentry_version=7, sentry_client=$sdkIdentifier, '
         'sentry_key=$publicKey';

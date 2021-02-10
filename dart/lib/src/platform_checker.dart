@@ -4,17 +4,17 @@ class PlatformChecker {
   const PlatformChecker();
 
   /// Check if running in release/production environment
-  bool/*!*/ isReleaseMode() {
+  bool isReleaseMode() {
     return const bool.fromEnvironment('dart.vm.product', defaultValue: false);
   }
 
   /// Check if running in debug environment
-  bool/*!*/ isDebugMode() {
+  bool isDebugMode() {
     return !isReleaseMode() && !isProfileMode();
   }
 
   /// Check if running in profile environment
-  bool/*!*/ isProfileMode() {
+  bool isProfileMode() {
     return const bool.fromEnvironment('dart.vm.profile', defaultValue: false);
   }
 }

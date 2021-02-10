@@ -17,7 +17,7 @@ class NoOpSentryClient implements SentryClient {
   Future<SentryId> captureEvent(
     SentryEvent event, {
     dynamic stackTrace,
-    Scope scope,
+    Scope? scope,
     dynamic hint,
   }) =>
       Future.value(SentryId.empty());
@@ -26,18 +26,18 @@ class NoOpSentryClient implements SentryClient {
   Future<SentryId> captureException(
     dynamic exception, {
     dynamic stackTrace,
-    Scope scope,
+    Scope? scope,
     dynamic hint,
   }) =>
       Future.value(SentryId.empty());
 
   @override
   Future<SentryId> captureMessage(
-    String message, {
-    SentryLevel level = SentryLevel.info,
-    String template,
-    List<dynamic> params,
-    Scope scope,
+    String? message, {
+    SentryLevel? level = SentryLevel.info,
+    String? template,
+    List<dynamic>? params,
+    Scope? scope,
     dynamic hint,
   }) =>
       Future.value(SentryId.empty());

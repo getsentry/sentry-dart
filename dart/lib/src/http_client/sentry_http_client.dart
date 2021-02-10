@@ -46,7 +46,7 @@ import '../../sentry.dart';
 // For example with Darts Stopwatch:
 // https://api.dart.dev/stable/2.10.4/dart-core/Stopwatch-class.html
 class SentryHttpClient extends BaseClient {
-  SentryHttpClient({Client/*?*/ client, Hub/*?*/ hub})
+  SentryHttpClient({Client? client, Hub? hub})
       : _hub = hub ?? HubAdapter(),
         _client = client ?? Client();
 

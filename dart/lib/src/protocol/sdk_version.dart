@@ -36,10 +36,10 @@ import 'sentry_package.dart';
 class SdkVersion {
   /// Creates an [SdkVersion] object which represents the SDK that created an [Event].
   SdkVersion({
-    @required this.name,
-    @required this.version,
-    List<String> integrations,
-    List<SentryPackage> packages,
+    required this.name,
+    required this.version,
+    List<String>? integrations,
+    List<SentryPackage>? packages,
   })  : assert(name != null || version != null),
         // List.from prevents from having immutable lists
         _integrations = integrations != null ? List.from(integrations) : [],
@@ -97,10 +97,10 @@ class SdkVersion {
   }
 
   SdkVersion copyWith(
-          {String name,
-          String version,
-          List<String> integrations,
-          List<SentryPackage> packages}) =>
+          {String? name,
+          String? version,
+          List<String>? integrations,
+          List<SentryPackage>? packages}) =>
       SdkVersion(
         name: name ?? this.name,
         version: version ?? this.version,

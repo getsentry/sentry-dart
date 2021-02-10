@@ -111,11 +111,11 @@ void main() {
     test('clone context', () {
       final clone = contexts.clone();
 
-      expect(clone.app.toJson(), contexts.app.toJson());
-      expect(clone.browser.toJson(), contexts.browser.toJson());
-      expect(clone.device.toJson(), contexts.device.toJson());
-      expect(clone.operatingSystem.toJson(), contexts.operatingSystem.toJson());
-      expect(clone.gpu.toJson(), contexts.gpu.toJson());
+      expect(clone.app!.toJson(), contexts.app!.toJson());
+      expect(clone.browser!.toJson(), contexts.browser!.toJson());
+      expect(clone.device!.toJson(), contexts.device!.toJson());
+      expect(clone.operatingSystem!.toJson(), contexts.operatingSystem!.toJson());
+      expect(clone.gpu!.toJson(), contexts.gpu!.toJson());
 
       contexts.runtimes.forEach((element) {
         expect(
@@ -136,7 +136,7 @@ void main() {
       final contexts = Contexts.fromJson(jsonDecode(jsonContexts));
       expect(
         MapEquality().equals(
-          contexts.operatingSystem.toJson(),
+          contexts.operatingSystem!.toJson(),
           {
             'build': '19H2',
             'rooted': false,
@@ -149,7 +149,7 @@ void main() {
         true,
       );
       expect(
-        MapEquality().equals(contexts.device.toJson(), {
+        MapEquality().equals(contexts.device!.toJson(), {
           'simulator': true,
           'model_id': 'simulator',
           'arch': 'x86',
@@ -167,7 +167,7 @@ void main() {
 
       expect(
         MapEquality().equals(
-          contexts.app.toJson(),
+          contexts.app!.toJson(),
           {
             'app_name': 'sentry_flutter_example',
             'app_version': '0.1.2',
@@ -189,12 +189,12 @@ void main() {
         true,
       );
       expect(
-        MapEquality().equals(contexts.browser.toJson(), {'version': '12.3.4'}),
+        MapEquality().equals(contexts.browser!.toJson(), {'version': '12.3.4'}),
         true,
       );
       expect(
         MapEquality()
-            .equals(contexts.gpu.toJson(), {'name': 'Radeon', 'version': '1'}),
+            .equals(contexts.gpu!.toJson(), {'name': 'Radeon', 'version': '1'}),
         true,
       );
     });

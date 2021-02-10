@@ -28,27 +28,27 @@ class OperatingSystem {
       );
 
   /// The name of the operating system.
-  final String name;
+  final String? name;
 
   /// The version of the operating system.
-  final String version;
+  final String? version;
 
   /// The internal build revision of the operating system.
-  final String build;
+  final String? build;
 
   /// An independent kernel version string.
   ///
   /// This is typically the entire output of the `uname` syscall.
-  final String kernelVersion;
+  final String? kernelVersion;
 
   /// A flag indicating whether the OS has been jailbroken or rooted.
-  final bool rooted;
+  final bool? rooted;
 
   /// An unprocessed description string obtained by the operating system.
   ///
   /// For some well-known runtimes, Sentry will attempt to parse name and
   /// version from this string, if they are not explicitly given.
-  final String rawDescription;
+  final String? rawDescription;
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
@@ -91,12 +91,12 @@ class OperatingSystem {
       );
 
   OperatingSystem copyWith({
-    String name,
-    String version,
-    String build,
-    String kernelVersion,
-    bool rooted,
-    String rawDescription,
+    String? name,
+    String? version,
+    String? build,
+    String? kernelVersion,
+    bool? rooted,
+    String? rawDescription,
   }) =>
       OperatingSystem(
         name: name ?? this.name,

@@ -5,13 +5,13 @@ import 'package:test/test.dart';
 import 'mocks.dart';
 import 'fake_platform_checker.dart';
 
-Function appRunner = () {};
+AppRunner appRunner = () {};
 
 void main() {
   group('Sentry capture methods', () {
-    SentryClient client;
+    late SentryClient client;
 
-    Exception anException;
+    late Exception anException;
 
     setUp(() async {
       await Sentry.init((options) => options.dsn = fakeDsn);
@@ -65,13 +65,6 @@ void main() {
     tearDown(() {
       Sentry.close();
     });
-    test('null DSN', () {
-      expect(
-        () async => await Sentry.init((options) => options.dsn = null),
-        throwsArgumentError,
-      );
-      expect(Sentry.isEnabled, false);
-    });
 
     test('appRunner should be optional', () async {
       expect(Sentry.isEnabled, false);
@@ -116,7 +109,7 @@ void main() {
     });
 
     test('should add default integrations', () async {
-      SentryOptions optionsReference;
+      late SentryOptions optionsReference;
       await Sentry.init(
         (options) {
           options.dsn = fakeDsn;
@@ -160,9 +153,9 @@ void main() {
         },
       );
 
-      await Sentry.close();
+      Sentry.close();
 
-      verify(integration(any, any)).called(1);
+      verify(integration.call(any, any)).called(1);
       verify(integration.close()).called(1);
     });
   });
