@@ -24,7 +24,7 @@ class Dsn {
   /// The DSN URI.
   final Uri uri;
 
-  String get postUri {
+  Uri get postUri {
     final port = uri.hasPort &&
             ((uri.scheme == 'http' && uri.port != 80) ||
                 (uri.scheme == 'https' && uri.port != 443))
@@ -41,7 +41,9 @@ class Dsn {
     } else {
       apiPath = 'api';
     }
-    return '${uri.scheme}://${uri.host}$port/$apiPath/$projectId/store/';
+    return Uri.parse(
+      '${uri.scheme}://${uri.host}$port/$apiPath/$projectId/store/',
+    );
   }
 
   /// Parses a DSN String to a Dsn object

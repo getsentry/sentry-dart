@@ -58,12 +58,12 @@ Future testCaptureException(
 ) async {
   final fakeClockProvider = () => DateTime.utc(2017, 1, 2);
 
-  String postUri;
+  Uri postUri;
   Map<String, String> headers;
   List<int> body;
   final httpMock = MockClient((http.Request request) async {
     if (request.method == 'POST') {
-      postUri = request.url.toString();
+      postUri = request.url;
       headers = request.headers;
       body = request.bodyBytes;
       return http.Response('{"id": "test-event-id"}', 200);
@@ -191,7 +191,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     expect(dsn.uri, Uri.parse(testDsn));
     expect(
       dsn.postUri,
-      'https://sentry.example.com/api/1/store/',
+      Uri.parse('https://sentry.example.com/api/1/store/'),
     );
     expect(dsn.publicKey, 'public');
     expect(dsn.secretKey, 'secret');
@@ -208,7 +208,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     expect(dsn.uri, Uri.parse(_testDsnWithoutSecret));
     expect(
       dsn.postUri,
-      'https://sentry.example.com/api/1/store/',
+      Uri.parse('https://sentry.example.com/api/1/store/'),
     );
     expect(dsn.publicKey, 'public');
     expect(dsn.secretKey, null);
@@ -225,7 +225,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     expect(dsn.uri, Uri.parse(_testDsnWithPath));
     expect(
       dsn.postUri,
-      'https://sentry.example.com/path/api/1/store/',
+      Uri.parse('https://sentry.example.com/path/api/1/store/'),
     );
     expect(dsn.publicKey, 'public');
     expect(dsn.secretKey, 'secret');
@@ -241,7 +241,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     expect(dsn.uri, Uri.parse(_testDsnWithPort));
     expect(
       dsn.postUri,
-      'https://sentry.example.com:8888/api/1/store/',
+      Uri.parse('https://sentry.example.com:8888/api/1/store/'),
     );
     expect(dsn.publicKey, 'public');
     expect(dsn.secretKey, 'secret');
@@ -259,7 +259,8 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
         return http.Response('{"id": "testeventid"}', 200);
       }
       fail(
-          'Unexpected request on ${request.method} ${request.url} in HttpMock');
+        'Unexpected request on ${request.method} ${request.url} in HttpMock',
+      );
     });
 
     final client = SentryClient(
@@ -312,7 +313,8 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
         });
       }
       fail(
-          'Unexpected request on ${request.method} ${request.url} in HttpMock');
+        'Unexpected request on ${request.method} ${request.url} in HttpMock',
+      );
     });
 
     final client = SentryClient(
@@ -348,12 +350,17 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
         final decoded = const Utf8Codec().decode(bodyData);
         final dynamic decodedJson = jsonDecode(decoded);
         loggedUserId = decodedJson['user']['id'] as String;
-        return http.Response('', 401, headers: <String, String>{
-          'x-sentry-error': 'Invalid api key',
-        });
+        return http.Response(
+          '',
+          401,
+          headers: <String, String>{
+            'x-sentry-error': 'Invalid api key',
+          },
+        );
       }
       fail(
-          'Unexpected request on ${request.method} ${request.url} in HttpMock');
+        'Unexpected request on ${request.method} ${request.url} in HttpMock',
+      );
     });
 
     final clientUser = User(
