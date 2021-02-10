@@ -23,7 +23,7 @@ class SentryClient {
   SentryStackTraceFactory _stackTraceFactory;
 
   /// Instantiates a client using [SentryOptions]
-  factory SentryClient(SentryOptions options) {
+  factory SentryClient(SentryOptions /*!*/ options) {
     if (options == null) {
       throw ArgumentError('SentryOptions is required.');
     }
@@ -47,7 +47,7 @@ class SentryClient {
 
   /// Reports an [event] to Sentry.io.
   Future<SentryId> captureEvent(
-    SentryEvent event, {
+    SentryEvent /*!*/ event, {
     Scope scope,
     dynamic stackTrace,
     dynamic hint,
@@ -60,37 +60,39 @@ class SentryClient {
       return _sentryId;
     }
 
-    event = _prepareEvent(event, stackTrace: stackTrace);
+    var preparedEvent = _prepareEvent(event, stackTrace: stackTrace);
 
     if (scope != null) {
-      event = await scope.applyToEvent(event, hint);
+      preparedEvent = await scope.applyToEvent(preparedEvent, hint);
     } else {
       _options.logger(SentryLevel.debug, 'No scope is defined');
     }
 
     // dropped by scope event processors
-    if (event == null) {
+    if (preparedEvent == null) {
       return _sentryId;
     }
 
-    event =
-        await _processEvent(event, eventProcessors: _options.eventProcessors);
+    preparedEvent = await _processEvent(
+      preparedEvent,
+      eventProcessors: _options.eventProcessors,
+    );
 
     // dropped by event processors
-    if (event == null) {
+    if (preparedEvent == null) {
       return _sentryId;
     }
 
     if (_options.beforeSend != null) {
       try {
-        event = _options.beforeSend(event, hint: hint);
+        preparedEvent = _options.beforeSend(preparedEvent, hint: hint);
       } catch (err) {
         _options.logger(
           SentryLevel.error,
           'The BeforeSend callback threw an exception',
         );
       }
-      if (event == null) {
+      if (preparedEvent == null) {
         _options.logger(
           SentryLevel.debug,
           'Event was dropped by BeforeSend callback',
@@ -99,7 +101,7 @@ class SentryClient {
       }
     }
 
-    return _options.transport.send(event);
+    return _options.transport.send(preparedEvent);
   }
 
   SentryEvent _prepareEvent(SentryEvent event, {dynamic stackTrace}) {

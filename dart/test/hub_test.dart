@@ -21,12 +21,6 @@ void main() {
   }
 
   group('Hub instantiation', () {
-    test('should not instantiate without a sentryOptions', () {
-      Hub hub;
-      expect(() => hub = Hub(null), throwsArgumentError);
-      expect(hub, null);
-    });
-
     test('should not instantiate without a dsn', () {
       expect(() => Hub(SentryOptions()), throwsArgumentError);
     });

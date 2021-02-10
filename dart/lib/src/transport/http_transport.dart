@@ -20,7 +20,7 @@ class HttpTransport implements Transport {
 
   final Map<String, String> _headers;
 
-  factory HttpTransport(SentryOptions options) {
+  factory HttpTransport(SentryOptions/*!*/ options) {
     if (options == null) {
       throw ArgumentError('SentryOptions is required.');
     }

@@ -9,12 +9,6 @@ void main() {
     expect(NoOpClient(), options.httpClient);
   });
 
-  test('$Client is NoOp if null is set', () {
-    final options = SentryOptions();
-    options.httpClient = null;
-    expect(NoOpClient(), options.httpClient);
-  });
-
   test('$Client sets a custom client', () {
     final options = SentryOptions();
 
@@ -29,20 +23,6 @@ void main() {
     expect(100, options.maxBreadcrumbs);
   });
 
-  test('maxBreadcrumbs is default if null is set', () {
-    final options = SentryOptions();
-    options.maxBreadcrumbs = null;
-
-    expect(100, options.maxBreadcrumbs);
-  });
-
-  test('maxBreadcrumbs is default if negative number is set', () {
-    final options = SentryOptions();
-    options.maxBreadcrumbs = -1;
-
-    expect(100, options.maxBreadcrumbs);
-  });
-
   test('maxBreadcrumbs sets custom maxBreadcrumbs', () {
     final options = SentryOptions();
     options.maxBreadcrumbs = 200;
@@ -52,13 +32,6 @@ void main() {
 
   test('$SentryLogger is NoOp by default', () {
     final options = SentryOptions();
-
-    expect(noOpLogger, options.logger);
-  });
-
-  test('$SentryLogger is NoOp if null is set', () {
-    final options = SentryOptions();
-    options.logger = null;
 
     expect(noOpLogger, options.logger);
   });

@@ -24,6 +24,7 @@ class Hub {
   final SentryOptions _options;
 
   factory Hub(SentryOptions options) {
+    assert(options != null, 'SentryOptions is required.');
     _validateOptions(options);
 
     return Hub._(options);
@@ -35,10 +36,6 @@ class Hub {
   }
 
   static void _validateOptions(SentryOptions options) {
-    if (options == null) {
-      throw ArgumentError('SentryOptions is required.');
-    }
-
     if (options.dsn?.isNotEmpty != true) {
       throw ArgumentError('DSN is required.');
     }

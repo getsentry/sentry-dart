@@ -7,18 +7,13 @@ import 'sentry_options.dart';
 
 /// converts [StackTrace] to [SentryStackFrames]
 class SentryStackTraceFactory {
-  SentryOptions _options;
+  SentryOptions options;
 
   final _absRegex = RegExp('abs +([A-Fa-f0-9]+)');
   static const _stackTraceViolateDartStandard =
       'This VM has been configured to produce stack traces that violate the Dart standard.';
 
-  SentryStackTraceFactory(SentryOptions options) {
-    if (options == null) {
-      throw ArgumentError('SentryOptions is required.');
-    }
-    _options = options;
-  }
+  SentryStackTraceFactory(this.options);
 
   /// returns the [SentryStackFrame] list from a stackTrace ([StackTrace] or [String])
   List<SentryStackFrame> getStackFrames(dynamic stackTrace) {
@@ -157,15 +152,15 @@ class SentryStackTraceFactory {
       return true;
     }
 
-    if (_options.inAppIncludes != null) {
-      for (final include in _options.inAppIncludes) {
+    if (options.inAppIncludes != null) {
+      for (final include in options.inAppIncludes) {
         if (frame.package != null && frame.package == include) {
           return true;
         }
       }
     }
-    if (_options.inAppExcludes != null) {
-      for (final exclude in _options.inAppExcludes) {
+    if (options.inAppExcludes != null) {
+      for (final exclude in options.inAppExcludes) {
         if (frame.package != null && frame.package == exclude) {
           return false;
         }

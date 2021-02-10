@@ -167,17 +167,6 @@ void main() {
     });
   });
 
-  test(
-    "options can't be null",
-    () {
-      expect(
-          () async => await Sentry.init(
-                (options) => options = null,
-              ),
-          throwsArgumentError);
-    },
-  );
-
   test('options.environment debug', () async {
     final sentryOptions = SentryOptions()
       ..platformChecker = FakePlatformChecker.debugMode();

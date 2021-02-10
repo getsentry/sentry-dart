@@ -60,7 +60,7 @@ class Contexts extends MapView<String, dynamic> {
   }
 
   /// This describes the device that caused the event.
-  Device get device => this[Device.type];
+  Device/*?*/ get device => this[Device.type];
 
   set device(Device device) => this[Device.type] = device;
 
@@ -68,7 +68,7 @@ class Contexts extends MapView<String, dynamic> {
   ///
   /// In web contexts, this is the operating system of the browse
   /// (normally pulled from the User-Agent string).
-  OperatingSystem get operatingSystem => this[OperatingSystem.type];
+  OperatingSystem/*?*/ get operatingSystem => this[OperatingSystem.type];
 
   set operatingSystem(OperatingSystem operatingSystem) =>
       this[OperatingSystem.type] = operatingSystem;
@@ -89,7 +89,7 @@ class Contexts extends MapView<String, dynamic> {
   ///
   /// As opposed to the runtime, this is the actual application that was
   /// running and carries metadata about the current session.
-  App get app => this[App.type];
+  App/*?*/ get app => this[App.type];
 
   set app(App app) => this[App.type] = app;
 
@@ -98,12 +98,12 @@ class Contexts extends MapView<String, dynamic> {
   ///
   /// This can either be the browser this event ocurred in, or the user
   /// agent of a web request that triggered the event.
-  Browser get browser => this[Browser.type];
+  Browser/*?*/ get browser => this[Browser.type];
 
   set browser(Browser browser) => this[Browser.type] = browser;
 
   /// GPU context describes the GPU of the device.
-  Gpu get gpu => this[Gpu.type];
+  Gpu/*?*/ get gpu => this[Gpu.type];
 
   set gpu(Gpu gpu) => this[Gpu.type] = gpu;
 

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:http/http.dart';
 
@@ -21,9 +20,9 @@ class SentryOptions {
   /// Default Log level if not specified Default is DEBUG
   static final SentryLevel _defaultDiagnosticLevel = SentryLevel.debug;
 
-  /// The DSN tells the SDK where to send the events to. If this value is not provided, the SDK will
-  ///  just not send any events.
-  String dsn;
+  /// The DSN tells the SDK where to send the events to. If an empty string is
+  /// used, the SDK will not send any events.
+  String /*!*/ dsn = '';
 
   /// If [compressPayload] is `true` the outgoing HTTP payloads are compressed
   /// using gzip. Otherwise, the payloads are sent in plain UTF8-encoded JSON
@@ -32,6 +31,7 @@ class SentryOptions {
 
   /// If [httpClient] is provided, it is used instead of the default client to
   /// make HTTP calls to Sentry.io. This is useful in tests.
+  /// If you don't need to send event, use [NoOpClient].
   Client httpClient = NoOpClient();
 
   /// If [clock] is provided, it is used to get time instead of the system
@@ -88,11 +88,11 @@ class SentryOptions {
 
   /// This function is called with an SDK specific event object and can return a modified event
   /// object or nothing to skip reporting the event
-  BeforeSendCallback beforeSend;
+  BeforeSendCallback /*?*/ beforeSend;
 
   /// This function is called with an SDK specific breadcrumb object before the breadcrumb is added
   /// to the scope. When nothing is returned from the function, the breadcrumb is dropped
-  BeforeBreadcrumbCallback beforeBreadcrumb;
+  BeforeBreadcrumbCallback /*?*/ beforeBreadcrumb;
 
   /// Sets the release. SDK will try to automatically configure a release out of the box
   String release;
@@ -156,7 +156,7 @@ class SentryOptions {
 
   // TODO: sendDefaultPii
 
-  SentryOptions({this.dsn}) {
+  SentryOptions({this.dsn = ''}) {
     sdk.addPackage('pub:sentry', sdkVersion);
   }
 
@@ -212,7 +212,7 @@ typedef EventProcessor = FutureOr<SentryEvent> Function(SentryEvent event,
     {dynamic hint});
 
 /// Logger interface to log useful debugging information if debug is enabled
-typedef SentryLogger = Function(SentryLevel level, String message);
+typedef SentryLogger = void Function(SentryLevel level, String message);
 
 /// Used to provide timestamp for logging.
 typedef ClockProvider = DateTime Function();
