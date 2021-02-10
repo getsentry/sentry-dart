@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:http/http.dart';
 
@@ -24,31 +25,18 @@ class SentryOptions {
   ///  just not send any events.
   String dsn;
 
-  bool _compressPayload = true;
-
   /// If [compressPayload] is `true` the outgoing HTTP payloads are compressed
   /// using gzip. Otherwise, the payloads are sent in plain UTF8-encoded JSON
   /// text. If not specified, the compression is enabled by default.
-  bool get compressPayload => _compressPayload;
-
-  set compressPayload(bool compressPayload) =>
-      _compressPayload = compressPayload ?? _compressPayload;
-
-  Client _httpClient = NoOpClient();
+  bool compressPayload = true;
 
   /// If [httpClient] is provided, it is used instead of the default client to
   /// make HTTP calls to Sentry.io. This is useful in tests.
-  Client get httpClient => _httpClient;
-
-  set httpClient(Client httpClient) => _httpClient = httpClient ?? _httpClient;
-
-  ClockProvider _clock = getUtcDateTime;
+  Client httpClient = NoOpClient();
 
   /// If [clock] is provided, it is used to get time instead of the system
   /// clock. This is useful in tests. Should be an implementation of [ClockProvider].
-  ClockProvider get clock => _clock;
-
-  set clock(ClockProvider clock) => _clock = clock ?? _clock;
+  ClockProvider clock = getUtcDateTime;
 
   int _maxBreadcrumbs = 100;
 
@@ -56,9 +44,8 @@ class SentryOptions {
   int get maxBreadcrumbs => _maxBreadcrumbs;
 
   set maxBreadcrumbs(int maxBreadcrumbs) {
-    _maxBreadcrumbs = (maxBreadcrumbs != null && maxBreadcrumbs >= 0)
-        ? maxBreadcrumbs
-        : _maxBreadcrumbs;
+    assert(maxBreadcrumbs >= 0);
+    _maxBreadcrumbs = maxBreadcrumbs;
   }
 
   SentryLogger _logger = noOpLogger;
@@ -67,7 +54,7 @@ class SentryOptions {
   SentryLogger get logger => _logger;
 
   set logger(SentryLogger logger) {
-    _logger = logger != null ? DiagnosticLogger(logger, this).log : _logger;
+    _logger = DiagnosticLogger(logger, this).log;
   }
 
   final List<EventProcessor> _eventProcessors = [];
@@ -88,24 +75,12 @@ class SentryOptions {
   /// along with code that inserts those bindings and activates them.
   List<Integration> get integrations => List.unmodifiable(_integrations);
 
-  bool _debug = false;
-
   /// Turns debug mode on or off. If debug is enabled SDK will attempt to print out useful debugging
   /// information if something goes wrong. Default is disabled.
-  bool get debug => _debug;
-
-  set debug(bool debug) {
-    _debug = debug ?? _debug;
-  }
-
-  SentryLevel _diagnosticLevel = _defaultDiagnosticLevel;
-
-  set diagnosticLevel(SentryLevel level) {
-    _diagnosticLevel = level ?? _diagnosticLevel;
-  }
+  bool debug = false;
 
   /// minimum LogLevel to be used if debug is enabled
-  SentryLevel get diagnosticLevel => _diagnosticLevel;
+  SentryLevel diagnosticLevel = _defaultDiagnosticLevel;
 
   /// Sentry client name used for the HTTP authHeader and userAgent eg
   /// sentry.{language}.{platform}/{version} eg sentry.java.android/2.0.0 would be a valid case
@@ -147,12 +122,8 @@ class SentryOptions {
   /// example : ['sentry'] will include exception from 'package:sentry/sentry.dart'
   List<String> get inAppIncludes => List.unmodifiable(_inAppIncludes);
 
-  Transport _transport = NoOpTransport();
-
   /// The transport is an internal construct of the client that abstracts away the event sending.
-  Transport get transport => _transport;
-
-  set transport(Transport transport) => _transport = transport ?? _transport;
+  Transport transport = NoOpTransport();
 
   /// Sets the distribution. Think about it together with release and environment
   String dist;
@@ -160,16 +131,8 @@ class SentryOptions {
   /// The server name used in the Sentry messages.
   String serverName;
 
-  SdkVersion _sdk = SdkVersion(name: sdkName, version: sdkVersion);
-
   /// Sdk object that contains the Sentry Client Name and its version
-  SdkVersion get sdk => _sdk;
-
-  set sdk(SdkVersion sdk) {
-    _sdk = sdk ?? _sdk;
-  }
-
-  bool _attachStacktrace = true;
+  SdkVersion sdk = SdkVersion(name: sdkName, version: sdkVersion);
 
   /// When enabled, stack traces are automatically attached to all messages logged.
   /// Stack traces are always attached to exceptions;
@@ -180,29 +143,14 @@ class SentryOptions {
   ///
   /// Grouping in Sentry is different for events with stack traces and without.
   /// As a result, you will get new groups as you enable or disable this flag for certain events.
-  bool get attachStacktrace => _attachStacktrace;
-
-  set attachStacktrace(bool attachStacktrace) {
-    _attachStacktrace = attachStacktrace ?? _attachStacktrace;
-  }
-
-  PlatformChecker _platformChecker = PlatformChecker();
+  bool attachStacktrace = true;
 
   /// If [platformChecker] is provided, it is used get the envirnoment.
   /// This is useful in tests. Should be an implementation of [PlatformChecker].
-  PlatformChecker get platformChecker => _platformChecker;
-
-  set platformChecker(PlatformChecker platformChecker) =>
-      _platformChecker = platformChecker ?? _platformChecker;
-
-  bool _attachThreads = false;
+  PlatformChecker platformChecker = PlatformChecker();
 
   /// When enabled, all the threads are automatically attached to all logged events (Android).
-  bool get attachThreads => _attachThreads;
-
-  set attachThreads(bool attachThreads) {
-    _attachThreads = attachThreads ?? _attachThreads;
-  }
+  bool attachThreads = false;
 
   // TODO: Scope observers, enableScopeSync
 
