@@ -39,7 +39,7 @@ void main() {
   });
 }
 
-App _generate({DateTime startTime}) => App(
+App _generate({DateTime/*?*/ startTime}) => App(
       name: 'name',
       version: 'version',
       identifier: 'identifier',

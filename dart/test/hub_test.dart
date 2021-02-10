@@ -21,10 +21,6 @@ void main() {
   }
 
   group('Hub instantiation', () {
-    test('should not instantiate without a dsn', () {
-      expect(() => Hub(SentryOptions()), throwsArgumentError);
-    });
-
     test('should instantiate with a dsn', () {
       final hub = Hub(SentryOptions(dsn: fakeDsn));
       expect(hub.isEnabled, true);

@@ -3,9 +3,11 @@ import 'package:sentry/src/sentry_exception_factory.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:test/test.dart';
 
+import 'mocks.dart';
+
 void main() {
   group('Exception factory', () {
-    final options = SentryOptions();
+    final options = SentryOptions(dsn: fakeDsn);
     final exceptionFactory = SentryExceptionFactory(
         options: options, stacktraceFactory: SentryStackTraceFactory(options));
 
@@ -50,7 +52,8 @@ void main() {
     expect(
         () => SentryExceptionFactory(
               options: null,
-              stacktraceFactory: SentryStackTraceFactory(SentryOptions()),
+              stacktraceFactory:
+                  SentryStackTraceFactory(SentryOptions(dsn: fakeDsn)),
             ),
         throwsArgumentError);
   });
@@ -58,7 +61,7 @@ void main() {
   test("stacktraceFactory can't be null", () {
     expect(
       () => SentryExceptionFactory(
-          options: SentryOptions(), stacktraceFactory: null),
+          options: SentryOptions(dsn: fakeDsn), stacktraceFactory: null),
       throwsArgumentError,
     );
   });

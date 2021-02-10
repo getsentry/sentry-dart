@@ -118,5 +118,5 @@ void main() {
 
 class Fixture {
   final hub = MockHub();
-  final options = SentryOptions();
+  final options = SentryOptions(dsn: fakeDsn);
 }

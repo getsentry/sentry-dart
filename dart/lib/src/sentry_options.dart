@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:http/http.dart';
+import 'package:meta/meta.dart';
 
 import 'diagnostic_logger.dart';
 import 'integration.dart';
@@ -156,7 +157,7 @@ class SentryOptions {
 
   // TODO: sendDefaultPii
 
-  SentryOptions({this.dsn = ''}) {
+  SentryOptions({@required this.dsn}) : assert(dsn != null) {
     sdk.addPackage('pub:sentry', sdkVersion);
   }
 

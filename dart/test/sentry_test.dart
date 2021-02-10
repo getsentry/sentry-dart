@@ -168,7 +168,7 @@ void main() {
   });
 
   test('options.environment debug', () async {
-    final sentryOptions = SentryOptions()
+    final sentryOptions = SentryOptions(dsn: fakeDsn)
       ..platformChecker = FakePlatformChecker.debugMode();
 
     await Sentry.init((options) {
@@ -178,7 +178,7 @@ void main() {
   });
 
   test('options.environment profile', () async {
-    final sentryOptions = SentryOptions()
+    final sentryOptions = SentryOptions(dsn: fakeDsn)
       ..platformChecker = FakePlatformChecker.profileMode();
     await Sentry.init((options) {
       options.dsn = fakeDsn;
@@ -187,7 +187,7 @@ void main() {
   });
 
   test('options.environment production (defaultEnvironment)', () async {
-    final sentryOptions = SentryOptions()
+    final sentryOptions = SentryOptions(dsn: fakeDsn)
       ..platformChecker = FakePlatformChecker.releaseMode();
     await Sentry.init((options) {
       options.dsn = fakeDsn;

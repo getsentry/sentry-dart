@@ -43,7 +43,7 @@ class Sentry {
       throw ArgumentError('OptionsConfiguration is required.');
     }
 
-    final sentryOptions = options ?? SentryOptions();
+    final sentryOptions = options ?? SentryOptions(dsn: '');
     await _initDefaultValues(sentryOptions, appRunner);
 
     await optionsConfiguration(sentryOptions);

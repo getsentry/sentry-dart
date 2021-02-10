@@ -2,6 +2,8 @@ import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
+import 'mocks.dart';
+
 void main() {
   Fixture fixture;
 
@@ -258,7 +260,7 @@ void main() {
         tags: const {'etag': '987'},
         extra: const {'e-infos': 'abc'},
       );
-      final scope = Scope(SentryOptions())
+      final scope = Scope(SentryOptions(dsn: fakeDsn))
         ..user = scopeUser
         ..fingerprint = ['example-dart']
         ..addBreadcrumb(breadcrumb)
@@ -296,7 +298,7 @@ void main() {
         fingerprint: ['event-fingerprint'],
         breadcrumbs: [eventBreadcrumb],
       );
-      final scope = Scope(SentryOptions())
+      final scope = Scope(SentryOptions(dsn: fakeDsn))
         ..user = scopeUser
         ..fingerprint = ['example-dart']
         ..addBreadcrumb(breadcrumb)
@@ -323,7 +325,7 @@ void main() {
           operatingSystem: OperatingSystem(name: 'event-os'),
         ),
       );
-      final scope = Scope(SentryOptions())
+      final scope = Scope(SentryOptions(dsn: fakeDsn))
         ..setContexts(
           Device.type,
           Device(name: 'context-device'),
@@ -362,7 +364,7 @@ void main() {
 
     test('should apply the scope.contexts values ', () async {
       final event = SentryEvent();
-      final scope = Scope(SentryOptions())
+      final scope = Scope(SentryOptions(dsn: fakeDsn))
         ..setContexts(Device.type, Device(name: 'context-device'))
         ..setContexts(App.type, App(name: 'context-app'))
         ..setContexts(Gpu.type, Gpu(name: 'context-gpu'))
@@ -392,16 +394,13 @@ void main() {
 
     test('should apply the scope level', () async {
       final event = SentryEvent(level: SentryLevel.warning);
-      final scope = Scope(SentryOptions())..level = SentryLevel.error;
+      final scope = Scope(SentryOptions(dsn: fakeDsn))
+        ..level = SentryLevel.error;
 
       final updatedEvent = await scope.applyToEvent(event, null);
 
       expect(updatedEvent.level, SentryLevel.error);
     });
-  });
-
-  test("options can't be null", () {
-    expect(() => Scope(null), throwsArgumentError);
   });
 }
 
@@ -410,7 +409,7 @@ class Fixture {
     int maxBreadcrumbs = 100,
     BeforeBreadcrumbCallback beforeBreadcrumbCallback,
   }) {
-    final options = SentryOptions();
+    final options = SentryOptions(dsn: fakeDsn);
     options.maxBreadcrumbs = maxBreadcrumbs;
     options.beforeBreadcrumb = beforeBreadcrumbCallback;
     return Scope(options);

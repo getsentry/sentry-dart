@@ -75,7 +75,7 @@ void main() {
   });
 }
 
-Device _generate({DateTime testBootTime}) => Device(
+Device _generate({DateTime/*?*/ testBootTime}) => Device(
       name: 'name',
       family: 'family',
       model: 'model',

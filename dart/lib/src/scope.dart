@@ -81,18 +81,12 @@ class Scope {
   List<EventProcessor> get eventProcessors =>
       List.unmodifiable(_eventProcessors);
 
-  final SentryOptions _options;
+  final SentryOptions /*!*/ _options;
 
-  Scope(this._options) {
-    if (_options == null) {
-      throw ArgumentError('SentryOptions is required');
-    }
-  }
+  Scope(this._options);
 
   /// Adds a breadcrumb to the breadcrumbs queue
-  void addBreadcrumb(Breadcrumb breadcrumb, {dynamic hint}) {
-    assert(breadcrumb != null, "Breadcrumb can't be null");
-
+  void addBreadcrumb(Breadcrumb /*?*/ breadcrumb, {dynamic hint}) {
     // bail out if maxBreadcrumbs is zero
     if (_options.maxBreadcrumbs == 0) {
       return;
@@ -124,7 +118,7 @@ class Scope {
   }
 
   /// Adds an event processor
-  void addEventProcessor(EventProcessor eventProcessor) {
+  void addEventProcessor(EventProcessor /*!*/ eventProcessor) {
     assert(eventProcessor != null, "EventProcessor can't be null");
 
     _eventProcessors.add(eventProcessor);
@@ -143,7 +137,7 @@ class Scope {
   }
 
   /// Sets a tag to the Scope
-  void setTag(String key, String value) {
+  void setTag(String /*!*/ key, String /*!*/ value) {
     assert(key != null, "Key can't be null");
     assert(value != null, "Key can't be null");
 
@@ -151,12 +145,12 @@ class Scope {
   }
 
   /// Removes a tag from the Scope
-  void removeTag(String key) {
+  void removeTag(String /*!*/ key) {
     _tags.remove(key);
   }
 
   /// Sets an extra to the Scope
-  void setExtra(String key, dynamic value) {
+  void setExtra(String /*!*/ key, dynamic value) {
     assert(key != null, "Key can't be null");
     assert(value != null, "Value can't be null");
 
@@ -164,9 +158,10 @@ class Scope {
   }
 
   /// Removes an extra from the Scope
-  void removeExtra(String key) => _extra.remove(key);
+  void removeExtra(String /*!*/ key) => _extra.remove(key);
 
-  Future<SentryEvent> applyToEvent(SentryEvent event, dynamic hint) async {
+  Future<SentryEvent> applyToEvent(
+      SentryEvent /*!*/ event, dynamic hint) async {
     event = event.copyWith(
       transaction: event.transaction ?? transaction,
       user: event.user ?? user,
@@ -209,7 +204,7 @@ class Scope {
   }
 
   /// merge the scope contexts runtimes and the event contexts runtimes
-  void _mergeEventContextsRuntimes(List value, SentryEvent event) =>
+  void _mergeEventContextsRuntimes(List /*!*/ value, SentryEvent /*!*/ event) =>
       value.forEach((runtime) => event.contexts.addRuntime(runtime));
 
   /// if the scope and the event have tag entries with the same key,
