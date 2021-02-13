@@ -60,7 +60,7 @@ class Scope {
   Map<String, dynamic> get contexts => Map.unmodifiable(_contexts);
 
   /// add an entry to the Scope's contexts
-  void setContexts(String key, dynamic value) {
+  void setContexts(String? key, dynamic value) {
     if (key == null || value == null) return;
 
     _contexts[key] = (value is num || value is bool || value is String)
@@ -119,8 +119,6 @@ class Scope {
 
   /// Adds an event processor
   void addEventProcessor(EventProcessor eventProcessor) {
-    assert(eventProcessor != null, "EventProcessor can't be null");
-
     _eventProcessors.add(eventProcessor);
   }
 
@@ -138,9 +136,6 @@ class Scope {
 
   /// Sets a tag to the Scope
   void setTag(String key, String value) {
-    assert(key != null, "Key can't be null");
-    assert(value != null, "Key can't be null");
-
     _tags[key] = value;
   }
 
@@ -151,24 +146,19 @@ class Scope {
 
   /// Sets an extra to the Scope
   void setExtra(String key, dynamic value) {
-    assert(key != null, "Key can't be null");
-    assert(value != null, "Value can't be null");
-
     _extra[key] = value;
   }
 
   /// Removes an extra from the Scope
   void removeExtra(String key) => _extra.remove(key);
 
-  Future<SentryEvent> applyToEvent(
-      SentryEvent event, dynamic hint) async {
+  Future<SentryEvent?> applyToEvent(SentryEvent event, dynamic hint) async {
     event = event.copyWith(
       transaction: event.transaction ?? transaction,
       user: event.user ?? user,
       fingerprint: event.fingerprint ??
           (_fingerprint != null ? List.from(_fingerprint!) : null),
-      breadcrumbs: event.breadcrumbs ??
-          (_breadcrumbs != null ? List.from(_breadcrumbs) : null),
+      breadcrumbs: event.breadcrumbs ?? List.from(_breadcrumbs),
       tags: tags.isNotEmpty ? _mergeEventTags(event) : event.tags,
       extra: extra.isNotEmpty ? _mergeEventExtra(event) : event.extra,
       level: level ?? event.level,
@@ -185,22 +175,23 @@ class Scope {
       }
     });
 
+    SentryEvent? processedEvent = event;
     for (final processor in _eventProcessors) {
       try {
-        event = await processor(event, hint: hint)!;
+        processedEvent = await processor(processedEvent!, hint: hint)!;
       } catch (err) {
         _options.logger(
           SentryLevel.error,
           'An exception occurred while processing event by a processor : $err',
         );
       }
-      if (event == null) {
+      if (processedEvent == null) {
         _options.logger(SentryLevel.debug, 'Event was dropped by a processor');
         break;
       }
     }
 
-    return event;
+    return processedEvent;
   }
 
   /// merge the scope contexts runtimes and the event contexts runtimes

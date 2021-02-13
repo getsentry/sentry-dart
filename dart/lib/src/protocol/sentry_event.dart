@@ -219,13 +219,9 @@ class SentryEvent {
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 
-    if (eventId != null) {
-      json['event_id'] = eventId.toString();
-    }
+    json['event_id'] = eventId.toString();
 
-    if (timestamp != null) {
-      json['timestamp'] = formatDateAsIso8601WithMillisPrecision(timestamp);
-    }
+    json['timestamp'] = formatDateAsIso8601WithMillisPrecision(timestamp);
 
     if (platform != null) {
       json['platform'] = platform;
@@ -264,14 +260,13 @@ class SentryEvent {
       json['transaction'] = transaction;
     }
 
-    Map<String, dynamic> exceptionMap;
-    Map<String, dynamic> stackTraceMap;
-    if (exception != null && (exceptionMap = exception!.toJson()).isNotEmpty) {
+    final exceptionMap = exception?.toJson();
+    final stackTraceMap = stackTrace?.toJson();
+    if (exceptionMap?.isNotEmpty ?? false) {
       json['exception'] = {
         'values': [exceptionMap].toList(growable: false)
       };
-    } else if (stackTrace != null &&
-        (stackTraceMap = stackTrace!.toJson()).isNotEmpty) {
+    } else if (stackTraceMap?.isNotEmpty ?? false) {
       json['threads'] = {
         'values': [
           {
@@ -292,45 +287,45 @@ class SentryEvent {
       json['culprit'] = culprit;
     }
 
-    if (tags != null && tags!.isNotEmpty) {
+    if (tags?.isNotEmpty ?? false) {
       json['tags'] = tags;
     }
 
-    if (extra != null && extra!.isNotEmpty) {
+    if (extra?.isNotEmpty ?? false) {
       json['extra'] = extra;
     }
 
-    Map<String, dynamic> contextsMap;
-    if (contexts != null && (contextsMap = contexts.toJson()).isNotEmpty) {
+    final contextsMap = contexts.toJson();
+    if (contextsMap.isNotEmpty) {
       json['contexts'] = contextsMap;
     }
 
-    Map<String, dynamic> userMap;
-    if (user != null && (userMap = user!.toJson()).isNotEmpty) {
+    final userMap = user?.toJson();
+    if (userMap?.isNotEmpty ?? false) {
       json['user'] = userMap;
     }
 
-    if (fingerprint != null && fingerprint!.isNotEmpty) {
+    if (fingerprint?.isNotEmpty ?? false) {
       json['fingerprint'] = fingerprint;
     }
 
-    if (breadcrumbs != null && breadcrumbs!.isNotEmpty) {
+    if (breadcrumbs?.isNotEmpty ?? false) {
       json['breadcrumbs'] =
           breadcrumbs!.map((b) => b.toJson()).toList(growable: false);
     }
 
-    Map<String, dynamic> sdkMap;
-    if (sdk != null && (sdkMap = sdk!.toJson()).isNotEmpty) {
+    final sdkMap = sdk?.toJson();
+    if (sdkMap?.isNotEmpty ?? false) {
       json['sdk'] = sdkMap;
     }
 
-    Map<String, dynamic> requestMap;
-    if (request != null && (requestMap = request!.toJson()).isNotEmpty) {
+    final requestMap = request?.toJson();
+    if (requestMap?.isNotEmpty ?? false) {
       json['request'] = requestMap;
     }
 
-    Map<String, dynamic> debugMetaMap;
-    if (debugMeta != null && (debugMetaMap = debugMeta!.toJson()).isNotEmpty) {
+    final debugMetaMap = debugMeta?.toJson();
+    if (debugMetaMap?.isNotEmpty ?? false) {
       json['debug_meta'] = debugMetaMap;
     }
 

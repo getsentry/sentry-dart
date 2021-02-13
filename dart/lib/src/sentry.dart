@@ -182,7 +182,7 @@ class Sentry {
   static Hub clone() => currentHub.clone();
 
   /// Binds a different client to the current hub
-  static void bindClient(SentryClient client) => currentHub.bindClient(client);
+  static void bindClient(SentryClient? client) => currentHub.bindClient(client);
 
   static bool _setDefaultConfiguration(SentryOptions options) {
     // if the DSN is empty, let's disable the SDK

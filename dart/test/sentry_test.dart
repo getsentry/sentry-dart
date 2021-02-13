@@ -4,6 +4,7 @@ import 'package:test/test.dart';
 
 import 'mocks.dart';
 import 'fake_platform_checker.dart';
+import 'mocks/mock_integration.dart';
 
 AppRunner appRunner = () {};
 
@@ -105,7 +106,7 @@ void main() {
         },
       );
 
-      verify(integration(any, any)).called(1);
+      expect(integration.callCalls, 1);
     });
 
     test('should add default integrations', () async {
@@ -155,8 +156,8 @@ void main() {
 
       Sentry.close();
 
-      verify(integration.call(any, any)).called(1);
-      verify(integration.close()).called(1);
+      expect(integration.callCalls, 1);
+      expect(integration.closeCalls, 1);
     });
   });
 

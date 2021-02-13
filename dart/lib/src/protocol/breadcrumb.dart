@@ -90,9 +90,9 @@ class Breadcrumb {
     if (data != null && data!.isNotEmpty) {
       json['data'] = data;
     }
-    if (level != null) {
-      json['level'] = level.name;
-    }
+
+    json['level'] = level.name;
+
     if (type != null) {
       json['type'] = type;
     }

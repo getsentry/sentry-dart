@@ -40,7 +40,7 @@ class SdkVersion {
     required this.version,
     List<String>? integrations,
     List<SentryPackage>? packages,
-  })  : assert(name != null || version != null),
+  })  :
         // List.from prevents from having immutable lists
         _integrations = integrations != null ? List.from(integrations) : [],
         _packages = packages != null ? List.from(packages) : [];
@@ -66,20 +66,17 @@ class SdkVersion {
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
-    if (name != null) {
-      json['name'] = name;
-    }
 
-    if (version != null) {
-      json['version'] = version;
-    }
+    json['name'] = name;
 
-    if (packages != null && packages.isNotEmpty) {
+    json['version'] = version;
+
+    if (packages.isNotEmpty) {
       json['packages'] =
           packages.map((p) => p.toJson()).toList(growable: false);
     }
 
-    if (integrations != null && integrations.isNotEmpty) {
+    if (integrations.isNotEmpty) {
       json['integrations'] = integrations;
     }
     return json;

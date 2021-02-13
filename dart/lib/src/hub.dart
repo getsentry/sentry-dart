@@ -219,7 +219,7 @@ class Hub {
   }
 
   /// Binds a different client to the hub
-  void bindClient(SentryClient client) {
+  void bindClient(SentryClient? client) {
     if (!_isEnabled) {
       _options.logger(SentryLevel.warning,
           "Instance is disabled and this 'bindClient' call is a no-op.");

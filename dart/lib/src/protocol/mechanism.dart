@@ -77,9 +77,7 @@ class Mechanism {
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 
-    if (type != null) {
-      json['type'] = type;
-    }
+    json['type'] = type;
 
     if (description != null) {
       json['description'] = description;

@@ -77,7 +77,7 @@ class Contexts extends MapView<String, dynamic> {
   /// (for instance if you have a Flutter application running
   /// on top of Android).
   List<SentryRuntime> get runtimes =>
-      List.unmodifiable(this[SentryRuntime.listType]);
+      List.unmodifiable(this[SentryRuntime.listType] ?? []);
 
   void addRuntime(SentryRuntime runtime) =>
       this[SentryRuntime.listType].add(runtime);
@@ -150,33 +150,29 @@ class Contexts extends MapView<String, dynamic> {
           break;
 
         case SentryRuntime.listType:
-          if (runtimes != null) {
-            if (runtimes.length == 1) {
-              final runtime = runtimes[0];
-              Map<String, dynamic> runtimeMap;
-              if (runtime != null &&
-                  (runtimeMap = runtime.toJson()).isNotEmpty) {
-                final key = runtime.key ?? SentryRuntime.type;
+          if (runtimes.length == 1) {
+            final runtime = runtimes[0];
+            final runtimeMap = runtime.toJson();
+            if (runtimeMap.isNotEmpty) {
+              final key = runtime.key ?? SentryRuntime.type;
 
-                json[key] = runtimeMap;
-              }
-            } else if (runtimes.length > 1) {
-              for (final runtime in runtimes) {
-                Map<String, dynamic> runtimeMap;
-                if (runtime != null &&
-                    (runtimeMap = runtime.toJson()).isNotEmpty) {
-                  var key = runtime.key ?? runtime.name!.toLowerCase();
+              json[key] = runtimeMap;
+            }
+          } else if (runtimes.length > 1) {
+            for (final runtime in runtimes) {
+              final runtimeMap = runtime.toJson();
+              if (runtimeMap.isNotEmpty) {
+                var key = runtime.key ?? runtime.name!.toLowerCase();
 
-                  if (json.containsKey(key)) {
-                    var k = 0;
-                    while (json.containsKey(key)) {
-                      key = '$key$k';
-                      k++;
-                    }
+                if (json.containsKey(key)) {
+                  var k = 0;
+                  while (json.containsKey(key)) {
+                    key = '$key$k';
+                    k++;
                   }
-                  json[key] = runtimeMap
-                    ..addAll(<String, String>{'type': SentryRuntime.type});
                 }
+                json[key] = runtimeMap
+                  ..addAll(<String, String>{'type': SentryRuntime.type});
               }
             }
           }

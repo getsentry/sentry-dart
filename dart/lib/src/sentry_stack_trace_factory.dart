@@ -150,18 +150,15 @@ class SentryStackTraceFactory {
       return true;
     }
 
-    if (options.inAppIncludes != null) {
-      for (final include in options.inAppIncludes) {
-        if (frame.package != null && frame.package == include) {
-          return true;
-        }
+    for (final include in options.inAppIncludes) {
+      if (frame.package != null && frame.package == include) {
+        return true;
       }
     }
-    if (options.inAppExcludes != null) {
-      for (final exclude in options.inAppExcludes) {
-        if (frame.package != null && frame.package == exclude) {
-          return false;
-        }
+
+    for (final exclude in options.inAppExcludes) {
+      if (frame.package != null && frame.package == exclude) {
+        return false;
       }
     }
 

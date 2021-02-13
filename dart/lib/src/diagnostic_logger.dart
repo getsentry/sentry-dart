@@ -5,7 +5,7 @@ class DiagnosticLogger {
   final SentryLogger _logger;
   final SentryOptions _options;
 
-  DiagnosticLogger(this._logger, this._options) : assert(_logger != null);
+  DiagnosticLogger(this._logger, this._options);
 
   void log(SentryLevel level, String message) {
     if (_isEnabled(level)) {

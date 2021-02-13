@@ -1,5 +1,3 @@
-import 'package:meta/meta.dart';
-
 import 'protocol.dart';
 import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';

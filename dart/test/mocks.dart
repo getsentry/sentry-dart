@@ -4,11 +4,7 @@ import 'package:sentry/src/protocol.dart';
 
 class MockSentryClient extends Mock implements SentryClient {}
 
-class MockTransport extends Mock implements Transport {}
-
 class MockHub extends Mock implements Hub {}
-
-class MockIntegration extends Mock implements Integration {}
 
 final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 

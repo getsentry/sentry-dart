@@ -275,16 +275,16 @@ void main() {
 
       final updatedEvent = await scope.applyToEvent(event, null);
 
-      expect(updatedEvent.user, scopeUser);
-      expect(updatedEvent.transaction, '/example/app');
-      expect(updatedEvent.fingerprint, ['example-dart']);
-      expect(updatedEvent.breadcrumbs, [breadcrumb]);
-      expect(updatedEvent.level, SentryLevel.warning);
-      expect(updatedEvent.tags,
+      expect(updatedEvent?.user, scopeUser);
+      expect(updatedEvent?.transaction, '/example/app');
+      expect(updatedEvent?.fingerprint, ['example-dart']);
+      expect(updatedEvent?.breadcrumbs, [breadcrumb]);
+      expect(updatedEvent?.level, SentryLevel.warning);
+      expect(updatedEvent?.tags,
           {'etag': '987', 'build': '579', 'page-locale': 'en-us'});
       expect(
-          updatedEvent.extra, {'e-infos': 'abc', 'company-name': 'Dart Inc'});
-      expect(updatedEvent.contexts['theme'], {'value': 'material'});
+          updatedEvent?.extra, {'e-infos': 'abc', 'company-name': 'Dart Inc'});
+      expect(updatedEvent?.contexts['theme'], {'value': 'material'});
     });
 
     test('should not apply the scope properties when event already has it ',
@@ -306,10 +306,10 @@ void main() {
 
       final updatedEvent = await scope.applyToEvent(event, null);
 
-      expect(updatedEvent.user, eventUser);
-      expect(updatedEvent.transaction, '/event/transaction');
-      expect(updatedEvent.fingerprint, ['event-fingerprint']);
-      expect(updatedEvent.breadcrumbs, [eventBreadcrumb]);
+      expect(updatedEvent?.user, eventUser);
+      expect(updatedEvent?.transaction, '/event/transaction');
+      expect(updatedEvent?.fingerprint, ['event-fingerprint']);
+      expect(updatedEvent?.breadcrumbs, [eventBreadcrumb]);
     });
 
     test(
@@ -353,13 +353,13 @@ void main() {
 
       final updatedEvent = await scope.applyToEvent(event, null);
 
-      expect(updatedEvent.contexts[Device.type].name, 'event-device');
-      expect(updatedEvent.contexts[App.type].name, 'event-app');
-      expect(updatedEvent.contexts[Gpu.type].name, 'event-gpu');
-      expect(updatedEvent.contexts[SentryRuntime.listType].first.name,
+      expect(updatedEvent?.contexts[Device.type].name, 'event-device');
+      expect(updatedEvent?.contexts[App.type].name, 'event-app');
+      expect(updatedEvent?.contexts[Gpu.type].name, 'event-gpu');
+      expect(updatedEvent?.contexts[SentryRuntime.listType].first.name,
           'event-runtime');
-      expect(updatedEvent.contexts[Browser.type].name, 'event-browser');
-      expect(updatedEvent.contexts[OperatingSystem.type].name, 'event-os');
+      expect(updatedEvent?.contexts[Browser.type].name, 'event-browser');
+      expect(updatedEvent?.contexts[OperatingSystem.type].name, 'event-os');
     });
 
     test('should apply the scope.contexts values ', () async {
@@ -378,18 +378,18 @@ void main() {
 
       final updatedEvent = await scope.applyToEvent(event, null);
 
-      expect(updatedEvent.contexts[Device.type].name, 'context-device');
-      expect(updatedEvent.contexts[App.type].name, 'context-app');
-      expect(updatedEvent.contexts[Gpu.type].name, 'context-gpu');
+      expect(updatedEvent?.contexts[Device.type].name, 'context-device');
+      expect(updatedEvent?.contexts[App.type].name, 'context-app');
+      expect(updatedEvent?.contexts[Gpu.type].name, 'context-gpu');
       expect(
-        updatedEvent.contexts[SentryRuntime.listType].first.name,
+        updatedEvent?.contexts[SentryRuntime.listType].first.name,
         'context-runtime',
       );
-      expect(updatedEvent.contexts[Browser.type].name, 'context-browser');
-      expect(updatedEvent.contexts[OperatingSystem.type].name, 'context-os');
-      expect(updatedEvent.contexts['theme']['value'], 'material');
-      expect(updatedEvent.contexts['version']['value'], 9);
-      expect(updatedEvent.contexts['location'], {'city': 'London'});
+      expect(updatedEvent?.contexts[Browser.type].name, 'context-browser');
+      expect(updatedEvent?.contexts[OperatingSystem.type].name, 'context-os');
+      expect(updatedEvent?.contexts['theme']['value'], 'material');
+      expect(updatedEvent?.contexts['version']['value'], 9);
+      expect(updatedEvent?.contexts['location'], {'city': 'London'});
     });
 
     test('should apply the scope level', () async {
@@ -399,7 +399,7 @@ void main() {
 
       final updatedEvent = await scope.applyToEvent(event, null);
 
-      expect(updatedEvent.level, SentryLevel.error);
+      expect(updatedEvent?.level, SentryLevel.error);
     });
   });
 }
@@ -417,6 +417,7 @@ class Fixture {
 
   SentryEvent? processor(SentryEvent event, {dynamic hint}) => null;
 
-  Breadcrumb? beforeBreadcrumbCallback(Breadcrumb? breadcrumb, {dynamic hint}) =>
+  Breadcrumb? beforeBreadcrumbCallback(Breadcrumb? breadcrumb,
+          {dynamic hint}) =>
       null;
 }

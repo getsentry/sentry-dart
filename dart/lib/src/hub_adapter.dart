@@ -20,7 +20,7 @@ class HubAdapter implements Hub {
       Sentry.addBreadcrumb(crumb, hint: hint);
 
   @override
-  void bindClient(SentryClient client) => Sentry.bindClient(client);
+  void bindClient(SentryClient? client) => Sentry.bindClient(client);
 
   @override
   Future<SentryId> captureEvent(

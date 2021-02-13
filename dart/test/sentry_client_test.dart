@@ -1,13 +1,13 @@
-import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
+import 'mocks/mock_transport.dart';
 
 void main() {
   group('SentryClient captures message', () {
-    late SentryOptions options;
+    var options = SentryOptions(dsn: fakeDsn);
 
     setUp(() {
       options = SentryOptions(dsn: fakeDsn);
@@ -22,9 +22,7 @@ void main() {
         stackTrace: '#0      baz (file:///pathto/test.dart:50:3)',
       );
 
-      final capturedEvent = (verify(
-        options.transport.send(captureAny),
-      ).captured.first) as SentryEvent;
+      final capturedEvent = (options.transport as MockTransport).events.first;
 
       expect(capturedEvent.stackTrace is SentryStackTrace, true);
     });
@@ -34,9 +32,7 @@ void main() {
       final event = SentryEvent();
       await client.captureEvent(event);
 
-      final capturedEvent = (verify(
-        options.transport.send(captureAny),
-      ).captured.first) as SentryEvent;
+      final capturedEvent = (options.transport as MockTransport).events.first;
 
       expect(capturedEvent.stackTrace is SentryStackTrace, true);
     });
@@ -46,9 +42,7 @@ void main() {
       final event = SentryEvent();
       await client.captureEvent(event);
 
-      final capturedEvent = (verify(
-        options.transport.send(captureAny),
-      ).captured.first) as SentryEvent;
+      final capturedEvent = (options.transport as MockTransport).events.first;
 
       expect(capturedEvent.stackTrace, isNull);
     });
@@ -68,9 +62,7 @@ void main() {
         stackTrace: '#0      baz (file:///pathto/test.dart:50:3)',
       );
 
-      final capturedEvent = (verify(
-        options.transport.send(captureAny),
-      ).captured.first) as SentryEvent;
+      final capturedEvent = (options.transport as MockTransport).events.first;
 
       expect(capturedEvent.stackTrace, isNull);
       expect(capturedEvent.exception!.stackTrace, isNotNull);
@@ -94,9 +86,7 @@ void main() {
         stackTrace: '#0      baz (file:///pathto/test.dart:50:3)',
       );
 
-      final capturedEvent = (verify(
-        options.transport.send(captureAny),
-      ).captured.first) as SentryEvent;
+      final capturedEvent = (options.transport as MockTransport).events.first;
 
       expect(capturedEvent.stackTrace, isNull);
       expect(capturedEvent.exception!.stackTrace, isNotNull);
@@ -111,9 +101,7 @@ void main() {
         level: SentryLevel.error,
       );
 
-      final capturedEvent = (verify(
-        options.transport.send(captureAny),
-      ).captured.first) as SentryEvent;
+      final capturedEvent = (options.transport as MockTransport).events.first;
 
       expect(capturedEvent.message!.formatted, 'simple message 1');
       expect(capturedEvent.message!.template, 'simple message %d');
@@ -126,16 +114,14 @@ void main() {
       final client = SentryClient(options..attachStacktrace = false);
       await client.captureMessage('message', level: SentryLevel.error);
 
-      final capturedEvent = (verify(
-        options.transport.send(captureAny),
-      ).captured.first) as SentryEvent;
+      final capturedEvent = (options.transport as MockTransport).events.first;
 
       expect(capturedEvent.stackTrace, isNull);
     });
   });
 
   group('SentryClient captures exception', () {
-    late SentryOptions options;
+    var options = SentryOptions(dsn: fakeDsn);
 
     Error error;
     StackTrace stackTrace;
@@ -156,9 +142,7 @@ void main() {
       final client = SentryClient(options);
       await client.captureException(error, stackTrace: stackTrace);
 
-      final capturedEvent = (verify(
-        options.transport.send(captureAny),
-      ).captured.first) as SentryEvent;
+      final capturedEvent = (options.transport as MockTransport).events.first;
 
       expect(capturedEvent.throwable, error);
       expect(capturedEvent.exception is SentryException, true);
@@ -167,7 +151,7 @@ void main() {
   });
 
   group('SentryClient captures exception and stacktrace', () {
-    late SentryOptions options;
+    var options = SentryOptions(dsn: fakeDsn);
 
     Error error;
 
@@ -192,9 +176,7 @@ void main() {
       final client = SentryClient(options);
       await client.captureException(error, stackTrace: stacktrace);
 
-      final capturedEvent = (verify(
-        options.transport.send(captureAny),
-      ).captured.first) as SentryEvent;
+      final capturedEvent = (options.transport as MockTransport).events.first;
 
       expect(capturedEvent.throwable, error);
       expect(capturedEvent.exception is SentryException, true);
@@ -207,7 +189,7 @@ void main() {
   });
 
   group('SentryClient captures exception and stacktrace', () {
-    late SentryOptions options;
+    var options = SentryOptions(dsn: fakeDsn);
 
     dynamic exception;
 
@@ -232,9 +214,7 @@ void main() {
       final client = SentryClient(options);
       await client.captureException(exception, stackTrace: stacktrace);
 
-      final capturedEvent = (verify(
-        options.transport.send(captureAny),
-      ).captured.first) as SentryEvent;
+      final capturedEvent = (options.transport as MockTransport).events.first;
 
       expect(capturedEvent.throwable, exception);
       expect(capturedEvent.exception is SentryException, true);
@@ -254,9 +234,7 @@ void main() {
       final client = SentryClient(options);
       await client.captureException(exception);
 
-      final capturedEvent = (verify(
-        options.transport.send(captureAny),
-      ).captured.first) as SentryEvent;
+      final capturedEvent = (options.transport as MockTransport).events.first;
 
       expect(capturedEvent.exception!.stackTrace, isNotNull);
     });
@@ -271,9 +249,7 @@ void main() {
       final client = SentryClient(options..attachStacktrace = false);
       await client.captureException(exception);
 
-      final capturedEvent = (verify(
-        options.transport.send(captureAny),
-      ).captured.first) as SentryEvent;
+      final capturedEvent = (options.transport as MockTransport).events.first;
 
       expect(capturedEvent.exception!.stackTrace, isNull);
     });
@@ -295,9 +271,7 @@ void main() {
       final client = SentryClient(options);
       await client.captureException(exception, stackTrace: stacktrace);
 
-      final capturedEvent = (verify(
-        options.transport.send(captureAny),
-      ).captured.first) as SentryEvent;
+      final capturedEvent = (options.transport as MockTransport).events.first;
 
       expect(
         capturedEvent.exception!.stackTrace!.frames
@@ -308,8 +282,8 @@ void main() {
   });
 
   group('SentryClient : apply scope to the captured event', () {
-    late SentryOptions options;
-    late Scope scope;
+    var options = SentryOptions(dsn: fakeDsn);
+    var scope = Scope(options);
 
     final level = SentryLevel.error;
     const transaction = '/test/scope';
@@ -350,9 +324,7 @@ void main() {
       final client = SentryClient(options);
       await client.captureEvent(event, scope: scope);
 
-      final capturedEvent = (verify(
-        options.transport.send(captureAny),
-      ).captured.first) as SentryEvent;
+      final capturedEvent = (options.transport as MockTransport).events.first;
 
       expect(capturedEvent.user?.id, user.id);
       expect(capturedEvent.level!.name, SentryLevel.error.name);
@@ -371,8 +343,8 @@ void main() {
   });
 
   group('SentryClient : apply partial scope to the captured event', () {
-    late SentryOptions options;
-    late Scope scope;
+    var options = SentryOptions(dsn: fakeDsn);
+    var scope = Scope(options);
 
     final transaction = '/test/scope';
     final eventTransaction = '/event/transaction';
@@ -405,9 +377,7 @@ void main() {
       final client = SentryClient(options);
       await client.captureEvent(event, scope: scope);
 
-      final capturedEvent = (verify(
-        options.transport.send(captureAny),
-      ).captured.first) as SentryEvent;
+      final capturedEvent = (options.transport as MockTransport).events.first;
 
       expect(capturedEvent.user!.id, eventUser.id);
       expect(capturedEvent.level!.name, SentryLevel.warning.name);
@@ -418,7 +388,7 @@ void main() {
   });
 
   group('SentryClient sampling', () {
-    late SentryOptions options;
+    var options = SentryOptions(dsn: fakeDsn);
 
     setUp(() {
       options = SentryOptions(dsn: fakeDsn);
@@ -430,7 +400,7 @@ void main() {
       final client = SentryClient(options);
       await client.captureEvent(fakeEvent);
 
-      verify(options.transport.send(any)).called(1);
+      expect((options.transport as MockTransport).called(1), true);
     });
 
     test('do not capture event, sample rate is 0% disabled', () async {
@@ -438,7 +408,7 @@ void main() {
       final client = SentryClient(options);
       await client.captureEvent(fakeEvent);
 
-      verifyNever(options.transport.send(any));
+      expect((options.transport as MockTransport).called(0), true);
     });
 
     test('captures event, sample rate is null, disabled', () async {
@@ -446,12 +416,12 @@ void main() {
       final client = SentryClient(options);
       await client.captureEvent(fakeEvent);
 
-      verify(options.transport.send(any)).called(1);
+      expect((options.transport as MockTransport).called(1), true);
     });
   });
 
   group('SentryClient before send', () {
-    late SentryOptions options;
+    var options = SentryOptions(dsn: fakeDsn);
 
     setUp(() {
       options = SentryOptions(dsn: fakeDsn);
@@ -463,7 +433,7 @@ void main() {
       final client = SentryClient(options);
       await client.captureEvent(fakeEvent);
 
-      verifyNever(options.transport.send(any));
+      expect((options.transport as MockTransport).called(0), true);
     });
 
     test('before send returns an event and event is captured', () async {
@@ -471,8 +441,7 @@ void main() {
       final client = SentryClient(options);
       await client.captureEvent(fakeEvent);
 
-      final event = verify(options.transport.send(captureAny)).captured.first
-          as SentryEvent;
+      final event = (options.transport as MockTransport).events.first;
 
       expect(event.tags!.containsKey('theme'), true);
       expect(event.extra!.containsKey('host'), true);
@@ -492,7 +461,7 @@ void main() {
   });
 
   group('EventProcessors', () {
-    late SentryOptions options;
+    var options = SentryOptions(dsn: fakeDsn);
 
     setUp(() {
       options = SentryOptions(dsn: fakeDsn);
@@ -513,8 +482,7 @@ void main() {
       final client = SentryClient(options);
       await client.captureEvent(fakeEvent);
 
-      final event = verify(options.transport.send(captureAny)).captured.first
-          as SentryEvent;
+      final event = (options.transport as MockTransport).events.first;
       expect(event.tags!.containsKey('theme'), true);
       expect(event.extra!.containsKey('host'), true);
       expect(event.modules!.containsKey('core'), true);
