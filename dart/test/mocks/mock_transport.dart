@@ -10,6 +10,6 @@ class MockTransport implements Transport {
   @override
   Future<SentryId> send(SentryEvent event) async {
     events.add(event);
-    return SentryId.empty();
+    return event.eventId;
   }
 }

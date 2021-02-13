@@ -208,7 +208,7 @@ typedef BeforeBreadcrumbCallback = Breadcrumb? Function(Breadcrumb? breadcrumb,
 
 /// Are callbacks that run for every event. They can either return a new event which in most cases
 /// means just adding data OR return null in case the event will be dropped and not sent.
-typedef EventProcessor = FutureOr<SentryEvent>? Function(SentryEvent event,
+typedef EventProcessor = FutureOr<SentryEvent?> Function(SentryEvent event,
     {dynamic hint});
 
 /// Logger interface to log useful debugging information if debug is enabled

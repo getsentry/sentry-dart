@@ -1,18 +1,18 @@
-import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
 import 'fake_platform_checker.dart';
 import 'mocks/mock_integration.dart';
+import 'mocks/mock_sentry_client.dart';
 
 AppRunner appRunner = () {};
 
 void main() {
   group('Sentry capture methods', () {
-    late SentryClient client;
+    var client = MockSentryClient();
 
-    late Exception anException;
+    var anException = Exception();
 
     setUp(() async {
       await Sentry.init((options) => options.dsn = fakeDsn);
@@ -27,38 +27,28 @@ void main() {
 
     test('should capture the event', () async {
       await Sentry.captureEvent(fakeEvent);
-      verify(
-        client.captureEvent(
-          fakeEvent,
-          scope: anyNamed('scope'),
-        ),
-      ).called(1);
+
+      expect(client.captureEventCalls.length, 1);
+      expect(client.captureEventCalls.first.event, fakeEvent);
+      expect(client.captureEventCalls.first.scope, isNotNull);
     });
 
     test('should not capture a null event', () async {
       await Sentry.captureEvent(null);
-      verifyNever(client.captureEvent(fakeEvent));
+      expect(client.captureEventCalls.length, 0);
     });
 
     test('should not capture a null exception', () async {
       await Sentry.captureException(null);
-      verifyNever(
-        client.captureException(
-          any,
-          stackTrace: anyNamed('stackTrace'),
-        ),
-      );
+      expect(client.captureExceptionCalls.length, 0);
     });
 
     test('should capture the exception', () async {
       await Sentry.captureException(anException);
-      verify(
-        client.captureException(
-          anException,
-          stackTrace: null,
-          scope: anyNamed('scope'),
-        ),
-      ).called(1);
+      expect(client.captureExceptionCalls.length, 1);
+      expect(client.captureExceptionCalls.first.throwable, anException);
+      expect(client.captureExceptionCalls.first.stackTrace, isNull);
+      expect(client.captureExceptionCalls.first.scope, isNotNull);
     });
   });
 

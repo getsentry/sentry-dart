@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
@@ -415,7 +417,9 @@ class Fixture {
     return Scope(options);
   }
 
-  SentryEvent? processor(SentryEvent event, {dynamic hint}) => null;
+  FutureOr<SentryEvent?> processor(SentryEvent event, {dynamic hint}) {
+    return null;
+  }
 
   Breadcrumb? beforeBreadcrumbCallback(Breadcrumb? breadcrumb,
           {dynamic hint}) =>

@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:collection/collection.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
@@ -7,6 +5,7 @@ import 'package:sentry/src/hub.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
+import 'mocks/mock_sentry_client.dart';
 
 void main() {
   bool scopeEquals(Scope? a, Scope b) {
@@ -28,9 +27,9 @@ void main() {
   });
 
   group('Hub captures', () {
-    late Hub hub;
-    late SentryOptions options;
-    late MockSentryClient client;
+    var options = SentryOptions(dsn: fakeDsn);
+    var hub = Hub(options);
+    var client = MockSentryClient();
 
     setUp(() {
       options = SentryOptions(dsn: fakeDsn);
@@ -43,55 +42,49 @@ void main() {
       'should capture event with the default scope',
       () async {
         await hub.captureEvent(fakeEvent);
+
+        var scope = client.captureEventCalls.first.scope;
+
         expect(
-          scopeEquals(
-            verify(
-              client.captureEvent(
-                fakeEvent,
-                scope: captureAnyNamed('scope'),
-              ),
-            ).captured.first,
-            Scope(options),
-          ),
-          true,
+          client.captureEventCalls.first.event,
+          fakeEvent,
         );
+
+        expect(scopeEquals(scope, Scope(options)), true);
       },
     );
 
     test('should capture exception', () async {
       await hub.captureException(fakeException);
 
-      verify(client.captureException(fakeException, scope: anyNamed('scope')))
-          .called(1);
+      expect(client.captureExceptionCalls.length, 1);
+      expect(
+        client.captureExceptionCalls.first.throwable,
+        fakeException,
+      );
+      expect(client.captureExceptionCalls.first.scope, isNotNull);
     });
 
     test('should capture message', () async {
       await hub.captureMessage(fakeMessage.formatted, level: SentryLevel.info);
-      verify(
-        client.captureMessage(
-          fakeMessage.formatted,
-          level: SentryLevel.info,
-          scope: anyNamed('scope'),
-        ),
-      ).called(1);
+
+      expect(client.captureMessageCalls.length, 1);
+      expect(client.captureMessageCalls.first.formatted, fakeMessage.formatted);
+      expect(client.captureMessageCalls.first.level, SentryLevel.info);
+      expect(client.captureMessageCalls.first.scope, isNotNull);
     });
 
     test('should save the lastEventId', () async {
       final event = SentryEvent();
       final eventId = event.eventId;
-      when(client.captureEvent(
-        event,
-        scope: anyNamed('scope'),
-        hint: anyNamed('hint'),
-      )).thenAnswer((_) => Future.value(event.eventId));
       final returnedId = await hub.captureEvent(event);
       expect(eventId.toString(), returnedId.toString());
     });
   });
 
   group('Hub scope', () {
-    late Hub hub;
-    late SentryClient client;
+    var hub = Hub(SentryOptions(dsn: fakeDsn));
+    var client = MockSentryClient();
 
     setUp(() {
       hub = Hub(SentryOptions(dsn: fakeDsn));
@@ -108,12 +101,10 @@ void main() {
       });
       await hub.captureEvent(fakeEvent);
 
-      final scope = verify(
-        client.captureEvent(
-          fakeEvent,
-          scope: captureAnyNamed('scope'),
-        ),
-      ).captured.first as Scope?;
+      expect(client.captureEventCalls.isNotEmpty, true);
+      expect(client.captureEventCalls.first.event, fakeEvent);
+      expect(client.captureEventCalls.first.scope, isNotNull);
+      final scope = client.captureEventCalls.first.scope;
 
       expect(
         scopeEquals(
@@ -155,19 +146,16 @@ void main() {
       final client2 = MockSentryClient();
       hub.bindClient(client2);
       await hub.captureEvent(fakeEvent);
-      verify(
-        client2.captureEvent(
-          fakeEvent,
-          scope: anyNamed('scope'),
-        ),
-      ).called(1);
+      expect(client2.captureEventCalls.length, 1);
+      expect(client2.captureEventCalls.first.event, fakeEvent);
+      expect(client2.captureEventCalls.first.scope, isNotNull);
     });
 
     test('should close its client', () {
       hub.close();
 
       expect(hub.isEnabled, false);
-      verify(client.close()).called(1);
+      expect((client as MockSentryClient).closeCalls, 1);
     });
   });
 
