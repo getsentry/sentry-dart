@@ -7,7 +7,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/http_client/sentry_http_client.dart';
 import 'package:test/test.dart';
 
-import '../mocks.dart';
+import '../mocks/mock_hub.dart';
 
 void main() {
   group(SentryHttpClient, () {
@@ -24,12 +24,11 @@ void main() {
       final response = await client.get(Uri.parse('https://example.com'));
       expect(response.statusCode, 200);
 
-      final breadcrumb = verify(mockHub.addBreadcrumb(captureAny))
-          .captured
-          .single as Breadcrumb;
+      expect(mockHub.addBreadcrumbCalls.length, 1);
+      final breadcrumb = mockHub.addBreadcrumbCalls.first.crumb;
 
-      expect(breadcrumb.type, 'http');
-      expect(breadcrumb.data, <String, dynamic>{
+      expect(breadcrumb?.type, 'http');
+      expect(breadcrumb?.data, <String, dynamic>{
         'url': 'https://example.com',
         'method': 'GET',
         'status_code': 200,
@@ -50,12 +49,11 @@ void main() {
       final response = await client.get(Uri.parse('https://example.com'));
       expect(response.statusCode, 404);
 
-      final breadcrumb = verify(mockHub.addBreadcrumb(captureAny))
-          .captured
-          .single as Breadcrumb;
+      expect(mockHub.addBreadcrumbCalls.length, 1);
+      final breadcrumb = mockHub.addBreadcrumbCalls.first.crumb;
 
-      expect(breadcrumb.type, 'http');
-      expect(breadcrumb.data, <String, dynamic>{
+      expect(breadcrumb?.type, 'http');
+      expect(breadcrumb?.data, <String, dynamic>{
         'url': 'https://example.com',
         'method': 'GET',
         'status_code': 404,
@@ -76,12 +74,11 @@ void main() {
       final response = await client.post(Uri.parse('https://example.com'));
       expect(response.statusCode, 200);
 
-      final breadcrumb = verify(mockHub.addBreadcrumb(captureAny))
-          .captured
-          .single as Breadcrumb;
+      expect(mockHub.addBreadcrumbCalls.length, 1);
+      final breadcrumb = mockHub.addBreadcrumbCalls.first.crumb;
 
-      expect(breadcrumb.type, 'http');
-      expect(breadcrumb.data, <String, dynamic>{
+      expect(breadcrumb?.type, 'http');
+      expect(breadcrumb?.data, <String, dynamic>{
         'url': 'https://example.com',
         'method': 'POST',
         'status_code': 200,
@@ -101,12 +98,11 @@ void main() {
       final response = await client.put(Uri.parse('https://example.com'));
       expect(response.statusCode, 200);
 
-      final breadcrumb = verify(mockHub.addBreadcrumb(captureAny))
-          .captured
-          .single as Breadcrumb;
+      expect(mockHub.addBreadcrumbCalls.length, 1);
+      final breadcrumb = mockHub.addBreadcrumbCalls.first.crumb;
 
-      expect(breadcrumb.type, 'http');
-      expect(breadcrumb.data, <String, dynamic>{
+      expect(breadcrumb?.type, 'http');
+      expect(breadcrumb?.data, <String, dynamic>{
         'url': 'https://example.com',
         'method': 'PUT',
         'status_code': 200,
@@ -126,12 +122,11 @@ void main() {
       final response = await client.delete(Uri.parse('https://example.com'));
       expect(response.statusCode, 200);
 
-      final breadcrumb = verify(mockHub.addBreadcrumb(captureAny))
-          .captured
-          .single as Breadcrumb;
+      expect(mockHub.addBreadcrumbCalls.length, 1);
+      final breadcrumb = mockHub.addBreadcrumbCalls.first.crumb;
 
-      expect(breadcrumb.type, 'http');
-      expect(breadcrumb.data, <String, dynamic>{
+      expect(breadcrumb?.type, 'http');
+      expect(breadcrumb?.data, <String, dynamic>{
         'url': 'https://example.com',
         'method': 'DELETE',
         'status_code': 200,
@@ -163,8 +158,8 @@ void main() {
         expect(e.uri, url);
       }
 
-      verifyNever(mockHub.addBreadcrumb(captureAny));
-      verifyNever(mockHub.captureException(captureAny));
+      expect(mockHub.addBreadcrumbCalls.length, 0);
+      expect(mockHub.captureExceptionCalls.length, 0);
     });
 
     /// SocketException are only a thing on dart:io platforms.
@@ -188,8 +183,8 @@ void main() {
         expect(e.message, 'test');
       }
 
-      verifyNever(mockHub.addBreadcrumb(captureAny));
-      verifyNever(mockHub.captureException(captureAny));
+      expect(mockHub.addBreadcrumbCalls.length, 0);
+      expect(mockHub.captureExceptionCalls.length, 0);
     });
 
     test('close does get called for user defined client', () async {
@@ -200,8 +195,8 @@ void main() {
       final client = SentryHttpClient(client: mockClient, hub: mockHub);
       client.close();
 
-      verifyNever(mockHub.addBreadcrumb(captureAny));
-      verifyNever(mockHub.captureException(captureAny));
+      expect(mockHub.addBreadcrumbCalls.length, 0);
+      expect(mockHub.captureExceptionCalls.length, 0);
       verify(mockClient.close());
     });
   });

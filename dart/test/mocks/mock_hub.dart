@@ -1,14 +1,21 @@
 import 'package:sentry/sentry.dart';
 
 class MockHub implements Hub {
+  List<CaptureEventCall> captureEventCalls = [];
+  List<CaptureExceptionCall> captureExceptionCalls = [];
+  List<CaptureMessageCall> captureMessageCalls = [];
+  List<AddBreadcrumbCall> addBreadcrumbCalls = [];
+  List<SentryClient?> bindClientCalls = [];
+  int closeCalls = 0;
+
   @override
   void addBreadcrumb(Breadcrumb? crumb, {dynamic hint}) {
-    // TODO: implement addBreadcrumb
+    addBreadcrumbCalls.add(AddBreadcrumbCall(crumb, hint));
   }
 
   @override
   void bindClient(SentryClient? client) {
-    // TODO: implement bindClient
+    bindClientCalls.add(client);
   }
 
   @override
@@ -16,25 +23,33 @@ class MockHub implements Hub {
     SentryEvent? event, {
     dynamic stackTrace,
     dynamic hint,
-  }) {
-    // TODO: implement captureEvent
-    throw UnimplementedError();
+  }) async {
+    captureEventCalls.add(CaptureEventCall(event, stackTrace, hint));
+    return event?.eventId ?? SentryId.empty();
   }
 
   @override
-  Future<SentryId> captureException(throwable, {stackTrace, hint}) {
-    // TODO: implement captureException
-    throw UnimplementedError();
+  Future<SentryId> captureException(
+    throwable, {
+    stackTrace,
+    hint,
+  }) async {
+    captureExceptionCalls
+        .add(CaptureExceptionCall(throwable, stackTrace, hint));
+    return SentryId.newId();
   }
 
   @override
-  Future<SentryId> captureMessage(String? message,
-      {SentryLevel level = SentryLevel.info,
-      String? template,
-      List? params,
-      hint}) {
-    // TODO: implement captureMessage
-    throw UnimplementedError();
+  Future<SentryId> captureMessage(
+    String? message, {
+    SentryLevel level = SentryLevel.info,
+    String? template,
+    List? params,
+    dynamic hint,
+  }) async {
+    captureMessageCalls
+        .add(CaptureMessageCall(message, level, template, params, hint));
+    return SentryId.newId();
   }
 
   @override
@@ -45,7 +60,7 @@ class MockHub implements Hub {
 
   @override
   void close() {
-    // TODO: implement close
+    closeCalls = closeCalls + 1;
   }
 
   @override
@@ -60,4 +75,47 @@ class MockHub implements Hub {
   @override
   // TODO: implement lastEventId
   SentryId get lastEventId => throw UnimplementedError();
+}
+
+class CaptureEventCall {
+  final SentryEvent? event;
+  final dynamic stackTrace;
+  final dynamic hint;
+
+  CaptureEventCall(this.event, this.stackTrace, this.hint);
+}
+
+class CaptureExceptionCall {
+  final dynamic throwable;
+  final dynamic stackTrace;
+  final dynamic hint;
+
+  CaptureExceptionCall(
+    this.throwable,
+    this.stackTrace,
+    this.hint,
+  );
+}
+
+class CaptureMessageCall {
+  final String? message;
+  final SentryLevel level;
+  final String? template;
+  final List? params;
+  final dynamic hint;
+
+  CaptureMessageCall(
+    this.message,
+    this.level,
+    this.template,
+    this.params,
+    this.hint,
+  );
+}
+
+class AddBreadcrumbCall {
+  final Breadcrumb? crumb;
+  final dynamic hint;
+
+  AddBreadcrumbCall(this.crumb, this.hint);
 }

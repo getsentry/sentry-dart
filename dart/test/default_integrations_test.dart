@@ -1,8 +1,8 @@
-import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
+import 'mocks/mock_hub.dart';
 
 void main() {
   late Fixture fixture;
@@ -42,16 +42,12 @@ void main() {
       // that handles and captures it.
       await handleIsolateError(fixture.hub, fixture.options, error);
 
-      final event = verify(
-        await fixture.hub.captureEvent(
-          captureAny,
-          stackTrace: captureAnyNamed('stackTrace'),
-        ),
-      ).captured.first as SentryEvent;
+      expect(fixture.hub.captureEventCalls.length, 1);
+      final event = fixture.hub.captureEventCalls.first.event;
 
-      expect(SentryLevel.fatal, event.level);
+      expect(SentryLevel.fatal, event?.level);
 
-      final throwableMechanism = event.throwable as ThrowableMechanism;
+      final throwableMechanism = event?.throwable as ThrowableMechanism;
       expect('isolateError', throwableMechanism.mechanism.type);
       expect(true, throwableMechanism.mechanism.handled);
       expect(throwable, throwableMechanism.throwable);
@@ -102,14 +98,12 @@ void main() {
 
     await integration(fixture.hub, fixture.options);
 
-    final event = verify(
-      await fixture.hub
-          .captureEvent(captureAny, stackTrace: captureAnyNamed('stackTrace')),
-    ).captured.first as SentryEvent;
+    expect(fixture.hub.captureEventCalls.length, 1);
+    final event = fixture.hub.captureEventCalls.first.event;
 
-    expect(SentryLevel.fatal, event.level);
+    expect(SentryLevel.fatal, event?.level);
 
-    final throwableMechanism = event.throwable as ThrowableMechanism;
+    final throwableMechanism = event?.throwable as ThrowableMechanism;
     expect('runZonedGuarded', throwableMechanism.mechanism.type);
     expect(true, throwableMechanism.mechanism.handled);
     expect(throwable, throwableMechanism.throwable);
