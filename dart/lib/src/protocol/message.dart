@@ -33,7 +33,7 @@ class Message {
       json['message'] = template;
     }
 
-    if (params != null && params!.isNotEmpty) {
+    if (params?.isNotEmpty ?? false) {
       json['params'] = params;
     }
 

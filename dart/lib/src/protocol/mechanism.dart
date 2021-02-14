@@ -23,7 +23,7 @@ class Mechanism {
   /// Optional flag indicating whether the exception has been handled by the user (e.g. via try..catch)
   final bool? handled;
 
-  final Map<String, dynamic>? _meta;
+  final Map<String, dynamic> _meta;
 
   /// Optional information from the operating system or runtime on the exception mechanism
   /// The mechanism meta data usually carries error codes reported by
@@ -32,12 +32,12 @@ class Mechanism {
   /// descriptions for well known error codes, as it will be filled out by
   /// Sentry. For proprietary or vendor-specific error codes,
   /// adding these values will give additional information to the user.
-  Map<String, dynamic> get meta => Map.unmodifiable(_meta!);
+  Map<String, dynamic> get meta => Map.unmodifiable(_meta);
 
-  final Map<String, dynamic>? _data;
+  final Map<String, dynamic> _data;
 
   /// Arbitrary extra data that might help the user understand the error thrown by this mechanism
-  Map<String, dynamic> get data => Map.unmodifiable(_data!);
+  Map<String, dynamic> get data => Map.unmodifiable(_data);
 
   /// An optional flag indicating that this error is synthetic.
   /// Synthetic errors are errors that carry little meaning by themselves.
@@ -52,8 +52,8 @@ class Mechanism {
     this.synthetic,
     Map<String, dynamic>? meta,
     Map<String, dynamic>? data,
-  })  : _meta = meta != null ? Map.from(meta) : null,
-        _data = data != null ? Map.from(data) : null;
+  })  : _meta = Map.from(meta ?? {}),
+        _data = Map.from(data ?? {});
 
   Mechanism copyWith({
     String? type,
@@ -91,11 +91,11 @@ class Mechanism {
       json['handled'] = handled;
     }
 
-    if (_meta != null && _meta!.isNotEmpty) {
+    if (_meta.isNotEmpty) {
       json['meta'] = _meta;
     }
 
-    if (_data != null && _data!.isNotEmpty) {
+    if (_data.isNotEmpty) {
       json['data'] = _data;
     }
 

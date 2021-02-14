@@ -5,11 +5,11 @@ import 'sentry_stack_frame.dart';
 /// Stacktrace holds information about the frames of the stack.
 @immutable
 class SentryStackTrace {
-  const SentryStackTrace({
+  SentryStackTrace({
     required List<SentryStackFrame> frames,
     Map<String, String>? registers,
   })  : _frames = frames,
-        _registers = registers;
+        _registers = Map.from(registers ?? {});
 
   final List<SentryStackFrame> _frames;
 
@@ -18,12 +18,12 @@ class SentryStackTrace {
   /// The last frame is the one creating the exception.
   List<SentryStackFrame> get frames => List.unmodifiable(_frames);
 
-  final Map<String, String>? _registers;
+  final Map<String, String> _registers;
 
   /// Optional. A map of register names and their values.
   /// The values should contain the actual register values of the thread,
   /// thus mapping to the last frame in the list.
-  Map<String, String> get registers => Map.unmodifiable(_registers!);
+  Map<String, String> get registers => Map.unmodifiable(_registers);
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -33,7 +33,7 @@ class SentryStackTrace {
           _frames.map((frame) => frame.toJson()).toList(growable: false);
     }
 
-    if (_registers != null && _registers!.isNotEmpty) {
+    if (_registers.isNotEmpty) {
       json['registers'] = _registers;
     }
 

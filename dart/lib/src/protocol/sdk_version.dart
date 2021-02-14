@@ -42,8 +42,8 @@ class SdkVersion {
     List<SentryPackage>? packages,
   })  :
         // List.from prevents from having immutable lists
-        _integrations = integrations != null ? List.from(integrations) : [],
-        _packages = packages != null ? List.from(packages) : [];
+        _integrations = List.from(integrations ?? []),
+        _packages = List.from(packages ?? []);
 
   /// The name of the SDK.
   final String name;
@@ -93,11 +93,12 @@ class SdkVersion {
     _integrations.add(integration);
   }
 
-  SdkVersion copyWith(
-          {String? name,
-          String? version,
-          List<String>? integrations,
-          List<SentryPackage>? packages}) =>
+  SdkVersion copyWith({
+    String? name,
+    String? version,
+    List<String>? integrations,
+    List<SentryPackage>? packages,
+  }) =>
       SdkVersion(
         name: name ?? this.name,
         version: version ?? this.version,

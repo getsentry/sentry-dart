@@ -98,9 +98,9 @@ class Hub {
 
   /// Captures the exception
   Future<SentryId> captureException(
-    dynamic /*?*/ throwable, {
-    dynamic /*?*/ stackTrace,
-    dynamic /*?*/ hint,
+    dynamic throwable, {
+    dynamic stackTrace,
+    dynamic hint,
   }) async {
     var sentryId = SentryId.empty();
 

@@ -27,31 +27,30 @@ class SentryStackFrame {
     List<String>? preContext,
     List<String>? postContext,
     Map<String, String>? vars,
-  })  : _framesOmitted =
-            framesOmitted != null ? List.from(framesOmitted) : null,
-        _preContext = preContext != null ? List.from(preContext) : null,
-        _postContext = postContext != null ? List.from(postContext) : null,
-        _vars = vars != null ? Map.from(vars) : null;
+  })  : _framesOmitted = List.from(framesOmitted ?? []),
+        _preContext = List.from(preContext ?? []),
+        _postContext = List.from(postContext ?? []),
+        _vars = Map.from(vars ?? {});
 
   /// The absolute path to filename.
   final String? absPath;
 
-  final List<String>? _preContext;
+  final List<String> _preContext;
 
   /// An immutable list of source code lines before context_line (in order) – usually [lineno - 5:lineno].
-  List<String> get preContext => List.unmodifiable(_preContext!);
+  List<String> get preContext => List.unmodifiable(_preContext);
 
-  final List<String>? _postContext;
+  final List<String> _postContext;
 
   /// An immutable list of source code lines after context_line (in order) – usually [lineno + 1:lineno + 5].
-  List<String> get postContext => List.unmodifiable(_postContext!);
+  List<String> get postContext => List.unmodifiable(_postContext);
 
-  final Map<String, String>? _vars;
+  final Map<String, String> _vars;
 
   /// An immutable mapping of variables which were available within this frame (usually context-locals).
-  Map<String, String> get vars => Map.unmodifiable(_vars!);
+  Map<String, String> get vars => Map.unmodifiable(_vars);
 
-  final List<int>? _framesOmitted;
+  final List<int> _framesOmitted;
 
   /// Which frames were omitted, if any.
   ///
@@ -62,7 +61,7 @@ class SentryStackFrame {
   /// Example : If you only removed the 8th frame, the value would be (8, 9),
   /// meaning it started at the 8th frame, and went untilthe 9th (the number of frames omitted is end-start).
   /// The values should be based on a one-index.
-  List<int> get framesOmitted => List.unmodifiable(_framesOmitted!);
+  List<int> get framesOmitted => List.unmodifiable(_framesOmitted);
 
   /// The relative file path to the call.
   final String? fileName;
@@ -111,19 +110,19 @@ class SentryStackFrame {
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 
-    if (_preContext != null && _preContext!.isNotEmpty) {
+    if (_preContext.isNotEmpty) {
       json['pre_context'] = _preContext;
     }
 
-    if (_postContext != null && _postContext!.isNotEmpty) {
+    if (_postContext.isNotEmpty) {
       json['post_context'] = _postContext;
     }
 
-    if (_vars != null && _vars!.isNotEmpty) {
+    if (_vars.isNotEmpty) {
       json['vars'] = _vars;
     }
 
-    if (_framesOmitted != null && _framesOmitted!.isNotEmpty) {
+    if (_framesOmitted.isNotEmpty) {
       json['frames_omitted'] = _framesOmitted;
     }
 

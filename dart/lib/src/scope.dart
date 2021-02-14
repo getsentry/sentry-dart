@@ -15,7 +15,7 @@ class Scope {
   /// Information about the current user.
   User? user;
 
-  List<String>? _fingerprint;
+  List<String> _fingerprint = [];
 
   /// Used to deduplicate events by grouping ones with the same fingerprint
   /// together.
@@ -24,11 +24,10 @@ class Scope {
   ///
   ///     // A completely custom fingerprint:
   ///     var custom = ['foo', 'bar', 'baz'];
-  List<String>? get fingerprint =>
-      _fingerprint != null ? List.unmodifiable(_fingerprint!) : null;
+  List<String> get fingerprint => List.unmodifiable(_fingerprint);
 
   set fingerprint(List<String>? fingerprint) {
-    _fingerprint = (fingerprint != null ? List.from(fingerprint) : fingerprint);
+    _fingerprint = List.from(fingerprint ?? []);
   }
 
   /// List of breadcrumbs for this scope.
@@ -128,7 +127,7 @@ class Scope {
     level = null;
     transaction = null;
     user = null;
-    _fingerprint = null;
+    _fingerprint = [];
     _tags.clear();
     _extra.clear();
     _eventProcessors.clear();
@@ -156,9 +155,11 @@ class Scope {
     event = event.copyWith(
       transaction: event.transaction ?? transaction,
       user: event.user ?? user,
-      fingerprint: event.fingerprint ??
-          (_fingerprint != null ? List.from(_fingerprint!) : null),
-      breadcrumbs: event.breadcrumbs ?? List.from(_breadcrumbs),
+      fingerprint:
+          event.fingerprint.isNotEmpty ? event.fingerprint : _fingerprint,
+      breadcrumbs: event.breadcrumbs.isNotEmpty
+          ? event.breadcrumbs
+          : List.from(_breadcrumbs),
       tags: tags.isNotEmpty ? _mergeEventTags(event) : event.tags,
       extra: extra.isNotEmpty ? _mergeEventExtra(event) : event.extra,
       level: level ?? event.level,
@@ -201,19 +202,18 @@ class Scope {
   /// if the scope and the event have tag entries with the same key,
   /// the event tags will be kept
   Map<String, String> _mergeEventTags(SentryEvent event) =>
-      tags.map((key, value) => MapEntry(key, value))..addAll(event.tags ?? {});
+      tags.map((key, value) => MapEntry(key, value))..addAll(event.tags);
 
   /// if the scope and the event have extra entries with the same key,
   /// the event extra will be kept
   Map<String, dynamic> _mergeEventExtra(SentryEvent event) =>
-      extra.map((key, value) => MapEntry(key, value))
-        ..addAll(event.extra ?? {});
+      extra.map((key, value) => MapEntry(key, value))..addAll(event.extra);
 
   /// Clones the current Scope
   Scope clone() {
     final clone = Scope(_options)
       ..user = user
-      ..fingerprint = fingerprint != null ? List.from(fingerprint!) : null
+      ..fingerprint = List.from(fingerprint)
       ..transaction = transaction;
 
     for (final tag in _tags.keys) {

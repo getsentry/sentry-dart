@@ -115,36 +115,35 @@ class Contexts extends MapView<String, dynamic> {
       if (value == null) return;
       switch (key) {
         case Device.type:
-          Map<String, dynamic> deviceMap;
-          if (device != null && (deviceMap = device!.toJson()).isNotEmpty) {
+          final deviceMap = device?.toJson();
+          if (deviceMap?.isNotEmpty ?? false) {
             json[Device.type] = deviceMap;
           }
           break;
         case OperatingSystem.type:
-          Map<String, dynamic> osMap;
-          if (operatingSystem != null &&
-              (osMap = operatingSystem!.toJson()).isNotEmpty) {
+          final osMap = operatingSystem?.toJson();
+          if (osMap?.isNotEmpty ?? false) {
             json[OperatingSystem.type] = osMap;
           }
           break;
 
         case App.type:
-          Map<String, dynamic> appMap;
-          if (app != null && (appMap = app!.toJson()).isNotEmpty) {
+          final appMap = app?.toJson();
+          if (appMap?.isNotEmpty ?? false) {
             json[App.type] = appMap;
           }
           break;
 
         case Browser.type:
-          Map<String, dynamic> browserMap;
-          if (browser != null && (browserMap = browser!.toJson()).isNotEmpty) {
+          final browserMap = browser?.toJson();
+          if (browserMap?.isNotEmpty ?? false) {
             json[Browser.type] = browserMap;
           }
           break;
 
         case Gpu.type:
-          Map<String, dynamic> gpuMap;
-          if (gpu != null && (gpuMap = gpu!.toJson()).isNotEmpty) {
+          final gpuMap = gpu?.toJson();
+          if (gpuMap?.isNotEmpty ?? false) {
             json[Gpu.type] = gpuMap;
           }
           break;

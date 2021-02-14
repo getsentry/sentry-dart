@@ -330,7 +330,7 @@ void main() {
       expect(capturedEvent.level!.name, SentryLevel.error.name);
       expect(capturedEvent.transaction, transaction);
       expect(capturedEvent.fingerprint, fingerprint);
-      expect(capturedEvent.breadcrumbs!.first, crumb);
+      expect(capturedEvent.breadcrumbs.first, crumb);
       expect(capturedEvent.tags, {
         scopeTagKey: scopeTagValue,
         eventTagKey: eventTagValue,
@@ -443,8 +443,8 @@ void main() {
 
       final event = (options.transport as MockTransport).events.first;
 
-      expect(event.tags!.containsKey('theme'), true);
-      expect(event.extra!.containsKey('host'), true);
+      expect(event.tags.containsKey('theme'), true);
+      expect(event.extra.containsKey('host'), true);
       expect(event.modules!.containsKey('core'), true);
       expect(event.sdk!.integrations.contains('testIntegration'), true);
       expect(
@@ -452,11 +452,11 @@ void main() {
         true,
       );
       expect(
-        event.breadcrumbs!
+        event.breadcrumbs
             .any((element) => element.message == 'processor crumb'),
         true,
       );
-      expect(event.fingerprint!.contains('process'), true);
+      expect(event.fingerprint.contains('process'), true);
     });
   });
 
@@ -467,11 +467,11 @@ void main() {
       options = SentryOptions(dsn: fakeDsn);
       options.addEventProcessor(
         (event, {hint}) => event
-          ..tags!.addAll({'theme': 'material'})
-          ..extra!['host'] = '0.0.0.1'
+          ..tags.addAll({'theme': 'material'})
+          ..extra['host'] = '0.0.0.1'
           ..modules!.addAll({'core': '1.0'})
-          ..breadcrumbs!.add(Breadcrumb(message: 'processor crumb'))
-          ..fingerprint!.add('process')
+          ..breadcrumbs.add(Breadcrumb(message: 'processor crumb'))
+          ..fingerprint.add('process')
           ..sdk!.addIntegration('testIntegration')
           ..sdk!.addPackage('test-pkg', '1.0'),
       );
@@ -483,8 +483,8 @@ void main() {
       await client.captureEvent(fakeEvent);
 
       final event = (options.transport as MockTransport).events.first;
-      expect(event.tags!.containsKey('theme'), true);
-      expect(event.extra!.containsKey('host'), true);
+      expect(event.tags.containsKey('theme'), true);
+      expect(event.extra.containsKey('host'), true);
       expect(event.modules!.containsKey('core'), true);
       expect(event.sdk!.integrations.contains('testIntegration'), true);
       expect(
@@ -492,11 +492,11 @@ void main() {
         true,
       );
       expect(
-        event.breadcrumbs!
+        event.breadcrumbs
             .any((element) => element.message == 'processor crumb'),
         true,
       );
-      expect(event.fingerprint!.contains('process'), true);
+      expect(event.fingerprint.contains('process'), true);
     });
   });
 }
@@ -506,11 +506,11 @@ SentryEvent? beforeSendCallbackDropEvent(SentryEvent event, {dynamic hint}) =>
 
 SentryEvent beforeSendCallback(SentryEvent event, {dynamic hint}) {
   return event
-    ..tags!.addAll({'theme': 'material'})
-    ..extra!['host'] = '0.0.0.1'
+    ..tags.addAll({'theme': 'material'})
+    ..extra['host'] = '0.0.0.1'
     ..modules!.addAll({'core': '1.0'})
-    ..breadcrumbs!.add(Breadcrumb(message: 'processor crumb'))
-    ..fingerprint!.add('process')
+    ..breadcrumbs.add(Breadcrumb(message: 'processor crumb'))
+    ..fingerprint.add('process')
     ..sdk!.addIntegration('testIntegration')
     ..sdk!.addPackage('test-pkg', '1.0');
 }

@@ -87,7 +87,7 @@ class Breadcrumb {
     if (category != null) {
       json['category'] = category;
     }
-    if (data != null && data!.isNotEmpty) {
+    if (data?.isNotEmpty ?? false) {
       json['data'] = data;
     }
 

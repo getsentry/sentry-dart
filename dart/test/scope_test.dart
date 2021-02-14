@@ -221,7 +221,7 @@ void main() {
 
     expect(sut.user, null);
 
-    expect(sut.fingerprint, null);
+    expect(sut.fingerprint.length, 0);
 
     expect(sut.tags.length, 0);
 
@@ -272,7 +272,7 @@ void main() {
         ..setExtra('company-name', 'Dart Inc')
         ..setContexts('theme', 'material')
         ..addEventProcessor(
-          (event, {hint}) => event..tags!.addAll({'page-locale': 'en-us'}),
+          (event, {hint}) => event..tags.addAll({'page-locale': 'en-us'}),
         );
 
       final updatedEvent = await scope.applyToEvent(event, null);

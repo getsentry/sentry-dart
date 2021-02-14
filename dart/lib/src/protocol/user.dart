@@ -33,7 +33,7 @@ class User {
     this.ipAddress,
     Map<String, dynamic>? extras,
   })  : assert(id != null || ipAddress != null),
-        extras = extras != null ? Map.from(extras) : null;
+        extras = Map.from(extras ?? {});
 
   /// A unique identifier of the user.
   final String? id;
@@ -51,7 +51,7 @@ class User {
   ///
   /// These keys are stored as extra information but not specifically processed
   /// by Sentry.
-  final Map<String, dynamic>? extras;
+  final Map<String, dynamic> extras;
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
