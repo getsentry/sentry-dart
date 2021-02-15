@@ -1,5 +1,6 @@
 # vNext
 
+* Refactoring: Migrate Sentry Dart to null safety
 * Bump: sentry-android to v4.0.0
 * Fix: Pana Flutter upper bound deprecation
 
