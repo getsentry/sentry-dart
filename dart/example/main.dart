@@ -85,7 +85,7 @@ Future<void> runApp() async {
 
     print('Capture exception result : SentryId : $sentryId');
   } finally {
-    await Sentry.close();
+    Sentry.close();
   }
 }
 
