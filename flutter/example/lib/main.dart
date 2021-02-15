@@ -306,7 +306,7 @@ Future<void> makeWebRequest(BuildContext context) async {
   final client = SentryHttpClient();
   // We don't do any exception handling here.
   // In case of an exception, let it get caught and reported to Sentry
-  final response = await client.get('https://flutter.dev/');
+  final response = await client.get(Uri.parse('https://flutter.dev/'));
 
   await showDialog<void>(
     context: context,
