@@ -14,7 +14,7 @@ class DebugImage {
   final String? uuid;
 
   /// Required. Type of the debug image. Must be "macho".
-  final String? type;
+  final String type;
 
   /// Required. Identifier of the dynamic library or executable. It is the value of the LC_UUID load command in the Mach header, formatted as UUID.
   final String? debugId;
@@ -39,7 +39,7 @@ class DebugImage {
   final String? codeId;
 
   const DebugImage({
-    this.type,
+    required this.type,
     this.imageAddr,
     this.debugId,
     this.debugFile,
@@ -57,9 +57,7 @@ class DebugImage {
       json['uuid'] = uuid;
     }
 
-    if (type != null) {
-      json['type'] = type;
-    }
+    json['type'] = type;
 
     if (debugId != null) {
       json['debug_id'] = debugId;

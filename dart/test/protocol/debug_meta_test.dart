@@ -18,7 +18,7 @@ void main() {
     final newSdkInfo = SdkInfo(
       sdkName: 'sdkName1',
     );
-    final newImageList = [DebugImage(uuid: 'uuid1')];
+    final newImageList = [DebugImage(type: 'macho', uuid: 'uuid1')];
 
     final copy = data.copyWith(
       sdk: newSdkInfo,
@@ -40,5 +40,5 @@ DebugMeta _generate() => DebugMeta(
       sdk: SdkInfo(
         sdkName: 'sdkName',
       ),
-      images: [DebugImage(uuid: 'uuid')],
+      images: [DebugImage(type: 'macho', uuid: 'uuid')],
     );
