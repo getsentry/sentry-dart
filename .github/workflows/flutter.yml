@@ -17,7 +17,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         target: ['ios', 'android', 'web']
-        channel: ['stable', 'beta']
+        channel: ['beta']
         exclude:
           - os: ubuntu-latest
             target: ios
