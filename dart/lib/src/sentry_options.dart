@@ -31,7 +31,7 @@ class SentryOptions {
 
   /// If [httpClient] is provided, it is used instead of the default client to
   /// make HTTP calls to Sentry.io. This is useful in tests.
-  /// If you don't need to send event, use [NoOpClient].
+  /// If you don't need to send events, use [NoOpClient].
   Client httpClient = NoOpClient();
 
   /// If [clock] is provided, it is used to get time instead of the system
