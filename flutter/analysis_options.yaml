@@ -12,7 +12,7 @@ analyzer:
     # to annotate every member in every test, assert, etc, when we deprecate something)
     deprecated_member_use_from_same_package: warning
     # ignore sentry/path on pubspec as we change it on deployment
-    invalid_dependency: ignore
+    # invalid_dependency: ignore
   exclude:
     - example/**
 

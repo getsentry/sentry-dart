@@ -2,6 +2,7 @@
 
 * Bump: sentry-android to v4.0.0
 * Fix: Pana Flutter upper bound deprecation
+* Fix: sentry_flutter static analysis (pana) using stable version
 
 # 4.0.4
 
