@@ -12,6 +12,7 @@ analyzer:
     # to annotate every member in every test, assert, etc, when we deprecate something)
     deprecated_member_use_from_same_package: warning
     # ignore sentry/path on pubspec as we change it on deployment
+    # only available thru beta channel
     # invalid_dependency: ignore
 
     # ignore because of SentryFlutterWeb.registrar
