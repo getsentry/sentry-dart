@@ -32,18 +32,18 @@ class Dsn {
         ? ':${uriCopy.port}'
         : '';
 
-    final pathLength = uri!.pathSegments.length;
+    final pathLength = uriCopy.pathSegments.length;
 
     String apiPath;
     if (pathLength > 1) {
       // some paths would present before the projectID in the uri
       apiPath =
-          (uri!.pathSegments.sublist(0, pathLength - 1) + ['api']).join('/');
+          (uriCopy.pathSegments.sublist(0, pathLength - 1) + ['api']).join('/');
     } else {
       apiPath = 'api';
     }
     return Uri.parse(
-      '${uri!.scheme}://${uri!.host}$port/$apiPath/$projectId/store/',
+      '${uriCopy.scheme}://${uriCopy.host}$port/$apiPath/$projectId/store/',
     );
   }
 

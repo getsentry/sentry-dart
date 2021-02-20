@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
 
-import 'noop_sentry_client.dart';
 import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_client.dart';
