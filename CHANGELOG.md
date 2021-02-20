@@ -1,6 +1,7 @@
 # vNext
 
 * Refactoring: Migrate Sentry Dart to null safety
+
 # 4.0.5
 
 * Bump: sentry-android to v4.0.0

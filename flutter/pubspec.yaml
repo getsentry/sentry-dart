@@ -16,7 +16,7 @@ dependencies:
   # this should point to pub
   sentry:
     path: ../dart
-  package_info: ^0.5.0-nullsafety
+  package_info: ^2.0.0
 
 dev_dependencies:
   flutter_test:
