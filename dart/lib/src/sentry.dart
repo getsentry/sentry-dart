@@ -39,10 +39,14 @@ class Sentry {
     AppRunner? appRunner,
     SentryOptions? options,
   }) async {
-    final sentryOptions = options ?? SentryOptions(dsn: '');
+    final sentryOptions = options ?? SentryOptions();
     await _initDefaultValues(sentryOptions, appRunner);
 
     await optionsConfiguration(sentryOptions);
+
+    if (sentryOptions.dsn == null) {
+      throw ArgumentError('DSN is required.');
+    }
 
     await _init(sentryOptions, appRunner);
   }
@@ -124,7 +128,7 @@ class Sentry {
 
   /// Reports an [event] to Sentry.io.
   static Future<SentryId> captureEvent(
-    SentryEvent? event, {
+    SentryEvent event, {
     dynamic stackTrace,
     dynamic hint,
   }) async =>
@@ -171,7 +175,7 @@ class Sentry {
   static SentryId get lastEventId => currentHub.lastEventId;
 
   /// Adds a breacrumb to the current Scope
-  static void addBreadcrumb(Breadcrumb? crumb, {dynamic hint}) =>
+  static void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) =>
       currentHub.addBreadcrumb(crumb, hint: hint);
 
   /// Configures the scope through the callback.
@@ -182,17 +186,17 @@ class Sentry {
   static Hub clone() => currentHub.clone();
 
   /// Binds a different client to the current hub
-  static void bindClient(SentryClient? client) => currentHub.bindClient(client);
+  static void bindClient(SentryClient client) => currentHub.bindClient(client);
 
   static bool _setDefaultConfiguration(SentryOptions options) {
     // if the DSN is empty, let's disable the SDK
-    if (options.dsn.isEmpty) {
+    if (options.dsn?.isEmpty ?? false) {
       close();
       return false;
     }
 
     // try parsing the dsn
-    Dsn.parse(options.dsn);
+    Dsn.parse(options.dsn!);
 
     // if logger os NoOp, let's set a logger that prints on the console
     if (options.debug && options.logger == noOpLogger) {

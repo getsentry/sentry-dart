@@ -37,7 +37,6 @@ RawReceivePort _createPort(Hub hub, SentryOptions options) {
 }
 
 /// Parse and raise an event out of the Isolate error.
-@internal
 @visibleForTesting
 Future<void> handleIsolateError(
   Hub hub,

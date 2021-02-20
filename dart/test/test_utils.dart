@@ -90,7 +90,7 @@ Future testCaptureException(
     expect('$sentryId', 'testeventid');
   }
 
-  final dsn = Dsn.parse(options.dsn);
+  final dsn = Dsn.parse(options.dsn!);
   expect(postUri, dsn.postUri);
 
   testHeaders(
@@ -188,7 +188,7 @@ void runTest({Codec<List<int>, List<int>?>? gzip, bool isWeb = false}) {
     final options = SentryOptions(dsn: testDsn);
     final client = SentryClient(options);
 
-    final dsn = Dsn.parse(options.dsn);
+    final dsn = Dsn.parse(options.dsn!);
 
     expect(dsn.uri, Uri.parse(testDsn));
     expect(
@@ -205,7 +205,7 @@ void runTest({Codec<List<int>, List<int>?>? gzip, bool isWeb = false}) {
     final options = SentryOptions(dsn: _testDsnWithoutSecret);
     final client = SentryClient(options);
 
-    final dsn = Dsn.parse(options.dsn);
+    final dsn = Dsn.parse(options.dsn!);
 
     expect(dsn.uri, Uri.parse(_testDsnWithoutSecret));
     expect(
@@ -222,7 +222,7 @@ void runTest({Codec<List<int>, List<int>?>? gzip, bool isWeb = false}) {
     final options = SentryOptions(dsn: _testDsnWithPath);
     final client = SentryClient(options);
 
-    final dsn = Dsn.parse(options.dsn);
+    final dsn = Dsn.parse(options.dsn!);
 
     expect(dsn.uri, Uri.parse(_testDsnWithPath));
     expect(
@@ -238,7 +238,7 @@ void runTest({Codec<List<int>, List<int>?>? gzip, bool isWeb = false}) {
     final options = SentryOptions(dsn: _testDsnWithPort);
     final client = SentryClient(options);
 
-    final dsn = Dsn.parse(options.dsn);
+    final dsn = Dsn.parse(options.dsn!);
 
     expect(dsn.uri, Uri.parse(_testDsnWithPort));
     expect(

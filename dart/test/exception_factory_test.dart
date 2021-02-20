@@ -9,7 +9,9 @@ void main() {
   group('Exception factory', () {
     final options = SentryOptions(dsn: fakeDsn);
     final exceptionFactory = SentryExceptionFactory(
-        options: options, stacktraceFactory: SentryStackTraceFactory(options));
+      options,
+      SentryStackTraceFactory(options),
+    );
 
     test('exceptionFactory.getSentryException', () {
       SentryException sentryException;
@@ -46,23 +48,5 @@ void main() {
       expect(sentryException.stackTrace!.frames.first.colNo, 9);
       expect(sentryException.stackTrace!.frames.first.fileName, 'test.dart');
     });
-  });
-
-  test("options can't be null", () {
-    expect(
-        () => SentryExceptionFactory(
-              options: null,
-              stacktraceFactory:
-                  SentryStackTraceFactory(SentryOptions(dsn: fakeDsn)),
-            ),
-        throwsArgumentError);
-  });
-
-  test("stacktraceFactory can't be null", () {
-    expect(
-      () => SentryExceptionFactory(
-          options: SentryOptions(dsn: fakeDsn), stacktraceFactory: null),
-      throwsArgumentError,
-    );
   });
 }

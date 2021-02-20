@@ -25,10 +25,11 @@ class Dsn {
   final Uri? uri;
 
   Uri get postUri {
-    final port = uri!.hasPort &&
-            ((uri!.scheme == 'http' && uri!.port != 80) ||
-                (uri!.scheme == 'https' && uri!.port != 443))
-        ? ':${uri!.port}'
+    final uriCopy = uri!;
+    final port = uriCopy.hasPort &&
+            ((uriCopy.scheme == 'http' && uriCopy.port != 80) ||
+                (uriCopy.scheme == 'https' && uriCopy.port != 443))
+        ? ':${uriCopy.port}'
         : '';
 
     final pathLength = uri!.pathSegments.length;

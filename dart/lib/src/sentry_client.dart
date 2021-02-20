@@ -36,8 +36,8 @@ class SentryClient {
       : _random = _options.sampleRate == null ? null : Random() {
     _stackTraceFactory = SentryStackTraceFactory(_options);
     _exceptionFactory = SentryExceptionFactory(
-      options: _options,
-      stacktraceFactory: _stackTraceFactory,
+      _options,
+      _stackTraceFactory,
     );
   }
 

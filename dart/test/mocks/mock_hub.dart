@@ -9,30 +9,30 @@ class MockHub implements Hub {
   int closeCalls = 0;
 
   @override
-  void addBreadcrumb(Breadcrumb? crumb, {dynamic hint}) {
+  void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) {
     addBreadcrumbCalls.add(AddBreadcrumbCall(crumb, hint));
   }
 
   @override
-  void bindClient(SentryClient? client) {
+  void bindClient(SentryClient client) {
     bindClientCalls.add(client);
   }
 
   @override
   Future<SentryId> captureEvent(
-    SentryEvent? event, {
+    SentryEvent event, {
     dynamic stackTrace,
     dynamic hint,
   }) async {
     captureEventCalls.add(CaptureEventCall(event, stackTrace, hint));
-    return event?.eventId ?? SentryId.empty();
+    return event.eventId;
   }
 
   @override
   Future<SentryId> captureException(
-    throwable, {
-    stackTrace,
-    hint,
+    dynamic throwable, {
+    dynamic stackTrace,
+    dynamic hint,
   }) async {
     captureExceptionCalls
         .add(CaptureExceptionCall(throwable, stackTrace, hint));
@@ -78,7 +78,7 @@ class MockHub implements Hub {
 }
 
 class CaptureEventCall {
-  final SentryEvent? event;
+  final SentryEvent event;
   final dynamic stackTrace;
   final dynamic hint;
 
@@ -114,7 +114,7 @@ class CaptureMessageCall {
 }
 
 class AddBreadcrumbCall {
-  final Breadcrumb? crumb;
+  final Breadcrumb crumb;
   final dynamic hint;
 
   AddBreadcrumbCall(this.crumb, this.hint);

@@ -35,7 +35,7 @@ class Hub {
   }
 
   static void _validateOptions(SentryOptions options) {
-    if (options.dsn.isEmpty) {
+    if (options.dsn == null) {
       throw ArgumentError('DSN is required.');
     }
   }
@@ -52,7 +52,7 @@ class Hub {
 
   /// Captures the event.
   Future<SentryId> captureEvent(
-    SentryEvent? event, {
+    SentryEvent event, {
     dynamic stackTrace,
     dynamic hint,
   }) async {
@@ -62,11 +62,6 @@ class Hub {
       _options.logger(
         SentryLevel.warning,
         "Instance is disabled and this 'captureEvent' call is a no-op.",
-      );
-    } else if (event == null) {
-      _options.logger(
-        SentryLevel.warning,
-        'captureEvent called with null parameter.',
       );
     } else {
       final item = _peek();
@@ -194,16 +189,11 @@ class Hub {
   }
 
   /// Adds a breacrumb to the current Scope
-  void addBreadcrumb(Breadcrumb? crumb, {dynamic hint}) {
+  void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) {
     if (!_isEnabled) {
       _options.logger(
         SentryLevel.warning,
         "Instance is disabled and this 'addBreadcrumb' call is a no-op.",
-      );
-    } else if (crumb == null) {
-      _options.logger(
-        SentryLevel.warning,
-        'addBreadcrumb called with null parameter.',
       );
     } else {
       final item = _peek();
@@ -219,20 +209,15 @@ class Hub {
   }
 
   /// Binds a different client to the hub
-  void bindClient(SentryClient? client) {
+  void bindClient(SentryClient client) {
     if (!_isEnabled) {
       _options.logger(SentryLevel.warning,
           "Instance is disabled and this 'bindClient' call is a no-op.");
     } else {
       final item = _peek();
       if (item != null) {
-        if (client != null) {
-          _options.logger(SentryLevel.debug, 'New client bound to scope.');
-          item.client = client;
-        } else {
-          _options.logger(SentryLevel.debug, 'NoOp client bound to scope.');
-          item.client = NoOpSentryClient();
-        }
+        _options.logger(SentryLevel.debug, 'New client bound to scope.');
+        item.client = client;
       } else {
         _options.logger(
           SentryLevel.fatal,

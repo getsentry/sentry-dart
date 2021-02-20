@@ -45,9 +45,9 @@ void main() {
       expect(fixture.hub.captureEventCalls.length, 1);
       final event = fixture.hub.captureEventCalls.first.event;
 
-      expect(SentryLevel.fatal, event?.level);
+      expect(SentryLevel.fatal, event.level);
 
-      final throwableMechanism = event?.throwable as ThrowableMechanism;
+      final throwableMechanism = event.throwable as ThrowableMechanism;
       expect('isolateError', throwableMechanism.mechanism.type);
       expect(true, throwableMechanism.mechanism.handled);
       expect(throwable, throwableMechanism.throwable);
@@ -101,9 +101,9 @@ void main() {
     expect(fixture.hub.captureEventCalls.length, 1);
     final event = fixture.hub.captureEventCalls.first.event;
 
-    expect(SentryLevel.fatal, event?.level);
+    expect(SentryLevel.fatal, event.level);
 
-    final throwableMechanism = event?.throwable as ThrowableMechanism;
+    final throwableMechanism = event.throwable as ThrowableMechanism;
     expect('runZonedGuarded', throwableMechanism.mechanism.type);
     expect(true, throwableMechanism.mechanism.handled);
     expect(throwable, throwableMechanism.throwable);

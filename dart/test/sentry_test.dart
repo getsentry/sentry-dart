@@ -33,11 +33,6 @@ void main() {
       expect(client.captureEventCalls.first.scope, isNotNull);
     });
 
-    test('should not capture a null event', () async {
-      await Sentry.captureEvent(null);
-      expect(client.captureEventCalls.length, 0);
-    });
-
     test('should not capture a null exception', () async {
       await Sentry.captureException(null);
       expect(client.captureExceptionCalls.length, 0);
@@ -55,6 +50,14 @@ void main() {
   group('Sentry is enabled or disabled', () {
     tearDown(() {
       Sentry.close();
+    });
+
+    test('null DSN', () {
+      expect(
+        () async => await Sentry.init((options) => options.dsn = null),
+        throwsArgumentError,
+      );
+      expect(Sentry.isEnabled, false);
     });
 
     test('appRunner should be optional', () async {

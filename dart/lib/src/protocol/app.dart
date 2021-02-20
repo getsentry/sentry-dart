@@ -53,26 +53,26 @@ class App {
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    final json = <String, String?>{};
+    final json = <String, String>{};
 
     if (name != null) {
-      json['app_name'] = name;
+      json['app_name'] = name!;
     }
 
     if (version != null) {
-      json['app_version'] = version;
+      json['app_version'] = version!;
     }
 
     if (identifier != null) {
-      json['app_identifier'] = identifier;
+      json['app_identifier'] = identifier!;
     }
 
     if (build != null) {
-      json['app_build'] = build;
+      json['app_build'] = build!;
     }
 
     if (buildType != null) {
-      json['build_type'] = buildType;
+      json['build_type'] = buildType!;
     }
 
     if (startTime != null) {
@@ -80,7 +80,7 @@ class App {
     }
 
     if (deviceAppHash != null) {
-      json['device_app_hash'] = deviceAppHash;
+      json['device_app_hash'] = deviceAppHash!;
     }
 
     return json;

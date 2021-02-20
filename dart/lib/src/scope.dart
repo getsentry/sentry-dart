@@ -31,7 +31,7 @@ class Scope {
   }
 
   /// List of breadcrumbs for this scope.
-  final Queue<Breadcrumb?> _breadcrumbs = Queue();
+  final Queue<Breadcrumb> _breadcrumbs = Queue();
 
   /// Unmodifiable List of breadcrumbs
   /// See also:
@@ -59,9 +59,7 @@ class Scope {
   Map<String, dynamic> get contexts => Map.unmodifiable(_contexts);
 
   /// add an entry to the Scope's contexts
-  void setContexts(String? key, dynamic value) {
-    if (key == null || value == null) return;
-
+  void setContexts(String key, dynamic value) {
     _contexts[key] = (value is num || value is bool || value is String)
         ? {'value': value}
         : value;
@@ -85,30 +83,39 @@ class Scope {
   Scope(this._options);
 
   /// Adds a breadcrumb to the breadcrumbs queue
-  void addBreadcrumb(Breadcrumb? breadcrumb, {dynamic hint}) {
+  void addBreadcrumb(Breadcrumb breadcrumb, {dynamic hint}) {
     // bail out if maxBreadcrumbs is zero
     if (_options.maxBreadcrumbs == 0) {
       return;
     }
 
     // run before breadcrumb callback if set
-    if (_options.beforeBreadcrumb != null) {
-      breadcrumb = _options.beforeBreadcrumb!(breadcrumb, hint: hint);
-
-      if (breadcrumb == null) {
-        _options.logger(
-            SentryLevel.info, 'Breadcrumb was dropped by beforeBreadcrumb');
-        return;
+    if (_options.beforeBreadcrumb == null) {
+      // remove first item if list if full
+      if (_breadcrumbs.length >= _options.maxBreadcrumbs &&
+          _breadcrumbs.isNotEmpty) {
+        _breadcrumbs.removeFirst();
       }
+
+      _breadcrumbs.add(breadcrumb);
+      return;
     }
 
-    // remove first item if list if full
-    if (_breadcrumbs.length >= _options.maxBreadcrumbs &&
-        _breadcrumbs.isNotEmpty) {
-      _breadcrumbs.removeFirst();
-    }
+    var processedBreadcrumb =
+        _options.beforeBreadcrumb!(breadcrumb, hint: hint);
 
-    _breadcrumbs.add(breadcrumb);
+    if (processedBreadcrumb == null) {
+      _options.logger(
+          SentryLevel.info, 'Breadcrumb was dropped by beforeBreadcrumb');
+    } else {
+      // remove first item if list if full
+      if (_breadcrumbs.length >= _options.maxBreadcrumbs &&
+          _breadcrumbs.isNotEmpty) {
+        _breadcrumbs.removeFirst();
+      }
+
+      _breadcrumbs.add(breadcrumb);
+    }
   }
 
   /// Clear all the breadcrumbs

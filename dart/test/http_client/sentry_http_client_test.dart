@@ -27,8 +27,8 @@ void main() {
       expect(mockHub.addBreadcrumbCalls.length, 1);
       final breadcrumb = mockHub.addBreadcrumbCalls.first.crumb;
 
-      expect(breadcrumb?.type, 'http');
-      expect(breadcrumb?.data, <String, dynamic>{
+      expect(breadcrumb.type, 'http');
+      expect(breadcrumb.data, <String, dynamic>{
         'url': 'https://example.com',
         'method': 'GET',
         'status_code': 200,
@@ -52,8 +52,8 @@ void main() {
       expect(mockHub.addBreadcrumbCalls.length, 1);
       final breadcrumb = mockHub.addBreadcrumbCalls.first.crumb;
 
-      expect(breadcrumb?.type, 'http');
-      expect(breadcrumb?.data, <String, dynamic>{
+      expect(breadcrumb.type, 'http');
+      expect(breadcrumb.data, <String, dynamic>{
         'url': 'https://example.com',
         'method': 'GET',
         'status_code': 404,
@@ -77,8 +77,8 @@ void main() {
       expect(mockHub.addBreadcrumbCalls.length, 1);
       final breadcrumb = mockHub.addBreadcrumbCalls.first.crumb;
 
-      expect(breadcrumb?.type, 'http');
-      expect(breadcrumb?.data, <String, dynamic>{
+      expect(breadcrumb.type, 'http');
+      expect(breadcrumb.data, <String, dynamic>{
         'url': 'https://example.com',
         'method': 'POST',
         'status_code': 200,
@@ -101,8 +101,8 @@ void main() {
       expect(mockHub.addBreadcrumbCalls.length, 1);
       final breadcrumb = mockHub.addBreadcrumbCalls.first.crumb;
 
-      expect(breadcrumb?.type, 'http');
-      expect(breadcrumb?.data, <String, dynamic>{
+      expect(breadcrumb.type, 'http');
+      expect(breadcrumb.data, <String, dynamic>{
         'url': 'https://example.com',
         'method': 'PUT',
         'status_code': 200,
@@ -125,8 +125,8 @@ void main() {
       expect(mockHub.addBreadcrumbCalls.length, 1);
       final breadcrumb = mockHub.addBreadcrumbCalls.first.crumb;
 
-      expect(breadcrumb?.type, 'http');
-      expect(breadcrumb?.data, <String, dynamic>{
+      expect(breadcrumb.type, 'http');
+      expect(breadcrumb.data, <String, dynamic>{
         'url': 'https://example.com',
         'method': 'DELETE',
         'status_code': 200,

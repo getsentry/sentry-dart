@@ -22,8 +22,8 @@ class DebugMeta {
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 
-    Map<String, dynamic> sdkInfo;
-    if (sdk != null && (sdkInfo = sdk!.toJson()).isNotEmpty) {
+    final sdkInfo = sdk?.toJson();
+    if (sdkInfo?.isNotEmpty ?? false) {
       json['sdk_info'] = sdkInfo;
     }
 

@@ -16,15 +16,15 @@ class HubAdapter implements Hub {
   }
 
   @override
-  void addBreadcrumb(Breadcrumb? crumb, {dynamic hint}) =>
+  void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) =>
       Sentry.addBreadcrumb(crumb, hint: hint);
 
   @override
-  void bindClient(SentryClient? client) => Sentry.bindClient(client);
+  void bindClient(SentryClient client) => Sentry.bindClient(client);
 
   @override
   Future<SentryId> captureEvent(
-    SentryEvent? event, {
+    SentryEvent event, {
     dynamic stackTrace,
     dynamic hint,
   }) =>

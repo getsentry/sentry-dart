@@ -29,7 +29,7 @@ class HttpTransport implements Transport {
   }
 
   HttpTransport._(this._options)
-      : _dsn = Dsn.parse(_options.dsn),
+      : _dsn = Dsn.parse(_options.dsn!),
         _headers = _buildHeaders(_options.sdk.identifier) {
     _credentialBuilder = _CredentialBuilder(
       _dsn,
@@ -50,7 +50,7 @@ class HttpTransport implements Transport {
 
     final response = await _options.httpClient.post(
       _dsn.postUri,
-      headers: _credentialBuilder.configure(_headers) as Map<String, String>?,
+      headers: _credentialBuilder.configure(_headers),
       body: body,
     );
 
@@ -114,9 +114,9 @@ class _CredentialBuilder {
   }
 
   static String _buildAuthHeader({
-    String? publicKey,
+    required String publicKey,
     String? secretKey,
-    String? sdkIdentifier,
+    required String sdkIdentifier,
   }) {
     var header = 'Sentry sentry_version=7, sentry_client=$sdkIdentifier, '
         'sentry_key=$publicKey';
@@ -128,7 +128,7 @@ class _CredentialBuilder {
     return header;
   }
 
-  Map<String, dynamic> configure(Map<String, dynamic> headers) {
+  Map<String, String> configure(Map<String, String> headers) {
     return headers
       ..addAll(
         <String, String>{

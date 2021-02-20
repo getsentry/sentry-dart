@@ -7,13 +7,13 @@ import 'sentry_options.dart';
 
 /// converts [StackTrace] to [SentryStackFrames]
 class SentryStackTraceFactory {
-  SentryOptions options;
+  final SentryOptions _options;
 
   final _absRegex = RegExp('abs +([A-Fa-f0-9]+)');
   static const _stackTraceViolateDartStandard =
       'This VM has been configured to produce stack traces that violate the Dart standard.';
 
-  SentryStackTraceFactory(this.options);
+  SentryStackTraceFactory(this._options);
 
   /// returns the [SentryStackFrame] list from a stackTrace ([StackTrace] or [String])
   List<SentryStackFrame> getStackFrames(dynamic stackTrace) {
@@ -150,13 +150,13 @@ class SentryStackTraceFactory {
       return true;
     }
 
-    for (final include in options.inAppIncludes) {
+    for (final include in _options.inAppIncludes) {
       if (frame.package != null && frame.package == include) {
         return true;
       }
     }
 
-    for (final exclude in options.inAppExcludes) {
+    for (final exclude in _options.inAppExcludes) {
       if (frame.package != null && frame.package == exclude) {
         return false;
       }

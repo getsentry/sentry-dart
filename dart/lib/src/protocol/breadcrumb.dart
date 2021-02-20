@@ -26,10 +26,11 @@ class Breadcrumb {
     this.message,
     DateTime? timestamp,
     this.category,
-    this.data,
+    Map<String, dynamic>? data,
     this.level = SentryLevel.info,
     this.type,
-  }) : timestamp = timestamp ?? getUtcDateTime();
+  })  : timestamp = timestamp ?? getUtcDateTime(),
+        data = data ?? <String, dynamic>{};
 
   /// Describes the breadcrumb.
   ///
@@ -50,12 +51,12 @@ class Breadcrumb {
   /// See also:
   ///
   /// * https://docs.sentry.io/development/sdk-dev/event-payloads/breadcrumbs/#breadcrumb-types
-  final Map<String, dynamic>? data;
+  final Map<String, dynamic> data;
 
   /// Severity of the breadcrumb.
   ///
   /// This field is optional and may be set to null.
-  final SentryLevel level;
+  final SentryLevel? level;
 
   /// Describes what type of breadcrumb this is.
   ///
@@ -87,11 +88,12 @@ class Breadcrumb {
     if (category != null) {
       json['category'] = category;
     }
-    if (data?.isNotEmpty ?? false) {
+    if (data.isNotEmpty) {
       json['data'] = data;
     }
-
-    json['level'] = level.name;
+    if (level != null) {
+      json['level'] = level!.name;
+    }
 
     if (type != null) {
       json['type'] = type;

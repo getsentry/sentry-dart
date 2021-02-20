@@ -22,11 +22,11 @@ class SentryOptions {
 
   /// The DSN tells the SDK where to send the events to. If an empty string is
   /// used, the SDK will not send any events.
-  String dsn = '';
+  String? dsn;
 
   /// If [compressPayload] is `true` the outgoing HTTP payloads are compressed
   /// using gzip. Otherwise, the payloads are sent in plain UTF8-encoded JSON
-  /// text. If not specified, the compression is enabled by default.
+  /// text. The compression is enabled by default.
   bool compressPayload = true;
 
   /// If [httpClient] is provided, it is used instead of the default client to
@@ -156,7 +156,7 @@ class SentryOptions {
 
   // TODO: sendDefaultPii
 
-  SentryOptions({required this.dsn}) {
+  SentryOptions({this.dsn}) {
     sdk.addPackage('pub:sentry', sdkVersion);
   }
 
