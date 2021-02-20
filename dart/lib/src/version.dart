@@ -11,7 +11,7 @@ library version;
 import 'utils.dart';
 
 /// The SDK version reported to Sentry.io in the submitted events.
-const String sdkVersion = '4.0.5';
+const String sdkVersion = '4.0.6';
 
 String get sdkName => isWeb ? _browserSdkName : _ioSdkName;
 
