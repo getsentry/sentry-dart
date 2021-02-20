@@ -35,7 +35,8 @@ class Device {
     this.bootTime,
     this.timezone,
   }) : assert(
-            batteryLevel == null || (batteryLevel >= 0 && batteryLevel <= 100));
+          batteryLevel == null || (batteryLevel >= 0 && batteryLevel <= 100),
+        );
 
   factory Device.fromJson(Map<String, dynamic> data) => Device(
         name: data['name'],

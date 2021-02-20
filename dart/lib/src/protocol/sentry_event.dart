@@ -37,10 +37,10 @@ class SentryEvent {
         timestamp = timestamp ?? getUtcDateTime(),
         contexts = contexts ?? Contexts(),
         modules = modules != null ? Map.from(modules) : null,
-        tags = Map.from(tags ?? {}),
-        extra = Map.from(extra ?? {}),
-        fingerprint = List.from(fingerprint ?? []),
-        breadcrumbs = List.from(breadcrumbs ?? []);
+        tags = tags != null ? Map.from(tags) : null,
+        extra = extra != null ? Map.from(extra) : null,
+        fingerprint = fingerprint != null ? List.from(fingerprint) : null,
+        breadcrumbs = breadcrumbs != null ? List.from(breadcrumbs) : null;
 
   /// Refers to the default fingerprinting algorithm.
   ///
@@ -106,19 +106,19 @@ class SentryEvent {
   final String? culprit;
 
   /// Name/value pairs that events can be searched by.
-  final Map<String, String> tags;
+  final Map<String, String>? tags;
 
   /// Arbitrary name/value pairs attached to the event.
   ///
   /// Sentry.io docs do not talk about restrictions on the values, other than
   /// they must be JSON-serializable.
-  final Map<String, dynamic> extra;
+  final Map<String, dynamic>? extra;
 
   /// List of breadcrumbs for this event.
   ///
   /// See also:
   /// * https://docs.sentry.io/enriching-error-data/breadcrumbs/?platform=javascript
-  final List<Breadcrumb> breadcrumbs;
+  final List<Breadcrumb>? breadcrumbs;
 
   /// Information about the current user.
   ///
@@ -145,7 +145,7 @@ class SentryEvent {
   ///     var custom = ['foo', 'bar', 'baz'];
   ///     // A fingerprint that supplements the default one with value 'foo':
   ///     var supplemented = [SentryEvent.defaultFingerprint, 'foo'];
-  final List<String> fingerprint;
+  final List<String>? fingerprint;
 
   /// The SDK Interface describes the Sentry SDK and its configuration used to capture and transmit an event.
   final SdkVersion? sdk;
@@ -287,11 +287,11 @@ class SentryEvent {
       json['culprit'] = culprit;
     }
 
-    if (tags.isNotEmpty) {
+    if (tags?.isNotEmpty ?? false) {
       json['tags'] = tags;
     }
 
-    if (extra.isNotEmpty) {
+    if (extra?.isNotEmpty ?? false) {
       json['extra'] = extra;
     }
 
@@ -305,13 +305,13 @@ class SentryEvent {
       json['user'] = userMap;
     }
 
-    if (fingerprint.isNotEmpty) {
+    if (fingerprint?.isNotEmpty ?? false) {
       json['fingerprint'] = fingerprint;
     }
 
-    if (breadcrumbs.isNotEmpty) {
+    if (breadcrumbs?.isNotEmpty ?? false) {
       json['breadcrumbs'] =
-          breadcrumbs.map((b) => b.toJson()).toList(growable: false);
+          breadcrumbs?.map((b) => b.toJson()).toList(growable: false);
     }
 
     final sdkMap = sdk?.toJson();

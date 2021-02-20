@@ -81,6 +81,7 @@ class Breadcrumb {
     final json = <String, dynamic>{
       'timestamp': formatDateAsIso8601WithMillisPrecision(timestamp),
     };
+
     if (message != null) {
       json['message'] = message;
     }

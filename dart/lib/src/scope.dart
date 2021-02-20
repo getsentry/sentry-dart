@@ -162,9 +162,10 @@ class Scope {
     event = event.copyWith(
       transaction: event.transaction ?? transaction,
       user: event.user ?? user,
-      fingerprint:
-          event.fingerprint.isNotEmpty ? event.fingerprint : _fingerprint,
-      breadcrumbs: event.breadcrumbs.isNotEmpty
+      fingerprint: (event.fingerprint?.isNotEmpty ?? false)
+          ? event.fingerprint
+          : _fingerprint,
+      breadcrumbs: (event.breadcrumbs?.isNotEmpty ?? false)
           ? event.breadcrumbs
           : List.from(_breadcrumbs),
       tags: tags.isNotEmpty ? _mergeEventTags(event) : event.tags,
@@ -209,12 +210,13 @@ class Scope {
   /// if the scope and the event have tag entries with the same key,
   /// the event tags will be kept
   Map<String, String> _mergeEventTags(SentryEvent event) =>
-      tags.map((key, value) => MapEntry(key, value))..addAll(event.tags);
+      tags.map((key, value) => MapEntry(key, value))..addAll(event.tags ?? {});
 
   /// if the scope and the event have extra entries with the same key,
   /// the event extra will be kept
   Map<String, dynamic> _mergeEventExtra(SentryEvent event) =>
-      extra.map((key, value) => MapEntry(key, value))..addAll(event.extra);
+      extra.map((key, value) => MapEntry(key, value))
+        ..addAll(event.extra ?? {});
 
   /// Clones the current Scope
   Scope clone() {
