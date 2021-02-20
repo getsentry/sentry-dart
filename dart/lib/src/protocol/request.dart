@@ -65,9 +65,9 @@ class Request {
     Map<String, String>? env,
     Map<String, String>? other,
   })  : _data = data,
-        _headers = headers,
-        _env = env,
-        _other = other;
+        _headers = headers != null ? Map.from(headers) : null,
+        _env = env != null ? Map.from(env) : null,
+        _other = other != null ? Map.from(other) : null;
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};

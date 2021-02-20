@@ -52,8 +52,8 @@ class Mechanism {
     this.synthetic,
     Map<String, dynamic>? meta,
     Map<String, dynamic>? data,
-  })  : _meta = meta,
-        _data = data;
+  })  : _meta = meta != null ? Map.from(meta) : null,
+        _data = data != null ? Map.from(data) : null;
 
   Mechanism copyWith({
     String? type,
