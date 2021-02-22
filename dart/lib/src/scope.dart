@@ -26,8 +26,8 @@ class Scope {
   ///     var custom = ['foo', 'bar', 'baz'];
   List<String> get fingerprint => List.unmodifiable(_fingerprint);
 
-  set fingerprint(List<String>? fingerprint) {
-    _fingerprint = List.from(fingerprint ?? []);
+  set fingerprint(List<String> fingerprint) {
+    _fingerprint = List.from(fingerprint);
   }
 
   /// List of breadcrumbs for this scope.
@@ -89,33 +89,28 @@ class Scope {
       return;
     }
 
+    Breadcrumb? processedBreadcrumb = breadcrumb;
     // run before breadcrumb callback if set
-    if (_options.beforeBreadcrumb == null) {
-      // remove first item if list if full
-      if (_breadcrumbs.length >= _options.maxBreadcrumbs &&
-          _breadcrumbs.isNotEmpty) {
-        _breadcrumbs.removeFirst();
-      }
+    if (_options.beforeBreadcrumb != null) {
+      processedBreadcrumb = _options.beforeBreadcrumb!(
+        processedBreadcrumb,
+        hint: hint,
+      );
 
-      _breadcrumbs.add(breadcrumb);
-      return;
+      if (processedBreadcrumb == null) {
+        _options.logger(
+            SentryLevel.info, 'Breadcrumb was dropped by beforeBreadcrumb');
+        return;
+      }
     }
 
-    var processedBreadcrumb =
-        _options.beforeBreadcrumb!(breadcrumb, hint: hint);
-
-    if (processedBreadcrumb == null) {
-      _options.logger(
-          SentryLevel.info, 'Breadcrumb was dropped by beforeBreadcrumb');
-    } else {
-      // remove first item if list if full
-      if (_breadcrumbs.length >= _options.maxBreadcrumbs &&
-          _breadcrumbs.isNotEmpty) {
-        _breadcrumbs.removeFirst();
-      }
-
-      _breadcrumbs.add(breadcrumb);
+    // remove first item if list if full
+    if (_breadcrumbs.length >= _options.maxBreadcrumbs &&
+        _breadcrumbs.isNotEmpty) {
+      _breadcrumbs.removeFirst();
     }
+
+    _breadcrumbs.add(breadcrumb);
   }
 
   /// Clear all the breadcrumbs

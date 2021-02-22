@@ -93,7 +93,7 @@ class SentryStackTraceFactory {
       if (frame.column != null && frame.column! >= 0) {
         sentryStackFrame = sentryStackFrame.copyWith(colNo: frame.column);
       }
-    } else {
+    } else if (member != null) {
       // if --split-debug-info is enabled, thats what we see:
       // warning:  This VM has been configured to produce stack traces that violate the Dart standard.
       // ***       *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
@@ -108,7 +108,7 @@ class SentryStackTraceFactory {
       // unparsed      #04 abs 000000723d4b8c3b virt 0000000000071c3b _kDartIsolateSnapshotInstructions+0x66c3b
 
       // we are only interested on the #01, 02... items which contains the 'abs' addresses.
-      final matches = _absRegex.allMatches(member!);
+      final matches = _absRegex.allMatches(member);
 
       if (matches.isNotEmpty) {
         final abs = matches.elementAt(0).group(1);

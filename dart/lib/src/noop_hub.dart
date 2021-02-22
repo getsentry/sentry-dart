@@ -14,11 +14,11 @@ class NoOpHub implements Hub {
   }
 
   @override
-  void bindClient(SentryClient? client) {}
+  void bindClient(SentryClient client) {}
 
   @override
   Future<SentryId> captureEvent(
-    SentryEvent? event, {
+    SentryEvent event, {
     dynamic stackTrace,
     dynamic hint,
   }) =>
