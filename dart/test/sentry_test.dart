@@ -45,6 +45,18 @@ void main() {
       expect(client.captureExceptionCalls.first.stackTrace, isNull);
       expect(client.captureExceptionCalls.first.scope, isNotNull);
     });
+
+    test('should capture message', () async {
+      await Sentry.captureMessage(fakeMessage.formatted,
+          level: SentryLevel.warning);
+      verify(
+        client.captureMessage(
+          fakeMessage.formatted,
+          level: SentryLevel.warning,
+          scope: anyNamed('scope'),
+        ),
+      ).called(1);
+    });
   });
 
   group('Sentry is enabled or disabled', () {

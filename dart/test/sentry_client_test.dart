@@ -106,8 +106,20 @@ void main() {
       expect(capturedEvent.message!.formatted, 'simple message 1');
       expect(capturedEvent.message!.template, 'simple message %d');
       expect(capturedEvent.message!.params, [1]);
+      expect(capturedEvent.level, SentryLevel.error);
+    });
 
-      expect(capturedEvent.stackTrace is SentryStackTrace, true);
+    test('capture message defaults to info level', () async {
+      final client = SentryClient(options);
+      await client.captureMessage(
+        'simple message 1',
+      );
+
+      final capturedEvent = (verify(
+        options.transport.send(captureAny),
+      ).captured.first) as SentryEvent;
+
+      expect(capturedEvent.level, SentryLevel.info);
     });
 
     test('should capture message without stacktrace', () async {

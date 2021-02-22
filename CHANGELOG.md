@@ -1,6 +1,7 @@
 # vNext
 
 * Refactoring: Migrate Sentry Dart to null safety
+* Fix: captureMessage defaults SentryLevel to info
 
 # 4.0.5
 

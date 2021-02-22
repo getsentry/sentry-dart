@@ -65,11 +65,14 @@ void main() {
     });
 
     test('should capture message', () async {
-      await hub.captureMessage(fakeMessage.formatted, level: SentryLevel.info);
+      await hub.captureMessage(
+        fakeMessage.formatted,
+        level: SentryLevel.warning,
+      );
 
       expect(client.captureMessageCalls.length, 1);
       expect(client.captureMessageCalls.first.formatted, fakeMessage.formatted);
-      expect(client.captureMessageCalls.first.level, SentryLevel.info);
+      expect(client.captureMessageCalls.first.level, SentryLevel.warning);
       expect(client.captureMessageCalls.first.scope, isNotNull);
     });
 
