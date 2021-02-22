@@ -59,6 +59,18 @@ void main() {
         ),
       ).called(1);
     });
+
+    test('should capture message', () async {
+      await Sentry.captureMessage(fakeMessage.formatted,
+          level: SentryLevel.warning);
+      verify(
+        client.captureMessage(
+          fakeMessage.formatted,
+          level: SentryLevel.warning,
+          scope: anyNamed('scope'),
+        ),
+      ).called(1);
+    });
   });
 
   group('Sentry is enabled or disabled', () {

@@ -118,8 +118,7 @@ void main() {
       expect(capturedEvent.message.formatted, 'simple message 1');
       expect(capturedEvent.message.template, 'simple message %d');
       expect(capturedEvent.message.params, [1]);
-
-      expect(capturedEvent.stackTrace is SentryStackTrace, true);
+      expect(capturedEvent.level, SentryLevel.error);
     });
 
     test('capture message defaults to info level', () async {
