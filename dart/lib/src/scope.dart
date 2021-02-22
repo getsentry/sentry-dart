@@ -104,7 +104,7 @@ class Scope {
       }
     }
 
-    // remove first item if list if full
+    // remove first item if list is full
     if (_breadcrumbs.length >= _options.maxBreadcrumbs &&
         _breadcrumbs.isNotEmpty) {
       _breadcrumbs.removeFirst();
