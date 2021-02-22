@@ -91,7 +91,7 @@ class Scope {
 
     // run before breadcrumb callback if set
     if (_options.beforeBreadcrumb == null) {
-      // remove first item if list if full
+      // remove first item if list is full
       if (_breadcrumbs.length >= _options.maxBreadcrumbs &&
           _breadcrumbs.isNotEmpty) {
         _breadcrumbs.removeFirst();
