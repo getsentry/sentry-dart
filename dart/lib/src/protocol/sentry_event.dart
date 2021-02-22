@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import '../protocol.dart';
+import '../throwable_mechanism.dart';
 import '../utils.dart';
 
 /// An event to be reported to Sentry.io.
@@ -86,6 +87,14 @@ class SentryEvent {
   /// If it's an Error, with a stackTrace, the stackTrace is logged.
   /// If this behavior is undesirable, consider using a custom formatted [message] instead.
   final dynamic throwable;
+
+  /// Returns the captured Throwable or null. If a throwable is wrapped in
+  /// ThrowableMechanism, returns unwrapped throwable.
+  ///
+  /// returns the Throwable or null
+  dynamic get originThrowable => (throwable is ThrowableMechanism)
+      ? (throwable as ThrowableMechanism).throwable
+      : throwable;
 
   /// an optional attached StackTrace
   /// used when event has no throwable or exception, see [SentryOptions.attachStacktrace]
