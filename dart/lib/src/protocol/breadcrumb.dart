@@ -27,7 +27,7 @@ class Breadcrumb {
     DateTime? timestamp,
     this.category,
     this.data,
-    SentryLevel level,
+    SentryLevel? level,
     this.type,
   })  : timestamp = timestamp ?? getUtcDateTime(),
         level = level ?? SentryLevel.info;

@@ -115,10 +115,7 @@ void main() {
         'simple message 1',
       );
 
-      final capturedEvent = (verify(
-        options.transport.send(captureAny),
-      ).captured.first) as SentryEvent;
-
+      final capturedEvent = (options.transport as MockTransport).events.first;
       expect(capturedEvent.level, SentryLevel.info);
     });
 

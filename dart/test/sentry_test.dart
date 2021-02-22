@@ -47,15 +47,14 @@ void main() {
     });
 
     test('should capture message', () async {
-      await Sentry.captureMessage(fakeMessage.formatted,
-          level: SentryLevel.warning);
-      verify(
-        client.captureMessage(
-          fakeMessage.formatted,
-          level: SentryLevel.warning,
-          scope: anyNamed('scope'),
-        ),
-      ).called(1);
+      await Sentry.captureMessage(
+        fakeMessage.formatted,
+        level: SentryLevel.warning,
+      );
+
+      expect(client.captureMessageCalls.length, 1);
+      expect(client.captureMessageCalls.first.formatted, fakeMessage.formatted);
+      expect(client.captureMessageCalls.first.level, SentryLevel.warning);
     });
   });
 
