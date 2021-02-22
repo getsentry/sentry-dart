@@ -101,7 +101,7 @@ class RouteObserverBreadcrumb extends Breadcrumb {
     @required String navigationType,
     RouteSettings from,
     RouteSettings to,
-    SentryLevel level = SentryLevel.info,
+    SentryLevel level,
   }) {
     final dynamic fromArgs = _formatArgs(from?.arguments);
     final dynamic toArgs = _formatArgs(to?.arguments);
@@ -121,7 +121,7 @@ class RouteObserverBreadcrumb extends Breadcrumb {
     dynamic fromArgs,
     String to,
     dynamic toArgs,
-    SentryLevel level = SentryLevel.info,
+    SentryLevel level,
   })  : assert(navigationType != null),
         super(
             category: _navigationKey,

@@ -1,5 +1,7 @@
 # vNext
 
+* Fix: captureMessage defaults SentryLevel to info
+
 # 4.0.5
 
 * Bump: sentry-android to v4.0.0

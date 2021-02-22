@@ -76,11 +76,12 @@ void main() {
     });
 
     test('should capture message', () async {
-      await hub.captureMessage(fakeMessage.formatted, level: SentryLevel.info);
+      await hub.captureMessage(fakeMessage.formatted,
+          level: SentryLevel.warning);
       verify(
         client.captureMessage(
           fakeMessage.formatted,
-          level: SentryLevel.info,
+          level: SentryLevel.warning,
           scope: anyNamed('scope'),
         ),
       ).called(1);
