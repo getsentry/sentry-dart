@@ -35,7 +35,7 @@ class NoOpHub implements Hub {
   @override
   Future<SentryId> captureMessage(
     String message, {
-    SentryLevel level = SentryLevel.info,
+    SentryLevel level,
     String template,
     List params,
     dynamic hint,
