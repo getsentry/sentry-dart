@@ -58,5 +58,5 @@ class NoOpHub implements Hub {
   SentryId get lastEventId => SentryId.empty();
 
   @override
-  void addBreadcrumb(Breadcrumb? crumb, {dynamic hint}) {}
+  void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) {}
 }

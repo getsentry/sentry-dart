@@ -14,8 +14,7 @@ dependencies:
   flutter_web_plugins:
     sdk: flutter
   # this should point to pub
-  sentry:
-    path: ../dart
+  sentry: ^4.0.5
   package_info: ^2.0.0
 
 dev_dependencies:
@@ -25,9 +24,9 @@ dev_dependencies:
   yaml: ^3.0.0 # needed for version match (code and pubspec)
   pedantic: ^1.10.0
 
-# dependency_overrides:
-#  sentry:
-#    path: ../dart
+dependency_overrides:
+  sentry:
+    path: ../dart
 
 flutter:
   plugin:
