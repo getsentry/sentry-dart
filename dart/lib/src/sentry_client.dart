@@ -114,9 +114,9 @@ class SentryClient {
 
     if (event.exception != null) return event;
 
-    if (event.throwable != null) {
+    if (event.throwableMechanism != null) {
       final sentryException = _exceptionFactory
-          .getSentryException(event.throwable, stackTrace: stackTrace);
+          .getSentryException(event.throwableMechanism, stackTrace: stackTrace);
 
       return event.copyWith(exception: sentryException);
     }

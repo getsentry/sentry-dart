@@ -51,7 +51,7 @@ void main() {
 
       expect(SentryLevel.fatal, event.level);
 
-      final throwableMechanism = event.throwable as ThrowableMechanism;
+      final throwableMechanism = event.throwableMechanism as ThrowableMechanism;
       expect('isolateError', throwableMechanism.mechanism.type);
       expect(true, throwableMechanism.mechanism.handled);
       expect(throwable, throwableMechanism.throwable);
@@ -109,7 +109,7 @@ void main() {
 
     expect(SentryLevel.fatal, event.level);
 
-    final throwableMechanism = event.throwable as ThrowableMechanism;
+    final throwableMechanism = event.throwableMechanism as ThrowableMechanism;
     expect('runZonedGuarded', throwableMechanism.mechanism.type);
     expect(true, throwableMechanism.mechanism.handled);
     expect(throwable, throwableMechanism.throwable);

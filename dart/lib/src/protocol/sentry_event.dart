@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import '../protocol.dart';
+import '../throwable_mechanism.dart';
 import '../utils.dart';
 
 /// An event to be reported to Sentry.io.
@@ -24,7 +25,7 @@ class SentryEvent {
     this.environment,
     this.message,
     this.transaction,
-    this.throwable,
+    dynamic throwable,
     this.stackTrace,
     this.exception,
     this.level,
@@ -40,7 +41,8 @@ class SentryEvent {
         tags = tags != null ? Map.from(tags) : null,
         extra = extra != null ? Map.from(extra) : null,
         fingerprint = fingerprint != null ? List.from(fingerprint) : null,
-        breadcrumbs = breadcrumbs != null ? List.from(breadcrumbs) : null;
+        breadcrumbs = breadcrumbs != null ? List.from(breadcrumbs) : null,
+        _throwable = throwable;
 
   /// Refers to the default fingerprinting algorithm.
   ///
@@ -80,12 +82,21 @@ class SentryEvent {
   /// Generally an event either contains a [message] or an [exception].
   final Message message;
 
+  final dynamic _throwable;
+
   /// An object that was thrown.
   ///
   /// It's `runtimeType` and `toString()` are logged.
   /// If it's an Error, with a stackTrace, the stackTrace is logged.
   /// If this behavior is undesirable, consider using a custom formatted [message] instead.
-  final dynamic throwable;
+  dynamic get throwable => (_throwable is ThrowableMechanism)
+      ? (_throwable as ThrowableMechanism).throwable
+      : _throwable;
+
+  /// A Throwable decorator that holds a Mechanism related to the decorated Throwable
+  ///
+  /// Use the 'throwable' directly if you don't want the decorated Throwable
+  dynamic get throwableMechanism => _throwable;
 
   /// an optional attached StackTrace
   /// used when event has no throwable or exception, see [SentryOptions.attachStacktrace]
@@ -197,7 +208,7 @@ class SentryEvent {
         modules: (modules != null ? Map.from(modules) : null) ?? this.modules,
         message: message ?? this.message,
         transaction: transaction ?? this.transaction,
-        throwable: throwable ?? this.throwable,
+        throwable: throwable ?? _throwable,
         exception: exception ?? this.exception,
         stackTrace: stackTrace ?? this.stackTrace,
         level: level ?? this.level,
