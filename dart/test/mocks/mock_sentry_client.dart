@@ -41,7 +41,7 @@ class MockSentryClient implements SentryClient {
   @override
   Future<SentryId> captureMessage(
     String? formatted, {
-    SentryLevel level = SentryLevel.info,
+    SentryLevel? level = SentryLevel.info,
     String? template,
     List? params,
     Scope? scope,
@@ -94,7 +94,7 @@ class CaptureExceptionCall {
 
 class CaptureMessageCall {
   final String? formatted;
-  final SentryLevel level;
+  final SentryLevel? level;
   final String? template;
   final List? params;
   final Scope? scope;

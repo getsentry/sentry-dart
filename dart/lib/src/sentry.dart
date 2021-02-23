@@ -148,7 +148,7 @@ class Sentry {
 
   static Future<SentryId> captureMessage(
     String? message, {
-    SentryLevel level = SentryLevel.info,
+    SentryLevel? level = SentryLevel.info,
     String? template,
     List<dynamic>? params,
     dynamic hint,

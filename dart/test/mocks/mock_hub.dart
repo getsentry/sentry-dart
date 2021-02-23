@@ -42,7 +42,7 @@ class MockHub implements Hub {
   @override
   Future<SentryId> captureMessage(
     String? message, {
-    SentryLevel level = SentryLevel.info,
+    SentryLevel? level = SentryLevel.info,
     String? template,
     List? params,
     dynamic hint,
@@ -99,7 +99,7 @@ class CaptureExceptionCall {
 
 class CaptureMessageCall {
   final String? message;
-  final SentryLevel level;
+  final SentryLevel? level;
   final String? template;
   final List? params;
   final dynamic hint;
