@@ -95,29 +95,26 @@ jobs:
           flutter format -n --set-exit-if-changed ./
           flutter analyze
 
-  # pana fails when the package depends on a package which is not stable yet (sentry.4.x.x-beta)
-  # once it's GA and API is stable, we could uncomment this, this is gonna be run manually
-  # via ./tools/presubmit.sh
-  # package-analysis:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - uses: axel-op/dart-package-analyzer@v3
-  #       id: analysis
-  #       with:
-  #         githubToken: ${{ secrets.GITHUB_TOKEN }}
-  #         relativePath: flutter/
-  #     - name: Check scores
-  #       env:
-  #         TOTAL: ${{ steps.analysis.outputs.total }}
-  #         TOTAL_MAX: ${{ steps.analysis.outputs.total_max }}
-  #       run: |
-  #         PERCENTAGE=$(( $TOTAL * 100 / $TOTAL_MAX ))
-  #         if (( $PERCENTAGE < 100 ))
-  #         then
-  #           echo Score too low!
-  #           exit 1
-  #         fi
+  package-analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: axel-op/dart-package-analyzer@d56ba070e9dcacc6d8ba48a41938b1e2b973de41
+        id: analysis
+        with:
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          relativePath: flutter/
+      - name: Check scores
+        env:
+          TOTAL: ${{ steps.analysis.outputs.total }}
+          TOTAL_MAX: ${{ steps.analysis.outputs.total_max }}
+        run: |
+          PERCENTAGE=$(( $TOTAL * 100 / $TOTAL_MAX ))
+          if (( $PERCENTAGE < 100 ))
+          then
+            echo Score too low!
+            exit 1
+          fi
 
   pod-lint:
     runs-on: macos-latest
