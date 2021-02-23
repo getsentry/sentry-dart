@@ -82,7 +82,7 @@ class SentryEvent {
   /// Generally an event either contains a [message] or an [exception].
   final Message message;
 
-  dynamic _throwable;
+  final dynamic _throwable;
 
   /// An object that was thrown.
   ///
@@ -92,10 +92,6 @@ class SentryEvent {
   dynamic get throwable => (_throwable is ThrowableMechanism)
       ? (_throwable as ThrowableMechanism).throwable
       : _throwable;
-
-  set throwable(dynamic throwable) {
-    _throwable = throwable;
-  }
 
   /// A Throwable decorator that holds a Mechanism related to the decorated Throwable
   ///
