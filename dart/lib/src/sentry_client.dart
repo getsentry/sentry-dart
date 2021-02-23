@@ -154,7 +154,7 @@ class SentryClient {
   /// Reports the [template]
   Future<SentryId> captureMessage(
     String? formatted, {
-    SentryLevel? level = SentryLevel.info,
+    SentryLevel? level,
     String? template,
     List<dynamic>? params,
     Scope? scope,
@@ -162,7 +162,7 @@ class SentryClient {
   }) {
     final event = SentryEvent(
       message: Message(formatted, template: template, params: params),
-      level: level,
+      level: level ?? SentryLevel.info,
       timestamp: _options.clock(),
     );
 
