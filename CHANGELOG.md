@@ -1,7 +1,7 @@
 # vNext
 
 * Fix: captureMessage defaults SentryLevel to info
-* Fix: Expose SentryEvent.originThrowable to get access to the origin Throwable
+* Fix: SentryEvent.throwable returns the unwrapped throwable instead of the throwableMechanism
 
 # 4.0.5
 
