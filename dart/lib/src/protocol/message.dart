@@ -11,7 +11,7 @@ import 'package:meta/meta.dart';
 @immutable
 class Message {
   /// The fully formatted message. If missing, Sentry will try to interpolate the message.
-  final String? formatted;
+  final String formatted;
 
   /// The raw message string (uninterpolated).
   /// example : "My raw message with interpreted strings like %s",
@@ -25,9 +25,7 @@ class Message {
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 
-    if (formatted != null) {
-      json['formatted'] = formatted;
-    }
+    json['formatted'] = formatted;
 
     if (template != null) {
       json['message'] = template;

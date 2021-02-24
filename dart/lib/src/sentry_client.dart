@@ -153,7 +153,7 @@ class SentryClient {
 
   /// Reports the [template]
   Future<SentryId> captureMessage(
-    String? formatted, {
+    String formatted, {
     SentryLevel? level,
     String? template,
     List<dynamic>? params,

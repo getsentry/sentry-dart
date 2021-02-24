@@ -262,7 +262,7 @@ void main() {
 
     test('should not serialize null or empty fields', () {
       final event = SentryEvent(
-        message: Message(null),
+        message: null,
         modules: {},
         exception: SentryException(type: null, value: null),
         stackTrace: SentryStackTrace(frames: []),
