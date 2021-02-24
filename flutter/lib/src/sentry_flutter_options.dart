@@ -19,7 +19,10 @@ class SentryFlutterOptions extends SentryOptions {
 
   bool _enableNativeCrashHandling = true;
 
-  /// Enable or disable the Crash handling on the Native SDKs (Android/iOS)
+  /// Enable or disable the Crash handling on the Native SDKs
+  /// eg UncaughtExceptionHandler and [anrEnabled] for Android
+  ///
+  /// Available only for Android.
   bool get enableNativeCrashHandling => _enableNativeCrashHandling;
 
   set enableNativeCrashHandling(bool value) {
