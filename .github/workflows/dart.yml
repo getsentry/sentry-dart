@@ -20,7 +20,7 @@ jobs:
         # TODO: cedx/setup-dart@v2 doesn't work on Windows (doesn't add pub to the PATH?)
         # os: [ubuntu-latest, windows-latest, macos-latest]
         os: [ubuntu-latest, macos-latest]
-        sdk: [beta, dev, stable]
+        sdk: [beta, dev]
         exclude:
           # Bad state: Could not run tests with Observatory enabled. Try setting a different port with --port option.
           - os: ubuntu-latest
@@ -61,7 +61,7 @@ jobs:
     steps:
       - uses: cedx/setup-dart@v2
         with:
-          release-channel: stable
+          release-channel: beta
       - uses: actions/checkout@v2
       - run: |
           dart pub get

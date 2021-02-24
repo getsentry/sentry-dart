@@ -8,13 +8,13 @@ import '../utils.dart';
 class SentryEvent {
   /// Creates an event.
   SentryEvent({
-    SentryId eventId,
-    DateTime timestamp,
-    Map<String, String> modules,
-    Map<String, String> tags,
-    Map<String, dynamic> extra,
-    List<String> fingerprint,
-    List<Breadcrumb> breadcrumbs,
+    SentryId? eventId,
+    DateTime? timestamp,
+    Map<String, String>? modules,
+    Map<String, String>? tags,
+    Map<String, dynamic>? extra,
+    List<String>? fingerprint,
+    List<Breadcrumb>? breadcrumbs,
     this.sdk,
     this.platform,
     this.logger,
@@ -30,7 +30,7 @@ class SentryEvent {
     this.level,
     this.culprit,
     this.user,
-    Contexts contexts,
+    Contexts? contexts,
     this.request,
     this.debugMeta,
   })  : eventId = eventId ?? SentryId.newId(),
@@ -55,30 +55,30 @@ class SentryEvent {
   final DateTime timestamp;
 
   /// A string representing the platform the SDK is submitting from. This will be used by the Sentry interface to customize various components in the interface.
-  final String platform;
+  final String? platform;
 
   /// The logger that logged the event.
-  final String logger;
+  final String? logger;
 
   /// Identifies the server that logged this event.
-  final String serverName;
+  final String? serverName;
 
   /// The version of the application that logged the event.
-  final String release;
+  final String? release;
 
   /// The distribution of the application.
-  final String dist;
+  final String? dist;
 
   /// The environment that logged the event, e.g. "production", "staging".
-  final String environment;
+  final String? environment;
 
   /// A list of relevant modules and their versions.
-  final Map<String, String> modules;
+  final Map<String, String>? modules;
 
   /// Event message.
   ///
   /// Generally an event either contains a [message] or an [exception].
-  final Message message;
+  final Message? message;
 
   /// An object that was thrown.
   ///
@@ -89,42 +89,42 @@ class SentryEvent {
 
   /// an optional attached StackTrace
   /// used when event has no throwable or exception, see [SentryOptions.attachStacktrace]
-  final SentryStackTrace stackTrace;
+  final SentryStackTrace? stackTrace;
 
   /// an exception or error that occurred in a program
   /// TODO more doc
-  final SentryException exception;
+  final SentryException? exception;
 
   /// The name of the transaction which generated this event,
   /// for example, the route name: `"/users/<username>/"`.
-  final String transaction;
+  final String? transaction;
 
   /// How important this event is.
-  final SentryLevel level;
+  final SentryLevel? level;
 
   /// What caused this event to be logged.
-  final String culprit;
+  final String? culprit;
 
   /// Name/value pairs that events can be searched by.
-  final Map<String, String> tags;
+  final Map<String, String>? tags;
 
   /// Arbitrary name/value pairs attached to the event.
   ///
   /// Sentry.io docs do not talk about restrictions on the values, other than
   /// they must be JSON-serializable.
-  final Map<String, dynamic> extra;
+  final Map<String, dynamic>? extra;
 
   /// List of breadcrumbs for this event.
   ///
   /// See also:
   /// * https://docs.sentry.io/enriching-error-data/breadcrumbs/?platform=javascript
-  final List<Breadcrumb> breadcrumbs;
+  final List<Breadcrumb>? breadcrumbs;
 
   /// Information about the current user.
   ///
   /// The value in this field overrides the user context
   /// set in [Scope.user] for this logged event.
-  final User user;
+  final User? user;
 
   /// The context interfaces provide additional context data.
   /// Typically this is data related to the current user,
@@ -145,45 +145,45 @@ class SentryEvent {
   ///     var custom = ['foo', 'bar', 'baz'];
   ///     // A fingerprint that supplements the default one with value 'foo':
   ///     var supplemented = [SentryEvent.defaultFingerprint, 'foo'];
-  final List<String> fingerprint;
+  final List<String>? fingerprint;
 
   /// The SDK Interface describes the Sentry SDK and its configuration used to capture and transmit an event.
-  final SdkVersion sdk;
+  final SdkVersion? sdk;
 
   ///  contains information on a HTTP request related to the event.
   ///  In client, this can be an outgoing request, or the request that rendered the current web page.
   ///  On server, this could be the incoming web request that is being handled
-  final Request request;
+  final Request? request;
 
   /// The debug meta interface carries debug information for processing errors and crash reports.
-  final DebugMeta debugMeta;
+  final DebugMeta? debugMeta;
 
   SentryEvent copyWith({
-    SentryId eventId,
-    DateTime timestamp,
-    String platform,
-    String logger,
-    String serverName,
-    String release,
-    String dist,
-    String environment,
-    Map<String, String> modules,
-    Message message,
-    String transaction,
+    SentryId? eventId,
+    DateTime? timestamp,
+    String? platform,
+    String? logger,
+    String? serverName,
+    String? release,
+    String? dist,
+    String? environment,
+    Map<String, String>? modules,
+    Message? message,
+    String? transaction,
     dynamic throwable,
-    SentryException exception,
+    SentryException? exception,
     dynamic stackTrace,
-    SentryLevel level,
-    String culprit,
-    Map<String, String> tags,
-    Map<String, dynamic> extra,
-    List<String> fingerprint,
-    User user,
-    Contexts contexts,
-    List<Breadcrumb> breadcrumbs,
-    SdkVersion sdk,
-    Request request,
-    DebugMeta debugMeta,
+    SentryLevel? level,
+    String? culprit,
+    Map<String, String>? tags,
+    Map<String, dynamic>? extra,
+    List<String>? fingerprint,
+    User? user,
+    Contexts? contexts,
+    List<Breadcrumb>? breadcrumbs,
+    SdkVersion? sdk,
+    Request? request,
+    DebugMeta? debugMeta,
   }) =>
       SentryEvent(
         eventId: eventId ?? this.eventId,
@@ -219,13 +219,9 @@ class SentryEvent {
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 
-    if (eventId != null) {
-      json['event_id'] = eventId.toString();
-    }
+    json['event_id'] = eventId.toString();
 
-    if (timestamp != null) {
-      json['timestamp'] = formatDateAsIso8601WithMillisPrecision(timestamp);
-    }
+    json['timestamp'] = formatDateAsIso8601WithMillisPrecision(timestamp);
 
     if (platform != null) {
       json['platform'] = platform;
@@ -251,12 +247,12 @@ class SentryEvent {
       json['environment'] = environment;
     }
 
-    if (modules != null && modules.isNotEmpty) {
+    if (modules != null && modules!.isNotEmpty) {
       json['modules'] = modules;
     }
 
     Map<String, dynamic> messageMap;
-    if (message != null && (messageMap = message.toJson()).isNotEmpty) {
+    if (message != null && (messageMap = message!.toJson()).isNotEmpty) {
       json['message'] = messageMap;
     }
 
@@ -264,14 +260,13 @@ class SentryEvent {
       json['transaction'] = transaction;
     }
 
-    Map<String, dynamic> exceptionMap;
-    Map<String, dynamic> stackTraceMap;
-    if (exception != null && (exceptionMap = exception.toJson()).isNotEmpty) {
+    final exceptionMap = exception?.toJson();
+    final stackTraceMap = stackTrace?.toJson();
+    if (exceptionMap?.isNotEmpty ?? false) {
       json['exception'] = {
         'values': [exceptionMap].toList(growable: false)
       };
-    } else if (stackTrace != null &&
-        (stackTraceMap = stackTrace.toJson()).isNotEmpty) {
+    } else if (stackTraceMap?.isNotEmpty ?? false) {
       json['threads'] = {
         'values': [
           {
@@ -285,52 +280,52 @@ class SentryEvent {
     }
 
     if (level != null) {
-      json['level'] = level.name;
+      json['level'] = level!.name;
     }
 
     if (culprit != null) {
       json['culprit'] = culprit;
     }
 
-    if (tags != null && tags.isNotEmpty) {
+    if (tags?.isNotEmpty ?? false) {
       json['tags'] = tags;
     }
 
-    if (extra != null && extra.isNotEmpty) {
+    if (extra?.isNotEmpty ?? false) {
       json['extra'] = extra;
     }
 
-    Map<String, dynamic> contextsMap;
-    if (contexts != null && (contextsMap = contexts.toJson()).isNotEmpty) {
+    final contextsMap = contexts.toJson();
+    if (contextsMap.isNotEmpty) {
       json['contexts'] = contextsMap;
     }
 
-    Map<String, dynamic> userMap;
-    if (user != null && (userMap = user.toJson()).isNotEmpty) {
+    final userMap = user?.toJson();
+    if (userMap?.isNotEmpty ?? false) {
       json['user'] = userMap;
     }
 
-    if (fingerprint != null && fingerprint.isNotEmpty) {
+    if (fingerprint?.isNotEmpty ?? false) {
       json['fingerprint'] = fingerprint;
     }
 
-    if (breadcrumbs != null && breadcrumbs.isNotEmpty) {
+    if (breadcrumbs?.isNotEmpty ?? false) {
       json['breadcrumbs'] =
-          breadcrumbs.map((b) => b.toJson()).toList(growable: false);
+          breadcrumbs?.map((b) => b.toJson()).toList(growable: false);
     }
 
-    Map<String, dynamic> sdkMap;
-    if (sdk != null && (sdkMap = sdk.toJson()).isNotEmpty) {
+    final sdkMap = sdk?.toJson();
+    if (sdkMap?.isNotEmpty ?? false) {
       json['sdk'] = sdkMap;
     }
 
-    Map<String, dynamic> requestMap;
-    if (request != null && (requestMap = request.toJson()).isNotEmpty) {
+    final requestMap = request?.toJson();
+    if (requestMap?.isNotEmpty ?? false) {
       json['request'] = requestMap;
     }
 
-    Map<String, dynamic> debugMetaMap;
-    if (debugMeta != null && (debugMetaMap = debugMeta.toJson()).isNotEmpty) {
+    final debugMetaMap = debugMeta?.toJson();
+    if (debugMetaMap?.isNotEmpty ?? false) {
       json['debug_meta'] = debugMetaMap;
     }
 

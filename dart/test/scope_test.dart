@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
+import 'mocks.dart';
+
 void main() {
-  Fixture fixture;
+  late Fixture fixture;
 
   setUp(() {
     fixture = Fixture();
@@ -217,7 +221,7 @@ void main() {
 
     expect(sut.user, null);
 
-    expect(sut.fingerprint, null);
+    expect(sut.fingerprint.length, 0);
 
     expect(sut.tags.length, 0);
 
@@ -258,7 +262,7 @@ void main() {
         tags: const {'etag': '987'},
         extra: const {'e-infos': 'abc'},
       );
-      final scope = Scope(SentryOptions())
+      final scope = Scope(SentryOptions(dsn: fakeDsn))
         ..user = scopeUser
         ..fingerprint = ['example-dart']
         ..addBreadcrumb(breadcrumb)
@@ -268,21 +272,21 @@ void main() {
         ..setExtra('company-name', 'Dart Inc')
         ..setContexts('theme', 'material')
         ..addEventProcessor(
-          (event, {hint}) => event..tags.addAll({'page-locale': 'en-us'}),
+          (event, {hint}) => event..tags?.addAll({'page-locale': 'en-us'}),
         );
 
       final updatedEvent = await scope.applyToEvent(event, null);
 
-      expect(updatedEvent.user, scopeUser);
-      expect(updatedEvent.transaction, '/example/app');
-      expect(updatedEvent.fingerprint, ['example-dart']);
-      expect(updatedEvent.breadcrumbs, [breadcrumb]);
-      expect(updatedEvent.level, SentryLevel.warning);
-      expect(updatedEvent.tags,
+      expect(updatedEvent?.user, scopeUser);
+      expect(updatedEvent?.transaction, '/example/app');
+      expect(updatedEvent?.fingerprint, ['example-dart']);
+      expect(updatedEvent?.breadcrumbs, [breadcrumb]);
+      expect(updatedEvent?.level, SentryLevel.warning);
+      expect(updatedEvent?.tags,
           {'etag': '987', 'build': '579', 'page-locale': 'en-us'});
       expect(
-          updatedEvent.extra, {'e-infos': 'abc', 'company-name': 'Dart Inc'});
-      expect(updatedEvent.contexts['theme'], {'value': 'material'});
+          updatedEvent?.extra, {'e-infos': 'abc', 'company-name': 'Dart Inc'});
+      expect(updatedEvent?.contexts['theme'], {'value': 'material'});
     });
 
     test('should not apply the scope properties when event already has it ',
@@ -296,7 +300,7 @@ void main() {
         fingerprint: ['event-fingerprint'],
         breadcrumbs: [eventBreadcrumb],
       );
-      final scope = Scope(SentryOptions())
+      final scope = Scope(SentryOptions(dsn: fakeDsn))
         ..user = scopeUser
         ..fingerprint = ['example-dart']
         ..addBreadcrumb(breadcrumb)
@@ -304,10 +308,10 @@ void main() {
 
       final updatedEvent = await scope.applyToEvent(event, null);
 
-      expect(updatedEvent.user, eventUser);
-      expect(updatedEvent.transaction, '/event/transaction');
-      expect(updatedEvent.fingerprint, ['event-fingerprint']);
-      expect(updatedEvent.breadcrumbs, [eventBreadcrumb]);
+      expect(updatedEvent?.user, eventUser);
+      expect(updatedEvent?.transaction, '/event/transaction');
+      expect(updatedEvent?.fingerprint, ['event-fingerprint']);
+      expect(updatedEvent?.breadcrumbs, [eventBreadcrumb]);
     });
 
     test(
@@ -323,7 +327,7 @@ void main() {
           operatingSystem: OperatingSystem(name: 'event-os'),
         ),
       );
-      final scope = Scope(SentryOptions())
+      final scope = Scope(SentryOptions(dsn: fakeDsn))
         ..setContexts(
           Device.type,
           Device(name: 'context-device'),
@@ -351,18 +355,18 @@ void main() {
 
       final updatedEvent = await scope.applyToEvent(event, null);
 
-      expect(updatedEvent.contexts[Device.type].name, 'event-device');
-      expect(updatedEvent.contexts[App.type].name, 'event-app');
-      expect(updatedEvent.contexts[Gpu.type].name, 'event-gpu');
-      expect(updatedEvent.contexts[SentryRuntime.listType].first.name,
+      expect(updatedEvent?.contexts[Device.type].name, 'event-device');
+      expect(updatedEvent?.contexts[App.type].name, 'event-app');
+      expect(updatedEvent?.contexts[Gpu.type].name, 'event-gpu');
+      expect(updatedEvent?.contexts[SentryRuntime.listType].first.name,
           'event-runtime');
-      expect(updatedEvent.contexts[Browser.type].name, 'event-browser');
-      expect(updatedEvent.contexts[OperatingSystem.type].name, 'event-os');
+      expect(updatedEvent?.contexts[Browser.type].name, 'event-browser');
+      expect(updatedEvent?.contexts[OperatingSystem.type].name, 'event-os');
     });
 
     test('should apply the scope.contexts values ', () async {
       final event = SentryEvent();
-      final scope = Scope(SentryOptions())
+      final scope = Scope(SentryOptions(dsn: fakeDsn))
         ..setContexts(Device.type, Device(name: 'context-device'))
         ..setContexts(App.type, App(name: 'context-app'))
         ..setContexts(Gpu.type, Gpu(name: 'context-gpu'))
@@ -376,48 +380,48 @@ void main() {
 
       final updatedEvent = await scope.applyToEvent(event, null);
 
-      expect(updatedEvent.contexts[Device.type].name, 'context-device');
-      expect(updatedEvent.contexts[App.type].name, 'context-app');
-      expect(updatedEvent.contexts[Gpu.type].name, 'context-gpu');
+      expect(updatedEvent?.contexts[Device.type].name, 'context-device');
+      expect(updatedEvent?.contexts[App.type].name, 'context-app');
+      expect(updatedEvent?.contexts[Gpu.type].name, 'context-gpu');
       expect(
-        updatedEvent.contexts[SentryRuntime.listType].first.name,
+        updatedEvent?.contexts[SentryRuntime.listType].first.name,
         'context-runtime',
       );
-      expect(updatedEvent.contexts[Browser.type].name, 'context-browser');
-      expect(updatedEvent.contexts[OperatingSystem.type].name, 'context-os');
-      expect(updatedEvent.contexts['theme']['value'], 'material');
-      expect(updatedEvent.contexts['version']['value'], 9);
-      expect(updatedEvent.contexts['location'], {'city': 'London'});
+      expect(updatedEvent?.contexts[Browser.type].name, 'context-browser');
+      expect(updatedEvent?.contexts[OperatingSystem.type].name, 'context-os');
+      expect(updatedEvent?.contexts['theme']['value'], 'material');
+      expect(updatedEvent?.contexts['version']['value'], 9);
+      expect(updatedEvent?.contexts['location'], {'city': 'London'});
     });
 
     test('should apply the scope level', () async {
       final event = SentryEvent(level: SentryLevel.warning);
-      final scope = Scope(SentryOptions())..level = SentryLevel.error;
+      final scope = Scope(SentryOptions(dsn: fakeDsn))
+        ..level = SentryLevel.error;
 
       final updatedEvent = await scope.applyToEvent(event, null);
 
-      expect(updatedEvent.level, SentryLevel.error);
+      expect(updatedEvent?.level, SentryLevel.error);
     });
-  });
-
-  test("options can't be null", () {
-    expect(() => Scope(null), throwsArgumentError);
   });
 }
 
 class Fixture {
   Scope getSut({
     int maxBreadcrumbs = 100,
-    BeforeBreadcrumbCallback beforeBreadcrumbCallback,
+    BeforeBreadcrumbCallback? beforeBreadcrumbCallback,
   }) {
-    final options = SentryOptions();
+    final options = SentryOptions(dsn: fakeDsn);
     options.maxBreadcrumbs = maxBreadcrumbs;
     options.beforeBreadcrumb = beforeBreadcrumbCallback;
     return Scope(options);
   }
 
-  SentryEvent processor(SentryEvent event, {dynamic hint}) => null;
+  FutureOr<SentryEvent?> processor(SentryEvent event, {dynamic hint}) {
+    return null;
+  }
 
-  Breadcrumb beforeBreadcrumbCallback(Breadcrumb breadcrumb, {dynamic hint}) =>
+  Breadcrumb? beforeBreadcrumbCallback(Breadcrumb? breadcrumb,
+          {dynamic hint}) =>
       null;
 }

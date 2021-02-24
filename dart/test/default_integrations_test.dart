@@ -1,11 +1,11 @@
-import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
+import 'mocks/mock_hub.dart';
 
 void main() {
-  Fixture fixture;
+  late Fixture fixture;
 
   setUp(() {
     fixture = Fixture();
@@ -42,12 +42,8 @@ void main() {
       // that handles and captures it.
       await handleIsolateError(fixture.hub, fixture.options, error);
 
-      final event = verify(
-        await fixture.hub.captureEvent(
-          captureAny,
-          stackTrace: captureAnyNamed('stackTrace'),
-        ),
-      ).captured.first as SentryEvent;
+      expect(fixture.hub.captureEventCalls.length, 1);
+      final event = fixture.hub.captureEventCalls.first.event;
 
       expect(SentryLevel.fatal, event.level);
 
@@ -102,10 +98,8 @@ void main() {
 
     await integration(fixture.hub, fixture.options);
 
-    final event = verify(
-      await fixture.hub
-          .captureEvent(captureAny, stackTrace: captureAnyNamed('stackTrace')),
-    ).captured.first as SentryEvent;
+    expect(fixture.hub.captureEventCalls.length, 1);
+    final event = fixture.hub.captureEventCalls.first.event;
 
     expect(SentryLevel.fatal, event.level);
 
@@ -118,5 +112,5 @@ void main() {
 
 class Fixture {
   final hub = MockHub();
-  final options = SentryOptions();
+  final options = SentryOptions(dsn: fakeDsn);
 }

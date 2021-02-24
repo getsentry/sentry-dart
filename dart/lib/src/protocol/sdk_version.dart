@@ -36,14 +36,14 @@ import 'sentry_package.dart';
 class SdkVersion {
   /// Creates an [SdkVersion] object which represents the SDK that created an [Event].
   SdkVersion({
-    @required this.name,
-    @required this.version,
-    List<String> integrations,
-    List<SentryPackage> packages,
-  })  : assert(name != null || version != null),
+    required this.name,
+    required this.version,
+    List<String>? integrations,
+    List<SentryPackage>? packages,
+  })  :
         // List.from prevents from having immutable lists
-        _integrations = integrations != null ? List.from(integrations) : [],
-        _packages = packages != null ? List.from(packages) : [];
+        _integrations = List.from(integrations ?? []),
+        _packages = List.from(packages ?? []);
 
   /// The name of the SDK.
   final String name;
@@ -66,20 +66,17 @@ class SdkVersion {
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
-    if (name != null) {
-      json['name'] = name;
-    }
 
-    if (version != null) {
-      json['version'] = version;
-    }
+    json['name'] = name;
 
-    if (packages != null && packages.isNotEmpty) {
+    json['version'] = version;
+
+    if (packages.isNotEmpty) {
       json['packages'] =
           packages.map((p) => p.toJson()).toList(growable: false);
     }
 
-    if (integrations != null && integrations.isNotEmpty) {
+    if (integrations.isNotEmpty) {
       json['integrations'] = integrations;
     }
     return json;
@@ -96,11 +93,12 @@ class SdkVersion {
     _integrations.add(integration);
   }
 
-  SdkVersion copyWith(
-          {String name,
-          String version,
-          List<String> integrations,
-          List<SentryPackage> packages}) =>
+  SdkVersion copyWith({
+    String? name,
+    String? version,
+    List<String>? integrations,
+    List<SentryPackage>? packages,
+  }) =>
       SdkVersion(
         name: name ?? this.name,
         version: version ?? this.version,

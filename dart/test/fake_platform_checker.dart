@@ -20,9 +20,9 @@ class FakePlatformChecker implements PlatformChecker {
     _profileMode = true;
   }
 
-  bool _releaseMode;
-  bool _debugMode;
-  bool _profileMode;
+  late bool _releaseMode;
+  late bool _debugMode;
+  late bool _profileMode;
 
   @override
   bool isReleaseMode() {

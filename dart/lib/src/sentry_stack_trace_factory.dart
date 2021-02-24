@@ -7,23 +7,16 @@ import 'sentry_options.dart';
 
 /// converts [StackTrace] to [SentryStackFrames]
 class SentryStackTraceFactory {
-  SentryOptions _options;
+  final SentryOptions _options;
 
   final _absRegex = RegExp('abs +([A-Fa-f0-9]+)');
   static const _stackTraceViolateDartStandard =
       'This VM has been configured to produce stack traces that violate the Dart standard.';
 
-  SentryStackTraceFactory(SentryOptions options) {
-    if (options == null) {
-      throw ArgumentError('SentryOptions is required.');
-    }
-    _options = options;
-  }
+  SentryStackTraceFactory(this._options);
 
   /// returns the [SentryStackFrame] list from a stackTrace ([StackTrace] or [String])
   List<SentryStackFrame> getStackFrames(dynamic stackTrace) {
-    if (stackTrace == null) return null;
-
     // TODO : fix : in release mode on Safari passing a stacktrace object fails, but works if it's passed as String
     final chain = (stackTrace is StackTrace)
         ? Chain.forTrace(stackTrace)
@@ -71,11 +64,11 @@ class SentryStackTraceFactory {
 
   /// converts [Frame] to [SentryStackFrame]
   @visibleForTesting
-  SentryStackFrame encodeStackTraceFrame(Frame frame,
+  SentryStackFrame? encodeStackTraceFrame(Frame frame,
       {bool symbolicated = true}) {
     final member = frame.member;
 
-    SentryStackFrame sentryStackFrame;
+    SentryStackFrame? sentryStackFrame;
 
     if (symbolicated) {
       final fileName = frame.uri.pathSegments.isNotEmpty
@@ -93,14 +86,14 @@ class SentryStackTraceFactory {
         package: frame.package,
       );
 
-      if (frame.line != null && frame.line >= 0) {
+      if (frame.line != null && frame.line! >= 0) {
         sentryStackFrame = sentryStackFrame.copyWith(lineNo: frame.line);
       }
 
-      if (frame.column != null && frame.column >= 0) {
+      if (frame.column != null && frame.column! >= 0) {
         sentryStackFrame = sentryStackFrame.copyWith(colNo: frame.column);
       }
-    } else {
+    } else if (member != null) {
       // if --split-debug-info is enabled, thats what we see:
       // warning:  This VM has been configured to produce stack traces that violate the Dart standard.
       // ***       *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
@@ -153,22 +146,19 @@ class SentryStackTraceFactory {
   bool isInApp(Frame frame) {
     final scheme = frame.uri.scheme;
 
-    if (scheme == null || scheme.isEmpty) {
+    if (scheme.isEmpty) {
       return true;
     }
 
-    if (_options.inAppIncludes != null) {
-      for (final include in _options.inAppIncludes) {
-        if (frame.package != null && frame.package == include) {
-          return true;
-        }
+    for (final include in _options.inAppIncludes) {
+      if (frame.package != null && frame.package == include) {
+        return true;
       }
     }
-    if (_options.inAppExcludes != null) {
-      for (final exclude in _options.inAppExcludes) {
-        if (frame.package != null && frame.package == exclude) {
-          return false;
-        }
+
+    for (final exclude in _options.inAppExcludes) {
+      if (frame.package != null && frame.package == exclude) {
+        return false;
       }
     }
 

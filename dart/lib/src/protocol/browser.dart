@@ -17,10 +17,10 @@ class Browser {
       );
 
   /// Human readable application name, as it appears on the platform.
-  final String name;
+  final String? name;
 
   /// Human readable application version, as it appears on the platform.
-  final String version;
+  final String? version;
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
@@ -40,8 +40,8 @@ class Browser {
   Browser clone() => Browser(name: name, version: version);
 
   Browser copyWith({
-    String name,
-    String version,
+    String? name,
+    String? version,
   }) =>
       Browser(
         name: name ?? this.name,

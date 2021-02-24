@@ -15,15 +15,15 @@ class Mechanism {
   final String type;
 
   /// Optional human readable description of the error mechanism and a possible hint on how to solve this error
-  final String description;
+  final String? description;
 
   /// Optional fully qualified URL to an online help resource, possible interpolated with error parameters
-  final String helpLink;
+  final String? helpLink;
 
   /// Optional flag indicating whether the exception has been handled by the user (e.g. via try..catch)
-  final bool handled;
+  final bool? handled;
 
-  final Map<String, dynamic> _meta;
+  final Map<String, dynamic>? _meta;
 
   /// Optional information from the operating system or runtime on the exception mechanism
   /// The mechanism meta data usually carries error codes reported by
@@ -32,37 +32,37 @@ class Mechanism {
   /// descriptions for well known error codes, as it will be filled out by
   /// Sentry. For proprietary or vendor-specific error codes,
   /// adding these values will give additional information to the user.
-  Map<String, dynamic> get meta => Map.unmodifiable(_meta);
+  Map<String, dynamic> get meta => Map.unmodifiable(_meta ?? const {});
 
-  final Map<String, dynamic> _data;
+  final Map<String, dynamic>? _data;
 
   /// Arbitrary extra data that might help the user understand the error thrown by this mechanism
-  Map<String, dynamic> get data => Map.unmodifiable(_data);
+  Map<String, dynamic> get data => Map.unmodifiable(_data ?? const {});
 
   /// An optional flag indicating that this error is synthetic.
   /// Synthetic errors are errors that carry little meaning by themselves.
   /// This may be because they are created at a central place (like a crash handler), and are all called the same: Error, Segfault etc. When the flag is set, Sentry will then try to use other information (top in-app frame function) rather than exception type and value in the UI for the primary event display. This flag should be set for all "segfaults" for instance as every single error group would look very similar otherwise.
-  final bool synthetic;
+  final bool? synthetic;
 
   Mechanism({
-    @required this.type,
+    required this.type,
     this.description,
     this.helpLink,
     this.handled,
     this.synthetic,
-    Map<String, dynamic> meta,
-    Map<String, dynamic> data,
+    Map<String, dynamic>? meta,
+    Map<String, dynamic>? data,
   })  : _meta = meta != null ? Map.from(meta) : null,
         _data = data != null ? Map.from(data) : null;
 
   Mechanism copyWith({
-    String type,
-    String description,
-    String helpLink,
-    bool handled,
-    Map<String, dynamic> meta,
-    Map<String, dynamic> data,
-    bool synthetic,
+    String? type,
+    String? description,
+    String? helpLink,
+    bool? handled,
+    Map<String, dynamic>? meta,
+    Map<String, dynamic>? data,
+    bool? synthetic,
   }) =>
       Mechanism(
         type: type ?? this.type,
@@ -77,9 +77,7 @@ class Mechanism {
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 
-    if (type != null) {
-      json['type'] = type;
-    }
+    json['type'] = type;
 
     if (description != null) {
       json['description'] = description;
@@ -93,11 +91,11 @@ class Mechanism {
       json['handled'] = handled;
     }
 
-    if (_meta != null && _meta.isNotEmpty) {
+    if (_meta?.isNotEmpty ?? false) {
       json['meta'] = _meta;
     }
 
-    if (_data != null && _data.isNotEmpty) {
+    if (_data?.isNotEmpty ?? false) {
       json['data'] = _data;
     }
 

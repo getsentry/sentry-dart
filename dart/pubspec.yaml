@@ -7,18 +7,18 @@ homepage: https://docs.sentry.io/platforms/dart/
 repository: https://github.com/getsentry/sentry-dart
 
 environment:
-  sdk: ">=2.8.0 <3.0.0"
+  sdk: '>=2.12.0-259.9.beta <3.0.0'
 
 dependencies:
-  http: ^0.12.0
-  meta: ^1.0.0
-  stack_trace: ^1.0.0
-  uuid: ^2.0.0
+  http: ^0.13.0
+  meta: ^1.3.0
+  stack_trace: ^1.10.0
+  uuid: ^3.0.0-nullsafety.1
 
 dev_dependencies:
-  mockito: ^4.1.3
-  pedantic: ^1.9.2
-  test: ^1.15.7
-  yaml: ^2.2.1 # needed for version match (code and pubspec)
-  collection: ^1.14.13
-  coverage: ^0.14.2
+  mockito: ^5.0.0-nullsafety.7
+  pedantic: ^1.10.0
+  test: ^1.16.0
+  yaml: ^3.0.0 # needed for version match (code and pubspec)
+  collection: ^1.15.0
+  coverage: ^0.15.2

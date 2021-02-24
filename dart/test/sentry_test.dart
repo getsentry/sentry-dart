@@ -1,17 +1,18 @@
-import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
 import 'fake_platform_checker.dart';
+import 'mocks/mock_integration.dart';
+import 'mocks/mock_sentry_client.dart';
 
-Function appRunner = () {};
+AppRunner appRunner = () {};
 
 void main() {
   group('Sentry capture methods', () {
-    SentryClient client;
+    var client = MockSentryClient();
 
-    Exception anException;
+    var anException = Exception();
 
     setUp(() async {
       await Sentry.init((options) => options.dsn = fakeDsn);
@@ -26,50 +27,34 @@ void main() {
 
     test('should capture the event', () async {
       await Sentry.captureEvent(fakeEvent);
-      verify(
-        client.captureEvent(
-          fakeEvent,
-          scope: anyNamed('scope'),
-        ),
-      ).called(1);
-    });
 
-    test('should not capture a null event', () async {
-      await Sentry.captureEvent(null);
-      verifyNever(client.captureEvent(fakeEvent));
+      expect(client.captureEventCalls.length, 1);
+      expect(client.captureEventCalls.first.event, fakeEvent);
+      expect(client.captureEventCalls.first.scope, isNotNull);
     });
 
     test('should not capture a null exception', () async {
       await Sentry.captureException(null);
-      verifyNever(
-        client.captureException(
-          any,
-          stackTrace: anyNamed('stackTrace'),
-        ),
-      );
+      expect(client.captureExceptionCalls.length, 0);
     });
 
     test('should capture the exception', () async {
       await Sentry.captureException(anException);
-      verify(
-        client.captureException(
-          anException,
-          stackTrace: null,
-          scope: anyNamed('scope'),
-        ),
-      ).called(1);
+      expect(client.captureExceptionCalls.length, 1);
+      expect(client.captureExceptionCalls.first.throwable, anException);
+      expect(client.captureExceptionCalls.first.stackTrace, isNull);
+      expect(client.captureExceptionCalls.first.scope, isNotNull);
     });
 
     test('should capture message', () async {
-      await Sentry.captureMessage(fakeMessage.formatted,
-          level: SentryLevel.warning);
-      verify(
-        client.captureMessage(
-          fakeMessage.formatted,
-          level: SentryLevel.warning,
-          scope: anyNamed('scope'),
-        ),
-      ).called(1);
+      await Sentry.captureMessage(
+        fakeMessage.formatted,
+        level: SentryLevel.warning,
+      );
+
+      expect(client.captureMessageCalls.length, 1);
+      expect(client.captureMessageCalls.first.formatted, fakeMessage.formatted);
+      expect(client.captureMessageCalls.first.level, SentryLevel.warning);
     });
   });
 
@@ -77,6 +62,7 @@ void main() {
     tearDown(() {
       Sentry.close();
     });
+
     test('null DSN', () {
       expect(
         () async => await Sentry.init((options) => options.dsn = null),
@@ -124,11 +110,11 @@ void main() {
         },
       );
 
-      verify(integration(any, any)).called(1);
+      expect(integration.callCalls, 1);
     });
 
     test('should add default integrations', () async {
-      SentryOptions optionsReference;
+      late SentryOptions optionsReference;
       await Sentry.init(
         (options) {
           options.dsn = fakeDsn;
@@ -172,26 +158,15 @@ void main() {
         },
       );
 
-      await Sentry.close();
+      Sentry.close();
 
-      verify(integration(any, any)).called(1);
-      verify(integration.close()).called(1);
+      expect(integration.callCalls, 1);
+      expect(integration.closeCalls, 1);
     });
   });
 
-  test(
-    "options can't be null",
-    () {
-      expect(
-          () async => await Sentry.init(
-                (options) => options = null,
-              ),
-          throwsArgumentError);
-    },
-  );
-
   test('options.environment debug', () async {
-    final sentryOptions = SentryOptions()
+    final sentryOptions = SentryOptions(dsn: fakeDsn)
       ..platformChecker = FakePlatformChecker.debugMode();
 
     await Sentry.init((options) {
@@ -201,7 +176,7 @@ void main() {
   });
 
   test('options.environment profile', () async {
-    final sentryOptions = SentryOptions()
+    final sentryOptions = SentryOptions(dsn: fakeDsn)
       ..platformChecker = FakePlatformChecker.profileMode();
     await Sentry.init((options) {
       options.dsn = fakeDsn;
@@ -210,7 +185,7 @@ void main() {
   });
 
   test('options.environment production (defaultEnvironment)', () async {
-    final sentryOptions = SentryOptions()
+    final sentryOptions = SentryOptions(dsn: fakeDsn)
       ..platformChecker = FakePlatformChecker.releaseMode();
     await Sentry.init((options) {
       options.dsn = fakeDsn;

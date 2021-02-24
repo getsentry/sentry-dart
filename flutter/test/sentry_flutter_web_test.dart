@@ -2,7 +2,7 @@
 // import 'package:sentry_flutter/sentry_flutter.dart';
 
 @TestOn('browser')
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 // import 'sentry_flutter_util_test.dart';
 

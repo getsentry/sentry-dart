@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
 
-import 'noop_sentry_client.dart';
 import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_client.dart';
@@ -18,8 +17,9 @@ class Hub {
 
   final ListQueue<_StackItem> _stack = ListQueue();
 
-  /// if stack is empty, it throws IterableElementError.noElement()
-  _StackItem _peek() => _stack.isNotEmpty ? _stack.first : null;
+  // peek can never return null since Stack can be created only with an item and
+  // pop does not drop the last item.
+  _StackItem _peek() => _stack.first;
 
   final SentryOptions _options;
 
@@ -35,11 +35,7 @@ class Hub {
   }
 
   static void _validateOptions(SentryOptions options) {
-    if (options == null) {
-      throw ArgumentError('SentryOptions is required.');
-    }
-
-    if (options.dsn?.isNotEmpty != true) {
+    if (options.dsn == null) {
       throw ArgumentError('DSN is required.');
     }
   }
@@ -67,34 +63,23 @@ class Hub {
         SentryLevel.warning,
         "Instance is disabled and this 'captureEvent' call is a no-op.",
       );
-    } else if (event == null) {
-      _options.logger(
-        SentryLevel.warning,
-        'captureEvent called with null parameter.',
-      );
     } else {
       final item = _peek();
-      if (item != null) {
-        try {
-          sentryId = await item.client.captureEvent(
-            event,
-            stackTrace: stackTrace,
-            scope: item.scope,
-            hint: hint,
-          );
-        } catch (err) {
-          _options.logger(
-            SentryLevel.error,
-            'Error while capturing event with id: ${event.eventId.toString()}',
-          );
-        } finally {
-          _lastEventId = sentryId;
-        }
-      } else {
-        _options.logger(
-          SentryLevel.fatal,
-          'Stack peek was null when captureEvent',
+
+      try {
+        sentryId = await item.client.captureEvent(
+          event,
+          stackTrace: stackTrace,
+          scope: item.scope,
+          hint: hint,
         );
+      } catch (err) {
+        _options.logger(
+          SentryLevel.error,
+          'Error while capturing event with id: ${event.eventId.toString()}',
+        );
+      } finally {
+        _lastEventId = sentryId;
       }
     }
     return sentryId;
@@ -120,27 +105,21 @@ class Hub {
       );
     } else {
       final item = _peek();
-      if (item != null) {
-        try {
-          sentryId = await item.client.captureException(
-            throwable,
-            stackTrace: stackTrace,
-            scope: item.scope,
-            hint: hint,
-          );
-        } catch (err) {
-          _options.logger(
-            SentryLevel.error,
-            'Error while capturing exception : $throwable',
-          );
-        } finally {
-          _lastEventId = sentryId;
-        }
-      } else {
-        _options.logger(
-          SentryLevel.fatal,
-          'Stack peek was null when captureException',
+
+      try {
+        sentryId = await item.client.captureException(
+          throwable,
+          stackTrace: stackTrace,
+          scope: item.scope,
+          hint: hint,
         );
+      } catch (err) {
+        _options.logger(
+          SentryLevel.error,
+          'Error while capturing exception : $throwable',
+        );
+      } finally {
+        _lastEventId = sentryId;
       }
     }
 
@@ -149,10 +128,10 @@ class Hub {
 
   /// Captures the message.
   Future<SentryId> captureMessage(
-    String message, {
-    SentryLevel level,
-    String template,
-    List<dynamic> params,
+    String? message, {
+    SentryLevel? level,
+    String? template,
+    List<dynamic>? params,
     dynamic hint,
   }) async {
     var sentryId = SentryId.empty();
@@ -169,29 +148,23 @@ class Hub {
       );
     } else {
       final item = _peek();
-      if (item != null) {
-        try {
-          sentryId = await item.client.captureMessage(
-            message,
-            level: level,
-            template: template,
-            params: params,
-            scope: item.scope,
-            hint: hint,
-          );
-        } catch (err) {
-          _options.logger(
-            SentryLevel.error,
-            'Error while capturing message with id: $message',
-          );
-        } finally {
-          _lastEventId = sentryId;
-        }
-      } else {
-        _options.logger(
-          SentryLevel.fatal,
-          'Stack peek was null when captureMessage',
+
+      try {
+        sentryId = await item.client.captureMessage(
+          message,
+          level: level,
+          template: template,
+          params: params,
+          scope: item.scope,
+          hint: hint,
         );
+      } catch (err) {
+        _options.logger(
+          SentryLevel.error,
+          'Error while capturing message with id: $message',
+        );
+      } finally {
+        _lastEventId = sentryId;
       }
     }
     return sentryId;
@@ -204,21 +177,9 @@ class Hub {
         SentryLevel.warning,
         "Instance is disabled and this 'addBreadcrumb' call is a no-op.",
       );
-    } else if (crumb == null) {
-      _options.logger(
-        SentryLevel.warning,
-        'addBreadcrumb called with null parameter.',
-      );
     } else {
       final item = _peek();
-      if (item != null) {
-        item.scope.addBreadcrumb(crumb, hint: hint);
-      } else {
-        _options.logger(
-          SentryLevel.fatal,
-          'Stack peek was null when addBreadcrumb',
-        );
-      }
+      item.scope.addBreadcrumb(crumb, hint: hint);
     }
   }
 
@@ -229,20 +190,8 @@ class Hub {
           "Instance is disabled and this 'bindClient' call is a no-op.");
     } else {
       final item = _peek();
-      if (item != null) {
-        if (client != null) {
-          _options.logger(SentryLevel.debug, 'New client bound to scope.');
-          item.client = client;
-        } else {
-          _options.logger(SentryLevel.debug, 'NoOp client bound to scope.');
-          item.client = NoOpSentryClient();
-        }
-      } else {
-        _options.logger(
-          SentryLevel.fatal,
-          'Stack peek was null when bindClient',
-        );
-      }
+      _options.logger(SentryLevel.debug, 'New client bound to scope.');
+      item.client = client;
     }
   }
 
@@ -272,21 +221,15 @@ class Hub {
       }
 
       final item = _peek();
-      if (item != null) {
-        try {
-          item.client.close();
-        } catch (err) {
-          _options.logger(
-            SentryLevel.error,
-            'Error while closing the Hub.',
-          );
-        }
-      } else {
+      try {
+        item.client.close();
+      } catch (err) {
         _options.logger(
-          SentryLevel.fatal,
-          'Stack peek was NULL when closing Hub',
+          SentryLevel.error,
+          'Error while closing the Hub.',
         );
       }
+
       _isEnabled = false;
     }
   }
@@ -300,19 +243,13 @@ class Hub {
       );
     } else {
       final item = _peek();
-      if (item != null) {
-        try {
-          callback(item.scope);
-        } catch (err) {
-          _options.logger(
-            SentryLevel.error,
-            "Error in the 'configureScope' callback.",
-          );
-        }
-      } else {
+
+      try {
+        callback(item.scope);
+      } catch (err) {
         _options.logger(
-          SentryLevel.fatal,
-          'Stack peek was NULL when configureScope',
+          SentryLevel.error,
+          "Error in the 'configureScope' callback.",
         );
       }
     }

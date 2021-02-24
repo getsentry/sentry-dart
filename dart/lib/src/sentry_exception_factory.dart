@@ -1,5 +1,3 @@
-import 'package:meta/meta.dart';
-
 import 'protocol.dart';
 import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
@@ -11,21 +9,7 @@ class SentryExceptionFactory {
 
   final SentryStackTraceFactory _stacktraceFactory;
 
-  SentryExceptionFactory._(this._options, this._stacktraceFactory);
-
-  factory SentryExceptionFactory({
-    @required SentryOptions options,
-    @required SentryStackTraceFactory stacktraceFactory,
-  }) {
-    if (options == null) {
-      throw ArgumentError('SentryOptions is required.');
-    }
-
-    if (stacktraceFactory == null) {
-      throw ArgumentError('SentryStackTraceFactory is required.');
-    }
-    return SentryExceptionFactory._(options, stacktraceFactory);
-  }
+  SentryExceptionFactory(this._options, this._stacktraceFactory);
 
   SentryException getSentryException(
     dynamic exception, {
@@ -44,7 +28,7 @@ class SentryExceptionFactory {
       stackTrace ??= StackTrace.current;
     }
 
-    SentryStackTrace sentryStackTrace;
+    SentryStackTrace? sentryStackTrace;
     if (stackTrace != null) {
       sentryStackTrace = SentryStackTrace(
         frames: _stacktraceFactory.getStackFrames(stackTrace),

@@ -32,15 +32,15 @@ void main() {
       gpu: gpu,
     );
 
-    expect(device.toJson(), copy.device.toJson());
-    expect(os.toJson(), copy.operatingSystem.toJson());
+    expect(device.toJson(), copy.device!.toJson());
+    expect(os.toJson(), copy.operatingSystem!.toJson());
     expect(
       ListEquality().equals(runtimes, copy.runtimes),
       true,
     );
-    expect(app.toJson(), copy.app.toJson());
-    expect(browser.toJson(), copy.browser.toJson());
-    expect(gpu.toJson(), copy.gpu.toJson());
+    expect(app.toJson(), copy.app!.toJson());
+    expect(browser.toJson(), copy.browser!.toJson());
+    expect(gpu.toJson(), copy.gpu!.toJson());
     expect('value', copy['extra']);
   });
 }
