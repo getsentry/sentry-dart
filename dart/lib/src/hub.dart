@@ -85,7 +85,7 @@ class Hub {
         } catch (err) {
           _options.logger(
             SentryLevel.error,
-            'Error while capturing event with id: ${event.eventId.toString()}',
+            'Error while capturing event with id: ${event.eventId}, error: $err',
           );
         } finally {
           _lastEventId = sentryId;
@@ -182,7 +182,7 @@ class Hub {
         } catch (err) {
           _options.logger(
             SentryLevel.error,
-            'Error while capturing message with id: $message',
+            'Error while capturing message with id: $message, error: $err',
           );
         } finally {
           _lastEventId = sentryId;
@@ -278,7 +278,7 @@ class Hub {
         } catch (err) {
           _options.logger(
             SentryLevel.error,
-            'Error while closing the Hub.',
+            'Error while closing the Hub, error: $err',
           );
         }
       } else {
@@ -306,7 +306,7 @@ class Hub {
         } catch (err) {
           _options.logger(
             SentryLevel.error,
-            "Error in the 'configureScope' callback.",
+            "Error in the 'configureScope' callback, error: $err",
           );
         }
       } else {
