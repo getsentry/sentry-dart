@@ -18,6 +18,7 @@ Future<void> main() async {
       // options.useFlutterBreadcrumbTracking();
       // use breadcrumb tracking of platform Sentry SDKs
       options.useNativeBreadcrumbTracking();
+      options.enableNativeCrashHandling = false;
     },
     // Init your App.
     appRunner: () => runApp(MyApp()),
