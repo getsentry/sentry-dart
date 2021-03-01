@@ -26,7 +26,7 @@ class SentryFlutterOptions extends SentryOptions {
   /// has a side effect which is missing the Device's context, e.g.,
   /// App, Device and Operation System.
   ///
-  /// Disabling this feature would affect the [enableAutoSessionTracking]
+  /// Disabling this feature affects the [enableAutoSessionTracking]
   /// feature, as this is required to mark Sessions as Crashed.
   bool get enableNativeCrashHandling => _enableNativeCrashHandling;
 
