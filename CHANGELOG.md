@@ -1,4 +1,4 @@
-# vNext
+# 4.0.6
 
 * Fix: captureMessage defaults SentryLevel to info
 * Fix: SentryEvent.throwable returns the unwrapped throwable instead of the throwableMechanism
