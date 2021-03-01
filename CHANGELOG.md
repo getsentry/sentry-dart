@@ -1,5 +1,7 @@
 # Unreleased
 
+* Fix: Do not append stack trace to the exception if there are no frames
+
 # 4.0.6
 
 * Fix: captureMessage defaults SentryLevel to info
