@@ -1,3 +1,5 @@
+# Unreleased
+
 # 4.0.6
 
 * Fix: captureMessage defaults SentryLevel to info
