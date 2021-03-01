@@ -2,6 +2,7 @@
 
 * Fix: captureMessage defaults SentryLevel to info
 * Fix: SentryEvent.throwable returns the unwrapped throwable instead of the throwableMechanism
+* Feat: Support enableNativeCrashHandling on iOS
 
 # 4.0.5
 
