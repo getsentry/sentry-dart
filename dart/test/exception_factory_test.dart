@@ -9,7 +9,7 @@ void main() {
     final exceptionFactory = SentryExceptionFactory(
         options: options, stacktraceFactory: SentryStackTraceFactory(options));
 
-    test('exceptionFactory.getSentryException', () {
+    test('getSentryException with frames', () {
       SentryException sentryException;
       try {
         throw StateError('a state error');
@@ -22,6 +22,21 @@ void main() {
 
       expect(sentryException.type, 'StateError');
       expect(sentryException.stackTrace.frames, isNotEmpty);
+    });
+
+    test('getSentryException without frames', () {
+      SentryException sentryException;
+      try {
+        throw StateError('a state error');
+      } catch (err, _) {
+        sentryException = exceptionFactory.getSentryException(
+          err,
+          stackTrace: '',
+        );
+      }
+
+      expect(sentryException.type, 'StateError');
+      expect(sentryException.stackTrace, isNull);
     });
 
     test('should not override event.stacktrace', () {
