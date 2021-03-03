@@ -29,6 +29,7 @@ void main() {
       packageLoader: loadTestPackage,
       isIOSChecker: () => true,
       isAndroidChecker: () => true,
+      channel: _channel,
     );
   });
 
@@ -38,6 +39,7 @@ void main() {
       getConfigurationTester(isIOS: true),
       packageLoader: loadTestPackage,
       isIOSChecker: () => true,
+      channel: _channel,
     );
   });
 
@@ -64,6 +66,7 @@ void main() {
           ..transport = transport,
         packageLoader: loadTestPackage,
         isIOSChecker: () => true,
+        channel: _channel,
       );
 
       await Sentry.captureMessage('a message');
@@ -82,6 +85,7 @@ void main() {
           ..transport = transport,
         packageLoader: loadTestPackage,
         isIOSChecker: () => false,
+        channel: _channel,
       );
 
       await Sentry.captureMessage('a message');
@@ -101,6 +105,7 @@ void main() {
           ..transport = transport,
         packageLoader: loadTestPackage,
         isAndroidChecker: () => false,
+        channel: _channel,
       );
 
       await Sentry.captureMessage('a message');

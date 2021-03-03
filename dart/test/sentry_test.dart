@@ -172,7 +172,7 @@ void main() {
         },
       );
 
-      await Sentry.close();
+      Sentry.close();
 
       verify(integration(any, any)).called(1);
       verify(integration.close()).called(1);
