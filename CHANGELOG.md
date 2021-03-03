@@ -1,6 +1,7 @@
 # Unreleased
 
 * Fix: Do not append stack trace to the exception if there are no frames
+* Fix: Empty DSN disables the SDK and runs the App
 
 # 4.0.6
 
