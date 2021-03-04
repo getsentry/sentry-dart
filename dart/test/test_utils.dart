@@ -178,7 +178,7 @@ Future testCaptureException(
   expect(topFrame['lineno'], greaterThan(0));
   expect(topFrame['in_app'], true);
 
-  await client.close();
+  client.close();
 }
 
 void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
@@ -196,7 +196,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     expect(dsn.publicKey, 'public');
     expect(dsn.secretKey, 'secret');
     expect(dsn.projectId, '1');
-    await client.close();
+    client.close();
   });
 
   test('can parse DSN without secret', () async {
@@ -213,7 +213,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     expect(dsn.publicKey, 'public');
     expect(dsn.secretKey, null);
     expect(dsn.projectId, '1');
-    await client.close();
+    client.close();
   });
 
   test('can parse DSN with path', () async {
@@ -230,7 +230,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     expect(dsn.publicKey, 'public');
     expect(dsn.secretKey, 'secret');
     expect(dsn.projectId, '1');
-    await client.close();
+    client.close();
   });
   test('can parse DSN with port', () async {
     final options = SentryOptions(dsn: _testDsnWithPort);
@@ -246,7 +246,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
     expect(dsn.publicKey, 'public');
     expect(dsn.secretKey, 'secret');
     expect(dsn.projectId, '1');
-    await client.close();
+    client.close();
   });
   test('sends client auth header without secret', () async {
     final fakeClockProvider = () => DateTime.utc(2017, 1, 2);
@@ -289,7 +289,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
       sdkName: sdkName,
     );
 
-    await client.close();
+    client.close();
   });
 
   test('sends an exception report (compressed)', () async {
@@ -335,7 +335,7 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
       expect('$sentryId', '00000000000000000000000000000000');
     }
 
-    await client.close();
+    client.close();
   });
 
   test('$SentryEvent user overrides client', () async {
@@ -407,6 +407,6 @@ void runTest({Codec<List<int>, List<int>> gzip, bool isWeb = false}) {
       expect(loggedUserId, eventUser.id);
     }
 
-    await client.close();
+    client.close();
   });
 }

@@ -73,7 +73,7 @@ Future<void> captureMessage() async {
   if (sentryId != SentryId.empty()) {
     querySelector('#messageResult').style.display = 'block';
   }
-  await Sentry.close();
+  Sentry.close();
 }
 
 Future<void> captureException() async {
