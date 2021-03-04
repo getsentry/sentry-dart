@@ -89,13 +89,11 @@ class Sentry {
     }
 
     // let's set the default values to options
-    if (!_setDefaultConfiguration(options)) {
-      return;
+    if (_setDefaultConfiguration(options)) {
+      final hub = currentHub;
+      _hub = Hub(options);
+      hub.close();
     }
-
-    final hub = currentHub;
-    _hub = Hub(options);
-    hub.close();
 
     // execute integrations after hub being enabled
     if (appRunner != null) {

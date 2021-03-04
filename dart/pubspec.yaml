@@ -1,5 +1,5 @@
 name: sentry
-version: 4.0.6
+version: 4.0.7
 description: >
   A crash reporting library for Dart that sends crash reports to Sentry.io.
   This library supports Dart VM and Web. For Flutter consider sentry_flutter instead.
@@ -7,18 +7,22 @@ homepage: https://docs.sentry.io/platforms/dart/
 repository: https://github.com/getsentry/sentry-dart
 
 environment:
-  sdk: '>=2.12.0-259.9.beta <3.0.0'
+  sdk: '>=2.12.0 <3.0.0'
+
+analyzer:
+  enable-experiment:
+    - non-nullable
 
 dependencies:
   http: ^0.13.0
   meta: ^1.3.0
   stack_trace: ^1.10.0
-  uuid: ^3.0.0-nullsafety.1
+  uuid: ^3.0.1
 
 dev_dependencies:
-  mockito: ^5.0.0-nullsafety.7
-  pedantic: ^1.10.0
-  test: ^1.16.0
-  yaml: ^3.0.0 # needed for version match (code and pubspec)
+  mockito: ^5.0.0
+  pedantic: ^1.11.0
+  test: ^1.16.5
+  yaml: ^3.1.0 # needed for version match (code and pubspec)
   collection: ^1.15.0
-  coverage: ^0.15.2
+  coverage: ^1.0.1

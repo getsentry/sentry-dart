@@ -53,7 +53,7 @@ void main() {
 
     expect(SentryLevel.fatal, event.level);
 
-    final throwableMechanism = event.throwable as ThrowableMechanism;
+    final throwableMechanism = event.throwableMechanism as ThrowableMechanism;
     expect('FlutterError', throwableMechanism.mechanism.type);
     expect(true, throwableMechanism.mechanism.handled);
     expect(exception, throwableMechanism.throwable);

@@ -82,6 +82,19 @@ void main() {
       expect(Sentry.isEnabled, false);
     });
 
+    test('empty DSN disables the SDK but runs the integrations', () async {
+      final integration = MockIntegration();
+
+      await Sentry.init(
+        (options) {
+          options.dsn = '';
+          options.addIntegration(integration);
+        },
+      );
+
+      expect(integration.callCalls, 1);
+    });
+
     test('close disables the SDK', () async {
       await Sentry.init((options) => options.dsn = fakeDsn);
 
