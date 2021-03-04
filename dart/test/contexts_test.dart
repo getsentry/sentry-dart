@@ -114,7 +114,8 @@ void main() {
       expect(clone.app!.toJson(), contexts.app!.toJson());
       expect(clone.browser!.toJson(), contexts.browser!.toJson());
       expect(clone.device!.toJson(), contexts.device!.toJson());
-      expect(clone.operatingSystem!.toJson(), contexts.operatingSystem!.toJson());
+      expect(
+          clone.operatingSystem!.toJson(), contexts.operatingSystem!.toJson());
       expect(clone.gpu!.toJson(), contexts.gpu!.toJson());
 
       contexts.runtimes.forEach((element) {

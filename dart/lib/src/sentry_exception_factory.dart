@@ -30,9 +30,12 @@ class SentryExceptionFactory {
 
     SentryStackTrace? sentryStackTrace;
     if (stackTrace != null) {
-      sentryStackTrace = SentryStackTrace(
-        frames: _stacktraceFactory.getStackFrames(stackTrace),
-      );
+      final frames = _stacktraceFactory.getStackFrames(stackTrace);
+      if (frames.isNotEmpty) {
+        sentryStackTrace = SentryStackTrace(
+          frames: frames,
+        );
+      }
     }
 
     // if --obfuscate feature is enabled, 'type' won't be human readable.

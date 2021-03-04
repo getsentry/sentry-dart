@@ -166,6 +166,13 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
             }
         }
 
+        if let enableNativeCrashHandling = arguments["enableNativeCrashHandling"] as? Bool,
+           enableNativeCrashHandling == false {
+            options.integrations = options.integrations?.filter { (name) -> Bool in
+                name != "SentryCrashIntegration"
+            }
+        }
+
         if let maxBreadcrumbs = arguments["maxBreadcrumbs"] as? UInt {
             options.maxBreadcrumbs = maxBreadcrumbs
         }

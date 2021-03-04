@@ -287,5 +287,27 @@ void main() {
       expect(eventMap['request'], isNull);
       expect(eventMap['debug_meta'], isNull);
     });
+
+    test(
+        'throwable and throwableMechanism should return the error if no mechanism',
+        () {
+      final error = StateError('test-error');
+      final event = SentryEvent(throwable: error);
+
+      expect(event.throwable, error);
+      expect(event.throwableMechanism, error);
+    });
+
+    test(
+        'throwableMechanism getter should return the ThrowableMechanism if theres a mechanism',
+        () {
+      final error = StateError('test-error');
+      final mechanism = Mechanism(type: 'FlutterError', handled: true);
+      final throwableMechanism = ThrowableMechanism(mechanism, error);
+      final event = SentryEvent(throwable: throwableMechanism);
+
+      expect(event.throwable, error);
+      expect(event.throwableMechanism, throwableMechanism);
+    });
   });
 }

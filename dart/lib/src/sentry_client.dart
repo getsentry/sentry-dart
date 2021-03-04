@@ -85,7 +85,7 @@ class SentryClient {
       } catch (err) {
         _options.logger(
           SentryLevel.error,
-          'The BeforeSend callback threw an exception',
+          'The BeforeSend callback threw an exception, error: $err',
         );
       }
       if (preparedEvent == null) {
@@ -112,9 +112,9 @@ class SentryClient {
 
     if (event.exception != null) return event;
 
-    if (event.throwable != null) {
+    if (event.throwableMechanism != null) {
       final sentryException = _exceptionFactory
-          .getSentryException(event.throwable, stackTrace: stackTrace);
+          .getSentryException(event.throwableMechanism, stackTrace: stackTrace);
 
       return event.copyWith(exception: sentryException);
     }

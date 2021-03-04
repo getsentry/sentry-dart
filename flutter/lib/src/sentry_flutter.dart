@@ -29,6 +29,7 @@ mixin SentryFlutter {
     PackageLoader packageLoader = _loadPackageInfo,
     iOSPlatformChecker isIOSChecker = isIOS,
     AndroidPlatformChecker isAndroidChecker = isAndroid,
+    MethodChannel channel = _channel,
   }) async {
     if (optionsConfiguration == null) {
       throw ArgumentError('OptionsConfiguration is required.');
@@ -42,12 +43,13 @@ mixin SentryFlutter {
       isIOSChecker,
       isAndroidChecker,
       packageLoader,
+      channel,
     );
     for (final defaultIntegration in defaultIntegrations) {
       flutterOptions.addIntegration(defaultIntegration);
     }
 
-    await _initDefaultValues(flutterOptions);
+    await _initDefaultValues(flutterOptions, channel);
 
     await Sentry.init(
       (options) async {
@@ -60,12 +62,13 @@ mixin SentryFlutter {
 
   static Future<void> _initDefaultValues(
     SentryFlutterOptions options,
+    MethodChannel channel,
   ) async {
     options.debug = kDebugMode;
 
     // web still uses a http transport for Web which is set by default
     if (!kIsWeb) {
-      options.transport = FileSystemTransport(_channel, options);
+      options.transport = FileSystemTransport(channel, options);
     }
 
     _setSdk(options);
@@ -77,6 +80,7 @@ mixin SentryFlutter {
     iOSPlatformChecker isIOS,
     AndroidPlatformChecker isAndroid,
     PackageLoader packageLoader,
+    MethodChannel channel,
   ) {
     final integrations = <Integration>[];
 
@@ -93,16 +97,16 @@ mixin SentryFlutter {
     // that allow us to send events to the network and then the Flutter integrations.
     // Flutter Web doesn't need that, only Android and iOS.
     if (!kIsWeb) {
-      integrations.add(NativeSdkIntegration(_channel));
+      integrations.add(NativeSdkIntegration(channel));
     }
 
     // will enrich the events with the device context and native packages and integrations
     if (isIOS()) {
-      integrations.add(LoadContextsIntegration(_channel));
+      integrations.add(LoadContextsIntegration(channel));
     }
 
     if (isAndroid()) {
-      integrations.add(LoadAndroidImageListIntegration(_channel));
+      integrations.add(LoadAndroidImageListIntegration(channel));
     }
 
     // this is an Integration because we want to execute after all the
