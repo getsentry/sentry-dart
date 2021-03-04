@@ -9,41 +9,42 @@ import 'mocks.dart';
 import 'sentry_flutter_util.dart';
 
 void main() {
-  const _channel = MethodChannel('sentry_flutter');
-
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUp(() {
-    _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
-  });
+  group('Flutter init for mobile', () {
+    const _channel = MethodChannel('sentry_flutter');
 
-  tearDown(() {
-    _channel.setMockMethodCallHandler(null);
-    Sentry.close();
-  });
+    setUp(() {
+      _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
+    });
 
-  test('Flutter init for mobile will run default configurations', () async {
-    await SentryFlutter.init(
-      getConfigurationTester(isIOS: true, isAndroid: true),
-      appRunner: appRunner,
-      packageLoader: loadTestPackage,
-      isIOSChecker: () => true,
-      isAndroidChecker: () => true,
-      channel: _channel,
-    );
-  });
+    tearDown(() {
+      Sentry.close();
+    });
 
-  test('Flutter init for mobile will run default configurations on ios',
-      () async {
-    await SentryFlutter.init(
-      getConfigurationTester(isIOS: true),
-      packageLoader: loadTestPackage,
-      isIOSChecker: () => true,
-      channel: _channel,
-    );
+    test('Will run default configurations on Android', () async {
+      await SentryFlutter.init(
+        getConfigurationTester(isAndroid: true),
+        appRunner: appRunner,
+        packageLoader: loadTestPackage,
+        isAndroidChecker: () => true,
+        channel: _channel,
+      );
+    });
+
+    test('Will run default configurations on ios', () async {
+      await SentryFlutter.init(
+        getConfigurationTester(isIOS: true),
+        appRunner: appRunner,
+        packageLoader: loadTestPackage,
+        isIOSChecker: () => true,
+        channel: _channel,
+      );
+    });
   });
 
   group('platform based loadContextsIntegration', () {
+    const _channel = MethodChannel('sentry_flutter');
     final transport = MockTransport();
 
     setUp(() {
