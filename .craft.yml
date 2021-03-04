@@ -1,0 +1,19 @@
+minVersion: '0.17.1'
+github:
+  owner: getsentry
+  repo: sentry-dart
+changelogPolicy: auto
+statusProvider:
+  name: github
+artifactProvider:
+  name: none
+targets:
+  - name: github
+  - name: registry
+    type: sdk
+    config:
+      canonical: "pub:sentry"
+  - name: registry
+    type: sdk
+    config:
+      canonical: "pub:sentry_flutter"
