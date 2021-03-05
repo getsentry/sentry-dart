@@ -1,6 +1,6 @@
 # Unreleased
 
-* Upgrade dependencies (`http 0.13.0` etc) as it is widely used after Flutter 2 release!
+* Upgrade dependencies (`http 0.13.0` etc) for Flutter 2 upgrade (#339)
 * Fix: Do not append stack trace to the exception if there are no frames
 * Fix: Empty DSN disables the SDK and runs the App
 
