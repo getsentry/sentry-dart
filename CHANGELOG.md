@@ -5,6 +5,11 @@
 
 # 4.0.6
 
+* Fix: Do not append stack trace to the exception if there are no frames
+* Fix: Empty DSN disables the SDK and runs the App
+
+# 4.0.6
+
 * Refactoring: Migrate Sentry Dart to null safety
 * Fix: captureMessage defaults SentryLevel to info
 * Fix: SentryEvent.throwable returns the unwrapped throwable instead of the throwableMechanism
