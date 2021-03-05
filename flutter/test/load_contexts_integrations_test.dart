@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -128,7 +130,7 @@ void main() {
 
   test('should not throw on loadContextsIntegration exception', () async {
     _channel.setMockMethodCallHandler((MethodCall methodCall) async {
-      throw null;
+      throw Exception();
     });
     final options = SentryFlutterOptions()..dsn = fakeDsn;
     final hub = Hub(options);

@@ -106,7 +106,7 @@ void main() {
 
   test('nativeSdkIntegration do not throw', () async {
     _channel.setMockMethodCallHandler((MethodCall methodCall) async {
-      throw null;
+      throw Exception();
     });
 
     final integration = NativeSdkIntegration(_channel);
