@@ -7,7 +7,7 @@ import 'mocks.dart';
 /// Tests that require `WidgetsFlutterBinding.ensureInitialized();` not
 /// being called at all.
 void main() {
-  Fixture fixture;
+  late Fixture fixture;
 
   setUp(() {
     fixture = Fixture();

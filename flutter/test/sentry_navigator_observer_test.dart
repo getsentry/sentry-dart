@@ -135,12 +135,12 @@ void main() {
   });
 
   group('SentryNavigatorObserver', () {
-    PageRoute route(RouteSettings settings) => PageRouteBuilder<void>(
-          pageBuilder: (_, __, ___) => null,
+    PageRoute route(RouteSettings? settings) => PageRouteBuilder<void>(
+          pageBuilder: ((_, __, ___) => null) as Widget Function(BuildContext, Animation<double>, Animation<double>),
           settings: settings,
         );
 
-    RouteSettings routeSettings(String name, [Object arguments]) =>
+    RouteSettings routeSettings(String name, [Object? arguments]) =>
         RouteSettings(name: name, arguments: arguments);
 
     test('Test recording of Breadcrumbs', () {
@@ -153,7 +153,7 @@ void main() {
       observer.didPush(route(to), route(previous));
 
       final dynamic breadcrumb =
-          verify(hub.addBreadcrumb(captureAny)).captured.single as Breadcrumb;
+          verify(hub.addBreadcrumb(captureAny!)).captured.single as Breadcrumb;
       expect(
         breadcrumb.data,
         RouteObserverBreadcrumb(
@@ -174,7 +174,7 @@ void main() {
       observer.didPush(route(to), route(previous));
 
       final dynamic breadcrumb =
-          verify(hub.addBreadcrumb(captureAny)).captured.single as Breadcrumb;
+          verify(hub.addBreadcrumb(captureAny!)).captured.single as Breadcrumb;
       expect(
         breadcrumb.data,
         RouteObserverBreadcrumb(
@@ -195,7 +195,7 @@ void main() {
       observer.didReplace(newRoute: to, oldRoute: previous);
 
       final dynamic breadcrumb =
-          verify(hub.addBreadcrumb(captureAny)).captured.single as Breadcrumb;
+          verify(hub.addBreadcrumb(captureAny!)).captured.single as Breadcrumb;
       expect(
         breadcrumb.data,
         RouteObserverBreadcrumb(
@@ -206,7 +206,7 @@ void main() {
 
     test('No RouteSettings', () {
       PageRoute route() => PageRouteBuilder<void>(
-            pageBuilder: (_, __, ___) => null,
+            pageBuilder: ((_, __, ___) => null) as Widget Function(BuildContext, Animation<double>, Animation<double>),
           );
 
       final hub = MockHub();
@@ -218,7 +218,7 @@ void main() {
       observer.didPop(to, previous);
 
       final dynamic breadcrumb =
-          verify(hub.addBreadcrumb(captureAny)).captured.single as Breadcrumb;
+          verify(hub.addBreadcrumb(captureAny!)).captured.single as Breadcrumb;
       expect(
         breadcrumb.data,
         RouteObserverBreadcrumb(

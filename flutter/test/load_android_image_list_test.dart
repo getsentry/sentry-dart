@@ -87,11 +87,11 @@ void main() {
     final hub = Hub(options);
 
     LoadAndroidImageListIntegration(_channel)(hub, options);
-    final ep = options.eventProcessors.first;
-    var event = getEvent();
+    final ep = options.eventProcessors.first as FutureOr<SentryEvent?> Function(SentryEvent?, {dynamic hint});
+    SentryEvent? event = getEvent();
     event = await ep(event);
 
-    expect(1, event.debugMeta.images.length);
+    expect(1, event!.debugMeta!.images.length);
   });
 
   test('Event processor asserts image list', () async {
@@ -99,11 +99,11 @@ void main() {
     final hub = Hub(options);
 
     LoadAndroidImageListIntegration(_channel)(hub, options);
-    final ep = options.eventProcessors.first;
-    var event = getEvent();
+    final ep = options.eventProcessors.first as FutureOr<SentryEvent?> Function(SentryEvent?, {dynamic hint});
+    SentryEvent? event = getEvent();
     event = await ep(event);
 
-    final image = event.debugMeta.images.first;
+    final image = event!.debugMeta!.images.first;
 
     expect('/apex/com.android.art/javalib/arm64/boot.oat', image.codeFile);
     expect('13577ce71153c228ecf0eb73fc39f45010d487f8', image.codeId);

@@ -35,7 +35,7 @@ const _navigationKey = 'navigation';
 ///   - [RouteObserver](https://api.flutter.dev/flutter/widgets/RouteObserver-class.html)
 ///   - [Navigating with arguments](https://flutter.dev/docs/cookbook/navigation/navigate-with-arguments)
 class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
-  factory SentryNavigatorObserver({Hub hub}) {
+  factory SentryNavigatorObserver({Hub? hub}) {
     return SentryNavigatorObserver._(hub ?? HubAdapter());
   }
 
@@ -44,7 +44,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final Hub hub;
 
   @override
-  void didPush(Route<dynamic> route, Route<dynamic> previousRoute) {
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPush(route, previousRoute);
     _addBreadcrumb(
       type: 'didPush',
@@ -54,7 +54,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   }
 
   @override
-  void didReplace({Route<dynamic> newRoute, Route<dynamic> oldRoute}) {
+  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
     super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
 
     _addBreadcrumb(
@@ -65,7 +65,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   }
 
   @override
-  void didPop(Route<dynamic> route, Route<dynamic> previousRoute) {
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPop(route, previousRoute);
 
     _addBreadcrumb(
@@ -76,9 +76,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   }
 
   void _addBreadcrumb({
-    String type,
-    RouteSettings from,
-    RouteSettings to,
+    required String type,
+    RouteSettings? from,
+    RouteSettings? to,
   }) {
     hub.addBreadcrumb(RouteObserverBreadcrumb(
       navigationType: type,
@@ -98,10 +98,10 @@ class RouteObserverBreadcrumb extends Breadcrumb {
   factory RouteObserverBreadcrumb({
     /// This should correspond to Flutters navigation events.
     /// See https://api.flutter.dev/flutter/widgets/RouteObserver-class.html
-    @required String navigationType,
-    RouteSettings from,
-    RouteSettings to,
-    SentryLevel level,
+    required String navigationType,
+    RouteSettings? from,
+    RouteSettings? to,
+    SentryLevel? level,
   }) {
     final dynamic fromArgs = _formatArgs(from?.arguments);
     final dynamic toArgs = _formatArgs(to?.arguments);
@@ -116,12 +116,12 @@ class RouteObserverBreadcrumb extends Breadcrumb {
   }
 
   RouteObserverBreadcrumb._({
-    @required String navigationType,
-    String from,
+    required String navigationType,
+    String? from,
     dynamic fromArgs,
-    String to,
+    String? to,
     dynamic toArgs,
-    SentryLevel level,
+    SentryLevel? level,
   })  : assert(navigationType != null),
         super(
             category: _navigationKey,
@@ -135,7 +135,7 @@ class RouteObserverBreadcrumb extends Breadcrumb {
               if (toArgs != null) 'to_arguments': toArgs,
             });
 
-  static dynamic _formatArgs(Object args) {
+  static dynamic _formatArgs(Object? args) {
     if (args == null) {
       return null;
     }

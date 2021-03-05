@@ -10,7 +10,7 @@ void main() {
 
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  Fixture fixture;
+  late Fixture fixture;
 
   setUp(() {
     fixture = Fixture();

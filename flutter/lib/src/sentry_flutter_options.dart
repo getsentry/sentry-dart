@@ -5,7 +5,7 @@ import 'package:sentry/sentry.dart';
 /// Note that some of these options require native Sentry integration, which is
 /// not available on all platforms.
 class SentryFlutterOptions extends SentryOptions {
-  SentryFlutterOptions({String dsn}) : super(dsn: dsn);
+  SentryFlutterOptions({String? dsn}) : super(dsn: dsn);
 
   bool _enableAutoSessionTracking = true;
 

@@ -14,7 +14,7 @@ void main() {
 
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  Fixture fixture;
+  late Fixture fixture;
 
   setUp(() {
     fixture = Fixture();
@@ -26,7 +26,7 @@ void main() {
 
   void _reportError({
     bool silent = false,
-    FlutterExceptionHandler handler,
+    FlutterExceptionHandler? handler,
     dynamic exception,
   }) {
     // replace default error otherwise it fails on testing
@@ -48,7 +48,7 @@ void main() {
     _reportError(exception: exception);
 
     final event = verify(
-      await fixture.hub.captureEvent(captureAny),
+      await fixture.hub.captureEvent(captureAny!),
     ).captured.first as SentryEvent;
 
     expect(SentryLevel.fatal, event.level);
@@ -67,7 +67,7 @@ void main() {
 
     _reportError(handler: defaultError);
 
-    verify(await fixture.hub.captureEvent(captureAny));
+    verify(await fixture.hub.captureEvent(captureAny!));
 
     expect(true, called);
   });
@@ -75,7 +75,7 @@ void main() {
   test('FlutterError do not capture if silent error', () async {
     _reportError(silent: true);
 
-    verifyNever(await fixture.hub.captureEvent(captureAny));
+    verifyNever(await fixture.hub.captureEvent(captureAny!));
   });
 
   test('FlutterError captures if silent error but reportSilentFlutterErrors',
@@ -83,7 +83,7 @@ void main() {
     fixture.options.reportSilentFlutterErrors = true;
     _reportError(silent: true);
 
-    verify(await fixture.hub.captureEvent(captureAny));
+    verify(await fixture.hub.captureEvent(captureAny!));
   });
 
   test('FlutterError adds integration', () async {

@@ -19,16 +19,16 @@ import '../sentry_flutter.dart';
 ///   - [WidgetsBindingObserver](https://api.flutter.dev/flutter/widgets/WidgetsBindingObserver-class.html)
 class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   SentryWidgetsBindingObserver({
-    Hub hub,
-    @required SentryFlutterOptions options,
+    Hub? hub,
+    required SentryFlutterOptions options,
   }) {
     _hub = hub ?? HubAdapter();
     assert(options != null);
     _options = options;
   }
 
-  Hub _hub;
-  SentryFlutterOptions _options;
+  late Hub _hub;
+  late SentryFlutterOptions _options;
 
   /// This method records lifecycle events.
   /// It tries to mimic the behavior of ActivityBreadcrumbsIntegration of Sentry
@@ -66,7 +66,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     if (!_options.enableWindowMetricBreadcrumbs) {
       return;
     }
-    final window = WidgetsBinding.instance.window;
+    final window = WidgetsBinding.instance!.window;
     _hub.addBreadcrumb(Breadcrumb(
       message: 'Screen size changed',
       category: 'device.screen',
@@ -86,7 +86,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     if (!_options.enableBrightnessChangeBreadcrumbs) {
       return;
     }
-    final brightness = WidgetsBinding.instance.window.platformBrightness;
+    final brightness = WidgetsBinding.instance!.window.platformBrightness;
     final brightnessDescription =
         brightness == Brightness.dark ? 'dark' : 'light';
 
@@ -107,7 +107,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     if (!_options.enableTextScaleChangeBreadcrumbs) {
       return;
     }
-    final newTextScaleFactor = WidgetsBinding.instance.window.textScaleFactor;
+    final newTextScaleFactor = WidgetsBinding.instance!.window.textScaleFactor;
     _hub.addBreadcrumb(Breadcrumb(
       message: 'Text scale factor changed to $newTextScaleFactor.',
       type: 'system',
