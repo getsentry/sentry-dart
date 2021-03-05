@@ -21,7 +21,7 @@ void main() {
 
       final client = SentryHttpClient(client: mockClient, hub: mockHub);
 
-      final response = await client.get('https://example.com');
+      final response = await client.get(Uri.parse('https://example.com'));
       expect(response.statusCode, 200);
 
       final breadcrumb = verify(mockHub.addBreadcrumb(captureAny))
@@ -47,7 +47,7 @@ void main() {
 
       final client = SentryHttpClient(client: mockClient, hub: mockHub);
 
-      final response = await client.get('https://example.com');
+      final response = await client.get(Uri.parse('https://example.com'));
       expect(response.statusCode, 404);
 
       final breadcrumb = verify(mockHub.addBreadcrumb(captureAny))
@@ -73,7 +73,7 @@ void main() {
 
       final client = SentryHttpClient(client: mockClient, hub: mockHub);
 
-      final response = await client.post('https://example.com');
+      final response = await client.post(Uri.parse('https://example.com'));
       expect(response.statusCode, 200);
 
       final breadcrumb = verify(mockHub.addBreadcrumb(captureAny))
@@ -98,7 +98,7 @@ void main() {
 
       final client = SentryHttpClient(client: mockClient, hub: mockHub);
 
-      final response = await client.put('https://example.com');
+      final response = await client.put(Uri.parse('https://example.com'));
       expect(response.statusCode, 200);
 
       final breadcrumb = verify(mockHub.addBreadcrumb(captureAny))
@@ -123,7 +123,7 @@ void main() {
 
       final client = SentryHttpClient(client: mockClient, hub: mockHub);
 
-      final response = await client.delete('https://example.com');
+      final response = await client.delete(Uri.parse('https://example.com'));
       expect(response.statusCode, 200);
 
       final breadcrumb = verify(mockHub.addBreadcrumb(captureAny))
@@ -156,7 +156,7 @@ void main() {
       final client = SentryHttpClient(client: mockClient, hub: mockHub);
 
       try {
-        await client.get('https://example.com');
+        await client.get(Uri.parse('https://example.com'));
         fail('Method did not throw');
       } on ClientException catch (e) {
         expect(e.message, 'test');
@@ -182,7 +182,7 @@ void main() {
       final client = SentryHttpClient(client: mockClient, hub: mockHub);
 
       try {
-        await client.get('https://example.com');
+        await client.get(Uri.parse('https://example.com'));
         fail('Method did not throw');
       } on SocketException catch (e) {
         expect(e.message, 'test');

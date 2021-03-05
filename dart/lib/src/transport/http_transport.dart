@@ -53,7 +53,7 @@ class HttpTransport implements Transport {
     );
 
     final response = await _options.httpClient.post(
-      _dsn.postUri,
+      Uri.parse(_dsn.postUri),
       headers: _credentialBuilder.configure(_headers),
       body: body,
     );
