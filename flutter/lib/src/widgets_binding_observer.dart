@@ -63,15 +63,15 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     if (!_options.enableWindowMetricBreadcrumbs) {
       return;
     }
-    final window = WidgetsBinding.instance!.window;
+    final window = WidgetsBinding.instance?.window;
     _hub.addBreadcrumb(Breadcrumb(
       message: 'Screen size changed',
       category: 'device.screen',
       type: 'navigation',
       data: <String, dynamic>{
-        'new_pixel_ratio': window.devicePixelRatio,
-        'new_height': window.physicalSize.height,
-        'new_width': window.physicalSize.width,
+        'new_pixel_ratio': window?.devicePixelRatio,
+        'new_height': window?.physicalSize.height,
+        'new_width': window?.physicalSize.width,
       },
     ));
   }
@@ -83,7 +83,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     if (!_options.enableBrightnessChangeBreadcrumbs) {
       return;
     }
-    final brightness = WidgetsBinding.instance!.window.platformBrightness;
+    final brightness = WidgetsBinding.instance?.window.platformBrightness;
     final brightnessDescription = brightness == Brightness.dark ? 'dark' : 'light';
 
     _hub.addBreadcrumb(Breadcrumb(
@@ -101,7 +101,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     if (!_options.enableTextScaleChangeBreadcrumbs) {
       return;
     }
-    final newTextScaleFactor = WidgetsBinding.instance!.window.textScaleFactor;
+    final newTextScaleFactor = WidgetsBinding.instance?.window.textScaleFactor;
     _hub.addBreadcrumb(Breadcrumb(
       message: 'Text scale factor changed to $newTextScaleFactor.',
       type: 'system',
