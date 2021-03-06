@@ -33,6 +33,8 @@ void main() {
     FlutterError.onError =
         handler ?? (FlutterErrorDetails errorDetails) async {};
 
+    when(fixture.hub.captureEvent(captureAny)).thenAnswer((_) => Future.value(SentryId.empty()));
+
     FlutterErrorIntegration()(fixture.hub, fixture.options);
 
     final throwable = exception ?? StateError('error');
