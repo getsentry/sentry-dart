@@ -39,7 +39,7 @@ void main() {
           .handlePlatformMessage('flutter/system', message, (_) {});
 
       final breadcrumb =
-          verify(hub.addBreadcrumb(captureAny!)).captured.single as Breadcrumb;
+          verify(hub.addBreadcrumb(captureAny)).captured.single as Breadcrumb;
 
       expect(
         breadcrumb.message,
@@ -70,7 +70,7 @@ void main() {
       await WidgetsBinding.instance!.defaultBinaryMessenger
           .handlePlatformMessage('flutter/system', message, (_) {});
 
-      verifyNever(hub.addBreadcrumb(captureAny!));
+      verifyNever(hub.addBreadcrumb(captureAny));
 
       WidgetsBinding.instance!.removeObserver(observer);
     });
@@ -100,7 +100,7 @@ void main() {
       await sendLifecycle('paused');
 
       var breadcrumb =
-          verify(hub.addBreadcrumb(captureAny!)).captured.last as Breadcrumb;
+          verify(hub.addBreadcrumb(captureAny)).captured.last as Breadcrumb;
       expect(breadcrumb.category, 'app.lifecycle');
       expect(breadcrumb.type, 'navigation');
       expect(breadcrumb.data, mapForLifecycle('paused'));
@@ -110,7 +110,7 @@ void main() {
       await sendLifecycle('resumed');
 
       breadcrumb =
-          verify(hub.addBreadcrumb(captureAny!)).captured.last as Breadcrumb;
+          verify(hub.addBreadcrumb(captureAny)).captured.last as Breadcrumb;
       expect(breadcrumb.category, 'app.lifecycle');
       expect(breadcrumb.type, 'navigation');
       expect(breadcrumb.data, mapForLifecycle('resumed'));
@@ -120,7 +120,7 @@ void main() {
       await sendLifecycle('inactive');
 
       breadcrumb =
-          verify(hub.addBreadcrumb(captureAny!)).captured.last as Breadcrumb;
+          verify(hub.addBreadcrumb(captureAny)).captured.last as Breadcrumb;
       expect(breadcrumb.category, 'app.lifecycle');
       expect(breadcrumb.type, 'navigation');
       expect(breadcrumb.data, mapForLifecycle('inactive'));
@@ -130,7 +130,7 @@ void main() {
       await sendLifecycle('detached');
 
       breadcrumb =
-          verify(hub.addBreadcrumb(captureAny!)).captured.last as Breadcrumb;
+          verify(hub.addBreadcrumb(captureAny)).captured.last as Breadcrumb;
       expect(breadcrumb.category, 'app.lifecycle');
       expect(breadcrumb.type, 'navigation');
       expect(breadcrumb.data, mapForLifecycle('detached'));
@@ -158,7 +158,7 @@ void main() {
 
       await sendLifecycle('paused');
 
-      verifyNever(hub.addBreadcrumb(captureAny!));
+      verifyNever(hub.addBreadcrumb(captureAny));
 
       WidgetsBinding.instance!.removeObserver(observer);
     });
@@ -177,7 +177,7 @@ void main() {
       window.onMetricsChanged!();
 
       final breadcrumb =
-          verify(hub.addBreadcrumb(captureAny!)).captured.single as Breadcrumb;
+          verify(hub.addBreadcrumb(captureAny)).captured.single as Breadcrumb;
 
       expect(breadcrumb.message, 'Screen size changed');
       expect(breadcrumb.category, 'device.screen');
@@ -206,7 +206,7 @@ void main() {
 
       window.onMetricsChanged!();
 
-      verifyNever(hub.addBreadcrumb(captureAny!));
+      verifyNever(hub.addBreadcrumb(captureAny));
 
       WidgetsBinding.instance!.removeObserver(observer);
     });
@@ -229,7 +229,7 @@ void main() {
           brightness == Brightness.dark ? 'dark' : 'light';
 
       final breadcrumb =
-          verify(hub.addBreadcrumb(captureAny!)).captured.single as Breadcrumb;
+          verify(hub.addBreadcrumb(captureAny)).captured.single as Breadcrumb;
 
       expect(breadcrumb.message,
           'Platform brightness was changed to $brightnessDescription.');
@@ -258,7 +258,7 @@ void main() {
 
       window.onPlatformBrightnessChanged!();
 
-      verifyNever(hub.addBreadcrumb(captureAny!));
+      verifyNever(hub.addBreadcrumb(captureAny));
 
       WidgetsBinding.instance!.removeObserver(observer);
     });
@@ -280,7 +280,7 @@ void main() {
       final newTextScaleFactor = WidgetsBinding.instance!.window.textScaleFactor;
 
       final breadcrumb =
-          verify(hub.addBreadcrumb(captureAny!)).captured.single as Breadcrumb;
+          verify(hub.addBreadcrumb(captureAny)).captured.single as Breadcrumb;
 
       expect(breadcrumb.message,
           'Text scale factor changed to $newTextScaleFactor.');
@@ -306,7 +306,7 @@ void main() {
 
       window.onTextScaleFactorChanged!();
 
-      verifyNever(hub.addBreadcrumb(captureAny!));
+      verifyNever(hub.addBreadcrumb(captureAny));
 
       WidgetsBinding.instance!.removeObserver(observer);
     });

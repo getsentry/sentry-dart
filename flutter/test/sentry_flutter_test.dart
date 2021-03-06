@@ -52,7 +52,7 @@ void main() {
       _channel.setMockMethodCallHandler(
         (MethodCall methodCall) async => <String, dynamic>{},
       );
-      when(transport.send(any!))
+      when(transport.send(any))
           .thenAnswer((realInvocation) => Future.value(SentryId.newId()));
     });
 
