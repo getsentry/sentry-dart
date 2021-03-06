@@ -264,7 +264,7 @@ class LoadAndroidImageListIntegration
           // we call on every event because the loaded image list is cached
           // and it could be changed on the Native side.
           final imageList = List<Map<dynamic, dynamic>>.from(
-            await (_channel.invokeMethod('loadImageList'),
+            await (_channel.invokeMethod('loadImageList')),
           );
 
           if (imageList.isEmpty) {
