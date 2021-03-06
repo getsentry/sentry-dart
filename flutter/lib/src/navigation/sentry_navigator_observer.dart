@@ -35,11 +35,7 @@ const _navigationKey = 'navigation';
 ///   - [RouteObserver](https://api.flutter.dev/flutter/widgets/RouteObserver-class.html)
 ///   - [Navigating with arguments](https://flutter.dev/docs/cookbook/navigation/navigate-with-arguments)
 class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
-  factory SentryNavigatorObserver({Hub? hub}) {
-    return SentryNavigatorObserver._(hub ?? HubAdapter());
-  }
-
-  SentryNavigatorObserver._(this.hub) : assert(hub != null);
+  SentryNavigatorObserver({Hub? hub}) : hub = hub ?? HubAdapter();
 
   final Hub hub;
 

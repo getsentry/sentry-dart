@@ -21,14 +21,11 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   SentryWidgetsBindingObserver({
     Hub? hub,
     required SentryFlutterOptions options,
-  }) {
-    _hub = hub ?? HubAdapter();
-    assert(options != null);
-    _options = options;
-  }
+  })   : _hub = hub ?? HubAdapter(),
+        _options = options;
 
-  late Hub _hub;
-  late SentryFlutterOptions _options;
+  final Hub _hub;
+  final SentryFlutterOptions _options;
 
   /// This method records lifecycle events.
   /// It tries to mimic the behavior of ActivityBreadcrumbsIntegration of Sentry
@@ -87,16 +84,13 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
       return;
     }
     final brightness = WidgetsBinding.instance!.window.platformBrightness;
-    final brightnessDescription =
-        brightness == Brightness.dark ? 'dark' : 'light';
+    final brightnessDescription = brightness == Brightness.dark ? 'dark' : 'light';
 
     _hub.addBreadcrumb(Breadcrumb(
       message: 'Platform brightness was changed to $brightnessDescription.',
       type: 'system',
       category: 'device.event',
-      data: <String, String>{
-        'action': 'BRIGHTNESS_CHANGED_TO_${brightnessDescription.toUpperCase()}'
-      },
+      data: <String, String>{'action': 'BRIGHTNESS_CHANGED_TO_${brightnessDescription.toUpperCase()}'},
     ));
   }
 
@@ -112,9 +106,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
       message: 'Text scale factor changed to $newTextScaleFactor.',
       type: 'system',
       category: 'device.event',
-      data: <String, String>{
-        'action': 'TEXT_SCALE_CHANGED_TO_$newTextScaleFactor'
-      },
+      data: <String, String>{'action': 'TEXT_SCALE_CHANGED_TO_$newTextScaleFactor'},
     ));
   }
 
@@ -129,8 +121,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     // - https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
     // - https://github.com/getsentry/sentry-java/blob/main/sentry-android-core/src/main/java/io/sentry/android/core/AppComponentsBreadcrumbsIntegration.java#L98-L135
     // on why this breadcrumb looks like this.
-    const message =
-        'App had memory pressure. This indicates that the operating system '
+    const message = 'App had memory pressure. This indicates that the operating system '
         'would like applications to release caches to free up more memory.';
     _hub.addBreadcrumb(Breadcrumb(
       message: message,
@@ -158,7 +149,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     return '';
   }
 
-  /*
+/*
   These are also methods of `WidgetsBindingObserver` but are currently not
   implemented because I'm not sure what to do with them. See the reasoning
   for each method. If these methods are implemented the class definition should
