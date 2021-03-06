@@ -13,11 +13,11 @@ import 'widgets_binding_observer.dart';
 class WidgetsFlutterBindingIntegration
     extends Integration<SentryFlutterOptions> {
   WidgetsFlutterBindingIntegration(
-      [WidgetsBinding? Function()? ensureInitialized])
+      [WidgetsBinding Function()? ensureInitialized])
       : _ensureInitialized =
             ensureInitialized ?? WidgetsFlutterBinding.ensureInitialized;
 
-  final WidgetsBinding? Function() _ensureInitialized;
+  final WidgetsBinding Function() _ensureInitialized;
 
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) {

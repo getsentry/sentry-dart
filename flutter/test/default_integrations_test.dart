@@ -145,7 +145,7 @@ void main() {
     var called = false;
     var ensureInitialized = () {
       called = true;
-      return WidgetsBinding.instance;
+      return WidgetsBinding.instance!;
     };
     final integration = WidgetsFlutterBindingIntegration(ensureInitialized);
     await integration(fixture.hub, fixture.options);
