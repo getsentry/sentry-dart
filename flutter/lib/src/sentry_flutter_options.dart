@@ -30,10 +30,8 @@ class SentryFlutterOptions extends SentryOptions {
       _autoSessionTrackingIntervalMillis;
 
   set autoSessionTrackingIntervalMillis(int value) {
-    assert(value != null);
-    _autoSessionTrackingIntervalMillis = (value != null && value >= 0)
-        ? value
-        : _autoSessionTrackingIntervalMillis;
+    _autoSessionTrackingIntervalMillis =
+        value >= 0 ? value : _autoSessionTrackingIntervalMillis;
   }
 
   /// Enable or disable ANR (Application Not Responding) Default is enabled Used by AnrIntegration.
@@ -51,9 +49,7 @@ class SentryFlutterOptions extends SentryOptions {
   int get anrTimeoutIntervalMillis => _anrTimeoutIntervalMillis;
 
   set anrTimeoutIntervalMillis(int value) {
-    assert(value != null);
-    _anrTimeoutIntervalMillis =
-        (value != null && value >= 0) ? value : _anrTimeoutIntervalMillis;
+    _anrTimeoutIntervalMillis = value >= 0 ? value : _anrTimeoutIntervalMillis;
   }
 
   /// Enable or disable the Automatic breadcrumbs on the Native platforms (Android/iOS)
@@ -70,8 +66,7 @@ class SentryFlutterOptions extends SentryOptions {
   int get cacheDirSize => _cacheDirSize;
 
   set cacheDirSize(int value) {
-    assert(value != null);
-    _cacheDirSize = (value != null && value >= 0) ? value : _cacheDirSize;
+    _cacheDirSize = value >= 0 ? value : _cacheDirSize;
   }
 
   @Deprecated(
@@ -188,8 +183,6 @@ class SentryFlutterOptions extends SentryOptions {
   @foundation.visibleForTesting
   void configureBreadcrumbTrackingForPlatform(
       foundation.TargetPlatform platform) {
-    assert(platform != null);
-
     // Bacause platform reports the Operating System and not if it is running
     // in a browser. So we have to check if this is Flutter for web.
     // See https://github.com/flutter/flutter/blob/c5a69b9b8ad186e9fce017fd4bfb8ce63f9f4d13/packages/flutter/lib/src/foundation/_platform_web.dart

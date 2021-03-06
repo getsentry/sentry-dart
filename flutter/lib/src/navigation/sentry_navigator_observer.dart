@@ -118,13 +118,12 @@ class RouteObserverBreadcrumb extends Breadcrumb {
     String? to,
     dynamic toArgs,
     SentryLevel? level,
-  })  : assert(navigationType != null),
-        super(
+  }) : super(
             category: _navigationKey,
             type: _navigationKey,
             level: level,
             data: <String, dynamic>{
-              if (navigationType != null) 'state': navigationType,
+              'state': navigationType,
               if (from != null) 'from': from,
               if (fromArgs != null) 'from_arguments': fromArgs,
               if (to != null) 'to': to,

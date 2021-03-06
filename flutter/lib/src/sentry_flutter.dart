@@ -31,10 +31,6 @@ mixin SentryFlutter {
     AndroidPlatformChecker isAndroidChecker = isAndroid,
     MethodChannel channel = _channel,
   }) async {
-    if (optionsConfiguration == null) {
-      throw ArgumentError('OptionsConfiguration is required.');
-    }
-
     final flutterOptions = SentryFlutterOptions();
 
     // first step is to install the native integration and set default values,

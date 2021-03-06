@@ -246,9 +246,7 @@ class LoadAndroidImageListIntegration
     options.addEventProcessor(
       (event, {hint}) async {
         try {
-          if (event.exception != null &&
-              event.exception!.stackTrace != null &&
-              event.exception!.stackTrace!.frames != null) {
+          if (event.exception != null && event.exception!.stackTrace != null) {
             final needsSymbolication = event.exception!.stackTrace!.frames
                 .any((element) => 'native' == element.platform);
 
@@ -326,10 +324,6 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) async {
     try {
       if (!kIsWeb) {
-        if (_packageLoader == null) {
-          options.logger(SentryLevel.debug, 'Package loader is null.');
-          return;
-        }
         final packageInfo = await _packageLoader();
         final release =
             '${packageInfo.packageName}@${packageInfo.version}+${packageInfo.buildNumber}';

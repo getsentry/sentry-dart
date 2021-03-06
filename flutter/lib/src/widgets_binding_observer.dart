@@ -152,7 +152,6 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
       case AppLifecycleState.detached:
         return 'detached';
     }
-    return '';
   }
 
 /*
