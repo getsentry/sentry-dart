@@ -7,7 +7,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/sentry_flutter_options.dart';
 
-import 'mocks.dart';
+import 'mocks.mocks.dart';
 
 void main() {
   const _channel = MethodChannel('sentry_flutter');
@@ -48,7 +48,7 @@ void main() {
     _reportError(exception: exception);
 
     final event = verify(
-      await fixture.hub.captureEvent(captureAny!),
+      await fixture.hub.captureEvent(captureAny),
     ).captured.first as SentryEvent;
 
     expect(SentryLevel.fatal, event.level);
@@ -67,7 +67,7 @@ void main() {
 
     _reportError(handler: defaultError);
 
-    verify(await fixture.hub.captureEvent(captureAny!));
+    verify(await fixture.hub.captureEvent(captureAny));
 
     expect(true, called);
   });
@@ -75,7 +75,7 @@ void main() {
   test('FlutterError do not capture if silent error', () async {
     _reportError(silent: true);
 
-    verifyNever(await fixture.hub.captureEvent(captureAny!));
+    verifyNever(await fixture.hub.captureEvent(captureAny));
   });
 
   test('FlutterError captures if silent error but reportSilentFlutterErrors',
@@ -83,7 +83,7 @@ void main() {
     fixture.options.reportSilentFlutterErrors = true;
     _reportError(silent: true);
 
-    verify(await fixture.hub.captureEvent(captureAny!));
+    verify(await fixture.hub.captureEvent(captureAny));
   });
 
   test('FlutterError adds integration', () async {

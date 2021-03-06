@@ -6,7 +6,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/sentry_flutter_options.dart';
 import 'package:sentry_flutter/src/widgets_binding_observer.dart';
 
-import 'mocks.dart';
+import 'mocks.mocks.dart';
 
 void main() {
   group('WidgetsBindingObserver', () {

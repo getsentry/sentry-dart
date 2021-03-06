@@ -6,6 +6,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'mocks.dart';
+import 'mocks.mocks.dart';
 import 'sentry_flutter_util.dart';
 
 void main() {
@@ -73,7 +74,7 @@ void main() {
       await Sentry.captureMessage('a message');
 
       final event =
-          verify(transport.send(captureAny!)).captured.first as SentryEvent;
+          verify(transport.send(captureAny)).captured.first as SentryEvent;
 
       expect(event.sdk!.integrations.length, 7);
       expect(event.sdk!.integrations.contains('loadContextsIntegration'), true);
@@ -92,7 +93,7 @@ void main() {
       await Sentry.captureMessage('a message');
 
       final event =
-          verify(transport.send(captureAny!)).captured.first as SentryEvent;
+          verify(transport.send(captureAny)).captured.first as SentryEvent;
 
       expect(event.sdk!.integrations.length, 6);
       expect(event.sdk!.integrations.contains('loadContextsIntegration'), false);
@@ -112,7 +113,7 @@ void main() {
       await Sentry.captureMessage('a message');
 
       final event =
-          verify(transport.send(captureAny!)).captured.first as SentryEvent;
+          verify(transport.send(captureAny)).captured.first as SentryEvent;
 
       expect(event.sdk!.integrations.length, 6);
       expect(event.sdk!.integrations.contains('loadAndroidImageListIntegration'),
