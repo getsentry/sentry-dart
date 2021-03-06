@@ -96,7 +96,8 @@ void main() {
           verify(transport.send(captureAny)).captured.first as SentryEvent;
 
       expect(event.sdk!.integrations.length, 6);
-      expect(event.sdk!.integrations.contains('loadContextsIntegration'), false);
+      expect(
+          event.sdk!.integrations.contains('loadContextsIntegration'), false);
     });
 
     test('should not add loadAndroidImageListIntegration if not Android',
@@ -116,7 +117,8 @@ void main() {
           verify(transport.send(captureAny)).captured.first as SentryEvent;
 
       expect(event.sdk!.integrations.length, 6);
-      expect(event.sdk!.integrations.contains('loadAndroidImageListIntegration'),
+      expect(
+          event.sdk!.integrations.contains('loadAndroidImageListIntegration'),
           false);
     });
   });

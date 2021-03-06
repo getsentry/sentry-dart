@@ -46,7 +46,8 @@ void main() {
     expect(options.eventProcessors.length, 1);
 
     final e = SentryEvent();
-    final event = await (options.eventProcessors.first(e) as FutureOr<SentryEvent>);
+    final event =
+        await (options.eventProcessors.first(e) as FutureOr<SentryEvent>);
 
     expect(called, true);
     expect(event.contexts.device!.name, 'Device1');
@@ -83,7 +84,8 @@ void main() {
         runtimes: [const SentryRuntime(name: 'eRT')])
       ..['theme'] = 'cuppertino';
     final e = SentryEvent(contexts: eventContexts);
-    final event = await (options.eventProcessors.first(e) as FutureOr<SentryEvent>);
+    final event =
+        await (options.eventProcessors.first(e) as FutureOr<SentryEvent>);
 
     expect(called, true);
     expect(event.contexts.device!.name, 'eDevice');
@@ -113,7 +115,8 @@ void main() {
         packages: const [SentryPackage('event-package', '2.0')],
       );
       final e = SentryEvent(sdk: eventSdk);
-      final event = await (options.eventProcessors.first(e) as FutureOr<SentryEvent>);
+      final event =
+          await (options.eventProcessors.first(e) as FutureOr<SentryEvent>);
 
       expect(
         event.sdk!.packages.any((element) => element.name == 'native-package'),

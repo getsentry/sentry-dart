@@ -84,13 +84,16 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
       return;
     }
     final brightness = WidgetsBinding.instance?.window.platformBrightness;
-    final brightnessDescription = brightness == Brightness.dark ? 'dark' : 'light';
+    final brightnessDescription =
+        brightness == Brightness.dark ? 'dark' : 'light';
 
     _hub.addBreadcrumb(Breadcrumb(
       message: 'Platform brightness was changed to $brightnessDescription.',
       type: 'system',
       category: 'device.event',
-      data: <String, String>{'action': 'BRIGHTNESS_CHANGED_TO_${brightnessDescription.toUpperCase()}'},
+      data: <String, String>{
+        'action': 'BRIGHTNESS_CHANGED_TO_${brightnessDescription.toUpperCase()}'
+      },
     ));
   }
 
@@ -106,7 +109,9 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
       message: 'Text scale factor changed to $newTextScaleFactor.',
       type: 'system',
       category: 'device.event',
-      data: <String, String>{'action': 'TEXT_SCALE_CHANGED_TO_$newTextScaleFactor'},
+      data: <String, String>{
+        'action': 'TEXT_SCALE_CHANGED_TO_$newTextScaleFactor'
+      },
     ));
   }
 
@@ -121,7 +126,8 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     // - https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
     // - https://github.com/getsentry/sentry-java/blob/main/sentry-android-core/src/main/java/io/sentry/android/core/AppComponentsBreadcrumbsIntegration.java#L98-L135
     // on why this breadcrumb looks like this.
-    const message = 'App had memory pressure. This indicates that the operating system '
+    const message =
+        'App had memory pressure. This indicates that the operating system '
         'would like applications to release caches to free up more memory.';
     _hub.addBreadcrumb(Breadcrumb(
       message: message,

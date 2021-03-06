@@ -277,7 +277,8 @@ void main() {
 
       window.onTextScaleFactorChanged!();
 
-      final newTextScaleFactor = WidgetsBinding.instance!.window.textScaleFactor;
+      final newTextScaleFactor =
+          WidgetsBinding.instance!.window.textScaleFactor;
 
       final breadcrumb =
           verify(hub.addBreadcrumb(captureAny)).captured.single as Breadcrumb;
