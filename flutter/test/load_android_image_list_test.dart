@@ -89,7 +89,7 @@ void main() {
     final hub = Hub(options);
 
     LoadAndroidImageListIntegration(_channel)(hub, options);
-    final ep = options.eventProcessors.first as FutureOr<SentryEvent?> Function(SentryEvent?, {dynamic hint});
+    final ep = options.eventProcessors.first;
     SentryEvent? event = getEvent();
     event = await ep(event);
 
@@ -101,7 +101,7 @@ void main() {
     final hub = Hub(options);
 
     LoadAndroidImageListIntegration(_channel)(hub, options);
-    final ep = options.eventProcessors.first as FutureOr<SentryEvent?> Function(SentryEvent?, {dynamic hint});
+    final ep = options.eventProcessors.first;
     SentryEvent? event = getEvent();
     event = await ep(event);
 

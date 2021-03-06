@@ -104,7 +104,7 @@ class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
       (event, {hint}) async {
         try {
           final infos = Map<String, dynamic>.from(
-            await (_channel.invokeMethod('loadContexts') as FutureOr<Map<dynamic, dynamic>>),
+            await (_channel.invokeMethod('loadContexts')),
           );
           if (infos['contexts'] != null) {
             final contexts = Contexts.fromJson(
@@ -264,7 +264,7 @@ class LoadAndroidImageListIntegration
           // we call on every event because the loaded image list is cached
           // and it could be changed on the Native side.
           final imageList = List<Map<dynamic, dynamic>>.from(
-            await (_channel.invokeMethod('loadImageList') as FutureOr<Iterable<dynamic>>),
+            await (_channel.invokeMethod('loadImageList'),
           );
 
           if (imageList.isEmpty) {
