@@ -45,7 +45,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     _addBreadcrumb(
       type: 'didPush',
       from: previousRoute?.settings,
-      to: route?.settings,
+      to: route.settings,
     );
   }
 
@@ -66,7 +66,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
     _addBreadcrumb(
       type: 'didPop',
-      from: route?.settings,
+      from: route.settings,
       to: previousRoute?.settings,
     );
   }
