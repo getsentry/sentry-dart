@@ -201,7 +201,7 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
 ///   - [SentryWidgetsBindingObserver]
 ///   - [WidgetsBindingObserver](https://api.flutter.dev/flutter/widgets/WidgetsBindingObserver-class.html)
 class WidgetsBindingIntegration extends Integration<SentryFlutterOptions> {
-  late SentryWidgetsBindingObserver _observer;
+  SentryWidgetsBindingObserver? _observer;
 
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
@@ -215,7 +215,7 @@ class WidgetsBindingIntegration extends Integration<SentryFlutterOptions> {
     // If the instance is not created, we skip it to keep going.
     final instance = WidgetsBinding.instance;
     if (instance != null) {
-      instance.addObserver(_observer);
+      instance.addObserver(_observer!);
       options.sdk.addIntegration('widgetsBindingIntegration');
     } else {
       options.logger(
@@ -228,8 +228,8 @@ class WidgetsBindingIntegration extends Integration<SentryFlutterOptions> {
   @override
   void close() {
     final instance = WidgetsBinding.instance;
-    if (instance != null) {
-      instance.removeObserver(_observer);
+    if (instance != null && _observer != null) {
+      instance.removeObserver(_observer!);
     }
   }
 }
