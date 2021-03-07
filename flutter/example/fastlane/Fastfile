@@ -1,0 +1,94 @@
+default_platform(:ios)
+
+# Download dSYMs does not work with app_store_connect_api_key yet. Therefore
+# We use username and password to authenticate. This feature is blocked by the
+# App Store Connect API team, see https://github.com/fastlane/fastlane/discussions/17485#discussioncomment-125619
+# When this is fixed we can remove SPACESHIP_SKIP_2FA_UPGRADE, FASTLANE_USER and FASTLANE_PASSWORD
+ENV["SPACESHIP_SKIP_2FA_UPGRADE"] = "1"
+
+platform :ios do
+  # Defined in Appfile
+  app_identifier = CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier)
+  team_id = CredentialsManager::AppfileConfig.try_fetch_value(:team_id)
+
+  appPlistPath = "./build/ios/Release-iphoneos/Runner.app/Info.plist"
+
+  lane :bump_bundle_version do
+    set_info_plist_value(
+      path: appPlistPath, 
+      key: "CFBundleVersion", 
+      value: ENV["FASTLANE_BUNDLE_VERSION"]
+    )
+    
+  end
+
+  # The version for all Info.plist must be a period-separated list of at most three non-negative integers
+  # for App Store Connect. If we are on a preview we to remove these suffixes.
+  lane :remove_preview_version_suffixes do
+    version = get_version_number(xcodeproj: "./build/ios/Release-iphoneos/Release-iphoneos.xcodeproj")
+    version = version.split("-", -1)[0]
+
+    set_info_plist_value(
+      path: appPlistPath, 
+      key: "CFBundleShortVersionString", 
+      value: version
+    )
+
+    sentryInfoPlistPath = "./Sources/Sentry/Info.plist"
+    set_info_plist_value(
+      path: sentryInfoPlistPath, 
+      key: "CFBundleShortVersionString", 
+      value: version
+    )
+    set_info_plist_value(
+      path: sentryInfoPlistPath, 
+      key: "CFBundleVersion", 
+      value: version
+    )
+  end
+
+  desc "Upload Release-iphoneos to TestFlight and symbols to Sentry"
+  lane :ios_swift_to_testflight do
+    sync_code_signing(
+      type: "appstore", 
+      keychain_name: ENV["FASTLANE_KEYCHAIN_NAME"],
+      keychain_password: ENV["FASTLANE_KEYCHAIN_PASSWORD"],
+      readonly: true
+    )
+
+    app_store_connect_api_key(
+      key_id: ENV["APP_STORE_CONNECT_KEY_ID"],
+      issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
+      key_content: ENV["APP_STORE_CONNECT_KEY"]
+    )
+
+    build_app(
+      workspace: "Sentry.xcworkspace",
+      scheme: "Release-iphoneos",
+      include_bitcode: true,
+      include_symbols: false,
+      export_options: {
+          method: "app-store",
+          provisioningProfiles: {
+           app_identifier => "match AppStore io.sentry.flutter.example"
+          }
+      },
+      archive_path: "Release-iphoneos"
+    )
+    
+    testflight
+
+    download_dsyms(
+      wait_for_dsym_processing: true,
+      build_number: ENV["FASTLANE_BUNDLE_VERSION"]
+    )
+
+    sentry_upload_dsym(
+      auth_token: ENV["SENTRY_AUTH_TOKEN"],
+      org_slug: 'sentry-sdks',
+      project_slug: 'sentry-cocoa',
+      symbol_maps: 'Release-iphoneos.xcarchive/BCSymbolMaps/'
+    )
+  end
+
+end
