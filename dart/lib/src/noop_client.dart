@@ -1,6 +1,7 @@
 import 'dart:async';
-import 'dart:typed_data';
 import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:http/http.dart';
 
 class NoOpClient implements Client {
@@ -22,7 +23,9 @@ class NoOpClient implements Client {
   void close() {}
 
   @override
-  Future<Response> delete(url, {Map<String, String> headers}) => _response;
+  Future<Response> delete(Uri url,
+          {Map<String, String> headers, Object body, Encoding encoding}) =>
+      _response;
 
   @override
   Future<Response> get(url, {Map<String, String> headers}) => _response;
