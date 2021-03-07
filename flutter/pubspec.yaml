@@ -5,7 +5,7 @@ homepage: https://docs.sentry.io/platforms/flutter/
 repository: https://github.com/getsentry/sentry-dart
 
 environment:
-  sdk: ">=2.8.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
   flutter: ">=1.17.0"
 
 dependencies:
@@ -20,9 +20,10 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  mockito: ^5.0.0-nullsafety.7
+  mockito: ^5.0.0
   yaml: ^3.0.0 # needed for version match (code and pubspec)
   pedantic: ^1.10.0
+  build_runner: ^1.11.5
 
 dependency_overrides:
   sentry:

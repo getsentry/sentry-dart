@@ -10,7 +10,7 @@ void main() {
 
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  Fixture fixture;
+  late Fixture fixture;
 
   setUp(() {
     fixture = Fixture();
@@ -33,7 +33,7 @@ void main() {
 
   test('FileSystemTransport returns emptyId if channel throws', () async {
     _channel.setMockMethodCallHandler((MethodCall methodCall) async {
-      throw null;
+      throw Exception();
     });
 
     final transport = fixture.getSut(_channel);

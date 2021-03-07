@@ -25,16 +25,12 @@ mixin SentryFlutter {
 
   static Future<void> init(
     FlutterOptionsConfiguration optionsConfiguration, {
-    AppRunner appRunner,
+    AppRunner? appRunner,
     PackageLoader packageLoader = _loadPackageInfo,
     iOSPlatformChecker isIOSChecker = isIOS,
     AndroidPlatformChecker isAndroidChecker = isAndroid,
     MethodChannel channel = _channel,
   }) async {
-    if (optionsConfiguration == null) {
-      throw ArgumentError('OptionsConfiguration is required.');
-    }
-
     final flutterOptions = SentryFlutterOptions();
 
     // first step is to install the native integration and set default values,
@@ -53,7 +49,7 @@ mixin SentryFlutter {
 
     await Sentry.init(
       (options) async {
-        await optionsConfiguration(options);
+        await optionsConfiguration(options as SentryFlutterOptions);
       },
       appRunner: appRunner,
       options: flutterOptions,

@@ -19,16 +19,13 @@ import '../sentry_flutter.dart';
 ///   - [WidgetsBindingObserver](https://api.flutter.dev/flutter/widgets/WidgetsBindingObserver-class.html)
 class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   SentryWidgetsBindingObserver({
-    Hub hub,
-    @required SentryFlutterOptions options,
-  }) {
-    _hub = hub ?? HubAdapter();
-    assert(options != null);
-    _options = options;
-  }
+    Hub? hub,
+    required SentryFlutterOptions options,
+  })   : _hub = hub ?? HubAdapter(),
+        _options = options;
 
-  Hub _hub;
-  SentryFlutterOptions _options;
+  final Hub _hub;
+  final SentryFlutterOptions _options;
 
   /// This method records lifecycle events.
   /// It tries to mimic the behavior of ActivityBreadcrumbsIntegration of Sentry
@@ -66,15 +63,15 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     if (!_options.enableWindowMetricBreadcrumbs) {
       return;
     }
-    final window = WidgetsBinding.instance.window;
+    final window = WidgetsBinding.instance?.window;
     _hub.addBreadcrumb(Breadcrumb(
       message: 'Screen size changed',
       category: 'device.screen',
       type: 'navigation',
       data: <String, dynamic>{
-        'new_pixel_ratio': window.devicePixelRatio,
-        'new_height': window.physicalSize.height,
-        'new_width': window.physicalSize.width,
+        'new_pixel_ratio': window?.devicePixelRatio,
+        'new_height': window?.physicalSize.height,
+        'new_width': window?.physicalSize.width,
       },
     ));
   }
@@ -86,7 +83,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     if (!_options.enableBrightnessChangeBreadcrumbs) {
       return;
     }
-    final brightness = WidgetsBinding.instance.window.platformBrightness;
+    final brightness = WidgetsBinding.instance?.window.platformBrightness;
     final brightnessDescription =
         brightness == Brightness.dark ? 'dark' : 'light';
 
@@ -107,7 +104,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     if (!_options.enableTextScaleChangeBreadcrumbs) {
       return;
     }
-    final newTextScaleFactor = WidgetsBinding.instance.window.textScaleFactor;
+    final newTextScaleFactor = WidgetsBinding.instance?.window.textScaleFactor;
     _hub.addBreadcrumb(Breadcrumb(
       message: 'Text scale factor changed to $newTextScaleFactor.',
       type: 'system',
@@ -155,10 +152,9 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
       case AppLifecycleState.detached:
         return 'detached';
     }
-    return '';
   }
 
-  /*
+/*
   These are also methods of `WidgetsBindingObserver` but are currently not
   implemented because I'm not sure what to do with them. See the reasoning
   for each method. If these methods are implemented the class definition should
