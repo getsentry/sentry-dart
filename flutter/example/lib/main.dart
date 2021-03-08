@@ -48,7 +48,7 @@ class _MyAppState extends State<MyApp> {
 
 class MainScaffold extends StatelessWidget {
   const MainScaffold({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -69,14 +69,14 @@ class MainScaffold extends StatelessWidget {
             ),
             RaisedButton(
               child: const Text('Flutter error : Scaffold.of()'),
-              onPressed: () => Scaffold.of(context)
-                  .showBottomSheet<dynamic>((context) => null),
+              onPressed: () => Scaffold.of(context).showBottomSheet<dynamic>(
+                  (context) => const Text('Scaffold error')),
             ),
             RaisedButton(
-              child: const Text('Dart: throw null'),
+              child: const Text('Dart: throw onPressed'),
               // Warning : not captured if a debugger is attached
               // https://github.com/flutter/flutter/issues/48972
-              onPressed: () => throw null,
+              onPressed: () => throw Exception('Throws onPressed'),
             ),
             RaisedButton(
               child: const Text('Dart: assert'),
@@ -124,7 +124,7 @@ class MainScaffold extends StatelessWidget {
 }
 
 class AndroidExample extends StatelessWidget {
-  const AndroidExample({Key key}) : super(key: key);
+  const AndroidExample({Key? key}) : super(key: key);
 
   // ignore: avoid_field_initializers_in_const_classes
   final channel = const MethodChannel('example.flutter.sentry.io');
@@ -188,7 +188,7 @@ Future<void> asyncThrows() async {
 }
 
 class CocoaExample extends StatelessWidget {
-  const CocoaExample({Key key}) : super(key: key);
+  const CocoaExample({Key? key}) : super(key: key);
 
   final channel = const MethodChannel('example.flutter.sentry.io');
 
@@ -232,7 +232,7 @@ class CocoaExample extends StatelessWidget {
 }
 
 class WebExample extends StatelessWidget {
-  const WebExample({Key key}) : super(key: key);
+  const WebExample({Key? key}) : super(key: key);
 
   final channel = const MethodChannel('example.flutter.sentry.io');
 
