@@ -8,19 +8,19 @@ class Request {
   ///The URL of the request if available.
   ///The query string can be declared either as part of the url,
   ///or separately in queryString.
-  final String url;
+  final String? url;
 
   ///The HTTP method of the request.
-  final String method;
+  final String? method;
 
   /// The query string component of the URL.
   ///
   /// If the query string is not declared and part of the url parameter,
   /// Sentry moves it to the query string.
-  final String queryString;
+  final String? queryString;
 
   /// The cookie values as string.
-  final String cookies;
+  final String? cookies;
 
   final dynamic _data;
 
@@ -37,25 +37,23 @@ class Request {
     return _data;
   }
 
-  final Map<String, String> _headers;
+  final Map<String, String>? _headers;
 
   /// An immutable dictionary of submitted headers.
   /// If a header appears multiple times it,
   /// needs to be merged according to the HTTP standard for header merging.
   /// Header names are treated case-insensitively by Sentry.
-  Map<String, String> get headers =>
-      _headers != null ? Map.unmodifiable(_headers) : null;
+  Map<String, String> get headers => Map.unmodifiable(_headers ?? const {});
 
-  final Map<String, String> _env;
+  final Map<String, String>? _env;
 
   /// An immutable dictionary containing environment information passed from the server.
   /// This is where information such as CGI/WSGI/Rack keys go that are not HTTP headers.
-  Map<String, String> get env => _env != null ? Map.unmodifiable(_env) : null;
+  Map<String, String> get env => Map.unmodifiable(_env ?? const {});
 
-  final Map<String, String> _other;
+  final Map<String, String>? _other;
 
-  Map<String, String> get other =>
-      _other != null ? Map.unmodifiable(_other) : null;
+  Map<String, String> get other => Map.unmodifiable(_other ?? const {});
 
   Request({
     this.url,
@@ -63,9 +61,9 @@ class Request {
     this.queryString,
     this.cookies,
     dynamic data,
-    Map<String, String> headers,
-    Map<String, String> env,
-    Map<String, String> other,
+    Map<String, String>? headers,
+    Map<String, String>? env,
+    Map<String, String>? other,
   })  : _data = data,
         _headers = headers != null ? Map.from(headers) : null,
         _env = env != null ? Map.from(env) : null,
@@ -94,15 +92,15 @@ class Request {
       json['cookies'] = cookies;
     }
 
-    if (headers != null && headers.isNotEmpty) {
+    if (headers.isNotEmpty) {
       json['headers'] = headers;
     }
 
-    if (env != null && env.isNotEmpty) {
+    if (env.isNotEmpty) {
       json['env'] = env;
     }
 
-    if (other != null && other.isNotEmpty) {
+    if (other.isNotEmpty) {
       json['other'] = other;
     }
 
@@ -110,14 +108,14 @@ class Request {
   }
 
   Request copyWith({
-    String url,
-    String method,
-    String queryString,
-    String cookies,
+    String? url,
+    String? method,
+    String? queryString,
+    String? cookies,
     dynamic data,
-    Map<String, String> headers,
-    Map<String, String> env,
-    Map<String, String> other,
+    Map<String, String>? headers,
+    Map<String, String>? env,
+    Map<String, String>? other,
   }) =>
       Request(
         url: url ?? this.url,

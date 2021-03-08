@@ -48,10 +48,10 @@ class HubAdapter implements Hub {
 
   @override
   Future<SentryId> captureMessage(
-    String message, {
-    SentryLevel level,
-    String template,
-    List params,
+    String? message, {
+    SentryLevel? level,
+    String? template,
+    List? params,
     dynamic hint,
   }) =>
       Sentry.captureMessage(

@@ -6,6 +6,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'mocks.dart';
+import 'mocks.mocks.dart';
 import 'sentry_flutter_util.dart';
 
 void main() {
@@ -75,8 +76,8 @@ void main() {
       final event =
           verify(transport.send(captureAny)).captured.first as SentryEvent;
 
-      expect(event.sdk.integrations.length, 7);
-      expect(event.sdk.integrations.contains('loadContextsIntegration'), true);
+      expect(event.sdk!.integrations.length, 7);
+      expect(event.sdk!.integrations.contains('loadContextsIntegration'), true);
     });
 
     test('should not add loadContextsIntegration if not ios', () async {
@@ -94,8 +95,9 @@ void main() {
       final event =
           verify(transport.send(captureAny)).captured.first as SentryEvent;
 
-      expect(event.sdk.integrations.length, 6);
-      expect(event.sdk.integrations.contains('loadContextsIntegration'), false);
+      expect(event.sdk!.integrations.length, 6);
+      expect(
+          event.sdk!.integrations.contains('loadContextsIntegration'), false);
     });
 
     test('should not add loadAndroidImageListIntegration if not Android',
@@ -114,8 +116,9 @@ void main() {
       final event =
           verify(transport.send(captureAny)).captured.first as SentryEvent;
 
-      expect(event.sdk.integrations.length, 6);
-      expect(event.sdk.integrations.contains('loadAndroidImageListIntegration'),
+      expect(event.sdk!.integrations.length, 6);
+      expect(
+          event.sdk!.integrations.contains('loadAndroidImageListIntegration'),
           false);
     });
   });

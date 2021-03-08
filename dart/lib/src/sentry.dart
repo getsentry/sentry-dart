@@ -36,27 +36,23 @@ class Sentry {
   /// such as SentryFlutter.
   static Future<void> init(
     OptionsConfiguration optionsConfiguration, {
-    AppRunner appRunner,
-    SentryOptions options,
+    AppRunner? appRunner,
+    SentryOptions? options,
   }) async {
-    if (optionsConfiguration == null) {
-      throw ArgumentError('OptionsConfiguration is required.');
-    }
-
     final sentryOptions = options ?? SentryOptions();
     await _initDefaultValues(sentryOptions, appRunner);
 
     await optionsConfiguration(sentryOptions);
 
-    if (sentryOptions == null) {
-      throw ArgumentError('SentryOptions is required.');
+    if (sentryOptions.dsn == null) {
+      throw ArgumentError('DSN is required.');
     }
 
     await _init(sentryOptions, appRunner);
   }
 
   static Future<void> _initDefaultValues(
-      SentryOptions options, AppRunner appRunner) async {
+      SentryOptions options, AppRunner? appRunner) async {
     // We infer the enviroment based on the release/non-release and profile
     // constants.
     var environment = options.platformChecker.isReleaseMode()
@@ -84,7 +80,7 @@ class Sentry {
   }
 
   /// Initializes the SDK
-  static Future<void> _init(SentryOptions options, AppRunner appRunner) async {
+  static Future<void> _init(SentryOptions options, AppRunner? appRunner) async {
     if (isEnabled) {
       options.logger(
         SentryLevel.warning,
@@ -149,10 +145,10 @@ class Sentry {
       );
 
   static Future<SentryId> captureMessage(
-    String message, {
-    SentryLevel level,
-    String template,
-    List<dynamic> params,
+    String? message, {
+    SentryLevel? level = SentryLevel.info,
+    String? template,
+    List<dynamic>? params,
     dynamic hint,
   }) async =>
       currentHub.captureMessage(
@@ -191,20 +187,14 @@ class Sentry {
   static void bindClient(SentryClient client) => currentHub.bindClient(client);
 
   static bool _setDefaultConfiguration(SentryOptions options) {
-    // if DSN is null, let's crash the App.
-    if (options.dsn == null) {
-      throw ArgumentError(
-        'DSN is required. Use empty string to disable SDK.',
-      );
-    }
     // if the DSN is empty, let's disable the SDK
-    if (options.dsn.isEmpty) {
+    if (options.dsn?.isEmpty ?? false) {
       close();
       return false;
     }
 
     // try parsing the dsn
-    Dsn.parse(options.dsn);
+    Dsn.parse(options.dsn!);
 
     // if logger os NoOp, let's set a logger that prints on the console
     if (options.debug && options.logger == noOpLogger) {

@@ -111,8 +111,8 @@ void main() {
     expect('value1', copy.value);
     expect('module1', copy.module);
     expect(2, copy.threadId);
-    expect(mechanism.toJson(), copy.mechanism.toJson());
-    expect(stackTrace.toJson(), copy.stackTrace.toJson());
+    expect(mechanism.toJson(), copy.mechanism!.toJson());
+    expect(stackTrace.toJson(), copy.stackTrace!.toJson());
   });
 }
 

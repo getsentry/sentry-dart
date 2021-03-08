@@ -37,7 +37,7 @@ void main() {
   });
 }
 
-Breadcrumb _generate({DateTime timestamp}) => Breadcrumb(
+Breadcrumb _generate({DateTime? timestamp}) => Breadcrumb(
       message: 'message',
       timestamp: timestamp ?? DateTime.now(),
       data: {'key': 'value'},

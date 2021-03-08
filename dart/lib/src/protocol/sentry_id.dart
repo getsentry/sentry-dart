@@ -12,7 +12,7 @@ class SentryId {
 
   static final Uuid _uuidGenerator = Uuid();
 
-  SentryId._internal({String id}) : _id = id ?? _uuidGenerator.v4();
+  SentryId._internal({String? id}) : _id = id ?? _uuidGenerator.v4();
 
   /// Generates a new SentryId
   factory SentryId.newId() => SentryId._internal();

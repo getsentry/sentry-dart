@@ -20,7 +20,7 @@ jobs:
         # TODO: cedx/setup-dart@v2 doesn't work on Windows (doesn't add pub to the PATH?)
         # os: [ubuntu-latest, windows-latest, macos-latest]
         os: [ubuntu-latest, macos-latest]
-        sdk: [beta, dev, stable]
+        sdk: [stable, beta, dev]
         exclude:
           # Bad state: Could not run tests with Observatory enabled. Try setting a different port with --port option.
           - os: ubuntu-latest
@@ -83,8 +83,7 @@ jobs:
           TOTAL_MAX: ${{ steps.analysis.outputs.total_max }}
         run: |
           PERCENTAGE=$(( $TOTAL * 100 / $TOTAL_MAX ))
-          # revert to 100 when we are nul-safety ready because of (http)
-          if (( $PERCENTAGE < 90 ))
+          if (( $PERCENTAGE < 100 ))
           then
             echo Score too low!
             exit 1

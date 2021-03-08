@@ -3,10 +3,10 @@ import 'package:meta/meta.dart';
 /// An object describing the system SDK.
 @immutable
 class SdkInfo {
-  final String sdkName;
-  final int versionMajor;
-  final int versionMinor;
-  final int versionPatchlevel;
+  final String? sdkName;
+  final int? versionMajor;
+  final int? versionMinor;
+  final int? versionPatchlevel;
 
   const SdkInfo({
     this.sdkName,
@@ -37,10 +37,10 @@ class SdkInfo {
   }
 
   SdkInfo copyWith({
-    String sdkName,
-    int versionMajor,
-    int versionMinor,
-    int versionPatchlevel,
+    String? sdkName,
+    int? versionMajor,
+    int? versionMinor,
+    int? versionPatchlevel,
   }) =>
       SdkInfo(
         sdkName: sdkName ?? this.sdkName,

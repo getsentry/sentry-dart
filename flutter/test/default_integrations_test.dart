@@ -7,14 +7,14 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/sentry_flutter_options.dart';
 
-import 'mocks.dart';
+import 'mocks.mocks.dart';
 
 void main() {
   const _channel = MethodChannel('sentry_flutter');
 
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  Fixture fixture;
+  late Fixture fixture;
 
   setUp(() {
     fixture = Fixture();
@@ -26,12 +26,15 @@ void main() {
 
   void _reportError({
     bool silent = false,
-    FlutterExceptionHandler handler,
+    FlutterExceptionHandler? handler,
     dynamic exception,
   }) {
     // replace default error otherwise it fails on testing
     FlutterError.onError =
         handler ?? (FlutterErrorDetails errorDetails) async {};
+
+    when(fixture.hub.captureEvent(captureAny))
+        .thenAnswer((_) => Future.value(SentryId.empty()));
 
     FlutterErrorIntegration()(fixture.hub, fixture.options);
 
@@ -106,7 +109,7 @@ void main() {
 
   test('nativeSdkIntegration do not throw', () async {
     _channel.setMockMethodCallHandler((MethodCall methodCall) async {
-      throw null;
+      throw Exception();
     });
 
     final integration = NativeSdkIntegration(_channel);
@@ -142,7 +145,7 @@ void main() {
     var called = false;
     var ensureInitialized = () {
       called = true;
-      return WidgetsBinding.instance;
+      return WidgetsBinding.instance!;
     };
     final integration = WidgetsFlutterBindingIntegration(ensureInitialized);
     await integration(fixture.hub, fixture.options);

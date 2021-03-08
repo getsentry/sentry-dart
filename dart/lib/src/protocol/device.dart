@@ -35,7 +35,8 @@ class Device {
     this.bootTime,
     this.timezone,
   }) : assert(
-            batteryLevel == null || (batteryLevel >= 0 && batteryLevel <= 100));
+          batteryLevel == null || (batteryLevel >= 0 && batteryLevel <= 100),
+        );
 
   factory Device.fromJson(Map<String, dynamic> data) => Device(
         name: data['name'],
@@ -68,92 +69,92 @@ class Device {
       );
 
   /// The name of the device. This is typically a hostname.
-  final String name;
+  final String? name;
 
   /// The family of the device.
   ///
   /// This is normally the common part of model names across generations.
   /// For instance `iPhone` would be a reasonable family,
   /// so would be `Samsung Galaxy`.
-  final String family;
+  final String? family;
 
   /// The model name. This for instance can be `Samsung Galaxy S3`.
-  final String model;
+  final String? model;
 
   /// An internal hardware revision to identify the device exactly.
-  final String modelId;
+  final String? modelId;
 
   /// The CPU architecture.
-  final String arch;
+  final String? arch;
 
   /// If the device has a battery, this can be an floating point value
   /// defining the battery level (in the range 0-100).
-  final double batteryLevel;
+  final double? batteryLevel;
 
   /// Defines the orientation of a device.
-  final Orientation orientation;
+  final Orientation? orientation;
 
   /// The manufacturer of the device.
-  final String manufacturer;
+  final String? manufacturer;
 
   /// The brand of the device.
-  final String brand;
+  final String? brand;
 
   /// The screen resolution. (e.g.: `800x600`, `3040x1444`).
-  final String screenResolution;
+  final String? screenResolution;
 
   /// A floating point denoting the screen density.
-  final double screenDensity;
+  final double? screenDensity;
 
   /// A decimal value reflecting the DPI (dots-per-inch) density.
-  final int screenDpi;
+  final int? screenDpi;
 
   /// Whether the device was online or not.
-  final bool online;
+  final bool? online;
 
   /// Whether the device was charging or not.
-  final bool charging;
+  final bool? charging;
 
   /// Whether the device was low on memory.
-  final bool lowMemory;
+  final bool? lowMemory;
 
   /// A flag indicating whether this device is a simulator or an actual device.
-  final bool simulator;
+  final bool? simulator;
 
   /// Total system memory available in bytes.
-  final int memorySize;
+  final int? memorySize;
 
   /// Free system memory in bytes.
-  final int freeMemory;
+  final int? freeMemory;
 
   /// Memory usable for the app in bytes.
-  final int usableMemory;
+  final int? usableMemory;
 
   /// Total device storage in bytes.
-  final int storageSize;
+  final int? storageSize;
 
   /// Free device storage in bytes.
-  final int freeStorage;
+  final int? freeStorage;
 
   /// Total size of an attached external storage in bytes
   /// (e.g.: android SDK card).
-  final int externalStorageSize;
+  final int? externalStorageSize;
 
   /// Free size of an attached external storage in bytes
   /// (e.g.: android SDK card).
-  final int externalFreeStorage;
+  final int? externalFreeStorage;
 
   /// When the system was booted
-  final DateTime bootTime;
+  final DateTime? bootTime;
 
   /// The timezone of the device, e.g.: `Europe/Vienna`.
-  final String timezone;
+  final String? timezone;
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 
-    String orientation;
+    String? orientation;
 
     switch (this.orientation) {
       case Orientation.portrait:
@@ -161,6 +162,9 @@ class Device {
         break;
       case Orientation.landscape:
         orientation = 'landscape';
+        break;
+      case null:
+        orientation = null;
         break;
     }
 
@@ -257,7 +261,7 @@ class Device {
     }
 
     if (bootTime != null) {
-      json['boot_time'] = bootTime.toIso8601String();
+      json['boot_time'] = bootTime!.toIso8601String();
     }
 
     if (timezone != null) {
@@ -296,31 +300,31 @@ class Device {
       );
 
   Device copyWith({
-    String name,
-    String family,
-    String model,
-    String modelId,
-    String arch,
-    double batteryLevel,
-    Orientation orientation,
-    String manufacturer,
-    String brand,
-    String screenResolution,
-    double screenDensity,
-    int screenDpi,
-    bool online,
-    bool charging,
-    bool lowMemory,
-    bool simulator,
-    int memorySize,
-    int freeMemory,
-    int usableMemory,
-    int storageSize,
-    int freeStorage,
-    int externalStorageSize,
-    int externalFreeStorage,
-    DateTime bootTime,
-    String timezone,
+    String? name,
+    String? family,
+    String? model,
+    String? modelId,
+    String? arch,
+    double? batteryLevel,
+    Orientation? orientation,
+    String? manufacturer,
+    String? brand,
+    String? screenResolution,
+    double? screenDensity,
+    int? screenDpi,
+    bool? online,
+    bool? charging,
+    bool? lowMemory,
+    bool? simulator,
+    int? memorySize,
+    int? freeMemory,
+    int? usableMemory,
+    int? storageSize,
+    int? freeStorage,
+    int? externalStorageSize,
+    int? externalFreeStorage,
+    DateTime? bootTime,
+    String? timezone,
   }) =>
       Device(
         name: name ?? this.name,

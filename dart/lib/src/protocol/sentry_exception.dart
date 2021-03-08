@@ -6,26 +6,26 @@ import '../protocol.dart';
 @immutable
 class SentryException {
   /// Required. The type of exception
-  final String type;
+  final String? type;
 
   /// Required. The value of the exception
-  final String value;
+  final String? value;
 
   /// The optional module, or package which the exception type lives in.
-  final String module;
+  final String? module;
 
   /// An optional stack trace object
-  final SentryStackTrace stackTrace;
+  final SentryStackTrace? stackTrace;
 
   /// An optional object describing the [Mechanism] that created this exception
-  final Mechanism mechanism;
+  final Mechanism? mechanism;
 
   /// Represents a thread id. not available in Dart
-  final int threadId;
+  final int? threadId;
 
   const SentryException({
-    @required this.type,
-    @required this.value,
+    required this.type,
+    required this.value,
     this.module,
     this.stackTrace,
     this.mechanism,
@@ -48,11 +48,11 @@ class SentryException {
     }
 
     if (stackTrace != null) {
-      json['stacktrace'] = stackTrace.toJson();
+      json['stacktrace'] = stackTrace!.toJson();
     }
 
     if (mechanism != null) {
-      json['mechanism'] = mechanism.toJson();
+      json['mechanism'] = mechanism!.toJson();
     }
 
     if (threadId != null) {
@@ -63,12 +63,12 @@ class SentryException {
   }
 
   SentryException copyWith({
-    String type,
-    String value,
-    String module,
-    SentryStackTrace stackTrace,
-    Mechanism mechanism,
-    int threadId,
+    String? type,
+    String? value,
+    String? module,
+    SentryStackTrace? stackTrace,
+    Mechanism? mechanism,
+    int? threadId,
   }) =>
       SentryException(
         type: type ?? this.type,

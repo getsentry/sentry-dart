@@ -18,31 +18,31 @@ class Gpu {
   static const type = 'gpu';
 
   /// The name of the graphics device.
-  final String name;
+  final String? name;
 
   /// The PCI identifier of the graphics device.
-  final int id;
+  final int? id;
 
   /// The PCI vendor identifier of the graphics device.
-  final int vendorId;
+  final int? vendorId;
 
   /// The vendor name as reported by the graphics device.
-  final String vendorName;
+  final String? vendorName;
 
   /// The total GPU memory available in Megabytes.
-  final int memorySize;
+  final int? memorySize;
 
   /// The device low-level API type.
-  final String apiType;
+  final String? apiType;
 
   /// Whether the GPU has multi-threaded rendering or not.
-  final bool multiThreadedRendering;
+  final bool? multiThreadedRendering;
 
   /// The Version of the graphics device.
-  final String version;
+  final String? version;
 
   /// The Non-Power-Of-Two-Support support.
-  final String npotSupport;
+  final String? npotSupport;
 
   const Gpu({
     this.name,
@@ -124,15 +124,15 @@ class Gpu {
   }
 
   Gpu copyWith({
-    String name,
-    int id,
-    int vendorId,
-    String vendorName,
-    int memorySize,
-    String apiType,
-    bool multiThreadedRendering,
-    String version,
-    String npotSupport,
+    String? name,
+    int? id,
+    int? vendorId,
+    String? vendorName,
+    int? memorySize,
+    String? apiType,
+    bool? multiThreadedRendering,
+    String? version,
+    String? npotSupport,
   }) =>
       Gpu(
         name: name ?? this.name,

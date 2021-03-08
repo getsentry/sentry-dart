@@ -10,7 +10,7 @@ import 'sentry_options.dart';
 import 'throwable_mechanism.dart';
 
 class IsolateErrorIntegration extends Integration {
-  RawReceivePort _receivePort;
+  late RawReceivePort _receivePort;
 
   @override
   FutureOr<void> call(Hub hub, SentryOptions options) async {

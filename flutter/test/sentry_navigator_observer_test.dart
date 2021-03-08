@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
-import 'mocks.dart';
+import 'mocks.mocks.dart';
 
 void main() {
   group('RouteObserverBreadcrumb', () {
@@ -135,12 +135,12 @@ void main() {
   });
 
   group('SentryNavigatorObserver', () {
-    PageRoute route(RouteSettings settings) => PageRouteBuilder<void>(
-          pageBuilder: (_, __, ___) => null,
+    PageRoute route(RouteSettings? settings) => PageRouteBuilder<void>(
+          pageBuilder: (_, __, ___) => Container(),
           settings: settings,
         );
 
-    RouteSettings routeSettings(String name, [Object arguments]) =>
+    RouteSettings routeSettings(String name, [Object? arguments]) =>
         RouteSettings(name: name, arguments: arguments);
 
     test('Test recording of Breadcrumbs', () {
@@ -206,7 +206,7 @@ void main() {
 
     test('No RouteSettings', () {
       PageRoute route() => PageRouteBuilder<void>(
-            pageBuilder: (_, __, ___) => null,
+            pageBuilder: (_, __, ___) => Container(),
           );
 
       final hub = MockHub();

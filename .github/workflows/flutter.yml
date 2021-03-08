@@ -23,9 +23,6 @@ jobs:
             target: ios
           - os: windows-latest
             target: ios
-          # No web on stable yet
-          - channel: stable
-            target: web
           # macos-latest is taking hours due to limited resources
           - os: macos-latest
             target: android
@@ -87,8 +84,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: subosito/flutter-action@v1
-        with:
-          channel: 'beta'
       - run: |
           cd flutter
           flutter pub get
@@ -110,7 +105,8 @@ jobs:
           TOTAL_MAX: ${{ steps.analysis.outputs.total_max }}
         run: |
           PERCENTAGE=$(( $TOTAL * 100 / $TOTAL_MAX ))
-          if (( $PERCENTAGE < 90 ))
+          # 70 because pana does not understand null-safety yet
+          if (( $PERCENTAGE < 70 ))
           then
             echo Score too low!
             exit 1

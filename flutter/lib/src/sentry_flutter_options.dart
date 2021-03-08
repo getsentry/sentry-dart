@@ -5,19 +5,10 @@ import 'package:sentry/sentry.dart';
 /// Note that some of these options require native Sentry integration, which is
 /// not available on all platforms.
 class SentryFlutterOptions extends SentryOptions {
-  SentryFlutterOptions() : super();
-
-  bool _enableAutoSessionTracking = true;
+  SentryFlutterOptions({String? dsn}) : super(dsn: dsn);
 
   /// Enable or disable the Auto session tracking on the Native SDKs (Android/iOS)
-  bool get enableAutoSessionTracking => _enableAutoSessionTracking;
-
-  set enableAutoSessionTracking(bool value) {
-    assert(value != null);
-    _enableAutoSessionTracking = value ?? _enableAutoSessionTracking;
-  }
-
-  bool _enableNativeCrashHandling = true;
+  bool enableAutoSessionTracking = true;
 
   /// Enable or disable the Crash handling on the Native SDKs, e.g.,
   /// UncaughtExceptionHandler and [anrEnabled] for Android.
@@ -28,12 +19,7 @@ class SentryFlutterOptions extends SentryOptions {
   ///
   /// Disabling this feature affects the [enableAutoSessionTracking]
   /// feature, as this is required to mark Sessions as Crashed.
-  bool get enableNativeCrashHandling => _enableNativeCrashHandling;
-
-  set enableNativeCrashHandling(bool value) {
-    assert(value != null);
-    _enableNativeCrashHandling = value ?? _enableNativeCrashHandling;
-  }
+  bool enableNativeCrashHandling = true;
 
   int _autoSessionTrackingIntervalMillis = 30000;
 
@@ -44,25 +30,16 @@ class SentryFlutterOptions extends SentryOptions {
       _autoSessionTrackingIntervalMillis;
 
   set autoSessionTrackingIntervalMillis(int value) {
-    assert(value != null);
-    _autoSessionTrackingIntervalMillis = (value != null && value >= 0)
-        ? value
-        : _autoSessionTrackingIntervalMillis;
+    _autoSessionTrackingIntervalMillis =
+        value >= 0 ? value : _autoSessionTrackingIntervalMillis;
   }
-
-  bool _anrEnabled = false;
 
   /// Enable or disable ANR (Application Not Responding) Default is enabled Used by AnrIntegration.
   /// Available only for Android.
   /// Disabled by default as the stack trace most of the time is hanging on
   /// the MessageChannel from Flutter, but you can enable it if you have
   /// Java/Kotlin code as well.
-  bool get anrEnabled => _anrEnabled;
-
-  set anrEnabled(bool value) {
-    assert(value != null);
-    _anrEnabled = value ?? _anrEnabled;
-  }
+  bool anrEnabled = false;
 
   int _anrTimeoutIntervalMillis = 5000;
 
@@ -72,24 +49,15 @@ class SentryFlutterOptions extends SentryOptions {
   int get anrTimeoutIntervalMillis => _anrTimeoutIntervalMillis;
 
   set anrTimeoutIntervalMillis(int value) {
-    assert(value != null);
-    _anrTimeoutIntervalMillis =
-        (value != null && value >= 0) ? value : _anrTimeoutIntervalMillis;
+    _anrTimeoutIntervalMillis = value >= 0 ? value : _anrTimeoutIntervalMillis;
   }
-
-  bool _enableAutoNativeBreadcrumbs = true;
 
   /// Enable or disable the Automatic breadcrumbs on the Native platforms (Android/iOS)
   /// Screen's lifecycle, App's lifecycle, System events, etc...
   ///
   /// If you only want to record breadcrumbs inside the Flutter environment
   /// consider using [useFlutterBreadcrumbTracking].
-  bool get enableAutoNativeBreadcrumbs => _enableAutoNativeBreadcrumbs;
-
-  set enableAutoNativeBreadcrumbs(bool value) {
-    assert(value != null);
-    _enableAutoNativeBreadcrumbs = value ?? _enableAutoNativeBreadcrumbs;
-  }
+  bool enableAutoNativeBreadcrumbs = true;
 
   int _cacheDirSize = 30;
 
@@ -98,15 +66,14 @@ class SentryFlutterOptions extends SentryOptions {
   int get cacheDirSize => _cacheDirSize;
 
   set cacheDirSize(int value) {
-    assert(value != null);
-    _cacheDirSize = (value != null && value >= 0) ? value : _cacheDirSize;
+    _cacheDirSize = value >= 0 ? value : _cacheDirSize;
   }
 
   @Deprecated(
     'Use enableAppLifecycleBreadcrumbs instead. '
     'This option gets removed in Sentry 5.0.0',
   )
-  bool get enableLifecycleBreadcrumbs => _enableAppLifecycleBreadcrumbs;
+  bool get enableLifecycleBreadcrumbs => enableAppLifecycleBreadcrumbs;
 
   @Deprecated(
     'Use enableAppLifecycleBreadcrumbs instead. '
@@ -131,83 +98,36 @@ class SentryFlutterOptions extends SentryOptions {
   /// [lifecycle](https://developer.apple.com/documentation/uikit/app_and_environment/managing_your_app_s_life_cycle).
   /// However because an iOS Flutter application lives inside a single
   /// `UIViewController` this is an application wide lifecycle event.
-  bool get enableAppLifecycleBreadcrumbs => _enableAppLifecycleBreadcrumbs;
-
-  set enableAppLifecycleBreadcrumbs(bool value) {
-    assert(value != null);
-    _enableAppLifecycleBreadcrumbs = value ?? _enableAppLifecycleBreadcrumbs;
-  }
-
-  bool _enableAppLifecycleBreadcrumbs = false;
+  bool enableAppLifecycleBreadcrumbs = false;
 
   /// Consider disabling [enableAutoNativeBreadcrumbs] if you
   /// enable this. Otherwise you might record window metric events twice.
   /// Also consider using [enableBreadcrumbTrackingForCurrentPlatform]
   /// instead for more sensible defaults.
-  bool get enableWindowMetricBreadcrumbs => _enableWindowMetricBreadcrumbs;
-
-  set enableWindowMetricBreadcrumbs(bool value) {
-    assert(value != null);
-    _enableWindowMetricBreadcrumbs = value ?? _enableWindowMetricBreadcrumbs;
-  }
-
-  bool _enableWindowMetricBreadcrumbs = false;
+  bool enableWindowMetricBreadcrumbs = false;
 
   /// Consider disabling [enableAutoNativeBreadcrumbs] if you
   /// enable this. Otherwise you might record brightness change events twice.
   /// Also consider using [enableBreadcrumbTrackingForCurrentPlatform]
   /// instead for more sensible defaults.
-  bool get enableBrightnessChangeBreadcrumbs =>
-      _enableBrightnessChangeBreadcrumbs;
-
-  set enableBrightnessChangeBreadcrumbs(bool value) {
-    assert(value != null);
-    _enableBrightnessChangeBreadcrumbs =
-        value ?? _enableBrightnessChangeBreadcrumbs;
-  }
-
-  bool _enableBrightnessChangeBreadcrumbs = false;
+  bool enableBrightnessChangeBreadcrumbs = false;
 
   /// Consider disabling [enableAutoNativeBreadcrumbs] if you
   /// enable this. Otherwise you might record text scale change events twice.
   /// Also consider using [enableBreadcrumbTrackingForCurrentPlatform]
   /// instead for more sensible defaults.
-  bool get enableTextScaleChangeBreadcrumbs =>
-      _enableTextScaleChangeBreadcrumbs;
-
-  set enableTextScaleChangeBreadcrumbs(bool value) {
-    assert(value != null);
-    _enableTextScaleChangeBreadcrumbs =
-        value ?? _enableTextScaleChangeBreadcrumbs;
-  }
-
-  bool _enableTextScaleChangeBreadcrumbs = false;
+  bool enableTextScaleChangeBreadcrumbs = false;
 
   /// Consider disabling [enableAutoNativeBreadcrumbs] if you
   /// enable this. Otherwise you might record memory pressure events twice.
   /// Also consider using [enableBreadcrumbTrackingForCurrentPlatform]
   /// instead for more sensible defaults.
-  bool get enableMemoryPressureBreadcrumbs => _enableMemoryPressureBreadcrumbs;
-
-  set enableMemoryPressureBreadcrumbs(bool value) {
-    assert(value != null);
-    _enableMemoryPressureBreadcrumbs =
-        value ?? _enableMemoryPressureBreadcrumbs;
-  }
-
-  bool _enableMemoryPressureBreadcrumbs = false;
+  bool enableMemoryPressureBreadcrumbs = false;
 
   /// By default, we don't report [FlutterErrorDetails.silent] errors,
   /// but you can by enabling this flag.
   /// See https://api.flutter.dev/flutter/foundation/FlutterErrorDetails/silent.html
-  bool get reportSilentFlutterErrors => _reportSilentFlutterErrors;
-
-  set reportSilentFlutterErrors(bool value) {
-    assert(value != null);
-    _reportSilentFlutterErrors = value ?? _reportSilentFlutterErrors;
-  }
-
-  bool _reportSilentFlutterErrors = false;
+  bool reportSilentFlutterErrors = false;
 
   /// By using this, you are disabling native [Breadcrumb] tracking and instead
   /// you are just tracking [Breadcrumb]s which result from events available
@@ -263,8 +183,6 @@ class SentryFlutterOptions extends SentryOptions {
   @foundation.visibleForTesting
   void configureBreadcrumbTrackingForPlatform(
       foundation.TargetPlatform platform) {
-    assert(platform != null);
-
     // Bacause platform reports the Operating System and not if it is running
     // in a browser. So we have to check if this is Flutter for web.
     // See https://github.com/flutter/flutter/blob/c5a69b9b8ad186e9fce017fd4bfb8ce63f9f4d13/packages/flutter/lib/src/foundation/_platform_web.dart

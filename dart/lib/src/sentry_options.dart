@@ -20,35 +20,23 @@ class SentryOptions {
   /// Default Log level if not specified Default is DEBUG
   static final SentryLevel _defaultDiagnosticLevel = SentryLevel.debug;
 
-  /// The DSN tells the SDK where to send the events to. If this value is not provided, the SDK will
-  ///  just not send any events.
-  String dsn;
-
-  bool _compressPayload = true;
+  /// The DSN tells the SDK where to send the events to. If an empty string is
+  /// used, the SDK will not send any events.
+  String? dsn;
 
   /// If [compressPayload] is `true` the outgoing HTTP payloads are compressed
   /// using gzip. Otherwise, the payloads are sent in plain UTF8-encoded JSON
-  /// text. If not specified, the compression is enabled by default.
-  bool get compressPayload => _compressPayload;
-
-  set compressPayload(bool compressPayload) =>
-      _compressPayload = compressPayload ?? _compressPayload;
-
-  Client _httpClient = NoOpClient();
+  /// text. The compression is enabled by default.
+  bool compressPayload = true;
 
   /// If [httpClient] is provided, it is used instead of the default client to
   /// make HTTP calls to Sentry.io. This is useful in tests.
-  Client get httpClient => _httpClient;
-
-  set httpClient(Client httpClient) => _httpClient = httpClient ?? _httpClient;
-
-  ClockProvider _clock = getUtcDateTime;
+  /// If you don't need to send events, use [NoOpClient].
+  Client httpClient = NoOpClient();
 
   /// If [clock] is provided, it is used to get time instead of the system
   /// clock. This is useful in tests. Should be an implementation of [ClockProvider].
-  ClockProvider get clock => _clock;
-
-  set clock(ClockProvider clock) => _clock = clock ?? _clock;
+  ClockProvider clock = getUtcDateTime;
 
   int _maxBreadcrumbs = 100;
 
@@ -56,9 +44,8 @@ class SentryOptions {
   int get maxBreadcrumbs => _maxBreadcrumbs;
 
   set maxBreadcrumbs(int maxBreadcrumbs) {
-    _maxBreadcrumbs = (maxBreadcrumbs != null && maxBreadcrumbs >= 0)
-        ? maxBreadcrumbs
-        : _maxBreadcrumbs;
+    assert(maxBreadcrumbs >= 0);
+    _maxBreadcrumbs = maxBreadcrumbs;
   }
 
   SentryLogger _logger = noOpLogger;
@@ -67,7 +54,7 @@ class SentryOptions {
   SentryLogger get logger => _logger;
 
   set logger(SentryLogger logger) {
-    _logger = logger != null ? DiagnosticLogger(logger, this).log : _logger;
+    _logger = DiagnosticLogger(logger, this).log;
   }
 
   final List<EventProcessor> _eventProcessors = [];
@@ -88,49 +75,37 @@ class SentryOptions {
   /// along with code that inserts those bindings and activates them.
   List<Integration> get integrations => List.unmodifiable(_integrations);
 
-  bool _debug = false;
-
   /// Turns debug mode on or off. If debug is enabled SDK will attempt to print out useful debugging
   /// information if something goes wrong. Default is disabled.
-  bool get debug => _debug;
-
-  set debug(bool debug) {
-    _debug = debug ?? _debug;
-  }
-
-  SentryLevel _diagnosticLevel = _defaultDiagnosticLevel;
-
-  set diagnosticLevel(SentryLevel level) {
-    _diagnosticLevel = level ?? _diagnosticLevel;
-  }
+  bool debug = false;
 
   /// minimum LogLevel to be used if debug is enabled
-  SentryLevel get diagnosticLevel => _diagnosticLevel;
+  SentryLevel diagnosticLevel = _defaultDiagnosticLevel;
 
   /// Sentry client name used for the HTTP authHeader and userAgent eg
   /// sentry.{language}.{platform}/{version} eg sentry.java.android/2.0.0 would be a valid case
-  String sentryClientName;
+  String? sentryClientName;
 
   /// This function is called with an SDK specific event object and can return a modified event
   /// object or nothing to skip reporting the event
-  BeforeSendCallback beforeSend;
+  BeforeSendCallback? beforeSend;
 
   /// This function is called with an SDK specific breadcrumb object before the breadcrumb is added
   /// to the scope. When nothing is returned from the function, the breadcrumb is dropped
-  BeforeBreadcrumbCallback beforeBreadcrumb;
+  BeforeBreadcrumbCallback? beforeBreadcrumb;
 
   /// Sets the release. SDK will try to automatically configure a release out of the box
-  String release;
+  String? release;
 
   /// Sets the environment. This string is freeform and not set by default. A release can be
   /// associated with more than one environment to separate them in the UI Think staging vs prod or
   /// similar.
-  String environment;
+  String? environment;
 
   /// Configures the sample rate as a percentage of events to be sent in the range of 0.0 to 1.0. if
   /// 1.0 is set it means that 100% of events are sent. If set to 0.1 only 10% of events will be
   /// sent. Events are picked randomly. Default is null (disabled)
-  double sampleRate;
+  double? sampleRate;
 
   final List<String> _inAppExcludes = [];
 
@@ -147,29 +122,17 @@ class SentryOptions {
   /// example : ['sentry'] will include exception from 'package:sentry/sentry.dart'
   List<String> get inAppIncludes => List.unmodifiable(_inAppIncludes);
 
-  Transport _transport = NoOpTransport();
-
   /// The transport is an internal construct of the client that abstracts away the event sending.
-  Transport get transport => _transport;
-
-  set transport(Transport transport) => _transport = transport ?? _transport;
+  Transport transport = NoOpTransport();
 
   /// Sets the distribution. Think about it together with release and environment
-  String dist;
+  String? dist;
 
   /// The server name used in the Sentry messages.
-  String serverName;
-
-  SdkVersion _sdk = SdkVersion(name: sdkName, version: sdkVersion);
+  String? serverName;
 
   /// Sdk object that contains the Sentry Client Name and its version
-  SdkVersion get sdk => _sdk;
-
-  set sdk(SdkVersion sdk) {
-    _sdk = sdk ?? _sdk;
-  }
-
-  bool _attachStacktrace = true;
+  SdkVersion sdk = SdkVersion(name: sdkName, version: sdkVersion);
 
   /// When enabled, stack traces are automatically attached to all messages logged.
   /// Stack traces are always attached to exceptions;
@@ -180,29 +143,14 @@ class SentryOptions {
   ///
   /// Grouping in Sentry is different for events with stack traces and without.
   /// As a result, you will get new groups as you enable or disable this flag for certain events.
-  bool get attachStacktrace => _attachStacktrace;
-
-  set attachStacktrace(bool attachStacktrace) {
-    _attachStacktrace = attachStacktrace ?? _attachStacktrace;
-  }
-
-  PlatformChecker _platformChecker = PlatformChecker();
+  bool attachStacktrace = true;
 
   /// If [platformChecker] is provided, it is used get the envirnoment.
   /// This is useful in tests. Should be an implementation of [PlatformChecker].
-  PlatformChecker get platformChecker => _platformChecker;
-
-  set platformChecker(PlatformChecker platformChecker) =>
-      _platformChecker = platformChecker ?? _platformChecker;
-
-  bool _attachThreads = false;
+  PlatformChecker platformChecker = PlatformChecker();
 
   /// When enabled, all the threads are automatically attached to all logged events (Android).
-  bool get attachThreads => _attachThreads;
-
-  set attachThreads(bool attachThreads) {
-    _attachThreads = attachThreads ?? _attachThreads;
-  }
+  bool attachThreads = false;
 
   // TODO: Scope observers, enableScopeSync
 
@@ -250,21 +198,21 @@ class SentryOptions {
 
 /// This function is called with an SDK specific event object and can return a modified event
 /// object or nothing to skip reporting the event
-typedef BeforeSendCallback = SentryEvent Function(SentryEvent event,
+typedef BeforeSendCallback = SentryEvent? Function(SentryEvent event,
     {dynamic hint});
 
 /// This function is called with an SDK specific breadcrumb object before the breadcrumb is added
 /// to the scope. When nothing is returned from the function, the breadcrumb is dropped
-typedef BeforeBreadcrumbCallback = Breadcrumb Function(Breadcrumb breadcrumb,
+typedef BeforeBreadcrumbCallback = Breadcrumb? Function(Breadcrumb? breadcrumb,
     {dynamic hint});
 
 /// Are callbacks that run for every event. They can either return a new event which in most cases
 /// means just adding data OR return null in case the event will be dropped and not sent.
-typedef EventProcessor = FutureOr<SentryEvent> Function(SentryEvent event,
+typedef EventProcessor = FutureOr<SentryEvent?> Function(SentryEvent event,
     {dynamic hint});
 
 /// Logger interface to log useful debugging information if debug is enabled
-typedef SentryLogger = Function(SentryLevel level, String message);
+typedef SentryLogger = void Function(SentryLevel level, String message);
 
 /// Used to provide timestamp for logging.
 typedef ClockProvider = DateTime Function();
