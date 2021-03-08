@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.4.10'
+    ext.kotlin_version = '1.4.31'
     repositories {
         google()
         jcenter()
@@ -54,6 +54,6 @@ android {
 }
 
 dependencies {
-    api 'io.sentry:sentry-android:4.0.0'
+    api 'io.sentry:sentry-android:4.3.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }
