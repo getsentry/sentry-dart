@@ -1,3 +1,5 @@
+# Unreleased
+
 # 4.1.0-nullsafety.0
 
 * Fix: Do not append stack trace to the exception if there are no frames
