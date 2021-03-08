@@ -186,12 +186,12 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
   private fun addPackages(event: SentryEvent, sdk: SdkVersion?) {
     event.sdk?.let {
       if (it.name == flutterSdk) {
-          sdk?.packages?.forEach { sentryPackage ->
-            it.addPackage(sentryPackage.name, sentryPackage.version)
-          }
-          sdk?.integrations?.forEach { integration ->
-            it.addIntegration(integration)
-          }
+        sdk?.packages?.forEach { sentryPackage ->
+          it.addPackage(sentryPackage.name, sentryPackage.version)
+        }
+        sdk?.integrations?.forEach { integration ->
+          it.addIntegration(integration)
+        }
       }
     }
   }
