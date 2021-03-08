@@ -83,8 +83,7 @@ jobs:
           TOTAL_MAX: ${{ steps.analysis.outputs.total_max }}
         run: |
           PERCENTAGE=$(( $TOTAL * 100 / $TOTAL_MAX ))
-          # revert to 100 when we are nul-safety ready because of (http)
-          if (( $PERCENTAGE < 90 ))
+          if (( $PERCENTAGE < 100 ))
           then
             echo Score too low!
             exit 1

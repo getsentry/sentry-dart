@@ -3,7 +3,7 @@
 * Fix: Do not append stack trace to the exception if there are no frames
 * Fix: Empty DSN disables the SDK and runs the App
 * Refactoring: Migrate Sentry Dart to null safety
-* Fix: Null safety on sentry_flutter (#337)
+* Refactoring: Null safety on sentry_flutter (#337)
 
 # 4.0.6
 
