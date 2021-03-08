@@ -1,6 +1,6 @@
 # Unreleased
 
-* Bump: sentry-android to v4.3.0
+* Bump: sentry-android to v4.3.0 (#343)
 
 # 4.1.0-nullsafety.0
 
