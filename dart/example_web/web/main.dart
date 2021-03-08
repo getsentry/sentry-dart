@@ -12,7 +12,7 @@ const dsn =
 
 Future<void> main() async {
   SentryEvent processTagEvent(SentryEvent event, {dynamic hint}) =>
-      event..tags.addAll({'page-locale': 'en-us'});
+      event..tags?.addAll({'page-locale': 'en-us'});
 
   await Sentry.init(
     (options) => options
@@ -53,13 +53,13 @@ Future<void> main() async {
 void runApp() {
   print('runApp');
 
-  querySelector('#output').text = 'Your Dart app is running.';
+  querySelector('#output')?.text = 'Your Dart app is running.';
 
   querySelector('#btEvent')
-      .onClick
+      ?.onClick
       .listen((event) => captureCompleteExampleEvent());
-  querySelector('#btMessage').onClick.listen((event) => captureMessage());
-  querySelector('#btException').onClick.listen((event) => captureException());
+  querySelector('#btMessage')?.onClick.listen((event) => captureMessage());
+  querySelector('#btException')?.onClick.listen((event) => captureException());
 }
 
 Future<void> captureMessage() async {
@@ -71,7 +71,7 @@ Future<void> captureMessage() async {
   );
   print('capture message result : $sentryId');
   if (sentryId != SentryId.empty()) {
-    querySelector('#messageResult').style.display = 'block';
+    querySelector('#messageResult')?.style.display = 'block';
   }
   Sentry.close();
 }
@@ -91,7 +91,7 @@ Future<void> captureException() async {
     print('Capture exception : SentryId: ${sentryId}');
 
     if (sentryId != SentryId.empty()) {
-      querySelector('#exceptionResult').style.display = 'block';
+      querySelector('#exceptionResult')?.style.display = 'block';
     }
   }
 }
@@ -103,7 +103,7 @@ Future<void> captureCompleteExampleEvent() async {
   print('Response SentryId: ${sentryId}');
 
   if (sentryId != SentryId.empty()) {
-    querySelector('#eventResult').style.display = 'block';
+    querySelector('#eventResult')?.style.display = 'block';
   }
 }
 
