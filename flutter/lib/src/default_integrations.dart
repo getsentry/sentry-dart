@@ -34,16 +34,16 @@ class WidgetsFlutterBindingIntegration
 ///     and are stripped in release mode. See [Flutter build modes](https://flutter.dev/docs/testing/build-modes).
 ///     So they only get caught in debug mode.
 class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
-  /// Keep a reference to the original handler.
-  static FlutterExceptionHandler? defaultOnError;
+  /// Reference to the original handler.
+  FlutterExceptionHandler? _defaultOnError;
+
+  /// The error handler set by this integration.
+  FlutterExceptionHandler? _integrationOnError;
 
   @override
   void call(Hub hub, SentryFlutterOptions options) {
-    if (defaultOnError == null && FlutterError.onError != null) {
-      defaultOnError = FlutterError.onError;
-    }
-
-    FlutterError.onError = (FlutterErrorDetails errorDetails) async {
+    _defaultOnError = FlutterError.onError;
+    _integrationOnError = (FlutterErrorDetails errorDetails) async {
       dynamic exception = errorDetails.exception;
 
       options.logger(
@@ -64,8 +64,8 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
         await hub.captureEvent(event, stackTrace: errorDetails.stack);
 
         // call original handler
-        if (defaultOnError != null) {
-          defaultOnError!(errorDetails);
+        if (_defaultOnError != null) {
+          _defaultOnError!(errorDetails);
         }
 
         // we don't call Zone.current.handleUncaughtError because we'd like
@@ -78,15 +78,19 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
             'if you wish to capture silent errors');
       }
     };
+    FlutterError.onError = _integrationOnError;
 
     options.sdk.addIntegration('flutterErrorIntegration');
   }
 
   @override
   void close() {
-    /// Restore default
-    FlutterError.onError = defaultOnError;
-    defaultOnError = null;
+    /// Restore default if the integration error is still set.
+    if (FlutterError.onError == _integrationOnError) {
+      FlutterError.onError = _defaultOnError;
+      _defaultOnError = null;
+      _integrationOnError = null;
+    }
     super.close();
   }
 }

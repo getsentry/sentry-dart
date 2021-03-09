@@ -22,7 +22,6 @@ void main() {
 
   tearDown(() {
     _channel.setMockMethodCallHandler(null);
-    FlutterErrorIntegration.defaultOnError = null;
   });
 
   void _reportError({
@@ -49,18 +48,19 @@ void main() {
 
   test('FlutterError capture errors', () async {
     final exception = StateError('error');
+
     _reportError(exception: exception);
 
     final event = verify(
       await fixture.hub.captureEvent(captureAny),
     ).captured.first as SentryEvent;
 
-    expect(SentryLevel.fatal, event.level);
+    expect(event.level, SentryLevel.fatal);
 
     final throwableMechanism = event.throwableMechanism as ThrowableMechanism;
-    expect('FlutterError', throwableMechanism.mechanism.type);
-    expect(true, throwableMechanism.mechanism.handled);
-    expect(exception, throwableMechanism.throwable);
+    expect(throwableMechanism.mechanism.type, 'FlutterError');
+    expect(throwableMechanism.mechanism.handled, true);
+    expect(throwableMechanism.throwable, exception);
   });
 
   test('FlutterError calls default error', () async {
@@ -73,7 +73,7 @@ void main() {
 
     verify(await fixture.hub.captureEvent(captureAny));
 
-    expect(true, called);
+    expect(called, true);
   });
 
   test('FlutterErrorIntegration captureEvent only called once', () async {
@@ -88,13 +88,17 @@ void main() {
 
     final details = FlutterErrorDetails(exception: StateError('error'));
 
-    final errorIntegration = FlutterErrorIntegration();
-    errorIntegration.call(fixture.hub, fixture.options);
-    errorIntegration.call(fixture.hub, fixture.options);
+    final integrationA = FlutterErrorIntegration();
+    integrationA.call(fixture.hub, fixture.options);
+    integrationA.close();
+
+    final integrationB = FlutterErrorIntegration();
+    integrationB.call(fixture.hub, fixture.options);
 
     FlutterError.reportError(details);
 
     verify(await fixture.hub.captureEvent(captureAny)).called(1);
+
     expect(numberOfDefaultCalls, 1);
   });
 
@@ -102,13 +106,28 @@ void main() {
     final defaultOnError = (FlutterErrorDetails errorDetails) async {};
     FlutterError.onError = defaultOnError;
 
-    final integrtion = FlutterErrorIntegration();
-    integrtion.call(fixture.hub, fixture.options);
+    final integration = FlutterErrorIntegration();
+    integration.call(fixture.hub, fixture.options);
     expect(false, defaultOnError == FlutterError.onError);
 
-    integrtion.close();
+    integration.close();
+    expect(defaultOnError == FlutterError.onError, true);
+  });
 
-    expect(true, defaultOnError == FlutterError.onError);
+  test('FlutterErrorIntegration default not restored if set after integration',
+    () async {
+    final defaultOnError = (FlutterErrorDetails errorDetails) async {};
+    FlutterError.onError = defaultOnError;
+
+    final integration = FlutterErrorIntegration();
+    integration.call(fixture.hub, fixture.options);
+    expect(defaultOnError == FlutterError.onError, false);
+
+    final afterIntegrationOnError = (FlutterErrorDetails errorDetails) async {};
+    FlutterError.onError = afterIntegrationOnError;
+
+    integration.close();
+    expect(afterIntegrationOnError == FlutterError.onError, true);
   });
 
   test('FlutterError do not capture if silent error', () async {
@@ -128,8 +147,8 @@ void main() {
   test('FlutterError adds integration', () async {
     FlutterErrorIntegration()(fixture.hub, fixture.options);
 
-    expect(true,
-        fixture.options.sdk.integrations.contains('flutterErrorIntegration'));
+    expect(fixture.options.sdk.integrations.contains('flutterErrorIntegration'),
+      true);
   });
 
   test('nativeSdkIntegration adds integration', () async {
@@ -139,8 +158,8 @@ void main() {
 
     await integration(fixture.hub, fixture.options);
 
-    expect(true,
-        fixture.options.sdk.integrations.contains('nativeSdkIntegration'));
+    expect(fixture.options.sdk.integrations.contains('nativeSdkIntegration'),
+      true);
   });
 
   test('nativeSdkIntegration do not throw', () async {
@@ -152,8 +171,8 @@ void main() {
 
     await integration(fixture.hub, fixture.options);
 
-    expect(false,
-        fixture.options.sdk.integrations.contains('nativeSdkIntegration'));
+    expect(fixture.options.sdk.integrations.contains('nativeSdkIntegration'),
+      false);
   });
 
   test('loadContextsIntegration adds integration', () async {
@@ -163,18 +182,17 @@ void main() {
 
     await integration(fixture.hub, fixture.options);
 
-    expect(true,
-        fixture.options.sdk.integrations.contains('loadContextsIntegration'));
+    expect(fixture.options.sdk.integrations.contains('loadContextsIntegration'),
+      true);
   });
 
   test('WidgetsFlutterBindingIntegration adds integration', () async {
     final integration = WidgetsFlutterBindingIntegration();
     await integration(fixture.hub, fixture.options);
 
-    expect(
-        true,
-        fixture.options.sdk.integrations
-            .contains('widgetsFlutterBindingIntegration'));
+    expect(fixture.options.sdk.integrations
+      .contains('widgetsFlutterBindingIntegration'), 
+      true);
   });
 
   test('WidgetsFlutterBindingIntegration calls ensureInitialized', () async {
@@ -186,7 +204,7 @@ void main() {
     final integration = WidgetsFlutterBindingIntegration(ensureInitialized);
     await integration(fixture.hub, fixture.options);
 
-    expect(true, called);
+    expect(called, true);
   });
 }
 
