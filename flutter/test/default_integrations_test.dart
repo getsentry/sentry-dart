@@ -22,6 +22,7 @@ void main() {
 
   tearDown(() {
     _channel.setMockMethodCallHandler(null);
+    FlutterErrorIntegration.defaultOnError = null;
   });
 
   void _reportError({
