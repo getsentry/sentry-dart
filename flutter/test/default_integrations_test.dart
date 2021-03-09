@@ -148,7 +148,7 @@ void main() {
     FlutterErrorIntegration()(fixture.hub, fixture.options);
 
     expect(fixture.options.sdk.integrations.contains('flutterErrorIntegration'),
-      true);
+        true);
   });
 
   test('nativeSdkIntegration adds integration', () async {
@@ -159,7 +159,7 @@ void main() {
     await integration(fixture.hub, fixture.options);
 
     expect(fixture.options.sdk.integrations.contains('nativeSdkIntegration'),
-      true);
+        true);
   });
 
   test('nativeSdkIntegration do not throw', () async {
@@ -172,7 +172,7 @@ void main() {
     await integration(fixture.hub, fixture.options);
 
     expect(fixture.options.sdk.integrations.contains('nativeSdkIntegration'),
-      false);
+        false);
   });
 
   test('loadContextsIntegration adds integration', () async {
@@ -183,16 +183,17 @@ void main() {
     await integration(fixture.hub, fixture.options);
 
     expect(fixture.options.sdk.integrations.contains('loadContextsIntegration'),
-      true);
+        true);
   });
 
   test('WidgetsFlutterBindingIntegration adds integration', () async {
     final integration = WidgetsFlutterBindingIntegration();
     await integration(fixture.hub, fixture.options);
 
-    expect(fixture.options.sdk.integrations
-      .contains('widgetsFlutterBindingIntegration'), 
-      true);
+    expect(
+        fixture.options.sdk.integrations
+            .contains('widgetsFlutterBindingIntegration'),
+        true);
   });
 
   test('WidgetsFlutterBindingIntegration calls ensureInitialized', () async {
