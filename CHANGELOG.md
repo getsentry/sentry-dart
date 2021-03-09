@@ -1,5 +1,7 @@
 # Unreleased
 
+* Bump: sentry-android to v4.3.0 (#343)
+
 # 4.1.0-nullsafety.0
 
 * Fix: Do not append stack trace to the exception if there are no frames

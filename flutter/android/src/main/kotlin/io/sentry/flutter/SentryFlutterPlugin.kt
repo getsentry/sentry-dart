@@ -87,7 +87,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
       args.getIfNotNull<Int>("maxBreadcrumbs") { options.maxBreadcrumbs = it }
       args.getIfNotNull<Int>("cacheDirSize") { options.cacheDirSize = it }
       args.getIfNotNull<String>("diagnosticLevel") {
-        if (options.isDebug == true) {
+        if (options.isDebug) {
           val sentryLevel = SentryLevel.valueOf(it.toUpperCase(Locale.ROOT))
           options.setDiagnosticLevel(sentryLevel)
         }
@@ -97,7 +97,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
       val nativeCrashHandling = (args["enableNativeCrashHandling"] as? Boolean) ?: true
       // nativeCrashHandling has priority over anrEnabled
       if (!nativeCrashHandling) {
-        options.setEnableUncaughtExceptionHandler(false)
+        options.enableUncaughtExceptionHandler = false
         options.isAnrEnabled = false
         // if split symbols are enabled, we need Ndk integration so we can't really offer the option
         // to turn it off
@@ -168,12 +168,12 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
   private val nativeSdk = "sentry.native"
 
   private fun setEventOriginTag(event: SentryEvent) {
-    val sdk = event.sdk
-    if (isValidSdk(sdk)) {
-      when (sdk!!.name) {
+    event.sdk?.let {
+      when (it.name) {
         flutterSdk -> setEventEnvironmentTag(event, "flutter", "dart")
         androidSdk -> setEventEnvironmentTag(event, environment = "java")
         nativeSdk -> setEventEnvironmentTag(event, environment = "native")
+        else -> return
       }
     }
   }
@@ -183,30 +183,24 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
     event.setTag("event.environment", environment)
   }
 
-  private fun isValidSdk(sdk: SdkVersion?): Boolean {
-    return (sdk != null && !sdk.name.isNullOrEmpty())
-  }
-
   private fun addPackages(event: SentryEvent, sdk: SdkVersion?) {
-    if (isValidSdk(event.sdk)) {
-      when (event.sdk!!.name) {
-        flutterSdk -> {
-          sdk?.packages?.forEach { sentryPackage ->
-            event.sdk?.addPackage(sentryPackage.name, sentryPackage.version)
-          }
-          sdk?.integrations?.forEach { integration ->
-            event.sdk?.addIntegration(integration)
-          }
+    event.sdk?.let {
+      if (it.name == flutterSdk) {
+        sdk?.packages?.forEach { sentryPackage ->
+          it.addPackage(sentryPackage.name, sentryPackage.version)
+        }
+        sdk?.integrations?.forEach { integration ->
+          it.addIntegration(integration)
         }
       }
     }
   }
 
   private fun removeThreadsIfNotAndroid(event: SentryEvent) {
-    if (isValidSdk(event.sdk)) {
+    event.sdk?.let {
       // we do not want the thread list if not an android event, the thread info is mostly about
       // the file observer anyway
-      if (event.sdk!!.name != androidSdk && event.threads != null) {
+      if (it.name != androidSdk && event.threads != null) {
         event.threads.clear()
       }
     }
