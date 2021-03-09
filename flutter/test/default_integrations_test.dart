@@ -102,7 +102,7 @@ void main() {
     expect(numberOfDefaultCalls, 1);
   });
 
-  test('FlutterErrorIntegration close restored default onError', () async {
+  test('FlutterErrorIntegration close restored default onError', () {
     final defaultOnError = (FlutterErrorDetails errorDetails) async {};
     FlutterError.onError = defaultOnError;
 
@@ -115,7 +115,7 @@ void main() {
   });
 
   test('FlutterErrorIntegration default not restored if set after integration',
-    () async {
+      () {
     final defaultOnError = (FlutterErrorDetails errorDetails) async {};
     FlutterError.onError = defaultOnError;
 
@@ -144,7 +144,7 @@ void main() {
     verify(await fixture.hub.captureEvent(captureAny));
   });
 
-  test('FlutterError adds integration', () async {
+  test('FlutterError adds integration', () {
     FlutterErrorIntegration()(fixture.hub, fixture.options);
 
     expect(fixture.options.sdk.integrations.contains('flutterErrorIntegration'),
