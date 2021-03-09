@@ -75,6 +75,41 @@ void main() {
     expect(true, called);
   });
 
+  test('FlutterErrorIntegration captureEvent only called once', () async {
+    var numberOfDefaultCalls = 0;
+    final defaultError = (FlutterErrorDetails errorDetails) async {
+      numberOfDefaultCalls++;
+    };
+    FlutterError.onError = defaultError;
+
+    when(fixture.hub.captureEvent(captureAny))
+        .thenAnswer((_) => Future.value(SentryId.empty()));
+
+    final details = FlutterErrorDetails(exception: StateError('error'));
+
+    final errorIntegration = FlutterErrorIntegration();
+    errorIntegration.call(fixture.hub, fixture.options);
+    errorIntegration.call(fixture.hub, fixture.options);
+
+    FlutterError.reportError(details);
+
+    verify(await fixture.hub.captureEvent(captureAny)).called(1);
+    expect(numberOfDefaultCalls, 1);
+  });
+
+  test('FlutterErrorIntegration close restored default onError', () async {
+    final defaultOnError = (FlutterErrorDetails errorDetails) async {};
+    FlutterError.onError = defaultOnError;
+
+    final integrtion = FlutterErrorIntegration();
+    integrtion.call(fixture.hub, fixture.options);
+    expect(false, defaultOnError == FlutterError.onError);
+
+    integrtion.close();
+
+    expect(true, defaultOnError == FlutterError.onError);
+  });
+
   test('FlutterError do not capture if silent error', () async {
     _reportError(silent: true);
 

@@ -34,9 +34,14 @@ class WidgetsFlutterBindingIntegration
 ///     and are stripped in release mode. See [Flutter build modes](https://flutter.dev/docs/testing/build-modes).
 ///     So they only get caught in debug mode.
 class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
+  /// Keep a reference to the original handler.
+  static FlutterExceptionHandler? defaultOnError;
+
   @override
   void call(Hub hub, SentryFlutterOptions options) {
-    final defaultOnError = FlutterError.onError;
+    if (defaultOnError == null && FlutterError.onError != null) {
+      defaultOnError = FlutterError.onError;
+    }
 
     FlutterError.onError = (FlutterErrorDetails errorDetails) async {
       dynamic exception = errorDetails.exception;
@@ -60,7 +65,7 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
 
         // call original handler
         if (defaultOnError != null) {
-          defaultOnError(errorDetails);
+          defaultOnError!(errorDetails);
         }
 
         // we don't call Zone.current.handleUncaughtError because we'd like
@@ -75,6 +80,14 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
     };
 
     options.sdk.addIntegration('flutterErrorIntegration');
+  }
+
+  @override
+  void close() {
+    /// Restore default
+    FlutterError.onError = defaultOnError;
+    defaultOnError = null;
+    super.close();
   }
 }
 
