@@ -111,7 +111,7 @@ void main() {
     expect(false, defaultOnError == FlutterError.onError);
 
     integration.close();
-    expect(defaultOnError == FlutterError.onError, true);
+    expect(FlutterError.onError, defaultOnError);
   });
 
   test('FlutterErrorIntegration default not restored if set after integration',
@@ -127,7 +127,7 @@ void main() {
     FlutterError.onError = afterIntegrationOnError;
 
     integration.close();
-    expect(afterIntegrationOnError == FlutterError.onError, true);
+    expect(FlutterError.onError, afterIntegrationOnError);
   });
 
   test('FlutterError do not capture if silent error', () async {
