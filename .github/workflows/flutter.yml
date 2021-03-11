@@ -118,7 +118,7 @@ jobs:
       - uses: subosito/flutter-action@v1
 
       # https://github.com/CocoaPods/CocoaPods/issues/5275#issuecomment-315461879
-      - run: pod lib lint flutter/ios/sentry_flutter.podspec --skip-import-validation --allow-warnings
+      - run: pod lib lint flutter/ios/sentry_flutter.podspec --skip-import-validation --allow-warnings --verbose
 
   swift-lint:
     runs-on: ubuntu-latest
