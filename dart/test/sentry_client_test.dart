@@ -507,6 +507,14 @@ void main() {
       );
       expect(event.fingerprint!.contains('process'), true);
     });
+
+    test('event processor drops the event', () async {
+      options.addEventProcessor(eventProcessorDropEvent);
+      final client = SentryClient(options);
+      await client.captureEvent(fakeEvent);
+
+      expect((options.transport as MockTransport).called(0), true);
+    });
   });
 }
 
@@ -522,4 +530,8 @@ SentryEvent beforeSendCallback(SentryEvent event, {dynamic hint}) {
     ..fingerprint!.add('process')
     ..sdk!.addIntegration('testIntegration')
     ..sdk!.addPackage('test-pkg', '1.0');
+}
+
+SentryEvent? eventProcessorDropEvent(SentryEvent event, {dynamic hint}) {
+  return null;
 }
