@@ -507,6 +507,22 @@ void main() {
       );
       expect(event.fingerprint!.contains('process'), true);
     });
+
+    test('should pass hint to eventProcessors', () async {
+      final myHint = 'hint';
+      var executed = false;
+
+      options.addEventProcessor((event, {hint}) {
+        expect(myHint, hint);
+        executed = true;
+        return event;
+      });
+      final client = SentryClient(options);
+
+      await client.captureEvent(fakeEvent, hint: myHint);
+
+      expect(executed, true);
+    });
   });
 }
 

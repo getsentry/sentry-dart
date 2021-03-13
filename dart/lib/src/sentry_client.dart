@@ -72,6 +72,7 @@ class SentryClient {
     preparedEvent = await _processEvent(
       preparedEvent,
       eventProcessors: _options.eventProcessors,
+      hint: hint,
     );
 
     // dropped by event processors
