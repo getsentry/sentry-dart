@@ -26,7 +26,7 @@ void main() {
       modelId: 'modelId1',
       arch: 'arch1',
       batteryLevel: 2,
-      orientation: Orientation.portrait,
+      orientation: SentryOrientation.portrait,
       manufacturer: 'manufacturer1',
       brand: 'brand1',
       screenResolution: '123x3451',
@@ -53,7 +53,7 @@ void main() {
     expect('modelId1', copy.modelId);
     expect('arch1', copy.arch);
     expect(2, copy.batteryLevel);
-    expect(Orientation.portrait, copy.orientation);
+    expect(SentryOrientation.portrait, copy.orientation);
     expect('manufacturer1', copy.manufacturer);
     expect('brand1', copy.brand);
     expect('123x3451', copy.screenResolution);
@@ -75,14 +75,14 @@ void main() {
   });
 }
 
-Device _generate({DateTime? testBootTime}) => Device(
+SentryDevice _generate({DateTime? testBootTime}) => SentryDevice(
       name: 'name',
       family: 'family',
       model: 'model',
       modelId: 'modelId',
       arch: 'arch',
       batteryLevel: 1,
-      orientation: Orientation.landscape,
+      orientation: SentryOrientation.landscape,
       manufacturer: 'manufacturer',
       brand: 'brand',
       screenResolution: '123x345',

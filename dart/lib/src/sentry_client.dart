@@ -162,7 +162,7 @@ class SentryClient {
     dynamic hint,
   }) {
     final event = SentryEvent(
-      message: Message(formatted, template: template, params: params),
+      message: SentryMessage(formatted, template: template, params: params),
       level: level ?? SentryLevel.info,
       timestamp: _options.clock(),
     );

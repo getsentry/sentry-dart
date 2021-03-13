@@ -1,14 +1,14 @@
 import 'package:meta/meta.dart';
 
 /// If a device is on portrait or landscape mode
-enum Orientation { portrait, landscape }
+enum SentryOrientation { portrait, landscape }
 
 /// This describes the device that caused the event.
 @immutable
-class Device {
+class SentryDevice {
   static const type = 'device';
 
-  const Device({
+  const SentryDevice({
     this.name,
     this.family,
     this.model,
@@ -38,7 +38,7 @@ class Device {
           batteryLevel == null || (batteryLevel >= 0 && batteryLevel <= 100),
         );
 
-  factory Device.fromJson(Map<String, dynamic> data) => Device(
+  factory SentryDevice.fromJson(Map<String, dynamic> data) => SentryDevice(
         name: data['name'],
         family: data['family'],
         model: data['model'],
@@ -92,7 +92,7 @@ class Device {
   final double? batteryLevel;
 
   /// Defines the orientation of a device.
-  final Orientation? orientation;
+  final SentryOrientation? orientation;
 
   /// The manufacturer of the device.
   final String? manufacturer;
@@ -157,10 +157,10 @@ class Device {
     String? orientation;
 
     switch (this.orientation) {
-      case Orientation.portrait:
+      case SentryOrientation.portrait:
         orientation = 'portait';
         break;
-      case Orientation.landscape:
+      case SentryOrientation.landscape:
         orientation = 'landscape';
         break;
       case null:
@@ -271,7 +271,7 @@ class Device {
     return json;
   }
 
-  Device clone() => Device(
+  SentryDevice clone() => SentryDevice(
         name: name,
         family: family,
         model: model,
@@ -299,14 +299,14 @@ class Device {
         timezone: timezone,
       );
 
-  Device copyWith({
+  SentryDevice copyWith({
     String? name,
     String? family,
     String? model,
     String? modelId,
     String? arch,
     double? batteryLevel,
-    Orientation? orientation,
+    SentryOrientation? orientation,
     String? manufacturer,
     String? brand,
     String? screenResolution,
@@ -326,7 +326,7 @@ class Device {
     DateTime? bootTime,
     String? timezone,
   }) =>
-      Device(
+      SentryDevice(
         name: name ?? this.name,
         family: family ?? this.family,
         model: model ?? this.model,

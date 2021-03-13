@@ -39,7 +39,7 @@ void main() {
   });
 }
 
-App _generate({DateTime? startTime}) => App(
+SentryApp _generate({DateTime? startTime}) => SentryApp(
       name: 'name',
       version: 'version',
       identifier: 'identifier',

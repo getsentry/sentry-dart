@@ -29,7 +29,7 @@ void main() {
   });
 }
 
-User _generate() => User(
+SentryUser _generate() => SentryUser(
       id: 'id',
       username: 'username',
       email: 'email',

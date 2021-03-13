@@ -76,11 +76,11 @@ void main() {
     expect(options.eventProcessors.length, 1);
 
     final eventContexts = Contexts(
-        device: const Device(name: 'eDevice'),
-        app: const App(name: 'eApp'),
+        device: const SentryDevice(name: 'eDevice'),
+        app: const SentryApp(name: 'eApp'),
         operatingSystem: const OperatingSystem(name: 'eOS'),
         gpu: const Gpu(name: 'eGpu'),
-        browser: const Browser(name: 'eBrowser'),
+        browser: const SentryBrowser(name: 'eBrowser'),
         runtimes: [const SentryRuntime(name: 'eRT')])
       ..['theme'] = 'cuppertino';
     final e = SentryEvent(contexts: eventContexts);

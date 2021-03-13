@@ -5,10 +5,10 @@ import 'package:meta/meta.dart';
 /// As opposed to the runtime, this is the actual application that was
 /// running and carries metadata about the current session.
 @immutable
-class App {
+class SentryApp {
   static const type = 'app';
 
-  const App({
+  const SentryApp({
     this.name,
     this.version,
     this.identifier,
@@ -18,7 +18,7 @@ class App {
     this.deviceAppHash,
   });
 
-  factory App.fromJson(Map<String, dynamic> data) => App(
+  factory SentryApp.fromJson(Map<String, dynamic> data) => SentryApp(
         name: data['app_name'],
         version: data['app_version'],
         identifier: data['app_identifier'],
@@ -86,7 +86,7 @@ class App {
     return json;
   }
 
-  App clone() => App(
+  SentryApp clone() => SentryApp(
         name: name,
         version: version,
         identifier: identifier,
@@ -96,7 +96,7 @@ class App {
         deviceAppHash: deviceAppHash,
       );
 
-  App copyWith({
+  SentryApp copyWith({
     String? name,
     String? version,
     String? identifier,
@@ -105,7 +105,7 @@ class App {
     DateTime? startTime,
     String? deviceAppHash,
   }) =>
-      App(
+      SentryApp(
         name: name ?? this.name,
         version: version ?? this.version,
         identifier: identifier ?? this.identifier,

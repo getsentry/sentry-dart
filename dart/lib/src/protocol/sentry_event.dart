@@ -80,7 +80,7 @@ class SentryEvent {
   /// Event message.
   ///
   /// Generally an event either contains a [message] or an [exception].
-  final Message? message;
+  final SentryMessage? message;
 
   final dynamic _throwable;
 
@@ -135,7 +135,7 @@ class SentryEvent {
   ///
   /// The value in this field overrides the user context
   /// set in [Scope.user] for this logged event.
-  final User? user;
+  final SentryUser? user;
 
   /// The context interfaces provide additional context data.
   /// Typically this is data related to the current user,
@@ -164,7 +164,7 @@ class SentryEvent {
   ///  contains information on a HTTP request related to the event.
   ///  In client, this can be an outgoing request, or the request that rendered the current web page.
   ///  On server, this could be the incoming web request that is being handled
-  final Request? request;
+  final SentryRequest? request;
 
   /// The debug meta interface carries debug information for processing errors and crash reports.
   final DebugMeta? debugMeta;
@@ -179,7 +179,7 @@ class SentryEvent {
     String? dist,
     String? environment,
     Map<String, String>? modules,
-    Message? message,
+    SentryMessage? message,
     String? transaction,
     dynamic throwable,
     SentryException? exception,
@@ -189,11 +189,11 @@ class SentryEvent {
     Map<String, String>? tags,
     Map<String, dynamic>? extra,
     List<String>? fingerprint,
-    User? user,
+    SentryUser? user,
     Contexts? contexts,
     List<Breadcrumb>? breadcrumbs,
     SdkVersion? sdk,
-    Request? request,
+    SentryRequest? request,
     DebugMeta? debugMeta,
   }) =>
       SentryEvent(

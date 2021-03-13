@@ -9,7 +9,7 @@ import 'package:meta/meta.dart';
 ///   }
 /// }
 @immutable
-class Message {
+class SentryMessage {
   /// The fully formatted message. If missing, Sentry will try to interpolate the message.
   final String formatted;
 
@@ -20,7 +20,7 @@ class Message {
   /// A list of formatting parameters, preferably strings. Non-strings will be coerced to strings.
   final List<dynamic>? params;
 
-  const Message(this.formatted, {this.template, this.params});
+  const SentryMessage(this.formatted, {this.template, this.params});
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -38,12 +38,12 @@ class Message {
     return json;
   }
 
-  Message copyWith({
+  SentryMessage copyWith({
     String? formatted,
     String? template,
     List<dynamic>? params,
   }) =>
-      Message(
+      SentryMessage(
         formatted ?? this.formatted,
         template: template ?? this.template,
         params: params ?? this.params,

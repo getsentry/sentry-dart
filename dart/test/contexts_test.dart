@@ -13,14 +13,14 @@ void main() {
   group(Contexts, () {
     final testBootTime = DateTime.fromMicrosecondsSinceEpoch(0);
 
-    final testDevice = Device(
+    final testDevice = SentryDevice(
       name: 'testDevice',
       family: 'testFamily',
       model: 'testModel',
       modelId: 'testModelId',
       arch: 'testArch',
       batteryLevel: 23,
-      orientation: Orientation.landscape,
+      orientation: SentryOrientation.landscape,
       manufacturer: 'testOEM',
       brand: 'testBrand',
       screenResolution: '123x345',
@@ -45,8 +45,8 @@ void main() {
       const SentryRuntime(name: 'testRT1', version: '1.0'),
       const SentryRuntime(name: 'testRT2', version: '2.3.1'),
     ];
-    const testApp = App(version: '1.2.3');
-    const testBrowser = Browser(version: '12.3.4');
+    const testApp = SentryApp(version: '1.2.3');
+    const testBrowser = SentryBrowser(version: '12.3.4');
 
     final gpu = Gpu(name: 'Radeon', version: '1');
 

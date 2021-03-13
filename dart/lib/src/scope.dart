@@ -13,7 +13,7 @@ class Scope {
   String? transaction;
 
   /// Information about the current user.
-  User? user;
+  SentryUser? user;
 
   List<String> _fingerprint = [];
 

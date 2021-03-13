@@ -29,7 +29,7 @@ void main() {
   });
 }
 
-Message _generate() => Message(
+SentryMessage _generate() => SentryMessage(
       'message 1',
       template: 'message %d',
       params: ['1'],
