@@ -40,9 +40,7 @@ jobs:
           with:
             channel: ${{ matrix.channel }}
 
-        - name: enable web
-          if: matrix.target == 'web'
-          run: flutter config --enable-web
+        - run: flutter upgrade
 
         # https://github.com/flutter/flutter/issues/59522#issuecomment-646208247
         - name: Fix iOS build bug
@@ -67,6 +65,7 @@ jobs:
           run: |
             cd flutter/example
             TARGET=${{ matrix.target }}
+            flutter pub get
             case $TARGET in
             ios)
             flutter build ios --release --no-codesign
