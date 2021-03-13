@@ -3,6 +3,7 @@
 * Bump: sentry-android to v4.3.0 (#343)
 * Fix: Multiple FlutterError.onError calls in FlutterErrorIntegration (#345)
 * Fix: Pass hint to EventProcessors (#356)
+* Fix: EventProcessors were not dropping events when returning null (#353)
 
 # 4.1.0-nullsafety.0
 
