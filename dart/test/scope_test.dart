@@ -404,6 +404,17 @@ void main() {
       expect(updatedEvent?.level, SentryLevel.error);
     });
   });
+
+  test('event processor drops the event', () async {
+    final sut = fixture.getSut();
+
+    sut.addEventProcessor(fixture.processor);
+
+    final event = SentryEvent();
+    var newEvent = await sut.applyToEvent(event, null);
+
+    expect(newEvent, isNull);
+  });
 }
 
 class Fixture {
