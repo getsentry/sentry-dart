@@ -1,4 +1,4 @@
-# Unreleased
+# 4.1.0-nullsafety.1
 
 * Bump: sentry-android to v4.3.0 (#343)
 * Fix: Multiple FlutterError.onError calls in FlutterErrorIntegration (#345)
