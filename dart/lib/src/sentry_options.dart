@@ -152,9 +152,10 @@ class SentryOptions {
   /// When enabled, all the threads are automatically attached to all logged events (Android).
   bool attachThreads = false;
 
-  // TODO: Scope observers, enableScopeSync
+  /// Whether to send personal identifiable information along with events
+  bool sendDefaultPii = false;
 
-  // TODO: sendDefaultPii
+  // TODO: Scope observers, enableScopeSync
 
   SentryOptions({this.dsn}) {
     sdk.addPackage('pub:sentry', sdkVersion);

@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:sentry/src/event_processors/user_event_processor.dart';
+
 import 'default_integrations.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
@@ -41,6 +43,7 @@ class Sentry {
   }) async {
     final sentryOptions = options ?? SentryOptions();
     await _initDefaultValues(sentryOptions, appRunner);
+    _addDefaultEventProcessors(sentryOptions);
 
     await optionsConfiguration(sentryOptions);
 
@@ -201,5 +204,9 @@ class Sentry {
       options.logger = dartLogger;
     }
     return true;
+  }
+
+  static void _addDefaultEventProcessors(SentryOptions options) {
+    addUserEventProcessor(options);
   }
 }

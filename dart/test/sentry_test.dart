@@ -178,6 +178,18 @@ void main() {
     });
   });
 
+  test('should install user event processor', () async {
+    var sentryOptions = SentryOptions();
+    await Sentry.init(
+      (options) {
+        options.dsn = fakeDsn;
+        sentryOptions = options;
+      },
+    );
+
+    expect(sentryOptions.eventProcessors.length, 1);
+  });
+
   test('options.environment debug', () async {
     final sentryOptions = SentryOptions(dsn: fakeDsn)
       ..platformChecker = FakePlatformChecker.debugMode();
