@@ -4,7 +4,14 @@
 * Fix: Multiple FlutterError.onError calls in FlutterErrorIntegration (#345)
 * Fix: Pass hint to EventProcessors (#356)
 * Fix: EventProcessors were not dropping events when returning null (#353)
-* Fix: Plugin Registrant class moved to barrel file (#314)
+
+
+## Breaking Changes:
+
+* Fix: Plugin Registrant class moved to barrel file (#358)
+  * This changed the import from `import 'package:sentry_flutter/src/sentry_flutter_web.dart';` 
+    to `import 'package:sentry_flutter/sentry_flutter_web.dart';`
+  * This could lead to breaking changes. Typically it shouldn't because the referencing file is auto-generated.
 
 # 4.1.0-nullsafety.0
 
