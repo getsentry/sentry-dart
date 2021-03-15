@@ -4,8 +4,6 @@
 * Fix: Multiple FlutterError.onError calls in FlutterErrorIntegration (#345)
 * Fix: Pass hint to EventProcessors (#356)
 * Fix: EventProcessors were not dropping events when returning null (#353)
-* Fix: Prefix App, Browser, Device, Message, Request and User with Sentry (#357)
-
 
 ## Breaking Changes:
 
@@ -13,6 +11,15 @@
   * This changed the import from `import 'package:sentry_flutter/src/sentry_flutter_web.dart';` 
     to `import 'package:sentry_flutter/sentry_flutter_web.dart';`
   * This could lead to breaking changes. Typically it shouldn't because the referencing file is auto-generated.
+* Fix: Prefix App, Browser, Device, Message, Request and User with Sentry (#357)
+  * A couple of classes were often conflicting with user's code.
+    Thus this change renames the following classes:
+    * `App` -> `SentryApp`
+    * `Browser` -> `SentryBrowser`
+    * `Device` -> `SentryDevice`
+    * `Message` -> `SentryMessage`
+    * `Request` -> `SentryRequest`
+    * `User` -> `SentryUser`
 
 # 4.1.0-nullsafety.0
 
