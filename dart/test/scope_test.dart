@@ -321,10 +321,10 @@ void main() {
         contexts: Contexts(
           device: SentryDevice(name: 'event-device'),
           app: SentryApp(name: 'event-app'),
-          gpu: Gpu(name: 'event-gpu'),
+          gpu: SentryGpu(name: 'event-gpu'),
           runtimes: [SentryRuntime(name: 'event-runtime')],
           browser: SentryBrowser(name: 'event-browser'),
-          operatingSystem: OperatingSystem(name: 'event-os'),
+          operatingSystem: SentryOperatingSystem(name: 'event-os'),
         ),
       );
       final scope = Scope(SentryOptions(dsn: fakeDsn))
@@ -337,8 +337,8 @@ void main() {
           SentryApp(name: 'context-app'),
         )
         ..setContexts(
-          Gpu.type,
-          Gpu(name: 'context-gpu'),
+          SentryGpu.type,
+          SentryGpu(name: 'context-gpu'),
         )
         ..setContexts(
           SentryRuntime.listType,
@@ -349,19 +349,20 @@ void main() {
           SentryBrowser(name: 'context-browser'),
         )
         ..setContexts(
-          OperatingSystem.type,
-          OperatingSystem(name: 'context-os'),
+          SentryOperatingSystem.type,
+          SentryOperatingSystem(name: 'context-os'),
         );
 
       final updatedEvent = await scope.applyToEvent(event, null);
 
       expect(updatedEvent?.contexts[SentryDevice.type].name, 'event-device');
       expect(updatedEvent?.contexts[SentryApp.type].name, 'event-app');
-      expect(updatedEvent?.contexts[Gpu.type].name, 'event-gpu');
+      expect(updatedEvent?.contexts[SentryGpu.type].name, 'event-gpu');
       expect(updatedEvent?.contexts[SentryRuntime.listType].first.name,
           'event-runtime');
       expect(updatedEvent?.contexts[SentryBrowser.type].name, 'event-browser');
-      expect(updatedEvent?.contexts[OperatingSystem.type].name, 'event-os');
+      expect(
+          updatedEvent?.contexts[SentryOperatingSystem.type].name, 'event-os');
     });
 
     test('should apply the scope.contexts values ', () async {
@@ -369,12 +370,13 @@ void main() {
       final scope = Scope(SentryOptions(dsn: fakeDsn))
         ..setContexts(SentryDevice.type, SentryDevice(name: 'context-device'))
         ..setContexts(SentryApp.type, SentryApp(name: 'context-app'))
-        ..setContexts(Gpu.type, Gpu(name: 'context-gpu'))
+        ..setContexts(SentryGpu.type, SentryGpu(name: 'context-gpu'))
         ..setContexts(
             SentryRuntime.listType, [SentryRuntime(name: 'context-runtime')])
         ..setContexts(
             SentryBrowser.type, SentryBrowser(name: 'context-browser'))
-        ..setContexts(OperatingSystem.type, OperatingSystem(name: 'context-os'))
+        ..setContexts(SentryOperatingSystem.type,
+            SentryOperatingSystem(name: 'context-os'))
         ..setContexts('theme', 'material')
         ..setContexts('version', 9)
         ..setContexts('location', {'city': 'London'});
@@ -383,14 +385,15 @@ void main() {
 
       expect(updatedEvent?.contexts[SentryDevice.type].name, 'context-device');
       expect(updatedEvent?.contexts[SentryApp.type].name, 'context-app');
-      expect(updatedEvent?.contexts[Gpu.type].name, 'context-gpu');
+      expect(updatedEvent?.contexts[SentryGpu.type].name, 'context-gpu');
       expect(
         updatedEvent?.contexts[SentryRuntime.listType].first.name,
         'context-runtime',
       );
       expect(
           updatedEvent?.contexts[SentryBrowser.type].name, 'context-browser');
-      expect(updatedEvent?.contexts[OperatingSystem.type].name, 'context-os');
+      expect(updatedEvent?.contexts[SentryOperatingSystem.type].name,
+          'context-os');
       expect(updatedEvent?.contexts['theme']['value'], 'material');
       expect(updatedEvent?.contexts['version']['value'], 9);
       expect(updatedEvent?.contexts['location'], {'city': 'London'});

@@ -17,11 +17,11 @@ void main() {
     data['extra'] = 'value';
 
     final device = SentryDevice(batteryLevel: 100);
-    final os = OperatingSystem(name: 'name1');
+    final os = SentryOperatingSystem(name: 'name1');
     final runtimes = [SentryRuntime(name: 'name1')];
     final app = SentryApp(name: 'name1');
     final browser = SentryBrowser(name: 'name1');
-    final gpu = Gpu(id: 2);
+    final gpu = SentryGpu(id: 2);
 
     final copy = data.copyWith(
       device: device,
@@ -47,9 +47,9 @@ void main() {
 
 Contexts _generate() => Contexts(
       device: SentryDevice(batteryLevel: 90),
-      operatingSystem: OperatingSystem(name: 'name'),
+      operatingSystem: SentryOperatingSystem(name: 'name'),
       runtimes: [SentryRuntime(name: 'name')],
       app: SentryApp(name: 'name'),
       browser: SentryBrowser(name: 'name'),
-      gpu: Gpu(id: 1),
+      gpu: SentryGpu(id: 1),
     );

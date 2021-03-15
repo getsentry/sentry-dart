@@ -11,13 +11,16 @@
   * This changed the import from `import 'package:sentry_flutter/src/sentry_flutter_web.dart';` 
     to `import 'package:sentry_flutter/sentry_flutter_web.dart';`
   * This could lead to breaking changes. Typically it shouldn't because the referencing file is auto-generated.
-* Fix: Prefix App, Browser, Device, Message, Request and User with Sentry (#357)
+* Fix: Prefix classes with Sentry (#357)
   * A couple of classes were often conflicting with user's code.
     Thus this change renames the following classes:
     * `App` -> `SentryApp`
     * `Browser` -> `SentryBrowser`
     * `Device` -> `SentryDevice`
+    * `Gpu` -> `SentryGpu`
+    * `Integration` -> `SentryIntegration`
     * `Message` -> `SentryMessage`
+    * `OperatingSystem` -> `SentryOperatingSystem`
     * `Request` -> `SentryRequest`
     * `User` -> `SentryUser`
 

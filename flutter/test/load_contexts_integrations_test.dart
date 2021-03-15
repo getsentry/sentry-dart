@@ -78,8 +78,8 @@ void main() {
     final eventContexts = Contexts(
         device: const SentryDevice(name: 'eDevice'),
         app: const SentryApp(name: 'eApp'),
-        operatingSystem: const OperatingSystem(name: 'eOS'),
-        gpu: const Gpu(name: 'eGpu'),
+        operatingSystem: const SentryOperatingSystem(name: 'eOS'),
+        gpu: const SentryGpu(name: 'eGpu'),
         browser: const SentryBrowser(name: 'eBrowser'),
         runtimes: [const SentryRuntime(name: 'eRT')])
       ..['theme'] = 'cuppertino';

@@ -14,7 +14,7 @@ import 'package:meta/meta.dart';
 
 /// GPU context describes the GPU of the device.
 @immutable
-class Gpu {
+class SentryGpu {
   static const type = 'gpu';
 
   /// The name of the graphics device.
@@ -44,7 +44,7 @@ class Gpu {
   /// The Non-Power-Of-Two-Support support.
   final String? npotSupport;
 
-  const Gpu({
+  const SentryGpu({
     this.name,
     this.id,
     this.vendorId,
@@ -56,7 +56,7 @@ class Gpu {
     this.npotSupport,
   });
 
-  factory Gpu.fromJson(Map<String, dynamic> data) => Gpu(
+  factory SentryGpu.fromJson(Map<String, dynamic> data) => SentryGpu(
         name: data['name'],
         id: data['id'],
         vendorId: data['vendor_id'],
@@ -68,7 +68,7 @@ class Gpu {
         npotSupport: data['npot_support'],
       );
 
-  Gpu clone() => Gpu(
+  SentryGpu clone() => SentryGpu(
         name: name,
         id: id,
         vendorId: vendorId,
@@ -123,7 +123,7 @@ class Gpu {
     return json;
   }
 
-  Gpu copyWith({
+  SentryGpu copyWith({
     String? name,
     int? id,
     int? vendorId,
@@ -134,7 +134,7 @@ class Gpu {
     String? version,
     String? npotSupport,
   }) =>
-      Gpu(
+      SentryGpu(
         name: name ?? this.name,
         id: id ?? this.id,
         vendorId: vendorId ?? this.vendorId,

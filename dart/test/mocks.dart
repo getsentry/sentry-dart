@@ -44,7 +44,7 @@ final fakeEvent = SentryEvent(
     )
   ],
   contexts: Contexts(
-    operatingSystem: const OperatingSystem(
+    operatingSystem: const SentryOperatingSystem(
       name: 'Android',
       version: '5.0.2',
       build: 'LRX22G.P900XXS0BPL2',

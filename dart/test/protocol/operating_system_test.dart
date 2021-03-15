@@ -33,7 +33,7 @@ void main() {
   });
 }
 
-OperatingSystem _generate() => OperatingSystem(
+SentryOperatingSystem _generate() => SentryOperatingSystem(
       name: 'name',
       version: 'version',
       build: 'build',

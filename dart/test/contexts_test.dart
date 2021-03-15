@@ -6,7 +6,7 @@ import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/protocol/gpu.dart';
+import 'package:sentry/src/protocol/sentry_gpu.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -40,7 +40,7 @@ void main() {
       bootTime: testBootTime,
       timezone: 'Australia/Melbourne',
     );
-    const testOS = OperatingSystem(name: 'testOS');
+    const testOS = SentryOperatingSystem(name: 'testOS');
     final testRuntimes = [
       const SentryRuntime(name: 'testRT1', version: '1.0'),
       const SentryRuntime(name: 'testRT2', version: '2.3.1'),
@@ -48,7 +48,7 @@ void main() {
     const testApp = SentryApp(version: '1.2.3');
     const testBrowser = SentryBrowser(version: '12.3.4');
 
-    final gpu = Gpu(name: 'Radeon', version: '1');
+    final gpu = SentryGpu(name: 'Radeon', version: '1');
 
     final contexts = Contexts(
       device: testDevice,
