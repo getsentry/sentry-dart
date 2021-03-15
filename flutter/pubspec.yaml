@@ -39,4 +39,4 @@ flutter:
         pluginClass: SentryFlutterPlugin
       web:
         pluginClass: SentryFlutterWeb
-        fileName: src/sentry_flutter_web.dart
+        fileName: sentry_flutter_web.dart

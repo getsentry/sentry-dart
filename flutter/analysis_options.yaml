@@ -24,3 +24,4 @@ linter:
   rules:
     prefer_relative_imports: true
     unnecessary_brace_in_string_interps: true
+    implementation_imports: true
