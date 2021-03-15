@@ -52,7 +52,6 @@ void main() {
 
       expect(processedEvent, isNotNull);
       expect(processedEvent?.user, isNotNull);
-      // fakeEvent has a user which is not null
       expect(processedEvent?.user?.ipAddress, '{{auto}}');
       expect(processedEvent?.user?.id, fakeUser.id);
       expect(processedEvent?.user?.email, fakeUser.email);

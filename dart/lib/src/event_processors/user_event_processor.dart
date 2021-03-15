@@ -27,4 +27,5 @@ FutureOr<SentryEvent?> userEventProcessor(
   } else if (event.user?.ipAddress == null) {
     return event.copyWith(user: user.copyWith(ipAddress: _defaultIpAddress));
   }
+  return event;
 }
