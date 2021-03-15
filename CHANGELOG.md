@@ -4,7 +4,7 @@
 * Fix: Multiple FlutterError.onError calls in FlutterErrorIntegration (#345)
 * Fix: Pass hint to EventProcessors (#356)
 * Fix: EventProcessors were not dropping events when returning null (#353)
-* Feat: Send default Pii options
+* Feat: Send default Pii options (#360)
 
 ## Breaking Changes:
 
