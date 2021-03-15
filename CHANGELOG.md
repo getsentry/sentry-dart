@@ -4,7 +4,7 @@
 * Fix: Multiple FlutterError.onError calls in FlutterErrorIntegration (#345)
 * Fix: Pass hint to EventProcessors (#356)
 * Fix: EventProcessors were not dropping events when returning null (#353)
-* Fix: Prefix App, Browser, Device, Message, Request and User with Sentry (#250)
+* Fix: Prefix App, Browser, Device, Message, Request and User with Sentry (#357)
 
 
 ## Breaking Changes:
