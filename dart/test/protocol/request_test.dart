@@ -33,7 +33,7 @@ void main() {
   });
 }
 
-Request _generate() => Request(
+SentryRequest _generate() => SentryRequest(
       url: 'url',
       method: 'method',
       queryString: 'queryString',

@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/protocol/request.dart';
+import 'package:sentry/src/protocol/sentry_request.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:sentry/src/utils.dart';
 import 'package:sentry/src/version.dart';
@@ -59,7 +59,7 @@ void main() {
     });
     test('serializes to JSON', () {
       final timestamp = DateTime.utc(2019);
-      final user = User(
+      final user = SentryUser(
           id: 'user_id',
           username: 'username',
           email: 'email@email.com',
@@ -75,7 +75,7 @@ void main() {
         ),
       ];
 
-      final request = Request(
+      final request = SentryRequest(
         url: 'https://api.com/users',
         method: 'GET',
         headers: const {'authorization': '123456'},
@@ -86,7 +86,7 @@ void main() {
           eventId: SentryId.empty(),
           timestamp: timestamp,
           platform: sdkPlatform,
-          message: Message(
+          message: SentryMessage(
             'test-message 1 2',
             template: 'test-message %d %d',
             params: ['1', '2'],
@@ -271,7 +271,7 @@ void main() {
         contexts: Contexts(),
         fingerprint: [],
         breadcrumbs: [Breadcrumb()],
-        request: Request(),
+        request: SentryRequest(),
         debugMeta: DebugMeta(images: []),
       );
       final eventMap = event.toJson();

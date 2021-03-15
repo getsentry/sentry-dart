@@ -51,7 +51,8 @@ void main() {
 
     final transport = fixture.getSut(_channel);
 
-    final event = SentryEvent(message: Message('hi I am a special char ◤'));
+    final event =
+        SentryEvent(message: SentryMessage('hi I am a special char ◤'));
     await transport.send(event);
 
     final envelopeList = arguments as List;

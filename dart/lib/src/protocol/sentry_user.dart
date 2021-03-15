@@ -24,9 +24,9 @@ import 'package:meta/meta.dart';
 /// }
 /// ```
 @immutable
-class User {
+class SentryUser {
   /// At a minimum you must set an [id] or an [ipAddress].
-  User({
+  SentryUser({
     this.id,
     this.username,
     this.email,
@@ -64,14 +64,14 @@ class User {
     };
   }
 
-  User copyWith({
+  SentryUser copyWith({
     String? id,
     String? username,
     String? email,
     String? ipAddress,
     Map<String, dynamic>? extras,
   }) =>
-      User(
+      SentryUser(
         id: id ?? this.id,
         username: username ?? this.username,
         email: email ?? this.email,

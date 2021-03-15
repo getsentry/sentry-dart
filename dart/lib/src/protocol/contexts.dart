@@ -10,37 +10,38 @@ import '../protocol.dart';
 /// See also: https://develop.sentry.dev/sdk/event-payloads/contexts/.
 class Contexts extends MapView<String, dynamic> {
   Contexts({
-    Device? device,
-    OperatingSystem? operatingSystem,
+    SentryDevice? device,
+    SentryOperatingSystem? operatingSystem,
     List<SentryRuntime>? runtimes,
-    App? app,
-    Browser? browser,
-    Gpu? gpu,
+    SentryApp? app,
+    SentryBrowser? browser,
+    SentryGpu? gpu,
   }) : super({
-          Device.type: device,
-          OperatingSystem.type: operatingSystem,
+          SentryDevice.type: device,
+          SentryOperatingSystem.type: operatingSystem,
           SentryRuntime.listType: runtimes ?? [],
-          App.type: app,
-          Browser.type: browser,
-          Gpu.type: gpu,
+          SentryApp.type: app,
+          SentryBrowser.type: browser,
+          SentryGpu.type: gpu,
         });
 
   factory Contexts.fromJson(Map<String, dynamic> data) {
     final contexts = Contexts(
-      device: data[Device.type] != null
-          ? Device.fromJson(Map.from(data[Device.type]))
+      device: data[SentryDevice.type] != null
+          ? SentryDevice.fromJson(Map.from(data[SentryDevice.type]))
           : null,
-      operatingSystem: data[OperatingSystem.type] != null
-          ? OperatingSystem.fromJson(Map.from(data[OperatingSystem.type]))
+      operatingSystem: data[SentryOperatingSystem.type] != null
+          ? SentryOperatingSystem.fromJson(
+              Map.from(data[SentryOperatingSystem.type]))
           : null,
-      app: data[App.type] != null
-          ? App.fromJson(Map.from(data[App.type]))
+      app: data[SentryApp.type] != null
+          ? SentryApp.fromJson(Map.from(data[SentryApp.type]))
           : null,
-      browser: data[Browser.type] != null
-          ? Browser.fromJson(Map.from(data[Browser.type]))
+      browser: data[SentryBrowser.type] != null
+          ? SentryBrowser.fromJson(Map.from(data[SentryBrowser.type]))
           : null,
-      gpu: data[Gpu.type] != null
-          ? Gpu.fromJson(Map.from(data[Gpu.type]))
+      gpu: data[SentryGpu.type] != null
+          ? SentryGpu.fromJson(Map.from(data[SentryGpu.type]))
           : null,
       runtimes: data[SentryRuntime.type] != null
           ? [SentryRuntime.fromJson(Map.from(data[SentryRuntime.type]))]
@@ -55,18 +56,19 @@ class Contexts extends MapView<String, dynamic> {
   }
 
   /// This describes the device that caused the event.
-  Device? get device => this[Device.type];
+  SentryDevice? get device => this[SentryDevice.type];
 
-  set device(Device? device) => this[Device.type] = device;
+  set device(SentryDevice? device) => this[SentryDevice.type] = device;
 
   /// Describes the operating system on which the event was created.
   ///
   /// In web contexts, this is the operating system of the browse
   /// (normally pulled from the User-Agent string).
-  OperatingSystem? get operatingSystem => this[OperatingSystem.type];
+  SentryOperatingSystem? get operatingSystem =>
+      this[SentryOperatingSystem.type];
 
-  set operatingSystem(OperatingSystem? operatingSystem) =>
-      this[OperatingSystem.type] = operatingSystem;
+  set operatingSystem(SentryOperatingSystem? operatingSystem) =>
+      this[SentryOperatingSystem.type] = operatingSystem;
 
   /// Describes an immutable list of runtimes in more detail
   /// (for instance if you have a Flutter application running
@@ -84,23 +86,23 @@ class Contexts extends MapView<String, dynamic> {
   ///
   /// As opposed to the runtime, this is the actual application that was
   /// running and carries metadata about the current session.
-  App? get app => this[App.type];
+  SentryApp? get app => this[SentryApp.type];
 
-  set app(App? app) => this[App.type] = app;
+  set app(SentryApp? app) => this[SentryApp.type] = app;
 
   /// Carries information about the browser or user agent for web-related
   /// errors.
   ///
   /// This can either be the browser this event ocurred in, or the user
   /// agent of a web request that triggered the event.
-  Browser? get browser => this[Browser.type];
+  SentryBrowser? get browser => this[SentryBrowser.type];
 
-  set browser(Browser? browser) => this[Browser.type] = browser;
+  set browser(SentryBrowser? browser) => this[SentryBrowser.type] = browser;
 
   /// GPU context describes the GPU of the device.
-  Gpu? get gpu => this[Gpu.type];
+  SentryGpu? get gpu => this[SentryGpu.type];
 
-  set gpu(Gpu? gpu) => this[Gpu.type] = gpu;
+  set gpu(SentryGpu? gpu) => this[SentryGpu.type] = gpu;
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
@@ -109,37 +111,37 @@ class Contexts extends MapView<String, dynamic> {
     forEach((key, value) {
       if (value == null) return;
       switch (key) {
-        case Device.type:
+        case SentryDevice.type:
           final deviceMap = device?.toJson();
           if (deviceMap?.isNotEmpty ?? false) {
-            json[Device.type] = deviceMap;
+            json[SentryDevice.type] = deviceMap;
           }
           break;
-        case OperatingSystem.type:
+        case SentryOperatingSystem.type:
           final osMap = operatingSystem?.toJson();
           if (osMap?.isNotEmpty ?? false) {
-            json[OperatingSystem.type] = osMap;
+            json[SentryOperatingSystem.type] = osMap;
           }
           break;
 
-        case App.type:
+        case SentryApp.type:
           final appMap = app?.toJson();
           if (appMap?.isNotEmpty ?? false) {
-            json[App.type] = appMap;
+            json[SentryApp.type] = appMap;
           }
           break;
 
-        case Browser.type:
+        case SentryBrowser.type:
           final browserMap = browser?.toJson();
           if (browserMap?.isNotEmpty ?? false) {
-            json[Browser.type] = browserMap;
+            json[SentryBrowser.type] = browserMap;
           }
           break;
 
-        case Gpu.type:
+        case SentryGpu.type:
           final gpuMap = gpu?.toJson();
           if (gpuMap?.isNotEmpty ?? false) {
-            json[Gpu.type] = gpuMap;
+            json[SentryGpu.type] = gpuMap;
           }
           break;
 
@@ -199,12 +201,12 @@ class Contexts extends MapView<String, dynamic> {
   }
 
   Contexts copyWith({
-    Device? device,
-    OperatingSystem? operatingSystem,
+    SentryDevice? device,
+    SentryOperatingSystem? operatingSystem,
     List<SentryRuntime>? runtimes,
-    App? app,
-    Browser? browser,
-    Gpu? gpu,
+    SentryApp? app,
+    SentryBrowser? browser,
+    SentryGpu? gpu,
   }) =>
       Contexts(
         device: device ?? this.device,
@@ -218,12 +220,12 @@ class Contexts extends MapView<String, dynamic> {
         );
 
   static const _defaultFields = [
-    App.type,
-    Device.type,
-    OperatingSystem.type,
+    SentryApp.type,
+    SentryDevice.type,
+    SentryOperatingSystem.type,
     SentryRuntime.listType,
     SentryRuntime.type,
-    Gpu.type,
-    Browser.type,
+    SentryGpu.type,
+    SentryBrowser.type,
   ];
 }

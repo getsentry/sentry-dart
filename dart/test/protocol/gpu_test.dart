@@ -41,7 +41,7 @@ void main() {
   });
 }
 
-Gpu _generate() => Gpu(
+SentryGpu _generate() => SentryGpu(
       name: 'name',
       id: 1,
       vendorId: 2,

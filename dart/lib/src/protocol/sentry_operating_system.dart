@@ -5,10 +5,10 @@ import 'package:meta/meta.dart';
 /// In web contexts, this is the operating system of the browse
 /// (normally pulled from the User-Agent string).
 @immutable
-class OperatingSystem {
+class SentryOperatingSystem {
   static const type = 'os';
 
-  const OperatingSystem({
+  const SentryOperatingSystem({
     this.name,
     this.version,
     this.build,
@@ -17,8 +17,8 @@ class OperatingSystem {
     this.rawDescription,
   });
 
-  factory OperatingSystem.fromJson(Map<String, dynamic> data) =>
-      OperatingSystem(
+  factory SentryOperatingSystem.fromJson(Map<String, dynamic> data) =>
+      SentryOperatingSystem(
         name: data['name'],
         version: data['version'],
         build: data['build'],
@@ -81,7 +81,7 @@ class OperatingSystem {
     return json;
   }
 
-  OperatingSystem clone() => OperatingSystem(
+  SentryOperatingSystem clone() => SentryOperatingSystem(
         name: name,
         version: version,
         build: build,
@@ -90,7 +90,7 @@ class OperatingSystem {
         rawDescription: rawDescription,
       );
 
-  OperatingSystem copyWith({
+  SentryOperatingSystem copyWith({
     String? name,
     String? version,
     String? build,
@@ -98,7 +98,7 @@ class OperatingSystem {
     bool? rooted,
     String? rawDescription,
   }) =>
-      OperatingSystem(
+      SentryOperatingSystem(
         name: name ?? this.name,
         version: version ?? this.version,
         build: build ?? this.build,

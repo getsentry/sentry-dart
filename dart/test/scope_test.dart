@@ -29,10 +29,10 @@ void main() {
     expect(sut.transaction, 'test');
   });
 
-  test('sets $User', () {
+  test('sets $SentryUser', () {
     final sut = fixture.getSut();
 
-    final user = User(id: 'test');
+    final user = SentryUser(id: 'test');
     sut.user = user;
 
     expect(sut.user, user);
@@ -200,7 +200,7 @@ void main() {
     sut.level = SentryLevel.debug;
     sut.transaction = 'test';
 
-    final user = User(id: 'test');
+    final user = SentryUser(id: 'test');
     sut.user = user;
 
     final fingerprints = ['test'];
@@ -247,7 +247,7 @@ void main() {
   });
 
   group('Scope apply', () {
-    final scopeUser = User(
+    final scopeUser = SentryUser(
       id: '800',
       username: 'first-user',
       email: 'first@user.lan',
@@ -291,7 +291,7 @@ void main() {
 
     test('should not apply the scope properties when event already has it ',
         () async {
-      final eventUser = User(id: '123');
+      final eventUser = SentryUser(id: '123');
       final eventBreadcrumb = Breadcrumb(message: 'event-breadcrumb');
 
       final event = SentryEvent(
@@ -319,76 +319,81 @@ void main() {
         () async {
       final event = SentryEvent(
         contexts: Contexts(
-          device: Device(name: 'event-device'),
-          app: App(name: 'event-app'),
-          gpu: Gpu(name: 'event-gpu'),
+          device: SentryDevice(name: 'event-device'),
+          app: SentryApp(name: 'event-app'),
+          gpu: SentryGpu(name: 'event-gpu'),
           runtimes: [SentryRuntime(name: 'event-runtime')],
-          browser: Browser(name: 'event-browser'),
-          operatingSystem: OperatingSystem(name: 'event-os'),
+          browser: SentryBrowser(name: 'event-browser'),
+          operatingSystem: SentryOperatingSystem(name: 'event-os'),
         ),
       );
       final scope = Scope(SentryOptions(dsn: fakeDsn))
         ..setContexts(
-          Device.type,
-          Device(name: 'context-device'),
+          SentryDevice.type,
+          SentryDevice(name: 'context-device'),
         )
         ..setContexts(
-          App.type,
-          App(name: 'context-app'),
+          SentryApp.type,
+          SentryApp(name: 'context-app'),
         )
         ..setContexts(
-          Gpu.type,
-          Gpu(name: 'context-gpu'),
+          SentryGpu.type,
+          SentryGpu(name: 'context-gpu'),
         )
         ..setContexts(
           SentryRuntime.listType,
           [SentryRuntime(name: 'context-runtime')],
         )
         ..setContexts(
-          Browser.type,
-          Browser(name: 'context-browser'),
+          SentryBrowser.type,
+          SentryBrowser(name: 'context-browser'),
         )
         ..setContexts(
-          OperatingSystem.type,
-          OperatingSystem(name: 'context-os'),
+          SentryOperatingSystem.type,
+          SentryOperatingSystem(name: 'context-os'),
         );
 
       final updatedEvent = await scope.applyToEvent(event, null);
 
-      expect(updatedEvent?.contexts[Device.type].name, 'event-device');
-      expect(updatedEvent?.contexts[App.type].name, 'event-app');
-      expect(updatedEvent?.contexts[Gpu.type].name, 'event-gpu');
+      expect(updatedEvent?.contexts[SentryDevice.type].name, 'event-device');
+      expect(updatedEvent?.contexts[SentryApp.type].name, 'event-app');
+      expect(updatedEvent?.contexts[SentryGpu.type].name, 'event-gpu');
       expect(updatedEvent?.contexts[SentryRuntime.listType].first.name,
           'event-runtime');
-      expect(updatedEvent?.contexts[Browser.type].name, 'event-browser');
-      expect(updatedEvent?.contexts[OperatingSystem.type].name, 'event-os');
+      expect(updatedEvent?.contexts[SentryBrowser.type].name, 'event-browser');
+      expect(
+          updatedEvent?.contexts[SentryOperatingSystem.type].name, 'event-os');
     });
 
     test('should apply the scope.contexts values ', () async {
       final event = SentryEvent();
       final scope = Scope(SentryOptions(dsn: fakeDsn))
-        ..setContexts(Device.type, Device(name: 'context-device'))
-        ..setContexts(App.type, App(name: 'context-app'))
-        ..setContexts(Gpu.type, Gpu(name: 'context-gpu'))
+        ..setContexts(SentryDevice.type, SentryDevice(name: 'context-device'))
+        ..setContexts(SentryApp.type, SentryApp(name: 'context-app'))
+        ..setContexts(SentryGpu.type, SentryGpu(name: 'context-gpu'))
         ..setContexts(
             SentryRuntime.listType, [SentryRuntime(name: 'context-runtime')])
-        ..setContexts(Browser.type, Browser(name: 'context-browser'))
-        ..setContexts(OperatingSystem.type, OperatingSystem(name: 'context-os'))
+        ..setContexts(
+            SentryBrowser.type, SentryBrowser(name: 'context-browser'))
+        ..setContexts(SentryOperatingSystem.type,
+            SentryOperatingSystem(name: 'context-os'))
         ..setContexts('theme', 'material')
         ..setContexts('version', 9)
         ..setContexts('location', {'city': 'London'});
 
       final updatedEvent = await scope.applyToEvent(event, null);
 
-      expect(updatedEvent?.contexts[Device.type].name, 'context-device');
-      expect(updatedEvent?.contexts[App.type].name, 'context-app');
-      expect(updatedEvent?.contexts[Gpu.type].name, 'context-gpu');
+      expect(updatedEvent?.contexts[SentryDevice.type].name, 'context-device');
+      expect(updatedEvent?.contexts[SentryApp.type].name, 'context-app');
+      expect(updatedEvent?.contexts[SentryGpu.type].name, 'context-gpu');
       expect(
         updatedEvent?.contexts[SentryRuntime.listType].first.name,
         'context-runtime',
       );
-      expect(updatedEvent?.contexts[Browser.type].name, 'context-browser');
-      expect(updatedEvent?.contexts[OperatingSystem.type].name, 'context-os');
+      expect(
+          updatedEvent?.contexts[SentryBrowser.type].name, 'context-browser');
+      expect(updatedEvent?.contexts[SentryOperatingSystem.type].name,
+          'context-os');
       expect(updatedEvent?.contexts['theme']['value'], 'material');
       expect(updatedEvent?.contexts['version']['value'], 9);
       expect(updatedEvent?.contexts['location'], {'city': 'London'});

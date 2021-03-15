@@ -27,7 +27,7 @@ void main() {
   });
 }
 
-Browser _generate() => Browser(
+SentryBrowser _generate() => SentryBrowser(
       name: 'name',
       version: 'version',
     );

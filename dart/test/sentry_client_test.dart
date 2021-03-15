@@ -297,7 +297,7 @@ void main() {
     final level = SentryLevel.error;
     const transaction = '/test/scope';
     const fingerprint = ['foo', 'bar', 'baz'];
-    final user = User(id: '123', username: 'test');
+    final user = SentryUser(id: '123', username: 'test');
     final crumb = Breadcrumb(message: 'bread');
     const scopeTagKey = 'scope-tag';
     const scopeTagValue = 'scope-tag-value';
@@ -359,8 +359,8 @@ void main() {
     final eventTransaction = '/event/transaction';
     const fingerprint = ['foo', 'bar', 'baz'];
     const eventFingerprint = ['123', '456', '798'];
-    final user = User(id: '123');
-    final eventUser = User(id: '987');
+    final user = SentryUser(id: '123');
+    final eventUser = SentryUser(id: '987');
     final crumb = Breadcrumb(message: 'bread');
     final eventCrumbs = [Breadcrumb(message: 'bread')];
 

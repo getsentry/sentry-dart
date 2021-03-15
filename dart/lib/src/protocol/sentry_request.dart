@@ -4,7 +4,7 @@ import 'package:meta/meta.dart';
 /// In client SDKs, this can be an outgoing request, or the request that rendered the current web page.
 /// On server SDKs, this could be the incoming web request that is being handled.
 @immutable
-class Request {
+class SentryRequest {
   ///The URL of the request if available.
   ///The query string can be declared either as part of the url,
   ///or separately in queryString.
@@ -55,7 +55,7 @@ class Request {
 
   Map<String, String> get other => Map.unmodifiable(_other ?? const {});
 
-  Request({
+  SentryRequest({
     this.url,
     this.method,
     this.queryString,
@@ -107,7 +107,7 @@ class Request {
     return json;
   }
 
-  Request copyWith({
+  SentryRequest copyWith({
     String? url,
     String? method,
     String? queryString,
@@ -117,7 +117,7 @@ class Request {
     Map<String, String>? env,
     Map<String, String>? other,
   }) =>
-      Request(
+      SentryRequest(
         url: url ?? this.url,
         method: method ?? this.method,
         queryString: queryString ?? this.queryString,

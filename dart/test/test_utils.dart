@@ -365,13 +365,13 @@ void runTest({Codec<List<int>, List<int>?>? gzip, bool isWeb = false}) {
       );
     });
 
-    final clientUser = User(
+    final clientUser = SentryUser(
       id: 'client_user',
       username: 'username',
       email: 'email@email.com',
       ipAddress: '127.0.0.1',
     );
-    final eventUser = User(
+    final eventUser = SentryUser(
       id: 'event_user',
       username: 'username',
       email: 'email@email.com',

@@ -5,13 +5,13 @@ import 'package:meta/meta.dart';
 /// This can either be the browser this event ocurred in, or the user
 /// agent of a web request that triggered the event.
 @immutable
-class Browser {
+class SentryBrowser {
   static const type = 'browser';
 
-  /// Creates an instance of [Browser].
-  const Browser({this.name, this.version});
+  /// Creates an instance of [SentryBrowser].
+  const SentryBrowser({this.name, this.version});
 
-  factory Browser.fromJson(Map<String, dynamic> data) => Browser(
+  factory SentryBrowser.fromJson(Map<String, dynamic> data) => SentryBrowser(
         name: data['name'],
         version: data['version'],
       );
@@ -37,13 +37,13 @@ class Browser {
     return json;
   }
 
-  Browser clone() => Browser(name: name, version: version);
+  SentryBrowser clone() => SentryBrowser(name: name, version: version);
 
-  Browser copyWith({
+  SentryBrowser copyWith({
     String? name,
     String? version,
   }) =>
-      Browser(
+      SentryBrowser(
         name: name ?? this.name,
         version: version ?? this.version,
       );
