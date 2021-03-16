@@ -6,6 +6,11 @@
 * Remove deprecated member `enableLifecycleBreadcrumbs`. Use `enableAppLifecycleBreadcrumbs` instead.
 * Fix: Enable breadcrumb recording mechanism based on platform ((#366))
 * Remove deprecated member `enableLifecycleBreadcrumbs`. Use `enableAppLifecycleBreadcrumbs` instead. ((#366))
+* Fix: Enable breadcrumb recording mechanism based on platform (#366)
+
+## Breaking Changes:
+
+* Remove deprecated member `enableLifecycleBreadcrumbs`. Use `enableAppLifecycleBreadcrumbs` instead. (#366)
 
 # 4.1.0-nullsafety.1
 
