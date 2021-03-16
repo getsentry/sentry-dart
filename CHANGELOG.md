@@ -4,7 +4,8 @@
 * Fix: Multiple FlutterError.onError calls in FlutterErrorIntegration (#345)
 * Fix: Pass hint to EventProcessors (#356)
 * Fix: EventProcessors were not dropping events when returning null (#353)
-* Feat: Send default Pii options (#360)
+* Feat: Send default PII options (#360)
+* Bump: sentry-cocoa to v6.2.1 (#360)
 
 ## Breaking Changes:
 

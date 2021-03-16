@@ -60,7 +60,7 @@ class SentryUser {
       if (username != null) 'username': username,
       if (email != null) 'email': email,
       if (ipAddress != null) 'ip_address': ipAddress,
-      if (extras != null) 'extras': extras,
+      if (extras?.isNotEmpty ?? false) 'extras': extras,
     };
   }
 

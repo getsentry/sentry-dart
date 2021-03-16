@@ -176,11 +176,10 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
         if let maxBreadcrumbs = arguments["maxBreadcrumbs"] as? UInt {
             options.maxBreadcrumbs = maxBreadcrumbs
         }
+
         if let sendDefaultPii = arguments["sendDefaultPii"] as? Bool {
             options.sendDefaultPii = sendDefaultPii
         }
-        
-        
     }
 
     private func logLevelFrom(diagnosticLevel: String) -> SentryLogLevel {
