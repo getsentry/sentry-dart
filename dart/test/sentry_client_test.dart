@@ -396,6 +396,71 @@ void main() {
     });
   });
 
+  group('SentryClient : apply default pii', () {
+    test('sendDefaultPii is disabled', () async {
+      var options = SentryOptions(dsn: fakeDsn);
+      options.sendDefaultPii = false;
+      final transport = MockTransport();
+      options.transport = transport;
+      final client = SentryClient(options);
+
+      await client.captureEvent(fakeEvent);
+
+      expect(transport.events.first, fakeEvent);
+    });
+
+    test('sendDefaultPii is enabled and event has no user', () async {
+      var options = SentryOptions(dsn: fakeDsn);
+      options.sendDefaultPii = true;
+      var fakeEvent = SentryEvent();
+      final transport = MockTransport();
+      options.transport = transport;
+      final client = SentryClient(options);
+
+      await client.captureEvent(fakeEvent);
+
+      expect(transport.events.length, 1);
+      expect(transport.events.first.user, isNotNull);
+      expect(transport.events.first.user?.ipAddress, '{{auto}}');
+    });
+
+    test('sendDefaultPii is enabled and event has a user with IP address',
+        () async {
+      var options = SentryOptions(dsn: fakeDsn);
+      options.sendDefaultPii = true;
+      final transport = MockTransport();
+      options.transport = transport;
+      final client = SentryClient(options);
+
+      await client.captureEvent(fakeEvent);
+
+      expect(transport.events.length, 1);
+      expect(transport.events.first.user, isNotNull);
+      // fakeEvent has a user which is not null
+      expect(transport.events.first.user?.ipAddress, fakeEvent.user!.ipAddress);
+      expect(transport.events.first.user?.id, fakeEvent.user!.id);
+      expect(transport.events.first.user?.email, fakeEvent.user!.email);
+    });
+
+    test('sendDefaultPii is enabled and event has a user without IP address',
+        () async {
+      var options = SentryOptions(dsn: fakeDsn);
+      options.sendDefaultPii = true;
+      final event = fakeEvent.copyWith(user: fakeUser);
+      final transport = MockTransport();
+      options.transport = transport;
+      final client = SentryClient(options);
+
+      await client.captureEvent(fakeEvent);
+
+      expect(transport.events.length, 1);
+      expect(transport.events.first.user, isNotNull);
+      expect(transport.events.first.user?.ipAddress, '{{auto}}');
+      expect(transport.events.first.user?.id, fakeUser.id);
+      expect(transport.events.first.user?.email, fakeUser.email);
+    });
+  });
+
   group('SentryClient sampling', () {
     var options = SentryOptions(dsn: fakeDsn);
 
