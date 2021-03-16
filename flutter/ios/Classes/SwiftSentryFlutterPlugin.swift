@@ -201,16 +201,14 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
             case "sentry.dart.flutter":
                 setEventEnvironmentTag(event: event, origin: "flutter", environment: "dart")
             case "sentry.cocoa":
-                setEventEnvironmentTag(event: event, origin: "flutter", environment: "dart")
-            case "sentry.native":
-                setEventEnvironmentTag(event: event, origin: "flutter", environment: "dart")
+                setEventEnvironmentTag(event: event, origin: "ios", environment: "native")
             default:
                 return
             }
         }
     }
 
-    private func setEventEnvironmentTag(event: Event, origin: String = "ios", environment: String) {
+    private func setEventEnvironmentTag(event: Event, origin: String, environment: String) {
         event.tags?["event.origin"] = origin
         event.tags?["event.environment"] = environment
     }

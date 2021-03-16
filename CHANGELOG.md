@@ -1,5 +1,6 @@
 # Unreleased
 
+* Fix: event.origin and event.environment tags have wrong value for iOS (#365)
 * Fix: Fix deprecated `registrar.messenger` call in `SentryFlutterWeb` (#364)
 
 # 4.1.0-nullsafety.1
