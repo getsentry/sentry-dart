@@ -5,7 +5,9 @@ import 'package:sentry/sentry.dart';
 /// Note that some of these options require native Sentry integration, which is
 /// not available on all platforms.
 class SentryFlutterOptions extends SentryOptions {
-  SentryFlutterOptions({String? dsn}) : super(dsn: dsn);
+  SentryFlutterOptions({String? dsn}) : super(dsn: dsn) {
+    enableBreadcrumbTrackingForCurrentPlatform();
+  }
 
   /// Enable or disable the Auto session tracking on the Native SDKs (Android/iOS)
   bool enableAutoSessionTracking = true;
@@ -68,19 +70,6 @@ class SentryFlutterOptions extends SentryOptions {
   set cacheDirSize(int value) {
     _cacheDirSize = value >= 0 ? value : _cacheDirSize;
   }
-
-  @Deprecated(
-    'Use enableAppLifecycleBreadcrumbs instead. '
-    'This option gets removed in Sentry 5.0.0',
-  )
-  bool get enableLifecycleBreadcrumbs => enableAppLifecycleBreadcrumbs;
-
-  @Deprecated(
-    'Use enableAppLifecycleBreadcrumbs instead. '
-    'This option gets removed in Sentry 5.0.0',
-  )
-  set enableLifecycleBreadcrumbs(bool value) =>
-      enableAppLifecycleBreadcrumbs = value;
 
   /// Consider disabling [enableAutoNativeBreadcrumbs] if you
   /// enable this. Otherwise you might record app lifecycle events twice.
