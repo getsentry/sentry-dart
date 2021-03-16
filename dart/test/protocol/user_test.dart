@@ -27,6 +27,32 @@ void main() {
     expect('ipAddress1', copy.ipAddress);
     expect({'key1': 'value1'}, copy.extras);
   });
+
+  test('toJson only serialises non-null values', () {
+    var data = SentryUser(
+      id: 'id',
+    );
+
+    var json = data.toJson();
+
+    expect(json.containsKey('id'), true);
+    expect(json.containsKey('username'), false);
+    expect(json.containsKey('email'), false);
+    expect(json.containsKey('ip_address'), false);
+    expect(json.containsKey('extras'), false);
+
+    data = SentryUser(
+      ipAddress: 'ip',
+    );
+
+    json = data.toJson();
+
+    expect(json.containsKey('id'), false);
+    expect(json.containsKey('username'), false);
+    expect(json.containsKey('email'), false);
+    expect(json.containsKey('ip_address'), true);
+    expect(json.containsKey('extras'), false);
+  });
 }
 
 SentryUser _generate() => SentryUser(

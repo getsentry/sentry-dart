@@ -56,11 +56,11 @@ class SentryUser {
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
-      'id': id,
-      'username': username,
-      'email': email,
-      'ip_address': ipAddress,
-      'extras': extras,
+      if (id != null) 'id': id,
+      if (username != null) 'username': username,
+      if (email != null) 'email': email,
+      if (ipAddress != null) 'ip_address': ipAddress,
+      if (extras != null) 'extras': extras,
     };
   }
 
