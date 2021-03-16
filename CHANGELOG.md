@@ -3,6 +3,8 @@
 * Fix: event.origin and event.environment tags have wrong value for iOS (#365)
 * Fix: Fix deprecated `registrar.messenger` call in `SentryFlutterWeb` (#364)
 * Fix: Enable breadcrumb recording mechanism based on platform (#366)
+* Feat: Send default PII options (#360)
+* Bump: sentry-cocoa to v6.2.1 (#360)
 
 ## Breaking Changes:
 
@@ -14,8 +16,6 @@
 * Fix: Multiple FlutterError.onError calls in FlutterErrorIntegration (#345)
 * Fix: Pass hint to EventProcessors (#356)
 * Fix: EventProcessors were not dropping events when returning null (#353)
-* Feat: Send default PII options (#360)
-* Bump: sentry-cocoa to v6.2.1 (#360)
 
 ## Breaking Changes:
 
