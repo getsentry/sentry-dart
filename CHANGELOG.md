@@ -1,5 +1,7 @@
 # Unreleased
 
+* Fix: event.origin and event.environment tags have wrong value for iOS
+
 # 4.1.0-nullsafety.1
 
 * Bump: sentry-android to v4.3.0 (#343)
