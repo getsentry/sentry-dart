@@ -1,5 +1,7 @@
 # Unreleased
 
+* Fix: Fix deprecated `registrar.messenger` call in `SentryFlutterWeb` (#364)
+
 # 4.1.0-nullsafety.1
 
 * Bump: sentry-android to v4.3.0 (#343)
