@@ -396,6 +396,66 @@ void main() {
     });
   });
 
+  group('SentryClient: apply default pii', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('sendDefaultPii is disabled', () async {
+      final transport = MockTransport();
+      final client = fixture.getSut(false, transport);
+
+      await client.captureEvent(fakeEvent);
+
+      expect(transport.events.first.user, fakeEvent.user);
+    });
+
+    test('sendDefaultPii is enabled and event has no user', () async {
+      final transport = MockTransport();
+      final client = fixture.getSut(true, transport);
+      var fakeEvent = SentryEvent();
+
+      await client.captureEvent(fakeEvent);
+
+      expect(transport.events.length, 1);
+      expect(transport.events.first.user, isNotNull);
+      expect(transport.events.first.user?.ipAddress, '{{auto}}');
+    });
+
+    test('sendDefaultPii is enabled and event has a user with IP address',
+        () async {
+      final transport = MockTransport();
+      final client = fixture.getSut(true, transport);
+
+      await client.captureEvent(fakeEvent);
+
+      expect(transport.events.length, 1);
+      expect(transport.events.first.user, isNotNull);
+      // fakeEvent has a user which is not null
+      expect(transport.events.first.user?.ipAddress, fakeEvent.user!.ipAddress);
+      expect(transport.events.first.user?.id, fakeEvent.user!.id);
+      expect(transport.events.first.user?.email, fakeEvent.user!.email);
+    });
+
+    test('sendDefaultPii is enabled and event has a user without IP address',
+        () async {
+      final transport = MockTransport();
+      final client = fixture.getSut(true, transport);
+
+      final event = fakeEvent.copyWith(user: fakeUser);
+
+      await client.captureEvent(event);
+
+      expect(transport.events.length, 1);
+      expect(transport.events.first.user, isNotNull);
+      expect(transport.events.first.user?.ipAddress, '{{auto}}');
+      expect(transport.events.first.user?.id, fakeUser.id);
+      expect(transport.events.first.user?.email, fakeUser.email);
+    });
+  });
+
   group('SentryClient sampling', () {
     var options = SentryOptions(dsn: fakeDsn);
 
@@ -550,4 +610,14 @@ SentryEvent beforeSendCallback(SentryEvent event, {dynamic hint}) {
 
 SentryEvent? eventProcessorDropEvent(SentryEvent event, {dynamic hint}) {
   return null;
+}
+
+class Fixture {
+  /// Test Fixture for tests with [SentryOptions.sendDefaultPii]
+  SentryClient getSut(bool sendDefaultPii, Transport transport) {
+    var options = SentryOptions(dsn: fakeDsn);
+    options.sendDefaultPii = sendDefaultPii;
+    options.transport = transport;
+    return SentryClient(options);
+  }
 }

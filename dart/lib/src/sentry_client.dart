@@ -10,6 +10,11 @@ import 'transport/http_transport.dart';
 import 'transport/noop_transport.dart';
 import 'version.dart';
 
+/// Default value for [User.ipAddress]. It gets set when an event does not have
+/// a user and IP address. Only applies if [SentryOptions.sendDefaultPii] is set
+/// to true.
+const _defaultIpAddress = '{{auto}}';
+
 /// Logs crash reports and events to the Sentry.io service.
 class SentryClient {
   final SentryOptions _options;
@@ -80,9 +85,10 @@ class SentryClient {
       return _sentryId;
     }
 
-    if (_options.beforeSend != null) {
+    final beforeSend = _options.beforeSend;
+    if (beforeSend != null) {
       try {
-        preparedEvent = _options.beforeSend!(preparedEvent, hint: hint);
+        preparedEvent = beforeSend(preparedEvent, hint: hint);
       } catch (err) {
         _options.logger(
           SentryLevel.error,
@@ -111,6 +117,8 @@ class SentryClient {
       platform: event.platform ?? sdkPlatform,
     );
 
+    event = _applyDefaultPii(event);
+
     if (event.exception != null) return event;
 
     if (event.throwableMechanism != null) {
@@ -127,6 +135,23 @@ class SentryClient {
       if (frames.isNotEmpty) {
         event = event.copyWith(stackTrace: SentryStackTrace(frames: frames));
       }
+    }
+
+    return event;
+  }
+
+  /// This modifies the users IP address according
+  /// to [SentryOptions.sendDefaultPii].
+  SentryEvent _applyDefaultPii(SentryEvent event) {
+    if (!_options.sendDefaultPii) {
+      return event;
+    }
+    var user = event.user;
+    if (user == null) {
+      user = SentryUser(ipAddress: _defaultIpAddress);
+      return event.copyWith(user: user);
+    } else if (event.user?.ipAddress == null) {
+      return event.copyWith(user: user.copyWith(ipAddress: _defaultIpAddress));
     }
 
     return event;
