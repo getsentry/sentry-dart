@@ -1,6 +1,6 @@
 # Unreleased
 
-* Fix: Fix deprecated `registrar.messenger` call in `SentryFlutterWeb`
+* Fix: Fix deprecated `registrar.messenger` call in `SentryFlutterWeb` (#364)
 
 # 4.1.0-nullsafety.1
 
