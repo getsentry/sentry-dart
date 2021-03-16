@@ -93,6 +93,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
         }
       }
       args.getIfNotNull<Boolean>("anrEnabled") { options.isAnrEnabled = it }
+      args.getIfNotNull<Boolean>("sendDefaultPii") { options.isSendDefaultPii = it }
 
       val nativeCrashHandling = (args["enableNativeCrashHandling"] as? Boolean) ?: true
       // nativeCrashHandling has priority over anrEnabled
