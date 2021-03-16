@@ -1,6 +1,6 @@
 # Unreleased
 
-* Fix: event.origin and event.environment tags have wrong value for iOS
+* Fix: event.origin and event.environment tags have wrong value for iOS (#365)
 
 # 4.1.0-nullsafety.1
 
