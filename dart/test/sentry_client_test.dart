@@ -406,7 +406,7 @@ void main() {
 
       await client.captureEvent(fakeEvent);
 
-      expect(transport.events.first, fakeEvent);
+      expect(transport.events.first.user, fakeEvent.user);
     });
 
     test('sendDefaultPii is enabled and event has no user', () async {
@@ -451,7 +451,7 @@ void main() {
       options.transport = transport;
       final client = SentryClient(options);
 
-      await client.captureEvent(fakeEvent);
+      await client.captureEvent(event);
 
       expect(transport.events.length, 1);
       expect(transport.events.first.user, isNotNull);
