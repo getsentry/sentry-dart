@@ -396,68 +396,54 @@ void main() {
     });
   });
 
-  group('SentryClient : apply default pii', () {
+  group('SentryClient: apply default pii', () {
     test('sendDefaultPii is disabled', () async {
-      var options = SentryOptions(dsn: fakeDsn);
-      options.sendDefaultPii = false;
-      final transport = MockTransport();
-      options.transport = transport;
-      final client = SentryClient(options);
+      final fixture = PiiFixture(false);
 
-      await client.captureEvent(fakeEvent);
+      await fixture.client.captureEvent(fakeEvent);
 
-      expect(transport.events.first.user, fakeEvent.user);
+      expect(fixture.transport.events.first.user, fakeEvent.user);
     });
 
     test('sendDefaultPii is enabled and event has no user', () async {
-      var options = SentryOptions(dsn: fakeDsn);
-      options.sendDefaultPii = true;
+      final fixture = PiiFixture(true);
       var fakeEvent = SentryEvent();
-      final transport = MockTransport();
-      options.transport = transport;
-      final client = SentryClient(options);
 
-      await client.captureEvent(fakeEvent);
+      await fixture.client.captureEvent(fakeEvent);
 
-      expect(transport.events.length, 1);
-      expect(transport.events.first.user, isNotNull);
-      expect(transport.events.first.user?.ipAddress, '{{auto}}');
+      expect(fixture.transport.events.length, 1);
+      expect(fixture.transport.events.first.user, isNotNull);
+      expect(fixture.transport.events.first.user?.ipAddress, '{{auto}}');
     });
 
     test('sendDefaultPii is enabled and event has a user with IP address',
         () async {
-      var options = SentryOptions(dsn: fakeDsn);
-      options.sendDefaultPii = true;
-      final transport = MockTransport();
-      options.transport = transport;
-      final client = SentryClient(options);
+      final fixture = PiiFixture(true);
 
-      await client.captureEvent(fakeEvent);
+      await fixture.client.captureEvent(fakeEvent);
 
-      expect(transport.events.length, 1);
-      expect(transport.events.first.user, isNotNull);
+      expect(fixture.transport.events.length, 1);
+      expect(fixture.transport.events.first.user, isNotNull);
       // fakeEvent has a user which is not null
-      expect(transport.events.first.user?.ipAddress, fakeEvent.user!.ipAddress);
-      expect(transport.events.first.user?.id, fakeEvent.user!.id);
-      expect(transport.events.first.user?.email, fakeEvent.user!.email);
+      expect(fixture.transport.events.first.user?.ipAddress,
+          fakeEvent.user!.ipAddress);
+      expect(fixture.transport.events.first.user?.id, fakeEvent.user!.id);
+      expect(fixture.transport.events.first.user?.email, fakeEvent.user!.email);
     });
 
     test('sendDefaultPii is enabled and event has a user without IP address',
         () async {
-      var options = SentryOptions(dsn: fakeDsn);
-      options.sendDefaultPii = true;
+      final fixture = PiiFixture(true);
+
       final event = fakeEvent.copyWith(user: fakeUser);
-      final transport = MockTransport();
-      options.transport = transport;
-      final client = SentryClient(options);
 
-      await client.captureEvent(event);
+      await fixture.client.captureEvent(event);
 
-      expect(transport.events.length, 1);
-      expect(transport.events.first.user, isNotNull);
-      expect(transport.events.first.user?.ipAddress, '{{auto}}');
-      expect(transport.events.first.user?.id, fakeUser.id);
-      expect(transport.events.first.user?.email, fakeUser.email);
+      expect(fixture.transport.events.length, 1);
+      expect(fixture.transport.events.first.user, isNotNull);
+      expect(fixture.transport.events.first.user?.ipAddress, '{{auto}}');
+      expect(fixture.transport.events.first.user?.id, fakeUser.id);
+      expect(fixture.transport.events.first.user?.email, fakeUser.email);
     });
   });
 
@@ -615,4 +601,18 @@ SentryEvent beforeSendCallback(SentryEvent event, {dynamic hint}) {
 
 SentryEvent? eventProcessorDropEvent(SentryEvent event, {dynamic hint}) {
   return null;
+}
+
+/// Test Fixture for tests with [SentryOptions.sendDefaultPii]
+class PiiFixture {
+  PiiFixture(bool sendDefaultPii) {
+    var options = SentryOptions(dsn: fakeDsn);
+    options.sendDefaultPii = sendDefaultPii;
+    transport = MockTransport();
+    options.transport = transport;
+    client = SentryClient(options);
+  }
+
+  late MockTransport transport;
+  late SentryClient client;
 }
