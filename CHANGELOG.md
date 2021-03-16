@@ -1,5 +1,15 @@
 # Unreleased
 
+* Fix: event.origin and event.environment tags have wrong value for iOS (#365)
+* Fix: Fix deprecated `registrar.messenger` call in `SentryFlutterWeb` (#364)
+* Fix: Enable breadcrumb recording mechanism based on platform (#366)
+
+## Breaking Changes:
+
+* Remove deprecated member `enableLifecycleBreadcrumbs`. Use `enableAppLifecycleBreadcrumbs` instead. (#366)
+
+# 4.1.0-nullsafety.1
+
 * Bump: sentry-android to v4.3.0 (#343)
 * Fix: Multiple FlutterError.onError calls in FlutterErrorIntegration (#345)
 * Fix: Pass hint to EventProcessors (#356)
