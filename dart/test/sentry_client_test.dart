@@ -397,53 +397,62 @@ void main() {
   });
 
   group('SentryClient: apply default pii', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
     test('sendDefaultPii is disabled', () async {
-      final fixture = PiiFixture(false);
+      final transport = MockTransport();
+      final client = fixture.getSut(false, transport);
 
-      await fixture.client.captureEvent(fakeEvent);
+      await client.captureEvent(fakeEvent);
 
-      expect(fixture.transport.events.first.user, fakeEvent.user);
+      expect(transport.events.first.user, fakeEvent.user);
     });
 
     test('sendDefaultPii is enabled and event has no user', () async {
-      final fixture = PiiFixture(true);
+      final transport = MockTransport();
+      final client = fixture.getSut(true, transport);
       var fakeEvent = SentryEvent();
 
-      await fixture.client.captureEvent(fakeEvent);
+      await client.captureEvent(fakeEvent);
 
-      expect(fixture.transport.events.length, 1);
-      expect(fixture.transport.events.first.user, isNotNull);
-      expect(fixture.transport.events.first.user?.ipAddress, '{{auto}}');
+      expect(transport.events.length, 1);
+      expect(transport.events.first.user, isNotNull);
+      expect(transport.events.first.user?.ipAddress, '{{auto}}');
     });
 
     test('sendDefaultPii is enabled and event has a user with IP address',
         () async {
-      final fixture = PiiFixture(true);
+      final transport = MockTransport();
+      final client = fixture.getSut(true, transport);
 
-      await fixture.client.captureEvent(fakeEvent);
+      await client.captureEvent(fakeEvent);
 
-      expect(fixture.transport.events.length, 1);
-      expect(fixture.transport.events.first.user, isNotNull);
+      expect(transport.events.length, 1);
+      expect(transport.events.first.user, isNotNull);
       // fakeEvent has a user which is not null
-      expect(fixture.transport.events.first.user?.ipAddress,
-          fakeEvent.user!.ipAddress);
-      expect(fixture.transport.events.first.user?.id, fakeEvent.user!.id);
-      expect(fixture.transport.events.first.user?.email, fakeEvent.user!.email);
+      expect(transport.events.first.user?.ipAddress, fakeEvent.user!.ipAddress);
+      expect(transport.events.first.user?.id, fakeEvent.user!.id);
+      expect(transport.events.first.user?.email, fakeEvent.user!.email);
     });
 
     test('sendDefaultPii is enabled and event has a user without IP address',
         () async {
-      final fixture = PiiFixture(true);
+      final transport = MockTransport();
+      final client = fixture.getSut(true, transport);
 
       final event = fakeEvent.copyWith(user: fakeUser);
 
-      await fixture.client.captureEvent(event);
+      await client.captureEvent(event);
 
-      expect(fixture.transport.events.length, 1);
-      expect(fixture.transport.events.first.user, isNotNull);
-      expect(fixture.transport.events.first.user?.ipAddress, '{{auto}}');
-      expect(fixture.transport.events.first.user?.id, fakeUser.id);
-      expect(fixture.transport.events.first.user?.email, fakeUser.email);
+      expect(transport.events.length, 1);
+      expect(transport.events.first.user, isNotNull);
+      expect(transport.events.first.user?.ipAddress, '{{auto}}');
+      expect(transport.events.first.user?.id, fakeUser.id);
+      expect(transport.events.first.user?.email, fakeUser.email);
     });
   });
 
@@ -603,16 +612,12 @@ SentryEvent? eventProcessorDropEvent(SentryEvent event, {dynamic hint}) {
   return null;
 }
 
-/// Test Fixture for tests with [SentryOptions.sendDefaultPii]
-class PiiFixture {
-  PiiFixture(bool sendDefaultPii) {
+class Fixture {
+  /// Test Fixture for tests with [SentryOptions.sendDefaultPii]
+  SentryClient getSut(bool sendDefaultPii, Transport transport) {
     var options = SentryOptions(dsn: fakeDsn);
     options.sendDefaultPii = sendDefaultPii;
-    transport = MockTransport();
     options.transport = transport;
-    client = SentryClient(options);
+    return SentryClient(options);
   }
-
-  late MockTransport transport;
-  late SentryClient client;
 }
