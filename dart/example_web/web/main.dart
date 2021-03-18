@@ -17,9 +17,17 @@ Future<void> main() async {
   await Sentry.init(
     (options) => options
       ..dsn = dsn
+      ..debug = true
+      ..sendDefaultPii = true
       ..addEventProcessor(processTagEvent),
     appRunner: runApp,
   );
+}
+
+void runApp() {
+  print('runApp');
+
+  querySelector('#output')?.text = 'Your Dart app is running.';
 
   Sentry.addBreadcrumb(
     Breadcrumb(
@@ -35,31 +43,28 @@ Future<void> main() async {
 
   Sentry.configureScope((scope) {
     scope
-      ..user = User(
+      ..user = SentryUser(
         id: '800',
         username: 'first-user',
         email: 'first@user.lan',
-        ipAddress: '127.0.0.1',
+        // ipAddress: '127.0.0.1',
         extras: <String, String>{'first-sign-in': '2020-01-01'},
       )
-      ..fingerprint = ['example-dart']
+      // ..fingerprint = ['example-dart']
       ..transaction = '/example/app'
       ..level = SentryLevel.warning
       ..setTag('build', '579')
       ..setExtra('company-name', 'Dart Inc');
   });
-}
-
-void runApp() {
-  print('runApp');
-
-  querySelector('#output')?.text = 'Your Dart app is running.';
 
   querySelector('#btEvent')
       ?.onClick
       .listen((event) => captureCompleteExampleEvent());
   querySelector('#btMessage')?.onClick.listen((event) => captureMessage());
   querySelector('#btException')?.onClick.listen((event) => captureException());
+  querySelector('#btUnhandledException')
+      ?.onClick
+      .listen((event) => captureUnhandledException());
 }
 
 Future<void> captureMessage() async {
@@ -73,7 +78,6 @@ Future<void> captureMessage() async {
   if (sentryId != SentryId.empty()) {
     querySelector('#messageResult')?.style.display = 'block';
   }
-  Sentry.close();
 }
 
 Future<void> captureException() async {
@@ -81,7 +85,6 @@ Future<void> captureException() async {
     await buildCard();
   } catch (error, stackTrace) {
     print('\nReporting the following stack trace: ');
-    print(stackTrace);
     final sentryId = await Sentry.captureException(
       error,
       stackTrace: stackTrace
@@ -94,6 +97,12 @@ Future<void> captureException() async {
       querySelector('#exceptionResult')?.style.display = 'block';
     }
   }
+}
+
+Future<void> captureUnhandledException() async {
+  querySelector('#unhandledResult')?.style.display = 'block';
+
+  await buildCard();
 }
 
 Future<void> captureCompleteExampleEvent() async {
