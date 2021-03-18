@@ -48,7 +48,7 @@ Future<void> runApp() async {
         id: '800',
         username: 'first-user',
         email: 'first@user.lan',
-        // ipAddress: '127.0.0.1',
+        // ipAddress: '127.0.0.1', sendDefaultPii feature is enabled
         extras: <String, String>{'first-sign-in': '2020-01-01'},
       )
       // ..fingerprint = ['example-dart']
