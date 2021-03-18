@@ -20,9 +20,15 @@ Future<void> main() async {
   await Sentry.init(
     (options) => options
       ..dsn = dsn
+      ..debug = true
+      ..sendDefaultPii = true
       ..addEventProcessor(processTagEvent),
     appRunner: runApp,
   );
+}
+
+Future<void> runApp() async {
+  print('\nReporting a complete event example: ');
 
   Sentry.addBreadcrumb(
     Breadcrumb(
@@ -38,23 +44,19 @@ Future<void> main() async {
 
   Sentry.configureScope((scope) {
     scope
-      ..user = User(
+      ..user = SentryUser(
         id: '800',
         username: 'first-user',
         email: 'first@user.lan',
-        ipAddress: '127.0.0.1',
+        // ipAddress: '127.0.0.1', sendDefaultPii feature is enabled
         extras: <String, String>{'first-sign-in': '2020-01-01'},
       )
-      ..fingerprint = ['example-dart']
+      // ..fingerprint = ['example-dart'], fingerprint forces events to group together
       ..transaction = '/example/app'
       ..level = SentryLevel.warning
       ..setTag('build', '579')
       ..setExtra('company-name', 'Dart Inc');
   });
-}
-
-Future<void> runApp() async {
-  print('\nReporting a complete event example: ');
 
   // Sends a full Sentry event payload to show the different parts of the UI.
   final sentryId = await Sentry.captureEvent(event);
@@ -84,9 +86,10 @@ Future<void> runApp() async {
     );
 
     print('Capture exception result : SentryId : $sentryId');
-  } finally {
-    Sentry.close();
   }
+
+  // capture unhandled error
+  await loadConfig();
 }
 
 Future<void> loadConfig() async {
