@@ -202,8 +202,6 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
         if isValidSdk(sdk: sdk) {
 
             switch sdk["name"] as? String {
-            case "sentry.dart.flutter":
-                setEventEnvironmentTag(event: event, origin: "flutter", environment: "dart")
             case "sentry.cocoa":
                 setEventEnvironmentTag(event: event, origin: "ios", environment: "native")
             default:

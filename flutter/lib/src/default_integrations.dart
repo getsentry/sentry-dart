@@ -157,6 +157,15 @@ class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
             sdk.addPackage(package['sdk_name']!, package['version']!);
             event = event.copyWith(sdk: sdk);
           }
+
+          // on iOS, captureEnvelope does not call the beforeSend callback,
+          // hence we need to add these tags here.
+          if (event.sdk?.name == 'sentry.dart.flutter') {
+            final tags = event.tags ?? {};
+            tags['event.origin'] = 'flutter';
+            tags['event.environment'] = 'dart';
+            event = event.copyWith(tags: tags);
+          }
         } catch (error) {
           options.logger(
             SentryLevel.error,
