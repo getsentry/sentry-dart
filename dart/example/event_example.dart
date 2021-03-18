@@ -8,7 +8,7 @@ final event = SentryEvent(
   message: SentryMessage('This is an example Dart event.'),
   tags: const <String, String>{'project-id': '7371'},
   extra: const <String, String>{'section': '1'},
-  // fingerprint: const <String>['example-dart'],
+  // fingerprint: const <String>['example-dart'], fingerprint forces events to group together
   user: SentryUser(
     id: '800',
     username: 'first-user',
