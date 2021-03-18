@@ -51,7 +51,7 @@ Future<void> runApp() async {
         // ipAddress: '127.0.0.1', sendDefaultPii feature is enabled
         extras: <String, String>{'first-sign-in': '2020-01-01'},
       )
-      // ..fingerprint = ['example-dart']
+      // ..fingerprint = ['example-dart'], fingerprint forces events to group together
       ..transaction = '/example/app'
       ..level = SentryLevel.warning
       ..setTag('build', '579')
