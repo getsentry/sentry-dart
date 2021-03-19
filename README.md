@@ -19,6 +19,10 @@ Sentry SDK for Dart and Flutter
 
 For detailed usage, check out the inner [dart](https://github.com/getsentry/sentry-dart/tree/main/dart) and [flutter](https://github.com/getsentry/sentry-dart/tree/main/flutter) `README's` or our `Resources` section below.
 
+#### Blog posts
+
+[With Flutter and Sentry, You Can Put All Your Eggs in One Repo](https://blog.sentry.io/2021/03/03/with-flutter-and-sentry-you-can-put-all-your-eggs-in-one-repo).
+
 #### Resources
 
 * [![Flutter docs](https://img.shields.io/badge/documentation-sentry.io-green.svg?label=flutter%20docs)](https://docs.sentry.io/platforms/flutter/)
