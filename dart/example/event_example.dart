@@ -5,15 +5,15 @@ final event = SentryEvent(
   serverName: 'server.dart',
   release: '1.4.0-preview.1',
   environment: 'Test',
-  message: Message('This is an example Dart event.'),
+  message: SentryMessage('This is an example Dart event.'),
   tags: const <String, String>{'project-id': '7371'},
   extra: const <String, String>{'section': '1'},
-  fingerprint: const <String>['example-dart'],
-  user: User(
+  // fingerprint: const <String>['example-dart'], fingerprint forces events to group together
+  user: SentryUser(
     id: '800',
     username: 'first-user',
     email: 'first@user.lan',
-    ipAddress: '127.0.0.1',
+    // ipAddress: '127.0.0.1', sendDefaultPii feature is enabled
     extras: <String, String>{'first-sign-in': '2020-01-01'},
   ),
   breadcrumbs: [
@@ -27,7 +27,7 @@ final event = SentryEvent(
     )
   ],
   contexts: Contexts(
-    operatingSystem: const OperatingSystem(
+    operatingSystem: const SentryOperatingSystem(
       name: 'Android',
       version: '5.0.2',
       build: 'LRX22G.P900XXS0BPL2',
@@ -36,7 +36,7 @@ final event = SentryEvent(
       rooted: false,
     ),
     runtimes: [const SentryRuntime(name: 'ART', version: '5')],
-    app: App(
+    app: SentryApp(
       name: 'Example Dart App',
       version: '1.42.0',
       identifier: 'HGT-App-13',
@@ -45,15 +45,15 @@ final event = SentryEvent(
       deviceAppHash: '5afd3a6',
       startTime: DateTime.now().toUtc(),
     ),
-    browser: const Browser(name: 'Firefox', version: '42.0.1'),
-    device: Device(
+    browser: const SentryBrowser(name: 'Firefox', version: '42.0.1'),
+    device: SentryDevice(
       name: 'SM-P900',
       family: 'SM-P900',
       model: 'SM-P900 (LRX22G)',
       modelId: 'LRX22G',
       arch: 'armeabi-v7a',
       batteryLevel: 99,
-      orientation: Orientation.landscape,
+      orientation: SentryOrientation.landscape,
       manufacturer: 'samsung',
       brand: 'samsung',
       screenResolution: '2560x1600',

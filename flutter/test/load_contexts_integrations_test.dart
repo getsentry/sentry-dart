@@ -5,17 +5,19 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/sentry_flutter_options.dart';
 
-import 'mocks.dart';
+import 'mocks.mocks.dart';
 
 void main() {
-  const _channel = MethodChannel('sentry_flutter');
-
   TestWidgetsFlutterBinding.ensureInitialized();
 
   var called = false;
 
+  late Fixture fixture;
+
   setUp(() {
-    _channel.setMockMethodCallHandler((MethodCall methodCall) async {
+    fixture = Fixture();
+
+    fixture.channel.setMockMethodCallHandler((MethodCall methodCall) async {
       called = true;
       return {
         'integrations': ['NativeIntegration'],
@@ -34,20 +36,36 @@ void main() {
   });
 
   tearDown(() {
-    _channel.setMockMethodCallHandler(null);
+    fixture.channel.setMockMethodCallHandler(null);
   });
 
+  SdkVersion getSdkVersion({String name = 'sentry.dart'}) {
+    return SdkVersion(
+        name: name,
+        version: '1.0',
+        integrations: const ['EventIntegration'],
+        packages: const [SentryPackage('event-package', '2.0')]);
+  }
+
+  SentryEvent getEvent({
+    SdkVersion? sdk,
+    Map<String, String>? tags,
+  }) {
+    return SentryEvent(
+      sdk: sdk ?? getSdkVersion(),
+      tags: tags,
+    );
+  }
+
   test('should apply the loadContextsIntegration eventProcessor', () async {
-    final options = SentryFlutterOptions()..dsn = fakeDsn;
-    final hub = Hub(options);
+    final integration = fixture.getSut();
+    integration(fixture.hub, fixture.options);
 
-    LoadContextsIntegration(_channel)(hub, options);
-
-    expect(options.eventProcessors.length, 1);
+    expect(fixture.options.eventProcessors.length, 1);
 
     final e = SentryEvent();
-    final event =
-        await (options.eventProcessors.first(e) as FutureOr<SentryEvent>);
+    final event = await (fixture.options.eventProcessors.first(e)
+        as FutureOr<SentryEvent>);
 
     expect(called, true);
     expect(event.contexts.device!.name, 'Device1');
@@ -68,12 +86,10 @@ void main() {
   test(
       'should not override event contexts with the loadContextsIntegration infos',
       () async {
-    final options = SentryFlutterOptions()..dsn = fakeDsn;
-    final hub = Hub(options);
+    final integration = fixture.getSut();
+    integration(fixture.hub, fixture.options);
 
-    LoadContextsIntegration(_channel)(hub, options);
-
-    expect(options.eventProcessors.length, 1);
+    expect(fixture.options.eventProcessors.length, 1);
 
     final eventContexts = Contexts(
         device: const SentryDevice(name: 'eDevice'),
@@ -84,8 +100,8 @@ void main() {
         runtimes: [const SentryRuntime(name: 'eRT')])
       ..['theme'] = 'cuppertino';
     final e = SentryEvent(contexts: eventContexts);
-    final event =
-        await (options.eventProcessors.first(e) as FutureOr<SentryEvent>);
+    final event = await (fixture.options.eventProcessors.first(e)
+        as FutureOr<SentryEvent>);
 
     expect(called, true);
     expect(event.contexts.device!.name, 'eDevice');
@@ -103,20 +119,12 @@ void main() {
   test(
     'should merge event and loadContextsIntegration sdk packages and integration',
     () async {
-      final options = SentryFlutterOptions()..dsn = fakeDsn;
-      final hub = Hub(options);
+      final integration = fixture.getSut();
+      integration(fixture.hub, fixture.options);
 
-      LoadContextsIntegration(_channel)(hub, options);
-
-      final eventSdk = SdkVersion(
-        name: 'sdk1',
-        version: '1.0',
-        integrations: const ['EventIntegration'],
-        packages: const [SentryPackage('event-package', '2.0')],
-      );
-      final e = SentryEvent(sdk: eventSdk);
-      final event =
-          await (options.eventProcessors.first(e) as FutureOr<SentryEvent>);
+      final e = getEvent();
+      final event = await (fixture.options.eventProcessors.first(e)
+          as FutureOr<SentryEvent>);
 
       expect(
         event.sdk!.packages.any((element) => element.name == 'native-package'),
@@ -132,17 +140,77 @@ void main() {
   );
 
   test('should not throw on loadContextsIntegration exception', () async {
-    _channel.setMockMethodCallHandler((MethodCall methodCall) async {
+    fixture.channel.setMockMethodCallHandler((MethodCall methodCall) async {
       throw Exception();
     });
-    final options = SentryFlutterOptions()..dsn = fakeDsn;
-    final hub = Hub(options);
-
-    LoadContextsIntegration(_channel)(hub, options);
+    final integration = fixture.getSut();
+    integration(fixture.hub, fixture.options);
 
     final e = SentryEvent();
-    final event = await options.eventProcessors.first(e);
+    final event = await fixture.options.eventProcessors.first(e);
 
     expect(event, isNotNull);
   });
+
+  test(
+    'should add origin and environment tags if tags is null',
+    () async {
+      final integration = fixture.getSut();
+      integration(fixture.hub, fixture.options);
+
+      final eventSdk = getSdkVersion(name: 'sentry.dart.flutter');
+      final e = getEvent(sdk: eventSdk);
+      final event = await (fixture.options.eventProcessors.first(e)
+          as FutureOr<SentryEvent>);
+
+      expect(event.tags!['event.origin'], 'flutter');
+      expect(event.tags!['event.environment'], 'dart');
+    },
+  );
+
+  test(
+    'should merge origin and environment tags',
+    () async {
+      final integration = fixture.getSut();
+      integration(fixture.hub, fixture.options);
+
+      final eventSdk = getSdkVersion(name: 'sentry.dart.flutter');
+      final e = getEvent(
+        sdk: eventSdk,
+        tags: {'a': 'b'},
+      );
+      final event = await (fixture.options.eventProcessors.first(e)
+          as FutureOr<SentryEvent>);
+
+      expect(event.tags!['event.origin'], 'flutter');
+      expect(event.tags!['event.environment'], 'dart');
+      expect(event.tags!['a'], 'b');
+    },
+  );
+
+  test(
+    'should not add origin and environment tags if not flutter sdk',
+    () async {
+      final integration = fixture.getSut();
+      integration(fixture.hub, fixture.options);
+
+      final e = getEvent(tags: {});
+      final event = await (fixture.options.eventProcessors.first(e)
+          as FutureOr<SentryEvent>);
+
+      expect(event.tags!.containsKey('event.origin'), false);
+      expect(event.tags!.containsKey('event.environment'), false);
+    },
+  );
+}
+
+class Fixture {
+  final channel = MethodChannel('sentry_flutter');
+
+  final hub = MockHub();
+  final options = SentryFlutterOptions();
+
+  LoadContextsIntegration getSut() {
+    return LoadContextsIntegration(channel);
+  }
 }
