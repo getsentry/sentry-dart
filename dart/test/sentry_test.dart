@@ -185,6 +185,7 @@ void main() {
     await Sentry.init((options) {
       options.dsn = fakeDsn;
       expect(options.environment, 'debug');
+      expect(options.debug, true);
     }, options: sentryOptions);
   });
 
@@ -194,6 +195,7 @@ void main() {
     await Sentry.init((options) {
       options.dsn = fakeDsn;
       expect(options.environment, 'profile');
+      expect(options.debug, false);
     }, options: sentryOptions);
   });
 
@@ -203,6 +205,7 @@ void main() {
     await Sentry.init((options) {
       options.dsn = fakeDsn;
       expect(options.environment, defaultEnvironment);
+      expect(options.debug, false);
     }, options: sentryOptions);
   });
 }

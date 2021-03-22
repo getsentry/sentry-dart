@@ -53,7 +53,11 @@ class Sentry {
   }
 
   static Future<void> _initDefaultValues(
-      SentryOptions options, AppRunner? appRunner) async {
+    SentryOptions options,
+    AppRunner? appRunner,
+  ) async {
+    options.debug = options.platformChecker.isDebugMode();
+
     var environment = options.platformChecker.environment;
     options.environment = options.environment ?? environment;
 
