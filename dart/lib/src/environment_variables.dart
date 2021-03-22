@@ -41,5 +41,7 @@ class EnvironmentVariables {
   String? get dist => _readString('SENTRY_DIST');
 
   String? _readString(String key) =>
-      bool.hasEnvironment(key) ? String.fromEnvironment(key) : null;
+      bool.fromEnvironment(key, defaultValue: false)
+          ? String.fromEnvironment(key)
+          : null;
 }
