@@ -4,10 +4,6 @@ import 'sentry_options.dart';
 
 /// This method reads available environment variables and uses them
 /// accordingly.
-///
-/// Please note, that environment variables are overriden by the values of
-/// [SentryOptions].
-///
 /// To see which environment variables are available, see [EnvironmentVariables]
 ///
 /// The precendence of these options are tricky,

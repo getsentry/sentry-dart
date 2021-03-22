@@ -6,7 +6,7 @@
 * Feat: Send default PII options (#360)
 * Bump: sentry-cocoa to v6.2.1 (#360)
 * Fix: missing event.origin and event.environment tags for non-native events on iOS (#369)
-* Fix: Read all environment variables in sentry_dart
+* Fix: Read all environment variables in sentry_dart (#375)
 
 ## Breaking Changes:
 
