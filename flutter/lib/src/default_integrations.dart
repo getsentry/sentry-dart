@@ -340,8 +340,7 @@ class LoadAndroidImageListIntegration
 /// a PackageInfo wrapper to make it testable
 typedef PackageLoader = Future<PackageInfo> Function();
 
-/// an Integration that loads the Release version from Native Apps
-/// or SENTRY_RELEASE and SENTRY_DIST variables
+/// An [Integration] that loads the release version from native apps
 class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
   final PackageLoader _packageLoader;
 
@@ -350,7 +349,7 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) async {
     try {
-      // For web we read the environment variables in sentry_dart
+      // For non Flutter apps, we read the environment variables in sentry_dart
       if (!kIsWeb) {
         final packageInfo = await _packageLoader();
         final release =

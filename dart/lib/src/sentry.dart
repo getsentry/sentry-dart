@@ -58,9 +58,6 @@ class Sentry {
   ) async {
     options.debug = options.platformChecker.isDebugMode();
 
-    var environment = options.platformChecker.environment;
-    options.environment = options.environment ?? environment;
-
     setEnvironmentVariables(options, EnvironmentVariables());
 
     // Throws when running on the browser

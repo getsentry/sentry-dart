@@ -15,10 +15,11 @@ import 'platform_checker.dart';
 /// Default Environment is none is set
 const defaultEnvironment = 'production';
 
-/// Sentry SDK options
 // TODO: Scope observers, enableScopeSync
 // TODO: shutdownTimeout, flushTimeoutMillis
 // https://api.dart.dev/stable/2.10.2/dart-io/HttpClient/close.html doesn't have a timeout param, we'd need to implement manually
+
+/// Sentry SDK options
 class SentryOptions {
   /// Default Log level if not specified Default is DEBUG
   static final SentryLevel _defaultDiagnosticLevel = SentryLevel.debug;

@@ -1,4 +1,4 @@
-import '../sentry.dart';
+import 'sentry_options.dart';
 
 /// Helper to check in which enviroment the library is running.
 /// The envirment checks (release/debug/profile) are mutually exclusive.
