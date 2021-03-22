@@ -63,7 +63,7 @@ jobs:
             flutter pub get
             case $TARGET in
             ios)
-            flutter build ios --debug --no-codesign
+            flutter build ios --release --no-codesign --verbose
             ;;
             android)
             flutter build appbundle --release
