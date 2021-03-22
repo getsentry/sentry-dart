@@ -350,6 +350,7 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) async {
     try {
+      // For web we read the environment variables in sentry_dart
       if (!kIsWeb) {
         final packageInfo = await _packageLoader();
         final release =
@@ -358,15 +359,6 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
 
         options.release = release;
         options.dist = packageInfo.buildNumber;
-      } else {
-        // for non-mobile builds, we read the release and dist from the
-        // system variables (SENTRY_RELEASE and SENTRY_DIST).
-        options.release = const bool.hasEnvironment('SENTRY_RELEASE')
-            ? const String.fromEnvironment('SENTRY_RELEASE')
-            : options.release;
-        options.dist = const bool.hasEnvironment('SENTRY_DIST')
-            ? const String.fromEnvironment('SENTRY_DIST')
-            : options.dist;
       }
     } catch (error) {
       options.logger(
