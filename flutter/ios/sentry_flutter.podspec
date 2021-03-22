@@ -11,6 +11,7 @@ Sentry SDK for Flutter with support to native through sentry-cocoa.
   s.source           = { :git => "https://github.com/getsentry/sentry-dart.git",
                          :tag => s.version.to_s }
   s.source_files = 'Classes/**/*'
+  s.public_header_files = 'Classes/**/*.h'
   s.dependency 'Sentry', '~> 6.2.1'
   s.dependency 'Flutter'
   s.platform = :ios, '9.0'
