@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:sentry/src/environment_variables.dart';
+
 import 'default_integrations.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
@@ -53,23 +55,10 @@ class Sentry {
 
   static Future<void> _initDefaultValues(
       SentryOptions options, AppRunner? appRunner) async {
-    // We infer the enviroment based on the release/non-release and profile
-    // constants.
-    var environment = options.platformChecker.isReleaseMode()
-        ? defaultEnvironment
-        : options.platformChecker.isProfileMode()
-            ? 'profile'
-            : 'debug';
+    var environment = options.platformChecker.environment;
+    options.environment = options.environment ?? environment;
 
-    // if the SENTRY_ENVIRONMENT is set, we read from it.
-    options.environment = const bool.hasEnvironment('SENTRY_ENVIRONMENT')
-        ? const String.fromEnvironment('SENTRY_ENVIRONMENT')
-        : environment;
-
-    // if the SENTRY_DSN is set, we read from it.
-    options.dsn = const bool.hasEnvironment('SENTRY_DSN')
-        ? const String.fromEnvironment('SENTRY_DSN')
-        : options.dsn;
+    setEnvironmentVariables(options, EnvironmentVariables());
 
     // Throws when running on the browser
     if (!isWeb) {

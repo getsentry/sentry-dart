@@ -1,3 +1,5 @@
+import '../sentry.dart';
+
 /// Helper to check in which enviroment the library is running.
 /// The envirment checks (release/debug/profile) are mutually exclusive.
 class PlatformChecker {
@@ -16,5 +18,19 @@ class PlatformChecker {
   /// Check if running in profile environment
   bool isProfileMode() {
     return const bool.fromEnvironment('dart.vm.profile', defaultValue: false);
+  }
+
+  /// This can be set as [SentryOptions.environment]
+  String get environment {
+    // We infer the enviroment based on the release/non-release and profile
+    // constants.
+
+    if (isReleaseMode()) {
+      return defaultEnvironment;
+    }
+    if (isProfileMode()) {
+      return 'profile';
+    }
+    return 'debug';
   }
 }
