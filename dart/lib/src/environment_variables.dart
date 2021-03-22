@@ -14,8 +14,13 @@ void setEnvironmentVariables(SentryOptions options, EnvironmentVariables vars) {
   // options has precendence over vars
   options.dsn = options.dsn ?? vars.dsn;
 
+  var environment = options.platformChecker.environment;
+  options.environment = options.environment ?? environment;
+
   // vars has precedence over options
   options.environment = vars.environment ?? options.environment;
+
+  // vars has precedence over options
   options.release = vars.release ?? options.release;
   options.dist = vars.dist ?? options.dist;
 }
