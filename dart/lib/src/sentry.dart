@@ -1,8 +1,7 @@
 import 'dart:async';
 
-import 'package:sentry/src/environment_variables.dart';
-
 import 'default_integrations.dart';
+import 'environment_variables.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
 import 'noop_isolate_error_integration.dart'
