@@ -42,11 +42,6 @@ jobs:
 
         - run: flutter upgrade
 
-        # https://github.com/flutter/flutter/issues/59522#issuecomment-646208247
-        - name: Fix iOS build bug
-          if: matrix.target == 'ios'
-          run: rm flutter/example/ios/Podfile
-
         - name: Test
           run: |
             cd flutter
