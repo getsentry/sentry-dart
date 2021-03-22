@@ -54,9 +54,6 @@ class Sentry {
 
   static Future<void> _initDefaultValues(
       SentryOptions options, AppRunner? appRunner) async {
-    var environment = options.platformChecker.environment;
-    options.environment = options.environment ?? environment;
-
     setEnvironmentVariables(options, EnvironmentVariables());
 
     // Throws when running on the browser
