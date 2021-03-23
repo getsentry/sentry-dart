@@ -38,6 +38,7 @@
     * `OperatingSystem` -> `SentryOperatingSystem`
     * `Request` -> `SentryRequest`
     * `User` -> `SentryUser`
+    * `Orientation` -> `SentryOrientation`
 
 # 4.1.0-nullsafety.0
 
