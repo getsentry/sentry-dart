@@ -349,15 +349,16 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) async {
     try {
-      // For non Flutter apps, we read the environment variables in sentry_dart
       if (!kIsWeb) {
-        final packageInfo = await _packageLoader();
-        final release =
-            '${packageInfo.packageName}@${packageInfo.version}+${packageInfo.buildNumber}';
-        options.logger(SentryLevel.debug, 'release: $release');
+        if (options.release == null || options.dist == null) {
+          final packageInfo = await _packageLoader();
+          final release =
+              '${packageInfo.packageName}@${packageInfo.version}+${packageInfo.buildNumber}';
+          options.logger(SentryLevel.debug, 'release: $release');
 
-        options.release = release;
-        options.dist = packageInfo.buildNumber;
+          options.release = options.release ?? release;
+          options.dist = options.dist ?? packageInfo.buildNumber;
+        }
       }
     } catch (error) {
       options.logger(
