@@ -58,7 +58,7 @@ class Sentry {
   ) async {
     options.debug = options.platformChecker.isDebugMode();
 
-    setEnvironmentVariables(options, EnvironmentVariables());
+    _setEnvironmentVariables(options);
 
     // Throws when running on the browser
     if (!isWeb) {
@@ -66,6 +66,25 @@ class Sentry {
       // in the ‘root zone’ where all Dart programs start
       options.addIntegrationByIndex(0, IsolateErrorIntegration());
     }
+  }
+
+  /// This method reads available environment variables and uses them
+  /// accordingly.
+  /// To see which environment variables are available, see [EnvironmentVariables]
+  ///
+  /// The precendence of these options are also described on
+  /// https://docs.sentry.io/platforms/dart/configuration/options/
+  static void _setEnvironmentVariables(SentryOptions options) {
+    final vars = options.environmentVariables;
+    options.dsn = options.dsn ?? vars.dsn;
+
+    if (options.environment == null) {
+      var environment = options.platformChecker.environment;
+      options.environment = vars.environment ?? environment;
+    }
+
+    options.release = options.release ?? vars.release;
+    options.dist = options.dist ?? vars.dist;
   }
 
   /// Initializes the SDK

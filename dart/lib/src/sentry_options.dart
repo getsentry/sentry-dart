@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:http/http.dart';
 
 import 'diagnostic_logger.dart';
+import 'environment_variables.dart';
 import 'integration.dart';
 import 'noop_client.dart';
 import 'protocol.dart';
@@ -151,6 +152,10 @@ class SentryOptions {
   /// If [platformChecker] is provided, it is used get the envirnoment.
   /// This is useful in tests. Should be an implementation of [PlatformChecker].
   PlatformChecker platformChecker = PlatformChecker();
+
+  /// If [environmentVariables] is provided, it is used get the envirnoment
+  /// variables. This is useful in tests.
+  EnvironmentVariables environmentVariables = EnvironmentVariables();
 
   /// When enabled, all the threads are automatically attached to all logged events (Android).
   bool attachThreads = false;

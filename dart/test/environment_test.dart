@@ -1,51 +1,54 @@
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/environment_variables.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
 import 'mocks/mock_environment_variables.dart';
 
 void main() {
+  // See https://docs.sentry.io/platforms/dart/configuration/options/
+  // and https://github.com/getsentry/sentry-dart/issues/306
   group('Environment Variables', () {
-    // See https://docs.sentry.io/platforms/dart/configuration/options/
-    // and https://github.com/getsentry/sentry-dart/issues/306
-    test('SentryOptions are correctly overriden by environment', () {
+    test('SentryOptions are not overriden by environment', () async {
       final options = SentryOptions(dsn: fakeDsn);
       options.release = 'release-1.2.3';
       options.dist = 'foo';
       options.environment = 'prod';
-
-      setEnvironmentVariables(
-        options,
-        MockEnvironmentVariables(
-          dsn: 'foo-bar',
-          environment: 'staging',
-          release: 'release-9.8.7',
-          dist: 'bar',
-        ),
+      options.environmentVariables = MockEnvironmentVariables(
+        dsn: 'foo-bar',
+        environment: 'staging',
+        release: 'release-9.8.7',
+        dist: 'bar',
       );
 
-      expect(options.dsn, fakeDsn);
-      expect(options.environment, 'staging');
-      expect(options.release, 'release-9.8.7');
-      expect(options.dist, 'bar');
-    });
-
-    test('No environment variables are set', () {
-      final options = SentryOptions(dsn: fakeDsn);
-      options.environment = 'prod';
-      options.release = 'release-1.2.3';
-      options.dist = 'foo';
-
-      setEnvironmentVariables(
-        options,
-        MockEnvironmentVariables(),
+      await Sentry.init(
+        (options) => options,
+        options: options,
       );
 
       expect(options.dsn, fakeDsn);
       expect(options.environment, 'prod');
       expect(options.release, 'release-1.2.3');
       expect(options.dist, 'foo');
+    });
+
+    test('No options are set', () async {
+      final options = SentryOptions();
+      options.environmentVariables = MockEnvironmentVariables(
+        dsn: 'foo-bar',
+        environment: 'staging',
+        release: 'release-9.8.7',
+        dist: 'bar',
+      );
+
+      await Sentry.init(
+        (options) => options,
+        options: options,
+      );
+
+      expect(options.dsn, 'foo-bar');
+      expect(options.environment, 'staging');
+      expect(options.release, 'release-9.8.7');
+      expect(options.dist, 'bar');
     });
   });
 }
