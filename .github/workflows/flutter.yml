@@ -17,7 +17,8 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         target: ['ios', 'android', 'web']
-        channel: ['stable', 'beta']
+        # 'beta' channel is not working https://github.com/flutter/flutter/issues/78785
+        channel: ['stable']
         exclude:
           - os: ubuntu-latest
             target: ios
@@ -41,11 +42,6 @@ jobs:
             channel: ${{ matrix.channel }}
 
         - run: flutter upgrade
-
-        # https://github.com/flutter/flutter/issues/59522#issuecomment-646208247
-        - name: Fix iOS build bug
-          if: matrix.target == 'ios'
-          run: rm flutter/example/ios/Podfile
 
         - name: Test
           run: |
