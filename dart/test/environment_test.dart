@@ -8,6 +8,10 @@ void main() {
   // See https://docs.sentry.io/platforms/dart/configuration/options/
   // and https://github.com/getsentry/sentry-dart/issues/306
   group('Environment Variables', () {
+    tearDown(() {
+      Sentry.close();
+    });
+
     test('SentryOptions are not overriden by environment', () async {
       final options = SentryOptions(dsn: fakeDsn);
       options.release = 'release-1.2.3';
