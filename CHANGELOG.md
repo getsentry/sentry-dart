@@ -5,6 +5,7 @@
 * Fix: Enable breadcrumb recording mechanism based on platform (#366)
 * Feat: Send default PII options (#360)
 * Bump: sentry-cocoa to v6.2.1 (#360)
+* Feat: Migration from `package_info` to `package_info_plus` plugin (#370)
 * Fix: missing event.origin and event.environment tags for non-native events on iOS (#369)
 
 ## Breaking Changes:
