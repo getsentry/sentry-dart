@@ -35,7 +35,7 @@ jobs:
     steps:
         - uses: dart-lang/setup-dart@v1
           with:
-            release-channel: ${{ matrix.sdk }}
+            sdk: ${{ matrix.sdk }}
         - uses: actions/checkout@v2
         # coverage with 'chrome' platform hangs the build
         - name: Test (VM and browser)
@@ -59,7 +59,7 @@ jobs:
     steps:
       - uses: dart-lang/setup-dart@v1
         with:
-          release-channel: stable
+          sdk: stable
       - uses: actions/checkout@v2
       - run: |
           dart pub get
