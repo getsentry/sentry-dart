@@ -91,7 +91,7 @@ Future<void> captureException() async {
           .toString() /* on safari (14.0) passing a stacktrace object fails */,
     );
 
-    print('Capture exception : SentryId: ${sentryId}');
+    print('Capture exception : SentryId: $sentryId');
 
     if (sentryId != SentryId.empty()) {
       querySelector('#exceptionResult')?.style.display = 'block';
@@ -106,10 +106,10 @@ Future<void> captureUnhandledException() async {
 }
 
 Future<void> captureCompleteExampleEvent() async {
-  print('\nReporting a complete event example: ${sdkName}');
+  print('\nReporting a complete event example: $sdkName');
   final sentryId = await Sentry.captureEvent(event);
 
-  print('Response SentryId: ${sentryId}');
+  print('Response SentryId: $sentryId');
 
   if (sentryId != SentryId.empty()) {
     querySelector('#eventResult')?.style.display = 'block';
