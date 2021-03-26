@@ -1,3 +1,1 @@
-class SentryItemType {
-  
-}
+enum SentryItemType { event, unknown }
