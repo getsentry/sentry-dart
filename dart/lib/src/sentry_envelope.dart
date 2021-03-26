@@ -10,9 +10,11 @@ class SentryEnvelope {
   final List<SentryEnvelopeItem> items;
 
   static SentryEnvelope fromEvent(SentryEvent event, SdkVersion sdkVersion) {
-    return SentryEnvelope(
-      SentryEnvelopeHeader(event.eventId, sdkVersion), 
-      [SentryEnvelopeItem.fromEvent(event)]
-    );
+    return SentryEnvelope(SentryEnvelopeHeader(event.eventId, sdkVersion),
+        [SentryEnvelopeItem.fromEvent(event)]);
+  }
+
+  String serialize() {
+    return '';
   }
 }

@@ -19,4 +19,8 @@ class SentryEnvelopeItem {
       data
     );
   }
+
+  String serialize() {
+    return '';
+  }
 }

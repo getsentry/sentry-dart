@@ -9,4 +9,8 @@ class SentryEnvelopeItemHeader {
 
   final String? contentType;
   final String? fileName;
+
+  String serialize() {
+    return '';
+  }
 }
