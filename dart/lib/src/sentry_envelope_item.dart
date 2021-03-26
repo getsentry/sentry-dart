@@ -1,0 +1,1 @@
+enum SentryItemType { event, unknown }
