@@ -15,7 +15,7 @@ class SentryEnvelopeItem {
     final jsonEncoded = jsonEncode(event.toJson());
     final data = utf8.encode(jsonEncoded);  
     return SentryEnvelopeItem(
-      SentryEnvelopeItemHeader(SentryItemType.event, data.length),
+      SentryEnvelopeItemHeader(SentryItemType.event, data.length, contentType: 'application/json'),
       data
     );
   }
