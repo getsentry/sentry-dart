@@ -10,6 +10,7 @@ enum RateLimitCategory {
 }
 
 extension RateLimitCategoryExtension on RateLimitCategory {
+
   static RateLimitCategory fromStringValue(String stringValue) {
     switch (stringValue) {
       case '__all__':
