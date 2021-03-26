@@ -15,6 +15,11 @@ class SentryEnvelope {
   }
 
   String serialize() {
-    return '';
+    final lines = <String>[];
+    lines.add(header.serialize());
+    for (final item in items) {
+      lines.add(item.serialize());
+    }
+    return lines.join('\n');
   }
 }
