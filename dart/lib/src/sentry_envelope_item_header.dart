@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'sentry_item_type.dart';
 
 class SentryEnvelopeItemHeader {
@@ -11,6 +13,12 @@ class SentryEnvelopeItemHeader {
   final String? fileName;
 
   String serialize() {
-    return '';
+    final serializedMap = <String, dynamic>{};
+    if (contentType != null) {
+      serializedMap['content_type'] = contentType!;
+    }
+    serializedMap['type'] = type.toStringValue();
+    serializedMap['length'] = length;
+    return jsonEncode(serializedMap);
   }
 }
