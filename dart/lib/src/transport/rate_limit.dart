@@ -10,17 +10,6 @@ class RateLimit {
 }
 
 extension RateLimitParser on RateLimit {
-  
-  static List<RateLimit> parse(
-      String? rateLimitHeader, String? retryAfterHeader, int errorCode) {
-    if (rateLimitHeader != null) {
-      return parseRateLimitHeader(rateLimitHeader);
-    } else if (errorCode == 429) {
-      return parseRetryAfterHeader(retryAfterHeader);
-    } else {
-      return [];
-    }
-  }
 
   static List<RateLimit> parseRateLimitHeader(String rateLimitHeader) {
     final rateLimits = <RateLimit>[];
