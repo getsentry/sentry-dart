@@ -1,4 +1,3 @@
-import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_envelope_item_header.dart';
 import 'package:sentry/src/sentry_item_type.dart';
 import 'package:test/test.dart';

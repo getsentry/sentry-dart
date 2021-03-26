@@ -21,6 +21,6 @@ class SentryEnvelopeItem {
   }
 
   String serialize() {
-    return '';
+    return '${header.serialize()}\n${utf8.decode(data)}';
   }
 }
