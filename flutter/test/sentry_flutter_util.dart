@@ -22,14 +22,15 @@ FutureOr<void> Function(SentryOptions) getConfigurationTester({
       expect(kDebugMode, options.debug);
       expect('debug', options.environment);
 
-      expect(!isWeb, options.transport is FileSystemTransport);
+      expect(options.platformChecker.hasNativeIntegration,
+          options.transport is FileSystemTransport);
 
       expect(
         options.integrations.whereType<FlutterErrorIntegration>().length,
         1,
       );
 
-      if (!isWeb) {
+      if (options.platformChecker.hasNativeIntegration) {
         expect(
           options.integrations.whereType<NativeSdkIntegration>().length,
           1,

@@ -9,11 +9,6 @@ import 'sentry_flutter_options.dart';
 import 'default_integrations.dart';
 import 'file_system_transport.dart';
 import 'version.dart';
-// conditional import for the iOSPlatformChecker
-// in browser, the iOSPlatformChecker will always return false
-// the iOSPlatformChecker is used to run the loadContextsIntegration only on iOS.
-// this injected PlatformChecker allows to test this behavior
-import 'web_platform_checker.dart' if (dart.library.io) 'platform_checker.dart';
 
 /// Configuration options callback
 typedef FlutterOptionsConfiguration = FutureOr<void> Function(
@@ -27,19 +22,17 @@ mixin SentryFlutter {
     FlutterOptionsConfiguration optionsConfiguration, {
     AppRunner? appRunner,
     PackageLoader packageLoader = _loadPackageInfo,
-    iOSPlatformChecker isIOSChecker = isIOS,
-    AndroidPlatformChecker isAndroidChecker = isAndroid,
     MethodChannel channel = _channel,
+    SentryFlutterOptions? options,
   }) async {
-    final flutterOptions = SentryFlutterOptions();
+    final flutterOptions = options ?? SentryFlutterOptions();
 
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
     final defaultIntegrations = _createDefaultIntegrations(
-      isIOSChecker,
-      isAndroidChecker,
       packageLoader,
       channel,
+      flutterOptions,
     );
     for (final defaultIntegration in defaultIntegrations) {
       flutterOptions.addIntegration(defaultIntegration);
@@ -62,8 +55,8 @@ mixin SentryFlutter {
   ) async {
     options.debug = kDebugMode;
 
-    // web still uses a http transport for Web which is set by default
-    if (!kIsWeb) {
+    // Not all platforms have a native integration.
+    if (options.platformChecker.hasNativeIntegration) {
       options.transport = FileSystemTransport(channel, options);
     }
 
@@ -73,40 +66,39 @@ mixin SentryFlutter {
   /// Install default integrations
   /// https://medium.com/flutter-community/error-handling-in-flutter-98fce88a34f0
   static List<Integration> _createDefaultIntegrations(
-    iOSPlatformChecker isIOS,
-    AndroidPlatformChecker isAndroid,
     PackageLoader packageLoader,
     MethodChannel channel,
+    SentryFlutterOptions options,
   ) {
     final integrations = <Integration>[];
 
     // Will call WidgetsFlutterBinding.ensureInitialized() before all other integrations.
     integrations.add(WidgetsFlutterBindingIntegration());
 
-    // will catch any errors that may occur in the Flutter framework itself.
+    // Will catch any errors that may occur in the Flutter framework itself.
     integrations.add(FlutterErrorIntegration());
 
     // This tracks Flutter application events, such as lifecycle events.
     integrations.add(WidgetsBindingIntegration());
 
-    // the ordering here matters, as we'd like to first start the native integration
-    // that allow us to send events to the network and then the Flutter integrations.
+    // The ordering here matters, as we'd like to first start the native integration.
+    // That allow us to send events to the network and then the Flutter integrations.
     // Flutter Web doesn't need that, only Android and iOS.
-    if (!kIsWeb) {
+    if (options.platformChecker.hasNativeIntegration) {
       integrations.add(NativeSdkIntegration(channel));
     }
 
-    // will enrich the events with the device context and native packages and integrations
-    if (isIOS()) {
+    // Will enrich events with device context, native packages and integrations
+    if (options.platformChecker.platform.isIOS) {
       integrations.add(LoadContextsIntegration(channel));
     }
 
-    if (isAndroid()) {
+    if (options.platformChecker.platform.isAndroid) {
       integrations.add(LoadAndroidImageListIntegration(channel));
     }
 
-    // this is an Integration because we want to execute after all the
-    // error handlers are in place, calling a Channel might result
+    // This is an Integration because we want to execute it after all the
+    // error handlers are in place. Calling a MethodChannel might result
     // in errors.
     integrations.add(LoadReleaseIntegration(packageLoader));
 
