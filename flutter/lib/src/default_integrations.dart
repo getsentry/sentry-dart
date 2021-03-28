@@ -350,24 +350,13 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) async {
     try {
-      if (!kIsWeb) {
-        final packageInfo = await _packageLoader();
-        final release =
-            '${packageInfo.packageName}@${packageInfo.version}+${packageInfo.buildNumber}';
-        options.logger(SentryLevel.debug, 'release: $release');
+      final packageInfo = await _packageLoader();
+      final release =
+          '${packageInfo.packageName}@${packageInfo.version}+${packageInfo.buildNumber}';
+      options.logger(SentryLevel.debug, 'release: $release');
 
-        options.release = release;
-        options.dist = packageInfo.buildNumber;
-      } else {
-        // for non-mobile builds, we read the release and dist from the
-        // system variables (SENTRY_RELEASE and SENTRY_DIST).
-        options.release = const bool.hasEnvironment('SENTRY_RELEASE')
-            ? const String.fromEnvironment('SENTRY_RELEASE')
-            : options.release;
-        options.dist = const bool.hasEnvironment('SENTRY_DIST')
-            ? const String.fromEnvironment('SENTRY_DIST')
-            : options.dist;
-      }
+      options.release = release;
+      options.dist = packageInfo.buildNumber;
     } catch (error) {
       options.logger(
           SentryLevel.error, 'Failed to load release and dist: $error');
