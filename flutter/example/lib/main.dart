@@ -17,7 +17,7 @@ Future<void> main() async {
       // use breadcrumb tracking of WidgetsBindingObserver
       // options.useFlutterBreadcrumbTracking();
       // use breadcrumb tracking of platform Sentry SDKs
-      options.useNativeBreadcrumbTracking();
+      // options.useNativeBreadcrumbTracking();
     },
     // Init your App.
     appRunner: () => runApp(MyApp()),
