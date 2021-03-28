@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -175,6 +177,21 @@ void main() {
 
     expect(fixture.options.sdk.integrations.contains('nativeSdkIntegration'),
         false);
+  });
+
+  test('nativeSdkIntegration closes native SDK', () async {
+    final completer = Completer<bool>();
+    _channel.setMockMethodCallHandler((MethodCall methodCall) async {
+      expect(methodCall.method, 'closeNativeSdk');
+      completer.complete(true);
+    });
+
+    final integration = NativeSdkIntegration(_channel);
+
+    await integration.close();
+    final closeCalled = await completer.future;
+
+    expect(closeCalled, true);
   });
 
   test('loadContextsIntegration adds integration', () async {

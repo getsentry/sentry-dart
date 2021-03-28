@@ -221,6 +221,15 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
       );
     }
   }
+
+  @override
+  FutureOr<void> close() async {
+    try {
+      await _channel.invokeMethod<void>('closeNativeSdk');
+    } catch (error) {
+      // TODO what to do?
+    }
+  }
 }
 
 /// Integration that captures certain window and device events.
