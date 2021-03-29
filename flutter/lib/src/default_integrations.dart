@@ -340,8 +340,7 @@ class LoadAndroidImageListIntegration
 /// a PackageInfo wrapper to make it testable
 typedef PackageLoader = Future<PackageInfo> Function();
 
-/// an Integration that loads the Release version from Native Apps
-/// or SENTRY_RELEASE and SENTRY_DIST variables
+/// An [Integration] that loads the release version from native apps
 class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
   final PackageLoader _packageLoader;
 
@@ -351,22 +350,15 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) async {
     try {
       if (!kIsWeb) {
-        final packageInfo = await _packageLoader();
-        final release =
-            '${packageInfo.packageName}@${packageInfo.version}+${packageInfo.buildNumber}';
-        options.logger(SentryLevel.debug, 'release: $release');
+        if (options.release == null || options.dist == null) {
+          final packageInfo = await _packageLoader();
+          final release =
+              '${packageInfo.packageName}@${packageInfo.version}+${packageInfo.buildNumber}';
+          options.logger(SentryLevel.debug, 'release: $release');
 
-        options.release = release;
-        options.dist = packageInfo.buildNumber;
-      } else {
-        // for non-mobile builds, we read the release and dist from the
-        // system variables (SENTRY_RELEASE and SENTRY_DIST).
-        options.release = const bool.hasEnvironment('SENTRY_RELEASE')
-            ? const String.fromEnvironment('SENTRY_RELEASE')
-            : options.release;
-        options.dist = const bool.hasEnvironment('SENTRY_DIST')
-            ? const String.fromEnvironment('SENTRY_DIST')
-            : options.dist;
+          options.release = options.release ?? release;
+          options.dist = options.dist ?? packageInfo.buildNumber;
+        }
       }
     } catch (error) {
       options.logger(

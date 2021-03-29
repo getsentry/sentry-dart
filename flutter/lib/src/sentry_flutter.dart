@@ -60,8 +60,6 @@ mixin SentryFlutter {
     SentryFlutterOptions options,
     MethodChannel channel,
   ) async {
-    options.debug = kDebugMode;
-
     // web still uses a http transport for Web which is set by default
     if (!kIsWeb) {
       options.transport = FileSystemTransport(channel, options);

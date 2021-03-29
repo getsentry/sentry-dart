@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:http/http.dart';
 
 import 'diagnostic_logger.dart';
+import 'environment_variables.dart';
 import 'integration.dart';
 import 'noop_client.dart';
 import 'protocol.dart';
@@ -12,8 +13,9 @@ import 'utils.dart';
 import 'version.dart';
 import 'platform_checker.dart';
 
-/// Default Environment is none is set
-const defaultEnvironment = 'production';
+// TODO: Scope observers, enableScopeSync
+// TODO: shutdownTimeout, flushTimeoutMillis
+// https://api.dart.dev/stable/2.10.2/dart-io/HttpClient/close.html doesn't have a timeout param, we'd need to implement manually
 
 /// Sentry SDK options
 class SentryOptions {
@@ -68,9 +70,6 @@ class SentryOptions {
 
   final List<Integration> _integrations = [];
 
-  // TODO: shutdownTimeout, flushTimeoutMillis
-  // https://api.dart.dev/stable/2.10.2/dart-io/HttpClient/close.html doesn't have a timeout param, we'd need to implement manually
-
   /// Code that provides middlewares, bindings or hooks into certain frameworks or environments,
   /// along with code that inserts those bindings and activates them.
   List<Integration> get integrations => List.unmodifiable(_integrations);
@@ -95,11 +94,13 @@ class SentryOptions {
   BeforeBreadcrumbCallback? beforeBreadcrumb;
 
   /// Sets the release. SDK will try to automatically configure a release out of the box
+  /// See [docs for further information](https://docs.sentry.io/platforms/flutter/configuration/releases/)
   String? release;
 
   /// Sets the environment. This string is freeform and not set by default. A release can be
   /// associated with more than one environment to separate them in the UI Think staging vs prod or
   /// similar.
+  /// See [docs for further information](https://docs.sentry.io/platforms/flutter/configuration/environments/)
   String? environment;
 
   /// Configures the sample rate as a percentage of events to be sent in the range of 0.0 to 1.0. if
@@ -139,7 +140,7 @@ class SentryOptions {
   /// however, when this option is set, stack traces are also sent with messages.
   /// This option, for instance, means that stack traces appear next to all log messages.
   ///
-  /// This option is true` by default.
+  /// This option is `true` by default.
   ///
   /// Grouping in Sentry is different for events with stack traces and without.
   /// As a result, you will get new groups as you enable or disable this flag for certain events.
@@ -149,13 +150,15 @@ class SentryOptions {
   /// This is useful in tests. Should be an implementation of [PlatformChecker].
   PlatformChecker platformChecker = PlatformChecker();
 
+  /// If [environmentVariables] is provided, it is used get the envirnoment
+  /// variables. This is useful in tests.
+  EnvironmentVariables environmentVariables = EnvironmentVariables();
+
   /// When enabled, all the threads are automatically attached to all logged events (Android).
   bool attachThreads = false;
 
   /// Whether to send personal identifiable information along with events
   bool sendDefaultPii = false;
-
-  // TODO: Scope observers, enableScopeSync
 
   SentryOptions({this.dsn}) {
     sdk.addPackage('pub:sentry', sdkVersion);
