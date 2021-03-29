@@ -32,47 +32,56 @@ void main() {
     expect(result!.items.length, 1);
   });
 
-  // test(
-  //     'parse X-Sentry-Rate-Limit and set its values and retry after should be true',
-  //     () {
-  //   final rateLimiter = fixture.getSUT();
-  //   fixture.currentDateProvider.dateTimesToReturn = [0];
-  //   final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
-  //   final transaction = SentryTransaction(
-  //       SentryTracer(TransactionContext('name', 'op'), mock()));
-  //   final transactionItem =
-  //       SentryEnvelopeItem.fromEvent(fixture.serializer, transaction);
-  //   final envelope = SentryEnvelope(
-  //       SentryEnvelopeHeader.newEventId(), [eventItem, transactionItem]);
+  test(
+      'parse X-Sentry-Rate-Limit and set its values and retry after should be true',
+      () {
+    final rateLimiter = fixture.getSUT();
+    fixture.currentDateProvider.dateTimeToReturn = 0;
+    final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
 
-  //   rateLimiter.updateRetryAfterLimits(
-  //       "50:transaction:key, 2700:default;error;security:organization",
-  //       null,
-  //       1);
+    // TODO Add another envelope item with different type and update rate limit header
 
-  //   final result = rateLimiter.filter(envelope);
-  //   expect(result, isNull);
-  // });
+    // final transaction = SentryTransaction(
+    //     SentryTracer(TransactionContext('name', 'op'), mock()));
+    // final transactionItem =
+    //     SentryEnvelopeItem.fromEvent(fixture.serializer, transaction);
+    final envelope = SentryEnvelope(
+        SentryEnvelopeHeader.newEventId(), [eventItem/*, transactionItem*/]);
 
-  // test(
-  //     'parse X-Sentry-Rate-Limit and set its values and retry after should be false',
-  //     () {
-  //   final rateLimiter = fixture.getSUT();
-  //   fixture.currentDateProvider.dateTimesToReturn = [0, 0, 1001];
-  //   final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
-  //   final transaction = SentryTransaction(
-  //       SentryTracer(TransactionContext('name', 'op'), mock()));
-  //   final transactionItem = SentryEnvelopeItem.fromEvent(transaction);
-  //   final envelope = SentryEnvelope(
-  //       SentryEnvelopeHeader.newEventId(), [eventItem, transactionItem]);
+    rateLimiter.updateRetryAfterLimits(
+        '50:transaction:key, 2700:default;error;security:organization',
+        null,
+        1);
 
-  //   rateLimiter.updateRetryAfterLimits(
-  //       '1:transaction:key, 1:default;error;security:organization', null, 1);
+    final result = rateLimiter.filter(envelope);
+    expect(result, isNull);
+  });
 
-  //   final result = rateLimiter.filter(envelope);
-  //   expect(result, isNotNull);
-  //   expect(2, result!.items.length);
-  // });
+  test(
+      'parse X-Sentry-Rate-Limit and set its values and retry after should be false',
+      () {
+    final rateLimiter = fixture.getSUT();
+    fixture.currentDateProvider.dateTimeToReturn = 0;
+    final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
+
+    // TODO Add another envelope item with different type and update rate limit header
+
+    // final transaction = SentryTransaction(
+    //     SentryTracer(TransactionContext('name', 'op'), mock()));
+    // final transactionItem = SentryEnvelopeItem.fromEvent(transaction);
+    final envelope = SentryEnvelope(
+        SentryEnvelopeHeader.newEventId(), [eventItem/*, transactionItem*/]);
+
+    rateLimiter.updateRetryAfterLimits(
+        '1:transaction:key, 1:default;error;security:organization', null, 1);
+
+    fixture.currentDateProvider.dateTimeToReturn = 1001;
+
+    final result = rateLimiter.filter(envelope);
+    expect(result, isNotNull);
+    expect(1, result!.items.length);
+    //expect(2, result!.items.length); // TODO Update after added second item
+  });
 
   test(
       'When X-Sentry-Rate-Limit categories are empty, applies to all the categories',

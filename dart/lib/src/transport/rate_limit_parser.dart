@@ -1,4 +1,5 @@
 import 'rate_limit_category.dart';
+import 'rate_limit.dart';
 
 class RateLimitParser {
   RateLimitParser(this.header);
@@ -7,13 +8,13 @@ class RateLimitParser {
 
   String? header;
 
-  Map<RateLimitCategory, int> parseRateLimitHeader() {
+  List<RateLimit> parseRateLimitHeader() {
     final rateLimitHeader = header;
     if (rateLimitHeader == null) {
-      return {};
+      return [];
     }
 
-    final rateLimits = <RateLimitCategory, int>{};
+    final rateLimits = <RateLimit>[];
 
     final rateLimitValues = rateLimitHeader.toLowerCase().split(',');
     for (final rateLimitValue in rateLimitValues) {
@@ -31,11 +32,11 @@ class RateLimitParser {
               final category =
                   RateLimitCategoryExtension.fromStringValue(categoryValue);
               if (category != RateLimitCategory.unknown) {
-                rateLimits[category] = durationInMillis;
+                rateLimits.add(RateLimit(category, durationInMillis));
               }
             }
           } else {
-            rateLimits[RateLimitCategory.all] = durationInMillis;
+            rateLimits.add(RateLimit(RateLimitCategory.all, durationInMillis));
           }
         }
       }
@@ -43,8 +44,8 @@ class RateLimitParser {
     return rateLimits;
   }
 
-  Map<RateLimitCategory, int> parseRetryAfterHeader() {
-    return {RateLimitCategory.all: _parseRetryAfterOrDefault(header)};
+  List<RateLimit> parseRetryAfterHeader() {
+    return [RateLimit(RateLimitCategory.all, _parseRetryAfterOrDefault(header))];
   }
 
   // Helper

@@ -4,6 +4,7 @@ import '../current_date_provider.dart';
 import '../sentry_envelope.dart';
 import '../sentry_envelope_item.dart';
 import '../sentry_item_type.dart';
+import 'rate_limit.dart';
 import 'rate_limit_category.dart';
 
 /// Controls retry limits on different category types sent to Sentry.
@@ -52,7 +53,7 @@ class RateLimiter {
   void updateRetryAfterLimits(
       String? sentryRateLimitHeader, String? retryAfterHeader, int errorCode) {
     final currentDateTime = currentDateTimeProvider.currentDateTime();
-    var rateLimits = <RateLimitCategory, int>{};
+    var rateLimits = <RateLimit>[];
 
     if (sentryRateLimitHeader != null) {
       rateLimits =
@@ -62,11 +63,11 @@ class RateLimiter {
           RateLimitParser(sentryRateLimitHeader).parseRetryAfterHeader();
     }
 
-    for (final rateLimitEntry in rateLimits.entries) {
+    for (final rateLimit in rateLimits) {
       _applyRetryAfterOnlyIfLonger(
-          rateLimitEntry.key,
+          rateLimit.category,
           DateTime.fromMillisecondsSinceEpoch(
-              currentDateTime + rateLimitEntry.value));
+              currentDateTime + rateLimit.durationInMillis));
     }
   }
 
