@@ -16,14 +16,14 @@ jobs:
       # max-parallel: 4
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        target: ['ios', 'android', 'web']
+        target: ['ios', 'android', 'web', 'macos']
         # 'beta' channel is not working https://github.com/flutter/flutter/issues/78785
         channel: ['stable']
         exclude:
           - os: ubuntu-latest
-            target: ios
+            target: ['ios', 'macos']
           - os: windows-latest
-            target: ios
+            target: ['ios', 'macos']
           # macos-latest is taking hours due to limited resources
           - os: macos-latest
             target: android
@@ -65,6 +65,9 @@ jobs:
             case $TARGET in
             ios)
             flutter build ios --release --no-codesign
+            ;;
+            macos)
+            flutter build macos --release
             ;;
             android)
             flutter build appbundle --release
