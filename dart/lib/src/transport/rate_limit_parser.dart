@@ -24,16 +24,19 @@ class RateLimitParser {
             _parseRetryAfterOrDefault(durationAndCategories[0]);
 
         if (durationAndCategories.length > 1) {
-          final categoryValues = durationAndCategories[1].split(';');
-          for (final categoryValue in categoryValues) {
-            final category =
-                RateLimitCategoryExtension.fromStringValue(categoryValue);
-            if (category != RateLimitCategory.unknown) {
-              rateLimits[category] = durationInMillis;
+          final allCategories = durationAndCategories[1];
+          if (allCategories.isNotEmpty) {
+            final categoryValues = durationAndCategories[1].split(';');
+            for (final categoryValue in categoryValues) {
+              final category =
+                  RateLimitCategoryExtension.fromStringValue(categoryValue);
+              if (category != RateLimitCategory.unknown) {
+                rateLimits[category] = durationInMillis;
+              }
             }
+          } else {
+            rateLimits[RateLimitCategory.all] = durationInMillis;
           }
-        } else {
-          rateLimits[RateLimitCategory.all] = durationInMillis;
         }
       }
     }
@@ -41,9 +44,7 @@ class RateLimitParser {
   }
 
   Map<RateLimitCategory, int> parseRetryAfterHeader() {
-    return {
-      RateLimitCategory.all: _parseRetryAfterOrDefault(header)
-    };
+    return {RateLimitCategory.all: _parseRetryAfterOrDefault(header)};
   }
 
   // Helper

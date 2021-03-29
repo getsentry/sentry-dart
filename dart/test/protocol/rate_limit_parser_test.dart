@@ -26,7 +26,7 @@ void main() {
     });
 
     test('apply all if there are no categories', () {
-      final sut = RateLimitParser('50').parseRateLimitHeader();
+      final sut = RateLimitParser('50::key').parseRateLimitHeader();
 
       expect(sut.length, 1);
       expect(sut[RateLimitCategory.all], 50000);

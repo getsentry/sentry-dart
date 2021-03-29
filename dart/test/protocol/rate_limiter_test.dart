@@ -1,4 +1,3 @@
-import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 
 import 'package:sentry/src/transport/rate_limiter.dart';
@@ -18,13 +17,15 @@ void main() {
 
   test('uses X-Sentry-Rate-Limit and allows sending if time has passed', () {
     final rateLimiter = fixture.getSUT();
-    fixture.currentDateProvider.dateTimesToReturn = [0, 0, 1001];
+    fixture.currentDateProvider.dateTimeToReturn = 0;
 
     final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
     final envelope = SentryEnvelope(SentryEnvelopeHeader.newEventId(), [eventItem]);
 
     rateLimiter.updateRetryAfterLimits(
         '50:transaction:key, 1:default;error;security:organization', null, 1);
+
+    fixture.currentDateProvider.dateTimeToReturn = 1001;
 
     final result = rateLimiter.filter(envelope);
     expect(result, isNotNull);
@@ -77,7 +78,7 @@ void main() {
       'When X-Sentry-Rate-Limit categories are empty, applies to all the categories',
       () {
     final rateLimiter = fixture.getSUT();
-    fixture.currentDateProvider.dateTimesToReturn = [0];
+    fixture.currentDateProvider.dateTimeToReturn = 0;
     final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
     final envelope = SentryEnvelope(SentryEnvelopeHeader.newEventId(), [eventItem]);
 
@@ -91,12 +92,14 @@ void main() {
       'When all categories is set but expired, applies only for specific category',
       () {
     final rateLimiter = fixture.getSUT();
-    fixture.currentDateProvider.dateTimesToReturn = [0, 0, 1001];
+    fixture.currentDateProvider.dateTimeToReturn = 0;
     final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
     final envelope = SentryEnvelope(SentryEnvelopeHeader.newEventId(), [eventItem]);
 
     rateLimiter.updateRetryAfterLimits(
         '1::key, 60:default;error;security:organization', null, 1);
+
+    fixture.currentDateProvider.dateTimeToReturn = 1001;
 
     final result = rateLimiter.filter(envelope);
     expect(result, isNull);
@@ -105,12 +108,14 @@ void main() {
   test('When category has shorter rate limiting, do not apply new timestamp',
       () {
     final rateLimiter = fixture.getSUT();
-    fixture.currentDateProvider.dateTimesToReturn = [0, 0, 1001];
+    fixture.currentDateProvider.dateTimeToReturn = 0;
     final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
     final envelope = SentryEnvelope(SentryEnvelopeHeader.newEventId(), [eventItem]);
 
     rateLimiter.updateRetryAfterLimits(
         '60:error:key, 1:error:organization', null, 1);
+
+    fixture.currentDateProvider.dateTimeToReturn = 1001;
 
     final result = rateLimiter.filter(envelope);
     expect(result, isNull);
@@ -118,12 +123,14 @@ void main() {
 
   test('When category has longer rate limiting, apply new timestamp', () {
     final rateLimiter = fixture.getSUT();
-    fixture.currentDateProvider.dateTimesToReturn = [0, 0, 1001];
+    fixture.currentDateProvider.dateTimeToReturn = 0;
     final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
     final envelope = SentryEnvelope(SentryEnvelopeHeader.newEventId(), [eventItem]);
 
     rateLimiter.updateRetryAfterLimits(
         '1:error:key, 5:error:organization', null, 1);
+
+    fixture.currentDateProvider.dateTimeToReturn = 1001;
 
     final result = rateLimiter.filter(envelope);
     expect(result, isNull);
@@ -131,11 +138,13 @@ void main() {
 
   test('When both retry headers are not present, default delay is set', () {
     final rateLimiter = fixture.getSUT();
-    fixture.currentDateProvider.dateTimesToReturn = [0, 0, 1001];
+    fixture.currentDateProvider.dateTimeToReturn = 0;
     final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
     final envelope = SentryEnvelope(SentryEnvelopeHeader.newEventId(), [eventItem]);
 
     rateLimiter.updateRetryAfterLimits(null, null, 429);
+
+    fixture.currentDateProvider.dateTimeToReturn = 1001;
 
     final result = rateLimiter.filter(envelope);
     expect(result, isNull);
