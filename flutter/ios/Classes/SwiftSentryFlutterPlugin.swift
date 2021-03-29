@@ -126,6 +126,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
     
     private func closeNativeSdk(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         // TODO: Call SentrySDK when available
+        // https://github.com/getsentry/sentry-cocoa/issues/934
         result("")
     }
 
