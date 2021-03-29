@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'default_integrations.dart';
+import 'environment_variables.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
 import 'noop_isolate_error_integration.dart'
@@ -52,24 +53,12 @@ class Sentry {
   }
 
   static Future<void> _initDefaultValues(
-      SentryOptions options, AppRunner? appRunner) async {
-    // We infer the enviroment based on the release/non-release and profile
-    // constants.
-    var environment = options.platformChecker.isReleaseMode()
-        ? defaultEnvironment
-        : options.platformChecker.isProfileMode()
-            ? 'profile'
-            : 'debug';
+    SentryOptions options,
+    AppRunner? appRunner,
+  ) async {
+    options.debug = options.platformChecker.isDebugMode();
 
-    // if the SENTRY_ENVIRONMENT is set, we read from it.
-    options.environment = const bool.hasEnvironment('SENTRY_ENVIRONMENT')
-        ? const String.fromEnvironment('SENTRY_ENVIRONMENT')
-        : environment;
-
-    // if the SENTRY_DSN is set, we read from it.
-    options.dsn = const bool.hasEnvironment('SENTRY_DSN')
-        ? const String.fromEnvironment('SENTRY_DSN')
-        : options.dsn;
+    _setEnvironmentVariables(options);
 
     // Throws when running on the browser
     if (!isWeb) {
@@ -77,6 +66,25 @@ class Sentry {
       // in the ‘root zone’ where all Dart programs start
       options.addIntegrationByIndex(0, IsolateErrorIntegration());
     }
+  }
+
+  /// This method reads available environment variables and uses them
+  /// accordingly.
+  /// To see which environment variables are available, see [EnvironmentVariables]
+  ///
+  /// The precendence of these options are also described on
+  /// https://docs.sentry.io/platforms/dart/configuration/options/
+  static void _setEnvironmentVariables(SentryOptions options) {
+    final vars = options.environmentVariables;
+    options.dsn = options.dsn ?? vars.dsn;
+
+    if (options.environment == null) {
+      var environment = vars.environmentForMode(options.platformChecker);
+      options.environment = vars.environment ?? environment;
+    }
+
+    options.release = options.release ?? vars.release;
+    options.dist = options.dist ?? vars.dist;
   }
 
   /// Initializes the SDK

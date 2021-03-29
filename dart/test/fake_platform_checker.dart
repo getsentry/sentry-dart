@@ -1,7 +1,7 @@
 import 'package:sentry/src/platform_checker.dart';
 
 /// Fake class to be used in unit tests for mocking different environments
-class FakePlatformChecker implements PlatformChecker {
+class FakePlatformChecker extends PlatformChecker {
   FakePlatformChecker.releaseMode() {
     _releaseMode = true;
     _debugMode = false;
