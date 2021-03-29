@@ -13,9 +13,6 @@ import 'utils.dart';
 import 'version.dart';
 import 'platform_checker.dart';
 
-/// Default Environment is none is set
-const defaultEnvironment = 'production';
-
 // TODO: Scope observers, enableScopeSync
 // TODO: shutdownTimeout, flushTimeoutMillis
 // https://api.dart.dev/stable/2.10.2/dart-io/HttpClient/close.html doesn't have a timeout param, we'd need to implement manually

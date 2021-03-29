@@ -79,7 +79,7 @@ class Sentry {
     options.dsn = options.dsn ?? vars.dsn;
 
     if (options.environment == null) {
-      var environment = options.platformChecker.environment;
+      var environment = vars.environmentForMode(options.platformChecker);
       options.environment = vars.environment ?? environment;
     }
 

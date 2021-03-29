@@ -204,7 +204,7 @@ void main() {
       ..platformChecker = FakePlatformChecker.releaseMode();
     await Sentry.init((options) {
       options.dsn = fakeDsn;
-      expect(options.environment, defaultEnvironment);
+      expect(options.environment, 'production');
       expect(options.debug, false);
     }, options: sentryOptions);
   });

@@ -1,3 +1,5 @@
+import 'platform_checker.dart';
+
 /// Reads environment variables from the system.
 /// In an Flutter environment these can be set via
 /// `flutter build --dart-define=VARIABLE_NAME=VARIABLE_VALUE`.
@@ -30,4 +32,19 @@ class EnvironmentVariables {
   String? get dist => const bool.hasEnvironment(_sentryDist)
       ? const String.fromEnvironment(_sentryDist)
       : null;
+
+  /// Returns an environment based on the compilation mode of Dart or Flutter.
+  /// This can be set as [SentryOptions.environment]
+  String environmentForMode(PlatformChecker checker) {
+    // We infer the enviroment based on the release/non-release and profile
+    // constants.
+
+    if (checker.isReleaseMode()) {
+      return 'production';
+    }
+    if (checker.isProfileMode()) {
+      return 'profile';
+    }
+    return 'debug';
+  }
 }

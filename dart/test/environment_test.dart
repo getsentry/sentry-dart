@@ -35,7 +35,7 @@ void main() {
       expect(options.dist, 'foo');
     });
 
-    test('No options are set', () async {
+    test('SentryOptions are overriden by environment', () async {
       final options = SentryOptions();
       options.environmentVariables = MockEnvironmentVariables(
         dsn: 'foo-bar',
