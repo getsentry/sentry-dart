@@ -5,6 +5,9 @@ import 'protocol/sdk_version.dart';
 
 class SentryEnvelopeHeader {
   SentryEnvelopeHeader(this.eventId, this.sdkVersion);
+  SentryEnvelopeHeader.newEventId()
+    : eventId = SentryId.newId(),
+    sdkVersion = null;
 
   final SentryId? eventId;
   final SdkVersion? sdkVersion;

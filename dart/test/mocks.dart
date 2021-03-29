@@ -1,5 +1,10 @@
+import 'package:mockito/annotations.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/protocol.dart';
+import 'package:sentry/src/current_date_provider.dart';
+
+@GenerateMocks([CurrentDateTimeProvider])
+void main() {}
 
 final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
