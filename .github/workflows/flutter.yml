@@ -63,6 +63,9 @@ jobs:
           env:
             SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           run: |
+            flutter config --enable-windows-desktop
+            flutter config --enable-macos-desktop
+            flutter config --enable-linux-desktop
             cd flutter/example
             TARGET=${{ matrix.target }}
             flutter pub get
