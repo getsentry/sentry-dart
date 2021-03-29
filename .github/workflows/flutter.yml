@@ -21,9 +21,13 @@ jobs:
         channel: ['stable']
         exclude:
           - os: ubuntu-latest
-            target: ['ios', 'macos']
+            target: ios
+          - os: ubuntu-latest
+            target: macos
           - os: windows-latest
-            target: ['ios', 'macos']
+            target: ios
+          - os: windows-latest
+            target: macos
           # macos-latest is taking hours due to limited resources
           - os: macos-latest
             target: android
