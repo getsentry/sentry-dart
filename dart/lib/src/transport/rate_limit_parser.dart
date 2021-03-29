@@ -1,18 +1,19 @@
 import 'rate_limit_category.dart';
 
-class RateLimit {
-  RateLimit(this.durationInMillis, this.category);
+class RateLimitParser {
+  RateLimitParser(this.header);
 
   static const HTTP_RETRY_AFTER_DEFAULT_DELAY_MILLIS = 60000;
 
-  final RateLimitCategory category;
-  final int durationInMillis;
-}
+  String? header;
 
-extension RateLimitParser on RateLimit {
+  Map<RateLimitCategory, int> parseRateLimitHeader() {
+    final rateLimitHeader = header;
+    if (rateLimitHeader == null) {
+      return {};
+    }
 
-  static List<RateLimit> parseRateLimitHeader(String rateLimitHeader) {
-    final rateLimits = <RateLimit>[];
+    final rateLimits = <RateLimitCategory, int>{};
 
     final rateLimitValues = rateLimitHeader.toLowerCase().split(',');
     for (final rateLimitValue in rateLimitValues) {
@@ -28,22 +29,21 @@ extension RateLimitParser on RateLimit {
             final category =
                 RateLimitCategoryExtension.fromStringValue(categoryValue);
             if (category != RateLimitCategory.unknown) {
-              rateLimits.add(RateLimit(durationInMillis, category));
+              rateLimits[category] = durationInMillis;
             }
           }
         } else {
-          rateLimits.add(RateLimit(durationInMillis, RateLimitCategory.all));
+          rateLimits[RateLimitCategory.all] = durationInMillis;
         }
       }
     }
     return rateLimits;
   }
 
-  static List<RateLimit> parseRetryAfterHeader(String? retryAfterHeader) {
-    return [
-      RateLimit(
-          _parseRetryAfterOrDefault(retryAfterHeader), RateLimitCategory.all)
-    ];
+  Map<RateLimitCategory, int> parseRetryAfterHeader() {
+    return {
+      RateLimitCategory.all: _parseRetryAfterOrDefault(header)
+    };
   }
 
   // Helper
@@ -53,7 +53,7 @@ extension RateLimitParser on RateLimit {
     if (durationInSeconds != null) {
       return durationInSeconds * 1000;
     } else {
-      return RateLimit.HTTP_RETRY_AFTER_DEFAULT_DELAY_MILLIS;
+      return RateLimitParser.HTTP_RETRY_AFTER_DEFAULT_DELAY_MILLIS;
     }
   }
 }
