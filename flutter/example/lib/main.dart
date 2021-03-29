@@ -116,6 +116,10 @@ class MainScaffold extends StatelessWidget {
             if (UniversalPlatform.isIOS) const CocoaExample(),
             if (UniversalPlatform.isAndroid) const AndroidExample(),
             if (UniversalPlatform.isWeb) const WebExample(),
+            RaisedButton(
+              child: const Text('Sentry.close(): Stop sending reports'),
+              onPressed: () => Sentry.close(),
+            ),
           ],
         ),
       ),
