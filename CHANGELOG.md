@@ -16,7 +16,7 @@
 
 * Return type of `Sentry.close()` changed from `void` to `Future<void>` and `Integration.close()` changed from `void` to `FutureOr<void>` (#395)
 * Fix: missing event.origin and event.environment tags for non-native events on iOS (#369)
-* Fix: `Sentry.close()` closes native SDK integrations
+* Fix: `Sentry.close()` closes native SDK integrations (#388)
 
 ## Breaking Changes:
 
