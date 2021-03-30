@@ -59,7 +59,7 @@ class MockHub implements Hub {
   }
 
   @override
-  void close() {
+  Future<void> close() async {
     closeCalls = closeCalls + 1;
   }
 

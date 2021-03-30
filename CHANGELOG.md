@@ -12,6 +12,7 @@
 
 ## Breaking Changes:
 
+* Return type of `Sentry.close()` changed from `void` to `Future<void>`
 * Remove deprecated member `enableLifecycleBreadcrumbs`. Use `enableAppLifecycleBreadcrumbs` instead. (#366)
 
 # 4.1.0-nullsafety.1
