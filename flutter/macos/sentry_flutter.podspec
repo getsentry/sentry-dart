@@ -5,13 +5,14 @@
 Pod::Spec.new do |s|
   s.name             = 'sentry_flutter'
   s.version          = '0.0.1'
-  s.summary          = 'A new flutter plugin project.'
+  s.summary          = 'Sentry for Flutter'
   s.description      = <<-DESC
-A new flutter plugin project.
+  Sentry SDK for Flutter. This package aims to support different Flutter targets
+  by relying on the many platforms supported by Sentry with native SDKs.
                        DESC
-  s.homepage         = 'http://example.com'
+  s.homepage         = 'https://sentry.io'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Your Company' => 'email@example.com' }
+  s.author           = { 'Your Company' => 'sdks@sentry.io' }
   s.source           = { :path => '.' }
   s.source_files     = 'Classes/**/*'
   s.dependency 'FlutterMacOS'

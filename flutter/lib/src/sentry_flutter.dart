@@ -115,12 +115,6 @@ mixin SentryFlutter {
   }
 }
 
-/// an iOS PlatformChecker wrapper to make it testable
-typedef iOSPlatformChecker = bool Function();
-
-/// an Android PlatformChecker wrapper to make it testable
-typedef AndroidPlatformChecker = bool Function();
-
 /// Package info loader.
 Future<PackageInfo> _loadPackageInfo() async {
   return await PackageInfo.fromPlatform();
