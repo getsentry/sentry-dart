@@ -7,33 +7,32 @@ void main() {
   group('SentryFlutterOptions', () {
     testWidgets('auto breadcrumb tracking', (WidgetTester tester) async {
       final options = SentryFlutterOptions();
-      options.configureBreadcrumbTrackingForPlatform(TargetPlatform.android);
 
-      expect(options.enableAppLifecycleBreadcrumbs, isFalse);
-      expect(options.enableWindowMetricBreadcrumbs, isFalse);
-      expect(options.enableBrightnessChangeBreadcrumbs, isFalse);
-      expect(options.enableTextScaleChangeBreadcrumbs, isFalse);
-      expect(options.enableMemoryPressureBreadcrumbs, isFalse);
-      expect(options.enableAutoNativeBreadcrumbs, isTrue);
+      final platformsWithNativeIntegration = [
+        TargetPlatform.android,
+        TargetPlatform.iOS,
+        TargetPlatform.macOS,
+      ];
 
-      options.configureBreadcrumbTrackingForPlatform(TargetPlatform.iOS);
+      for (final platform in platformsWithNativeIntegration) {
+        options.configureBreadcrumbTrackingForPlatform(platform);
 
-      expect(options.enableAppLifecycleBreadcrumbs, isFalse);
-      expect(options.enableWindowMetricBreadcrumbs, isFalse);
-      expect(options.enableBrightnessChangeBreadcrumbs, isFalse);
-      expect(options.enableTextScaleChangeBreadcrumbs, isFalse);
-      expect(options.enableMemoryPressureBreadcrumbs, isFalse);
-      expect(options.enableAutoNativeBreadcrumbs, isTrue);
+        expect(options.enableAppLifecycleBreadcrumbs, isFalse);
+        expect(options.enableWindowMetricBreadcrumbs, isFalse);
+        expect(options.enableBrightnessChangeBreadcrumbs, isFalse);
+        expect(options.enableTextScaleChangeBreadcrumbs, isFalse);
+        expect(options.enableMemoryPressureBreadcrumbs, isFalse);
+        expect(options.enableAutoNativeBreadcrumbs, isTrue);
+      }
 
       // for all other platform the inverse is true
-      final platforms = [
+      final platformsWithoutNativeIntegration = [
         TargetPlatform.fuchsia,
         TargetPlatform.linux,
-        TargetPlatform.macOS,
         TargetPlatform.windows,
       ];
 
-      for (final platform in platforms) {
+      for (final platform in platformsWithoutNativeIntegration) {
         options.configureBreadcrumbTrackingForPlatform(platform);
 
         expect(options.enableAppLifecycleBreadcrumbs, isTrue);

@@ -86,7 +86,8 @@ mixin SentryFlutter {
     }
 
     // Will enrich events with device context, native packages and integrations
-    if (options.platformChecker.platform.isIOS || options.platformChecker.platform.isMacOS) {
+    if (options.platformChecker.platform.isIOS ||
+        options.platformChecker.platform.isMacOS) {
       integrations.add(LoadContextsIntegration(channel));
     }
 
