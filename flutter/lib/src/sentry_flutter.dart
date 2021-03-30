@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
@@ -53,8 +52,6 @@ mixin SentryFlutter {
     SentryFlutterOptions options,
     MethodChannel channel,
   ) async {
-    options.debug = kDebugMode;
-
     // Not all platforms have a native integration.
     if (options.platformChecker.hasNativeIntegration) {
       options.transport = FileSystemTransport(channel, options);

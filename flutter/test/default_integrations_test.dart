@@ -3,10 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/sentry_flutter_options.dart';
 
+import 'mocks.dart';
 import 'mocks.mocks.dart';
 
 void main() {
@@ -206,6 +208,39 @@ void main() {
     await integration(fixture.hub, fixture.options);
 
     expect(called, true);
+  });
+
+  group('$LoadReleaseIntegration', () {
+    Future<PackageInfo> loadRelease() {
+      return Future.value(PackageInfo(
+        appName: 'sentry_flutter',
+        packageName: 'foo.bar',
+        version: '1.2.3',
+        buildNumber: '789',
+      ));
+    }
+
+    test('does not overwrite options', () async {
+      final options = SentryFlutterOptions(dsn: fakeDsn);
+      options.release = '1.0.0';
+      options.dist = 'dist';
+
+      final integration = LoadReleaseIntegration(loadRelease);
+      await integration.call(MockHub(), options);
+
+      expect(options.release, '1.0.0');
+      expect(options.dist, 'dist');
+    });
+
+    test('sets release and dist if not set on options', () async {
+      final options = SentryFlutterOptions(dsn: fakeDsn);
+
+      final integration = LoadReleaseIntegration(loadRelease);
+      await integration.call(MockHub(), options);
+
+      expect(options.release, 'foo.bar@1.2.3+789');
+      expect(options.dist, '789');
+    });
   });
 }
 

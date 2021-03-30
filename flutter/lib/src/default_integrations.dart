@@ -340,8 +340,7 @@ class LoadAndroidImageListIntegration
 /// a PackageInfo wrapper to make it testable
 typedef PackageLoader = Future<PackageInfo> Function();
 
-/// an Integration that loads the Release version from Native Apps
-/// or SENTRY_RELEASE and SENTRY_DIST variables
+/// An [Integration] that loads the release version from native apps
 class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
   final PackageLoader _packageLoader;
 
@@ -350,13 +349,15 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) async {
     try {
-      final packageInfo = await _packageLoader();
-      final release =
-          '${packageInfo.packageName}@${packageInfo.version}+${packageInfo.buildNumber}';
-      options.logger(SentryLevel.debug, 'release: $release');
+      if (options.release == null || options.dist == null) {
+        final packageInfo = await _packageLoader();
+        final release =
+            '${packageInfo.packageName}@${packageInfo.version}+${packageInfo.buildNumber}';
+        options.logger(SentryLevel.debug, 'release: $release');
 
-      options.release = release;
-      options.dist = packageInfo.buildNumber;
+        options.release = options.release ?? release;
+        options.dist = options.dist ?? packageInfo.buildNumber;
+      }
     } catch (error) {
       options.logger(
           SentryLevel.error, 'Failed to load release and dist: $error');
