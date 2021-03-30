@@ -186,11 +186,11 @@ class SentryFlutterOptions extends SentryOptions {
     switch (platform) {
       case foundation.TargetPlatform.android:
       case foundation.TargetPlatform.iOS:
+      case foundation.TargetPlatform.macOS:
         useNativeBreadcrumbTracking();
         break;
       case foundation.TargetPlatform.fuchsia:
       case foundation.TargetPlatform.linux:
-      case foundation.TargetPlatform.macOS:
       case foundation.TargetPlatform.windows:
         // These platforms have no native integration, so just use the Flutter
         // integration.

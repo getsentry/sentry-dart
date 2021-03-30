@@ -1,20 +1,17 @@
-#
-# To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html.
-# Run `pod lib lint sentry_flutter.podspec` to validate before publishing.
-#
 Pod::Spec.new do |s|
   s.name             = 'sentry_flutter'
   s.version          = '0.0.1'
-  s.summary          = 'Sentry for Flutter'
+  s.summary          = 'Sentry SDK for Flutter.'
   s.description      = <<-DESC
-  Sentry SDK for Flutter. This package aims to support different Flutter targets
-  by relying on the many platforms supported by Sentry with native SDKs.
+Sentry SDK for Flutter with support to native through sentry-cocoa.
                        DESC
   s.homepage         = 'https://sentry.io'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Your Company' => 'sdks@sentry.io' }
-  s.source           = { :path => '.' }
+  s.authors          = "Sentry"
+  s.source           = { :git => "https://github.com/getsentry/sentry-dart.git",
+                         :tag => s.version.to_s }
   s.source_files     = 'Classes/**/*'
+  s.dependency 'Sentry', '~> 6.2.1'
   s.dependency 'FlutterMacOS'
 
   s.platform = :osx, '10.11'

@@ -109,7 +109,7 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
 /// the Message channel.
 /// We intend to unify this behaviour in the future.
 ///
-/// This integration is only executed on iOS Apps.
+/// This integration is only executed on iOS & MacOS Apps.
 class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
   final MethodChannel _channel;
 

@@ -31,7 +31,7 @@ class PlatformChecker {
       // On web platform OS checks return the OS the browser is running on
       return false;
     }
-    if (platform.isAndroid || platform.isIOS) {
+    if (platform.isAndroid || platform.isIOS || platform.isMacOS) {
       return true;
     }
     return false;
