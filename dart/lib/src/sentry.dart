@@ -97,10 +97,10 @@ class Sentry {
     }
 
     // let's set the default values to options
-    if (_setDefaultConfiguration(options)) {
+    if (await _setDefaultConfiguration(options)) {
       final hub = currentHub;
       _hub = Hub(options);
-      hub.close();
+      await hub.close();
     }
 
     // execute integrations after hub being enabled
@@ -168,10 +168,10 @@ class Sentry {
       );
 
   /// Close the client SDK
-  static void close() {
+  static Future<void> close() async {
     final hub = currentHub;
     _hub = NoOpHub();
-    hub.close();
+    await hub.close();
   }
 
   /// Check if the current Hub is enabled/active.
@@ -194,10 +194,10 @@ class Sentry {
   /// Binds a different client to the current hub
   static void bindClient(SentryClient client) => currentHub.bindClient(client);
 
-  static bool _setDefaultConfiguration(SentryOptions options) {
+  static Future<bool> _setDefaultConfiguration(SentryOptions options) async {
     // if the DSN is empty, let's disable the SDK
     if (options.dsn?.isEmpty ?? false) {
-      close();
+      await close();
       return false;
     }
 

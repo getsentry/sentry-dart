@@ -21,8 +21,8 @@ void main() {
       client = MockSentryClient();
       Sentry.bindClient(client);
     });
-    tearDown(() {
-      Sentry.close();
+    tearDown(() async {
+      await Sentry.close();
     });
 
     test('should capture the event', () async {
@@ -59,8 +59,8 @@ void main() {
   });
 
   group('Sentry is enabled or disabled', () {
-    tearDown(() {
-      Sentry.close();
+    tearDown(() async {
+      await Sentry.close();
     });
 
     test('null DSN', () {
@@ -102,15 +102,15 @@ void main() {
 
       expect(Sentry.isEnabled, true);
 
-      Sentry.close();
+      await Sentry.close();
 
       expect(Sentry.isEnabled, false);
     });
   });
 
   group('Sentry init', () {
-    tearDown(() {
-      Sentry.close();
+    tearDown(() async {
+      await Sentry.close();
     });
 
     test('should install integrations', () async {
@@ -171,7 +171,7 @@ void main() {
         },
       );
 
-      Sentry.close();
+      await Sentry.close();
 
       expect(integration.callCalls, 1);
       expect(integration.closeCalls, 1);
