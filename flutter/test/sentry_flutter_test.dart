@@ -2,7 +2,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:platform/platform.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry/src/platform_checker.dart';
@@ -155,8 +154,8 @@ SentryFlutterOptions getOptions({
   }
   options.platformChecker = PlatformChecker(
     isWeb: isWeb,
-    platform: FakePlatform(
-      operatingSystem: osName,
+    platform: MockPlatform(
+      os: osName,
     ),
   );
   return options;

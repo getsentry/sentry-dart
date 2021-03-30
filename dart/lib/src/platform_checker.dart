@@ -1,10 +1,10 @@
-import 'package:platform/platform.dart';
+import 'platform/platform.dart';
 
 /// Helper to check in which enviroment the library is running.
 /// The envirment checks (release/debug/profile) are mutually exclusive.
 class PlatformChecker {
   PlatformChecker({
-    this.platform = const LocalPlatform(),
+    this.platform = instance,
     this.isWeb = identical(0, 0.0),
   });
 
