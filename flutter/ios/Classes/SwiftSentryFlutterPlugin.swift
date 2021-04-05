@@ -128,6 +128,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
         // swiftlint:disable:next todo
         // TODO: Call SentrySDK when available
         // https://github.com/getsentry/sentry-cocoa/issues/934
+        SentrySDK.currentHub().getClient()?.options.enabled = false
         result("")
     }
 

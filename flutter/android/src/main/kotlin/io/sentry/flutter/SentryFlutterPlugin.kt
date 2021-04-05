@@ -33,7 +33,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
       "initNativeSdk" -> initNativeSdk(call, result)
       "captureEnvelope" -> captureEnvelope(call, result)
       "loadImageList" -> loadImageList(call, result)
-      "closeNativeSdk" -> closeNativeSdk(call, result)
+      "closeNativeSdk" -> closeNativeSdk(result)
       else -> result.notImplemented()
     }
   }
@@ -166,7 +166,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
     result.success(newDebugImages)
   }
 
-  private fun closeNativeSdk(call: MethodCall, result: Result) {
+  private fun closeNativeSdk(result: Result) {
     Sentry.close()
     result.success("")
   }
