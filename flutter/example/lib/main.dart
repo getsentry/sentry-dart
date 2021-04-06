@@ -115,11 +115,6 @@ class MainScaffold extends StatelessWidget {
             ),
             if (UniversalPlatform.isIOS) const CocoaExample(),
             if (UniversalPlatform.isAndroid) const AndroidExample(),
-            if (UniversalPlatform.isWeb) const WebExample(),
-            RaisedButton(
-              child: const Text('Sentry.close(): Stop sending reports'),
-              onPressed: () => Sentry.close(),
-            ),
           ],
         ),
       ),
@@ -228,26 +223,6 @@ class CocoaExample extends StatelessWidget {
           child: const Text('Objective-C SEGFAULT'),
           onPressed: () async {
             await channel.invokeMethod<void>('crash');
-          },
-        ),
-      ],
-    );
-  }
-}
-
-class WebExample extends StatelessWidget {
-  const WebExample({Key? key}) : super(key: key);
-
-  final channel = const MethodChannel('example.flutter.sentry.io');
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        RaisedButton(
-          child: const Text('Web: console.log'),
-          onPressed: () async {
-            await channel.invokeMethod<void>('console.log', 'log me');
           },
         ),
       ],

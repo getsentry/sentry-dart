@@ -22,8 +22,3 @@ dependency_overrides:
 
 flutter:
   uses-material-design: true
-  plugin:
-    platforms:
-      web:
-        pluginClass: ExamplePluginWeb
-        fileName: example_plugin_web.dart
