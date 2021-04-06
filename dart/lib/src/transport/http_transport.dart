@@ -53,7 +53,12 @@ class HttpTransport implements Transport {
 
   @override
   Future<SentryId?> sendSentryEnvelope(SentryEnvelope envelope) async {
-    final data = envelope.serialize();
+    final filteredEnvelope = _rateLimiter.filter(envelope);
+    if (filteredEnvelope == null) {
+      return null;
+    }
+
+    final data = filteredEnvelope.serialize();
 
     final body = _bodyEncoder(
       data,
@@ -66,6 +71,8 @@ class HttpTransport implements Transport {
       headers: _credentialBuilder.configure(_headers),
       body: body,
     );
+
+    _updateRetryAfterLimits(response);
 
     if (response.statusCode != 200) {
       // body guard to not log the error as it has performance impact to allocate
@@ -101,6 +108,21 @@ class HttpTransport implements Transport {
       body = compressBody(body, headers);
     }
     return body;
+  }
+
+  void _updateRetryAfterLimits(Response response) {
+    // seconds
+    final retryAfterHeader = response.headers['Retry-After'];
+
+    // X-Sentry-Rate-Limits looks like: seconds:categories:scope
+    // it could have more than one scope so it looks like:
+    // quota_limit, quota_limit, quota_limit
+
+    // a real example: 50:transaction:key, 2700:default;error;security:organization
+    // 50::key is also a valid case, it means no categories and it should apply to all of them
+    final sentryRateLimitHeader = response.headers['X-Sentry-Rate-Limits'];
+    _rateLimiter.updateRetryAfterLimits(
+        sentryRateLimitHeader, retryAfterHeader, response.statusCode);
   }
 }
 
