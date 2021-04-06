@@ -1,6 +1,11 @@
-import Flutter
 import Sentry
+#if os(iOS)
+import Flutter
 import UIKit
+#elseif os(macOS)
+import FlutterMacOS
+import AppKit
+#endif
 
 public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
 
@@ -11,7 +16,11 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
     private var didReceiveDidBecomeActiveNotification = false
 
     public static func register(with registrar: FlutterPluginRegistrar) {
+#if os(iOS)
         let channel = FlutterMethodChannel(name: "sentry_flutter", binaryMessenger: registrar.messenger())
+#elseif os(macOS)
+        let channel = FlutterMethodChannel(name: "sentry_flutter", binaryMessenger: registrar.messenger)
+#endif
 
         let instance = SwiftSentryFlutterPlugin()
         instance.registerObserver()
@@ -20,19 +29,31 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
     }
 
     private func registerObserver() {
+#if os(iOS)
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(applicationDidBecomeActive),
                                                name: UIApplication.didBecomeActiveNotification,
                                                object: nil)
+#elseif os(macOS)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(applicationDidBecomeActive),
+                                               name: NSApplication.didBecomeActiveNotification,
+                                               object: nil)
+#endif
     }
 
     @objc private func applicationDidBecomeActive() {
         didReceiveDidBecomeActiveNotification = true
-
         // we only need to do that in the 1st time, so removing it
+#if os(iOS)
         NotificationCenter.default.removeObserver(self,
                                                   name: UIApplication.didBecomeActiveNotification,
                                                   object: nil)
+#elseif os(macOS)
+        NotificationCenter.default.removeObserver(self,
+                                                  name: NSApplication.didBecomeActiveNotification,
+                                                  object: nil)
+#endif
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
