@@ -10,5 +10,5 @@ abstract class Integration<T extends SentryOptions> {
   FutureOr<void> call(Hub hub, T options);
 
   /// NoOp by default : only closeable integrations need to override
-  void close() {}
+  FutureOr<void> close() {}
 }

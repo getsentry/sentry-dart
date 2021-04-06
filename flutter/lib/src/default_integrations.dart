@@ -84,7 +84,7 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
   }
 
   @override
-  void close() {
+  FutureOr<void> close() {
     /// Restore default if the integration error is still set.
     if (FlutterError.onError == _integrationOnError) {
       FlutterError.onError = _defaultOnError;
@@ -253,7 +253,7 @@ class WidgetsBindingIntegration extends Integration<SentryFlutterOptions> {
   }
 
   @override
-  void close() {
+  FutureOr<void> close() {
     final instance = WidgetsBinding.instance;
     if (instance != null && _observer != null) {
       instance.removeObserver(_observer!);

@@ -153,8 +153,8 @@ void main() {
       expect(client2.captureEventCalls.first.scope, isNotNull);
     });
 
-    test('should close its client', () {
-      hub.close();
+    test('should close its client', () async {
+      await hub.close();
 
       expect(hub.isEnabled, false);
       expect((client as MockSentryClient).closeCalls, 1);

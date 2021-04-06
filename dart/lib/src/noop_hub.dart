@@ -46,7 +46,7 @@ class NoOpHub implements Hub {
   Hub clone() => this;
 
   @override
-  void close() {}
+  Future<void> close() async {}
 
   @override
   void configureScope(callback) {}
