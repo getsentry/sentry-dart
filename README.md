@@ -23,6 +23,8 @@ For detailed usage, check out the inner [dart](https://github.com/getsentry/sent
 
 [With Flutter and Sentry, You Can Put All Your Eggs in One Repo](https://blog.sentry.io/2021/03/03/with-flutter-and-sentry-you-can-put-all-your-eggs-in-one-repo).
 
+[A Sanity Listicle for Mobile Developers](https://blog.sentry.io/2021/03/30/a-sanity-listicle-for-mobile-developers/).
+
 #### Resources
 
 * [![Flutter docs](https://img.shields.io/badge/documentation-sentry.io-green.svg?label=flutter%20docs)](https://docs.sentry.io/platforms/flutter/)
