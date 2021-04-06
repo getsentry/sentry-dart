@@ -6,6 +6,7 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
+import io.sentry.Sentry
 import io.sentry.SentryEvent
 import io.sentry.SentryLevel
 import io.sentry.android.core.SentryAndroid
@@ -32,6 +33,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
       "initNativeSdk" -> initNativeSdk(call, result)
       "captureEnvelope" -> captureEnvelope(call, result)
       "loadImageList" -> loadImageList(call, result)
+      "closeNativeSdk" -> closeNativeSdk(result)
       else -> result.notImplemented()
     }
   }
@@ -162,6 +164,11 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
     }
 
     result.success(newDebugImages)
+  }
+
+  private fun closeNativeSdk(result: Result) {
+    Sentry.close()
+    result.success("")
   }
 
   private val flutterSdk = "sentry.dart.flutter"

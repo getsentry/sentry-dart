@@ -208,7 +208,7 @@ class Hub {
   }
 
   /// Flushes out the queue for up to timeout seconds and disable the Hub.
-  void close() {
+  Future<void> close() async {
     if (!_isEnabled) {
       _options.logger(
         SentryLevel.warning,
@@ -217,7 +217,7 @@ class Hub {
     } else {
       // close integrations
       for (final integration in _options.integrations) {
-        integration.close();
+        await integration.close();
       }
 
       final item = _peek();

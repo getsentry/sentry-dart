@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -92,7 +94,7 @@ void main() {
 
     final integrationA = FlutterErrorIntegration();
     integrationA.call(fixture.hub, fixture.options);
-    integrationA.close();
+    await integrationA.close();
 
     final integrationB = FlutterErrorIntegration();
     integrationB.call(fixture.hub, fixture.options);
@@ -104,7 +106,7 @@ void main() {
     expect(numberOfDefaultCalls, 1);
   });
 
-  test('FlutterErrorIntegration close restored default onError', () {
+  test('FlutterErrorIntegration close restored default onError', () async {
     final defaultOnError = (FlutterErrorDetails errorDetails) async {};
     FlutterError.onError = defaultOnError;
 
@@ -112,12 +114,12 @@ void main() {
     integration.call(fixture.hub, fixture.options);
     expect(false, defaultOnError == FlutterError.onError);
 
-    integration.close();
+    await integration.close();
     expect(FlutterError.onError, defaultOnError);
   });
 
   test('FlutterErrorIntegration default not restored if set after integration',
-      () {
+      () async {
     final defaultOnError = (FlutterErrorDetails errorDetails) async {};
     FlutterError.onError = defaultOnError;
 
@@ -128,7 +130,7 @@ void main() {
     final afterIntegrationOnError = (FlutterErrorDetails errorDetails) async {};
     FlutterError.onError = afterIntegrationOnError;
 
-    integration.close();
+    await integration.close();
     expect(FlutterError.onError, afterIntegrationOnError);
   });
 
@@ -175,6 +177,20 @@ void main() {
 
     expect(fixture.options.sdk.integrations.contains('nativeSdkIntegration'),
         false);
+  });
+
+  test('nativeSdkIntegration closes native SDK', () async {
+    var closeCalled = false;
+    _channel.setMockMethodCallHandler((MethodCall methodCall) async {
+      expect(methodCall.method, 'closeNativeSdk');
+      closeCalled = true;
+    });
+
+    final integration = NativeSdkIntegration(_channel);
+
+    await integration.close();
+
+    expect(closeCalled, true);
   });
 
   test('loadContextsIntegration adds integration', () async {

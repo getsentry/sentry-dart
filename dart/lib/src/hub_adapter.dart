@@ -66,7 +66,7 @@ class HubAdapter implements Hub {
   Hub clone() => Sentry.clone();
 
   @override
-  void close() => Sentry.close();
+  Future<void> close() => Sentry.close();
 
   @override
   void configureScope(ScopeCallback callback) =>

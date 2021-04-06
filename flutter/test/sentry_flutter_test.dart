@@ -19,8 +19,8 @@ void main() {
       _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
     });
 
-    tearDown(() {
-      Sentry.close();
+    tearDown(() async {
+      await Sentry.close();
     });
 
     test('Will run default configurations on Android', () async {
@@ -56,9 +56,9 @@ void main() {
           .thenAnswer((realInvocation) => Future.value(SentryId.newId()));
     });
 
-    tearDown(() {
+    tearDown(() async {
       _channel.setMockMethodCallHandler(null);
-      Sentry.close();
+      await Sentry.close();
     });
 
     test('should add loadContextsIntegration on ios', () async {
