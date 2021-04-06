@@ -2,6 +2,7 @@
 
 * Fix: `Sentry.close()` closes native SDK integrations (#388)
 * Feat: Support for MacOS (#389)
+* Feat: Support for Linux (#402)
 
 # 5.0.0
 
