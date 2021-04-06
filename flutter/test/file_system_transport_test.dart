@@ -26,7 +26,7 @@ void main() {
     final transport = fixture.getSut(_channel);
     final event = SentryEvent();
 
-    final sentryId = await transport.send(event);
+    final sentryId = await transport.sendSentryEvent(event);
 
     expect(sentryId, sentryId);
   });
@@ -38,7 +38,7 @@ void main() {
 
     final transport = fixture.getSut(_channel);
 
-    final sentryId = await transport.send(SentryEvent());
+    final sentryId = await transport.sendSentryEvent(SentryEvent());
 
     expect(SentryId.empty(), sentryId);
   });
@@ -53,7 +53,7 @@ void main() {
 
     final event =
         SentryEvent(message: SentryMessage('hi I am a special char ◤'));
-    await transport.send(event);
+    await transport.sendSentryEvent(event);
 
     final envelopeList = arguments as List;
     final envelopeString = envelopeList.first as String;

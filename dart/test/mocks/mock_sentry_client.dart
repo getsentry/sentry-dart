@@ -1,9 +1,11 @@
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/sentry_envelope.dart';
 
 class MockSentryClient implements SentryClient {
   List<CaptureEventCall> captureEventCalls = [];
   List<CaptureExceptionCall> captureExceptionCalls = [];
   List<CaptureMessageCall> captureMessageCalls = [];
+  List<CaptureEnvelopeCall> captureEnvelopeCalls = [];
   int closeCalls = 0;
 
   @override
@@ -59,6 +61,15 @@ class MockSentryClient implements SentryClient {
   }
 
   @override
+  Future<SentryId> captureEnvelope(
+    SentryEnvelope envelope) async {
+    captureEnvelopeCalls.add(CaptureEnvelopeCall(
+      envelope
+    ));
+    return SentryId.newId();
+  }
+
+  @override
   void close() {
     closeCalls = closeCalls + 1;
   }
@@ -107,5 +118,13 @@ class CaptureMessageCall {
     this.params,
     this.scope,
     this.hint,
+  );
+}
+
+class CaptureEnvelopeCall {
+  final SentryEnvelope envelope;
+
+  CaptureEnvelopeCall(
+    this.envelope
   );
 }

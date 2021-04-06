@@ -7,14 +7,20 @@ import '../noop_client.dart';
 import '../protocol.dart';
 import '../sentry_options.dart';
 import '../utils.dart';
+import '../current_date_provider.dart';
+import '../sentry_envelope.dart';
+
 import 'noop_encode.dart' if (dart.library.io) 'encode.dart';
 import 'transport.dart';
+import 'rate_limiter.dart';
 
 /// A transport is in charge of sending the event to the Sentry server.
 class HttpTransport implements Transport {
   final SentryOptions _options;
 
   final Dsn _dsn;
+
+  final RateLimiter _rateLimiter;
 
   late _CredentialBuilder _credentialBuilder;
 
@@ -30,6 +36,7 @@ class HttpTransport implements Transport {
 
   HttpTransport._(this._options)
       : _dsn = Dsn.parse(_options.dsn!),
+        _rateLimiter = RateLimiter(CurrentDateTimeProvider()),
         _headers = _buildHeaders(_options.sdk.identifier) {
     _credentialBuilder = _CredentialBuilder(
       _dsn,
@@ -39,8 +46,14 @@ class HttpTransport implements Transport {
   }
 
   @override
-  Future<SentryId> send(SentryEvent event) async {
-    final data = event.toJson();
+  Future<SentryId?> sendSentryEvent(SentryEvent event) async {
+    final envelope = SentryEnvelope.fromEvent(event, _options.sdk);
+    return await sendSentryEnvelope(envelope);
+  }
+
+  @override
+  Future<SentryId?> sendSentryEnvelope(SentryEnvelope envelope) async {
+    final data = envelope.serialize();
 
     final body = _bodyEncoder(
       data,
@@ -68,7 +81,7 @@ class HttpTransport implements Transport {
     } else {
       _options.logger(
         SentryLevel.debug,
-        'Event ${event.eventId} was sent successfully.',
+        'Envelope ${envelope.header.eventId ?? "--"} was sent successfully.',
       );
     }
 
@@ -77,13 +90,13 @@ class HttpTransport implements Transport {
   }
 
   List<int> _bodyEncoder(
-    Map<String, dynamic> data,
+    String data,
     Map<String, String> headers, {
     required bool compressPayload,
   }) {
     // [SentryIOClient] implement gzip compression
     // gzip compression is not available on browser
-    var body = utf8.encode(json.encode(data));
+    var body = utf8.encode(data);
     if (compressPayload) {
       body = compressBody(body, headers);
     }

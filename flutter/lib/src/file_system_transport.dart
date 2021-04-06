@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/services.dart';
 import 'package:sentry/sentry.dart';
 
@@ -10,26 +8,14 @@ class FileSystemTransport implements Transport {
   final SentryOptions _options;
 
   @override
-  Future<SentryId> send(SentryEvent event) async {
-    final headerMap = {
-      'event_id': event.eventId.toString(),
-      'sdk': _options.sdk.toJson()
-    };
+  Future<SentryId?> sendSentryEvent(SentryEvent event) async {
+    final envelope = SentryEnvelope.fromEvent(event, _options.sdk);
+    return await sendSentryEnvelope(envelope);
+  }
 
-    final eventMap = event.toJson();
-
-    final eventString = jsonEncode(eventMap);
-    final eventUtf8 = utf8.encode(eventString);
-
-    final itemHeaderMap = {
-      'content_type': 'application/json',
-      'type': 'event',
-      'length': eventUtf8.length,
-    };
-
-    final headerString = jsonEncode(headerMap);
-    final itemHeaderString = jsonEncode(itemHeaderMap);
-    final envelopeString = '$headerString\n$itemHeaderString\n$eventString';
+  @override
+  Future<SentryId?> sendSentryEnvelope(SentryEnvelope envelope) async {
+    final envelopeString = envelope.serialize();
 
     final args = [envelopeString];
     try {
@@ -42,6 +28,6 @@ class FileSystemTransport implements Transport {
       return SentryId.empty();
     }
 
-    return event.eventId;
+    return envelope.header.eventId;
   }
 }

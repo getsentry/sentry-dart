@@ -7,7 +7,7 @@ import 'package:sentry/sentry.dart';
 import 'sentry_flutter_options.dart';
 
 import 'default_integrations.dart';
-import 'file_system_transport.dart';
+//import 'file_system_transport.dart';
 import 'version.dart';
 // conditional import for the iOSPlatformChecker
 // in browser, the iOSPlatformChecker will always return false
@@ -62,7 +62,7 @@ mixin SentryFlutter {
   ) async {
     // web still uses a http transport for Web which is set by default
     if (!kIsWeb) {
-      options.transport = FileSystemTransport(channel, options);
+      //options.transport = FileSystemTransport(channel, options);
     }
 
     _setSdk(options);

@@ -52,7 +52,7 @@ void main() {
       _channel.setMockMethodCallHandler(
         (MethodCall methodCall) async => <String, dynamic>{},
       );
-      when(transport.send(any))
+      when(transport.sendSentryEvent(any))
           .thenAnswer((realInvocation) => Future.value(SentryId.newId()));
     });
 
@@ -74,7 +74,7 @@ void main() {
       await Sentry.captureMessage('a message');
 
       final event =
-          verify(transport.send(captureAny)).captured.first as SentryEvent;
+          verify(transport.sendSentryEvent(captureAny)).captured.first as SentryEvent;
 
       expect(event.sdk!.integrations.length, 7);
       expect(event.sdk!.integrations.contains('loadContextsIntegration'), true);
@@ -93,7 +93,7 @@ void main() {
       await Sentry.captureMessage('a message');
 
       final event =
-          verify(transport.send(captureAny)).captured.first as SentryEvent;
+          verify(transport.sendSentryEvent(captureAny)).captured.first as SentryEvent;
 
       expect(event.sdk!.integrations.length, 6);
       expect(
@@ -114,7 +114,7 @@ void main() {
       await Sentry.captureMessage('a message');
 
       final event =
-          verify(transport.send(captureAny)).captured.first as SentryEvent;
+          verify(transport.sendSentryEvent(captureAny)).captured.first as SentryEvent;
 
       expect(event.sdk!.integrations.length, 6);
       expect(

@@ -9,6 +9,7 @@ import 'sentry_stack_trace_factory.dart';
 import 'transport/http_transport.dart';
 import 'transport/noop_transport.dart';
 import 'version.dart';
+import 'sentry_envelope.dart';
 
 /// Default value for [User.ipAddress]. It gets set when an event does not have
 /// a user and IP address. Only applies if [SentryOptions.sendDefaultPii] is set
@@ -104,7 +105,8 @@ class SentryClient {
       }
     }
 
-    return _options.transport.send(preparedEvent);
+    final eventId = await _options.transport.sendSentryEvent(preparedEvent);
+    return eventId ?? preparedEvent.eventId;
   }
 
   SentryEvent _prepareEvent(SentryEvent event, {dynamic stackTrace}) {
@@ -193,6 +195,10 @@ class SentryClient {
     );
 
     return captureEvent(event, scope: scope, hint: hint);
+  }
+
+  Future<SentryId?> captureEnvelope(SentryEnvelope envelope) {
+    return _options.transport.sendSentryEnvelope(envelope);
   }
 
   void close() => _options.httpClient.close();
