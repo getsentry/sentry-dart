@@ -9,8 +9,7 @@ class SentryEnvelopeItem {
 
   final SentryEnvelopeItemHeader header;
   final List<int> data;
-
-  // TODO(denis): Test formatting...
+  
   static SentryEnvelopeItem fromEvent(SentryEvent event) {
     final jsonEncoded = jsonEncode(event.toJson());
     final data = utf8.encode(jsonEncoded);  
