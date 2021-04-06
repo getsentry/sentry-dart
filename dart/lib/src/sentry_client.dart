@@ -34,7 +34,7 @@ class SentryClient {
   /// Instantiates a client using [SentryOptions]
   factory SentryClient(SentryOptions options) {
     if (options.transport is NoOpTransport) {
-      options.transport = HttpTransport(options, RateLimiter(CurrentDateTimeProvider()));
+      options.transport = HttpTransport(options, RateLimiter(options.clock));
     }
 
     return SentryClient._(options);

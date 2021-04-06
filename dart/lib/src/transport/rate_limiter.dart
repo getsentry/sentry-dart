@@ -1,6 +1,6 @@
 import '../transport/rate_limit_parser.dart';
 
-import '../current_date_provider.dart';
+import '../sentry_options.dart';
 import '../sentry_envelope.dart';
 import '../sentry_envelope_item.dart';
 import '../sentry_item_type.dart';
@@ -9,9 +9,9 @@ import 'rate_limit_category.dart';
 
 /// Controls retry limits on different category types sent to Sentry.
 class RateLimiter {
-  RateLimiter(this._currentDateTimeProvider);
+  RateLimiter(this._clockProvider);
 
-  final CurrentDateTimeProvider _currentDateTimeProvider;
+  final ClockProvider _clockProvider;
   final _rateLimitedUntil = <RateLimitCategory, DateTime>{};
 
   SentryEnvelope? filter(SentryEnvelope envelope) {
@@ -52,7 +52,7 @@ class RateLimiter {
 
   void updateRetryAfterLimits(
       String? sentryRateLimitHeader, String? retryAfterHeader, int errorCode) {
-    final currentDateTime = _currentDateTimeProvider.currentDateTime();
+    final currentDateTime = _clockProvider().millisecondsSinceEpoch;
     var rateLimits = <RateLimit>[];
 
     if (sentryRateLimitHeader != null) {
@@ -76,7 +76,8 @@ class RateLimiter {
   bool _isRetryAfter(String itemType) {
     final dataCategory = _categoryFromItemType(itemType);
     final currentDate = DateTime.fromMillisecondsSinceEpoch(
-        _currentDateTimeProvider.currentDateTime());
+      _clockProvider().millisecondsSinceEpoch
+    );
 
     // check all categories
     final dateAllCategories = _rateLimitedUntil[RateLimitCategory.all];
