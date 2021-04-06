@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'current_date_provider.dart';
+import 'transport/rate_limiter.dart';
+
 import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_exception_factory.dart';
@@ -31,7 +34,7 @@ class SentryClient {
   /// Instantiates a client using [SentryOptions]
   factory SentryClient(SentryOptions options) {
     if (options.transport is NoOpTransport) {
-      options.transport = HttpTransport(options);
+      options.transport = HttpTransport(options, RateLimiter(CurrentDateTimeProvider()));
     }
 
     return SentryClient._(options);

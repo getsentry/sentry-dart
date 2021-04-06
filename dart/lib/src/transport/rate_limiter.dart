@@ -9,10 +9,10 @@ import 'rate_limit_category.dart';
 
 /// Controls retry limits on different category types sent to Sentry.
 class RateLimiter {
-  RateLimiter(this.currentDateTimeProvider);
+  RateLimiter(this._currentDateTimeProvider);
 
-  final CurrentDateTimeProvider currentDateTimeProvider;
-  final rateLimitedUntil = <RateLimitCategory, DateTime>{};
+  final CurrentDateTimeProvider _currentDateTimeProvider;
+  final _rateLimitedUntil = <RateLimitCategory, DateTime>{};
 
   SentryEnvelope? filter(SentryEnvelope envelope) {
     // Optimize for/No allocations if no items are under 429
@@ -52,7 +52,7 @@ class RateLimiter {
 
   void updateRetryAfterLimits(
       String? sentryRateLimitHeader, String? retryAfterHeader, int errorCode) {
-    final currentDateTime = currentDateTimeProvider.currentDateTime();
+    final currentDateTime = _currentDateTimeProvider.currentDateTime();
     var rateLimits = <RateLimit>[];
 
     if (sentryRateLimitHeader != null) {
@@ -76,10 +76,10 @@ class RateLimiter {
   bool _isRetryAfter(String itemType) {
     final dataCategory = _categoryFromItemType(itemType);
     final currentDate = DateTime.fromMillisecondsSinceEpoch(
-        currentDateTimeProvider.currentDateTime());
+        _currentDateTimeProvider.currentDateTime());
 
     // check all categories
-    final dateAllCategories = rateLimitedUntil[RateLimitCategory.all];
+    final dateAllCategories = _rateLimitedUntil[RateLimitCategory.all];
     if (dateAllCategories != null) {
       if (!(currentDate.millisecondsSinceEpoch >
           dateAllCategories.millisecondsSinceEpoch)) {
@@ -93,7 +93,7 @@ class RateLimiter {
     }
 
     // check for specific dataCategory
-    final dateCategory = rateLimitedUntil[dataCategory];
+    final dateCategory = _rateLimitedUntil[dataCategory];
     if (dateCategory != null) {
       return !(currentDate.millisecondsSinceEpoch >
           dateCategory.millisecondsSinceEpoch);
@@ -119,12 +119,12 @@ class RateLimiter {
 
   void _applyRetryAfterOnlyIfLonger(
       RateLimitCategory rateLimitCategory, DateTime date) {
-    final oldDate = rateLimitedUntil[rateLimitCategory];
+    final oldDate = _rateLimitedUntil[rateLimitCategory];
 
     // only overwrite its previous date if the limit is even longer
     if (oldDate == null ||
         date.millisecondsSinceEpoch > oldDate.millisecondsSinceEpoch) {
-      rateLimitedUntil[rateLimitCategory] = date;
+      _rateLimitedUntil[rateLimitCategory] = date;
     }
   }
 }

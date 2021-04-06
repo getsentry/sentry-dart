@@ -7,7 +7,6 @@ import '../noop_client.dart';
 import '../protocol.dart';
 import '../sentry_options.dart';
 import '../utils.dart';
-import '../current_date_provider.dart';
 import '../sentry_envelope.dart';
 
 import 'noop_encode.dart' if (dart.library.io) 'encode.dart';
@@ -26,17 +25,16 @@ class HttpTransport implements Transport {
 
   final Map<String, String> _headers;
 
-  factory HttpTransport(SentryOptions options) {
+  factory HttpTransport(SentryOptions options, RateLimiter rateLimiter) {
     if (options.httpClient is NoOpClient) {
       options.httpClient = Client();
     }
 
-    return HttpTransport._(options);
+    return HttpTransport._(options, rateLimiter);
   }
 
-  HttpTransport._(this._options)
+  HttpTransport._(this._options, this._rateLimiter)
       : _dsn = Dsn.parse(_options.dsn!),
-        _rateLimiter = RateLimiter(CurrentDateTimeProvider()),
         _headers = _buildHeaders(_options.sdk.identifier) {
     _credentialBuilder = _CredentialBuilder(
       _dsn,
