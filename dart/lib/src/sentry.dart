@@ -26,7 +26,10 @@ class Sentry {
   Sentry._();
 
   /// Returns the current hub
-  @Deprecated('This is scheduled to be removed in Sentry v6.0.0')
+  @Deprecated(
+    'This is scheduled to be removed in Sentry v6.0.0. '
+    'Instead of currentHub you should use Sentry\'s static methods.',
+  )
   static Hub get currentHub => _hub;
 
   /// Initializes the SDK
