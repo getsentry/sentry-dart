@@ -127,7 +127,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-java@v2
         with:
-          distribution: 'zulu'
+          distribution: 'adopt'
           java-version: '8'
       - run: |
           curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.40.0/ktlint
