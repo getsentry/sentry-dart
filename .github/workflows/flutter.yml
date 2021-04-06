@@ -16,7 +16,7 @@ jobs:
       # max-parallel: 4
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        target: ['ios', 'android', 'web', 'macos']
+        target: ['ios', 'android', 'web', 'macos', 'linux']
         # 'beta' channel is not working https://github.com/flutter/flutter/issues/78785
         channel: ['stable']
         exclude:
