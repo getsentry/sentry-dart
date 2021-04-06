@@ -28,11 +28,15 @@ jobs:
             target: ios
           - os: windows-latest
             target: macos
+          - os: windows-latest
+            target: linux
           # macos-latest is taking hours due to limited resources
           - os: macos-latest
             target: android
           - os: macos-latest
             target: web
+          - os: macos-latest
+            target: linux
 
     steps:
         - uses: actions/checkout@v2
@@ -81,6 +85,9 @@ jobs:
             ;;
             web)
             flutter build web
+            ;;
+            linux)
+            flutter build linux
             ;;
             esac
 
