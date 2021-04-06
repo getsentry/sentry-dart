@@ -101,16 +101,14 @@ Future testCaptureException(
     sdkName: sdkName,
   );
 
-  Map<String, dynamic>? data;
+  String envelopeData;
   if (compressPayload) {
-    data =
-        json.decode(utf8.decode(gzip!.decode(body))) as Map<String, dynamic>?;
+    envelopeData = utf8.decode(gzip!.decode(body));
   } else {
-    data = json.decode(utf8.decode(body!)) as Map<String, dynamic>?;
+    envelopeData = utf8.decode(body!);
   }
-
-  // TODO(denis): Update the expectations, as we are transporting envelope data
-  // instead of event data.
+  final eventJson = envelopeData.split('\n').last;
+  final data = json.decode(eventJson) as Map<String, dynamic>?;
 
   // so we assert the generated and returned id
   data!['event_id'] = sentryId.toString();
