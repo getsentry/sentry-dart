@@ -95,6 +95,9 @@ final fakeEvent = SentryEvent(
   ),
 );
 
+var fakeEnvelope = SentryEnvelope.fromEvent(
+    fakeEvent, SdkVersion(name: 'sdk1', version: '1.0.0'));
+
 class MockRateLimiter implements RateLimiter {
   bool filterReturnsNull = false;
   SentryEnvelope? filteredEnvelope;

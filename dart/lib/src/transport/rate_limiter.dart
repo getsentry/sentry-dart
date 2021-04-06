@@ -26,8 +26,6 @@ class RateLimiter {
     }
 
     if (dropItems != null) {
-      //logger.log(SentryLevel.INFO, "%d items will be dropped due rate limiting.", dropItems.size());
-
       // Need a new envelope
       final toSend = <SentryEnvelopeItem>[];
       for (final item in envelope.items) {
@@ -38,8 +36,7 @@ class RateLimiter {
 
       // no reason to continue
       if (toSend.isEmpty) {
-        //logger.log(SentryLevel.INFO, "Envelope discarded due all items rate limited.");
-
+        // TODO(denis): Should hints be implemented as well?
         //markHintWhenSendingFailed(hint, false);
         return null;
       }

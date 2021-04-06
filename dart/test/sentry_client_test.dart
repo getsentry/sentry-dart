@@ -592,6 +592,25 @@ void main() {
       expect((options.transport as MockTransport).called(0), true);
     });
   });
+
+  group('SentryClient captures envelope', () {
+    var options = SentryOptions(dsn: fakeDsn);
+
+    setUp(() {
+      options = SentryOptions(dsn: fakeDsn);
+      options.transport = MockTransport();
+    });
+
+    test('should capture envelope', () async {
+      final client = SentryClient(options);
+      await client.captureEnvelope(fakeEnvelope);
+
+      final capturedEnvelope =
+          (options.transport as MockTransport).envelopes.first;
+
+      expect(capturedEnvelope, fakeEnvelope);
+    });
+  });
 }
 
 SentryEvent? beforeSendCallbackDropEvent(SentryEvent event, {dynamic hint}) =>
