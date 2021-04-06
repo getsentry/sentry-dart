@@ -1,6 +1,7 @@
 # Unreleased
 
 * Fix: `Sentry.close()` closes native SDK integrations (#388)
+* Fix: Mark `Sentry.currentHub` as deprecated (#406)
 
 # 5.0.0
 
