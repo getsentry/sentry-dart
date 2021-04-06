@@ -12,15 +12,34 @@ class MockPlatform implements Platform {
     String? os,
     String? osVersion,
     String? hostname,
-  }) : operatingSystem = os ?? '', operatingSystemVersion = osVersion ?? '', localHostname = hostname ?? '';
+  })  : operatingSystem = os ?? '',
+        operatingSystemVersion = osVersion ?? '',
+        localHostname = hostname ?? '';
 
+  @override
   String operatingSystem;
+
+  @override
   String operatingSystemVersion;
+
+  @override
   String localHostname;
+
+  @override
   bool get isLinux => (operatingSystem == 'linux');
+
+  @override
   bool get isMacOS => (operatingSystem == 'macos');
+
+  @override
   bool get isWindows => (operatingSystem == 'windows');
+
+  @override
   bool get isAndroid => (operatingSystem == 'android');
+
+  @override
   bool get isIOS => (operatingSystem == 'ios');
+
+  @override
   bool get isFuchsia => (operatingSystem == 'fuchsia');
 }

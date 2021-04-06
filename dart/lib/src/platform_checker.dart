@@ -1,11 +1,12 @@
 import 'platform/platform.dart';
+import 'utils.dart' as utils;
 
 /// Helper to check in which enviroment the library is running.
 /// The envirment checks (release/debug/profile) are mutually exclusive.
 class PlatformChecker {
   PlatformChecker({
     this.platform = instance,
-    this.isWeb = identical(0, 0.0),
+    this.isWeb = utils.isWeb,
   });
 
   /// Check if running in release/production environment
