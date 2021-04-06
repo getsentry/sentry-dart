@@ -180,16 +180,15 @@ void main() {
   });
 
   test('nativeSdkIntegration closes native SDK', () async {
-    final completer = Completer<bool>();
+    var closeCalled = false;
     _channel.setMockMethodCallHandler((MethodCall methodCall) async {
       expect(methodCall.method, 'closeNativeSdk');
-      completer.complete(true);
+      closeCalled = true;
     });
 
     final integration = NativeSdkIntegration(_channel);
 
     await integration.close();
-    final closeCalled = await completer.future;
 
     expect(closeCalled, true);
   });
