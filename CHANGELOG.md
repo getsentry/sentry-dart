@@ -1,5 +1,7 @@
 # Unreleased
 
+* Fix: `Sentry.close()` closes native SDK integrations (#388)
+
 # 5.0.0
 
 * Sound null safety

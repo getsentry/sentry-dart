@@ -186,8 +186,11 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
 
   NativeSdkIntegration(this._channel);
 
+  late SentryFlutterOptions _options;
+
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) async {
+    _options = options;
     try {
       await _channel.invokeMethod<void>('initNativeSdk', <String, dynamic>{
         'dsn': options.dsn,
@@ -218,6 +221,18 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
       options.logger(
         SentryLevel.fatal,
         'nativeSdkIntegration failed to be installed: $error',
+      );
+    }
+  }
+
+  @override
+  FutureOr<void> close() async {
+    try {
+      await _channel.invokeMethod<void>('closeNativeSdk');
+    } catch (error) {
+      _options.logger(
+        SentryLevel.fatal,
+        'nativeSdkIntegration failed to be closed: $error',
       );
     }
   }
