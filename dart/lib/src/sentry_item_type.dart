@@ -1,7 +1,6 @@
 enum SentryItemType { event, unknown }
 
 extension SentryItemTypeExtension on SentryItemType {
-  
   static SentryItemType fromStringValue(String stringValue) {
     switch (stringValue) {
       case 'event':

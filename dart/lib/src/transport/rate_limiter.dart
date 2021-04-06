@@ -73,8 +73,7 @@ class RateLimiter {
   bool _isRetryAfter(String itemType) {
     final dataCategory = _categoryFromItemType(itemType);
     final currentDate = DateTime.fromMillisecondsSinceEpoch(
-      _clockProvider().millisecondsSinceEpoch
-    );
+        _clockProvider().millisecondsSinceEpoch);
 
     // check all categories
     final dateAllCategories = _rateLimitedUntil[RateLimitCategory.all];

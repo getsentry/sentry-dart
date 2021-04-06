@@ -13,7 +13,8 @@ void main() {
     });
 
     test('single rate limit with multiple categories', () {
-      final sut = RateLimitParser('50:transaction;session').parseRateLimitHeader();
+      final sut =
+          RateLimitParser('50:transaction;session').parseRateLimitHeader();
 
       expect(sut.length, 2);
       expect(sut[0].category, RateLimitCategory.transaction);
@@ -37,7 +38,8 @@ void main() {
     });
 
     test('multiple rate limits', () {
-      final sut = RateLimitParser('50:transaction, 70:session').parseRateLimitHeader();
+      final sut =
+          RateLimitParser('50:transaction, 70:session').parseRateLimitHeader();
 
       expect(sut.length, 2);
       expect(sut[0].category, RateLimitCategory.transaction);
@@ -47,7 +49,8 @@ void main() {
     });
 
     test('multiple rate limits with same category', () {
-      final sut = RateLimitParser('50:transaction, 70:transaction').parseRateLimitHeader();
+      final sut = RateLimitParser('50:transaction, 70:transaction')
+          .parseRateLimitHeader();
 
       expect(sut.length, 2);
       expect(sut[0].category, RateLimitCategory.transaction);
@@ -69,7 +72,8 @@ void main() {
 
       expect(sut.length, 1);
       expect(sut[0].category, RateLimitCategory.transaction);
-      expect(sut[0].durationInMillis, RateLimitParser.HTTP_RETRY_AFTER_DEFAULT_DELAY_MILLIS);
+      expect(sut[0].durationInMillis,
+          RateLimitParser.HTTP_RETRY_AFTER_DEFAULT_DELAY_MILLIS);
     });
   });
 
@@ -79,7 +83,8 @@ void main() {
 
       expect(sut.length, 1);
       expect(sut[0].category, RateLimitCategory.all);
-      expect(sut[0].durationInMillis, RateLimitParser.HTTP_RETRY_AFTER_DEFAULT_DELAY_MILLIS);
+      expect(sut[0].durationInMillis,
+          RateLimitParser.HTTP_RETRY_AFTER_DEFAULT_DELAY_MILLIS);
     });
 
     test('parseable returns default category with duration in millis', () {
@@ -95,7 +100,8 @@ void main() {
 
       expect(sut.length, 1);
       expect(sut[0].category, RateLimitCategory.all);
-      expect(sut[0].durationInMillis, RateLimitParser.HTTP_RETRY_AFTER_DEFAULT_DELAY_MILLIS);
+      expect(sut[0].durationInMillis,
+          RateLimitParser.HTTP_RETRY_AFTER_DEFAULT_DELAY_MILLIS);
     });
   });
 }

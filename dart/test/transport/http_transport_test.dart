@@ -14,7 +14,6 @@ import 'package:sentry/src/transport/http_transport.dart';
 import '../mocks.dart';
 
 void main() {
-  
   SentryEnvelope givenEnvelope() {
     final filteredEnvelopeHeader = SentryEnvelopeHeader(SentryId.empty(), null);
     final filteredItemHeader = SentryEnvelopeItemHeader(SentryItemType.event, 2,

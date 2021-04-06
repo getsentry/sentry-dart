@@ -45,7 +45,9 @@ class RateLimitParser {
   }
 
   List<RateLimit> parseRetryAfterHeader() {
-    return [RateLimit(RateLimitCategory.all, _parseRetryAfterOrDefault(header))];
+    return [
+      RateLimit(RateLimitCategory.all, _parseRetryAfterOrDefault(header))
+    ];
   }
 
   // Helper

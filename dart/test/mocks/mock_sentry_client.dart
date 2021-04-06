@@ -61,11 +61,8 @@ class MockSentryClient implements SentryClient {
   }
 
   @override
-  Future<SentryId> captureEnvelope(
-    SentryEnvelope envelope) async {
-    captureEnvelopeCalls.add(CaptureEnvelopeCall(
-      envelope
-    ));
+  Future<SentryId> captureEnvelope(SentryEnvelope envelope) async {
+    captureEnvelopeCalls.add(CaptureEnvelopeCall(envelope));
     return SentryId.newId();
   }
 
@@ -124,7 +121,5 @@ class CaptureMessageCall {
 class CaptureEnvelopeCall {
   final SentryEnvelope envelope;
 
-  CaptureEnvelopeCall(
-    this.envelope
-  );
+  CaptureEnvelopeCall(this.envelope);
 }

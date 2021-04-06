@@ -351,7 +351,9 @@ void runTest({Codec<List<int>, List<int>?>? gzip, bool isWeb = false}) {
       if (request.method == 'POST') {
         final bodyData = request.bodyBytes;
         final decoded = const Utf8Codec().decode(bodyData);
-        final dynamic decodedJson = jsonDecode(decoded);
+        final eventJson = decoded.split('\n').last;
+        final dynamic decodedJson = json.decode(eventJson);
+
         loggedUserId = decodedJson['user']['id'] as String?;
         return http.Response(
           '',

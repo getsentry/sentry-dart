@@ -9,14 +9,14 @@ class SentryEnvelopeItem {
 
   final SentryEnvelopeItemHeader header;
   final List<int> data;
-  
+
   static SentryEnvelopeItem fromEvent(SentryEvent event) {
     final jsonEncoded = jsonEncode(event.toJson());
-    final data = utf8.encode(jsonEncoded);  
+    final data = utf8.encode(jsonEncoded);
     return SentryEnvelopeItem(
-      SentryEnvelopeItemHeader(SentryItemType.event, data.length, contentType: 'application/json'),
-      data
-    );
+        SentryEnvelopeItemHeader(SentryItemType.event, data.length,
+            contentType: 'application/json'),
+        data);
   }
 
   String serialize() {

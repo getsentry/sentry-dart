@@ -30,17 +30,16 @@ void main() {
     test('fromEvent', () {
       final eventId = SentryId.newId();
       final sentryEvent = SentryEvent(eventId: eventId);
-      final sdkVersion = SdkVersion(
-        name: 'fixture-name',
-        version: 'fixture-version'
-      );
+      final sdkVersion =
+          SdkVersion(name: 'fixture-name', version: 'fixture-version');
       final sut = SentryEnvelope.fromEvent(sentryEvent, sdkVersion);
 
       final expectedEnvelopeItem = SentryEnvelopeItem.fromEvent(sentryEvent);
 
       expect(sut.header.eventId, eventId);
       expect(sut.header.sdkVersion, sdkVersion);
-      expect(sut.items[0].header.contentType, expectedEnvelopeItem.header.contentType);
+      expect(sut.items[0].header.contentType,
+          expectedEnvelopeItem.header.contentType);
       expect(sut.items[0].header.type, expectedEnvelopeItem.header.type);
       expect(sut.items[0].header.length, expectedEnvelopeItem.header.length);
       expect(sut.items[0].data, expectedEnvelopeItem.data);

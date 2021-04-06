@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'current_date_provider.dart';
 import 'transport/rate_limiter.dart';
 
 import 'protocol.dart';
