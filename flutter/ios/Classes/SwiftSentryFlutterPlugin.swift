@@ -64,6 +64,9 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
         case "initNativeSdk":
             initNativeSdk(call, result: result)
 
+        case "closeNativeSdk":
+            closeNativeSdk(call, result: result)
+
         case "captureEnvelope":
             captureEnvelope(call, result: result)
 
@@ -139,6 +142,14 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
            didReceiveDidBecomeActiveNotification = false
        }
 
+        result("")
+    }
+
+    private func closeNativeSdk(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        // swiftlint:disable:next todo
+        // TODO: Call SentrySDK when available
+        // https://github.com/getsentry/sentry-cocoa/issues/934
+        SentrySDK.currentHub().getClient()?.options.enabled = false
         result("")
     }
 

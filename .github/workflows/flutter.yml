@@ -18,7 +18,7 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         target: ['ios', 'android', 'web', 'macos']
         # 'beta' channel is not working https://github.com/flutter/flutter/issues/78785
-        channel: ['stable']
+        channel: ['stable', 'beta']
         exclude:
           - os: ubuntu-latest
             target: ios
