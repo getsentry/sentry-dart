@@ -10,7 +10,7 @@ class SentryEnvelopeItem {
   final SentryEnvelopeItemHeader header;
   final Future<List<int>> Function() dataFactory;
 
-  static SentryEnvelopeItem fromEvent(SentryEvent event) {
+  factory SentryEnvelopeItem.fromEvent(SentryEvent event) {
     final cachedItem = CachedItem(() async {
       final jsonEncoded = jsonEncode(event.toJson());
       return utf8.encode(jsonEncoded);

@@ -11,7 +11,7 @@ class SentryEnvelope {
   final SentryEnvelopeHeader header;
   final List<SentryEnvelopeItem> items;
 
-  static SentryEnvelope fromEvent(SentryEvent event, SdkVersion sdkVersion) {
+  factory SentryEnvelope.fromEvent(SentryEvent event, SdkVersion sdkVersion) {
     return SentryEnvelope(SentryEnvelopeHeader(event.eventId, sdkVersion),
         [SentryEnvelopeItem.fromEvent(event)]);
   }
