@@ -12,7 +12,7 @@ export 'src/noop_isolate_error_integration.dart'
 export 'src/protocol.dart';
 export 'src/scope.dart';
 export 'src/sentry.dart';
-export 'src/sentry_envelope.dart'; //TODO(denis) Remove this again if we will remove file system transport.
+export 'src/sentry_envelope.dart';
 export 'src/sentry_client.dart';
 export 'src/sentry_options.dart';
 // useful for integrations

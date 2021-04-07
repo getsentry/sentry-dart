@@ -4,7 +4,7 @@ import 'rate_limit.dart';
 class RateLimitParser {
   RateLimitParser(this.header);
 
-  static const HTTP_RETRY_AFTER_DEFAULT_DELAY_MILLIS = 60000;
+  static const httpRetryAfterDefaultDelayMillis = 60000;
 
   String? header;
 
@@ -53,11 +53,12 @@ class RateLimitParser {
   // Helper
 
   static int _parseRetryAfterOrDefault(String? value) {
+    int.parse(source)
     final durationInSeconds = int.tryParse(value ?? '');
     if (durationInSeconds != null) {
       return durationInSeconds * 1000;
     } else {
-      return RateLimitParser.HTTP_RETRY_AFTER_DEFAULT_DELAY_MILLIS;
+      return RateLimitParser.httpRetryAfterDefaultDelayMillis;
     }
   }
 }

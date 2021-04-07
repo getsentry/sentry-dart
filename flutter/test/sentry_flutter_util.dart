@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-//import 'package:sentry_flutter/src/file_system_transport.dart';
+import 'package:sentry_flutter/src/file_system_transport.dart';
 import 'package:sentry_flutter/src/sentry_flutter_options.dart';
 import 'package:sentry_flutter/src/version.dart';
 
@@ -22,7 +22,7 @@ FutureOr<void> Function(SentryOptions) getConfigurationTester({
       expect(kDebugMode, options.debug);
       expect('debug', options.environment);
 
-      // expect(!isWeb, options.transport is FileSystemTransport);
+      expect(!isWeb, options.transport is FileSystemTransport);
 
       expect(
         options.integrations.whereType<FlutterErrorIntegration>().length,

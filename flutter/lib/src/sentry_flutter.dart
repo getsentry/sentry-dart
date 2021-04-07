@@ -6,6 +6,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
 import 'sentry_flutter_options.dart';
 
+import 'file_system_transport.dart';
 import 'default_integrations.dart';
 //import 'file_system_transport.dart';
 import 'version.dart';
@@ -62,7 +63,7 @@ mixin SentryFlutter {
   ) async {
     // web still uses a http transport for Web which is set by default
     if (!kIsWeb) {
-      //options.transport = FileSystemTransport(channel, options);
+      options.transport = FileSystemTransport(channel, options);
     }
 
     _setSdk(options);
