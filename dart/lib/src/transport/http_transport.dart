@@ -172,7 +172,7 @@ class _CredentialBuilder {
 }
 
 Map<String, String> _buildHeaders(String sdkIdentifier) {
-  final headers = {'Content-Type': 'application/json'};
+  final headers = {'Content-Type': 'application/x-sentry-envelope'};
   // NOTE(lejard_h) overriding user agent on VM and Flutter not sure why
   // for web it use browser user agent
   if (!isWeb) {
