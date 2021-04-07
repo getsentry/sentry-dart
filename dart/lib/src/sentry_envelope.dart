@@ -16,13 +16,13 @@ class SentryEnvelope {
         [SentryEnvelopeItem.fromEvent(event)]);
   }
 
-  Future<List<int>> serialize() async {
+  Future<List<int>> toEnvelope() async {
     var data = <int>[];
-    data.addAll(await header.serialize());
+    data.addAll(utf8.encode(jsonEncode(header.toJson())));
     final newLineData = utf8.encode('\n');
     for (final item in items) {
       data.addAll(newLineData);
-      data.addAll(await item.serialize());
+      data.addAll(await item.toEnvelopeItem());
     }
     return data;
   }

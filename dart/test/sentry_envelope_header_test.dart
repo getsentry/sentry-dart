@@ -6,22 +6,22 @@ import 'package:test/test.dart';
 
 void main() {
   group('SentryEnvelopeItemHeader', () {
-    test('serialize empty', () async {
+    test('toJson empty', () {
       final sut = SentryEnvelopeHeader(null, null);
-      final expected = utf8.encode('{}');
-      expect(await sut.serialize(), expected);
+      final expected = <String, dynamic>{};
+      expect(sut.toJson(), expected);
     });
 
-    test('serialize', () async {
+    test('toJson', () async {
       final eventId = SentryId.newId();
       final sdkVersion = SdkVersion(
         name: 'fixture-sdkName',
         version: 'fixture-version',
       );
       final sut = SentryEnvelopeHeader(eventId, sdkVersion);
-      final expextedSkd = jsonEncode(sdkVersion.toJson());
-      final expected = utf8.encode('{\"event_id\":\"$eventId\",\"sdk\":$expextedSkd}');
-      expect(await sut.serialize(), expected);
+      final expextedSkd = sdkVersion.toJson();
+      final expected = <String, dynamic>{'event_id': eventId.toString(), 'sdk': expextedSkd};
+      expect(sut.toJson(), expected);
     });
   });
 }

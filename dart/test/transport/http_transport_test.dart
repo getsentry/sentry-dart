@@ -70,7 +70,7 @@ void main() {
       final sentryEvent = SentryEvent();
       await sut.sendSentryEvent(sentryEvent);
 
-      expect(body, await filteredEnvelope.serialize());
+      expect(body, await filteredEnvelope.toEnvelope());
     });
 
     test('send nothing when filtered event null', () async {

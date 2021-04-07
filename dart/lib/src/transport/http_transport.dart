@@ -56,7 +56,7 @@ class HttpTransport implements Transport {
       return null;
     }
 
-    final data = await filteredEnvelope.serialize();
+    final data = await filteredEnvelope.toEnvelope();
 
     final body = _bodyEncoder(
       data,

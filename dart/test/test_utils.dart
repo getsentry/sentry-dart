@@ -27,7 +27,7 @@ void testHeaders(
   bool withSecret = true,
 }) {
   final expectedHeaders = <String, String>{
-    'Content-Type': 'application/json',
+    'Content-Type': 'application/x-sentry-envelope',
     'X-Sentry-Auth': 'Sentry sentry_version=7, '
         'sentry_client=$sdkName/$sdkVersion, '
         'sentry_key=public, '

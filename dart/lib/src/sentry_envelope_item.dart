@@ -26,9 +26,9 @@ class SentryEnvelopeItem {
         cachedItem.getData);
   }
 
-  Future<List<int>> serialize() async {
+  Future<List<int>> toEnvelopeItem() async {
     var data = <int>[];
-    data.addAll(await header.serialize());
+    data.addAll(utf8.encode(jsonEncode(await header.toJson())));
     data.addAll(utf8.encode('\n'));
     data.addAll(await dataFactory());
     return data;

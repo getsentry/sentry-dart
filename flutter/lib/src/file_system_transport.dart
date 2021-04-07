@@ -17,7 +17,7 @@ class FileSystemTransport implements Transport {
 
   @override
   Future<SentryId?> sendSentryEnvelope(SentryEnvelope envelope) async {
-    final envelopeData = await envelope.serialize();
+    final envelopeData = await envelope.toEnvelope();
     final envelopeString = utf8.decode(envelopeData);
 
     final args = [envelopeString];

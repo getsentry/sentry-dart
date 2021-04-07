@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'sentry_item_type.dart';
 
 class SentryEnvelopeItemHeader {
@@ -12,13 +10,13 @@ class SentryEnvelopeItemHeader {
   final String? contentType;
   final String? fileName;
 
-  Future<List<int>> serialize() async {
-    final serializedMap = <String, dynamic>{};
+  Future<Map<String, dynamic>> toJson() async {
+    final json = <String, dynamic>{};
     if (contentType != null) {
-      serializedMap['content_type'] = contentType!;
+      json['content_type'] = contentType!;
     }
-    serializedMap['type'] = type.toStringValue();
-    serializedMap['length'] = await length();
-    return utf8.encode(jsonEncode(serializedMap));
+    json['type'] = type.toStringValue();
+    json['length'] = await length();
+    return json;
   }
 }

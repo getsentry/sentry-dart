@@ -28,9 +28,15 @@ void main() {
       final header = SentryEnvelopeHeader(eventId, null);
       final sut = SentryEnvelope(header, [item, item]);
 
+      final expectesHeaderJson = header.toJson();
+      final expectesHeaderJsonSerialized = jsonEncode(expectesHeaderJson);
+
+      final expectedItem = await item.toEnvelopeItem();
+      final expectedItemSerialized = utf8.decode(expectedItem);
+
       final expected = utf8.encode(
-          '${utf8.decode(await header.serialize())}\n${utf8.decode(await itemHeader.serialize())}\n{fixture}\n${utf8.decode(await itemHeader.serialize())}\n{fixture}');
-      final actual = await sut.serialize();
+          '$expectesHeaderJsonSerialized\n$expectedItemSerialized\n$expectedItemSerialized');
+      final actual = await sut.toEnvelope();
       expect(actual, expected);
     });
 
@@ -50,7 +56,8 @@ void main() {
       expect(sut.items[0].header.type, expectedEnvelopeItem.header.type);
       expect(await sut.items[0].header.length(),
           await expectedEnvelopeItem.header.length());
-      expect(await sut.items[0].serialize(), await expectedEnvelopeItem.serialize());
+      expect(await sut.items[0].toEnvelopeItem(),
+          await expectedEnvelopeItem.toEnvelopeItem());
     });
   });
 }
