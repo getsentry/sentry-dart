@@ -2,8 +2,6 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/protocol.dart';
 import 'package:sentry/src/transport/rate_limiter.dart';
 
-void main() {}
-
 final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
 final fakeException = Exception('Error');
