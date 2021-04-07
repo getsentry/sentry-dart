@@ -27,7 +27,7 @@ class RateLimitParser {
         if (durationAndCategories.length > 1) {
           final allCategories = durationAndCategories[1];
           if (allCategories.isNotEmpty) {
-            final categoryValues = durationAndCategories[1].split(';');
+            final categoryValues = allCategories.split(';');
             categoryValues.forEach((categoryValue) {
               final category =
                   RateLimitCategoryExtension.fromStringValue(categoryValue);
