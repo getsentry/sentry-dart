@@ -36,8 +36,6 @@ class RateLimiter {
 
       // no reason to continue
       if (toSend.isEmpty) {
-        // TODO(denis): Should hints be implemented as well?
-        //markHintWhenSendingFailed(hint, false);
         return null;
       }
 
