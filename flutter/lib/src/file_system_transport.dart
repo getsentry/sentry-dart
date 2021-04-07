@@ -19,7 +19,7 @@ class FileSystemTransport implements Transport {
   Future<SentryId?> sendSentryEnvelope(SentryEnvelope envelope) async {
     final envelopeData = await envelope.serialize();
     final envelopeString = utf8.decode(envelopeData);
-    
+
     final args = [envelopeString];
     try {
       await _channel.invokeMethod<void>('captureEnvelope', args);
