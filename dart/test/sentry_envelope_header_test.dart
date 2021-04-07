@@ -6,13 +6,13 @@ import 'package:test/test.dart';
 
 void main() {
   group('SentryEnvelopeItemHeader', () {
-    test('serialize empty', () {
+    test('serialize empty', () async {
       final sut = SentryEnvelopeHeader(null, null);
-      final expected = '{}';
-      expect(sut.serialize(), expected);
+      final expected = utf8.encode('{}');
+      expect(await sut.serialize(), expected);
     });
 
-    test('serialize', () {
+    test('serialize', () async {
       final eventId = SentryId.newId();
       final sdkVersion = SdkVersion(
         name: 'fixture-sdkName',
@@ -20,8 +20,8 @@ void main() {
       );
       final sut = SentryEnvelopeHeader(eventId, sdkVersion);
       final expextedSkd = jsonEncode(sdkVersion.toJson());
-      final expected = '{\"event_id\":\"$eventId\",\"sdk\":$expextedSkd}';
-      expect(sut.serialize(), expected);
+      final expected = utf8.encode('{\"event_id\":\"$eventId\",\"sdk\":$expextedSkd}');
+      expect(await sut.serialize(), expected);
     });
   });
 }

@@ -16,10 +16,14 @@ import '../mocks.dart';
 void main() {
   SentryEnvelope givenEnvelope() {
     final filteredEnvelopeHeader = SentryEnvelopeHeader(SentryId.empty(), null);
-    final filteredItemHeader = SentryEnvelopeItemHeader(SentryItemType.event, 2,
-        contentType: 'application/json');
-    final filteredItem =
-        SentryEnvelopeItem(filteredItemHeader, utf8.encode('{}'));
+    final filteredItemHeader =
+        SentryEnvelopeItemHeader(SentryItemType.event, () async {
+      return 2;
+    }, contentType: 'application/json');
+    final dataFactory = () async {
+      return utf8.encode('{}');
+    };
+    final filteredItem = SentryEnvelopeItem(filteredItemHeader, dataFactory);
     return SentryEnvelope(filteredEnvelopeHeader, [filteredItem]);
   }
 
@@ -45,10 +49,10 @@ void main() {
     });
 
     test('send filtered event', () async {
-      String? body;
+      List<int>? body;
 
       final httpMock = MockClient((http.Request request) async {
-        body = request.body;
+        body = request.bodyBytes;
         return http.Response('{}', 200);
       });
 
@@ -66,7 +70,7 @@ void main() {
       final sentryEvent = SentryEvent();
       await sut.sendSentryEvent(sentryEvent);
 
-      expect(body, filteredEnvelope.serialize());
+      expect(body, await filteredEnvelope.serialize());
     });
 
     test('send nothing when filtered event null', () async {

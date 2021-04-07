@@ -7,18 +7,18 @@ class SentryEnvelopeItemHeader {
       {this.contentType, this.fileName});
 
   final SentryItemType type;
-  final int length;
+  final Future<int> Function() length;
 
   final String? contentType;
   final String? fileName;
 
-  String serialize() {
+  Future<List<int>> serialize() async {
     final serializedMap = <String, dynamic>{};
     if (contentType != null) {
       serializedMap['content_type'] = contentType!;
     }
     serializedMap['type'] = type.toStringValue();
-    serializedMap['length'] = length;
-    return jsonEncode(serializedMap);
+    serializedMap['length'] = await length();
+    return utf8.encode(jsonEncode(serializedMap));
   }
 }

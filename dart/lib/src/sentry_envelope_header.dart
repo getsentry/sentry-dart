@@ -12,7 +12,7 @@ class SentryEnvelopeHeader {
   final SentryId? eventId;
   final SdkVersion? sdkVersion;
 
-  String serialize() {
+  Future<List<int>> serialize() async {
     final serializedMap = <String, dynamic>{};
     if (eventId != null) {
       serializedMap['event_id'] = eventId!.toString();
@@ -20,6 +20,6 @@ class SentryEnvelopeHeader {
     if (sdkVersion != null) {
       serializedMap['sdk'] = sdkVersion!.toJson();
     }
-    return jsonEncode(serializedMap);
+    return utf8.encode(jsonEncode(serializedMap));
   }
 }

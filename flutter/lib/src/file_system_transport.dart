@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/services.dart';
 import 'package:sentry/sentry.dart';
 
@@ -15,8 +17,9 @@ class FileSystemTransport implements Transport {
 
   @override
   Future<SentryId?> sendSentryEnvelope(SentryEnvelope envelope) async {
-    final envelopeString = envelope.serialize();
-
+    final envelopeData = await envelope.serialize();
+    final envelopeString = utf8.decode(envelopeData);
+    
     final args = [envelopeString];
     try {
       await _channel.invokeMethod<void>('captureEnvelope', args);

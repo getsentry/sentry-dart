@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'sentry_envelope_header.dart';
 import 'sentry_envelope_item.dart';
 import 'protocol/sentry_event.dart';
@@ -14,12 +16,14 @@ class SentryEnvelope {
         [SentryEnvelopeItem.fromEvent(event)]);
   }
 
-  String serialize() {
-    final lines = <String>[];
-    lines.add(header.serialize());
+  Future<List<int>> serialize() async {
+    var data = <int>[];
+    data.addAll(await header.serialize());
+    final newLineData = utf8.encode('\n');
     for (final item in items) {
-      lines.add(item.serialize());
+      data.addAll(newLineData);
+      data.addAll(await item.serialize());
     }
-    return lines.join('\n');
+    return data;
   }
 }

@@ -5,21 +5,44 @@ import 'protocol/sentry_event.dart';
 import 'sentry_envelope_item_header.dart';
 
 class SentryEnvelopeItem {
-  SentryEnvelopeItem(this.header, this.data);
+  SentryEnvelopeItem(this.header, this.dataFactory);
 
   final SentryEnvelopeItemHeader header;
-  final List<int> data;
+  final Future<List<int>> Function() dataFactory;
 
   static SentryEnvelopeItem fromEvent(SentryEvent event) {
-    final jsonEncoded = jsonEncode(event.toJson());
-    final data = utf8.encode(jsonEncoded);
+    final cachedItem = CachedItem(() async {
+      final jsonEncoded = jsonEncode(event.toJson());
+      return utf8.encode(jsonEncoded);
+    });
+
+    final getLength = () async {
+      return (await cachedItem.getData()).length;
+    };
+
     return SentryEnvelopeItem(
-        SentryEnvelopeItemHeader(SentryItemType.event, data.length,
+        SentryEnvelopeItemHeader(SentryItemType.event, getLength,
             contentType: 'application/json'),
-        data);
+        cachedItem.getData);
   }
 
-  String serialize() {
-    return '${header.serialize()}\n${utf8.decode(data)}';
+  Future<List<int>> serialize() async {
+    var data = <int>[];
+    data.addAll(await header.serialize());
+    data.addAll(utf8.encode('\n'));
+    data.addAll(await dataFactory());
+    return data;
+  }
+}
+
+class CachedItem {
+  CachedItem(this.dataFactory);
+
+  List<int>? data;
+  Future<List<int>> Function() dataFactory;
+
+  Future<List<int>> getData() async {
+    data ??= await dataFactory();
+    return data!;
   }
 }

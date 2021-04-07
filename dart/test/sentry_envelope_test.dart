@@ -11,23 +11,30 @@ import 'package:test/test.dart';
 
 void main() {
   group('SentryEnvelopeItem', () {
-    test('serialize', () {
+    test('serialize', () async {
       final eventId = SentryId.newId();
 
-      final itemHeader = SentryEnvelopeItemHeader(SentryItemType.event, 9,
-          contentType: 'application/json');
-      final item =
-          SentryEnvelopeItem(itemHeader, utf8.encode('{fixture}')); // {fixture}
+      final itemHeader =
+          SentryEnvelopeItemHeader(SentryItemType.event, () async {
+        return 9;
+      }, contentType: 'application/json');
+
+      final dataFactory = () async {
+        return utf8.encode('{fixture}');
+      };
+
+      final item = SentryEnvelopeItem(itemHeader, dataFactory);
 
       final header = SentryEnvelopeHeader(eventId, null);
       final sut = SentryEnvelope(header, [item, item]);
 
-      final expected =
-          '${header.serialize()}\n${itemHeader.serialize()}\n{fixture}\n${itemHeader.serialize()}\n{fixture}';
-      expect(sut.serialize(), expected);
+      final expected = utf8.encode(
+          '${utf8.decode(await header.serialize())}\n${utf8.decode(await itemHeader.serialize())}\n{fixture}\n${utf8.decode(await itemHeader.serialize())}\n{fixture}');
+      final actual = await sut.serialize();
+      expect(actual, expected);
     });
 
-    test('fromEvent', () {
+    test('fromEvent', () async {
       final eventId = SentryId.newId();
       final sentryEvent = SentryEvent(eventId: eventId);
       final sdkVersion =
@@ -41,8 +48,9 @@ void main() {
       expect(sut.items[0].header.contentType,
           expectedEnvelopeItem.header.contentType);
       expect(sut.items[0].header.type, expectedEnvelopeItem.header.type);
-      expect(sut.items[0].header.length, expectedEnvelopeItem.header.length);
-      expect(sut.items[0].data, expectedEnvelopeItem.data);
+      expect(await sut.items[0].header.length(),
+          await expectedEnvelopeItem.header.length());
+      expect(await sut.items[0].serialize(), await expectedEnvelopeItem.serialize());
     });
   });
 }

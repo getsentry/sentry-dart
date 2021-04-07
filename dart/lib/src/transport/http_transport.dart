@@ -56,7 +56,7 @@ class HttpTransport implements Transport {
       return null;
     }
 
-    final data = filteredEnvelope.serialize();
+    final data = await filteredEnvelope.serialize();
 
     final body = _bodyEncoder(
       data,
@@ -95,15 +95,15 @@ class HttpTransport implements Transport {
   }
 
   List<int> _bodyEncoder(
-    String data,
+    List<int> data,
     Map<String, String> headers, {
     required bool compressPayload,
   }) {
     // [SentryIOClient] implement gzip compression
     // gzip compression is not available on browser
-    var body = utf8.encode(data);
+    var body = data;
     if (compressPayload) {
-      body = compressBody(body, headers);
+      body = compressBody(data, headers);
     }
     return body;
   }

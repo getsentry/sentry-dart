@@ -9,27 +9,37 @@ import 'package:test/test.dart';
 
 void main() {
   group('SentryEnvelopeItem', () {
-    test('serialize', () {
-      final header = SentryEnvelopeItemHeader(SentryItemType.event, 9,
-          contentType: 'application/json');
-      final sut = SentryEnvelopeItem(
-          header, [123, 102, 105, 120, 116, 117, 114, 101, 125]); // {fixture}
+    test('serialize', () async {
+      final header = SentryEnvelopeItemHeader(SentryItemType.event, () async {
+        return 9;
+      }, contentType: 'application/json');
 
-      final expected = '${header.serialize()}\n{fixture}';
-      expect(sut.serialize(), expected);
+      final dataFactory = () async {
+        return utf8.encode('{fixture}');
+      };
+
+      final sut = SentryEnvelopeItem(header, dataFactory);
+
+      final expected =
+          utf8.encode('${utf8.decode(await header.serialize())}\n{fixture}');
+      expect(await sut.serialize(), expected);
     });
 
-    test('fromEvent', () {
+    test('fromEvent', () async {
       final eventId = SentryId.newId();
       final sentryEvent = SentryEvent(eventId: eventId);
       final sut = SentryEnvelopeItem.fromEvent(sentryEvent);
 
       final expectedData = utf8.encode(jsonEncode(sentryEvent.toJson()));
+      final actualData = await sut.dataFactory();
+
+      final expectedLength = expectedData.length;
+      final actualLength = await sut.header.length();
 
       expect(sut.header.contentType, 'application/json');
       expect(sut.header.type, SentryItemType.event);
-      expect(sut.header.length, expectedData.length);
-      expect(sut.data, expectedData);
+      expect(actualLength, expectedLength);
+      expect(actualData, expectedData);
     });
   });
 }
