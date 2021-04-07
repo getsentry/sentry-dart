@@ -53,7 +53,6 @@ class RateLimitParser {
   // Helper
 
   static int _parseRetryAfterOrDefault(String? value) {
-    int.parse(source)
     final durationInSeconds = int.tryParse(value ?? '');
     if (durationInSeconds != null) {
       return durationInSeconds * 1000;
