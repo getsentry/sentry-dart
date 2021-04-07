@@ -14,11 +14,13 @@ class SentryEnvelopeHeader {
 
   Future<List<int>> serialize() async {
     final serializedMap = <String, dynamic>{};
-    if (eventId != null) {
-      serializedMap['event_id'] = eventId!.toString();
+    final tempEventId = eventId;
+    if (tempEventId != null) {
+      serializedMap['event_id'] = tempEventId.toString();
     }
-    if (sdkVersion != null) {
-      serializedMap['sdk'] = sdkVersion!.toJson();
+    final tempSdkVersion = sdkVersion;
+    if (tempSdkVersion != null) {
+      serializedMap['sdk'] = tempSdkVersion.toJson();
     }
     return utf8.encode(jsonEncode(serializedMap));
   }
