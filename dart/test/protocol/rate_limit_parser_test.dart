@@ -73,7 +73,7 @@ void main() {
       expect(sut.length, 1);
       expect(sut[0].category, RateLimitCategory.transaction);
       expect(sut[0].durationInMillis,
-          RateLimitParser.HTTP_RETRY_AFTER_DEFAULT_DELAY_MILLIS);
+          RateLimitParser.httpRetryAfterDefaultDelayMillis);
     });
   });
 
@@ -84,7 +84,7 @@ void main() {
       expect(sut.length, 1);
       expect(sut[0].category, RateLimitCategory.all);
       expect(sut[0].durationInMillis,
-          RateLimitParser.HTTP_RETRY_AFTER_DEFAULT_DELAY_MILLIS);
+          RateLimitParser.httpRetryAfterDefaultDelayMillis);
     });
 
     test('parseable returns default category with duration in millis', () {
@@ -101,7 +101,7 @@ void main() {
       expect(sut.length, 1);
       expect(sut[0].category, RateLimitCategory.all);
       expect(sut[0].durationInMillis,
-          RateLimitParser.HTTP_RETRY_AFTER_DEFAULT_DELAY_MILLIS);
+          RateLimitParser.httpRetryAfterDefaultDelayMillis);
     });
   });
 }
