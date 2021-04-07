@@ -17,7 +17,7 @@ class RateLimitParser {
     final rateLimits = <RateLimit>[];
 
     final rateLimitValues = rateLimitHeader.toLowerCase().split(',');
-    for (final rateLimitValue in rateLimitValues) {
+    rateLimitValues.forEach((rateLimitValue) {
       final durationAndCategories = rateLimitValue.trim().split(':');
 
       if (durationAndCategories.isNotEmpty) {
@@ -28,19 +28,19 @@ class RateLimitParser {
           final allCategories = durationAndCategories[1];
           if (allCategories.isNotEmpty) {
             final categoryValues = durationAndCategories[1].split(';');
-            for (final categoryValue in categoryValues) {
+            categoryValues.forEach((categoryValue) {
               final category =
                   RateLimitCategoryExtension.fromStringValue(categoryValue);
               if (category != RateLimitCategory.unknown) {
                 rateLimits.add(RateLimit(category, durationInMillis));
               }
-            }
+            });
           } else {
             rateLimits.add(RateLimit(RateLimitCategory.all, durationInMillis));
           }
         }
       }
-    }
+    });
     return rateLimits;
   }
 
