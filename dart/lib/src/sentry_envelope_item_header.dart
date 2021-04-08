@@ -18,8 +18,9 @@ class SentryEnvelopeItemHeader {
   /// Item header encoded as JSON
   Future<Map<String, dynamic>> toJson() async {
     final json = <String, dynamic>{};
-    if (contentType != null) {
-      json['content_type'] = contentType!;
+    final tempContentType = contentType;
+    if (tempContentType != null) {
+      json['content_type'] = tempContentType;
     }
     json['type'] = type.toStringValue();
     json['length'] = await length();
