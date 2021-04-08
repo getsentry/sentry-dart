@@ -197,6 +197,7 @@ class SentryClient {
     return captureEvent(event, scope: scope, hint: hint);
   }
 
+  /// Reports the [envelope] to Sentry.io.
   Future<SentryId?> captureEnvelope(SentryEnvelope envelope) {
     return _options.transport.sendSentryEnvelope(envelope);
   }
