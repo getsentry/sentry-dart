@@ -3,6 +3,7 @@
 * Fix: `Sentry.close()` closes native SDK integrations (#388)
 * Feat: Support for MacOS (#389)
 * Feat: Support for Linux (#402)
+* Fix: Mark `Sentry.currentHub` as deprecated (#406)
 
 # 5.0.0
 
