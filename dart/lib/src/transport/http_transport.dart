@@ -60,7 +60,7 @@ class HttpTransport implements Transport {
     final response = await _options.httpClient
         .send(streamedRequest)
         .then(Response.fromStream);
-    
+
     _updateRetryAfterLimits(response);
 
     if (response.statusCode != 200) {

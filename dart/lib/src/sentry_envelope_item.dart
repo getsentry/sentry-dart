@@ -4,7 +4,7 @@ import 'sentry_item_type.dart';
 import 'protocol/sentry_event.dart';
 import 'sentry_envelope_item_header.dart';
 
-/// Item holding header information and JSON encoded data. 
+/// Item holding header information and JSON encoded data.
 class SentryEnvelopeItem {
   SentryEnvelopeItem(this.header, this.dataFactory);
 
@@ -32,7 +32,7 @@ class SentryEnvelopeItem {
   }
 
   /// Stream binary data of `Envelope` item encoded in utf8.
-  Stream<List<int>> envelopeStream() async* {
+  Stream<List<int>> envelopeItemStream() async* {
     yield utf8.encode(jsonEncode(await header.toJson()));
     yield utf8.encode('\n');
     yield await dataFactory();
@@ -44,7 +44,7 @@ class _CachedItem {
 
   final Future<List<int>> Function() _dataFactory;
   List<int>? _data;
-  
+
   Future<List<int>> getData() async {
     _data ??= await _dataFactory();
     return _data!;

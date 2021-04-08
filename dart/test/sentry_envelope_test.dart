@@ -31,12 +31,13 @@ void main() {
       final expectesHeaderJson = header.toJson();
       final expectesHeaderJsonSerialized = jsonEncode(expectesHeaderJson);
 
-      final expectedItem = await item.toEnvelopeItem();
+      final expectedItem = <int>[];
+      await item.envelopeItemStream().forEach(expectedItem.addAll);
       final expectedItemSerialized = utf8.decode(expectedItem);
 
       final expected = utf8.encode(
           '$expectesHeaderJsonSerialized\n$expectedItemSerialized\n$expectedItemSerialized');
-      
+
       final envelopeData = <int>[];
       await sut.envelopeStream().forEach(envelopeData.addAll);
       expect(envelopeData, expected);
@@ -58,8 +59,16 @@ void main() {
       expect(sut.items[0].header.type, expectedEnvelopeItem.header.type);
       expect(await sut.items[0].header.length(),
           await expectedEnvelopeItem.header.length());
-      expect(await sut.items[0].toEnvelopeItem(),
-          await expectedEnvelopeItem.toEnvelopeItem());
+
+      final actualItem = <int>[];
+      await sut.items[0].envelopeItemStream().forEach(actualItem.addAll);
+
+      final expectedItem = <int>[];
+      await expectedEnvelopeItem
+          .envelopeItemStream()
+          .forEach(expectedItem.addAll);
+
+      expect(actualItem, expectedItem);
     });
   });
 }

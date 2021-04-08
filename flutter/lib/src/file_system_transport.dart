@@ -19,7 +19,7 @@ class FileSystemTransport implements Transport {
   Future<SentryId> sendSentryEnvelope(SentryEnvelope envelope) async {
     final envelopeData = <int>[];
     await envelope.envelopeStream().forEach(envelopeData.addAll);
-    
+
     final envelopeString = utf8.decode(envelopeData);
 
     final args = [envelopeString];
