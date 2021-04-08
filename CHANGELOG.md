@@ -10,7 +10,7 @@
 
 ## Sentry Self Hosted Compatibility
 
-* Since version `Unreleased` of the `sentry_dart`, [Sentry's version >= v20.6.0](https://github.com/getsentry/onpremise/releases) is required. This only applies to on-premise Sentry, if you are using sentry.io no action is needed.
+* Since version `Unreleased` of the `sentry` package, [Sentry's version >= v20.6.0](https://github.com/getsentry/onpremise/releases) is required. This only applies to on-premise Sentry, if you are using sentry.io no action is needed.
 
 # 5.0.0
 
