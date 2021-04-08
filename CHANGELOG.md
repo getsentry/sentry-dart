@@ -8,6 +8,10 @@
 * Feat: Support envelope based transport for events (#391)
   * The method signature of `Transport` changed from `Future<SentryId> send(SentryEvent event)` to `Future<SentryId> sendSentryEvent(SentryEvent event)`
 
+## Sentry Self Hosted Compatibility
+
+* Since version `Unreleased` of the `sentry_dart`, [Sentry's version >= v20.6.0](https://github.com/getsentry/onpremise/releases) is required. This only applies to on-premise Sentry, if you are using sentry.io no action is needed.
+
 # 5.0.0
 
 * Sound null safety
