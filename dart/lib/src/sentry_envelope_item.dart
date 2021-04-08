@@ -31,13 +31,11 @@ class SentryEnvelopeItem {
         cachedItem.getData);
   }
 
-  /// Create binary data representation of `Envelope` item encoded in utf8.
-  Future<List<int>> toEnvelopeItem() async {
-    var data = <int>[];
-    data.addAll(utf8.encode(jsonEncode(await header.toJson())));
-    data.addAll(utf8.encode('\n'));
-    data.addAll(await dataFactory());
-    return data;
+  /// Stream binary data of `Envelope` item encoded in utf8.
+  Stream<List<int>> envelopeStream() async* {
+    yield utf8.encode(jsonEncode(await header.toJson()));
+    yield utf8.encode('\n');
+    yield await dataFactory();
   }
 }
 

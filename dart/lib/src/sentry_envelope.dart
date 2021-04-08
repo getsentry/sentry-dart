@@ -26,11 +26,12 @@ class SentryEnvelope {
   /// Stream binary data representation of `Envelope` file encoded in utf8.
   Stream<List<int>> envelopeStream() async* {
     yield utf8.encode(jsonEncode(header.toJson()));
-
     final newLineData = utf8.encode('\n');
     for (final item in items) {
       yield newLineData;
-      yield await item.toEnvelopeItem();
+      await for (final chunk in item.envelopeStream()) {
+        yield chunk;
+      }
     }
   }
 }
