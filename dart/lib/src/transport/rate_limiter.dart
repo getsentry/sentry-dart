@@ -14,6 +14,7 @@ class RateLimiter {
   final ClockProvider _clockProvider;
   final _rateLimitedUntil = <RateLimitCategory, DateTime>{};
 
+  /// Filter out envelopes that are rate limited.
   SentryEnvelope? filter(SentryEnvelope envelope) {
     // Optimize for/No allocations if no items are under 429
     List<SentryEnvelopeItem>? dropItems;
@@ -45,6 +46,7 @@ class RateLimiter {
     }
   }
 
+  /// Update rate limited categories
   void updateRetryAfterLimits(
       String? sentryRateLimitHeader, String? retryAfterHeader, int errorCode) {
     final currentDateTime = _clockProvider().millisecondsSinceEpoch;

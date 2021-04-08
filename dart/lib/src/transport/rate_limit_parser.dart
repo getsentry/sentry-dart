@@ -1,15 +1,16 @@
 import 'rate_limit_category.dart';
 import 'rate_limit.dart';
 
+/// Parse rate limit categories and times from response header payloads.
 class RateLimitParser {
-  RateLimitParser(this.header);
+  RateLimitParser(this._header);
 
   static const httpRetryAfterDefaultDelayMillis = 60000;
 
-  String? header;
+  final String? _header;
 
   List<RateLimit> parseRateLimitHeader() {
-    final rateLimitHeader = header;
+    final rateLimitHeader = _header;
     if (rateLimitHeader == null) {
       return [];
     }
@@ -46,7 +47,7 @@ class RateLimitParser {
 
   List<RateLimit> parseRetryAfterHeader() {
     return [
-      RateLimit(RateLimitCategory.all, _parseRetryAfterOrDefault(header))
+      RateLimit(RateLimitCategory.all, _parseRetryAfterOrDefault(_header))
     ];
   }
 

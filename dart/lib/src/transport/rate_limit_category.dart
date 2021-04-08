@@ -1,3 +1,4 @@
+/// Different category types of data sent to Sentry. Used for rate limiting.
 enum RateLimitCategory {
   all,
   rate_limit_default, // default
