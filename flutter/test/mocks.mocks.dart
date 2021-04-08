@@ -82,6 +82,10 @@ class MockHub extends _i1.Mock implements _i3.Hub {
   _i3.Hub clone() => (super.noSuchMethod(Invocation.method(#clone, []),
       returnValue: _FakeHub()) as _i3.Hub);
   @override
+  _i4.Future<void> close() => (super.noSuchMethod(Invocation.method(#close, []),
+      returnValue: Future.value(null),
+      returnValueForMissingStub: Future.value()) as _i4.Future<void>);
+  @override
   void configureScope(_i3.ScopeCallback? callback) =>
       super.noSuchMethod(Invocation.method(#configureScope, [callback]),
           returnValueForMissingStub: null);
@@ -96,13 +100,13 @@ class MockTransport extends _i1.Mock implements _i9.Transport {
   }
 
   @override
-  _i4.Future<_i2.SentryId?> sendSentryEvent(_i5.SentryEvent? event) =>
+  _i4.Future<_i2.SentryId> sendSentryEvent(_i5.SentryEvent? event) =>
       (super.noSuchMethod(Invocation.method(#sendSentryEvent, [event]),
               returnValue: Future.value(_FakeSentryId()))
-          as _i4.Future<_i2.SentryId?>);
+          as _i4.Future<_i2.SentryId>);
   @override
-  _i4.Future<_i2.SentryId?> sendSentryEnvelope(_i10.SentryEnvelope? envelope) =>
+  _i4.Future<_i2.SentryId> sendSentryEnvelope(_i10.SentryEnvelope? envelope) =>
       (super.noSuchMethod(Invocation.method(#sendSentryEnvelope, [envelope]),
               returnValue: Future.value(_FakeSentryId()))
-          as _i4.Future<_i2.SentryId?>);
+          as _i4.Future<_i2.SentryId>);
 }

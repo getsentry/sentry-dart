@@ -106,9 +106,7 @@ class SentryClient {
         return _sentryId;
       }
     }
-
-    final eventId = await _options.transport.sendSentryEvent(preparedEvent);
-    return eventId ?? SentryId.empty();
+    return await _options.transport.sendSentryEvent(preparedEvent);
   }
 
   SentryEvent _prepareEvent(SentryEvent event, {dynamic stackTrace}) {

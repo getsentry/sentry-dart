@@ -7,10 +7,10 @@ import 'transport.dart';
 
 class NoOpTransport implements Transport {
   @override
-  Future<SentryId?> sendSentryEvent(SentryEvent event) =>
+  Future<SentryId> sendSentryEvent(SentryEvent event) =>
       Future.value(SentryId.empty());
 
   @override
-  Future<SentryId?> sendSentryEnvelope(SentryEnvelope envelope) =>
+  Future<SentryId> sendSentryEnvelope(SentryEnvelope envelope) =>
       Future.value(SentryId.empty());
 }

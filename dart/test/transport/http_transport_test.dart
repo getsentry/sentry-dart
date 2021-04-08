@@ -93,7 +93,7 @@ void main() {
       final sentryEvent = SentryEvent();
       final eventId = await sut.sendSentryEvent(sentryEvent);
 
-      expect(eventId, isNull);
+      expect(eventId, SentryId.empty());
       expect(httpCalled, false);
     });
   });

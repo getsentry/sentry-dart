@@ -10,13 +10,13 @@ class FileSystemTransport implements Transport {
   final SentryOptions _options;
 
   @override
-  Future<SentryId?> sendSentryEvent(SentryEvent event) async {
+  Future<SentryId> sendSentryEvent(SentryEvent event) async {
     final envelope = SentryEnvelope.fromEvent(event, _options.sdk);
     return await sendSentryEnvelope(envelope);
   }
 
   @override
-  Future<SentryId?> sendSentryEnvelope(SentryEnvelope envelope) async {
+  Future<SentryId> sendSentryEnvelope(SentryEnvelope envelope) async {
     final envelopeData = await envelope.toEnvelope();
     final envelopeString = utf8.decode(envelopeData);
 
@@ -31,6 +31,6 @@ class FileSystemTransport implements Transport {
       return SentryId.empty();
     }
 
-    return envelope.header.eventId;
+    return envelope.header.eventId ?? SentryId.empty();
   }
 }
