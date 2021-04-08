@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_envelope_header.dart';
 import 'package:test/test.dart';
@@ -20,7 +18,10 @@ void main() {
       );
       final sut = SentryEnvelopeHeader(eventId, sdkVersion);
       final expextedSkd = sdkVersion.toJson();
-      final expected = <String, dynamic>{'event_id': eventId.toString(), 'sdk': expextedSkd};
+      final expected = <String, dynamic>{
+        'event_id': eventId.toString(),
+        'sdk': expextedSkd
+      };
       expect(sut.toJson(), expected);
     });
   });

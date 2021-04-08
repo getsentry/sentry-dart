@@ -22,8 +22,7 @@ void main() {
 
       final headerJson = await header.toJson();
       final headerJsonEncoded = jsonEncode(headerJson);
-      final expected =
-          utf8.encode('$headerJsonEncoded\n{fixture}');
+      final expected = utf8.encode('$headerJsonEncoded\n{fixture}');
       expect(await sut.toEnvelopeItem(), expected);
     });
 
