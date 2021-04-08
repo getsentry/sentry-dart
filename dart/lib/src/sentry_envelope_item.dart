@@ -44,9 +44,9 @@ class SentryEnvelopeItem {
 class _CachedItem {
   _CachedItem(this._dataFactory);
 
+  final Future<List<int>> Function() _dataFactory;
   List<int>? _data;
-  Future<List<int>> Function() _dataFactory;
-
+  
   Future<List<int>> getData() async {
     _data ??= await _dataFactory();
     return _data!;
