@@ -8,7 +8,7 @@ class SentryEnvelopeHeader {
       : eventId = SentryId.newId(),
         sdkVersion = null;
 
-  /// The identifier of encoded `SentryEvent`. 
+  /// The identifier of encoded `SentryEvent`.
   final SentryId? eventId;
 
   /// The `SdkVersion` with which the envelope was send.

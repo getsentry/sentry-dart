@@ -36,8 +36,10 @@ void main() {
 
       final expected = utf8.encode(
           '$expectesHeaderJsonSerialized\n$expectedItemSerialized\n$expectedItemSerialized');
-      final actual = await sut.toEnvelope();
-      expect(actual, expected);
+      
+      final envelopeData = <int>[];
+      await sut.envelopeStream().forEach(envelopeData.addAll);
+      expect(envelopeData, expected);
     });
 
     test('fromEvent', () async {

@@ -56,20 +56,11 @@ class HttpTransport implements Transport {
       return SentryId.empty();
     }
 
-    final data = await filteredEnvelope.toEnvelope();
-
-    final body = _bodyEncoder(
-      data,
-      _headers,
-      compressPayload: _options.compressPayload,
-    );
-
-    final response = await _options.httpClient.post(
-      _dsn.postUri,
-      headers: _credentialBuilder.configure(_headers),
-      body: body,
-    );
-
+    final streamedRequest = await _createStreamedRequest(filteredEnvelope);
+    final response = await _options.httpClient
+        .send(streamedRequest)
+        .then(Response.fromStream);
+    
     _updateRetryAfterLimits(response);
 
     if (response.statusCode != 200) {
@@ -94,18 +85,26 @@ class HttpTransport implements Transport {
     return eventId != null ? SentryId.fromId(eventId) : SentryId.empty();
   }
 
-  List<int> _bodyEncoder(
-    List<int> data,
-    Map<String, String> headers, {
-    required bool compressPayload,
-  }) {
-    // [SentryIOClient] implement gzip compression
-    // gzip compression is not available on browser
-    var body = data;
-    if (compressPayload) {
-      body = compressBody(data, headers);
+  Future<StreamedRequest> _createStreamedRequest(
+      SentryEnvelope envelope) async {
+    final streamedRequest = StreamedRequest('POST', _dsn.postUri);
+
+    if (_options.compressPayload) {
+      final envelopeData = <int>[];
+      await envelope.envelopeStream().forEach(envelopeData.addAll);
+
+      final compressedBody = compressBody(envelopeData, _headers);
+      streamedRequest.sink.add(compressedBody);
+      streamedRequest.sink.close();
+    } else {
+      envelope
+          .envelopeStream()
+          .listen(streamedRequest.sink.add)
+          .onDone(streamedRequest.sink.close);
     }
-    return body;
+    streamedRequest.headers.addAll(_credentialBuilder.configure(_headers));
+
+    return streamedRequest;
   }
 
   void _updateRetryAfterLimits(Response response) {

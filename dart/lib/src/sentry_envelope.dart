@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:http/http.dart';
+
 import 'sentry_envelope_header.dart';
 import 'sentry_envelope_item.dart';
 import 'protocol/sentry_event.dart';
@@ -21,15 +23,14 @@ class SentryEnvelope {
         [SentryEnvelopeItem.fromEvent(event)]);
   }
 
-  /// Create binary data representation of `Envelope` file encoded in utf8.
-  Future<List<int>> toEnvelope() async {
-    var data = <int>[];
-    data.addAll(utf8.encode(jsonEncode(header.toJson())));
+  /// Stream binary data representation of `Envelope` file encoded in utf8.
+  Stream<List<int>> envelopeStream() async* {
+    yield utf8.encode(jsonEncode(header.toJson()));
+
     final newLineData = utf8.encode('\n');
     for (final item in items) {
-      data.addAll(newLineData);
-      data.addAll(await item.toEnvelopeItem());
+      yield newLineData;
+      yield await item.toEnvelopeItem();
     }
-    return data;
   }
 }
