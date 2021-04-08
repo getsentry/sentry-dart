@@ -6,9 +6,9 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
 import 'sentry_flutter_options.dart';
 
-import 'file_system_transport.dart';
 import 'default_integrations.dart';
-//import 'file_system_transport.dart';
+import 'file_system_transport.dart';
+
 import 'version.dart';
 // conditional import for the iOSPlatformChecker
 // in browser, the iOSPlatformChecker will always return false
