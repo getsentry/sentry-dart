@@ -393,11 +393,12 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
   String _cleanAppName(String appName) {
     // Replace disallowed chars with an underscore '_'
     // https://docs.sentry.io/platforms/flutter/configuration/releases/#bind-the-version
-    return appName.replaceAll('/','_')
-        .replaceAll('\\','_')
-        .replaceAll('\t','_')
-        .replaceAll('\r\n','_')
-        .replaceAll('\r','_')
-        .replaceAll('\n','_');
+    return appName
+        .replaceAll('/', '_')
+        .replaceAll('\\', '_')
+        .replaceAll('\t', '_')
+        .replaceAll('\r\n', '_')
+        .replaceAll('\r', '_')
+        .replaceAll('\n', '_');
   }
 }
