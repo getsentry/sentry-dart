@@ -145,7 +145,7 @@ Future testCaptureException(
     expect(data['platform'], 'javascript');
     expect(data['sdk'], {
       'version': sdkVersion,
-      'name': sdkName,
+      'name': sdkName(isWeb),
       'packages': [
         {'name': 'pub:sentry', 'version': sdkVersion}
       ]
