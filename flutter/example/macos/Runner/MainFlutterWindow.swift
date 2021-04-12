@@ -13,7 +13,7 @@ class MainFlutterWindow: NSWindow {
 
     RegisterGeneratedPlugins(registry: flutterViewController)
 
-    // ignore: force_cast
+    // swiftlint:disable:next force_cast
     let controller = self.contentViewController as! FlutterViewController
     let channel = FlutterMethodChannel(name: _channel,
                                     binaryMessenger: controller.engine.binaryMessenger)
