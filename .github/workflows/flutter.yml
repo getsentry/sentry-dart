@@ -72,13 +72,13 @@ jobs:
             flutter pub get
             case $TARGET in
             ios)
-            flutter build ios --release --no-codesign
+            flutter build ios --no-codesign
             ;;
             macos)
-            flutter build macos --release
+            flutter build macos
             ;;
             android)
-            flutter build appbundle --release
+            flutter build appbundle
             ;;
             web)
             flutter build web
