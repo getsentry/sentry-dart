@@ -369,6 +369,8 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
           final packageInfo = await _packageLoader();
           var name = packageInfo.packageName;
           if (name.isEmpty) {
+            // Not all platforms have a packageName
+            // https://github.com/getsentry/sentry-dart/issues/410
             name = packageInfo.appName;
           }
 
