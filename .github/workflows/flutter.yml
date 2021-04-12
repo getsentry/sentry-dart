@@ -17,7 +17,6 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         target: ['ios', 'android', 'web', 'macos', 'linux']
-        # 'beta' channel is not working https://github.com/flutter/flutter/issues/78785
         channel: ['stable', 'beta']
         exclude:
           - os: ubuntu-latest
@@ -41,8 +40,9 @@ jobs:
     steps:
         - uses: actions/checkout@v2
 
-        - uses: actions/setup-java@v1
+        - uses: actions/setup-java@v2
           with:
+            distribution: 'adopt'
             java-version: '8'
 
         # Install required dependencies for Flutter on Linux on Ubuntu
@@ -83,13 +83,13 @@ jobs:
             flutter pub get
             case $TARGET in
             ios)
-            flutter build ios --release --no-codesign
+            flutter build ios --no-codesign
             ;;
             macos)
-            flutter build macos --release
+            flutter build macos
             ;;
             android)
-            flutter build appbundle --release
+            flutter build appbundle
             ;;
             web)
             flutter build web
@@ -150,8 +150,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-java@v1
+      - uses: actions/setup-java@v2
         with:
+          distribution: 'adopt'
           java-version: '8'
       - run: |
           curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.40.0/ktlint

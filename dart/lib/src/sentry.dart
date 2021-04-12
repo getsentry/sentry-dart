@@ -10,7 +10,6 @@ import 'noop_hub.dart';
 import 'protocol.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
-import 'utils.dart';
 import 'integration.dart';
 
 /// Configuration options callback
@@ -26,6 +25,10 @@ class Sentry {
   Sentry._();
 
   /// Returns the current hub
+  @Deprecated(
+    'This is scheduled to be removed in Sentry v6.0.0. '
+    'Instead of currentHub you should use Sentry\'s static methods.',
+  )
   static Hub get currentHub => _hub;
 
   /// Initializes the SDK
@@ -61,7 +64,7 @@ class Sentry {
     _setEnvironmentVariables(options);
 
     // Throws when running on the browser
-    if (!isWeb) {
+    if (!options.platformChecker.isWeb) {
       // catch any errors that may occur within the entry function, main()
       // in the ‘root zone’ where all Dart programs start
       options.addIntegrationByIndex(0, IsolateErrorIntegration());
@@ -98,7 +101,7 @@ class Sentry {
 
     // let's set the default values to options
     if (await _setDefaultConfiguration(options)) {
-      final hub = currentHub;
+      final hub = _hub;
       _hub = Hub(options);
       await hub.close();
     }
@@ -138,7 +141,7 @@ class Sentry {
     dynamic stackTrace,
     dynamic hint,
   }) async =>
-      currentHub.captureEvent(event, stackTrace: stackTrace, hint: hint);
+      _hub.captureEvent(event, stackTrace: stackTrace, hint: hint);
 
   /// Reports the [throwable] and optionally its [stackTrace] to Sentry.io.
   static Future<SentryId> captureException(
@@ -146,7 +149,7 @@ class Sentry {
     dynamic stackTrace,
     dynamic hint,
   }) async =>
-      currentHub.captureException(
+      _hub.captureException(
         throwable,
         stackTrace: stackTrace,
         hint: hint,
@@ -159,7 +162,7 @@ class Sentry {
     List<dynamic>? params,
     dynamic hint,
   }) async =>
-      currentHub.captureMessage(
+      _hub.captureMessage(
         message,
         level: level,
         template: template,
@@ -169,30 +172,30 @@ class Sentry {
 
   /// Close the client SDK
   static Future<void> close() async {
-    final hub = currentHub;
+    final hub = _hub;
     _hub = NoOpHub();
     await hub.close();
   }
 
   /// Check if the current Hub is enabled/active.
-  static bool get isEnabled => currentHub.isEnabled;
+  static bool get isEnabled => _hub.isEnabled;
 
   /// Last event id recorded by the current Hub
-  static SentryId get lastEventId => currentHub.lastEventId;
+  static SentryId get lastEventId => _hub.lastEventId;
 
   /// Adds a breacrumb to the current Scope
   static void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) =>
-      currentHub.addBreadcrumb(crumb, hint: hint);
+      _hub.addBreadcrumb(crumb, hint: hint);
 
   /// Configures the scope through the callback.
   static void configureScope(ScopeCallback callback) =>
-      currentHub.configureScope(callback);
+      _hub.configureScope(callback);
 
   /// Clones the current Hub
-  static Hub clone() => currentHub.clone();
+  static Hub clone() => _hub.clone();
 
   /// Binds a different client to the current hub
-  static void bindClient(SentryClient client) => currentHub.bindClient(client);
+  static void bindClient(SentryClient client) => _hub.bindClient(client);
 
   static Future<bool> _setDefaultConfiguration(SentryOptions options) async {
     // if the DSN is empty, let's disable the SDK

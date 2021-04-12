@@ -34,6 +34,10 @@ class WebPlatform extends Platform {
     if (navigatorPlatform.contains('android')) {
       return 'android';
     }
+    if (navigatorPlatform.contains('fuchsia')) {
+      return 'fuchsia';
+    }
+
     // Since some phones can report a window.navigator.platform as Linux, fall
     // back to use CSS to disambiguate Android vs Linux desktop. If the CSS
     // indicates that a device has a "fine pointer" (mouse) as the primary

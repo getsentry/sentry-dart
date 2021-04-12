@@ -15,6 +15,14 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
     // We need to be able to receive this notification and start a session when the SDK is fully operational.
     private var didReceiveDidBecomeActiveNotification = false
 
+    private var didBecomeActiveNotificationName: NSNotification.Name {
+#if os(iOS)
+        return UIApplication.didBecomeActiveNotification
+#elseif os(macOS)
+        return NSApplication.didBecomeActiveNotification
+#endif
+    }
+
     public static func register(with registrar: FlutterPluginRegistrar) {
 #if os(iOS)
         let channel = FlutterMethodChannel(name: "sentry_flutter", binaryMessenger: registrar.messenger())
@@ -29,31 +37,19 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
     }
 
     private func registerObserver() {
-#if os(iOS)
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(applicationDidBecomeActive),
-                                               name: UIApplication.didBecomeActiveNotification,
+                                               name: didBecomeActiveNotificationName,
                                                object: nil)
-#elseif os(macOS)
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(applicationDidBecomeActive),
-                                               name: NSApplication.didBecomeActiveNotification,
-                                               object: nil)
-#endif
     }
 
     @objc private func applicationDidBecomeActive() {
         didReceiveDidBecomeActiveNotification = true
         // we only need to do that in the 1st time, so removing it
-#if os(iOS)
         NotificationCenter.default.removeObserver(self,
-                                                  name: UIApplication.didBecomeActiveNotification,
+                                                  name: didBecomeActiveNotificationName,
                                                   object: nil)
-#elseif os(macOS)
-        NotificationCenter.default.removeObserver(self,
-                                                  name: NSApplication.didBecomeActiveNotification,
-                                                  object: nil)
-#endif
+
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {

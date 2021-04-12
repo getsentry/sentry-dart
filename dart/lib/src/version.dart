@@ -8,12 +8,10 @@
 /// This library contains Sentry.io SDK constants used by this package.
 library version;
 
-import 'utils.dart';
-
 /// The SDK version reported to Sentry.io in the submitted events.
 const String sdkVersion = '5.0.1';
 
-String get sdkName => isWeb ? _browserSdkName : _ioSdkName;
+String sdkName(bool isWeb) => isWeb ? _browserSdkName : _ioSdkName;
 
 /// The default SDK name reported to Sentry.io in the submitted events.
 const String _ioSdkName = 'sentry.dart';
@@ -24,7 +22,7 @@ const String _browserSdkName = 'sentry.dart.browser';
 /// The name of the SDK platform reported to Sentry.io in the submitted events.
 ///
 /// Used for IO version.
-String get sdkPlatform => isWeb ? _browserPlatform : _ioSdkPlatform;
+String sdkPlatform(bool isWeb) => isWeb ? _browserPlatform : _ioSdkPlatform;
 
 /// The name of the SDK platform reported to Sentry.io in the submitted events.
 ///

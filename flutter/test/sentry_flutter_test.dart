@@ -30,7 +30,7 @@ void main() {
         appRunner: appRunner,
         packageLoader: loadTestPackage,
         channel: _channel,
-        options: getOptions(isAndroid: true),
+        platformChecker: getPlatformChecker(isAndroid: true),
       );
     });
 
@@ -40,7 +40,7 @@ void main() {
         appRunner: appRunner,
         packageLoader: loadTestPackage,
         channel: _channel,
-        options: getOptions(isIOS: true),
+        platformChecker: getPlatformChecker(isIOS: true),
       );
     });
   });
@@ -69,7 +69,7 @@ void main() {
           ..transport = transport,
         packageLoader: loadTestPackage,
         channel: _channel,
-        options: getOptions(isIOS: true),
+        platformChecker: getPlatformChecker(isIOS: true),
       );
 
       await Sentry.captureMessage('a message');
@@ -87,7 +87,7 @@ void main() {
           ..dsn = fakeDsn
           ..transport = transport,
         packageLoader: loadTestPackage,
-        options: getOptions(isAndroid: true),
+        platformChecker: getPlatformChecker(isAndroid: true),
         channel: _channel,
       );
 
@@ -110,7 +110,7 @@ void main() {
           ..dsn = fakeDsn
           ..transport = transport,
         packageLoader: loadTestPackage,
-        options: getOptions(isIOS: true),
+        platformChecker: getPlatformChecker(isIOS: true),
         channel: _channel,
       );
 
@@ -139,12 +139,11 @@ Future<PackageInfo> loadTestPackage() async {
   );
 }
 
-SentryFlutterOptions getOptions({
+PlatformChecker getPlatformChecker({
   bool isIOS = false,
   bool isWeb = false,
   bool isAndroid = false,
 }) {
-  final options = SentryFlutterOptions();
   var osName = '';
   if (isIOS) {
     osName = 'ios';
@@ -152,11 +151,11 @@ SentryFlutterOptions getOptions({
   if (isAndroid) {
     osName = 'android';
   }
-  options.platformChecker = PlatformChecker(
+  final platformChecker = PlatformChecker(
     isWeb: isWeb,
     platform: MockPlatform(
       os: osName,
     ),
   );
-  return options;
+  return platformChecker;
 }

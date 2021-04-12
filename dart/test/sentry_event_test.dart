@@ -5,11 +5,11 @@
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/protocol/sentry_request.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
-import 'package:sentry/src/utils.dart';
 import 'package:sentry/src/version.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
+import 'test_utils.dart';
 
 void main() {
   group(SentryEvent, () {
@@ -33,7 +33,7 @@ void main() {
       final event = SentryEvent(
         eventId: SentryId.empty(),
         timestamp: DateTime.utc(2019),
-        platform: sdkPlatform,
+        platform: sdkPlatform(isWeb),
         sdk: SdkVersion(
           name: 'sentry.dart.flutter',
           version: '4.3.2',
@@ -85,7 +85,7 @@ void main() {
         SentryEvent(
           eventId: SentryId.empty(),
           timestamp: timestamp,
-          platform: sdkPlatform,
+          platform: sdkPlatform(isWeb),
           message: SentryMessage(
             'test-message 1 2',
             template: 'test-message %d %d',
