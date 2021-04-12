@@ -257,6 +257,23 @@ void main() {
       expect(options.release, 'foo.bar@1.2.3+789');
       expect(options.dist, '789');
     });
+
+    test('sets app name as in release if packagename is empty', () async {
+      final options = SentryFlutterOptions(dsn: fakeDsn);
+
+      final integration = LoadReleaseIntegration(() {
+        return Future.value(PackageInfo(
+          appName: 'sentry_flutter',
+          packageName: '',
+          version: '1.2.3',
+          buildNumber: '789',
+        ));
+      });
+      await integration.call(MockHub(), options);
+
+      expect(options.release, 'sentry_flutter@1.2.3+789');
+      expect(options.dist, '789');
+    });
   });
 }
 

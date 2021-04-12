@@ -367,8 +367,13 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
       if (!kIsWeb) {
         if (options.release == null || options.dist == null) {
           final packageInfo = await _packageLoader();
+          var name = packageInfo.packageName;
+          if (name.isEmpty) {
+            name = packageInfo.appName;
+          }
+
           final release =
-              '${packageInfo.packageName}@${packageInfo.version}+${packageInfo.buildNumber}';
+              '${name}@${packageInfo.version}+${packageInfo.buildNumber}';
           options.logger(SentryLevel.debug, 'release: $release');
 
           options.release = options.release ?? release;
