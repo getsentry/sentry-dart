@@ -371,11 +371,11 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
           if (name.isEmpty) {
             // Not all platforms have a packageName
             // https://github.com/getsentry/sentry-dart/issues/410
-            name = packageInfo.appName;
+            name = _cleanAppName(packageInfo.appName);
           }
 
           final release =
-              '${name}@${packageInfo.version}+${packageInfo.buildNumber}';
+              '$name@${packageInfo.version}+${packageInfo.buildNumber}';
           options.logger(SentryLevel.debug, 'release: $release');
 
           options.release = options.release ?? release;
@@ -388,5 +388,16 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
     }
 
     options.sdk.addIntegration('loadReleaseIntegration');
+  }
+
+  String _cleanAppName(String appName) {
+    // Replace disallowed chars with an underscore '_'
+    // https://docs.sentry.io/platforms/flutter/configuration/releases/#bind-the-version
+    return appName.replaceAll('/','_')
+        .replaceAll('\\','_')
+        .replaceAll('\t','_')
+        .replaceAll('\r\n','_')
+        .replaceAll('\r','_')
+        .replaceAll('\n','_');
   }
 }
