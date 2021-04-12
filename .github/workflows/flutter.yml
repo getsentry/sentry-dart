@@ -95,7 +95,7 @@ jobs:
             flutter build web
             ;;
             linux)
-            flutter build linux --release
+            flutter build linux
             ;;
             esac
 
