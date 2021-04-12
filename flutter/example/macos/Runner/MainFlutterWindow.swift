@@ -13,7 +13,8 @@ class MainFlutterWindow: NSWindow {
 
     RegisterGeneratedPlugins(registry: flutterViewController)
 
-    let controller = self.contentViewController as! FlutterViewController;
+    // ignore: force_cast
+    let controller = self.contentViewController as! FlutterViewController
     let channel = FlutterMethodChannel(name: _channel,
                                     binaryMessenger: controller.engine.binaryMessenger)
     channel.setMethodCallHandler(handleMessage)
