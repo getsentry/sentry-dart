@@ -22,9 +22,12 @@ mixin SentryFlutter {
     AppRunner? appRunner,
     PackageLoader packageLoader = _loadPackageInfo,
     MethodChannel channel = _channel,
-    SentryFlutterOptions? options,
+    PlatformChecker? platformChecker,
   }) async {
-    final flutterOptions = options ?? SentryFlutterOptions();
+    final flutterOptions = SentryFlutterOptions();
+    if (platformChecker != null) {
+      flutterOptions.platformChecker = platformChecker;
+    }
 
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
