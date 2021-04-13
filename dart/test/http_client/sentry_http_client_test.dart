@@ -13,19 +13,15 @@ final requestUri = Uri.parse('https://example.com');
 
 void main() {
   group(SentryHttpClient, () {
-    late Fixture fixture;
-    setUp(() {
-      fixture = Fixture();
-    });
-
     test('GET: happy path', () async {
-      fixture.reasonPhrase = 'OK';
+      final sut = Fixture.getSut();
+      sut.reasonPhrase = 'OK';
 
-      final response = await fixture.client.get(requestUri);
+      final response = await sut.client.get(requestUri);
       expect(response.statusCode, 200);
 
-      expect(fixture.hub.addBreadcrumbCalls.length, 1);
-      final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
+      expect(sut.hub.addBreadcrumbCalls.length, 1);
+      final breadcrumb = sut.hub.addBreadcrumbCalls.first.crumb;
 
       expect(breadcrumb.type, 'http');
       expect(breadcrumb.data?['url'], 'https://example.com');
@@ -36,15 +32,16 @@ void main() {
     });
 
     test('GET: happy path for 404', () async {
-      fixture.reasonPhrase = 'NOT FOUND';
-      fixture.response = 404;
+      final sut = Fixture.getSut();
+      sut.reasonPhrase = 'NOT FOUND';
+      sut.response = 404;
 
-      final response = await fixture.client.get(requestUri);
+      final response = await sut.client.get(requestUri);
 
       expect(response.statusCode, 404);
 
-      expect(fixture.hub.addBreadcrumbCalls.length, 1);
-      final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
+      expect(sut.hub.addBreadcrumbCalls.length, 1);
+      final breadcrumb = sut.hub.addBreadcrumbCalls.first.crumb;
 
       expect(breadcrumb.type, 'http');
       expect(breadcrumb.data?['url'], 'https://example.com');
@@ -55,11 +52,12 @@ void main() {
     });
 
     test('POST: happy path', () async {
-      final response = await fixture.client.post(requestUri);
+      final sut = Fixture.getSut();
+      final response = await sut.client.post(requestUri);
       expect(response.statusCode, 200);
 
-      expect(fixture.hub.addBreadcrumbCalls.length, 1);
-      final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
+      expect(sut.hub.addBreadcrumbCalls.length, 1);
+      final breadcrumb = sut.hub.addBreadcrumbCalls.first.crumb;
 
       expect(breadcrumb.type, 'http');
       expect(breadcrumb.data?['url'], 'https://example.com');
@@ -69,11 +67,12 @@ void main() {
     });
 
     test('PUT: happy path', () async {
-      final response = await fixture.client.put(requestUri);
+      final sut = Fixture.getSut();
+      final response = await sut.client.put(requestUri);
       expect(response.statusCode, 200);
 
-      expect(fixture.hub.addBreadcrumbCalls.length, 1);
-      final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
+      expect(sut.hub.addBreadcrumbCalls.length, 1);
+      final breadcrumb = sut.hub.addBreadcrumbCalls.first.crumb;
 
       expect(breadcrumb.type, 'http');
       expect(breadcrumb.data?['url'], 'https://example.com');
@@ -83,11 +82,12 @@ void main() {
     });
 
     test('DELETE: happy path', () async {
-      final response = await fixture.client.delete(requestUri);
+      final sut = Fixture.getSut();
+      final response = await sut.client.delete(requestUri);
       expect(response.statusCode, 200);
 
-      expect(fixture.hub.addBreadcrumbCalls.length, 1);
-      final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
+      expect(sut.hub.addBreadcrumbCalls.length, 1);
+      final breadcrumb = sut.hub.addBreadcrumbCalls.first.crumb;
 
       expect(breadcrumb.type, 'http');
       expect(breadcrumb.data?['url'], 'https://example.com');
@@ -100,66 +100,54 @@ void main() {
     /// no exception gets reported by Sentry, in case the user wants to
     /// handle the exception
     test('no captureException for ClientException', () async {
-      final mockHub = MockHub();
-
-      final mockClient = MockClient((request) async {
+      final sut = Fixture.getSut(client: MockClient((request) async {
         expect(request.url, requestUri);
         throw ClientException('test', requestUri);
-      });
-
-      final client = SentryHttpClient(client: mockClient, hub: mockHub);
+      }));
 
       try {
-        await client.get(requestUri);
+        await sut.client.get(requestUri);
         fail('Method did not throw');
       } on ClientException catch (e) {
         expect(e.message, 'test');
         expect(e.uri, requestUri);
       }
 
-      expect(mockHub.captureExceptionCalls.length, 0);
+      expect(sut.hub.captureExceptionCalls.length, 0);
     });
 
     /// SocketException are only a thing on dart:io platforms.
     /// otherwise this is equal to the test above
     test('no captureException for SocketException', () async {
-      final mockHub = MockHub();
-
-      final mockClient = MockClient((request) async {
+      final sut = Fixture.getSut(client: MockClient((request) async {
         expect(request.url, requestUri);
         throw SocketException('test');
-      });
-
-      final client = SentryHttpClient(client: mockClient, hub: mockHub);
+      }));
 
       try {
-        await client.get(requestUri);
+        await sut.client.get(requestUri);
         fail('Method did not throw');
       } on SocketException catch (e) {
         expect(e.message, 'test');
       }
 
-      expect(mockHub.captureExceptionCalls.length, 0);
+      expect(sut.hub.captureExceptionCalls.length, 0);
     });
 
     test('breadcrumb gets added when an exception gets thrown', () async {
-      final mockHub = MockHub();
-
-      final mockClient = MockClient((request) async {
+      final sut = Fixture.getSut(client: MockClient((request) async {
         expect(request.url, requestUri);
         throw Exception('foo bar');
-      });
-
-      final client = SentryHttpClient(client: mockClient, hub: mockHub);
+      }));
 
       try {
-        await client.get(requestUri);
+        await sut.client.get(requestUri);
         fail('Method did not throw');
       } on Exception catch (_) {}
 
-      expect(mockHub.addBreadcrumbCalls.length, 1);
+      expect(sut.hub.addBreadcrumbCalls.length, 1);
 
-      final breadcrumb = mockHub.addBreadcrumbCalls.first.crumb;
+      final breadcrumb = sut.hub.addBreadcrumbCalls.first.crumb;
 
       expect(breadcrumb.type, 'http');
       expect(breadcrumb.data?['url'], 'https://example.com');
@@ -182,21 +170,17 @@ void main() {
     });
 
     test('Breadcrumb has correct duration', () async {
-      final mockHub = MockHub();
-
-      final mockClient = MockClient((request) async {
+      final sut = Fixture.getSut(client: MockClient((request) async {
         expect(request.url, requestUri);
         await Future.delayed(Duration(seconds: 1));
         return Response('', 200, reasonPhrase: 'OK');
-      });
+      }));
 
-      final client = SentryHttpClient(client: mockClient, hub: mockHub);
-
-      final response = await client.get(requestUri);
+      final response = await sut.client.get(requestUri);
       expect(response.statusCode, 200);
 
-      expect(mockHub.addBreadcrumbCalls.length, 1);
-      final breadcrumb = mockHub.addBreadcrumbCalls.first.crumb;
+      expect(sut.hub.addBreadcrumbCalls.length, 1);
+      final breadcrumb = sut.hub.addBreadcrumbCalls.first.crumb;
 
       var durationString = breadcrumb.data!['duration']! as String;
       // we don't check for anything below a second
@@ -208,15 +192,20 @@ void main() {
 class CloseableMockClient extends Mock implements BaseClient {}
 
 class Fixture {
-  Fixture() {
+  static Fixture getSut({MockClient? client}) {
+    return Fixture._(mockClient: client);
+  }
+
+  Fixture._({MockClient? mockClient}) {
     hub = MockHub();
 
-    final mockClient = MockClient((request) async {
-      expect(request.url, requestUri);
-      return Response('', response, reasonPhrase: reasonPhrase);
-    });
+    final mc = mockClient ??
+        MockClient((request) async {
+          expect(request.url, requestUri);
+          return Response('', response, reasonPhrase: reasonPhrase);
+        });
 
-    client = SentryHttpClient(client: mockClient, hub: hub);
+    client = SentryHttpClient(client: mc, hub: hub);
   }
 
   late MockHub hub;

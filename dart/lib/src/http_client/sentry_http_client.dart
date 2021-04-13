@@ -53,14 +53,10 @@ class SentryHttpClient extends BaseClient {
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
     // See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
-    var breadcrumb = Breadcrumb(
-      type: 'http',
-      category: 'http',
-      data: {
-        'url': request.url.toString(),
-        'method': request.method,
-      },
-    );
+
+    var requestHadException = false;
+    int? statusCode;
+    String? reason;
 
     final stopwatch = Stopwatch();
     stopwatch.start();
@@ -68,21 +64,28 @@ class SentryHttpClient extends BaseClient {
     try {
       final response = await _client.send(request);
 
-      breadcrumb.data?.addAll({
-        'status_code': response.statusCode,
-        if (response.reasonPhrase != null) 'reason': response.reasonPhrase,
-      });
+      statusCode = response.statusCode;
+      reason = response.reasonPhrase;
 
       return response;
+    } catch (_) {
+      requestHadException = true;
+      rethrow;
     } finally {
       stopwatch.stop();
-      breadcrumb.data?['duration'] = stopwatch.elapsed.toString();
 
-      // If breadcrum.data does not contain a response status code
-      // it was an erroneous request. Set breadcrumb level to error
-      if (!(breadcrumb.data?.containsKey('status_code') ?? false)) {
-        breadcrumb = breadcrumb.copyWith(level: SentryLevel.error);
-      }
+      var breadcrumb = Breadcrumb(
+        level: requestHadException ? SentryLevel.error : SentryLevel.info,
+        type: 'http',
+        category: 'http',
+        data: {
+          'url': request.url.toString(),
+          'method': request.method,
+          if (statusCode != null) 'status_code': statusCode,
+          if (reason != null) 'reason': reason,
+          'duration': stopwatch.elapsed.toString(),
+        },
+      );
 
       _hub.addBreadcrumb(breadcrumb);
     }
