@@ -22,8 +22,7 @@ class RateLimitParser {
       final durationAndCategories = rateLimitValue.trim().split(':');
 
       if (durationAndCategories.isNotEmpty) {
-        final duration =
-            _parseRetryAfterOrDefault(durationAndCategories[0]);
+        final duration = _parseRetryAfterOrDefault(durationAndCategories[0]);
 
         if (durationAndCategories.length > 1) {
           final allCategories = durationAndCategories[1];

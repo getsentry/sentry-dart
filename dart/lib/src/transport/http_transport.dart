@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:http/http.dart';
 
+import 'noop_encode.dart' if (dart.library.io) 'encode.dart';
 import '../noop_client.dart';
 import '../protocol.dart';
 import '../sentry_options.dart';
@@ -90,13 +90,11 @@ class HttpTransport implements Transport {
     final streamedRequest = StreamedRequest('POST', _dsn.postUri);
 
     if (_options.compressPayload) {
-      _headers['Content-Encoding'] = 'gzip';
-      final byteConversionSink = GZipCodec().encoder
-          .startChunkedConversion(streamedRequest.sink);
+      final compressionSink = compressInSink(streamedRequest.sink, _headers);
       envelope
           .envelopeStream()
-          .listen(byteConversionSink.add)
-          .onDone(byteConversionSink.close);
+          .listen(compressionSink.add)
+          .onDone(compressionSink.close);
     } else {
       envelope
           .envelopeStream()
