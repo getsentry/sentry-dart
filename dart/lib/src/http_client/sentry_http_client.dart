@@ -52,18 +52,39 @@ class SentryHttpClient extends BaseClient {
 
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
+    // See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
+    var breadcrumb = Breadcrumb(
+      type: 'http',
+      category: 'http',
+      data: {
+        'url': request.url.toString(),
+        'method': request.method,
+      },
+    );
+
     final stopwatch = Stopwatch();
     stopwatch.start();
+
     try {
       final response = await _client.send(request);
-      stopwatch.stop();
-      _logSuccessBreadcrumb(request, response, stopwatch);
+
+      breadcrumb.data?.addAll({
+        'status_code': response.statusCode,
+        if (response.reasonPhrase != null) 'reason': response.reasonPhrase,
+      });
 
       return response;
-    } catch (e) {
+    } finally {
       stopwatch.stop();
-      _logFailedBreadcrumb(request, stopwatch);
-      rethrow;
+      breadcrumb.data?['duration'] = stopwatch.elapsed.toString();
+
+      // If breadcrum.data does not contain a response status code
+      // it was an erroneous request. Set breadcrumb level to error
+      if (!(breadcrumb.data?.containsKey('status_code') ?? false)) {
+        breadcrumb = breadcrumb.copyWith(level: SentryLevel.error);
+      }
+
+      _hub.addBreadcrumb(breadcrumb);
     }
   }
 
@@ -71,46 +92,5 @@ class SentryHttpClient extends BaseClient {
   void close() {
     // See https://github.com/getsentry/sentry-dart/pull/226#discussion_r536984785
     _client.close();
-  }
-
-  void _logSuccessBreadcrumb(
-    BaseRequest request,
-    StreamedResponse response,
-    Stopwatch stopwatch,
-  ) {
-    // See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
-    _hub.addBreadcrumb(
-      Breadcrumb(
-        type: 'http',
-        category: 'http',
-        data: {
-          'url': request.url.toString(),
-          'method': request.method,
-          'status_code': response.statusCode,
-          // reason is optional, therefor only add it in case it is not null
-          if (response.reasonPhrase != null) 'reason': response.reasonPhrase,
-          'duration': stopwatch.elapsed.toString(),
-        },
-      ),
-    );
-  }
-
-  void _logFailedBreadcrumb(
-    BaseRequest request,
-    Stopwatch stopwatch,
-  ) {
-    // See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
-    _hub.addBreadcrumb(
-      Breadcrumb(
-        level: SentryLevel.error,
-        type: 'http',
-        category: 'http',
-        data: {
-          'url': request.url.toString(),
-          'method': request.method,
-          'duration': stopwatch.elapsed.toString(),
-        },
-      ),
-    );
   }
 }
