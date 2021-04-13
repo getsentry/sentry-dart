@@ -9,7 +9,7 @@ void main() {
 
       expect(sut.length, 1);
       expect(sut[0].category, RateLimitCategory.transaction);
-      expect(sut[0].durationInMillis, 50000);
+      expect(sut[0].duration.inMilliseconds, 50000);
     });
 
     test('single rate limit with multiple categories', () {
@@ -18,9 +18,9 @@ void main() {
 
       expect(sut.length, 2);
       expect(sut[0].category, RateLimitCategory.transaction);
-      expect(sut[0].durationInMillis, 50000);
+      expect(sut[0].duration.inMilliseconds, 50000);
       expect(sut[1].category, RateLimitCategory.session);
-      expect(sut[1].durationInMillis, 50000);
+      expect(sut[1].duration.inMilliseconds, 50000);
     });
 
     test('don`t apply rate limit for unknown categories ', () {
@@ -34,7 +34,7 @@ void main() {
 
       expect(sut.length, 1);
       expect(sut[0].category, RateLimitCategory.all);
-      expect(sut[0].durationInMillis, 50000);
+      expect(sut[0].duration.inMilliseconds, 50000);
     });
 
     test('multiple rate limits', () {
@@ -43,9 +43,9 @@ void main() {
 
       expect(sut.length, 2);
       expect(sut[0].category, RateLimitCategory.transaction);
-      expect(sut[0].durationInMillis, 50000);
+      expect(sut[0].duration.inMilliseconds, 50000);
       expect(sut[1].category, RateLimitCategory.session);
-      expect(sut[1].durationInMillis, 70000);
+      expect(sut[1].duration.inMilliseconds, 70000);
     });
 
     test('multiple rate limits with same category', () {
@@ -54,9 +54,9 @@ void main() {
 
       expect(sut.length, 2);
       expect(sut[0].category, RateLimitCategory.transaction);
-      expect(sut[0].durationInMillis, 50000);
+      expect(sut[0].duration.inMilliseconds, 50000);
       expect(sut[1].category, RateLimitCategory.transaction);
-      expect(sut[1].durationInMillis, 70000);
+      expect(sut[1].duration.inMilliseconds, 70000);
     });
 
     test('ignore case', () {
@@ -64,7 +64,7 @@ void main() {
 
       expect(sut.length, 1);
       expect(sut[0].category, RateLimitCategory.transaction);
-      expect(sut[0].durationInMillis, 50000);
+      expect(sut[0].duration.inMilliseconds, 50000);
     });
 
     test('un-parseable returns default duration', () {
@@ -72,8 +72,8 @@ void main() {
 
       expect(sut.length, 1);
       expect(sut[0].category, RateLimitCategory.transaction);
-      expect(sut[0].durationInMillis,
-          RateLimitParser.httpRetryAfterDefaultDelayMillis);
+      expect(sut[0].duration.inMilliseconds,
+          RateLimitParser.httpRetryAfterDefaultDelay.inMilliseconds);
     });
   });
 
@@ -83,8 +83,8 @@ void main() {
 
       expect(sut.length, 1);
       expect(sut[0].category, RateLimitCategory.all);
-      expect(sut[0].durationInMillis,
-          RateLimitParser.httpRetryAfterDefaultDelayMillis);
+      expect(sut[0].duration.inMilliseconds,
+          RateLimitParser.httpRetryAfterDefaultDelay.inMilliseconds);
     });
 
     test('parseable returns default category with duration in millis', () {
@@ -92,7 +92,7 @@ void main() {
 
       expect(sut.length, 1);
       expect(sut[0].category, RateLimitCategory.all);
-      expect(sut[0].durationInMillis, 8000);
+      expect(sut[0].duration.inMilliseconds, 8000);
     });
 
     test('un-parseable returns default category with default duration', () {
@@ -100,8 +100,8 @@ void main() {
 
       expect(sut.length, 1);
       expect(sut[0].category, RateLimitCategory.all);
-      expect(sut[0].durationInMillis,
-          RateLimitParser.httpRetryAfterDefaultDelayMillis);
+      expect(sut[0].duration.inMilliseconds,
+          RateLimitParser.httpRetryAfterDefaultDelay.inMilliseconds);
     });
   });
 }

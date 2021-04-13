@@ -64,7 +64,7 @@ class RateLimiter {
       _applyRetryAfterOnlyIfLonger(
         rateLimit.category,
         DateTime.fromMillisecondsSinceEpoch(
-            currentDateTime + rateLimit.durationInMillis),
+            currentDateTime + rateLimit.duration.inMilliseconds),
       );
     }
   }

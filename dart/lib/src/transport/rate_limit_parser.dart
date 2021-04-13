@@ -5,7 +5,7 @@ import 'rate_limit.dart';
 class RateLimitParser {
   RateLimitParser(this._header);
 
-  static const httpRetryAfterDefaultDelayMillis = 60000;
+  static const httpRetryAfterDefaultDelay = Duration(milliseconds: 60000);
 
   final String? _header;
 
@@ -22,7 +22,7 @@ class RateLimitParser {
       final durationAndCategories = rateLimitValue.trim().split(':');
 
       if (durationAndCategories.isNotEmpty) {
-        final durationInMillis =
+        final duration =
             _parseRetryAfterOrDefault(durationAndCategories[0]);
 
         if (durationAndCategories.length > 1) {
@@ -33,11 +33,11 @@ class RateLimitParser {
               final category =
                   RateLimitCategoryExtension.fromStringValue(categoryValue);
               if (category != RateLimitCategory.unknown) {
-                rateLimits.add(RateLimit(category, durationInMillis));
+                rateLimits.add(RateLimit(category, duration));
               }
             });
           } else {
-            rateLimits.add(RateLimit(RateLimitCategory.all, durationInMillis));
+            rateLimits.add(RateLimit(RateLimitCategory.all, duration));
           }
         }
       }
@@ -53,12 +53,12 @@ class RateLimitParser {
 
   // Helper
 
-  static int _parseRetryAfterOrDefault(String? value) {
+  static Duration _parseRetryAfterOrDefault(String? value) {
     final durationInSeconds = int.tryParse(value ?? '');
     if (durationInSeconds != null) {
-      return durationInSeconds * 1000;
+      return Duration(seconds: durationInSeconds);
     } else {
-      return RateLimitParser.httpRetryAfterDefaultDelayMillis;
+      return RateLimitParser.httpRetryAfterDefaultDelay;
     }
   }
 }
