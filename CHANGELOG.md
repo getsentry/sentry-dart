@@ -2,7 +2,7 @@
 
 * Fix: `Sentry.close()` closes native SDK integrations (#388)
 * Fix: Mark `Sentry.currentHub` as deprecated (#406)
-* Fix: Set console logger as default logger in debug mode
+* Fix: Set console logger as default logger in debug mode (#413)
 
 # 5.0.0
 
