@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart';
 
@@ -90,12 +91,13 @@ class HttpTransport implements Transport {
     final streamedRequest = StreamedRequest('POST', _dsn.postUri);
 
     if (_options.compressPayload) {
-      final envelopeData = <int>[];
-      await envelope.envelopeStream().forEach(envelopeData.addAll);
-
-      final compressedBody = compressBody(envelopeData, _headers);
-      streamedRequest.sink.add(compressedBody);
-      streamedRequest.sink.close();
+      _headers['Content-Encoding'] = 'gzip';
+      final byteConversionSink = GZipCodec().encoder
+          .startChunkedConversion(streamedRequest.sink);
+      envelope
+          .envelopeStream()
+          .listen(byteConversionSink.add)
+          .onDone(byteConversionSink.close);
     } else {
       envelope
           .envelopeStream()
