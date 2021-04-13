@@ -227,10 +227,10 @@ void main() {
   });
 
   group('$LoadReleaseIntegration', () {
-    late LoadReleaseIntegrationFixture fixture;
+    late Fixture fixture;
 
     setUp(() {
-      fixture = LoadReleaseIntegrationFixture();
+      fixture = Fixture();
     });
 
     test('does not overwrite options', () async {
@@ -287,11 +287,6 @@ void main() {
 }
 
 class Fixture {
-  final hub = MockHub();
-  final options = SentryFlutterOptions();
-}
-
-class LoadReleaseIntegrationFixture {
   final hub = MockHub();
   final options = SentryFlutterOptions(dsn: fakeDsn);
 
