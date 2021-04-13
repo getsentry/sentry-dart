@@ -133,7 +133,7 @@ class SentryOptions {
   String? serverName;
 
   /// Sdk object that contains the Sentry Client Name and its version
-  SdkVersion sdk = SdkVersion(name: sdkName, version: sdkVersion);
+  SdkVersion sdk = SdkVersion(name: sdkName(runsOnWeb), version: sdkVersion);
 
   /// When enabled, stack traces are automatically attached to all messages logged.
   /// Stack traces are always attached to exceptions;
