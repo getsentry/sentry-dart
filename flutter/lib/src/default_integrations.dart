@@ -364,22 +364,21 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) async {
     try {
-        if (options.release == null || options.dist == null) {
-          final packageInfo = await _packageLoader();
-          var name = packageInfo.packageName;
-          if (name.isEmpty) {
-            // Not all platforms have a packageName.
-            // If no packageName is available, use the appName instead.
-            name = _cleanAppName(packageInfo.appName);
-          }
-
-          final release =
-              '$name@${packageInfo.version}+${packageInfo.buildNumber}';
-          options.logger(SentryLevel.debug, 'release: $release');
-
-          options.release = options.release ?? release;
-          options.dist = options.dist ?? packageInfo.buildNumber;
+      if (options.release == null || options.dist == null) {
+        final packageInfo = await _packageLoader();
+        var name = packageInfo.packageName;
+        if (name.isEmpty) {
+          // Not all platforms have a packageName.
+          // If no packageName is available, use the appName instead.
+          name = _cleanAppName(packageInfo.appName);
         }
+
+        final release =
+            '$name@${packageInfo.version}+${packageInfo.buildNumber}';
+        options.logger(SentryLevel.debug, 'release: $release');
+
+        options.release = options.release ?? release;
+        options.dist = options.dist ?? packageInfo.buildNumber;
       }
     } catch (error) {
       options.logger(
