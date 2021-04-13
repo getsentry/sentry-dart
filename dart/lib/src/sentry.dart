@@ -208,10 +208,6 @@ class Sentry {
     // try parsing the dsn
     Dsn.parse(options.dsn!);
 
-    // if logger os NoOp, let's set a logger that prints on the console
-    if (options.debug && options.logger == noOpLogger) {
-      options.logger = dartLogger;
-    }
     return true;
   }
 }

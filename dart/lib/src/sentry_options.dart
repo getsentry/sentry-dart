@@ -160,8 +160,18 @@ class SentryOptions {
   /// Whether to send personal identifiable information along with events
   bool sendDefaultPii = false;
 
-  SentryOptions({this.dsn}) {
+  SentryOptions({this.dsn, PlatformChecker? checker}) {
     sdk.addPackage('pub:sentry', sdkVersion);
+    if (checker != null) {
+      platformChecker = checker;
+    }
+
+    // In debug mode we want to log everything by default to the console.
+    // In order to do that, this must be the first thing the SDK does
+    // and the first thing the SDK does, is to instantiate SentryOptions
+    if (platformChecker.isDebugMode() && logger == noOpLogger) {
+      _logger = dartLogger;
+    }
   }
 
   /// Adds an event processor
