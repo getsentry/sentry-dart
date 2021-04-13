@@ -1,6 +1,8 @@
 import 'package:http/http.dart';
-
-import '../../sentry.dart';
+import '../protocol/sentry_level.dart';
+import '../protocol/breadcrumb.dart';
+import '../hub.dart';
+import '../hub_adapter.dart';
 
 /// A [http](https://pub.dev/packages/http)-package compatible HTTP client
 /// which records requests as breadcrumbs.
@@ -55,7 +57,32 @@ class SentryHttpClient extends BaseClient {
 
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
-    final response = await _client.send(request);
+    final stopwatch = Stopwatch();
+    stopwatch.start();
+    try {
+      final response = await _client.send(request);
+      stopwatch.stop();
+      _logSuccessBreadcrumb(request, response, stopwatch);
+
+      return response;
+    } catch (e) {
+      stopwatch.stop();
+      _logFailedBreadcrumb(request, stopwatch);
+      rethrow;
+    }
+  }
+
+  @override
+  void close() {
+    // See https://github.com/getsentry/sentry-dart/pull/226#discussion_r536984785
+    _client.close();
+  }
+
+  void _logSuccessBreadcrumb(
+    BaseRequest request,
+    StreamedResponse response,
+    Stopwatch stopwatch,
+  ) {
     // See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
     _hub.addBreadcrumb(
       Breadcrumb(
@@ -67,15 +94,28 @@ class SentryHttpClient extends BaseClient {
           'status_code': response.statusCode,
           // reason is optional, therefor only add it in case it is not null
           if (response.reasonPhrase != null) 'reason': response.reasonPhrase,
+          'duration': stopwatch.elapsed.toString(),
         },
       ),
     );
-    return response;
   }
 
-  @override
-  void close() {
-    // See https://github.com/getsentry/sentry-dart/pull/226#discussion_r536984785
-    _client.close();
+  void _logFailedBreadcrumb(
+    BaseRequest request,
+    Stopwatch stopwatch,
+  ) {
+    // See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
+    _hub.addBreadcrumb(
+      Breadcrumb(
+        level: SentryLevel.error,
+        type: 'http',
+        category: 'http',
+        data: {
+          'url': request.url.toString(),
+          'method': request.method,
+          'duration': stopwatch.elapsed.toString(),
+        },
+      ),
+    );
   }
 }
