@@ -16,13 +16,17 @@ jobs:
       # max-parallel: 4
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        target: ['ios', 'android', 'web', 'macos']
+        target: ['ios', 'android', 'web', 'macos', 'windows']
         channel: ['stable', 'beta']
         exclude:
           - os: ubuntu-latest
             target: ios
           - os: ubuntu-latest
             target: macos
+          - os: ubuntu-latest
+            target: windows
+          - os: macos-latest
+            target: windows
           - os: windows-latest
             target: ios
           - os: windows-latest
@@ -81,6 +85,9 @@ jobs:
             ;;
             web)
             flutter build web
+            ;;
+            windows)
+            flutter build windows
             ;;
             esac
 
