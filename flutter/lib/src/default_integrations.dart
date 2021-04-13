@@ -364,14 +364,22 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) async {
     try {
-      if (options.release == null || options.dist == null) {
-        final packageInfo = await _packageLoader();
-        final release =
-            '${packageInfo.packageName}@${packageInfo.version}+${packageInfo.buildNumber}';
-        options.logger(SentryLevel.debug, 'release: $release');
+        if (options.release == null || options.dist == null) {
+          final packageInfo = await _packageLoader();
+          var name = packageInfo.packageName;
+          if (name.isEmpty) {
+            // Not all platforms have a packageName.
+            // If no packageName is available, use the appName instead.
+            name = _cleanAppName(packageInfo.appName);
+          }
 
-        options.release = options.release ?? release;
-        options.dist = options.dist ?? packageInfo.buildNumber;
+          final release =
+              '$name@${packageInfo.version}+${packageInfo.buildNumber}';
+          options.logger(SentryLevel.debug, 'release: $release');
+
+          options.release = options.release ?? release;
+          options.dist = options.dist ?? packageInfo.buildNumber;
+        }
       }
     } catch (error) {
       options.logger(
@@ -379,5 +387,17 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
     }
 
     options.sdk.addIntegration('loadReleaseIntegration');
+  }
+
+  String _cleanAppName(String appName) {
+    // Replace disallowed chars with an underscore '_'
+    // https://docs.sentry.io/platforms/flutter/configuration/releases/#bind-the-version
+    return appName
+        .replaceAll('/', '_')
+        .replaceAll('\\', '_')
+        .replaceAll('\t', '_')
+        .replaceAll('\r\n', '_')
+        .replaceAll('\r', '_')
+        .replaceAll('\n', '_');
   }
 }
