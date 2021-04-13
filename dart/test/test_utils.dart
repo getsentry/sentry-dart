@@ -18,9 +18,6 @@ const String _testDsnWithPath =
 const String _testDsnWithPort =
     'https://public:secret@sentry.example.com:8888/1';
 
-/// helper to detect a browser context
-const isWeb = identical(0, 0.0);
-
 void testHeaders(
   Map<String, String>? headers,
   ClockProvider fakeClockProvider, {

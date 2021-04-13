@@ -133,7 +133,7 @@ class SentryOptions {
   String? serverName;
 
   /// Sdk object that contains the Sentry Client Name and its version
-  SdkVersion sdk = SdkVersion(name: sdkName(runsOnWeb), version: sdkVersion);
+  late SdkVersion sdk;
 
   /// When enabled, stack traces are automatically attached to all messages logged.
   /// Stack traces are always attached to exceptions;
@@ -161,6 +161,7 @@ class SentryOptions {
   bool sendDefaultPii = false;
 
   SentryOptions({this.dsn}) {
+    sdk = SdkVersion(name: sdkName(platformChecker.isWeb), version: sdkVersion);
     sdk.addPackage('pub:sentry', sdkVersion);
   }
 

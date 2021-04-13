@@ -5,7 +5,7 @@ import 'platform/platform.dart';
 class PlatformChecker {
   PlatformChecker({
     this.platform = instance,
-    this.isWeb = runsOnWeb,
+    this.isWeb = identical(0, 0.0),
   });
 
   /// Check if running in release/production environment
@@ -42,6 +42,3 @@ class PlatformChecker {
 
   final Platform platform;
 }
-
-/// helper to detect a browser context
-const runsOnWeb = identical(0, 0.0);
