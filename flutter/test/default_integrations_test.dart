@@ -227,40 +227,79 @@ void main() {
   });
 
   group('$LoadReleaseIntegration', () {
-    Future<PackageInfo> loadRelease() {
-      return Future.value(PackageInfo(
-        appName: 'sentry_flutter',
-        packageName: 'foo.bar',
-        version: '1.2.3',
-        buildNumber: '789',
-      ));
-    }
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
 
     test('does not overwrite options', () async {
-      final options = SentryFlutterOptions(dsn: fakeDsn);
-      options.release = '1.0.0';
-      options.dist = 'dist';
+      fixture.options.release = '1.0.0';
+      fixture.options.dist = 'dist';
 
-      final integration = LoadReleaseIntegration(loadRelease);
-      await integration.call(MockHub(), options);
+      await fixture.getIntegration().call(MockHub(), fixture.options);
 
-      expect(options.release, '1.0.0');
-      expect(options.dist, 'dist');
+      expect(fixture.options.release, '1.0.0');
+      expect(fixture.options.dist, 'dist');
     });
 
     test('sets release and dist if not set on options', () async {
-      final options = SentryFlutterOptions(dsn: fakeDsn);
+      await fixture.getIntegration().call(MockHub(), fixture.options);
 
-      final integration = LoadReleaseIntegration(loadRelease);
-      await integration.call(MockHub(), options);
+      expect(fixture.options.release, 'foo.bar@1.2.3+789');
+      expect(fixture.options.dist, '789');
+    });
 
-      expect(options.release, 'foo.bar@1.2.3+789');
-      expect(options.dist, '789');
+    test('sets app name as in release if packagename is empty', () async {
+      final loader = () {
+        return Future.value(PackageInfo(
+          appName: 'sentry_flutter',
+          packageName: '',
+          version: '1.2.3',
+          buildNumber: '789',
+        ));
+      };
+      await fixture
+          .getIntegration(loader: loader)
+          .call(MockHub(), fixture.options);
+
+      expect(fixture.options.release, 'sentry_flutter@1.2.3+789');
+      expect(fixture.options.dist, '789');
+    });
+
+    test('release name does not contain ivalid chars', () async {
+      final loader = () {
+        return Future.value(PackageInfo(
+          appName: '\\/sentry\tflutter \r\nfoo\nbar\r',
+          packageName: '',
+          version: '1.2.3',
+          buildNumber: '789',
+        ));
+      };
+      await fixture
+          .getIntegration(loader: loader)
+          .call(MockHub(), fixture.options);
+
+      expect(fixture.options.release, '__sentry_flutter _foo_bar_@1.2.3+789');
+      expect(fixture.options.dist, '789');
     });
   });
 }
 
 class Fixture {
   final hub = MockHub();
-  final options = SentryFlutterOptions();
+  final options = SentryFlutterOptions(dsn: fakeDsn);
+
+  LoadReleaseIntegration getIntegration({PackageLoader? loader}) {
+    return LoadReleaseIntegration(loader ?? loadRelease);
+  }
+
+  Future<PackageInfo> loadRelease() {
+    return Future.value(PackageInfo(
+      appName: 'sentry_flutter',
+      packageName: 'foo.bar',
+      version: '1.2.3',
+      buildNumber: '789',
+    ));
+  }
 }

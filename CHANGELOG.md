@@ -3,6 +3,7 @@
 * Fix: `Sentry.close()` closes native SDK integrations (#388)
 * Fix: Mark `Sentry.currentHub` as deprecated (#406)
 * Feat: `SentryHttpClient` tracks the duration which a request takes and logs failed requests
+* Fix: Use name from pubspec.yaml for release if package id is not available (#411)
 
 # 5.0.0
 
