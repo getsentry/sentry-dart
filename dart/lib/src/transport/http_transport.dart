@@ -10,7 +10,6 @@ import '../sentry_options.dart';
 import '../utils.dart';
 import '../sentry_envelope.dart';
 
-import 'noop_encode.dart' if (dart.library.io) 'encode.dart';
 import 'transport.dart';
 import 'rate_limiter.dart';
 
