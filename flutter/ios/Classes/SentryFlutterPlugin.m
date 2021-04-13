@@ -10,6 +10,6 @@
 
 @implementation SentryFlutterPlugin
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
-  [SwiftSentryFlutterPlugin registerWithRegistrar:registrar];
+  [SentryFlutterPluginApple registerWithRegistrar:registrar];
 }
 @end

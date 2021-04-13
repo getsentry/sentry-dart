@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:http/http.dart';
 
 import '../noop_client.dart';
-import '../platform_checker.dart';
 import '../protocol.dart';
 import '../sentry_options.dart';
 import 'noop_encode.dart' if (dart.library.io) 'encode.dart';
@@ -30,8 +29,8 @@ class HttpTransport implements Transport {
 
   HttpTransport._(this._options)
       : _dsn = Dsn.parse(_options.dsn!),
-        _headers =
-            _buildHeaders(_options.platformChecker, _options.sdk.identifier) {
+        _headers = _buildHeaders(
+            _options.platformChecker.isWeb, _options.sdk.identifier) {
     _credentialBuilder = _CredentialBuilder(
       _dsn,
       _options.sdk.identifier,
@@ -139,12 +138,11 @@ class _CredentialBuilder {
   }
 }
 
-Map<String, String> _buildHeaders(
-    PlatformChecker checker, String sdkIdentifier) {
+Map<String, String> _buildHeaders(bool isWeb, String sdkIdentifier) {
   final headers = {'Content-Type': 'application/json'};
   // NOTE(lejard_h) overriding user agent on VM and Flutter not sure why
   // for web it use browser user agent
-  if (!checker.isWeb) {
+  if (!isWeb) {
     headers['User-Agent'] = sdkIdentifier;
   }
   return headers;
