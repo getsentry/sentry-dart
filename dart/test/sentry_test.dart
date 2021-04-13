@@ -208,4 +208,16 @@ void main() {
       expect(options.debug, false);
     }, options: sentryOptions);
   });
+
+  test('options.logger is not dartLogger after debug = false', () async {
+    final sentryOptions =
+        SentryOptions(dsn: fakeDsn, checker: FakePlatformChecker.debugMode());
+    await Sentry.init((options) {
+      options.dsn = fakeDsn;
+      expect(options.logger, dartLogger);
+      options.debug = false;
+    }, options: sentryOptions);
+
+    expect(sentryOptions.logger == dartLogger, false);
+  });
 }

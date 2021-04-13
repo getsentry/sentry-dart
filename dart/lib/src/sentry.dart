@@ -208,6 +208,15 @@ class Sentry {
     // try parsing the dsn
     Dsn.parse(options.dsn!);
 
+    // If the user set debug to false and the default logger is still
+    // `dartLogger` we set the logger to `noOpLogger`.
+    // `dartLogger` is the default because otherwise the logs won't be to the
+    // user visible between Sentry's initialization and the invocation of the
+    // options configuration callback.
+    if (options.debug == false && options.logger == dartLogger) {
+      options.logger = noOpLogger;
+    }
+
     return true;
   }
 }
