@@ -100,6 +100,7 @@ jobs:
             ;;
             linux)
             flutter build linux
+            ;;
             windows)
             flutter build windows
             ;;
