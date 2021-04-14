@@ -16,7 +16,7 @@ jobs:
       # max-parallel: 4
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        target: ['ios', 'android', 'web', 'macos', 'windows']
+        target: ['ios', 'android', 'web', 'macos', 'linux', 'windows']
         channel: ['stable', 'beta']
         exclude:
           - os: ubuntu-latest
@@ -31,11 +31,15 @@ jobs:
             target: ios
           - os: windows-latest
             target: macos
+          - os: windows-latest
+            target: linux
           # macos-latest is taking hours due to limited resources
           - os: macos-latest
             target: android
           - os: macos-latest
             target: web
+          - os: macos-latest
+            target: linux
 
     steps:
         - uses: actions/checkout@v2
@@ -44,6 +48,14 @@ jobs:
           with:
             distribution: 'adopt'
             java-version: '8'
+
+        # Install required dependencies for Flutter on Linux on Ubuntu
+        - name: 'Setup Linux'
+          run: |
+            sudo apt update
+            sudo apt install -y cmake dbus libblkid-dev libgtk-3-dev liblzma-dev ninja-build pkg-config xvfb
+            sudo apt install -y network-manager upower
+          if: matrix.os == 'ubuntu-latest'
 
         - uses: subosito/flutter-action@v1
           with:
@@ -85,6 +97,9 @@ jobs:
             ;;
             web)
             flutter build web
+            ;;
+            linux)
+            flutter build linux
             ;;
             windows)
             flutter build windows

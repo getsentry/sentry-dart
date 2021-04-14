@@ -41,5 +41,7 @@ flutter:
       web:
         pluginClass: SentryFlutterWeb
         fileName: sentry_flutter_web.dart
+      linux:
+        pluginClass: SentryFlutterPlugin
       windows:
         pluginClass: SentryFlutterPlugin
