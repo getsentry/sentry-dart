@@ -37,9 +37,11 @@ flutter:
       ios:
         pluginClass: SentryFlutterPlugin
       macos:
-        pluginClass: SwiftSentryFlutterPlugin
+        pluginClass: SentryFlutterPluginApple
       web:
         pluginClass: SentryFlutterWeb
         fileName: sentry_flutter_web.dart
       linux:
+        pluginClass: SentryFlutterPlugin
+      windows:
         pluginClass: SentryFlutterPlugin
