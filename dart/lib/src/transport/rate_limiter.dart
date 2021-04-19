@@ -3,7 +3,6 @@ import '../transport/rate_limit_parser.dart';
 import '../sentry_options.dart';
 import '../sentry_envelope.dart';
 import '../sentry_envelope_item.dart';
-import '../sentry_item_type.dart';
 import 'rate_limit.dart';
 import 'rate_limit_category.dart';
 
@@ -20,7 +19,7 @@ class RateLimiter {
     List<SentryEnvelopeItem>? dropItems;
     for (final item in envelope.items) {
       // using the raw value of the enum to not expose SentryEnvelopeItemType
-      if (_isRetryAfter(item.header.type.toStringValue())) {
+      if (_isRetryAfter(item.header.type)) {
         dropItems ??= [];
         dropItems.add(item);
       }

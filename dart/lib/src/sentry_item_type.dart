@@ -1,21 +1,7 @@
-enum SentryItemType { event, unknown }
-
-extension SentryItemTypeExtension on SentryItemType {
-  static SentryItemType fromStringValue(String stringValue) {
-    switch (stringValue) {
-      case 'event':
-        return SentryItemType.event;
-      default:
-        return SentryItemType.unknown;
-    }
-  }
-
-  String toStringValue() {
-    switch (this) {
-      case SentryItemType.event:
-        return 'event';
-      case SentryItemType.unknown:
-        return '__unknown__';
-    }
-  }
+class SentryItemType {
+  static const String event = 'event';
+  static const String userFeedback = 'user_report';
+  static const String attachment = 'attachment';
+  static const String transaction = 'transaction';
+  static const String unknown = '__unknown__';
 }
