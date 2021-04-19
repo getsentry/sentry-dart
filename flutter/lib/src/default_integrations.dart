@@ -370,11 +370,11 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
         if (name.isEmpty) {
           // Not all platforms have a packageName.
           // If no packageName is available, use the appName instead.
-          name = _cleanAppName(packageInfo.appName);
+          name = _cleanString(packageInfo.appName);
         }
 
-        final version = _cleanAppName(packageInfo.version);
-        final buildNumber = _cleanAppName(packageInfo.buildNumber);
+        final version = _cleanString(packageInfo.version);
+        final buildNumber = _cleanString(packageInfo.buildNumber);
 
         var release = name;
         if (version.isNotEmpty) {
@@ -400,9 +400,13 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
     options.sdk.addIntegration('loadReleaseIntegration');
   }
 
-  String _cleanAppName(String appName) {
+  /// This method cleans the given string from characters which should not be
+  /// used.
+  /// For example https://docs.sentry.io/platforms/flutter/configuration/releases/#bind-the-version
+  /// imposes some requirements. Also Windows uses some characters which
+  /// should not be used.
+  String _cleanString(String appName) {
     // Replace disallowed chars with an underscore '_'
-    // https://docs.sentry.io/platforms/flutter/configuration/releases/#bind-the-version
     return appName
         .replaceAll('/', '_')
         .replaceAll('\\', '_')
@@ -410,6 +414,7 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
         .replaceAll('\r\n', '_')
         .replaceAll('\r', '_')
         .replaceAll('\n', '_')
+        // replace Unicode NULL character with an empty string
         .replaceAll('\u{0000}', '');
   }
 }
