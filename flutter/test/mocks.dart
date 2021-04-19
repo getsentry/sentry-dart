@@ -16,6 +16,26 @@ class MockPlatform implements Platform {
         operatingSystemVersion = osVersion ?? '',
         localHostname = hostname ?? '';
 
+  factory MockPlatform.android() {
+    return MockPlatform(os: 'android');
+  }
+
+  factory MockPlatform.iOs() {
+    return MockPlatform(os: 'ios');
+  }
+
+  factory MockPlatform.macOs() {
+    return MockPlatform(os: 'macos');
+  }
+
+  factory MockPlatform.windows() {
+    return MockPlatform(os: 'windows');
+  }
+
+  factory MockPlatform.linux() {
+    return MockPlatform(os: 'linux');
+  }
+
   @override
   String operatingSystem;
 

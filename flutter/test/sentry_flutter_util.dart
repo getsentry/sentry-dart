@@ -9,60 +9,53 @@ import 'package:sentry_flutter/src/version.dart';
 
 import 'mocks.dart';
 
-FutureOr<void> Function(SentryOptions) getConfigurationTester({
-  bool isIOS = false,
-  bool isWeb = false,
-  bool isAndroid = false,
+FutureOr<void> Function(SentryFlutterOptions) getConfigurationTester({
+  required List<Type> shouldHaveIntegrations,
+  required List<Type> shouldNotHaveIntegrations,
+  required bool hasFileSystemTransport,
 }) =>
     (options) async {
-      assert(options is SentryFlutterOptions);
-
       options.dsn = fakeDsn;
 
       expect(kDebugMode, options.debug);
       expect('debug', options.environment);
-
-      expect(options.platformChecker.hasNativeIntegration,
-          options.transport is FileSystemTransport);
-
-      expect(
-        options.integrations.whereType<FlutterErrorIntegration>().length,
-        1,
-      );
-
-      if (options.platformChecker.hasNativeIntegration) {
-        expect(
-          options.integrations.whereType<NativeSdkIntegration>().length,
-          1,
-        );
-      }
-
-      if (isIOS) {
-        expect(
-          options.integrations.whereType<LoadContextsIntegration>().length,
-          1,
-        );
-      }
-
-      if (isAndroid) {
-        expect(
-          options.integrations
-              .whereType<LoadAndroidImageListIntegration>()
-              .length,
-          1,
-        );
-      }
-
-      expect(
-        options.integrations.whereType<LoadReleaseIntegration>().length,
-        1,
-      );
-
       expect(sdkName, options.sdk.name);
       expect(sdkVersion, options.sdk.version);
       expect('pub:sentry_flutter', options.sdk.packages.last.name);
       expect(sdkVersion, options.sdk.packages.last.version);
 
-      // expect('packageName@version+buildNumber', options.release);
-      // expect('buildNumber', options.dist);
+      expect(
+        options.transport is FileSystemTransport,
+        hasFileSystemTransport,
+        reason: '$FileSystemTransport was wrongly set',
+      );
+
+      for (final type in shouldHaveIntegrations) {
+        final integrations = options.integrations
+            .where((element) => element.runtimeType == type)
+            .toList();
+        expect(integrations.length, 1);
+      }
+
+      for (final type in shouldNotHaveIntegrations) {
+        final integrations = options.integrations
+            .where((element) => element.runtimeType == type)
+            .toList();
+        expect(integrations.isEmpty, true);
+      }
     };
+
+void checkPlatformAgnosticIntegrations(
+  MockPlatform platform,
+  SentryFlutterOptions options,
+) {
+  expect(
+    options.integrations.whereType<FlutterErrorIntegration>().length,
+    1,
+  );
+
+  expect(
+    options.integrations.whereType<LoadReleaseIntegration>().length,
+    1,
+  );
+}
