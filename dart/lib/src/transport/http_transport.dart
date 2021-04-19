@@ -42,15 +42,9 @@ class HttpTransport implements Transport {
       _options.clock,
     );
   }
-
+  
   @override
-  Future<SentryId> sendSentryEvent(SentryEvent event) async {
-    final envelope = SentryEnvelope.fromEvent(event, _options.sdk);
-    return await sendSentryEnvelope(envelope);
-  }
-
-  @override
-  Future<SentryId> sendSentryEnvelope(SentryEnvelope envelope) async {
+  Future<SentryId> send(SentryEnvelope envelope) async {
     final filteredEnvelope = _rateLimiter.filter(envelope);
     if (filteredEnvelope == null) {
       return SentryId.empty();

@@ -43,7 +43,7 @@ void main() {
       final sut = HttpTransport(options, mockRateLimiter);
 
       final sentryEnvelope = givenEnvelope();
-      await sut.sendSentryEnvelope(sentryEnvelope);
+      await sut.send(sentryEnvelope);
 
       expect(mockRateLimiter.envelopeToFilter, sentryEnvelope);
     });
@@ -68,7 +68,8 @@ void main() {
 
       final sut = HttpTransport(options, mockRateLimiter);
       final sentryEvent = SentryEvent();
-      await sut.sendSentryEvent(sentryEvent);
+      final envelope = SentryEnvelope.fromEvent(sentryEvent, options.sdk);
+      await sut.send(envelope);
 
       final envelopeData = <int>[];
       await filteredEnvelope.envelopeStream().forEach(envelopeData.addAll);
@@ -94,7 +95,8 @@ void main() {
       final sut = HttpTransport(options, mockRateLimiter);
 
       final sentryEvent = SentryEvent();
-      final eventId = await sut.sendSentryEvent(sentryEvent);
+      final envelope = SentryEnvelope.fromEvent(sentryEvent, options.sdk);
+      final eventId = await sut.send(envelope);
 
       expect(eventId, SentryId.empty());
       expect(httpCalled, false);
@@ -115,7 +117,8 @@ void main() {
 
       final sut = HttpTransport(options, mockRateLimiter);
       final sentryEvent = SentryEvent();
-      await sut.sendSentryEvent(sentryEvent);
+      final envelope = SentryEnvelope.fromEvent(sentryEvent, options.sdk);
+      await sut.send(envelope);
 
       expect(mockRateLimiter.envelopeToFilter?.header.eventId,
           sentryEvent.eventId);
@@ -139,7 +142,8 @@ void main() {
 
       final sut = HttpTransport(options, mockRateLimiter);
       final sentryEvent = SentryEvent();
-      await sut.sendSentryEvent(sentryEvent);
+      final envelope = SentryEnvelope.fromEvent(sentryEvent, options.sdk);
+      await sut.send(envelope);
 
       expect(mockRateLimiter.errorCode, 200);
       expect(mockRateLimiter.retryAfterHeader, isNull);

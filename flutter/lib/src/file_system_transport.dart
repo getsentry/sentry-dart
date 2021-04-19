@@ -10,13 +10,7 @@ class FileSystemTransport implements Transport {
   final SentryOptions _options;
 
   @override
-  Future<SentryId> sendSentryEvent(SentryEvent event) async {
-    final envelope = SentryEnvelope.fromEvent(event, _options.sdk);
-    return await sendSentryEnvelope(envelope);
-  }
-
-  @override
-  Future<SentryId> sendSentryEnvelope(SentryEnvelope envelope) async {
+  Future<SentryId> send(SentryEnvelope envelope) async {
     final envelopeData = <int>[];
     await envelope.envelopeStream().forEach(envelopeData.addAll);
 

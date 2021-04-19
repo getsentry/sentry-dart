@@ -8,7 +8,7 @@
 ## Breaking Changes:
 
 * Feat: Support envelope based transport for events (#391)
-  * The method signature of `Transport` changed from `Future<SentryId> send(SentryEvent event)` to `Future<SentryId> sendSentryEvent(SentryEvent event)`
+  * The method signature of `Transport` changed from `Future<SentryId> send(SentryEvent event)` to `Future<SentryId> send(SentryEnvelope envelope)`
 
 ## Sentry Self Hosted Compatibility
 
