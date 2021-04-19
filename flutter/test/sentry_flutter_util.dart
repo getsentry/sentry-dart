@@ -1,11 +1,9 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/file_system_transport.dart';
 import 'package:sentry_flutter/src/sentry_flutter_options.dart';
-import 'package:sentry_flutter/src/version.dart';
 
 import 'mocks.dart';
 
@@ -16,13 +14,6 @@ FutureOr<void> Function(SentryFlutterOptions) getConfigurationTester({
 }) =>
     (options) async {
       options.dsn = fakeDsn;
-
-      expect(kDebugMode, options.debug);
-      expect('debug', options.environment);
-      expect(sdkName, options.sdk.name);
-      expect(sdkVersion, options.sdk.version);
-      expect('pub:sentry_flutter', options.sdk.packages.last.name);
-      expect(sdkVersion, options.sdk.packages.last.version);
 
       expect(
         options.transport is FileSystemTransport,

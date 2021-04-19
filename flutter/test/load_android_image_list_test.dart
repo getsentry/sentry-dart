@@ -37,6 +37,19 @@ void main() {
     called = false;
   });
 
+  test('$LoadAndroidImageListIntegration adds itself to sdk.integrations',
+      () async {
+    final options = SentryFlutterOptions()..dsn = fakeDsn;
+    final hub = Hub(options);
+
+    LoadAndroidImageListIntegration(_channel)(hub, options);
+
+    expect(
+      options.sdk.integrations.contains('loadAndroidImageListIntegration'),
+      true,
+    );
+  });
+
   test('Native layer is not called as the event is symbolicated', () async {
     final options = SentryFlutterOptions()..dsn = fakeDsn;
     final hub = Hub(options);

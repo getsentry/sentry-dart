@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry/src/platform_checker.dart';
+import 'package:sentry_flutter/src/version.dart';
 import 'mocks.dart';
 import 'sentry_flutter_util.dart';
 
@@ -137,6 +139,32 @@ void main() {
         platformChecker: getPlatformChecker(
           isWeb: true,
           platform: MockPlatform.linux(),
+        ),
+      );
+    });
+  });
+
+  group('initial values', () {
+    tearDown(() async {
+      await Sentry.close();
+    });
+
+    test('test that initial values are set correctly', () async {
+      await SentryFlutter.init(
+        (options) {
+          options.dsn = fakeDsn;
+
+          expect(kDebugMode, options.debug);
+          expect('debug', options.environment);
+          expect(sdkName, options.sdk.name);
+          expect(sdkVersion, options.sdk.version);
+          expect('pub:sentry_flutter', options.sdk.packages.last.name);
+          expect(sdkVersion, options.sdk.packages.last.version);
+        },
+        appRunner: appRunner,
+        packageLoader: loadTestPackage,
+        platformChecker: getPlatformChecker(
+          platform: MockPlatform.android(),
         ),
       );
     });
