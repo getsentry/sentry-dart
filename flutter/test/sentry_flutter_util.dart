@@ -44,18 +44,3 @@ FutureOr<void> Function(SentryFlutterOptions) getConfigurationTester({
         expect(integrations.isEmpty, true);
       }
     };
-
-void checkPlatformAgnosticIntegrations(
-  MockPlatform platform,
-  SentryFlutterOptions options,
-) {
-  expect(
-    options.integrations.whereType<FlutterErrorIntegration>().length,
-    1,
-  );
-
-  expect(
-    options.integrations.whereType<LoadReleaseIntegration>().length,
-    1,
-  );
-}
