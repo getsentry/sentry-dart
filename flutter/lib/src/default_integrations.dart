@@ -389,7 +389,7 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
 
         options.release = options.release ?? release;
         if (buildNumber.isNotEmpty) {
-          options.dist = options.dist ?? packageInfo.buildNumber;
+          options.dist = options.dist ?? buildNumber;
         }
       }
     } catch (error) {
