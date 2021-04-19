@@ -373,12 +373,24 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
           name = _cleanAppName(packageInfo.appName);
         }
 
-        final release =
-            '$name@${packageInfo.version}+${packageInfo.buildNumber}';
+        final version = _cleanAppName(packageInfo.version);
+        final buildNumber = _cleanAppName(packageInfo.buildNumber);
+
+        var release = name;
+        if (version.isNotEmpty) {
+          release = '$release@$version';
+        }
+        // At least windows sometimes does not have a buildNumber
+        if (buildNumber.isNotEmpty) {
+          release = '$release+$buildNumber';
+        }
+
         options.logger(SentryLevel.debug, 'release: $release');
 
         options.release = options.release ?? release;
-        options.dist = options.dist ?? packageInfo.buildNumber;
+        if (buildNumber.isNotEmpty) {
+          options.dist = options.dist ?? packageInfo.buildNumber;
+        }
       }
     } catch (error) {
       options.logger(
@@ -397,6 +409,7 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
         .replaceAll('\t', '_')
         .replaceAll('\r\n', '_')
         .replaceAll('\r', '_')
-        .replaceAll('\n', '_');
+        .replaceAll('\n', '_')
+        .replaceAll('\u{0000}', '');
   }
 }

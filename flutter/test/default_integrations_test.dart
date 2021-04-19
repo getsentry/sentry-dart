@@ -267,7 +267,8 @@ void main() {
       expect(fixture.options.dist, '789');
     });
 
-    test('release name does not contain ivalid chars', () async {
+    test('release name does not contain invalid chars defined by Sentry',
+        () async {
       final loader = () {
         return Future.value(PackageInfo(
           appName: '\\/sentry\tflutter \r\nfoo\nbar\r',
@@ -282,6 +283,44 @@ void main() {
 
       expect(fixture.options.release, '__sentry_flutter _foo_bar_@1.2.3+789');
       expect(fixture.options.dist, '789');
+    });
+
+    /// See the following issues:
+    /// - https://github.com/getsentry/sentry-dart/issues/410
+    /// - https://github.com/fluttercommunity/plus_plugins/issues/182
+    test('uses acceptable release name on windows', () async {
+      final loader = () {
+        return Future.value(PackageInfo(
+          // As per
+          // https://api.dart.dev/stable/2.12.4/dart-core/String-class.html
+          // this is how \u0000 is added to a string in dart
+          appName: 'sentry_flutter_example\u{0000}',
+          packageName: '',
+          version: '1.0.0\u{0000}',
+          buildNumber: '',
+        ));
+      };
+      await fixture
+          .getIntegration(loader: loader)
+          .call(MockHub(), fixture.options);
+
+      expect(fixture.options.release, 'sentry_flutter_example@1.0.0');
+    });
+
+    test('dist is null if build number is an empty string', () async {
+      final loader = () {
+        return Future.value(PackageInfo(
+          appName: 'sentry_flutter_example',
+          packageName: 'a.b.c',
+          version: '1.0.0',
+          buildNumber: '',
+        ));
+      };
+      await fixture
+          .getIntegration(loader: loader)
+          .call(MockHub(), fixture.options);
+
+      expect(fixture.options.dist, isNull);
     });
   });
 }
