@@ -1,6 +1,8 @@
 import 'package:http/http.dart';
-
-import '../../sentry.dart';
+import '../protocol/sentry_level.dart';
+import '../protocol/breadcrumb.dart';
+import '../hub.dart';
+import '../hub_adapter.dart';
 
 /// A [http](https://pub.dev/packages/http)-package compatible HTTP client
 /// which records requests as breadcrumbs.
@@ -40,11 +42,6 @@ import '../../sentry.dart';
 ///  client.close();
 /// }
 /// ```
-//
-// Possible enhancement:
-// Track the time the HTTP request took.
-// For example with Darts Stopwatch:
-// https://api.dart.dev/stable/2.10.4/dart-core/Stopwatch-class.html
 class SentryHttpClient extends BaseClient {
   SentryHttpClient({Client? client, Hub? hub})
       : _hub = hub ?? HubAdapter(),
@@ -55,22 +52,43 @@ class SentryHttpClient extends BaseClient {
 
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
-    final response = await _client.send(request);
     // See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
-    _hub.addBreadcrumb(
-      Breadcrumb(
+
+    var requestHadException = false;
+    int? statusCode;
+    String? reason;
+
+    final stopwatch = Stopwatch();
+    stopwatch.start();
+
+    try {
+      final response = await _client.send(request);
+
+      statusCode = response.statusCode;
+      reason = response.reasonPhrase;
+
+      return response;
+    } catch (_) {
+      requestHadException = true;
+      rethrow;
+    } finally {
+      stopwatch.stop();
+
+      var breadcrumb = Breadcrumb(
+        level: requestHadException ? SentryLevel.error : SentryLevel.info,
         type: 'http',
         category: 'http',
         data: {
           'url': request.url.toString(),
           'method': request.method,
-          'status_code': response.statusCode,
-          // reason is optional, therefor only add it in case it is not null
-          if (response.reasonPhrase != null) 'reason': response.reasonPhrase,
+          if (statusCode != null) 'status_code': statusCode,
+          if (reason != null) 'reason': reason,
+          'duration': stopwatch.elapsed.toString(),
         },
-      ),
-    );
-    return response;
+      );
+
+      _hub.addBreadcrumb(breadcrumb);
+    }
   }
 
   @override
