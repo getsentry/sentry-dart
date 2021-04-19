@@ -170,6 +170,7 @@ class SentryOptions {
     // In order to do that, this must be the first thing the SDK does
     // and the first thing the SDK does, is to instantiate SentryOptions
     if (platformChecker.isDebugMode() && logger == noOpLogger) {
+      debug = true;
       _logger = dartLogger;
     }
   }

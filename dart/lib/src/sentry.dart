@@ -60,8 +60,6 @@ class Sentry {
     SentryOptions options,
     AppRunner? appRunner,
   ) async {
-    options.debug = options.platformChecker.isDebugMode();
-
     _setEnvironmentVariables(options);
 
     // Throws when running on the browser
