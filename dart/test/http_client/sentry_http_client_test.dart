@@ -200,17 +200,13 @@ void main() {
 class CloseableMockClient extends Mock implements BaseClient {}
 
 class Fixture {
-  // every test does final sut = fixture.getSut() either passing MockClient or not
   SentryHttpClient getSut([MockClient? client]) {
     final mc = client ?? getClient();
     return SentryHttpClient(client: mc, hub: hub);
   }
 
-  // tests could assert or expect fixture.hub
   late MockHub hub = MockHub();
 
-  // could optionally have reasonPhrase, status etc with defaults values
-  // so tests could also do sut = fixture.getSut(fixture.getClient(500, 'my reason'))
   MockClient getClient({int statusCode = 200, String? reason}) {
     return MockClient((request) async {
       expect(request.url, requestUri);
