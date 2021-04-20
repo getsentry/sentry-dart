@@ -226,6 +226,86 @@ class SentryEvent {
         debugMeta: debugMeta ?? this.debugMeta,
       );
 
+  factory SentryEvent.fromJson(Map<String, dynamic> json) {
+    final breadcrumbsJson = json['breadcrumbs'] as List<dynamic>?;
+    final breadcrumbs = breadcrumbsJson?.map((e) {
+      return Breadcrumb.fromJson(e);
+    }).toList();
+
+    final sdkJson = json['sdk'] as Map<String, dynamic>?;
+    final messageJson = json['message'] as Map<String, dynamic>?;
+
+    final stackTraceJson = json['threads'] as Map<String, dynamic>?;
+    final stackTraceValuesJson = stackTraceJson?['values'] as List<dynamic>?;
+    Map<String, dynamic>? stackTraceValuesStacktraceJson;
+    if (stackTraceValuesJson?.isNotEmpty == true) {
+      stackTraceValuesStacktraceJson =
+          stackTraceValuesJson?.first['stacktrace'] as Map<String, dynamic>?;
+    }
+
+    final exceptionJson = json['exception'] as Map<String, dynamic>?;
+    final exceptionValuesJson = exceptionJson?['values'] as List<dynamic>?;
+    final exceptionValuesItemJson =
+        exceptionValuesJson?.first as Map<String, dynamic>?;
+
+    final levelName = json['level']?.toString();
+
+    final userJson = json['user'] as Map<String, dynamic>?;
+
+    final fingerprintJson = json['fingerprint'] as List<dynamic>?;
+
+    final modulesJson = json['modules'] as Map<String, dynamic>?;
+    Map<String, String>? modules;
+    if (modulesJson != null) {
+      modules = {};
+      modulesJson.forEach((key, value) {
+        modules?[key] = value as String;
+      });
+    }
+
+    final tagsJson = json['tags'] as Map<String, dynamic>?;
+    Map<String, String>? tags;
+    if (tagsJson != null) {
+      tags = {};
+      tagsJson.forEach((key, value) {
+        tags?[key] = value as String;
+      });
+    }
+
+    return SentryEvent(
+      eventId: SentryId.fromId(['event_id'].toString()), // TODO: Hanled '-'?
+      timestamp: DateTime.now(), // TODO: Parse timestamp
+      modules: modules,
+      tags: tags,
+      extra: json['extra'] as Map<String, dynamic>?,
+      fingerprint: fingerprintJson != null
+          ? fingerprintJson.map((e) => e as String).toList()
+          : null,
+      breadcrumbs: breadcrumbs,
+      sdk: sdkJson != null ? SdkVersion.fromJson(sdkJson) : null,
+      platform: json['platform']?.toString(),
+      logger: json['logger']?.toString(),
+      serverName: json['server_name']?.toString(),
+      release: json['release']?.toString(),
+      dist: json['dist']?.toString(),
+      environment: json['environment']?.toString(),
+      message: messageJson != null ? SentryMessage.fromJson(messageJson) : null,
+      transaction: json['transaction']?.toString(),
+      stackTrace: stackTraceValuesStacktraceJson != null
+          ? SentryStackTrace.fromJson(stackTraceValuesStacktraceJson)
+          : null,
+      exception: exceptionValuesItemJson != null
+          ? SentryException.fromJson(exceptionValuesItemJson)
+          : null,
+      level: levelName != null ? SentryLevel.fromName(levelName) : null,
+      culprit: json['culprit']?.toString(),
+      user: userJson != null ? SentryUser.fromJson(userJson) : null,
+      contexts: null, // TODO(denis)
+      request: null, // TODO(denis)
+      debugMeta: null, // TODO(denis)
+    );
+  }
+
   /// Serializes this event to JSON.
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};

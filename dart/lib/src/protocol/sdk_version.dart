@@ -63,6 +63,18 @@ class SdkVersion {
 
   String get identifier => '$name/$version';
 
+  /// Produces a [SdkVersion] from deserialiazed JSON [Map].
+  factory SdkVersion.fromJson(Map<String, dynamic> json) {
+    final packagesJson = json['packages'] as List<dynamic>?;
+    final integrationsJson = json['integrations'] as List<dynamic>?;
+    return SdkVersion(
+      name: json['name'].toString(),
+      version: json['version'].toString(),
+      packages: packagesJson?.map((e) => SentryPackage.fromJson(e as Map<String, dynamic>)).toList(),
+      integrations: integrationsJson?.map((e) => e as String).toList()
+    );
+  }
+
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};

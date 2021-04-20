@@ -22,6 +22,14 @@ class SentryMessage {
 
   const SentryMessage(this.formatted, {this.template, this.params});
 
+  factory SentryMessage.fromJson(Map<String, dynamic> json) {
+    return SentryMessage(
+      json['formatted'].toString(),
+      template: json['message']?.toString(),
+      params: json['params'] as List<dynamic>?
+    );
+  }
+
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 

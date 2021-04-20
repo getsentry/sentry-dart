@@ -14,4 +14,18 @@ class SentryLevel {
   /// API name of the level as it is encoded in the JSON protocol.
   final String name;
   final int ordinal;
+
+  factory SentryLevel.fromName(String name) {
+    if (name == 'fatal') {
+      return SentryLevel.fatal;
+    } else if (name == 'error') {
+      return SentryLevel.error;
+    } else if (name == 'warning') {
+      return SentryLevel.warning;
+    } else if (name == 'info') {
+      return SentryLevel.info;
+    } else {
+      return SentryLevel.debug;
+    }
+  }
 }

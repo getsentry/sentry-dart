@@ -12,6 +12,13 @@ class SentryPackage {
   /// The version of the SDK.
   final String version;
 
+  factory SentryPackage.fromJson(Map<String, dynamic> json) {
+    return SentryPackage(
+      json['name'].toString(),
+      json['version'].toString(),
+    );
+  }
+
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     return <String, String>{

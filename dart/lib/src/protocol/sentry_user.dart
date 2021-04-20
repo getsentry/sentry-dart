@@ -53,6 +53,16 @@ class SentryUser {
   /// by Sentry.
   final Map<String, dynamic>? extras;
 
+  factory SentryUser.fromJson(Map<String, dynamic> json) {
+    return SentryUser(
+      id: json['id']?.toString(),
+      username: json['username']?.toString(),
+      email: json['email']?.toString(),
+      ipAddress: json['ip_address']?.toString(),
+      extras: json['extras'] as Map<String, dynamic>?,
+    );
+  }
+
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
