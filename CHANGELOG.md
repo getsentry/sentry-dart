@@ -7,6 +7,7 @@
 * Fix: Mark `Sentry.currentHub` as deprecated (#406)
 * Fix: Use name from pubspec.yaml for release if package id is not available (#411)
 * Feat: `SentryHttpClient` tracks the duration which a request takes and logs failed requests (#414)
+* Fix: Trim `\u0000` from Windows package info (#420)
 
 # 5.0.0
 
