@@ -7,6 +7,8 @@
 * Fix: Mark `Sentry.currentHub` as deprecated (#406)
 * Fix: Use name from pubspec.yaml for release if package id is not available (#411)
 * Feat: `SentryHttpClient` tracks the duration which a request takes and logs failed requests (#414)
+* Bump: sentry-cocoa to v7.0.0 (#424)
+* Feat: Support for Out-of-Memory-Tracking on some Apple platforms (#424)
 
 # 5.0.0
 
