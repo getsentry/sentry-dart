@@ -15,6 +15,15 @@ class SdkInfo {
     this.versionPatchlevel,
   });
 
+  factory SdkInfo.fromJson(Map<String, dynamic> json) {
+    return SdkInfo(
+      sdkName: json['sdk_name'],
+      versionMajor: json['version_major'],
+      versionMinor: json['version_minor'],
+      versionPatchlevel: json['version_patchlevel'],
+    );
+  }
+
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
     if (sdkName != null) {
