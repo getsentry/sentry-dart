@@ -30,7 +30,7 @@ If you click in order on `Open another scaffold`, `Dart: web request` and
 [sentry.io](https://sentry.io/).
 
 Note the event shows only the application frames by default. You can click
-`Full` to see the complete stack trace. There's also a list of breadcrumbs for
+on the `Full` button to see the complete stack trace. There's also a list of breadcrumbs for
 that exception. In order to get HTTP and navigational breadcrumbs you need to
 use
 [`SentryHttpClient`](https://docs.sentry.io/platforms/dart/usage/advanced-usage/#automatic-breadcrumbs)
@@ -38,4 +38,3 @@ and the
 [`SentryNavigatorObserver`](https://docs.sentry.io/platforms/flutter/enriching-events/breadcrumbs/#automatic-breadcrumbs).
 
 <img src="img/sentry_dashboard.png" />
-
