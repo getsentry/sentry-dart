@@ -142,10 +142,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
     }
 
     private func closeNativeSdk(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        // swiftlint:disable:next todo
-        // TODO: Call SentrySDK when available
-        // https://github.com/getsentry/sentry-cocoa/issues/934
-        SentrySDK.currentHub().getClient()?.options.enabled = false
+        SentrySDK.close()
         result("")
     }
 
@@ -176,7 +173,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         }
 
         if let diagnosticLevel = arguments["diagnosticLevel"] as? String, options.debug == true {
-            options.logLevel = logLevelFrom(diagnosticLevel: diagnosticLevel)
+            options.diagnosticLevel = logLevelFrom(diagnosticLevel: diagnosticLevel)
         }
 
         if let sessionTrackingIntervalMillis = arguments["autoSessionTrackingIntervalMillis"] as? UInt {
@@ -210,14 +207,18 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         }
     }
 
-    private func logLevelFrom(diagnosticLevel: String) -> SentryLogLevel {
+    private func logLevelFrom(diagnosticLevel: String) -> SentryLevel {
         switch diagnosticLevel {
-        case "fatal", "error":
+        case "fatal":
+            return .fatal
+        case "error":
             return .error
         case "debug":
             return .debug
-        case "warning", "info":
-            return .verbose
+        case "warning":
+            return .warning
+        case "info":
+            return .info
         default:
             return .none
         }
@@ -261,7 +262,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
         do {
             let envelope = try parseJsonEnvelope(event)
-            SentrySDK.currentHub().capture(envelope: envelope)
+            SentrySDK.capture(envelope: envelope)
             result("")
         } catch {
             print("Cannot parse the envelope json !")
