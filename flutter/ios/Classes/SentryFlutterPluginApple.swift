@@ -205,6 +205,10 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         if let sendDefaultPii = arguments["sendDefaultPii"] as? Bool {
             options.sendDefaultPii = sendDefaultPii
         }
+
+        if let enableOutOfMemoryTracking = arguments["enableOutOfMemoryTracking"] as? Bool {
+            options.enableOutOfMemoryTracking = enableOutOfMemoryTracking
+        }
     }
 
     private func logLevelFrom(diagnosticLevel: String) -> SentryLevel {

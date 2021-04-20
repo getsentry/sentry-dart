@@ -214,6 +214,7 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
         'enableAutoNativeBreadcrumbs': options.enableAutoNativeBreadcrumbs,
         'cacheDirSize': options.cacheDirSize,
         'sendDefaultPii': options.sendDefaultPii,
+        'enableOutOfMemoryTracking': options.enableAppleOutOfMemoryTracking,
       });
 
       options.sdk.addIntegration('nativeSdkIntegration');

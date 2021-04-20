@@ -118,6 +118,11 @@ class SentryFlutterOptions extends SentryOptions {
   /// See https://api.flutter.dev/flutter/foundation/FlutterErrorDetails/silent.html
   bool reportSilentFlutterErrors = false;
 
+  /// Enables Out of Memory Tracking for iOS and macCatalyst.
+  /// See the following link for more information and possible restrictions:
+  /// https://docs.sentry.io/platforms/apple/guides/ios/configuration/out-of-memory/
+  bool enableAppleOutOfMemoryTracking = false;
+
   /// By using this, you are disabling native [Breadcrumb] tracking and instead
   /// you are just tracking [Breadcrumb]s which result from events available
   /// in the current Flutter environment.
