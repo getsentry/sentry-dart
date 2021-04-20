@@ -110,25 +110,25 @@ class SentryStackFrame {
 
   factory SentryStackFrame.fromJson(Map<String, dynamic> json) {
     return SentryStackFrame(
-      absPath: json['abs_path']?.toString(),
-      fileName: json['filename']?.toString(),
-      function: json['function']?.toString(),
-      module: json['module']?.toString(),
-      lineNo: json['lineno'] as int?,
-      colNo: json['colno'] as int?,
-      contextLine: json['context_line']?.toString(),
-      inApp: json['in_app'] as bool?,
-      package: json['package']?.toString(),
-      native: json['native'] as bool?,
-      platform: json['platform']?.toString(),
-      imageAddr: json['image_addr']?.toString(),
-      symbolAddr: json['symbol_addr']?.toString(),
-      instructionAddr: json['instruction_addr']?.toString(),
-      rawFunction: json['raw_function']?.toString(),
-      framesOmitted: json['raw_function'] as List<int>?,
-      preContext: json['pre_context'] as List<String>?,
-      postContext: json['post_context'] as List<String>?,
-      vars: json['vars'] as Map<String, String>?,
+      absPath: json['abs_path'],
+      fileName: json['filename'],
+      function: json['function'],
+      module: json['module'],
+      lineNo: json['lineno'],
+      colNo: json['colno'],
+      contextLine: json['context_line'],
+      inApp: json['in_app'],
+      package: json['package'],
+      native: json['native'],
+      platform: json['platform'],
+      imageAddr: json['image_addr'],
+      symbolAddr: json['symbol_addr'],
+      instructionAddr: json['instruction_addr'],
+      rawFunction: json['raw_function'],
+      framesOmitted: json['frames_omitted'],
+      preContext: json['pre_context'],
+      postContext: json['post_context'],
+      vars: json['vars'],
     );
   }
 
@@ -185,10 +185,6 @@ class SentryStackFrame {
 
     if (inApp != null) {
       json['in_app'] = inApp;
-    }
-
-    if (package != null) {
-      json['package'] = package;
     }
 
     if (native != null) {
