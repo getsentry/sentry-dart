@@ -10,7 +10,6 @@ import 'noop_hub.dart';
 import 'protocol.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
-import 'utils.dart';
 import 'integration.dart';
 
 /// Configuration options callback
@@ -63,7 +62,7 @@ class Sentry {
     _setEnvironmentVariables(options);
 
     // Throws when running on the browser
-    if (!isWeb) {
+    if (!options.platformChecker.isWeb) {
       // catch any errors that may occur within the entry function, main()
       // in the ‘root zone’ where all Dart programs start
       options.addIntegrationByIndex(0, IsolateErrorIntegration());

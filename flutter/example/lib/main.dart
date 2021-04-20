@@ -17,7 +17,7 @@ Future<void> main() async {
       // use breadcrumb tracking of WidgetsBindingObserver
       // options.useFlutterBreadcrumbTracking();
       // use breadcrumb tracking of platform Sentry SDKs
-      options.useNativeBreadcrumbTracking();
+      // options.useNativeBreadcrumbTracking();
     },
     // Init your App.
     appRunner: () => runApp(MyApp()),
@@ -113,7 +113,8 @@ class MainScaffold extends StatelessWidget {
               child: const Text('Dart: Web request'),
               onPressed: () => makeWebRequest(context),
             ),
-            if (UniversalPlatform.isIOS) const CocoaExample(),
+            if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
+              const CocoaExample(),
             if (UniversalPlatform.isAndroid) const AndroidExample(),
           ],
         ),

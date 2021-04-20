@@ -4,6 +4,7 @@ import 'package:mockito/mockito.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry/src/platform_checker.dart';
 
 import 'mocks.dart';
 import 'mocks.mocks.dart';
@@ -28,8 +29,8 @@ void main() {
         getConfigurationTester(isAndroid: true),
         appRunner: appRunner,
         packageLoader: loadTestPackage,
-        isAndroidChecker: () => true,
         channel: _channel,
+        platformChecker: getPlatformChecker(isAndroid: true),
       );
     });
 
@@ -38,8 +39,8 @@ void main() {
         getConfigurationTester(isIOS: true),
         appRunner: appRunner,
         packageLoader: loadTestPackage,
-        isIOSChecker: () => true,
         channel: _channel,
+        platformChecker: getPlatformChecker(isIOS: true),
       );
     });
   });
@@ -67,8 +68,8 @@ void main() {
           ..dsn = fakeDsn
           ..transport = transport,
         packageLoader: loadTestPackage,
-        isIOSChecker: () => true,
         channel: _channel,
+        platformChecker: getPlatformChecker(isIOS: true),
       );
 
       await Sentry.captureMessage('a message');
@@ -86,7 +87,7 @@ void main() {
           ..dsn = fakeDsn
           ..transport = transport,
         packageLoader: loadTestPackage,
-        isIOSChecker: () => false,
+        platformChecker: getPlatformChecker(isAndroid: true),
         channel: _channel,
       );
 
@@ -95,9 +96,11 @@ void main() {
       final event =
           verify(transport.send(captureAny)).captured.first as SentryEvent;
 
-      expect(event.sdk!.integrations.length, 6);
+      expect(event.sdk!.integrations.length, 7);
       expect(
-          event.sdk!.integrations.contains('loadContextsIntegration'), false);
+        event.sdk!.integrations.contains('loadContextsIntegration'),
+        false,
+      );
     });
 
     test('should not add loadAndroidImageListIntegration if not Android',
@@ -107,7 +110,7 @@ void main() {
           ..dsn = fakeDsn
           ..transport = transport,
         packageLoader: loadTestPackage,
-        isAndroidChecker: () => false,
+        platformChecker: getPlatformChecker(isIOS: true),
         channel: _channel,
       );
 
@@ -116,10 +119,11 @@ void main() {
       final event =
           verify(transport.send(captureAny)).captured.first as SentryEvent;
 
-      expect(event.sdk!.integrations.length, 6);
+      expect(event.sdk!.integrations.length, 7);
       expect(
-          event.sdk!.integrations.contains('loadAndroidImageListIntegration'),
-          false);
+        event.sdk!.integrations.contains('loadAndroidImageListIntegration'),
+        false,
+      );
     });
   });
 }
@@ -133,4 +137,25 @@ Future<PackageInfo> loadTestPackage() async {
     version: 'version',
     buildNumber: 'buildNumber',
   );
+}
+
+PlatformChecker getPlatformChecker({
+  bool isIOS = false,
+  bool isWeb = false,
+  bool isAndroid = false,
+}) {
+  var osName = '';
+  if (isIOS) {
+    osName = 'ios';
+  }
+  if (isAndroid) {
+    osName = 'android';
+  }
+  final platformChecker = PlatformChecker(
+    isWeb: isWeb,
+    platform: MockPlatform(
+      os: osName,
+    ),
+  );
+  return platformChecker;
 }
