@@ -17,6 +17,3 @@ String formatDateAsIso8601WithMillisPrecision(DateTime date) {
   // appends Z because the substring removed it
   return '${iso}Z';
 }
-
-/// helper to detect a browser context
-const isWeb = identical(0, 0.0);
