@@ -3,7 +3,6 @@ import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
 void main() {
-  
   final sentryBrowser = SentryBrowser(
     name: 'fixture-name',
     version: 'fixture-version',
@@ -32,5 +31,30 @@ void main() {
         true,
       );
     });
+  });
+
+  group('copyWith', () {
+    test('copyWith keeps unchanged', () {
+    final data = sentryBrowser;
+
+    final copy = data.copyWith();
+
+    expect(
+      MapEquality().equals(data.toJson(), copy.toJson()),
+      true,
+    );
+  });
+
+  test('copyWith takes new values', () {
+    final data = sentryBrowser;
+
+    final copy = data.copyWith(
+      name: 'name1',
+      version: 'version1',
+    );
+
+    expect('name1', copy.name);
+    expect('version1', copy.version);
+  });
   });
 }

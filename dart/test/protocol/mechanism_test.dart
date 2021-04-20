@@ -1,6 +1,8 @@
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
+// TODO(denis)
+
 void main() {
   test('copyWith keeps unchanged', () {
     final data = _generate();
