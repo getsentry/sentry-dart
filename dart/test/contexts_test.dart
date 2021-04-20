@@ -61,50 +61,59 @@ void main() {
       ..['theme'] = {'value': 'material'}
       ..['version'] = {'value': 9};
 
+    final contextsJson = <String, dynamic>{
+      'device': {
+        'name': 'testDevice',
+        'family': 'testFamily',
+        'model': 'testModel',
+        'model_id': 'testModelId',
+        'arch': 'testArch',
+        'battery_level': 23.0,
+        'orientation': 'landscape',
+        'manufacturer': 'testOEM',
+        'brand': 'testBrand',
+        'screen_resolution': '123x345',
+        'screen_density': 99.1,
+        'screen_dpi': 100,
+        'online': false,
+        'charging': true,
+        'low_memory': false,
+        'simulator': true,
+        'memory_size': 1234567,
+        'free_memory': 12345,
+        'usable_memory': 9876,
+        'storage_size': 1234567,
+        'free_storage': 1234567,
+        'external_storage_size': 98765,
+        'external_free_storage': 98765,
+        'boot_time': testBootTime.toIso8601String(),
+        'timezone': 'Australia/Melbourne',
+      },
+      'os': {
+        'name': 'testOS',
+      },
+      'app': {'app_version': '1.2.3'},
+      'browser': {'version': '12.3.4'},
+      'gpu': {'name': 'Radeon', 'version': '1'},
+      'testrt1': {'name': 'testRT1', 'type': 'runtime', 'version': '1.0'},
+      'testrt2': {'name': 'testRT2', 'type': 'runtime', 'version': '2.3.1'},
+      'theme': {'value': 'material'},
+      'version': {'value': 9},
+    };
+
     test('serializes to JSON', () {
       final event = SentryEvent(contexts: contexts);
 
+      expect(event.toJson()['contexts'], contextsJson);
+    });
+
+    test('deserializes/serializes JSON', () {
+      final contexts = Contexts.fromJson(contextsJson);
+      final json = contexts.toJson();
+
       expect(
-        event.toJson()['contexts'],
-        <String, dynamic>{
-          'device': {
-            'name': 'testDevice',
-            'family': 'testFamily',
-            'model': 'testModel',
-            'model_id': 'testModelId',
-            'arch': 'testArch',
-            'battery_level': 23.0,
-            'orientation': 'landscape',
-            'manufacturer': 'testOEM',
-            'brand': 'testBrand',
-            'screen_resolution': '123x345',
-            'screen_density': 99.1,
-            'screen_dpi': 100,
-            'online': false,
-            'charging': true,
-            'low_memory': false,
-            'simulator': true,
-            'memory_size': 1234567,
-            'free_memory': 12345,
-            'usable_memory': 9876,
-            'storage_size': 1234567,
-            'free_storage': 1234567,
-            'external_storage_size': 98765,
-            'external_free_storage': 98765,
-            'boot_time': testBootTime.toIso8601String(),
-            'timezone': 'Australia/Melbourne',
-          },
-          'os': {
-            'name': 'testOS',
-          },
-          'testrt1': {'name': 'testRT1', 'type': 'runtime', 'version': '1.0'},
-          'testrt2': {'name': 'testRT2', 'type': 'runtime', 'version': '2.3.1'},
-          'app': {'app_version': '1.2.3'},
-          'browser': {'version': '12.3.4'},
-          'gpu': {'name': 'Radeon', 'version': '1'},
-          'theme': {'value': 'material'},
-          'version': {'value': 9},
-        },
+        DeepCollectionEquality().equals(contextsJson, json),
+        true,
       );
     });
 
