@@ -18,6 +18,19 @@ class DebugMeta {
 
   DebugMeta({this.sdk, List<DebugImage>? images}) : _images = images;
 
+  factory DebugMeta.fromJson(Map<String, dynamic> json) {
+    final sdkInfoJson = json['sdk_info'];
+    final debugImagesJson = json['images'] as List<dynamic>?;
+    return DebugMeta(
+        sdk: sdkInfoJson != null ? SdkInfo.fromJson(sdkInfoJson) : null,
+        images: debugImagesJson != null
+            ? debugImagesJson
+                .map((debugImageJson) => DebugImage.fromJson(
+                  debugImageJson as Map<String, dynamic>)
+                ).toList()
+            : null);
+  }
+
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 

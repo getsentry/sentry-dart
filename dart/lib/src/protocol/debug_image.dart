@@ -50,6 +50,20 @@ class DebugImage {
     this.codeId,
   });
 
+  factory DebugImage.fromJson(Map<String, dynamic> json) {
+    return DebugImage(
+      type: json['type'],
+      imageAddr: json['image_addr'],
+      debugId: json['debug_id'],
+      debugFile: json['debug_file'],
+      imageSize: json['image_size'],
+      uuid: json['uuid'],
+      codeFile: json['code_file'],
+      arch: json['arch'],
+      codeId: json['code_id'],
+    );
+  }
+
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 
