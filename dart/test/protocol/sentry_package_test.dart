@@ -3,31 +3,58 @@ import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('copyWith keeps unchanged', () {
-    final data = _generate();
 
-    final copy = data.copyWith();
+  final sentryPackage = SentryPackage(
+    'name',
+    'version',
+  );
 
-    expect(
-      MapEquality().equals(data.toJson(), copy.toJson()),
-      true,
-    );
+  final sentryPackageJson = <String, dynamic>{
+    'name': 'name',
+    'version': 'version',
+  };
+
+  group('json', () {
+    test('toJson', () {
+      final json = sentryPackage.toJson();
+
+      expect(
+        MapEquality().equals(sentryPackageJson, json),
+        true,
+      );
+    });
+    test('fromJson', () {
+      final sentryPackage = SdkVersion.fromJson(sentryPackageJson);
+      final json = sentryPackage.toJson();
+
+      expect(
+        MapEquality().equals(sentryPackageJson, json),
+        true,
+      );
+    });
   });
 
-  test('copyWith takes new values', () {
-    final data = _generate();
+  group('copyWith', () {
+    test('copyWith keeps unchanged', () {
+      final data = sentryPackage;
 
-    final copy = data.copyWith(
-      name: 'name1',
-      version: 'version1',
-    );
+      final copy = data.copyWith();
 
-    expect('name1', copy.name);
-    expect('version1', copy.version);
+      expect(
+        MapEquality().equals(data.toJson(), copy.toJson()),
+        true,
+      );
+    });
+    test('copyWith takes new values', () {
+      final data = sentryPackage;
+
+      final copy = data.copyWith(
+        name: 'name1',
+        version: 'version1',
+      );
+
+      expect('name1', copy.name);
+      expect('version1', copy.version);
+    });
   });
 }
-
-SentryPackage _generate() => SentryPackage(
-      'name',
-      'version',
-    );

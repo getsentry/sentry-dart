@@ -232,27 +232,20 @@ class SentryEvent {
       return Breadcrumb.fromJson(e);
     }).toList();
 
-    final sdkJson = json['sdk'] as Map<String, dynamic>?;
-    final messageJson = json['message'] as Map<String, dynamic>?;
-
-    final stackTraceJson = json['threads'] as Map<String, dynamic>?;
-    final stackTraceValuesJson = stackTraceJson?['values'] as List<dynamic>?;
+    final stackTraceValuesJson = json['threads']?['values'];
     Map<String, dynamic>? stackTraceValuesStacktraceJson;
     if (stackTraceValuesJson?.isNotEmpty == true) {
+      stackTraceValuesStacktraceJson = {};
       stackTraceValuesStacktraceJson =
-          stackTraceValuesJson?.first['stacktrace'] as Map<String, dynamic>?;
+          stackTraceValuesJson?.first['stacktrace'];
     }
 
-    final exceptionJson = json['exception'] as Map<String, dynamic>?;
-    final exceptionValuesJson = exceptionJson?['values'] as List<dynamic>?;
-    final exceptionValuesItemJson =
-        exceptionValuesJson?.first as Map<String, dynamic>?;
-
-    final levelName = json['level']?.toString();
-
-    final userJson = json['user'] as Map<String, dynamic>?;
-
-    final fingerprintJson = json['fingerprint'] as List<dynamic>?;
+    final exceptionValuesJson = json['exception']?['values'];
+    Map<String, dynamic>? exceptionValuesItemJson;
+    if (exceptionValuesJson?.isNotEmpty == true) {
+      exceptionValuesItemJson = {};
+      exceptionValuesItemJson = exceptionValuesJson?.first;
+    }
 
     final modulesJson = json['modules'] as Map<String, dynamic>?;
     Map<String, String>? modules;
@@ -272,27 +265,24 @@ class SentryEvent {
       });
     }
 
-    final contextsJson = json['contexts'] as Map<String, dynamic>?;
-    final requestJson = json['request'] as Map<String, dynamic>?;
-
     return SentryEvent(
-      eventId: SentryId.fromId(['event_id'].toString()), // TODO: Hanled '-'?
+      eventId: SentryId.fromId(json['event_id']), // TODO: Hanled '-'?
       timestamp: DateTime.now(), // TODO: Parse timestamp
       modules: modules,
       tags: tags,
-      extra: json['extra'] as Map<String, dynamic>?,
-      fingerprint: fingerprintJson != null
-          ? fingerprintJson.map((e) => e as String).toList()
-          : null,
+      extra: json['extra'],
+      fingerprint: json['fingerprint']?.map((e) => e as String).toList(),
       breadcrumbs: breadcrumbs,
-      sdk: sdkJson != null ? SdkVersion.fromJson(sdkJson) : null,
+      sdk: json['sdk'] != null ? SdkVersion.fromJson(json['sdk']) : null,
       platform: json['platform']?.toString(),
       logger: json['logger']?.toString(),
       serverName: json['server_name']?.toString(),
       release: json['release']?.toString(),
       dist: json['dist']?.toString(),
       environment: json['environment']?.toString(),
-      message: messageJson != null ? SentryMessage.fromJson(messageJson) : null,
+      message: json['message'] != null
+          ? SentryMessage.fromJson(json['message'])
+          : null,
       transaction: json['transaction']?.toString(),
       stackTrace: stackTraceValuesStacktraceJson != null
           ? SentryStackTrace.fromJson(stackTraceValuesStacktraceJson)
@@ -300,16 +290,17 @@ class SentryEvent {
       exception: exceptionValuesItemJson != null
           ? SentryException.fromJson(exceptionValuesItemJson)
           : null,
-      level: levelName != null ? SentryLevel.fromName(levelName) : null,
+      level: json['level'] != null ? SentryLevel.fromName(json['level']) : null,
       culprit: json['culprit']?.toString(),
-      user: userJson != null ? SentryUser.fromJson(userJson) : null,
-      contexts: contextsJson != null
-        ? Contexts.fromJson(contextsJson)
-        : null,
-      request: requestJson != null
-        ? SentryRequest.fromJson(requestJson)
-        : null,
-      debugMeta: null, // TODO(denis)
+      user: json['user'] != null ? SentryUser.fromJson(json['user']) : null,
+      contexts:
+          json['contexts'] != null ? Contexts.fromJson(json['contexts']) : null,
+      request: json['request'] != null
+          ? SentryRequest.fromJson(json['request'])
+          : null,
+      debugMeta: json['debug_meta'] != null
+          ? DebugMeta.fromJson(json['debug_meta'])
+          : null,
     );
   }
 
