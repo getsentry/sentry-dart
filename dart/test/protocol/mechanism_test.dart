@@ -1,7 +1,7 @@
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
-// TODO(denis)
+// TODO(denis): test json
 
 void main() {
   test('copyWith keeps unchanged', () {
