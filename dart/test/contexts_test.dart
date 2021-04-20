@@ -73,7 +73,7 @@ void main() {
             'model': 'testModel',
             'model_id': 'testModelId',
             'arch': 'testArch',
-            'battery_level': 23,
+            'battery_level': 23.0,
             'orientation': 'landscape',
             'manufacturer': 'testOEM',
             'brand': 'testBrand',
