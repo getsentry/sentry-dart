@@ -366,7 +366,7 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
     try {
       if (options.release == null || options.dist == null) {
         final packageInfo = await _packageLoader();
-        var name = packageInfo.packageName;
+        var name = _cleanString(packageInfo.packageName);
         if (name.isEmpty) {
           // Not all platforms have a packageName.
           // If no packageName is available, use the appName instead.

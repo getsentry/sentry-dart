@@ -288,7 +288,8 @@ void main() {
     /// See the following issues:
     /// - https://github.com/getsentry/sentry-dart/issues/410
     /// - https://github.com/fluttercommunity/plus_plugins/issues/182
-    test('uses acceptable release name on windows', () async {
+    test('does not send Unicode NULL \\u0000 character in app name or version',
+        () async {
       final loader = () {
         return Future.value(PackageInfo(
           // As per
@@ -305,6 +306,30 @@ void main() {
           .call(MockHub(), fixture.options);
 
       expect(fixture.options.release, 'sentry_flutter_example@1.0.0');
+    });
+
+    /// See the following issues:
+    /// - https://github.com/getsentry/sentry-dart/issues/410
+    /// - https://github.com/fluttercommunity/plus_plugins/issues/182
+    test(
+        'does not send Unicode NULL \\u0000 character in package name or build number',
+        () async {
+      final loader = () {
+        return Future.value(PackageInfo(
+          // As per
+          // https://api.dart.dev/stable/2.12.4/dart-core/String-class.html
+          // this is how \u0000 is added to a string in dart
+          appName: '',
+          packageName: 'sentry_flutter_example\u{0000}',
+          version: '',
+          buildNumber: '123\u{0000}',
+        ));
+      };
+      await fixture
+          .getIntegration(loader: loader)
+          .call(MockHub(), fixture.options);
+
+      expect(fixture.options.release, 'sentry_flutter_example+123');
     });
 
     test('dist is null if build number is an empty string', () async {
