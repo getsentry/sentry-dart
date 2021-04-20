@@ -265,7 +265,7 @@ class SentryEvent {
       });
     }
 
-    final fingerprintJson = json['fingerprint'] as List<String>?;
+    final fingerprintJson = json['fingerprint'] as List<dynamic>?;
     final sdkVersionJson = json['sdk'] as Map<String, dynamic>?;
     final messageJson = json['message'] as Map<String, dynamic>?;
     final userJson = json['user'] as Map<String, dynamic>?;
@@ -281,7 +281,7 @@ class SentryEvent {
       modules: modules,
       tags: tags,
       extra: json['extra'],
-      fingerprint: fingerprintJson?.toList(),
+      fingerprint: fingerprintJson?.map((e) => e as String).toList(),
       breadcrumbs: breadcrumbs,
       sdk: sdkVersionJson != null && sdkVersionJson.isNotEmpty
         ? SdkVersion.fromJson(sdkVersionJson)

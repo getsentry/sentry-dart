@@ -372,7 +372,7 @@ void main() {
       expect(capturedEvent.level!.name, SentryLevel.error.name);
       expect(capturedEvent.transaction, transaction);
       expect(capturedEvent.fingerprint, fingerprint);
-      expect(capturedEvent.breadcrumbs?.first, crumb);
+      expect(capturedEvent.breadcrumbs?.first.toJson(), crumb.toJson());
       expect(capturedEvent.tags, {
         scopeTagKey: scopeTagValue,
         eventTagKey: eventTagValue,
@@ -427,7 +427,7 @@ void main() {
       expect(capturedEvent.level!.name, SentryLevel.warning.name);
       expect(capturedEvent.transaction, eventTransaction);
       expect(capturedEvent.fingerprint, eventFingerprint);
-      expect(capturedEvent.breadcrumbs, eventCrumbs);
+      expect(capturedEvent.breadcrumbs?.map((e) => e.toJson()), eventCrumbs.map((e) => e.toJson()));
     });
   });
 
