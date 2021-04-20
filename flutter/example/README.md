@@ -8,7 +8,7 @@
 Sentry Example for Flutter
 ===========
 
-This is Flutter app that crashes intentionally in various ways. It demonstrates
+This is a Flutter app that crashes intentionally in various ways. It demonstrates
 how to capture errors and report them to [sentry.io](https://sentry.io/). 
 
 # Running this sample
