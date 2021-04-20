@@ -273,6 +273,7 @@ class SentryEvent {
     }
 
     final contextsJson = json['contexts'] as Map<String, dynamic>?;
+    final requestJson = json['request'] as Map<String, dynamic>?;
 
     return SentryEvent(
       eventId: SentryId.fromId(['event_id'].toString()), // TODO: Hanled '-'?
@@ -305,7 +306,9 @@ class SentryEvent {
       contexts: contextsJson != null
         ? Contexts.fromJson(contextsJson)
         : null,
-      request: null, // TODO(denis)
+      request: requestJson != null
+        ? SentryRequest.fromJson(requestJson)
+        : null,
       debugMeta: null, // TODO(denis)
     );
   }
