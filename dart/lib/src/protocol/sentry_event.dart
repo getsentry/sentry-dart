@@ -265,42 +265,59 @@ class SentryEvent {
       });
     }
 
+    final fingerprintJson = json['fingerprint'] as List<String>?;
+    final sdkVersionJson = json['sdk'] as Map<String, dynamic>?;
+    final messageJson = json['message'] as Map<String, dynamic>?;
+    final userJson = json['user'] as Map<String, dynamic>?;
+    final contextsJson = json['contexts'] as Map<String, dynamic>?;
+    final requestJson = json['request'] as Map<String, dynamic>?;
+    final debugMetaJson = json['debug_meta'] as Map<String, dynamic>?;
+
     return SentryEvent(
-      eventId: SentryId.fromId(json['event_id']), // TODO: Hanled '-'?
-      timestamp: DateTime.now(), // TODO: Parse timestamp
+      eventId: SentryId.fromId(json['event_id']),
+      timestamp: json['timestamp'] != null
+        ? DateTime.tryParse(json['timestamp'])
+        : null,
       modules: modules,
       tags: tags,
       extra: json['extra'],
-      fingerprint: json['fingerprint']?.map((e) => e as String).toList(),
+      fingerprint: fingerprintJson?.toList(),
       breadcrumbs: breadcrumbs,
-      sdk: json['sdk'] != null ? SdkVersion.fromJson(json['sdk']) : null,
-      platform: json['platform']?.toString(),
-      logger: json['logger']?.toString(),
-      serverName: json['server_name']?.toString(),
-      release: json['release']?.toString(),
-      dist: json['dist']?.toString(),
-      environment: json['environment']?.toString(),
-      message: json['message'] != null
-          ? SentryMessage.fromJson(json['message'])
-          : null,
-      transaction: json['transaction']?.toString(),
-      stackTrace: stackTraceValuesStacktraceJson != null
-          ? SentryStackTrace.fromJson(stackTraceValuesStacktraceJson)
-          : null,
-      exception: exceptionValuesItemJson != null
-          ? SentryException.fromJson(exceptionValuesItemJson)
-          : null,
-      level: json['level'] != null ? SentryLevel.fromName(json['level']) : null,
-      culprit: json['culprit']?.toString(),
-      user: json['user'] != null ? SentryUser.fromJson(json['user']) : null,
-      contexts:
-          json['contexts'] != null ? Contexts.fromJson(json['contexts']) : null,
-      request: json['request'] != null
-          ? SentryRequest.fromJson(json['request'])
-          : null,
-      debugMeta: json['debug_meta'] != null
-          ? DebugMeta.fromJson(json['debug_meta'])
-          : null,
+      sdk: sdkVersionJson != null && sdkVersionJson.isNotEmpty
+        ? SdkVersion.fromJson(sdkVersionJson)
+        : null,
+      platform: json['platform'],
+      logger: json['logger'],
+      serverName: json['server_name'],
+      release: json['release'],
+      dist: json['dist'],
+      environment: json['environment'],
+      message: messageJson != null && messageJson.isNotEmpty
+        ? SentryMessage.fromJson(messageJson)
+        : null,
+      transaction: json['transaction'],
+      stackTrace: stackTraceValuesStacktraceJson != null && stackTraceValuesStacktraceJson.isNotEmpty
+        ? SentryStackTrace.fromJson(stackTraceValuesStacktraceJson)
+        : null,
+      exception: exceptionValuesItemJson != null && exceptionValuesItemJson.isNotEmpty
+        ? SentryException.fromJson(exceptionValuesItemJson)
+        : null,
+      level: json['level'] != null
+        ? SentryLevel.fromName(json['level'])
+        : null,
+      culprit: json['culprit'],
+      user: userJson != null && userJson.isNotEmpty
+        ? SentryUser.fromJson(userJson)
+        : null,
+      contexts: contextsJson != null && contextsJson.isNotEmpty 
+        ? Contexts.fromJson(contextsJson)
+        : null,
+      request: requestJson != null && requestJson.isNotEmpty
+        ? SentryRequest.fromJson(requestJson)
+        : null,
+      debugMeta: debugMetaJson != null && debugMetaJson.isNotEmpty
+        ? DebugMeta.fromJson(debugMetaJson)
+        : null,
     );
   }
 

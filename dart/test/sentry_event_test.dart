@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/protocol/sentry_request.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
@@ -12,6 +13,64 @@ import 'package:test/test.dart';
 import 'mocks.dart';
 
 void main() {
+  group('deserialize', () {
+    final sentryId = SentryId.empty();
+    final timestamp = DateTime.fromMillisecondsSinceEpoch(0);
+    final sentryEventJson = <String, dynamic>{
+      'event_id': sentryId.toString(),
+      'timestamp': formatDateAsIso8601WithMillisPrecision(timestamp),
+      'platform': 'platform',
+      'logger': 'logger',
+      'server_name': 'serverName',
+      'release': 'release',
+      'dist': 'dist',
+      'environment': 'environment',
+      'modules': {'key': 'value'},
+      'message': {'formatted': 'formatted'},
+      'transaction': 'transaction',
+      'exception': {
+        'values': [
+          {'type': 'type', 'value': 'value'}
+        ]
+      },
+      'level': 'debug',
+      'culprit': 'culprit',
+      'tags': {'key': 'value'},
+      'extra': {'key': 'value'},
+      'contexts': {
+        'device': {'name': 'name'}
+      },
+      'user': {
+        'id': 'id',
+        'username': 'username',
+        'ip_address': '192.168.0.0.1'
+      },
+      'fingerprint': ['fingerprint'],
+      'breadcrumbs': [
+        {
+          'message': 'message',
+          'timestamp': formatDateAsIso8601WithMillisPrecision(timestamp),
+          'level': 'info'
+        }
+      ],
+      'sdk': {'name': 'name', 'version': 'version'},
+      'request': {'url': 'url'},
+      'debug_meta': {
+        'sdk_info': {'sdk_name': 'sdkName'}
+      },
+    };
+
+    test('fromJson', () {
+      final sentryEvent = SentryEvent.fromJson(sentryEventJson);
+      final json = sentryEvent.toJson();
+
+      expect(
+        DeepCollectionEquality().equals(sentryEventJson, json),
+        true,
+      );
+    });
+  });
+
   group(SentryEvent, () {
     test('$Breadcrumb serializes', () {
       expect(
