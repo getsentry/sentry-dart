@@ -272,6 +272,8 @@ class SentryEvent {
       });
     }
 
+    final contextsJson = json['contexts'] as Map<String, dynamic>?;
+
     return SentryEvent(
       eventId: SentryId.fromId(['event_id'].toString()), // TODO: Hanled '-'?
       timestamp: DateTime.now(), // TODO: Parse timestamp
@@ -300,7 +302,9 @@ class SentryEvent {
       level: levelName != null ? SentryLevel.fromName(levelName) : null,
       culprit: json['culprit']?.toString(),
       user: userJson != null ? SentryUser.fromJson(userJson) : null,
-      contexts: null, // TODO(denis)
+      contexts: contextsJson != null
+        ? Contexts.fromJson(contextsJson)
+        : null,
       request: null, // TODO(denis)
       debugMeta: null, // TODO(denis)
     );
