@@ -7,11 +7,8 @@ import 'package:sentry_flutter/src/sentry_flutter_options.dart';
 import 'mocks.dart';
 
 void main() {
-  const _channel = MethodChannel('sentry_flutter');
-
   TestWidgetsFlutterBinding.ensureInitialized();
-
-  var called = false;
+  late Fixture fixture;
 
   final imageList = [
     {
@@ -26,62 +23,60 @@ void main() {
   ];
 
   setUp(() {
-    _channel.setMockMethodCallHandler((MethodCall methodCall) async {
-      called = true;
+    fixture = Fixture();
+    fixture.channel.setMockMethodCallHandler((MethodCall methodCall) async {
+      fixture.called = true;
       return imageList;
     });
   });
 
   tearDown(() {
-    _channel.setMockMethodCallHandler(null);
-    called = false;
+    fixture.channel.setMockMethodCallHandler(null);
+    fixture.called = false;
   });
 
   test('$LoadAndroidImageListIntegration adds itself to sdk.integrations',
       () async {
-    final options = SentryFlutterOptions()..dsn = fakeDsn;
-    final hub = Hub(options);
+    final sut = fixture.getSut();
 
-    LoadAndroidImageListIntegration(_channel)(hub, options);
+    sut.call(fixture.hub, fixture.options);
 
     expect(
-      options.sdk.integrations.contains('loadAndroidImageListIntegration'),
+      fixture.options.sdk.integrations
+          .contains('loadAndroidImageListIntegration'),
       true,
     );
   });
 
   test('Native layer is not called as the event is symbolicated', () async {
-    final options = SentryFlutterOptions()..dsn = fakeDsn;
-    final hub = Hub(options);
+    final sut = fixture.getSut();
 
-    LoadAndroidImageListIntegration(_channel)(hub, options);
+    sut.call(fixture.hub, fixture.options);
 
-    expect(options.eventProcessors.length, 1);
+    expect(fixture.options.eventProcessors.length, 1);
 
-    await hub.captureException(StateError('error'),
-        stackTrace: StackTrace.current);
+    await fixture.hub
+        .captureException(StateError('error'), stackTrace: StackTrace.current);
 
-    expect(called, false);
+    expect(fixture.called, false);
   });
 
   test('Native layer is not called as the event has no stack traces', () async {
-    final options = SentryFlutterOptions()..dsn = fakeDsn;
-    final hub = Hub(options);
+    final sut = fixture.getSut();
 
-    LoadAndroidImageListIntegration(_channel)(hub, options);
+    sut.call(fixture.hub, fixture.options);
 
-    await hub.captureException(StateError('error'));
+    await fixture.hub.captureException(StateError('error'));
 
-    expect(called, false);
+    expect(fixture.called, false);
   });
 
   test('Native layer is called as stack traces are not symbolicated', () async {
-    final options = SentryFlutterOptions()..dsn = fakeDsn;
-    final hub = Hub(options);
+    final sut = fixture.getSut();
 
-    LoadAndroidImageListIntegration(_channel)(hub, options);
+    sut.call(fixture.hub, fixture.options);
 
-    await hub.captureException(StateError('error'), stackTrace: '''
+    await fixture.hub.captureException(StateError('error'), stackTrace: '''
       warning:  This VM has been configured to produce stack traces that violate the Dart standard.
       ***       *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
       unparsed  pid: 30930, tid: 30990, name 1.ui
@@ -92,15 +87,15 @@ void main() {
       unparsed      #01 abs 000000723d637527 virt 00000000001f0527 _kDartIsolateSnapshotInstructions+0x1e5527
       ''');
 
-    expect(called, true);
+    expect(fixture.called, true);
   });
 
   test('Event processor adds image list to the event', () async {
-    final options = SentryFlutterOptions()..dsn = fakeDsn;
-    final hub = Hub(options);
+    final sut = fixture.getSut();
 
-    LoadAndroidImageListIntegration(_channel)(hub, options);
-    final ep = options.eventProcessors.first;
+    sut.call(fixture.hub, fixture.options);
+
+    final ep = fixture.options.eventProcessors.first;
     SentryEvent? event = getEvent();
     event = await ep(event);
 
@@ -108,11 +103,10 @@ void main() {
   });
 
   test('Event processor asserts image list', () async {
-    final options = SentryFlutterOptions()..dsn = fakeDsn;
-    final hub = Hub(options);
+    final sut = fixture.getSut();
 
-    LoadAndroidImageListIntegration(_channel)(hub, options);
-    final ep = options.eventProcessors.first;
+    sut.call(fixture.hub, fixture.options);
+    final ep = fixture.options.eventProcessors.first;
     SentryEvent? event = getEvent();
     event = await ep(event);
 
@@ -137,4 +131,22 @@ SentryEvent getEvent({bool symbolicated = false}) {
     stackTrace: st,
   );
   return SentryEvent(exception: ex);
+}
+
+class Fixture {
+  Fixture() {
+    channel = MethodChannel('sentry_flutter');
+    options = SentryFlutterOptions()..dsn = fakeDsn;
+    hub = Hub(options);
+  }
+
+  late final MethodChannel channel;
+  late final SentryFlutterOptions options;
+
+  late final Hub hub;
+  var called = false;
+
+  LoadAndroidImageListIntegration getSut() {
+    return LoadAndroidImageListIntegration(channel);
+  }
 }
