@@ -25,9 +25,9 @@ class DebugMeta {
         sdk: sdkInfoJson != null ? SdkInfo.fromJson(sdkInfoJson) : null,
         images: debugImagesJson != null
             ? debugImagesJson
-                .map((debugImageJson) => DebugImage.fromJson(
-                  debugImageJson as Map<String, dynamic>)
-                ).toList()
+                .map((debugImageJson) =>
+                    DebugImage.fromJson(debugImageJson as Map<String, dynamic>))
+                .toList()
             : null);
   }
 

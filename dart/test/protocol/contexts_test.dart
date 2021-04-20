@@ -23,7 +23,7 @@ void main() {
 
   final contextsMutlipleRuntimes = Contexts(
     runtimes: [
-      SentryRuntime(name: 'name'), 
+      SentryRuntime(name: 'name'),
       SentryRuntime(name: 'name'),
       SentryRuntime(key: 'key')
     ],
@@ -61,7 +61,8 @@ void main() {
       );
     });
     test('fromJson multiple runtimes', () {
-      final contextsMutlipleRuntimes = Contexts.fromJson(contextsMutlipleRuntimesJson);
+      final contextsMutlipleRuntimes =
+          Contexts.fromJson(contextsMutlipleRuntimesJson);
       final json = contextsMutlipleRuntimes.toJson();
 
       expect(

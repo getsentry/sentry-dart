@@ -3,7 +3,6 @@ import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
 void main() {
-
   final sentryRuntime = SentryRuntime(
     key: 'key',
     name: 'name',
@@ -39,15 +38,15 @@ void main() {
 
   group('copyWith', () {
     test('copyWith keeps unchanged', () {
-        final data = sentryRuntime;
+      final data = sentryRuntime;
 
-        final copy = data.copyWith();
+      final copy = data.copyWith();
 
-        expect(
-          MapEquality().equals(data.toJson(), copy.toJson()),
-          true,
-        );
-      });
+      expect(
+        MapEquality().equals(data.toJson(), copy.toJson()),
+        true,
+      );
+    });
 
     test('copyWith takes new values', () {
       final data = sentryRuntime;
@@ -64,5 +63,5 @@ void main() {
       expect('version1', copy.version);
       expect('rawDescription1', copy.rawDescription);
     });
-  });  
+  });
 }

@@ -3,7 +3,6 @@ import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
 void main() {
-
   final sentryUser = SentryUser(
     id: 'id',
     username: 'username',
@@ -21,7 +20,6 @@ void main() {
   };
 
   group('json', () {
-
     test('toJson', () {
       final json = sentryUser.toJson();
 
@@ -93,5 +91,5 @@ void main() {
       expect('ipAddress1', copy.ipAddress);
       expect({'key1': 'value1'}, copy.extras);
     });
-  });  
+  });
 }

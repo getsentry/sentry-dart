@@ -45,11 +45,11 @@ class SentryDevice {
         modelId: data['model_id'],
         arch: data['arch'],
         batteryLevel: data['battery_level'],
-        orientation: data['orientation'] == 'portrait' 
-          ? SentryOrientation.portrait
-          : data['orientation'] == 'landscape'
-            ? SentryOrientation.landscape
-            : null,
+        orientation: data['orientation'] == 'portrait'
+            ? SentryOrientation.portrait
+            : data['orientation'] == 'landscape'
+                ? SentryOrientation.landscape
+                : null,
         manufacturer: data['manufacturer'],
         brand: data['brand'],
         screenResolution: data['screen_resolution'],

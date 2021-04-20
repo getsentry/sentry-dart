@@ -14,10 +14,12 @@ void main() {
     'name': 'name',
     'version': 'version',
     'integrations': ['test'],
-    'packages': [{
-      'name': 'name',
-      'version': 'version',
-    }],
+    'packages': [
+      {
+        'name': 'name',
+        'version': 'version',
+      }
+    ],
   };
 
   group('json', () {

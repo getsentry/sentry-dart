@@ -103,7 +103,7 @@ class Contexts extends MapView<String, dynamic> {
   SentryGpu? get gpu => this[SentryGpu.type];
 
   set gpu(SentryGpu? gpu) => this[SentryGpu.type] = gpu;
-  
+
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};

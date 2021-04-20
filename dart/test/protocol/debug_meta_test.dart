@@ -12,10 +12,9 @@ void main() {
 
   final debugMetaJson = <String, dynamic>{
     'sdk_info': {'sdk_name': 'sdkName'},
-    'images': [{
-      'uuid': 'uuid',
-      'type': 'macho'
-    }]
+    'images': [
+      {'uuid': 'uuid', 'type': 'macho'}
+    ]
   };
 
   group('json', () {

@@ -42,7 +42,7 @@ class HttpTransport implements Transport {
       _options.clock,
     );
   }
-  
+
   @override
   Future<SentryId> send(SentryEnvelope envelope) async {
     final filteredEnvelope = _rateLimiter.filter(envelope);

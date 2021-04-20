@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
@@ -73,11 +74,12 @@ void main() {
 
       await Sentry.captureMessage('a message');
 
-      final envelope = verify(transport.send(captureAny)).captured.first
-          as SentryEnvelope;
+      final envelope =
+          verify(transport.send(captureAny)).captured.first as SentryEnvelope;
+      final event = await eventFromEnvelope(envelope);
 
-      // expect(event.sdk!.integrations.length, 7);
-      // expect(event.sdk!.integrations.contains('loadContextsIntegration'), true);
+      expect(event.sdk!.integrations.length, 7);
+      expect(event.sdk!.integrations.contains('loadContextsIntegration'), true);
     });
 
     test('should not add loadContextsIntegration if not ios', () async {
@@ -92,13 +94,13 @@ void main() {
 
       await Sentry.captureMessage('a message');
 
-      final envelope = verify(transport.send(captureAny)).captured.first
-          as SentryEnvelope;
+      final envelope =
+          verify(transport.send(captureAny)).captured.first as SentryEnvelope;
+      final event = await eventFromEnvelope(envelope);
 
-      // TODO
-      // expect(event.sdk!.integrations.length, 6);
-      // expect(
-      //     event.sdk!.integrations.contains('loadContextsIntegration'), false);
+      expect(event.sdk!.integrations.length, 6);
+      expect(
+          event.sdk!.integrations.contains('loadContextsIntegration'), false);
     });
 
     test('should not add loadAndroidImageListIntegration if not Android',
@@ -114,13 +116,14 @@ void main() {
 
       await Sentry.captureMessage('a message');
 
-      final envelope = verify(transport.send(captureAny)).captured.first
-          as SentryEnvelope;
+      final envelope =
+          verify(transport.send(captureAny)).captured.first as SentryEnvelope;
+      final event = await eventFromEnvelope(envelope);
 
-      // expect(event.sdk!.integrations.length, 6);
-      // expect(
-      //     event.sdk!.integrations.contains('loadAndroidImageListIntegration'),
-      //     false);
+      expect(event.sdk!.integrations.length, 6);
+      expect(
+          event.sdk!.integrations.contains('loadAndroidImageListIntegration'),
+          false);
     });
   });
 }
@@ -134,4 +137,14 @@ Future<PackageInfo> loadTestPackage() async {
     version: 'version',
     buildNumber: 'buildNumber',
   );
+}
+
+Future<SentryEvent> eventFromEnvelope(SentryEnvelope envelope) async {
+  final envelopeItemData = <int>[];
+  await envelope.items.first
+      .envelopeItemStream()
+      .forEach(envelopeItemData.addAll);
+  final envelopeItem = utf8.decode(envelopeItemData);
+  final envelopeItemJson = jsonDecode(envelopeItem.split('\n').last);
+  return SentryEvent.fromJson(envelopeItemJson as Map<String, dynamic>);
 }

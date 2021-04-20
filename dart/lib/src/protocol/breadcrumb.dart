@@ -80,8 +80,8 @@ class Breadcrumb {
     final levelName = json['level']?.toString();
     return Breadcrumb(
       timestamp: json['timestamp'] != null
-        ? DateTime.tryParse(json['timestamp'])
-        : null,
+          ? DateTime.tryParse(json['timestamp'])
+          : null,
       message: json['message']?.toString(),
       category: json['category']?.toString(),
       data: json['data'] as Map<String, dynamic>?,

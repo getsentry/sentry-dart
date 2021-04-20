@@ -34,19 +34,18 @@ class SentryException {
 
   factory SentryException.fromJson(Map<String, dynamic> json) {
     return SentryException(
-      type: json['type'],
-      value: json['value'],
-      module: json['module'],
-      stackTrace: json['stacktrace'] != null 
-        ? SentryStackTrace.fromJson(json['stacktrace']) 
-        : null,
-      mechanism: json['mechanism'] != null
-        ? Mechanism.fromJson(json['mechanism']) 
-        : null,
-      threadId: json['thread_id']
-    );
+        type: json['type'],
+        value: json['value'],
+        module: json['module'],
+        stackTrace: json['stacktrace'] != null
+            ? SentryStackTrace.fromJson(json['stacktrace'])
+            : null,
+        mechanism: json['mechanism'] != null
+            ? Mechanism.fromJson(json['mechanism'])
+            : null,
+        threadId: json['thread_id']);
   }
-  
+
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 

@@ -427,7 +427,8 @@ void main() {
       expect(capturedEvent.level!.name, SentryLevel.warning.name);
       expect(capturedEvent.transaction, eventTransaction);
       expect(capturedEvent.fingerprint, eventFingerprint);
-      expect(capturedEvent.breadcrumbs?.map((e) => e.toJson()), eventCrumbs.map((e) => e.toJson()));
+      expect(capturedEvent.breadcrumbs?.map((e) => e.toJson()),
+          eventCrumbs.map((e) => e.toJson()));
     });
   });
 

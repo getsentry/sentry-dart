@@ -35,26 +35,26 @@ void main() {
 
   group('copyWith', () {
     test('copyWith keeps unchanged', () {
-    final data = sentryBrowser;
+      final data = sentryBrowser;
 
-    final copy = data.copyWith();
+      final copy = data.copyWith();
 
-    expect(
-      MapEquality().equals(data.toJson(), copy.toJson()),
-      true,
-    );
-  });
+      expect(
+        MapEquality().equals(data.toJson(), copy.toJson()),
+        true,
+      );
+    });
 
-  test('copyWith takes new values', () {
-    final data = sentryBrowser;
+    test('copyWith takes new values', () {
+      final data = sentryBrowser;
 
-    final copy = data.copyWith(
-      name: 'name1',
-      version: 'version1',
-    );
+      final copy = data.copyWith(
+        name: 'name1',
+        version: 'version1',
+      );
 
-    expect('name1', copy.name);
-    expect('version1', copy.version);
-  });
+      expect('name1', copy.name);
+      expect('version1', copy.version);
+    });
   });
 }
