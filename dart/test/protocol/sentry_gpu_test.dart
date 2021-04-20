@@ -28,26 +28,23 @@ void main() {
     'npot_support': 'fixture-npotSupport'
   };
 
-  test('toJson', () {
-    final json = sentryGpu.toJson();
+  group('json', () {
+    test('toJson', () {
+      final json = sentryGpu.toJson();
 
-    expect(
-      MapEquality().equals(sentryGpuJson, json),
-      true,
-    );
-  });
+      expect(
+        MapEquality().equals(sentryGpuJson, json),
+        true,
+      );
+    });
+    test('fromJson', () {
+      final sentryGpu = SentryGpu.fromJson(sentryGpuJson);
+      final json = sentryGpu.toJson();
 
-  test('fromJson', () {
-    final sentryGpu = SentryGpu.fromJson(sentryGpuJson);
-    final json = sentryGpu.toJson();
-
-    expect(
-      MapEquality().equals(sentryGpuJson, json),
-      true,
-    );
+      expect(
+        MapEquality().equals(sentryGpuJson, json),
+        true,
+      );
+    });
   });
 }
-
-
-
-

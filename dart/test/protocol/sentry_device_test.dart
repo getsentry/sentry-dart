@@ -3,7 +3,6 @@ import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
 void main() {
-
   final testBootTime = DateTime.fromMicrosecondsSinceEpoch(0);
 
   final sentryDevice = SentryDevice(
@@ -62,26 +61,23 @@ void main() {
     'timezone': 'Australia/Melbourne',
   };
 
-  test('SentryDevice toJson', () {
-    final json = sentryDevice.toJson();
+  group('json', () {
+    test('toJson', () {
+      final json = sentryDevice.toJson();
 
-    expect(
-      MapEquality().equals(sentryDeviceJson, json),
-      true,
-    );
-  });
+      expect(
+        MapEquality().equals(sentryDeviceJson, json),
+        true,
+      );
+    });
+    test('fromJson', () {
+      final sentryDevice = SentryDevice.fromJson(sentryDeviceJson);
+      final json = sentryDevice.toJson();
 
-  test('SentryDevice fromJson', () {
-    final sentryDevice = SentryDevice.fromJson(sentryDeviceJson);
-    final json = sentryDevice.toJson();
-
-    expect(
-      MapEquality().equals(sentryDeviceJson, json),
-      true,
-    );
+      expect(
+        MapEquality().equals(sentryDeviceJson, json),
+        true,
+      );
+    });
   });
 }
-
-
-
-
