@@ -55,11 +55,11 @@ class SentryUser {
 
   factory SentryUser.fromJson(Map<String, dynamic> json) {
     return SentryUser(
-      id: json['id']?.toString(),
-      username: json['username']?.toString(),
-      email: json['email']?.toString(),
-      ipAddress: json['ip_address']?.toString(),
-      extras: json['extras'] as Map<String, dynamic>?,
+      id: json['id'],
+      username: json['username'],
+      email: json['email'],
+      ipAddress: json['ip_address'],
+      extras: json['extras'],
     );
   }
 

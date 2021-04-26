@@ -252,7 +252,7 @@ class SentryEvent {
     if (modulesJson != null) {
       modules = {};
       modulesJson.forEach((key, value) {
-        modules?[key] = value as String;
+        modules?[key] = value;
       });
     }
 
@@ -261,7 +261,7 @@ class SentryEvent {
     if (tagsJson != null) {
       tags = {};
       tagsJson.forEach((key, value) {
-        tags?[key] = value as String;
+        tags?[key] = value;
       });
     }
 

@@ -174,7 +174,6 @@ void main() {
           (options.transport as MockTransport).envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      //expect(capturedEvent.throwable, error); // Cannot recreate insance from envelope...
       expect(capturedEvent.exception is SentryException, true);
       expect(capturedEvent.exception!.stackTrace, isNotNull);
     });
@@ -210,7 +209,6 @@ void main() {
           (options.transport as MockTransport).envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      //expect(capturedEvent.throwable, error); // Cannot recreate insance from envelope...
       expect(capturedEvent.exception is SentryException, true);
       expect(capturedEvent.exception!.stackTrace, isNotNull);
       expect(capturedEvent.exception!.stackTrace!.frames.first.fileName,

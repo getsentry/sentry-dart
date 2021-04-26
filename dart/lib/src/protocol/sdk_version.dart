@@ -68,8 +68,8 @@ class SdkVersion {
     final packagesJson = json['packages'] as List<dynamic>?;
     final integrationsJson = json['integrations'] as List<dynamic>?;
     return SdkVersion(
-        name: json['name'].toString(),
-        version: json['version'].toString(),
+        name: json['name'],
+        version: json['version'],
         packages: packagesJson
             ?.map((e) => SentryPackage.fromJson(e as Map<String, dynamic>))
             .toList(),

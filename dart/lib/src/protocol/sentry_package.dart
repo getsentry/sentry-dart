@@ -14,8 +14,8 @@ class SentryPackage {
 
   factory SentryPackage.fromJson(Map<String, dynamic> json) {
     return SentryPackage(
-      json['name'].toString(),
-      json['version'].toString(),
+      json['name'],
+      json['version'],
     );
   }
 
