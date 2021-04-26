@@ -154,8 +154,8 @@ class Fixture {
     hub = Hub(options);
   }
 
-  late final channel = MethodChannel('sentry_flutter');
-  late final options = SentryFlutterOptions(dsn: fakeDsn);
+  final channel = MethodChannel('sentry_flutter');
+  final options = SentryFlutterOptions(dsn: fakeDsn);
 
   late final Hub hub;
 
