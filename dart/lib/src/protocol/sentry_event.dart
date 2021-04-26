@@ -250,7 +250,7 @@ class SentryEvent {
 
     final modules = json['modules']?.cast<String, String>();
     final tags = json['tags']?.cast<String, String>();
-    
+
     final timestampJson = json['timestamp'];
     final levelJson = json['level'];
     final fingerprintJson = json['fingerprint'] as List<dynamic>?;
