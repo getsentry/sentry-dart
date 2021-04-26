@@ -248,23 +248,8 @@ class SentryEvent {
       exceptionValuesItemJson = exceptionValuesJson?.first;
     }
 
-    final modulesJson = json['modules'] as Map<String, dynamic>?;
-    Map<String, String>? modules;
-    if (modulesJson != null) {
-      modules = {};
-      modulesJson.forEach((key, value) {
-        modules?[key] = value;
-      });
-    }
-
-    final tagsJson = json['tags'] as Map<String, dynamic>?;
-    Map<String, String>? tags;
-    if (tagsJson != null) {
-      tags = {};
-      tagsJson.forEach((key, value) {
-        tags?[key] = value;
-      });
-    }
+    final modules = _stringKeyValues('modules', json);
+    final tags = _stringKeyValues('tags', json);
 
     final timestampJson = json['timestamp'];
     final levelJson = json['level'];
@@ -438,5 +423,12 @@ class SentryEvent {
     }
 
     return json;
+  }
+
+  static Map<String, String>? _stringKeyValues(
+      String key, Map<String, dynamic> json) {
+    Map<String, dynamic>? mapDynamicValues = json[key];
+    return mapDynamicValues
+        ?.map((key, value) => MapEntry(key, value as String));
   }
 }
