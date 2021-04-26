@@ -133,6 +133,7 @@ class SentryStackFrame {
     );
   }
 
+  /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 

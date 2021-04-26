@@ -25,6 +25,7 @@ class Contexts extends MapView<String, dynamic> {
           SentryGpu.type: gpu,
         });
 
+  /// Deserializes [Contexts] from JSON [Map].
   factory Contexts.fromJson(Map<String, dynamic> data) {
     final contexts = Contexts(
       device: data[SentryDevice.type] != null

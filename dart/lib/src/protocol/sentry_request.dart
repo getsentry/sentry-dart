@@ -69,6 +69,7 @@ class SentryRequest {
         _env = env != null ? Map.from(env) : null,
         _other = other != null ? Map.from(other) : null;
 
+  /// Deserializes a [SentryRequest] from JSON [Map].
   factory SentryRequest.fromJson(Map<String, dynamic> json) {
     return SentryRequest(
       url: json['url'],
@@ -82,6 +83,7 @@ class SentryRequest {
     );
   }
 
+  /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 

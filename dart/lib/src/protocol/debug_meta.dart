@@ -18,6 +18,7 @@ class DebugMeta {
 
   DebugMeta({this.sdk, List<DebugImage>? images}) : _images = images;
 
+  /// Deserializes a [DebugMeta] from JSON [Map].
   factory DebugMeta.fromJson(Map<String, dynamic> json) {
     final sdkInfoJson = json['sdk_info'];
     final debugImagesJson = json['images'] as List<dynamic>?;
@@ -31,6 +32,7 @@ class DebugMeta {
             : null);
   }
 
+  /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 

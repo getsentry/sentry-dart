@@ -32,6 +32,7 @@ class SentryException {
     this.threadId,
   });
 
+  /// Deserializes a [SentryException] from JSON [Map].
   factory SentryException.fromJson(Map<String, dynamic> json) {
     return SentryException(
         type: json['type'],
@@ -46,6 +47,7 @@ class SentryException {
         threadId: json['thread_id']);
   }
 
+  /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 

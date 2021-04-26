@@ -50,6 +50,7 @@ class DebugImage {
     this.codeId,
   });
 
+  /// Deserializes a [DebugImage] from JSON [Map].
   factory DebugImage.fromJson(Map<String, dynamic> json) {
     return DebugImage(
       type: json['type'],
@@ -64,6 +65,7 @@ class DebugImage {
     );
   }
 
+  /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 

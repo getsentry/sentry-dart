@@ -25,6 +25,7 @@ class SentryStackTrace {
   /// thus mapping to the last frame in the list.
   Map<String, String> get registers => Map.unmodifiable(_registers ?? const {});
 
+  /// Deserializes a [SentryStackTrace] from JSON [Map].
   factory SentryStackTrace.fromJson(Map<String, dynamic> json) {
     final framesJson = json['frames'] as List<dynamic>?;
     return SentryStackTrace(
@@ -36,6 +37,7 @@ class SentryStackTrace {
         registers: json['registers'] as Map<String, String>?);
   }
 
+  /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 

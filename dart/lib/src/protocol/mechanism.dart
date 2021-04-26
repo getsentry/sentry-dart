@@ -74,6 +74,7 @@ class Mechanism {
         synthetic: synthetic ?? this.synthetic,
       );
 
+  /// Deserializes a [Mechanism] from JSON [Map].
   factory Mechanism.fromJson(Map<String, dynamic> json) {
     return Mechanism(
       type: json['type'],
@@ -86,6 +87,7 @@ class Mechanism {
     );
   }
 
+  /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 
