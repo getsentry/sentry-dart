@@ -164,7 +164,6 @@ void main() {
     });
 
     test('should capture error', () async {
-      
       try {
         throw StateError('Error');
       } on Error catch (err) {

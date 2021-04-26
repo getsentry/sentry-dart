@@ -81,9 +81,7 @@ class Breadcrumb {
     final levelName = json['level'];
     final timestamp = json['timestamp'];
     return Breadcrumb(
-      timestamp: timestamp != null
-          ? DateTime.tryParse(timestamp)
-          : null,
+      timestamp: timestamp != null ? DateTime.tryParse(timestamp) : null,
       message: json['message'],
       category: json['category'],
       data: json['data'],

@@ -68,13 +68,13 @@ class SdkVersion {
     final packagesJson = json['packages'] as List<dynamic>?;
     final integrationsJson = json['integrations'] as List<dynamic>?;
     return SdkVersion(
-        name: json['name'],
-        version: json['version'],
-        packages: packagesJson
-            ?.map((e) => SentryPackage.fromJson(e as Map<String, dynamic>))
-            .toList(),
-        integrations: integrationsJson?.map((e) => e as String).toList(),
-      );
+      name: json['name'],
+      version: json['version'],
+      packages: packagesJson
+          ?.map((e) => SentryPackage.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      integrations: integrationsJson?.map((e) => e as String).toList(),
+    );
   }
 
   /// Produces a [Map] that can be serialized to JSON.

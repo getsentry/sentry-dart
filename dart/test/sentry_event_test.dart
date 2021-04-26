@@ -79,7 +79,7 @@ void main() {
     });
 
     test('should not deserialize null or empty fields', () {
-      final sentryEvent = SentryEvent.fromJson(emptyFieldsSentryEventJson); 
+      final sentryEvent = SentryEvent.fromJson(emptyFieldsSentryEventJson);
 
       expect(sentryEvent.platform, isNull);
       expect(sentryEvent.logger, isNull);
