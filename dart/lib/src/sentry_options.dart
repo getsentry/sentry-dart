@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:http/http.dart';
+import 'package:sentry/sentry.dart';
 
 import 'diagnostic_logger.dart';
 import 'environment_variables.dart';
@@ -76,7 +77,19 @@ class SentryOptions {
 
   /// Turns debug mode on or off. If debug is enabled SDK will attempt to print out useful debugging
   /// information if something goes wrong. Default is disabled.
-  bool debug = false;
+  bool get debug => _debug;
+
+  set debug(bool newValue) {
+    _debug = newValue;
+    if (_debug == true && logger == noOpLogger) {
+      _logger = dartLogger;
+    }
+    if (_debug == false && logger == dartLogger) {
+      _logger = noOpLogger;
+    }
+  }
+
+  bool _debug = false;
 
   /// minimum LogLevel to be used if debug is enabled
   SentryLevel diagnosticLevel = _defaultDiagnosticLevel;
@@ -171,9 +184,8 @@ class SentryOptions {
     // In debug mode we want to log everything by default to the console.
     // In order to do that, this must be the first thing the SDK does
     // and the first thing the SDK does, is to instantiate SentryOptions
-    if (platformChecker.isDebugMode() && logger == noOpLogger) {
+    if (platformChecker.isDebugMode()) {
       debug = true;
-      _logger = dartLogger;
     }
   }
 
