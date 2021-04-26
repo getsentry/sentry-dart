@@ -12,6 +12,7 @@ class SentryPackage {
   /// The version of the SDK.
   final String version;
 
+  /// Deserializes a [SentryPackage] from JSON [Map].
   factory SentryPackage.fromJson(Map<String, dynamic> json) {
     return SentryPackage(
       json['name'],

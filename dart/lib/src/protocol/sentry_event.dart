@@ -226,6 +226,7 @@ class SentryEvent {
         debugMeta: debugMeta ?? this.debugMeta,
       );
 
+  /// Deserializes a [SentryEvent] from JSON [Map].
   factory SentryEvent.fromJson(Map<String, dynamic> json) {
     final breadcrumbsJson = json['breadcrumbs'] as List<dynamic>?;
     final breadcrumbs = breadcrumbsJson?.map((e) {

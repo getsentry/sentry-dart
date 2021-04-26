@@ -11,16 +11,17 @@ class SentryBrowser {
   /// Creates an instance of [SentryBrowser].
   const SentryBrowser({this.name, this.version});
 
-  factory SentryBrowser.fromJson(Map<String, dynamic> data) => SentryBrowser(
-        name: data['name'],
-        version: data['version'],
-      );
-
   /// Human readable application name, as it appears on the platform.
   final String? name;
 
   /// Human readable application version, as it appears on the platform.
   final String? version;
+
+  /// Deserializes a [SentryBrowser] from JSON [Map].
+  factory SentryBrowser.fromJson(Map<String, dynamic> data) => SentryBrowser(
+        name: data['name'],
+        version: data['version'],
+      );
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {

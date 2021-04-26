@@ -63,7 +63,7 @@ class SdkVersion {
 
   String get identifier => '$name/$version';
 
-  /// Produces a [SdkVersion] from deserialiazed JSON [Map].
+  /// Deserializes a [SdkVersion] from JSON [Map].
   factory SdkVersion.fromJson(Map<String, dynamic> json) {
     final packagesJson = json['packages'] as List<dynamic>?;
     final integrationsJson = json['integrations'] as List<dynamic>?;
