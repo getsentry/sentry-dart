@@ -152,7 +152,11 @@ void main() {
     var options = SentryOptions(dsn: fakeDsn);
 
     Error error;
-    StackTrace stackTrace;
+    final stackTrace = '''
+#0      baz (file:///pathto/test.dart:50:3)
+<asynchronous suspension>
+#1      bar (file:///pathto/test.dart:46:9)
+      ''';
 
     setUp(() {
       options = SentryOptions(dsn: fakeDsn);
@@ -160,11 +164,11 @@ void main() {
     });
 
     test('should capture error', () async {
+      
       try {
         throw StateError('Error');
-      } on Error catch (err, stack) {
+      } on Error catch (err) {
         error = err;
-        stackTrace = stack;
       }
 
       final client = SentryClient(options);
@@ -176,6 +180,8 @@ void main() {
 
       expect(capturedEvent.exception is SentryException, true);
       expect(capturedEvent.exception!.stackTrace, isNotNull);
+      expect(capturedEvent.exception!.stackTrace!.frames.first.lineNo, 46);
+      expect(capturedEvent.exception!.stackTrace!.frames.first.colNo, 9);
     });
   });
 
