@@ -248,9 +248,9 @@ class SentryEvent {
       exceptionValuesItemJson = exceptionValuesJson?.first;
     }
 
-    final modules = _stringKeyValues('modules', json);
-    final tags = _stringKeyValues('tags', json);
-
+    final modules = json['modules']?.cast<String, String>();
+    final tags = json['tags']?.cast<String, String>();
+    
     final timestampJson = json['timestamp'];
     final levelJson = json['level'];
     final fingerprintJson = json['fingerprint'] as List<dynamic>?;
@@ -423,12 +423,5 @@ class SentryEvent {
     }
 
     return json;
-  }
-
-  static Map<String, String>? _stringKeyValues(
-      String key, Map<String, dynamic> json) {
-    Map<String, dynamic>? mapDynamicValues = json[key];
-    return mapDynamicValues
-        ?.map((key, value) => MapEntry(key, value as String));
   }
 }
