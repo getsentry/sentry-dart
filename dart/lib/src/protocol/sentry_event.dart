@@ -228,7 +228,7 @@ class SentryEvent {
 
   /// Deserializes a [SentryEvent] from JSON [Map].
   factory SentryEvent.fromJson(Map<String, dynamic> json) {
-    final breadcrumbsJson = json['breadcrumbs'];
+    final breadcrumbsJson = json['breadcrumbs'] as List<dynamic>?;
     final breadcrumbs = breadcrumbsJson?.map((e) {
       return Breadcrumb.fromJson(e);
     }).toList();
@@ -248,18 +248,22 @@ class SentryEvent {
       exceptionValuesItemJson = exceptionValuesJson?.first;
     }
 
-    final modulesJson = json['modules'];
+    final modulesJson = json['modules'] as Map<String, dynamic>?;
     Map<String, String>? modules;
     if (modulesJson != null) {
       modules = {};
-      modules.addAll(modulesJson);
+      modulesJson.forEach((key, value) {
+        modules?[key] = value;
+      });
     }
 
-    final tagsJson = json['tags'];
+    final tagsJson = json['tags'] as Map<String, dynamic>?;
     Map<String, String>? tags;
     if (tagsJson != null) {
       tags = {};
-      tags.addAll(tagsJson);
+      tagsJson.forEach((key, value) {
+        tags?[key] = value;
+      });
     }
 
     final timestampJson = json['timestamp'];
