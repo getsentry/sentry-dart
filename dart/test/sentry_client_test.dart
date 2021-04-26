@@ -248,7 +248,6 @@ void main() {
           (options.transport as MockTransport).envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      //expect(capturedEvent.throwable, exception); // Cannot recreate insance from envelope...
       expect(capturedEvent.exception is SentryException, true);
       expect(capturedEvent.exception!.stackTrace!.frames.first.fileName,
           'test.dart');
