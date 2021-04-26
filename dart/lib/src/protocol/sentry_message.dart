@@ -24,8 +24,11 @@ class SentryMessage {
 
   /// Deserializes a [SentryMessage] from JSON [Map].
   factory SentryMessage.fromJson(Map<String, dynamic> json) {
-    return SentryMessage(json['formatted'],
-        template: json['message'], params: json['params']);
+    return SentryMessage(
+      json['formatted'],
+      template: json['message'],
+      params: json['params'],
+    );
   }
 
   /// Produces a [Map] that can be serialized to JSON.

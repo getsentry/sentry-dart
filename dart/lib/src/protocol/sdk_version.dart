@@ -73,7 +73,8 @@ class SdkVersion {
         packages: packagesJson
             ?.map((e) => SentryPackage.fromJson(e as Map<String, dynamic>))
             .toList(),
-        integrations: integrationsJson?.map((e) => e as String).toList());
+        integrations: integrationsJson?.map((e) => e as String).toList(),
+      );
   }
 
   /// Produces a [Map] that can be serialized to JSON.

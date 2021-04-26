@@ -228,7 +228,7 @@ class SentryEvent {
 
   /// Deserializes a [SentryEvent] from JSON [Map].
   factory SentryEvent.fromJson(Map<String, dynamic> json) {
-    final breadcrumbsJson = json['breadcrumbs'] as List<dynamic>?;
+    final breadcrumbsJson = json['breadcrumbs'];
     final breadcrumbs = breadcrumbsJson?.map((e) {
       return Breadcrumb.fromJson(e);
     }).toList();
@@ -248,24 +248,22 @@ class SentryEvent {
       exceptionValuesItemJson = exceptionValuesJson?.first;
     }
 
-    final modulesJson = json['modules'] as Map<String, dynamic>?;
+    final modulesJson = json['modules'];
     Map<String, String>? modules;
     if (modulesJson != null) {
       modules = {};
-      modulesJson.forEach((key, value) {
-        modules?[key] = value;
-      });
+      modules.addAll(modulesJson);
     }
 
-    final tagsJson = json['tags'] as Map<String, dynamic>?;
+    final tagsJson = json['tags'];
     Map<String, String>? tags;
     if (tagsJson != null) {
       tags = {};
-      tagsJson.forEach((key, value) {
-        tags?[key] = value;
-      });
+      tags.addAll(tagsJson);
     }
 
+    final timestampJson = json['timestamp'];
+    final levelJson = json['level'];
     final fingerprintJson = json['fingerprint'] as List<dynamic>?;
     final sdkVersionJson = json['sdk'] as Map<String, dynamic>?;
     final messageJson = json['message'] as Map<String, dynamic>?;
@@ -276,9 +274,8 @@ class SentryEvent {
 
     return SentryEvent(
       eventId: SentryId.fromId(json['event_id']),
-      timestamp: json['timestamp'] != null
-          ? DateTime.tryParse(json['timestamp'])
-          : null,
+      timestamp:
+          timestampJson != null ? DateTime.tryParse(timestampJson) : null,
       modules: modules,
       tags: tags,
       extra: json['extra'],
@@ -305,7 +302,7 @@ class SentryEvent {
           exceptionValuesItemJson != null && exceptionValuesItemJson.isNotEmpty
               ? SentryException.fromJson(exceptionValuesItemJson)
               : null,
-      level: json['level'] != null ? SentryLevel.fromName(json['level']) : null,
+      level: levelJson != null ? SentryLevel.fromName(levelJson) : null,
       culprit: json['culprit'],
       user: userJson != null && userJson.isNotEmpty
           ? SentryUser.fromJson(userJson)

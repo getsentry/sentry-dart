@@ -79,13 +79,14 @@ class Breadcrumb {
   /// Deserializes a [Breadcrumb] from JSON [Map].
   factory Breadcrumb.fromJson(Map<String, dynamic> json) {
     final levelName = json['level'];
+    final timestamp = json['timestamp'];
     return Breadcrumb(
-      timestamp: json['timestamp'] != null
-          ? DateTime.tryParse(json['timestamp'])
+      timestamp: timestamp != null
+          ? DateTime.tryParse(timestamp)
           : null,
       message: json['message'],
       category: json['category'],
-      data: json['data'] as Map<String, dynamic>?,
+      data: json['data'],
       level: levelName != null ? SentryLevel.fromName(levelName) : null,
       type: json['type'],
     );

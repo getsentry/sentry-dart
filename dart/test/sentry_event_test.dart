@@ -60,6 +60,14 @@ void main() {
       },
     };
 
+    final emptyFieldsSentryEventJson = <String, dynamic>{
+      'event_id': sentryId.toString(),
+      'timestamp': formatDateAsIso8601WithMillisPrecision(timestamp),
+      'contexts': {
+        'device': {'name': 'name'}
+      },
+    };
+
     test('fromJson', () {
       final sentryEvent = SentryEvent.fromJson(sentryEventJson);
       final json = sentryEvent.toJson();
@@ -68,6 +76,32 @@ void main() {
         DeepCollectionEquality().equals(sentryEventJson, json),
         true,
       );
+    });
+
+    test('should not deserialize null or empty fields', () {
+      final sentryEvent = SentryEvent.fromJson(emptyFieldsSentryEventJson); 
+
+      expect(sentryEvent.platform, isNull);
+      expect(sentryEvent.logger, isNull);
+      expect(sentryEvent.serverName, isNull);
+      expect(sentryEvent.release, isNull);
+      expect(sentryEvent.dist, isNull);
+      expect(sentryEvent.environment, isNull);
+      expect(sentryEvent.modules, isNull);
+      expect(sentryEvent.message, isNull);
+      expect(sentryEvent.stackTrace, isNull);
+      expect(sentryEvent.exception, isNull);
+      expect(sentryEvent.transaction, isNull);
+      expect(sentryEvent.level, isNull);
+      expect(sentryEvent.culprit, isNull);
+      expect(sentryEvent.tags, isNull);
+      expect(sentryEvent.extra, isNull);
+      expect(sentryEvent.breadcrumbs, isNull);
+      expect(sentryEvent.user, isNull);
+      expect(sentryEvent.fingerprint, isNull);
+      expect(sentryEvent.sdk, isNull);
+      expect(sentryEvent.request, isNull);
+      expect(sentryEvent.debugMeta, isNull);
     });
   });
 

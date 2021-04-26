@@ -24,12 +24,10 @@ class DebugMeta {
     final debugImagesJson = json['images'] as List<dynamic>?;
     return DebugMeta(
         sdk: sdkInfoJson != null ? SdkInfo.fromJson(sdkInfoJson) : null,
-        images: debugImagesJson != null
-            ? debugImagesJson
-                .map((debugImageJson) =>
-                    DebugImage.fromJson(debugImageJson as Map<String, dynamic>))
-                .toList()
-            : null);
+        images: debugImagesJson?.map((debugImageJson) => 
+          DebugImage.fromJson(debugImageJson as Map<String, dynamic>)
+        ).toList(),
+      );
   }
 
   /// Produces a [Map] that can be serialized to JSON.

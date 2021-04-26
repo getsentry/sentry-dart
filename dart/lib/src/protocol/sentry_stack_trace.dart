@@ -34,7 +34,8 @@ class SentryStackTrace {
                 .map((frameJson) => SentryStackFrame.fromJson(frameJson))
                 .toList()
             : [],
-        registers: json['registers'] as Map<String, String>?);
+        registers: json['registers'],
+      );
   }
 
   /// Produces a [Map] that can be serialized to JSON.
