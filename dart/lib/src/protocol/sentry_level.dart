@@ -16,16 +16,16 @@ class SentryLevel {
   final int ordinal;
 
   factory SentryLevel.fromName(String name) {
-    if (name == 'fatal') {
-      return SentryLevel.fatal;
-    } else if (name == 'error') {
-      return SentryLevel.error;
-    } else if (name == 'warning') {
-      return SentryLevel.warning;
-    } else if (name == 'info') {
-      return SentryLevel.info;
-    } else {
-      return SentryLevel.debug;
+    switch (name) {
+      case 'fatal':
+        return SentryLevel.fatal;
+      case 'error':
+        return SentryLevel.error;
+      case 'warning':
+        return SentryLevel.warning;
+      case 'info':
+        return SentryLevel.info;
     }
+    return SentryLevel.debug;
   }
 }
