@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:http/http.dart';
-import 'package:sentry/sentry.dart';
 
 import 'diagnostic_logger.dart';
 import 'environment_variables.dart';
