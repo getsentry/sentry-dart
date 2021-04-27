@@ -123,6 +123,21 @@ void main() {
     expect(breadcrumb.message, 'foo bar');
   });
 
+  test(
+      'Run zoned guarded does not log calls to print as breadcrumb if disabled',
+      () async {
+    fixture.options.enablePrintBreadcrumbs = false;
+    Future<void> callback() async {
+      print('foo bar');
+    }
+
+    final integration = RunZonedGuardedIntegration(callback);
+
+    await integration(fixture.hub, fixture.options);
+
+    expect(fixture.hub.addBreadcrumbCalls.length, 0);
+  });
+
   test('Run zoned guarded: No addBreadcrumb calls for disabled Hub', () async {
     await fixture.hub.close();
 

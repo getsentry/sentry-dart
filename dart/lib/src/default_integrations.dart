@@ -36,9 +36,9 @@ class RunZonedGuardedIntegration extends Integration {
       },
       zoneSpecification: ZoneSpecification(
         print: (self, parent, zone, line) {
-          if (!hub.isEnabled) {
+          if (!hub.isEnabled || !options.enablePrintBreadcrumbs) {
             // early bail out, in order to better guard against the recursion
-            // as decribed below.
+            // as described below.
             parent.print(zone, line);
             return;
           }
