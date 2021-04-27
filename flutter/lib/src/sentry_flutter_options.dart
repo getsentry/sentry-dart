@@ -161,15 +161,7 @@ class SentryFlutterOptions extends SentryOptions {
   /// available in the Flutter environment. This way you get more detailed
   /// information where available.
   void enableBreadcrumbTrackingForCurrentPlatform() {
-    configureBreadcrumbTrackingForPlatform(platformChecker);
-  }
-
-  /// You should probably use [enableBreadcrumbTrackingForCurrentPlatform].
-  /// This should only be used if you really want to override the default
-  /// platform behavior.
-  @foundation.visibleForTesting
-  void configureBreadcrumbTrackingForPlatform(PlatformChecker checker) {
-    if (checker.hasNativeIntegration) {
+    if (platformChecker.hasNativeIntegration) {
       useNativeBreadcrumbTracking();
     } else {
       useFlutterBreadcrumbTracking();
