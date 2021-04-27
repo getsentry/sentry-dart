@@ -18,7 +18,7 @@ import 'sentry_level.dart';
 /// }
 /// ```
 /// See also:
-/// * https://docs.sentry.io/development/sdk-dev/event-payloads/breadcrumbs/
+/// * https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
 @immutable
 class Breadcrumb {
   /// Creates a breadcrumb that can be attached to an [Event].
@@ -50,7 +50,7 @@ class Breadcrumb {
   ///
   /// See also:
   ///
-  /// * https://docs.sentry.io/development/sdk-dev/event-payloads/breadcrumbs/#breadcrumb-types
+  /// * https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/#breadcrumb-types
   final Map<String, dynamic>? data;
 
   /// Severity of the breadcrumb.
@@ -66,7 +66,7 @@ class Breadcrumb {
   ///
   /// See also:
   ///
-  /// * https://docs.sentry.io/development/sdk-dev/event-payloads/breadcrumbs/#breadcrumb-types
+  /// * https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/#breadcrumb-types
   final String? type;
 
   /// The time the breadcrumb was recorded.
