@@ -113,6 +113,12 @@ class MainScaffold extends StatelessWidget {
               child: const Text('Dart: Web request'),
               onPressed: () => makeWebRequest(context),
             ),
+            RaisedButton(
+              child: const Text('Record print() as breadcrumb'),
+              onPressed: () {
+                print('Foo bar');
+              },
+            ),
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
               const CocoaExample(),
             if (UniversalPlatform.isAndroid) const AndroidExample(),
