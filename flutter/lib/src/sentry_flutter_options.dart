@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart' as foundation;
 import 'package:sentry/sentry.dart';
 
 // TODO: Scope observers, enableScopeSync
