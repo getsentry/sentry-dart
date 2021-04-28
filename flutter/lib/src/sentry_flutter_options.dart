@@ -123,7 +123,7 @@ class SentryFlutterOptions extends SentryOptions {
   /// Enables Out of Memory Tracking for iOS and macCatalyst.
   /// See the following link for more information and possible restrictions:
   /// https://docs.sentry.io/platforms/apple/guides/ios/configuration/out-of-memory/
-  bool enableAppleOutOfMemoryTracking = false;
+  bool enableOutOfMemoryTracking = true;
 
   /// By using this, you are disabling native [Breadcrumb] tracking and instead
   /// you are just tracking [Breadcrumb]s which result from events available
