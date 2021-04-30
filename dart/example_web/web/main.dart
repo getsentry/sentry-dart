@@ -87,8 +87,7 @@ Future<void> captureException() async {
     print('\nReporting the following stack trace: ');
     final sentryId = await Sentry.captureException(
       error,
-      stackTrace: stackTrace
-          .toString() /* on safari (14.0) passing a stacktrace object fails */,
+      stackTrace: stackTrace,
     );
 
     print('Capture exception : SentryId: $sentryId');

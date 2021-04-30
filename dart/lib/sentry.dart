@@ -7,6 +7,7 @@ export 'src/default_integrations.dart';
 export 'src/hub.dart';
 // useful for tests
 export 'src/hub_adapter.dart';
+export 'src/platform_checker.dart';
 export 'src/noop_isolate_error_integration.dart'
     if (dart.library.io) 'src/isolate_error_integration.dart';
 export 'src/protocol.dart';

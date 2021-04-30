@@ -6,12 +6,12 @@ Pod::Spec.new do |s|
 Sentry SDK for Flutter with support to native through sentry-cocoa.
                        DESC
   s.homepage         = 'https://sentry.io'
-  s.license          = { :type => 'MIT', :file => '../LICENSE' }
+  s.license          = { :file => '../LICENSE' }
   s.authors          = "Sentry"
   s.source           = { :git => "https://github.com/getsentry/sentry-dart.git",
                          :tag => s.version.to_s }
-  s.source_files = 'Classes/**/*'
-  s.dependency 'Sentry', '~> 6.2.1'
+  s.source_files     = 'Classes/**/*'
+  s.dependency 'Sentry', '~> 7.0.0'
   s.dependency 'Flutter'
   s.platform = :ios, '9.0'
 

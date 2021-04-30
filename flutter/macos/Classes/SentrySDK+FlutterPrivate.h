@@ -1,0 +1,1 @@
+../../ios/Classes/SentrySDK+FlutterPrivate.h

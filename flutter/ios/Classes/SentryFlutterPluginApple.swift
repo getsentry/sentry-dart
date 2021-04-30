@@ -1,8 +1,13 @@
-import Flutter
 import Sentry
+#if os(iOS)
+import Flutter
 import UIKit
+#elseif os(macOS)
+import FlutterMacOS
+import AppKit
+#endif
 
-public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
+public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
     private var sentryOptions: Options?
 
@@ -10,10 +15,22 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
     // We need to be able to receive this notification and start a session when the SDK is fully operational.
     private var didReceiveDidBecomeActiveNotification = false
 
-    public static func register(with registrar: FlutterPluginRegistrar) {
-        let channel = FlutterMethodChannel(name: "sentry_flutter", binaryMessenger: registrar.messenger())
+    private var didBecomeActiveNotificationName: NSNotification.Name {
+#if os(iOS)
+        return UIApplication.didBecomeActiveNotification
+#elseif os(macOS)
+        return NSApplication.didBecomeActiveNotification
+#endif
+    }
 
-        let instance = SwiftSentryFlutterPlugin()
+    public static func register(with registrar: FlutterPluginRegistrar) {
+#if os(iOS)
+        let channel = FlutterMethodChannel(name: "sentry_flutter", binaryMessenger: registrar.messenger())
+#elseif os(macOS)
+        let channel = FlutterMethodChannel(name: "sentry_flutter", binaryMessenger: registrar.messenger)
+#endif
+
+        let instance = SentryFlutterPluginApple()
         instance.registerObserver()
 
         registrar.addMethodCallDelegate(instance, channel: channel)
@@ -22,17 +39,17 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
     private func registerObserver() {
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(applicationDidBecomeActive),
-                                               name: UIApplication.didBecomeActiveNotification,
+                                               name: didBecomeActiveNotificationName,
                                                object: nil)
     }
 
     @objc private func applicationDidBecomeActive() {
         didReceiveDidBecomeActiveNotification = true
-
         // we only need to do that in the 1st time, so removing it
         NotificationCenter.default.removeObserver(self,
-                                                  name: UIApplication.didBecomeActiveNotification,
+                                                  name: didBecomeActiveNotificationName,
                                                   object: nil)
+
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -125,10 +142,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
     }
 
     private func closeNativeSdk(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        // swiftlint:disable:next todo
-        // TODO: Call SentrySDK when available
-        // https://github.com/getsentry/sentry-cocoa/issues/934
-        SentrySDK.currentHub().getClient()?.options.enabled = false
+        SentrySDK.close()
         result("")
     }
 
@@ -159,7 +173,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
         }
 
         if let diagnosticLevel = arguments["diagnosticLevel"] as? String, options.debug == true {
-            options.logLevel = logLevelFrom(diagnosticLevel: diagnosticLevel)
+            options.diagnosticLevel = logLevelFrom(diagnosticLevel: diagnosticLevel)
         }
 
         if let sessionTrackingIntervalMillis = arguments["autoSessionTrackingIntervalMillis"] as? UInt {
@@ -191,16 +205,24 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
         if let sendDefaultPii = arguments["sendDefaultPii"] as? Bool {
             options.sendDefaultPii = sendDefaultPii
         }
+
+        if let enableOutOfMemoryTracking = arguments["enableOutOfMemoryTracking"] as? Bool {
+            options.enableOutOfMemoryTracking = enableOutOfMemoryTracking
+        }
     }
 
-    private func logLevelFrom(diagnosticLevel: String) -> SentryLogLevel {
+    private func logLevelFrom(diagnosticLevel: String) -> SentryLevel {
         switch diagnosticLevel {
-        case "fatal", "error":
+        case "fatal":
+            return .fatal
+        case "error":
             return .error
         case "debug":
             return .debug
-        case "warning", "info":
-            return .verbose
+        case "warning":
+            return .warning
+        case "info":
+            return .info
         default:
             return .none
         }
@@ -244,7 +266,7 @@ public class SwiftSentryFlutterPlugin: NSObject, FlutterPlugin {
 
         do {
             let envelope = try parseJsonEnvelope(event)
-            SentrySDK.currentHub().capture(envelope: envelope)
+            SentrySDK.capture(envelope)
             result("")
         } catch {
             print("Cannot parse the envelope json !")

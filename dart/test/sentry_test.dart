@@ -190,8 +190,9 @@ void main() {
   });
 
   test('options.environment profile', () async {
-    final sentryOptions = SentryOptions(dsn: fakeDsn)
-      ..platformChecker = FakePlatformChecker.profileMode();
+    final sentryOptions =
+        SentryOptions(dsn: fakeDsn, checker: FakePlatformChecker.profileMode());
+
     await Sentry.init((options) {
       options.dsn = fakeDsn;
       expect(options.environment, 'profile');
@@ -200,12 +201,26 @@ void main() {
   });
 
   test('options.environment production (defaultEnvironment)', () async {
-    final sentryOptions = SentryOptions(dsn: fakeDsn)
-      ..platformChecker = FakePlatformChecker.releaseMode();
+    final sentryOptions =
+        SentryOptions(dsn: fakeDsn, checker: FakePlatformChecker.releaseMode());
+
     await Sentry.init((options) {
       options.dsn = fakeDsn;
       expect(options.environment, 'production');
       expect(options.debug, false);
     }, options: sentryOptions);
+  });
+
+  test('options.logger is not dartLogger after debug = false', () async {
+    final sentryOptions =
+        SentryOptions(dsn: fakeDsn, checker: FakePlatformChecker.debugMode());
+
+    await Sentry.init((options) {
+      options.dsn = fakeDsn;
+      expect(options.logger, dartLogger);
+      options.debug = false;
+    }, options: sentryOptions);
+
+    expect(sentryOptions.logger == dartLogger, false);
   });
 }

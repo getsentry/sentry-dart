@@ -116,7 +116,7 @@ class SentryClient {
       environment: event.environment ?? _options.environment,
       release: event.release ?? _options.release,
       sdk: event.sdk ?? _options.sdk,
-      platform: event.platform ?? sdkPlatform,
+      platform: event.platform ?? sdkPlatform(_options.platformChecker.isWeb),
     );
 
     event = _applyDefaultPii(event);

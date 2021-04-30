@@ -109,7 +109,7 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
 /// the Message channel.
 /// We intend to unify this behaviour in the future.
 ///
-/// This integration is only executed on iOS Apps.
+/// This integration is only executed on iOS & MacOS Apps.
 class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
   final MethodChannel _channel;
 
@@ -214,6 +214,7 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
         'enableAutoNativeBreadcrumbs': options.enableAutoNativeBreadcrumbs,
         'cacheDirSize': options.cacheDirSize,
         'sendDefaultPii': options.sendDefaultPii,
+        'enableOutOfMemoryTracking': options.enableOutOfMemoryTracking,
       });
 
       options.sdk.addIntegration('nativeSdkIntegration');
@@ -364,22 +365,32 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) async {
     try {
-      if (!kIsWeb) {
-        if (options.release == null || options.dist == null) {
-          final packageInfo = await _packageLoader();
-          var name = packageInfo.packageName;
-          if (name.isEmpty) {
-            // Not all platforms have a packageName.
-            // If no packageName is available, use the appName instead.
-            name = _cleanAppName(packageInfo.appName);
-          }
+      if (options.release == null || options.dist == null) {
+        final packageInfo = await _packageLoader();
+        var name = _cleanString(packageInfo.packageName);
+        if (name.isEmpty) {
+          // Not all platforms have a packageName.
+          // If no packageName is available, use the appName instead.
+          name = _cleanString(packageInfo.appName);
+        }
 
-          final release =
-              '$name@${packageInfo.version}+${packageInfo.buildNumber}';
-          options.logger(SentryLevel.debug, 'release: $release');
+        final version = _cleanString(packageInfo.version);
+        final buildNumber = _cleanString(packageInfo.buildNumber);
 
-          options.release = options.release ?? release;
-          options.dist = options.dist ?? packageInfo.buildNumber;
+        var release = name;
+        if (version.isNotEmpty) {
+          release = '$release@$version';
+        }
+        // At least windows sometimes does not have a buildNumber
+        if (buildNumber.isNotEmpty) {
+          release = '$release+$buildNumber';
+        }
+
+        options.logger(SentryLevel.debug, 'release: $release');
+
+        options.release = options.release ?? release;
+        if (buildNumber.isNotEmpty) {
+          options.dist = options.dist ?? buildNumber;
         }
       }
     } catch (error) {
@@ -390,15 +401,21 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
     options.sdk.addIntegration('loadReleaseIntegration');
   }
 
-  String _cleanAppName(String appName) {
+  /// This method cleans the given string from characters which should not be
+  /// used.
+  /// For example https://docs.sentry.io/platforms/flutter/configuration/releases/#bind-the-version
+  /// imposes some requirements. Also Windows uses some characters which
+  /// should not be used.
+  String _cleanString(String appName) {
     // Replace disallowed chars with an underscore '_'
-    // https://docs.sentry.io/platforms/flutter/configuration/releases/#bind-the-version
     return appName
         .replaceAll('/', '_')
         .replaceAll('\\', '_')
         .replaceAll('\t', '_')
         .replaceAll('\r\n', '_')
         .replaceAll('\r', '_')
-        .replaceAll('\n', '_');
+        .replaceAll('\n', '_')
+        // replace Unicode NULL character with an empty string
+        .replaceAll('\u{0000}', '');
   }
 }
