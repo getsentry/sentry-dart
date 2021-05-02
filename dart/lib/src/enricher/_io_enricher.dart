@@ -12,15 +12,25 @@ final Enricher instance = IoEnricher();
 /// class to read information.
 class IoEnricher implements Enricher {
   @override
-  FutureOr<void> apply(SentryEvent event) {
+  FutureOr<SentryEvent> apply(SentryEvent event) {
     final contexts = event.contexts.copyWith(
       operatingSystem: _getOperatingSystem(event.contexts.operatingSystem),
+      runtimes: _getRuntimes(event.contexts.runtimes),
     );
 
     return event.copyWith(
       contexts: contexts,
       extra: _getExtras(event.extra),
     );
+  }
+
+  List<SentryRuntime> _getRuntimes(List<SentryRuntime>? runtimes) {
+    final dartRuntime = SentryRuntime(name: 'Dart', version: Platform.version);
+    if (runtimes == null) {
+      return [dartRuntime];
+    }
+    runtimes.add(dartRuntime);
+    return runtimes;
   }
 
   Map<String, dynamic> _getExtras(Map<String, dynamic>? extras) {

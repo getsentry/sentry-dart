@@ -120,6 +120,17 @@ class MainScaffold extends StatelessWidget {
                 Sentry.captureMessage('A message with a print() Breadcrumb');
               },
             ),
+            RaisedButton(
+              child: const Text('Event with enricher'),
+              onPressed: () async {
+                final enricher = FlutterEnricher.instance;
+                var event = SentryEvent(
+                  message: SentryMessage('Event enriched with data'),
+                );
+                event = await enricher.apply(event);
+                Sentry.captureEvent(event);
+              },
+            ),
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
               const CocoaExample(),
             if (UniversalPlatform.isAndroid) const AndroidExample(),
