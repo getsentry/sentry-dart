@@ -116,7 +116,8 @@ class MainScaffold extends StatelessWidget {
             RaisedButton(
               child: const Text('Record print() as breadcrumb'),
               onPressed: () {
-                print('Foo bar');
+                print('A print breadcrumb');
+                Sentry.captureMessage('A message with a print() Breadcrumb');
               },
             ),
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
