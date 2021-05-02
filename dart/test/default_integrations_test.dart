@@ -110,28 +110,23 @@ void main() {
   });
 
   test('Run zoned guarded logs calls to print as breadcrumb', () async {
-    Future<void> callback() async {
-      print('foo bar');
-    }
-
-    final integration = RunZonedGuardedIntegration(callback);
+    final integration = fixture.getSut();
 
     await integration(fixture.hub, fixture.options);
 
     expect(fixture.hub.addBreadcrumbCalls.length, 1);
     final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
-    expect(breadcrumb.message, 'foo bar');
+    expect(breadcrumb.level, SentryLevel.debug);
+    expect(breadcrumb.category, 'console');
+    expect(breadcrumb.type, 'debug');
   });
 
   test(
       'Run zoned guarded does not log calls to print as breadcrumb if disabled',
       () async {
     fixture.options.enablePrintBreadcrumbs = false;
-    Future<void> callback() async {
-      print('foo bar');
-    }
 
-    final integration = RunZonedGuardedIntegration(callback);
+    final integration = fixture.getSut();
 
     await integration(fixture.hub, fixture.options);
 
@@ -141,11 +136,7 @@ void main() {
   test('Run zoned guarded: No addBreadcrumb calls for disabled Hub', () async {
     await fixture.hub.close();
 
-    Future<void> callback() async {
-      print('foo bar');
-    }
-
-    final integration = RunZonedGuardedIntegration(callback);
+    final integration = fixture.getSut();
 
     await integration(fixture.hub, fixture.options);
 
@@ -156,23 +147,30 @@ void main() {
     final options = SentryOptions(dsn: fakeDsn);
     final hub = PrintRecursionMockHub();
 
-    Future<void> callback() async {
-      print('foo bar');
-    }
-
-    final integration = RunZonedGuardedIntegration(callback);
+    final integration = fixture.getSut();
 
     await integration(hub, options);
 
     expect(hub.addBreadcrumbCalls.length, 1);
     final breadcrumb = hub.addBreadcrumbCalls.first.crumb;
     expect(breadcrumb.message, 'foo bar');
+    expect(breadcrumb.level, SentryLevel.debug);
+    expect(breadcrumb.category, 'console');
+    expect(breadcrumb.type, 'debug');
   });
 }
 
 class Fixture {
   final hub = MockHub();
   final options = SentryOptions(dsn: fakeDsn);
+
+  RunZonedGuardedIntegration getSut() {
+    Future<void> callback() async {
+      print('foo bar');
+    }
+
+    return RunZonedGuardedIntegration(callback);
+  }
 }
 
 class PrintRecursionMockHub extends MockHub {
