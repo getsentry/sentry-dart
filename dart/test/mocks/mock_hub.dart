@@ -7,6 +7,7 @@ class MockHub implements Hub {
   List<AddBreadcrumbCall> addBreadcrumbCalls = [];
   List<SentryClient?> bindClientCalls = [];
   int closeCalls = 0;
+  bool _isEnabled = true;
 
   @override
   void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) {
@@ -61,6 +62,7 @@ class MockHub implements Hub {
   @override
   Future<void> close() async {
     closeCalls = closeCalls + 1;
+    _isEnabled = false;
   }
 
   @override
@@ -69,8 +71,7 @@ class MockHub implements Hub {
   }
 
   @override
-  // TODO: implement isEnabled
-  bool get isEnabled => throw UnimplementedError();
+  bool get isEnabled => _isEnabled;
 
   @override
   // TODO: implement lastEventId

@@ -158,6 +158,10 @@ class SentryOptions {
   /// As a result, you will get new groups as you enable or disable this flag for certain events.
   bool attachStacktrace = true;
 
+  /// Enable this option if you want to record calls to `print()` as
+  /// breadcrumbs.
+  bool enablePrintBreadcrumbs = true;
+
   /// If [platformChecker] is provided, it is used get the envirnoment.
   /// This is useful in tests. Should be an implementation of [PlatformChecker].
   PlatformChecker platformChecker = PlatformChecker();

@@ -108,9 +108,78 @@ void main() {
     expect(true, throwableMechanism.mechanism.handled);
     expect(throwable, throwableMechanism.throwable);
   });
+
+  test('Run zoned guarded logs calls to print as breadcrumb', () async {
+    final integration = fixture.getSut();
+
+    await integration(fixture.hub, fixture.options);
+
+    expect(fixture.hub.addBreadcrumbCalls.length, 1);
+    final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
+    expect(breadcrumb.level, SentryLevel.debug);
+    expect(breadcrumb.category, 'console');
+    expect(breadcrumb.type, 'debug');
+  });
+
+  test(
+      'Run zoned guarded does not log calls to print as breadcrumb if disabled',
+      () async {
+    fixture.options.enablePrintBreadcrumbs = false;
+
+    final integration = fixture.getSut();
+
+    await integration(fixture.hub, fixture.options);
+
+    expect(fixture.hub.addBreadcrumbCalls.length, 0);
+  });
+
+  test('Run zoned guarded: No addBreadcrumb calls for disabled Hub', () async {
+    await fixture.hub.close();
+
+    final integration = fixture.getSut();
+
+    await integration(fixture.hub, fixture.options);
+
+    expect(fixture.hub.addBreadcrumbCalls.length, 0);
+  });
+
+  test('Run zoned guarded: No recursion for print() calls', () async {
+    final options = SentryOptions(dsn: fakeDsn);
+    final hub = PrintRecursionMockHub();
+
+    final integration = fixture.getSut();
+
+    await integration(hub, options);
+
+    expect(hub.addBreadcrumbCalls.length, 1);
+    final breadcrumb = hub.addBreadcrumbCalls.first.crumb;
+    expect(breadcrumb.message, 'foo bar');
+    expect(breadcrumb.level, SentryLevel.debug);
+    expect(breadcrumb.category, 'console');
+    expect(breadcrumb.type, 'debug');
+  });
 }
 
 class Fixture {
   final hub = MockHub();
   final options = SentryOptions(dsn: fakeDsn);
+
+  RunZonedGuardedIntegration getSut() {
+    Future<void> callback() async {
+      print('foo bar');
+    }
+
+    return RunZonedGuardedIntegration(callback);
+  }
+}
+
+class PrintRecursionMockHub extends MockHub {
+  @override
+  bool get isEnabled => true;
+
+  @override
+  void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) {
+    print('recursion');
+    super.addBreadcrumb(crumb, hint: hint);
+  }
 }
