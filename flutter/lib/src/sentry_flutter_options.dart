@@ -1,11 +1,13 @@
-import 'package:flutter/foundation.dart' as foundation;
 import 'package:sentry/sentry.dart';
+
+// TODO: Scope observers, enableScopeSync
 
 /// This class adds options which are only availble in a Flutter environment.
 /// Note that some of these options require native Sentry integration, which is
 /// not available on all platforms.
 class SentryFlutterOptions extends SentryOptions {
-  SentryFlutterOptions({String? dsn}) : super(dsn: dsn) {
+  SentryFlutterOptions({String? dsn, PlatformChecker? checker})
+      : super(dsn: dsn, checker: checker) {
     enableBreadcrumbTrackingForCurrentPlatform();
   }
 
@@ -118,6 +120,11 @@ class SentryFlutterOptions extends SentryOptions {
   /// See https://api.flutter.dev/flutter/foundation/FlutterErrorDetails/silent.html
   bool reportSilentFlutterErrors = false;
 
+  /// Enables Out of Memory Tracking for iOS and macCatalyst.
+  /// See the following link for more information and possible restrictions:
+  /// https://docs.sentry.io/platforms/apple/guides/ios/configuration/out-of-memory/
+  bool enableOutOfMemoryTracking = true;
+
   /// By using this, you are disabling native [Breadcrumb] tracking and instead
   /// you are just tracking [Breadcrumb]s which result from events available
   /// in the current Flutter environment.
@@ -158,46 +165,10 @@ class SentryFlutterOptions extends SentryOptions {
   /// available in the Flutter environment. This way you get more detailed
   /// information where available.
   void enableBreadcrumbTrackingForCurrentPlatform() {
-    // defaultTargetPlatform returns the platform this code currently runs on.
-    // See https://api.flutter.dev/flutter/foundation/defaultTargetPlatform.html
-    //
-    // To test this method one can set
-    // foundation.debugDefaultTargetPlatformOverride as one likes.
-    configureBreadcrumbTrackingForPlatform(foundation.defaultTargetPlatform);
-  }
-
-  /// You should probably use [enableBreadcrumbTrackingForCurrentPlatform].
-  /// This should only be used if you really want to override the default
-  /// platform behavior.
-  @foundation.visibleForTesting
-  void configureBreadcrumbTrackingForPlatform(
-      foundation.TargetPlatform platform) {
-    // Bacause platform reports the Operating System and not if it is running
-    // in a browser. So we have to check if this is Flutter for web.
-    // See https://github.com/flutter/flutter/blob/c5a69b9b8ad186e9fce017fd4bfb8ce63f9f4d13/packages/flutter/lib/src/foundation/_platform_web.dart
-    if (foundation.kIsWeb) {
-      // Flutter for web has no native integration, just use the Flutter
-      // integration.
+    if (platformChecker.hasNativeIntegration) {
+      useNativeBreadcrumbTracking();
+    } else {
       useFlutterBreadcrumbTracking();
-      return;
-    }
-
-    // On all other platforms than web, we can just check the platform
-    switch (platform) {
-      case foundation.TargetPlatform.android:
-      case foundation.TargetPlatform.iOS:
-      case foundation.TargetPlatform.macOS:
-        useNativeBreadcrumbTracking();
-        break;
-      case foundation.TargetPlatform.fuchsia:
-      case foundation.TargetPlatform.linux:
-      case foundation.TargetPlatform.windows:
-        // These platforms have no native integration, so just use the Flutter
-        // integration.
-        useFlutterBreadcrumbTracking();
-        break;
     }
   }
-
-  // TODO: Scope observers, enableScopeSync
 }

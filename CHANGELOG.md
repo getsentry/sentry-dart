@@ -8,8 +8,11 @@
 * Fix: Set console logger as default logger in debug mode (#413)
 * Fix: Use name from pubspec.yaml for release if package id is not available (#411)
 * Feat: `SentryHttpClient` tracks the duration which a request takes and logs failed requests (#414)
+* Bump: sentry-cocoa to v7.0.0 (#424)
+* Feat: Support for Out-of-Memory-Tracking on macOS/iOS (#424)
 * Fix: Trim `\u0000` from Windows package info (#420)
 * Feature: Log calls to `print()` as Breadcrumbs (#439)
+* Fix: `dist` was read from `SENTRY_DSN`, now it's read from `SENTRY_DIST` (#442)
 
 # 5.0.0
 
