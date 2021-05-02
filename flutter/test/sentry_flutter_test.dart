@@ -53,7 +53,7 @@ void main() {
         packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.android()),
       );
-    });
+    }, testOn: 'vm');
 
     test('iOS', () async {
       await SentryFlutter.init(
@@ -70,7 +70,7 @@ void main() {
         packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
       );
-    });
+    }, testOn: 'vm');
 
     test('macOS', () async {
       await SentryFlutter.init(
@@ -87,7 +87,7 @@ void main() {
         packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.macOs()),
       );
-    });
+    }, testOn: 'vm');
 
     test('Windows', () async {
       await SentryFlutter.init(
@@ -104,7 +104,7 @@ void main() {
         packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.windows()),
       );
-    });
+    }, testOn: 'vm');
 
     test('Linux', () async {
       await SentryFlutter.init(
@@ -121,7 +121,7 @@ void main() {
         packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.linux()),
       );
-    });
+    }, testOn: 'vm');
 
     test('Web', () async {
       await SentryFlutter.init(
@@ -165,6 +165,7 @@ void main() {
         packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(
           platform: MockPlatform.android(),
+          isWeb: true,
         ),
       );
     });
