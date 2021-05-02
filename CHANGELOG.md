@@ -13,6 +13,7 @@
 * Fix: Trim `\u0000` from Windows package info (#420)
 * Feature: Log calls to `print()` as Breadcrumbs (#439)
 * Fix: `dist` was read from `SENTRY_DSN`, now it's read from `SENTRY_DIST` (#442)
+* Bump: sentry-cocoa to v7.0.3 (#445)
 
 # 5.0.0
 
