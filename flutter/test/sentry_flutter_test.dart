@@ -1,129 +1,172 @@
-import 'dart:convert';
-import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-
+import 'package:sentry/src/platform_checker.dart';
+import 'package:sentry_flutter/src/version.dart';
 import 'mocks.dart';
-import 'mocks.mocks.dart';
 import 'sentry_flutter_util.dart';
+
+/// These are the integrations which should be added on every platform.
+/// They don't depend on the underlying platform.
+final platformAgnosticIntegrations = [
+  FlutterErrorIntegration,
+  LoadReleaseIntegration,
+];
+
+// These should only be added to Android
+final androidIntegrations = [
+  LoadAndroidImageListIntegration,
+];
+
+// These should be added to iOS and macOS
+final iOsAndMacOsIntegrations = [
+  LoadContextsIntegration,
+];
+
+// These should be added to every platform which has a native integration.
+final nativeIntegrations = [
+  NativeSdkIntegration,
+];
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('Flutter init for mobile', () {
-    const _channel = MethodChannel('sentry_flutter');
-
-    setUp(() {
-      _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
-    });
-
+  group('Test platform integrations', () {
     tearDown(() async {
       await Sentry.close();
     });
 
-    test('Will run default configurations on Android', () async {
+    test('Android', () async {
       await SentryFlutter.init(
-        getConfigurationTester(isAndroid: true),
+        getConfigurationTester(
+          hasFileSystemTransport: true,
+          shouldHaveIntegrations: [
+            ...androidIntegrations,
+            ...nativeIntegrations,
+            ...platformAgnosticIntegrations,
+          ],
+          shouldNotHaveIntegrations: iOsAndMacOsIntegrations,
+        ),
         appRunner: appRunner,
         packageLoader: loadTestPackage,
-        isAndroidChecker: () => true,
-        channel: _channel,
+        platformChecker: getPlatformChecker(platform: MockPlatform.android()),
       );
     });
 
-    test('Will run default configurations on ios', () async {
+    test('iOS', () async {
       await SentryFlutter.init(
-        getConfigurationTester(isIOS: true),
+        getConfigurationTester(
+          hasFileSystemTransport: true,
+          shouldHaveIntegrations: [
+            ...iOsAndMacOsIntegrations,
+            ...nativeIntegrations,
+            ...platformAgnosticIntegrations,
+          ],
+          shouldNotHaveIntegrations: androidIntegrations,
+        ),
         appRunner: appRunner,
         packageLoader: loadTestPackage,
-        isIOSChecker: () => true,
-        channel: _channel,
+        platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
+      );
+    });
+
+    test('macOS', () async {
+      await SentryFlutter.init(
+        getConfigurationTester(
+          hasFileSystemTransport: true,
+          shouldHaveIntegrations: [
+            ...iOsAndMacOsIntegrations,
+            ...nativeIntegrations,
+            ...platformAgnosticIntegrations,
+          ],
+          shouldNotHaveIntegrations: androidIntegrations,
+        ),
+        appRunner: appRunner,
+        packageLoader: loadTestPackage,
+        platformChecker: getPlatformChecker(platform: MockPlatform.macOs()),
+      );
+    });
+
+    test('Windows', () async {
+      await SentryFlutter.init(
+        getConfigurationTester(
+          hasFileSystemTransport: false,
+          shouldHaveIntegrations: platformAgnosticIntegrations,
+          shouldNotHaveIntegrations: [
+            ...androidIntegrations,
+            ...iOsAndMacOsIntegrations,
+            ...nativeIntegrations,
+          ],
+        ),
+        appRunner: appRunner,
+        packageLoader: loadTestPackage,
+        platformChecker: getPlatformChecker(platform: MockPlatform.windows()),
+      );
+    });
+
+    test('Linux', () async {
+      await SentryFlutter.init(
+        getConfigurationTester(
+          hasFileSystemTransport: false,
+          shouldHaveIntegrations: platformAgnosticIntegrations,
+          shouldNotHaveIntegrations: [
+            ...androidIntegrations,
+            ...iOsAndMacOsIntegrations,
+            ...nativeIntegrations,
+          ],
+        ),
+        appRunner: appRunner,
+        packageLoader: loadTestPackage,
+        platformChecker: getPlatformChecker(platform: MockPlatform.linux()),
+      );
+    });
+
+    test('Web', () async {
+      await SentryFlutter.init(
+        getConfigurationTester(
+          hasFileSystemTransport: false,
+          shouldHaveIntegrations: platformAgnosticIntegrations,
+          shouldNotHaveIntegrations: [
+            ...androidIntegrations,
+            ...iOsAndMacOsIntegrations,
+            ...nativeIntegrations,
+          ],
+        ),
+        appRunner: appRunner,
+        packageLoader: loadTestPackage,
+        platformChecker: getPlatformChecker(
+          isWeb: true,
+          platform: MockPlatform.linux(),
+        ),
       );
     });
   });
 
-  group('platform based loadContextsIntegration', () {
-    const _channel = MethodChannel('sentry_flutter');
-    final transport = MockTransport();
-
-    setUp(() {
-      _channel.setMockMethodCallHandler(
-        (MethodCall methodCall) async => <String, dynamic>{},
-      );
-      when(transport.send(any))
-          .thenAnswer((realInvocation) => Future.value(SentryId.newId()));
-    });
-
+  group('initial values', () {
     tearDown(() async {
-      _channel.setMockMethodCallHandler(null);
       await Sentry.close();
     });
 
-    test('should add loadContextsIntegration on ios', () async {
+    test('test that initial values are set correctly', () async {
       await SentryFlutter.init(
-        (options) => options
-          ..dsn = fakeDsn
-          ..transport = transport,
+        (options) {
+          options.dsn = fakeDsn;
+
+          expect(kDebugMode, options.debug);
+          expect('debug', options.environment);
+          expect(sdkName, options.sdk.name);
+          expect(sdkVersion, options.sdk.version);
+          expect('pub:sentry_flutter', options.sdk.packages.last.name);
+          expect(sdkVersion, options.sdk.packages.last.version);
+        },
+        appRunner: appRunner,
         packageLoader: loadTestPackage,
-        isIOSChecker: () => true,
-        channel: _channel,
+        platformChecker: getPlatformChecker(
+          platform: MockPlatform.android(),
+        ),
       );
-
-      await Sentry.captureMessage('a message');
-
-      final envelope =
-          verify(transport.send(captureAny)).captured.first as SentryEnvelope;
-      final event = await eventFromEnvelope(envelope);
-
-      expect(event.sdk!.integrations.length, 7);
-      expect(event.sdk!.integrations.contains('loadContextsIntegration'), true);
-    });
-
-    test('should not add loadContextsIntegration if not ios', () async {
-      await SentryFlutter.init(
-        (options) => options
-          ..dsn = fakeDsn
-          ..transport = transport,
-        packageLoader: loadTestPackage,
-        isIOSChecker: () => false,
-        channel: _channel,
-      );
-
-      await Sentry.captureMessage('a message');
-
-      final envelope =
-          verify(transport.send(captureAny)).captured.first as SentryEnvelope;
-      final event = await eventFromEnvelope(envelope);
-
-      expect(event.sdk!.integrations.length, 6);
-      expect(
-          event.sdk!.integrations.contains('loadContextsIntegration'), false);
-    });
-
-    test('should not add loadAndroidImageListIntegration if not Android',
-        () async {
-      await SentryFlutter.init(
-        (options) => options
-          ..dsn = fakeDsn
-          ..transport = transport,
-        packageLoader: loadTestPackage,
-        isAndroidChecker: () => false,
-        channel: _channel,
-      );
-
-      await Sentry.captureMessage('a message');
-
-      final envelope =
-          verify(transport.send(captureAny)).captured.first as SentryEnvelope;
-      final event = await eventFromEnvelope(envelope);
-
-      expect(event.sdk!.integrations.length, 6);
-      expect(
-          event.sdk!.integrations.contains('loadAndroidImageListIntegration'),
-          false);
     });
   });
 }
@@ -139,12 +182,13 @@ Future<PackageInfo> loadTestPackage() async {
   );
 }
 
-Future<SentryEvent> eventFromEnvelope(SentryEnvelope envelope) async {
-  final envelopeItemData = <int>[];
-  await envelope.items.first
-      .envelopeItemStream()
-      .forEach(envelopeItemData.addAll);
-  final envelopeItem = utf8.decode(envelopeItemData);
-  final envelopeItemJson = jsonDecode(envelopeItem.split('\n').last);
-  return SentryEvent.fromJson(envelopeItemJson as Map<String, dynamic>);
+PlatformChecker getPlatformChecker({
+  required MockPlatform platform,
+  bool isWeb = false,
+}) {
+  final platformChecker = PlatformChecker(
+    isWeb: isWeb,
+    platform: platform,
+  );
+  return platformChecker;
 }

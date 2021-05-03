@@ -122,12 +122,12 @@ void main() {
 
     test('should add breadcrumb to current Scope', () {
       hub.configureScope((Scope scope) {
-        expect(0, scope..breadcrumbs.length);
+        expect(0, scope.breadcrumbs.length);
       });
       hub.addBreadcrumb(Breadcrumb(message: 'test'));
       hub.configureScope((Scope scope) {
-        expect(1, scope..breadcrumbs.length);
-        expect('test', scope..breadcrumbs.first.message);
+        expect(1, scope.breadcrumbs.length);
+        expect('test', scope.breadcrumbs.first.message);
       });
     });
   });

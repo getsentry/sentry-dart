@@ -10,7 +10,6 @@ import 'noop_hub.dart';
 import 'protocol.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
-import 'utils.dart';
 import 'integration.dart';
 
 /// Configuration options callback
@@ -60,12 +59,10 @@ class Sentry {
     SentryOptions options,
     AppRunner? appRunner,
   ) async {
-    options.debug = options.platformChecker.isDebugMode();
-
     _setEnvironmentVariables(options);
 
     // Throws when running on the browser
-    if (!isWeb) {
+    if (!options.platformChecker.isWeb) {
       // catch any errors that may occur within the entry function, main()
       // in the ‘root zone’ where all Dart programs start
       options.addIntegrationByIndex(0, IsolateErrorIntegration());
@@ -208,10 +205,6 @@ class Sentry {
     // try parsing the dsn
     Dsn.parse(options.dsn!);
 
-    // if logger os NoOp, let's set a logger that prints on the console
-    if (options.debug && options.logger == noOpLogger) {
-      options.logger = dartLogger;
-    }
     return true;
   }
 }

@@ -76,7 +76,19 @@ class SentryOptions {
 
   /// Turns debug mode on or off. If debug is enabled SDK will attempt to print out useful debugging
   /// information if something goes wrong. Default is disabled.
-  bool debug = false;
+  bool get debug => _debug;
+
+  set debug(bool newValue) {
+    _debug = newValue;
+    if (_debug == true && logger == noOpLogger) {
+      _logger = dartLogger;
+    }
+    if (_debug == false && logger == dartLogger) {
+      _logger = noOpLogger;
+    }
+  }
+
+  bool _debug = false;
 
   /// minimum LogLevel to be used if debug is enabled
   SentryLevel diagnosticLevel = _defaultDiagnosticLevel;
@@ -133,7 +145,7 @@ class SentryOptions {
   String? serverName;
 
   /// Sdk object that contains the Sentry Client Name and its version
-  SdkVersion sdk = SdkVersion(name: sdkName, version: sdkVersion);
+  late SdkVersion sdk;
 
   /// When enabled, stack traces are automatically attached to all messages logged.
   /// Stack traces are always attached to exceptions;
@@ -160,7 +172,19 @@ class SentryOptions {
   /// Whether to send personal identifiable information along with events
   bool sendDefaultPii = false;
 
-  SentryOptions({this.dsn}) {
+  SentryOptions({this.dsn, PlatformChecker? checker}) {
+    if (checker != null) {
+      platformChecker = checker;
+    }
+
+    // In debug mode we want to log everything by default to the console.
+    // In order to do that, this must be the first thing the SDK does
+    // and the first thing the SDK does, is to instantiate SentryOptions
+    if (platformChecker.isDebugMode()) {
+      debug = true;
+    }
+
+    sdk = SdkVersion(name: sdkName(platformChecker.isWeb), version: sdkVersion);
     sdk.addPackage('pub:sentry', sdkVersion);
   }
 

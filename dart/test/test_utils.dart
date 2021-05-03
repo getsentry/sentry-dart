@@ -98,7 +98,7 @@ Future testCaptureException(
     fakeClockProvider,
     compressPayload: compressPayload,
     withUserAgent: !isWeb,
-    sdkName: sdkName,
+    sdkName: sdkName(isWeb),
   );
 
   String envelopeData;
@@ -143,7 +143,7 @@ Future testCaptureException(
     expect(data['platform'], 'javascript');
     expect(data['sdk'], {
       'version': sdkVersion,
-      'name': sdkName,
+      'name': sdkName(isWeb),
       'packages': [
         {'name': 'pub:sentry', 'version': sdkVersion}
       ]
@@ -290,7 +290,7 @@ void runTest({Codec<List<int>, List<int>?>? gzip, bool isWeb = false}) {
       withUserAgent: !isWeb,
       compressPayload: false,
       withSecret: false,
-      sdkName: sdkName,
+      sdkName: sdkName(isWeb),
     );
 
     client.close();

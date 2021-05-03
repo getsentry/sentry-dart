@@ -57,6 +57,16 @@ void main() {
     );
   }
 
+  test('$LoadContextsIntegration adds itself to sdk.integrations', () async {
+    final integration = fixture.getSut();
+    integration(fixture.hub, fixture.options);
+
+    expect(
+      fixture.options.sdk.integrations.contains('loadContextsIntegration'),
+      true,
+    );
+  });
+
   test('should apply the loadContextsIntegration eventProcessor', () async {
     final integration = fixture.getSut();
     integration(fixture.hub, fixture.options);

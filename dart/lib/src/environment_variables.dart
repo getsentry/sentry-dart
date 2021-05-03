@@ -7,7 +7,7 @@ class EnvironmentVariables {
   static const _sentryEnvironment = 'SENTRY_ENVIRONMENT';
   static const _sentryDsn = 'SENTRY_DSN';
   static const _sentryRelease = 'SENTRY_RELEASE';
-  static const _sentryDist = 'SENTRY_DSN';
+  static const _sentryDist = 'SENTRY_DIST';
 
   /// `SENTRY_ENVIRONMENT`
   /// See [SentryOptions.environment]

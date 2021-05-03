@@ -6,8 +6,8 @@ import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/protocol/sentry_request.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
-import 'package:sentry/src/utils.dart';
 import 'package:sentry/src/version.dart';
+import 'package:sentry/src/utils.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
@@ -123,10 +123,12 @@ void main() {
       );
     });
     test('$SdkVersion serializes', () {
+      var platformChecker = PlatformChecker();
+
       final event = SentryEvent(
         eventId: SentryId.empty(),
         timestamp: DateTime.utc(2019),
-        platform: sdkPlatform,
+        platform: sdkPlatform(platformChecker.isWeb),
         sdk: SdkVersion(
           name: 'sentry.dart.flutter',
           version: '4.3.2',
@@ -137,7 +139,7 @@ void main() {
         ),
       );
       expect(event.toJson(), <String, dynamic>{
-        'platform': isWeb ? 'javascript' : 'other',
+        'platform': platformChecker.isWeb ? 'javascript' : 'other',
         'event_id': '00000000000000000000000000000000',
         'timestamp': '2019-01-01T00:00:00.000Z',
         'sdk': {
@@ -151,6 +153,8 @@ void main() {
       });
     });
     test('serializes to JSON', () {
+      var platformChecker = PlatformChecker();
+
       final timestamp = DateTime.utc(2019);
       final user = SentryUser(
           id: 'user_id',
@@ -178,7 +182,7 @@ void main() {
         SentryEvent(
           eventId: SentryId.empty(),
           timestamp: timestamp,
-          platform: sdkPlatform,
+          platform: sdkPlatform(platformChecker.isWeb),
           message: SentryMessage(
             'test-message 1 2',
             template: 'test-message %d %d',
@@ -221,7 +225,7 @@ void main() {
           ),
         ).toJson(),
         <String, dynamic>{
-          'platform': isWeb ? 'javascript' : 'other',
+          'platform': platformChecker.isWeb ? 'javascript' : 'other',
           'event_id': '00000000000000000000000000000000',
           'timestamp': '2019-01-01T00:00:00.000Z',
           'message': {
