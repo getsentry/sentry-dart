@@ -11,6 +11,7 @@ flutter pub get
 flutter analyze
 # tests
 flutter test
+flutter test --platform chrome
 # formatting
 flutter format -n --set-exit-if-changed ./
 # pub score
