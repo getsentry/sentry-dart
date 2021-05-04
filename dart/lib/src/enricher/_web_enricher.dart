@@ -1,24 +1,39 @@
 import 'dart:async';
+
+import '../platform/_web_platform.dart';
+import '../platform/platform.dart';
 import '../protocol.dart';
 import 'enricher.dart';
 import 'dart:html' as html
     show window, Window, Navigator, Screen, BatteryManager;
 
-final Enricher instance =
-    WebEnricher(html.window, html.window.navigator, html.window.screen);
+final Enricher instance = WebEnricher(
+  html.window,
+  html.window.navigator,
+  html.window.screen,
+  WebPlatform(),
+);
 
 class WebEnricher implements Enricher {
-  WebEnricher(this._window, this._navigator, this._screen);
+  WebEnricher(
+    this._window,
+    this._navigator,
+    this._screen,
+    this._platform,
+  );
 
   final html.Window _window;
   final html.Navigator _navigator;
   final html.Screen? _screen;
+  final Platform _platform;
 
   @override
   FutureOr<SentryEvent> apply(SentryEvent event) async {
     final contexts = event.contexts.copyWith(
       browser: _getBrowser(event.contexts.browser),
       device: await _getDevice(event.contexts.device),
+      operatingSystem: _getOperatingSystem(event.contexts.operatingSystem),
+      runtimes: _getRuntimes(event.contexts.runtimes),
     );
 
     return event.copyWith(
@@ -79,6 +94,10 @@ class WebEnricher implements Enricher {
       batteryLevel: level?.toDouble(),
       charging: charging,
       online: _navigator.onLine,
+      memorySize: memoryByteSize?.toInt(),
+      orientation: orientation,
+      screenResolution: screenResolution,
+      screenDensity: _window.devicePixelRatio.toDouble(),
     );
   }
 
@@ -87,7 +106,7 @@ class WebEnricher implements Enricher {
     if (browser == null) {
       return SentryBrowser(
         name: _navigator.appName,
-        version: _navigator.appVersion,
+        version: _navigator.userAgent,
       );
     } else {
       return browser.copyWith(
@@ -95,5 +114,36 @@ class WebEnricher implements Enricher {
         version: _navigator.appVersion,
       );
     }
+  }
+
+  SentryOperatingSystem _getOperatingSystem(SentryOperatingSystem? os) {
+    if (os == null) {
+      return SentryOperatingSystem(
+        name: _platform.operatingSystem,
+      );
+    } else {
+      return os.copyWith(
+        name: _platform.operatingSystem,
+      );
+    }
+  }
+
+  List<SentryRuntime> _getRuntimes(List<SentryRuntime>? runtimes) {
+    final dartRuntime = SentryRuntime(name: 'Dart');
+    final flutterRuntime = SentryRuntime(name: 'Flutter');
+    final browserRuntime = SentryRuntime(name: 'Browser');
+    if (runtimes == null) {
+      return [
+        dartRuntime,
+        flutterRuntime,
+        browserRuntime,
+      ];
+    }
+    runtimes.addAll([
+      dartRuntime,
+      flutterRuntime,
+      browserRuntime,
+    ]);
+    return runtimes;
   }
 }
