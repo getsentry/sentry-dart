@@ -83,6 +83,7 @@ class WebEnricher implements Enricher {
   }
 
   SentryBrowser _getBrowser(SentryBrowser? browser) {
+    // TODO: Figure out how to send the correct name and version
     if (browser == null) {
       return SentryBrowser(
         name: _navigator.appName,
