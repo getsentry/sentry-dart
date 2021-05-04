@@ -142,6 +142,67 @@ void main() {
         ),
       );
     });
+
+    test('Web && (iOS || macOS) ', () async {
+      // Tests that iOS || macOS integrations aren't added on a browswer which
+      // runs on iOS or macOS
+      await SentryFlutter.init(
+        getConfigurationTester(
+          hasFileSystemTransport: false,
+          shouldHaveIntegrations: platformAgnosticIntegrations,
+          shouldNotHaveIntegrations: [
+            ...androidIntegrations,
+            ...iOsAndMacOsIntegrations,
+            ...nativeIntegrations,
+          ],
+        ),
+        appRunner: appRunner,
+        packageLoader: loadTestPackage,
+        platformChecker: getPlatformChecker(
+          isWeb: true,
+          platform: MockPlatform.iOs(),
+        ),
+      );
+
+      await SentryFlutter.init(
+        getConfigurationTester(
+          hasFileSystemTransport: false,
+          shouldHaveIntegrations: platformAgnosticIntegrations,
+          shouldNotHaveIntegrations: [
+            ...androidIntegrations,
+            ...iOsAndMacOsIntegrations,
+            ...nativeIntegrations,
+          ],
+        ),
+        appRunner: appRunner,
+        packageLoader: loadTestPackage,
+        platformChecker: getPlatformChecker(
+          isWeb: true,
+          platform: MockPlatform.macOs(),
+        ),
+      );
+    });
+
+    test('Web && Android', () async {
+      // Tests that Android integrations aren't added on an Android browswer
+      await SentryFlutter.init(
+        getConfigurationTester(
+          hasFileSystemTransport: false,
+          shouldHaveIntegrations: platformAgnosticIntegrations,
+          shouldNotHaveIntegrations: [
+            ...androidIntegrations,
+            ...iOsAndMacOsIntegrations,
+            ...nativeIntegrations,
+          ],
+        ),
+        appRunner: appRunner,
+        packageLoader: loadTestPackage,
+        platformChecker: getPlatformChecker(
+          isWeb: true,
+          platform: MockPlatform.android(),
+        ),
+      );
+    });
   });
 
   group('initial values', () {
