@@ -33,7 +33,7 @@ class SentryLevel {
         return 900;
       // Level.INFO
       case SentryLevel.info:
-        return 8000;
+        return 800;
       // Level.CONFIG
       case SentryLevel.debug:
         return 700;
