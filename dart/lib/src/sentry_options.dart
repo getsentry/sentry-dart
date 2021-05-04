@@ -258,7 +258,7 @@ void dartLogger(SentryLevel level, String message) {
   log(
     '[${level.name}] $message',
     level: level.toLogLevel(),
-    name: '[sentry]',
+    name: 'sentry',
     time: getUtcDateTime(),
   );
 }
