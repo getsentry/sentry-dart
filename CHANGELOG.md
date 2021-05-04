@@ -15,7 +15,7 @@
 * Fix: `dist` was read from `SENTRY_DSN`, now it's read from `SENTRY_DIST` (#442)
 * Bump: sentry-cocoa to v7.0.3 (#445)
 * Fix: Fix adding integrations on web (#450)
-* Fix: Use `log()` instead of `print()` for SDK logging
+* Fix: Use `log()` instead of `print()` for SDK logging (#453)
 
 # 5.0.0
 
