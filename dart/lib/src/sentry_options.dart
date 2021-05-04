@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:http/http.dart';
 
@@ -254,5 +255,10 @@ void noOpLogger(SentryLevel level, String message) {}
 
 /// A Logger that prints out the level and message
 void dartLogger(SentryLevel level, String message) {
-  print('[${level.name}] $message');
+  log(
+    '[${level.name}] $message',
+    level: level.toLogLevel(),
+    name: '[sentry]',
+    time: getUtcDateTime(),
+  );
 }
