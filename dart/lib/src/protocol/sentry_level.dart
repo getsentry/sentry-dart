@@ -38,6 +38,6 @@ class SentryLevel {
       case SentryLevel.debug:
         return 700;
     }
-    return 1200;
+    return 700;
   }
 }
