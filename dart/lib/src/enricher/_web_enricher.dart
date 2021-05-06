@@ -129,21 +129,19 @@ class WebEnricher implements Enricher {
   }
 
   List<SentryRuntime> _getRuntimes(List<SentryRuntime>? runtimes) {
-    final dartRuntime = SentryRuntime(name: 'Dart');
-    final flutterRuntime = SentryRuntime(name: 'Flutter');
+    final dartRuntime = SentryRuntime(name: 'Dart', rawDescription: 'dart2js');
+
     final browserRuntime = SentryRuntime(name: 'Browser');
     if (runtimes == null) {
       return [
         dartRuntime,
-        flutterRuntime,
         browserRuntime,
       ];
     }
-    runtimes.addAll([
+    return [
+      ...runtimes,
       dartRuntime,
-      flutterRuntime,
       browserRuntime,
-    ]);
-    return runtimes;
+    ];
   }
 }

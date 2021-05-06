@@ -36,11 +36,31 @@ class FlutterEnricher implements Enricher {
       // For now we rely on the native integration for event enrichment
       return event;
     }
+    final contexts = event.contexts.copyWith(
+      device: _applyDevice(event.contexts.device),
+      runtimes: _getRuntimes(event.contexts.runtimes),
+    );
+
+    contexts['Accessibility'] = <String, dynamic>{
+      'accessibleNavigation':
+          _window.accessibilityFeatures.accessibleNavigation,
+      'boldText': _window.accessibilityFeatures.boldText,
+      'disableAnimations': _window.accessibilityFeatures.disableAnimations,
+      'highContrast': _window.accessibilityFeatures.highContrast,
+      'invertColors': _window.accessibilityFeatures.invertColors,
+      'reduceMotion': _window.accessibilityFeatures.reduceMotion,
+    };
+
+    contexts['Current Culture'] = <String, dynamic>{
+      '24hourFormat': _window.alwaysUse24HourFormat,
+      if (_window.locale != null) 'locale': _window.locale?.toLanguageTag(),
+      if (_window.locales != null)
+        'availableLocales':
+            _window.locales?.map((it) => it.toLanguageTag()).toList(),
+    };
 
     event = event.copyWith(
-      contexts: event.contexts.copyWith(
-        device: _applyDevice(event.contexts.device),
-      ),
+      contexts: contexts,
       extra: _getExtras(event.extra),
     );
 
@@ -100,6 +120,38 @@ class FlutterEnricher implements Enricher {
       screenResolution: screenResolution,
       screenDensity: _window.devicePixelRatio,
     );
+  }
+
+  List<SentryRuntime> _getRuntimes(List<SentryRuntime>? runtimes) {
+    var flutterRuntimeDescription = '';
+
+    // See
+    // - https://flutter.dev/docs/testing/build-modes
+    // - https://github.com/flutter/flutter/wiki/Flutter%27s-modes
+    // TODO profile mode
+    if (_checker.isWeb) {
+      if (_checker.isDebugMode()) {
+        flutterRuntimeDescription = 'Flutter on Web with dartdevc';
+      } else if (_checker.isReleaseMode()) {
+        flutterRuntimeDescription = 'Flutter on Web with dart2js';
+      }
+    } else {
+      if (_checker.isDebugMode()) {
+        flutterRuntimeDescription = 'Flutter on Dart VM';
+      } else if (_checker.isReleaseMode()) {
+        flutterRuntimeDescription = 'Flutter on Dart AOT';
+      }
+    }
+
+    final flutterRuntime = SentryRuntime(
+      name: 'Flutter',
+      rawDescription: flutterRuntimeDescription,
+    );
+
+    if (runtimes == null) {
+      return [flutterRuntime];
+    }
+    return [...runtimes, flutterRuntime];
   }
 
   Future<SentryEvent> _applyWindows(SentryEvent event) async {

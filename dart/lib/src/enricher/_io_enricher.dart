@@ -26,18 +26,13 @@ class IoEnricher implements Enricher {
 
   List<SentryRuntime> _getRuntimes(List<SentryRuntime>? runtimes) {
     final dartRuntime = SentryRuntime(name: 'Dart', version: Platform.version);
-    final flutterRuntime = SentryRuntime(name: 'Flutter');
     if (runtimes == null) {
-      return [
-        dartRuntime,
-        flutterRuntime,
-      ];
+      return [dartRuntime];
     }
-    runtimes.addAll([
+    return [
+      ...runtimes,
       dartRuntime,
-      flutterRuntime,
-    ]);
-    return runtimes;
+    ];
   }
 
   Map<String, dynamic> _getExtras(Map<String, dynamic>? extras) {
