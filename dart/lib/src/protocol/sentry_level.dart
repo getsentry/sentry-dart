@@ -20,7 +20,7 @@ class SentryLevel {
   /// function.
   /// These levels are inspired by
   /// https://pub.dev/documentation/logging/latest/logging/Level-class.html
-  int toLogLevel() {
+  int toDartLogLevel() {
     switch (this) {
       // Level.SHOUT
       case SentryLevel.fatal:
