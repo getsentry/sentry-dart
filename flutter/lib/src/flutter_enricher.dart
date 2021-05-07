@@ -6,15 +6,28 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sentry/sentry.dart';
 
+/*
+App Start Time can probably be achieved by setting a timestamp on sentry init
+or by subtracting https://api.flutter.dev/flutter/scheduler/SchedulerBinding/currentFrameTimeStamp.html
+from the current time
+
+One can override the system platform and brightness via 
+https://api.flutter.dev/flutter/foundation/debugBrightnessOverride.html
+https://api.flutter.dev/flutter/foundation/debugDefaultTargetPlatformOverride.html
+Though the documentation states that these should not be used in release mode 
+it might be useful in debug builds?
+*/
+
 /// Enriches [SentryEvent]s with various kinds of information.
 /// FlutterEnricher only needs to add information which aren't exposed by
 /// the Dart runtime.
 class FlutterEnricher implements Enricher {
   static final Enricher instance = FlutterEnricher(
-      PlatformChecker(),
-      DeviceInfoPlugin(),
-      Enricher.defaultEnricher,
-      WidgetsFlutterBinding.ensureInitialized().window);
+    PlatformChecker(),
+    DeviceInfoPlugin(),
+    Enricher.defaultEnricher,
+    WidgetsFlutterBinding.ensureInitialized(),
+  );
 
   FlutterEnricher(
     this._checker,
@@ -23,19 +36,16 @@ class FlutterEnricher implements Enricher {
     this._window,
   );
 
-  final SingletonFlutterWindow _window;
+  final WidgetsBinding _widgetsBinding;
   final PlatformChecker _checker;
   final DeviceInfoPlugin _deviceInfoPlugin;
   final Enricher _dartEnricher;
+  SingletonFlutterWindow get _window => _widgetsBinding.window;
   WindowsDeviceInfo? _windowsDeviceInfo;
   LinuxDeviceInfo? _linuxDeviceInfo;
 
   @override
   FutureOr<SentryEvent> apply(SentryEvent event) async {
-    if (_checker.hasNativeIntegration) {
-      // For now we rely on the native integration for event enrichment
-      return event;
-    }
     final contexts = event.contexts.copyWith(
       device: _applyDevice(event.contexts.device),
       runtimes: _getRuntimes(event.contexts.runtimes),
@@ -57,6 +67,7 @@ class FlutterEnricher implements Enricher {
       if (_window.locales != null)
         'availableLocales':
             _window.locales?.map((it) => it.toLanguageTag()).toList(),
+      'timezone': DateTime.now().timeZoneName,
     };
 
     event = event.copyWith(
@@ -83,20 +94,19 @@ class FlutterEnricher implements Enricher {
   Map<String, dynamic> _getExtras(Map<String, dynamic>? extras) {
     if (extras == null) {
       return {
-        'window_is_visible': _window.viewConfiguration.visible,
+        'windowIsVisible': _window.viewConfiguration.visible,
         // dark mode or light mode
         'brightness': describeEnum(_window.platformBrightness),
-        'locale': _window.locale.toString(),
+        'currentLifecycleState': _widgetsBinding.lifecycleState,
+        'initialLifecycleState': _widgetsBinding.initialLifecycleState,
+        'defaultRouteName': _widgetsBinding.defaultRouteName,
       };
     }
     extras.putIfAbsent(
-        'window_is_visible', () => _window.viewConfiguration.visible);
+        'windowIsVisible', () => _window.viewConfiguration.visible);
 
     extras.putIfAbsent(
         'brightness', () => describeEnum(_window.platformBrightness));
-
-    extras.putIfAbsent('locale', () => _window.locale.toString());
-
     return extras;
   }
 

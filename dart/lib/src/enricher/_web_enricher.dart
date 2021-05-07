@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import '../platform/_web_platform.dart';
-import '../platform/platform.dart';
+import '../platform_checker.dart';
+
 import '../protocol.dart';
 import 'enricher.dart';
 import 'dart:html' as html
@@ -11,7 +11,7 @@ final Enricher instance = WebEnricher(
   html.window,
   html.window.navigator,
   html.window.screen,
-  WebPlatform(),
+  PlatformChecker(),
 );
 
 class WebEnricher implements Enricher {
@@ -19,13 +19,13 @@ class WebEnricher implements Enricher {
     this._window,
     this._navigator,
     this._screen,
-    this._platform,
+    this._platformChecker,
   );
 
   final html.Window _window;
   final html.Navigator _navigator;
   final html.Screen? _screen;
-  final Platform _platform;
+  final PlatformChecker _platformChecker;
 
   @override
   FutureOr<SentryEvent> apply(SentryEvent event) async {
@@ -79,6 +79,8 @@ class WebEnricher implements Enricher {
     final usedStorage = storage?['usage'];
     */
 
+    var time = DateTime.now();
+
     if (device == null) {
       return SentryDevice(
         batteryLevel: level?.toDouble(),
@@ -88,6 +90,7 @@ class WebEnricher implements Enricher {
         orientation: orientation,
         screenResolution: screenResolution,
         screenDensity: _window.devicePixelRatio.toDouble(),
+        timezone: time.timeZoneName,
       );
     }
     return device.copyWith(
@@ -98,6 +101,7 @@ class WebEnricher implements Enricher {
       orientation: orientation,
       screenResolution: screenResolution,
       screenDensity: _window.devicePixelRatio.toDouble(),
+      timezone: time.timeZoneName,
     );
   }
 
@@ -119,19 +123,27 @@ class WebEnricher implements Enricher {
   SentryOperatingSystem _getOperatingSystem(SentryOperatingSystem? os) {
     if (os == null) {
       return SentryOperatingSystem(
-        name: _platform.operatingSystem,
+        name: _platformChecker.platform.operatingSystem,
       );
     } else {
       return os.copyWith(
-        name: _platform.operatingSystem,
+        name: _platformChecker.platform.operatingSystem,
       );
     }
   }
 
   List<SentryRuntime> _getRuntimes(List<SentryRuntime>? runtimes) {
-    // TODO figure out dart runtime
-    final dartRuntime =
-        SentryRuntime(name: 'Dart', rawDescription: 'dart2js or dartdevc');
+    var dartRuntimeDescription = '';
+    if (_platformChecker.isDebugMode()) {
+      dartRuntimeDescription = 'Dart with dartdevc';
+    } else if (_platformChecker.isReleaseMode()) {
+      dartRuntimeDescription = 'Dart with dart2js';
+    }
+
+    final dartRuntime = SentryRuntime(
+      name: 'Dart',
+      rawDescription: dartRuntimeDescription,
+    );
 
     final browserRuntime = SentryRuntime(name: 'Browser');
     if (runtimes == null) {
