@@ -257,7 +257,7 @@ void noOpLogger(SentryLevel level, String message) {}
 void dartLogger(SentryLevel level, String message) {
   log(
     '[${level.name}] $message',
-    level: level.toLogLevel(),
+    level: level.toDartLogLevel(),
     name: 'sentry',
     time: getUtcDateTime(),
   );
