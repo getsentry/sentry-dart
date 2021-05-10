@@ -165,4 +165,69 @@ void main() {
     // TODO I'm not sure how to test it
     // could we set [hub.stack] as @visibleForTesting ?
   });
+
+  group('Hub withScope', () {
+    late Hub hub;
+    late MockSentryClient client;
+    SentryOptions options;
+
+    setUp(() {
+      options = SentryOptions(dsn: fakeDsn);
+      hub = Hub(options);
+      client = MockSentryClient();
+      hub.bindClient(client);
+    });
+
+    test('captureEvent should create a new scope', () async {
+      await hub.captureEvent(SentryEvent());
+      await hub.captureEvent(SentryEvent(), withScope: (scope) {
+        scope.user = SentryUser(id: 'foo bar');
+      });
+      await hub.captureEvent(SentryEvent());
+
+      var calls = client.captureEventCalls;
+      expect(calls.length, 3);
+      expect(calls[0].scope?.user, isNull);
+      expect(calls[1].scope?.user?.id, 'foo bar');
+      expect(calls[2].scope?.user, isNull);
+    });
+
+    test('captureException should create a new scope', () async {
+      await hub.captureException(Exception('0'));
+      await hub.captureException(Exception('1'), withScope: (scope) {
+        scope.user = SentryUser(id: 'foo bar');
+      });
+      await hub.captureException(Exception('2'));
+
+      var calls = client.captureExceptionCalls;
+      expect(calls.length, 3);
+      expect(calls[0].scope?.user, isNull);
+      expect(calls[0].throwable?.toString(), 'Exception: 0');
+
+      expect(calls[1].scope?.user?.id, 'foo bar');
+      expect(calls[1].throwable?.toString(), 'Exception: 1');
+
+      expect(calls[2].scope?.user, isNull);
+      expect(calls[2].throwable?.toString(), 'Exception: 2');
+    });
+
+    test('captureMessage should create a new scope', () async {
+      await hub.captureMessage('foo bar 0');
+      await hub.captureMessage('foo bar 1', withScope: (scope) {
+        scope.user = SentryUser(id: 'foo bar');
+      });
+      await hub.captureMessage('foo bar 2');
+
+      var calls = client.captureMessageCalls;
+      expect(calls.length, 3);
+      expect(calls[0].scope?.user, isNull);
+      expect(calls[0].formatted, 'foo bar 0');
+
+      expect(calls[1].scope?.user?.id, 'foo bar');
+      expect(calls[1].formatted, 'foo bar 1');
+
+      expect(calls[2].scope?.user, isNull);
+      expect(calls[2].formatted, 'foo bar 2');
+    });
+  });
 }

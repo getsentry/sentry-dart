@@ -116,6 +116,17 @@ class MainScaffold extends StatelessWidget {
                 Sentry.captureMessage('A message with a print() Breadcrumb');
               },
             ),
+            RaisedButton(
+              child: const Text('Capture message with scope without breadcrumbs'),
+              onPressed: () {
+                Sentry.captureMessage(
+                  'This event has no breadcrumbs', 
+                  withScope: (scope) {
+                    scope.clearBreadcrumbs();
+                  },
+                );
+              },
+            ),
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
               const CocoaExample(),
             if (UniversalPlatform.isAndroid) const AndroidExample(),

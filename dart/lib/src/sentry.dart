@@ -138,7 +138,8 @@ class Sentry {
     SentryEvent event, {
     dynamic stackTrace,
     dynamic hint,
-  }) async =>
+    ScopeCallback? withScope,
+  }) =>
       _hub.captureEvent(event, stackTrace: stackTrace, hint: hint);
 
   /// Reports the [throwable] and optionally its [stackTrace] to Sentry.io.
@@ -146,11 +147,13 @@ class Sentry {
     dynamic throwable, {
     dynamic stackTrace,
     dynamic hint,
-  }) async =>
+    ScopeCallback? withScope,
+  }) =>
       _hub.captureException(
         throwable,
         stackTrace: stackTrace,
         hint: hint,
+        withScope: withScope,
       );
 
   static Future<SentryId> captureMessage(
@@ -159,13 +162,15 @@ class Sentry {
     String? template,
     List<dynamic>? params,
     dynamic hint,
-  }) async =>
+    ScopeCallback? withScope,
+  }) =>
       _hub.captureMessage(
         message,
         level: level,
         template: template,
         params: params,
         hint: hint,
+        withScope: withScope,
       );
 
   /// Close the client SDK
