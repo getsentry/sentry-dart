@@ -39,7 +39,6 @@ class IoEnricher implements Enricher {
     final args = Platform.executableArguments;
     final packageConfig = Platform.packageConfig;
     final cpuCount = Platform.numberOfProcessors;
-    final environment = Platform.environment;
     final locale = Platform.localeName;
     final localHostname = Platform.localHostname;
     // TODO What about:
@@ -51,9 +50,8 @@ class IoEnricher implements Enricher {
       if (args.isNotEmpty) 'executableArguments': Platform.executableArguments,
       if (packageConfig != null) 'packageConfig': packageConfig,
       'numberOfProcessors': cpuCount,
-      if (environment.isNotEmpty) 'environment': environment,
       'localName': locale,
-      'localHostname': localHostname,
+      'hostname': localHostname,
     };
 
     if (extras == null) {

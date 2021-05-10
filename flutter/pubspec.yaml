@@ -15,7 +15,6 @@ dependencies:
     sdk: flutter
   sentry: ^5.0.0
   package_info_plus: ^1.0.0
-  device_info_plus: ^1.0.0
 
 dev_dependencies:
   flutter_test:
@@ -35,10 +34,6 @@ flutter:
       android:
         pluginClass: SentryFlutterPlugin
         package: io.sentry.flutter
-      ios:
-        pluginClass: SentryFlutterPlugin
-      macos:
-        pluginClass: SentryFlutterPlugin
       web:
         pluginClass: SentryFlutterWeb
         fileName: sentry_flutter_web.dart

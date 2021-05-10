@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sentry/sentry.dart';
@@ -24,25 +23,20 @@ it might be useful in debug builds?
 class FlutterEnricher implements Enricher {
   static final Enricher instance = FlutterEnricher(
     PlatformChecker(),
-    DeviceInfoPlugin(),
     Enricher.defaultEnricher,
     WidgetsFlutterBinding.ensureInitialized(),
   );
 
   FlutterEnricher(
     this._checker,
-    this._deviceInfoPlugin,
     this._dartEnricher,
-    this._window,
+    this._widgetsBinding,
   );
 
   final WidgetsBinding _widgetsBinding;
   final PlatformChecker _checker;
-  final DeviceInfoPlugin _deviceInfoPlugin;
   final Enricher _dartEnricher;
   SingletonFlutterWindow get _window => _widgetsBinding.window;
-  WindowsDeviceInfo? _windowsDeviceInfo;
-  LinuxDeviceInfo? _linuxDeviceInfo;
 
   @override
   FutureOr<SentryEvent> apply(SentryEvent event) async {
@@ -51,22 +45,43 @@ class FlutterEnricher implements Enricher {
       runtimes: _getRuntimes(event.contexts.runtimes),
     );
 
-    contexts['Accessibility'] = <String, dynamic>{
-      'accessibleNavigation':
+    contexts['accessibility'] = <String, dynamic>{
+      'accessible_navigation':
           _window.accessibilityFeatures.accessibleNavigation,
-      'boldText': _window.accessibilityFeatures.boldText,
-      'disableAnimations': _window.accessibilityFeatures.disableAnimations,
-      'highContrast': _window.accessibilityFeatures.highContrast,
-      'invertColors': _window.accessibilityFeatures.invertColors,
-      'reduceMotion': _window.accessibilityFeatures.reduceMotion,
+      'bold_text': _window.accessibilityFeatures.boldText,
+      'disable_animations': _window.accessibilityFeatures.disableAnimations,
+      'high_contrast': _window.accessibilityFeatures.highContrast,
+      'invert_colors': _window.accessibilityFeatures.invertColors,
+      'reduce_motion': _window.accessibilityFeatures.reduceMotion,
     };
 
-    contexts['Current Culture'] = <String, dynamic>{
-      '24hourFormat': _window.alwaysUse24HourFormat,
-      if (_window.locale != null) 'locale': _window.locale?.toLanguageTag(),
-      if (_window.locales != null)
-        'availableLocales':
-            _window.locales?.map((it) => it.toLanguageTag()).toList(),
+    final currentLifecycle = _widgetsBinding.lifecycleState;
+
+    contexts['flutter'] = <String, dynamic>{
+      'debug_brightness_override': debugBrightnessOverride,
+      'debug_default_target_platform_override':
+          debugDefaultTargetPlatformOverride,
+      'initial_lifecycle_state': describeEnum(_window.initialLifecycleState),
+      'default_route_name': _window.defaultRouteName,
+      if (currentLifecycle != null)
+        'current_lifecycle_state': describeEnum(currentLifecycle),
+    };
+
+    // The editor says it's fine without a `?` but the compiler complains
+    // if it's missing
+    // ignore: invalid_null_aware_operator
+    final languageTag = _window.locale?.toLanguageTag();
+
+    // The editor says it's fine without a `?` but the compiler complains
+    // if it's missing
+    final availableLocales =
+        // ignore: invalid_null_aware_operator
+        _window.locales?.map((it) => it.toLanguageTag()).toList();
+
+    contexts['current_culture'] = <String, dynamic>{
+      'is_24_hour_format': _window.alwaysUse24HourFormat,
+      if (languageTag != null) 'locale': languageTag,
+      if (availableLocales != null) 'available_locales': availableLocales,
       'timezone': DateTime.now().timeZoneName,
     };
 
@@ -74,14 +89,6 @@ class FlutterEnricher implements Enricher {
       contexts: contexts,
       extra: _getExtras(event.extra),
     );
-
-    if (!_checker.isWeb && _checker.platform.isLinux) {
-      event = await _applyLinux(event);
-    }
-
-    if (!_checker.isWeb && _checker.platform.isWindows) {
-      event = await _applyWindows(event);
-    }
 
     // Flutter for Web does not need a special case.
     // It's already covered by _dartEnricher.
@@ -94,16 +101,13 @@ class FlutterEnricher implements Enricher {
   Map<String, dynamic> _getExtras(Map<String, dynamic>? extras) {
     if (extras == null) {
       return {
-        'windowIsVisible': _window.viewConfiguration.visible,
+        'window_is_visible': _window.viewConfiguration.visible,
         // dark mode or light mode
         'brightness': describeEnum(_window.platformBrightness),
-        'currentLifecycleState': _widgetsBinding.lifecycleState,
-        'initialLifecycleState': _widgetsBinding.initialLifecycleState,
-        'defaultRouteName': _widgetsBinding.defaultRouteName,
       };
     }
     extras.putIfAbsent(
-        'windowIsVisible', () => _window.viewConfiguration.visible);
+        'window_is_visible', () => _window.viewConfiguration.visible);
 
     extras.putIfAbsent(
         'brightness', () => describeEnum(_window.platformBrightness));
@@ -162,24 +166,5 @@ class FlutterEnricher implements Enricher {
       return [flutterRuntime];
     }
     return [...runtimes, flutterRuntime];
-  }
-
-  Future<SentryEvent> _applyWindows(SentryEvent event) async {
-    // Cache device information, so that we don't need to load it every
-    // time an event gets reported.
-    _windowsDeviceInfo =
-        _windowsDeviceInfo ?? await _deviceInfoPlugin.windowsInfo;
-
-    // device info for windows does not expose much information
-
-    return event;
-  }
-
-  Future<SentryEvent> _applyLinux(SentryEvent event) async {
-    // Cache device information, so that we don't need to load it every
-    // time an event gets reported.
-    _linuxDeviceInfo = _linuxDeviceInfo ?? await _deviceInfoPlugin.linuxInfo;
-
-    return event;
   }
 }
