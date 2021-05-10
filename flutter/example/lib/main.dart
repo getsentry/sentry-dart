@@ -29,10 +29,7 @@ FutureOr<SentryEvent> addAndroidDeviceId(
   dynamic hint,
 }) async {
   var info = await DeviceInfoPlugin().androidInfo;
-  var user = (event.user ?? SentryUser()).copyWith(id: info.fingerprint);
-
-  // todo there's no ID field on SentryDevice
-  // var device = (event.contexts.device ?? SentryDevice()).copyWith();
+  var user = (event.user ?? SentryUser()).copyWith(id: info.androidId);
 
   return event.copyWith(
     user: user,
