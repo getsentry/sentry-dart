@@ -90,7 +90,6 @@ void main() {
 
       expect(client.captureMessageCalls.length, 1);
       expect(client.captureMessageCalls.first.formatted, fakeMessage.formatted);
-      expect(client.captureMessageCalls.first.level, SentryLevel.warning);
       expect(client.captureMessageCalls.first.scope?.user?.id, 'foo bar');
     });
   });

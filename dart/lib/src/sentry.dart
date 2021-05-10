@@ -140,7 +140,12 @@ class Sentry {
     dynamic hint,
     ScopeCallback? withScope,
   }) =>
-      _hub.captureEvent(event, stackTrace: stackTrace, hint: hint);
+      _hub.captureEvent(
+        event,
+        stackTrace: stackTrace,
+        hint: hint,
+        withScope: withScope,
+      );
 
   /// Reports the [throwable] and optionally its [stackTrace] to Sentry.io.
   static Future<SentryId> captureException(
