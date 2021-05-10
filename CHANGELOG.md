@@ -16,7 +16,7 @@
 * Bump: sentry-cocoa to v7.0.3 (#445)
 * Fix: Fix adding integrations on web (#450)
 * Fix: Use `log()` instead of `print()` for SDK logging (#453)
-* Bump: sentry-android to v5.0.0-beta.2
+* Bump: sentry-android to v5.0.0-beta.2 (#457)
 
 # 5.0.0
 
