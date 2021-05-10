@@ -16,6 +16,7 @@
 * Bump: sentry-cocoa to v7.0.3 (#445)
 * Fix: Fix adding integrations on web (#450)
 * Fix: Use `log()` instead of `print()` for SDK logging (#453)
+* Feature: Add `withScope` callback to capture methods (#463)
 
 # 5.0.0
 
