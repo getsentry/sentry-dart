@@ -57,11 +57,14 @@ class FlutterEnricher implements Enricher {
 
     final currentLifecycle = _widgetsBinding.lifecycleState;
 
-    contexts['flutter'] = <String, dynamic>{
-      'debug_brightness_override': debugBrightnessOverride,
-      'debug_default_target_platform_override':
-          debugDefaultTargetPlatformOverride,
-      'initial_lifecycle_state': describeEnum(_window.initialLifecycleState),
+    // conflicts with Flutter runtime if it's called Flutter
+    contexts['flutter_information'] = <String, dynamic>{
+      if (debugBrightnessOverride != null)
+        'debug_brightness_override': debugBrightnessOverride,
+      if (debugDefaultTargetPlatformOverride != null)
+        'debug_default_target_platform_override':
+            debugDefaultTargetPlatformOverride,
+      'initial_lifecycle_state': _window.initialLifecycleState,
       'default_route_name': _window.defaultRouteName,
       if (currentLifecycle != null)
         'current_lifecycle_state': describeEnum(currentLifecycle),
