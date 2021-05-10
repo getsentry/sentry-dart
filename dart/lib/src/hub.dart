@@ -66,12 +66,7 @@ class Hub {
       );
     } else {
       final item = _peek();
-      var scope = item.scope;
-
-      if (withScope != null) {
-        scope = item.scope.clone();
-        withScope(scope);
-      }
+      final scope = _cloneAndRunWithScope(item.scope, withScope);
 
       try {
         sentryId = await item.client.captureEvent(
@@ -113,12 +108,7 @@ class Hub {
       );
     } else {
       final item = _peek();
-      var scope = item.scope;
-
-      if (withScope != null) {
-        scope = item.scope.clone();
-        withScope(scope);
-      }
+      final scope = _cloneAndRunWithScope(item.scope, withScope);
 
       try {
         sentryId = await item.client.captureException(
@@ -163,12 +153,7 @@ class Hub {
       );
     } else {
       final item = _peek();
-      var scope = item.scope;
-
-      if (withScope != null) {
-        scope = item.scope.clone();
-        withScope(scope);
-      }
+      final scope = _cloneAndRunWithScope(item.scope, withScope);
 
       try {
         sentryId = await item.client.captureMessage(
@@ -189,6 +174,15 @@ class Hub {
       }
     }
     return sentryId;
+  }
+
+  Scope _cloneAndRunWithScope(Scope scope, ScopeCallback? withScope) {
+    if (withScope != null) {
+      scope = scope.clone();
+      withScope(scope);
+      return scope;
+    }
+    return scope;
   }
 
   /// Adds a breacrumb to the current Scope
