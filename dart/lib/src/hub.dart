@@ -180,7 +180,6 @@ class Hub {
     if (withScope != null) {
       scope = scope.clone();
       withScope(scope);
-      return scope;
     }
     return scope;
   }

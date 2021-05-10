@@ -167,25 +167,21 @@ void main() {
   });
 
   group('Hub withScope', () {
-    late Hub hub;
-    late MockSentryClient client;
-    SentryOptions options;
+    late Fixture fixture;
 
     setUp(() {
-      options = SentryOptions(dsn: fakeDsn);
-      hub = Hub(options);
-      client = MockSentryClient();
-      hub.bindClient(client);
+      fixture = Fixture();
     });
 
     test('captureEvent should create a new scope', () async {
+      final hub = fixture.getSut();
       await hub.captureEvent(SentryEvent());
       await hub.captureEvent(SentryEvent(), withScope: (scope) {
         scope.user = SentryUser(id: 'foo bar');
       });
       await hub.captureEvent(SentryEvent());
 
-      var calls = client.captureEventCalls;
+      var calls = fixture.client.captureEventCalls;
       expect(calls.length, 3);
       expect(calls[0].scope?.user, isNull);
       expect(calls[1].scope?.user?.id, 'foo bar');
@@ -193,13 +189,14 @@ void main() {
     });
 
     test('captureException should create a new scope', () async {
+      final hub = fixture.getSut();
       await hub.captureException(Exception('0'));
       await hub.captureException(Exception('1'), withScope: (scope) {
         scope.user = SentryUser(id: 'foo bar');
       });
       await hub.captureException(Exception('2'));
 
-      var calls = client.captureExceptionCalls;
+      var calls = fixture.client.captureExceptionCalls;
       expect(calls.length, 3);
       expect(calls[0].scope?.user, isNull);
       expect(calls[0].throwable?.toString(), 'Exception: 0');
@@ -212,13 +209,14 @@ void main() {
     });
 
     test('captureMessage should create a new scope', () async {
+      final hub = fixture.getSut();
       await hub.captureMessage('foo bar 0');
       await hub.captureMessage('foo bar 1', withScope: (scope) {
         scope.user = SentryUser(id: 'foo bar');
       });
       await hub.captureMessage('foo bar 2');
 
-      var calls = client.captureMessageCalls;
+      var calls = fixture.client.captureMessageCalls;
       expect(calls.length, 3);
       expect(calls[0].scope?.user, isNull);
       expect(calls[0].formatted, 'foo bar 0');
@@ -230,4 +228,15 @@ void main() {
       expect(calls[2].formatted, 'foo bar 2');
     });
   });
+}
+
+class Fixture {
+  final MockSentryClient client = MockSentryClient();
+  final SentryOptions options = SentryOptions(dsn: fakeDsn);
+
+  Hub getSut() {
+    final hub = Hub(options);
+    hub.bindClient(client);
+    return hub;
+  }
 }
