@@ -5,18 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sentry/sentry.dart';
 
-/*
-App Start Time can probably be achieved by setting a timestamp on sentry init
-or by subtracting https://api.flutter.dev/flutter/scheduler/SchedulerBinding/currentFrameTimeStamp.html
-from the current time
-
-One can override the system platform and brightness via 
-https://api.flutter.dev/flutter/foundation/debugBrightnessOverride.html
-https://api.flutter.dev/flutter/foundation/debugDefaultTargetPlatformOverride.html
-Though the documentation states that these should not be used in release mode 
-it might be useful in debug builds?
-*/
-
 /// Enriches [SentryEvent]s with various kinds of information.
 /// FlutterEnricher only needs to add information which aren't exposed by
 /// the Dart runtime.
