@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
 const String _exampleDsn =
@@ -14,13 +15,27 @@ Future<void> main() async {
   await SentryFlutter.init(
     (options) {
       options.dsn = _exampleDsn;
-      // use breadcrumb tracking of WidgetsBindingObserver
-      // options.useFlutterBreadcrumbTracking();
-      // use breadcrumb tracking of platform Sentry SDKs
-      // options.useNativeBreadcrumbTracking();
+      if (UniversalPlatform.isAndroid) {
+        options.addEventProcessor(addAndroidDeviceId);
+      }
     },
     // Init your App.
     appRunner: () => runApp(MyApp()),
+  );
+}
+
+FutureOr<SentryEvent> addAndroidDeviceId(
+  SentryEvent event, {
+  dynamic hint,
+}) async {
+  var info = await DeviceInfoPlugin().androidInfo;
+  var user = (event.user ?? SentryUser()).copyWith(id: info.fingerprint);
+
+  // todo there's no ID field on SentryDevice
+  // var device = (event.contexts.device ?? SentryDevice()).copyWith();
+
+  return event.copyWith(
+    user: user,
   );
 }
 
