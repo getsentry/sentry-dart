@@ -30,6 +30,8 @@ void main() {
       manufacturer: 'manufacturer1',
       brand: 'brand1',
       screenResolution: '123x3451',
+      screenHeightPixels: 900,
+      screenWidthPixels: 700,
       screenDensity: 99.2,
       screenDpi: 99,
       online: true,
@@ -45,6 +47,7 @@ void main() {
       externalFreeStorage: 987654,
       bootTime: bootTime,
       timezone: 'Austria/Vienna',
+      language: 'en_US',
     );
 
     expect('name1', copy.name);
@@ -57,6 +60,8 @@ void main() {
     expect('manufacturer1', copy.manufacturer);
     expect('brand1', copy.brand);
     expect('123x3451', copy.screenResolution);
+    expect(900, copy.screenHeightPixels);
+    expect(700, copy.screenWidthPixels);
     expect(99.2, copy.screenDensity);
     expect(99, copy.screenDpi);
     expect(true, copy.online);
@@ -72,6 +77,7 @@ void main() {
     expect(987654, copy.externalFreeStorage);
     expect(bootTime, copy.bootTime);
     expect('Austria/Vienna', copy.timezone);
+    expect('en_US', copy.language);
   });
 }
 
@@ -86,6 +92,8 @@ SentryDevice _generate({DateTime? testBootTime}) => SentryDevice(
       manufacturer: 'manufacturer',
       brand: 'brand',
       screenResolution: '123x345',
+      screenHeightPixels: 600,
+      screenWidthPixels: 800,
       screenDensity: 99.1,
       screenDpi: 100,
       online: false,
@@ -101,4 +109,5 @@ SentryDevice _generate({DateTime? testBootTime}) => SentryDevice(
       externalFreeStorage: 98765,
       bootTime: testBootTime ?? DateTime.now(),
       timezone: 'Australia/Melbourne',
+      language: 'en_US',
     );
