@@ -27,11 +27,13 @@ class HubAdapter implements Hub {
     SentryEvent event, {
     dynamic stackTrace,
     dynamic hint,
+    ScopeCallback? withScope,
   }) =>
       Sentry.captureEvent(
         event,
         stackTrace: stackTrace,
         hint: hint,
+        withScope: withScope,
       );
 
   @override
@@ -39,11 +41,13 @@ class HubAdapter implements Hub {
     dynamic throwable, {
     dynamic stackTrace,
     dynamic hint,
+    ScopeCallback? withScope,
   }) =>
       Sentry.captureException(
         throwable,
         stackTrace: stackTrace,
         hint: hint,
+        withScope: withScope,
       );
 
   @override
@@ -53,6 +57,7 @@ class HubAdapter implements Hub {
     String? template,
     List? params,
     dynamic hint,
+    ScopeCallback? withScope,
   }) =>
       Sentry.captureMessage(
         message,

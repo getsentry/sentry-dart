@@ -21,6 +21,7 @@ class NoOpHub implements Hub {
     SentryEvent event, {
     dynamic stackTrace,
     dynamic hint,
+    ScopeCallback? withScope,
   }) =>
       Future.value(SentryId.empty());
 
@@ -29,6 +30,7 @@ class NoOpHub implements Hub {
     dynamic throwable, {
     dynamic stackTrace,
     dynamic hint,
+    ScopeCallback? withScope,
   }) =>
       Future.value(SentryId.empty());
 
@@ -39,6 +41,7 @@ class NoOpHub implements Hub {
     String? template,
     List? params,
     dynamic hint,
+    ScopeCallback? withScope,
   }) =>
       Future.value(SentryId.empty());
 

@@ -116,6 +116,18 @@ class MainScaffold extends StatelessWidget {
                 Sentry.captureMessage('A message with a print() Breadcrumb');
               },
             ),
+            RaisedButton(
+              child:
+                  const Text('Capture message with scope with additional tag'),
+              onPressed: () {
+                Sentry.captureMessage(
+                  'This event has an extra tag',
+                  withScope: (scope) {
+                    scope.tags['foo'] = 'bar';
+                  },
+                );
+              },
+            ),
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
               const CocoaExample(),
             if (UniversalPlatform.isAndroid) const AndroidExample(),
