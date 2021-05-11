@@ -138,7 +138,7 @@ class MainScaffold extends StatelessWidget {
                 event = await enricher.apply(event);
                 Sentry.captureEvent(event);
               },
-            )
+            ),
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
               const CocoaExample(),
             if (UniversalPlatform.isAndroid) const AndroidExample(),

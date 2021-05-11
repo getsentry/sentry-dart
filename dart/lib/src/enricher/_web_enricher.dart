@@ -67,10 +67,15 @@ class WebEnricher implements Enricher {
       }
     }
 
-    String? screenResolution;
+    int? screenHeight;
+    int? screenWidth;
+
+    // This is the size of the physical screen.
+    // The size of the browser window might differ.
     var screen = _screen;
     if (screen != null) {
-      screenResolution = '${screen.width}x${screen.height}';
+      screenWidth = screen.width;
+      screenHeight = screen.height;
     }
 
     /* TODO storage
@@ -85,7 +90,8 @@ class WebEnricher implements Enricher {
       online: _navigator.onLine,
       memorySize: memoryByteSize?.toInt(),
       orientation: orientation,
-      screenResolution: screenResolution,
+      screenHeightPixels: screenHeight,
+      screenWidthPixels: screenWidth,
       screenDensity: _window.devicePixelRatio.toDouble(),
       timezone: DateTime.now().timeZoneName,
     );
