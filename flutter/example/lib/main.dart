@@ -117,6 +117,18 @@ class MainScaffold extends StatelessWidget {
               },
             ),
             RaisedButton(
+              child:
+                  const Text('Capture message with scope with additional tag'),
+              onPressed: () {
+                Sentry.captureMessage(
+                  'This event has an extra tag',
+                  withScope: (scope) {
+                    scope.tags['foo'] = 'bar';
+                  },
+                );
+              },
+            ),
+            RaisedButton(
               child: const Text('Event with enricher'),
               onPressed: () async {
                 final enricher = FlutterEnricher.instance;
@@ -126,7 +138,7 @@ class MainScaffold extends StatelessWidget {
                 event = await enricher.apply(event);
                 Sentry.captureEvent(event);
               },
-            ),
+            )
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
               const CocoaExample(),
             if (UniversalPlatform.isAndroid) const AndroidExample(),
