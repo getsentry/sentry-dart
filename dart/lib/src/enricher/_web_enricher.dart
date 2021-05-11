@@ -79,21 +79,7 @@ class WebEnricher implements Enricher {
     final usedStorage = storage?['usage'];
     */
 
-    var time = DateTime.now();
-
-    if (device == null) {
-      return SentryDevice(
-        batteryLevel: level?.toDouble(),
-        charging: charging,
-        online: _navigator.onLine,
-        memorySize: memoryByteSize?.toInt(),
-        orientation: orientation,
-        screenResolution: screenResolution,
-        screenDensity: _window.devicePixelRatio.toDouble(),
-        timezone: time.timeZoneName,
-      );
-    }
-    return device.copyWith(
+    return (device ?? SentryDevice()).copyWith(
       batteryLevel: level?.toDouble(),
       charging: charging,
       online: _navigator.onLine,
@@ -101,35 +87,22 @@ class WebEnricher implements Enricher {
       orientation: orientation,
       screenResolution: screenResolution,
       screenDensity: _window.devicePixelRatio.toDouble(),
-      timezone: time.timeZoneName,
+      timezone: DateTime.now().timeZoneName,
     );
   }
 
   SentryBrowser _getBrowser(SentryBrowser? browser) {
     // TODO: Figure out how to send the correct name and version
-    if (browser == null) {
-      return SentryBrowser(
-        name: _navigator.appName,
-        version: _navigator.userAgent,
-      );
-    } else {
-      return browser.copyWith(
-        name: _navigator.appName,
-        version: _navigator.appVersion,
-      );
-    }
+    return (browser ?? SentryBrowser()).copyWith(
+      name: _navigator.appName,
+      version: _navigator.appVersion,
+    );
   }
 
   SentryOperatingSystem _getOperatingSystem(SentryOperatingSystem? os) {
-    if (os == null) {
-      return SentryOperatingSystem(
-        name: _platformChecker.platform.operatingSystem,
-      );
-    } else {
-      return os.copyWith(
-        name: _platformChecker.platform.operatingSystem,
-      );
-    }
+    return (os ?? SentryOperatingSystem()).copyWith(
+      name: _platformChecker.platform.operatingSystem,
+    );
   }
 
   List<SentryRuntime> _getRuntimes(List<SentryRuntime>? runtimes) {

@@ -15,6 +15,7 @@ class IoEnricher implements Enricher {
   FutureOr<SentryEvent> apply(SentryEvent event) {
     final contexts = event.contexts.copyWith(
       operatingSystem: _getOperatingSystem(event.contexts.operatingSystem),
+      device: _getDevice(event.contexts.device),
       runtimes: _getRuntimes(event.contexts.runtimes),
     );
 
@@ -39,19 +40,11 @@ class IoEnricher implements Enricher {
     final args = Platform.executableArguments;
     final packageConfig = Platform.packageConfig;
     final cpuCount = Platform.numberOfProcessors;
-    final locale = Platform.localeName;
-    final localHostname = Platform.localHostname;
-    // TODO What about:
-    // Platform.executeable
-    // Platform.resolvedExecuteable
-    // Platform.pathSeperator
 
     final moreExtras = <String, dynamic>{
       if (args.isNotEmpty) 'executableArguments': Platform.executableArguments,
       if (packageConfig != null) 'packageConfig': packageConfig,
       'numberOfProcessors': cpuCount,
-      'localName': locale,
-      'hostname': localHostname,
     };
 
     if (extras == null) {
@@ -61,17 +54,19 @@ class IoEnricher implements Enricher {
     return extras;
   }
 
+  SentryDevice _getDevice(SentryDevice? device) {
+    return (device ?? SentryDevice()).copyWith(
+      language: Platform.localeName,
+      // this is the Name given to the device by the user of the device
+      name: Platform.localHostname,
+      timezone: DateTime.now().timeZoneName,
+    );
+  }
+
   SentryOperatingSystem _getOperatingSystem(SentryOperatingSystem? os) {
-    if (os == null) {
-      return SentryOperatingSystem(
-        name: Platform.operatingSystem,
-        version: Platform.operatingSystemVersion,
-      );
-    } else {
-      return os.copyWith(
-        name: Platform.operatingSystem,
-        version: Platform.operatingSystemVersion,
-      );
-    }
+    return (os ?? SentryOperatingSystem()).copyWith(
+      name: Platform.operatingSystem,
+      version: Platform.operatingSystemVersion,
+    );
   }
 }
