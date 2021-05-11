@@ -1,4 +1,4 @@
-# Unreleased
+# 5.1.0-beta.1
 
 * Fix: `Sentry.close()` closes native SDK integrations (#388)
 * Feat: Support for macOS (#389)
