@@ -14,10 +14,6 @@ Future<void> main() async {
   await SentryFlutter.init(
     (options) {
       options.dsn = _exampleDsn;
-      // use breadcrumb tracking of WidgetsBindingObserver
-      // options.useFlutterBreadcrumbTracking();
-      // use breadcrumb tracking of platform Sentry SDKs
-      // options.useNativeBreadcrumbTracking();
     },
     // Init your App.
     appRunner: () => runApp(MyApp()),
@@ -118,6 +114,18 @@ class MainScaffold extends StatelessWidget {
               onPressed: () {
                 print('A print breadcrumb');
                 Sentry.captureMessage('A message with a print() Breadcrumb');
+              },
+            ),
+            RaisedButton(
+              child:
+                  const Text('Capture message with scope with additional tag'),
+              onPressed: () {
+                Sentry.captureMessage(
+                  'This event has an extra tag',
+                  withScope: (scope) {
+                    scope.tags['foo'] = 'bar';
+                  },
+                );
               },
             ),
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)

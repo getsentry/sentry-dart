@@ -17,6 +17,7 @@
 * Fix: Fix adding integrations on web (#450)
 * Fix: Use `log()` instead of `print()` for SDK logging (#453)
 * Bump: sentry-android to v5.0.0-beta.2 (#457)
+* Feature: Add `withScope` callback to capture methods (#463)
 
 # 5.0.0
 
