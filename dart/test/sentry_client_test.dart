@@ -394,6 +394,25 @@ void main() {
       expect(capturedEvent.fingerprint, eventFingerprint);
       expect(capturedEvent.breadcrumbs, eventCrumbs);
     });
+
+    test('should apply the scope user to null event user fields ', () async {
+      final client = SentryClient(options);
+      scope.user = SentryUser(id: '987');
+
+      var eventWithUser = event.copyWith(
+        user: SentryUser(id: '123', username: 'foo bar'),
+      );
+      await client.captureEvent(eventWithUser, scope: scope);
+
+      final capturedEvent = (options.transport as MockTransport).events.first;
+
+      expect(capturedEvent.user!.id, '123');
+      expect(capturedEvent.user!.username, 'foo bar');
+      expect(capturedEvent.level!.name, SentryLevel.warning.name);
+      expect(capturedEvent.transaction, eventTransaction);
+      expect(capturedEvent.fingerprint, eventFingerprint);
+      expect(capturedEvent.breadcrumbs, eventCrumbs);
+    });
   });
 
   group('SentryClient: apply default pii', () {

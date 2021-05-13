@@ -156,7 +156,7 @@ class Scope {
   Future<SentryEvent?> applyToEvent(SentryEvent event, dynamic hint) async {
     event = event.copyWith(
       transaction: event.transaction ?? transaction,
-      user: event.user ?? user,
+      user: _mergeUsers(user, event.user),
       fingerprint: (event.fingerprint?.isNotEmpty ?? false)
           ? event.fingerprint
           : _fingerprint,
@@ -212,6 +212,26 @@ class Scope {
   Map<String, dynamic> _mergeEventExtra(SentryEvent event) =>
       extra.map((key, value) => MapEntry(key, value))
         ..addAll(event.extra ?? {});
+
+  /// If scope and event have a user, the user of the event takes
+  /// precedence.
+  SentryUser? _mergeUsers(SentryUser? scopeUser, SentryUser? eventUser) {
+    if (scopeUser == null && eventUser != null) {
+      return eventUser;
+    }
+    if (eventUser == null && scopeUser != null) {
+      return scopeUser;
+    }
+    // otherwise the user of scope takes precedence over the event user
+    return scopeUser?.copyWith(
+      id: eventUser?.id,
+      email: eventUser?.email,
+      ipAddress: eventUser?.ipAddress,
+      username: eventUser?.username,
+      // TODO should extras be merged?
+      extras: eventUser?.extras,
+    );
+  }
 
   /// Clones the current Scope
   Scope clone() {
