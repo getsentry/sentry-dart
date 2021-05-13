@@ -1,6 +1,6 @@
 # Unreleased
 
-* Fix: Merge user from event and scope
+* Fix: Merge user from event and scope (#467)
 
 # 5.1.0-beta.1
 
