@@ -9,13 +9,16 @@ import 'package:sentry/sentry.dart';
 /// FlutterEnricher only needs to add information which aren't exposed by
 /// the Dart runtime.
 class FlutterEnricher implements Enricher {
-  static final Enricher instance = FlutterEnricher(
-    PlatformChecker(),
-    Enricher.defaultEnricher,
-    WidgetsFlutterBinding.ensureInitialized(),
-  );
+  factory FlutterEnricher() {
+    return FlutterEnricher.test(
+      PlatformChecker(),
+      Enricher(),
+      WidgetsFlutterBinding.ensureInitialized(),
+    );
+  }
 
-  FlutterEnricher(
+  @visibleForTesting
+  FlutterEnricher.test(
     this._checker,
     this._dartEnricher,
     this._widgetsBinding,
@@ -27,31 +30,36 @@ class FlutterEnricher implements Enricher {
   SingletonFlutterWindow get _window => _widgetsBinding.window;
 
   @override
-  FutureOr<SentryEvent> apply(SentryEvent event) async {
+  FutureOr<SentryEvent> apply(
+      SentryEvent event, bool hasNativeIntegration) async {
     // Flutter for Web does not need a special case.
     // It's already covered by _dartEnricher.
 
     // First use _dartEnricher.
     // In case we have even better information available in Flutter
     // we override what's already given by _dartEnricher.
-    event = await _dartEnricher.apply(event);
+    event = await _dartEnricher.apply(event, hasNativeIntegration);
+
+    // If there's a native integration available, it probably has better
+    // information available than Flutter.
+    final device =
+        hasNativeIntegration ? null : _getDevice(event.contexts.device);
 
     final contexts = event.contexts.copyWith(
-      device: _applyDevice(event.contexts.device),
+      device: device,
       runtimes: _getRuntimes(event.contexts.runtimes),
     );
 
     // Flutter has a lot of Accessibility Settings available and exposes them
-    contexts['accessibility'] = _getAccessibility();
+    contexts['accessibility'] = _getAccessibilityContext();
 
-    // conflicts with Flutter runtime if it's called Flutter
-    contexts['flutter_information'] = _getFlutterInfo();
+    // Conflicts with Flutter runtime if it's just called `Flutter`
+    contexts['flutter_context'] = _getFlutterContext();
 
     contexts['culture'] = _getCulture();
 
     return event.copyWith(
       contexts: contexts,
-      extra: _getExtras(event.extra),
     );
   }
 
@@ -75,7 +83,7 @@ class FlutterEnricher implements Enricher {
     };
   }
 
-  Map<String, dynamic> _getFlutterInfo() {
+  Map<String, dynamic> _getFlutterContext() {
     final currentLifecycle = _widgetsBinding.lifecycleState;
 
     return <String, dynamic>{
@@ -84,14 +92,19 @@ class FlutterEnricher implements Enricher {
       if (debugDefaultTargetPlatformOverride != null)
         'debug_default_target_platform_override':
             debugDefaultTargetPlatformOverride,
-      'initial_lifecycle_state': _window.initialLifecycleState,
-      'default_route_name': _window.defaultRouteName,
+      if (_window.initialLifecycleState.isNotEmpty)
+        'initial_lifecycle_state': _window.initialLifecycleState,
+      if (_window.defaultRouteName.isNotEmpty)
+        'default_route_name': _window.defaultRouteName,
       if (currentLifecycle != null)
         'current_lifecycle_state': describeEnum(currentLifecycle),
+      // Seems to always return false.
+      // Also always fails in tests.
+      // 'window_is_visible': _window.viewConfiguration.visible,
     };
   }
 
-  Map<String, dynamic> _getAccessibility() {
+  Map<String, dynamic> _getAccessibilityContext() {
     return <String, dynamic>{
       'accessible_navigation':
           _window.accessibilityFeatures.accessibleNavigation,
@@ -103,17 +116,7 @@ class FlutterEnricher implements Enricher {
     };
   }
 
-  Map<String, dynamic> _getExtras(Map<String, dynamic>? extras) {
-    extras = extras ?? {};
-    extras.putIfAbsent(
-        'window_is_visible', () => _window.viewConfiguration.visible);
-
-    extras.putIfAbsent(
-        'brightness', () => describeEnum(_window.platformBrightness));
-    return extras;
-  }
-
-  SentryDevice _applyDevice(SentryDevice? device) {
+  SentryDevice _getDevice(SentryDevice? device) {
     final orientation = _window.physicalSize.width > _window.physicalSize.height
         ? SentryOrientation.landscape
         : SentryOrientation.portrait;
@@ -123,6 +126,7 @@ class FlutterEnricher implements Enricher {
       screenHeightPixels: _window.physicalSize.height.toInt(),
       screenWidthPixels: _window.physicalSize.width.toInt(),
       screenDensity: _window.devicePixelRatio,
+      theme: describeEnum(_window.platformBrightness),
     );
   }
 
@@ -132,18 +136,17 @@ class FlutterEnricher implements Enricher {
     // See
     // - https://flutter.dev/docs/testing/build-modes
     // - https://github.com/flutter/flutter/wiki/Flutter%27s-modes
-    // TODO profile mode
     if (_checker.isWeb) {
       if (_checker.isDebugMode()) {
-        flutterRuntimeDescription = 'Flutter on Web with dartdevc';
-      } else if (_checker.isReleaseMode()) {
-        flutterRuntimeDescription = 'Flutter on Web with dart2js';
+        flutterRuntimeDescription = 'Flutter with dartdevc';
+      } else if (_checker.isReleaseMode() || _checker.isProfileMode()) {
+        flutterRuntimeDescription = 'Flutter with dart2js';
       }
     } else {
       if (_checker.isDebugMode()) {
-        flutterRuntimeDescription = 'Flutter on Dart VM';
-      } else if (_checker.isReleaseMode()) {
-        flutterRuntimeDescription = 'Flutter on Dart AOT';
+        flutterRuntimeDescription = 'Flutter with Dart VM';
+      } else if (_checker.isReleaseMode() || _checker.isProfileMode()) {
+        flutterRuntimeDescription = 'Flutter with Dart AOT';
       }
     }
 
@@ -152,9 +155,9 @@ class FlutterEnricher implements Enricher {
       rawDescription: flutterRuntimeDescription,
     );
 
-    if (runtimes == null) {
-      return [flutterRuntime];
-    }
-    return [...runtimes, flutterRuntime];
+    return [
+      if (runtimes?.isNotEmpty ?? false) ...runtimes!,
+      flutterRuntime,
+    ];
   }
 }

@@ -12,21 +12,35 @@ final Enricher instance = IoEnricher();
 /// class to read information.
 class IoEnricher implements Enricher {
   @override
-  FutureOr<SentryEvent> apply(SentryEvent event) {
+  FutureOr<SentryEvent> apply(SentryEvent event, bool hasNativeIntegration) {
+    // If there's a native integration available, it probably has better
+    // information available than Flutter.
+    final os = hasNativeIntegration
+        ? null
+        : _getOperatingSystem(event.contexts.operatingSystem);
+    final device =
+        hasNativeIntegration ? null : _getDevice(event.contexts.device);
+
     final contexts = event.contexts.copyWith(
-      operatingSystem: _getOperatingSystem(event.contexts.operatingSystem),
-      device: _getDevice(event.contexts.device),
+      operatingSystem: os,
+      device: device,
       runtimes: _getRuntimes(event.contexts.runtimes),
     );
 
+    contexts['dart_context'] = _getDartContext();
+
     return event.copyWith(
       contexts: contexts,
-      extra: _getExtras(event.extra),
     );
   }
 
   List<SentryRuntime> _getRuntimes(List<SentryRuntime>? runtimes) {
-    final dartRuntime = SentryRuntime(name: 'Dart', version: Platform.version);
+    // Pure Dart doesn't have specific runtimes per build mode
+    // like Flutter: https://flutter.dev/docs/testing/build-modes
+    final dartRuntime = SentryRuntime(
+      name: 'Dart',
+      version: Platform.version,
+    );
     if (runtimes == null) {
       return [dartRuntime];
     }
@@ -36,28 +50,24 @@ class IoEnricher implements Enricher {
     ];
   }
 
-  Map<String, dynamic> _getExtras(Map<String, dynamic>? extras) {
+  Map<String, dynamic> _getDartContext() {
     final args = Platform.executableArguments;
     final packageConfig = Platform.packageConfig;
-    final cpuCount = Platform.numberOfProcessors;
 
-    final moreExtras = <String, dynamic>{
-      if (args.isNotEmpty) 'executableArguments': Platform.executableArguments,
-      if (packageConfig != null) 'packageConfig': packageConfig,
-      'numberOfProcessors': cpuCount,
+    return <String, dynamic>{
+      if (packageConfig != null) 'package_config': packageConfig,
+      'number_of_processors': Platform.numberOfProcessors,
+      // The following information could potentially contain PII
+      'executable': Platform.executable,
+      'resolved_executable': Platform.resolvedExecutable,
+      'script': Platform.script,
+      if (args.isNotEmpty) 'executable_arguments': Platform.executableArguments,
     };
-
-    if (extras == null) {
-      return moreExtras;
-    }
-    extras.addAll(moreExtras);
-    return extras;
   }
 
   SentryDevice _getDevice(SentryDevice? device) {
     return (device ?? SentryDevice()).copyWith(
       language: Platform.localeName,
-      // this is the Name given to the device by the user of the device
       name: Platform.localHostname,
       timezone: DateTime.now().timeZoneName,
     );

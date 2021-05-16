@@ -1,5 +1,7 @@
 # Unreleased
 
+* Feat: Enrich events with more context
+
 # 5.1.0-beta.1
 
 * Fix: `Sentry.close()` closes native SDK integrations (#388)

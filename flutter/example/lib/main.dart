@@ -131,11 +131,11 @@ class MainScaffold extends StatelessWidget {
             RaisedButton(
               child: const Text('Event with enricher'),
               onPressed: () async {
-                final enricher = FlutterEnricher.instance;
+                final enricher = FlutterEnricher();
                 var event = SentryEvent(
                   message: SentryMessage('Event enriched with data'),
                 );
-                event = await enricher.apply(event);
+                event = await enricher.apply(event, false);
                 Sentry.captureEvent(event);
               },
             ),

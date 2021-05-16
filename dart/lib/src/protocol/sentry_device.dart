@@ -37,6 +37,7 @@ class SentryDevice {
     this.bootTime,
     this.timezone,
     this.language,
+    this.theme,
   }) : assert(
           batteryLevel == null || (batteryLevel >= 0 && batteryLevel <= 100),
         );
@@ -72,6 +73,7 @@ class SentryDevice {
             : null,
         timezone: data['timezone'],
         language: data['language'],
+        theme: data['theme'],
       );
 
   /// The name of the device. This is typically a hostname.
@@ -164,6 +166,9 @@ class SentryDevice {
 
   /// The language of the device, e.g.: `en_US`.
   final String? language;
+
+  /// The theme of the device. Typically `light` or `dark`
+  final String? theme;
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
@@ -295,6 +300,10 @@ class SentryDevice {
       json['language'] = language;
     }
 
+    if (theme != null) {
+      json['theme'] = theme;
+    }
+
     return json;
   }
 
@@ -355,6 +364,7 @@ class SentryDevice {
     DateTime? bootTime,
     String? timezone,
     String? language,
+    String? theme,
   }) =>
       SentryDevice(
         name: name ?? this.name,
@@ -385,5 +395,6 @@ class SentryDevice {
         bootTime: bootTime ?? this.bootTime,
         timezone: timezone ?? this.timezone,
         language: language ?? this.language,
+        theme: theme ?? this.theme,
       );
 }
