@@ -25,7 +25,7 @@ void main() {
       final dartRuntime = event.contexts.runtimes
           .firstWhere((element) => element.name == 'Dart');
       expect(dartRuntime.name, 'Dart');
-      expect(dartRuntime.version, isNotNull);
+      expect(dartRuntime.rawDescription, isNotNull);
     });
 
     test('does add to existing runtimes', () async {

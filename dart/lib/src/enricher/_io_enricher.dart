@@ -39,7 +39,7 @@ class IoEnricher implements Enricher {
     // like Flutter: https://flutter.dev/docs/testing/build-modes
     final dartRuntime = SentryRuntime(
       name: 'Dart',
-      version: Platform.version,
+      rawDescription: Platform.version,
     );
     if (runtimes == null) {
       return [dartRuntime];
@@ -58,9 +58,9 @@ class IoEnricher implements Enricher {
       if (packageConfig != null) 'package_config': packageConfig,
       'number_of_processors': Platform.numberOfProcessors,
       // The following information could potentially contain PII
-      'executable': Platform.executable,
+      // 'executable': Platform.executable, // this throws sometimes for some reason
       'resolved_executable': Platform.resolvedExecutable,
-      'script': Platform.script,
+      'script': Platform.script.toString(),
       if (args.isNotEmpty) 'executable_arguments': Platform.executableArguments,
     };
   }

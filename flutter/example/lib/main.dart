@@ -128,17 +128,6 @@ class MainScaffold extends StatelessWidget {
                 );
               },
             ),
-            RaisedButton(
-              child: const Text('Event with enricher'),
-              onPressed: () async {
-                final enricher = FlutterEnricher();
-                var event = SentryEvent(
-                  message: SentryMessage('Event enriched with data'),
-                );
-                event = await enricher.apply(event, false);
-                Sentry.captureEvent(event);
-              },
-            ),
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
               const CocoaExample(),
             if (UniversalPlatform.isAndroid) const AndroidExample(),

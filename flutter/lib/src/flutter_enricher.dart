@@ -5,26 +5,28 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sentry/sentry.dart';
 
+typedef WidgetBindingGetter = WidgetsBinding Function();
+
 /// Enriches [SentryEvent]s with various kinds of information.
 /// FlutterEnricher only needs to add information which aren't exposed by
 /// the Dart runtime.
 class FlutterEnricher implements Enricher {
-  factory FlutterEnricher() {
-    return FlutterEnricher.test(
-      PlatformChecker(),
+  FlutterEnricher(
+    this._checker,
+    this._dartEnricher,
+    this._getWidgetsBinding,
+  );
+
+  factory FlutterEnricher.simple(PlatformChecker checker) {
+    return FlutterEnricher(
+      checker,
       Enricher(),
-      WidgetsFlutterBinding.ensureInitialized(),
+      () => WidgetsFlutterBinding.ensureInitialized(),
     );
   }
 
-  @visibleForTesting
-  FlutterEnricher.test(
-    this._checker,
-    this._dartEnricher,
-    this._widgetsBinding,
-  );
-
-  final WidgetsBinding _widgetsBinding;
+  final WidgetBindingGetter _getWidgetsBinding;
+  WidgetsBinding get _widgetsBinding => _getWidgetsBinding();
   final PlatformChecker _checker;
   final Enricher _dartEnricher;
   SingletonFlutterWindow get _window => _widgetsBinding.window;

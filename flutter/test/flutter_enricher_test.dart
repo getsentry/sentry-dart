@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -16,7 +15,7 @@ void main() {
     testWidgets('FlutterEnricher calls base Enricher',
         (WidgetTester tester) async {
       final enricher = fixture.getSut(
-        binding: tester.binding,
+        binding: () => tester.binding,
         enricher: fixture.mockEnricher,
       );
 
@@ -29,7 +28,7 @@ void main() {
 
     testWidgets('flutter context', (WidgetTester tester) async {
       final enricher = fixture.getSut(
-        binding: tester.binding,
+        binding: () => tester.binding,
       );
 
       final event = await enricher.apply(fixture.event, false);
@@ -40,7 +39,7 @@ void main() {
 
     testWidgets('accessibility context', (WidgetTester tester) async {
       final enricher = fixture.getSut(
-        binding: tester.binding,
+        binding: () => tester.binding,
       );
 
       final event = await enricher.apply(fixture.event, false);
@@ -57,7 +56,7 @@ void main() {
 
     testWidgets('culture context', (WidgetTester tester) async {
       final enricher = fixture.getSut(
-        binding: tester.binding,
+        binding: () => tester.binding,
       );
 
       final event = await enricher.apply(fixture.event, false);
@@ -71,7 +70,7 @@ void main() {
     testWidgets('no device when native integration is available',
         (WidgetTester tester) async {
       final enricher = fixture.getSut(
-        binding: tester.binding,
+        binding: () => tester.binding,
       );
 
       final event = await enricher.apply(fixture.event, true);
@@ -82,7 +81,7 @@ void main() {
     testWidgets('has device when native integration is not available',
         (WidgetTester tester) async {
       final enricher = fixture.getSut(
-        binding: tester.binding,
+        binding: () => tester.binding,
       );
 
       final event = await enricher.apply(fixture.event, false);
@@ -92,7 +91,7 @@ void main() {
 
     testWidgets('adds flutter runtime', (WidgetTester tester) async {
       final enricher = fixture.getSut(
-        binding: tester.binding,
+        binding: () => tester.binding,
       );
 
       final event = await enricher.apply(fixture.event, false);
@@ -121,7 +120,7 @@ void main() {
 
       for (var pair in checkerMap.entries) {
         final enricher = fixture.getSut(
-          binding: tester.binding,
+          binding: () => tester.binding,
           checker: pair.key,
         );
 
@@ -140,11 +139,11 @@ class Fixture {
   final mockEnricher = MockEnricher();
   final event = SentryEvent();
   FlutterEnricher getSut({
-    required WidgetsBinding binding,
+    required WidgetBindingGetter binding,
     PlatformChecker? checker,
     Enricher? enricher,
   }) {
-    return FlutterEnricher.test(
+    return FlutterEnricher(
       checker ?? PlatformChecker(),
       enricher ?? NoopEnricher(),
       binding,

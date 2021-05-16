@@ -195,6 +195,12 @@ class Scope {
       }
     }
 
+    if (processedEvent != null) {
+      return _options.enricher.apply(
+        processedEvent,
+        _options.platformChecker.hasNativeIntegration,
+      );
+    }
     return processedEvent;
   }
 

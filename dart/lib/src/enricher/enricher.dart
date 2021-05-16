@@ -8,5 +8,6 @@ abstract class Enricher {
     return instance;
   }
 
+  // Applies additional information to events.
   FutureOr<SentryEvent> apply(SentryEvent event, bool hasNativeIntegration);
 }

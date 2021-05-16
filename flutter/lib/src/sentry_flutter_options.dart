@@ -1,4 +1,5 @@
 import 'package:sentry/sentry.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 // TODO: Scope observers, enableScopeSync
 
@@ -9,6 +10,7 @@ class SentryFlutterOptions extends SentryOptions {
   SentryFlutterOptions({String? dsn, PlatformChecker? checker})
       : super(dsn: dsn, checker: checker) {
     enableBreadcrumbTrackingForCurrentPlatform();
+    enricher = FlutterEnricher.simple(platformChecker);
   }
 
   /// Enable or disable the Auto session tracking on the Native SDKs (Android/iOS)
