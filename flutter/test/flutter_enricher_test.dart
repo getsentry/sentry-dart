@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/src/platform/platform.dart';
+import 'package:sentry/src/enricher/enricher.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 void main() {
@@ -148,13 +149,6 @@ class Fixture {
       enricher ?? NoopEnricher(),
       binding,
     );
-  }
-}
-
-class NoopEnricher implements Enricher {
-  @override
-  FutureOr<SentryEvent> apply(SentryEvent event, bool hasNativeIntegration) {
-    return event;
   }
 }
 

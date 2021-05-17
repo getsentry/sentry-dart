@@ -62,6 +62,10 @@ class SentryClient {
     }
 
     SentryEvent? preparedEvent = _prepareEvent(event, stackTrace: stackTrace);
+    preparedEvent = await _options.enricher.apply(
+      preparedEvent,
+      _options.platformChecker.hasNativeIntegration,
+    );
 
     if (scope != null) {
       preparedEvent = await scope.applyToEvent(preparedEvent, hint);

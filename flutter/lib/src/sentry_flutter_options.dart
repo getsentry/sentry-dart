@@ -1,5 +1,5 @@
 import 'package:sentry/sentry.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
+import '../src/flutter_enricher.dart';
 
 // TODO: Scope observers, enableScopeSync
 

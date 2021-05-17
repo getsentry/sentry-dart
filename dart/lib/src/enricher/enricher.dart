@@ -11,3 +11,12 @@ abstract class Enricher {
   // Applies additional information to events.
   FutureOr<SentryEvent> apply(SentryEvent event, bool hasNativeIntegration);
 }
+
+/// An [Enricher] which just returns the given [SentryEvent]. No information
+/// are applied.
+class NoopEnricher implements Enricher {
+  @override
+  FutureOr<SentryEvent> apply(SentryEvent event, bool hasNativeIntegration) {
+    return event;
+  }
+}
