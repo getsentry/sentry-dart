@@ -38,7 +38,7 @@ class SentryFlutterOptions extends SentryOptions {
         value >= 0 ? value : _autoSessionTrackingIntervalMillis;
   }
 
-  /// Enable or disable ANR (Application Not Responding) Default is enabled Used by AnrIntegration.
+  /// Enable or disable ANR (Application Not Responding).
   /// Available only for Android.
   /// Disabled by default as the stack trace most of the time is hanging on
   /// the MessageChannel from Flutter, but you can enable it if you have
