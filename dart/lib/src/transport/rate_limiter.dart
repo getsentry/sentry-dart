@@ -117,8 +117,7 @@ class RateLimiter {
     final oldDate = _rateLimitedUntil[rateLimitCategory];
 
     // only overwrite its previous date if the limit is even longer
-    if (oldDate == null ||
-        date.millisecondsSinceEpoch > oldDate.millisecondsSinceEpoch) {
+    if (oldDate == null || date.isAfter(oldDate)) {
       _rateLimitedUntil[rateLimitCategory] = date;
     }
   }
