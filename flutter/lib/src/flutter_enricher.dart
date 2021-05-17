@@ -25,6 +25,9 @@ class FlutterEnricher implements Enricher {
     );
   }
 
+  // We can't use `WidgetsBinding` as a direct parameter
+  // because it must be called inside the `runZoneGuarded`-Integration.
+  // Thus we call it on demand after all the initialization happend.
   final WidgetBindingGetter _getWidgetsBinding;
   WidgetsBinding get _widgetsBinding => _getWidgetsBinding();
   final PlatformChecker _checker;
