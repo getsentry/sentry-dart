@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry/src/enricher/enricher.dart';
@@ -10,6 +11,7 @@ void main() {
     late Fixture fixture;
 
     setUp(() {
+      LicenseRegistry.reset();
       fixture = Fixture();
     });
 
@@ -132,6 +134,57 @@ void main() {
         expect(flutterRuntime.name, 'Flutter');
         expect(flutterRuntime.rawDescription, pair.value);
       }
+    });
+
+    testWidgets('adds packages', (WidgetTester tester) async {
+      final enricher = fixture.getSut(
+        binding: () => tester.binding,
+      );
+
+      LicenseRegistry.addLicense(
+        () => Stream.fromIterable(
+          [
+            LicenseEntryWithLineBreaks(
+              [
+                'foo_package',
+                'bar_package',
+              ],
+              'Test License Text',
+            ),
+          ],
+        ),
+      );
+
+      final event = await enricher.apply(fixture.event, false);
+
+      expect(event.contexts['packages']?['packages'], [
+        'foo_package',
+        'bar_package',
+      ]);
+    });
+
+    testWidgets('adds packages only once', (WidgetTester tester) async {
+      final enricher = fixture.getSut(
+        binding: () => tester.binding,
+      );
+
+      LicenseRegistry.addLicense(
+        () => Stream.fromIterable(
+          [
+            LicenseEntryWithLineBreaks(
+              [
+                'foo_package',
+                'foo_package',
+              ],
+              'Test License Text',
+            ),
+          ],
+        ),
+      );
+
+      final event = await enricher.apply(fixture.event, false);
+
+      expect(event.contexts['packages']?['packages'], ['foo_package']);
     });
   });
 }

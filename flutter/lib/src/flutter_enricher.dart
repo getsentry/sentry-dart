@@ -33,6 +33,7 @@ class FlutterEnricher implements Enricher {
   final PlatformChecker _checker;
   final Enricher _dartEnricher;
   SingletonFlutterWindow get _window => _widgetsBinding.window;
+  final List<String> _packages = [];
 
   @override
   FutureOr<SentryEvent> apply(
@@ -63,9 +64,25 @@ class FlutterEnricher implements Enricher {
 
     contexts['culture'] = _getCulture();
 
+    contexts['packages'] = await _getPackages();
+
     return event.copyWith(
       contexts: contexts,
     );
+  }
+
+  Future<Map<String, dynamic>> _getPackages() async {
+    if (_packages.isEmpty) {
+      // This can take some time.
+      // Therefore we cache this after running
+      var packages = <String>{};
+      await LicenseRegistry.licenses
+          .forEach((entry) => packages.addAll(entry.packages.toList()));
+      _packages.addAll(packages);
+    }
+    return <String, dynamic>{
+      'packages': _packages,
+    };
   }
 
   Map<String, dynamic> _getCulture() {
