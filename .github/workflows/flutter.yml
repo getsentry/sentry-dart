@@ -67,6 +67,7 @@ jobs:
           run: |
             cd flutter
             flutter pub get
+            flutter test --platform chrome
             flutter test --coverage
 
         - uses: codecov/codecov-action@v1

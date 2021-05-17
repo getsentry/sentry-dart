@@ -53,7 +53,7 @@ void main() {
         packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.android()),
       );
-    });
+    }, testOn: 'vm');
 
     test('iOS', () async {
       await SentryFlutter.init(
@@ -70,7 +70,7 @@ void main() {
         packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
       );
-    });
+    }, testOn: 'vm');
 
     test('macOS', () async {
       await SentryFlutter.init(
@@ -87,7 +87,7 @@ void main() {
         packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.macOs()),
       );
-    });
+    }, testOn: 'vm');
 
     test('Windows', () async {
       await SentryFlutter.init(
@@ -104,7 +104,7 @@ void main() {
         packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.windows()),
       );
-    });
+    }, testOn: 'vm');
 
     test('Linux', () async {
       await SentryFlutter.init(
@@ -121,7 +121,7 @@ void main() {
         packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.linux()),
       );
-    });
+    }, testOn: 'vm');
 
     test('Web', () async {
       await SentryFlutter.init(
@@ -139,6 +139,67 @@ void main() {
         platformChecker: getPlatformChecker(
           isWeb: true,
           platform: MockPlatform.linux(),
+        ),
+      );
+    });
+
+    test('Web && (iOS || macOS) ', () async {
+      // Tests that iOS || macOS integrations aren't added on a browswer which
+      // runs on iOS or macOS
+      await SentryFlutter.init(
+        getConfigurationTester(
+          hasFileSystemTransport: false,
+          shouldHaveIntegrations: platformAgnosticIntegrations,
+          shouldNotHaveIntegrations: [
+            ...androidIntegrations,
+            ...iOsAndMacOsIntegrations,
+            ...nativeIntegrations,
+          ],
+        ),
+        appRunner: appRunner,
+        packageLoader: loadTestPackage,
+        platformChecker: getPlatformChecker(
+          isWeb: true,
+          platform: MockPlatform.iOs(),
+        ),
+      );
+
+      await SentryFlutter.init(
+        getConfigurationTester(
+          hasFileSystemTransport: false,
+          shouldHaveIntegrations: platformAgnosticIntegrations,
+          shouldNotHaveIntegrations: [
+            ...androidIntegrations,
+            ...iOsAndMacOsIntegrations,
+            ...nativeIntegrations,
+          ],
+        ),
+        appRunner: appRunner,
+        packageLoader: loadTestPackage,
+        platformChecker: getPlatformChecker(
+          isWeb: true,
+          platform: MockPlatform.macOs(),
+        ),
+      );
+    });
+
+    test('Web && Android', () async {
+      // Tests that Android integrations aren't added on an Android browswer
+      await SentryFlutter.init(
+        getConfigurationTester(
+          hasFileSystemTransport: false,
+          shouldHaveIntegrations: platformAgnosticIntegrations,
+          shouldNotHaveIntegrations: [
+            ...androidIntegrations,
+            ...iOsAndMacOsIntegrations,
+            ...nativeIntegrations,
+          ],
+        ),
+        appRunner: appRunner,
+        packageLoader: loadTestPackage,
+        platformChecker: getPlatformChecker(
+          isWeb: true,
+          platform: MockPlatform.android(),
         ),
       );
     });
@@ -165,6 +226,7 @@ void main() {
         packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(
           platform: MockPlatform.android(),
+          isWeb: true,
         ),
       );
     });

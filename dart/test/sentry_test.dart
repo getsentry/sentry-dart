@@ -21,6 +21,7 @@ void main() {
       client = MockSentryClient();
       Sentry.bindClient(client);
     });
+
     tearDown(() async {
       await Sentry.close();
     });
@@ -31,6 +32,19 @@ void main() {
       expect(client.captureEventCalls.length, 1);
       expect(client.captureEventCalls.first.event, fakeEvent);
       expect(client.captureEventCalls.first.scope, isNotNull);
+    });
+
+    test('should capture the event withScope', () async {
+      await Sentry.captureEvent(
+        fakeEvent,
+        withScope: (scope) {
+          scope.user = SentryUser(id: 'foo bar');
+        },
+      );
+
+      expect(client.captureEventCalls.length, 1);
+      expect(client.captureEventCalls.first.event, fakeEvent);
+      expect(client.captureEventCalls.first.scope?.user?.id, 'foo bar');
     });
 
     test('should not capture a null exception', () async {
@@ -46,6 +60,15 @@ void main() {
       expect(client.captureExceptionCalls.first.scope, isNotNull);
     });
 
+    test('should capture exception withScope', () async {
+      await Sentry.captureException(anException, withScope: (scope) {
+        scope.user = SentryUser(id: 'foo bar');
+      });
+      expect(client.captureExceptionCalls.length, 1);
+      expect(client.captureExceptionCalls.first.throwable, anException);
+      expect(client.captureExceptionCalls.first.scope?.user?.id, 'foo bar');
+    });
+
     test('should capture message', () async {
       await Sentry.captureMessage(
         fakeMessage.formatted,
@@ -55,6 +78,19 @@ void main() {
       expect(client.captureMessageCalls.length, 1);
       expect(client.captureMessageCalls.first.formatted, fakeMessage.formatted);
       expect(client.captureMessageCalls.first.level, SentryLevel.warning);
+    });
+
+    test('should capture message withScope', () async {
+      await Sentry.captureMessage(
+        fakeMessage.formatted,
+        withScope: (scope) {
+          scope.user = SentryUser(id: 'foo bar');
+        },
+      );
+
+      expect(client.captureMessageCalls.length, 1);
+      expect(client.captureMessageCalls.first.formatted, fakeMessage.formatted);
+      expect(client.captureMessageCalls.first.scope?.user?.id, 'foo bar');
     });
   });
 

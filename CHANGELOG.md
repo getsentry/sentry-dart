@@ -1,5 +1,7 @@
 # Unreleased
 
+# 5.1.0-beta.1
+
 * Fix: `Sentry.close()` closes native SDK integrations (#388)
 * Feat: Support for macOS (#389)
 * Feat: Support for Linux (#402)
@@ -11,7 +13,14 @@
 * Bump: sentry-cocoa to v7.0.0 (#424)
 * Feat: Support for Out-of-Memory-Tracking on macOS/iOS (#424)
 * Fix: Trim `\u0000` from Windows package info (#420)
+* Feature: Log calls to `print()` as Breadcrumbs (#439)
 * Fix: `dist` was read from `SENTRY_DSN`, now it's read from `SENTRY_DIST` (#442)
+* Bump: sentry-cocoa to v7.0.3 (#445)
+* Fix: Fix adding integrations on web (#450)
+* Fix: Use `log()` instead of `print()` for SDK logging (#453)
+* Bump: sentry-android to v5.0.0-beta.2 (#457)
+* Feature: Add `withScope` callback to capture methods (#463)
+* Fix: Add missing properties `language`, `screenHeightPixels` and `screenWidthPixels` to `SentryDevice` (#465)
 
 ## Breaking Changes:
 

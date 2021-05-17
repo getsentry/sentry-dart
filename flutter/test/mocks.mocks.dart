@@ -39,18 +39,28 @@ class MockHub extends _i1.Mock implements _i3.Hub {
           returnValue: _FakeSentryId()) as _i2.SentryId);
   @override
   _i4.Future<_i2.SentryId> captureEvent(_i5.SentryEvent? event,
-          {dynamic stackTrace, dynamic hint}) =>
+          {dynamic stackTrace, dynamic hint, _i3.ScopeCallback? withScope}) =>
       (super.noSuchMethod(
-          Invocation.method(
-              #captureEvent, [event], {#stackTrace: stackTrace, #hint: hint}),
-          returnValue:
-              Future.value(_FakeSentryId())) as _i4.Future<_i2.SentryId>);
+              Invocation.method(#captureEvent, [
+                event
+              ], {
+                #stackTrace: stackTrace,
+                #hint: hint,
+                #withScope: withScope
+              }),
+              returnValue: Future.value(_FakeSentryId()))
+          as _i4.Future<_i2.SentryId>);
   @override
   _i4.Future<_i2.SentryId> captureException(dynamic throwable,
-          {dynamic stackTrace, dynamic hint}) =>
+          {dynamic stackTrace, dynamic hint, _i3.ScopeCallback? withScope}) =>
       (super.noSuchMethod(
-              Invocation.method(#captureException, [throwable],
-                  {#stackTrace: stackTrace, #hint: hint}),
+              Invocation.method(#captureException, [
+                throwable
+              ], {
+                #stackTrace: stackTrace,
+                #hint: hint,
+                #withScope: withScope
+              }),
               returnValue: Future.value(_FakeSentryId()))
           as _i4.Future<_i2.SentryId>);
   @override
@@ -58,7 +68,8 @@ class MockHub extends _i1.Mock implements _i3.Hub {
           {_i6.SentryLevel? level,
           String? template,
           List<dynamic>? params,
-          dynamic hint}) =>
+          dynamic hint,
+          _i3.ScopeCallback? withScope}) =>
       (super.noSuchMethod(
               Invocation.method(#captureMessage, [
                 message
@@ -66,7 +77,8 @@ class MockHub extends _i1.Mock implements _i3.Hub {
                 #level: level,
                 #template: template,
                 #params: params,
-                #hint: hint
+                #hint: hint,
+                #withScope: withScope
               }),
               returnValue: Future.value(_FakeSentryId()))
           as _i4.Future<_i2.SentryId>);
