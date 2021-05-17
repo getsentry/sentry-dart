@@ -308,8 +308,6 @@ void main() {
 
       final updatedEvent = await scope.applyToEvent(event, null);
 
-      // We can't check for equality of the user because it
-      // gets merged from event and scope.
       expect(updatedEvent?.user, isNotNull);
       expect(updatedEvent?.user?.id, eventUser.id);
       expect(updatedEvent?.transaction, '/event/transaction');

@@ -198,17 +198,17 @@ class Scope {
     return processedEvent;
   }
 
-  /// merge the scope contexts runtimes and the event contexts runtimes
+  /// Merge the scope contexts runtimes and the event contexts runtimes.
   void _mergeEventContextsRuntimes(List value, SentryEvent event) =>
       value.forEach((runtime) => event.contexts.addRuntime(runtime));
 
-  /// if the scope and the event have tag entries with the same key,
-  /// the event tags will be kept
+  /// If the scope and the event have tag entries with the same key,
+  /// the event tags will be kept.
   Map<String, String> _mergeEventTags(SentryEvent event) =>
       tags.map((key, value) => MapEntry(key, value))..addAll(event.tags ?? {});
 
-  /// if the scope and the event have extra entries with the same key,
-  /// the event extra will be kept
+  /// If the scope and the event have extra entries with the same key,
+  /// the event extra will be kept.
   Map<String, dynamic> _mergeEventExtra(SentryEvent event) =>
       extra.map((key, value) => MapEntry(key, value))
         ..addAll(event.extra ?? {});
@@ -228,9 +228,27 @@ class Scope {
       email: eventUser?.email,
       ipAddress: eventUser?.ipAddress,
       username: eventUser?.username,
-      // TODO should extras be merged?
-      extras: eventUser?.extras,
+      extras: _mergeUserExtra(eventUser?.extras, scopeUser.extras),
     );
+  }
+
+  /// If the User on the scope and the user of an event have extra entries with
+  /// the same key, the event user extra will be kept.
+  Map<String, dynamic> _mergeUserExtra(
+    Map<String, dynamic>? eventExtra,
+    Map<String, dynamic>? scopeExtra,
+  ) {
+    final map = <String, dynamic>{};
+    if (eventExtra != null) {
+      map.addAll(eventExtra);
+    }
+    if (scopeExtra == null) {
+      return map;
+    }
+    for (var value in scopeExtra.entries) {
+      map.putIfAbsent(value.key, () => value.value);
+    }
+    return map;
   }
 
   /// Clones the current Scope

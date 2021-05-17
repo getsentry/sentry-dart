@@ -352,6 +352,7 @@ void main() {
   });
 
   group('SentryClient : apply partial scope to the captured event', () {
+    late Fixture fixture;
     var options = SentryOptions(dsn: fakeDsn);
     var scope = Scope(options);
 
@@ -373,6 +374,7 @@ void main() {
     );
 
     setUp(() {
+      fixture = Fixture();
       options = SentryOptions(dsn: fakeDsn);
       options.transport = MockTransport();
       scope = Scope(options)
@@ -383,11 +385,12 @@ void main() {
     });
 
     test('should not apply the scope to non null event fields ', () async {
-      final client = SentryClient(options);
+      final transport = MockTransport();
+      final client = fixture.getSut(true, transport);
+
       await client.captureEvent(event, scope: scope);
 
-      final capturedEvent = (options.transport as MockTransport).events.first;
-
+      final capturedEvent = transport.events.first;
       expect(capturedEvent.user!.id, eventUser.id);
       expect(capturedEvent.level!.name, SentryLevel.warning.name);
       expect(capturedEvent.transaction, eventTransaction);
@@ -396,7 +399,9 @@ void main() {
     });
 
     test('should apply the scope user to null event user fields ', () async {
-      final client = SentryClient(options);
+      final transport = MockTransport();
+      final client = fixture.getSut(true, transport);
+
       scope.user = SentryUser(id: '987');
 
       var eventWithUser = event.copyWith(
@@ -404,7 +409,7 @@ void main() {
       );
       await client.captureEvent(eventWithUser, scope: scope);
 
-      final capturedEvent = (options.transport as MockTransport).events.first;
+      final capturedEvent = transport.events.first;
 
       expect(capturedEvent.user!.id, '123');
       expect(capturedEvent.user!.username, 'foo bar');
@@ -412,6 +417,36 @@ void main() {
       expect(capturedEvent.transaction, eventTransaction);
       expect(capturedEvent.fingerprint, eventFingerprint);
       expect(capturedEvent.breadcrumbs, eventCrumbs);
+    });
+
+    test('merge scope user and event user extra', () async {
+      final transport = MockTransport();
+      final client = fixture.getSut(true, transport);
+
+      scope.user = SentryUser(
+        id: 'id',
+        extras: {
+          'foo': 'bar',
+          'bar': 'foo',
+        },
+      );
+
+      var eventWithUser = event.copyWith(
+        user: SentryUser(
+          id: 'id',
+          extras: {
+            'foo': 'this bar is more important',
+            'event': 'Really important event'
+          },
+        ),
+      );
+      await client.captureEvent(eventWithUser, scope: scope);
+
+      final capturedEvent = transport.events.first;
+
+      expect(capturedEvent.user?.extras?['foo'], 'this bar is more important');
+      expect(capturedEvent.user?.extras?['bar'], 'foo');
+      expect(capturedEvent.user?.extras?['event'], 'Really important event');
     });
   });
 
