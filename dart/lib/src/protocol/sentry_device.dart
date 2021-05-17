@@ -333,6 +333,7 @@ class SentryDevice {
         externalFreeStorage: externalFreeStorage,
         bootTime: bootTime,
         timezone: timezone,
+        theme: theme,
       );
 
   SentryDevice copyWith({
