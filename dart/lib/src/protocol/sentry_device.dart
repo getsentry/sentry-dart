@@ -314,6 +314,8 @@ class SentryDevice {
         manufacturer: manufacturer,
         brand: brand,
         screenResolution: screenResolution,
+        screenHeightPixels: screenHeightPixels,
+        screenWidthPixels: screenWidthPixels,
         screenDensity: screenDensity,
         screenDpi: screenDpi,
         online: online,
@@ -328,7 +330,8 @@ class SentryDevice {
         externalStorageSize: externalStorageSize,
         externalFreeStorage: externalFreeStorage,
         bootTime: bootTime,
-        timezone: timezone, // TODO(denrase) Language not cloned?
+        timezone: timezone,
+        language: language
       );
 
   SentryDevice copyWith({
