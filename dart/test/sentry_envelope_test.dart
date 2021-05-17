@@ -28,15 +28,15 @@ void main() {
       final header = SentryEnvelopeHeader(eventId, null);
       final sut = SentryEnvelope(header, [item, item]);
 
-      final expectesHeaderJson = header.toJson();
-      final expectesHeaderJsonSerialized = jsonEncode(expectesHeaderJson);
+      final expectedHeaderJson = header.toJson();
+      final expectedHeaderJsonSerialized = jsonEncode(expectedHeaderJson);
 
       final expectedItem = <int>[];
       await item.envelopeItemStream().forEach(expectedItem.addAll);
       final expectedItemSerialized = utf8.decode(expectedItem);
 
       final expected = utf8.encode(
-          '$expectesHeaderJsonSerialized\n$expectedItemSerialized\n$expectedItemSerialized');
+          '$expectedHeaderJsonSerialized\n$expectedItemSerialized\n$expectedItemSerialized');
 
       final envelopeData = <int>[];
       await sut.envelopeStream().forEach(envelopeData.addAll);
