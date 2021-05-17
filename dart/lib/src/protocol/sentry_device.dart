@@ -19,6 +19,8 @@ class SentryDevice {
     this.manufacturer,
     this.brand,
     this.screenResolution,
+    this.screenHeightPixels,
+    this.screenWidthPixels,
     this.screenDensity,
     this.screenDpi,
     this.online,
@@ -34,6 +36,7 @@ class SentryDevice {
     this.externalFreeStorage,
     this.bootTime,
     this.timezone,
+    this.language,
   }) : assert(
           batteryLevel == null || (batteryLevel >= 0 && batteryLevel <= 100),
         );
@@ -72,6 +75,12 @@ class SentryDevice {
 
   /// The screen resolution. (e.g.: `800x600`, `3040x1444`).
   final String? screenResolution;
+
+  /// The screen height in pixels. (e.g.: `600`, `1080`).
+  final int? screenHeightPixels;
+
+  /// The screen width in pixels. (e.g.: `800`, `1920`).
+  final int? screenWidthPixels;
 
   /// A floating point denoting the screen density.
   final double? screenDensity;
@@ -120,40 +129,46 @@ class SentryDevice {
   /// The timezone of the device, e.g.: `Europe/Vienna`.
   final String? timezone;
 
+  /// The language of the device, e.g.: `en_US`.
+  final String? language;
+
   /// Deserializes a [SentryDevice] from JSON [Map].
   factory SentryDevice.fromJson(Map<String, dynamic> data) => SentryDevice(
-        name: data['name'],
-        family: data['family'],
-        model: data['model'],
-        modelId: data['model_id'],
-        arch: data['arch'],
-        batteryLevel: data['battery_level'],
-        orientation: data['orientation'] == 'portrait'
-            ? SentryOrientation.portrait
-            : data['orientation'] == 'landscape'
-                ? SentryOrientation.landscape
-                : null,
-        manufacturer: data['manufacturer'],
-        brand: data['brand'],
-        screenResolution: data['screen_resolution'],
-        screenDensity: data['screen_density'],
-        screenDpi: data['screen_dpi'],
-        online: data['online'],
-        charging: data['charging'],
-        lowMemory: data['low_memory'],
-        simulator: data['simulator'],
-        memorySize: data['memory_size'],
-        freeMemory: data['free_memory'],
-        usableMemory: data['usable_memory'],
-        storageSize: data['storage_size'],
-        freeStorage: data['free_storage'],
-        externalStorageSize: data['external_storage_size'],
-        externalFreeStorage: data['external_free_storage'],
-        bootTime: data['boot_time'] != null
-            ? DateTime.tryParse(data['boot_time'])
-            : null,
-        timezone: data['timezone'],
-      );
+      name: data['name'],
+      family: data['family'],
+      model: data['model'],
+      modelId: data['model_id'],
+      arch: data['arch'],
+      batteryLevel: data['battery_level'],
+      orientation: data['orientation'] == 'portrait'
+          ? SentryOrientation.portrait
+          : data['orientation'] == 'landscape'
+              ? SentryOrientation.landscape
+              : null,
+      manufacturer: data['manufacturer'],
+      brand: data['brand'],
+      screenResolution: data['screen_resolution'],
+      screenHeightPixels: data['screen_height_pixels'],
+      screenWidthPixels: data['screen_width_pixels'],
+      screenDensity: data['screen_density'],
+      screenDpi: data['screen_dpi'],
+      online: data['online'],
+      charging: data['charging'],
+      lowMemory: data['low_memory'],
+      simulator: data['simulator'],
+      memorySize: data['memory_size'],
+      freeMemory: data['free_memory'],
+      usableMemory: data['usable_memory'],
+      storageSize: data['storage_size'],
+      freeStorage: data['free_storage'],
+      externalStorageSize: data['external_storage_size'],
+      externalFreeStorage: data['external_free_storage'],
+      bootTime: data['boot_time'] != null
+          ? DateTime.tryParse(data['boot_time'])
+          : null,
+      timezone: data['timezone'],
+      language: data['language'],
+    );
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
@@ -211,6 +226,14 @@ class SentryDevice {
 
     if (screenResolution != null) {
       json['screen_resolution'] = screenResolution;
+    }
+
+    if (screenWidthPixels != null) {
+      json['screen_width_pixels'] = screenWidthPixels;
+    }
+
+    if (screenHeightPixels != null) {
+      json['screen_height_pixels'] = screenHeightPixels;
     }
 
     if (screenDensity != null) {
@@ -273,6 +296,10 @@ class SentryDevice {
       json['timezone'] = timezone;
     }
 
+    if (language != null) {
+      json['language'] = language;
+    }
+
     return json;
   }
 
@@ -301,7 +328,7 @@ class SentryDevice {
         externalStorageSize: externalStorageSize,
         externalFreeStorage: externalFreeStorage,
         bootTime: bootTime,
-        timezone: timezone,
+        timezone: timezone, // TODO(denrase) Language not cloned?
       );
 
   SentryDevice copyWith({
@@ -315,6 +342,8 @@ class SentryDevice {
     String? manufacturer,
     String? brand,
     String? screenResolution,
+    int? screenHeightPixels,
+    int? screenWidthPixels,
     double? screenDensity,
     int? screenDpi,
     bool? online,
@@ -330,6 +359,7 @@ class SentryDevice {
     int? externalFreeStorage,
     DateTime? bootTime,
     String? timezone,
+    String? language,
   }) =>
       SentryDevice(
         name: name ?? this.name,
@@ -342,6 +372,8 @@ class SentryDevice {
         manufacturer: manufacturer ?? this.manufacturer,
         brand: brand ?? this.brand,
         screenResolution: screenResolution ?? this.screenResolution,
+        screenHeightPixels: screenHeightPixels ?? this.screenHeightPixels,
+        screenWidthPixels: screenWidthPixels ?? this.screenWidthPixels,
         screenDensity: screenDensity ?? this.screenDensity,
         screenDpi: screenDpi ?? this.screenDpi,
         online: online ?? this.online,
@@ -357,5 +389,6 @@ class SentryDevice {
         externalFreeStorage: externalFreeStorage ?? this.externalFreeStorage,
         bootTime: bootTime ?? this.bootTime,
         timezone: timezone ?? this.timezone,
+        language: language ?? this.language,
       );
 }

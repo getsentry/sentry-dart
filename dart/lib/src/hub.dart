@@ -55,6 +55,7 @@ class Hub {
     SentryEvent event, {
     dynamic stackTrace,
     dynamic hint,
+    ScopeCallback? withScope,
   }) async {
     var sentryId = SentryId.empty();
 
@@ -65,12 +66,13 @@ class Hub {
       );
     } else {
       final item = _peek();
+      final scope = _cloneAndRunWithScope(item.scope, withScope);
 
       try {
         sentryId = await item.client.captureEvent(
           event,
           stackTrace: stackTrace,
-          scope: item.scope,
+          scope: scope,
           hint: hint,
         );
       } catch (err) {
@@ -90,6 +92,7 @@ class Hub {
     dynamic throwable, {
     dynamic stackTrace,
     dynamic hint,
+    ScopeCallback? withScope,
   }) async {
     var sentryId = SentryId.empty();
 
@@ -105,12 +108,13 @@ class Hub {
       );
     } else {
       final item = _peek();
+      final scope = _cloneAndRunWithScope(item.scope, withScope);
 
       try {
         sentryId = await item.client.captureException(
           throwable,
           stackTrace: stackTrace,
-          scope: item.scope,
+          scope: scope,
           hint: hint,
         );
       } catch (err) {
@@ -133,6 +137,7 @@ class Hub {
     String? template,
     List<dynamic>? params,
     dynamic hint,
+    ScopeCallback? withScope,
   }) async {
     var sentryId = SentryId.empty();
 
@@ -148,6 +153,7 @@ class Hub {
       );
     } else {
       final item = _peek();
+      final scope = _cloneAndRunWithScope(item.scope, withScope);
 
       try {
         sentryId = await item.client.captureMessage(
@@ -155,7 +161,7 @@ class Hub {
           level: level,
           template: template,
           params: params,
-          scope: item.scope,
+          scope: scope,
           hint: hint,
         );
       } catch (err) {
@@ -168,6 +174,14 @@ class Hub {
       }
     }
     return sentryId;
+  }
+
+  Scope _cloneAndRunWithScope(Scope scope, ScopeCallback? withScope) {
+    if (withScope != null) {
+      scope = scope.clone();
+      withScope(scope);
+    }
+    return scope;
   }
 
   /// Adds a breacrumb to the current Scope

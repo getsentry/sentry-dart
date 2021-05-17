@@ -75,7 +75,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
       args.getIfNotNull<String>("environment") { options.environment = it }
       args.getIfNotNull<String>("release") { options.release = it }
       args.getIfNotNull<String>("dist") { options.dist = it }
-      args.getIfNotNull<Boolean>("enableAutoSessionTracking") { options.isEnableSessionTracking = it }
+      args.getIfNotNull<Boolean>("enableAutoSessionTracking") { options.isEnableAutoSessionTracking = it }
       args.getIfNotNull<Long>("autoSessionTrackingIntervalMillis") { options.sessionTrackingIntervalMillis = it }
       args.getIfNotNull<Long>("anrTimeoutIntervalMillis") { options.anrTimeoutIntervalMillis = it }
       args.getIfNotNull<Boolean>("attachThreads") { options.isAttachThreads = it }

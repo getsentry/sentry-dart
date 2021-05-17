@@ -78,8 +78,7 @@ class RateLimiter {
     // check all categories
     final dateAllCategories = _rateLimitedUntil[RateLimitCategory.all];
     if (dateAllCategories != null) {
-      if (!(currentDate.millisecondsSinceEpoch >
-          dateAllCategories.millisecondsSinceEpoch)) {
+      if (!currentDate.isAfter(dateAllCategories)) {
         return true;
       }
     }
@@ -92,8 +91,7 @@ class RateLimiter {
     // check for specific dataCategory
     final dateCategory = _rateLimitedUntil[dataCategory];
     if (dateCategory != null) {
-      return !(currentDate.millisecondsSinceEpoch >
-          dateCategory.millisecondsSinceEpoch);
+      return !currentDate.isAfter(dateCategory);
     }
 
     return false;
@@ -119,8 +117,7 @@ class RateLimiter {
     final oldDate = _rateLimitedUntil[rateLimitCategory];
 
     // only overwrite its previous date if the limit is even longer
-    if (oldDate == null ||
-        date.millisecondsSinceEpoch > oldDate.millisecondsSinceEpoch) {
+    if (oldDate == null || date.isAfter(oldDate)) {
       _rateLimitedUntil[rateLimitCategory] = date;
     }
   }

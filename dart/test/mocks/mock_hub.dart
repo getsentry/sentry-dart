@@ -7,6 +7,7 @@ class MockHub implements Hub {
   List<AddBreadcrumbCall> addBreadcrumbCalls = [];
   List<SentryClient?> bindClientCalls = [];
   int closeCalls = 0;
+  bool _isEnabled = true;
 
   @override
   void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) {
@@ -23,8 +24,13 @@ class MockHub implements Hub {
     SentryEvent event, {
     dynamic stackTrace,
     dynamic hint,
+    ScopeCallback? withScope,
   }) async {
-    captureEventCalls.add(CaptureEventCall(event, stackTrace, hint));
+    captureEventCalls.add(CaptureEventCall(
+      event,
+      stackTrace,
+      hint,
+    ));
     return event.eventId;
   }
 
@@ -33,9 +39,13 @@ class MockHub implements Hub {
     dynamic throwable, {
     dynamic stackTrace,
     dynamic hint,
+    ScopeCallback? withScope,
   }) async {
-    captureExceptionCalls
-        .add(CaptureExceptionCall(throwable, stackTrace, hint));
+    captureExceptionCalls.add(CaptureExceptionCall(
+      throwable,
+      stackTrace,
+      hint,
+    ));
     return SentryId.newId();
   }
 
@@ -46,9 +56,15 @@ class MockHub implements Hub {
     String? template,
     List? params,
     dynamic hint,
+    ScopeCallback? withScope,
   }) async {
-    captureMessageCalls
-        .add(CaptureMessageCall(message, level, template, params, hint));
+    captureMessageCalls.add(CaptureMessageCall(
+      message,
+      level,
+      template,
+      params,
+      hint,
+    ));
     return SentryId.newId();
   }
 
@@ -61,6 +77,7 @@ class MockHub implements Hub {
   @override
   Future<void> close() async {
     closeCalls = closeCalls + 1;
+    _isEnabled = false;
   }
 
   @override
@@ -69,8 +86,7 @@ class MockHub implements Hub {
   }
 
   @override
-  // TODO: implement isEnabled
-  bool get isEnabled => throw UnimplementedError();
+  bool get isEnabled => _isEnabled;
 
   @override
   // TODO: implement lastEventId
