@@ -30,7 +30,7 @@ class RateLimitParser {
         final categoryValues = allCategories.split(';');
         for (final categoryValue in categoryValues) {
           final category =
-            RateLimitCategoryExtension.fromStringValue(categoryValue);
+              RateLimitCategoryExtension.fromStringValue(categoryValue);
           if (category != RateLimitCategory.unknown) {
             rateLimits.add(RateLimit(category, duration));
           }
