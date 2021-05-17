@@ -1,6 +1,6 @@
 # Unreleased
 
-* Feat: Enrich events with more context
+* Feat: Enrich events with more context (#452)
 
 # 5.1.0-beta.1
 
