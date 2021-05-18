@@ -1,11 +1,12 @@
 import 'package:http/http.dart';
-import '../protocol/sentry_level.dart';
-import '../protocol/breadcrumb.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
+import 'breadcrumb_client.dart';
+import 'failed_request_client.dart';
 
 /// A [http](https://pub.dev/packages/http)-package compatible HTTP client
-/// which records requests as breadcrumbs.
+/// which combines the functionality of [FailedRequestClient] and
+/// [BreadcrumbClient].
 ///
 /// Remarks:
 /// If this client is used as a wrapper, a call to close also closes the
@@ -43,57 +44,22 @@ import '../hub_adapter.dart';
 /// }
 /// ```
 class SentryHttpClient extends BaseClient {
-  SentryHttpClient({Client? client, Hub? hub})
-      : _hub = hub ?? HubAdapter(),
-        _client = client ?? Client();
-
-  final Client _client;
-  final Hub _hub;
-
-  @override
-  Future<StreamedResponse> send(BaseRequest request) async {
-    // See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
-
-    var requestHadException = false;
-    int? statusCode;
-    String? reason;
-
-    final stopwatch = Stopwatch();
-    stopwatch.start();
-
-    try {
-      final response = await _client.send(request);
-
-      statusCode = response.statusCode;
-      reason = response.reasonPhrase;
-
-      return response;
-    } catch (_) {
-      requestHadException = true;
-      rethrow;
-    } finally {
-      stopwatch.stop();
-
-      var breadcrumb = Breadcrumb(
-        level: requestHadException ? SentryLevel.error : SentryLevel.info,
-        type: 'http',
-        category: 'http',
-        data: {
-          'url': request.url.toString(),
-          'method': request.method,
-          if (statusCode != null) 'status_code': statusCode,
-          if (reason != null) 'reason': reason,
-          'duration': stopwatch.elapsed.toString(),
-        },
-      );
-
-      _hub.addBreadcrumb(breadcrumb);
-    }
+  SentryHttpClient({Client? client, Hub? hub}) {
+    _hub = hub ?? HubAdapter();
+    _client = FailedRequestClient(
+      hub: _hub,
+      client: BreadcrumbClient(
+        client: client ?? Client(),
+      ),
+    );
   }
 
+  late Client _client;
+  late Hub _hub;
+
   @override
-  void close() {
-    // See https://github.com/getsentry/sentry-dart/pull/226#discussion_r536984785
-    _client.close();
-  }
+  Future<StreamedResponse> send(BaseRequest request) => _client.send(request);
+
+  @override
+  void close() => _client.close();
 }

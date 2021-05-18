@@ -4,7 +4,7 @@ import 'package:http/http.dart';
 import 'package:http/testing.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/http_client/sentry_http_client.dart';
+import 'package:sentry/src/http_client/breadcrumb_client.dart';
 import 'package:test/test.dart';
 
 import '../mocks/mock_hub.dart';
@@ -12,7 +12,7 @@ import '../mocks/mock_hub.dart';
 final requestUri = Uri.parse('https://example.com');
 
 void main() {
-  group(SentryHttpClient, () {
+  group(BreadcrumbClient, () {
     late var fixture;
 
     setUp(() {
@@ -169,7 +169,7 @@ void main() {
 
       final mockClient = CloseableMockClient();
 
-      final client = SentryHttpClient(client: mockClient, hub: mockHub);
+      final client = BreadcrumbClient(client: mockClient, hub: mockHub);
       client.close();
 
       expect(mockHub.addBreadcrumbCalls.length, 0);
@@ -200,9 +200,9 @@ void main() {
 class CloseableMockClient extends Mock implements BaseClient {}
 
 class Fixture {
-  SentryHttpClient getSut([MockClient? client]) {
+  BreadcrumbClient getSut([MockClient? client]) {
     final mc = client ?? getClient();
-    return SentryHttpClient(client: mc, hub: hub);
+    return BreadcrumbClient(client: mc, hub: hub);
   }
 
   late MockHub hub = MockHub();

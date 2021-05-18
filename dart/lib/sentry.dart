@@ -19,4 +19,4 @@ export 'src/sentry_options.dart';
 export 'src/throwable_mechanism.dart';
 export 'src/transport/transport.dart';
 export 'src/integration.dart';
-export 'src/http_client/sentry_http_client.dart';
+export 'src/http_client/breadcrumb_client.dart';
