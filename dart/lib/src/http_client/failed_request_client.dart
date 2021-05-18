@@ -4,7 +4,26 @@ import '../hub.dart';
 import '../hub_adapter.dart';
 
 /// A [http](https://pub.dev/packages/http)-package compatible HTTP client
-/// which records sends events for failed requests.
+/// which records events for failed requests.
+///
+/// Configured with default values, this captures requests which throw an
+/// exception.
+/// This can be for example for the following reasons:
+/// - In an browser environment this can be requests which fail because of CORS.
+/// - In an mobile or desktop application this can be requests which failed
+///   because the connection was interrupted.
+///
+/// Additionally you can configre specific HTTP response codes to be consideres
+/// as a failed request. In the following example, the status codes 404 and 500
+/// are considered a failed request.
+///
+/// ```dart
+/// import 'package:sentry/sentry.dart';
+///
+/// var client = FailedRequestClient(
+///   failedRequestStatusCodes: [404, 500]
+/// );
+/// ```
 ///
 /// Remarks:
 /// If this client is used as a wrapper, a call to close also closes the
@@ -42,17 +61,36 @@ import '../hub_adapter.dart';
 /// }
 /// ```
 class FailedRequestClient extends BaseClient {
-  FailedRequestClient({Client? client, Hub? hub})
-      : _hub = hub ?? HubAdapter(),
+  FailedRequestClient({
+    this.maxRequestBodySize = MaxRequestBodySize.small,
+    this.failedRequestStatusCodes = const [],
+    Client? client,
+    Hub? hub,
+  })  : _hub = hub ?? HubAdapter(),
         _client = client ?? Client();
 
   final Client _client;
   final Hub _hub;
 
+  /// Configures up to which size request bodies should be included in events
+  final MaxRequestBodySize maxRequestBodySize;
+
+  /// Describes which HTTP status codes should be considered as a failed
+  /// requests.
+  ///
+  /// Per default no status code is considered a failed request.
+  final List<int> failedRequestStatusCodes;
+
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
     try {
-      return await _client.send(request);
+      final response = await _client.send(request);
+
+      if (failedRequestStatusCodes.contains(response.statusCode)) {
+        await _captureException(request: request);
+      }
+
+      return response;
     } catch (exception, stackTrace) {
       await _captureException(
         exception: exception,
@@ -72,14 +110,21 @@ class FailedRequestClient extends BaseClient {
 
   // See https://develop.sentry.dev/sdk/event-payloads/request/
   Future<void> _captureException({
-    required Object exception,
-    required StackTrace stackTrace,
+    Object? exception,
+    StackTrace? stackTrace,
     required BaseRequest request,
   }) {
+    // As far as I can tell there's no way to get the uri without the query part
+    // so we replace it with an empty string.
+    final urlWithoutQuery = request.url.replace(query: '').toString();
+
+    final query = request.url.query.isEmpty ? null : request.url.query;
+
     final sentryRequest = SentryRequest(
       method: request.method,
       headers: request.headers,
-      url: request.url.toString(),
+      url: urlWithoutQuery,
+      queryString: query,
       data: _getDataFromRequest(request),
       other: {
         'Content-Length': request.contentLength.toString(),
@@ -88,7 +133,6 @@ class FailedRequestClient extends BaseClient {
     final event = SentryEvent(
       throwable: exception,
       request: sentryRequest,
-      culprit: 'SentryHttpClient',
       level: SentryLevel.error,
     );
     return _hub.captureEvent(event, stackTrace: stackTrace);
@@ -110,4 +154,21 @@ class FailedRequestClient extends BaseClient {
     // There's nothing we can do for a StreamedRequest
     return null;
   }
+}
+
+/// Describes the size of http request bodies which should be added to an event
+enum MaxRequestBodySize {
+  /// Request bodies are never sent
+  never,
+
+  /// Only small request bodies will be captured where the cutoff for small
+  /// depends on the SDK (typically 4KB)
+  small,
+
+  /// Medium and small requests will be captured (typically 10KB)
+  medium,
+
+  /// The SDK will always capture the request body for as long as Sentry can
+  /// make sense of it
+  always,
 }
