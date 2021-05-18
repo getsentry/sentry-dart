@@ -353,77 +353,51 @@ void main() {
 
   group('SentryClient : apply partial scope to the captured event', () {
     late Fixture fixture;
-    var options = SentryOptions(dsn: fakeDsn);
-    var scope = Scope(options);
-
-    final transaction = '/test/scope';
-    final eventTransaction = '/event/transaction';
-    const fingerprint = ['foo', 'bar', 'baz'];
-    const eventFingerprint = ['123', '456', '798'];
-    final user = SentryUser(id: '123');
-    final eventUser = SentryUser(id: '987');
-    final crumb = Breadcrumb(message: 'bread');
-    final eventCrumbs = [Breadcrumb(message: 'bread')];
-
-    final event = SentryEvent(
-      level: SentryLevel.warning,
-      transaction: eventTransaction,
-      user: eventUser,
-      fingerprint: eventFingerprint,
-      breadcrumbs: eventCrumbs,
-    );
 
     setUp(() {
       fixture = Fixture();
-      options = SentryOptions(dsn: fakeDsn);
-      options.transport = MockTransport();
-      scope = Scope(options)
-        ..user = user
-        ..transaction = transaction
-        ..fingerprint = fingerprint
-        ..addBreadcrumb(crumb);
     });
 
     test('should not apply the scope to non null event fields ', () async {
       final transport = MockTransport();
       final client = fixture.getSut(true, transport);
 
-      await client.captureEvent(event, scope: scope);
+      await client.captureEvent(fixture.event, scope: fixture.scope);
 
       final capturedEvent = transport.events.first;
-      expect(capturedEvent.user!.id, eventUser.id);
+      expect(capturedEvent.user!.id, fixture.eventUser.id);
       expect(capturedEvent.level!.name, SentryLevel.warning.name);
-      expect(capturedEvent.transaction, eventTransaction);
-      expect(capturedEvent.fingerprint, eventFingerprint);
-      expect(capturedEvent.breadcrumbs, eventCrumbs);
+      expect(capturedEvent.transaction, fixture.eventTransaction);
+      expect(capturedEvent.fingerprint, fixture.eventFingerprint);
+      expect(capturedEvent.breadcrumbs, fixture.eventCrumbs);
     });
 
     test('should apply the scope user to null event user fields ', () async {
       final transport = MockTransport();
       final client = fixture.getSut(true, transport);
 
-      scope.user = SentryUser(id: '987');
+      fixture.scope.user = SentryUser(id: '987');
 
-      var eventWithUser = event.copyWith(
+      var eventWithUser = fixture.event.copyWith(
         user: SentryUser(id: '123', username: 'foo bar'),
       );
-      await client.captureEvent(eventWithUser, scope: scope);
+      await client.captureEvent(eventWithUser, scope: fixture.scope);
 
       final capturedEvent = transport.events.first;
 
       expect(capturedEvent.user!.id, '123');
       expect(capturedEvent.user!.username, 'foo bar');
       expect(capturedEvent.level!.name, SentryLevel.warning.name);
-      expect(capturedEvent.transaction, eventTransaction);
-      expect(capturedEvent.fingerprint, eventFingerprint);
-      expect(capturedEvent.breadcrumbs, eventCrumbs);
+      expect(capturedEvent.transaction, fixture.eventTransaction);
+      expect(capturedEvent.fingerprint, fixture.eventFingerprint);
+      expect(capturedEvent.breadcrumbs, fixture.eventCrumbs);
     });
 
     test('merge scope user and event user extra', () async {
       final transport = MockTransport();
       final client = fixture.getSut(true, transport);
 
-      scope.user = SentryUser(
+      fixture.scope.user = SentryUser(
         id: 'id',
         extras: {
           'foo': 'bar',
@@ -431,7 +405,7 @@ void main() {
         },
       );
 
-      var eventWithUser = event.copyWith(
+      var eventWithUser = fixture.event.copyWith(
         user: SentryUser(
           id: 'id',
           extras: {
@@ -440,7 +414,7 @@ void main() {
           },
         ),
       );
-      await client.captureEvent(eventWithUser, scope: scope);
+      await client.captureEvent(eventWithUser, scope: fixture.scope);
 
       final capturedEvent = transport.events.first;
 
@@ -667,6 +641,38 @@ SentryEvent? eventProcessorDropEvent(SentryEvent event, {dynamic hint}) {
 }
 
 class Fixture {
+  Fixture() {
+    options = SentryOptions(dsn: fakeDsn);
+    options.transport = MockTransport();
+
+    scope = Scope(options)
+      ..user = user
+      ..transaction = transaction
+      ..fingerprint = fingerprint
+      ..addBreadcrumb(crumb);
+
+    event = SentryEvent(
+      level: SentryLevel.warning,
+      transaction: eventTransaction,
+      user: eventUser,
+      fingerprint: eventFingerprint,
+      breadcrumbs: eventCrumbs,
+    );
+  }
+
+  late SentryOptions options;
+  late Scope scope;
+  late SentryEvent event;
+
+  final transaction = '/test/scope';
+  final eventTransaction = '/event/transaction';
+  final fingerprint = ['foo', 'bar', 'baz'];
+  final eventFingerprint = ['123', '456', '798'];
+  final user = SentryUser(id: '123');
+  final eventUser = SentryUser(id: '987');
+  final crumb = Breadcrumb(message: 'bread');
+  final eventCrumbs = [Breadcrumb(message: 'bread')];
+
   /// Test Fixture for tests with [SentryOptions.sendDefaultPii]
   SentryClient getSut(bool sendDefaultPii, Transport transport) {
     var options = SentryOptions(dsn: fakeDsn);
