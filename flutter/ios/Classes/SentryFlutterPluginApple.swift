@@ -258,65 +258,18 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
     private func captureEnvelope(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         guard let arguments = call.arguments as? [Any],
               !arguments.isEmpty,
-              let event = arguments.first as? String else {
+              let data = (arguments.first as? FlutterStandardTypedData)?.data  else {
             print("Envelope is null or empty !")
             result(FlutterError(code: "2", message: "Envelope is null or empty", details: nil))
             return
         }
 
-        do {
-            let envelope = try parseJsonEnvelope(event)
-            SentrySDK.capture(envelope)
-            result("")
-        } catch {
-            print("Cannot parse the envelope json !")
-            result(FlutterError(code: "3", message: "Cannot parse the envelope json", details: nil))
-            return
+        guard let envelope = SentrySerialization.envelope(with: data) else {
+            print("Cannot parse the envelope data")
+            result(FlutterError(code: "3", message: "Cannot parse the envelope data", details: nil))
+            return 
         }
-    }
-
-    private func parseJsonEnvelope(_ data: String) throws -> SentryEnvelope {
-        let parts = data.split(separator: "\n")
-
-        let envelopeParts: [[String: Any]] = try parts.map({ part in
-            guard let dict = parseJson(text: "\(part)") else {
-                throw NSError()
-            }
-            return dict
-        })
-
-        let rawEnvelopeHeader = envelopeParts[0]
-        guard let eventId = rawEnvelopeHeader["event_id"] as? String,
-              let itemType = envelopeParts[1]["type"] as? String else {
-            throw NSError()
-        }
-
-        let sdkInfo = SentrySdkInfo(dict: rawEnvelopeHeader)
-        let sentryId = SentryId(uuidString: eventId)
-        let envelopeHeader = SentryEnvelopeHeader.init(id: sentryId, andSdkInfo: sdkInfo)
-
-        let payload = envelopeParts[2]
-
-        let data = try JSONSerialization.data(withJSONObject: payload, options: .init(rawValue: 0))
-
-        let itemHeader = SentryEnvelopeItemHeader(type: itemType, length: UInt(data.count))
-        let sentryItem = SentryEnvelopeItem(header: itemHeader, data: data)
-
-        return SentryEnvelope.init(header: envelopeHeader, singleItem: sentryItem)
-    }
-
-    func parseJson(text: String) -> [String: Any]? {
-        guard let data = text.data(using: .utf8) else {
-            print("Invalid UTF8 String : \(text)")
-            return nil
-        }
-
-        do {
-            let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
-            return json
-        } catch {
-            print("json parsing error !")
-        }
-        return nil
+        SentrySDK.capture(envelope)
+        result("")
     }
 }
