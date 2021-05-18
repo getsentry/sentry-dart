@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
 import 'package:sentry/sentry.dart';
@@ -13,10 +13,8 @@ class FileSystemTransport implements Transport {
   Future<SentryId> send(SentryEnvelope envelope) async {
     final envelopeData = <int>[];
     await envelope.envelopeStream().forEach(envelopeData.addAll);
-
-    final envelopeString = utf8.decode(envelopeData);
-
-    final args = [envelopeString];
+    // https://flutter.dev/docs/development/platform-integration/platform-channels#codec
+    final args = [Uint8List.fromList(envelopeData)];
     try {
       await _channel.invokeMethod<void>('captureEnvelope', args);
     } catch (error) {
