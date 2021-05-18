@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -66,7 +67,8 @@ void main() {
     await transport.send(envelope);
 
     final envelopeList = arguments as List;
-    final envelopeString = envelopeList.first as String;
+    final envelopeData = envelopeList.first as Uint8List;
+    final envelopeString = utf8.decode(envelopeData);
     final lines = envelopeString.split('\n');
     final envelopeHeader = lines.first;
     final itemHeader = lines[1];
