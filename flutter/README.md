@@ -3,8 +3,7 @@
     <img src="https://sentry-brand.storage.googleapis.com/sentry-logo-black.png" width="280">
   </a>
     <a href="https://flutter.dev/docs/development/packages-and-plugins/favorites" target="_blank" align="right">
-    <img src="https://github.com/getsentry/sentry-dart/raw/logo/flutter-favorite/.github/flutter_favorite.svg" width="100">
-    <!--<img src="https://github.com/getsentry/sentry-dart/raw/main/.github/flutter_favorite.svg" width="100">-->
+    <img src="https://github.com/getsentry/sentry-dart/raw/main/.github/flutter_favorite.svg" width="100">
   </a>
   <br />
 </p>
