@@ -6,6 +6,7 @@ import 'package:sentry/src/sentry_envelope_header.dart';
 import 'package:sentry/src/sentry_envelope_item.dart';
 import 'package:sentry/src/sentry_envelope_item_header.dart';
 import 'package:sentry/src/sentry_item_type.dart';
+import 'package:sentry/src/transport/rate_limiter.dart';
 import 'package:test/test.dart';
 
 import 'package:sentry/sentry.dart';
@@ -28,19 +29,20 @@ void main() {
   }
 
   group('filter', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
     test('filter called', () async {
       final httpMock = MockClient((http.Request request) async {
         return http.Response('{}', 200);
       });
 
-      final options =
-          SentryOptions(dsn: 'https://public:secret@sentry.example.com/1')
-            ..compressPayload = false
-            ..httpClient = httpMock;
-
+      fixture.options.compressPayload = false;
       final mockRateLimiter = MockRateLimiter();
-
-      final sut = HttpTransport(options, mockRateLimiter);
+      final sut = fixture.getSut(httpMock, mockRateLimiter);
 
       final sentryEnvelope = givenEnvelope();
       await sut.send(sentryEnvelope);
@@ -58,17 +60,14 @@ void main() {
 
       final filteredEnvelope = givenEnvelope();
 
-      final mockRateLimiter = MockRateLimiter();
-      mockRateLimiter.filteredEnvelope = filteredEnvelope;
+      fixture.options.compressPayload = false;
+      final mockRateLimiter = MockRateLimiter()
+        ..filteredEnvelope = filteredEnvelope;
+      final sut = fixture.getSut(httpMock, mockRateLimiter);
 
-      final options =
-          SentryOptions(dsn: 'https://public:secret@sentry.example.com/1')
-            ..compressPayload = false
-            ..httpClient = httpMock;
-
-      final sut = HttpTransport(options, mockRateLimiter);
       final sentryEvent = SentryEvent();
-      final envelope = SentryEnvelope.fromEvent(sentryEvent, options.sdk);
+      final envelope =
+          SentryEnvelope.fromEvent(sentryEvent, fixture.options.sdk);
       await sut.send(envelope);
 
       final envelopeData = <int>[];
@@ -84,18 +83,13 @@ void main() {
         return http.Response('{}', 200);
       });
 
-      final options =
-          SentryOptions(dsn: 'https://public:secret@sentry.example.com/1')
-            ..compressPayload = false
-            ..httpClient = httpMock;
-
-      final mockRateLimiter = MockRateLimiter();
-      mockRateLimiter.filterReturnsNull = true;
-
-      final sut = HttpTransport(options, mockRateLimiter);
+      fixture.options.compressPayload = false;
+      final mockRateLimiter = MockRateLimiter()..filterReturnsNull = true;
+      final sut = fixture.getSut(httpMock, mockRateLimiter);
 
       final sentryEvent = SentryEvent();
-      final envelope = SentryEnvelope.fromEvent(sentryEvent, options.sdk);
+      final envelope =
+          SentryEnvelope.fromEvent(sentryEvent, fixture.options.sdk);
       final eventId = await sut.send(envelope);
 
       expect(eventId, SentryId.empty());
@@ -104,20 +98,22 @@ void main() {
   });
 
   group('updateRetryAfterLimits', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
     test('retryAfterHeader', () async {
       final httpMock = MockClient((http.Request request) async {
         return http.Response('{}', 429, headers: {'Retry-After': '1'});
       });
-
       final mockRateLimiter = MockRateLimiter();
+      final sut = fixture.getSut(httpMock, mockRateLimiter);
 
-      final options =
-          SentryOptions(dsn: 'https://public:secret@sentry.example.com/1')
-            ..httpClient = httpMock;
-
-      final sut = HttpTransport(options, mockRateLimiter);
       final sentryEvent = SentryEvent();
-      final envelope = SentryEnvelope.fromEvent(sentryEvent, options.sdk);
+      final envelope =
+          SentryEnvelope.fromEvent(sentryEvent, fixture.options.sdk);
       await sut.send(envelope);
 
       expect(mockRateLimiter.envelopeToFilter?.header.eventId,
@@ -133,16 +129,12 @@ void main() {
         return http.Response('{}', 200,
             headers: {'X-Sentry-Rate-Limits': 'fixture-sentryRateLimitHeader'});
       });
-
       final mockRateLimiter = MockRateLimiter();
+      final sut = fixture.getSut(httpMock, mockRateLimiter);
 
-      final options =
-          SentryOptions(dsn: 'https://public:secret@sentry.example.com/1')
-            ..httpClient = httpMock;
-
-      final sut = HttpTransport(options, mockRateLimiter);
       final sentryEvent = SentryEvent();
-      final envelope = SentryEnvelope.fromEvent(sentryEvent, options.sdk);
+      final envelope =
+          SentryEnvelope.fromEvent(sentryEvent, fixture.options.sdk);
       await sut.send(envelope);
 
       expect(mockRateLimiter.errorCode, 200);
@@ -151,4 +143,15 @@ void main() {
           'fixture-sentryRateLimitHeader');
     });
   });
+}
+
+class Fixture {
+  final options = SentryOptions(
+    dsn: 'https://public:secret@sentry.example.com/1',
+  );
+
+  HttpTransport getSut(http.Client client, RateLimiter rateLimiter) {
+    options.httpClient = client;
+    return HttpTransport(options, rateLimiter);
+  }
 }
