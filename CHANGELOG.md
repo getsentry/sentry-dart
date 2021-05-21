@@ -1,5 +1,7 @@
 # Unreleased
 
+* Feature: Envelope Only Transport API #426 (#463)
+
 # 5.1.0-beta.1
 
 * Fix: `Sentry.close()` closes native SDK integrations (#388)
