@@ -405,7 +405,7 @@ void main() {
 
     test('sendDefaultPii is disabled', () async {
       final transport = MockTransport();
-      final client = fixture.getSut(false, transport);
+      final client = fixture.getSut(transport, sendDefaultPii: false);
 
       await client.captureEvent(fakeEvent);
 
@@ -414,7 +414,7 @@ void main() {
 
     test('sendDefaultPii is enabled and event has no user', () async {
       final transport = MockTransport();
-      final client = fixture.getSut(true, transport);
+      final client = fixture.getSut(transport, sendDefaultPii: true);
       var fakeEvent = SentryEvent();
 
       await client.captureEvent(fakeEvent);
@@ -427,7 +427,7 @@ void main() {
     test('sendDefaultPii is enabled and event has a user with IP address',
         () async {
       final transport = MockTransport();
-      final client = fixture.getSut(true, transport);
+      final client = fixture.getSut(transport, sendDefaultPii: true);
 
       await client.captureEvent(fakeEvent);
 
@@ -442,7 +442,7 @@ void main() {
     test('sendDefaultPii is enabled and event has a user without IP address',
         () async {
       final transport = MockTransport();
-      final client = fixture.getSut(true, transport);
+      final client = fixture.getSut(transport, sendDefaultPii: true);
 
       final event = fakeEvent.copyWith(user: fakeUser);
 
@@ -594,19 +594,18 @@ void main() {
   });
 
   group('SentryClient captures envelope', () {
-    var options = SentryOptions(dsn: fakeDsn);
+    late Fixture fixture;
 
     setUp(() {
-      options = SentryOptions(dsn: fakeDsn);
-      options.transport = MockTransport();
+      fixture = Fixture();
     });
 
     test('should capture envelope', () async {
-      final client = SentryClient(options);
+      final client = fixture.getSut(MockTransport());
       await client.captureEnvelope(fakeEnvelope);
 
       final capturedEnvelope =
-          (options.transport as MockTransport).envelopes.first;
+          (fixture.options.transport as MockTransport).envelopes.first;
 
       expect(capturedEnvelope, fakeEnvelope);
     });
@@ -632,9 +631,9 @@ SentryEvent? eventProcessorDropEvent(SentryEvent event, {dynamic hint}) {
 }
 
 class Fixture {
-  /// Test Fixture for tests with [SentryOptions.sendDefaultPii]
-  SentryClient getSut(bool sendDefaultPii, Transport transport) {
-    var options = SentryOptions(dsn: fakeDsn);
+  final options = SentryOptions(dsn: fakeDsn);
+
+  SentryClient getSut(Transport transport, {bool sendDefaultPii = false}) {
     options.sendDefaultPii = sendDefaultPii;
     options.transport = transport;
     return SentryClient(options);
