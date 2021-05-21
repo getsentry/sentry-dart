@@ -18,8 +18,10 @@ void main() {
     fixture.dateTimeToReturn = 0;
 
     final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
-    final envelope =
-        SentryEnvelope(SentryEnvelopeHeader.newEventId(), [eventItem]);
+    final envelope = SentryEnvelope(
+      SentryEnvelopeHeader.newEventId(),
+      [eventItem],
+    );
 
     rateLimiter.updateRetryAfterLimits(
         '50:transaction:key, 1:default;error;security:organization', null, 1);
@@ -39,7 +41,9 @@ void main() {
     final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
 
     final envelope = SentryEnvelope(
-        SentryEnvelopeHeader.newEventId(), [eventItem]);
+      SentryEnvelopeHeader.newEventId(),
+      [eventItem],
+    );
 
     rateLimiter.updateRetryAfterLimits(
         '50:transaction:key, 2700:default;error;security:organization',
@@ -58,7 +62,9 @@ void main() {
     final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
 
     final envelope = SentryEnvelope(
-        SentryEnvelopeHeader.newEventId(), [eventItem]);
+      SentryEnvelopeHeader.newEventId(),
+      [eventItem],
+    );
 
     rateLimiter.updateRetryAfterLimits(
         '1:transaction:key, 1:default;error;security:organization', null, 1);
@@ -76,8 +82,10 @@ void main() {
     final rateLimiter = fixture.getSUT();
     fixture.dateTimeToReturn = 0;
     final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
-    final envelope =
-        SentryEnvelope(SentryEnvelopeHeader.newEventId(), [eventItem]);
+    final envelope = SentryEnvelope(
+      SentryEnvelopeHeader.newEventId(),
+      [eventItem],
+    );
 
     rateLimiter.updateRetryAfterLimits('50::key', null, 1);
 
@@ -91,8 +99,10 @@ void main() {
     final rateLimiter = fixture.getSUT();
     fixture.dateTimeToReturn = 0;
     final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
-    final envelope =
-        SentryEnvelope(SentryEnvelopeHeader.newEventId(), [eventItem]);
+    final envelope = SentryEnvelope(
+      SentryEnvelopeHeader.newEventId(),
+      [eventItem],
+    );
 
     rateLimiter.updateRetryAfterLimits(
         '1::key, 60:default;error;security:organization', null, 1);
@@ -108,8 +118,10 @@ void main() {
     final rateLimiter = fixture.getSUT();
     fixture.dateTimeToReturn = 0;
     final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
-    final envelope =
-        SentryEnvelope(SentryEnvelopeHeader.newEventId(), [eventItem]);
+    final envelope = SentryEnvelope(
+      SentryEnvelopeHeader.newEventId(),
+      [eventItem],
+    );
 
     rateLimiter.updateRetryAfterLimits(
         '60:error:key, 1:error:organization', null, 1);
@@ -124,8 +136,10 @@ void main() {
     final rateLimiter = fixture.getSUT();
     fixture.dateTimeToReturn = 0;
     final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
-    final envelope =
-        SentryEnvelope(SentryEnvelopeHeader.newEventId(), [eventItem]);
+    final envelope = SentryEnvelope(
+      SentryEnvelopeHeader.newEventId(),
+      [eventItem],
+    );
 
     rateLimiter.updateRetryAfterLimits(
         '1:error:key, 5:error:organization', null, 1);
@@ -140,8 +154,10 @@ void main() {
     final rateLimiter = fixture.getSUT();
     fixture.dateTimeToReturn = 0;
     final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
-    final envelope =
-        SentryEnvelope(SentryEnvelopeHeader.newEventId(), [eventItem]);
+    final envelope = SentryEnvelope(
+      SentryEnvelopeHeader.newEventId(),
+      [eventItem],
+    );
 
     rateLimiter.updateRetryAfterLimits(null, null, 429);
 
