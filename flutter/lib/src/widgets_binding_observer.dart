@@ -21,7 +21,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   SentryWidgetsBindingObserver({
     Hub? hub,
     required SentryFlutterOptions options,
-  })  : _hub = hub ?? HubAdapter(),
+  })   : _hub = hub ?? HubAdapter(),
         _options = options;
 
   final Hub _hub;
