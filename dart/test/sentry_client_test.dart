@@ -359,12 +359,12 @@ void main() {
     });
 
     test('should not apply the scope to non null event fields ', () async {
-      final transport = MockTransport();
-      final client = fixture.getSut(true, transport);
+      final client = fixture.getSut(true);
+      final scope = fixture.createScope(fixture.options);
 
-      await client.captureEvent(fixture.event, scope: fixture.scope);
+      await client.captureEvent(fixture.event, scope: scope);
 
-      final capturedEvent = transport.events.first;
+      final capturedEvent = fixture.transport.events.first;
       expect(capturedEvent.user!.id, fixture.eventUser.id);
       expect(capturedEvent.level!.name, SentryLevel.warning.name);
       expect(capturedEvent.transaction, fixture.eventTransaction);
@@ -373,17 +373,17 @@ void main() {
     });
 
     test('should apply the scope user to null event user fields ', () async {
-      final transport = MockTransport();
-      final client = fixture.getSut(true, transport);
+      final client = fixture.getSut(true);
+      final scope = fixture.createScope(fixture.options);
 
-      fixture.scope.user = SentryUser(id: '987');
+      scope.user = SentryUser(id: '987');
 
       var eventWithUser = fixture.event.copyWith(
         user: SentryUser(id: '123', username: 'foo bar'),
       );
-      await client.captureEvent(eventWithUser, scope: fixture.scope);
+      await client.captureEvent(eventWithUser, scope: scope);
 
-      final capturedEvent = transport.events.first;
+      final capturedEvent = fixture.transport.events.first;
 
       expect(capturedEvent.user!.id, '123');
       expect(capturedEvent.user!.username, 'foo bar');
@@ -394,10 +394,10 @@ void main() {
     });
 
     test('merge scope user and event user extra', () async {
-      final transport = MockTransport();
-      final client = fixture.getSut(true, transport);
+      final client = fixture.getSut(true);
+      final scope = fixture.createScope(fixture.options);
 
-      fixture.scope.user = SentryUser(
+      scope.user = SentryUser(
         id: 'id',
         extras: {
           'foo': 'bar',
@@ -414,9 +414,9 @@ void main() {
           },
         ),
       );
-      await client.captureEvent(eventWithUser, scope: fixture.scope);
+      await client.captureEvent(eventWithUser, scope: scope);
 
-      final capturedEvent = transport.events.first;
+      final capturedEvent = fixture.transport.events.first;
 
       expect(capturedEvent.user?.extras?['foo'], 'this bar is more important');
       expect(capturedEvent.user?.extras?['bar'], 'foo');
@@ -432,55 +432,52 @@ void main() {
     });
 
     test('sendDefaultPii is disabled', () async {
-      final transport = MockTransport();
-      final client = fixture.getSut(false, transport);
+      final client = fixture.getSut(false);
 
       await client.captureEvent(fakeEvent);
 
-      expect(transport.events.first.user, fakeEvent.user);
+      expect(fixture.transport.events.first.user, fakeEvent.user);
     });
 
     test('sendDefaultPii is enabled and event has no user', () async {
-      final transport = MockTransport();
-      final client = fixture.getSut(true, transport);
+      final client = fixture.getSut(true);
       var fakeEvent = SentryEvent();
 
       await client.captureEvent(fakeEvent);
 
-      expect(transport.events.length, 1);
-      expect(transport.events.first.user, isNotNull);
-      expect(transport.events.first.user?.ipAddress, '{{auto}}');
+      expect(fixture.transport.events.length, 1);
+      expect(fixture.transport.events.first.user, isNotNull);
+      expect(fixture.transport.events.first.user?.ipAddress, '{{auto}}');
     });
 
     test('sendDefaultPii is enabled and event has a user with IP address',
         () async {
-      final transport = MockTransport();
-      final client = fixture.getSut(true, transport);
+      final client = fixture.getSut(true);
 
       await client.captureEvent(fakeEvent);
 
-      expect(transport.events.length, 1);
-      expect(transport.events.first.user, isNotNull);
+      expect(fixture.transport.events.length, 1);
+      expect(fixture.transport.events.first.user, isNotNull);
       // fakeEvent has a user which is not null
-      expect(transport.events.first.user?.ipAddress, fakeEvent.user!.ipAddress);
-      expect(transport.events.first.user?.id, fakeEvent.user!.id);
-      expect(transport.events.first.user?.email, fakeEvent.user!.email);
+      expect(fixture.transport.events.first.user?.ipAddress,
+          fakeEvent.user!.ipAddress);
+      expect(fixture.transport.events.first.user?.id, fakeEvent.user!.id);
+      expect(fixture.transport.events.first.user?.email, fakeEvent.user!.email);
     });
 
     test('sendDefaultPii is enabled and event has a user without IP address',
         () async {
-      final transport = MockTransport();
-      final client = fixture.getSut(true, transport);
+      final client = fixture.getSut(true);
 
       final event = fakeEvent.copyWith(user: fakeUser);
 
       await client.captureEvent(event);
 
-      expect(transport.events.length, 1);
-      expect(transport.events.first.user, isNotNull);
-      expect(transport.events.first.user?.ipAddress, '{{auto}}');
-      expect(transport.events.first.user?.id, fakeUser.id);
-      expect(transport.events.first.user?.email, fakeUser.email);
+      expect(fixture.transport.events.length, 1);
+      expect(fixture.transport.events.first.user, isNotNull);
+      expect(fixture.transport.events.first.user?.ipAddress, '{{auto}}');
+      expect(fixture.transport.events.first.user?.id, fakeUser.id);
+      expect(fixture.transport.events.first.user?.email, fakeUser.email);
     });
   });
 
@@ -641,29 +638,7 @@ SentryEvent? eventProcessorDropEvent(SentryEvent event, {dynamic hint}) {
 }
 
 class Fixture {
-  Fixture() {
-    options = SentryOptions(dsn: fakeDsn);
-    options.transport = MockTransport();
-
-    scope = Scope(options)
-      ..user = user
-      ..transaction = transaction
-      ..fingerprint = fingerprint
-      ..addBreadcrumb(crumb);
-
-    event = SentryEvent(
-      level: SentryLevel.warning,
-      transaction: eventTransaction,
-      user: eventUser,
-      fingerprint: eventFingerprint,
-      breadcrumbs: eventCrumbs,
-    );
-  }
-
-  late SentryOptions options;
-  late Scope scope;
-  late SentryEvent event;
-
+  final MockTransport transport = MockTransport();
   final transaction = '/test/scope';
   final eventTransaction = '/event/transaction';
   final fingerprint = ['foo', 'bar', 'baz'];
@@ -673,11 +648,29 @@ class Fixture {
   final crumb = Breadcrumb(message: 'bread');
   final eventCrumbs = [Breadcrumb(message: 'bread')];
 
+  late SentryEvent event = SentryEvent(
+    level: SentryLevel.warning,
+    transaction: eventTransaction,
+    user: eventUser,
+    fingerprint: eventFingerprint,
+    breadcrumbs: eventCrumbs,
+  );
+
+  late SentryOptions options;
+
   /// Test Fixture for tests with [SentryOptions.sendDefaultPii]
-  SentryClient getSut(bool sendDefaultPii, Transport transport) {
-    var options = SentryOptions(dsn: fakeDsn);
+  SentryClient getSut(bool sendDefaultPii) {
+    options = SentryOptions(dsn: fakeDsn);
     options.sendDefaultPii = sendDefaultPii;
     options.transport = transport;
     return SentryClient(options);
+  }
+
+  Scope createScope(SentryOptions options) {
+    return Scope(options)
+      ..user = user
+      ..transaction = transaction
+      ..fingerprint = fingerprint
+      ..addBreadcrumb(crumb);
   }
 }
