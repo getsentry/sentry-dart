@@ -22,7 +22,10 @@ class WebEnricher implements Enricher {
 
   @override
   FutureOr<SentryEvent> apply(
-      SentryEvent event, bool hasNativeIntegration) async {
+    SentryEvent event,
+    bool hasNativeIntegration,
+    bool includePii,
+  ) async {
     // Web has no native integration, so no need to check for it
 
     final contexts = event.contexts.copyWith(

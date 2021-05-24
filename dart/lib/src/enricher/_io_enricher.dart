@@ -12,7 +12,11 @@ final Enricher instance = IoEnricher();
 /// class to read information.
 class IoEnricher implements Enricher {
   @override
-  FutureOr<SentryEvent> apply(SentryEvent event, bool hasNativeIntegration) {
+  FutureOr<SentryEvent> apply(
+    SentryEvent event,
+    bool hasNativeIntegration,
+    bool includePii,
+  ) {
     // If there's a native integration available, it probably has better
     // information available than Flutter.
     final os = hasNativeIntegration
@@ -27,7 +31,7 @@ class IoEnricher implements Enricher {
       runtimes: _getRuntimes(event.contexts.runtimes),
     );
 
-    contexts['dart_context'] = _getDartContext();
+    contexts['dart_context'] = _getDartContext(includePii);
 
     return event.copyWith(
       contexts: contexts,
@@ -50,18 +54,29 @@ class IoEnricher implements Enricher {
     ];
   }
 
-  Map<String, dynamic> _getDartContext() {
+  Map<String, dynamic> _getDartContext(bool includePii) {
     final args = Platform.executableArguments;
     final packageConfig = Platform.packageConfig;
+
+    String? executable;
+    if (includePii) {
+      try {
+        // This throws sometimes for some reason
+        executable = Platform.executable;
+      } catch (_) {}
+    }
 
     return <String, dynamic>{
       if (packageConfig != null) 'package_config': packageConfig,
       'number_of_processors': Platform.numberOfProcessors,
       // The following information could potentially contain PII
-      // 'executable': Platform.executable, // this throws sometimes for some reason
-      'resolved_executable': Platform.resolvedExecutable,
-      'script': Platform.script.toString(),
-      if (args.isNotEmpty) 'executable_arguments': Platform.executableArguments,
+      if (includePii) ...{
+        'executable': executable,
+        'resolved_executable': Platform.resolvedExecutable,
+        'script': Platform.script.toString(),
+        if (args.isNotEmpty)
+          'executable_arguments': Platform.executableArguments,
+      },
     };
   }
 

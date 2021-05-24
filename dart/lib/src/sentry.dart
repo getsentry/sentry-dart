@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'enricher/enricher.dart';
 import 'default_integrations.dart';
 import 'environment_variables.dart';
 import 'hub.dart';
@@ -67,6 +68,8 @@ class Sentry {
       // in the ‘root zone’ where all Dart programs start
       options.addIntegrationByIndex(0, IsolateErrorIntegration());
     }
+
+    options.addEventProcessor(enricherEventProcessor(options));
   }
 
   /// This method reads available environment variables and uses them

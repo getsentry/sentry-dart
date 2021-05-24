@@ -19,7 +19,7 @@ void main() {
 
     test('adds dart runtime', () async {
       var enricher = fixture.getSut();
-      final event = await enricher.apply(fixture.event, false);
+      final event = await enricher.apply(fixture.event, false, false);
 
       expect(event.contexts.runtimes, isNotEmpty);
       final dartRuntime = event.contexts.runtimes
@@ -29,7 +29,7 @@ void main() {
 
     test('adds browser runtime', () async {
       var enricher = fixture.getSut();
-      final event = await enricher.apply(fixture.event, false);
+      final event = await enricher.apply(fixture.event, false, false);
 
       expect(event.contexts.runtimes, isNotEmpty);
       final dartRuntime = event.contexts.runtimes
@@ -42,7 +42,7 @@ void main() {
       final runtime = SentryRuntime(name: 'foo', version: 'bar');
       var event = SentryEvent(contexts: Contexts(runtimes: [runtime]));
       var enricher = fixture.getSut();
-      event = await enricher.apply(event, false);
+      event = await enricher.apply(event, false, false);
 
       expect(event.contexts.runtimes.contains(runtime), true);
       expect(event.contexts.runtimes.length, 3);
@@ -50,7 +50,7 @@ void main() {
 
     test('adds device and os', () async {
       var enricher = fixture.getSut();
-      final event = await enricher.apply(fixture.event, false);
+      final event = await enricher.apply(fixture.event, false, false);
 
       expect(event.contexts.device, isNotNull);
       expect(event.contexts.operatingSystem, isNotNull);
@@ -58,7 +58,7 @@ void main() {
 
     test('device has timezone, screendensity', () async {
       var enricher = fixture.getSut();
-      final event = await enricher.apply(fixture.event, false);
+      final event = await enricher.apply(fixture.event, false, false);
 
       expect(event.contexts.device?.timezone, isNotNull);
       expect(event.contexts.device?.screenDensity, isNotNull);
@@ -66,7 +66,7 @@ void main() {
 
     test('os has name', () async {
       var enricher = fixture.getSut();
-      final event = await enricher.apply(fixture.event, false);
+      final event = await enricher.apply(fixture.event, false, false);
 
       expect(event.contexts.operatingSystem?.name, isNotNull);
     });

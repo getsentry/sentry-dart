@@ -19,7 +19,7 @@ void main() {
 
     test('adds dart runtime', () async {
       final enricher = fixture.getSut();
-      final event = await enricher.apply(fixture.event, false);
+      final event = await enricher.apply(fixture.event, false, false);
 
       expect(event.contexts.runtimes, isNotEmpty);
       final dartRuntime = event.contexts.runtimes
@@ -33,7 +33,7 @@ void main() {
       var event = SentryEvent(contexts: Contexts(runtimes: [runtime]));
       final enricher = fixture.getSut();
 
-      event = await enricher.apply(event, false);
+      event = await enricher.apply(event, false, false);
 
       expect(event.contexts.runtimes.contains(runtime), true);
       // second runtime is Dart runtime
@@ -43,7 +43,7 @@ void main() {
     test('does not add device and os if native integration is available',
         () async {
       final enricher = fixture.getSut();
-      final event = await enricher.apply(fixture.event, true);
+      final event = await enricher.apply(fixture.event, true, false);
 
       expect(event.contexts.device, isNull);
       expect(event.contexts.operatingSystem, isNull);
@@ -51,7 +51,7 @@ void main() {
 
     test('adds device and os if no native integration is available', () async {
       final enricher = fixture.getSut();
-      final event = await enricher.apply(fixture.event, false);
+      final event = await enricher.apply(fixture.event, false, false);
 
       expect(event.contexts.device, isNotNull);
       expect(event.contexts.operatingSystem, isNotNull);
@@ -59,7 +59,7 @@ void main() {
 
     test('device has language, name and timezone', () async {
       final enricher = fixture.getSut();
-      final event = await enricher.apply(fixture.event, false);
+      final event = await enricher.apply(fixture.event, false, false);
 
       expect(event.contexts.device?.language, isNotNull);
       expect(event.contexts.device?.name, isNotNull);
@@ -68,15 +68,15 @@ void main() {
 
     test('os has name and version', () async {
       final enricher = fixture.getSut();
-      final event = await enricher.apply(fixture.event, false);
+      final event = await enricher.apply(fixture.event, false, false);
 
       expect(event.contexts.operatingSystem?.name, isNotNull);
       expect(event.contexts.operatingSystem?.version, isNotNull);
     });
 
-    test('adds Dart context', () async {
+    test('adds Dart context with PII', () async {
       final enricher = fixture.getSut();
-      final event = await enricher.apply(fixture.event, false);
+      final event = await enricher.apply(fixture.event, false, true);
 
       final dartContext = event.contexts['dart_context'];
       expect(dartContext, isNotNull);
@@ -86,6 +86,20 @@ void main() {
       expect(dartContext['resolved_executable'], isNotNull);
       expect(dartContext['script'], isNotNull);
       // package_config and executable_arguments are optional
+    });
+
+    test('adds Dart context without PII', () async {
+      final enricher = fixture.getSut();
+      final event = await enricher.apply(fixture.event, false, false);
+
+      final dartContext = event.contexts['dart_context'];
+      expect(dartContext, isNotNull);
+      expect(dartContext['number_of_processors'], isNotNull);
+      expect(dartContext['executable'], isNull);
+      expect(dartContext['resolved_executable'], isNull);
+      expect(dartContext['script'], isNull);
+      // package_config and executable_arguments are optional
+      // and Platform is not mockable
     });
   });
 }

@@ -37,14 +37,17 @@ class FlutterEnricher implements Enricher {
 
   @override
   FutureOr<SentryEvent> apply(
-      SentryEvent event, bool hasNativeIntegration) async {
+    SentryEvent event,
+    bool hasNativeIntegration,
+    bool includePii,
+  ) async {
     // Flutter for Web does not need a special case.
     // It's already covered by _dartEnricher.
 
     // First use _dartEnricher.
     // In case we have even better information available in Flutter
     // we override what's already given by _dartEnricher.
-    event = await _dartEnricher.apply(event, hasNativeIntegration);
+    event = await _dartEnricher.apply(event, hasNativeIntegration, includePii);
 
     // If there's a native integration available, it probably has better
     // information available than Flutter.
@@ -76,7 +79,7 @@ class FlutterEnricher implements Enricher {
   /// - Only packages with licenses are known
   /// - No version information is available
   /// - Flutter's native dependencies are also included.
-  Future<Map<String, String>> _getPackages() async {
+  FutureOr<Map<String, String>> _getPackages() async {
     if (_packages.isEmpty) {
       // This can take some time.
       // Therefore we cache this after running

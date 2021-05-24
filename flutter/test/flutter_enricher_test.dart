@@ -22,7 +22,7 @@ void main() {
         enricher: fixture.mockEnricher,
       );
 
-      enricher.apply(fixture.event, true);
+      enricher.apply(fixture.event, true, false);
 
       expect(fixture.mockEnricher.calls.length, 1);
       expect(fixture.mockEnricher.calls.first.event, fixture.event);
@@ -34,7 +34,7 @@ void main() {
         binding: () => tester.binding,
       );
 
-      final event = await enricher.apply(fixture.event, false);
+      final event = await enricher.apply(fixture.event, false, false);
 
       final flutterContext = event.contexts['flutter_context'];
       expect(flutterContext, isNotNull);
@@ -45,7 +45,7 @@ void main() {
         binding: () => tester.binding,
       );
 
-      final event = await enricher.apply(fixture.event, false);
+      final event = await enricher.apply(fixture.event, false, false);
 
       final accessibility = event.contexts['accessibility'];
 
@@ -62,7 +62,7 @@ void main() {
         binding: () => tester.binding,
       );
 
-      final event = await enricher.apply(fixture.event, false);
+      final event = await enricher.apply(fixture.event, false, false);
 
       final culture = event.contexts['culture'];
 
@@ -76,7 +76,7 @@ void main() {
         binding: () => tester.binding,
       );
 
-      final event = await enricher.apply(fixture.event, true);
+      final event = await enricher.apply(fixture.event, true, false);
 
       expect(event.contexts.device, isNull);
     });
@@ -87,7 +87,7 @@ void main() {
         binding: () => tester.binding,
       );
 
-      final event = await enricher.apply(fixture.event, false);
+      final event = await enricher.apply(fixture.event, false, false);
 
       expect(event.contexts.device, isNotNull);
     });
@@ -97,7 +97,7 @@ void main() {
         binding: () => tester.binding,
       );
 
-      final event = await enricher.apply(fixture.event, false);
+      final event = await enricher.apply(fixture.event, false, false);
 
       final flutterRuntime = event.contexts.runtimes
           .firstWhere((element) => element.name == 'Flutter');
@@ -121,7 +121,7 @@ void main() {
           checker: pair.key,
         );
 
-        final event = await enricher.apply(SentryEvent(), false);
+        final event = await enricher.apply(SentryEvent(), false, false);
         final flutterRuntime = event.contexts.runtimes
             .firstWhere((element) => element.name == 'Flutter');
 
@@ -149,7 +149,7 @@ void main() {
         ),
       );
 
-      final event = await enricher.apply(fixture.event, false);
+      final event = await enricher.apply(fixture.event, false, false);
 
       expect(event.modules, {
         'foo_package': 'unknown',
@@ -176,7 +176,7 @@ void main() {
         ),
       );
 
-      final event = await enricher.apply(fixture.event, false);
+      final event = await enricher.apply(fixture.event, false, false);
 
       expect(event.modules, {'foo_package': 'unknown'});
     });
@@ -203,17 +203,22 @@ class MockEnricher implements Enricher {
   final List<ApplyCalls> calls = [];
 
   @override
-  FutureOr<SentryEvent> apply(SentryEvent event, bool hasNativeIntegration) {
-    calls.add(ApplyCalls(event, hasNativeIntegration));
+  FutureOr<SentryEvent> apply(
+    SentryEvent event,
+    bool hasNativeIntegration,
+    bool includePii,
+  ) {
+    calls.add(ApplyCalls(event, hasNativeIntegration, includePii));
     return event;
   }
 }
 
 class ApplyCalls {
-  ApplyCalls(this.event, this.hasNativeIntegration);
+  ApplyCalls(this.event, this.hasNativeIntegration, this.includePii);
 
   final SentryEvent event;
   final bool hasNativeIntegration;
+  final bool includePii;
 }
 
 class MockPlatformChecker implements PlatformChecker {
