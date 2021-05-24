@@ -33,7 +33,7 @@ class FlutterEnricher implements Enricher {
   final PlatformChecker _checker;
   final Enricher _dartEnricher;
   SingletonFlutterWindow get _window => _widgetsBinding.window;
-  final List<String> _packages = [];
+  Map<String, String> _packages = {};
 
   @override
   FutureOr<SentryEvent> apply(
@@ -64,25 +64,36 @@ class FlutterEnricher implements Enricher {
 
     contexts['culture'] = _getCulture();
 
-    contexts['packages'] = await _getPackages();
-
     return event.copyWith(
       contexts: contexts,
+      modules: await _getPackages(),
     );
   }
 
-  Future<Map<String, dynamic>> _getPackages() async {
+  /// Packages are loaded from [LicenseRegistry].
+  /// This is currently the only way to know which packages are used.
+  /// This however has some drawbacks:
+  /// - Only packages with licenses are known
+  /// - No version information is available
+  /// - Flutter's native dependencies are also included.
+  Future<Map<String, String>> _getPackages() async {
     if (_packages.isEmpty) {
       // This can take some time.
       // Therefore we cache this after running
       var packages = <String>{};
-      await LicenseRegistry.licenses
-          .forEach((entry) => packages.addAll(entry.packages.toList()));
-      _packages.addAll(packages);
+      await LicenseRegistry.licenses.forEach(
+        (entry) => packages.addAll(
+          entry.packages.toList(),
+        ),
+      );
+
+      _packages = Map.fromEntries(
+        packages.map(
+          (e) => MapEntry(e, 'unknown'),
+        ),
+      );
     }
-    return <String, dynamic>{
-      'packages': _packages,
-    };
+    return _packages;
   }
 
   Map<String, dynamic> _getCulture() {
