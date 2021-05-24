@@ -59,12 +59,11 @@ class WebEnricher implements Enricher {
     // like Flutter: https://flutter.dev/docs/testing/build-modes
     final dartRuntime = SentryRuntime(
       name: 'Dart',
-      rawDescription: 'Dart on browser',
     );
 
     final browserRuntime = SentryRuntime(
       name: 'Browser',
-      version: _window.navigator.userAgent,
+      rawDescription: _window.navigator.userAgent,
     );
     return [
       if (runtimes?.isNotEmpty ?? false) ...runtimes!,

@@ -102,23 +102,17 @@ void main() {
       final flutterRuntime = event.contexts.runtimes
           .firstWhere((element) => element.name == 'Flutter');
       expect(flutterRuntime.name, 'Flutter');
-      expect(flutterRuntime.rawDescription, isNotNull);
+      expect(flutterRuntime.compiler, isNotNull);
     });
 
     testWidgets('adds correct flutter runtime', (WidgetTester tester) async {
       final checkerMap = {
-        MockPlatformChecker(isWebValue: false, isDebug: true):
-            'Flutter with Dart VM',
-        MockPlatformChecker(isWebValue: false, isProfile: true):
-            'Flutter with Dart AOT',
-        MockPlatformChecker(isWebValue: false, isRelease: true):
-            'Flutter with Dart AOT',
-        MockPlatformChecker(isWebValue: true, isDebug: true):
-            'Flutter with dartdevc',
-        MockPlatformChecker(isWebValue: true, isProfile: true):
-            'Flutter with dart2js',
-        MockPlatformChecker(isWebValue: true, isRelease: true):
-            'Flutter with dart2js',
+        MockPlatformChecker(isWebValue: false, isDebug: true): 'Dart VM',
+        MockPlatformChecker(isWebValue: false, isProfile: true): 'Dart AOT',
+        MockPlatformChecker(isWebValue: false, isRelease: true): 'Dart AOT',
+        MockPlatformChecker(isWebValue: true, isDebug: true): 'dartdevc',
+        MockPlatformChecker(isWebValue: true, isProfile: true): 'dart2js',
+        MockPlatformChecker(isWebValue: true, isRelease: true): 'dart2js',
       };
 
       for (var pair in checkerMap.entries) {
@@ -132,7 +126,7 @@ void main() {
             .firstWhere((element) => element.name == 'Flutter');
 
         expect(flutterRuntime.name, 'Flutter');
-        expect(flutterRuntime.rawDescription, pair.value);
+        expect(flutterRuntime.compiler, pair.value);
       }
     });
 
@@ -157,10 +151,10 @@ void main() {
 
       final event = await enricher.apply(fixture.event, false);
 
-      expect(event.contexts['packages']?['packages'], [
-        'foo_package',
-        'bar_package',
-      ]);
+      expect(event.modules, {
+        'foo_package': 'unknown',
+        'bar_package': 'unknown',
+      });
     });
 
     testWidgets('adds packages only once', (WidgetTester tester) async {
@@ -184,7 +178,7 @@ void main() {
 
       final event = await enricher.apply(fixture.event, false);
 
-      expect(event.contexts['packages']?['packages'], ['foo_package']);
+      expect(event.modules, {'foo_package': 'unknown'});
     });
   });
 }

@@ -164,28 +164,28 @@ class FlutterEnricher implements Enricher {
   }
 
   List<SentryRuntime> _getRuntimes(List<SentryRuntime>? runtimes) {
-    var flutterRuntimeDescription = '';
+    var compiler = '';
 
     // See
     // - https://flutter.dev/docs/testing/build-modes
     // - https://github.com/flutter/flutter/wiki/Flutter%27s-modes
     if (_checker.isWeb) {
       if (_checker.isDebugMode()) {
-        flutterRuntimeDescription = 'Flutter with dartdevc';
+        compiler = 'dartdevc';
       } else if (_checker.isReleaseMode() || _checker.isProfileMode()) {
-        flutterRuntimeDescription = 'Flutter with dart2js';
+        compiler = 'dart2js';
       }
     } else {
       if (_checker.isDebugMode()) {
-        flutterRuntimeDescription = 'Flutter with Dart VM';
+        compiler = 'Dart VM';
       } else if (_checker.isReleaseMode() || _checker.isProfileMode()) {
-        flutterRuntimeDescription = 'Flutter with Dart AOT';
+        compiler = 'Dart AOT';
       }
     }
 
     final flutterRuntime = SentryRuntime(
       name: 'Flutter',
-      rawDescription: flutterRuntimeDescription,
+      compiler: compiler,
     );
 
     return [

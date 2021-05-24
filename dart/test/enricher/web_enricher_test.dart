@@ -23,9 +23,8 @@ void main() {
 
       expect(event.contexts.runtimes, isNotEmpty);
       final dartRuntime = event.contexts.runtimes
-          .firstWhere((element) => element.name == 'Dart');
+          .firstWhere((element) => element.name == 'Dart') as SentryRuntime;
       expect(dartRuntime.name, 'Dart');
-      expect(dartRuntime.rawDescription, 'Dart on browser');
     });
 
     test('adds browser runtime', () async {
@@ -34,9 +33,9 @@ void main() {
 
       expect(event.contexts.runtimes, isNotEmpty);
       final dartRuntime = event.contexts.runtimes
-          .firstWhere((element) => element.name == 'Browser');
+          .firstWhere((element) => element.name == 'Browser') as SentryRuntime;
       expect(dartRuntime.name, 'Browser');
-      expect(dartRuntime.version, isNotNull);
+      expect(dartRuntime.rawDescription, isNotNull);
     });
 
     test('does add to existing runtimes', () async {
