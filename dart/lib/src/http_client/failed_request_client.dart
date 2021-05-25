@@ -13,7 +13,7 @@ import '../hub_adapter.dart';
 /// - In an mobile or desktop application this can be requests which failed
 ///   because the connection was interrupted.
 ///
-/// Additionally you can configre specific HTTP response codes to be consideres
+/// Additionally you can configure specific HTTP response codes to be considered
 /// as a failed request. In the following example, the status codes 404 and 500
 /// are considered a failed request.
 ///
