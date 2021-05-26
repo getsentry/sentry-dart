@@ -3,37 +3,66 @@ import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('copyWith keeps unchanged', () {
-    final data = _generate();
+  final sentryStackTrace = SentryStackTrace(
+    frames: [SentryStackFrame(absPath: 'abs')],
+    registers: {'key': 'value'},
+  );
 
-    final copy = data.copyWith();
+  final sentryStackTraceJson = <String, dynamic>{
+    'frames': [
+      {'abs_path': 'abs'}
+    ],
+    'registers': {'key': 'value'},
+  };
 
-    expect(data.toJson(), copy.toJson());
+  group('json', () {
+    test('toJson', () {
+      final json = sentryStackTrace.toJson();
+
+      expect(
+        DeepCollectionEquality().equals(sentryStackTraceJson, json),
+        true,
+      );
+    });
+    test('fromJson', () {
+      final sentryStackTrace = SentryStackTrace.fromJson(sentryStackTraceJson);
+      final json = sentryStackTrace.toJson();
+
+      expect(
+        DeepCollectionEquality().equals(sentryStackTraceJson, json),
+        true,
+      );
+    });
   });
 
-  test('copyWith takes new values', () {
-    final data = _generate();
+  group('copyWith', () {
+    test('copyWith keeps unchanged', () {
+      final data = sentryStackTrace;
 
-    final frames = [SentryStackFrame(absPath: 'abs1')];
-    final registers = {'key1': 'value1'};
+      final copy = data.copyWith();
 
-    final copy = data.copyWith(
-      frames: frames,
-      registers: registers,
-    );
+      expect(data.toJson(), copy.toJson());
+    });
 
-    expect(
-      ListEquality().equals(frames, copy.frames),
-      true,
-    );
-    expect(
-      MapEquality().equals(registers, copy.registers),
-      true,
-    );
+    test('copyWith takes new values', () {
+      final data = sentryStackTrace;
+
+      final frames = [SentryStackFrame(absPath: 'abs1')];
+      final registers = {'key1': 'value1'};
+
+      final copy = data.copyWith(
+        frames: frames,
+        registers: registers,
+      );
+
+      expect(
+        ListEquality().equals(frames, copy.frames),
+        true,
+      );
+      expect(
+        MapEquality().equals(registers, copy.registers),
+        true,
+      );
+    });
   });
 }
-
-SentryStackTrace _generate() => SentryStackTrace(
-      frames: [SentryStackFrame(absPath: 'abs')],
-      registers: {'key': 'value'},
-    );

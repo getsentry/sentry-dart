@@ -3,31 +3,31 @@ import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
 void main() {
-  final sentryPackage = SentryPackage(
-    'name',
-    'version',
+  final sentryBrowser = SentryBrowser(
+    name: 'fixture-name',
+    version: 'fixture-version',
   );
 
-  final sentryPackageJson = <String, dynamic>{
-    'name': 'name',
-    'version': 'version',
+  final sentryBrowserJson = <String, dynamic>{
+    'name': 'fixture-name',
+    'version': 'fixture-version',
   };
 
   group('json', () {
     test('toJson', () {
-      final json = sentryPackage.toJson();
+      final json = sentryBrowser.toJson();
 
       expect(
-        MapEquality().equals(sentryPackageJson, json),
+        MapEquality().equals(sentryBrowserJson, json),
         true,
       );
     });
     test('fromJson', () {
-      final sentryPackage = SdkVersion.fromJson(sentryPackageJson);
-      final json = sentryPackage.toJson();
+      final sentryBrowser = SentryBrowser.fromJson(sentryBrowserJson);
+      final json = sentryBrowser.toJson();
 
       expect(
-        MapEquality().equals(sentryPackageJson, json),
+        MapEquality().equals(sentryBrowserJson, json),
         true,
       );
     });
@@ -35,7 +35,7 @@ void main() {
 
   group('copyWith', () {
     test('copyWith keeps unchanged', () {
-      final data = sentryPackage;
+      final data = sentryBrowser;
 
       final copy = data.copyWith();
 
@@ -44,8 +44,9 @@ void main() {
         true,
       );
     });
+
     test('copyWith takes new values', () {
-      final data = sentryPackage;
+      final data = sentryBrowser;
 
       final copy = data.copyWith(
         name: 'name1',

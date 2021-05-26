@@ -19,6 +19,9 @@ class SentryEnvelopeItemHeader {
     if (contentType != null) {
       json['content_type'] = contentType;
     }
+    if (fileName != null) {
+      json['filename'] = fileName;
+    }
     json['type'] = type;
     json['length'] = await length();
     return json;

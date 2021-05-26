@@ -11,7 +11,7 @@ class SentryEnvelopeItem {
   /// Header with info about type and length of data in bytes.
   final SentryEnvelopeItemHeader header;
 
-  /// Create binary data representation of item JSON encoded in utf8.
+  /// Create binary data representation of item data.
   final Future<List<int>> Function() dataFactory;
 
   /// Create an `SentryEnvelopeItem` which holds the `SentyEvent` data.
@@ -31,7 +31,7 @@ class SentryEnvelopeItem {
         cachedItem.getData);
   }
 
-  /// Stream binary data of `Envelope` item encoded in utf8.
+  /// Stream binary data of `Envelope` item.
   Stream<List<int>> envelopeItemStream() async* {
     yield utf8.encode(jsonEncode(await header.toJson()));
     yield utf8.encode('\n');

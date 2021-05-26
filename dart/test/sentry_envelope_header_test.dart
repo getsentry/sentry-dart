@@ -3,7 +3,7 @@ import 'package:sentry/src/sentry_envelope_header.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('SentryEnvelopeItemHeader', () {
+  group('SentryEnvelopeHeader', () {
     test('toJson empty', () {
       final sut = SentryEnvelopeHeader(null, null);
       final expected = <String, dynamic>{};

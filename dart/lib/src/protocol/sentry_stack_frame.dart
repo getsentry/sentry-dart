@@ -108,6 +108,32 @@ class SentryStackFrame {
   /// The original function name, if the function name is shortened or demangled. Sentry shows the raw function when clicking on the shortened one in the UI.
   final String? rawFunction;
 
+  /// Deserializes a [SentryStackFrame] from JSON [Map].
+  factory SentryStackFrame.fromJson(Map<String, dynamic> json) {
+    return SentryStackFrame(
+      absPath: json['abs_path'],
+      fileName: json['filename'],
+      function: json['function'],
+      module: json['module'],
+      lineNo: json['lineno'],
+      colNo: json['colno'],
+      contextLine: json['context_line'],
+      inApp: json['in_app'],
+      package: json['package'],
+      native: json['native'],
+      platform: json['platform'],
+      imageAddr: json['image_addr'],
+      symbolAddr: json['symbol_addr'],
+      instructionAddr: json['instruction_addr'],
+      rawFunction: json['raw_function'],
+      framesOmitted: json['frames_omitted'],
+      preContext: json['pre_context'],
+      postContext: json['post_context'],
+      vars: json['vars'],
+    );
+  }
+
+  /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 
@@ -161,10 +187,6 @@ class SentryStackFrame {
 
     if (inApp != null) {
       json['in_app'] = inApp;
-    }
-
-    if (package != null) {
-      json['package'] = package;
     }
 
     if (native != null) {

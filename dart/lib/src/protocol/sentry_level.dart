@@ -15,6 +15,20 @@ class SentryLevel {
   final String name;
   final int ordinal;
 
+  factory SentryLevel.fromName(String name) {
+    switch (name) {
+      case 'fatal':
+        return SentryLevel.fatal;
+      case 'error':
+        return SentryLevel.error;
+      case 'warning':
+        return SentryLevel.warning;
+      case 'info':
+        return SentryLevel.info;
+    }
+    return SentryLevel.debug;
+  }
+
   /// For use with Dart's
   /// [`log`](https://api.dart.dev/stable/2.12.4/dart-developer/log.html)
   /// function.

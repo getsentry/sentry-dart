@@ -1,5 +1,7 @@
 # Unreleased
 
+* Feature: Envelope Only Transport API #426 (#463)
+
 # 5.1.0-beta.1
 
 * Fix: `Sentry.close()` closes native SDK integrations (#388)
@@ -25,7 +27,7 @@
 ## Breaking Changes:
 
 * Feat: Support envelope based transport for events (#391)
-  * The method signature of `Transport` changed from `Future<SentryId> send(SentryEvent event)` to `Future<SentryId> sendSentryEvent(SentryEvent event)`
+  * The method signature of `Transport` changed from `Future<SentryId> send(SentryEvent event)` to `Future<SentryId> send(SentryEnvelope envelope)`
 
 ## Sentry Self Hosted Compatibility
 

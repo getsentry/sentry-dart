@@ -10,7 +10,7 @@ import 'package:sentry/src/protocol/sentry_id.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('SentryEnvelopeItem', () {
+  group('SentryEnvelope', () {
     test('serialize', () async {
       final eventId = SentryId.newId();
 
