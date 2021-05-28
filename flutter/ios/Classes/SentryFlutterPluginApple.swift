@@ -263,10 +263,8 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             result(FlutterError(code: "2", message: "Envelope is null or empty", details: nil))
             return
         }
-        // We need to replace this when we have the possibility to access envelope deserialization.
-        guard let sentrySerialization = NSClassFromString("SentrySerialization") as? NSObject.Type,
-            let unmanaged = sentrySerialization.perform(NSSelectorFromString("envelopeWithData:"), with: data),
-            let envelope = unmanaged.takeUnretainedValue() as? SentryEnvelope else {
+
+        guard let envelope = PrivateSentrySDKOnly.envelope(with: data) else {
             print("Cannot parse the envelope data")
             result(FlutterError(code: "3", message: "Cannot parse the envelope data", details: nil))
             return
