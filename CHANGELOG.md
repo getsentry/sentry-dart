@@ -1,6 +1,10 @@
 # Unreleased
 
+## Breaking Changes:
+
+* Feat: Support envelope based transport for events (#391)
 * Feature: Envelope Only Transport API #426 (#463)
+  * The method signature of `Transport` changed from `Future<SentryId> send(SentryEvent event)` to `Future<SentryId> send(SentryEnvelope envelope)`
 
 # 5.1.0-beta.1
 
@@ -23,11 +27,6 @@
 * Bump: sentry-android to v5.0.0-beta.2 (#457)
 * Feature: Add `withScope` callback to capture methods (#463)
 * Fix: Add missing properties `language`, `screenHeightPixels` and `screenWidthPixels` to `SentryDevice` (#465)
-
-## Breaking Changes:
-
-* Feat: Support envelope based transport for events (#391)
-  * The method signature of `Transport` changed from `Future<SentryId> send(SentryEvent event)` to `Future<SentryId> send(SentryEnvelope envelope)`
 
 ## Sentry Self Hosted Compatibility
 
