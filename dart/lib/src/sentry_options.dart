@@ -136,6 +136,15 @@ class SentryOptions {
   /// example : ['sentry'] will include exception from 'package:sentry/sentry.dart'
   List<String> get inAppIncludes => List.unmodifiable(_inAppIncludes);
 
+  /// Configures wether stack trace frames are considered in app frames as default.
+  /// You can use this to essentially make [inAppIncludes] or [inAppExcludes]
+  /// a white or black list.
+  /// This value is only used if Sentry can not find the frames origin.
+  ///
+  /// E.g. if [isStackFrameInAppDefault] is true you only need to maintain
+  /// [inAppExcludes].
+  bool isStackFrameInAppDefault = true;
+
   /// The transport is an internal construct of the client that abstracts away the event sending.
   Transport transport = NoOpTransport();
 

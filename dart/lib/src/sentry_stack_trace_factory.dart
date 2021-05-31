@@ -17,7 +17,6 @@ class SentryStackTraceFactory {
 
   /// returns the [SentryStackFrame] list from a stackTrace ([StackTrace] or [String])
   List<SentryStackFrame> getStackFrames(dynamic stackTrace) {
-    // TODO : fix : in release mode on Safari passing a stacktrace object fails, but works if it's passed as String
     final chain = (stackTrace is StackTrace)
         ? Chain.forTrace(stackTrace)
         : (stackTrace is String)
@@ -64,8 +63,10 @@ class SentryStackTraceFactory {
 
   /// converts [Frame] to [SentryStackFrame]
   @visibleForTesting
-  SentryStackFrame? encodeStackTraceFrame(Frame frame,
-      {bool symbolicated = true}) {
+  SentryStackFrame? encodeStackTraceFrame(
+    Frame frame, {
+    bool symbolicated = true,
+  }) {
     final member = frame.member;
 
     SentryStackFrame? sentryStackFrame;
@@ -147,26 +148,32 @@ class SentryStackTraceFactory {
     final scheme = frame.uri.scheme;
 
     if (scheme.isEmpty) {
-      return true;
+      // Early bail out.
+      return _options.isStackFrameInAppDefault;
     }
+    // The following code depends on the scheme being set.
 
-    for (final include in _options.inAppIncludes) {
-      if (frame.package != null && frame.package == include) {
+    final package = frame.package;
+    if (package != null) {
+      if (_options.inAppIncludes.contains(package)) {
         return true;
       }
-    }
 
-    for (final exclude in _options.inAppExcludes) {
-      if (frame.package != null && frame.package == exclude) {
+      if (_options.inAppExcludes.contains(package)) {
         return false;
       }
     }
 
-    if (frame.isCore ||
-        (frame.uri.scheme == 'package' && frame.package == 'flutter')) {
+    if (frame.isCore) {
+      // This is a Dart frame
       return false;
     }
 
-    return true;
+    if (frame.package == 'flutter') {
+      // This is a Flutter frame
+      return false;
+    }
+
+    return _options.isStackFrameInAppDefault;
   }
 }

@@ -31,7 +31,7 @@ void main() {
       );
     });
 
-    test('cleanses absolute paths', () {
+    test('cleanes absolute paths', () {
       final frame = Frame(Uri.parse('file://foo/bar/baz.dart'), 1, 2, 'buzz');
       expect(
         SentryStackTraceFactory(SentryOptions(dsn: fakeDsn))
@@ -87,6 +87,31 @@ void main() {
               .encodeStackTraceFrame(frame)!
               .toJson();
       expect(serializedFrame['in_app'], true);
+    });
+
+    test('uses default value from options', () {
+      // The following frame meets the following conditions:
+      // - frame.uri.scheme is empty
+      // - frame.package is null
+      // These conditions triggers the default value being used
+      final frame = Frame.parseVM('#0 Foo (async/future.dart:0:0)');
+
+      // default is true
+      final options = SentryOptions(dsn: fakeDsn)
+        ..isStackFrameInAppDefault = true;
+
+      var serializedFrame =
+          SentryStackTraceFactory(options).encodeStackTraceFrame(frame)!;
+
+      expect(serializedFrame.inApp, true);
+
+      // make sure the inverse also applies
+      options.isStackFrameInAppDefault = false;
+
+      serializedFrame =
+          SentryStackTraceFactory(options).encodeStackTraceFrame(frame)!;
+
+      expect(serializedFrame.inApp, false);
     });
   });
 

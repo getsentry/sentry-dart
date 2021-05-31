@@ -1,6 +1,7 @@
 # Unreleased
 
 * Fix: Merge user from event and scope (#467)
+* Feature: Allow setting of default values for in-app-frames via `SentryOptions.isStackFrameInAppDefault`
 
 # 5.1.0-beta.1
 
