@@ -138,8 +138,8 @@ class SentryOptions {
 
   /// Configures wether stack trace frames are considered in app frames as default.
   /// You can use this to essentially make [inAppIncludes] or [inAppExcludes]
-  /// a white or black list.
-  /// This value is only used if Sentry can not find the frames origin.
+  /// an allow or deny list.
+  /// This value is only used if Sentry can not find the origin of the frame.
   ///
   /// E.g. if [isStackFrameInAppDefault] is true you only need to maintain
   /// [inAppExcludes].
