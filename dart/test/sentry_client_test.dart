@@ -152,11 +152,7 @@ void main() {
     var options = SentryOptions(dsn: fakeDsn);
 
     Error error;
-    final stackTrace = '''
-#0      baz (file:///pathto/test.dart:50:3)
-<asynchronous suspension>
-#1      bar (file:///pathto/test.dart:46:9)
-      ''';
+    StackTrace stackTrace;
 
     setUp(() {
       options = SentryOptions(dsn: fakeDsn);
@@ -166,8 +162,9 @@ void main() {
     test('should capture error', () async {
       try {
         throw StateError('Error');
-      } on Error catch (err) {
+      } on Error catch (err, stack) {
         error = err;
+        stackTrace = stack;
       }
 
       final client = SentryClient(options);
@@ -179,8 +176,6 @@ void main() {
 
       expect(capturedEvent.exception is SentryException, true);
       expect(capturedEvent.exception!.stackTrace, isNotNull);
-      expect(capturedEvent.exception!.stackTrace!.frames.first.lineNo, 46);
-      expect(capturedEvent.exception!.stackTrace!.frames.first.colNo, 9);
     });
   });
 
@@ -387,19 +382,18 @@ void main() {
   });
 
   group('SentryClient : apply partial scope to the captured event', () {
-    var options = SentryOptions(dsn: fakeDsn);
-    var scope = Scope(options);
+    late Fixture fixture;
 
     final transaction = '/test/scope';
     final eventTransaction = '/event/transaction';
-    const fingerprint = ['foo', 'bar', 'baz'];
-    const eventFingerprint = ['123', '456', '798'];
+    final fingerprint = ['foo', 'bar', 'baz'];
+    final eventFingerprint = ['123', '456', '798'];
     final user = SentryUser(id: '123');
-    final eventUser = SentryUser(id: '987');
     final crumb = Breadcrumb(message: 'bread');
+    final eventUser = SentryUser(id: '987');
     final eventCrumbs = [Breadcrumb(message: 'bread')];
 
-    final event = SentryEvent(
+    late final event = SentryEvent(
       level: SentryLevel.warning,
       transaction: eventTransaction,
       user: eventUser,
@@ -407,22 +401,25 @@ void main() {
       breadcrumbs: eventCrumbs,
     );
 
-    setUp(() {
-      options = SentryOptions(dsn: fakeDsn);
-      options.transport = MockTransport();
-      scope = Scope(options)
+    Scope createScope(SentryOptions options) {
+      return Scope(options)
         ..user = user
         ..transaction = transaction
         ..fingerprint = fingerprint
         ..addBreadcrumb(crumb);
+    }
+
+    setUp(() {
+      fixture = Fixture();
     });
 
     test('should not apply the scope to non null event fields ', () async {
-      final client = SentryClient(options);
+      final client = fixture.getSut(sendDefaultPii: true);
+      final scope = createScope(fixture.options);
+
       await client.captureEvent(event, scope: scope);
 
-      final capturedEnvelope =
-          (options.transport as MockTransport).envelopes.first;
+      final capturedEnvelope = fixture.transport.envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
       expect(capturedEvent.user!.id, eventUser.id);
@@ -431,6 +428,60 @@ void main() {
       expect(capturedEvent.fingerprint, eventFingerprint);
       expect(capturedEvent.breadcrumbs?.map((e) => e.toJson()),
           eventCrumbs.map((e) => e.toJson()));
+    });
+
+    test('should apply the scope user to null event user fields ', () async {
+      final client = fixture.getSut(sendDefaultPii: true);
+      final scope = createScope(fixture.options);
+
+      scope.user = SentryUser(id: '987');
+
+      var eventWithUser = event.copyWith(
+        user: SentryUser(id: '123', username: 'foo bar'),
+      );
+      await client.captureEvent(eventWithUser, scope: scope);
+
+      final capturedEnvelope = fixture.transport.envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect(capturedEvent.user!.id, '123');
+      expect(capturedEvent.user!.username, 'foo bar');
+      expect(capturedEvent.level!.name, SentryLevel.warning.name);
+      expect(capturedEvent.transaction, eventTransaction);
+      expect(capturedEvent.fingerprint, eventFingerprint);
+      expect(capturedEvent.breadcrumbs?.map((e) => e.toJson()),
+          eventCrumbs.map((e) => e.toJson()));
+    });
+
+    test('merge scope user and event user extra', () async {
+      final client = fixture.getSut(sendDefaultPii: true);
+      final scope = createScope(fixture.options);
+
+      scope.user = SentryUser(
+        id: 'id',
+        extras: {
+          'foo': 'bar',
+          'bar': 'foo',
+        },
+      );
+
+      var eventWithUser = event.copyWith(
+        user: SentryUser(
+          id: 'id',
+          extras: {
+            'foo': 'this bar is more important',
+            'event': 'Really important event'
+          },
+        ),
+      );
+      await client.captureEvent(eventWithUser, scope: scope);
+
+      final capturedEnvelope = fixture.transport.envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect(capturedEvent.user?.extras?['foo'], 'this bar is more important');
+      expect(capturedEvent.user?.extras?['bar'], 'foo');
+      expect(capturedEvent.user?.extras?['event'], 'Really important event');
     });
   });
 
@@ -442,43 +493,40 @@ void main() {
     });
 
     test('sendDefaultPii is disabled', () async {
-      final transport = MockTransport();
-      final client = fixture.getSut(transport, sendDefaultPii: false);
+      final client = fixture.getSut(sendDefaultPii: false);
 
       await client.captureEvent(fakeEvent);
 
-      final capturedEnvelope = transport.envelopes.first;
+      final capturedEnvelope = fixture.transport.envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
       expect(capturedEvent.user?.toJson(), fakeEvent.user?.toJson());
     });
 
     test('sendDefaultPii is enabled and event has no user', () async {
-      final transport = MockTransport();
-      final client = fixture.getSut(transport, sendDefaultPii: true);
+      final client = fixture.getSut(sendDefaultPii: true);
       var fakeEvent = SentryEvent();
 
       await client.captureEvent(fakeEvent);
 
-      final capturedEnvelope = transport.envelopes.first;
+      final capturedEnvelope = fixture.transport.envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(transport.envelopes.length, 1);
+      expect(fixture.transport.envelopes.length, 1);
       expect(capturedEvent.user, isNotNull);
       expect(capturedEvent.user?.ipAddress, '{{auto}}');
     });
 
     test('sendDefaultPii is enabled and event has a user with IP address',
         () async {
-      final transport = MockTransport();
-      final client = fixture.getSut(transport, sendDefaultPii: true);
+      final client = fixture.getSut(sendDefaultPii: true);
 
       await client.captureEvent(fakeEvent);
 
-      final capturedEnvelope = transport.envelopes.first;
+      final capturedEnvelope = fixture.transport.envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(transport.envelopes.length, 1);
+      expect(fixture.transport.envelopes.length, 1);
       expect(capturedEvent.user, isNotNull);
       // fakeEvent has a user which is not null
       expect(capturedEvent.user?.ipAddress, fakeEvent.user!.ipAddress);
@@ -488,17 +536,16 @@ void main() {
 
     test('sendDefaultPii is enabled and event has a user without IP address',
         () async {
-      final transport = MockTransport();
-      final client = fixture.getSut(transport, sendDefaultPii: true);
+      final client = fixture.getSut(sendDefaultPii: true);
 
       final event = fakeEvent.copyWith(user: fakeUser);
 
       await client.captureEvent(event);
 
-      final capturedEnvelope = transport.envelopes.first;
+      final capturedEnvelope = fixture.transport.envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(transport.envelopes.length, 1);
+      expect(fixture.transport.envelopes.length, 1);
       expect(capturedEvent.user, isNotNull);
       expect(capturedEvent.user?.ipAddress, '{{auto}}');
       expect(capturedEvent.user?.id, fakeUser.id);
@@ -656,7 +703,7 @@ void main() {
     });
 
     test('should capture envelope', () async {
-      final client = fixture.getSut(MockTransport());
+      final client = fixture.getSut();
       await client.captureEnvelope(fakeEnvelope);
 
       final capturedEnvelope =
@@ -696,9 +743,12 @@ SentryEvent? eventProcessorDropEvent(SentryEvent event, {dynamic hint}) {
 }
 
 class Fixture {
-  final options = SentryOptions(dsn: fakeDsn);
+  final MockTransport transport = MockTransport();
 
-  SentryClient getSut(Transport transport, {bool sendDefaultPii = false}) {
+  late SentryOptions options;
+
+  SentryClient getSut({bool sendDefaultPii = false}) {
+    options = SentryOptions(dsn: fakeDsn);
     options.sendDefaultPii = sendDefaultPii;
     options.transport = transport;
     return SentryClient(options);
