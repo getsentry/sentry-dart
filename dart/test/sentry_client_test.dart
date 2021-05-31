@@ -354,31 +354,56 @@ void main() {
   group('SentryClient : apply partial scope to the captured event', () {
     late Fixture fixture;
 
+    final transaction = '/test/scope';
+    final eventTransaction = '/event/transaction';
+    final fingerprint = ['foo', 'bar', 'baz'];
+    final eventFingerprint = ['123', '456', '798'];
+    final user = SentryUser(id: '123');
+    final crumb = Breadcrumb(message: 'bread');
+    final eventUser = SentryUser(id: '987');
+    final eventCrumbs = [Breadcrumb(message: 'bread')];
+
+    late final event = SentryEvent(
+      level: SentryLevel.warning,
+      transaction: eventTransaction,
+      user: eventUser,
+      fingerprint: eventFingerprint,
+      breadcrumbs: eventCrumbs,
+    );
+
+    Scope createScope(SentryOptions options) {
+      return Scope(options)
+        ..user = user
+        ..transaction = transaction
+        ..fingerprint = fingerprint
+        ..addBreadcrumb(crumb);
+    }
+
     setUp(() {
       fixture = Fixture();
     });
 
     test('should not apply the scope to non null event fields ', () async {
       final client = fixture.getSut(true);
-      final scope = fixture.createScope(fixture.options);
+      final scope = createScope(fixture.options);
 
-      await client.captureEvent(fixture.event, scope: scope);
+      await client.captureEvent(event, scope: scope);
 
       final capturedEvent = fixture.transport.events.first;
-      expect(capturedEvent.user!.id, fixture.eventUser.id);
+      expect(capturedEvent.user!.id, eventUser.id);
       expect(capturedEvent.level!.name, SentryLevel.warning.name);
-      expect(capturedEvent.transaction, fixture.eventTransaction);
-      expect(capturedEvent.fingerprint, fixture.eventFingerprint);
-      expect(capturedEvent.breadcrumbs, fixture.eventCrumbs);
+      expect(capturedEvent.transaction, eventTransaction);
+      expect(capturedEvent.fingerprint, eventFingerprint);
+      expect(capturedEvent.breadcrumbs, eventCrumbs);
     });
 
     test('should apply the scope user to null event user fields ', () async {
       final client = fixture.getSut(true);
-      final scope = fixture.createScope(fixture.options);
+      final scope = createScope(fixture.options);
 
       scope.user = SentryUser(id: '987');
 
-      var eventWithUser = fixture.event.copyWith(
+      var eventWithUser = event.copyWith(
         user: SentryUser(id: '123', username: 'foo bar'),
       );
       await client.captureEvent(eventWithUser, scope: scope);
@@ -388,14 +413,14 @@ void main() {
       expect(capturedEvent.user!.id, '123');
       expect(capturedEvent.user!.username, 'foo bar');
       expect(capturedEvent.level!.name, SentryLevel.warning.name);
-      expect(capturedEvent.transaction, fixture.eventTransaction);
-      expect(capturedEvent.fingerprint, fixture.eventFingerprint);
-      expect(capturedEvent.breadcrumbs, fixture.eventCrumbs);
+      expect(capturedEvent.transaction, eventTransaction);
+      expect(capturedEvent.fingerprint, eventFingerprint);
+      expect(capturedEvent.breadcrumbs, eventCrumbs);
     });
 
     test('merge scope user and event user extra', () async {
       final client = fixture.getSut(true);
-      final scope = fixture.createScope(fixture.options);
+      final scope = createScope(fixture.options);
 
       scope.user = SentryUser(
         id: 'id',
@@ -405,7 +430,7 @@ void main() {
         },
       );
 
-      var eventWithUser = fixture.event.copyWith(
+      var eventWithUser = event.copyWith(
         user: SentryUser(
           id: 'id',
           extras: {
@@ -639,22 +664,6 @@ SentryEvent? eventProcessorDropEvent(SentryEvent event, {dynamic hint}) {
 
 class Fixture {
   final MockTransport transport = MockTransport();
-  final transaction = '/test/scope';
-  final eventTransaction = '/event/transaction';
-  final fingerprint = ['foo', 'bar', 'baz'];
-  final eventFingerprint = ['123', '456', '798'];
-  final user = SentryUser(id: '123');
-  final eventUser = SentryUser(id: '987');
-  final crumb = Breadcrumb(message: 'bread');
-  final eventCrumbs = [Breadcrumb(message: 'bread')];
-
-  late SentryEvent event = SentryEvent(
-    level: SentryLevel.warning,
-    transaction: eventTransaction,
-    user: eventUser,
-    fingerprint: eventFingerprint,
-    breadcrumbs: eventCrumbs,
-  );
 
   late SentryOptions options;
 
@@ -664,13 +673,5 @@ class Fixture {
     options.sendDefaultPii = sendDefaultPii;
     options.transport = transport;
     return SentryClient(options);
-  }
-
-  Scope createScope(SentryOptions options) {
-    return Scope(options)
-      ..user = user
-      ..transaction = transaction
-      ..fingerprint = fingerprint
-      ..addBreadcrumb(crumb);
   }
 }
