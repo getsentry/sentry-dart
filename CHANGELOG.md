@@ -3,8 +3,8 @@
 ## Breaking Changes:
 
 * Feat: Support envelope based transport for events (#391)
-* Feature: Envelope Only Transport API #426 (#463)
   * The method signature of `Transport` changed from `Future<SentryId> send(SentryEvent event)` to `Future<SentryId> send(SentryEnvelope envelope)`
+  * Bumped sentry-cocoa to v7.1.3
 * Fix: Merge user from event and scope (#467)
 
 # 5.1.0-beta.1
