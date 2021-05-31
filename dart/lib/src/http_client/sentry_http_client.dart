@@ -55,16 +55,18 @@ class SentryHttpClient extends BaseClient {
   }) {
     _hub = hub ?? HubAdapter();
 
-    final innerClient = client ?? Client();
+    var innerClient = client ?? Client();
+
+    if (recordBreadcrumbs) {
+      innerClient = BreadcrumbClient(client: innerClient, hub: _hub);
+    }
 
     _client = FailedRequestClient(
       failedRequestStatusCodes: failedRequestStatusCodes,
       captureFailedRequests: captureFailedRequests,
       maxRequestBodySize: maxRequestBodySize,
       hub: _hub,
-      client: recordBreadcrumbs
-          ? BreadcrumbClient(client: innerClient)
-          : innerClient,
+      client: innerClient,
     );
   }
 
