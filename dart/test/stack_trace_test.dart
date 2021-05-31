@@ -89,7 +89,7 @@ void main() {
       expect(serializedFrame['in_app'], true);
     });
 
-    test('uses default value from options', () {
+    test('uses default value from options, default = true', () {
       // The following frame meets the following conditions:
       // - frame.uri.scheme is empty
       // - frame.package is null
@@ -100,15 +100,24 @@ void main() {
       final options = SentryOptions(dsn: fakeDsn)
         ..isStackFrameInAppDefault = true;
 
-      var serializedFrame =
+      final serializedFrame =
           SentryStackTraceFactory(options).encodeStackTraceFrame(frame)!;
 
       expect(serializedFrame.inApp, true);
+    });
 
-      // make sure the inverse also applies
-      options.isStackFrameInAppDefault = false;
+    test('uses default value from options, default = false', () {
+      // The following frame meets the following conditions:
+      // - frame.uri.scheme is empty
+      // - frame.package is null
+      // These conditions triggers the default value being used
+      final frame = Frame.parseVM('#0 Foo (async/future.dart:0:0)');
 
-      serializedFrame =
+      // default is true
+      final options = SentryOptions(dsn: fakeDsn)
+        ..isStackFrameInAppDefault = false;
+
+      final serializedFrame =
           SentryStackTraceFactory(options).encodeStackTraceFrame(frame)!;
 
       expect(serializedFrame.inApp, false);
