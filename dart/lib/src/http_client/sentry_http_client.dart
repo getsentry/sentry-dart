@@ -1,6 +1,7 @@
 import 'package:http/http.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
+import '../protocol.dart';
 import 'breadcrumb_client.dart';
 import 'failed_request_client.dart';
 
@@ -44,13 +45,26 @@ import 'failed_request_client.dart';
 /// }
 /// ```
 class SentryHttpClient extends BaseClient {
-  SentryHttpClient({Client? client, Hub? hub}) {
+  SentryHttpClient({
+    Client? client,
+    Hub? hub,
+    bool recordBreadcrumbs = true,
+    MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never,
+    List<SentryStatusCode> failedRequestStatusCodes = const [],
+    bool captureFailedRequests = false,
+  }) {
     _hub = hub ?? HubAdapter();
+
+    final innerClient = client ?? Client();
+
     _client = FailedRequestClient(
+      failedRequestStatusCodes: failedRequestStatusCodes,
+      captureFailedRequests: captureFailedRequests,
+      maxRequestBodySize: maxRequestBodySize,
       hub: _hub,
-      client: BreadcrumbClient(
-        client: client ?? Client(),
-      ),
+      client: recordBreadcrumbs
+          ? BreadcrumbClient(client: innerClient)
+          : innerClient,
     );
   }
 
@@ -62,4 +76,29 @@ class SentryHttpClient extends BaseClient {
 
   @override
   void close() => _client.close();
+}
+
+class SentryStatusCode {
+  SentryStatusCode.range(this._lower, this._upper)
+      : assert(_lower <= _upper),
+        assert(_lower > 0 && _upper > 0);
+
+  SentryStatusCode(int statusCode)
+      : _lower = statusCode,
+        _upper = statusCode,
+        assert(statusCode > 0);
+
+  final int _lower;
+  final int _upper;
+
+  bool isInRange(int statusCode) =>
+      statusCode >= _lower && statusCode <= _upper;
+
+  @override
+  String toString() {
+    if (_lower == _upper) {
+      return _lower.toString();
+    }
+    return '$_lower..$_upper';
+  }
 }

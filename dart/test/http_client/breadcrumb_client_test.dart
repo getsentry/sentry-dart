@@ -13,7 +13,7 @@ final requestUri = Uri.parse('https://example.com');
 
 void main() {
   group(BreadcrumbClient, () {
-    late var fixture;
+    late Fixture fixture;
 
     setUp(() {
       fixture = Fixture();

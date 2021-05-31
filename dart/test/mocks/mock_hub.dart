@@ -9,6 +9,17 @@ class MockHub implements Hub {
   int closeCalls = 0;
   bool _isEnabled = true;
 
+  /// Useful for tests.
+  void reset() {
+    captureEventCalls = [];
+    captureExceptionCalls = [];
+    captureMessageCalls = [];
+    addBreadcrumbCalls = [];
+    bindClientCalls = [];
+    closeCalls = 0;
+    _isEnabled = true;
+  }
+
   @override
   void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) {
     addBreadcrumbCalls.add(AddBreadcrumbCall(crumb, hint));

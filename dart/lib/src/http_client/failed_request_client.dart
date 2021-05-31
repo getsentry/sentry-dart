@@ -2,6 +2,8 @@ import 'package:http/http.dart';
 import '../protocol.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
+import '../throwable_mechanism.dart';
+import 'sentry_http_client.dart';
 
 /// A [http](https://pub.dev/packages/http)-package compatible HTTP client
 /// which records events for failed requests.
@@ -21,7 +23,7 @@ import '../hub_adapter.dart';
 /// import 'package:sentry/sentry.dart';
 ///
 /// var client = FailedRequestClient(
-///   failedRequestStatusCodes: [404, 500]
+///   failedRequestStatusCodes: [SentryStatusCode.range(400, 404), SentryStatusCode(500)]
 /// );
 /// ```
 ///
@@ -64,6 +66,7 @@ class FailedRequestClient extends BaseClient {
   FailedRequestClient({
     this.maxRequestBodySize = MaxRequestBodySize.small,
     this.failedRequestStatusCodes = const [],
+    this.captureFailedRequests = true,
     Client? client,
     Hub? hub,
   })  : _hub = hub ?? HubAdapter(),
@@ -72,33 +75,53 @@ class FailedRequestClient extends BaseClient {
   final Client _client;
   final Hub _hub;
 
-  /// Configures up to which size request bodies should be included in events
+  /// Configures wether to record exceptions for failed requests.
+  /// Examples for captures exceptions are:
+  /// - In an browser environment this can be requests which fail because of CORS.
+  /// - In an mobile or desktop application this can be requests which failed
+  ///   because the connection was interrupted.
+  final bool captureFailedRequests;
+
+  /// Configures up to which size request bodies should be included in events.
+  /// This does not change wether an event is captured.
   final MaxRequestBodySize maxRequestBodySize;
 
   /// Describes which HTTP status codes should be considered as a failed
   /// requests.
   ///
   /// Per default no status code is considered a failed request.
-  final List<int> failedRequestStatusCodes;
+  final List<SentryStatusCode> failedRequestStatusCodes;
 
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
+    int? statusCode;
+    Object? exception;
+    StackTrace? stackTrace;
+
     try {
       final response = await _client.send(request);
-
-      if (failedRequestStatusCodes.contains(response.statusCode)) {
-        await _captureException(request: request);
+      statusCode = response.statusCode;
+      return response;
+    } catch (e, st) {
+      exception = e;
+      stackTrace = st;
+      rethrow;
+    } finally {
+      if (captureFailedRequests) {
+        await _captureEvent(
+          exception: exception,
+          stackTrace: stackTrace,
+          request: request,
+        );
       }
 
-      return response;
-    } catch (exception, stackTrace) {
-      await _captureException(
-        exception: exception,
-        stackTrace: stackTrace,
-        request: request,
-      );
-
-      rethrow;
+      if (failedRequestStatusCodes.containsStatusCode(statusCode)) {
+        // Capture an exception if the status code is considered bad
+        await _captureEvent(
+          request: request,
+          reason: failedRequestStatusCodes.toDescription(),
+        );
+      }
     }
   }
 
@@ -109,9 +132,10 @@ class FailedRequestClient extends BaseClient {
   }
 
   // See https://develop.sentry.dev/sdk/event-payloads/request/
-  Future<void> _captureException({
+  Future<void> _captureEvent({
     Object? exception,
     StackTrace? stackTrace,
+    String? reason,
     required BaseRequest request,
   }) {
     // As far as I can tell there's no way to get the uri without the query part
@@ -125,13 +149,22 @@ class FailedRequestClient extends BaseClient {
       headers: request.headers,
       url: urlWithoutQuery,
       queryString: query,
+      cookies: request.headers['Cookie'],
       data: _getDataFromRequest(request),
       other: {
         'Content-Length': request.contentLength.toString(),
       },
     );
+
+    final mechanism = Mechanism(
+      type: 'SentryHttpClient',
+      handled: true,
+      description: reason,
+    );
+    final throwableMechanism = ThrowableMechanism(mechanism, exception);
+
     final event = SentryEvent(
-      throwable: exception,
+      throwable: throwableMechanism,
       request: sentryRequest,
       level: SentryLevel.error,
     );
@@ -141,9 +174,15 @@ class FailedRequestClient extends BaseClient {
   // Types of Request can be found here:
   // https://pub.dev/documentation/http/latest/http/http-library.html
   Object? _getDataFromRequest(BaseRequest request) {
+    final contentLength = request.contentLength;
+    if (contentLength == null) {
+      return null;
+    }
+    if (!maxRequestBodySize.shouldAddBody(contentLength)) {
+      return null;
+    }
     if (request is MultipartRequest) {
       final data = <String, String>{...request.fields};
-      // TODO request.files
       return data;
     }
 
@@ -156,19 +195,36 @@ class FailedRequestClient extends BaseClient {
   }
 }
 
-/// Describes the size of http request bodies which should be added to an event
-enum MaxRequestBodySize {
-  /// Request bodies are never sent
-  never,
+extension _ListX on List<SentryStatusCode> {
+  bool containsStatusCode(int? statusCode) {
+    if (statusCode == null) {
+      return false;
+    }
+    return any((element) => element.isInRange(statusCode));
+  }
 
-  /// Only small request bodies will be captured where the cutoff for small
-  /// depends on the SDK (typically 4KB)
-  small,
+  String toDescription() {
+    final ranges = join(', ');
+    return 'This event was captured because the '
+        'request status code was in [$ranges]';
+  }
+}
 
-  /// Medium and small requests will be captured (typically 10KB)
-  medium,
+extension _MaxRequestBodySizeX on MaxRequestBodySize {
+  bool shouldAddBody(int contentLength) {
+    if (this == MaxRequestBodySize.never) {
+      return false;
+    }
+    if (this == MaxRequestBodySize.always) {
+      return true;
+    }
+    if (this == MaxRequestBodySize.medium && contentLength <= 10000) {
+      return true;
+    }
 
-  /// The SDK will always capture the request body for as long as Sentry can
-  /// make sense of it
-  always,
+    if (this == MaxRequestBodySize.small && contentLength <= 4000) {
+      return true;
+    }
+    return false;
+  }
 }
