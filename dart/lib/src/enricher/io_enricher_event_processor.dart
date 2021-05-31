@@ -2,21 +2,29 @@ import 'dart:async';
 import 'dart:io';
 
 import '../protocol.dart';
+import '../sentry_options.dart';
 
-import 'enricher.dart';
-
-final Enricher instance = IoEnricher();
+EventProcessor enricherEventProcessor(SentryOptions options) {
+  final processor = IoEnricherEventProcessor(
+    options.platformChecker.hasNativeIntegration,
+    options.sendDefaultPii,
+  );
+  return processor.apply;
+}
 
 /// Enriches [SentryEvents] with various kinds of information.
 /// Uses Darts [Platform](https://api.dart.dev/stable/dart-io/Platform-class.html)
 /// class to read information.
-class IoEnricher implements Enricher {
-  @override
-  FutureOr<SentryEvent> apply(
-    SentryEvent event,
-    bool hasNativeIntegration,
-    bool includePii,
-  ) {
+class IoEnricherEventProcessor {
+  IoEnricherEventProcessor(
+    this.hasNativeIntegration,
+    this.includePii,
+  );
+
+  final bool hasNativeIntegration;
+  final bool includePii;
+
+  FutureOr<SentryEvent> apply(SentryEvent event, {dynamic hint}) {
     // If there's a native integration available, it probably has better
     // information available than Flutter.
     final os = hasNativeIntegration
@@ -42,6 +50,7 @@ class IoEnricher implements Enricher {
     // Pure Dart doesn't have specific runtimes per build mode
     // like Flutter: https://flutter.dev/docs/testing/build-modes
     final dartRuntime = SentryRuntime(
+      key: 'sentry_dart_runtime',
       name: 'Dart',
       rawDescription: Platform.version,
     );
@@ -82,16 +91,16 @@ class IoEnricher implements Enricher {
 
   SentryDevice _getDevice(SentryDevice? device) {
     return (device ?? SentryDevice()).copyWith(
-      language: Platform.localeName,
-      name: Platform.localHostname,
-      timezone: DateTime.now().timeZoneName,
+      language: device?.language ?? Platform.localeName,
+      name: device?.name ?? Platform.localHostname,
+      timezone: device?.timezone ?? DateTime.now().timeZoneName,
     );
   }
 
   SentryOperatingSystem _getOperatingSystem(SentryOperatingSystem? os) {
     return (os ?? SentryOperatingSystem()).copyWith(
-      name: Platform.operatingSystem,
-      version: Platform.operatingSystemVersion,
+      name: os?.name ?? Platform.operatingSystem,
+      version: os?.version ?? Platform.operatingSystemVersion,
     );
   }
 }

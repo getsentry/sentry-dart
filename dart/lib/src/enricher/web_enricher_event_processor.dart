@@ -3,16 +3,20 @@ import 'dart:async';
 import '../platform_checker.dart';
 
 import '../protocol.dart';
-import 'enricher.dart';
 import 'dart:html' as html show window, Window;
 
-final Enricher instance = WebEnricher(
-  html.window,
-  PlatformChecker(),
-);
+import '../sentry_options.dart';
 
-class WebEnricher implements Enricher {
-  WebEnricher(
+EventProcessor enricherEventProcessor(SentryOptions options) {
+  final processor = WebEnricherEventProcessor(
+    html.window,
+    options.platformChecker,
+  );
+  return processor.apply;
+}
+
+class WebEnricherEventProcessor {
+  WebEnricherEventProcessor(
     this._window,
     this._platformChecker,
   );
@@ -20,12 +24,7 @@ class WebEnricher implements Enricher {
   final html.Window _window;
   final PlatformChecker _platformChecker;
 
-  @override
-  FutureOr<SentryEvent> apply(
-    SentryEvent event,
-    bool hasNativeIntegration,
-    bool includePii,
-  ) async {
+  FutureOr<SentryEvent> apply(SentryEvent event, {dynamic hint}) async {
     // Web has no native integration, so no need to check for it
 
     final contexts = event.contexts.copyWith(
@@ -41,19 +40,22 @@ class WebEnricher implements Enricher {
 
   Future<SentryDevice> _getDevice(SentryDevice? device) async {
     return (device ?? SentryDevice()).copyWith(
-      online: _window.navigator.onLine,
-      memorySize: _getMemorySize(),
-      orientation: _getScreenOrientation(),
-      screenHeightPixels: _window.screen?.available.height.toInt(),
-      screenWidthPixels: _window.screen?.available.width.toInt(),
-      screenDensity: _window.devicePixelRatio.toDouble(),
-      timezone: DateTime.now().timeZoneName,
+      online: device?.online ?? _window.navigator.onLine,
+      memorySize: device?.memorySize ?? _getMemorySize(),
+      orientation: device?.orientation ?? _getScreenOrientation(),
+      screenHeightPixels: device?.screenHeightPixels ??
+          _window.screen?.available.height.toInt(),
+      screenWidthPixels:
+          device?.screenWidthPixels ?? _window.screen?.available.width.toInt(),
+      screenDensity:
+          device?.screenDensity ?? _window.devicePixelRatio.toDouble(),
+      timezone: device?.timezone ?? DateTime.now().timeZoneName,
     );
   }
 
   SentryOperatingSystem _getOperatingSystem(SentryOperatingSystem? os) {
     return (os ?? SentryOperatingSystem()).copyWith(
-      name: _platformChecker.platform.operatingSystem,
+      name: os?.name ?? _platformChecker.platform.operatingSystem,
     );
   }
 
@@ -61,10 +63,12 @@ class WebEnricher implements Enricher {
     // Pure Dart doesn't have specific runtimes per build mode
     // like Flutter: https://flutter.dev/docs/testing/build-modes
     final dartRuntime = SentryRuntime(
+      key: 'sentry_dart_runtime',
       name: 'Dart',
     );
 
     final browserRuntime = SentryRuntime(
+      key: 'sentry_browser_runtime',
       name: 'Browser',
       rawDescription: _window.navigator.userAgent,
     );

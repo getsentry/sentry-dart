@@ -4,7 +4,6 @@ import 'dart:developer';
 import 'package:http/http.dart';
 
 import 'diagnostic_logger.dart';
-import 'enricher/enricher.dart';
 import 'environment_variables.dart';
 import 'integration.dart';
 import 'noop_client.dart';
@@ -171,10 +170,6 @@ class SentryOptions {
   /// If [environmentVariables] is provided, it is used get the envirnoment
   /// variables. This is useful in tests.
   EnvironmentVariables environmentVariables = EnvironmentVariables();
-
-  /// If [enricher] is provided, it is used add more information to events.
-  /// This can be disabled by using the [NoopEnricher].
-  Enricher enricher = Enricher();
 
   /// When enabled, all the threads are automatically attached to all logged events (Android).
   bool attachThreads = false;
