@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/src/platform/platform.dart';
-import 'package:sentry/src/enricher/enricher.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/flutter_enricher.dart';
 
 void main() {
   group('FlutterEnricher', () {
@@ -15,26 +15,12 @@ void main() {
       fixture = Fixture();
     });
 
-    testWidgets('FlutterEnricher calls base Enricher',
-        (WidgetTester tester) async {
-      final enricher = fixture.getSut(
-        binding: () => tester.binding,
-        enricher: fixture.mockEnricher,
-      );
-
-      enricher.apply(fixture.event, true, false);
-
-      expect(fixture.mockEnricher.calls.length, 1);
-      expect(fixture.mockEnricher.calls.first.event, fixture.event);
-      expect(fixture.mockEnricher.calls.first.hasNativeIntegration, true);
-    });
-
     testWidgets('flutter context', (WidgetTester tester) async {
       final enricher = fixture.getSut(
         binding: () => tester.binding,
       );
 
-      final event = await enricher.apply(fixture.event, false, false);
+      final event = await enricher.apply(fixture.event);
 
       final flutterContext = event.contexts['flutter_context'];
       expect(flutterContext, isNotNull);
@@ -45,7 +31,7 @@ void main() {
         binding: () => tester.binding,
       );
 
-      final event = await enricher.apply(fixture.event, false, false);
+      final event = await enricher.apply(fixture.event);
 
       final accessibility = event.contexts['accessibility'];
 
@@ -62,7 +48,7 @@ void main() {
         binding: () => tester.binding,
       );
 
-      final event = await enricher.apply(fixture.event, false, false);
+      final event = await enricher.apply(fixture.event);
 
       final culture = event.contexts['culture'];
 
@@ -74,9 +60,10 @@ void main() {
         (WidgetTester tester) async {
       final enricher = fixture.getSut(
         binding: () => tester.binding,
+        hasNativeIntegration: true,
       );
 
-      final event = await enricher.apply(fixture.event, true, false);
+      final event = await enricher.apply(fixture.event);
 
       expect(event.contexts.device, isNull);
     });
@@ -85,9 +72,10 @@ void main() {
         (WidgetTester tester) async {
       final enricher = fixture.getSut(
         binding: () => tester.binding,
+        hasNativeIntegration: false,
       );
 
-      final event = await enricher.apply(fixture.event, false, false);
+      final event = await enricher.apply(fixture.event);
 
       expect(event.contexts.device, isNotNull);
     });
@@ -97,7 +85,7 @@ void main() {
         binding: () => tester.binding,
       );
 
-      final event = await enricher.apply(fixture.event, false, false);
+      final event = await enricher.apply(fixture.event);
 
       final flutterRuntime = event.contexts.runtimes
           .firstWhere((element) => element.name == 'Flutter');
@@ -121,7 +109,7 @@ void main() {
           checker: pair.key,
         );
 
-        final event = await enricher.apply(SentryEvent(), false, false);
+        final event = await enricher.apply(SentryEvent());
         final flutterRuntime = event.contexts.runtimes
             .firstWhere((element) => element.name == 'Flutter');
 
@@ -149,7 +137,7 @@ void main() {
         ),
       );
 
-      final event = await enricher.apply(fixture.event, false, false);
+      final event = await enricher.apply(fixture.event);
 
       expect(event.modules, {
         'foo_package': 'unknown',
@@ -176,49 +164,69 @@ void main() {
         ),
       );
 
-      final event = await enricher.apply(fixture.event, false, false);
+      final event = await enricher.apply(fixture.event);
 
       expect(event.modules, {'foo_package': 'unknown'});
+    });
+
+    testWidgets('does not override event', (WidgetTester tester) async {
+      final fakeEvent = SentryEvent(
+        contexts: Contexts(
+          device: SentryDevice(
+            orientation: SentryOrientation.landscape,
+            screenHeightPixels: 1080,
+            screenWidthPixels: 1920,
+            screenDensity: 2,
+            theme: 'sentry_theme',
+          ),
+        ),
+      );
+
+      final enricher = fixture.getSut(
+        binding: () => tester.binding,
+        hasNativeIntegration: false,
+      );
+
+      final event = await enricher.apply(fakeEvent);
+
+      // contexts.device
+      expect(
+        event.contexts.device?.orientation,
+        fakeEvent.contexts.device?.orientation,
+      );
+      expect(
+        event.contexts.device?.screenHeightPixels,
+        fakeEvent.contexts.device?.screenHeightPixels,
+      );
+      expect(
+        event.contexts.device?.screenWidthPixels,
+        fakeEvent.contexts.device?.screenWidthPixels,
+      );
+      expect(
+        event.contexts.device?.screenDensity,
+        fakeEvent.contexts.device?.screenDensity,
+      );
+      expect(
+        event.contexts.device?.theme,
+        fakeEvent.contexts.device?.theme,
+      );
     });
   });
 }
 
 class Fixture {
-  final mockEnricher = MockEnricher();
   final event = SentryEvent();
-  FlutterEnricher getSut({
+  FlutterEnricherEventProcessor getSut({
     required WidgetBindingGetter binding,
     PlatformChecker? checker,
-    Enricher? enricher,
+    bool hasNativeIntegration = false,
   }) {
-    return FlutterEnricher(
+    return FlutterEnricherEventProcessor(
       checker ?? PlatformChecker(),
-      enricher ?? NoopEnricher(),
       binding,
+      hasNativeIntegration,
     );
   }
-}
-
-class MockEnricher implements Enricher {
-  final List<ApplyCalls> calls = [];
-
-  @override
-  FutureOr<SentryEvent> apply(
-    SentryEvent event,
-    bool hasNativeIntegration,
-    bool includePii,
-  ) {
-    calls.add(ApplyCalls(event, hasNativeIntegration, includePii));
-    return event;
-  }
-}
-
-class ApplyCalls {
-  ApplyCalls(this.event, this.hasNativeIntegration, this.includePii);
-
-  final SentryEvent event;
-  final bool hasNativeIntegration;
-  final bool includePii;
 }
 
 class MockPlatformChecker implements PlatformChecker {

@@ -10,20 +10,25 @@ typedef WidgetBindingGetter = WidgetsBinding Function();
 /// Enriches [SentryEvent]s with various kinds of information.
 /// FlutterEnricher only needs to add information which aren't exposed by
 /// the Dart runtime.
-class FlutterEnricher implements Enricher {
-  FlutterEnricher(
+class FlutterEnricherEventProcessor {
+  FlutterEnricherEventProcessor(
     this._checker,
-    this._dartEnricher,
     this._getWidgetsBinding,
+    this.hasNativeIntegration,
   );
 
-  factory FlutterEnricher.simple(PlatformChecker checker) {
-    return FlutterEnricher(
+  factory FlutterEnricherEventProcessor.simple({
+    required PlatformChecker checker,
+    required bool hasNativeIntegration,
+  }) {
+    return FlutterEnricherEventProcessor(
       checker,
-      Enricher(),
-      () => WidgetsFlutterBinding.ensureInitialized(),
+      () => WidgetsBinding.instance!,
+      hasNativeIntegration,
     );
   }
+
+  final bool hasNativeIntegration;
 
   // We can't use `WidgetsBinding` as a direct parameter
   // because it must be called inside the `runZoneGuarded`-Integration.
@@ -31,24 +36,13 @@ class FlutterEnricher implements Enricher {
   final WidgetBindingGetter _getWidgetsBinding;
   WidgetsBinding get _widgetsBinding => _getWidgetsBinding();
   final PlatformChecker _checker;
-  final Enricher _dartEnricher;
   SingletonFlutterWindow get _window => _widgetsBinding.window;
   Map<String, String> _packages = {};
 
-  @override
   FutureOr<SentryEvent> apply(
-    SentryEvent event,
-    bool hasNativeIntegration,
-    bool includePii,
-  ) async {
-    // Flutter for Web does not need a special case.
-    // It's already covered by _dartEnricher.
-
-    // First use _dartEnricher.
-    // In case we have even better information available in Flutter
-    // we override what's already given by _dartEnricher.
-    event = await _dartEnricher.apply(event, hasNativeIntegration, includePii);
-
+    SentryEvent event, {
+    dynamic hint,
+  }) async {
     // If there's a native integration available, it probably has better
     // information available than Flutter.
     final device =
@@ -158,11 +152,13 @@ class FlutterEnricher implements Enricher {
         : SentryOrientation.portrait;
 
     return (device ?? SentryDevice()).copyWith(
-      orientation: orientation,
-      screenHeightPixels: _window.physicalSize.height.toInt(),
-      screenWidthPixels: _window.physicalSize.width.toInt(),
-      screenDensity: _window.devicePixelRatio,
-      theme: describeEnum(_window.platformBrightness),
+      orientation: device?.orientation ?? orientation,
+      screenHeightPixels:
+          device?.screenHeightPixels ?? _window.physicalSize.height.toInt(),
+      screenWidthPixels:
+          device?.screenWidthPixels ?? _window.physicalSize.width.toInt(),
+      screenDensity: device?.screenDensity ?? _window.devicePixelRatio,
+      theme: device?.theme ?? describeEnum(_window.platformBrightness),
     );
   }
 
@@ -187,12 +183,17 @@ class FlutterEnricher implements Enricher {
     }
 
     final flutterRuntime = SentryRuntime(
+      key: 'sentry_flutter_runtime',
       name: 'Flutter',
       compiler: compiler,
     );
 
+    if (runtimes == null || runtimes.isEmpty) {
+      return [flutterRuntime];
+    }
+
     return [
-      if (runtimes?.isNotEmpty ?? false) ...runtimes!,
+      ...runtimes,
       flutterRuntime,
     ];
   }
