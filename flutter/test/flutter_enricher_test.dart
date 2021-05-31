@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/flutter_enricher.dart';
+import 'package:sentry_flutter/src/flutter_enricher_event_processor.dart';
 
 void main() {
   group('FlutterEnricher', () {
