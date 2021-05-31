@@ -98,6 +98,9 @@ class FailedRequestClient extends BaseClient {
     Object? exception;
     StackTrace? stackTrace;
 
+    final stopwatch = Stopwatch();
+    stopwatch.start();
+
     try {
       final response = await _client.send(request);
       statusCode = response.statusCode;
@@ -107,11 +110,14 @@ class FailedRequestClient extends BaseClient {
       stackTrace = st;
       rethrow;
     } finally {
+      stopwatch.stop();
+
       if (captureFailedRequests) {
         await _captureEvent(
           exception: exception,
           stackTrace: stackTrace,
           request: request,
+          requestDuration: stopwatch.elapsed,
         );
       }
 
@@ -120,6 +126,7 @@ class FailedRequestClient extends BaseClient {
         await _captureEvent(
           request: request,
           reason: failedRequestStatusCodes.toDescription(),
+          requestDuration: stopwatch.elapsed,
         );
       }
     }
@@ -136,6 +143,7 @@ class FailedRequestClient extends BaseClient {
     Object? exception,
     StackTrace? stackTrace,
     String? reason,
+    required Duration requestDuration,
     required BaseRequest request,
   }) {
     // As far as I can tell there's no way to get the uri without the query part
@@ -152,7 +160,8 @@ class FailedRequestClient extends BaseClient {
       cookies: request.headers['Cookie'],
       data: _getDataFromRequest(request),
       other: {
-        'Content-Length': request.contentLength.toString(),
+        'content_length': request.contentLength.toString(),
+        'duration': requestDuration.toString(),
       },
     );
 

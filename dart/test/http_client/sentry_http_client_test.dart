@@ -54,6 +54,10 @@ void main() {
       await expectLater(() async => await sut.get(requestUri), throwsException);
 
       expect(fixture.hub.captureEventCalls.length, 1);
+      // The event should not have breadcrumbs from the BreadcrumbClient
+      expect(fixture.hub.captureEventCalls.first.event.breadcrumbs, null);
+      // The breadcrumb for the request should still be added for every
+      // following event.
       expect(fixture.hub.addBreadcrumbCalls.length, 1);
     });
 

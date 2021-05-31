@@ -57,17 +57,23 @@ class SentryHttpClient extends BaseClient {
 
     var innerClient = client ?? Client();
 
-    if (recordBreadcrumbs) {
-      innerClient = BreadcrumbClient(client: innerClient, hub: _hub);
-    }
-
-    _client = FailedRequestClient(
+    innerClient = FailedRequestClient(
       failedRequestStatusCodes: failedRequestStatusCodes,
       captureFailedRequests: captureFailedRequests,
       maxRequestBodySize: maxRequestBodySize,
       hub: _hub,
       client: innerClient,
     );
+
+    // The ordering here matters.
+    // We don't want to include the breadcrumbs for the current request
+    // when capturing it as a failed request.
+    // However it still should be added for following events.
+    if (recordBreadcrumbs) {
+      innerClient = BreadcrumbClient(client: innerClient, hub: _hub);
+    }
+
+    _client = innerClient;
   }
 
   late Client _client;

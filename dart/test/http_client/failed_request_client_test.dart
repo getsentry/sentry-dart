@@ -57,6 +57,8 @@ void main() {
       expect(request?.queryString, 'foo=bar');
       expect(request?.cookies, 'foo=bar');
       expect(request?.headers, {'Cookie': 'foo=bar'});
+      expect(request?.other.keys.contains('duration'), true);
+      expect(request?.other.keys.contains('content_length'), true);
     });
 
     test('exception gets not reported if disabled', () async {
@@ -102,6 +104,8 @@ void main() {
       expect(request?.queryString, 'foo=bar');
       expect(request?.cookies, 'foo=bar');
       expect(request?.headers, {'Cookie': 'foo=bar'});
+      expect(request?.other.keys.contains('duration'), true);
+      expect(request?.other.keys.contains('content_length'), true);
     });
 
     test('close does get called for user defined client', () async {
