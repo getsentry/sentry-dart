@@ -31,7 +31,7 @@ void main() {
       );
     });
 
-    test('cleanes absolute paths', () {
+    test('cleans absolute paths', () {
       final frame = Frame(Uri.parse('file://foo/bar/baz.dart'), 1, 2, 'buzz');
       expect(
         SentryStackTraceFactory(SentryOptions(dsn: fakeDsn))
