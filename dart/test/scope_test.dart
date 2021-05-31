@@ -308,7 +308,8 @@ void main() {
 
       final updatedEvent = await scope.applyToEvent(event, null);
 
-      expect(updatedEvent?.user, eventUser);
+      expect(updatedEvent?.user, isNotNull);
+      expect(updatedEvent?.user?.id, eventUser.id);
       expect(updatedEvent?.transaction, '/event/transaction');
       expect(updatedEvent?.fingerprint, ['event-fingerprint']);
       expect(updatedEvent?.breadcrumbs, [eventBreadcrumb]);
