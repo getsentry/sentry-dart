@@ -1,6 +1,7 @@
 # Unreleased
 
 * Fix: Merge user from event and scope (#467)
+* Feat: Capture failed requests as event (#473)
 
 # 5.1.0-beta.1
 
