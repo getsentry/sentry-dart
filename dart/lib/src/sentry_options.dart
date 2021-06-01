@@ -136,7 +136,7 @@ class SentryOptions {
   /// example : ['sentry'] will include exception from 'package:sentry/sentry.dart'
   List<String> get inAppIncludes => List.unmodifiable(_inAppIncludes);
 
-  /// Configures wether stack trace frames are considered in app frames as default.
+  /// Configures whether stack trace frames are considered in app frames by default.
   /// You can use this to essentially make [inAppIncludes] or [inAppExcludes]
   /// an allow or deny list.
   /// This value is only used if Sentry can not find the origin of the frame.
