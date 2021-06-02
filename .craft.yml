@@ -6,5 +6,5 @@ targets:
   - name: github
   - name: registry
     sdks:
-      pub:sentry: null
-      pub:sentry_flutter: null
+      pub:sentry:
+      pub:sentry_flutter:
