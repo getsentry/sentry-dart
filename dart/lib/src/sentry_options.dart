@@ -141,9 +141,11 @@ class SentryOptions {
   /// an allow or deny list.
   /// This value is only used if Sentry can not find the origin of the frame.
   ///
-  /// E.g. if [isStackFrameInAppDefault] is true you only need to maintain
+  /// - If [considerFramesInAppByDefault] is true you only need to maintain
   /// [inAppExcludes].
-  bool isStackFrameInAppDefault = true;
+  /// - If [considerFramesInAppByDefault] is false you only need to maintain
+  /// [inAppIncludes].
+  bool considerFramesInAppByDefault = true;
 
   /// The transport is an internal construct of the client that abstracts away the event sending.
   Transport transport = NoOpTransport();

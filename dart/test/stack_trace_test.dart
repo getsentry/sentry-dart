@@ -17,9 +17,7 @@ void main() {
       final frame = Frame(Uri.parse('dart:core'), 1, 2, 'buzz');
 
       expect(
-        SentryStackTraceFactory(SentryOptions(dsn: fakeDsn))
-            .encodeStackTraceFrame(frame)!
-            .toJson(),
+        Fixture().getSut().encodeStackTraceFrame(frame)!.toJson(),
         {
           'abs_path': '${eventOrigin}dart:core',
           'function': 'buzz',
@@ -34,59 +32,49 @@ void main() {
     test('cleans absolute paths', () {
       final frame = Frame(Uri.parse('file://foo/bar/baz.dart'), 1, 2, 'buzz');
       expect(
-        SentryStackTraceFactory(SentryOptions(dsn: fakeDsn))
-            .encodeStackTraceFrame(frame)!
-            .toJson()['abs_path'],
+        Fixture().getSut().encodeStackTraceFrame(frame)!.toJson()['abs_path'],
         '${eventOrigin}baz.dart',
       );
     });
 
     test('send exception package', () {
       final frame = Frame(Uri.parse('package:toolkit/baz.dart'), 1, 2, 'buzz');
-      final serializedFrame = SentryStackTraceFactory(
-              SentryOptions(dsn: fakeDsn)..addInAppExclude('toolkit'))
-          .encodeStackTraceFrame(frame)!
-          .toJson();
-      expect(serializedFrame['package'], 'toolkit');
+      final encodedFrame = Fixture()
+          .getSut(inAppExcludes: ['toolkit']).encodeStackTraceFrame(frame)!;
+      expect(encodedFrame.package, 'toolkit');
     });
 
     test('apply inAppExcludes', () {
       final frame = Frame(Uri.parse('package:toolkit/baz.dart'), 1, 2, 'buzz');
-      final serializedFrame = SentryStackTraceFactory(
-              SentryOptions(dsn: fakeDsn)..addInAppExclude('toolkit'))
-          .encodeStackTraceFrame(frame)!
-          .toJson();
-      expect(serializedFrame['in_app'], false);
+      final serializedFrame = Fixture()
+          .getSut(inAppExcludes: ['toolkit']).encodeStackTraceFrame(frame)!;
+
+      expect(serializedFrame.inApp, false);
     });
 
     test('apply inAppIncludes', () {
       final frame = Frame(Uri.parse('package:toolkit/baz.dart'), 1, 2, 'buzz');
-      final serializedFrame = SentryStackTraceFactory(
-              SentryOptions(dsn: fakeDsn)..addInAppInclude('toolkit'))
-          .encodeStackTraceFrame(frame)!
-          .toJson();
-      expect(serializedFrame['in_app'], true);
+      final serializedFrame = Fixture()
+          .getSut(inAppIncludes: ['toolkit']).encodeStackTraceFrame(frame)!;
+
+      expect(serializedFrame.inApp, true);
     });
 
     test('flutter package is not inApp', () {
       final frame =
           Frame(Uri.parse('package:flutter/material.dart'), 1, 2, 'buzz');
-      final serializedFrame =
-          SentryStackTraceFactory(SentryOptions(dsn: fakeDsn))
-              .encodeStackTraceFrame(frame)!
-              .toJson();
-      expect(serializedFrame['in_app'], false);
+      final serializedFrame = Fixture().getSut().encodeStackTraceFrame(frame)!;
+
+      expect(serializedFrame.inApp, false);
     });
 
     test('apply inAppIncludes with precedence', () {
       final frame = Frame(Uri.parse('package:toolkit/baz.dart'), 1, 2, 'buzz');
-      final serializedFrame =
-          SentryStackTraceFactory(SentryOptions(dsn: fakeDsn)
-                ..addInAppInclude('toolkit')
-                ..addInAppExclude('toolkit'))
-              .encodeStackTraceFrame(frame)!
-              .toJson();
-      expect(serializedFrame['in_app'], true);
+      final serializedFrame = Fixture().getSut(
+          inAppExcludes: ['toolkit'],
+          inAppIncludes: ['toolkit']).encodeStackTraceFrame(frame)!;
+
+      expect(serializedFrame.inApp, true);
     });
 
     test('uses default value from options, default = true', () {
@@ -97,11 +85,9 @@ void main() {
       final frame = Frame.parseVM('#0 Foo (async/future.dart:0:0)');
 
       // default is true
-      final options = SentryOptions(dsn: fakeDsn)
-        ..isStackFrameInAppDefault = true;
-
-      final serializedFrame =
-          SentryStackTraceFactory(options).encodeStackTraceFrame(frame)!;
+      final serializedFrame = Fixture()
+          .getSut(considerFramesInAppByDefault: true)
+          .encodeStackTraceFrame(frame)!;
 
       expect(serializedFrame.inApp, true);
     });
@@ -114,11 +100,9 @@ void main() {
       final frame = Frame.parseVM('#0 Foo (async/future.dart:0:0)');
 
       // default is true
-      final options = SentryOptions(dsn: fakeDsn)
-        ..isStackFrameInAppDefault = false;
-
-      final serializedFrame =
-          SentryStackTraceFactory(options).encodeStackTraceFrame(frame)!;
+      final serializedFrame = Fixture()
+          .getSut(considerFramesInAppByDefault: false)
+          .encodeStackTraceFrame(frame)!;
 
       expect(serializedFrame.inApp, false);
     });
@@ -126,87 +110,90 @@ void main() {
 
   group('encodeStackTrace', () {
     test('encodes a simple stack trace', () {
-      expect(
-          SentryStackTraceFactory(SentryOptions(dsn: fakeDsn))
-              .getStackFrames('''
+      final frames = Fixture()
+          .getSut(considerFramesInAppByDefault: true)
+          .getStackFrames('''
 #0      baz (file:///pathto/test.dart:50:3)
 #1      bar (file:///pathto/test.dart:46:9)
-      ''').map((frame) => frame.toJson()),
-          [
-            {
-              'abs_path': '${eventOrigin}test.dart',
-              'function': 'bar',
-              'lineno': 46,
-              'colno': 9,
-              'in_app': true,
-              'filename': 'test.dart'
-            },
-            {
-              'abs_path': '${eventOrigin}test.dart',
-              'function': 'baz',
-              'lineno': 50,
-              'colno': 3,
-              'in_app': true,
-              'filename': 'test.dart'
-            },
-          ]);
+      ''').map((frame) => frame.toJson());
+
+      expect(frames, [
+        {
+          'abs_path': '${eventOrigin}test.dart',
+          'function': 'bar',
+          'lineno': 46,
+          'colno': 9,
+          'in_app': true,
+          'filename': 'test.dart'
+        },
+        {
+          'abs_path': '${eventOrigin}test.dart',
+          'function': 'baz',
+          'lineno': 50,
+          'colno': 3,
+          'in_app': true,
+          'filename': 'test.dart'
+        },
+      ]);
     });
 
     test('encodes an asynchronous stack trace', () {
-      expect(
-          SentryStackTraceFactory(SentryOptions(dsn: fakeDsn))
-              .getStackFrames('''
+      final frames = Fixture()
+          .getSut(considerFramesInAppByDefault: true)
+          .getStackFrames('''
 #0      baz (file:///pathto/test.dart:50:3)
 <asynchronous suspension>
 #1      bar (file:///pathto/test.dart:46:9)
-      ''').map((frame) => frame.toJson()),
-          [
-            {
-              'abs_path': '${eventOrigin}test.dart',
-              'function': 'bar',
-              'lineno': 46,
-              'colno': 9,
-              'in_app': true,
-              'filename': 'test.dart'
-            },
-            {
-              'abs_path': '<asynchronous suspension>',
-            },
-            {
-              'abs_path': '${eventOrigin}test.dart',
-              'function': 'baz',
-              'lineno': 50,
-              'colno': 3,
-              'in_app': true,
-              'filename': 'test.dart'
-            },
-          ]);
+      ''').map((frame) => frame.toJson());
+
+      expect(frames, [
+        {
+          'abs_path': '${eventOrigin}test.dart',
+          'function': 'bar',
+          'lineno': 46,
+          'colno': 9,
+          'in_app': true,
+          'filename': 'test.dart'
+        },
+        {
+          'abs_path': '<asynchronous suspension>',
+        },
+        {
+          'abs_path': '${eventOrigin}test.dart',
+          'function': 'baz',
+          'lineno': 50,
+          'colno': 3,
+          'in_app': true,
+          'filename': 'test.dart'
+        },
+      ]);
     });
 
     test('sets instruction_addr if stack trace violates dart standard', () {
-      expect(
-          SentryStackTraceFactory(SentryOptions(dsn: fakeDsn))
-              .getStackFrames('''
+      final frames = Fixture()
+          .getSut(considerFramesInAppByDefault: true)
+          .getStackFrames('''
       warning:  This VM has been configured to produce stack traces that violate the Dart standard.
       unparsed      #00 abs 000000723d6346d7 virt 00000000001ed6d7 _kDartIsolateSnapshotInstructions+0x1e26d7
       unparsed      #01 abs 000000723d637527 virt 00000000001f0527 _kDartIsolateSnapshotInstructions+0x1e5527
-      ''').map((frame) => frame.toJson()),
-          [
-            {
-              'platform': 'native',
-              'instruction_addr': '0x000000723d637527',
-            },
-            {
-              'platform': 'native',
-              'instruction_addr': '0x000000723d6346d7',
-            },
-          ]);
+      ''').map((frame) => frame.toJson());
+
+      expect(frames, [
+        {
+          'platform': 'native',
+          'instruction_addr': '0x000000723d637527',
+        },
+        {
+          'platform': 'native',
+          'instruction_addr': '0x000000723d6346d7',
+        },
+      ]);
     });
 
     test('sets instruction_addr and ignores noise', () {
-      expect(
-          SentryStackTraceFactory(SentryOptions(dsn: fakeDsn))
-              .getStackFrames('''
+      final frames = Fixture()
+          .getSut(considerFramesInAppByDefault: true)
+          .getStackFrames('''
       warning:  This VM has been configured to produce stack traces that violate the Dart standard.
       ***       *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
       unparsed  pid: 30930, tid: 30990, name 1.ui
@@ -215,17 +202,33 @@ void main() {
       unparsed  isolate_instructions: 723d452000, vm_instructions: 723d449000
       unparsed      #00 abs 000000723d6346d7 virt 00000000001ed6d7 _kDartIsolateSnapshotInstructions+0x1e26d7
       unparsed      #01 abs 000000723d637527 virt 00000000001f0527 _kDartIsolateSnapshotInstructions+0x1e5527
-      ''').map((frame) => frame.toJson()),
-          [
-            {
-              'platform': 'native',
-              'instruction_addr': '0x000000723d637527',
-            },
-            {
-              'platform': 'native',
-              'instruction_addr': '0x000000723d6346d7',
-            },
-          ]);
+      ''').map((frame) => frame.toJson());
+
+      expect(frames, [
+        {
+          'platform': 'native',
+          'instruction_addr': '0x000000723d637527',
+        },
+        {
+          'platform': 'native',
+          'instruction_addr': '0x000000723d6346d7',
+        },
+      ]);
     });
   });
+}
+
+class Fixture {
+  SentryStackTraceFactory getSut({
+    List<String> inAppIncludes = const [],
+    List<String> inAppExcludes = const [],
+    bool considerFramesInAppByDefault = true,
+  }) {
+    final options = SentryOptions(dsn: fakeDsn);
+    inAppIncludes.forEach(options.addInAppInclude);
+    inAppExcludes.forEach(options.addInAppExclude);
+    options.considerFramesInAppByDefault = considerFramesInAppByDefault;
+
+    return SentryStackTraceFactory(options);
+  }
 }
