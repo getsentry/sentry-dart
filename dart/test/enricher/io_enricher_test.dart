@@ -4,6 +4,9 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/enricher/io_enricher_event_processor.dart';
 import 'package:test/test.dart';
 
+import '../mocks.dart';
+import '../mocks/mock_platform_checker.dart';
+
 void main() {
   group('io_enricher', () {
     late Fixture fixture;
@@ -14,7 +17,7 @@ void main() {
 
     test('adds dart runtime', () async {
       final enricher = fixture.getSut();
-      final event = await enricher.apply(fixture.event);
+      final event = await enricher.apply(SentryEvent());
 
       expect(event.contexts.runtimes, isNotEmpty);
       final dartRuntime = event.contexts.runtimes
@@ -38,7 +41,7 @@ void main() {
     test('does not add device and os if native integration is available',
         () async {
       final enricher = fixture.getSut(hasNativeIntegration: true);
-      final event = await enricher.apply(fixture.event);
+      final event = await enricher.apply(SentryEvent());
 
       expect(event.contexts.device, isNull);
       expect(event.contexts.operatingSystem, isNull);
@@ -46,7 +49,7 @@ void main() {
 
     test('adds device and os if no native integration is available', () async {
       final enricher = fixture.getSut(hasNativeIntegration: false);
-      final event = await enricher.apply(fixture.event);
+      final event = await enricher.apply(SentryEvent());
 
       expect(event.contexts.device, isNotNull);
       expect(event.contexts.operatingSystem, isNotNull);
@@ -54,7 +57,7 @@ void main() {
 
     test('device has language, name and timezone', () async {
       final enricher = fixture.getSut();
-      final event = await enricher.apply(fixture.event);
+      final event = await enricher.apply(SentryEvent());
 
       expect(event.contexts.device?.language, isNotNull);
       expect(event.contexts.device?.name, isNotNull);
@@ -63,7 +66,7 @@ void main() {
 
     test('os has name and version', () async {
       final enricher = fixture.getSut();
-      final event = await enricher.apply(fixture.event);
+      final event = await enricher.apply(SentryEvent());
 
       expect(event.contexts.operatingSystem?.name, isNotNull);
       expect(event.contexts.operatingSystem?.version, isNotNull);
@@ -71,7 +74,7 @@ void main() {
 
     test('adds Dart context with PII', () async {
       final enricher = fixture.getSut(includePii: true);
-      final event = await enricher.apply(fixture.event);
+      final event = await enricher.apply(SentryEvent());
 
       final dartContext = event.contexts['dart_context'];
       expect(dartContext, isNotNull);
@@ -85,7 +88,7 @@ void main() {
 
     test('adds Dart context without PII', () async {
       final enricher = fixture.getSut(includePii: false);
-      final event = await enricher.apply(fixture.event);
+      final event = await enricher.apply(SentryEvent());
 
       final dartContext = event.contexts['dart_context'];
       expect(dartContext, isNotNull);
@@ -146,12 +149,16 @@ void main() {
 }
 
 class Fixture {
-  SentryEvent event = SentryEvent();
-
   IoEnricherEventProcessor getSut({
     bool hasNativeIntegration = false,
     bool includePii = false,
   }) {
-    return IoEnricherEventProcessor(hasNativeIntegration, includePii);
+    final options = SentryOptions(
+        dsn: fakeDsn,
+        checker:
+            MockPlatformChecker(hasNativeIntegration: hasNativeIntegration))
+      ..sendDefaultPii = includePii;
+
+    return IoEnricherEventProcessor(options);
   }
 }

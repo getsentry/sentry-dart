@@ -5,10 +5,7 @@ import '../protocol.dart';
 import '../sentry_options.dart';
 
 EventProcessor enricherEventProcessor(SentryOptions options) {
-  final processor = IoEnricherEventProcessor(
-    options.platformChecker.hasNativeIntegration,
-    options.sendDefaultPii,
-  );
+  final processor = IoEnricherEventProcessor(options);
   return processor.apply;
 }
 
@@ -17,21 +14,20 @@ EventProcessor enricherEventProcessor(SentryOptions options) {
 /// class to read information.
 class IoEnricherEventProcessor {
   IoEnricherEventProcessor(
-    this.hasNativeIntegration,
-    this.includePii,
+    this._options,
   );
 
-  final bool hasNativeIntegration;
-  final bool includePii;
+  final SentryOptions _options;
 
   FutureOr<SentryEvent> apply(SentryEvent event, {dynamic hint}) {
     // If there's a native integration available, it probably has better
     // information available than Flutter.
-    final os = hasNativeIntegration
+    final os = _options.platformChecker.hasNativeIntegration
         ? null
         : _getOperatingSystem(event.contexts.operatingSystem);
-    final device =
-        hasNativeIntegration ? null : _getDevice(event.contexts.device);
+    final device = _options.platformChecker.hasNativeIntegration
+        ? null
+        : _getDevice(event.contexts.device);
 
     final contexts = event.contexts.copyWith(
       operatingSystem: os,
@@ -39,7 +35,7 @@ class IoEnricherEventProcessor {
       runtimes: _getRuntimes(event.contexts.runtimes),
     );
 
-    contexts['dart_context'] = _getDartContext(includePii);
+    contexts['dart_context'] = _getDartContext(_options.sendDefaultPii);
 
     return event.copyWith(
       contexts: contexts,
@@ -72,7 +68,12 @@ class IoEnricherEventProcessor {
       try {
         // This throws sometimes for some reason
         executable = Platform.executable;
-      } catch (_) {}
+      } catch (exception) {
+        _options.logger(
+          SentryLevel.info,
+          'Platform.executable couldn\'t be retrieved: $exception',
+        );
+      }
     }
 
     return <String, dynamic>{

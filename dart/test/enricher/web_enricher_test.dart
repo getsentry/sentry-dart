@@ -14,7 +14,7 @@ void main() {
 
     test('adds dart runtime', () async {
       var enricher = fixture.getSut();
-      final event = await enricher.apply(fixture.event);
+      final event = await enricher.apply(SentryEvent());
 
       expect(event.contexts.runtimes, isNotEmpty);
       final dartRuntime = event.contexts.runtimes
@@ -24,7 +24,7 @@ void main() {
 
     test('adds browser runtime', () async {
       var enricher = fixture.getSut();
-      final event = await enricher.apply(fixture.event);
+      final event = await enricher.apply(SentryEvent());
 
       expect(event.contexts.runtimes, isNotEmpty);
       final dartRuntime = event.contexts.runtimes
@@ -45,7 +45,7 @@ void main() {
 
     test('adds device and os', () async {
       var enricher = fixture.getSut();
-      final event = await enricher.apply(fixture.event);
+      final event = await enricher.apply(SentryEvent());
 
       expect(event.contexts.device, isNotNull);
       expect(event.contexts.operatingSystem, isNotNull);
@@ -53,7 +53,7 @@ void main() {
 
     test('device has timezone, screendensity', () async {
       var enricher = fixture.getSut();
-      final event = await enricher.apply(fixture.event);
+      final event = await enricher.apply(SentryEvent());
 
       expect(event.contexts.device?.timezone, isNotNull);
       expect(event.contexts.device?.screenDensity, isNotNull);
@@ -61,7 +61,7 @@ void main() {
 
     test('os has name', () async {
       var enricher = fixture.getSut();
-      final event = await enricher.apply(fixture.event);
+      final event = await enricher.apply(SentryEvent());
 
       expect(event.contexts.operatingSystem?.name, isNotNull);
     });
@@ -127,8 +127,6 @@ void main() {
 }
 
 class Fixture {
-  SentryEvent event = SentryEvent();
-
   WebEnricherEventProcessor getSut() {
     return WebEnricherEventProcessor(
       html.window,

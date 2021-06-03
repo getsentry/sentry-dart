@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sentry/sentry.dart';
 
-typedef WidgetBindingGetter = WidgetsBinding Function();
+typedef WidgetBindingGetter = WidgetsBinding? Function();
 
 /// Enriches [SentryEvent]s with various kinds of information.
 /// FlutterEnricher only needs to add information which aren't exposed by
@@ -23,7 +23,7 @@ class FlutterEnricherEventProcessor {
   }) {
     return FlutterEnricherEventProcessor(
       checker,
-      () => WidgetsBinding.instance!,
+      () => WidgetsBinding.instance,
       hasNativeIntegration,
     );
   }
@@ -34,9 +34,9 @@ class FlutterEnricherEventProcessor {
   // because it must be called inside the `runZoneGuarded`-Integration.
   // Thus we call it on demand after all the initialization happend.
   final WidgetBindingGetter _getWidgetsBinding;
-  WidgetsBinding get _widgetsBinding => _getWidgetsBinding();
+  WidgetsBinding? get _widgetsBinding => _getWidgetsBinding();
   final PlatformChecker _checker;
-  SingletonFlutterWindow get _window => _widgetsBinding.window;
+  SingletonFlutterWindow? get _window => _widgetsBinding?.window;
   Map<String, String> _packages = {};
 
   FutureOr<SentryEvent> apply(
@@ -103,16 +103,17 @@ class FlutterEnricherEventProcessor {
     // The editor says it's fine without a `?` but the compiler complains
     // if it's missing
     // ignore: invalid_null_aware_operator
-    final languageTag = _window.locale?.toLanguageTag();
+    final languageTag = _window?.locale?.toLanguageTag();
 
     // The editor says it's fine without a `?` but the compiler complains
     // if it's missing
     final availableLocales =
         // ignore: invalid_null_aware_operator
-        _window.locales?.map((it) => it.toLanguageTag()).toList();
+        _window?.locales?.map((it) => it.toLanguageTag()).toList();
 
     return <String, dynamic>{
-      'is_24_hour_format': _window.alwaysUse24HourFormat,
+      if (_window?.alwaysUse24HourFormat != null)
+        'is_24_hour_format': _window?.alwaysUse24HourFormat,
       if (languageTag != null) 'locale': languageTag,
       if (availableLocales != null) 'available_locales': availableLocales,
       'timezone': DateTime.now().timeZoneName,
@@ -120,7 +121,7 @@ class FlutterEnricherEventProcessor {
   }
 
   Map<String, dynamic> _getFlutterContext() {
-    final currentLifecycle = _widgetsBinding.lifecycleState;
+    final currentLifecycle = _widgetsBinding?.lifecycleState;
 
     return <String, dynamic>{
       if (debugBrightnessOverride != null)
@@ -128,10 +129,10 @@ class FlutterEnricherEventProcessor {
       if (debugDefaultTargetPlatformOverride != null)
         'debug_default_target_platform_override':
             debugDefaultTargetPlatformOverride,
-      if (_window.initialLifecycleState.isNotEmpty)
-        'initial_lifecycle_state': _window.initialLifecycleState,
-      if (_window.defaultRouteName.isNotEmpty)
-        'default_route_name': _window.defaultRouteName,
+      if (_window?.initialLifecycleState.isNotEmpty ?? false)
+        'initial_lifecycle_state': _window?.initialLifecycleState,
+      if (_window?.defaultRouteName.isNotEmpty ?? false)
+        'default_route_name': _window?.defaultRouteName,
       if (currentLifecycle != null)
         'current_lifecycle_state': describeEnum(currentLifecycle),
       // Seems to always return false.
@@ -141,30 +142,38 @@ class FlutterEnricherEventProcessor {
   }
 
   Map<String, dynamic> _getAccessibilityContext() {
+    final window = _window;
+    if (window == null) {
+      return {};
+    }
     return <String, dynamic>{
       'accessible_navigation':
-          _window.accessibilityFeatures.accessibleNavigation,
-      'bold_text': _window.accessibilityFeatures.boldText,
-      'disable_animations': _window.accessibilityFeatures.disableAnimations,
-      'high_contrast': _window.accessibilityFeatures.highContrast,
-      'invert_colors': _window.accessibilityFeatures.invertColors,
-      'reduce_motion': _window.accessibilityFeatures.reduceMotion,
+          window.accessibilityFeatures.accessibleNavigation,
+      'bold_text': window.accessibilityFeatures.boldText,
+      'disable_animations': window.accessibilityFeatures.disableAnimations,
+      'high_contrast': window.accessibilityFeatures.highContrast,
+      'invert_colors': window.accessibilityFeatures.invertColors,
+      'reduce_motion': window.accessibilityFeatures.reduceMotion,
     };
   }
 
-  SentryDevice _getDevice(SentryDevice? device) {
-    final orientation = _window.physicalSize.width > _window.physicalSize.height
+  SentryDevice? _getDevice(SentryDevice? device) {
+    final window = _window;
+    if (window == null) {
+      return device;
+    }
+    final orientation = window.physicalSize.width > window.physicalSize.height
         ? SentryOrientation.landscape
         : SentryOrientation.portrait;
 
     return (device ?? SentryDevice()).copyWith(
       orientation: device?.orientation ?? orientation,
       screenHeightPixels:
-          device?.screenHeightPixels ?? _window.physicalSize.height.toInt(),
+          device?.screenHeightPixels ?? window.physicalSize.height.toInt(),
       screenWidthPixels:
-          device?.screenWidthPixels ?? _window.physicalSize.width.toInt(),
-      screenDensity: device?.screenDensity ?? _window.devicePixelRatio,
-      theme: device?.theme ?? describeEnum(_window.platformBrightness),
+          device?.screenWidthPixels ?? window.physicalSize.width.toInt(),
+      screenDensity: device?.screenDensity ?? window.devicePixelRatio,
+      theme: device?.theme ?? describeEnum(window.platformBrightness),
     );
   }
 

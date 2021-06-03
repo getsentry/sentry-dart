@@ -2,9 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/flutter_enricher_event_processor.dart';
+
+import 'mocks.dart';
 
 void main() {
   group('FlutterEnricher', () {
@@ -15,12 +16,17 @@ void main() {
       fixture = Fixture();
     });
 
+    testWidgets('example', (WidgetTester tester) async {
+      tester.binding.createViewConfiguration();
+      expect(tester.binding.window.viewConfiguration.visible, isNotNull);
+    });
+
     testWidgets('flutter context', (WidgetTester tester) async {
       final enricher = fixture.getSut(
         binding: () => tester.binding,
       );
 
-      final event = await enricher.apply(fixture.event);
+      final event = await enricher.apply(SentryEvent());
 
       final flutterContext = event.contexts['flutter_context'];
       expect(flutterContext, isNotNull);
@@ -31,7 +37,7 @@ void main() {
         binding: () => tester.binding,
       );
 
-      final event = await enricher.apply(fixture.event);
+      final event = await enricher.apply(SentryEvent());
 
       final accessibility = event.contexts['accessibility'];
 
@@ -48,7 +54,7 @@ void main() {
         binding: () => tester.binding,
       );
 
-      final event = await enricher.apply(fixture.event);
+      final event = await enricher.apply(SentryEvent());
 
       final culture = event.contexts['culture'];
 
@@ -63,7 +69,7 @@ void main() {
         hasNativeIntegration: true,
       );
 
-      final event = await enricher.apply(fixture.event);
+      final event = await enricher.apply(SentryEvent());
 
       expect(event.contexts.device, isNull);
     });
@@ -75,7 +81,7 @@ void main() {
         hasNativeIntegration: false,
       );
 
-      final event = await enricher.apply(fixture.event);
+      final event = await enricher.apply(SentryEvent());
 
       expect(event.contexts.device, isNotNull);
     });
@@ -85,7 +91,7 @@ void main() {
         binding: () => tester.binding,
       );
 
-      final event = await enricher.apply(fixture.event);
+      final event = await enricher.apply(SentryEvent());
 
       final flutterRuntime = event.contexts.runtimes
           .firstWhere((element) => element.name == 'Flutter');
@@ -137,7 +143,7 @@ void main() {
         ),
       );
 
-      final event = await enricher.apply(fixture.event);
+      final event = await enricher.apply(SentryEvent());
 
       expect(event.modules, {
         'foo_package': 'unknown',
@@ -164,7 +170,7 @@ void main() {
         ),
       );
 
-      final event = await enricher.apply(fixture.event);
+      final event = await enricher.apply(SentryEvent());
 
       expect(event.modules, {'foo_package': 'unknown'});
     });
@@ -215,7 +221,6 @@ void main() {
 }
 
 class Fixture {
-  final event = SentryEvent();
   FlutterEnricherEventProcessor getSut({
     required WidgetBindingGetter binding,
     PlatformChecker? checker,
@@ -227,36 +232,4 @@ class Fixture {
       hasNativeIntegration,
     );
   }
-}
-
-class MockPlatformChecker implements PlatformChecker {
-  MockPlatformChecker({
-    this.isDebug = false,
-    this.isProfile = false,
-    this.isRelease = false,
-    this.isWebValue = false,
-  });
-
-  final bool isDebug;
-  final bool isProfile;
-  final bool isRelease;
-  final bool isWebValue;
-
-  @override
-  bool get hasNativeIntegration => false;
-
-  @override
-  bool isDebugMode() => isDebug;
-
-  @override
-  bool isProfileMode() => isProfile;
-
-  @override
-  bool isReleaseMode() => isRelease;
-
-  @override
-  bool get isWeb => isWebValue;
-
-  @override
-  Platform get platform => throw UnimplementedError();
 }
