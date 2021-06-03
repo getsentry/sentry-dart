@@ -16,11 +16,6 @@ void main() {
       fixture = Fixture();
     });
 
-    testWidgets('example', (WidgetTester tester) async {
-      tester.binding.createViewConfiguration();
-      expect(tester.binding.window.viewConfiguration.visible, isNotNull);
-    });
-
     testWidgets('flutter context', (WidgetTester tester) async {
       final enricher = fixture.getSut(
         binding: () => tester.binding,
