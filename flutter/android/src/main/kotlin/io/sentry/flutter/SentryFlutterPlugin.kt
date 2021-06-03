@@ -6,6 +6,7 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
+import io.sentry.HubAdapter
 import io.sentry.Sentry
 import io.sentry.SentryEvent
 import io.sentry.SentryLevel
@@ -20,7 +21,6 @@ import java.util.UUID
 class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
   private lateinit var channel: MethodChannel
   private lateinit var context: Context
-  private lateinit var options: SentryAndroidOptions
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     context = flutterPluginBinding.applicationContext
@@ -47,7 +47,8 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
   }
 
   private fun writeEnvelope(envelope: String): Boolean {
-    if (!this::options.isInitialized || options.outboxPath.isNullOrEmpty()) {
+    val options = HubAdapter.getInstance().options
+    if (options.outboxPath.isNullOrEmpty()) {
       return false
     }
 
@@ -87,7 +88,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
         options.isEnableAppComponentBreadcrumbs = it
       }
       args.getIfNotNull<Int>("maxBreadcrumbs") { options.maxBreadcrumbs = it }
-      args.getIfNotNull<Int>("cacheDirSize") { options.cacheDirSize = it }
+      args.getIfNotNull<Int>("cacheDirSize") { options.maxCacheItems = it }
       args.getIfNotNull<String>("diagnosticLevel") {
         if (options.isDebug) {
           val sentryLevel = SentryLevel.valueOf(it.toUpperCase(Locale.ROOT))
@@ -110,13 +111,11 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
       options.setBeforeSend { event, _ ->
         setEventOriginTag(event)
         addPackages(event, options.sdkVersion)
-        removeThreadsIfNotAndroid(event)
         // TODO: merge debug images from Native
         event
       }
 
-      // missing proxy, sendDefaultPii, enableScopeSync
-      this.options = options
+      // missing proxy, enableScopeSync
     }
     result.success("")
   }
@@ -139,10 +138,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
   }
 
   private fun loadImageList(call: MethodCall, result: Result) {
-    if (!this::options.isInitialized) {
-      result.error("5", "SentryOptions is null", null)
-      return
-    }
+    val options = HubAdapter.getInstance().options as SentryAndroidOptions
 
     val newDebugImages = mutableListOf<Map<String, Any?>>()
     val debugImages: List<DebugImage>? = options.debugImagesLoader.loadDebugImages()
@@ -200,16 +196,6 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
         sdk?.integrations?.forEach { integration ->
           it.addIntegration(integration)
         }
-      }
-    }
-  }
-
-  private fun removeThreadsIfNotAndroid(event: SentryEvent) {
-    event.sdk?.let {
-      // we do not want the thread list if not an android event, the thread info is mostly about
-      // the file observer anyway
-      if (it.name != androidSdk && event.threads != null) {
-        event.threads.clear()
       }
     }
   }
