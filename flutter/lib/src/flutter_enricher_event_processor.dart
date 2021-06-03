@@ -137,6 +137,7 @@ class FlutterEnricherEventProcessor {
         'current_lifecycle_state': describeEnum(currentLifecycle),
       // Seems to always return false.
       // Also always fails in tests.
+      // See https://github.com/flutter/flutter/issues/83919
       // 'window_is_visible': _window.viewConfiguration.visible,
     };
   }

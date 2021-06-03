@@ -67,6 +67,7 @@ class IoEnricherEventProcessor {
     if (includePii) {
       try {
         // This throws sometimes for some reason
+        // https://github.com/flutter/flutter/issues/83921
         executable = Platform.executable;
       } catch (exception) {
         _options.logger(
