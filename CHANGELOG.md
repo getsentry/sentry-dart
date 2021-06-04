@@ -1,6 +1,7 @@
 # Unreleased
 
 * Fix: Merge user from event and scope (#467)
+* Bump: Sentry-Cocoa to 7.1.3 for iOS and macOS
 
 # 5.1.0-beta.1
 
