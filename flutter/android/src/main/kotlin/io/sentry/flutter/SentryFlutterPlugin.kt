@@ -111,7 +111,6 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
       options.setBeforeSend { event, _ ->
         setEventOriginTag(event)
         addPackages(event, options.sdkVersion)
-        // TODO: merge debug images from Native
         event
       }
 
