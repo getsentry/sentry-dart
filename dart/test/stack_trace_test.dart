@@ -227,7 +227,7 @@ class Fixture {
     final options = SentryOptions(dsn: fakeDsn);
     inAppIncludes.forEach(options.addInAppInclude);
     inAppExcludes.forEach(options.addInAppExclude);
-    options.considerFramesInAppByDefault = considerFramesInAppByDefault;
+    options.considerInAppFramesByDefault = considerFramesInAppByDefault;
 
     return SentryStackTraceFactory(options);
   }

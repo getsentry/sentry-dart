@@ -149,7 +149,7 @@ class SentryStackTraceFactory {
 
     if (scheme.isEmpty) {
       // Early bail out.
-      return _options.considerFramesInAppByDefault;
+      return _options.considerInAppFramesByDefault;
     }
     // The following code depends on the scheme being set.
 
@@ -174,6 +174,6 @@ class SentryStackTraceFactory {
       return false;
     }
 
-    return _options.considerFramesInAppByDefault;
+    return _options.considerInAppFramesByDefault;
   }
 }
