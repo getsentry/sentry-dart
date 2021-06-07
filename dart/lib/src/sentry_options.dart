@@ -141,9 +141,9 @@ class SentryOptions {
   /// an allow or deny list.
   /// This value is only used if Sentry can not find the origin of the frame.
   ///
-  /// - If [considerFramesInAppByDefault] is true you only need to maintain
+  /// - If [considerInAppFramesByDefault] is true you only need to maintain
   /// [inAppExcludes].
-  /// - If [considerFramesInAppByDefault] is false you only need to maintain
+  /// - If [considerInAppFramesByDefault] is false you only need to maintain
   /// [inAppIncludes].
   bool considerInAppFramesByDefault = true;
 
