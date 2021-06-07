@@ -1,6 +1,6 @@
 # Unreleased
 
-* Feat: EventProcessor changed to an interface
+* Feat: EventProcessor changed to an interface (#489)
 
 # 5.1.0
 
