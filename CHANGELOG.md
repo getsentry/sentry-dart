@@ -1,5 +1,7 @@
 # Unreleased
 
+* Feat: Add Culture Context
+
 # 5.1.0
 
 * Fix: Merge user from event and scope (#467)
