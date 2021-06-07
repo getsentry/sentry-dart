@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
-/// App context describes the culture.
+/// Culture Context describes certain properties of the culture in which the  
+/// software is used.
 @immutable
 class SentryCulture {
   static const type = 'culture';
