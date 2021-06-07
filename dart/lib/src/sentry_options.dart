@@ -145,7 +145,7 @@ class SentryOptions {
   /// [inAppExcludes].
   /// - If [considerFramesInAppByDefault] is false you only need to maintain
   /// [inAppIncludes].
-  bool considerFramesInAppByDefault = true;
+  bool considerInAppFramesByDefault = true;
 
   /// The transport is an internal construct of the client that abstracts away the event sending.
   Transport transport = NoOpTransport();
