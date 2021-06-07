@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -74,23 +72,22 @@ void main() {
     expect(fixture.options.eventProcessors.length, 1);
 
     final e = SentryEvent();
-    final event = await (fixture.options.eventProcessors.first(e)
-        as FutureOr<SentryEvent>);
+    final event = await fixture.options.eventProcessors.first.apply(e);
 
     expect(called, true);
-    expect(event.contexts.device!.name, 'Device1');
-    expect(event.contexts.app!.name, 'test-app');
-    expect(event.contexts.operatingSystem!.name, 'os1');
-    expect(event.contexts.gpu!.name, 'gpu1');
-    expect(event.contexts.browser!.name, 'browser1');
+    expect(event?.contexts.device!.name, 'Device1');
+    expect(event?.contexts.app!.name, 'test-app');
+    expect(event?.contexts.operatingSystem!.name, 'os1');
+    expect(event?.contexts.gpu!.name, 'gpu1');
+    expect(event?.contexts.browser!.name, 'browser1');
     expect(
-        event.contexts.runtimes.any((element) => element.name == 'RT1'), true);
-    expect(event.contexts['theme'], 'material');
+        event?.contexts.runtimes.any((element) => element.name == 'RT1'), true);
+    expect(event?.contexts['theme'], 'material');
     expect(
-      event.sdk!.packages.any((element) => element.name == 'native-package'),
+      event?.sdk?.packages.any((element) => element.name == 'native-package'),
       true,
     );
-    expect(event.sdk!.integrations.contains('NativeIntegration'), true);
+    expect(event?.sdk?.integrations.contains('NativeIntegration'), true);
   });
 
   test(
@@ -110,20 +107,19 @@ void main() {
         runtimes: [const SentryRuntime(name: 'eRT')])
       ..['theme'] = 'cuppertino';
     final e = SentryEvent(contexts: eventContexts);
-    final event = await (fixture.options.eventProcessors.first(e)
-        as FutureOr<SentryEvent>);
+    final event = await fixture.options.eventProcessors.first.apply(e);
 
     expect(called, true);
-    expect(event.contexts.device!.name, 'eDevice');
-    expect(event.contexts.app!.name, 'eApp');
-    expect(event.contexts.operatingSystem!.name, 'eOS');
-    expect(event.contexts.gpu!.name, 'eGpu');
-    expect(event.contexts.browser!.name, 'eBrowser');
+    expect(event?.contexts.device!.name, 'eDevice');
+    expect(event?.contexts.app!.name, 'eApp');
+    expect(event?.contexts.operatingSystem!.name, 'eOS');
+    expect(event?.contexts.gpu!.name, 'eGpu');
+    expect(event?.contexts.browser!.name, 'eBrowser');
     expect(
-        event.contexts.runtimes.any((element) => element.name == 'RT1'), true);
+        event?.contexts.runtimes.any((element) => element.name == 'RT1'), true);
     expect(
-        event.contexts.runtimes.any((element) => element.name == 'eRT'), true);
-    expect(event.contexts['theme'], 'cuppertino');
+        event?.contexts.runtimes.any((element) => element.name == 'eRT'), true);
+    expect(event?.contexts['theme'], 'cuppertino');
   });
 
   test(
@@ -133,19 +129,18 @@ void main() {
       integration(fixture.hub, fixture.options);
 
       final e = getEvent();
-      final event = await (fixture.options.eventProcessors.first(e)
-          as FutureOr<SentryEvent>);
+      final event = await fixture.options.eventProcessors.first.apply(e);
 
       expect(
-        event.sdk!.packages.any((element) => element.name == 'native-package'),
+        event?.sdk!.packages.any((element) => element.name == 'native-package'),
         true,
       );
       expect(
-        event.sdk!.packages.any((element) => element.name == 'event-package'),
+        event?.sdk!.packages.any((element) => element.name == 'event-package'),
         true,
       );
-      expect(event.sdk!.integrations.contains('NativeIntegration'), true);
-      expect(event.sdk!.integrations.contains('EventIntegration'), true);
+      expect(event?.sdk!.integrations.contains('NativeIntegration'), true);
+      expect(event?.sdk!.integrations.contains('EventIntegration'), true);
     },
   );
 
@@ -157,7 +152,7 @@ void main() {
     integration(fixture.hub, fixture.options);
 
     final e = SentryEvent();
-    final event = await fixture.options.eventProcessors.first(e);
+    final event = await fixture.options.eventProcessors.first.apply(e);
 
     expect(event, isNotNull);
   });
@@ -170,11 +165,10 @@ void main() {
 
       final eventSdk = getSdkVersion(name: 'sentry.dart.flutter');
       final e = getEvent(sdk: eventSdk);
-      final event = await (fixture.options.eventProcessors.first(e)
-          as FutureOr<SentryEvent>);
+      final event = await fixture.options.eventProcessors.first.apply(e);
 
-      expect(event.tags!['event.origin'], 'flutter');
-      expect(event.tags!['event.environment'], 'dart');
+      expect(event?.tags!['event.origin'], 'flutter');
+      expect(event?.tags!['event.environment'], 'dart');
     },
   );
 
@@ -189,12 +183,11 @@ void main() {
         sdk: eventSdk,
         tags: {'a': 'b'},
       );
-      final event = await (fixture.options.eventProcessors.first(e)
-          as FutureOr<SentryEvent>);
+      final event = await fixture.options.eventProcessors.first.apply(e);
 
-      expect(event.tags!['event.origin'], 'flutter');
-      expect(event.tags!['event.environment'], 'dart');
-      expect(event.tags!['a'], 'b');
+      expect(event?.tags!['event.origin'], 'flutter');
+      expect(event?.tags!['event.environment'], 'dart');
+      expect(event?.tags!['a'], 'b');
     },
   );
 
@@ -205,11 +198,10 @@ void main() {
       integration(fixture.hub, fixture.options);
 
       final e = getEvent(tags: {});
-      final event = await (fixture.options.eventProcessors.first(e)
-          as FutureOr<SentryEvent>);
+      final event = await fixture.options.eventProcessors.first.apply(e);
 
-      expect(event.tags!.containsKey('event.origin'), false);
-      expect(event.tags!.containsKey('event.environment'), false);
+      expect(event?.tags!.containsKey('event.origin'), false);
+      expect(event?.tags!.containsKey('event.environment'), false);
     },
   );
 }
