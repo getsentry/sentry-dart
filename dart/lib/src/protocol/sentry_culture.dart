@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-/// Culture Context describes certain properties of the culture in which the  
+/// Culture Context describes certain properties of the culture in which the
 /// software is used.
 @immutable
 class SentryCulture {
