@@ -1,7 +1,6 @@
 # Unreleased
 
 * Fix: Merge user from event and scope (#467)
-* Feat: Clean up Android implementation (#486)
 * Bump: sentry-android to v5.0.0 (#486)
 
 # 5.1.0-beta.1
