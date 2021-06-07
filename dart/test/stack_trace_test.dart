@@ -86,7 +86,7 @@ void main() {
 
       // default is true
       final serializedFrame = Fixture()
-          .getSut(considerFramesInAppByDefault: true)
+          .getSut(considerInAppFramesByDefault: true)
           .encodeStackTraceFrame(frame)!;
 
       expect(serializedFrame.inApp, true);
@@ -101,7 +101,7 @@ void main() {
 
       // default is true
       final serializedFrame = Fixture()
-          .getSut(considerFramesInAppByDefault: false)
+          .getSut(considerInAppFramesByDefault: false)
           .encodeStackTraceFrame(frame)!;
 
       expect(serializedFrame.inApp, false);
@@ -111,7 +111,7 @@ void main() {
   group('encodeStackTrace', () {
     test('encodes a simple stack trace', () {
       final frames = Fixture()
-          .getSut(considerFramesInAppByDefault: true)
+          .getSut(considerInAppFramesByDefault: true)
           .getStackFrames('''
 #0      baz (file:///pathto/test.dart:50:3)
 #1      bar (file:///pathto/test.dart:46:9)
@@ -139,7 +139,7 @@ void main() {
 
     test('encodes an asynchronous stack trace', () {
       final frames = Fixture()
-          .getSut(considerFramesInAppByDefault: true)
+          .getSut(considerInAppFramesByDefault: true)
           .getStackFrames('''
 #0      baz (file:///pathto/test.dart:50:3)
 <asynchronous suspension>
@@ -171,7 +171,7 @@ void main() {
 
     test('sets instruction_addr if stack trace violates dart standard', () {
       final frames = Fixture()
-          .getSut(considerFramesInAppByDefault: true)
+          .getSut(considerInAppFramesByDefault: true)
           .getStackFrames('''
       warning:  This VM has been configured to produce stack traces that violate the Dart standard.
       unparsed      #00 abs 000000723d6346d7 virt 00000000001ed6d7 _kDartIsolateSnapshotInstructions+0x1e26d7
@@ -192,7 +192,7 @@ void main() {
 
     test('sets instruction_addr and ignores noise', () {
       final frames = Fixture()
-          .getSut(considerFramesInAppByDefault: true)
+          .getSut(considerInAppFramesByDefault: true)
           .getStackFrames('''
       warning:  This VM has been configured to produce stack traces that violate the Dart standard.
       ***       *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
@@ -222,12 +222,12 @@ class Fixture {
   SentryStackTraceFactory getSut({
     List<String> inAppIncludes = const [],
     List<String> inAppExcludes = const [],
-    bool considerFramesInAppByDefault = true,
+    bool considerInAppFramesByDefault = true,
   }) {
     final options = SentryOptions(dsn: fakeDsn);
     inAppIncludes.forEach(options.addInAppInclude);
     inAppExcludes.forEach(options.addInAppExclude);
-    options.considerInAppFramesByDefault = considerFramesInAppByDefault;
+    options.considerInAppFramesByDefault = considerInAppFramesByDefault;
 
     return SentryStackTraceFactory(options);
   }
