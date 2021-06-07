@@ -266,7 +266,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
         do {
             let envelope = try parseJsonEnvelope(event)
-            SentrySDK.capture(envelope)
+            PrivateSentrySDKOnly.capture(envelope)
             result("")
         } catch {
             print("Cannot parse the envelope json !")

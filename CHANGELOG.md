@@ -2,6 +2,7 @@
 
 * Fix: Merge user from event and scope (#467)
 * Feature: Allow setting of default values for in-app-frames via `SentryOptions.isStackFrameInAppDefault` (#482)
+* Bump: Sentry-Cocoa to 7.1.3 for iOS and macOS (#488)
 
 # 5.1.0-beta.1
 
