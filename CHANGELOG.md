@@ -1,6 +1,6 @@
 # Unreleased
 
-* Remove `Sentry.currentHub`
+* Remove `Sentry.currentHub` (#490)
 
 # 5.1.0
 
