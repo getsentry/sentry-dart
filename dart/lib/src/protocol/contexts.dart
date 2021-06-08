@@ -16,6 +16,7 @@ class Contexts extends MapView<String, dynamic> {
     SentryApp? app,
     SentryBrowser? browser,
     SentryGpu? gpu,
+    SentryCulture? culture,
   }) : super({
           SentryDevice.type: device,
           SentryOperatingSystem.type: operatingSystem,
@@ -23,6 +24,7 @@ class Contexts extends MapView<String, dynamic> {
           SentryApp.type: app,
           SentryBrowser.type: browser,
           SentryGpu.type: gpu,
+          SentryCulture.type: culture,
         });
 
   factory Contexts.fromJson(Map<String, dynamic> data) {
@@ -39,6 +41,9 @@ class Contexts extends MapView<String, dynamic> {
           : null,
       browser: data[SentryBrowser.type] != null
           ? SentryBrowser.fromJson(Map.from(data[SentryBrowser.type]))
+          : null,
+      culture: data[SentryCulture.type] != null
+          ? SentryCulture.fromJson(Map.from(data[SentryCulture.type]))
           : null,
       gpu: data[SentryGpu.type] != null
           ? SentryGpu.fromJson(Map.from(data[SentryGpu.type]))
@@ -99,6 +104,12 @@ class Contexts extends MapView<String, dynamic> {
 
   set browser(SentryBrowser? browser) => this[SentryBrowser.type] = browser;
 
+  /// Culture Context describes certain properties of the culture in which the
+  /// software is used.
+  SentryCulture? get culture => this[SentryCulture.type];
+
+  set culture(SentryCulture? culture) => this[SentryCulture.type] = culture;
+
   /// GPU context describes the GPU of the device.
   SentryGpu? get gpu => this[SentryGpu.type];
 
@@ -135,6 +146,13 @@ class Contexts extends MapView<String, dynamic> {
           final browserMap = browser?.toJson();
           if (browserMap?.isNotEmpty ?? false) {
             json[SentryBrowser.type] = browserMap;
+          }
+          break;
+
+        case SentryCulture.type:
+          final cultureMap = culture?.toJson();
+          if (cultureMap?.isNotEmpty ?? false) {
+            json[SentryCulture.type] = cultureMap;
           }
           break;
 
@@ -191,6 +209,7 @@ class Contexts extends MapView<String, dynamic> {
       operatingSystem: operatingSystem?.clone(),
       app: app?.clone(),
       browser: browser?.clone(),
+      culture: culture?.clone(),
       gpu: gpu?.clone(),
       runtimes: runtimes.map((runtime) => runtime.clone()).toList(),
     )..addEntries(
@@ -206,6 +225,7 @@ class Contexts extends MapView<String, dynamic> {
     List<SentryRuntime>? runtimes,
     SentryApp? app,
     SentryBrowser? browser,
+    SentryCulture? culture,
     SentryGpu? gpu,
   }) =>
       Contexts(
@@ -215,6 +235,7 @@ class Contexts extends MapView<String, dynamic> {
         app: app ?? this.app,
         browser: browser ?? this.browser,
         gpu: gpu ?? this.gpu,
+        culture: culture ?? this.culture,
       )..addEntries(
           entries.where((element) => !_defaultFields.contains(element.key)),
         );
@@ -227,5 +248,6 @@ class Contexts extends MapView<String, dynamic> {
     SentryRuntime.type,
     SentryGpu.type,
     SentryBrowser.type,
+    SentryCulture.type,
   ];
 }
