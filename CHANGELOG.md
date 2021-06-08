@@ -6,7 +6,6 @@
 
 * Feat: Support envelope based transport for events (#391)
   * The method signature of `Transport` changed from `Future<SentryId> send(SentryEvent event)` to `Future<SentryId> send(SentryEnvelope envelope)`
-  * Bumped sentry-cocoa to v7.1.3
 * Remove `Sentry.currentHub` (#490)
 
 # 5.1.0
