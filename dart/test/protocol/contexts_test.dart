@@ -10,6 +10,7 @@ void main() {
     app: SentryApp(name: 'name'),
     browser: SentryBrowser(name: 'name'),
     gpu: SentryGpu(id: 1),
+    culture: SentryCulture(locale: 'foo-bar'),
   );
 
   final contextsJson = <String, dynamic>{
@@ -19,6 +20,7 @@ void main() {
     'app': {'app_name': 'name'},
     'browser': {'name': 'name'},
     'gpu': {'id': 1},
+    'culture': {'locale': 'foo-bar'}
   };
 
   final contextsMutlipleRuntimes = Contexts(
@@ -94,6 +96,7 @@ void main() {
       final app = SentryApp(name: 'name1');
       final browser = SentryBrowser(name: 'name1');
       final gpu = SentryGpu(id: 2);
+      final culture = SentryCulture(locale: 'foo-bar');
 
       final copy = data.copyWith(
         device: device,
@@ -102,6 +105,7 @@ void main() {
         app: app,
         browser: browser,
         gpu: gpu,
+        culture: culture,
       );
 
       expect(device.toJson(), copy.device!.toJson());
@@ -112,6 +116,7 @@ void main() {
       );
       expect(app.toJson(), copy.app!.toJson());
       expect(browser.toJson(), copy.browser!.toJson());
+      expect(culture.toJson(), copy.culture!.toJson());
       expect(gpu.toJson(), copy.gpu!.toJson());
       expect('value', copy['extra']);
     });

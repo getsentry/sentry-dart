@@ -1,5 +1,7 @@
 # Unreleased
 
+* Feat: Add Culture Context (#491)
+
 ## Breaking Changes:
 
 * Feat: Support envelope based transport for events (#391)
