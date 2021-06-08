@@ -10,7 +10,7 @@ typedef WidgetBindingGetter = WidgetsBinding? Function();
 /// Enriches [SentryEvent]s with various kinds of information.
 /// FlutterEnricher only needs to add information which aren't exposed by
 /// the Dart runtime.
-class FlutterEnricherEventProcessor {
+class FlutterEnricherEventProcessor extends EventProcessor {
   FlutterEnricherEventProcessor(
     this._checker,
     this._getWidgetsBinding,
@@ -39,6 +39,7 @@ class FlutterEnricherEventProcessor {
   SingletonFlutterWindow? get _window => _widgetsBinding?.window;
   Map<String, String> _packages = {};
 
+  @override
   FutureOr<SentryEvent> apply(
     SentryEvent event, {
     dynamic hint,

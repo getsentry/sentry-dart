@@ -1,24 +1,25 @@
 import 'dart:async';
 import 'dart:io';
 
+import '../event_processor.dart';
 import '../protocol.dart';
 import '../sentry_options.dart';
 
 EventProcessor enricherEventProcessor(SentryOptions options) {
-  final processor = IoEnricherEventProcessor(options);
-  return processor.apply;
+  return IoEnricherEventProcessor(options);
 }
 
 /// Enriches [SentryEvents] with various kinds of information.
 /// Uses Darts [Platform](https://api.dart.dev/stable/dart-io/Platform-class.html)
 /// class to read information.
-class IoEnricherEventProcessor {
+class IoEnricherEventProcessor extends EventProcessor {
   IoEnricherEventProcessor(
     this._options,
   );
 
   final SentryOptions _options;
 
+  @override
   FutureOr<SentryEvent> apply(SentryEvent event, {dynamic hint}) {
     // If there's a native integration available, it probably has better
     // information available than Flutter.

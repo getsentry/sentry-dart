@@ -67,7 +67,7 @@ mixin SentryFlutter {
       checker: options.platformChecker,
       hasNativeIntegration: options.platformChecker.hasNativeIntegration,
     );
-    options.addEventProcessor(flutterEventProcessor.apply);
+    options.addEventProcessor(flutterEventProcessor);
 
     _setSdk(options);
   }

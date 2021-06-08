@@ -1,21 +1,19 @@
 import 'dart:async';
-
-import '../platform_checker.dart';
-
-import '../protocol.dart';
 import 'dart:html' as html show window, Window;
 
+import '../event_processor.dart';
+import '../platform_checker.dart';
 import '../sentry_options.dart';
+import '../protocol.dart';
 
 EventProcessor enricherEventProcessor(SentryOptions options) {
-  final processor = WebEnricherEventProcessor(
+  return WebEnricherEventProcessor(
     html.window,
     options.platformChecker,
   );
-  return processor.apply;
 }
 
-class WebEnricherEventProcessor {
+class WebEnricherEventProcessor extends EventProcessor {
   WebEnricherEventProcessor(
     this._window,
     this._platformChecker,
@@ -24,6 +22,7 @@ class WebEnricherEventProcessor {
   final html.Window _window;
   final PlatformChecker _platformChecker;
 
+  @override
   FutureOr<SentryEvent> apply(SentryEvent event, {dynamic hint}) async {
     // Web has no native integration, so no need to check for it
 

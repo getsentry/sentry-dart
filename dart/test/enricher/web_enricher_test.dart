@@ -4,6 +4,8 @@ import 'package:sentry/src/enricher/web_enricher_event_processor.dart';
 import 'package:test/test.dart';
 import 'dart:html' as html show window;
 
+import '../mocks.dart';
+
 void main() {
   group('web_enricher', () {
     late Fixture fixture;
@@ -122,6 +124,22 @@ void main() {
         event.contexts.operatingSystem?.name,
         fakeEvent.contexts.operatingSystem?.name,
       );
+    });
+
+    test('$WebEnricherEventProcessor gets added on init', () async {
+      late SentryOptions sentryOptions;
+      await Sentry.init(
+        (options) {
+          options.dsn = fakeDsn;
+          sentryOptions = options;
+        },
+      );
+      await Sentry.close();
+
+      final ioEnricherCount = sentryOptions.eventProcessors
+          .whereType<WebEnricherEventProcessor>()
+          .length;
+      expect(ioEnricherCount, 1);
     });
   });
 }

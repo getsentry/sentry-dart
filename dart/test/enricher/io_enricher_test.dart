@@ -145,6 +145,22 @@ void main() {
         fakeEvent.contexts.operatingSystem?.version,
       );
     });
+
+    test('$IoEnricherEventProcessor gets added on init', () async {
+      late SentryOptions sentryOptions;
+      await Sentry.init(
+        (options) {
+          options.dsn = fakeDsn;
+          sentryOptions = options;
+        },
+      );
+      await Sentry.close();
+
+      final ioEnricherCount = sentryOptions.eventProcessors
+          .whereType<IoEnricherEventProcessor>()
+          .length;
+      expect(ioEnricherCount, 1);
+    });
   });
 }
 

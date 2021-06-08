@@ -212,6 +212,22 @@ void main() {
         fakeEvent.contexts.device?.theme,
       );
     });
+
+    test('$FlutterEnricherEventProcessor gets added on init', () async {
+      late SentryOptions sentryOptions;
+      await SentryFlutter.init(
+        (options) {
+          options.dsn = fakeDsn;
+          sentryOptions = options;
+        },
+      );
+      await Sentry.close();
+
+      final ioEnricherCount = sentryOptions.eventProcessors
+          .whereType<FlutterEnricherEventProcessor>()
+          .length;
+      expect(ioEnricherCount, 1);
+    });
   });
 }
 
