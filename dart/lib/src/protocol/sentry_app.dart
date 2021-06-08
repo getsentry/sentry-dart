@@ -18,18 +18,6 @@ class SentryApp {
     this.deviceAppHash,
   });
 
-  factory SentryApp.fromJson(Map<String, dynamic> data) => SentryApp(
-        name: data['app_name'],
-        version: data['app_version'],
-        identifier: data['app_identifier'],
-        build: data['app_build'],
-        buildType: data['build_type'],
-        startTime: data['app_start_time'] != null
-            ? DateTime.tryParse(data['app_start_time'])
-            : null,
-        deviceAppHash: data['device_app_hash'],
-      );
-
   /// Human readable application name, as it appears on the platform.
   final String? name;
 
@@ -50,6 +38,19 @@ class SentryApp {
 
   /// Application specific device identifier.
   final String? deviceAppHash;
+
+  /// Deserializes a [SentryApp] from JSON [Map].
+  factory SentryApp.fromJson(Map<String, dynamic> data) => SentryApp(
+        name: data['app_name'],
+        version: data['app_version'],
+        identifier: data['app_identifier'],
+        build: data['app_build'],
+        buildType: data['build_type'],
+        startTime: data['app_start_time'] != null
+            ? DateTime.tryParse(data['app_start_time'])
+            : null,
+        deviceAppHash: data['device_app_hash'],
+      );
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {

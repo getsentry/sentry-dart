@@ -226,6 +226,88 @@ class SentryEvent {
         debugMeta: debugMeta ?? this.debugMeta,
       );
 
+  /// Deserializes a [SentryEvent] from JSON [Map].
+  factory SentryEvent.fromJson(Map<String, dynamic> json) {
+    final breadcrumbsJson = json['breadcrumbs'] as List<dynamic>?;
+    final breadcrumbs = breadcrumbsJson?.map((e) {
+      return Breadcrumb.fromJson(e);
+    }).toList();
+
+    final stackTraceValuesJson = json['threads']?['values'];
+    Map<String, dynamic>? stackTraceValuesStacktraceJson;
+    if (stackTraceValuesJson?.isNotEmpty == true) {
+      stackTraceValuesStacktraceJson = {};
+      stackTraceValuesStacktraceJson =
+          stackTraceValuesJson?.first['stacktrace'];
+    }
+
+    final exceptionValuesJson = json['exception']?['values'];
+    Map<String, dynamic>? exceptionValuesItemJson;
+    if (exceptionValuesJson?.isNotEmpty == true) {
+      exceptionValuesItemJson = {};
+      exceptionValuesItemJson = exceptionValuesJson?.first;
+    }
+
+    final modules = json['modules']?.cast<String, String>();
+    final tags = json['tags']?.cast<String, String>();
+
+    final timestampJson = json['timestamp'];
+    final levelJson = json['level'];
+    final fingerprintJson = json['fingerprint'] as List<dynamic>?;
+    final sdkVersionJson = json['sdk'] as Map<String, dynamic>?;
+    final messageJson = json['message'] as Map<String, dynamic>?;
+    final userJson = json['user'] as Map<String, dynamic>?;
+    final contextsJson = json['contexts'] as Map<String, dynamic>?;
+    final requestJson = json['request'] as Map<String, dynamic>?;
+    final debugMetaJson = json['debug_meta'] as Map<String, dynamic>?;
+
+    return SentryEvent(
+      eventId: SentryId.fromId(json['event_id']),
+      timestamp:
+          timestampJson != null ? DateTime.tryParse(timestampJson) : null,
+      modules: modules,
+      tags: tags,
+      extra: json['extra'],
+      fingerprint: fingerprintJson?.map((e) => e as String).toList(),
+      breadcrumbs: breadcrumbs,
+      sdk: sdkVersionJson != null && sdkVersionJson.isNotEmpty
+          ? SdkVersion.fromJson(sdkVersionJson)
+          : null,
+      platform: json['platform'],
+      logger: json['logger'],
+      serverName: json['server_name'],
+      release: json['release'],
+      dist: json['dist'],
+      environment: json['environment'],
+      message: messageJson != null && messageJson.isNotEmpty
+          ? SentryMessage.fromJson(messageJson)
+          : null,
+      transaction: json['transaction'],
+      stackTrace: stackTraceValuesStacktraceJson != null &&
+              stackTraceValuesStacktraceJson.isNotEmpty
+          ? SentryStackTrace.fromJson(stackTraceValuesStacktraceJson)
+          : null,
+      exception:
+          exceptionValuesItemJson != null && exceptionValuesItemJson.isNotEmpty
+              ? SentryException.fromJson(exceptionValuesItemJson)
+              : null,
+      level: levelJson != null ? SentryLevel.fromName(levelJson) : null,
+      culprit: json['culprit'],
+      user: userJson != null && userJson.isNotEmpty
+          ? SentryUser.fromJson(userJson)
+          : null,
+      contexts: contextsJson != null && contextsJson.isNotEmpty
+          ? Contexts.fromJson(contextsJson)
+          : null,
+      request: requestJson != null && requestJson.isNotEmpty
+          ? SentryRequest.fromJson(requestJson)
+          : null,
+      debugMeta: debugMetaJson != null && debugMetaJson.isNotEmpty
+          ? DebugMeta.fromJson(debugMetaJson)
+          : null,
+    );
+  }
+
   /// Serializes this event to JSON.
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};

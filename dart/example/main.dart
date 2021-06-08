@@ -14,15 +14,12 @@ Future<void> main() async {
   const dsn =
       'https://8b83cb94764f4701bee40028c2f29e72@o447951.ingest.sentry.io/5428562';
 
-  SentryEvent? processTagEvent(SentryEvent event, {dynamic hint}) =>
-      event..tags?.addAll({'page-locale': 'en-us'});
-
   await Sentry.init(
     (options) => options
       ..dsn = dsn
       ..debug = true
       ..sendDefaultPii = true
-      ..addEventProcessor(processTagEvent),
+      ..addEventProcessor(TagEventProcessor()),
     appRunner: runApp,
   );
 }
@@ -102,4 +99,11 @@ Future<void> parseConfig() async {
 
 Future<void> decode() async {
   throw StateError('This is a test error');
+}
+
+class TagEventProcessor extends EventProcessor {
+  @override
+  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) {
+    return event..tags?.addAll({'page-locale': 'en-us'});
+  }
 }

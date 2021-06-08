@@ -78,7 +78,7 @@ void main() {
 
     sut.addEventProcessor(fixture.processor);
 
-    expect(sut.eventProcessors.last, fixture.processor);
+    expect(sut.eventProcessors.last, isA<DropAllEventProcessor>());
   });
 
   test('respects max $Breadcrumb', () {
@@ -271,9 +271,7 @@ void main() {
         ..setTag('build', '579')
         ..setExtra('company-name', 'Dart Inc')
         ..setContexts('theme', 'material')
-        ..addEventProcessor(
-          (event, {hint}) => event..tags?.addAll({'page-locale': 'en-us'}),
-        );
+        ..addEventProcessor(AddTagsEventProcessor({'page-locale': 'en-us'}));
 
       final updatedEvent = await scope.applyToEvent(event, null);
 
@@ -434,11 +432,20 @@ class Fixture {
     return Scope(options);
   }
 
-  FutureOr<SentryEvent?> processor(SentryEvent event, {dynamic hint}) {
-    return null;
-  }
+  EventProcessor get processor => DropAllEventProcessor();
 
   Breadcrumb? beforeBreadcrumbCallback(Breadcrumb? breadcrumb,
           {dynamic hint}) =>
       null;
+}
+
+class AddTagsEventProcessor extends EventProcessor {
+  final Map<String, String> tags;
+
+  AddTagsEventProcessor(this.tags);
+
+  @override
+  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) {
+    return event..tags?.addAll(tags);
+  }
 }

@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/protocol.dart';
+import 'package:sentry/src/transport/rate_limiter.dart';
 
 final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
@@ -91,3 +94,63 @@ final fakeEvent = SentryEvent(
     ),
   ),
 );
+
+/// Doesn't do anything with the events
+class NoOpEventProcessor extends EventProcessor {
+  @override
+  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) {
+    return event;
+  }
+}
+
+/// Always returns null and thus drops all events
+class DropAllEventProcessor extends EventProcessor {
+  @override
+  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) {
+    return null;
+  }
+}
+
+class FunctionEventProcessor extends EventProcessor {
+  FunctionEventProcessor(this.applyFunction);
+
+  final EventProcessorFunction applyFunction;
+
+  @override
+  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) {
+    return applyFunction(event, hint: hint);
+  }
+}
+
+typedef EventProcessorFunction = FutureOr<SentryEvent?>
+    Function(SentryEvent event, {dynamic hint});
+
+var fakeEnvelope = SentryEnvelope.fromEvent(
+    fakeEvent, SdkVersion(name: 'sdk1', version: '1.0.0'));
+
+class MockRateLimiter implements RateLimiter {
+  bool filterReturnsNull = false;
+  SentryEnvelope? filteredEnvelope;
+  SentryEnvelope? envelopeToFilter;
+
+  String? sentryRateLimitHeader;
+  String? retryAfterHeader;
+  int? errorCode;
+
+  @override
+  SentryEnvelope? filter(SentryEnvelope envelope) {
+    if (filterReturnsNull) {
+      return null;
+    }
+    envelopeToFilter = envelope;
+    return filteredEnvelope ?? envelope;
+  }
+
+  @override
+  void updateRetryAfterLimits(
+      String? sentryRateLimitHeader, String? retryAfterHeader, int errorCode) {
+    this.sentryRateLimitHeader = sentryRateLimitHeader;
+    this.retryAfterHeader = retryAfterHeader;
+    this.errorCode = errorCode;
+  }
+}

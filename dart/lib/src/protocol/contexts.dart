@@ -27,6 +27,7 @@ class Contexts extends MapView<String, dynamic> {
           SentryCulture.type: culture,
         });
 
+  /// Deserializes [Contexts] from JSON [Map].
   factory Contexts.fromJson(Map<String, dynamic> data) {
     final contexts = Contexts(
       device: data[SentryDevice.type] != null

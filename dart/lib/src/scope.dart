@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'event_processor.dart';
 import 'protocol.dart';
 import 'sentry_options.dart';
 
@@ -182,7 +183,7 @@ class Scope {
     SentryEvent? processedEvent = event;
     for (final processor in _eventProcessors) {
       try {
-        processedEvent = await processor(processedEvent!, hint: hint);
+        processedEvent = await processor.apply(processedEvent!, hint: hint);
       } catch (err) {
         _options.logger(
           SentryLevel.error,

@@ -1,6 +1,12 @@
 # Unreleased
 
 * Feat: Add Culture Context (#491)
+
+## Breaking Changes:
+
+* Ref: EventProcessor changed to an interface (#489)
+* Feat: Support envelope based transport for events (#391)
+  * The method signature of `Transport` changed from `Future<SentryId> send(SentryEvent event)` to `Future<SentryId> send(SentryEnvelope envelope)`
 * Remove `Sentry.currentHub` (#490)
 
 # 5.1.0
@@ -32,6 +38,10 @@
 * Bump: sentry-android to v5.0.0-beta.2 (#457)
 * Feature: Add `withScope` callback to capture methods (#463)
 * Fix: Add missing properties `language`, `screenHeightPixels` and `screenWidthPixels` to `SentryDevice` (#465)
+
+## Sentry Self Hosted Compatibility
+
+* This version of the `sentry` Dart package requires [Sentry server >= v20.6.0](https://github.com/getsentry/onpremise/releases). This only applies to on-premise Sentry, if you are using sentry.io no action is needed.
 
 # 5.0.0
 

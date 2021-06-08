@@ -13,10 +13,12 @@ export 'src/noop_isolate_error_integration.dart'
 export 'src/protocol.dart';
 export 'src/scope.dart';
 export 'src/sentry.dart';
+export 'src/sentry_envelope.dart';
 export 'src/sentry_client.dart';
 export 'src/sentry_options.dart';
 // useful for integrations
 export 'src/throwable_mechanism.dart';
 export 'src/transport/transport.dart';
 export 'src/integration.dart';
+export 'src/event_processor.dart';
 export 'src/http_client/sentry_http_client.dart';

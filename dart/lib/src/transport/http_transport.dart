@@ -3,11 +3,13 @@ import 'dart:convert';
 
 import 'package:http/http.dart';
 
+import 'noop_encode.dart' if (dart.library.io) 'encode.dart';
 import '../noop_client.dart';
 import '../protocol.dart';
 import '../sentry_options.dart';
-import 'noop_encode.dart' if (dart.library.io) 'encode.dart';
+import '../sentry_envelope.dart';
 import 'transport.dart';
+import 'rate_limiter.dart';
 
 /// A transport is in charge of sending the event to the Sentry server.
 class HttpTransport implements Transport {
@@ -15,22 +17,26 @@ class HttpTransport implements Transport {
 
   final Dsn _dsn;
 
+  final RateLimiter _rateLimiter;
+
   late _CredentialBuilder _credentialBuilder;
 
   final Map<String, String> _headers;
 
-  factory HttpTransport(SentryOptions options) {
+  factory HttpTransport(SentryOptions options, RateLimiter rateLimiter) {
     if (options.httpClient is NoOpClient) {
       options.httpClient = Client();
     }
 
-    return HttpTransport._(options);
+    return HttpTransport._(options, rateLimiter);
   }
 
-  HttpTransport._(this._options)
+  HttpTransport._(this._options, this._rateLimiter)
       : _dsn = Dsn.parse(_options.dsn!),
         _headers = _buildHeaders(
-            _options.platformChecker.isWeb, _options.sdk.identifier) {
+          _options.platformChecker.isWeb,
+          _options.sdk.identifier,
+        ) {
     _credentialBuilder = _CredentialBuilder(
       _dsn,
       _options.sdk.identifier,
@@ -39,20 +45,18 @@ class HttpTransport implements Transport {
   }
 
   @override
-  Future<SentryId> send(SentryEvent event) async {
-    final data = event.toJson();
+  Future<SentryId> send(SentryEnvelope envelope) async {
+    final filteredEnvelope = _rateLimiter.filter(envelope);
+    if (filteredEnvelope == null) {
+      return SentryId.empty();
+    }
 
-    final body = _bodyEncoder(
-      data,
-      _headers,
-      compressPayload: _options.compressPayload,
-    );
+    final streamedRequest = await _createStreamedRequest(filteredEnvelope);
+    final response = await _options.httpClient
+        .send(streamedRequest)
+        .then(Response.fromStream);
 
-    final response = await _options.httpClient.post(
-      _dsn.postUri,
-      headers: _credentialBuilder.configure(_headers),
-      body: body,
-    );
+    _updateRetryAfterLimits(response);
 
     if (response.statusCode != 200) {
       // body guard to not log the error as it has performance impact to allocate
@@ -68,7 +72,7 @@ class HttpTransport implements Transport {
     } else {
       _options.logger(
         SentryLevel.debug,
-        'Event ${event.eventId} was sent successfully.',
+        'Envelope ${envelope.header.eventId ?? "--"} was sent successfully.',
       );
     }
 
@@ -76,18 +80,40 @@ class HttpTransport implements Transport {
     return eventId != null ? SentryId.fromId(eventId) : SentryId.empty();
   }
 
-  List<int> _bodyEncoder(
-    Map<String, dynamic> data,
-    Map<String, String> headers, {
-    required bool compressPayload,
-  }) {
-    // [SentryIOClient] implement gzip compression
-    // gzip compression is not available on browser
-    var body = utf8.encode(json.encode(data));
-    if (compressPayload) {
-      body = compressBody(body, headers);
+  Future<StreamedRequest> _createStreamedRequest(
+      SentryEnvelope envelope) async {
+    final streamedRequest = StreamedRequest('POST', _dsn.postUri);
+
+    if (_options.compressPayload) {
+      final compressionSink = compressInSink(streamedRequest.sink, _headers);
+      envelope
+          .envelopeStream()
+          .listen(compressionSink.add)
+          .onDone(compressionSink.close);
+    } else {
+      envelope
+          .envelopeStream()
+          .listen(streamedRequest.sink.add)
+          .onDone(streamedRequest.sink.close);
     }
-    return body;
+    streamedRequest.headers.addAll(_credentialBuilder.configure(_headers));
+
+    return streamedRequest;
+  }
+
+  void _updateRetryAfterLimits(Response response) {
+    // seconds
+    final retryAfterHeader = response.headers['Retry-After'];
+
+    // X-Sentry-Rate-Limits looks like: seconds:categories:scope
+    // it could have more than one scope so it looks like:
+    // quota_limit, quota_limit, quota_limit
+
+    // a real example: 50:transaction:key, 2700:default;error;security:organization
+    // 50::key is also a valid case, it means no categories and it should apply to all of them
+    final sentryRateLimitHeader = response.headers['X-Sentry-Rate-Limits'];
+    _rateLimiter.updateRetryAfterLimits(
+        sentryRateLimitHeader, retryAfterHeader, response.statusCode);
   }
 }
 
@@ -139,7 +165,7 @@ class _CredentialBuilder {
 }
 
 Map<String, String> _buildHeaders(bool isWeb, String sdkIdentifier) {
-  final headers = {'Content-Type': 'application/json'};
+  final headers = {'Content-Type': 'application/x-sentry-envelope'};
   // NOTE(lejard_h) overriding user agent on VM and Flutter not sure why
   // for web it use browser user agent
   if (!isWeb) {

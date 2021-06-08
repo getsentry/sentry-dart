@@ -46,14 +46,14 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
     channel.setMethodCallHandler(null)
   }
 
-  private fun writeEnvelope(envelope: String): Boolean {
+  private fun writeEnvelope(envelope: ByteArray): Boolean {
     val options = HubAdapter.getInstance().options
     if (options.outboxPath.isNullOrEmpty()) {
       return false
     }
 
     val file = File(options.outboxPath, UUID.randomUUID().toString())
-    file.writeText(envelope, Charsets.UTF_8)
+    file.writeBytes(envelope)
 
     return true
   }
@@ -122,9 +122,9 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
   private fun captureEnvelope(call: MethodCall, result: Result) {
     val args = call.arguments() as List<Any>
     if (args.isNotEmpty()) {
-      val event = args.first() as String?
+      val event = args.first() as ByteArray?
 
-      if (!event.isNullOrEmpty()) {
+      if (event != null && event.size > 0) {
         if (!writeEnvelope(event)) {
           result.error("3", "SentryOptions or outboxPath are null or empty", null)
         }

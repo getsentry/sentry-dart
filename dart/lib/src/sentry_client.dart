@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'event_processor.dart';
+import 'transport/rate_limiter.dart';
 import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_exception_factory.dart';
@@ -9,6 +11,7 @@ import 'sentry_stack_trace_factory.dart';
 import 'transport/http_transport.dart';
 import 'transport/noop_transport.dart';
 import 'version.dart';
+import 'sentry_envelope.dart';
 
 /// Default value for [User.ipAddress]. It gets set when an event does not have
 /// a user and IP address. Only applies if [SentryOptions.sendDefaultPii] is set
@@ -30,7 +33,7 @@ class SentryClient {
   /// Instantiates a client using [SentryOptions]
   factory SentryClient(SentryOptions options) {
     if (options.transport is NoOpTransport) {
-      options.transport = HttpTransport(options);
+      options.transport = HttpTransport(options, RateLimiter(options.clock));
     }
 
     return SentryClient._(options);
@@ -103,8 +106,8 @@ class SentryClient {
         return _sentryId;
       }
     }
-
-    return _options.transport.send(preparedEvent);
+    final envelope = SentryEnvelope.fromEvent(preparedEvent, _options.sdk);
+    return await _options.transport.send(envelope);
   }
 
   SentryEvent _prepareEvent(SentryEvent event, {dynamic stackTrace}) {
@@ -195,6 +198,11 @@ class SentryClient {
     return captureEvent(event, scope: scope, hint: hint);
   }
 
+  /// Reports the [envelope] to Sentry.io.
+  Future<SentryId?> captureEnvelope(SentryEnvelope envelope) {
+    return _options.transport.send(envelope);
+  }
+
   void close() => _options.httpClient.close();
 
   Future<SentryEvent?> _processEvent(
@@ -205,7 +213,7 @@ class SentryClient {
     SentryEvent? processedEvent = event;
     for (final processor in eventProcessors) {
       try {
-        processedEvent = await processor(processedEvent!, hint: hint);
+        processedEvent = await processor.apply(processedEvent!, hint: hint);
       } catch (err) {
         _options.logger(
           SentryLevel.error,
