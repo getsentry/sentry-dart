@@ -263,13 +263,12 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             result(FlutterError(code: "2", message: "Envelope is null or empty", details: nil))
             return
         }
-
         guard let envelope = PrivateSentrySDKOnly.envelope(with: data) else {
             print("Cannot parse the envelope data")
             result(FlutterError(code: "3", message: "Cannot parse the envelope data", details: nil))
             return
         }
-        SentrySDK.capture(envelope)
+        PrivateSentrySDKOnly.capture(envelope)
         result("")
         return
     }
