@@ -24,13 +24,6 @@ class Sentry {
 
   Sentry._();
 
-  /// Returns the current hub
-  @Deprecated(
-    'This is scheduled to be removed in Sentry v6.0.0. '
-    'Instead of currentHub you should use Sentry\'s static methods.',
-  )
-  static Hub get currentHub => _hub;
-
   /// Initializes the SDK
   /// passing a [AppRunner] callback allows to run the app within its own error
   /// zone ([`runZonedGuarded`](https://api.dart.dev/stable/2.10.4/dart-async/runZonedGuarded.html))
