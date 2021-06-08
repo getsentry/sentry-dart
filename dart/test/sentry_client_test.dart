@@ -633,7 +633,7 @@ void main() {
 
     setUp(() {
       options = SentryOptions(dsn: fakeDsn);
-      options.addEventProcessor(
+      options.addEventProcessor(FunctionEventProcessor(
         (event, {hint}) => event
           ..tags!.addAll({'theme': 'material'})
           ..extra!['host'] = '0.0.0.1'
@@ -642,7 +642,7 @@ void main() {
           ..fingerprint!.add('process')
           ..sdk!.addIntegration('testIntegration')
           ..sdk!.addPackage('test-pkg', '1.0'),
-      );
+      ));
       options.transport = MockTransport();
     });
 
@@ -674,11 +674,11 @@ void main() {
       final myHint = 'hint';
       var executed = false;
 
-      options.addEventProcessor((event, {hint}) {
+      options.addEventProcessor(FunctionEventProcessor((event, {hint}) {
         expect(myHint, hint);
         executed = true;
         return event;
-      });
+      }));
       final client = SentryClient(options);
 
       await client.captureEvent(fakeEvent, hint: myHint);
@@ -687,7 +687,7 @@ void main() {
     });
 
     test('event processor drops the event', () async {
-      options.addEventProcessor(eventProcessorDropEvent);
+      options.addEventProcessor(DropAllEventProcessor());
       final client = SentryClient(options);
       await client.captureEvent(fakeEvent);
 
@@ -736,10 +736,6 @@ SentryEvent beforeSendCallback(SentryEvent event, {dynamic hint}) {
     ..fingerprint!.add('process')
     ..sdk!.addIntegration('testIntegration')
     ..sdk!.addPackage('test-pkg', '1.0');
-}
-
-SentryEvent? eventProcessorDropEvent(SentryEvent event, {dynamic hint}) {
-  return null;
 }
 
 class Fixture {

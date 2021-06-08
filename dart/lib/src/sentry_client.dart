@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'event_processor.dart';
 import 'transport/rate_limiter.dart';
-
 import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_exception_factory.dart';
@@ -213,7 +213,7 @@ class SentryClient {
     SentryEvent? processedEvent = event;
     for (final processor in eventProcessors) {
       try {
-        processedEvent = await processor(processedEvent!, hint: hint);
+        processedEvent = await processor.apply(processedEvent!, hint: hint);
       } catch (err) {
         _options.logger(
           SentryLevel.error,

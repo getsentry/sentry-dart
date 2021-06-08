@@ -5,6 +5,7 @@
 
 ## Breaking Changes:
 
+* Ref: EventProcessor changed to an interface (#489)
 * Feat: Support envelope based transport for events (#391)
   * The method signature of `Transport` changed from `Future<SentryId> send(SentryEvent event)` to `Future<SentryId> send(SentryEnvelope envelope)`
 * Remove `Sentry.currentHub` (#490)

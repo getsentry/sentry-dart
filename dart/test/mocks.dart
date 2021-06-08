@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/protocol.dart';
 import 'package:sentry/src/transport/rate_limiter.dart';
@@ -96,6 +98,36 @@ final fakeEvent = SentryEvent(
     ),
   ),
 );
+
+/// Doesn't do anything with the events
+class NoOpEventProcessor extends EventProcessor {
+  @override
+  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) {
+    return event;
+  }
+}
+
+/// Always returns null and thus drops all events
+class DropAllEventProcessor extends EventProcessor {
+  @override
+  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) {
+    return null;
+  }
+}
+
+class FunctionEventProcessor extends EventProcessor {
+  FunctionEventProcessor(this.applyFunction);
+
+  final EventProcessorFunction applyFunction;
+
+  @override
+  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) {
+    return applyFunction(event, hint: hint);
+  }
+}
+
+typedef EventProcessorFunction = FutureOr<SentryEvent?>
+    Function(SentryEvent event, {dynamic hint});
 
 var fakeEnvelope = SentryEnvelope.fromEvent(
     fakeEvent, SdkVersion(name: 'sdk1', version: '1.0.0'));
