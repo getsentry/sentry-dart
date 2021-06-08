@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sentry/sentry.dart';
+import 'sentry_flutter_options.dart';
 
 typedef WidgetBindingGetter = WidgetsBinding? Function();
 
@@ -12,30 +13,29 @@ typedef WidgetBindingGetter = WidgetsBinding? Function();
 /// the Dart runtime.
 class FlutterEnricherEventProcessor extends EventProcessor {
   FlutterEnricherEventProcessor(
-    this._checker,
+    this._options,
     this._getWidgetsBinding,
-    this.hasNativeIntegration,
   );
 
   factory FlutterEnricherEventProcessor.simple({
-    required PlatformChecker checker,
-    required bool hasNativeIntegration,
+    required SentryFlutterOptions options,
   }) {
     return FlutterEnricherEventProcessor(
-      checker,
+      options,
       () => WidgetsBinding.instance,
-      hasNativeIntegration,
     );
   }
 
-  final bool hasNativeIntegration;
+  final SentryFlutterOptions _options;
+
+  bool get _hasNativeIntegration => _checker.hasNativeIntegration;
+  PlatformChecker get _checker => _options.platformChecker;
 
   // We can't use `WidgetsBinding` as a direct parameter
   // because it must be called inside the `runZoneGuarded`-Integration.
   // Thus we call it on demand after all the initialization happend.
   final WidgetBindingGetter _getWidgetsBinding;
   WidgetsBinding? get _widgetsBinding => _getWidgetsBinding();
-  final PlatformChecker _checker;
   SingletonFlutterWindow? get _window => _widgetsBinding?.window;
   Map<String, String> _packages = {};
 
@@ -47,7 +47,7 @@ class FlutterEnricherEventProcessor extends EventProcessor {
     // If there's a native integration available, it probably has better
     // information available than Flutter.
     final device =
-        hasNativeIntegration ? null : _getDevice(event.contexts.device);
+        _hasNativeIntegration ? null : _getDevice(event.contexts.device);
 
     final contexts = event.contexts.copyWith(
       device: device,

@@ -213,13 +213,20 @@ void main() {
       );
     });
 
-    test('$FlutterEnricherEventProcessor gets added on init', () async {
-      late SentryOptions sentryOptions;
+    testWidgets('$FlutterEnricherEventProcessor gets added on init',
+        (tester) async {
+      late SentryFlutterOptions sentryOptions;
       await SentryFlutter.init(
         (options) {
           options.dsn = fakeDsn;
           sentryOptions = options;
         },
+        appRunner: () {},
+        // use a mockplatform checker so that
+        // we don't need to mock platform channels
+        platformChecker: MockPlatformChecker(
+          hasNativeIntegration: false,
+        ),
       );
       await Sentry.close();
 
@@ -237,10 +244,17 @@ class Fixture {
     PlatformChecker? checker,
     bool hasNativeIntegration = false,
   }) {
+    final platformChecker = checker ??
+        MockPlatformChecker(
+          hasNativeIntegration: hasNativeIntegration,
+        );
+    final options = SentryFlutterOptions(
+      dsn: fakeDsn,
+      checker: platformChecker,
+    );
     return FlutterEnricherEventProcessor(
-      checker ?? PlatformChecker(),
+      options,
       binding,
-      hasNativeIntegration,
     );
   }
 }

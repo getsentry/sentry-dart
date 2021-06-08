@@ -72,12 +72,14 @@ class MockPlatformChecker implements PlatformChecker {
     this.isRelease = false,
     this.isWebValue = false,
     this.hasNativeIntegration = false,
-  });
+    Platform? mockPlatform,
+  }) : _mockPlatform = mockPlatform ?? MockPlatform();
 
   final bool isDebug;
   final bool isProfile;
   final bool isRelease;
   final bool isWebValue;
+  late final Platform _mockPlatform;
 
   @override
   bool hasNativeIntegration = false;
@@ -95,5 +97,5 @@ class MockPlatformChecker implements PlatformChecker {
   bool get isWeb => isWebValue;
 
   @override
-  Platform get platform => throw UnimplementedError();
+  Platform get platform => _mockPlatform;
 }
