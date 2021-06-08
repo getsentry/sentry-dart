@@ -77,8 +77,9 @@ void main() {
 
     test('exception gets reported if bad status code occurs', () async {
       final sut = fixture.getSut(
-          client: fixture.getClient(statusCode: 404, reason: 'Not Found'),
-          badStatusCodes: [SentryStatusCode(404)]);
+        client: fixture.getClient(statusCode: 404, reason: 'Not Found'),
+        badStatusCodes: [SentryStatusCode(404)],
+      );
 
       await sut.get(requestUri, headers: {'Cookie': 'foo=bar'});
 
@@ -106,6 +107,20 @@ void main() {
       expect(request?.headers, {'Cookie': 'foo=bar'});
       expect(request?.other.keys.contains('duration'), true);
       expect(request?.other.keys.contains('content_length'), true);
+    });
+
+    test(
+        'just one report on status code reporting with failing requests enabled',
+        () async {
+      final sut = fixture.getSut(
+        client: fixture.getClient(statusCode: 404, reason: 'Not Found'),
+        badStatusCodes: [SentryStatusCode(404)],
+        captureFailedRequests: true,
+      );
+
+      await sut.get(requestUri, headers: {'Cookie': 'foo=bar'});
+
+      expect(fixture.hub.captureEventCalls.length, 1);
     });
 
     test('close does get called for user defined client', () async {

@@ -5,13 +5,35 @@ import '../protocol.dart';
 import 'breadcrumb_client.dart';
 import 'failed_request_client.dart';
 
-/// A [http](https://pub.dev/packages/http)-package compatible HTTP client
-/// which combines the functionality of [FailedRequestClient] and
-/// [BreadcrumbClient].
+/// A [http](https://pub.dev/packages/http)-package compatible HTTP client.
 ///
-/// Remarks:
-/// If this client is used as a wrapper, a call to close also closes the
-/// given client.
+/// It can record requests as breadcrumbs. This is on by default.
+///
+/// It can also capture requests which throw an exception. This is off by
+/// default, set [captureFailedRequests] to `true` to enable it. This can be for
+/// example for the following reasons:
+/// - In an browser environment this can be requests which fail because of CORS.
+/// - In an mobile or desktop application this can be requests which failed
+///   because the connection was interrupted.
+///
+/// Additionally you can configure specific HTTP response codes to be considered
+/// as a failed request. This is off by default. Enable it by using it like
+/// shown in the following example:
+/// The status codes 400 to 404 and 500 are considered a failed request.
+///
+/// ```dart
+/// import 'package:sentry/sentry.dart';
+///
+/// var client = SentryHttpClient(
+///   failedRequestStatusCodes: [
+///     SentryStatusCode.range(400, 404),
+///     SentryStatusCode(500),
+///   ],
+/// );
+/// ```
+///
+/// Remarks: If this client is used as a wrapper, a call to close also closes
+/// the given client.
 ///
 /// The `SentryHttpClient` can be used as a standalone client like this:
 /// ```dart
@@ -27,8 +49,8 @@ import 'failed_request_client.dart';
 /// }
 /// ```
 ///
-/// The `SentryHttpClient` can also be used as a wrapper for your own
-/// HTTP [Client](https://pub.dev/documentation/http/latest/http/Client-class.html):
+/// The `SentryHttpClient` can also be used as a wrapper for your own HTTP
+/// [Client](https://pub.dev/documentation/http/latest/http/Client-class.html):
 /// ```dart
 /// import 'package:sentry/sentry.dart';
 /// import 'package:http/http.dart' as http;
@@ -43,6 +65,10 @@ import 'failed_request_client.dart';
 /// } finally {
 ///  client.close();
 /// }
+///
+/// Remarks:
+/// HTTP traffic can contain PII (personal identifiable information).
+/// Read more on data scrubbing [here](https://docs.sentry.io/product/data-management-settings/advanced-datascrubbing/).
 /// ```
 class SentryHttpClient extends BaseClient {
   SentryHttpClient({
@@ -87,26 +113,25 @@ class SentryHttpClient extends BaseClient {
 }
 
 class SentryStatusCode {
-  SentryStatusCode.range(this._lower, this._upper)
-      : assert(_lower <= _upper),
-        assert(_lower > 0 && _upper > 0);
+  SentryStatusCode.range(this._min, this._max)
+      : assert(_min <= _max),
+        assert(_min > 0 && _max > 0);
 
   SentryStatusCode(int statusCode)
-      : _lower = statusCode,
-        _upper = statusCode,
+      : _min = statusCode,
+        _max = statusCode,
         assert(statusCode > 0);
 
-  final int _lower;
-  final int _upper;
+  final int _min;
+  final int _max;
 
-  bool isInRange(int statusCode) =>
-      statusCode >= _lower && statusCode <= _upper;
+  bool isInRange(int statusCode) => statusCode >= _min && statusCode <= _max;
 
   @override
   String toString() {
-    if (_lower == _upper) {
-      return _lower.toString();
+    if (_min == _max) {
+      return _min.toString();
     }
-    return '$_lower..$_upper';
+    return '$_min..$_max';
   }
 }

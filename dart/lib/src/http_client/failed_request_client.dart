@@ -115,12 +115,13 @@ class FailedRequestClient extends BaseClient {
       // If captureFailedRequests is true, there statusCode is null.
       // So just one of these blocks can be called.
 
-      if (captureFailedRequests) {
+      if (captureFailedRequests && exception != null) {
         await _captureEvent(
           exception: exception,
           stackTrace: stackTrace,
           request: request,
           requestDuration: stopwatch.elapsed,
+          withPii: true,
         );
       }
 
@@ -130,6 +131,7 @@ class FailedRequestClient extends BaseClient {
           request: request,
           reason: failedRequestStatusCodes.toDescription(),
           requestDuration: stopwatch.elapsed,
+          withPii: true,
         );
       }
     }
@@ -148,6 +150,7 @@ class FailedRequestClient extends BaseClient {
     String? reason,
     required Duration requestDuration,
     required BaseRequest request,
+    required bool withPii,
   }) {
     // As far as I can tell there's no way to get the uri without the query part
     // so we replace it with an empty string.
@@ -157,10 +160,10 @@ class FailedRequestClient extends BaseClient {
 
     final sentryRequest = SentryRequest(
       method: request.method,
-      headers: request.headers,
+      headers: withPii ? request.headers : null,
       url: urlWithoutQuery,
       queryString: query,
-      cookies: request.headers['Cookie'],
+      cookies: withPii ? request.headers['Cookie'] : null,
       data: _getDataFromRequest(request),
       other: {
         'content_length': request.contentLength.toString(),
