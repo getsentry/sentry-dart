@@ -4,6 +4,7 @@ import 'package:http/http.dart';
 
 import 'diagnostic_logger.dart';
 import 'environment_variables.dart';
+import 'event_processor.dart';
 import 'integration.dart';
 import 'noop_client.dart';
 import 'protocol.dart';

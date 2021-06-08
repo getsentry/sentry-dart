@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'event_processor.dart';
 import 'protocol.dart';
 import 'sentry_options.dart';
 

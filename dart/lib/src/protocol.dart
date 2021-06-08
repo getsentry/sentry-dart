@@ -22,4 +22,3 @@ export 'protocol/sentry_runtime.dart';
 export 'protocol/sentry_stack_frame.dart';
 export 'protocol/sentry_stack_trace.dart';
 export 'protocol/sentry_user.dart';
-export 'protocol/event_processor.dart';

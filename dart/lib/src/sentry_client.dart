@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'event_processor.dart';
 import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_exception_factory.dart';
