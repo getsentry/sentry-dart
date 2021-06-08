@@ -51,6 +51,7 @@ class FlutterEnricherEventProcessor {
     final contexts = event.contexts.copyWith(
       device: device,
       runtimes: _getRuntimes(event.contexts.runtimes),
+      culture: _getCulture(event.contexts.culture),
     );
 
     // Flutter has a lot of Accessibility Settings available and exposes them
@@ -58,8 +59,6 @@ class FlutterEnricherEventProcessor {
 
     // Conflicts with Flutter runtime if it's just called `Flutter`
     contexts['flutter_context'] = _getFlutterContext();
-
-    contexts['culture'] = _getCulture();
 
     return event.copyWith(
       contexts: contexts,
@@ -99,25 +98,20 @@ class FlutterEnricherEventProcessor {
     return _packages;
   }
 
-  Map<String, dynamic> _getCulture() {
+  SentryCulture _getCulture(SentryCulture? culture) {
     // The editor says it's fine without a `?` but the compiler complains
     // if it's missing
     // ignore: invalid_null_aware_operator
     final languageTag = _window?.locale?.toLanguageTag();
 
-    // The editor says it's fine without a `?` but the compiler complains
-    // if it's missing
-    final availableLocales =
-        // ignore: invalid_null_aware_operator
-        _window?.locales?.map((it) => it.toLanguageTag()).toList();
+    // Future enhancement:
+    // _window?.locales
 
-    return <String, dynamic>{
-      if (_window?.alwaysUse24HourFormat != null)
-        'is_24_hour_format': _window?.alwaysUse24HourFormat,
-      if (languageTag != null) 'locale': languageTag,
-      if (availableLocales != null) 'available_locales': availableLocales,
-      'timezone': DateTime.now().timeZoneName,
-    };
+    return (culture ?? SentryCulture()).copyWith(
+      is24HourFormat: culture?.is24HourFormat ?? _window?.alwaysUse24HourFormat,
+      locale: culture?.locale ?? languageTag,
+      timezone: culture?.timezone ?? DateTime.now().timeZoneName,
+    );
   }
 
   Map<String, dynamic> _getFlutterContext() {

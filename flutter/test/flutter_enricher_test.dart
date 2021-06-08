@@ -51,10 +51,10 @@ void main() {
 
       final event = await enricher.apply(SentryEvent());
 
-      final culture = event.contexts['culture'];
+      final culture = event.contexts.culture;
 
-      expect(culture['is_24_hour_format'], isNotNull);
-      expect(culture['timezone'], isNotNull);
+      expect(culture?.is24HourFormat, isNotNull);
+      expect(culture?.timezone, isNotNull);
     });
 
     testWidgets('no device when native integration is available',
