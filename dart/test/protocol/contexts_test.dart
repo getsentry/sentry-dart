@@ -20,7 +20,7 @@ void main() {
     'app': {'app_name': 'name'},
     'browser': {'name': 'name'},
     'gpu': {'id': 1},
-    'culture': {'locale': 'foo-bar'}
+    'culture': {'locale': 'foo-bar'},
   };
 
   final contextsMutlipleRuntimes = Contexts(
