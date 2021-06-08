@@ -45,7 +45,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
 
     channel.setMethodCallHandler(null)
   }
-  
+
   private fun writeEnvelope(envelope: ByteArray): Boolean {
     val options = HubAdapter.getInstance().options
     if (options.outboxPath.isNullOrEmpty()) {
