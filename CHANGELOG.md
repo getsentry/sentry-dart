@@ -1,6 +1,7 @@
 # Unreleased
 
 * Feat: Add Culture Context (#491)
+* Feat: Capture failed requests as event (#473)
 
 ## Breaking Changes:
 
@@ -12,7 +13,6 @@
 # 5.1.0
 
 * Fix: Merge user from event and scope (#467)
-* Feat: Capture failed requests as event (#473)
 * Feature: Allow setting of default values for in-app-frames via `SentryOptions.considerInAppFramesByDefault` (#482)
 * Bump: sentry-android to v5.0.1 (#486)
 * Bump: Sentry-Cocoa to 7.1.3 for iOS and macOS (#488)
