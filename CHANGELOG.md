@@ -1,6 +1,7 @@
 # Unreleased
 
 * Feat: EventProcessor changed to an interface (#489)
+* Remove `Sentry.currentHub` (#490)
 
 # 5.1.0
 
