@@ -43,7 +43,7 @@ class Dsn {
       apiPath = 'api';
     }
     return Uri.parse(
-      '${uriCopy.scheme}://${uriCopy.host}$port/$apiPath/$projectId/store/',
+      '${uriCopy.scheme}://${uriCopy.host}$port/$apiPath/$projectId/envelope/',
     );
   }
 

@@ -17,16 +17,6 @@ class SentryOperatingSystem {
     this.rawDescription,
   });
 
-  factory SentryOperatingSystem.fromJson(Map<String, dynamic> data) =>
-      SentryOperatingSystem(
-        name: data['name'],
-        version: data['version'],
-        build: data['build'],
-        kernelVersion: data['kernel_version'],
-        rooted: data['rooted'],
-        rawDescription: data['raw_description'],
-      );
-
   /// The name of the operating system.
   final String? name;
 
@@ -49,6 +39,17 @@ class SentryOperatingSystem {
   /// For some well-known runtimes, Sentry will attempt to parse name and
   /// version from this string, if they are not explicitly given.
   final String? rawDescription;
+
+  /// Deserializes a [SentryOperatingSystem] from JSON [Map].
+  factory SentryOperatingSystem.fromJson(Map<String, dynamic> data) =>
+      SentryOperatingSystem(
+        name: data['name'],
+        version: data['version'],
+        build: data['build'],
+        kernelVersion: data['kernel_version'],
+        rooted: data['rooted'],
+        rawDescription: data['raw_description'],
+      );
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {

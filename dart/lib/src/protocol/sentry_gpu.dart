@@ -56,6 +56,7 @@ class SentryGpu {
     this.npotSupport,
   });
 
+  /// Deserializes a [SentryGpu] from JSON [Map].
   factory SentryGpu.fromJson(Map<String, dynamic> data) => SentryGpu(
         name: data['name'],
         id: data['id'],

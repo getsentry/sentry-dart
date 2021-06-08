@@ -76,6 +76,20 @@ class Breadcrumb {
   /// The value is submitted to Sentry with second precision.
   final DateTime timestamp;
 
+  /// Deserializes a [Breadcrumb] from JSON [Map].
+  factory Breadcrumb.fromJson(Map<String, dynamic> json) {
+    final levelName = json['level'];
+    final timestamp = json['timestamp'];
+    return Breadcrumb(
+      timestamp: timestamp != null ? DateTime.tryParse(timestamp) : null,
+      message: json['message'],
+      category: json['category'],
+      data: json['data'],
+      level: levelName != null ? SentryLevel.fromName(levelName) : null,
+      type: json['type'],
+    );
+  }
+
   /// Converts this breadcrumb to a map that can be serialized to JSON according
   /// to the Sentry protocol.
   Map<String, dynamic> toJson() {
