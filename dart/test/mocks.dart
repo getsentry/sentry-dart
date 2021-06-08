@@ -1,5 +1,6 @@
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/protocol.dart';
+import 'package:sentry/src/transport/rate_limiter.dart';
 
 final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
@@ -95,3 +96,33 @@ final fakeEvent = SentryEvent(
     ),
   ),
 );
+
+var fakeEnvelope = SentryEnvelope.fromEvent(
+    fakeEvent, SdkVersion(name: 'sdk1', version: '1.0.0'));
+
+class MockRateLimiter implements RateLimiter {
+  bool filterReturnsNull = false;
+  SentryEnvelope? filteredEnvelope;
+  SentryEnvelope? envelopeToFilter;
+
+  String? sentryRateLimitHeader;
+  String? retryAfterHeader;
+  int? errorCode;
+
+  @override
+  SentryEnvelope? filter(SentryEnvelope envelope) {
+    if (filterReturnsNull) {
+      return null;
+    }
+    envelopeToFilter = envelope;
+    return filteredEnvelope ?? envelope;
+  }
+
+  @override
+  void updateRetryAfterLimits(
+      String? sentryRateLimitHeader, String? retryAfterHeader, int errorCode) {
+    this.sentryRateLimitHeader = sentryRateLimitHeader;
+    this.retryAfterHeader = retryAfterHeader;
+    this.errorCode = errorCode;
+  }
+}

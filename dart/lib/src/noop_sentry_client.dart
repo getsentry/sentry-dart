@@ -3,6 +3,7 @@ import 'dart:async';
 import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_client.dart';
+import 'sentry_envelope.dart';
 
 class NoOpSentryClient implements SentryClient {
   NoOpSentryClient._();
@@ -40,6 +41,10 @@ class NoOpSentryClient implements SentryClient {
     Scope? scope,
     dynamic hint,
   }) =>
+      Future.value(SentryId.empty());
+
+  @override
+  Future<SentryId> captureEnvelope(SentryEnvelope envelope) =>
       Future.value(SentryId.empty());
 
   @override

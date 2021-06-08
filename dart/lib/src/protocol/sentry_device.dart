@@ -42,40 +42,6 @@ class SentryDevice {
           batteryLevel == null || (batteryLevel >= 0 && batteryLevel <= 100),
         );
 
-  factory SentryDevice.fromJson(Map<String, dynamic> data) => SentryDevice(
-        name: data['name'],
-        family: data['family'],
-        model: data['model'],
-        modelId: data['model_id'],
-        arch: data['arch'],
-        batteryLevel: data['battery_level'],
-        orientation: data['orientation'],
-        manufacturer: data['manufacturer'],
-        brand: data['brand'],
-        screenResolution: data['screen_resolution'],
-        screenHeightPixels: data['screen_height_pixels'],
-        screenWidthPixels: data['screen_width_pixels'],
-        screenDensity: data['screen_density'],
-        screenDpi: data['screen_dpi'],
-        online: data['online'],
-        charging: data['charging'],
-        lowMemory: data['low_memory'],
-        simulator: data['simulator'],
-        memorySize: data['memory_size'],
-        freeMemory: data['free_memory'],
-        usableMemory: data['usable_memory'],
-        storageSize: data['storage_size'],
-        freeStorage: data['free_storage'],
-        externalStorageSize: data['external_storage_size'],
-        externalFreeStorage: data['external_free_storage'],
-        bootTime: data['boot_time'] != null
-            ? DateTime.tryParse(data['boot_time'])
-            : null,
-        timezone: data['timezone'],
-        language: data['language'],
-        theme: data['theme'],
-      );
-
   /// The name of the device. This is typically a hostname.
   final String? name;
 
@@ -169,6 +135,45 @@ class SentryDevice {
 
   /// The theme of the device. Typically `light` or `dark`
   final String? theme;
+
+  /// Deserializes a [SentryDevice] from JSON [Map].
+  factory SentryDevice.fromJson(Map<String, dynamic> data) => SentryDevice(
+        name: data['name'],
+        family: data['family'],
+        model: data['model'],
+        modelId: data['model_id'],
+        arch: data['arch'],
+        batteryLevel: data['battery_level'],
+        orientation: data['orientation'] == 'portrait'
+            ? SentryOrientation.portrait
+            : data['orientation'] == 'landscape'
+                ? SentryOrientation.landscape
+                : null,
+        manufacturer: data['manufacturer'],
+        brand: data['brand'],
+        screenResolution: data['screen_resolution'],
+        screenHeightPixels: data['screen_height_pixels'],
+        screenWidthPixels: data['screen_width_pixels'],
+        screenDensity: data['screen_density'],
+        screenDpi: data['screen_dpi'],
+        online: data['online'],
+        charging: data['charging'],
+        lowMemory: data['low_memory'],
+        simulator: data['simulator'],
+        memorySize: data['memory_size'],
+        freeMemory: data['free_memory'],
+        usableMemory: data['usable_memory'],
+        storageSize: data['storage_size'],
+        freeStorage: data['free_storage'],
+        externalStorageSize: data['external_storage_size'],
+        externalFreeStorage: data['external_free_storage'],
+        bootTime: data['boot_time'] != null
+            ? DateTime.tryParse(data['boot_time'])
+            : null,
+        timezone: data['timezone'],
+        language: data['language'],
+        theme: data['theme'],
+      );
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
@@ -318,6 +323,8 @@ class SentryDevice {
         manufacturer: manufacturer,
         brand: brand,
         screenResolution: screenResolution,
+        screenHeightPixels: screenHeightPixels,
+        screenWidthPixels: screenWidthPixels,
         screenDensity: screenDensity,
         screenDpi: screenDpi,
         online: online,
@@ -334,6 +341,7 @@ class SentryDevice {
         bootTime: bootTime,
         timezone: timezone,
         theme: theme,
+        language: language,
       );
 
   SentryDevice copyWith({

@@ -9,6 +9,7 @@ import 'sentry_flutter_options.dart';
 
 import 'default_integrations.dart';
 import 'file_system_transport.dart';
+
 import 'version.dart';
 
 /// Configuration options callback

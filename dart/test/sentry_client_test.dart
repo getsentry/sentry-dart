@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:test/test.dart';
@@ -22,7 +24,9 @@ void main() {
         stackTrace: '#0      baz (file:///pathto/test.dart:50:3)',
       );
 
-      final capturedEvent = (options.transport as MockTransport).events.first;
+      final capturedEnvelope =
+          (options.transport as MockTransport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
       expect(capturedEvent.stackTrace is SentryStackTrace, true);
     });
@@ -32,7 +36,9 @@ void main() {
       final event = SentryEvent();
       await client.captureEvent(event);
 
-      final capturedEvent = (options.transport as MockTransport).events.first;
+      final capturedEnvelope =
+          (options.transport as MockTransport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
       expect(capturedEvent.stackTrace is SentryStackTrace, true);
     });
@@ -42,7 +48,9 @@ void main() {
       final event = SentryEvent();
       await client.captureEvent(event);
 
-      final capturedEvent = (options.transport as MockTransport).events.first;
+      final capturedEnvelope =
+          (options.transport as MockTransport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
       expect(capturedEvent.stackTrace, isNull);
     });
@@ -62,7 +70,9 @@ void main() {
         stackTrace: '#0      baz (file:///pathto/test.dart:50:3)',
       );
 
-      final capturedEvent = (options.transport as MockTransport).events.first;
+      final capturedEnvelope =
+          (options.transport as MockTransport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
       expect(capturedEvent.stackTrace, isNull);
       expect(capturedEvent.exception!.stackTrace, isNotNull);
@@ -86,7 +96,9 @@ void main() {
         stackTrace: '#0      baz (file:///pathto/test.dart:50:3)',
       );
 
-      final capturedEvent = (options.transport as MockTransport).events.first;
+      final capturedEnvelope =
+          (options.transport as MockTransport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
       expect(capturedEvent.stackTrace, isNull);
       expect(capturedEvent.exception!.stackTrace, isNotNull);
@@ -101,7 +113,9 @@ void main() {
         level: SentryLevel.error,
       );
 
-      final capturedEvent = (options.transport as MockTransport).events.first;
+      final capturedEnvelope =
+          (options.transport as MockTransport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
       expect(capturedEvent.message!.formatted, 'simple message 1');
       expect(capturedEvent.message!.template, 'simple message %d');
@@ -115,7 +129,10 @@ void main() {
         'simple message 1',
       );
 
-      final capturedEvent = (options.transport as MockTransport).events.first;
+      final capturedEnvelope =
+          (options.transport as MockTransport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
       expect(capturedEvent.level, SentryLevel.info);
     });
 
@@ -123,7 +140,9 @@ void main() {
       final client = SentryClient(options..attachStacktrace = false);
       await client.captureMessage('message', level: SentryLevel.error);
 
-      final capturedEvent = (options.transport as MockTransport).events.first;
+      final capturedEnvelope =
+          (options.transport as MockTransport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
       expect(capturedEvent.stackTrace, isNull);
     });
@@ -151,9 +170,10 @@ void main() {
       final client = SentryClient(options);
       await client.captureException(error, stackTrace: stackTrace);
 
-      final capturedEvent = (options.transport as MockTransport).events.first;
+      final capturedEnvelope =
+          (options.transport as MockTransport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(capturedEvent.throwable, error);
       expect(capturedEvent.exception is SentryException, true);
       expect(capturedEvent.exception!.stackTrace, isNotNull);
     });
@@ -185,9 +205,10 @@ void main() {
       final client = SentryClient(options);
       await client.captureException(error, stackTrace: stacktrace);
 
-      final capturedEvent = (options.transport as MockTransport).events.first;
+      final capturedEnvelope =
+          (options.transport as MockTransport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(capturedEvent.throwable, error);
       expect(capturedEvent.exception is SentryException, true);
       expect(capturedEvent.exception!.stackTrace, isNotNull);
       expect(capturedEvent.exception!.stackTrace!.frames.first.fileName,
@@ -223,9 +244,10 @@ void main() {
       final client = SentryClient(options);
       await client.captureException(exception, stackTrace: stacktrace);
 
-      final capturedEvent = (options.transport as MockTransport).events.first;
+      final capturedEnvelope =
+          (options.transport as MockTransport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(capturedEvent.throwable, exception);
       expect(capturedEvent.exception is SentryException, true);
       expect(capturedEvent.exception!.stackTrace!.frames.first.fileName,
           'test.dart');
@@ -243,7 +265,9 @@ void main() {
       final client = SentryClient(options);
       await client.captureException(exception);
 
-      final capturedEvent = (options.transport as MockTransport).events.first;
+      final capturedEnvelope =
+          (options.transport as MockTransport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
       expect(capturedEvent.exception!.stackTrace, isNotNull);
     });
@@ -258,7 +282,9 @@ void main() {
       final client = SentryClient(options..attachStacktrace = false);
       await client.captureException(exception);
 
-      final capturedEvent = (options.transport as MockTransport).events.first;
+      final capturedEnvelope =
+          (options.transport as MockTransport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
       expect(capturedEvent.exception!.stackTrace, isNull);
     });
@@ -280,7 +306,9 @@ void main() {
       final client = SentryClient(options);
       await client.captureException(exception, stackTrace: stacktrace);
 
-      final capturedEvent = (options.transport as MockTransport).events.first;
+      final capturedEnvelope =
+          (options.transport as MockTransport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
       expect(
         capturedEvent.exception!.stackTrace!.frames
@@ -333,13 +361,15 @@ void main() {
       final client = SentryClient(options);
       await client.captureEvent(event, scope: scope);
 
-      final capturedEvent = (options.transport as MockTransport).events.first;
+      final capturedEnvelope =
+          (options.transport as MockTransport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
       expect(capturedEvent.user?.id, user.id);
       expect(capturedEvent.level!.name, SentryLevel.error.name);
       expect(capturedEvent.transaction, transaction);
       expect(capturedEvent.fingerprint, fingerprint);
-      expect(capturedEvent.breadcrumbs?.first, crumb);
+      expect(capturedEvent.breadcrumbs?.first.toJson(), crumb.toJson());
       expect(capturedEvent.tags, {
         scopeTagKey: scopeTagValue,
         eventTagKey: eventTagValue,
@@ -384,21 +414,24 @@ void main() {
     });
 
     test('should not apply the scope to non null event fields ', () async {
-      final client = fixture.getSut(true);
+      final client = fixture.getSut(sendDefaultPii: true);
       final scope = createScope(fixture.options);
 
       await client.captureEvent(event, scope: scope);
 
-      final capturedEvent = fixture.transport.events.first;
+      final capturedEnvelope = fixture.transport.envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
       expect(capturedEvent.user!.id, eventUser.id);
       expect(capturedEvent.level!.name, SentryLevel.warning.name);
       expect(capturedEvent.transaction, eventTransaction);
       expect(capturedEvent.fingerprint, eventFingerprint);
-      expect(capturedEvent.breadcrumbs, eventCrumbs);
+      expect(capturedEvent.breadcrumbs?.map((e) => e.toJson()),
+          eventCrumbs.map((e) => e.toJson()));
     });
 
     test('should apply the scope user to null event user fields ', () async {
-      final client = fixture.getSut(true);
+      final client = fixture.getSut(sendDefaultPii: true);
       final scope = createScope(fixture.options);
 
       scope.user = SentryUser(id: '987');
@@ -408,18 +441,20 @@ void main() {
       );
       await client.captureEvent(eventWithUser, scope: scope);
 
-      final capturedEvent = fixture.transport.events.first;
+      final capturedEnvelope = fixture.transport.envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
       expect(capturedEvent.user!.id, '123');
       expect(capturedEvent.user!.username, 'foo bar');
       expect(capturedEvent.level!.name, SentryLevel.warning.name);
       expect(capturedEvent.transaction, eventTransaction);
       expect(capturedEvent.fingerprint, eventFingerprint);
-      expect(capturedEvent.breadcrumbs, eventCrumbs);
+      expect(capturedEvent.breadcrumbs?.map((e) => e.toJson()),
+          eventCrumbs.map((e) => e.toJson()));
     });
 
     test('merge scope user and event user extra', () async {
-      final client = fixture.getSut(true);
+      final client = fixture.getSut(sendDefaultPii: true);
       final scope = createScope(fixture.options);
 
       scope.user = SentryUser(
@@ -441,7 +476,8 @@ void main() {
       );
       await client.captureEvent(eventWithUser, scope: scope);
 
-      final capturedEvent = fixture.transport.events.first;
+      final capturedEnvelope = fixture.transport.envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
       expect(capturedEvent.user?.extras?['foo'], 'this bar is more important');
       expect(capturedEvent.user?.extras?['bar'], 'foo');
@@ -457,52 +493,63 @@ void main() {
     });
 
     test('sendDefaultPii is disabled', () async {
-      final client = fixture.getSut(false);
+      final client = fixture.getSut(sendDefaultPii: false);
 
       await client.captureEvent(fakeEvent);
 
-      expect(fixture.transport.events.first.user, fakeEvent.user);
+      final capturedEnvelope = fixture.transport.envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect(capturedEvent.user?.toJson(), fakeEvent.user?.toJson());
     });
 
     test('sendDefaultPii is enabled and event has no user', () async {
-      final client = fixture.getSut(true);
+      final client = fixture.getSut(sendDefaultPii: true);
       var fakeEvent = SentryEvent();
 
       await client.captureEvent(fakeEvent);
 
-      expect(fixture.transport.events.length, 1);
-      expect(fixture.transport.events.first.user, isNotNull);
-      expect(fixture.transport.events.first.user?.ipAddress, '{{auto}}');
+      final capturedEnvelope = fixture.transport.envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect(fixture.transport.envelopes.length, 1);
+      expect(capturedEvent.user, isNotNull);
+      expect(capturedEvent.user?.ipAddress, '{{auto}}');
     });
 
     test('sendDefaultPii is enabled and event has a user with IP address',
         () async {
-      final client = fixture.getSut(true);
+      final client = fixture.getSut(sendDefaultPii: true);
 
       await client.captureEvent(fakeEvent);
 
-      expect(fixture.transport.events.length, 1);
-      expect(fixture.transport.events.first.user, isNotNull);
+      final capturedEnvelope = fixture.transport.envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect(fixture.transport.envelopes.length, 1);
+      expect(capturedEvent.user, isNotNull);
       // fakeEvent has a user which is not null
-      expect(fixture.transport.events.first.user?.ipAddress,
-          fakeEvent.user!.ipAddress);
-      expect(fixture.transport.events.first.user?.id, fakeEvent.user!.id);
-      expect(fixture.transport.events.first.user?.email, fakeEvent.user!.email);
+      expect(capturedEvent.user?.ipAddress, fakeEvent.user!.ipAddress);
+      expect(capturedEvent.user?.id, fakeEvent.user!.id);
+      expect(capturedEvent.user?.email, fakeEvent.user!.email);
     });
 
     test('sendDefaultPii is enabled and event has a user without IP address',
         () async {
-      final client = fixture.getSut(true);
+      final client = fixture.getSut(sendDefaultPii: true);
 
       final event = fakeEvent.copyWith(user: fakeUser);
 
       await client.captureEvent(event);
 
-      expect(fixture.transport.events.length, 1);
-      expect(fixture.transport.events.first.user, isNotNull);
-      expect(fixture.transport.events.first.user?.ipAddress, '{{auto}}');
-      expect(fixture.transport.events.first.user?.id, fakeUser.id);
-      expect(fixture.transport.events.first.user?.email, fakeUser.email);
+      final capturedEnvelope = fixture.transport.envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect(fixture.transport.envelopes.length, 1);
+      expect(capturedEvent.user, isNotNull);
+      expect(capturedEvent.user?.ipAddress, '{{auto}}');
+      expect(capturedEvent.user?.id, fakeUser.id);
+      expect(capturedEvent.user?.email, fakeUser.email);
     });
   });
 
@@ -560,7 +607,9 @@ void main() {
       final client = SentryClient(options);
       await client.captureEvent(fakeEvent);
 
-      final event = (options.transport as MockTransport).events.first;
+      final capturedEnvelope =
+          (options.transport as MockTransport).envelopes.first;
+      final event = await eventFromEnvelope(capturedEnvelope);
 
       expect(event.tags!.containsKey('theme'), true);
       expect(event.extra!.containsKey('host'), true);
@@ -601,7 +650,10 @@ void main() {
       final client = SentryClient(options);
       await client.captureEvent(fakeEvent);
 
-      final event = (options.transport as MockTransport).events.first;
+      final capturedEnvelope =
+          (options.transport as MockTransport).envelopes.first;
+      final event = await eventFromEnvelope(capturedEnvelope);
+
       expect(event.tags!.containsKey('theme'), true);
       expect(event.extra!.containsKey('host'), true);
       expect(event.modules!.containsKey('core'), true);
@@ -642,6 +694,34 @@ void main() {
       expect((options.transport as MockTransport).called(0), true);
     });
   });
+
+  group('SentryClient captures envelope', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('should capture envelope', () async {
+      final client = fixture.getSut();
+      await client.captureEnvelope(fakeEnvelope);
+
+      final capturedEnvelope =
+          (fixture.options.transport as MockTransport).envelopes.first;
+
+      expect(capturedEnvelope, fakeEnvelope);
+    });
+  });
+}
+
+Future<SentryEvent> eventFromEnvelope(SentryEnvelope envelope) async {
+  final envelopeItemData = <int>[];
+  await envelope.items.first
+      .envelopeItemStream()
+      .forEach(envelopeItemData.addAll);
+  final envelopeItem = utf8.decode(envelopeItemData);
+  final envelopeItemJson = jsonDecode(envelopeItem.split('\n').last);
+  return SentryEvent.fromJson(envelopeItemJson as Map<String, dynamic>);
 }
 
 SentryEvent? beforeSendCallbackDropEvent(SentryEvent event, {dynamic hint}) =>
@@ -667,8 +747,7 @@ class Fixture {
 
   late SentryOptions options;
 
-  /// Test Fixture for tests with [SentryOptions.sendDefaultPii]
-  SentryClient getSut(bool sendDefaultPii) {
+  SentryClient getSut({bool sendDefaultPii = false}) {
     options = SentryOptions(dsn: fakeDsn);
     options.sendDefaultPii = sendDefaultPii;
     options.transport = transport;
