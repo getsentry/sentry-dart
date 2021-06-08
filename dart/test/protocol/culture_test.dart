@@ -32,6 +32,18 @@ void main() {
       expect('locale', copy.locale);
       expect('timezone', copy.timezone);
     });
+
+    test('toJson', () {
+      final data = _generate();
+
+      expect(data.toJson(), <String, dynamic>{
+        'calendar': 'FooCalendar',
+        'display_name': 'FooLanguage',
+        'is_24_hour_format': true,
+        'locale': 'fo-ba',
+        'timezone': 'best-timezone',
+      });
+    });
   });
 }
 
