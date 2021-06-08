@@ -10,6 +10,7 @@ void main() {
     app: SentryApp(name: 'name'),
     browser: SentryBrowser(name: 'name'),
     gpu: SentryGpu(id: 1),
+    culture: SentryCulture(locale: 'foo-bar'),
   );
 
   final contextsJson = <String, dynamic>{
@@ -19,6 +20,7 @@ void main() {
     'app': {'app_name': 'name'},
     'browser': {'name': 'name'},
     'gpu': {'id': 1},
+    'culture': {'locale': 'foo-bar'},
   };
 
   final contextsMutlipleRuntimes = Contexts(
