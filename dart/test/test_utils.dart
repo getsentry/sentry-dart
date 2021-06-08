@@ -27,7 +27,7 @@ void testHeaders(
   bool withSecret = true,
 }) {
   final expectedHeaders = <String, String>{
-    'Content-Type': 'application/json',
+    'Content-Type': 'application/x-sentry-envelope',
     'X-Sentry-Auth': 'Sentry sentry_version=7, '
         'sentry_client=$sdkName/$sdkVersion, '
         'sentry_key=public, '
@@ -101,13 +101,14 @@ Future testCaptureException(
     sdkName: sdkName(isWeb),
   );
 
-  Map<String, dynamic>? data;
+  String envelopeData;
   if (compressPayload) {
-    data =
-        json.decode(utf8.decode(gzip!.decode(body))) as Map<String, dynamic>?;
+    envelopeData = utf8.decode(gzip!.decode(body));
   } else {
-    data = json.decode(utf8.decode(body!)) as Map<String, dynamic>?;
+    envelopeData = utf8.decode(body!);
   }
+  final eventJson = envelopeData.split('\n').last;
+  final data = json.decode(eventJson) as Map<String, dynamic>?;
 
   // so we assert the generated and returned id
   data!['event_id'] = sentryId.toString();
@@ -193,7 +194,7 @@ void runTest({Codec<List<int>, List<int>?>? gzip, bool isWeb = false}) {
     expect(dsn.uri, Uri.parse(testDsn));
     expect(
       dsn.postUri,
-      Uri.parse('https://sentry.example.com/api/1/store/'),
+      Uri.parse('https://sentry.example.com/api/1/envelope/'),
     );
     expect(dsn.publicKey, 'public');
     expect(dsn.secretKey, 'secret');
@@ -210,7 +211,7 @@ void runTest({Codec<List<int>, List<int>?>? gzip, bool isWeb = false}) {
     expect(dsn.uri, Uri.parse(_testDsnWithoutSecret));
     expect(
       dsn.postUri,
-      Uri.parse('https://sentry.example.com/api/1/store/'),
+      Uri.parse('https://sentry.example.com/api/1/envelope/'),
     );
     expect(dsn.publicKey, 'public');
     expect(dsn.secretKey, null);
@@ -227,7 +228,7 @@ void runTest({Codec<List<int>, List<int>?>? gzip, bool isWeb = false}) {
     expect(dsn.uri, Uri.parse(_testDsnWithPath));
     expect(
       dsn.postUri,
-      Uri.parse('https://sentry.example.com/path/api/1/store/'),
+      Uri.parse('https://sentry.example.com/path/api/1/envelope/'),
     );
     expect(dsn.publicKey, 'public');
     expect(dsn.secretKey, 'secret');
@@ -243,7 +244,7 @@ void runTest({Codec<List<int>, List<int>?>? gzip, bool isWeb = false}) {
     expect(dsn.uri, Uri.parse(_testDsnWithPort));
     expect(
       dsn.postUri,
-      Uri.parse('https://sentry.example.com:8888/api/1/store/'),
+      Uri.parse('https://sentry.example.com:8888/api/1/envelope/'),
     );
     expect(dsn.publicKey, 'public');
     expect(dsn.secretKey, 'secret');
@@ -350,7 +351,9 @@ void runTest({Codec<List<int>, List<int>?>? gzip, bool isWeb = false}) {
       if (request.method == 'POST') {
         final bodyData = request.bodyBytes;
         final decoded = const Utf8Codec().decode(bodyData);
-        final dynamic decodedJson = jsonDecode(decoded);
+        final eventJson = decoded.split('\n').last;
+        final dynamic decodedJson = json.decode(eventJson);
+
         loggedUserId = decodedJson['user']['id'] as String?;
         return http.Response(
           '',

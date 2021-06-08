@@ -3,43 +3,77 @@ import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('copyWith keeps unchanged', () {
-    final data = _generate();
+  final sdkVersion = SdkVersion(
+    name: 'name',
+    version: 'version',
+    integrations: ['test'],
+    packages: [SentryPackage('name', 'version')],
+  );
 
-    final copy = data.copyWith();
+  final sdkVersionJson = <String, dynamic>{
+    'name': 'name',
+    'version': 'version',
+    'integrations': ['test'],
+    'packages': [
+      {
+        'name': 'name',
+        'version': 'version',
+      }
+    ],
+  };
 
-    expect(data.toJson(), copy.toJson());
+  group('json', () {
+    test('toJson', () {
+      final json = sdkVersion.toJson();
+
+      expect(
+        DeepCollectionEquality().equals(sdkVersionJson, json),
+        true,
+      );
+    });
+    test('fromJson', () {
+      final sdkVersion = SdkVersion.fromJson(sdkVersionJson);
+      final json = sdkVersion.toJson();
+
+      expect(
+        DeepCollectionEquality().equals(sdkVersionJson, json),
+        true,
+      );
+    });
   });
 
-  test('copyWith takes new values', () {
-    final data = _generate();
+  group('copyWith', () {
+    test('copyWith keeps unchanged', () {
+      final data = sdkVersion;
 
-    final packages = [SentryPackage('name1', 'version1')];
-    final integrations = ['test1'];
+      final copy = data.copyWith();
 
-    final copy = data.copyWith(
-      name: 'name1',
-      version: 'version1',
-      integrations: integrations,
-      packages: packages,
-    );
+      expect(data.toJson(), copy.toJson());
+    });
 
-    expect(
-      ListEquality().equals(integrations, copy.integrations),
-      true,
-    );
-    expect(
-      ListEquality().equals(packages, copy.packages),
-      true,
-    );
-    expect('name1', copy.name);
-    expect('version1', copy.version);
+    test('copyWith takes new values', () {
+      final data = sdkVersion;
+
+      final packages = [SentryPackage('name1', 'version1')];
+      final integrations = ['test1'];
+
+      final copy = data.copyWith(
+        name: 'name1',
+        version: 'version1',
+        integrations: integrations,
+        packages: packages,
+      );
+
+      expect(
+        ListEquality().equals(integrations, copy.integrations),
+        true,
+      );
+      expect(
+        ListEquality().equals(packages, copy.packages),
+        true,
+      );
+      expect('name1', copy.name);
+      expect('version1', copy.version);
+    });
   });
 }
-
-SdkVersion _generate() => SdkVersion(
-      name: 'name',
-      version: 'version',
-      integrations: ['test'],
-      packages: [SentryPackage('name', 'version')],
-    );

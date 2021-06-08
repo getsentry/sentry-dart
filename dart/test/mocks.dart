@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/protocol.dart';
+import 'package:sentry/src/transport/rate_limiter.dart';
 
 final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
@@ -123,3 +124,33 @@ class FunctionEventProcessor extends EventProcessor {
 
 typedef EventProcessorFunction = FutureOr<SentryEvent?>
     Function(SentryEvent event, {dynamic hint});
+
+var fakeEnvelope = SentryEnvelope.fromEvent(
+    fakeEvent, SdkVersion(name: 'sdk1', version: '1.0.0'));
+
+class MockRateLimiter implements RateLimiter {
+  bool filterReturnsNull = false;
+  SentryEnvelope? filteredEnvelope;
+  SentryEnvelope? envelopeToFilter;
+
+  String? sentryRateLimitHeader;
+  String? retryAfterHeader;
+  int? errorCode;
+
+  @override
+  SentryEnvelope? filter(SentryEnvelope envelope) {
+    if (filterReturnsNull) {
+      return null;
+    }
+    envelopeToFilter = envelope;
+    return filteredEnvelope ?? envelope;
+  }
+
+  @override
+  void updateRetryAfterLimits(
+      String? sentryRateLimitHeader, String? retryAfterHeader, int errorCode) {
+    this.sentryRateLimitHeader = sentryRateLimitHeader;
+    this.retryAfterHeader = retryAfterHeader;
+    this.errorCode = errorCode;
+  }
+}

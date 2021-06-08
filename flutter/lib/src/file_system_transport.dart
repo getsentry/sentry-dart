@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
 import 'package:sentry/sentry.dart';
@@ -10,28 +10,11 @@ class FileSystemTransport implements Transport {
   final SentryOptions _options;
 
   @override
-  Future<SentryId> send(SentryEvent event) async {
-    final headerMap = {
-      'event_id': event.eventId.toString(),
-      'sdk': _options.sdk.toJson()
-    };
-
-    final eventMap = event.toJson();
-
-    final eventString = jsonEncode(eventMap);
-    final eventUtf8 = utf8.encode(eventString);
-
-    final itemHeaderMap = {
-      'content_type': 'application/json',
-      'type': 'event',
-      'length': eventUtf8.length,
-    };
-
-    final headerString = jsonEncode(headerMap);
-    final itemHeaderString = jsonEncode(itemHeaderMap);
-    final envelopeString = '$headerString\n$itemHeaderString\n$eventString';
-
-    final args = [envelopeString];
+  Future<SentryId> send(SentryEnvelope envelope) async {
+    final envelopeData = <int>[];
+    await envelope.envelopeStream().forEach(envelopeData.addAll);
+    // https://flutter.dev/docs/development/platform-integration/platform-channels#codec
+    final args = [Uint8List.fromList(envelopeData)];
     try {
       await _channel.invokeMethod<void>('captureEnvelope', args);
     } catch (error) {
@@ -42,6 +25,6 @@ class FileSystemTransport implements Transport {
       return SentryId.empty();
     }
 
-    return event.eventId;
+    return envelope.header.eventId ?? SentryId.empty();
   }
 }
