@@ -112,6 +112,9 @@ class FailedRequestClient extends BaseClient {
     } finally {
       stopwatch.stop();
 
+      // If captureFailedRequests is true, there statusCode is null.
+      // So just one of these blocks can be called.
+
       if (captureFailedRequests) {
         await _captureEvent(
           exception: exception,
