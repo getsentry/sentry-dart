@@ -1,10 +1,10 @@
-import 'dart:async';
 import 'dart:developer';
 
 import 'package:http/http.dart';
 
 import 'diagnostic_logger.dart';
 import 'environment_variables.dart';
+import 'event_processor.dart';
 import 'integration.dart';
 import 'noop_client.dart';
 import 'protocol.dart';
@@ -248,11 +248,6 @@ typedef BeforeSendCallback = SentryEvent? Function(SentryEvent event,
 /// This function is called with an SDK specific breadcrumb object before the breadcrumb is added
 /// to the scope. When nothing is returned from the function, the breadcrumb is dropped
 typedef BeforeBreadcrumbCallback = Breadcrumb? Function(Breadcrumb? breadcrumb,
-    {dynamic hint});
-
-/// Are callbacks that run for every event. They can either return a new event which in most cases
-/// means just adding data OR return null in case the event will be dropped and not sent.
-typedef EventProcessor = FutureOr<SentryEvent?> Function(SentryEvent event,
     {dynamic hint});
 
 /// Logger interface to log useful debugging information if debug is enabled

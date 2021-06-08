@@ -118,74 +118,81 @@ class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) async {
     options.addEventProcessor(
-      (event, {hint}) async {
-        try {
-          final infos = Map<String, dynamic>.from(
-            await (_channel.invokeMethod('loadContexts')),
-          );
-          if (infos['contexts'] != null) {
-            final contexts = Contexts.fromJson(
-              Map<String, dynamic>.from(infos['contexts'] as Map),
-            );
-            final eventContexts = event.contexts.clone();
-
-            contexts.forEach(
-              (key, dynamic value) {
-                if (value != null) {
-                  if (key == SentryRuntime.listType) {
-                    contexts.runtimes.forEach(eventContexts.addRuntime);
-                  } else if (eventContexts[key] == null) {
-                    eventContexts[key] = value;
-                  }
-                }
-              },
-            );
-            event = event.copyWith(contexts: eventContexts);
-          }
-
-          if (infos['integrations'] != null) {
-            final integrations =
-                List<String>.from(infos['integrations'] as List);
-            final sdk = event.sdk ?? options.sdk;
-            integrations.forEach(sdk.addIntegration);
-            event = event.copyWith(sdk: sdk);
-          }
-
-          if (infos['package'] != null) {
-            final package = Map<String, String>.from(infos['package'] as Map);
-            final sdk = event.sdk ?? options.sdk;
-            sdk.addPackage(package['sdk_name']!, package['version']!);
-            event = event.copyWith(sdk: sdk);
-          }
-
-          // on iOS, captureEnvelope does not call the beforeSend callback,
-          // hence we need to add these tags here.
-          if (event.sdk?.name == 'sentry.dart.flutter') {
-            final tags = event.tags ?? {};
-            tags['event.origin'] = 'flutter';
-            tags['event.environment'] = 'dart';
-            event = event.copyWith(tags: tags);
-          }
-        } catch (error) {
-          options.logger(
-            SentryLevel.error,
-            'loadContextsIntegration failed : $error',
-          );
-        }
-
-        return event;
-      },
+      _LoadContextsIntegrationEventProcessor(_channel, options),
     );
     options.sdk.addIntegration('loadContextsIntegration');
   }
 }
 
+class _LoadContextsIntegrationEventProcessor extends EventProcessor {
+  _LoadContextsIntegrationEventProcessor(this._channel, this._options);
+
+  final MethodChannel _channel;
+  final SentryFlutterOptions _options;
+
+  @override
+  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {
+    try {
+      final infos = Map<String, dynamic>.from(
+        await (_channel.invokeMethod('loadContexts')),
+      );
+      if (infos['contexts'] != null) {
+        final contexts = Contexts.fromJson(
+          Map<String, dynamic>.from(infos['contexts'] as Map),
+        );
+        final eventContexts = event.contexts.clone();
+
+        contexts.forEach(
+          (key, dynamic value) {
+            if (value != null) {
+              if (key == SentryRuntime.listType) {
+                contexts.runtimes.forEach(eventContexts.addRuntime);
+              } else if (eventContexts[key] == null) {
+                eventContexts[key] = value;
+              }
+            }
+          },
+        );
+        event = event.copyWith(contexts: eventContexts);
+      }
+
+      if (infos['integrations'] != null) {
+        final integrations = List<String>.from(infos['integrations'] as List);
+        final sdk = event.sdk ?? _options.sdk;
+        integrations.forEach(sdk.addIntegration);
+        event = event.copyWith(sdk: sdk);
+      }
+
+      if (infos['package'] != null) {
+        final package = Map<String, String>.from(infos['package'] as Map);
+        final sdk = event.sdk ?? _options.sdk;
+        sdk.addPackage(package['sdk_name']!, package['version']!);
+        event = event.copyWith(sdk: sdk);
+      }
+
+      // on iOS, captureEnvelope does not call the beforeSend callback,
+      // hence we need to add these tags here.
+      if (event.sdk?.name == 'sentry.dart.flutter') {
+        final tags = event.tags ?? {};
+        tags['event.origin'] = 'flutter';
+        tags['event.environment'] = 'dart';
+        event = event.copyWith(tags: tags);
+      }
+    } catch (error) {
+      _options.logger(
+        SentryLevel.error,
+        'loadContextsIntegration failed : $error',
+      );
+    }
+    return event;
+  }
+}
+
 /// Enables Sentry's native SDKs (Android and iOS)
 class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
-  final MethodChannel _channel;
-
   NativeSdkIntegration(this._channel);
 
+  final MethodChannel _channel;
   late SentryFlutterOptions _options;
 
   @override
@@ -287,69 +294,79 @@ class LoadAndroidImageListIntegration
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
     options.addEventProcessor(
-      (event, {hint}) async {
-        try {
-          if (event.exception != null && event.exception!.stackTrace != null) {
-            final needsSymbolication = event.exception!.stackTrace!.frames
-                .any((element) => 'native' == element.platform);
-
-            // if there are no frames that require symbolication, we don't
-            // load the debug image list.
-            if (!needsSymbolication) {
-              return event;
-            }
-          } else {
-            return event;
-          }
-
-          // we call on every event because the loaded image list is cached
-          // and it could be changed on the Native side.
-          final imageList = List<Map<dynamic, dynamic>>.from(
-            await (_channel.invokeMethod('loadImageList')),
-          );
-
-          if (imageList.isEmpty) {
-            return event;
-          }
-
-          final newDebugImages = <DebugImage>[];
-
-          for (final item in imageList) {
-            final codeFile = item['code_file'] as String?;
-            final codeId = item['code_id'] as String?;
-            final imageAddr = item['image_addr'] as String?;
-            final imageSize = item['image_size'] as int?;
-            final type = item['type'] as String;
-            final debugId = item['debug_id'] as String?;
-            final debugFile = item['debug_file'] as String?;
-
-            final image = DebugImage(
-              type: type,
-              imageAddr: imageAddr,
-              imageSize: imageSize,
-              codeFile: codeFile,
-              debugId: debugId,
-              codeId: codeId,
-              debugFile: debugFile,
-            );
-            newDebugImages.add(image);
-          }
-
-          final debugMeta = DebugMeta(images: newDebugImages);
-
-          event = event.copyWith(debugMeta: debugMeta);
-        } catch (error) {
-          options.logger(
-            SentryLevel.error,
-            'loadImageList failed : $error',
-          );
-        }
-
-        return event;
-      },
+      _LoadAndroidImageListIntegrationEventProcessor(_channel, options),
     );
 
     options.sdk.addIntegration('loadAndroidImageListIntegration');
+  }
+}
+
+class _LoadAndroidImageListIntegrationEventProcessor extends EventProcessor {
+  _LoadAndroidImageListIntegrationEventProcessor(this._channel, this._options);
+
+  final MethodChannel _channel;
+  final SentryFlutterOptions _options;
+
+  @override
+  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {
+    try {
+      if (event.exception != null && event.exception!.stackTrace != null) {
+        final needsSymbolication = event.exception!.stackTrace!.frames
+            .any((element) => 'native' == element.platform);
+
+        // if there are no frames that require symbolication, we don't
+        // load the debug image list.
+        if (!needsSymbolication) {
+          return event;
+        }
+      } else {
+        return event;
+      }
+
+      // we call on every event because the loaded image list is cached
+      // and it could be changed on the Native side.
+      final imageList = List<Map<dynamic, dynamic>>.from(
+        await (_channel.invokeMethod('loadImageList')),
+      );
+
+      if (imageList.isEmpty) {
+        return event;
+      }
+
+      final newDebugImages = <DebugImage>[];
+
+      for (final item in imageList) {
+        final codeFile = item['code_file'] as String?;
+        final codeId = item['code_id'] as String?;
+        final imageAddr = item['image_addr'] as String?;
+        final imageSize = item['image_size'] as int?;
+        final type = item['type'] as String;
+        final debugId = item['debug_id'] as String?;
+        final debugFile = item['debug_file'] as String?;
+
+        final image = DebugImage(
+          type: type,
+          imageAddr: imageAddr,
+          imageSize: imageSize,
+          codeFile: codeFile,
+          debugId: debugId,
+          codeId: codeId,
+          debugFile: debugFile,
+        );
+        newDebugImages.add(image);
+      }
+
+      final debugMeta = DebugMeta(images: newDebugImages);
+
+      event = event.copyWith(debugMeta: debugMeta);
+    } catch (error) {
+      _options.logger(
+        SentryLevel.error,
+        'loadImageList failed : $error',
+      );
+    }
+
+    return event;
   }
 }
 
