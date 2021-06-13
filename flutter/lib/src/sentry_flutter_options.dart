@@ -25,18 +25,11 @@ class SentryFlutterOptions extends SentryOptions {
   /// feature, as this is required to mark Sessions as Crashed.
   bool enableNativeCrashHandling = true;
 
-  int _autoSessionTrackingIntervalMillis = 30000;
-
-  /// The session tracking interval in millis. This is the interval to end a
-  /// session if the App goes to the background.
+  /// The session tracking interval. This is the interval to end a session if
+  /// the App goes to the background.
+  /// Always uses the given duration as a positive timespan.
   /// See: [enableAutoSessionTracking]
-  int get autoSessionTrackingIntervalMillis =>
-      _autoSessionTrackingIntervalMillis;
-
-  set autoSessionTrackingIntervalMillis(int value) {
-    _autoSessionTrackingIntervalMillis =
-        value >= 0 ? value : _autoSessionTrackingIntervalMillis;
-  }
+  Duration autoSessionTrackingInterval = Duration(milliseconds: 30000);
 
   /// Enable or disable ANR (Application Not Responding).
   /// Available only for Android.
@@ -45,16 +38,11 @@ class SentryFlutterOptions extends SentryOptions {
   /// Java/Kotlin code as well.
   bool anrEnabled = false;
 
-  int _anrTimeoutIntervalMillis = 5000;
-
   /// ANR Timeout internal in Millis Default is 5000 = 5s Used by AnrIntegration.
   /// Available only for Android.
+  /// Always uses the given duration as a positive timespan.
   /// See: [anrEnabled]
-  int get anrTimeoutIntervalMillis => _anrTimeoutIntervalMillis;
-
-  set anrTimeoutIntervalMillis(int value) {
-    _anrTimeoutIntervalMillis = value >= 0 ? value : _anrTimeoutIntervalMillis;
-  }
+  Duration anrTimeoutInterval = Duration(milliseconds: 5000);
 
   /// Enable or disable the Automatic breadcrumbs on the Native platforms (Android/iOS)
   /// Screen's lifecycle, App's lifecycle, System events, etc...
@@ -63,14 +51,14 @@ class SentryFlutterOptions extends SentryOptions {
   /// consider using [useFlutterBreadcrumbTracking].
   bool enableAutoNativeBreadcrumbs = true;
 
-  int _cacheDirSize = 30;
+  int _maxCacheItems = 30;
 
-  /// The cache dir. size for capping the number of events Default is 30.
-  /// Only available for Android.
-  int get cacheDirSize => _cacheDirSize;
+  /// Defines the maximal amount of offline stored events. Default is 30.
+  /// Only available on Android, iOS and macOS.
+  int get maxCacheItems => _maxCacheItems;
 
-  set cacheDirSize(int value) {
-    _cacheDirSize = value >= 0 ? value : _cacheDirSize;
+  set maxCacheItems(int value) {
+    _maxCacheItems = value >= 0 ? value : _maxCacheItems;
   }
 
   /// Consider disabling [enableAutoNativeBreadcrumbs] if you
