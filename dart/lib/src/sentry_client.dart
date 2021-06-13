@@ -91,7 +91,7 @@ class SentryClient {
     final beforeSend = _options.beforeSend;
     if (beforeSend != null) {
       try {
-        preparedEvent = beforeSend(preparedEvent, hint: hint);
+        preparedEvent = await beforeSend(preparedEvent, hint: hint);
       } catch (err) {
         _options.logger(
           SentryLevel.error,

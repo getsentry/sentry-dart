@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:http/http.dart';
@@ -242,8 +243,10 @@ class SentryOptions {
 
 /// This function is called with an SDK specific event object and can return a modified event
 /// object or nothing to skip reporting the event
-typedef BeforeSendCallback = SentryEvent? Function(SentryEvent event,
-    {dynamic hint});
+typedef BeforeSendCallback = FutureOr<SentryEvent?> Function(
+  SentryEvent event, {
+  dynamic hint,
+});
 
 /// This function is called with an SDK specific breadcrumb object before the breadcrumb is added
 /// to the scope. When nothing is returned from the function, the breadcrumb is dropped
