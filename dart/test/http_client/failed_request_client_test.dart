@@ -136,6 +136,40 @@ void main() {
       verify(mockClient.close());
     });
 
+    test('pii is not send on exception', () async {
+      final sut = fixture.getSut(
+        client: createThrowingClient(),
+        captureFailedRequests: true,
+        sendDefaultPii: false,
+      );
+
+      await expectLater(
+        () async => await sut.get(requestUri, headers: {'Cookie': 'foo=bar'}),
+        throwsException,
+      );
+
+      final event = fixture.hub.captureEventCalls.first.event;
+      expect(fixture.hub.captureEventCalls.length, 1);
+      expect(event.request?.headers.isEmpty, true);
+      expect(event.request?.cookies, isNull);
+    });
+
+    test('pii is not send on invalid status code', () async {
+      final sut = fixture.getSut(
+        client: fixture.getClient(statusCode: 404, reason: 'Not Found'),
+        badStatusCodes: [SentryStatusCode(404)],
+        captureFailedRequests: false,
+        sendDefaultPii: false,
+      );
+
+      await sut.get(requestUri, headers: {'Cookie': 'foo=bar'});
+
+      final event = fixture.hub.captureEventCalls.first.event;
+      expect(fixture.hub.captureEventCalls.length, 1);
+      expect(event.request?.headers.isEmpty, true);
+      expect(event.request?.cookies, isNull);
+    });
+
     test('request body is included according to $MaxRequestBodySize', () async {
       final scenarios = [
         // never
@@ -205,6 +239,7 @@ class Fixture {
     bool captureFailedRequests = false,
     MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.small,
     List<SentryStatusCode> badStatusCodes = const [],
+    bool sendDefaultPii = true,
   }) {
     final mc = client ?? getClient();
     return FailedRequestClient(
@@ -213,6 +248,7 @@ class Fixture {
       captureFailedRequests: captureFailedRequests,
       failedRequestStatusCodes: badStatusCodes,
       maxRequestBodySize: maxRequestBodySize,
+      sendDefaultPii: sendDefaultPii,
     );
   }
 

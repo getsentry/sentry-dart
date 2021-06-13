@@ -67,6 +67,7 @@ class FailedRequestClient extends BaseClient {
     this.maxRequestBodySize = MaxRequestBodySize.small,
     this.failedRequestStatusCodes = const [],
     this.captureFailedRequests = true,
+    this.sendDefaultPii = false,
     Client? client,
     Hub? hub,
   })  : _hub = hub ?? HubAdapter(),
@@ -91,6 +92,8 @@ class FailedRequestClient extends BaseClient {
   ///
   /// Per default no status code is considered a failed request.
   final List<SentryStatusCode> failedRequestStatusCodes;
+
+  final bool sendDefaultPii;
 
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
@@ -121,7 +124,6 @@ class FailedRequestClient extends BaseClient {
           stackTrace: stackTrace,
           request: request,
           requestDuration: stopwatch.elapsed,
-          withPii: true,
         );
       }
 
@@ -131,7 +133,6 @@ class FailedRequestClient extends BaseClient {
           request: request,
           reason: failedRequestStatusCodes.toDescription(),
           requestDuration: stopwatch.elapsed,
-          withPii: true,
         );
       }
     }
@@ -150,7 +151,6 @@ class FailedRequestClient extends BaseClient {
     String? reason,
     required Duration requestDuration,
     required BaseRequest request,
-    required bool withPii,
   }) {
     // As far as I can tell there's no way to get the uri without the query part
     // so we replace it with an empty string.
@@ -160,10 +160,10 @@ class FailedRequestClient extends BaseClient {
 
     final sentryRequest = SentryRequest(
       method: request.method,
-      headers: withPii ? request.headers : null,
+      headers: sendDefaultPii ? request.headers : null,
       url: urlWithoutQuery,
       queryString: query,
-      cookies: withPii ? request.headers['Cookie'] : null,
+      cookies: sendDefaultPii ? request.headers['Cookie'] : null,
       data: _getDataFromRequest(request),
       other: {
         'content_length': request.contentLength.toString(),
