@@ -125,9 +125,7 @@ class FailedRequestClient extends BaseClient {
           request: request,
           requestDuration: stopwatch.elapsed,
         );
-      }
-
-      if (failedRequestStatusCodes.containsStatusCode(statusCode)) {
+      } else if (failedRequestStatusCodes.containsStatusCode(statusCode)) {
         // Capture an exception if the status code is considered bad
         await _captureEvent(
           request: request,
