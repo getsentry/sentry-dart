@@ -206,7 +206,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             options.sendDefaultPii = sendDefaultPii
         }
 
-        if let maxCacheItems = arguments["maxCacheItems"] as? Bool {
+        if let maxCacheItems = arguments["maxCacheItems"] as? UInt {
             options.maxCacheItems = maxCacheItems
         }
 
