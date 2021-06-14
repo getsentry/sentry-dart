@@ -171,7 +171,6 @@ class FailedRequestClient extends BaseClient {
 
     final mechanism = Mechanism(
       type: 'SentryHttpClient',
-      handled: true,
       description: reason,
     );
     final throwableMechanism = ThrowableMechanism(mechanism, exception);
@@ -179,7 +178,6 @@ class FailedRequestClient extends BaseClient {
     final event = SentryEvent(
       throwable: throwableMechanism,
       request: sentryRequest,
-      level: SentryLevel.error,
     );
     return _hub.captureEvent(event, stackTrace: stackTrace);
   }
