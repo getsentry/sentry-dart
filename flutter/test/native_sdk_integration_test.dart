@@ -1,10 +1,9 @@
-import 'dart:async';
-
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'mocks.dart';
+import 'sentry_flutter_options_test.dart';
 
 void main() {
   group('$NativeSdkIntegration', () {
@@ -23,7 +22,7 @@ void main() {
       });
       var sut = Fixture().getSut(channel);
 
-      await sut.call(HubAdapter(), SentryFlutterOptions(dsn: fakeDsn));
+      await sut.call(HubAdapter(), createOptions());
 
       channel.setMethodCallHandler(null);
 
@@ -65,7 +64,7 @@ void main() {
       });
       var sut = Fixture().getSut(channel);
 
-      final options = SentryFlutterOptions(dsn: fakeDsn)
+      final options = createOptions()
         ..debug = false
         ..environment = 'foo'
         ..release = 'foo@bar+1'
@@ -124,7 +123,7 @@ void main() {
       channel.setMockMethodCallHandler((call) async {});
       var sut = Fixture().getSut(channel);
 
-      final options = SentryFlutterOptions(dsn: fakeDsn);
+      final options = createOptions();
       await sut.call(HubAdapter(), options);
 
       expect(options.sdk.integrations, ['nativeSdkIntegration']);
@@ -139,7 +138,7 @@ void main() {
       });
       var sut = Fixture().getSut(channel);
 
-      final options = SentryFlutterOptions(dsn: fakeDsn);
+      final options = createOptions();
       await sut.call(HubAdapter(), options);
 
       expect(options.sdk.integrations, []);
@@ -147,6 +146,11 @@ void main() {
       channel.setMethodCallHandler(null);
     });
   });
+}
+
+SentryFlutterOptions createOptions() {
+  final mockPlatformChecker = MockPlatformChecker(true);
+  return SentryFlutterOptions(dsn: fakeDsn, checker: mockPlatformChecker);
 }
 
 class Fixture {
