@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/version.dart';
 
 import 'mocks.dart';
 import 'sentry_flutter_options_test.dart';
@@ -12,11 +13,9 @@ void main() {
     });
 
     test('test default values', () async {
-      final channel = const MethodChannel('initNativeSdk');
-
       String? methodName;
       dynamic arguments;
-      channel.setMockMethodCallHandler((call) async {
+      final channel = createChannelWithCallback((call) async {
         methodName = call.method;
         arguments = call.arguments;
       });
@@ -40,7 +39,7 @@ void main() {
         'dist': null,
         'integrations': [],
         'packages': [
-          {'name': 'pub:sentry', 'version': '5.1.1'}
+          {'name': 'pub:sentry', 'version': sdkVersion}
         ],
         'diagnosticLevel': 'debug',
         'maxBreadcrumbs': 100,
@@ -54,11 +53,9 @@ void main() {
     });
 
     test('test custom values', () async {
-      final channel = const MethodChannel('initNativeSdk');
-
       String? methodName;
       dynamic arguments;
-      channel.setMockMethodCallHandler((call) async {
+      final channel = createChannelWithCallback((call) async {
         methodName = call.method;
         arguments = call.arguments;
       });
@@ -104,7 +101,7 @@ void main() {
         'dist': 'distfoo',
         'integrations': ['foo'],
         'packages': [
-          {'name': 'pub:sentry', 'version': '5.1.1'},
+          {'name': 'pub:sentry', 'version': sdkVersion},
           {'name': 'bar', 'version': '1'},
         ],
         'diagnosticLevel': 'error',
@@ -119,8 +116,7 @@ void main() {
     });
 
     test('adds integration', () async {
-      final channel = const MethodChannel('initNativeSdk');
-      channel.setMockMethodCallHandler((call) async {});
+      final channel = createChannelWithCallback((call) async {});
       var sut = Fixture().getSut(channel);
 
       final options = createOptions();
@@ -132,20 +128,27 @@ void main() {
     });
 
     test('integration is not added in case of an exception', () async {
-      final channel = const MethodChannel('initNativeSdk');
-      channel.setMockMethodCallHandler((call) async {
+      final channel = createChannelWithCallback((call) async {
         throw Exception('foo');
       });
       var sut = Fixture().getSut(channel);
 
       final options = createOptions();
-      await sut.call(HubAdapter(), options);
+      await sut.call(NoOpHub(), options);
 
       expect(options.sdk.integrations, []);
 
       channel.setMethodCallHandler(null);
     });
   });
+}
+
+MethodChannel createChannelWithCallback(
+  Future<dynamic>? Function(MethodCall call)? handler,
+) {
+  final channel = const MethodChannel('initNativeSdk');
+  channel.setMockMethodCallHandler(handler);
+  return channel;
 }
 
 SentryFlutterOptions createOptions() {
