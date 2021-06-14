@@ -73,17 +73,13 @@ class BreadcrumbClient extends BaseClient {
     } finally {
       stopwatch.stop();
 
-      var breadcrumb = Breadcrumb(
+      var breadcrumb = Breadcrumb.http(
         level: requestHadException ? SentryLevel.error : SentryLevel.info,
-        type: 'http',
-        category: 'http',
-        data: {
-          'url': request.url.toString(),
-          'method': request.method,
-          if (statusCode != null) 'status_code': statusCode,
-          if (reason != null) 'reason': reason,
-          'duration': stopwatch.elapsed.toString(),
-        },
+        url: request.url,
+        method: request.method,
+        statusCode: statusCode,
+        reason: reason,
+        requestDuration: stopwatch.elapsed,
       );
 
       _hub.addBreadcrumb(breadcrumb);
