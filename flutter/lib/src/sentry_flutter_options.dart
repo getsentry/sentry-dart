@@ -25,11 +25,18 @@ class SentryFlutterOptions extends SentryOptions {
   /// feature, as this is required to mark Sessions as Crashed.
   bool enableNativeCrashHandling = true;
 
-  /// The session tracking interval. This is the interval to end a session if
-  /// the App goes to the background.
-  /// Always uses the given duration as a positive timespan.
+  int _autoSessionTrackingIntervalMillis = 30000;
+
+  /// The session tracking interval in millis. This is the interval to end a
+  /// session if the App goes to the background.
   /// See: [enableAutoSessionTracking]
-  Duration autoSessionTrackingInterval = Duration(milliseconds: 30000);
+  int get autoSessionTrackingIntervalMillis =>
+      _autoSessionTrackingIntervalMillis;
+
+  set autoSessionTrackingIntervalMillis(int value) {
+    _autoSessionTrackingIntervalMillis =
+        value >= 0 ? value : _autoSessionTrackingIntervalMillis;
+  }
 
   /// Enable or disable ANR (Application Not Responding).
   /// Available only for Android.
@@ -38,11 +45,16 @@ class SentryFlutterOptions extends SentryOptions {
   /// Java/Kotlin code as well.
   bool anrEnabled = false;
 
+  int _anrTimeoutIntervalMillis = 5000;
+
   /// ANR Timeout internal in Millis Default is 5000 = 5s Used by AnrIntegration.
   /// Available only for Android.
-  /// Always uses the given duration as a positive timespan.
   /// See: [anrEnabled]
-  Duration anrTimeoutInterval = Duration(milliseconds: 5000);
+  int get anrTimeoutIntervalMillis => _anrTimeoutIntervalMillis;
+
+  set anrTimeoutIntervalMillis(int value) {
+    _anrTimeoutIntervalMillis = value >= 0 ? value : _anrTimeoutIntervalMillis;
+  }
 
   /// Enable or disable the Automatic breadcrumbs on the Native platforms (Android/iOS)
   /// Screen's lifecycle, App's lifecycle, System events, etc...

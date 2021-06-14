@@ -69,12 +69,12 @@ void main() {
         ..enableNativeCrashHandling = false
         ..attachStacktrace = false
         ..attachThreads = true
-        ..autoSessionTrackingInterval = Duration(minutes: 4)
+        ..autoSessionTrackingIntervalMillis = 240000
         ..dist = 'distfoo'
         ..diagnosticLevel = SentryLevel.error
         ..maxBreadcrumbs = 0
         ..anrEnabled = false
-        ..anrTimeoutInterval = Duration.zero
+        ..anrTimeoutIntervalMillis = 0
         ..enableAutoNativeBreadcrumbs = false
         ..maxCacheItems = 0
         ..sendDefaultPii = true
