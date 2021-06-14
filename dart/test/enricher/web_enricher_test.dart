@@ -6,22 +6,14 @@ import 'dart:html' as html show window;
 
 import '../mocks.dart';
 
+// can be tested on command line with
+// `dart test -p chrome --name web_enricher`
 void main() {
   group('web_enricher', () {
     late Fixture fixture;
 
     setUp(() {
       fixture = Fixture();
-    });
-
-    test('adds dart runtime', () async {
-      var enricher = fixture.getSut();
-      final event = await enricher.apply(SentryEvent());
-
-      expect(event.contexts.runtimes, isNotEmpty);
-      final dartRuntime = event.contexts.runtimes
-          .firstWhere((element) => element.name == 'Dart');
-      expect(dartRuntime.name, 'Dart');
     });
 
     test('adds browser runtime', () async {
@@ -42,7 +34,7 @@ void main() {
       event = await enricher.apply(event);
 
       expect(event.contexts.runtimes.contains(runtime), true);
-      expect(event.contexts.runtimes.length, 3);
+      expect(event.contexts.runtimes.length, 2);
     });
 
     test('adds device and os', () async {

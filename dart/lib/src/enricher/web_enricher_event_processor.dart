@@ -61,11 +61,6 @@ class WebEnricherEventProcessor extends EventProcessor {
   List<SentryRuntime> _getRuntimes(List<SentryRuntime>? runtimes) {
     // Pure Dart doesn't have specific runtimes per build mode
     // like Flutter: https://flutter.dev/docs/testing/build-modes
-    final dartRuntime = SentryRuntime(
-      key: 'sentry_dart_runtime',
-      name: 'Dart',
-    );
-
     final browserRuntime = SentryRuntime(
       key: 'sentry_browser_runtime',
       name: 'Browser',
@@ -73,7 +68,6 @@ class WebEnricherEventProcessor extends EventProcessor {
     );
     return [
       if (runtimes?.isNotEmpty ?? false) ...runtimes!,
-      dartRuntime,
       browserRuntime,
     ];
   }
