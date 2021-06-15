@@ -13,6 +13,7 @@ import 'transport/transport.dart';
 import 'utils.dart';
 import 'version.dart';
 import 'platform_checker.dart';
+import 'http_client/sentry_http_client.dart';
 
 // TODO: Scope observers, enableScopeSync
 // TODO: shutdownTimeout, flushTimeoutMillis
@@ -187,6 +188,10 @@ class SentryOptions {
 
   /// Whether to send personal identifiable information along with events
   bool sendDefaultPii = false;
+
+  /// Wether deduplication is enabled. Shoud be set to true if
+  /// [SentryHttpClient] is used with
+  bool enableDeduplication = true;
 
   SentryOptions({this.dsn, PlatformChecker? checker}) {
     if (checker != null) {
