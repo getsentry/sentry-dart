@@ -6,7 +6,7 @@ import '../mocks.dart';
 
 void main() {
   group('$DeduplicationEventProcessor', () {
-    test('deduplicates', () {
+    test('deduplicates if enabled', () {
       final sut = Fixture().getSut(true);
       var ogEvent = createEvent('foo');
 
@@ -32,7 +32,7 @@ void main() {
     });
 
     test('integration test', () async {
-      Future<void> innerTest() async {
+      Future<void> innerThrowingMethod() async {
         try {
           throw Exception('foo bar');
         } catch (e, stackTrace) {
@@ -41,9 +41,9 @@ void main() {
         }
       }
 
-      Future<void> outerTest() async {
+      Future<void> outerThrowingMethod() async {
         try {
-          await innerTest();
+          await innerThrowingMethod();
         } catch (e, stackTrace) {
           await Sentry.captureException(e, stackTrace: stackTrace);
         }
@@ -55,11 +55,12 @@ void main() {
         (options) {
           options.dsn = fakeDsn;
           options.transport = transport;
+          options.enableDeduplication = true;
         },
       );
 
       // doesn't work with outerTestMethod as appRunner Callback
-      await outerTest();
+      await outerThrowingMethod();
 
       expect(transport.sendCalls.length, 1);
 
