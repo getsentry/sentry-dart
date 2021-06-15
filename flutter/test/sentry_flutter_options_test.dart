@@ -1,13 +1,15 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/sentry_flutter_options.dart';
+
+import 'mocks.dart';
 
 void main() {
   group('SentryFlutterOptions', () {
     testWidgets('auto breadcrumb tracking: has native integration',
         (WidgetTester tester) async {
-      final options = SentryFlutterOptions(checker: MockPlatformChecker(true));
+      final options = SentryFlutterOptions(
+          checker: MockPlatformChecker(hasNativeIntegration: true));
 
       expect(options.enableAppLifecycleBreadcrumbs, isFalse);
       expect(options.enableWindowMetricBreadcrumbs, isFalse);
@@ -19,7 +21,8 @@ void main() {
 
     testWidgets('auto breadcrumb tracking: without native integration',
         (WidgetTester tester) async {
-      final options = SentryFlutterOptions(checker: MockPlatformChecker(false));
+      final options = SentryFlutterOptions(
+          checker: MockPlatformChecker(hasNativeIntegration: false));
 
       expect(options.enableAppLifecycleBreadcrumbs, isTrue);
       expect(options.enableWindowMetricBreadcrumbs, isTrue);
@@ -53,28 +56,4 @@ void main() {
       expect(options.enableAutoNativeBreadcrumbs, isFalse);
     });
   });
-}
-
-class MockPlatformChecker implements PlatformChecker {
-  MockPlatformChecker(this.hasNativeIntegrationValue);
-
-  final bool hasNativeIntegrationValue;
-
-  @override
-  bool get hasNativeIntegration => hasNativeIntegrationValue;
-
-  @override
-  bool isDebugMode() => true;
-
-  @override
-  bool isProfileMode() => false;
-
-  @override
-  bool isReleaseMode() => false;
-
-  @override
-  bool get isWeb => false;
-
-  @override
-  Platform get platform => throw UnimplementedError();
 }

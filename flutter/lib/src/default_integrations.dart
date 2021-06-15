@@ -219,7 +219,7 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
         'anrEnabled': options.anrEnabled,
         'anrTimeoutIntervalMillis': options.anrTimeoutIntervalMillis,
         'enableAutoNativeBreadcrumbs': options.enableAutoNativeBreadcrumbs,
-        'cacheDirSize': options.cacheDirSize,
+        'maxCacheItems': options.maxCacheItems,
         'sendDefaultPii': options.sendDefaultPii,
         'enableOutOfMemoryTracking': options.enableOutOfMemoryTracking,
       });

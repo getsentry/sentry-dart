@@ -99,3 +99,62 @@ class MockPlatformChecker implements PlatformChecker {
   @override
   Platform get platform => _mockPlatform;
 }
+
+// Does nothing or returns default values.
+// Usefull for when a Hub needs to be passed but is not used.
+class NoOpHub implements Hub {
+  @override
+  void addBreadcrumb(Breadcrumb crumb, {hint}) {}
+
+  @override
+  void bindClient(SentryClient client) {}
+
+  @override
+  Future<SentryId> captureEvent(
+    SentryEvent event, {
+    stackTrace,
+    hint,
+    ScopeCallback? withScope,
+  }) async {
+    return SentryId.empty();
+  }
+
+  @override
+  Future<SentryId> captureException(
+    throwable, {
+    stackTrace,
+    hint,
+    ScopeCallback? withScope,
+  }) async {
+    return SentryId.empty();
+  }
+
+  @override
+  Future<SentryId> captureMessage(
+    String? message, {
+    SentryLevel? level,
+    String? template,
+    List? params,
+    hint,
+    ScopeCallback? withScope,
+  }) async {
+    return SentryId.empty();
+  }
+
+  @override
+  Hub clone() {
+    return NoOpHub();
+  }
+
+  @override
+  Future<void> close() async {}
+
+  @override
+  void configureScope(ScopeCallback callback) {}
+
+  @override
+  bool get isEnabled => false;
+
+  @override
+  SentryId get lastEventId => SentryId.empty();
+}
