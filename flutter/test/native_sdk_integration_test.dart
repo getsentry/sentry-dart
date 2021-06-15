@@ -4,7 +4,6 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/version.dart';
 
 import 'mocks.dart';
-import 'sentry_flutter_options_test.dart';
 
 void main() {
   group('$NativeSdkIntegration', () {
@@ -28,7 +27,7 @@ void main() {
       expect(methodName, 'initNativeSdk');
       expect(arguments, <String, dynamic>{
         'dsn': fakeDsn,
-        'debug': true,
+        'debug': false,
         'environment': null,
         'release': null,
         'enableAutoSessionTracking': true,
@@ -152,7 +151,7 @@ MethodChannel createChannelWithCallback(
 }
 
 SentryFlutterOptions createOptions() {
-  final mockPlatformChecker = MockPlatformChecker(true);
+  final mockPlatformChecker = MockPlatformChecker(hasNativeIntegration: true);
   return SentryFlutterOptions(dsn: fakeDsn, checker: mockPlatformChecker);
 }
 
