@@ -1,6 +1,7 @@
 # Unreleased
 
 * Feat: Add Culture Context (#491)
+* Feat: `beforeSend` callback accepts async code (#494)
 
 ## Breaking Changes:
 
