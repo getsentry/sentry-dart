@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:sentry/src/event_processor/deduplication_event_processor.dart';
+
 import 'default_integrations.dart';
 import 'enricher/enricher_event_processor.dart';
 import 'environment_variables.dart';
@@ -63,6 +65,7 @@ class Sentry {
     }
 
     options.addEventProcessor(getEnricherEventProcessor(options));
+    options.addEventProcessor(DeduplicationEventProcessor(options));
   }
 
   /// This method reads available environment variables and uses them

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 import '../event_processor.dart';
 import '../protocol.dart';
 import '../sentry_options.dart';
@@ -8,7 +9,10 @@ const eventsToKeepForDeduplication = 20;
 /// Deduplicates events with the same [SentryEvent.throwable].
 /// It keeps track of the last [eventsToKeepForDeduplication]
 /// events. Older events aren't considered for deduplication.
-/// This is a hard
+///
+/// Only [SentryEvent]s with exceptions are considered for deduplication.
+/// [SentryEvent]s without exceptions aren't deduplicated.
+///
 /// Caveats:
 /// It does not work in the following case:
 /// ```dart
@@ -19,8 +23,7 @@ const eventsToKeepForDeduplication = 20;
 class DeduplicationEventProcessor extends EventProcessor {
   DeduplicationEventProcessor(this._options);
 
-  // Map from exception to object
-  final Map<Object, Object?> exceptionMap = {};
+  final LinkedHashSet<Object> _exceptionToDeduplicate = LinkedHashSet<Object>();
   final SentryOptions _options;
 
   @override
@@ -39,17 +42,18 @@ class DeduplicationEventProcessor extends EventProcessor {
       // If no exception is given, just return the event
       return event;
     }
-    if (exceptionMap.containsKey(exception)) {
+    if (_exceptionToDeduplicate.contains(exception)) {
       _options.logger(
         SentryLevel.debug,
-        'Duplicate Exception detected. Event ${event.eventId} will be discarded.',
+        'Duplicate Exception detected. '
+        'Event ${event.eventId} will be discarded.',
       );
       return null;
     }
     // No duplication detected
-    exceptionMap[exception] = null;
-    if (exceptionMap.length > eventsToKeepForDeduplication) {
-      exceptionMap.remove(exceptionMap.entries.last.key);
+    _exceptionToDeduplicate.add(exception);
+    if (_exceptionToDeduplicate.length > eventsToKeepForDeduplication) {
+      _exceptionToDeduplicate.remove(_exceptionToDeduplicate.last);
     }
     return event;
   }
