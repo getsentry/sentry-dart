@@ -3,6 +3,7 @@ import 'package:sentry/src/event_processor/deduplication_event_processor.dart';
 import 'package:test/test.dart';
 
 import '../mocks.dart';
+import '../mocks/mock_transport.dart';
 
 void main() {
   group('$DeduplicationEventProcessor', () {
@@ -62,7 +63,7 @@ void main() {
       // doesn't work with outerTestMethod as appRunner Callback
       await outerThrowingMethod();
 
-      expect(transport.sendCalls.length, 1);
+      expect(transport.envelopes.length, 1);
 
       await Sentry.close();
     });

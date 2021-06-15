@@ -1,10 +1,9 @@
 import 'dart:async';
 
-import 'package:sentry/src/event_processor/deduplication_event_processor.dart';
-
 import 'default_integrations.dart';
 import 'enricher/enricher_event_processor.dart';
 import 'environment_variables.dart';
+import 'event_processor/deduplication_event_processor.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
 import 'noop_isolate_error_integration.dart'
