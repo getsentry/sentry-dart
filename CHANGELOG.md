@@ -1,7 +1,7 @@
 # Unreleased
 
 * Feat: Add Culture Context (#491)
-* Feat: Add DeduplicationEventProcessor
+* Feat: Add DeduplicationEventProcessor (#498)
 
 ## Breaking Changes:
 
