@@ -33,6 +33,7 @@ void main() {
         true,
       );
     });
+
     test('fromJson', () {
       final breadcrumb = Breadcrumb.fromJson(breadcrumbJson);
       final json = breadcrumb.toJson();
@@ -75,6 +76,33 @@ void main() {
       expect(SentryLevel.fatal, copy.level);
       expect('category1', copy.category);
       expect('type1', copy.type);
+    });
+  });
+
+  test('Breadcrumb http ctor', () {
+    final breadcrumb = Breadcrumb.http(
+      url: Uri.parse('https://example.org'),
+      method: 'GET',
+      level: SentryLevel.fatal,
+      reason: 'OK',
+      statusCode: 200,
+      requestDuration: Duration.zero,
+      timestamp: DateTime.now(),
+    );
+    final json = breadcrumb.toJson();
+
+    expect(json, {
+      'timestamp': formatDateAsIso8601WithMillisPrecision(breadcrumb.timestamp),
+      'category': 'http',
+      'data': {
+        'url': 'https://example.org',
+        'method': 'GET',
+        'status_code': 200,
+        'reason': 'OK',
+        'duration': '0:00:00.000000'
+      },
+      'level': 'fatal',
+      'type': 'http',
     });
   });
 }

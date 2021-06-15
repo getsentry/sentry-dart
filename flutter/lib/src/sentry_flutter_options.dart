@@ -63,14 +63,14 @@ class SentryFlutterOptions extends SentryOptions {
   /// consider using [useFlutterBreadcrumbTracking].
   bool enableAutoNativeBreadcrumbs = true;
 
-  int _cacheDirSize = 30;
+  int _maxCacheItems = 30;
 
-  /// The cache dir. size for capping the number of events Default is 30.
-  /// Only available for Android.
-  int get cacheDirSize => _cacheDirSize;
+  /// Defines the maximal amount of offline stored events. Default is 30.
+  /// Only available on Android, iOS and macOS.
+  int get maxCacheItems => _maxCacheItems;
 
-  set cacheDirSize(int value) {
-    _cacheDirSize = value >= 0 ? value : _cacheDirSize;
+  set maxCacheItems(int value) {
+    _maxCacheItems = value >= 0 ? value : _maxCacheItems;
   }
 
   /// Consider disabling [enableAutoNativeBreadcrumbs] if you

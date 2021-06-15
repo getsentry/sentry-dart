@@ -10,8 +10,13 @@ class SentryRuntime {
   static const listType = 'runtimes';
   static const type = 'runtime';
 
-  const SentryRuntime({this.key, this.name, this.version, this.rawDescription})
-      : assert(key == null || key.length >= 1);
+  const SentryRuntime({
+    this.key,
+    this.name,
+    this.version,
+    this.compiler,
+    this.rawDescription,
+  }) : assert(key == null || key.length >= 1);
 
   /// Key used in the JSON and which will be displayed
   /// in the Sentry UI. Defaults to lower case version of [name].
@@ -25,6 +30,10 @@ class SentryRuntime {
   /// The version identifier of the runtime.
   final String? version;
 
+  /// Dart has a couple different compilers.
+  /// E.g: dart2js, dartdevc, AOT, VM
+  final String? compiler;
+
   /// An unprocessed description string obtained by the runtime.
   ///
   /// For some well-known runtimes, Sentry will attempt to parse name
@@ -35,32 +44,25 @@ class SentryRuntime {
   factory SentryRuntime.fromJson(Map<String, dynamic> data) => SentryRuntime(
         name: data['name'],
         version: data['version'],
+        compiler: data['compiler'],
         rawDescription: data['raw_description'],
       );
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{};
-
-    if (name != null) {
-      json['name'] = name;
-    }
-
-    if (version != null) {
-      json['version'] = version;
-    }
-
-    if (rawDescription != null) {
-      json['raw_description'] = rawDescription;
-    }
-
-    return json;
+    return <String, dynamic>{
+      if (name != null) 'name': name,
+      if (compiler != null) 'compiler': compiler,
+      if (version != null) 'version': version,
+      if (rawDescription != null) 'raw_description': rawDescription,
+    };
   }
 
   SentryRuntime clone() => SentryRuntime(
         key: key,
         name: name,
         version: version,
+        compiler: compiler,
         rawDescription: rawDescription,
       );
 
@@ -68,12 +70,14 @@ class SentryRuntime {
     String? key,
     String? name,
     String? version,
+    String? compiler,
     String? rawDescription,
   }) =>
       SentryRuntime(
         key: key ?? this.key,
         name: name ?? this.name,
         version: version ?? this.version,
+        compiler: compiler ?? this.compiler,
         rawDescription: rawDescription ?? this.rawDescription,
       );
 }

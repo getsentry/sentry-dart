@@ -88,7 +88,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
         options.isEnableAppComponentBreadcrumbs = it
       }
       args.getIfNotNull<Int>("maxBreadcrumbs") { options.maxBreadcrumbs = it }
-      args.getIfNotNull<Int>("cacheDirSize") { options.maxCacheItems = it }
+      args.getIfNotNull<Int>("maxCacheItems") { options.maxCacheItems = it }
       args.getIfNotNull<String>("diagnosticLevel") {
         if (options.isDebug) {
           val sentryLevel = SentryLevel.valueOf(it.toUpperCase(Locale.ROOT))

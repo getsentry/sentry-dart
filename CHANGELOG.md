@@ -1,7 +1,10 @@
 # Unreleased
 
+* Feat: Enrich events with more context (#452)
 * Feat: Add Culture Context (#491)
 * Feat: Add DeduplicationEventProcessor (#498)
+* Feat: Capture failed requests as event (#473)
+* Feat: `beforeSend` callback accepts async code (#494)
 
 ## Breaking Changes:
 
@@ -9,6 +12,7 @@
 * Feat: Support envelope based transport for events (#391)
   * The method signature of `Transport` changed from `Future<SentryId> send(SentryEvent event)` to `Future<SentryId> send(SentryEnvelope envelope)`
 * Remove `Sentry.currentHub` (#490)
+* Ref: Rename `cacheDirSize` to `maxCacheItems` and add `maxCacheItems` for iOS (#495)
 
 # 5.1.0
 

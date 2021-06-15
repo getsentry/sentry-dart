@@ -37,6 +37,7 @@ class SentryDevice {
     this.bootTime,
     this.timezone,
     this.language,
+    this.theme,
   }) : assert(
           batteryLevel == null || (batteryLevel >= 0 && batteryLevel <= 100),
         );
@@ -132,6 +133,9 @@ class SentryDevice {
   /// The language of the device, e.g.: `en_US`.
   final String? language;
 
+  /// The theme of the device. Typically `light` or `dark`
+  final String? theme;
+
   /// Deserializes a [SentryDevice] from JSON [Map].
   factory SentryDevice.fromJson(Map<String, dynamic> data) => SentryDevice(
         name: data['name'],
@@ -168,6 +172,7 @@ class SentryDevice {
             : null,
         timezone: data['timezone'],
         language: data['language'],
+        theme: data['theme'],
       );
 
   /// Produces a [Map] that can be serialized to JSON.
@@ -300,38 +305,44 @@ class SentryDevice {
       json['language'] = language;
     }
 
+    if (theme != null) {
+      json['theme'] = theme;
+    }
+
     return json;
   }
 
   SentryDevice clone() => SentryDevice(
-      name: name,
-      family: family,
-      model: model,
-      modelId: modelId,
-      arch: arch,
-      batteryLevel: batteryLevel,
-      orientation: orientation,
-      manufacturer: manufacturer,
-      brand: brand,
-      screenResolution: screenResolution,
-      screenHeightPixels: screenHeightPixels,
-      screenWidthPixels: screenWidthPixels,
-      screenDensity: screenDensity,
-      screenDpi: screenDpi,
-      online: online,
-      charging: charging,
-      lowMemory: lowMemory,
-      simulator: simulator,
-      memorySize: memorySize,
-      freeMemory: freeMemory,
-      usableMemory: usableMemory,
-      storageSize: storageSize,
-      freeStorage: freeStorage,
-      externalStorageSize: externalStorageSize,
-      externalFreeStorage: externalFreeStorage,
-      bootTime: bootTime,
-      timezone: timezone,
-      language: language);
+        name: name,
+        family: family,
+        model: model,
+        modelId: modelId,
+        arch: arch,
+        batteryLevel: batteryLevel,
+        orientation: orientation,
+        manufacturer: manufacturer,
+        brand: brand,
+        screenResolution: screenResolution,
+        screenHeightPixels: screenHeightPixels,
+        screenWidthPixels: screenWidthPixels,
+        screenDensity: screenDensity,
+        screenDpi: screenDpi,
+        online: online,
+        charging: charging,
+        lowMemory: lowMemory,
+        simulator: simulator,
+        memorySize: memorySize,
+        freeMemory: freeMemory,
+        usableMemory: usableMemory,
+        storageSize: storageSize,
+        freeStorage: freeStorage,
+        externalStorageSize: externalStorageSize,
+        externalFreeStorage: externalFreeStorage,
+        bootTime: bootTime,
+        timezone: timezone,
+        theme: theme,
+        language: language,
+      );
 
   SentryDevice copyWith({
     String? name,
@@ -362,6 +373,7 @@ class SentryDevice {
     DateTime? bootTime,
     String? timezone,
     String? language,
+    String? theme,
   }) =>
       SentryDevice(
         name: name ?? this.name,
@@ -392,5 +404,6 @@ class SentryDevice {
         bootTime: bootTime ?? this.bootTime,
         timezone: timezone ?? this.timezone,
         language: language ?? this.language,
+        theme: theme ?? this.theme,
       );
 }

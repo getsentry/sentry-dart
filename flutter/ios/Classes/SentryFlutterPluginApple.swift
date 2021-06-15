@@ -206,6 +206,10 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             options.sendDefaultPii = sendDefaultPii
         }
 
+        if let maxCacheItems = arguments["maxCacheItems"] as? UInt {
+            options.maxCacheItems = maxCacheItems
+        }
+
         if let enableOutOfMemoryTracking = arguments["enableOutOfMemoryTracking"] as? Bool {
             options.enableOutOfMemoryTracking = enableOutOfMemoryTracking
         }
