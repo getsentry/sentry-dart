@@ -123,7 +123,7 @@ class MainScaffold extends StatelessWidget {
                 Sentry.captureMessage(
                   'This event has an extra tag',
                   withScope: (scope) {
-                    scope.tags['foo'] = 'bar';
+                    scope.setTag('foo', 'bar');
                   },
                 );
               },

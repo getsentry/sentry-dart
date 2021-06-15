@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
+
+import 'flutter_enricher_event_processor.dart';
 import 'sentry_flutter_options.dart';
 
 import 'default_integrations.dart';
@@ -60,6 +62,10 @@ mixin SentryFlutter {
     if (options.platformChecker.hasNativeIntegration) {
       options.transport = FileSystemTransport(channel, options);
     }
+
+    var flutterEventProcessor =
+        FlutterEnricherEventProcessor.simple(options: options);
+    options.addEventProcessor(flutterEventProcessor);
 
     _setSdk(options);
   }
