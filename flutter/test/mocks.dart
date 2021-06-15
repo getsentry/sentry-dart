@@ -65,7 +65,7 @@ class MockPlatform implements Platform {
   bool get isFuchsia => (operatingSystem == 'fuchsia');
 }
 
-// Does nothing or throws.
+// Does nothing or returns default values.
 // Usefull for when a Hub needs to be passed but is not used.
 class NoOpHub implements Hub {
   @override
@@ -75,45 +75,53 @@ class NoOpHub implements Hub {
   void bindClient(SentryClient client) {}
 
   @override
-  Future<SentryId> captureEvent(SentryEvent event,
-      {stackTrace, hint, ScopeCallback? withScope}) {
-    throw UnimplementedError();
+  Future<SentryId> captureEvent(
+    SentryEvent event, {
+    stackTrace,
+    hint,
+    ScopeCallback? withScope,
+  }) async {
+    return SentryId.empty();
   }
 
   @override
-  Future<SentryId> captureException(throwable,
-      {stackTrace, hint, ScopeCallback? withScope}) {
-    throw UnimplementedError();
+  Future<SentryId> captureException(
+    throwable, {
+    stackTrace,
+    hint,
+    ScopeCallback? withScope,
+  }) async {
+    return SentryId.empty();
   }
 
   @override
-  Future<SentryId> captureMessage(String? message,
-      {SentryLevel? level,
-      String? template,
-      List? params,
-      hint,
-      ScopeCallback? withScope}) {
-    throw UnimplementedError();
+  Future<SentryId> captureMessage(
+    String? message, {
+    SentryLevel? level,
+    String? template,
+    List? params,
+    hint,
+    ScopeCallback? withScope,
+  }) async {
+    return SentryId.empty();
   }
 
   @override
   Hub clone() {
-    throw UnimplementedError();
+    return NoOpHub();
   }
 
   @override
-  Future<void> close() {
-    throw UnimplementedError();
-  }
+  Future<void> close() async {}
 
   @override
   void configureScope(ScopeCallback callback) {}
 
   @override
-  bool get isEnabled => throw UnimplementedError();
+  bool get isEnabled => false;
 
   @override
-  SentryId get lastEventId => throw UnimplementedError();
+  SentryId get lastEventId => SentryId.empty();
 }
 
 class MockPlatformChecker implements PlatformChecker {
