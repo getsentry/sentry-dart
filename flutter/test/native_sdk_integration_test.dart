@@ -7,7 +7,9 @@ import 'mocks.dart';
 
 void main() {
   group('$NativeSdkIntegration', () {
+    late Fixture fixture;
     setUp(() {
+      fixture = Fixture();
       TestWidgetsFlutterBinding.ensureInitialized();
     });
 
@@ -18,7 +20,7 @@ void main() {
         methodName = call.method;
         arguments = call.arguments;
       });
-      var sut = Fixture().getSut(channel);
+      var sut = fixture.getSut(channel);
 
       await sut.call(HubAdapter(), createOptions());
 
@@ -58,7 +60,7 @@ void main() {
         methodName = call.method;
         arguments = call.arguments;
       });
-      var sut = Fixture().getSut(channel);
+      var sut = fixture.getSut(channel);
 
       final options = createOptions()
         ..debug = false
@@ -116,7 +118,7 @@ void main() {
 
     test('adds integration', () async {
       final channel = createChannelWithCallback((call) async {});
-      var sut = Fixture().getSut(channel);
+      var sut = fixture.getSut(channel);
 
       final options = createOptions();
       await sut.call(HubAdapter(), options);
@@ -130,7 +132,7 @@ void main() {
       final channel = createChannelWithCallback((call) async {
         throw Exception('foo');
       });
-      var sut = Fixture().getSut(channel);
+      var sut = fixture.getSut(channel);
 
       final options = createOptions();
       await sut.call(NoOpHub(), options);
