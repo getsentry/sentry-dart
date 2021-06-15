@@ -1,7 +1,9 @@
 # Unreleased
 
+* Feat: Enrich events with more context (#452)
 * Feat: Add Culture Context (#491)
 * Feat: Capture failed requests as event (#473)
+* Feat: `beforeSend` callback accepts async code (#494)
 
 ## Breaking Changes:
 

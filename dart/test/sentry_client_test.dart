@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:sentry/sentry.dart';
@@ -602,6 +603,14 @@ void main() {
       expect((options.transport as MockTransport).called(0), true);
     });
 
+    test('async before send drops event', () async {
+      options.beforeSend = asyncBeforeSendCallbackDropEvent;
+      final client = SentryClient(options);
+      await client.captureEvent(fakeEvent);
+
+      expect((options.transport as MockTransport).called(0), true);
+    });
+
     test('before send returns an event and event is captured', () async {
       options.beforeSend = beforeSendCallback;
       final client = SentryClient(options);
@@ -724,10 +733,21 @@ Future<SentryEvent> eventFromEnvelope(SentryEnvelope envelope) async {
   return SentryEvent.fromJson(envelopeItemJson as Map<String, dynamic>);
 }
 
-SentryEvent? beforeSendCallbackDropEvent(SentryEvent event, {dynamic hint}) =>
+FutureOr<SentryEvent?> beforeSendCallbackDropEvent(
+  SentryEvent event, {
+  dynamic hint,
+}) =>
     null;
 
-SentryEvent beforeSendCallback(SentryEvent event, {dynamic hint}) {
+FutureOr<SentryEvent?> asyncBeforeSendCallbackDropEvent(
+  SentryEvent event, {
+  dynamic hint,
+}) async {
+  await Future.delayed(Duration(milliseconds: 200));
+  return null;
+}
+
+FutureOr<SentryEvent?> beforeSendCallback(SentryEvent event, {dynamic hint}) {
   return event
     ..tags!.addAll({'theme': 'material'})
     ..extra!['host'] = '0.0.0.1'
