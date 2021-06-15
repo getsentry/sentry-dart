@@ -1,15 +1,39 @@
 import 'package:http/http.dart';
-import '../protocol/sentry_level.dart';
-import '../protocol/breadcrumb.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
+import '../protocol.dart';
+import 'breadcrumb_client.dart';
+import 'failed_request_client.dart';
 
-/// A [http](https://pub.dev/packages/http)-package compatible HTTP client
-/// which records requests as breadcrumbs.
+/// A [http](https://pub.dev/packages/http)-package compatible HTTP client.
 ///
-/// Remarks:
-/// If this client is used as a wrapper, a call to close also closes the
-/// given client.
+/// It can record requests as breadcrumbs. This is on by default.
+///
+/// It can also capture requests which throw an exception. This is off by
+/// default, set [captureFailedRequests] to `true` to enable it. This can be for
+/// example for the following reasons:
+/// - In an browser environment this can be requests which fail because of CORS.
+/// - In an mobile or desktop application this can be requests which failed
+///   because the connection was interrupted.
+///
+/// Additionally you can configure specific HTTP response codes to be considered
+/// as a failed request. This is off by default. Enable it by using it like
+/// shown in the following example:
+/// The status codes 400 to 404 and 500 are considered a failed request.
+///
+/// ```dart
+/// import 'package:sentry/sentry.dart';
+///
+/// var client = SentryHttpClient(
+///   failedRequestStatusCodes: [
+///     SentryStatusCode.range(400, 404),
+///     SentryStatusCode(500),
+///   ],
+/// );
+/// ```
+///
+/// Remarks: If this client is used as a wrapper, a call to close also closes
+/// the given client.
 ///
 /// The `SentryHttpClient` can be used as a standalone client like this:
 /// ```dart
@@ -25,8 +49,8 @@ import '../hub_adapter.dart';
 /// }
 /// ```
 ///
-/// The `SentryHttpClient` can also be used as a wrapper for your own
-/// HTTP [Client](https://pub.dev/documentation/http/latest/http/Client-class.html):
+/// The `SentryHttpClient` can also be used as a wrapper for your own HTTP
+/// [Client](https://pub.dev/documentation/http/latest/http/Client-class.html):
 /// ```dart
 /// import 'package:sentry/sentry.dart';
 /// import 'package:http/http.dart' as http;
@@ -41,59 +65,75 @@ import '../hub_adapter.dart';
 /// } finally {
 ///  client.close();
 /// }
+///
+/// Remarks:
+/// HTTP traffic can contain PII (personal identifiable information).
+/// Read more on data scrubbing [here](https://docs.sentry.io/product/data-management-settings/advanced-datascrubbing/).
 /// ```
 class SentryHttpClient extends BaseClient {
-  SentryHttpClient({Client? client, Hub? hub})
-      : _hub = hub ?? HubAdapter(),
-        _client = client ?? Client();
+  SentryHttpClient({
+    Client? client,
+    Hub? hub,
+    bool recordBreadcrumbs = true,
+    MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never,
+    List<SentryStatusCode> failedRequestStatusCodes = const [],
+    bool captureFailedRequests = false,
+    bool sendDefaultPii = false,
+  }) {
+    _hub = hub ?? HubAdapter();
 
-  final Client _client;
-  final Hub _hub;
+    var innerClient = client ?? Client();
 
-  @override
-  Future<StreamedResponse> send(BaseRequest request) async {
-    // See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
+    innerClient = FailedRequestClient(
+      failedRequestStatusCodes: failedRequestStatusCodes,
+      captureFailedRequests: captureFailedRequests,
+      maxRequestBodySize: maxRequestBodySize,
+      sendDefaultPii: sendDefaultPii,
+      hub: _hub,
+      client: innerClient,
+    );
 
-    var requestHadException = false;
-    int? statusCode;
-    String? reason;
-
-    final stopwatch = Stopwatch();
-    stopwatch.start();
-
-    try {
-      final response = await _client.send(request);
-
-      statusCode = response.statusCode;
-      reason = response.reasonPhrase;
-
-      return response;
-    } catch (_) {
-      requestHadException = true;
-      rethrow;
-    } finally {
-      stopwatch.stop();
-
-      var breadcrumb = Breadcrumb(
-        level: requestHadException ? SentryLevel.error : SentryLevel.info,
-        type: 'http',
-        category: 'http',
-        data: {
-          'url': request.url.toString(),
-          'method': request.method,
-          if (statusCode != null) 'status_code': statusCode,
-          if (reason != null) 'reason': reason,
-          'duration': stopwatch.elapsed.toString(),
-        },
-      );
-
-      _hub.addBreadcrumb(breadcrumb);
+    // The ordering here matters.
+    // We don't want to include the breadcrumbs for the current request
+    // when capturing it as a failed request.
+    // However it still should be added for following events.
+    if (recordBreadcrumbs) {
+      innerClient = BreadcrumbClient(client: innerClient, hub: _hub);
     }
+
+    _client = innerClient;
   }
 
+  late Client _client;
+  late Hub _hub;
+
   @override
-  void close() {
-    // See https://github.com/getsentry/sentry-dart/pull/226#discussion_r536984785
-    _client.close();
+  Future<StreamedResponse> send(BaseRequest request) => _client.send(request);
+
+  @override
+  void close() => _client.close();
+}
+
+class SentryStatusCode {
+  SentryStatusCode.range(this._min, this._max)
+      : assert(_min <= _max),
+        assert(_min > 0 && _max > 0);
+
+  SentryStatusCode(int statusCode)
+      : _min = statusCode,
+        _max = statusCode,
+        assert(statusCode > 0);
+
+  final int _min;
+  final int _max;
+
+  bool isInRange(int statusCode) => statusCode >= _min && statusCode <= _max;
+
+  @override
+  String toString() {
+    if (_min == _max) {
+      return _min.toString();
+    }
+    return '$_min..$_max';
   }
 }

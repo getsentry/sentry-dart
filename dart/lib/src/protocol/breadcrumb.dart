@@ -32,6 +32,30 @@ class Breadcrumb {
   })  : timestamp = timestamp ?? getUtcDateTime(),
         level = level ?? SentryLevel.info;
 
+  factory Breadcrumb.http({
+    required Uri url,
+    required String method,
+    int? statusCode,
+    String? reason,
+    Duration? requestDuration,
+    SentryLevel? level,
+    DateTime? timestamp,
+  }) {
+    return Breadcrumb(
+      type: 'http',
+      category: 'http',
+      level: level,
+      timestamp: timestamp,
+      data: {
+        'url': url.toString(),
+        'method': method,
+        if (statusCode != null) 'status_code': statusCode,
+        if (reason != null) 'reason': reason,
+        if (requestDuration != null) 'duration': requestDuration.toString(),
+      },
+    );
+  }
+
   /// Describes the breadcrumb.
   ///
   /// This field is optional and may be set to null.
