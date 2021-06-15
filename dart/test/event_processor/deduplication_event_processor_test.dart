@@ -30,6 +30,41 @@ void main() {
       expect(sut.apply(fooEvent), isNotNull);
       expect(sut.apply(barEvent), isNotNull);
     });
+
+    test('integration test', () async {
+      Future<void> innerTest() async {
+        try {
+          throw Exception('foo bar');
+        } catch (e, stackTrace) {
+          await Sentry.captureException(e, stackTrace: stackTrace);
+          rethrow;
+        }
+      }
+
+      Future<void> outerTest() async {
+        try {
+          await innerTest();
+        } catch (e, stackTrace) {
+          await Sentry.captureException(e, stackTrace: stackTrace);
+        }
+      }
+
+      final transport = MockTransport();
+
+      await Sentry.init(
+        (options) {
+          options.dsn = fakeDsn;
+          options.transport = transport;
+        },
+      );
+
+      // doesn't work with outerTestMethod as appRunner Callback
+      await outerTest();
+
+      expect(transport.sendCalls.length, 1);
+
+      await Sentry.close();
+    });
   });
 }
 

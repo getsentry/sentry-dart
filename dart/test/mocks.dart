@@ -158,3 +158,13 @@ class MockRateLimiter implements RateLimiter {
     this.errorCode = errorCode;
   }
 }
+
+class MockTransport implements Transport {
+  List<SentryEnvelope> sendCalls = [];
+
+  @override
+  Future<SentryId> send(SentryEnvelope envelope) async {
+    sendCalls.add(envelope);
+    return SentryId.newId();
+  }
+}
