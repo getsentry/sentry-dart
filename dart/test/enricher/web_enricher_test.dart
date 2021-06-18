@@ -16,25 +16,45 @@ void main() {
       fixture = Fixture();
     });
 
-    test('adds browser runtime', () async {
+    test('add request with user-agent header', () async {
       var enricher = fixture.getSut();
       final event = await enricher.apply(SentryEvent());
 
-      expect(event.contexts.runtimes, isNotEmpty);
-      final dartRuntime = event.contexts.runtimes
-          .firstWhere((element) => element.name == 'Browser');
-      expect(dartRuntime.name, 'Browser');
-      expect(dartRuntime.rawDescription, isNotNull);
+      expect(event.request?.headers['User-Agent'], isNotNull);
+      expect(event.request?.url, isNotNull);
     });
 
-    test('does add to existing runtimes', () async {
-      final runtime = SentryRuntime(name: 'foo', version: 'bar');
-      var event = SentryEvent(contexts: Contexts(runtimes: [runtime]));
+    test('adds header to request if request already exists', () async {
+      var event = SentryEvent(
+        request: SentryRequest(
+          url: 'foo.bar',
+          headers: {
+            'foo': 'bar',
+          },
+        ),
+      );
       var enricher = fixture.getSut();
       event = await enricher.apply(event);
 
-      expect(event.contexts.runtimes.contains(runtime), true);
-      expect(event.contexts.runtimes.length, 2);
+      expect(event.request?.headers['User-Agent'], isNotNull);
+      expect(event.request?.headers['foo'], 'bar');
+      expect(event.request?.url, 'foo.bar');
+    });
+
+    test('user-agent is not overridden if already present', () async {
+      var event = SentryEvent(
+        request: SentryRequest(
+          url: 'foo.bar',
+          headers: {
+            'User-Agent': 'best browser agent',
+          },
+        ),
+      );
+      var enricher = fixture.getSut();
+      event = await enricher.apply(event);
+
+      expect(event.request?.headers['User-Agent'], 'best browser agent');
+      expect(event.request?.url, 'foo.bar');
     });
 
     test('adds device and os', () async {
@@ -42,7 +62,6 @@ void main() {
       final event = await enricher.apply(SentryEvent());
 
       expect(event.contexts.device, isNotNull);
-      expect(event.contexts.operatingSystem, isNotNull);
     });
 
     test('device has timezone, screendensity', () async {
@@ -51,13 +70,6 @@ void main() {
 
       expect(event.contexts.device?.timezone, isNotNull);
       expect(event.contexts.device?.screenDensity, isNotNull);
-    });
-
-    test('os has name', () async {
-      var enricher = fixture.getSut();
-      final event = await enricher.apply(SentryEvent());
-
-      expect(event.contexts.operatingSystem?.name, isNotNull);
     });
 
     test('does not override event', () async {
@@ -140,7 +152,6 @@ class Fixture {
   WebEnricherEventProcessor getSut() {
     return WebEnricherEventProcessor(
       html.window,
-      PlatformChecker(),
     );
   }
 }
