@@ -45,6 +45,20 @@ void main() {
       expect(sut.apply(fooEvent), isNotNull);
     });
 
+    test('$DeduplicationEventProcessor is added on init', () async {
+      await Sentry.init(
+        (options) {
+          options.dsn = fakeDsn;
+          final count = options.eventProcessors
+              .whereType<DeduplicationEventProcessor>()
+              .length;
+          expect(count, 1);
+        },
+      );
+
+      await Sentry.close();
+    });
+
     test('integration test', () async {
       Future<void> innerThrowingMethod() async {
         try {
