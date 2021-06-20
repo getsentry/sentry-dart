@@ -5,11 +5,11 @@ import '../protocol.dart';
 import '../sentry_options.dart';
 
 /// Deduplicates events with the same [SentryEvent.throwable].
-/// It keeps track of the last [eventsToKeepForDeduplication]
+/// It keeps track of the last [SentryOptions.exceptionsToKeepForDeduplication]
 /// events. Older events aren't considered for deduplication.
 ///
-/// Only [SentryEvent]s with exceptions are considered for deduplication.
-/// [SentryEvent]s without exceptions aren't deduplicated.
+/// Only [SentryEvent]s where [SentryEvent.throwable] is not null are considered
+/// for deduplication. [SentryEvent]s without exceptions aren't deduplicated.
 ///
 /// Caveats:
 /// It does not work in the following case:
