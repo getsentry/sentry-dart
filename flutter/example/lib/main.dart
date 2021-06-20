@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:feedback/feedback.dart' as feedback;
+import 'package:provider/provider.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
 const String _exampleDsn =
@@ -36,11 +37,17 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return feedback.BetterFeedback(
-      child: MaterialApp(
-        navigatorObservers: [
-          SentryNavigatorObserver(),
-        ],
-        home: const MainScaffold(),
+      child: ChangeNotifierProvider<ThemeProvider>(
+        create: (_) => ThemeProvider(),
+        child: Builder(
+          builder: (context) => MaterialApp(
+            navigatorObservers: [
+              SentryNavigatorObserver(),
+            ],
+            theme: Provider.of<ThemeProvider>(context).theme,
+            home: const MainScaffold(),
+          ),
+        ),
       ),
     );
   }
@@ -53,8 +60,37 @@ class MainScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    var icon = Icons.light_mode;
+    var theme = ThemeData.light();
+    if (themeProvider.theme.brightness == Brightness.light) {
+      icon = Icons.dark_mode;
+      theme = ThemeData.dark();
+    }
     return Scaffold(
-      appBar: AppBar(title: const Text('Sentry Flutter Example')),
+      appBar: AppBar(
+        title: const Text('Sentry Flutter Example'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              themeProvider.theme = theme;
+            },
+            icon: Icon(icon),
+          ),
+          IconButton(
+            onPressed: () {
+              themeProvider.updatePrimatryColor(Colors.orange);
+            },
+            icon: Icon(Icons.circle, color: Colors.orange),
+          ),
+          IconButton(
+            onPressed: () {
+              themeProvider.updatePrimatryColor(Colors.green);
+            },
+            icon: Icon(Icons.circle, color: Colors.lime),
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -174,6 +210,29 @@ class MainScaffold extends StatelessWidget {
                     },
                   );
                 });
+              },
+            ),
+            RaisedButton(
+              child: const Text('Capture User Feedback'),
+              onPressed: () async {
+                final id = await Sentry.captureMessage('UserFeedback');
+                await showDialog(
+                  context: context,
+                  builder: (context) {
+                    return UserFeedbackDialog(eventId: id);
+                  },
+                );
+              },
+            ),
+            RaisedButton(
+              child: const Text('Show UserFeedback Dialog without event'),
+              onPressed: () async {
+                await showDialog(
+                  context: context,
+                  builder: (context) {
+                    return UserFeedbackDialog(eventId: SentryId.empty());
+                  },
+                );
               },
             ),
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
@@ -374,4 +433,23 @@ Future<void> makeWebRequest(BuildContext context) async {
       );
     },
   );
+}
+
+class ThemeProvider extends ChangeNotifier {
+  ThemeData _theme = ThemeData.light();
+
+  ThemeData get theme => _theme;
+
+  set theme(ThemeData theme) {
+    _theme = theme;
+    notifyListeners();
+  }
+
+  void updatePrimatryColor(MaterialColor color) {
+    if (theme.brightness == Brightness.light) {
+      theme = ThemeData(primarySwatch: color, brightness: theme.brightness);
+    } else {
+      theme = ThemeData(primarySwatch: color, brightness: theme.brightness);
+    }
+  }
 }

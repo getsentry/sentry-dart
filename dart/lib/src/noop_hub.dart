@@ -1,8 +1,8 @@
 import 'dart:async';
-
 import 'hub.dart';
 import 'protocol.dart';
 import 'sentry_client.dart';
+import 'user_feedback.dart';
 
 class NoOpHub implements Hub {
   NoOpHub._();
@@ -62,4 +62,7 @@ class NoOpHub implements Hub {
 
   @override
   void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) {}
+
+  @override
+  Future<void> captureUserFeedback(UserFeedback userFeedback) async {}
 }

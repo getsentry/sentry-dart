@@ -1,13 +1,13 @@
 import 'dart:async';
-
 import 'hub.dart';
 import 'protocol.dart';
 import 'sentry.dart';
 import 'sentry_client.dart';
+import 'user_feedback.dart';
 
 /// Hub adapter to make Integrations testable
 class HubAdapter implements Hub {
-  HubAdapter._();
+  const HubAdapter._();
 
   static final HubAdapter _instance = HubAdapter._();
 
@@ -82,4 +82,8 @@ class HubAdapter implements Hub {
 
   @override
   SentryId get lastEventId => Sentry.lastEventId;
+
+  @override
+  Future<void> captureUserFeedback(UserFeedback userFeedback) =>
+      Sentry.captureUserFeedback(userFeedback);
 }

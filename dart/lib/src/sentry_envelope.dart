@@ -4,6 +4,7 @@ import 'sentry_envelope_header.dart';
 import 'sentry_envelope_item.dart';
 import 'protocol/sentry_event.dart';
 import 'protocol/sdk_version.dart';
+import 'user_feedback.dart';
 
 /// Class representation of `Envelope` file.
 class SentryEnvelope {
@@ -28,6 +29,16 @@ class SentryEnvelope {
         if (attachments != null)
           ...attachments.map((e) => SentryEnvelopeItem.fromAttachment(e))
       ],
+    );
+  }
+
+  factory SentryEnvelope.fromUserFeedback(
+    UserFeedback feedback,
+    SdkVersion sdkVersion,
+  ) {
+    return SentryEnvelope(
+      SentryEnvelopeHeader(feedback.eventId, sdkVersion),
+      [SentryEnvelopeItem.fromUserFeedback(feedback)],
     );
   }
 

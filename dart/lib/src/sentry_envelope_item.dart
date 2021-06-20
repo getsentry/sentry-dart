@@ -4,6 +4,7 @@ import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_item_type.dart';
 import 'protocol/sentry_event.dart';
 import 'sentry_envelope_item_header.dart';
+import 'user_feedback.dart';
 
 /// Item holding header information and JSON encoded data.
 class SentryEnvelopeItem {
@@ -22,6 +23,25 @@ class SentryEnvelopeItem {
       contentType: attachment.contentType,
       fileName: attachment.filename,
       attachmentType: attachment.attachmentType,
+    );
+    return SentryEnvelopeItem(header, cachedItem.getData);
+  }
+
+  /// Create an [SentryEnvelopeItem] which sends [UserFeedback].
+  factory SentryEnvelopeItem.fromUserFeedback(UserFeedback feedback) {
+    final cachedItem = _CachedItem(() async {
+      final jsonEncoded = jsonEncode(feedback.toJson());
+      return utf8.encode(jsonEncoded);
+    });
+
+    final getLength = () async {
+      return (await cachedItem.getData()).length;
+    };
+
+    final header = SentryEnvelopeItemHeader(
+      SentryItemType.userFeedback,
+      getLength,
+      contentType: 'application/json',
     );
     return SentryEnvelopeItem(header, cachedItem.getData);
   }
