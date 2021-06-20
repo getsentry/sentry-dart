@@ -4,8 +4,6 @@ import '../event_processor.dart';
 import '../protocol.dart';
 import '../sentry_options.dart';
 
-const eventsToKeepForDeduplication = 20;
-
 /// Deduplicates events with the same [SentryEvent.throwable].
 /// It keeps track of the last [eventsToKeepForDeduplication]
 /// events. Older events aren't considered for deduplication.
@@ -23,7 +21,8 @@ const eventsToKeepForDeduplication = 20;
 class DeduplicationEventProcessor extends EventProcessor {
   DeduplicationEventProcessor(this._options);
 
-  final LinkedHashSet<Object> _exceptionToDeduplicate = LinkedHashSet<Object>();
+  // Using a HashSet makes this performant.
+  final LinkedHashSet<int> _exceptionToDeduplicate = LinkedHashSet<int>();
   final SentryOptions _options;
 
   @override
@@ -36,23 +35,31 @@ class DeduplicationEventProcessor extends EventProcessor {
   }
 
   FutureOr<SentryEvent?> _deduplicate(SentryEvent event) {
-    // cast to Object? in order to enable better type checking
+    // Cast to `Object?` in order to enable better type checking
+    // because `event.throwable` is `dynamic`
     final exception = event.throwable as Object?;
+
     if (exception == null) {
       // If no exception is given, just return the event
       return event;
     }
-    if (_exceptionToDeduplicate.contains(exception)) {
+
+    // Just use the hashCode, to keep the memory footprint small
+    final exceptionHashCode = exception.hashCode;
+
+    if (_exceptionToDeduplicate.contains(exceptionHashCode)) {
       _options.logger(
-        SentryLevel.debug,
-        'Duplicate Exception detected. '
+        SentryLevel.info,
+        'Duplicated exception detected. '
         'Event ${event.eventId} will be discarded.',
       );
       return null;
     }
+
     // No duplication detected
-    _exceptionToDeduplicate.add(exception);
-    if (_exceptionToDeduplicate.length > eventsToKeepForDeduplication) {
+    _exceptionToDeduplicate.add(exceptionHashCode);
+    if (_exceptionToDeduplicate.length >
+        _options.exceptionsToKeepForDeduplication) {
       _exceptionToDeduplicate.remove(_exceptionToDeduplicate.last);
     }
     return event;

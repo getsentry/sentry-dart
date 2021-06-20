@@ -32,6 +32,19 @@ void main() {
       expect(sut.apply(barEvent), isNotNull);
     });
 
+    test('exceptions to keep for deduplication', () {
+      final sut = Fixture().getSut(false, 2);
+
+      var fooEvent = createEvent('foo');
+      var barEvent = createEvent('bar');
+      var fooBarEvent = createEvent('foo bar');
+
+      expect(sut.apply(fooEvent), isNotNull);
+      expect(sut.apply(barEvent), isNotNull);
+      expect(sut.apply(fooBarEvent), isNotNull);
+      expect(sut.apply(fooEvent), isNotNull);
+    });
+
     test('integration test', () async {
       Future<void> innerThrowingMethod() async {
         try {
@@ -75,8 +88,12 @@ SentryEvent createEvent(var message) {
 }
 
 class Fixture {
-  DeduplicationEventProcessor getSut(bool enable) {
-    final options = SentryOptions(dsn: fakeDsn)..enableDeduplication = enable;
+  DeduplicationEventProcessor getSut(bool enabled,
+      [int? exceptionsToKeepForDeduplication]) {
+    final options = SentryOptions(dsn: fakeDsn)
+      ..enableDeduplication = enabled
+      ..exceptionsToKeepForDeduplication =
+          exceptionsToKeepForDeduplication ?? 5;
 
     return DeduplicationEventProcessor(options);
   }

@@ -190,9 +190,24 @@ class SentryOptions {
   /// Whether to send personal identifiable information along with events
   bool sendDefaultPii = false;
 
-  /// Wether deduplication is enabled. Shoud be set to true if
-  /// [SentryHttpClient] is used with
+  /// Wether [SentryEvent] deduplication is enabled.
+  /// Can be further configured with [exceptionsToKeepForDeduplication].
+  /// Shoud be set to true if
+  /// [SentryHttpClient] is used to capture failed requests.
   bool enableDeduplication = true;
+
+  int _exceptionsToKeepForDeduplication = 5;
+
+  /// Describes how many exceptions are kept to be checked for deduplication.
+  /// This should be a small positiv integer in order to keep deduplication
+  /// performant.
+  /// Is only in effect if [enableDeduplication] is set to true.
+  int get exceptionsToKeepForDeduplication => _exceptionsToKeepForDeduplication;
+
+  set exceptionsToKeepForDeduplication(int count) {
+    assert(count >= 0);
+    _exceptionsToKeepForDeduplication = count;
+  }
 
   SentryOptions({this.dsn, PlatformChecker? checker}) {
     if (checker != null) {
