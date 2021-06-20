@@ -108,8 +108,13 @@ class SentryClient {
         return _sentryId;
       }
     }
-    final envelope = SentryEnvelope.fromEvent(preparedEvent, _options.sdk);
-    return await _options.transport.send(envelope);
+    final envelope = SentryEnvelope.fromEvent(
+      preparedEvent,
+      _options.sdk,
+      attachments: scope?.attachements,
+    );
+
+    return captureEnvelope(envelope);
   }
 
   SentryEvent _prepareEvent(SentryEvent event, {dynamic stackTrace}) {
@@ -201,7 +206,7 @@ class SentryClient {
   }
 
   /// Reports the [envelope] to Sentry.io.
-  Future<SentryId?> captureEnvelope(SentryEnvelope envelope) {
+  Future<SentryId> captureEnvelope(SentryEnvelope envelope) {
     return _options.transport.send(envelope);
   }
 

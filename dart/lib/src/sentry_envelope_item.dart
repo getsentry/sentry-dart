@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import '../attachment.dart';
 import 'sentry_item_type.dart';
 import 'protocol/sentry_event.dart';
 import 'sentry_envelope_item_header.dart';
@@ -8,11 +9,16 @@ import 'sentry_envelope_item_header.dart';
 class SentryEnvelopeItem {
   SentryEnvelopeItem(this.header, this.dataFactory);
 
-  /// Header with info about type and length of data in bytes.
-  final SentryEnvelopeItemHeader header;
-
-  /// Create binary data representation of item data.
-  final Future<List<int>> Function() dataFactory;
+  factory SentryEnvelopeItem.fromAttachment(Attachment attachment) {
+    final header = SentryEnvelopeItemHeader(
+      SentryItemType.attachment,
+      () async => attachment.content.lengthInBytes,
+      contentType: attachment.mimeType,
+      fileName: attachment.fileName,
+      attachmentType: attachment.type.toSentryIdentifier(),
+    );
+    return SentryEnvelopeItem(header, () async => attachment.content);
+  }
 
   /// Create an `SentryEnvelopeItem` which holds the `SentyEvent` data.
   factory SentryEnvelopeItem.fromEvent(SentryEvent event) {
@@ -26,10 +32,20 @@ class SentryEnvelopeItem {
     };
 
     return SentryEnvelopeItem(
-        SentryEnvelopeItemHeader(SentryItemType.event, getLength,
-            contentType: 'application/json'),
-        cachedItem.getData);
+      SentryEnvelopeItemHeader(
+        SentryItemType.event,
+        getLength,
+        contentType: 'application/json',
+      ),
+      cachedItem.getData,
+    );
   }
+
+  /// Header with info about type and length of data in bytes.
+  final SentryEnvelopeItemHeader header;
+
+  /// Create binary data representation of item data.
+  final Future<List<int>> Function() dataFactory;
 
   /// Stream binary data of `Envelope` item.
   Stream<List<int>> envelopeItemStream() async* {

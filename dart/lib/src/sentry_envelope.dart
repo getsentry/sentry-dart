@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import '../attachment.dart';
 import 'sentry_envelope_header.dart';
 import 'sentry_envelope_item.dart';
 import 'protocol/sentry_event.dart';
@@ -16,9 +17,19 @@ class SentryEnvelope {
   final List<SentryEnvelopeItem> items;
 
   /// Create an `SentryEnvelope` with containing one `SentryEnvelopeItem` which holds the `SentyEvent` data.
-  factory SentryEnvelope.fromEvent(SentryEvent event, SdkVersion sdkVersion) {
-    return SentryEnvelope(SentryEnvelopeHeader(event.eventId, sdkVersion),
-        [SentryEnvelopeItem.fromEvent(event)]);
+  factory SentryEnvelope.fromEvent(
+    SentryEvent event,
+    SdkVersion sdkVersion, {
+    List<Attachment>? attachments,
+  }) {
+    return SentryEnvelope(
+      SentryEnvelopeHeader(event.eventId, sdkVersion),
+      [
+        SentryEnvelopeItem.fromEvent(event),
+        if (attachments != null)
+          ...attachments.map((e) => SentryEnvelopeItem.fromAttachment(e))
+      ],
+    );
   }
 
   /// Stream binary data representation of `Envelope` file encoded.

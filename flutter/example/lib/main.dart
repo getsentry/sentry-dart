@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -124,6 +125,18 @@ class MainScaffold extends StatelessWidget {
                   'This event has an extra tag',
                   withScope: (scope) {
                     scope.setTag('foo', 'bar');
+                  },
+                );
+              },
+            ),
+            RaisedButton(
+              child: const Text('Capture message with attachment'),
+              onPressed: () {
+                Sentry.captureMessage(
+                  'This message has an attachment',
+                  withScope: (scope) {
+                    final txt = 'Lorem Ipsum dolar sit amet';
+                    scope.addAttachmentIntList(utf8.encode(txt), 'foobar.txt');
                   },
                 );
               },

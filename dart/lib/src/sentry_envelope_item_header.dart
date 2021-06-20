@@ -1,7 +1,12 @@
 /// Header with item info about type and length of data in bytes.
 class SentryEnvelopeItemHeader {
-  SentryEnvelopeItemHeader(this.type, this.length,
-      {this.contentType, this.fileName});
+  SentryEnvelopeItemHeader(
+    this.type,
+    this.length, {
+    this.contentType,
+    this.fileName,
+    this.attachmentType,
+  });
 
   /// Type of encoded data.
   final String type;
@@ -13,17 +18,18 @@ class SentryEnvelopeItemHeader {
 
   final String? fileName;
 
+  final String? attachmentType;
+
   /// Item header encoded as JSON
   Future<Map<String, dynamic>> toJson() async {
-    final json = <String, dynamic>{};
-    if (contentType != null) {
-      json['content_type'] = contentType;
-    }
-    if (fileName != null) {
-      json['filename'] = fileName;
-    }
-    json['type'] = type;
-    json['length'] = await length();
+    final json = <String, dynamic>{
+      if (contentType != null) 'content_type': contentType,
+      if (fileName != null) 'filename': fileName,
+      if (attachmentType != null) 'attachment_type': type,
+      'type': type,
+      'length': await length(),
+    };
+
     return json;
   }
 }
