@@ -1,6 +1,7 @@
 # Unreleased
 
 * Feat: Add support for attachments (#505)
+* Feat: Add support for attachments (#494)
 
 # 6.0.0-beta.1
 
