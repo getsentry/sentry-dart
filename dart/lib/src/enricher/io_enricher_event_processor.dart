@@ -70,10 +70,12 @@ class IoEnricherEventProcessor extends EventProcessor {
         // This throws sometimes for some reason
         // https://github.com/flutter/flutter/issues/83921
         executable = Platform.executable;
-      } catch (exception) {
+      } catch (exception, stackTrace) {
         _options.logger(
           SentryLevel.info,
-          'Platform.executable couldn\'t be retrieved: $exception',
+          'Platform.executable couldn\'t be retrieved.',
+          error: exception,
+          stackTrace: stackTrace,
         );
       }
     }

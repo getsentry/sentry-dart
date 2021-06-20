@@ -75,10 +75,12 @@ class Hub {
           scope: scope,
           hint: hint,
         );
-      } catch (err) {
+      } catch (exception, stackTrace) {
         _options.logger(
           SentryLevel.error,
-          'Error while capturing event with id: ${event.eventId}, error: $err',
+          'Error while capturing event with id: ${event.eventId}',
+          error: exception,
+          stackTrace: stackTrace,
         );
       } finally {
         _lastEventId = sentryId;
@@ -117,10 +119,12 @@ class Hub {
           scope: scope,
           hint: hint,
         );
-      } catch (err) {
+      } catch (exception, stackTrace) {
         _options.logger(
           SentryLevel.error,
-          'Error while capturing exception : $throwable',
+          'Error while capturing exception',
+          error: exception,
+          stackTrace: stackTrace,
         );
       } finally {
         _lastEventId = sentryId;
@@ -164,10 +168,12 @@ class Hub {
           scope: scope,
           hint: hint,
         );
-      } catch (err) {
+      } catch (exception, stackTrace) {
         _options.logger(
           SentryLevel.error,
-          'Error while capturing message with id: $message, error: $err',
+          'Error while capturing message with id: $message',
+          error: exception,
+          stackTrace: stackTrace,
         );
       } finally {
         _lastEventId = sentryId;
@@ -200,8 +206,10 @@ class Hub {
   /// Binds a different client to the hub
   void bindClient(SentryClient client) {
     if (!_isEnabled) {
-      _options.logger(SentryLevel.warning,
-          "Instance is disabled and this 'bindClient' call is a no-op.");
+      _options.logger(
+        SentryLevel.warning,
+        "Instance is disabled and this 'bindClient' call is a no-op.",
+      );
     } else {
       final item = _peek();
       _options.logger(SentryLevel.debug, 'New client bound to scope.');
@@ -238,10 +246,12 @@ class Hub {
 
       try {
         item.client.close();
-      } catch (err) {
+      } catch (exception, stackTrace) {
         _options.logger(
           SentryLevel.error,
-          'Error while closing the Hub, error: $err',
+          'Error while closing the Hub',
+          error: exception,
+          stackTrace: stackTrace,
         );
       }
 

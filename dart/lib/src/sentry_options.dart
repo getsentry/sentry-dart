@@ -250,24 +250,43 @@ typedef BeforeSendCallback = FutureOr<SentryEvent?> Function(
 
 /// This function is called with an SDK specific breadcrumb object before the breadcrumb is added
 /// to the scope. When nothing is returned from the function, the breadcrumb is dropped
-typedef BeforeBreadcrumbCallback = Breadcrumb? Function(Breadcrumb? breadcrumb,
-    {dynamic hint});
-
-/// Logger interface to log useful debugging information if debug is enabled
-typedef SentryLogger = void Function(SentryLevel level, String message);
+typedef BeforeBreadcrumbCallback = Breadcrumb? Function(
+  Breadcrumb? breadcrumb, {
+  dynamic hint,
+});
 
 /// Used to provide timestamp for logging.
 typedef ClockProvider = DateTime Function();
 
+/// Logger interface to log useful debugging information if debug is enabled
+typedef SentryLogger = void Function(
+  SentryLevel level,
+  String message, {
+  Object? error,
+  StackTrace? stackTrace,
+});
+
 /// A NoOp logger that does nothing
-void noOpLogger(SentryLevel level, String message) {}
+void noOpLogger(
+  SentryLevel level,
+  String message, {
+  Object? error,
+  StackTrace? stackTrace,
+}) {}
 
 /// A Logger that prints out the level and message
-void dartLogger(SentryLevel level, String message) {
+void dartLogger(
+  SentryLevel level,
+  String message, {
+  Object? error,
+  StackTrace? stackTrace,
+}) {
   log(
     '[${level.name}] $message',
     level: level.toDartLogLevel(),
     name: 'sentry',
     time: getUtcDateTime(),
+    error: error,
+    stackTrace: stackTrace,
   );
 }

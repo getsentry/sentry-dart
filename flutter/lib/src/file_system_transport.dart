@@ -17,10 +17,12 @@ class FileSystemTransport implements Transport {
     final args = [Uint8List.fromList(envelopeData)];
     try {
       await _channel.invokeMethod<void>('captureEnvelope', args);
-    } catch (error) {
+    } catch (exception, stackTrace) {
       _options.logger(
         SentryLevel.error,
-        'Failed to save envelope: $error',
+        'Failed to save envelope',
+        error: exception,
+        stackTrace: stackTrace,
       );
       return SentryId.empty();
     }

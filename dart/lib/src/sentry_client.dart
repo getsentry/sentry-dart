@@ -92,10 +92,12 @@ class SentryClient {
     if (beforeSend != null) {
       try {
         preparedEvent = await beforeSend(preparedEvent, hint: hint);
-      } catch (err) {
+      } catch (exception, stackTrace) {
         _options.logger(
           SentryLevel.error,
-          'The BeforeSend callback threw an exception, error: $err',
+          'The BeforeSend callback threw an exception',
+          error: exception,
+          stackTrace: stackTrace,
         );
       }
       if (preparedEvent == null) {
@@ -214,10 +216,12 @@ class SentryClient {
     for (final processor in eventProcessors) {
       try {
         processedEvent = await processor.apply(processedEvent!, hint: hint);
-      } catch (err) {
+      } catch (exception, stackTrace) {
         _options.logger(
           SentryLevel.error,
-          'An exception occurred while processing event by a processor : $err',
+          'An exception occurred while processing event by a processor',
+          error: exception,
+          stackTrace: stackTrace,
         );
       }
       if (processedEvent == null) {

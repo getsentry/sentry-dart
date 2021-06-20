@@ -100,7 +100,9 @@ class Scope {
 
       if (processedBreadcrumb == null) {
         _options.logger(
-            SentryLevel.info, 'Breadcrumb was dropped by beforeBreadcrumb');
+          SentryLevel.info,
+          'Breadcrumb was dropped by beforeBreadcrumb',
+        );
         return;
       }
     }
@@ -184,10 +186,12 @@ class Scope {
     for (final processor in _eventProcessors) {
       try {
         processedEvent = await processor.apply(processedEvent!, hint: hint);
-      } catch (err) {
+      } catch (exception, stackTrace) {
         _options.logger(
           SentryLevel.error,
-          'An exception occurred while processing event by a processor : $err',
+          'An exception occurred while processing event by a processor',
+          error: exception,
+          stackTrace: stackTrace,
         );
       }
       if (processedEvent == null) {
