@@ -5,7 +5,7 @@
 * Feat: Add Culture Context (#491)
 * Feat: Capture failed requests as event (#473)
 * Feat: `beforeSend` callback accepts async code (#494)
-* Ref: Add error and stacktrace parameter to logger
+* Ref: Add error and stacktrace parameter to logger (#503)
 
 ## Breaking Changes:
 
