@@ -1,6 +1,9 @@
 import 'dart:typed_data';
+export 'attachment_extensions/attachment_extensions.dart';
 
 // https://develop.sentry.dev/sdk/envelopes/#attachment
+
+/// Arbitrary content which gets attached to an event.
 class Attachment {
   Attachment({
     required this.content,
@@ -9,6 +12,51 @@ class Attachment {
     String? mimeType,
   })  : mimeType = mimeType ?? 'application/octet-stream',
         type = type ?? AttachmentType.attachment;
+
+  /// Creates an [Attachment] from a [Uint8List]
+  factory Attachment.fromUint8List(
+    Uint8List bytes,
+    String fileName, {
+    String? mimeType,
+    AttachmentType? type,
+  }) {
+    return Attachment(
+      type: type,
+      content: bytes,
+      fileName: fileName,
+      mimeType: mimeType,
+    );
+  }
+
+  /// Creates an [Attachment] from a [List<int>]
+  factory Attachment.fromIntList(
+    List<int> bytes,
+    String fileName, {
+    String? mimeType,
+    AttachmentType? type,
+  }) {
+    return Attachment(
+      type: type,
+      content: Uint8List.fromList(bytes),
+      fileName: fileName,
+      mimeType: mimeType,
+    );
+  }
+
+  /// Creates an [Attachment] from [ByteData]
+  factory Attachment.fromByteData(
+    ByteData bytes,
+    String fileName, {
+    String? mimeType,
+    AttachmentType? type,
+  }) {
+    return Attachment(
+      type: type,
+      content: bytes.buffer.asUint8List(),
+      fileName: fileName,
+      mimeType: mimeType,
+    );
+  }
 
   /// Attachment type.
   final AttachmentType type;

@@ -136,7 +136,12 @@ class MainScaffold extends StatelessWidget {
                   'This message has an attachment',
                   withScope: (scope) {
                     final txt = 'Lorem Ipsum dolar sit amet';
-                    scope.addAttachmentIntList(utf8.encode(txt), 'foobar.txt');
+                    scope.addAttachment(
+                      Attachment.fromIntList(
+                        txt.encode(txt),
+                        'foobar.txt',
+                      ),
+                    );
                   },
                 );
               },
