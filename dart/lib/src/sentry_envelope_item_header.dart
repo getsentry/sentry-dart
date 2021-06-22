@@ -25,7 +25,7 @@ class SentryEnvelopeItemHeader {
     final json = <String, dynamic>{
       if (contentType != null) 'content_type': contentType,
       if (fileName != null) 'filename': fileName,
-      if (attachmentType != null) 'attachment_type': type,
+      if (attachmentType != null) 'attachment_type': attachmentType,
       'type': type,
       'length': await length(),
     };
