@@ -190,7 +190,7 @@ class SentryOptions {
   /// Whether to send personal identifiable information along with events
   bool sendDefaultPii = false;
 
-  /// Wether [SentryEvent] deduplication is enabled.
+  /// Whether [SentryEvent] deduplication is enabled.
   /// Can be further configured with [exceptionsToKeepForDeduplication].
   /// Shoud be set to true if
   /// [SentryHttpClient] is used to capture failed requests.
