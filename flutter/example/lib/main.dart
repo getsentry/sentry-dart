@@ -298,7 +298,9 @@ class SecondaryScaffold extends StatelessWidget {
 }
 
 Future<void> makeWebRequest(BuildContext context) async {
-  final client = SentryHttpClient();
+  final client = SentryHttpClient(
+    captureFailedRequests: true,
+  );
   // We don't do any exception handling here.
   // In case of an exception, let it get caught and reported to Sentry
   final response = await client.get(Uri.parse('https://flutter.dev/'));

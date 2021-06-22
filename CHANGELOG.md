@@ -1,5 +1,6 @@
 # Unreleased
 
+* Feat: Browser detection (#502)
 * Feat: Enrich events with more context (#452)
 * Feat: Add Culture Context (#491)
 * Feat: Capture failed requests as event (#473)
