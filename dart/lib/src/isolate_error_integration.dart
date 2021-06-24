@@ -10,21 +10,23 @@ import 'sentry_options.dart';
 import 'throwable_mechanism.dart';
 
 class IsolateErrorIntegration extends Integration {
-  late RawReceivePort _receivePort;
+  RawReceivePort? _receivePort;
 
   @override
   FutureOr<void> call(Hub hub, SentryOptions options) async {
     _receivePort = _createPort(hub, options);
 
-    Isolate.current.addErrorListener(_receivePort.sendPort);
+    Isolate.current.addErrorListener(_receivePort!.sendPort);
 
     options.sdk.addIntegration('isolateErrorIntegration');
   }
 
   @override
   void close() {
-    _receivePort.close();
-    Isolate.current.removeErrorListener(_receivePort.sendPort);
+    if (_receivePort != null) {
+      _receivePort!.close();
+      Isolate.current.removeErrorListener(_receivePort!.sendPort);
+    }
   }
 }
 
