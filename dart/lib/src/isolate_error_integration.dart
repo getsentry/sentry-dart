@@ -14,18 +14,17 @@ class IsolateErrorIntegration extends Integration {
 
   @override
   FutureOr<void> call(Hub hub, SentryOptions options) async {
-    _receivePort = _createPort(hub, options);
-
-    Isolate.current.addErrorListener(_receivePort!.sendPort);
-
+    final safeReceivePort = _receivePort = _createPort(hub, options);
+    Isolate.current.addErrorListener(safeReceivePort.sendPort);
     options.sdk.addIntegration('isolateErrorIntegration');
   }
 
   @override
   void close() {
     if (_receivePort != null) {
-      _receivePort!.close();
-      Isolate.current.removeErrorListener(_receivePort!.sendPort);
+      final safeReceivePort = _receivePort!;
+      safeReceivePort.close();
+      Isolate.current.removeErrorListener(safeReceivePort.sendPort);
     }
   }
 }
