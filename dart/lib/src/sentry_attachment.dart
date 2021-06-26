@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:typed_data';
-export 'sentry_attachment_extensions/attachment_extensions.dart';
 
 // https://develop.sentry.dev/sdk/envelopes/#attachment
 
