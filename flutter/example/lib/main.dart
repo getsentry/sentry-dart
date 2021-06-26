@@ -140,10 +140,10 @@ class MainScaffold extends StatelessWidget {
                   withScope: (scope) {
                     final txt = 'Lorem Ipsum dolar sit amet';
                     scope.addAttachment(
-                      Attachment.fromIntList(
+                      SentryAttachment.fromIntList(
                         utf8.encode(txt),
                         'foobar.txt',
-                        mimeType: 'text/plain',
+                        contentType: 'text/plain',
                       ),
                     );
                   },
@@ -165,10 +165,10 @@ class MainScaffold extends StatelessWidget {
                         }
                       }
                       scope.addAttachment(
-                        Attachment.fromUint8List(
+                        SentryAttachment.fromUint8List(
                           feedback.screenshot,
                           'feedback.png',
-                          mimeType: 'image/png',
+                          contentType: 'image/png',
                         ),
                       );
                     },

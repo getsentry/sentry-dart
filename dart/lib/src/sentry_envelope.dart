@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'attachment.dart';
+import 'sentry_attachment.dart';
 import 'sentry_envelope_header.dart';
 import 'sentry_envelope_item.dart';
 import 'protocol/sentry_event.dart';
@@ -20,7 +20,7 @@ class SentryEnvelope {
   factory SentryEnvelope.fromEvent(
     SentryEvent event,
     SdkVersion sdkVersion, {
-    List<Attachment>? attachments,
+    List<SentryAttachment>? attachments,
   }) {
     return SentryEnvelope(
       SentryEnvelopeHeader(event.eventId, sdkVersion),

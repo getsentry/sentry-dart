@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'attachment.dart';
+import 'sentry_attachment.dart';
 import 'sentry_item_type.dart';
 import 'protocol/sentry_event.dart';
 import 'sentry_envelope_item_header.dart';
@@ -9,18 +9,24 @@ import 'sentry_envelope_item_header.dart';
 class SentryEnvelopeItem {
   SentryEnvelopeItem(this.header, this.dataFactory);
 
-  factory SentryEnvelopeItem.fromAttachment(Attachment attachment) {
+  factory SentryEnvelopeItem.fromAttachment(SentryAttachment attachment) {
+    final cachedItem = _CachedItem(() async {
+      return await attachment.bytes;
+    });
+
+    final getLength = () async => (await cachedItem.getData()).length;
+
     final header = SentryEnvelopeItemHeader(
       SentryItemType.attachment,
-      () async => attachment.content.lengthInBytes,
-      contentType: attachment.mimeType,
-      fileName: attachment.fileName,
-      attachmentType: attachment.type.toSentryIdentifier(),
+      getLength,
+      contentType: attachment.contentType,
+      fileName: attachment.filename,
+      attachmentType: attachment.attachmentType,
     );
-    return SentryEnvelopeItem(header, () async => attachment.content);
+    return SentryEnvelopeItem(header, cachedItem.getData);
   }
 
-  /// Create an `SentryEnvelopeItem` which holds the `SentyEvent` data.
+  /// Create an [SentryEnvelopeItem] which holds the [SentryEvent] data.
   factory SentryEnvelopeItem.fromEvent(SentryEvent event) {
     final cachedItem = _CachedItem(() async {
       final jsonEncoded = jsonEncode(event.toJson());

@@ -1,5 +1,5 @@
 import 'dart:collection';
-import 'attachment.dart';
+import 'sentry_attachment.dart';
 import 'event_processor.dart';
 import 'protocol.dart';
 import 'sentry_options.dart';
@@ -81,9 +81,10 @@ class Scope {
 
   final SentryOptions _options;
 
-  final List<Attachment> _attachements = [];
+  final List<SentryAttachment> _attachements = [];
 
-  List<Attachment> get attachements => UnmodifiableListView(_attachements);
+  List<SentryAttachment> get attachements =>
+      UnmodifiableListView(_attachements);
 
   Scope(this._options);
 
@@ -120,8 +121,12 @@ class Scope {
     _breadcrumbs.add(breadcrumb);
   }
 
-  void addAttachment(Attachment attachment) async {
+  void addAttachment(SentryAttachment attachment) async {
     _attachements.add(attachment);
+  }
+
+  void clearAttachments() {
+    _attachements.clear();
   }
 
   /// Clear all the breadcrumbs

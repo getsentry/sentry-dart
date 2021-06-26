@@ -22,4 +22,4 @@ export 'src/transport/transport.dart';
 export 'src/integration.dart';
 export 'src/event_processor.dart';
 export 'src/http_client/sentry_http_client.dart';
-export 'src/attachment.dart';
+export 'src/sentry_attachment.dart';

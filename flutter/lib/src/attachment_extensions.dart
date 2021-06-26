@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:sentry/sentry.dart';
 
-extension AttachmentExtension on Attachment {
+extension AttachmentExtension on SentryAttachment {
   /// Creates an attachment from an asset out of a [AssetBundle].
   /// If no bundle is given, it's using the [rootBundle].
   /// Typically you want to use it like this:
@@ -11,20 +11,20 @@ extension AttachmentExtension on Attachment {
   ///   bundle: DefaultAssetBundle.of(context),
   /// );
   /// ```
-  static Future<Attachment> fromAsset(
+  static Future<SentryAttachment> fromAsset(
     String key, {
     AssetBundle? bundle,
-    AttachmentType? type,
-    String? mimeType,
+    String? type,
+    String? contentType,
   }) async {
     final data = await (bundle ?? rootBundle).load(key);
     final fileName = Uri.parse(key).pathSegments.last;
 
-    return Attachment.fromByteData(
+    return SentryAttachment.fromByteData(
       data,
       fileName,
-      type: type,
-      mimeType: mimeType,
+      attachmentType: type,
+      contentType: contentType,
     );
   }
 }
