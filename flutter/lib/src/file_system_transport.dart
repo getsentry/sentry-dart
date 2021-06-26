@@ -21,7 +21,7 @@ class FileSystemTransport implements Transport {
       _options.logger(
         SentryLevel.error,
         'Failed to save envelope',
-        error: exception,
+        exception: exception,
         stackTrace: stackTrace,
       );
       return SentryId.empty();

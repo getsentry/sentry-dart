@@ -183,7 +183,7 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
       _options.logger(
         SentryLevel.error,
         'loadContextsIntegration failed',
-        error: exception,
+        exception: exception,
         stackTrace: stackTrace,
       );
     }
@@ -232,7 +232,7 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
       options.logger(
         SentryLevel.fatal,
         'nativeSdkIntegration failed to be installed',
-        error: exception,
+        exception: exception,
         stackTrace: stackTrace,
       );
     }
@@ -246,7 +246,7 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
       _options.logger(
         SentryLevel.fatal,
         'nativeSdkIntegration failed to be closed',
-        error: exception,
+        exception: exception,
         stackTrace: stackTrace,
       );
     }
@@ -370,7 +370,7 @@ class _LoadAndroidImageListIntegrationEventProcessor extends EventProcessor {
       _options.logger(
         SentryLevel.error,
         'loadImageList failed',
-        error: exception,
+        exception: exception,
         stackTrace: stackTrace,
       );
     }
@@ -423,7 +423,7 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
       options.logger(
         SentryLevel.error,
         'Failed to load release and dist',
-        error: exception,
+        exception: exception,
         stackTrace: stackTrace,
       );
     }
