@@ -96,7 +96,7 @@ class SentryClient {
         _options.logger(
           SentryLevel.error,
           'The BeforeSend callback threw an exception',
-          error: exception,
+          exception: exception,
           stackTrace: stackTrace,
         );
       }
@@ -220,7 +220,7 @@ class SentryClient {
         _options.logger(
           SentryLevel.error,
           'An exception occurred while processing event by a processor',
-          error: exception,
+          exception: exception,
           stackTrace: stackTrace,
         );
       }

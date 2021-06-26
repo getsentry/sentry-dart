@@ -79,7 +79,7 @@ class Hub {
         _options.logger(
           SentryLevel.error,
           'Error while capturing event with id: ${event.eventId}',
-          error: exception,
+          exception: exception,
           stackTrace: stackTrace,
         );
       } finally {
@@ -123,7 +123,7 @@ class Hub {
         _options.logger(
           SentryLevel.error,
           'Error while capturing exception',
-          error: exception,
+          exception: exception,
           stackTrace: stackTrace,
         );
       } finally {
@@ -172,7 +172,7 @@ class Hub {
         _options.logger(
           SentryLevel.error,
           'Error while capturing message with id: $message',
-          error: exception,
+          exception: exception,
           stackTrace: stackTrace,
         );
       } finally {
@@ -250,7 +250,7 @@ class Hub {
         _options.logger(
           SentryLevel.error,
           'Error while closing the Hub',
-          error: exception,
+          exception: exception,
           stackTrace: stackTrace,
         );
       }

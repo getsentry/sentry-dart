@@ -74,7 +74,7 @@ class IoEnricherEventProcessor extends EventProcessor {
         _options.logger(
           SentryLevel.info,
           'Platform.executable couldn\'t be retrieved.',
-          error: exception,
+          exception: exception,
           stackTrace: stackTrace,
         );
       }

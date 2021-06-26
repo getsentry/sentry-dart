@@ -262,7 +262,7 @@ typedef ClockProvider = DateTime Function();
 typedef SentryLogger = void Function(
   SentryLevel level,
   String message, {
-  Object? error,
+  Object? exception,
   StackTrace? stackTrace,
 });
 
@@ -270,7 +270,7 @@ typedef SentryLogger = void Function(
 void noOpLogger(
   SentryLevel level,
   String message, {
-  Object? error,
+  Object? exception,
   StackTrace? stackTrace,
 }) {}
 
@@ -278,7 +278,7 @@ void noOpLogger(
 void dartLogger(
   SentryLevel level,
   String message, {
-  Object? error,
+  Object? exception,
   StackTrace? stackTrace,
 }) {
   log(
@@ -286,7 +286,7 @@ void dartLogger(
     level: level.toDartLogLevel(),
     name: 'sentry',
     time: getUtcDateTime(),
-    error: error,
+    error: exception,
     stackTrace: stackTrace,
   );
 }

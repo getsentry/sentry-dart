@@ -190,7 +190,7 @@ class Scope {
         _options.logger(
           SentryLevel.error,
           'An exception occurred while processing event by a processor',
-          error: exception,
+          exception: exception,
           stackTrace: stackTrace,
         );
       }
