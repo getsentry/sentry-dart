@@ -2,25 +2,21 @@ import 'dart:async';
 import 'dart:html' as html show window, Window;
 
 import '../event_processor.dart';
-import '../platform_checker.dart';
 import '../sentry_options.dart';
 import '../protocol.dart';
 
 EventProcessor enricherEventProcessor(SentryOptions options) {
   return WebEnricherEventProcessor(
     html.window,
-    options.platformChecker,
   );
 }
 
 class WebEnricherEventProcessor extends EventProcessor {
   WebEnricherEventProcessor(
     this._window,
-    this._platformChecker,
   );
 
   final html.Window _window;
-  final PlatformChecker _platformChecker;
 
   @override
   FutureOr<SentryEvent> apply(SentryEvent event, {dynamic hint}) async {
@@ -28,12 +24,27 @@ class WebEnricherEventProcessor extends EventProcessor {
 
     final contexts = event.contexts.copyWith(
       device: await _getDevice(event.contexts.device),
-      operatingSystem: _getOperatingSystem(event.contexts.operatingSystem),
-      runtimes: _getRuntimes(event.contexts.runtimes),
     );
 
     return event.copyWith(
       contexts: contexts,
+      request: _getRequest(event.request),
+    );
+  }
+
+  // As seen in
+  // https://github.com/getsentry/sentry-javascript/blob/a6f8dc26a4c7ae2146ae64995a2018c8578896a6/packages/browser/src/integrations/useragent.ts
+  SentryRequest _getRequest(SentryRequest? request) {
+    final reqestHeader = request?.headers;
+    final header = reqestHeader == null
+        ? <String, String>{}
+        : Map<String, String>.from(reqestHeader);
+
+    header.putIfAbsent('User-Agent', () => _window.navigator.userAgent);
+
+    return (request ?? SentryRequest()).copyWith(
+      url: request?.url ?? _window.location.toString(),
+      headers: header,
     );
   }
 
@@ -50,26 +61,6 @@ class WebEnricherEventProcessor extends EventProcessor {
           device?.screenDensity ?? _window.devicePixelRatio.toDouble(),
       timezone: device?.timezone ?? DateTime.now().timeZoneName,
     );
-  }
-
-  SentryOperatingSystem _getOperatingSystem(SentryOperatingSystem? os) {
-    return (os ?? SentryOperatingSystem()).copyWith(
-      name: os?.name ?? _platformChecker.platform.operatingSystem,
-    );
-  }
-
-  List<SentryRuntime> _getRuntimes(List<SentryRuntime>? runtimes) {
-    // Pure Dart doesn't have specific runtimes per build mode
-    // like Flutter: https://flutter.dev/docs/testing/build-modes
-    final browserRuntime = SentryRuntime(
-      key: 'sentry_browser_runtime',
-      name: 'Browser',
-      rawDescription: _window.navigator.userAgent,
-    );
-    return [
-      if (runtimes?.isNotEmpty ?? false) ...runtimes!,
-      browserRuntime,
-    ];
   }
 
   int? _getMemorySize() {
