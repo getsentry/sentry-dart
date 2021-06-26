@@ -75,7 +75,7 @@ void main() {
         ..diagnosticLevel = SentryLevel.error
         ..maxBreadcrumbs = 0
         ..anrEnabled = false
-        ..anrTimeoutInterval = Duration.zero
+        ..anrTimeoutInterval = Duration(seconds: 1)
         ..enableAutoNativeBreadcrumbs = false
         ..maxCacheItems = 0
         ..sendDefaultPii = true
@@ -108,7 +108,7 @@ void main() {
         'diagnosticLevel': 'error',
         'maxBreadcrumbs': 0,
         'anrEnabled': false,
-        'anrTimeoutIntervalMillis': 0,
+        'anrTimeoutIntervalMillis': 1000,
         'enableAutoNativeBreadcrumbs': false,
         'maxCacheItems': 0,
         'sendDefaultPii': true,

@@ -39,12 +39,20 @@ class SentryFlutterOptions extends SentryOptions {
         : autoSessionTrackingInterval;
   }
 
+  Duration _autoSessionTrackingInterval = Duration(milliseconds: 30000);
+
   /// The session tracking interval. This is the interval to end a
   /// session if the App goes to the background.
   /// Default is 30 seconds/30000 milliseconds.
   /// See: [enableAutoSessionTracking]
   /// Always uses the given duration as a positiv timespan.
-  Duration autoSessionTrackingInterval = Duration(milliseconds: 30000);
+  Duration get autoSessionTrackingInterval => _autoSessionTrackingInterval;
+
+  set autoSessionTrackingInterval(Duration value) {
+    assert(!value.isNegative);
+    assert(value > Duration.zero);
+    _autoSessionTrackingInterval = value;
+  }
 
   /// Enable or disable ANR (Application Not Responding).
   /// Available only for Android.
@@ -61,15 +69,24 @@ class SentryFlutterOptions extends SentryOptions {
 
   @Deprecated('Use anrTimeoutInterval instead')
   set anrTimeoutIntervalMillis(int value) {
+    assert(value > 0);
     anrTimeoutInterval =
-        value >= 0 ? Duration(milliseconds: value) : anrTimeoutInterval;
+        value > 0 ? Duration(milliseconds: value) : anrTimeoutInterval;
   }
+
+  Duration _anrTimeoutInterval = Duration(milliseconds: 5000);
 
   /// ANR Timeout internal. Default is 5000 milliseconds or 5 seconds.
   /// Used by Androids AnrIntegration. Available only on Android.
   /// See: [anrEnabled]
   /// Always uses the given duration as a positiv timespan.
-  Duration anrTimeoutInterval = Duration(milliseconds: 5000);
+  Duration get anrTimeoutInterval => _anrTimeoutInterval;
+
+  set anrTimeoutInterval(Duration value) {
+    assert(!value.isNegative);
+    assert(value > Duration.zero);
+    _anrTimeoutInterval = value;
+  }
 
   /// Enable or disable the Automatic breadcrumbs on the Native platforms (Android/iOS)
   /// Screen's lifecycle, App's lifecycle, System events, etc...
