@@ -205,7 +205,7 @@ class SentryOptions {
   int get exceptionsToKeepForDeduplication => _exceptionsToKeepForDeduplication;
 
   set exceptionsToKeepForDeduplication(int count) {
-    assert(count >= 0);
+    assert(count > 0);
     _exceptionsToKeepForDeduplication = count;
   }
 

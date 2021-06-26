@@ -7,8 +7,10 @@ import '../mocks/mock_transport.dart';
 
 void main() {
   group('$DeduplicationEventProcessor', () {
+    var fixture = Fixture();
+
     test('deduplicates if enabled', () {
-      final sut = Fixture().getSut(true);
+      final sut = fixture.getSut(true);
       var ogEvent = createEvent('foo');
 
       expect(sut.apply(ogEvent), isNotNull);
@@ -16,7 +18,7 @@ void main() {
     });
 
     test('does not deduplicate if disabled', () {
-      final sut = Fixture().getSut(false);
+      final sut = fixture.getSut(false);
       var ogEvent = createEvent('foo');
 
       expect(sut.apply(ogEvent), isNotNull);
@@ -24,7 +26,7 @@ void main() {
     });
 
     test('does not deduplicate if different events', () {
-      final sut = Fixture().getSut(false);
+      final sut = fixture.getSut(false);
       var fooEvent = createEvent('foo');
       var barEvent = createEvent('bar');
 
@@ -33,7 +35,7 @@ void main() {
     });
 
     test('exceptions to keep for deduplication', () {
-      final sut = Fixture().getSut(false, 2);
+      final sut = fixture.getSut(false, 2);
 
       var fooEvent = createEvent('foo');
       var barEvent = createEvent('bar');
@@ -87,7 +89,8 @@ void main() {
         },
       );
 
-      // doesn't work with outerTestMethod as appRunner Callback
+      // The test doesn't work if `outerTestMethod` is passed as
+      // `appRunner` callback
       await outerThrowingMethod();
 
       expect(transport.envelopes.length, 1);

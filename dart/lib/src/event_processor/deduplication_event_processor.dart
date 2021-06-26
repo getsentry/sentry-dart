@@ -22,7 +22,7 @@ class DeduplicationEventProcessor extends EventProcessor {
   DeduplicationEventProcessor(this._options);
 
   // Using a HashSet makes this performant.
-  final LinkedHashSet<int> _exceptionToDeduplicate = LinkedHashSet<int>();
+  final Queue<int> _exceptionToDeduplicate = Queue<int>();
   final SentryOptions _options;
 
   @override
@@ -60,7 +60,7 @@ class DeduplicationEventProcessor extends EventProcessor {
     _exceptionToDeduplicate.add(exceptionHashCode);
     if (_exceptionToDeduplicate.length >
         _options.exceptionsToKeepForDeduplication) {
-      _exceptionToDeduplicate.remove(_exceptionToDeduplicate.last);
+      _exceptionToDeduplicate.removeLast();
     }
     return event;
   }
