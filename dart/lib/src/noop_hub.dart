@@ -64,5 +64,7 @@ class NoOpHub implements Hub {
   void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) {}
 
   @override
-  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {}
+  Future<SentryId> captureUserFeedback(SentryUserFeedback userFeedback) async {
+    return SentryId.empty();
+  }
 }

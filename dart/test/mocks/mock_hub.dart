@@ -106,8 +106,9 @@ class MockHub implements Hub {
   SentryId get lastEventId => throw UnimplementedError();
 
   @override
-  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {
+  Future<SentryId> captureUserFeedback(SentryUserFeedback userFeedback) async {
     userFeedbackCalls.add(userFeedback);
+    return SentryId.empty();
   }
 }
 

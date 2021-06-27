@@ -4,7 +4,6 @@ import 'dart:collection';
 import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_client.dart';
-import 'sentry_envelope.dart';
 import 'sentry_options.dart';
 import 'sentry_user_feedback.dart';
 
@@ -184,11 +183,9 @@ class Hub {
     return sentryId;
   }
 
-  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {
+  Future<SentryId> captureUserFeedback(SentryUserFeedback userFeedback) {
     final item = _peek();
-    await item.client.captureEnvelope(
-      SentryEnvelope.fromUserFeedback(userFeedback, _options.sdk),
-    );
+    return item.client.captureUserFeedback(userFeedback);
   }
 
   Scope _cloneAndRunWithScope(Scope scope, ScopeCallback? withScope) {

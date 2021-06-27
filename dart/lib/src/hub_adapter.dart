@@ -84,6 +84,6 @@ class HubAdapter implements Hub {
   SentryId get lastEventId => Sentry.lastEventId;
 
   @override
-  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) =>
+  Future<SentryId> captureUserFeedback(SentryUserFeedback userFeedback) =>
       Sentry.captureUserFeedback(userFeedback);
 }
