@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -58,6 +59,10 @@ class MainScaffold extends StatelessWidget {
             RaisedButton(
               child: const Text('Open another Scaffold'),
               onPressed: () => SecondaryScaffold.openSecondaryScaffold(context),
+            ),
+            RaisedButton(
+              child: const Text('Open Scaffold with slow drawing'),
+              onPressed: () => SlowScaffold.open(context),
             ),
             RaisedButton(
               child: const Text('Dart: try catch'),
@@ -326,4 +331,45 @@ Future<void> makeWebRequest(BuildContext context) async {
       );
     },
   );
+}
+
+class SlowScaffold extends StatelessWidget {
+  static Future<void> open(BuildContext context) {
+    return Navigator.push(
+      context,
+      MaterialPageRoute<void>(
+        settings:
+            const RouteSettings(name: 'SlowScaffold', arguments: 'sloooowwwww'),
+        builder: (context) {
+          return SlowScaffold();
+        },
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    sleep(Duration(milliseconds: 20));
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('SecondaryScaffold'),
+      ),
+      body: Center(
+        child: Column(
+          children: [
+            const Text(
+              'You have added a navigation event '
+              'to the crash reports breadcrumbs.',
+            ),
+            MaterialButton(
+              child: const Text('Go back'),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

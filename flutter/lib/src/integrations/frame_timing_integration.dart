@@ -6,10 +6,27 @@ import 'package:sentry/sentry.dart';
 
 import '../sentry_flutter_options.dart';
 
+/// Records the time which a frame takes to draw, if it's above
+/// a certain threshold, i.e. [FrameTimingIntegration.badFrameThreshold].
+///
+/// Should not be added in debug mode because the performance of the debug mode
+/// is not indicativ of the performance in release mode.
+///
+/// Remarks:
+/// See [SchedulerBinding.addTimingsCallback](https://api.flutter.dev/flutter/scheduler/SchedulerBinding/addTimingsCallback.html)
+/// to learn more about the performance impact of using this.
+///
+/// Adding a `timingsCallback` has a real significant performance impact as
+/// noted above. Thus this integration should only be added if it's enabled.
+/// The enabled check should not happen inside the `timingsCallback`.
 class FrameTimingIntegration extends Integration<SentryFlutterOptions> {
-  late Hub _hub;
+  FrameTimingIntegration({
+    this.badFrameThreshold = const Duration(milliseconds: 16),
+  });
 
-  static const maxTimeForFrames = Duration(milliseconds: 16);
+  final Duration badFrameThreshold;
+
+  late Hub _hub;
 
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
@@ -33,7 +50,7 @@ class FrameTimingIntegration extends Integration<SentryFlutterOptions> {
     var count = 0;
     var worstFrameDuration = Duration.zero;
     for (final timing in timings) {
-      if (timing.totalSpan > maxTimeForFrames) {
+      if (timing.totalSpan > badFrameThreshold) {
         count = count + 1;
         if (timing.totalSpan > worstFrameDuration) {
           worstFrameDuration = timing.totalSpan;
@@ -44,16 +61,24 @@ class FrameTimingIntegration extends Integration<SentryFlutterOptions> {
       final totalDuration =
           timings.map((e) => e.totalSpan).reduce((a, b) => a + b);
 
-      final message =
-          '$count frames exceeded ${maxTimeForFrames.inMilliseconds} in the '
-          'last ${_formatMS(totalDuration)}ms. '
-          'The worst frame time was ${_formatMS(worstFrameDuration)}';
-
       _hub.addBreadcrumb(Breadcrumb(
-        message: message,
+        type: 'info',
+        category: 'ui',
+        message: _message(count, worstFrameDuration, totalDuration),
         level: SentryLevel.warning,
       ));
     }
+  }
+
+  String _message(
+    int badFrameCount,
+    Duration worstFrameDuration,
+    Duration totalDuration,
+  ) {
+    return '$badFrameCount frames exceeded ${_formatMS(badFrameThreshold)} '
+        'in the last ${_formatMS(totalDuration)}. '
+        'The worst frame time in this time span was '
+        '${_formatMS(worstFrameDuration)}';
   }
 
   @override
