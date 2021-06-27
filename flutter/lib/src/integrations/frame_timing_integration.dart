@@ -21,10 +21,12 @@ import '../sentry_flutter_options.dart';
 /// The enabled check should not happen inside the `timingsCallback`.
 class FrameTimingIntegration extends Integration<SentryFlutterOptions> {
   FrameTimingIntegration({
+    required this.reporter,
     this.badFrameThreshold = const Duration(milliseconds: 16),
   });
 
   final Duration badFrameThreshold;
+  final FrameTimingReporter reporter;
 
   late Hub _hub;
 
@@ -61,13 +63,32 @@ class FrameTimingIntegration extends Integration<SentryFlutterOptions> {
       final totalDuration =
           timings.map((e) => e.totalSpan).reduce((a, b) => a + b);
 
-      _hub.addBreadcrumb(Breadcrumb(
-        type: 'info',
-        category: 'ui',
-        message: _message(count, worstFrameDuration, totalDuration),
-        level: SentryLevel.warning,
-      ));
+      final message = _message(count, worstFrameDuration, totalDuration);
+
+      if (reporter == FrameTimingReporter.breadcrumb) {
+        _reportAsBreadcrumb(message);
+      } else {
+        // This callback does not allow async, so we captureMessage as
+        // a fire and forget action.
+        _reportAsEvent(message);
+      }
     }
+  }
+
+  Future<void> _reportAsEvent(String message) {
+    return _hub.captureMessage(
+      message,
+      level: SentryLevel.warning,
+    );
+  }
+
+  void _reportAsBreadcrumb(String message) {
+    _hub.addBreadcrumb(Breadcrumb(
+      type: 'info',
+      category: 'ui',
+      message: message,
+      level: SentryLevel.warning,
+    ));
   }
 
   String _message(
@@ -88,4 +109,9 @@ class FrameTimingIntegration extends Integration<SentryFlutterOptions> {
 
   /// Format milliseconds with more precision than absolut milliseconds
   String _formatMS(Duration duration) => '${duration.inMicroseconds * 0.001}ms';
+}
+
+enum FrameTimingReporter {
+  breadcrumb,
+  event,
 }

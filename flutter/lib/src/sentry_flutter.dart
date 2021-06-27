@@ -89,8 +89,6 @@ mixin SentryFlutter {
     // This tracks Flutter application events, such as lifecycle events.
     integrations.add(WidgetsBindingIntegration());
 
-    integrations.add(FrameTimingIntegration());
-
     // The ordering here matters, as we'd like to first start the native integration.
     // That allow us to send events to the network and then the Flutter integrations.
     // Flutter Web doesn't need that, only Android and iOS.
