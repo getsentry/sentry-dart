@@ -142,6 +142,7 @@ class Scope {
   /// Resets the Scope to its default state
   void clear() {
     clearBreadcrumbs();
+    clearAttachments();
     level = null;
     transaction = null;
     user = null;

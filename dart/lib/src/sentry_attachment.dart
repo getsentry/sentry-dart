@@ -65,6 +65,7 @@ class SentryAttachment {
   final String attachmentType;
 
   /// Attachment content.
+  /// Is loaded while sending this attachment.
   FutureOr<Uint8List> get bytes => _loader();
 
   final ContentLoader _loader;
