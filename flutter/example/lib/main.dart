@@ -230,7 +230,7 @@ class MainScaffold extends StatelessWidget {
                 await showDialog(
                   context: context,
                   builder: (context) {
-                    return UserFeedbackDialog(eventId: SentryId.empty());
+                    return UserFeedbackDialog(eventId: SentryId.newId());
                   },
                 );
               },

@@ -8,7 +8,8 @@ class UserFeedbackDialog extends StatefulWidget {
     Key? key,
     required this.eventId,
     this.hub,
-  }) : super(key: key);
+  })  : assert(eventId != const SentryId.empty()),
+        super(key: key);
 
   final SentryId eventId;
   final Hub? hub;
@@ -46,6 +47,7 @@ class _UserFeedbackDialogState extends State<UserFeedbackDialog> {
             ),
             Divider(height: 24),
             TextField(
+              key: ValueKey('sentry_name_textfield'),
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
                 hintText: 'Name',
@@ -55,15 +57,17 @@ class _UserFeedbackDialogState extends State<UserFeedbackDialog> {
             ),
             SizedBox(height: 8),
             TextField(
+              key: ValueKey('sentry_email_textfield'),
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
-                hintText: 'E-mail',
+                hintText: 'E-Mail',
               ),
               controller: emailController,
               keyboardType: TextInputType.emailAddress,
             ),
             SizedBox(height: 8),
             TextField(
+              key: ValueKey('sentry_comment_textfield'),
               minLines: 5,
               maxLines: null,
               decoration: InputDecoration(
@@ -80,18 +84,20 @@ class _UserFeedbackDialogState extends State<UserFeedbackDialog> {
       ),
       actions: [
         ElevatedButton(
+            key: ValueKey('sentry_submit_feedback_button'),
             onPressed: () async {
-              await (widget.hub ?? HubAdapter())
-                  .captureUserFeedback(UserFeedback(
+              final feedback = SentryUserFeedback(
                 eventId: widget.eventId,
                 comments: commentController.text,
                 email: emailController.text,
                 name: nameController.text,
-              ));
+              );
+              await _submitUserFeedback(feedback);
               Navigator.pop(context);
             },
             child: Text('Submit Crash Report')),
         TextButton(
+          key: ValueKey('sentry_close_button'),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -101,12 +107,8 @@ class _UserFeedbackDialogState extends State<UserFeedbackDialog> {
     );
   }
 
-  @override
-  void dispose() {
-    nameController.dispose();
-    emailController.dispose();
-    commentController.dispose();
-    super.dispose();
+  Future<void> _submitUserFeedback(SentryUserFeedback feedback) {
+    return (widget.hub ?? HubAdapter()).captureUserFeedback(feedback);
   }
 }
 
