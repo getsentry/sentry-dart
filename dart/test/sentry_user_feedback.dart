@@ -1,5 +1,9 @@
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/sentry_item_type.dart';
 import 'package:test/test.dart';
+
+import 'mocks.dart';
+import 'mocks/mock_transport.dart';
 
 void main() {
   group('$SentryUserFeedback', () {
@@ -62,5 +66,33 @@ void main() {
       expect(() => SentryUserFeedback(eventId: id),
           throwsA(isA<AssertionError>()));
     });
+  });
+
+  group('$SentryUserFeedback to envelops', () {
+    test('to envelope', () {
+      final feedback = SentryUserFeedback(eventId: SentryId.newId());
+      final envelope = SentryEnvelope.fromUserFeedback(
+        feedback,
+        SdkVersion(name: 'a', version: 'b'),
+      );
+
+      expect(envelope.items.length, 1);
+      expect(
+        envelope.items.first.header.type,
+        SentryItemType.userFeedback,
+      );
+      expect(envelope.header.eventId.toString(), feedback.eventId.toString());
+    });
+  });
+
+  test('sending $SentryUserFeedback', () async {
+    final options = SentryOptions(dsn: fakeDsn);
+    final mockTransport = MockTransport();
+    options.transport = mockTransport;
+    final hub = Hub(options);
+    await hub
+        .captureUserFeedback(SentryUserFeedback(eventId: SentryId.newId()));
+
+    expect(mockTransport.envelopes.length, 1);
   });
 }
