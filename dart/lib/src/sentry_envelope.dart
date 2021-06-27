@@ -4,7 +4,7 @@ import 'sentry_envelope_header.dart';
 import 'sentry_envelope_item.dart';
 import 'protocol/sentry_event.dart';
 import 'protocol/sdk_version.dart';
-import 'user_feedback.dart';
+import 'sentry_user_feedback.dart';
 
 /// Class representation of `Envelope` file.
 class SentryEnvelope {
@@ -33,7 +33,7 @@ class SentryEnvelope {
   }
 
   factory SentryEnvelope.fromUserFeedback(
-    UserFeedback feedback,
+    SentryUserFeedback feedback,
     SdkVersion sdkVersion,
   ) {
     return SentryEnvelope(

@@ -4,7 +4,7 @@ import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_item_type.dart';
 import 'protocol/sentry_event.dart';
 import 'sentry_envelope_item_header.dart';
-import 'user_feedback.dart';
+import 'sentry_user_feedback.dart';
 
 /// Item holding header information and JSON encoded data.
 class SentryEnvelopeItem {
@@ -27,8 +27,8 @@ class SentryEnvelopeItem {
     return SentryEnvelopeItem(header, cachedItem.getData);
   }
 
-  /// Create an [SentryEnvelopeItem] which sends [UserFeedback].
-  factory SentryEnvelopeItem.fromUserFeedback(UserFeedback feedback) {
+  /// Create an [SentryEnvelopeItem] which sends [SentryUserFeedback].
+  factory SentryEnvelopeItem.fromUserFeedback(SentryUserFeedback feedback) {
     final cachedItem = _CachedItem(() async {
       final jsonEncoded = jsonEncode(feedback.toJson());
       return utf8.encode(jsonEncoded);

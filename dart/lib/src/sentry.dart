@@ -13,7 +13,7 @@ import 'protocol.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'integration.dart';
-import 'user_feedback.dart';
+import 'sentry_user_feedback.dart';
 
 /// Configuration options callback
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
@@ -177,7 +177,7 @@ class Sentry {
         withScope: withScope,
       );
 
-  static Future<void> captureUserFeedback(UserFeedback userFeedback) =>
+  static Future<void> captureUserFeedback(SentryUserFeedback userFeedback) =>
       _hub.captureUserFeedback(userFeedback);
 
   /// Close the client SDK

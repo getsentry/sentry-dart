@@ -153,7 +153,8 @@ class _SentryLogo extends StatelessWidget {
   }
 }
 
-// Created with https://fluttershapemaker.com/
+/// Created with https://fluttershapemaker.com/
+/// Sentry Logo comes from https://sentry.io/branding/
 class _SentryLogoCustomPainter extends CustomPainter {
   final Color color;
 

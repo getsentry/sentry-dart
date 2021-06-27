@@ -6,7 +6,7 @@ import 'scope.dart';
 import 'sentry_client.dart';
 import 'sentry_envelope.dart';
 import 'sentry_options.dart';
-import 'user_feedback.dart';
+import 'sentry_user_feedback.dart';
 
 /// Configures the scope through the callback.
 typedef ScopeCallback = void Function(Scope);
@@ -184,7 +184,7 @@ class Hub {
     return sentryId;
   }
 
-  Future<void> captureUserFeedback(UserFeedback userFeedback) async {
+  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {
     final item = _peek();
     await item.client.captureEnvelope(
       SentryEnvelope.fromUserFeedback(userFeedback, _options.sdk),

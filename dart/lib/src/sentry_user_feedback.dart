@@ -1,15 +1,15 @@
 import 'protocol.dart';
 
-class UserFeedback {
-  UserFeedback({
+class SentryUserFeedback {
+  SentryUserFeedback({
     required this.eventId,
     this.name,
     this.email,
     this.comments,
   });
 
-  factory UserFeedback.fromJson(Map<String, dynamic> json) {
-    return UserFeedback(
+  factory SentryUserFeedback.fromJson(Map<String, dynamic> json) {
+    return SentryUserFeedback(
       eventId: json['event_id'],
       name: json['name'],
       email: json['email'],
@@ -38,13 +38,13 @@ class UserFeedback {
     };
   }
 
-  UserFeedback copyWith({
+  SentryUserFeedback copyWith({
     SentryId? eventId,
     String? name,
     String? email,
     String? comments,
   }) {
-    return UserFeedback(
+    return SentryUserFeedback(
       eventId: eventId ?? this.eventId,
       name: name ?? this.name,
       email: email ?? this.email,
