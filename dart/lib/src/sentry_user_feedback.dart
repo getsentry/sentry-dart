@@ -6,11 +6,11 @@ class SentryUserFeedback {
     this.name,
     this.email,
     this.comments,
-  });
+  }) : assert(eventId != SentryId.empty());
 
   factory SentryUserFeedback.fromJson(Map<String, dynamic> json) {
     return SentryUserFeedback(
-      eventId: json['event_id'],
+      eventId: SentryId.fromId(json['event_id']),
       name: json['name'],
       email: json['email'],
       comments: json['comments'],

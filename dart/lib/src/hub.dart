@@ -183,9 +183,25 @@ class Hub {
     return sentryId;
   }
 
-  Future<SentryId> captureUserFeedback(SentryUserFeedback userFeedback) {
-    final item = _peek();
-    return item.client.captureUserFeedback(userFeedback);
+  Future<SentryId> captureUserFeedback(SentryUserFeedback userFeedback) async {
+    if (!_isEnabled) {
+      _options.logger(
+        SentryLevel.warning,
+        "Instance is disabled and this 'captureUserFeedback' call is a no-op.",
+      );
+    }
+    try {
+      final item = _peek();
+
+      return item.client.captureUserFeedback(userFeedback);
+    } catch (err) {
+      _options.logger(
+        SentryLevel.error,
+        'Error while capturing user feedback for id: ${userFeedback.eventId}, error: $err',
+      );
+    } finally {
+      return SentryId.empty();
+    }
   }
 
   Scope _cloneAndRunWithScope(Scope scope, ScopeCallback? withScope) {
