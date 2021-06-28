@@ -83,8 +83,7 @@ class Scope {
 
   final List<SentryAttachment> _attachements = [];
 
-  List<SentryAttachment> get attachements =>
-      UnmodifiableListView(_attachements);
+  List<SentryAttachment> get attachements => List.unmodifiable(_attachements);
 
   Scope(this._options);
 
