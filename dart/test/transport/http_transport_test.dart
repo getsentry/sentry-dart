@@ -92,7 +92,7 @@ void main() {
           SentryEnvelope.fromEvent(sentryEvent, fixture.options.sdk);
       final eventId = await sut.send(envelope);
 
-      expect(eventId, SentryId.empty());
+      expect(eventId.toString(), SentryId.empty().toString());
       expect(httpCalled, false);
     });
   });
