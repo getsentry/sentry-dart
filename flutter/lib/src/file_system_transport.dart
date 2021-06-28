@@ -24,7 +24,7 @@ class FileSystemTransport implements Transport {
         exception: exception,
         stackTrace: stackTrace,
       );
-      return null;
+      return SentryId.empty();
     }
 
     return envelope.header.eventId;
