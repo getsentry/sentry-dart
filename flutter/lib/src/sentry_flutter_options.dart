@@ -49,7 +49,6 @@ class SentryFlutterOptions extends SentryOptions {
   Duration get autoSessionTrackingInterval => _autoSessionTrackingInterval;
 
   set autoSessionTrackingInterval(Duration value) {
-    assert(!value.isNegative);
     assert(value > Duration.zero);
     _autoSessionTrackingInterval = value;
   }
@@ -83,7 +82,6 @@ class SentryFlutterOptions extends SentryOptions {
   Duration get anrTimeoutInterval => _anrTimeoutInterval;
 
   set anrTimeoutInterval(Duration value) {
-    assert(!value.isNegative);
     assert(value > Duration.zero);
     _anrTimeoutInterval = value;
   }

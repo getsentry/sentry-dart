@@ -209,7 +209,7 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
         'attachStacktrace': options.attachStacktrace,
         'attachThreads': options.attachThreads,
         'autoSessionTrackingIntervalMillis':
-            options.autoSessionTrackingInterval.abs().inMilliseconds,
+            options.autoSessionTrackingInterval.inMilliseconds,
         'dist': options.dist,
         'integrations': options.sdk.integrations,
         'packages':
@@ -217,8 +217,7 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
         'diagnosticLevel': options.diagnosticLevel.name,
         'maxBreadcrumbs': options.maxBreadcrumbs,
         'anrEnabled': options.anrEnabled,
-        'anrTimeoutIntervalMillis':
-            options.anrTimeoutInterval.abs().inMilliseconds,
+        'anrTimeoutIntervalMillis': options.anrTimeoutInterval.inMilliseconds,
         'enableAutoNativeBreadcrumbs': options.enableAutoNativeBreadcrumbs,
         'maxCacheItems': options.maxCacheItems,
         'sendDefaultPii': options.sendDefaultPii,
