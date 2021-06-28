@@ -14,6 +14,8 @@
 * Remove `Sentry.currentHub` (#490)
 * Ref: Rename `cacheDirSize` to `maxCacheItems` and add `maxCacheItems` for iOS (#495)
 * Ref: Add error and stacktrace parameter to logger (#503)
+* Feat: Change timespans to Durations in SentryOptions (#504)
+
 
 # 5.1.0
 
