@@ -1,5 +1,5 @@
 import 'dart:collection';
-import 'sentry_attachment.dart';
+import 'sentry_attachment/sentry_attachment.dart';
 import 'event_processor.dart';
 import 'protocol.dart';
 import 'sentry_options.dart';

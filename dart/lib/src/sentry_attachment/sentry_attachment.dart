@@ -1,13 +1,14 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+// https://develop.sentry.dev/sdk/features/#attachments
 // https://develop.sentry.dev/sdk/envelopes/#attachment
 
 typedef ContentLoader = FutureOr<Uint8List> Function();
 
 /// Arbitrary content which gets attached to an event.
 class SentryAttachment {
-  SentryAttachment({
+  SentryAttachment.fromLoader({
     required ContentLoader loader,
     required this.filename,
     String? attachmentType,
@@ -16,49 +17,43 @@ class SentryAttachment {
         attachmentType = attachmentType ?? AttachmentType.attachment;
 
   /// Creates an [SentryAttachment] from a [Uint8List]
-  factory SentryAttachment.fromUint8List(
+  SentryAttachment.fromUint8List(
     Uint8List bytes,
     String fileName, {
     String? contentType,
     String? attachmentType,
-  }) {
-    return SentryAttachment(
-      attachmentType: attachmentType,
-      loader: () => bytes,
-      filename: fileName,
-      contentType: contentType,
-    );
-  }
+  }) : this.fromLoader(
+          attachmentType: attachmentType,
+          loader: () => bytes,
+          filename: fileName,
+          contentType: contentType,
+        );
 
   /// Creates an [SentryAttachment] from a [List<int>]
-  factory SentryAttachment.fromIntList(
+  SentryAttachment.fromIntList(
     List<int> bytes,
     String fileName, {
     String? contentType,
     String? attachmentType,
-  }) {
-    return SentryAttachment(
-      attachmentType: attachmentType,
-      loader: () => Uint8List.fromList(bytes),
-      filename: fileName,
-      contentType: contentType,
-    );
-  }
+  }) : this.fromLoader(
+          attachmentType: attachmentType,
+          loader: () => Uint8List.fromList(bytes),
+          filename: fileName,
+          contentType: contentType,
+        );
 
   /// Creates an [SentryAttachment] from [ByteData]
-  factory SentryAttachment.fromByteData(
+  SentryAttachment.fromByteData(
     ByteData bytes,
     String fileName, {
     String? contentType,
     String? attachmentType,
-  }) {
-    return SentryAttachment(
-      attachmentType: attachmentType,
-      loader: () => bytes.buffer.asUint8List(),
-      filename: fileName,
-      contentType: contentType,
-    );
-  }
+  }) : this.fromLoader(
+          attachmentType: attachmentType,
+          loader: () => bytes.buffer.asUint8List(),
+          filename: fileName,
+          contentType: contentType,
+        );
 
   /// Attachment type.
   /// Should be one of types given in [AttachmentType].

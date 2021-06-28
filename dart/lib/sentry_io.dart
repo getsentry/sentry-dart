@@ -1,2 +1,2 @@
 export 'sentry.dart';
-export 'src/sentry_attachment_extensions/io_attachment_extensions.dart';
+export 'src/sentry_attachment/io_sentry_attachment.dart';

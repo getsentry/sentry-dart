@@ -9,7 +9,7 @@ import 'mocks/mock_transport.dart';
 void main() {
   group('$SentryAttachment ctor', () {
     test('default', () async {
-      final attachment = SentryAttachment(
+      final attachment = SentryAttachment.fromLoader(
         loader: () => Uint8List.fromList([0, 0, 0, 0]),
         filename: 'test.txt',
       );

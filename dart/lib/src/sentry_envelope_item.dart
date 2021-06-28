@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'sentry_attachment.dart';
+import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_item_type.dart';
 import 'protocol/sentry_event.dart';
 import 'sentry_envelope_item_header.dart';
