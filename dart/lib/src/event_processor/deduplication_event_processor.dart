@@ -5,7 +5,7 @@ import '../protocol.dart';
 import '../sentry_options.dart';
 
 /// Deduplicates events with the same [SentryEvent.throwable].
-/// It keeps track of the last [SentryOptions.exceptionsToKeepForDeduplication]
+/// It keeps track of the last [SentryOptions.maxDeduplicationItems]
 /// events. Older events aren't considered for deduplication.
 ///
 /// Only [SentryEvent]s where [SentryEvent.throwable] is not null are considered
@@ -58,8 +58,7 @@ class DeduplicationEventProcessor extends EventProcessor {
 
     // No duplication detected
     _exceptionToDeduplicate.add(exceptionHashCode);
-    if (_exceptionToDeduplicate.length >
-        _options.exceptionsToKeepForDeduplication) {
+    if (_exceptionToDeduplicate.length > _options.maxDeduplicationItems) {
       _exceptionToDeduplicate.removeLast();
     }
     return event;

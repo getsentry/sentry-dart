@@ -191,22 +191,22 @@ class SentryOptions {
   bool sendDefaultPii = false;
 
   /// Whether [SentryEvent] deduplication is enabled.
-  /// Can be further configured with [exceptionsToKeepForDeduplication].
+  /// Can be further configured with [maxDeduplicationItems].
   /// Shoud be set to true if
   /// [SentryHttpClient] is used to capture failed requests.
   bool enableDeduplication = true;
 
-  int _exceptionsToKeepForDeduplication = 5;
+  int _maxDeduplicationItems = 5;
 
   /// Describes how many exceptions are kept to be checked for deduplication.
   /// This should be a small positiv integer in order to keep deduplication
   /// performant.
   /// Is only in effect if [enableDeduplication] is set to true.
-  int get exceptionsToKeepForDeduplication => _exceptionsToKeepForDeduplication;
+  int get maxDeduplicationItems => _maxDeduplicationItems;
 
-  set exceptionsToKeepForDeduplication(int count) {
+  set maxDeduplicationItems(int count) {
     assert(count > 0);
-    _exceptionsToKeepForDeduplication = count;
+    _maxDeduplicationItems = count;
   }
 
   SentryOptions({this.dsn, PlatformChecker? checker}) {

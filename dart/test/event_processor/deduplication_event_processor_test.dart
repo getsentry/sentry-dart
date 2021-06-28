@@ -92,11 +92,10 @@ SentryEvent createEvent(var message) {
 
 class Fixture {
   DeduplicationEventProcessor getSut(bool enabled,
-      [int? exceptionsToKeepForDeduplication]) {
+      [int? maxDeduplicationItems]) {
     final options = SentryOptions(dsn: fakeDsn)
       ..enableDeduplication = enabled
-      ..exceptionsToKeepForDeduplication =
-          exceptionsToKeepForDeduplication ?? 5;
+      ..maxDeduplicationItems = maxDeduplicationItems ?? 5;
 
     return DeduplicationEventProcessor(options);
   }
