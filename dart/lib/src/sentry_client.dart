@@ -115,7 +115,7 @@ class SentryClient {
     );
 
     final id = await captureEnvelope(envelope);
-    return id!;
+    return id ?? SentryId.empty();
   }
 
   SentryEvent _prepareEvent(SentryEvent event, {dynamic stackTrace}) {

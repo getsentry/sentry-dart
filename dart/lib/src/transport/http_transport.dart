@@ -45,7 +45,7 @@ class HttpTransport implements Transport {
   }
 
   @override
-  Future<SentryId> send(SentryEnvelope envelope) async {
+  Future<SentryId?> send(SentryEnvelope envelope) async {
     final filteredEnvelope = _rateLimiter.filter(envelope);
     if (filteredEnvelope == null) {
       return SentryId.empty();
@@ -77,7 +77,10 @@ class HttpTransport implements Transport {
     }
 
     final eventId = json.decode(response.body)['id'];
-    return eventId != null ? SentryId.fromId(eventId) : SentryId.empty();
+    if (eventId == null) {
+      return null;
+    }
+    return SentryId.fromId(eventId);
   }
 
   Future<StreamedRequest> _createStreamedRequest(
