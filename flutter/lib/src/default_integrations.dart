@@ -72,10 +72,11 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
         // to set a specific mechanism for FlutterError.onError.
       } else {
         options.logger(
-            SentryLevel.debug,
-            'Error not captured due to [FlutterErrorDetails.silent], '
-            'Enable [SentryFlutterOptions.reportSilentFlutterErrors] '
-            'if you wish to capture silent errors');
+          SentryLevel.debug,
+          'Error not captured due to [FlutterErrorDetails.silent], '
+          'Enable [SentryFlutterOptions.reportSilentFlutterErrors] '
+          'if you wish to capture silent errors',
+        );
       }
     };
     FlutterError.onError = _integrationOnError;
@@ -178,10 +179,12 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
         tags['event.environment'] = 'dart';
         event = event.copyWith(tags: tags);
       }
-    } catch (error) {
+    } catch (exception, stackTrace) {
       _options.logger(
         SentryLevel.error,
-        'loadContextsIntegration failed : $error',
+        'loadContextsIntegration failed',
+        exception: exception,
+        stackTrace: stackTrace,
       );
     }
     return event;
@@ -209,7 +212,7 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
         'attachStacktrace': options.attachStacktrace,
         'attachThreads': options.attachThreads,
         'autoSessionTrackingIntervalMillis':
-            options.autoSessionTrackingIntervalMillis,
+            options.autoSessionTrackingInterval.inMilliseconds,
         'dist': options.dist,
         'integrations': options.sdk.integrations,
         'packages':
@@ -217,7 +220,7 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
         'diagnosticLevel': options.diagnosticLevel.name,
         'maxBreadcrumbs': options.maxBreadcrumbs,
         'anrEnabled': options.anrEnabled,
-        'anrTimeoutIntervalMillis': options.anrTimeoutIntervalMillis,
+        'anrTimeoutIntervalMillis': options.anrTimeoutInterval.inMilliseconds,
         'enableAutoNativeBreadcrumbs': options.enableAutoNativeBreadcrumbs,
         'maxCacheItems': options.maxCacheItems,
         'sendDefaultPii': options.sendDefaultPii,
@@ -225,10 +228,12 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
       });
 
       options.sdk.addIntegration('nativeSdkIntegration');
-    } catch (error) {
+    } catch (exception, stackTrace) {
       options.logger(
         SentryLevel.fatal,
-        'nativeSdkIntegration failed to be installed: $error',
+        'nativeSdkIntegration failed to be installed',
+        exception: exception,
+        stackTrace: stackTrace,
       );
     }
   }
@@ -237,10 +242,12 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
   FutureOr<void> close() async {
     try {
       await _channel.invokeMethod<void>('closeNativeSdk');
-    } catch (error) {
+    } catch (exception, stackTrace) {
       _options.logger(
         SentryLevel.fatal,
-        'nativeSdkIntegration failed to be closed: $error',
+        'nativeSdkIntegration failed to be closed',
+        exception: exception,
+        stackTrace: stackTrace,
       );
     }
   }
@@ -359,10 +366,12 @@ class _LoadAndroidImageListIntegrationEventProcessor extends EventProcessor {
       final debugMeta = DebugMeta(images: newDebugImages);
 
       event = event.copyWith(debugMeta: debugMeta);
-    } catch (error) {
+    } catch (exception, stackTrace) {
       _options.logger(
         SentryLevel.error,
-        'loadImageList failed : $error',
+        'loadImageList failed',
+        exception: exception,
+        stackTrace: stackTrace,
       );
     }
 
@@ -410,9 +419,13 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
           options.dist = options.dist ?? buildNumber;
         }
       }
-    } catch (error) {
+    } catch (exception, stackTrace) {
       options.logger(
-          SentryLevel.error, 'Failed to load release and dist: $error');
+        SentryLevel.error,
+        'Failed to load release and dist',
+        exception: exception,
+        stackTrace: stackTrace,
+      );
     }
 
     options.sdk.addIntegration('loadReleaseIntegration');

@@ -25,17 +25,32 @@ class SentryFlutterOptions extends SentryOptions {
   /// feature, as this is required to mark Sessions as Crashed.
   bool enableNativeCrashHandling = true;
 
-  int _autoSessionTrackingIntervalMillis = 30000;
-
   /// The session tracking interval in millis. This is the interval to end a
   /// session if the App goes to the background.
   /// See: [enableAutoSessionTracking]
+  @Deprecated('Use autoSessionTrackingInterval instead')
   int get autoSessionTrackingIntervalMillis =>
-      _autoSessionTrackingIntervalMillis;
+      autoSessionTrackingInterval.inMilliseconds;
 
+  @Deprecated('Use autoSessionTrackingInterval instead')
   set autoSessionTrackingIntervalMillis(int value) {
-    _autoSessionTrackingIntervalMillis =
-        value >= 0 ? value : _autoSessionTrackingIntervalMillis;
+    autoSessionTrackingInterval = value >= 0
+        ? Duration(milliseconds: value)
+        : autoSessionTrackingInterval;
+  }
+
+  Duration _autoSessionTrackingInterval = Duration(milliseconds: 30000);
+
+  /// The session tracking interval. This is the interval to end a
+  /// session if the App goes to the background.
+  /// Default is 30 seconds/30000 milliseconds.
+  /// See: [enableAutoSessionTracking]
+  /// Always uses the given duration as a positiv timespan.
+  Duration get autoSessionTrackingInterval => _autoSessionTrackingInterval;
+
+  set autoSessionTrackingInterval(Duration value) {
+    assert(value > Duration.zero);
+    _autoSessionTrackingInterval = value;
   }
 
   /// Enable or disable ANR (Application Not Responding).
@@ -45,15 +60,30 @@ class SentryFlutterOptions extends SentryOptions {
   /// Java/Kotlin code as well.
   bool anrEnabled = false;
 
-  int _anrTimeoutIntervalMillis = 5000;
-
   /// ANR Timeout internal in Millis Default is 5000 = 5s Used by AnrIntegration.
   /// Available only for Android.
   /// See: [anrEnabled]
-  int get anrTimeoutIntervalMillis => _anrTimeoutIntervalMillis;
+  @Deprecated('Use anrTimeoutInterval instead')
+  int get anrTimeoutIntervalMillis => anrTimeoutInterval.inMilliseconds;
 
+  @Deprecated('Use anrTimeoutInterval instead')
   set anrTimeoutIntervalMillis(int value) {
-    _anrTimeoutIntervalMillis = value >= 0 ? value : _anrTimeoutIntervalMillis;
+    assert(value > 0);
+    anrTimeoutInterval =
+        value > 0 ? Duration(milliseconds: value) : anrTimeoutInterval;
+  }
+
+  Duration _anrTimeoutInterval = Duration(milliseconds: 5000);
+
+  /// ANR Timeout internal. Default is 5000 milliseconds or 5 seconds.
+  /// Used by Androids AnrIntegration. Available only on Android.
+  /// See: [anrEnabled]
+  /// Always uses the given duration as a positiv timespan.
+  Duration get anrTimeoutInterval => _anrTimeoutInterval;
+
+  set anrTimeoutInterval(Duration value) {
+    assert(value > Duration.zero);
+    _anrTimeoutInterval = value;
   }
 
   /// Enable or disable the Automatic breadcrumbs on the Native platforms (Android/iOS)
