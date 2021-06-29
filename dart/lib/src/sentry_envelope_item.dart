@@ -54,10 +54,18 @@ class SentryEnvelopeItem {
   final Future<List<int>> Function() dataFactory;
 
   /// Stream binary data of `Envelope` item.
-  Stream<List<int>> envelopeItemStream() async* {
-    yield utf8.encode(jsonEncode(await header.toJson()));
-    yield utf8.encode('\n');
-    yield await dataFactory();
+  Future<List<int>> envelopeItemStream() async {
+    // Each item needs to be encoded as one unit.
+    // Otherwise the header alredy got yielded if the content throws
+    // an exception.
+    try {
+      final itemHeader = utf8.encode(jsonEncode(await header.toJson()));
+      final newLine = utf8.encode('\n');
+      final data = await dataFactory();
+      return [...itemHeader, ...newLine, ...data];
+    } catch (e) {
+      return [];
+    }
   }
 }
 

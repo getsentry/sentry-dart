@@ -38,9 +38,7 @@ class SentryEnvelope {
     final newLineData = utf8.encode('\n');
     for (final item in items) {
       yield newLineData;
-      await for (final chunk in item.envelopeItemStream()) {
-        yield chunk;
-      }
+      yield await item.envelopeItemStream();
     }
   }
 }
