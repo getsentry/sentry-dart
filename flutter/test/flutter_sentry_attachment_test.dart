@@ -12,7 +12,7 @@ void main() {
       bundle: TestAssetBundle(),
     );
 
-    expect(attachment.attachmentType, AttachmentType.attachment);
+    expect(attachment.attachmentType, SentryAttachment.typeAttachmentDefault);
     expect(attachment.contentType, isNull);
     expect(attachment.filename, 'foobar.txt');
     await expectLater(await attachment.bytes, [102, 111, 111, 32, 98, 97, 114]);
