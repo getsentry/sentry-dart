@@ -11,7 +11,7 @@ void main() {
       final file = File('test_resources/testfile.txt');
 
       final attachment = IoSentryAttachment.fromFile(file);
-      expect(attachment.attachmentType, AttachmentType.attachment);
+      expect(attachment.attachmentType, SentryAttachment.typeAttachmentDefault);
       expect(attachment.contentType, isNull);
       expect(attachment.filename, 'testfile.txt');
       await expectLater(
@@ -21,7 +21,7 @@ void main() {
     test('fromPath', () async {
       final attachment =
           IoSentryAttachment.fromPath('test_resources/testfile.txt');
-      expect(attachment.attachmentType, AttachmentType.attachment);
+      expect(attachment.attachmentType, SentryAttachment.typeAttachmentDefault);
       expect(attachment.contentType, isNull);
       expect(attachment.filename, 'testfile.txt');
       await expectLater(

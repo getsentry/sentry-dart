@@ -37,8 +37,11 @@ class SentryEnvelope {
     yield utf8.encode(jsonEncode(header.toJson()));
     final newLineData = utf8.encode('\n');
     for (final item in items) {
-      yield newLineData;
-      yield await item.envelopeItemStream();
+      final itemStream = await item.envelopeItemStream();
+      if (itemStream.isNotEmpty) {
+        yield newLineData;
+        yield itemStream;
+      }
     }
   }
 }

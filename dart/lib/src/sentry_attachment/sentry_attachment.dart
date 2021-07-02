@@ -8,13 +8,33 @@ typedef ContentLoader = FutureOr<Uint8List> Function();
 
 /// Arbitrary content which gets attached to an event.
 class SentryAttachment {
+  /// Standard attachment without special meaning.
+  static const String typeAttachmentDefault = 'event.attachment';
+
+  /// Minidump file that creates an error event and is symbolicated.
+  /// The file should start with the `MDMP` magic bytes.
+  static const String typeMinidump = 'event.minidump';
+
+  /// Apple crash report file that creates an error event and is symbolicated.
+  static const String typeAppleCrashReport = 'event.applecrashreport';
+
+  /// XML file containing UE4 crash meta data.
+  /// During event ingestion, event contexts and extra fields are extracted from
+  /// this file.
+  static const String typeUnrealContext = 'unreal.context';
+
+  /// Plain-text log file obtained from UE4 crashes.
+  /// During event ingestion, the last logs are extracted into event
+  /// breadcrumbs.
+  static const String typeUnrealLogs = 'unreal.logs';
+
   SentryAttachment.fromLoader({
     required ContentLoader loader,
     required this.filename,
     String? attachmentType,
     this.contentType,
   })  : _loader = loader,
-        attachmentType = attachmentType ?? AttachmentType.attachment;
+        attachmentType = attachmentType ?? typeAttachmentDefault;
 
   /// Creates an [SentryAttachment] from a [Uint8List]
   SentryAttachment.fromUint8List(
@@ -71,27 +91,4 @@ class SentryAttachment {
   /// Attachment content type.
   /// Inferred by Sentry if it's not given.
   final String? contentType;
-}
-
-/// Attachment type.
-class AttachmentType {
-  /// Standard attachment without special meaning.
-  static const String attachment = 'event.attachment';
-
-  /// Minidump file that creates an error event and is symbolicated.
-  /// The file should start with the `MDMP` magic bytes.
-  static const String minidump = 'event.minidump';
-
-  /// Apple crash report file that creates an error event and is symbolicated.
-  static const String appleCrashReport = 'event.applecrashreport';
-
-  /// XML file containing UE4 crash meta data.
-  /// During event ingestion, event contexts and extra fields are extracted from
-  /// this file.
-  static const String unrealContext = 'unreal.context';
-
-  /// Plain-text log file obtained from UE4 crashes.
-  /// During event ingestion, the last logs are extracted into event
-  /// breadcrumbs.
-  static const String unrealLogs = 'unreal.logs';
 }

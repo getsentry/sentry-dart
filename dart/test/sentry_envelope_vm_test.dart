@@ -53,8 +53,11 @@ void main() {
       final attachment =
           IoSentryAttachment.fromPath('this_path_does_not_exist.txt');
 
-      final envelope = SentryEnvelope.fromEvent(event, sdkVersion,
-          attachments: [attachment]);
+      final envelope = SentryEnvelope.fromEvent(
+        event,
+        sdkVersion,
+        attachments: [attachment],
+      );
 
       final data =
           (await envelope.envelopeStream().toList()).reduce((a, b) => a + b);
@@ -292,6 +295,5 @@ final envelopeBinaryData = [
   48,
   90,
   34,
-  125,
-  10
+  125
 ];

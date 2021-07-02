@@ -120,7 +120,7 @@ class Scope {
     _breadcrumbs.add(breadcrumb);
   }
 
-  void addAttachment(SentryAttachment attachment) async {
+  void addAttachment(SentryAttachment attachment) {
     _attachements.add(attachment);
   }
 
@@ -299,7 +299,7 @@ class Scope {
     });
 
     for (final attachment in _attachements) {
-      clone._attachements.add(attachment);
+      clone.addAttachment(attachment);
     }
 
     return clone;

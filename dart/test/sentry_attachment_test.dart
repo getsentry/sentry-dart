@@ -13,7 +13,7 @@ void main() {
         loader: () => Uint8List.fromList([0, 0, 0, 0]),
         filename: 'test.txt',
       );
-      expect(attachment.attachmentType, AttachmentType.attachment);
+      expect(attachment.attachmentType, SentryAttachment.typeAttachmentDefault);
       expect(attachment.contentType, isNull);
       expect(attachment.filename, 'test.txt');
       await expectLater(await attachment.bytes, [0, 0, 0, 0]);
@@ -21,7 +21,7 @@ void main() {
 
     test('fromIntList', () async {
       final attachment = SentryAttachment.fromIntList([0, 0, 0, 0], 'test.txt');
-      expect(attachment.attachmentType, AttachmentType.attachment);
+      expect(attachment.attachmentType, SentryAttachment.typeAttachmentDefault);
       expect(attachment.contentType, isNull);
       expect(attachment.filename, 'test.txt');
       await expectLater(await attachment.bytes, [0, 0, 0, 0]);
@@ -32,7 +32,7 @@ void main() {
         Uint8List.fromList([0, 0, 0, 0]),
         'test.txt',
       );
-      expect(attachment.attachmentType, AttachmentType.attachment);
+      expect(attachment.attachmentType, SentryAttachment.typeAttachmentDefault);
       expect(attachment.contentType, isNull);
       expect(attachment.filename, 'test.txt');
       await expectLater(await attachment.bytes, [0, 0, 0, 0]);
@@ -43,7 +43,7 @@ void main() {
         ByteData.sublistView(Uint8List.fromList([0, 0, 0, 0])),
         'test.txt',
       );
-      expect(attachment.attachmentType, AttachmentType.attachment);
+      expect(attachment.attachmentType, SentryAttachment.typeAttachmentDefault);
       expect(attachment.contentType, isNull);
       expect(attachment.filename, 'test.txt');
       await expectLater(await attachment.bytes, [0, 0, 0, 0]);
@@ -66,7 +66,7 @@ void main() {
       final attachmentEnvelope = transport.envelopes.first.items[1];
       expect(
         attachmentEnvelope.header.attachmentType,
-        AttachmentType.attachment,
+        SentryAttachment.typeAttachmentDefault,
       );
       expect(
         attachmentEnvelope.header.contentType,
