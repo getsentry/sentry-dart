@@ -9,6 +9,7 @@ class SentryFlutterOptions extends SentryOptions {
   SentryFlutterOptions({String? dsn, PlatformChecker? checker})
       : super(dsn: dsn, checker: checker) {
     enableBreadcrumbTrackingForCurrentPlatform();
+    enablePrintBreadcrumbs = false;
   }
 
   /// Enable or disable the Auto session tracking on the Native SDKs (Android/iOS)

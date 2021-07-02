@@ -174,6 +174,9 @@ class SentryOptions {
 
   /// Enable this option if you want to record calls to `print()` as
   /// breadcrumbs.
+  /// Enabling this on Flutter can result in excessive breadcrumbs as
+  /// [FlutterError.reportError](https://api.flutter.dev/flutter/foundation/FlutterError/reportError.html)
+  /// prints to console via `print()`.
   bool enablePrintBreadcrumbs = true;
 
   /// If [platformChecker] is provided, it is used get the envirnoment.
