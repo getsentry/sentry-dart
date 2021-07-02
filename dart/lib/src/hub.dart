@@ -189,18 +189,19 @@ class Hub {
         SentryLevel.warning,
         "Instance is disabled and this 'captureUserFeedback' call is a no-op.",
       );
+      return;
     }
     try {
       final item = _peek();
 
       await item.client.captureUserFeedback(userFeedback);
-    } catch (err) {
+    } catch (exception, stacktrace) {
       _options.logger(
         SentryLevel.error,
-        'Error while capturing user feedback for id: ${userFeedback.eventId}, error: $err',
+        'Error while capturing user feedback for ${userFeedback.eventId}',
+        exception: exception,
+        stackTrace: stacktrace,
       );
-    } finally {
-      return SentryId.empty();
     }
   }
 

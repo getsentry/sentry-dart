@@ -86,13 +86,53 @@ void main() {
   });
 
   test('sending $SentryUserFeedback', () async {
-    final options = SentryOptions(dsn: fakeDsn);
-    final mockTransport = MockTransport();
-    options.transport = mockTransport;
-    final hub = Hub(options);
-    await hub
+    final fixture = Fixture();
+    final sut = fixture.getSut();
+    await sut
         .captureUserFeedback(SentryUserFeedback(eventId: SentryId.newId()));
 
-    expect(mockTransport.envelopes.length, 1);
+    expect(fixture.transport.envelopes.length, 1);
   });
+
+  test('cannot create $SentryUserFeedback with empty id', () async {
+    expect(
+      () => SentryUserFeedback(eventId: const SentryId.empty()),
+      throwsA(isA<AssertionError>()),
+    );
+  });
+
+  test('do not send $SentryUserFeedback when disabled', () async {
+    final fixture = Fixture();
+    final sut = fixture.getSut();
+    await sut.close();
+    await sut.captureUserFeedback(
+      SentryUserFeedback(eventId: SentryId.newId()),
+    );
+
+    expect(fixture.transport.envelopes.length, 0);
+  });
+
+  test('captureUserFeedback does not throw', () async {
+    final options = SentryOptions(dsn: fakeDsn);
+    final transport = ThrowingTransport();
+    options.transport = transport;
+    final sut = Hub(options);
+
+    await expectLater(() async {
+      await sut.captureUserFeedback(
+        SentryUserFeedback(eventId: SentryId.newId()),
+      );
+    }, returnsNormally);
+  });
+}
+
+class Fixture {
+  late MockTransport transport;
+
+  Hub getSut() {
+    final options = SentryOptions(dsn: fakeDsn);
+    transport = MockTransport();
+    options.transport = transport;
+    return Hub(options);
+  }
 }
