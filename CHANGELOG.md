@@ -19,6 +19,10 @@
 * Feat: Change timespans to Durations in SentryOptions (#504)
 * Feat: `beforeSend` callback accepts async code (#494)
 
+## Sentry Self Hosted Compatibility
+
+* Since version `6.0.0` of the `sentry`, [Sentry's version >= v20.6.0](https://github.com/getsentry/onpremise/releases) is required. This only applies to on-premise Sentry, if you are using sentry.io no action is needed.
+
 # 5.1.0
 
 * Fix: Merge user from event and scope (#467)
@@ -177,8 +181,6 @@ Packages were released on [sentry pubdev](https://pub.dev/packages/sentry) and [
 ## Sentry Self Hosted Compatibility
 
 * Since version `4.0.0` of the `sentry_flutter`, [Sentry's version >= v20.6.0](https://github.com/getsentry/onpremise/releases) is required. This only applies to on-premise Sentry, if you are using sentry.io no action is needed.
-
-We'd love to get feedback.
 
 # 4.0.0-beta.2
 
