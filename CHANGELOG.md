@@ -1,11 +1,10 @@
-# Unreleased
+# 6.0.0-beta.1
 
 * Feat: Browser detection (#502)
 * Feat: Enrich events with more context (#452)
 * Feat: Add Culture Context (#491)
 * Feat: Add DeduplicationEventProcessor (#498)
 * Feat: Capture failed requests as event (#473)
-* Feat: `beforeSend` callback accepts async code (#494)
 
 ## Breaking Changes:
 
@@ -16,7 +15,7 @@
 * Ref: Rename `cacheDirSize` to `maxCacheItems` and add `maxCacheItems` for iOS (#495)
 * Ref: Add error and stacktrace parameter to logger (#503)
 * Feat: Change timespans to Durations in SentryOptions (#504)
-
+* Feat: `beforeSend` callback accepts async code (#494)
 
 # 5.1.0
 
