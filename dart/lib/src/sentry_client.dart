@@ -212,7 +212,7 @@ class SentryClient {
   }
 
   /// Reports the [userFeedback] to Sentry.io.
-  Future<SentryId> captureUserFeedback(SentryUserFeedback userFeedback) {
+  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) {
     final envelope = SentryEnvelope.fromUserFeedback(
       userFeedback,
       _options.sdk,

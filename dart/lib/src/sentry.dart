@@ -177,8 +177,7 @@ class Sentry {
         withScope: withScope,
       );
 
-  static Future<SentryId> captureUserFeedback(
-          SentryUserFeedback userFeedback) =>
+  static Future captureUserFeedback(SentryUserFeedback userFeedback) =>
       _hub.captureUserFeedback(userFeedback);
 
   /// Close the client SDK

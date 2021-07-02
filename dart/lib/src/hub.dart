@@ -183,7 +183,7 @@ class Hub {
     return sentryId;
   }
 
-  Future<SentryId> captureUserFeedback(SentryUserFeedback userFeedback) async {
+  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {
     if (!_isEnabled) {
       _options.logger(
         SentryLevel.warning,
@@ -193,7 +193,7 @@ class Hub {
     try {
       final item = _peek();
 
-      return item.client.captureUserFeedback(userFeedback);
+      await item.client.captureUserFeedback(userFeedback);
     } catch (err) {
       _options.logger(
         SentryLevel.error,

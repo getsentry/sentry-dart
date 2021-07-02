@@ -2,7 +2,7 @@ import 'package:mockito/annotations.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry/src/platform_checker.dart';
-import 'package:sentry/src/user_feedback.dart';
+import 'package:sentry/src/sentry_user_feedback.dart';
 
 const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
@@ -160,5 +160,5 @@ class NoOpHub implements Hub {
   SentryId get lastEventId => SentryId.empty();
 
   @override
-  Future<void> captureUserFeedback(UserFeedback userFeedback) async {}
+  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {}
 }
