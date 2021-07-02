@@ -1,7 +1,7 @@
 # Unreleased
 
 * Feat: Add support for attachments (#505)
-* Feat: Add support for attachments (#494)
+* Feat: Add support for User Feedback (#506)
 
 # 6.0.0-beta.1
 
@@ -11,8 +11,6 @@
 * Feat: Add DeduplicationEventProcessor (#498)
 * Feat: Capture failed requests as event (#473)
 * Feat: `beforeSend` callback accepts async code (#494)
-* Feat: Add support for attachments (#505)
-* Feat: Add support for User Feedback (#506)
 
 ## Breaking Changes:
 
