@@ -55,5 +55,12 @@ void main() {
       expect(options.enableMemoryPressureBreadcrumbs, isTrue);
       expect(options.enableAutoNativeBreadcrumbs, isFalse);
     });
+
+    testWidgets('enablePrintBreadcrumbs is disabled on Flutter by default',
+        (WidgetTester tester) async {
+      final options = SentryFlutterOptions();
+
+      expect(options.enablePrintBreadcrumbs, isFalse);
+    });
   });
 }
