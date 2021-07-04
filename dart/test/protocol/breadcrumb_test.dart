@@ -9,7 +9,7 @@ void main() {
   final breadcrumb = Breadcrumb(
     message: 'message',
     timestamp: timestamp,
-    data: {'key': 'value'},
+    data: <String, Object>{'key': 'value'},
     level: SentryLevel.warning,
     category: 'category',
     type: 'type',
@@ -52,7 +52,7 @@ void main() {
       final copy = data.copyWith();
 
       expect(
-        MapEquality().equals(data.toJson(), copy.toJson()),
+        MapEquality<String, dynamic>().equals(data.toJson(), copy.toJson()),
         true,
       );
     });
@@ -64,7 +64,7 @@ void main() {
       final copy = data.copyWith(
         message: 'message1',
         timestamp: timestamp,
-        data: {'key1': 'value1'},
+        data: <String, Object>{'key1': 'value1'},
         level: SentryLevel.fatal,
         category: 'category1',
         type: 'type1',
@@ -72,7 +72,7 @@ void main() {
 
       expect('message1', copy.message);
       expect(timestamp, copy.timestamp);
-      expect({'key1': 'value1'}, copy.data);
+      expect(<String, Object>{'key1': 'value1'}, copy.data);
       expect(SentryLevel.fatal, copy.level);
       expect('category1', copy.category);
       expect('type1', copy.type);

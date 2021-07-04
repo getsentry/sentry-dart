@@ -42,19 +42,19 @@ class SentryRuntime {
 
   /// Deserializes a [SentryRuntime] from JSON [Map].
   factory SentryRuntime.fromJson(Map<String, dynamic> data) => SentryRuntime(
-        name: data['name'],
-        version: data['version'],
-        compiler: data['compiler'],
-        rawDescription: data['raw_description'],
+        name: data['name'] as String?,
+        version: data['version'] as String?,
+        compiler: data['compiler'] as String?,
+        rawDescription: data['raw_description'] as String?,
       );
 
   /// Produces a [Map] that can be serialized to JSON.
-  Map<String, dynamic> toJson() {
-    return <String, dynamic>{
-      if (name != null) 'name': name,
-      if (compiler != null) 'compiler': compiler,
-      if (version != null) 'version': version,
-      if (rawDescription != null) 'raw_description': rawDescription,
+  Map<String, Object> toJson() {
+    return <String, Object>{
+      if (name != null) 'name': name!,
+      if (compiler != null) 'compiler': compiler!,
+      if (version != null) 'version': version!,
+      if (rawDescription != null) 'raw_description': rawDescription!,
     };
   }
 

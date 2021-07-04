@@ -42,8 +42,8 @@ class SdkVersion {
     List<SentryPackage>? packages,
   })  :
         // List.from prevents from having immutable lists
-        _integrations = List.from(integrations ?? []),
-        _packages = List.from(packages ?? []);
+        _integrations = List.from(integrations ?? <String>[]),
+        _packages = List.from(packages ?? <String>[]);
 
   /// The name of the SDK.
   final String name;
@@ -68,12 +68,13 @@ class SdkVersion {
     final packagesJson = json['packages'] as List<dynamic>?;
     final integrationsJson = json['integrations'] as List<dynamic>?;
     return SdkVersion(
-      name: json['name'],
-      version: json['version'],
+      name: json['name'] as String,
+      version: json['version'] as String,
       packages: packagesJson
-          ?.map((e) => SentryPackage.fromJson(e as Map<String, dynamic>))
+          ?.map(
+              (dynamic e) => SentryPackage.fromJson(e as Map<String, dynamic>))
           .toList(),
-      integrations: integrationsJson?.map((e) => e as String).toList(),
+      integrations: integrationsJson?.map((dynamic e) => e as String).toList(),
     );
   }
 

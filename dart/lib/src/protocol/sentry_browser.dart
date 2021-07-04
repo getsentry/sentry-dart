@@ -19,23 +19,16 @@ class SentryBrowser {
 
   /// Deserializes a [SentryBrowser] from JSON [Map].
   factory SentryBrowser.fromJson(Map<String, dynamic> data) => SentryBrowser(
-        name: data['name'],
-        version: data['version'],
+        name: data['name'] as String?,
+        version: data['version'] as String?,
       );
 
   /// Produces a [Map] that can be serialized to JSON.
-  Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{};
-
-    if (name != null) {
-      json['name'] = name;
-    }
-
-    if (version != null) {
-      json['version'] = version;
-    }
-
-    return json;
+  Map<String, Object> toJson() {
+    return <String, Object>{
+      if (name != null) 'name': name!,
+      if (version != null) 'version': version!,
+    };
   }
 
   SentryBrowser clone() => SentryBrowser(name: name, version: version);

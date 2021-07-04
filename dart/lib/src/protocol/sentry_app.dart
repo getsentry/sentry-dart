@@ -41,15 +41,15 @@ class SentryApp {
 
   /// Deserializes a [SentryApp] from JSON [Map].
   factory SentryApp.fromJson(Map<String, dynamic> data) => SentryApp(
-        name: data['app_name'],
-        version: data['app_version'],
-        identifier: data['app_identifier'],
-        build: data['app_build'],
-        buildType: data['build_type'],
+        name: data['app_name'] as String?,
+        version: data['app_version'] as String?,
+        identifier: data['app_identifier'] as String?,
+        build: data['app_build'] as String?,
+        buildType: data['build_type'] as String?,
         startTime: data['app_start_time'] != null
-            ? DateTime.tryParse(data['app_start_time'])
+            ? DateTime.tryParse(data['app_start_time'] as String)
             : null,
-        deviceAppHash: data['device_app_hash'],
+        deviceAppHash: data['device_app_hash'] as String?,
       );
 
   /// Produces a [Map] that can be serialized to JSON.

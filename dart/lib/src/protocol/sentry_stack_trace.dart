@@ -27,14 +27,13 @@ class SentryStackTrace {
 
   /// Deserializes a [SentryStackTrace] from JSON [Map].
   factory SentryStackTrace.fromJson(Map<String, dynamic> json) {
-    final framesJson = json['frames'] as List<dynamic>?;
+    final framesJson = json['frames'] as List<dynamic>? ?? [];
     return SentryStackTrace(
-      frames: framesJson != null
-          ? framesJson
-              .map((frameJson) => SentryStackFrame.fromJson(frameJson))
-              .toList()
-          : [],
-      registers: json['registers'],
+      frames: framesJson
+          .map((frameJson) =>
+              SentryStackFrame.fromJson(frameJson as Map<String, dynamic>))
+          .toList(),
+      registers: json['registers'] as Map<String, String>?,
     );
   }
 

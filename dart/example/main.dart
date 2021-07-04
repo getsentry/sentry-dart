@@ -32,7 +32,7 @@ Future<void> runApp() async {
       message: 'Authenticated user',
       category: 'auth',
       type: 'debug',
-      data: {
+      data: <String, dynamic>{
         'admin': true,
         'permissions': [1, 2, 3]
       },
@@ -67,7 +67,7 @@ Future<void> runApp() async {
     'Message 1',
     level: SentryLevel.warning,
     template: 'Message %s',
-    params: ['1'],
+    params: <dynamic>['1'],
   );
 
   print('Capture message result : SentryId : $messageSentryId');
@@ -103,7 +103,7 @@ Future<void> decode() async {
 
 class TagEventProcessor extends EventProcessor {
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) {
+  FutureOr<SentryEvent?> apply(SentryEvent event, {dynamic hint}) {
     return event..tags?.addAll({'page-locale': 'en-us'});
   }
 }

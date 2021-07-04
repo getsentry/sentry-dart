@@ -138,41 +138,41 @@ class SentryDevice {
 
   /// Deserializes a [SentryDevice] from JSON [Map].
   factory SentryDevice.fromJson(Map<String, dynamic> data) => SentryDevice(
-        name: data['name'],
-        family: data['family'],
-        model: data['model'],
-        modelId: data['model_id'],
-        arch: data['arch'],
-        batteryLevel: data['battery_level'],
+        name: data['name'] as String?,
+        family: data['family'] as String?,
+        model: data['model'] as String?,
+        modelId: data['model_id'] as String?,
+        arch: data['arch'] as String?,
+        batteryLevel: data['battery_level'] as double?,
         orientation: data['orientation'] == 'portrait'
             ? SentryOrientation.portrait
             : data['orientation'] == 'landscape'
                 ? SentryOrientation.landscape
                 : null,
-        manufacturer: data['manufacturer'],
-        brand: data['brand'],
-        screenResolution: data['screen_resolution'],
-        screenHeightPixels: data['screen_height_pixels'],
-        screenWidthPixels: data['screen_width_pixels'],
-        screenDensity: data['screen_density'],
-        screenDpi: data['screen_dpi'],
-        online: data['online'],
-        charging: data['charging'],
-        lowMemory: data['low_memory'],
-        simulator: data['simulator'],
-        memorySize: data['memory_size'],
-        freeMemory: data['free_memory'],
-        usableMemory: data['usable_memory'],
-        storageSize: data['storage_size'],
-        freeStorage: data['free_storage'],
-        externalStorageSize: data['external_storage_size'],
-        externalFreeStorage: data['external_free_storage'],
+        manufacturer: data['manufacturer'] as String?,
+        brand: data['brand'] as String?,
+        screenResolution: data['screen_resolution'] as String?,
+        screenHeightPixels: data['screen_height_pixels'] as int?,
+        screenWidthPixels: data['screen_width_pixels'] as int?,
+        screenDensity: data['screen_density'] as double?,
+        screenDpi: data['screen_dpi'] as int?,
+        online: data['online'] as bool?,
+        charging: data['charging'] as bool?,
+        lowMemory: data['low_memory'] as bool?,
+        simulator: data['simulator'] as bool?,
+        memorySize: data['memory_size'] as int?,
+        freeMemory: data['free_memory'] as int?,
+        usableMemory: data['usable_memory'] as int?,
+        storageSize: data['storage_size'] as int?,
+        freeStorage: data['free_storage'] as int?,
+        externalStorageSize: data['external_storage_size'] as int?,
+        externalFreeStorage: data['external_free_storage'] as int?,
         bootTime: data['boot_time'] != null
-            ? DateTime.tryParse(data['boot_time'])
+            ? DateTime.tryParse(data['boot_time'] as String)
             : null,
-        timezone: data['timezone'],
-        language: data['language'],
-        theme: data['theme'],
+        timezone: data['timezone'] as String?,
+        language: data['language'] as String?,
+        theme: data['theme'] as String?,
       );
 
   /// Produces a [Map] that can be serialized to JSON.

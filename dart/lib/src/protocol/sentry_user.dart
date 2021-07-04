@@ -56,11 +56,11 @@ class SentryUser {
   /// Deserializes a [SentryUser] from JSON [Map].
   factory SentryUser.fromJson(Map<String, dynamic> json) {
     return SentryUser(
-      id: json['id'],
-      username: json['username'],
-      email: json['email'],
-      ipAddress: json['ip_address'],
-      extras: json['extras'],
+      id: json['id'] as String?,
+      username: json['username'] as String?,
+      email: json['email'] as String?,
+      ipAddress: json['ip_address'] as String?,
+      extras: json['extras'] as Map<String, dynamic>?,
     );
   }
 

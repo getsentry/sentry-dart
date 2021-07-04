@@ -77,13 +77,13 @@ class Mechanism {
   /// Deserializes a [Mechanism] from JSON [Map].
   factory Mechanism.fromJson(Map<String, dynamic> json) {
     return Mechanism(
-      type: json['type'],
-      description: json['description'],
-      helpLink: json['help_link'],
-      handled: json['handled'],
-      meta: json['meta'],
-      data: json['data'],
-      synthetic: json['synthetic'],
+      type: json['type'] as String,
+      description: json['description'] as String?,
+      helpLink: json['help_link'] as String?,
+      handled: json['handled'] as bool?,
+      meta: json['meta'] as Map<String, dynamic>?,
+      data: json['data'] as Map<String, dynamic>?,
+      synthetic: json['synthetic'] as bool?,
     );
   }
 

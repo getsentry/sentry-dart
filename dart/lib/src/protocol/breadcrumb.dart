@@ -46,7 +46,7 @@ class Breadcrumb {
       category: 'http',
       level: level,
       timestamp: timestamp,
-      data: {
+      data: <String, Object>{
         'url': url.toString(),
         'method': method,
         if (statusCode != null) 'status_code': statusCode,
@@ -102,42 +102,29 @@ class Breadcrumb {
 
   /// Deserializes a [Breadcrumb] from JSON [Map].
   factory Breadcrumb.fromJson(Map<String, dynamic> json) {
-    final levelName = json['level'];
-    final timestamp = json['timestamp'];
+    final levelName = json['level'] as String?;
+    final timestamp = json['timestamp'] as String?;
     return Breadcrumb(
       timestamp: timestamp != null ? DateTime.tryParse(timestamp) : null,
-      message: json['message'],
-      category: json['category'],
-      data: json['data'],
+      message: json['message'] as String?,
+      category: json['category'] as String?,
+      data: json['data'] as Map<String, dynamic>,
       level: levelName != null ? SentryLevel.fromName(levelName) : null,
-      type: json['type'],
+      type: json['type'] as String?,
     );
   }
 
   /// Converts this breadcrumb to a map that can be serialized to JSON according
   /// to the Sentry protocol.
-  Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{
+  Map<String, Object> toJson() {
+    return <String, Object>{
       'timestamp': formatDateAsIso8601WithMillisPrecision(timestamp),
+      if (message != null) 'message': message!,
+      if (category != null) 'category': category!,
+      if (data?.isNotEmpty ?? false) 'data': data!,
+      if (level != null) 'level': level!.name,
+      if (type != null) 'type': type!,
     };
-
-    if (message != null) {
-      json['message'] = message;
-    }
-    if (category != null) {
-      json['category'] = category;
-    }
-    if (data?.isNotEmpty ?? false) {
-      json['data'] = data;
-    }
-    if (level != null) {
-      json['level'] = level!.name;
-    }
-
-    if (type != null) {
-      json['type'] = type;
-    }
-    return json;
   }
 
   Breadcrumb copyWith({

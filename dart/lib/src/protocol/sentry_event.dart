@@ -39,7 +39,7 @@ class SentryEvent {
         contexts = contexts ?? Contexts(),
         modules = modules != null ? Map.from(modules) : null,
         tags = tags != null ? Map.from(tags) : null,
-        extra = extra != null ? Map.from(extra) : null,
+        extra = extra != null ? Map<String, dynamic>.from(extra) : null,
         fingerprint = fingerprint != null ? List.from(fingerprint) : null,
         breadcrumbs = breadcrumbs != null ? List.from(breadcrumbs) : null,
         _throwable = throwable;
@@ -183,7 +183,7 @@ class SentryEvent {
     String? transaction,
     dynamic throwable,
     SentryException? exception,
-    dynamic stackTrace,
+    SentryStackTrace? stackTrace,
     SentryLevel? level,
     String? culprit,
     Map<String, String>? tags,
@@ -214,7 +214,8 @@ class SentryEvent {
         level: level ?? this.level,
         culprit: culprit ?? this.culprit,
         tags: (tags != null ? Map.from(tags) : null) ?? this.tags,
-        extra: (extra != null ? Map.from(extra) : null) ?? this.extra,
+        extra: (extra != null ? Map<String, dynamic>.from(extra) : null) ??
+            this.extra,
         fingerprint: (fingerprint != null ? List.from(fingerprint) : null) ??
             this.fingerprint,
         user: user ?? this.user,
@@ -229,8 +230,8 @@ class SentryEvent {
   /// Deserializes a [SentryEvent] from JSON [Map].
   factory SentryEvent.fromJson(Map<String, dynamic> json) {
     final breadcrumbsJson = json['breadcrumbs'] as List<dynamic>?;
-    final breadcrumbs = breadcrumbsJson?.map((e) {
-      return Breadcrumb.fromJson(e);
+    final breadcrumbs = breadcrumbsJson?.map((dynamic e) {
+      return Breadcrumb.fromJson(e as Map<String, dynamic>);
     }).toList();
 
     final stackTraceValuesJson = json['threads']?['values'];
@@ -238,14 +239,15 @@ class SentryEvent {
     if (stackTraceValuesJson?.isNotEmpty == true) {
       stackTraceValuesStacktraceJson = {};
       stackTraceValuesStacktraceJson =
-          stackTraceValuesJson?.first['stacktrace'];
+          stackTraceValuesJson?.first['stacktrace'] as Map<String, dynamic>?;
     }
 
     final exceptionValuesJson = json['exception']?['values'];
     Map<String, dynamic>? exceptionValuesItemJson;
     if (exceptionValuesJson?.isNotEmpty == true) {
       exceptionValuesItemJson = {};
-      exceptionValuesItemJson = exceptionValuesJson?.first;
+      exceptionValuesItemJson =
+          exceptionValuesJson?.first as Map<String, dynamic>?;
     }
 
     final modules = json['modules']?.cast<String, String>();
@@ -262,27 +264,28 @@ class SentryEvent {
     final debugMetaJson = json['debug_meta'] as Map<String, dynamic>?;
 
     return SentryEvent(
-      eventId: SentryId.fromId(json['event_id']),
-      timestamp:
-          timestampJson != null ? DateTime.tryParse(timestampJson) : null,
-      modules: modules,
-      tags: tags,
-      extra: json['extra'],
+      eventId: SentryId.fromId(json['event_id'] as String),
+      timestamp: timestampJson != null
+          ? DateTime.tryParse(timestampJson as String)
+          : null,
+      modules: modules as Map<String, String>?,
+      tags: tags as Map<String, String>?,
+      extra: json['extra'] as Map<String, dynamic>?,
       fingerprint: fingerprintJson?.map((e) => e as String).toList(),
       breadcrumbs: breadcrumbs,
       sdk: sdkVersionJson != null && sdkVersionJson.isNotEmpty
           ? SdkVersion.fromJson(sdkVersionJson)
           : null,
-      platform: json['platform'],
-      logger: json['logger'],
-      serverName: json['server_name'],
-      release: json['release'],
-      dist: json['dist'],
-      environment: json['environment'],
+      platform: json['platform'] as String?,
+      logger: json['logger'] as String?,
+      serverName: json['server_name'] as String?,
+      release: json['release'] as String?,
+      dist: json['dist'] as String?,
+      environment: json['environment'] as String?,
       message: messageJson != null && messageJson.isNotEmpty
           ? SentryMessage.fromJson(messageJson)
           : null,
-      transaction: json['transaction'],
+      transaction: json['transaction'] as String?,
       stackTrace: stackTraceValuesStacktraceJson != null &&
               stackTraceValuesStacktraceJson.isNotEmpty
           ? SentryStackTrace.fromJson(stackTraceValuesStacktraceJson)
@@ -291,8 +294,9 @@ class SentryEvent {
           exceptionValuesItemJson != null && exceptionValuesItemJson.isNotEmpty
               ? SentryException.fromJson(exceptionValuesItemJson)
               : null,
-      level: levelJson != null ? SentryLevel.fromName(levelJson) : null,
-      culprit: json['culprit'],
+      level:
+          levelJson != null ? SentryLevel.fromName(levelJson as String) : null,
+      culprit: json['culprit'] as String?,
       user: userJson != null && userJson.isNotEmpty
           ? SentryUser.fromJson(userJson)
           : null,

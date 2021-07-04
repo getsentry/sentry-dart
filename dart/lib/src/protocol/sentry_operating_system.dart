@@ -43,12 +43,12 @@ class SentryOperatingSystem {
   /// Deserializes a [SentryOperatingSystem] from JSON [Map].
   factory SentryOperatingSystem.fromJson(Map<String, dynamic> data) =>
       SentryOperatingSystem(
-        name: data['name'],
-        version: data['version'],
-        build: data['build'],
-        kernelVersion: data['kernel_version'],
-        rooted: data['rooted'],
-        rawDescription: data['raw_description'],
+        name: data['name'] as String?,
+        version: data['version'] as String?,
+        build: data['build'] as String?,
+        kernelVersion: data['kernel_version'] as String?,
+        rooted: data['rooted'] as bool?,
+        rawDescription: data['raw_description'] as String?,
       );
 
   /// Produces a [Map] that can be serialized to JSON.

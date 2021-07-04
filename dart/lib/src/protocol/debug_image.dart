@@ -53,15 +53,15 @@ class DebugImage {
   /// Deserializes a [DebugImage] from JSON [Map].
   factory DebugImage.fromJson(Map<String, dynamic> json) {
     return DebugImage(
-      type: json['type'],
-      imageAddr: json['image_addr'],
-      debugId: json['debug_id'],
-      debugFile: json['debug_file'],
-      imageSize: json['image_size'],
-      uuid: json['uuid'],
-      codeFile: json['code_file'],
-      arch: json['arch'],
-      codeId: json['code_id'],
+      type: json['type'] as String,
+      imageAddr: json['image_addr'] as String?,
+      debugId: json['debug_id'] as String?,
+      debugFile: json['debug_file'] as String?,
+      imageSize: json['image_size'] as int?,
+      uuid: json['uuid'] as String?,
+      codeFile: json['code_file'] as String?,
+      arch: json['arch'] as String?,
+      codeId: json['code_id'] as String?,
     );
   }
 

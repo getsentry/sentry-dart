@@ -143,7 +143,8 @@ void main() {
 
   group('parse contexts', () {
     test('should parse json context', () {
-      final contexts = Contexts.fromJson(jsonDecode(jsonContexts));
+      final contexts =
+          Contexts.fromJson(jsonDecode(jsonContexts) as Map<String, dynamic>);
       expect(
         MapEquality().equals(
           contexts.operatingSystem!.toJson(),

@@ -15,8 +15,8 @@ class SentryPackage {
   /// Deserializes a [SentryPackage] from JSON [Map].
   factory SentryPackage.fromJson(Map<String, dynamic> json) {
     return SentryPackage(
-      json['name'],
-      json['version'],
+      json['name'] as String,
+      json['version'] as String,
     );
   }
 

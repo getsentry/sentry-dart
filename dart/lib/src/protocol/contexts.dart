@@ -17,7 +17,7 @@ class Contexts extends MapView<String, dynamic> {
     SentryBrowser? browser,
     SentryGpu? gpu,
     SentryCulture? culture,
-  }) : super({
+  }) : super(<String, dynamic>{
           SentryDevice.type: device,
           SentryOperatingSystem.type: operatingSystem,
           SentryRuntime.listType: runtimes ?? [],
@@ -31,26 +31,26 @@ class Contexts extends MapView<String, dynamic> {
   factory Contexts.fromJson(Map<String, dynamic> data) {
     final contexts = Contexts(
       device: data[SentryDevice.type] != null
-          ? SentryDevice.fromJson(Map.from(data[SentryDevice.type]))
+          ? SentryDevice.fromJson(Map.from(data[SentryDevice.type] as Map))
           : null,
       operatingSystem: data[SentryOperatingSystem.type] != null
           ? SentryOperatingSystem.fromJson(
-              Map.from(data[SentryOperatingSystem.type]))
+              Map.from(data[SentryOperatingSystem.type] as Map))
           : null,
       app: data[SentryApp.type] != null
-          ? SentryApp.fromJson(Map.from(data[SentryApp.type]))
+          ? SentryApp.fromJson(Map.from(data[SentryApp.type] as Map))
           : null,
       browser: data[SentryBrowser.type] != null
-          ? SentryBrowser.fromJson(Map.from(data[SentryBrowser.type]))
+          ? SentryBrowser.fromJson(Map.from(data[SentryBrowser.type] as Map))
           : null,
       culture: data[SentryCulture.type] != null
-          ? SentryCulture.fromJson(Map.from(data[SentryCulture.type]))
+          ? SentryCulture.fromJson(Map.from(data[SentryCulture.type] as Map))
           : null,
       gpu: data[SentryGpu.type] != null
-          ? SentryGpu.fromJson(Map.from(data[SentryGpu.type]))
+          ? SentryGpu.fromJson(Map.from(data[SentryGpu.type] as Map))
           : null,
       runtimes: data[SentryRuntime.type] != null
-          ? [SentryRuntime.fromJson(Map.from(data[SentryRuntime.type]))]
+          ? [SentryRuntime.fromJson(Map.from(data[SentryRuntime.type] as Map))]
           : null,
     );
 
@@ -62,7 +62,7 @@ class Contexts extends MapView<String, dynamic> {
   }
 
   /// This describes the device that caused the event.
-  SentryDevice? get device => this[SentryDevice.type];
+  SentryDevice? get device => this[SentryDevice.type] as SentryDevice?;
 
   set device(SentryDevice? device) => this[SentryDevice.type] = device;
 
@@ -71,7 +71,7 @@ class Contexts extends MapView<String, dynamic> {
   /// In web contexts, this is the operating system of the browse
   /// (normally pulled from the User-Agent string).
   SentryOperatingSystem? get operatingSystem =>
-      this[SentryOperatingSystem.type];
+      this[SentryOperatingSystem.type] as SentryOperatingSystem?;
 
   set operatingSystem(SentryOperatingSystem? operatingSystem) =>
       this[SentryOperatingSystem.type] = operatingSystem;
@@ -79,8 +79,8 @@ class Contexts extends MapView<String, dynamic> {
   /// Describes an immutable list of runtimes in more detail
   /// (for instance if you have a Flutter application running
   /// on top of Android).
-  List<SentryRuntime> get runtimes =>
-      List.unmodifiable(this[SentryRuntime.listType] ?? []);
+  List<SentryRuntime> get runtimes => List.unmodifiable(
+      this[SentryRuntime.listType] as List<SentryRuntime>? ?? []);
 
   void addRuntime(SentryRuntime runtime) =>
       this[SentryRuntime.listType].add(runtime);
@@ -92,7 +92,7 @@ class Contexts extends MapView<String, dynamic> {
   ///
   /// As opposed to the runtime, this is the actual application that was
   /// running and carries metadata about the current session.
-  SentryApp? get app => this[SentryApp.type];
+  SentryApp? get app => this[SentryApp.type] as SentryApp?;
 
   set app(SentryApp? app) => this[SentryApp.type] = app;
 
@@ -101,18 +101,18 @@ class Contexts extends MapView<String, dynamic> {
   ///
   /// This can either be the browser this event ocurred in, or the user
   /// agent of a web request that triggered the event.
-  SentryBrowser? get browser => this[SentryBrowser.type];
+  SentryBrowser? get browser => this[SentryBrowser.type] as SentryBrowser?;
 
   set browser(SentryBrowser? browser) => this[SentryBrowser.type] = browser;
 
   /// Culture Context describes certain properties of the culture in which the
   /// software is used.
-  SentryCulture? get culture => this[SentryCulture.type];
+  SentryCulture? get culture => this[SentryCulture.type] as SentryCulture?;
 
   set culture(SentryCulture? culture) => this[SentryCulture.type] = culture;
 
   /// GPU context describes the GPU of the device.
-  SentryGpu? get gpu => this[SentryGpu.type];
+  SentryGpu? get gpu => this[SentryGpu.type] as SentryGpu?;
 
   set gpu(SentryGpu? gpu) => this[SentryGpu.type] = gpu;
 

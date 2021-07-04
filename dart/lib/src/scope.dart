@@ -173,7 +173,9 @@ class Scope {
 
     _contexts.clone().forEach((key, value) {
       // add the contexts runtime list to the event.contexts.runtimes
-      if (key == SentryRuntime.listType && value is List && value.isNotEmpty) {
+      if (key == SentryRuntime.listType &&
+          value is List<SentryRuntime> &&
+          value.isNotEmpty) {
         _mergeEventContextsRuntimes(value, event);
       } else if (key != SentryRuntime.listType &&
           (!event.contexts.containsKey(key) || event.contexts[key] == null) &&
@@ -204,7 +206,8 @@ class Scope {
   }
 
   /// Merge the scope contexts runtimes and the event contexts runtimes.
-  void _mergeEventContextsRuntimes(List value, SentryEvent event) =>
+  void _mergeEventContextsRuntimes(
+          List<SentryRuntime> value, SentryEvent event) =>
       value.forEach((runtime) => event.contexts.addRuntime(runtime));
 
   /// If the scope and the event have tag entries with the same key,
