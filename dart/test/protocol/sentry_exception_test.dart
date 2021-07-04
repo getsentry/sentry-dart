@@ -43,8 +43,8 @@ void main() {
         handled: true,
         synthetic: false,
         helpLink: 'https://help.com',
-        data: {'polyfill': 'bluebird'},
-        meta: {
+        data: <String, dynamic>{'polyfill': 'bluebird'},
+        meta: <String, dynamic>{
           'signal': {
             'number': 10,
             'code': 0,
@@ -101,7 +101,8 @@ void main() {
         }
       });
 
-      final serializedFrame = serialized['stacktrace']['frames'].first;
+      var serializedFrame =
+          serialized['stacktrace']['frames'].first as Map<String, dynamic>;
       expect(serializedFrame['abs_path'], 'frame-path');
       expect(serializedFrame['filename'], 'example.dart');
       expect(serializedFrame['function'], 'parse');

@@ -60,11 +60,12 @@ void main() {
       );
 
       expect(
-        ListEquality().equals(newImageList, copy.images),
+        ListEquality<DebugImage>().equals(newImageList, copy.images),
         true,
       );
       expect(
-        MapEquality().equals(newSdkInfo.toJson(), copy.sdk!.toJson()),
+        MapEquality<String, dynamic>()
+            .equals(newSdkInfo.toJson(), copy.sdk!.toJson()),
         true,
       );
     });

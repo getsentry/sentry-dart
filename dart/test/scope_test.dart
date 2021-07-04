@@ -239,9 +239,11 @@ void main() {
     expect(sut.tags, clone.tags);
     expect(sut.breadcrumbs, clone.breadcrumbs);
     expect(sut.contexts, clone.contexts);
-    expect(ListEquality().equals(sut.fingerprint, clone.fingerprint), true);
+    expect(ListEquality<String>().equals(sut.fingerprint, clone.fingerprint),
+        true);
     expect(
-      ListEquality().equals(sut.eventProcessors, clone.eventProcessors),
+      ListEquality<EventProcessor>()
+          .equals(sut.eventProcessors, clone.eventProcessors),
       true,
     );
   });
@@ -260,7 +262,7 @@ void main() {
     test('apply context to event', () async {
       final event = SentryEvent(
         tags: const {'etag': '987'},
-        extra: const {'e-infos': 'abc'},
+        extra: const <String, dynamic>{'e-infos': 'abc'},
       );
       final scope = Scope(SentryOptions(dsn: fakeDsn))
         ..user = scopeUser
@@ -445,7 +447,7 @@ class AddTagsEventProcessor extends EventProcessor {
   AddTagsEventProcessor(this.tags);
 
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) {
+  FutureOr<SentryEvent?> apply(SentryEvent event, {dynamic hint}) {
     return event..tags?.addAll(tags);
   }
 }

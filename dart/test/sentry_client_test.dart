@@ -110,7 +110,7 @@ void main() {
       await client.captureMessage(
         'simple message 1',
         template: 'simple message %d',
-        params: [1],
+        params: <dynamic>[1],
         level: SentryLevel.error,
       );
 
@@ -339,7 +339,7 @@ void main() {
 
     final event = SentryEvent(
       tags: const {eventTagKey: eventTagValue},
-      extra: const {eventExtraKey: eventExtraValue},
+      extra: const <String, dynamic>{eventExtraKey: eventExtraValue},
       modules: const {eventExtraKey: eventExtraValue},
       level: SentryLevel.warning,
     );
@@ -460,7 +460,7 @@ void main() {
 
       scope.user = SentryUser(
         id: 'id',
-        extras: {
+        extras: <String, dynamic>{
           'foo': 'bar',
           'bar': 'foo',
         },
@@ -469,7 +469,7 @@ void main() {
       var eventWithUser = event.copyWith(
         user: SentryUser(
           id: 'id',
-          extras: {
+          extras: <String, dynamic>{
             'foo': 'this bar is more important',
             'event': 'Really important event'
           },
@@ -643,7 +643,7 @@ void main() {
     setUp(() {
       options = SentryOptions(dsn: fakeDsn);
       options.addEventProcessor(FunctionEventProcessor(
-        (event, {hint}) => event
+        (event, {dynamic hint}) => event
           ..tags!.addAll({'theme': 'material'})
           ..extra!['host'] = '0.0.0.1'
           ..modules!.addAll({'core': '1.0'})
@@ -683,7 +683,7 @@ void main() {
       final myHint = 'hint';
       var executed = false;
 
-      options.addEventProcessor(FunctionEventProcessor((event, {hint}) {
+      options.addEventProcessor(FunctionEventProcessor((event, {dynamic hint}) {
         expect(myHint, hint);
         executed = true;
         return event;
@@ -729,7 +729,7 @@ Future<SentryEvent> eventFromEnvelope(SentryEnvelope envelope) async {
       .envelopeItemStream()
       .forEach(envelopeItemData.addAll);
   final envelopeItem = utf8.decode(envelopeItemData);
-  final envelopeItemJson = jsonDecode(envelopeItem.split('\n').last);
+  dynamic envelopeItemJson = jsonDecode(envelopeItem.split('\n').last);
   return SentryEvent.fromJson(envelopeItemJson as Map<String, dynamic>);
 }
 
@@ -743,7 +743,7 @@ FutureOr<SentryEvent?> asyncBeforeSendCallbackDropEvent(
   SentryEvent event, {
   dynamic hint,
 }) async {
-  await Future.delayed(Duration(milliseconds: 200));
+  await Future<void>.delayed(Duration(milliseconds: 200));
   return null;
 }
 

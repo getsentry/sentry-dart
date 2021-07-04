@@ -32,7 +32,7 @@ void main() {
       final json = debugImage.toJson();
 
       expect(
-        MapEquality().equals(debugImageJson, json),
+        MapEquality<String, dynamic>().equals(debugImageJson, json),
         true,
       );
     });
@@ -41,7 +41,7 @@ void main() {
       final json = debugImage.toJson();
 
       expect(
-        MapEquality().equals(debugImageJson, json),
+        MapEquality<String, dynamic>().equals(debugImageJson, json),
         true,
       );
     });
@@ -54,7 +54,7 @@ void main() {
       final copy = data.copyWith();
 
       expect(
-        MapEquality().equals(data.toJson(), copy.toJson()),
+        MapEquality<String, dynamic>().equals(data.toJson(), copy.toJson()),
         true,
       );
     });

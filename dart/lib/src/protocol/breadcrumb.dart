@@ -108,7 +108,7 @@ class Breadcrumb {
       timestamp: timestamp != null ? DateTime.tryParse(timestamp) : null,
       message: json['message'] as String?,
       category: json['category'] as String?,
-      data: json['data'] as Map<String, dynamic>,
+      data: json['data'] as Map<String, dynamic>?,
       level: levelName != null ? SentryLevel.fromName(levelName) : null,
       type: json['type'] as String?,
     );

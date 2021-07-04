@@ -39,17 +39,20 @@ class SentryStackFrame {
   final List<String>? _preContext;
 
   /// An immutable list of source code lines before context_line (in order) – usually [lineno - 5:lineno].
-  List<String> get preContext => List.unmodifiable(_preContext ?? const []);
+  List<String> get preContext =>
+      List.unmodifiable(_preContext ?? const <String>[]);
 
   final List<String>? _postContext;
 
   /// An immutable list of source code lines after context_line (in order) – usually [lineno + 1:lineno + 5].
-  List<String> get postContext => List.unmodifiable(_postContext ?? const []);
+  List<String> get postContext =>
+      List.unmodifiable(_postContext ?? const <String>[]);
 
   final Map<String, String>? _vars;
 
   /// An immutable mapping of variables which were available within this frame (usually context-locals).
-  Map<String, String> get vars => Map.unmodifiable(_vars ?? const {});
+  Map<String, String> get vars =>
+      Map.unmodifiable(_vars ?? const <String, String>{});
 
   final List<int>? _framesOmitted;
 
@@ -62,7 +65,8 @@ class SentryStackFrame {
   /// Example : If you only removed the 8th frame, the value would be (8, 9),
   /// meaning it started at the 8th frame, and went untilthe 9th (the number of frames omitted is end-start).
   /// The values should be based on a one-index.
-  List<int> get framesOmitted => List.unmodifiable(_framesOmitted ?? const []);
+  List<int> get framesOmitted =>
+      List.unmodifiable(_framesOmitted ?? const <String>[]);
 
   /// The relative file path to the call.
   final String? fileName;

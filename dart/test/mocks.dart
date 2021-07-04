@@ -11,7 +11,7 @@ final fakeException = Exception('Error');
 final fakeMessage = SentryMessage(
   'message 1',
   template: 'message %d',
-  params: ['1'],
+  params: <dynamic>['1'],
 );
 
 final fakeUser = SentryUser(id: '1', email: 'test@test');
@@ -42,7 +42,7 @@ final fakeEvent = SentryEvent(
       timestamp: DateTime.now().toUtc(),
       category: 'ui.lifecycle',
       type: 'navigation',
-      data: {'screen': 'MainActivity', 'state': 'created'},
+      data: <String, dynamic>{'screen': 'MainActivity', 'state': 'created'},
       level: SentryLevel.info,
     )
   ],
@@ -102,7 +102,7 @@ final fakeEvent = SentryEvent(
 /// Doesn't do anything with the events
 class NoOpEventProcessor extends EventProcessor {
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) {
+  FutureOr<SentryEvent?> apply(SentryEvent event, {dynamic hint}) {
     return event;
   }
 }
@@ -110,7 +110,7 @@ class NoOpEventProcessor extends EventProcessor {
 /// Always returns null and thus drops all events
 class DropAllEventProcessor extends EventProcessor {
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) {
+  FutureOr<SentryEvent?> apply(SentryEvent event, {dynamic hint}) {
     return null;
   }
 }
@@ -121,7 +121,7 @@ class FunctionEventProcessor extends EventProcessor {
   final EventProcessorFunction applyFunction;
 
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) {
+  FutureOr<SentryEvent?> apply(SentryEvent event, {dynamic hint}) {
     return applyFunction(event, hint: hint);
   }
 }

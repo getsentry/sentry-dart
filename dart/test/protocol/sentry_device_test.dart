@@ -66,7 +66,7 @@ void main() {
       final json = sentryDevice.toJson();
 
       expect(
-        MapEquality().equals(sentryDeviceJson, json),
+        MapEquality<String, dynamic>().equals(sentryDeviceJson, json),
         true,
       );
     });
@@ -75,7 +75,7 @@ void main() {
       final json = sentryDevice.toJson();
 
       expect(
-        MapEquality().equals(sentryDeviceJson, json),
+        MapEquality<String, dynamic>().equals(sentryDeviceJson, json),
         true,
       );
     });
@@ -88,7 +88,7 @@ void main() {
       final copy = data.copyWith();
 
       expect(
-        MapEquality().equals(data.toJson(), copy.toJson()),
+        MapEquality<String, dynamic>().equals(data.toJson(), copy.toJson()),
         true,
       );
     });

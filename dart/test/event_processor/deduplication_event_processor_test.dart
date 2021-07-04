@@ -86,7 +86,7 @@ void main() {
   });
 }
 
-SentryEvent createEvent(var message) {
+SentryEvent createEvent(String message) {
   return SentryEvent(throwable: Exception(message));
 }
 

@@ -186,7 +186,7 @@ void main() {
           message: SentryMessage(
             'test-message 1 2',
             template: 'test-message %d %d',
-            params: ['1', '2'],
+            params: <String>['1', '2'],
           ),
           transaction: '/test/1',
           level: SentryLevel.debug,
@@ -332,8 +332,8 @@ void main() {
             helpLink: 'https://help.com',
             synthetic: false,
             handled: true,
-            meta: {},
-            data: {},
+            meta: <String, dynamic>{},
+            data: <String, dynamic>{},
           ),
         );
       }
@@ -364,7 +364,7 @@ void main() {
         exception: SentryException(type: null, value: null),
         stackTrace: SentryStackTrace(frames: []),
         tags: {},
-        extra: {},
+        extra: <String, dynamic>{},
         contexts: Contexts(),
         fingerprint: [],
         breadcrumbs: [Breadcrumb()],

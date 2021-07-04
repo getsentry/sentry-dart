@@ -9,7 +9,7 @@ void main() {
     final copy = data.copyWith();
 
     expect(
-      MapEquality().equals(data.toJson(), copy.toJson()),
+      MapEquality<String, dynamic>().equals(data.toJson(), copy.toJson()),
       true,
     );
   });

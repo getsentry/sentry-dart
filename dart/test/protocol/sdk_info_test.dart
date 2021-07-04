@@ -22,7 +22,7 @@ void main() {
       final json = sdkInfo.toJson();
 
       expect(
-        MapEquality().equals(sdkInfoJson, json),
+        MapEquality<String, dynamic>().equals(sdkInfoJson, json),
         true,
       );
     });
@@ -31,7 +31,7 @@ void main() {
       final json = sdkInfo.toJson();
 
       expect(
-        MapEquality().equals(sdkInfoJson, json),
+        MapEquality<String, dynamic>().equals(sdkInfoJson, json),
         true,
       );
     });
@@ -44,7 +44,7 @@ void main() {
       final copy = data.copyWith();
 
       expect(
-        MapEquality().equals(data.toJson(), copy.toJson()),
+        MapEquality<String, dynamic>().equals(data.toJson(), copy.toJson()),
         true,
       );
     });

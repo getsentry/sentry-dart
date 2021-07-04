@@ -31,26 +31,34 @@ class Contexts extends MapView<String, dynamic> {
   factory Contexts.fromJson(Map<String, dynamic> data) {
     final contexts = Contexts(
       device: data[SentryDevice.type] != null
-          ? SentryDevice.fromJson(Map.from(data[SentryDevice.type] as Map))
+          ? SentryDevice.fromJson(
+              Map<String, dynamic>.from(data[SentryDevice.type] as Map))
           : null,
       operatingSystem: data[SentryOperatingSystem.type] != null
-          ? SentryOperatingSystem.fromJson(
-              Map.from(data[SentryOperatingSystem.type] as Map))
+          ? SentryOperatingSystem.fromJson(Map<String, dynamic>.from(
+              data[SentryOperatingSystem.type] as Map))
           : null,
       app: data[SentryApp.type] != null
-          ? SentryApp.fromJson(Map.from(data[SentryApp.type] as Map))
+          ? SentryApp.fromJson(
+              Map<String, dynamic>.from(data[SentryApp.type] as Map))
           : null,
       browser: data[SentryBrowser.type] != null
-          ? SentryBrowser.fromJson(Map.from(data[SentryBrowser.type] as Map))
+          ? SentryBrowser.fromJson(
+              Map<String, dynamic>.from(data[SentryBrowser.type] as Map))
           : null,
       culture: data[SentryCulture.type] != null
-          ? SentryCulture.fromJson(Map.from(data[SentryCulture.type] as Map))
+          ? SentryCulture.fromJson(
+              Map<String, dynamic>.from(data[SentryCulture.type] as Map))
           : null,
       gpu: data[SentryGpu.type] != null
-          ? SentryGpu.fromJson(Map.from(data[SentryGpu.type] as Map))
+          ? SentryGpu.fromJson(
+              Map<String, dynamic>.from(data[SentryGpu.type] as Map))
           : null,
       runtimes: data[SentryRuntime.type] != null
-          ? [SentryRuntime.fromJson(Map.from(data[SentryRuntime.type] as Map))]
+          ? [
+              SentryRuntime.fromJson(
+                  Map<String, dynamic>.from(data[SentryRuntime.type] as Map))
+            ]
           : null,
     );
 
@@ -80,7 +88,10 @@ class Contexts extends MapView<String, dynamic> {
   /// (for instance if you have a Flutter application running
   /// on top of Android).
   List<SentryRuntime> get runtimes => List.unmodifiable(
-      this[SentryRuntime.listType] as List<SentryRuntime>? ?? []);
+        (this[SentryRuntime.listType] as List<dynamic>?)
+                ?.cast<SentryRuntime>() ??
+            <SentryRuntime>[],
+      );
 
   void addRuntime(SentryRuntime runtime) =>
       this[SentryRuntime.listType].add(runtime);
@@ -120,7 +131,7 @@ class Contexts extends MapView<String, dynamic> {
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 
-    forEach((key, value) {
+    forEach((key, dynamic value) {
       if (value == null) return;
       switch (key) {
         case SentryDevice.type:

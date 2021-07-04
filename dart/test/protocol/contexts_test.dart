@@ -111,7 +111,7 @@ void main() {
       expect(device.toJson(), copy.device!.toJson());
       expect(os.toJson(), copy.operatingSystem!.toJson());
       expect(
-        ListEquality().equals(runtimes, copy.runtimes),
+        ListEquality<SentryRuntime>().equals(runtimes, copy.runtimes),
         true,
       );
       expect(app.toJson(), copy.app!.toJson());

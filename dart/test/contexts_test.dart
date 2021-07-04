@@ -130,7 +130,8 @@ void main() {
       contexts.runtimes.forEach((element) {
         expect(
           clone.runtimes.where(
-            (clone) => MapEquality().equals(element.toJson(), clone.toJson()),
+            (clone) => MapEquality<String, dynamic>()
+                .equals(element.toJson(), clone.toJson()),
           ),
           isNotEmpty,
         );
@@ -146,9 +147,9 @@ void main() {
       final contexts =
           Contexts.fromJson(jsonDecode(jsonContexts) as Map<String, dynamic>);
       expect(
-        MapEquality().equals(
-          contexts.operatingSystem!.toJson(),
-          {
+        MapEquality<String, dynamic>().equals(
+          contexts.operatingSystem?.toJson(),
+          <String, dynamic>{
             'build': '19H2',
             'rooted': false,
             'kernel_version':
@@ -160,7 +161,8 @@ void main() {
         true,
       );
       expect(
-        MapEquality().equals(contexts.device!.toJson(), {
+        MapEquality<String, dynamic>()
+            .equals(contexts.device!.toJson(), <String, dynamic>{
           'simulator': true,
           'model_id': 'simulator',
           'arch': 'x86',
@@ -177,9 +179,9 @@ void main() {
       );
 
       expect(
-        MapEquality().equals(
+        MapEquality<String, dynamic>().equals(
           contexts.app!.toJson(),
-          {
+          <String, dynamic>{
             'app_name': 'sentry_flutter_example',
             'app_version': '0.1.2',
             'app_identifier': 'io.sentry.flutter.example',
@@ -192,20 +194,24 @@ void main() {
         true,
       );
       expect(
-        MapEquality().equals(contexts.runtimes.first.toJson(), {
-          'name': 'testRT1',
-          'version': '1.0',
-          'raw_description': 'runtime description RT1 1.0'
-        }),
+        MapEquality<String, dynamic>().equals(
+          contexts.runtimes.first.toJson(),
+          <String, dynamic>{
+            'name': 'testRT1',
+            'version': '1.0',
+            'raw_description': 'runtime description RT1 1.0'
+          },
+        ),
         true,
       );
       expect(
-        MapEquality().equals(contexts.browser!.toJson(), {'version': '12.3.4'}),
+        MapEquality<String, dynamic>().equals(
+            contexts.browser!.toJson(), <String, dynamic>{'version': '12.3.4'}),
         true,
       );
       expect(
-        MapEquality()
-            .equals(contexts.gpu!.toJson(), {'name': 'Radeon', 'version': '1'}),
+        MapEquality<String, dynamic>().equals(contexts.gpu!.toJson(),
+            <String, dynamic>{'name': 'Radeon', 'version': '1'}),
         true,
       );
     });

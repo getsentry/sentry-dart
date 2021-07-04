@@ -65,11 +65,11 @@ void main() {
       );
 
       expect(
-        ListEquality().equals(integrations, copy.integrations),
+        ListEquality<String>().equals(integrations, copy.integrations),
         true,
       );
       expect(
-        ListEquality().equals(packages, copy.packages),
+        ListEquality<SentryPackage>().equals(packages, copy.packages),
         true,
       );
       expect('name1', copy.name);

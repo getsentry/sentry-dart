@@ -31,7 +31,7 @@ void main() {
       final json = sentryGpu.toJson();
 
       expect(
-        MapEquality().equals(sentryGpuJson, json),
+        MapEquality<String, dynamic>().equals(sentryGpuJson, json),
         true,
       );
     });
@@ -40,7 +40,7 @@ void main() {
       final json = sentryGpu.toJson();
 
       expect(
-        MapEquality().equals(sentryGpuJson, json),
+        MapEquality<String, dynamic>().equals(sentryGpuJson, json),
         true,
       );
     });
@@ -53,7 +53,7 @@ void main() {
       final copy = data.copyWith();
 
       expect(
-        MapEquality().equals(data.toJson(), copy.toJson()),
+        MapEquality<String, dynamic>().equals(data.toJson(), copy.toJson()),
         true,
       );
     });

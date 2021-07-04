@@ -29,9 +29,9 @@ class SentryRequest {
   /// Can be given as string or structural data of any format.
   dynamic get data {
     if (_data is List) {
-      return List.unmodifiable(_data as List);
+      return List<dynamic>.unmodifiable(_data as List);
     } else if (_data is Map) {
-      return Map.unmodifiable(_data as Map);
+      return Map<String, dynamic>.unmodifiable(_data as Map);
     }
 
     return _data;
@@ -43,17 +43,20 @@ class SentryRequest {
   /// If a header appears multiple times it,
   /// needs to be merged according to the HTTP standard for header merging.
   /// Header names are treated case-insensitively by Sentry.
-  Map<String, String> get headers => Map.unmodifiable(_headers ?? const {});
+  Map<String, String> get headers =>
+      Map.unmodifiable(_headers ?? const <String, String>{});
 
   final Map<String, String>? _env;
 
   /// An immutable dictionary containing environment information passed from the server.
   /// This is where information such as CGI/WSGI/Rack keys go that are not HTTP headers.
-  Map<String, String> get env => Map.unmodifiable(_env ?? const {});
+  Map<String, String> get env =>
+      Map.unmodifiable(_env ?? const <String, String>{});
 
   final Map<String, String>? _other;
 
-  Map<String, String> get other => Map.unmodifiable(_other ?? const {});
+  Map<String, String> get other =>
+      Map.unmodifiable(_other ?? const <String, String>{});
 
   SentryRequest({
     this.url,

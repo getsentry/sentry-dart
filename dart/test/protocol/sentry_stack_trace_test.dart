@@ -56,11 +56,11 @@ void main() {
       );
 
       expect(
-        ListEquality().equals(frames, copy.frames),
+        ListEquality<SentryStackFrame>().equals(frames, copy.frames),
         true,
       );
       expect(
-        MapEquality().equals(registers, copy.registers),
+        MapEquality<String, String>().equals(registers, copy.registers),
         true,
       );
     });
