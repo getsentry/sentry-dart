@@ -1,6 +1,9 @@
 include: package:pedantic/analysis_options.yaml
 
 analyzer:
+  language:
+    # https://github.com/dart-lang/language/blob/master/resources/type-system/strict-raw-types.md
+    strict-raw-types: true
   strong-mode:
     implicit-casts: false
     implicit-dynamic: false

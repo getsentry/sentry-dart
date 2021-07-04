@@ -65,7 +65,7 @@ class MockHub implements Hub {
     String? message, {
     SentryLevel? level = SentryLevel.info,
     String? template,
-    List? params,
+    List<dynamic>? params,
     dynamic hint,
     ScopeCallback? withScope,
   }) async {
@@ -128,7 +128,7 @@ class CaptureMessageCall {
   final String? message;
   final SentryLevel? level;
   final String? template;
-  final List? params;
+  final List<dynamic>? params;
   final dynamic hint;
 
   CaptureMessageCall(

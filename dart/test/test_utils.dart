@@ -52,7 +52,7 @@ void testHeaders(
   expect(headers, expectedHeaders);
 }
 
-Future testCaptureException(
+Future<void> testCaptureException(
   bool compressPayload,
   Codec<List<int>, List<int>?>? gzip,
   bool isWeb,
@@ -116,7 +116,7 @@ Future testCaptureException(
   final stacktrace =
       data['exception']['values'].first['stacktrace'] as Map<String, dynamic>;
 
-  expect(stacktrace['frames'], const TypeMatcher<List>());
+  expect(stacktrace['frames'], const TypeMatcher<List<dynamic>>());
   expect(stacktrace['frames'], isNotEmpty);
 
   final topFrame =
