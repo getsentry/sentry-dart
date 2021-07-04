@@ -132,11 +132,14 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
   final SentryFlutterOptions _options;
 
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {
+  FutureOr<SentryEvent?> apply(SentryEvent event, {dynamic hint}) async {
     try {
-      final infos = Map<String, dynamic>.from(
-        await (_channel.invokeMethod('loadContexts')),
-      );
+      final infos =
+          await _channel.invokeMethod<Map<String, dynamic>>('loadContexts');
+
+      if (infos == null) {
+        return event;
+      }
       if (infos['contexts'] != null) {
         final contexts = Contexts.fromJson(
           Map<String, dynamic>.from(infos['contexts'] as Map),
@@ -315,7 +318,7 @@ class _LoadAndroidImageListIntegrationEventProcessor extends EventProcessor {
   final SentryFlutterOptions _options;
 
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {
+  FutureOr<SentryEvent?> apply(SentryEvent event, {dynamic hint}) async {
     try {
       if (event.exception != null && event.exception!.stackTrace != null) {
         final needsSymbolication = event.exception!.stackTrace!.frames
@@ -332,11 +335,10 @@ class _LoadAndroidImageListIntegrationEventProcessor extends EventProcessor {
 
       // we call on every event because the loaded image list is cached
       // and it could be changed on the Native side.
-      final imageList = List<Map<dynamic, dynamic>>.from(
-        await (_channel.invokeMethod('loadImageList')),
-      );
+      final imageList = await _channel
+          .invokeMethod<List<Map<dynamic, dynamic>>>('loadImageList');
 
-      if (imageList.isEmpty) {
+      if (imageList == null || imageList.isEmpty) {
         return event;
       }
 

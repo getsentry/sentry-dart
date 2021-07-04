@@ -140,7 +140,7 @@ class FlutterEnricherEventProcessor extends EventProcessor {
   Map<String, dynamic> _getAccessibilityContext() {
     final window = _window;
     if (window == null) {
-      return {};
+      return <String, dynamic>{};
     }
     return <String, dynamic>{
       'accessible_navigation':
