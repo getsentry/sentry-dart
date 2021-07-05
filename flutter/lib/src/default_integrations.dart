@@ -135,15 +135,14 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
   FutureOr<SentryEvent?> apply(SentryEvent event, {dynamic hint}) async {
     try {
       final infos =
-          await _channel.invokeMethod<Map<String, dynamic>>('loadContexts');
+          await _channel.invokeMethod<Map<Object?, Object?>?>('loadContexts');
 
       if (infos == null) {
         return event;
       }
-      if (infos['contexts'] != null) {
-        final contexts = Contexts.fromJson(
-          Map<String, dynamic>.from(infos['contexts'] as Map),
-        );
+      final contextMap = infos['contexts'] as Map<Object?, Object?>?;
+      if (contextMap != null) {
+        final contexts = Contexts.fromJson(contextMap.cast<String, dynamic>());
         final eventContexts = event.contexts.clone();
 
         contexts.forEach(
@@ -160,15 +159,17 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
         event = event.copyWith(contexts: eventContexts);
       }
 
-      if (infos['integrations'] != null) {
-        final integrations = List<String>.from(infos['integrations'] as List);
+      final integrationList = infos['integrations'] as List<Object?>?;
+      if (integrationList != null) {
+        final integrations = integrationList.cast<String>();
         final sdk = event.sdk ?? _options.sdk;
         integrations.forEach(sdk.addIntegration);
         event = event.copyWith(sdk: sdk);
       }
 
-      if (infos['package'] != null) {
-        final package = Map<String, String>.from(infos['package'] as Map);
+      final infoMap = infos['package'] as Map<Object?, Object?>?;
+      if (infoMap != null) {
+        final package = infoMap.cast<String, String>();
         final sdk = event.sdk ?? _options.sdk;
         sdk.addPackage(package['sdk_name']!, package['version']!);
         event = event.copyWith(sdk: sdk);
@@ -335,8 +336,8 @@ class _LoadAndroidImageListIntegrationEventProcessor extends EventProcessor {
 
       // we call on every event because the loaded image list is cached
       // and it could be changed on the Native side.
-      final imageList = await _channel
-          .invokeMethod<List<Map<dynamic, dynamic>>>('loadImageList');
+      final imageList =
+          await _channel.invokeMethod<List<Object?>>('loadImageList');
 
       if (imageList == null || imageList.isEmpty) {
         return event;
@@ -345,6 +346,9 @@ class _LoadAndroidImageListIntegrationEventProcessor extends EventProcessor {
       final newDebugImages = <DebugImage>[];
 
       for (final item in imageList) {
+        if (!(item is Map<dynamic, dynamic>)) {
+          continue;
+        }
         final codeFile = item['code_file'] as String?;
         final codeId = item['code_id'] as String?;
         final imageAddr = item['image_addr'] as String?;
