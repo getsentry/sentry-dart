@@ -51,19 +51,22 @@ void main() {
   });
 
   group('$Scope $SentryAttachment tests', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
     test('Sending with attachments', () async {
-      final options = SentryOptions(dsn: fakeDsn);
-      final transport = MockTransport();
-      options.transport = transport;
-      final hub = Hub(options);
-      await hub.captureEvent(SentryEvent(), withScope: (scope) {
+      final sut = fixture.getSut();
+      await sut.captureEvent(SentryEvent(), withScope: (scope) {
         scope.addAttachment(
           SentryAttachment.fromIntList([0, 0, 0, 0], 'test.txt'),
         );
       });
-      expect(transport.envelopes.length, 1);
-      expect(transport.envelopes.first.items.length, 2);
-      final attachmentEnvelope = transport.envelopes.first.items[1];
+      expect(fixture.transport.envelopes.length, 1);
+      expect(fixture.transport.envelopes.first.items.length, 2);
+      final attachmentEnvelope = fixture.transport.envelopes.first.items[1];
       expect(
         attachmentEnvelope.header.attachmentType,
         SentryAttachment.typeAttachmentDefault,
@@ -82,4 +85,14 @@ void main() {
       );
     });
   });
+}
+
+class Fixture {
+  MockTransport transport = MockTransport();
+
+  Hub getSut() {
+    final options = SentryOptions(dsn: fakeDsn);
+    options.transport = transport;
+    return Hub(options);
+  }
 }
