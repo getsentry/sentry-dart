@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-import '../../sentry_flutter.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 class UserFeedbackDialog extends StatefulWidget {
   const UserFeedbackDialog({

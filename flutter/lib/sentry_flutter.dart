@@ -6,4 +6,3 @@ export 'src/navigation/sentry_navigator_observer.dart';
 export 'src/sentry_flutter.dart';
 export 'src/sentry_flutter_options.dart';
 export 'src/flutter_sentry_attachment.dart';
-export 'src/ui/user_feedback_dialog.dart';
