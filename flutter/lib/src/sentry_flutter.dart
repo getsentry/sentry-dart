@@ -5,6 +5,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
 
 import 'flutter_enricher_event_processor.dart';
+import 'integrations/frame_timing_integration.dart';
 import 'sentry_flutter_options.dart';
 
 import 'default_integrations.dart';
