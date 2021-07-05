@@ -32,32 +32,30 @@ class Contexts extends MapView<String, dynamic> {
     final contexts = Contexts(
       device: data[SentryDevice.type] != null
           ? SentryDevice.fromJson(
-              Map<String, dynamic>.from(data[SentryDevice.type] as Map))
+              data[SentryDevice.type] as Map<String, dynamic>)
           : null,
       operatingSystem: data[SentryOperatingSystem.type] != null
-          ? SentryOperatingSystem.fromJson(Map<String, dynamic>.from(
-              data[SentryOperatingSystem.type] as Map))
+          ? SentryOperatingSystem.fromJson(
+              data[SentryOperatingSystem.type] as Map<String, dynamic>)
           : null,
       app: data[SentryApp.type] != null
-          ? SentryApp.fromJson(
-              Map<String, dynamic>.from(data[SentryApp.type] as Map))
+          ? SentryApp.fromJson(data[SentryApp.type] as Map<String, dynamic>)
           : null,
       browser: data[SentryBrowser.type] != null
           ? SentryBrowser.fromJson(
-              Map<String, dynamic>.from(data[SentryBrowser.type] as Map))
+              data[SentryBrowser.type] as Map<String, dynamic>)
           : null,
       culture: data[SentryCulture.type] != null
           ? SentryCulture.fromJson(
-              Map<String, dynamic>.from(data[SentryCulture.type] as Map))
+              data[SentryCulture.type] as Map<String, dynamic>)
           : null,
       gpu: data[SentryGpu.type] != null
-          ? SentryGpu.fromJson(
-              Map<String, dynamic>.from(data[SentryGpu.type] as Map))
+          ? SentryGpu.fromJson(data[SentryGpu.type] as Map<String, dynamic>)
           : null,
       runtimes: data[SentryRuntime.type] != null
           ? [
               SentryRuntime.fromJson(
-                  Map<String, dynamic>.from(data[SentryRuntime.type] as Map))
+                  data[SentryRuntime.type] as Map<String, dynamic>)
             ]
           : null,
     );
