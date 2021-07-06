@@ -28,10 +28,11 @@ class SentryRequest {
   /// SDKs should discard large bodies by default.
   /// Can be given as string or structural data of any format.
   dynamic get data {
-    if (_data is List) {
-      return List<dynamic>.unmodifiable(_data as List);
-    } else if (_data is Map) {
-      return Map<String, dynamic>.unmodifiable(_data as Map);
+    dynamic requestData = _data;
+    if (requestData is List) {
+      return List<dynamic>.unmodifiable(requestData);
+    } else if (requestData is Map) {
+      return Map<String, dynamic>.unmodifiable(requestData);
     }
 
     return _data;
