@@ -3,6 +3,8 @@ import 'package:meta/meta.dart';
 import '../protocol.dart';
 import '../throwable_mechanism.dart';
 import '../utils.dart';
+import '../scope.dart';
+import 'sentry_thread.dart';
 
 /// An event to be reported to Sentry.io.
 @immutable
@@ -16,6 +18,8 @@ class SentryEvent {
     Map<String, dynamic>? extra,
     List<String>? fingerprint,
     List<Breadcrumb>? breadcrumbs,
+    List<SentryException>? exceptions,
+    List<SentryThread>? threads,
     this.sdk,
     this.platform,
     this.logger,
@@ -26,8 +30,6 @@ class SentryEvent {
     this.message,
     this.transaction,
     dynamic throwable,
-    this.stackTrace,
-    this.exception,
     this.level,
     this.culprit,
     this.user,
@@ -42,6 +44,8 @@ class SentryEvent {
         extra = extra != null ? Map.from(extra) : null,
         fingerprint = fingerprint != null ? List.from(fingerprint) : null,
         breadcrumbs = breadcrumbs != null ? List.from(breadcrumbs) : null,
+        exceptions = exceptions != null ? List.from(exceptions) : null,
+        threads = threads != null ? List.from(threads) : null,
         _throwable = throwable;
 
   /// Refers to the default fingerprinting algorithm.
@@ -88,23 +92,25 @@ class SentryEvent {
   ///
   /// It's `runtimeType` and `toString()` are logged.
   /// If it's an Error, with a stackTrace, the stackTrace is logged.
-  /// If this behavior is undesirable, consider using a custom formatted [message] instead.
+  /// If this behavior is undesirable, consider using a custom formatted
+  /// [message] instead.
   dynamic get throwable => (_throwable is ThrowableMechanism)
       ? (_throwable as ThrowableMechanism).throwable
       : _throwable;
 
-  /// A Throwable decorator that holds a Mechanism related to the decorated Throwable
+  /// A throwable decorator that holds a [Mechanism] related to the decorated
+  /// [throwable]
   ///
-  /// Use the 'throwable' directly if you don't want the decorated Throwable
+  /// Use the [throwable] directly if you don't want the decorated throwable
   dynamic get throwableMechanism => _throwable;
 
-  /// an optional attached StackTrace
-  /// used when event has no throwable or exception, see [SentryOptions.attachStacktrace]
-  final SentryStackTrace? stackTrace;
+  /// One or multiple chained (nested) exceptions that occurred in a program.
+  final List<SentryException>? exceptions;
 
-  /// an exception or error that occurred in a program
-  /// TODO more doc
-  final SentryException? exception;
+  /// The Threads Interface specifies threads that were running at the time an
+  /// event happened. These threads can also contain stack traces.
+  /// Typically not needed in Dart applications.
+  final List<SentryThread>? threads;
 
   /// The name of the transaction which generated this event,
   /// for example, the route name: `"/users/<username>/"`.
@@ -128,7 +134,8 @@ class SentryEvent {
   /// List of breadcrumbs for this event.
   ///
   /// See also:
-  /// * https://docs.sentry.io/enriching-error-data/breadcrumbs/?platform=javascript
+  /// * https://docs.sentry.io/platforms/dart/enriching-events/breadcrumbs/
+  /// * https://docs.sentry.io/platforms/flutter/enriching-events/breadcrumbs/
   final List<Breadcrumb>? breadcrumbs;
 
   /// Information about the current user.
@@ -151,22 +158,26 @@ class SentryEvent {
   /// [defaultFingerprint] to the list in addition to your custom values.
   ///
   /// Examples:
-  ///
-  ///     // A completely custom fingerprint:
-  ///     var custom = ['foo', 'bar', 'baz'];
-  ///     // A fingerprint that supplements the default one with value 'foo':
-  ///     var supplemented = [SentryEvent.defaultFingerprint, 'foo'];
+  /// ```dart
+  /// // A completely custom fingerprint:
+  /// var custom = ['foo', 'bar', 'baz'];
+  /// // A fingerprint that supplements the default one with value 'foo':
+  /// var supplemented = [SentryEvent.defaultFingerprint, 'foo'];
+  /// ```
   final List<String>? fingerprint;
 
-  /// The SDK Interface describes the Sentry SDK and its configuration used to capture and transmit an event.
+  /// The SDK Interface describes the Sentry SDK and its configuration used
+  /// to capture and transmit an event.
   final SdkVersion? sdk;
 
-  ///  contains information on a HTTP request related to the event.
-  ///  In client, this can be an outgoing request, or the request that rendered the current web page.
-  ///  On server, this could be the incoming web request that is being handled
+  /// Contains information on a HTTP request related to the event.
+  /// In client, this can be an outgoing request, or the request that rendered
+  /// the current web page.
+  /// On server, this could be the incoming web request that is being handled
   final SentryRequest? request;
 
-  /// The debug meta interface carries debug information for processing errors and crash reports.
+  /// The debug meta interface carries debug information for processing errors
+  /// and crash reports.
   final DebugMeta? debugMeta;
 
   SentryEvent copyWith({
@@ -182,7 +193,6 @@ class SentryEvent {
     SentryMessage? message,
     String? transaction,
     dynamic throwable,
-    SentryException? exception,
     dynamic stackTrace,
     SentryLevel? level,
     String? culprit,
@@ -195,6 +205,8 @@ class SentryEvent {
     SdkVersion? sdk,
     SentryRequest? request,
     DebugMeta? debugMeta,
+    List<SentryException>? exceptions,
+    List<SentryThread>? threads,
   }) =>
       SentryEvent(
         eventId: eventId ?? this.eventId,
@@ -209,8 +221,6 @@ class SentryEvent {
         message: message ?? this.message,
         transaction: transaction ?? this.transaction,
         throwable: throwable ?? _throwable,
-        exception: exception ?? this.exception,
-        stackTrace: stackTrace ?? this.stackTrace,
         level: level ?? this.level,
         culprit: culprit ?? this.culprit,
         tags: (tags != null ? Map.from(tags) : null) ?? this.tags,
@@ -224,29 +234,26 @@ class SentryEvent {
         sdk: sdk ?? this.sdk,
         request: request ?? this.request,
         debugMeta: debugMeta ?? this.debugMeta,
+        exceptions: (exceptions != null ? List.from(exceptions) : null) ??
+            this.exceptions,
+        threads: (threads != null ? List.from(threads) : null) ?? this.threads,
       );
 
   /// Deserializes a [SentryEvent] from JSON [Map].
   factory SentryEvent.fromJson(Map<String, dynamic> json) {
     final breadcrumbsJson = json['breadcrumbs'] as List<dynamic>?;
-    final breadcrumbs = breadcrumbsJson?.map((e) {
-      return Breadcrumb.fromJson(e);
-    }).toList();
+    final breadcrumbs =
+        breadcrumbsJson?.map((e) => Breadcrumb.fromJson(e)).toList();
 
-    final stackTraceValuesJson = json['threads']?['values'];
-    Map<String, dynamic>? stackTraceValuesStacktraceJson;
-    if (stackTraceValuesJson?.isNotEmpty == true) {
-      stackTraceValuesStacktraceJson = {};
-      stackTraceValuesStacktraceJson =
-          stackTraceValuesJson?.first['stacktrace'];
-    }
+    final threadValues = json['threads']?['values'] as List<dynamic>?;
+    final threads = threadValues
+        ?.map((e) => SentryThread.fromJson(e))
+        .toList(growable: false);
 
-    final exceptionValuesJson = json['exception']?['values'];
-    Map<String, dynamic>? exceptionValuesItemJson;
-    if (exceptionValuesJson?.isNotEmpty == true) {
-      exceptionValuesItemJson = {};
-      exceptionValuesItemJson = exceptionValuesJson?.first;
-    }
+    final exceptionValues = json['exception']?['values'] as List<dynamic>?;
+    final exceptions = exceptionValues
+        ?.map((e) => SentryException.fromJson(e))
+        .toList(growable: false);
 
     final modules = json['modules']?.cast<String, String>();
     final tags = json['tags']?.cast<String, String>();
@@ -283,14 +290,7 @@ class SentryEvent {
           ? SentryMessage.fromJson(messageJson)
           : null,
       transaction: json['transaction'],
-      stackTrace: stackTraceValuesStacktraceJson != null &&
-              stackTraceValuesStacktraceJson.isNotEmpty
-          ? SentryStackTrace.fromJson(stackTraceValuesStacktraceJson)
-          : null,
-      exception:
-          exceptionValuesItemJson != null && exceptionValuesItemJson.isNotEmpty
-              ? SentryException.fromJson(exceptionValuesItemJson)
-              : null,
+      threads: threads,
       level: levelJson != null ? SentryLevel.fromName(levelJson) : null,
       culprit: json['culprit'],
       user: userJson != null && userJson.isNotEmpty
@@ -305,6 +305,7 @@ class SentryEvent {
       debugMeta: debugMetaJson != null && debugMetaJson.isNotEmpty
           ? DebugMeta.fromJson(debugMetaJson)
           : null,
+      exceptions: exceptions,
     );
   }
 
@@ -353,23 +354,20 @@ class SentryEvent {
       json['transaction'] = transaction;
     }
 
-    final exceptionMap = exception?.toJson();
-    final stackTraceMap = stackTrace?.toJson();
-    if (exceptionMap?.isNotEmpty ?? false) {
-      json['exception'] = {
-        'values': [exceptionMap].toList(growable: false)
-      };
-    } else if (stackTraceMap?.isNotEmpty ?? false) {
-      json['threads'] = {
-        'values': [
-          {
-            'id': 0,
-            'stacktrace': stackTraceMap,
-            'crashed': true,
-            'name': 'Current Isolate',
-          }
-        ]
-      };
+    final exceptionsJson = exceptions
+        ?.map((e) => e.toJson())
+        .where((e) => e.isNotEmpty)
+        .toList(growable: false);
+    if (exceptionsJson != null && exceptionsJson.isNotEmpty) {
+      json['exception'] = {'values': exceptionsJson};
+    }
+
+    final threadJson = threads
+        ?.map((e) => e.toJson())
+        .where((e) => e.isNotEmpty)
+        .toList(growable: false);
+    if (threadJson != null && threadJson.isNotEmpty) {
+      json['threads'] = {'values': threadJson};
     }
 
     if (level != null) {
