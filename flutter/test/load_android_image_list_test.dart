@@ -146,7 +146,7 @@ SentryEvent getEvent({bool symbolicated = false}) {
     value: 'value',
     stackTrace: st,
   );
-  return SentryEvent(exception: ex);
+  return SentryEvent(exceptions: [ex]);
 }
 
 class Fixture {

@@ -130,13 +130,18 @@ class SentryClient {
 
     event = _applyDefaultPii(event);
 
-    if (event.exception != null) return event;
+    if (event.exceptions != null) return event;
 
     if (event.throwableMechanism != null) {
-      final sentryException = _exceptionFactory
-          .getSentryException(event.throwableMechanism, stackTrace: stackTrace);
+      final sentryException = _exceptionFactory.getSentryException(
+        event.throwableMechanism,
+        stackTrace: stackTrace,
+      );
 
-      return event.copyWith(exception: sentryException);
+      return event.copyWith(exceptions: [
+        ...(event.exceptions ?? []),
+        sentryException,
+      ]);
     }
 
     if (stackTrace != null || _options.attachStacktrace) {
