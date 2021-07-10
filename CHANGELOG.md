@@ -1,5 +1,7 @@
 # Unreleased
 
+* Fix: Serialization of Flutter Context (#520)
+
 # 6.0.0-beta.1
 
 * Feat: Browser detection (#502)
