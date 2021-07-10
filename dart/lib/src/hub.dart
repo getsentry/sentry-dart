@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:sentry/src/protocol/sentry_span.dart';
+import 'package:sentry/src/protocol/sentry_transaction.dart';
+
 import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_client.dart';
@@ -278,6 +281,20 @@ class Hub {
         );
       }
     }
+  }
+
+  Map<String, String> traceHeaders() {
+    return {'sentry-trace': ''};
+  }
+
+  void startTransaction() {}
+
+  SentrySpan get span {
+    throw Exception();
+  }
+
+  Future<SentryId> captureTransaction(SentryTransaction transaction) async {
+    return SentryId.empty();
   }
 }
 

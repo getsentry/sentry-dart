@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'protocol/sentry_transaction.dart';
 import 'sentry_envelope_header.dart';
 import 'sentry_envelope_item.dart';
 import 'protocol/sentry_event.dart';
@@ -19,6 +19,16 @@ class SentryEnvelope {
   factory SentryEnvelope.fromEvent(SentryEvent event, SdkVersion sdkVersion) {
     return SentryEnvelope(SentryEnvelopeHeader(event.eventId, sdkVersion),
         [SentryEnvelopeItem.fromEvent(event)]);
+  }
+
+  factory SentryEnvelope.fromTransaction(
+    SentryTransaction transaction,
+    SdkVersion sdkVersion,
+  ) {
+    return SentryEnvelope(
+      SentryEnvelopeHeader(transaction.eventId, sdkVersion),
+      [SentryEnvelopeItem.fromTransaction(transaction)],
+    );
   }
 
   /// Stream binary data representation of `Envelope` file encoded.

@@ -1,7 +1,8 @@
 import 'dart:convert';
 
-import 'sentry_item_type.dart';
+import 'protocol/sentry_transaction.dart';
 import 'protocol/sentry_event.dart';
+import 'sentry_item_type.dart';
 import 'sentry_envelope_item_header.dart';
 
 /// Item holding header information and JSON encoded data.
@@ -14,7 +15,26 @@ class SentryEnvelopeItem {
   /// Create binary data representation of item data.
   final Future<List<int>> Function() dataFactory;
 
-  /// Create an `SentryEnvelopeItem` which holds the `SentyEvent` data.
+  /// Creates an [SentryEnvelopeItem] which sends [SentryTransaction].
+  factory SentryEnvelopeItem.fromTransaction(SentryTransaction transaction) {
+    final cachedItem = _CachedItem(() async {
+      final jsonEncoded = jsonEncode(transaction.toJson());
+      return utf8.encode(jsonEncoded);
+    });
+
+    final getLength = () async {
+      return (await cachedItem.getData()).length;
+    };
+
+    final header = SentryEnvelopeItemHeader(
+      SentryItemType.transaction,
+      getLength,
+      contentType: 'application/json',
+    );
+    return SentryEnvelopeItem(header, cachedItem.getData);
+  }
+
+  /// Create an [SentryEnvelopeItem] which holds the [SentryEvent] data.
   factory SentryEnvelopeItem.fromEvent(SentryEvent event) {
     final cachedItem = _CachedItem(() async {
       final jsonEncoded = jsonEncode(event.toJson());

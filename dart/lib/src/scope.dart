@@ -1,4 +1,7 @@
 import 'dart:collection';
+import 'package:sentry/src/protocol/sentry_span.dart';
+import 'package:sentry/src/protocol/sentry_transaction.dart';
+import 'package:sentry/src/protocol/span_interface.dart';
 
 import 'event_processor.dart';
 import 'protocol.dart';
@@ -11,7 +14,10 @@ class Scope {
 
   /// The name of the transaction which generated this event,
   /// for example, the route name: `"/users/<username>/"`.
-  String? transaction;
+  String? transactionName;
+
+  /// Returns active transaction or null if there is no active transaction.
+  SentryTransaction? transaction;
 
   /// Information about the current user.
   SentryUser? user;
@@ -121,6 +127,12 @@ class Scope {
     _breadcrumbs.clear();
   }
 
+  /// Resets [transaction] and [transactionName] to null
+  void clearTransaction() {
+    transaction = null;
+    transactionName = null;
+  }
+
   /// Adds an event processor
   void addEventProcessor(EventProcessor eventProcessor) {
     _eventProcessors.add(eventProcessor);
@@ -158,7 +170,7 @@ class Scope {
 
   Future<SentryEvent?> applyToEvent(SentryEvent event, dynamic hint) async {
     event = event.copyWith(
-      transaction: event.transaction ?? transaction,
+      transaction: event.transaction ?? transactionName,
       user: _mergeUsers(user, event.user),
       fingerprint: (event.fingerprint?.isNotEmpty ?? false)
           ? event.fingerprint
@@ -261,7 +273,8 @@ class Scope {
     final clone = Scope(_options)
       ..user = user
       ..fingerprint = List.from(fingerprint)
-      ..transaction = transaction;
+      ..transaction = transaction
+      ..transactionName = transactionName;
 
     for (final tag in _tags.keys) {
       clone.setTag(tag, _tags[tag]!);
@@ -286,5 +299,9 @@ class Scope {
     });
 
     return clone;
+  }
+
+  SpanInterface get span {
+    return (transaction?.root ?? transaction)!;
   }
 }
