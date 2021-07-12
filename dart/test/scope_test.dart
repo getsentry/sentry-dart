@@ -24,9 +24,9 @@ void main() {
   test('sets transaction', () {
     final sut = fixture.getSut();
 
-    sut.transaction = 'test';
+    sut.transactionName = 'test';
 
-    expect(sut.transaction, 'test');
+    expect(sut.transactionName, 'test');
   });
 
   test('sets $SentryUser', () {
@@ -198,7 +198,7 @@ void main() {
     sut.addBreadcrumb(breadcrumb1);
 
     sut.level = SentryLevel.debug;
-    sut.transaction = 'test';
+    sut.transactionName = 'test';
 
     final user = SentryUser(id: 'test');
     sut.user = user;
@@ -266,7 +266,7 @@ void main() {
         ..user = scopeUser
         ..fingerprint = ['example-dart']
         ..addBreadcrumb(breadcrumb)
-        ..transaction = '/example/app'
+        ..transactionName = '/example/app'
         ..level = SentryLevel.warning
         ..setTag('build', '579')
         ..setExtra('company-name', 'Dart Inc')
@@ -302,7 +302,7 @@ void main() {
         ..user = scopeUser
         ..fingerprint = ['example-dart']
         ..addBreadcrumb(breadcrumb)
-        ..transaction = '/example/app';
+        ..transactionName = '/example/app';
 
       final updatedEvent = await scope.applyToEvent(event, null);
 

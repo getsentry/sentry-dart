@@ -351,7 +351,7 @@ void main() {
       scope = Scope(options)
         ..user = user
         ..level = level
-        ..transaction = transaction
+        ..transactionName = transaction
         ..fingerprint = fingerprint
         ..addBreadcrumb(crumb)
         ..setTag(scopeTagKey, scopeTagValue)
@@ -405,7 +405,7 @@ void main() {
     Scope createScope(SentryOptions options) {
       return Scope(options)
         ..user = user
-        ..transaction = transaction
+        ..transactionName = transaction
         ..fingerprint = fingerprint
         ..addBreadcrumb(crumb);
     }

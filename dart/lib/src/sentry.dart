@@ -215,4 +215,12 @@ class Sentry {
 
     return true;
   }
+
+  static Future<SentryId> captureTransaction(SentryTransaction transaction) {
+    return _hub.captureTransaction(transaction);
+  }
+
+  static SentryTransaction startTransaction(SentryTransactionContext context) {
+    return SentryTransaction(context: context, hub: _hub);
+  }
 }

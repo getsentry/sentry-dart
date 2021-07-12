@@ -200,6 +200,19 @@ class SentryClient {
     return captureEvent(event, scope: scope, hint: hint);
   }
 
+  Future<SentryId> captureTransaction(SentryTransaction transaction) async {
+    SentryEvent? event = _prepareEvent(transaction.data);
+    event =
+        await _processEvent(event, eventProcessors: _options.eventProcessors);
+    if (event == null) {
+      return SentryId.empty();
+    }
+    transaction.data = event;
+    final id = await captureEnvelope(
+        SentryEnvelope.fromTransaction(transaction, _options.sdk));
+    return id!;
+  }
+
   /// Reports the [envelope] to Sentry.io.
   Future<SentryId?> captureEnvelope(SentryEnvelope envelope) {
     return _options.transport.send(envelope);

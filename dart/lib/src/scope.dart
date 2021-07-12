@@ -1,8 +1,4 @@
 import 'dart:collection';
-import 'package:sentry/src/protocol/sentry_span.dart';
-import 'package:sentry/src/protocol/sentry_transaction.dart';
-import 'package:sentry/src/protocol/span_interface.dart';
-
 import 'event_processor.dart';
 import 'protocol.dart';
 import 'sentry_options.dart';

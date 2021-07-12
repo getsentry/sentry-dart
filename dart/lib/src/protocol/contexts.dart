@@ -1,5 +1,7 @@
 import 'dart:collection';
 
+import '../protocol/sentry_span.dart';
+
 import '../protocol.dart';
 
 /// The context interfaces provide additional context data.
@@ -17,6 +19,7 @@ class Contexts extends MapView<String, dynamic> {
     SentryBrowser? browser,
     SentryGpu? gpu,
     SentryCulture? culture,
+    SentrySpanContext? trace,
   }) : super({
           SentryDevice.type: device,
           SentryOperatingSystem.type: operatingSystem,
@@ -25,6 +28,7 @@ class Contexts extends MapView<String, dynamic> {
           SentryBrowser.type: browser,
           SentryGpu.type: gpu,
           SentryCulture.type: culture,
+          SentrySpanContext.type: trace,
         });
 
   /// Deserializes [Contexts] from JSON [Map].
@@ -48,6 +52,9 @@ class Contexts extends MapView<String, dynamic> {
           : null,
       gpu: data[SentryGpu.type] != null
           ? SentryGpu.fromJson(Map.from(data[SentryGpu.type]))
+          : null,
+      trace: data[SentrySpanContext.type] != null
+          ? SentrySpanContext.fromJson(Map.from(data[SentrySpanContext.type]))
           : null,
       runtimes: data[SentryRuntime.type] != null
           ? [SentryRuntime.fromJson(Map.from(data[SentryRuntime.type]))]
@@ -116,6 +123,11 @@ class Contexts extends MapView<String, dynamic> {
 
   set gpu(SentryGpu? gpu) => this[SentryGpu.type] = gpu;
 
+  /// Trace context describes the GPU of the device.
+  SentrySpanContext? get trace => this[SentrySpanContext.type];
+
+  set trace(SentrySpanContext? trace) => this[SentrySpanContext.type] = trace;
+
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -161,6 +173,13 @@ class Contexts extends MapView<String, dynamic> {
           final gpuMap = gpu?.toJson();
           if (gpuMap?.isNotEmpty ?? false) {
             json[SentryGpu.type] = gpuMap;
+          }
+          break;
+
+        case SentrySpanContext.type:
+          final traceMap = trace?.toJson();
+          if (traceMap?.isNotEmpty ?? false) {
+            json[SentrySpanContext.type] = traceMap;
           }
           break;
 
@@ -212,6 +231,7 @@ class Contexts extends MapView<String, dynamic> {
       browser: browser?.clone(),
       culture: culture?.clone(),
       gpu: gpu?.clone(),
+      trace: trace?.clone(),
       runtimes: runtimes.map((runtime) => runtime.clone()).toList(),
     )..addEntries(
         entries.where((element) => !_defaultFields.contains(element.key)),
@@ -228,6 +248,7 @@ class Contexts extends MapView<String, dynamic> {
     SentryBrowser? browser,
     SentryCulture? culture,
     SentryGpu? gpu,
+    SentrySpanContext? trace,
   }) =>
       Contexts(
         device: device ?? this.device,
@@ -237,6 +258,7 @@ class Contexts extends MapView<String, dynamic> {
         browser: browser ?? this.browser,
         gpu: gpu ?? this.gpu,
         culture: culture ?? this.culture,
+        trace: trace ?? this.trace,
       )..addEntries(
           entries.where((element) => !_defaultFields.contains(element.key)),
         );
@@ -250,5 +272,6 @@ class Contexts extends MapView<String, dynamic> {
     SentryGpu.type,
     SentryBrowser.type,
     SentryCulture.type,
+    SentrySpanContext.type,
   ];
 }

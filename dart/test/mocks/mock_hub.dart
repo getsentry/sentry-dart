@@ -102,6 +102,27 @@ class MockHub implements Hub {
   @override
   // TODO: implement lastEventId
   SentryId get lastEventId => throw UnimplementedError();
+
+  @override
+  Future<SentryId> captureTransaction(SentryTransaction transaction) {
+    // TODO: implement captureTransaction
+    throw UnimplementedError();
+  }
+
+  @override
+  // TODO: implement span
+  SentrySpan get span => throw UnimplementedError();
+
+  @override
+  void startTransaction() {
+    // TODO: implement startTransaction
+  }
+
+  @override
+  Map<String, String> traceHeaders() {
+    // TODO: implement traceHeaders
+    throw UnimplementedError();
+  }
 }
 
 class CaptureEventCall {

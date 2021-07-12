@@ -6,6 +6,7 @@ class MockSentryClient implements SentryClient {
   List<CaptureExceptionCall> captureExceptionCalls = [];
   List<CaptureMessageCall> captureMessageCalls = [];
   List<CaptureEnvelopeCall> captureEnvelopeCalls = [];
+  List<CaptureTransactionCall> captureTransactionCalls = [];
   int closeCalls = 0;
 
   @override
@@ -70,6 +71,12 @@ class MockSentryClient implements SentryClient {
   void close() {
     closeCalls = closeCalls + 1;
   }
+
+  @override
+  Future<SentryId> captureTransaction(SentryTransaction transaction) async {
+    captureTransactionCalls.add(CaptureTransactionCall(transaction));
+    return SentryId.newId();
+  }
 }
 
 class CaptureEventCall {
@@ -122,4 +129,10 @@ class CaptureEnvelopeCall {
   final SentryEnvelope envelope;
 
   CaptureEnvelopeCall(this.envelope);
+}
+
+class CaptureTransactionCall {
+  final SentryTransaction transaction;
+
+  CaptureTransactionCall(this.transaction);
 }

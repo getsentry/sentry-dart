@@ -1,9 +1,5 @@
 import 'dart:async';
 import 'dart:collection';
-
-import 'package:sentry/src/protocol/sentry_span.dart';
-import 'package:sentry/src/protocol/sentry_transaction.dart';
-
 import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_client.dart';
@@ -294,7 +290,35 @@ class Hub {
   }
 
   Future<SentryId> captureTransaction(SentryTransaction transaction) async {
-    return SentryId.empty();
+    var sentryId = SentryId.empty();
+
+    if (!_isEnabled) {
+      _options.logger(
+        SentryLevel.warning,
+        "Instance is disabled and this 'captureEvent' call is a no-op.",
+      );
+    } else {
+      final item = _peek();
+      final event = await item.scope.applyToEvent(transaction.data, null);
+      if (event == null) {
+        return SentryId.empty();
+      }
+      transaction.data = event;
+
+      try {
+        return await item.client.captureTransaction(transaction);
+      } catch (exception, stackTrace) {
+        _options.logger(
+          SentryLevel.error,
+          'Error while capturing transaction with id: ${transaction.eventId}',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+      } finally {
+        _lastEventId = sentryId;
+      }
+    }
+    return sentryId;
   }
 }
 

@@ -157,4 +157,19 @@ class NoOpHub implements Hub {
 
   @override
   SentryId get lastEventId => SentryId.empty();
+
+  @override
+  Future<SentryId> captureTransaction(SentryTransaction transaction) =>
+      Future.value(SentryId.empty());
+
+  @override
+  SentrySpan get span => throw UnimplementedError();
+
+  @override
+  void startTransaction() {}
+
+  @override
+  Map<String, String> traceHeaders() {
+    throw UnimplementedError();
+  }
 }

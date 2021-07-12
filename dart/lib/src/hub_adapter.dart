@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'hub.dart';
 import 'protocol.dart';
 import 'sentry.dart';
@@ -82,4 +81,25 @@ class HubAdapter implements Hub {
 
   @override
   SentryId get lastEventId => Sentry.lastEventId;
+
+  @override
+  Future<SentryId> captureTransaction(SentryTransaction transaction) {
+    // TODO: implement captureTransaction
+    throw UnimplementedError();
+  }
+
+  @override
+  // TODO: implement span
+  SentrySpan get span => throw UnimplementedError();
+
+  @override
+  void startTransaction() {
+    // TODO: implement startTransaction
+  }
+
+  @override
+  Map<String, String> traceHeaders() {
+    // TODO: implement traceHeaders
+    throw UnimplementedError();
+  }
 }

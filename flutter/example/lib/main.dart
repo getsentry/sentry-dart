@@ -128,6 +128,30 @@ class MainScaffold extends StatelessWidget {
                 );
               },
             ),
+            RaisedButton(
+              child: const Text('Capture transaction'),
+              onPressed: () async {
+                final transction = Sentry.startTransaction(
+                  SentryTransactionContext(
+                    operation: 'test',
+                    name: 'test',
+                  ),
+                );
+                await Future.delayed(Duration(milliseconds: 250));
+                final childSpan = transction.startChild(description: 'child');
+                await Future.delayed(Duration(milliseconds: 250));
+                final grandchild =
+                    childSpan.startChild(description: 'another child');
+                await Future.delayed(Duration(milliseconds: 250));
+                grandchild.finish();
+                childSpan.finish();
+                final child2Span =
+                    transction.startChild(description: 'child 2');
+                await Future.delayed(Duration(milliseconds: 250));
+                child2Span.finish();
+                await transction.finish();
+              },
+            ),
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
               const CocoaExample(),
             if (UniversalPlatform.isAndroid) const AndroidExample(),

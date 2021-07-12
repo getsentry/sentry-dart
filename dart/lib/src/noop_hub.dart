@@ -62,4 +62,22 @@ class NoOpHub implements Hub {
 
   @override
   void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) {}
+
+  @override
+  Future<SentryId> captureTransaction(SentryTransaction transaction) async {
+    return SentryId.empty();
+  }
+
+  @override
+  SentrySpan get span => throw UnimplementedError();
+
+  @override
+  void startTransaction() {
+    // TODO: implement startTransaction
+  }
+
+  @override
+  Map<String, String> traceHeaders() {
+    return {};
+  }
 }
