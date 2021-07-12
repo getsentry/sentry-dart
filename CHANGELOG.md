@@ -1,5 +1,7 @@
 # Unreleased
 
+* Ref: Enable strong mode in analyzer options (#516)
+
 # 6.0.0-beta.1
 
 * Feat: Browser detection (#502)

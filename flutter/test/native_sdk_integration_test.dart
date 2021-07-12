@@ -38,7 +38,7 @@ void main() {
         'attachThreads': false,
         'autoSessionTrackingIntervalMillis': 30000,
         'dist': null,
-        'integrations': [],
+        'integrations': <String>[],
         'packages': [
           {'name': 'pub:sentry', 'version': sdkVersion}
         ],
@@ -137,7 +137,7 @@ void main() {
       final options = createOptions();
       await sut.call(NoOpHub(), options);
 
-      expect(options.sdk.integrations, []);
+      expect(options.sdk.integrations, <String>[]);
 
       channel.setMethodCallHandler(null);
     });

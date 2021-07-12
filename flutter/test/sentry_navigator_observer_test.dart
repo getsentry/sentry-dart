@@ -135,7 +135,7 @@ void main() {
   });
 
   group('SentryNavigatorObserver', () {
-    PageRoute route(RouteSettings? settings) => PageRouteBuilder<void>(
+    PageRoute<void> route(RouteSettings? settings) => PageRouteBuilder<void>(
           pageBuilder: (_, __, ___) => Container(),
           settings: settings,
         );
@@ -205,7 +205,7 @@ void main() {
     });
 
     test('No RouteSettings', () {
-      PageRoute route() => PageRouteBuilder<void>(
+      PageRoute<void> route() => PageRouteBuilder<void>(
             pageBuilder: (_, __, ___) => Container(),
           );
 

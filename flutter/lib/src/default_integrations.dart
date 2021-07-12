@@ -132,15 +132,22 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
   final SentryFlutterOptions _options;
 
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {
+  FutureOr<SentryEvent?> apply(SentryEvent event, {dynamic hint}) async {
     try {
-      final infos = Map<String, dynamic>.from(
-        await (_channel.invokeMethod('loadContexts')),
-      );
-      if (infos['contexts'] != null) {
-        final contexts = Contexts.fromJson(
-          Map<String, dynamic>.from(infos['contexts'] as Map),
-        );
+      // _channel.invokeMethod does not support generics other than
+      // `dynamic` or `Object?`.
+      final infos =
+          await _channel.invokeMethod<Map<Object?, Object?>?>('loadContexts');
+
+      if (infos == null) {
+        return event;
+      }
+      final contextMap = infos['contexts'] as Map<Object?, Object?>?;
+      if (contextMap != null && contextMap.isNotEmpty) {
+        final typedMap = contextMap.entries
+            .map((e) => MapEntry<String, dynamic>(e.key as String, e.value));
+        final contexts =
+            Contexts.fromJson(Map<String, dynamic>.fromEntries(typedMap));
         final eventContexts = event.contexts.clone();
 
         contexts.forEach(
@@ -157,15 +164,17 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
         event = event.copyWith(contexts: eventContexts);
       }
 
-      if (infos['integrations'] != null) {
-        final integrations = List<String>.from(infos['integrations'] as List);
+      final integrationList = infos['integrations'] as List<Object?>?;
+      if (integrationList != null && integrationList.isNotEmpty) {
+        final integrations = integrationList.cast<String>();
         final sdk = event.sdk ?? _options.sdk;
         integrations.forEach(sdk.addIntegration);
         event = event.copyWith(sdk: sdk);
       }
 
-      if (infos['package'] != null) {
-        final package = Map<String, String>.from(infos['package'] as Map);
+      final infoMap = infos['package'] as Map<Object?, Object?>?;
+      if (infoMap != null && infoMap.isNotEmpty) {
+        final package = infoMap.cast<String, String>();
         final sdk = event.sdk ?? _options.sdk;
         sdk.addPackage(package['sdk_name']!, package['version']!);
         event = event.copyWith(sdk: sdk);
@@ -315,7 +324,7 @@ class _LoadAndroidImageListIntegrationEventProcessor extends EventProcessor {
   final SentryFlutterOptions _options;
 
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {
+  FutureOr<SentryEvent?> apply(SentryEvent event, {dynamic hint}) async {
     try {
       if (event.exception != null && event.exception!.stackTrace != null) {
         final needsSymbolication = event.exception!.stackTrace!.frames
@@ -332,17 +341,19 @@ class _LoadAndroidImageListIntegrationEventProcessor extends EventProcessor {
 
       // we call on every event because the loaded image list is cached
       // and it could be changed on the Native side.
-      final imageList = List<Map<dynamic, dynamic>>.from(
-        await (_channel.invokeMethod('loadImageList')),
-      );
+      final imageList =
+          await _channel.invokeMethod<List<Object?>>('loadImageList');
 
-      if (imageList.isEmpty) {
+      if (imageList == null || imageList.isEmpty) {
         return event;
       }
 
       final newDebugImages = <DebugImage>[];
 
       for (final item in imageList) {
+        if (!(item is Map<dynamic, dynamic>)) {
+          continue;
+        }
         final codeFile = item['code_file'] as String?;
         final codeId = item['code_id'] as String?;
         final imageAddr = item['image_addr'] as String?;

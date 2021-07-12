@@ -25,7 +25,7 @@ void main() {
         fixture.options.sdk.integrations.contains('isolateErrorIntegration'),
       );
     },
-    onPlatform: {
+    onPlatform: <String, dynamic>{
       'browser': Skip(),
     },
   );
@@ -52,7 +52,7 @@ void main() {
       expect(true, throwableMechanism.mechanism.handled);
       expect(throwable, throwableMechanism.throwable);
     },
-    onPlatform: {
+    onPlatform: <String, dynamic>{
       'browser': Skip(),
     },
   );
@@ -70,7 +70,7 @@ void main() {
           fixture.options.sdk.integrations
               .contains('runZonedGuardedIntegration'));
     },
-    onPlatform: {
+    onPlatform: <String, dynamic>{
       'browser': Skip(),
     },
   );
@@ -86,7 +86,7 @@ void main() {
     await integration(fixture.hub, fixture.options);
 
     expect(true, called);
-  }, onPlatform: {'browser': Skip()});
+  }, onPlatform: <String, dynamic>{'browser': Skip()});
 
   test('Run zoned guarded calls catches integrations errors', () async {
     final throwable = StateError('error');

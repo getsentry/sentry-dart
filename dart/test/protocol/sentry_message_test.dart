@@ -6,7 +6,7 @@ void main() {
   final sentryMessage = SentryMessage(
     'message 1',
     template: 'message %d',
-    params: ['1'],
+    params: <dynamic>['1'],
   );
 
   final sentryMessageJson = <String, dynamic>{
@@ -42,7 +42,7 @@ void main() {
       final copy = data.copyWith();
 
       expect(
-        MapEquality().equals(data.toJson(), copy.toJson()),
+        MapEquality<String, dynamic>().equals(data.toJson(), copy.toJson()),
         true,
       );
     });
@@ -53,7 +53,7 @@ void main() {
       final copy = data.copyWith(
         formatted: 'message 21',
         template: 'message 2 %d',
-        params: ['2'],
+        params: <dynamic>['2'],
       );
 
       expect('message 21', copy.formatted);

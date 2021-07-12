@@ -23,7 +23,7 @@ void main() {
 
       final event = await enricher.apply(SentryEvent());
 
-      final flutterContext = event.contexts['flutter_context'];
+      dynamic flutterContext = event.contexts['flutter_context'];
       expect(flutterContext, isNotNull);
     });
 
@@ -34,7 +34,7 @@ void main() {
 
       final event = await enricher.apply(SentryEvent());
 
-      final accessibility = event.contexts['accessibility'];
+      dynamic accessibility = event.contexts['accessibility'];
 
       expect(accessibility['accessible_navigation'], isNotNull);
       expect(accessibility['bold_text'], isNotNull);

@@ -15,8 +15,8 @@ class SentryExceptionFactory {
     dynamic exception, {
     dynamic stackTrace,
   }) {
-    var throwable = exception;
-    var mechanism;
+    dynamic throwable = exception;
+    Mechanism? mechanism;
     if (exception is ThrowableMechanism) {
       throwable = exception.throwable;
       mechanism = exception.mechanism;

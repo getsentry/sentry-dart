@@ -12,10 +12,11 @@ void main() {
         a!.level == b.level &&
             a.transaction == b.transaction &&
             a.user == b.user &&
-            IterableEquality().equals(a.fingerprint, b.fingerprint) &&
-            IterableEquality().equals(a.breadcrumbs, b.breadcrumbs) &&
-            MapEquality().equals(a.tags, b.tags) &&
-            MapEquality().equals(a.extra, b.extra);
+            IterableEquality<String>().equals(a.fingerprint, b.fingerprint) &&
+            IterableEquality<Breadcrumb>()
+                .equals(a.breadcrumbs, b.breadcrumbs) &&
+            MapEquality<String, dynamic>().equals(a.tags, b.tags) &&
+            MapEquality<String, dynamic>().equals(a.extra, b.extra);
   }
 
   group('Hub instantiation', () {

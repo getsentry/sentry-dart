@@ -80,12 +80,12 @@ class IoEnricherEventProcessor extends EventProcessor {
       }
     }
 
-    return <String, dynamic>{
+    return <String, Object>{
       if (packageConfig != null) 'package_config': packageConfig,
       'number_of_processors': Platform.numberOfProcessors,
       // The following information could potentially contain PII
       if (includePii) ...{
-        'executable': executable,
+        if (executable != null) 'executable': executable,
         'resolved_executable': Platform.resolvedExecutable,
         'script': Platform.script.toString(),
         if (args.isNotEmpty)

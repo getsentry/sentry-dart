@@ -100,7 +100,7 @@ class MockHub extends _i1.Mock implements _i3.Hub {
   @override
   _i4.Future<void> close() => (super.noSuchMethod(Invocation.method(#close, []),
       returnValue: Future<void>.value(null),
-      returnValueForMissingStub: Future.value()) as _i4.Future<void>);
+      returnValueForMissingStub: Future<void>.value()) as _i4.Future<void>);
   @override
   void configureScope(_i3.ScopeCallback? callback) =>
       super.noSuchMethod(Invocation.method(#configureScope, [callback]),

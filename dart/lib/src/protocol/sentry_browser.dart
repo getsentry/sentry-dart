@@ -18,24 +18,23 @@ class SentryBrowser {
   final String? version;
 
   /// Deserializes a [SentryBrowser] from JSON [Map].
-  factory SentryBrowser.fromJson(Map<String, dynamic> data) => SentryBrowser(
-        name: data['name'],
-        version: data['version'],
+  // ignore: strict_raw_type
+  factory SentryBrowser.fromJson(Map data) => SentryBrowser(
+        // This class should be deserializable from Map<String, dynamic> and Map<Object?, Object?>,
+        // because it comes from json.decode which is a Map<String, dynamic> and from
+        // methodchannels which is a Map<Object?, Object?>.
+        // Map<String, dynamic> and Map<Object?, Object?> only have
+        // Map<dynamic, dynamic> as common type constraint
+        name: data['name'] as String?,
+        version: data['version'] as String?,
       );
 
   /// Produces a [Map] that can be serialized to JSON.
-  Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{};
-
-    if (name != null) {
-      json['name'] = name;
-    }
-
-    if (version != null) {
-      json['version'] = version;
-    }
-
-    return json;
+  Map<String, Object> toJson() {
+    return <String, Object>{
+      if (name != null) 'name': name!,
+      if (version != null) 'version': version!,
+    };
   }
 
   SentryBrowser clone() => SentryBrowser(name: name, version: version);

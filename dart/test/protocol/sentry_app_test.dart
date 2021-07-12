@@ -29,7 +29,7 @@ void main() {
       final json = sentryApp.toJson();
 
       expect(
-        MapEquality().equals(sentryAppJson, json),
+        MapEquality<String, dynamic>().equals(sentryAppJson, json),
         true,
       );
     });
@@ -38,7 +38,7 @@ void main() {
       final json = sentryApp.toJson();
 
       expect(
-        MapEquality().equals(sentryAppJson, json),
+        MapEquality<String, dynamic>().equals(sentryAppJson, json),
         true,
       );
     });
@@ -51,7 +51,7 @@ void main() {
       final copy = data.copyWith();
 
       expect(
-        MapEquality().equals(data.toJson(), copy.toJson()),
+        MapEquality<String, dynamic>().equals(data.toJson(), copy.toJson()),
         true,
       );
     });

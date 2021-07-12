@@ -76,7 +76,7 @@ class HttpTransport implements Transport {
       );
     }
 
-    final eventId = json.decode(response.body)['id'];
+    final eventId = json.decode(response.body)['id'] as String?;
     return eventId != null ? SentryId.fromId(eventId) : SentryId.empty();
   }
 

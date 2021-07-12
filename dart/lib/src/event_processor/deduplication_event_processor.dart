@@ -26,7 +26,7 @@ class DeduplicationEventProcessor extends EventProcessor {
   final SentryOptions _options;
 
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) {
+  FutureOr<SentryEvent?> apply(SentryEvent event, {dynamic hint}) {
     if (!_options.enableDeduplication) {
       _options.logger(SentryLevel.debug, 'Deduplication is disabled');
       return event;

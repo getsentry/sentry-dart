@@ -8,7 +8,7 @@ void main() {
     username: 'username',
     email: 'email',
     ipAddress: 'ipAddress',
-    extras: {'key': 'value'},
+    extras: <String, dynamic>{'key': 'value'},
   );
 
   final sentryUserJson = <String, dynamic>{
@@ -82,7 +82,7 @@ void main() {
         username: 'username1',
         email: 'email1',
         ipAddress: 'ipAddress1',
-        extras: {'key1': 'value1'},
+        extras: <String, dynamic>{'key1': 'value1'},
       );
 
       expect('id1', copy.id);

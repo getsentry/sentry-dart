@@ -31,7 +31,7 @@ void runApp() {
       message: 'Authenticated user',
       category: 'auth',
       type: 'debug',
-      data: {
+      data: <String, Object>{
         'admin': true,
         'permissions': [1, 2, 3]
       },
@@ -69,7 +69,7 @@ Future<void> captureMessage() async {
   final sentryId = await Sentry.captureMessage(
     'Message 2',
     template: 'Message %s',
-    params: ['2'],
+    params: <dynamic>['2'],
   );
   print('capture message result : $sentryId');
   if (sentryId != SentryId.empty()) {
@@ -126,7 +126,7 @@ Future<void> parseData() async {
 
 class TagEventProcessor extends EventProcessor {
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) {
+  FutureOr<SentryEvent?> apply(SentryEvent event, {dynamic hint}) {
     return event..tags?.addAll({'page-locale': 'en-us'});
   }
 }

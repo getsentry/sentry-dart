@@ -39,17 +39,20 @@ class SentryStackFrame {
   final List<String>? _preContext;
 
   /// An immutable list of source code lines before context_line (in order) – usually [lineno - 5:lineno].
-  List<String> get preContext => List.unmodifiable(_preContext ?? const []);
+  List<String> get preContext =>
+      List.unmodifiable(_preContext ?? const <String>[]);
 
   final List<String>? _postContext;
 
   /// An immutable list of source code lines after context_line (in order) – usually [lineno + 1:lineno + 5].
-  List<String> get postContext => List.unmodifiable(_postContext ?? const []);
+  List<String> get postContext =>
+      List.unmodifiable(_postContext ?? const <String>[]);
 
   final Map<String, String>? _vars;
 
   /// An immutable mapping of variables which were available within this frame (usually context-locals).
-  Map<String, String> get vars => Map.unmodifiable(_vars ?? const {});
+  Map<String, String> get vars =>
+      Map.unmodifiable(_vars ?? const <String, String>{});
 
   final List<int>? _framesOmitted;
 
@@ -62,7 +65,8 @@ class SentryStackFrame {
   /// Example : If you only removed the 8th frame, the value would be (8, 9),
   /// meaning it started at the 8th frame, and went untilthe 9th (the number of frames omitted is end-start).
   /// The values should be based on a one-index.
-  List<int> get framesOmitted => List.unmodifiable(_framesOmitted ?? const []);
+  List<int> get framesOmitted =>
+      List.unmodifiable(_framesOmitted ?? const <String>[]);
 
   /// The relative file path to the call.
   final String? fileName;
@@ -111,25 +115,25 @@ class SentryStackFrame {
   /// Deserializes a [SentryStackFrame] from JSON [Map].
   factory SentryStackFrame.fromJson(Map<String, dynamic> json) {
     return SentryStackFrame(
-      absPath: json['abs_path'],
-      fileName: json['filename'],
-      function: json['function'],
-      module: json['module'],
-      lineNo: json['lineno'],
-      colNo: json['colno'],
-      contextLine: json['context_line'],
-      inApp: json['in_app'],
-      package: json['package'],
-      native: json['native'],
-      platform: json['platform'],
-      imageAddr: json['image_addr'],
-      symbolAddr: json['symbol_addr'],
-      instructionAddr: json['instruction_addr'],
-      rawFunction: json['raw_function'],
-      framesOmitted: json['frames_omitted'],
-      preContext: json['pre_context'],
-      postContext: json['post_context'],
-      vars: json['vars'],
+      absPath: json['abs_path'] as String?,
+      fileName: json['filename'] as String?,
+      function: json['function'] as String?,
+      module: json['module'] as String?,
+      lineNo: json['lineno'] as int?,
+      colNo: json['colno'] as int?,
+      contextLine: json['context_line'] as String?,
+      inApp: json['in_app'] as bool?,
+      package: json['package'] as String?,
+      native: json['native'] as bool?,
+      platform: json['platform'] as String?,
+      imageAddr: json['image_addr'] as String?,
+      symbolAddr: json['symbol_addr'] as String?,
+      instructionAddr: json['instruction_addr'] as String?,
+      rawFunction: json['raw_function'] as String?,
+      framesOmitted: json['frames_omitted'] as List<int>?,
+      preContext: json['pre_context'] as List<String>?,
+      postContext: json['post_context'] as List<String>?,
+      vars: json['vars'] as Map<String, String>?,
     );
   }
 

@@ -76,7 +76,8 @@ void main() {
       final enricher = fixture.getSut(includePii: true);
       final event = await enricher.apply(SentryEvent());
 
-      final dartContext = event.contexts['dart_context'];
+      final dartContext =
+          event.contexts['dart_context'] as Map<String, dynamic>;
       expect(dartContext, isNotNull);
       expect(dartContext['number_of_processors'], isNotNull);
       // Getting the executable sometimes throws
@@ -90,7 +91,8 @@ void main() {
       final enricher = fixture.getSut(includePii: false);
       final event = await enricher.apply(SentryEvent());
 
-      final dartContext = event.contexts['dart_context'];
+      final dartContext =
+          event.contexts['dart_context'] as Map<String, dynamic>;
       expect(dartContext, isNotNull);
       expect(dartContext['number_of_processors'], isNotNull);
       expect(dartContext['executable'], isNull);

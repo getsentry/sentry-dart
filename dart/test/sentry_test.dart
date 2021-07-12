@@ -184,7 +184,7 @@ void main() {
             .length,
         1,
       );
-    }, onPlatform: {'browser': Skip()});
+    }, onPlatform: <String, dynamic>{'browser': Skip()});
 
     test('should add only web compatible default integrations', () async {
       await Sentry.init(
@@ -196,7 +196,7 @@ void main() {
           );
         },
       );
-    }, onPlatform: {'vm': Skip()});
+    }, onPlatform: <String, dynamic>{'vm': Skip()});
 
     test('should close integrations', () async {
       final integration = MockIntegration();

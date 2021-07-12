@@ -45,7 +45,7 @@ class MockSentryClient implements SentryClient {
     String? formatted, {
     SentryLevel? level = SentryLevel.info,
     String? template,
-    List? params,
+    List<dynamic>? params,
     Scope? scope,
     dynamic hint,
   }) async {
@@ -104,7 +104,7 @@ class CaptureMessageCall {
   final String? formatted;
   final SentryLevel? level;
   final String? template;
-  final List? params;
+  final List<dynamic>? params;
   final Scope? scope;
   final dynamic hint;
 

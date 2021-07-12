@@ -22,7 +22,7 @@ final event = SentryEvent(
       timestamp: DateTime.now().toUtc(),
       category: 'ui.lifecycle',
       type: 'navigation',
-      data: {'screen': 'MainActivity', 'state': 'created'},
+      data: <String, dynamic>{'screen': 'MainActivity', 'state': 'created'},
       level: SentryLevel.info,
     )
   ],

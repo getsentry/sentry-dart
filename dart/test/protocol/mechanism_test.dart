@@ -9,8 +9,8 @@ void main() {
     helpLink: 'helpLink',
     handled: true,
     synthetic: true,
-    meta: {'key': 'value'},
-    data: {'keyb': 'valueb'},
+    meta: <String, dynamic>{'key': 'value'},
+    data: <String, dynamic>{'keyb': 'valueb'},
   );
 
   final mechanismJson = <String, dynamic>{
@@ -60,8 +60,8 @@ void main() {
         helpLink: 'helpLink1',
         handled: false,
         synthetic: false,
-        meta: {'key1': 'value1'},
-        data: {'keyb1': 'valueb1'},
+        meta: <String, dynamic>{'key1': 'value1'},
+        data: <String, dynamic>{'keyb1': 'valueb1'},
       );
 
       expect('type1', copy.type);

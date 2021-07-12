@@ -39,10 +39,13 @@ void main() {
 
   SdkVersion getSdkVersion({String name = 'sentry.dart'}) {
     return SdkVersion(
-        name: name,
-        version: '1.0',
-        integrations: const ['EventIntegration'],
-        packages: const [SentryPackage('event-package', '2.0')]);
+      name: name,
+      version: '1.0',
+      integrations: const ['EventIntegration'],
+      packages: const [
+        SentryPackage('event-package', '2.0'),
+      ],
+    );
   }
 
   SentryEvent getEvent({

@@ -44,25 +44,26 @@ class Scope {
   /// Name/value pairs that events can be searched by.
   Map<String, String> get tags => Map.unmodifiable(_tags);
 
-  final Map<String, dynamic> _extra = {};
+  final Map<String, dynamic> _extra = <String, dynamic>{};
 
   /// Arbitrary name/value pairs attached to the scope.
   ///
   /// Sentry.io docs do not talk about restrictions on the values, other than
   /// they must be JSON-serializable.
-  Map<String, dynamic> get extra => Map.unmodifiable(_extra);
+  Map<String, dynamic> get extra => Map<String, dynamic>.unmodifiable(_extra);
 
   final Contexts _contexts = Contexts();
 
   /// Unmodifiable map of the scope contexts key/value
   /// See also:
   /// * https://docs.sentry.io/platforms/java/enriching-events/context/
-  Map<String, dynamic> get contexts => Map.unmodifiable(_contexts);
+  Map<String, dynamic> get contexts =>
+      Map<String, dynamic>.unmodifiable(_contexts);
 
   /// add an entry to the Scope's contexts
   void setContexts(String key, dynamic value) {
     _contexts[key] = (value is num || value is bool || value is String)
-        ? {'value': value}
+        ? <String, dynamic>{'value': value}
         : value;
   }
 
@@ -171,9 +172,11 @@ class Scope {
       level: level ?? event.level,
     );
 
-    _contexts.clone().forEach((key, value) {
+    _contexts.clone().forEach((key, dynamic value) {
       // add the contexts runtime list to the event.contexts.runtimes
-      if (key == SentryRuntime.listType && value is List && value.isNotEmpty) {
+      if (key == SentryRuntime.listType &&
+          value is List<SentryRuntime> &&
+          value.isNotEmpty) {
         _mergeEventContextsRuntimes(value, event);
       } else if (key != SentryRuntime.listType &&
           (!event.contexts.containsKey(key) || event.contexts[key] == null) &&
@@ -204,7 +207,8 @@ class Scope {
   }
 
   /// Merge the scope contexts runtimes and the event contexts runtimes.
-  void _mergeEventContextsRuntimes(List value, SentryEvent event) =>
+  void _mergeEventContextsRuntimes(
+          List<SentryRuntime> value, SentryEvent event) =>
       value.forEach((runtime) => event.contexts.addRuntime(runtime));
 
   /// If the scope and the event have tag entries with the same key,
@@ -215,8 +219,9 @@ class Scope {
   /// If the scope and the event have extra entries with the same key,
   /// the event extra will be kept.
   Map<String, dynamic> _mergeEventExtra(SentryEvent event) =>
-      extra.map((key, value) => MapEntry(key, value))
-        ..addAll(event.extra ?? {});
+      extra.map<String, dynamic>(
+          (key, dynamic value) => MapEntry<String, dynamic>(key, value))
+        ..addAll(event.extra ?? <String, dynamic>{});
 
   /// If scope and event have a user, the user of the event takes
   /// precedence.
@@ -279,7 +284,7 @@ class Scope {
       clone.addEventProcessor(eventProcessor);
     }
 
-    contexts.forEach((key, value) {
+    contexts.forEach((key, dynamic value) {
       if (value != null) {
         clone.setContexts(key, value);
       }

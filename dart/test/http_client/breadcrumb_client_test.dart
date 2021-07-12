@@ -180,7 +180,7 @@ void main() {
     test('Breadcrumb has correct duration', () async {
       final sut = fixture.getSut(MockClient((request) async {
         expect(request.url, requestUri);
-        await Future.delayed(Duration(seconds: 1));
+        await Future<void>.delayed(Duration(seconds: 1));
         return Response('', 200, reasonPhrase: 'OK');
       }));
 

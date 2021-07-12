@@ -18,10 +18,10 @@ class SdkInfo {
   /// Deserializes a [SdkInfo] from JSON [Map].
   factory SdkInfo.fromJson(Map<String, dynamic> json) {
     return SdkInfo(
-      sdkName: json['sdk_name'],
-      versionMajor: json['version_major'],
-      versionMinor: json['version_minor'],
-      versionPatchlevel: json['version_patchlevel'],
+      sdkName: json['sdk_name'] as String?,
+      versionMajor: json['version_major'] as int?,
+      versionMinor: json['version_minor'] as int?,
+      versionPatchlevel: json['version_patchlevel'] as int?,
     );
   }
 

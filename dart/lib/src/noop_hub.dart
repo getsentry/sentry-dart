@@ -39,7 +39,7 @@ class NoOpHub implements Hub {
     String? message, {
     SentryLevel? level,
     String? template,
-    List? params,
+    List<dynamic>? params,
     dynamic hint,
     ScopeCallback? withScope,
   }) =>

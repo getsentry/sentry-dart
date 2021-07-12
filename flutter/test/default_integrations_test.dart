@@ -42,9 +42,9 @@ void main() {
 
     FlutterErrorIntegration()(fixture.hub, fixture.options);
 
-    final throwable = exception ?? StateError('error');
+    dynamic throwable = exception ?? StateError('error');
     final details = FlutterErrorDetails(
-      exception: throwable,
+      exception: throwable as Object,
       silent: silent,
     );
     FlutterError.reportError(details);

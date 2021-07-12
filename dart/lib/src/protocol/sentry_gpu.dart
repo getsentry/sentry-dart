@@ -57,16 +57,22 @@ class SentryGpu {
   });
 
   /// Deserializes a [SentryGpu] from JSON [Map].
-  factory SentryGpu.fromJson(Map<String, dynamic> data) => SentryGpu(
-        name: data['name'],
-        id: data['id'],
-        vendorId: data['vendor_id'],
-        vendorName: data['vendor_name'],
-        memorySize: data['memory_size'],
-        apiType: data['api_type'],
-        multiThreadedRendering: data['multi_threaded_rendering'],
-        version: data['version'],
-        npotSupport: data['npot_support'],
+  // ignore: strict_raw_type
+  factory SentryGpu.fromJson(Map data) => SentryGpu(
+        // This class should be deserializable from Map<String, dynamic> and Map<Object?, Object?>,
+        // because it comes from json.decode which is a Map<String, dynamic> and from
+        // methodchannels which is a Map<Object?, Object?>.
+        // Map<String, dynamic> and Map<Object?, Object?> only have
+        // Map<dynamic, dynamic> as common type constraint
+        name: data['name'] as String?,
+        id: data['id'] as int?,
+        vendorId: data['vendor_id'] as int?,
+        vendorName: data['vendor_name'] as String?,
+        memorySize: data['memory_size'] as int?,
+        apiType: data['api_type'] as String?,
+        multiThreadedRendering: data['multi_threaded_rendering'] as bool?,
+        version: data['version'] as String?,
+        npotSupport: data['npot_support'] as String?,
       );
 
   SentryGpu clone() => SentryGpu(

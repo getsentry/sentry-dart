@@ -52,7 +52,7 @@ void testHeaders(
   expect(headers, expectedHeaders);
 }
 
-Future testCaptureException(
+Future<void> testCaptureException(
   bool compressPayload,
   Codec<List<int>, List<int>?>? gzip,
   bool isWeb,
@@ -113,9 +113,10 @@ Future testCaptureException(
   // so we assert the generated and returned id
   data!['event_id'] = sentryId.toString();
 
-  final stacktrace = data['exception']['values'].first['stacktrace'];
+  final stacktrace =
+      data['exception']['values'].first['stacktrace'] as Map<String, dynamic>;
 
-  expect(stacktrace['frames'], const TypeMatcher<List>());
+  expect(stacktrace['frames'], const TypeMatcher<List<dynamic>>());
   expect(stacktrace['frames'], isNotEmpty);
 
   final topFrame =

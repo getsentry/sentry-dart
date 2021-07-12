@@ -14,12 +14,18 @@ class SentryCulture {
     this.timezone,
   });
 
-  factory SentryCulture.fromJson(Map<String, dynamic> data) => SentryCulture(
-        calendar: data['calendar'],
-        displayName: data['display_name'],
-        locale: data['locale'],
-        is24HourFormat: data['is_24_hour_format'],
-        timezone: data['timezone'],
+  // ignore: strict_raw_type
+  factory SentryCulture.fromJson(Map data) => SentryCulture(
+        // This class should be deserializable from Map<String, dynamic> and Map<Object?, Object?>,
+        // because it comes from json.decode which is a Map<String, dynamic> and from
+        // methodchannels which is a Map<Object?, Object?>.
+        // Map<String, dynamic> and Map<Object?, Object?> only have
+        // Map<dynamic, dynamic> as common type constraint
+        calendar: data['calendar'] as String?,
+        displayName: data['display_name'] as String?,
+        locale: data['locale'] as String?,
+        is24HourFormat: data['is_24_hour_format'] as bool?,
+        timezone: data['timezone'] as String?,
       );
 
   /// Optional: For example `GregorianCalendar`. Free form string.
@@ -40,8 +46,8 @@ class SentryCulture {
   final String? timezone;
 
   /// Produces a [Map] that can be serialized to JSON.
-  Map<String, dynamic> toJson() {
-    return <String, dynamic>{
+  Map<String, Object> toJson() {
+    return <String, Object>{
       if (calendar != null) 'calendar': calendar!,
       if (displayName != null) 'display_name': displayName!,
       if (locale != null) 'locale': locale!,

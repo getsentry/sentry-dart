@@ -32,12 +32,14 @@ class Mechanism {
   /// descriptions for well known error codes, as it will be filled out by
   /// Sentry. For proprietary or vendor-specific error codes,
   /// adding these values will give additional information to the user.
-  Map<String, dynamic> get meta => Map.unmodifiable(_meta ?? const {});
+  Map<String, dynamic> get meta =>
+      Map<String, dynamic>.unmodifiable(_meta ?? const <String, dynamic>{});
 
   final Map<String, dynamic>? _data;
 
   /// Arbitrary extra data that might help the user understand the error thrown by this mechanism
-  Map<String, dynamic> get data => Map.unmodifiable(_data ?? const {});
+  Map<String, dynamic> get data =>
+      Map<String, dynamic>.unmodifiable(_data ?? const <String, dynamic>{});
 
   /// An optional flag indicating that this error is synthetic.
   /// Synthetic errors are errors that carry little meaning by themselves.
@@ -52,8 +54,8 @@ class Mechanism {
     this.synthetic,
     Map<String, dynamic>? meta,
     Map<String, dynamic>? data,
-  })  : _meta = meta != null ? Map.from(meta) : null,
-        _data = data != null ? Map.from(data) : null;
+  })  : _meta = meta != null ? Map<String, dynamic>.from(meta) : null,
+        _data = data != null ? Map<String, dynamic>.from(data) : null;
 
   Mechanism copyWith({
     String? type,
@@ -77,13 +79,13 @@ class Mechanism {
   /// Deserializes a [Mechanism] from JSON [Map].
   factory Mechanism.fromJson(Map<String, dynamic> json) {
     return Mechanism(
-      type: json['type'],
-      description: json['description'],
-      helpLink: json['help_link'],
-      handled: json['handled'],
-      meta: json['meta'],
-      data: json['data'],
-      synthetic: json['synthetic'],
+      type: json['type'] as String,
+      description: json['description'] as String?,
+      helpLink: json['help_link'] as String?,
+      handled: json['handled'] as bool?,
+      meta: json['meta'] as Map<String, dynamic>?,
+      data: json['data'] as Map<String, dynamic>?,
+      synthetic: json['synthetic'] as bool?,
     );
   }
 

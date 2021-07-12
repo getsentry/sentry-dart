@@ -28,10 +28,11 @@ class SentryRequest {
   /// SDKs should discard large bodies by default.
   /// Can be given as string or structural data of any format.
   dynamic get data {
-    if (_data is List) {
-      return List.unmodifiable(_data);
-    } else if (_data is Map) {
-      return Map.unmodifiable(_data);
+    dynamic requestData = _data;
+    if (requestData is List) {
+      return List<dynamic>.unmodifiable(requestData);
+    } else if (requestData is Map) {
+      return Map<String, dynamic>.unmodifiable(requestData);
     }
 
     return _data;
@@ -43,17 +44,20 @@ class SentryRequest {
   /// If a header appears multiple times it,
   /// needs to be merged according to the HTTP standard for header merging.
   /// Header names are treated case-insensitively by Sentry.
-  Map<String, String> get headers => Map.unmodifiable(_headers ?? const {});
+  Map<String, String> get headers =>
+      Map.unmodifiable(_headers ?? const <String, String>{});
 
   final Map<String, String>? _env;
 
   /// An immutable dictionary containing environment information passed from the server.
   /// This is where information such as CGI/WSGI/Rack keys go that are not HTTP headers.
-  Map<String, String> get env => Map.unmodifiable(_env ?? const {});
+  Map<String, String> get env =>
+      Map.unmodifiable(_env ?? const <String, String>{});
 
   final Map<String, String>? _other;
 
-  Map<String, String> get other => Map.unmodifiable(_other ?? const {});
+  Map<String, String> get other =>
+      Map.unmodifiable(_other ?? const <String, String>{});
 
   SentryRequest({
     this.url,
@@ -72,14 +76,14 @@ class SentryRequest {
   /// Deserializes a [SentryRequest] from JSON [Map].
   factory SentryRequest.fromJson(Map<String, dynamic> json) {
     return SentryRequest(
-      url: json['url'],
-      method: json['method'],
-      queryString: json['query_string'],
-      cookies: json['cookies'],
+      url: json['url'] as String?,
+      method: json['method'] as String?,
+      queryString: json['query_string'] as String?,
+      cookies: json['cookies'] as String?,
       data: json['data'],
-      headers: json['headers'],
-      env: json['env'],
-      other: json['other'],
+      headers: json['headers'] as Map<String, String>?,
+      env: json['env'] as Map<String, String>?,
+      other: json['other'] as Map<String, String>?,
     );
   }
 
