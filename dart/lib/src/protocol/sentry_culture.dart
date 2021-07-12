@@ -14,7 +14,13 @@ class SentryCulture {
     this.timezone,
   });
 
-  factory SentryCulture.fromJson(Map<String, dynamic> data) => SentryCulture(
+  // ignore: strict_raw_type
+  factory SentryCulture.fromJson(Map data) => SentryCulture(
+        // This class should be deserializable from Map<String, dynamic> and Map<Object?, Object?>,
+        // because it comes from json.decode which is a Map<String, dynamic> and from
+        // methodchannels which is a Map<Object?, Object?>.
+        // Map<String, dynamic> and Map<Object?, Object?> only have
+        // Map<dynamic, dynamic> as common type constraint
         calendar: data['calendar'] as String?,
         displayName: data['display_name'] as String?,
         locale: data['locale'] as String?,

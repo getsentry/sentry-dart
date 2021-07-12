@@ -134,6 +134,8 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
   @override
   FutureOr<SentryEvent?> apply(SentryEvent event, {dynamic hint}) async {
     try {
+      // _channel.invokeMethod does not support generics other than
+      // `dynamic` or `Object?`.
       final infos =
           await _channel.invokeMethod<Map<Object?, Object?>?>('loadContexts');
 
@@ -141,8 +143,11 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
         return event;
       }
       final contextMap = infos['contexts'] as Map<Object?, Object?>?;
-      if (contextMap != null) {
-        final contexts = Contexts.fromJson(contextMap.cast<String, dynamic>());
+      if (contextMap != null && contextMap.isNotEmpty) {
+        final typedMap = contextMap.entries
+            .map((e) => MapEntry<String, dynamic>(e.key as String, e.value));
+        final contexts =
+            Contexts.fromJson(Map<String, dynamic>.fromEntries(typedMap));
         final eventContexts = event.contexts.clone();
 
         contexts.forEach(
@@ -160,7 +165,7 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
       }
 
       final integrationList = infos['integrations'] as List<Object?>?;
-      if (integrationList != null) {
+      if (integrationList != null && integrationList.isNotEmpty) {
         final integrations = integrationList.cast<String>();
         final sdk = event.sdk ?? _options.sdk;
         integrations.forEach(sdk.addIntegration);
@@ -168,7 +173,7 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
       }
 
       final infoMap = infos['package'] as Map<Object?, Object?>?;
-      if (infoMap != null) {
+      if (infoMap != null && infoMap.isNotEmpty) {
         final package = infoMap.cast<String, String>();
         final sdk = event.sdk ?? _options.sdk;
         sdk.addPackage(package['sdk_name']!, package['version']!);

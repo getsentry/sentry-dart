@@ -40,7 +40,13 @@ class SentryApp {
   final String? deviceAppHash;
 
   /// Deserializes a [SentryApp] from JSON [Map].
-  factory SentryApp.fromJson(Map<String, dynamic> data) => SentryApp(
+  // ignore: strict_raw_type
+  factory SentryApp.fromJson(Map data) => SentryApp(
+        // This class should be deserializable from Map<String, dynamic> and Map<Object?, Object?>,
+        // because it comes from json.decode which is a Map<String, dynamic> and from
+        // methodchannels which is a Map<Object?, Object?>.
+        // Map<String, dynamic> and Map<Object?, Object?> only have
+        // Map<dynamic, dynamic> as common type constraint
         name: data['app_name'] as String?,
         version: data['app_version'] as String?,
         identifier: data['app_identifier'] as String?,

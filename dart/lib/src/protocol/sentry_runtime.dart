@@ -41,7 +41,13 @@ class SentryRuntime {
   final String? rawDescription;
 
   /// Deserializes a [SentryRuntime] from JSON [Map].
-  factory SentryRuntime.fromJson(Map<String, dynamic> data) => SentryRuntime(
+  // ignore: strict_raw_type
+  factory SentryRuntime.fromJson(Map data) => SentryRuntime(
+        // This class should be deserializable from Map<String, dynamic> and Map<Object?, Object?>,
+        // because it comes from json.decode which is a Map<String, dynamic> and from
+        // methodchannels which is a Map<Object?, Object?>.
+        // Map<String, dynamic> and Map<Object?, Object?> only have
+        // Map<dynamic, dynamic> as common type constraint
         name: data['name'] as String?,
         version: data['version'] as String?,
         compiler: data['compiler'] as String?,

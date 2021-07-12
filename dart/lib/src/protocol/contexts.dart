@@ -28,41 +28,43 @@ class Contexts extends MapView<String, dynamic> {
         });
 
   /// Deserializes [Contexts] from JSON [Map].
-  factory Contexts.fromJson(Map<String, dynamic> data) {
+  // ignore: strict_raw_type
+  factory Contexts.fromJson(Map data) {
+    // This class should be deserializable from Map<String, dynamic> and Map<Object?, Object?>,
+    // because it comes from json.decode which is a Map<String, dynamic> and from
+    // methodchannels which is a Map<Object?, Object?>.
+    // Map<String, dynamic> and Map<Object?, Object?> only have
+    // Map<dynamic, dynamic> as common type constraint
     final contexts = Contexts(
       device: data[SentryDevice.type] != null
-          ? SentryDevice.fromJson(
-              data[SentryDevice.type] as Map<String, dynamic>)
+          ? SentryDevice.fromJson(data[SentryDevice.type] as Map)
           : null,
       operatingSystem: data[SentryOperatingSystem.type] != null
           ? SentryOperatingSystem.fromJson(
-              data[SentryOperatingSystem.type] as Map<String, dynamic>)
+              data[SentryOperatingSystem.type] as Map)
           : null,
       app: data[SentryApp.type] != null
-          ? SentryApp.fromJson(data[SentryApp.type] as Map<String, dynamic>)
+          ? SentryApp.fromJson(data[SentryApp.type] as Map)
           : null,
       browser: data[SentryBrowser.type] != null
-          ? SentryBrowser.fromJson(
-              data[SentryBrowser.type] as Map<String, dynamic>)
+          ? SentryBrowser.fromJson(data[SentryBrowser.type] as Map)
           : null,
       culture: data[SentryCulture.type] != null
-          ? SentryCulture.fromJson(
-              data[SentryCulture.type] as Map<String, dynamic>)
+          ? SentryCulture.fromJson(data[SentryCulture.type] as Map)
           : null,
       gpu: data[SentryGpu.type] != null
-          ? SentryGpu.fromJson(data[SentryGpu.type] as Map<String, dynamic>)
+          ? SentryGpu.fromJson(data[SentryGpu.type] as Map)
           : null,
       runtimes: data[SentryRuntime.type] != null
-          ? [
-              SentryRuntime.fromJson(
-                  data[SentryRuntime.type] as Map<String, dynamic>)
-            ]
+          ? [SentryRuntime.fromJson(data[SentryRuntime.type] as Map)]
           : null,
     );
 
     data.keys
-        .where((key) => !_defaultFields.contains(key) && data[key] != null)
-        .forEach((key) => contexts[key] = data[key]);
+        .where(
+            (dynamic key) => !_defaultFields.contains(key) && data[key] != null)
+        .map((dynamic key) => key as String)
+        .forEach((String key) => contexts[key] = data[key]);
 
     return contexts;
   }

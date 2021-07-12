@@ -57,7 +57,13 @@ class SentryGpu {
   });
 
   /// Deserializes a [SentryGpu] from JSON [Map].
-  factory SentryGpu.fromJson(Map<String, dynamic> data) => SentryGpu(
+  // ignore: strict_raw_type
+  factory SentryGpu.fromJson(Map data) => SentryGpu(
+        // This class should be deserializable from Map<String, dynamic> and Map<Object?, Object?>,
+        // because it comes from json.decode which is a Map<String, dynamic> and from
+        // methodchannels which is a Map<Object?, Object?>.
+        // Map<String, dynamic> and Map<Object?, Object?> only have
+        // Map<dynamic, dynamic> as common type constraint
         name: data['name'] as String?,
         id: data['id'] as int?,
         vendorId: data['vendor_id'] as int?,

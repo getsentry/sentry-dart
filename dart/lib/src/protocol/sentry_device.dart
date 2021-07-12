@@ -137,7 +137,13 @@ class SentryDevice {
   final String? theme;
 
   /// Deserializes a [SentryDevice] from JSON [Map].
-  factory SentryDevice.fromJson(Map<String, dynamic> data) => SentryDevice(
+  // ignore: strict_raw_type
+  factory SentryDevice.fromJson(Map data) => SentryDevice(
+        // This class should be deserializable from Map<String, dynamic> and Map<Object?, Object?>,
+        // because it comes from json.decode which is a Map<String, dynamic> and from
+        // methodchannels which is a Map<Object?, Object?>.
+        // Map<String, dynamic> and Map<Object?, Object?> only have
+        // Map<dynamic, dynamic> as common type constraint
         name: data['name'] as String?,
         family: data['family'] as String?,
         model: data['model'] as String?,

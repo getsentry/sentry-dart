@@ -41,8 +41,13 @@ class SentryOperatingSystem {
   final String? rawDescription;
 
   /// Deserializes a [SentryOperatingSystem] from JSON [Map].
-  factory SentryOperatingSystem.fromJson(Map<String, dynamic> data) =>
-      SentryOperatingSystem(
+  // ignore: strict_raw_type
+  factory SentryOperatingSystem.fromJson(Map data) => SentryOperatingSystem(
+        // This class should be deserializable from Map<String, dynamic> and Map<Object?, Object?>,
+        // because it comes from json.decode which is a Map<String, dynamic> and from
+        // methodchannels which is a Map<Object?, Object?>.
+        // Map<String, dynamic> and Map<Object?, Object?> only have
+        // Map<dynamic, dynamic> as common type constraint
         name: data['name'] as String?,
         version: data['version'] as String?,
         build: data['build'] as String?,
