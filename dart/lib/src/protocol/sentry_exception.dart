@@ -20,7 +20,7 @@ class SentryException {
   /// An optional object describing the [Mechanism] that created this exception
   final Mechanism? mechanism;
 
-  /// Represents a thread id. not available in Dart
+  /// Represents a thread id.
   final int? threadId;
 
   const SentryException({
@@ -29,7 +29,7 @@ class SentryException {
     this.module,
     this.stackTrace,
     this.mechanism,
-    this.threadId,
+    this.threadId = 0,
   });
 
   /// Deserializes a [SentryException] from JSON [Map].
