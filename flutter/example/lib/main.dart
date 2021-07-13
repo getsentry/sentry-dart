@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
+import 'package:feedback/feedback.dart' as feedback;
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
 const String _exampleDsn =
@@ -33,11 +35,13 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorObservers: [
-        SentryNavigatorObserver(),
-      ],
-      home: const MainScaffold(),
+    return feedback.BetterFeedback(
+      child: MaterialApp(
+        navigatorObservers: [
+          SentryNavigatorObserver(),
+        ],
+        home: const MainScaffold(),
+      ),
     );
   }
 }
@@ -126,6 +130,50 @@ class MainScaffold extends StatelessWidget {
                     scope.setTag('foo', 'bar');
                   },
                 );
+              },
+            ),
+            RaisedButton(
+              child: const Text('Capture message with attachment'),
+              onPressed: () {
+                Sentry.captureMessage(
+                  'This message has an attachment',
+                  withScope: (scope) {
+                    final txt = 'Lorem Ipsum dolar sit amet';
+                    scope.addAttachment(
+                      SentryAttachment.fromIntList(
+                        utf8.encode(txt),
+                        'foobar.txt',
+                        contentType: 'text/plain',
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+            RaisedButton(
+              child: const Text('Capture message with image attachment'),
+              onPressed: () {
+                feedback.BetterFeedback.of(context)
+                    .show((feedback.UserFeedback feedback) {
+                  Sentry.captureMessage(
+                    feedback.text,
+                    withScope: (scope) {
+                      final entries = feedback.extra?.entries;
+                      if (entries != null) {
+                        for (final extra in entries) {
+                          scope.setExtra(extra.key, extra.value);
+                        }
+                      }
+                      scope.addAttachment(
+                        SentryAttachment.fromUint8List(
+                          feedback.screenshot,
+                          'feedback.png',
+                          contentType: 'image/png',
+                        ),
+                      );
+                    },
+                  );
+                });
               },
             ),
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
