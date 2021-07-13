@@ -29,7 +29,7 @@ void main() {
           (options.transport as MockTransport).envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(capturedEvent.stackTrace is SentryStackTrace, true);
+      expect(capturedEvent.threads?.first.stacktrace is SentryStackTrace, true);
     });
 
     test('should attach event stacktrace', () async {
@@ -41,7 +41,7 @@ void main() {
           (options.transport as MockTransport).envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(capturedEvent.stackTrace is SentryStackTrace, true);
+      expect(capturedEvent.threads?.first.stacktrace is SentryStackTrace, true);
     });
 
     test('should not attach event stacktrace', () async {
@@ -53,7 +53,7 @@ void main() {
           (options.transport as MockTransport).envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(capturedEvent.stackTrace, isNull);
+      expect(capturedEvent.threads?.first.stacktrace, isNull);
     });
 
     test('should not attach event stacktrace if event has throwable', () async {
@@ -75,8 +75,8 @@ void main() {
           (options.transport as MockTransport).envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(capturedEvent.stackTrace, isNull);
-      expect(capturedEvent.exception!.stackTrace, isNotNull);
+      expect(capturedEvent..threads?.first.stacktrace, isNull);
+      expect(capturedEvent.exceptions?.first.stackTrace, isNotNull);
     });
 
     test('should not attach event stacktrace if event has exception', () async {
@@ -90,7 +90,7 @@ void main() {
               .getStackFrames('#0      baz (file:///pathto/test.dart:50:3)'),
         ),
       );
-      final event = SentryEvent(exception: exception);
+      final event = SentryEvent(exceptions: [exception]);
 
       await client.captureEvent(
         event,
@@ -101,8 +101,8 @@ void main() {
           (options.transport as MockTransport).envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(capturedEvent.stackTrace, isNull);
-      expect(capturedEvent.exception!.stackTrace, isNotNull);
+      expect(capturedEvent.threads?.first.stacktrace, isNull);
+      expect(capturedEvent.exceptions?.first.stackTrace, isNotNull);
     });
 
     test('should capture message', () async {
@@ -145,7 +145,7 @@ void main() {
           (options.transport as MockTransport).envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(capturedEvent.stackTrace, isNull);
+      expect(capturedEvent.threads?.first.stacktrace, isNull);
     });
   });
 
@@ -175,8 +175,8 @@ void main() {
           (options.transport as MockTransport).envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(capturedEvent.exception is SentryException, true);
-      expect(capturedEvent.exception!.stackTrace, isNotNull);
+      expect(capturedEvent.exceptions?.first is SentryException, true);
+      expect(capturedEvent.exceptions?.first.stackTrace, isNotNull);
     });
   });
 
@@ -210,12 +210,13 @@ void main() {
           (options.transport as MockTransport).envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(capturedEvent.exception is SentryException, true);
-      expect(capturedEvent.exception!.stackTrace, isNotNull);
-      expect(capturedEvent.exception!.stackTrace!.frames.first.fileName,
+      expect(capturedEvent.exceptions?.first is SentryException, true);
+      expect(capturedEvent.exceptions?.first.stackTrace, isNotNull);
+      expect(capturedEvent.exceptions?.first.stackTrace!.frames.first.fileName,
           'test.dart');
-      expect(capturedEvent.exception!.stackTrace!.frames.first.lineNo, 46);
-      expect(capturedEvent.exception!.stackTrace!.frames.first.colNo, 9);
+      expect(
+          capturedEvent.exceptions?.first.stackTrace!.frames.first.lineNo, 46);
+      expect(capturedEvent.exceptions?.first.stackTrace!.frames.first.colNo, 9);
     });
   });
 
@@ -249,11 +250,12 @@ void main() {
           (options.transport as MockTransport).envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(capturedEvent.exception is SentryException, true);
-      expect(capturedEvent.exception!.stackTrace!.frames.first.fileName,
+      expect(capturedEvent.exceptions?.first is SentryException, true);
+      expect(capturedEvent.exceptions?.first.stackTrace!.frames.first.fileName,
           'test.dart');
-      expect(capturedEvent.exception!.stackTrace!.frames.first.lineNo, 46);
-      expect(capturedEvent.exception!.stackTrace!.frames.first.colNo, 9);
+      expect(
+          capturedEvent.exceptions?.first.stackTrace!.frames.first.lineNo, 46);
+      expect(capturedEvent.exceptions?.first.stackTrace!.frames.first.colNo, 9);
     });
 
     test('should capture exception with Stackframe.current', () async {
@@ -270,7 +272,7 @@ void main() {
           (options.transport as MockTransport).envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(capturedEvent.exception!.stackTrace, isNotNull);
+      expect(capturedEvent.exceptions?.first.stackTrace, isNotNull);
     });
 
     test('should capture exception without Stackframe.current', () async {
@@ -287,7 +289,7 @@ void main() {
           (options.transport as MockTransport).envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(capturedEvent.exception!.stackTrace, isNull);
+      expect(capturedEvent.exceptions?.first.stackTrace, isNull);
     });
 
     test('should not capture sentry frames exception', () async {
@@ -312,7 +314,7 @@ void main() {
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
       expect(
-        capturedEvent.exception!.stackTrace!.frames
+        capturedEvent.exceptions?.first.stackTrace!.frames
             .every((frame) => frame.package != 'sentry'),
         true,
       );

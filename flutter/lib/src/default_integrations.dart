@@ -317,9 +317,11 @@ class _LoadAndroidImageListIntegrationEventProcessor extends EventProcessor {
   @override
   FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {
     try {
-      if (event.exception != null && event.exception!.stackTrace != null) {
-        final needsSymbolication = event.exception!.stackTrace!.frames
-            .any((element) => 'native' == element.platform);
+      final exceptions = event.exceptions;
+      if (exceptions != null && exceptions.first.stackTrace != null) {
+        final needsSymbolication = exceptions.first.stackTrace?.frames
+                .any((element) => 'native' == element.platform) ??
+            false;
 
         // if there are no frames that require symbolication, we don't
         // load the debug image list.
@@ -333,7 +335,7 @@ class _LoadAndroidImageListIntegrationEventProcessor extends EventProcessor {
       // we call on every event because the loaded image list is cached
       // and it could be changed on the Native side.
       final imageList = List<Map<dynamic, dynamic>>.from(
-        await (_channel.invokeMethod('loadImageList')),
+        await _channel.invokeMethod('loadImageList'),
       );
 
       if (imageList.isEmpty) {
