@@ -15,6 +15,7 @@ dependencies:
   universal_platform: ^1.0.0-nullsafety
   feedback: ^2.0.0
   provider: ^5.0.0
+  feedback: 2.0.0
 
 dependency_overrides:
   sentry:

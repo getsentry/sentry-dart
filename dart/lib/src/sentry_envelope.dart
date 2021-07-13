@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_envelope_header.dart';
 import 'sentry_envelope_item.dart';
