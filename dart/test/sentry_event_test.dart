@@ -6,12 +6,9 @@ import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/protocol/sentry_request.dart';
 import 'package:sentry/src/protocol/sentry_thread.dart';
-import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:sentry/src/version.dart';
 import 'package:sentry/src/utils.dart';
 import 'package:test/test.dart';
-
-import 'mocks.dart';
 
 void main() {
   group('deserialize', () {
@@ -310,28 +307,51 @@ void main() {
       expect(serialized['threads']['values'], isNotNull);
     });
 
-    /*
     test(
         'should not serialize event.threads.stacktrace if event.exception is set',
         () {
+      // https://develop.sentry.dev/sdk/event-payloads/stacktrace/
       final stacktrace =
           SentryStackTrace(frames: [SentryStackFrame(function: 'main')]);
       final serialized = SentryEvent(
-        exceptions: [SentryException(value: 'Bad state', type: 'StateError')],
-        stackTrace: stacktrace,
+        exceptions: [
+          SentryException(value: 'Bad state', type: 'StateError', threadId: 0)
+        ],
+        threads: [
+          SentryThread(
+            crashed: true,
+            current: true,
+            id: 0,
+            name: 'Current isolate',
+            stacktrace: stacktrace,
+          )
+        ],
       ).toJson();
-      expect(serialized['stacktrace'], isNull);
+      expect(serialized['threads'], isNull);
     });
 
-    test('should not serialize stacktrace if not SentryStacktrace', () {
-      final stacktrace = SentryStackTrace(
-        frames: SentryStackTraceFactory(SentryOptions(dsn: fakeDsn))
-            .getStackFrames('#0      baz (file:///pathto/test.dart:50:3)'),
-      );
-      final serialized = SentryEvent(stackTrace: stacktrace).toJson();
-      expect(serialized['stacktrace'], isNull);
+    test(
+        'should serialize event.threads.stacktrace if event.exception.threadId does not match',
+        () {
+      // https://develop.sentry.dev/sdk/event-payloads/stacktrace/
+      final stacktrace =
+          SentryStackTrace(frames: [SentryStackFrame(function: 'main')]);
+      final serialized = SentryEvent(
+        exceptions: [
+          SentryException(value: 'Bad state', type: 'StateError', threadId: 1)
+        ],
+        threads: [
+          SentryThread(
+            crashed: true,
+            current: true,
+            id: 0,
+            name: 'Current isolate',
+            stacktrace: stacktrace,
+          )
+        ],
+      ).toJson();
+      expect(serialized['threads'], isNotNull);
     });
-    */
 
     test('serializes to JSON with sentryException', () {
       var sentryException;

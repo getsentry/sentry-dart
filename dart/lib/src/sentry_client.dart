@@ -130,7 +130,7 @@ class SentryClient {
 
     event = _applyDefaultPii(event);
 
-    if (event.exceptions != null) return event;
+    if (event.exceptions?.isNotEmpty ?? false) return event;
 
     if (event.throwableMechanism != null) {
       final sentryException = _exceptionFactory.getSentryException(

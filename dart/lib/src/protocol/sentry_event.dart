@@ -3,8 +3,6 @@ import 'package:meta/meta.dart';
 import '../protocol.dart';
 import '../throwable_mechanism.dart';
 import '../utils.dart';
-import '../scope.dart';
-import 'sentry_thread.dart';
 
 /// An event to be reported to Sentry.io.
 @immutable
@@ -358,15 +356,17 @@ class SentryEvent {
         ?.map((e) => e.toJson())
         .where((e) => e.isNotEmpty)
         .toList(growable: false);
-    if (exceptionsJson != null && exceptionsJson.isNotEmpty) {
+    if (exceptionsJson?.isNotEmpty ?? false) {
       json['exception'] = {'values': exceptionsJson};
     }
 
+    final threadIds = exceptions?.map((element) => element.threadId).toList();
     final threadJson = threads
-        ?.map((e) => e.toJson())
+        ?.where((element) => !(threadIds?.contains(element.id) ?? true))
+        .map((e) => e.toJson())
         .where((e) => e.isNotEmpty)
         .toList(growable: false);
-    if (threadJson != null && threadJson.isNotEmpty) {
+    if (threadJson?.isNotEmpty ?? false) {
       json['threads'] = {'values': threadJson};
     }
 
