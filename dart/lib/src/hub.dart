@@ -5,6 +5,7 @@ import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
+import 'sentry_user_feedback.dart';
 
 /// Configures the scope through the callback.
 typedef ScopeCallback = void Function(Scope);
@@ -180,6 +181,35 @@ class Hub {
       }
     }
     return sentryId;
+  }
+
+  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {
+    if (!_isEnabled) {
+      _options.logger(
+        SentryLevel.warning,
+        "Instance is disabled and this 'captureUserFeedback' call is a no-op.",
+      );
+      return;
+    }
+    if (userFeedback.eventId == SentryId.empty()) {
+      _options.logger(
+        SentryLevel.warning,
+        'Captured UserFeedback with empty id, dropping the feedback',
+      );
+      return;
+    }
+    try {
+      final item = _peek();
+
+      await item.client.captureUserFeedback(userFeedback);
+    } catch (exception, stacktrace) {
+      _options.logger(
+        SentryLevel.error,
+        'Error while capturing user feedback for ${userFeedback.eventId}',
+        exception: exception,
+        stackTrace: stacktrace,
+      );
+    }
   }
 
   Scope _cloneAndRunWithScope(Scope scope, ScopeCallback? withScope) {

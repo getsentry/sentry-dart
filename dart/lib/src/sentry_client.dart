@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:math';
-
 import 'event_processor.dart';
+import 'sentry_user_feedback.dart';
 import 'transport/rate_limiter.dart';
 import 'protocol.dart';
 import 'scope.dart';
@@ -208,6 +208,15 @@ class SentryClient {
 
   /// Reports the [envelope] to Sentry.io.
   Future<SentryId?> captureEnvelope(SentryEnvelope envelope) {
+    return _options.transport.send(envelope);
+  }
+
+  /// Reports the [userFeedback] to Sentry.io.
+  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) {
+    final envelope = SentryEnvelope.fromUserFeedback(
+      userFeedback,
+      _options.sdk,
+    );
     return _options.transport.send(envelope);
   }
 
