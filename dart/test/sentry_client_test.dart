@@ -725,9 +725,8 @@ void main() {
 
 Future<SentryEvent> eventFromEnvelope(SentryEnvelope envelope) async {
   final envelopeItemData = <int>[];
-  await envelope.items.first
-      .envelopeItemStream()
-      .forEach(envelopeItemData.addAll);
+  envelopeItemData.addAll(await envelope.items.first.envelopeItemStream());
+
   final envelopeItem = utf8.decode(envelopeItemData);
   final envelopeItemJson = jsonDecode(envelopeItem.split('\n').last);
   return SentryEvent.fromJson(envelopeItemJson as Map<String, dynamic>);

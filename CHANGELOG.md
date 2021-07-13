@@ -1,6 +1,7 @@
 # Unreleased
 
 * Fix: Serialization of Flutter Context (#520)
+* Feat: Add support for attachments (#505)
 
 # 6.0.0-beta.1
 
@@ -9,6 +10,7 @@
 * Feat: Add Culture Context (#491)
 * Feat: Add DeduplicationEventProcessor (#498)
 * Feat: Capture failed requests as event (#473)
+* Feat: `beforeSend` callback accepts async code (#494)
 
 ## Breaking Changes:
 

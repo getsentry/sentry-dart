@@ -1,28 +1,40 @@
 import 'package:meta/meta.dart';
 import 'package:uuid/uuid.dart';
 
-/// Hexadecimal string representing a uuid4 value
+/// Hexadecimal string representing a uuid4 value.
+/// The length is exactly 32
+/// characters. Dashes are not allowed. Has to be lowercase.
 @immutable
 class SentryId {
-  static final SentryId _emptyId =
-      SentryId.fromId('00000000-0000-0000-0000-000000000000');
-
   /// The ID Sentry.io assigned to the submitted event for future reference.
   final String _id;
 
   static final Uuid _uuidGenerator = Uuid();
 
-  SentryId._internal({String? id}) : _id = id ?? _uuidGenerator.v4();
+  SentryId._internal({String? id})
+      : _id =
+            id?.replaceAll('-', '') ?? _uuidGenerator.v4().replaceAll('-', '');
 
   /// Generates a new SentryId
-  factory SentryId.newId() => SentryId._internal();
+  SentryId.newId() : this._internal();
 
   /// Generates a SentryId with the given UUID
-  factory SentryId.fromId(String id) => SentryId._internal(id: id);
+  SentryId.fromId(String id) : this._internal(id: id);
 
   /// SentryId with an empty UUID
-  factory SentryId.empty() => _emptyId;
+  const SentryId.empty() : _id = '00000000000000000000000000000000';
 
   @override
-  String toString() => _id.replaceAll('-', '');
+  String toString() => _id;
+
+  @override
+  int get hashCode => _id.hashCode;
+
+  @override
+  bool operator ==(o) {
+    if (o is SentryId) {
+      return o._id == _id;
+    }
+    return false;
+  }
 }

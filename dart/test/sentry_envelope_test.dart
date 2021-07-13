@@ -31,8 +31,7 @@ void main() {
       final expectedHeaderJson = header.toJson();
       final expectedHeaderJsonSerialized = jsonEncode(expectedHeaderJson);
 
-      final expectedItem = <int>[];
-      await item.envelopeItemStream().forEach(expectedItem.addAll);
+      final expectedItem = await item.envelopeItemStream();
       final expectedItemSerialized = utf8.decode(expectedItem);
 
       final expected = utf8.encode(
@@ -60,13 +59,9 @@ void main() {
       expect(await sut.items[0].header.length(),
           await expectedEnvelopeItem.header.length());
 
-      final actualItem = <int>[];
-      await sut.items[0].envelopeItemStream().forEach(actualItem.addAll);
+      final actualItem = await sut.items[0].envelopeItemStream();
 
-      final expectedItem = <int>[];
-      await expectedEnvelopeItem
-          .envelopeItemStream()
-          .forEach(expectedItem.addAll);
+      final expectedItem = await expectedEnvelopeItem.envelopeItemStream();
 
       expect(actualItem, expectedItem);
     });

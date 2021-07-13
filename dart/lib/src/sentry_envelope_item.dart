@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_item_type.dart';
 import 'protocol/sentry_event.dart';
 import 'sentry_envelope_item_header.dart';
@@ -8,13 +9,24 @@ import 'sentry_envelope_item_header.dart';
 class SentryEnvelopeItem {
   SentryEnvelopeItem(this.header, this.dataFactory);
 
-  /// Header with info about type and length of data in bytes.
-  final SentryEnvelopeItemHeader header;
+  factory SentryEnvelopeItem.fromAttachment(SentryAttachment attachment) {
+    final cachedItem = _CachedItem(() async {
+      return await attachment.bytes;
+    });
 
-  /// Create binary data representation of item data.
-  final Future<List<int>> Function() dataFactory;
+    final getLength = () async => (await cachedItem.getData()).length;
 
-  /// Create an `SentryEnvelopeItem` which holds the `SentyEvent` data.
+    final header = SentryEnvelopeItemHeader(
+      SentryItemType.attachment,
+      getLength,
+      contentType: attachment.contentType,
+      fileName: attachment.filename,
+      attachmentType: attachment.attachmentType,
+    );
+    return SentryEnvelopeItem(header, cachedItem.getData);
+  }
+
+  /// Create an [SentryEnvelopeItem] which holds the [SentryEvent] data.
   factory SentryEnvelopeItem.fromEvent(SentryEvent event) {
     final cachedItem = _CachedItem(() async {
       final jsonEncoded = jsonEncode(event.toJson());
@@ -26,16 +38,34 @@ class SentryEnvelopeItem {
     };
 
     return SentryEnvelopeItem(
-        SentryEnvelopeItemHeader(SentryItemType.event, getLength,
-            contentType: 'application/json'),
-        cachedItem.getData);
+      SentryEnvelopeItemHeader(
+        SentryItemType.event,
+        getLength,
+        contentType: 'application/json',
+      ),
+      cachedItem.getData,
+    );
   }
 
+  /// Header with info about type and length of data in bytes.
+  final SentryEnvelopeItemHeader header;
+
+  /// Create binary data representation of item data.
+  final Future<List<int>> Function() dataFactory;
+
   /// Stream binary data of `Envelope` item.
-  Stream<List<int>> envelopeItemStream() async* {
-    yield utf8.encode(jsonEncode(await header.toJson()));
-    yield utf8.encode('\n');
-    yield await dataFactory();
+  Future<List<int>> envelopeItemStream() async {
+    // Each item needs to be encoded as one unit.
+    // Otherwise the header alredy got yielded if the content throws
+    // an exception.
+    try {
+      final itemHeader = utf8.encode(jsonEncode(await header.toJson()));
+      final newLine = utf8.encode('\n');
+      final data = await dataFactory();
+      return [...itemHeader, ...newLine, ...data];
+    } catch (e) {
+      return [];
+    }
   }
 }
 

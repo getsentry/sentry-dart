@@ -10,7 +10,7 @@ class FileSystemTransport implements Transport {
   final SentryOptions _options;
 
   @override
-  Future<SentryId> send(SentryEnvelope envelope) async {
+  Future<SentryId?> send(SentryEnvelope envelope) async {
     final envelopeData = <int>[];
     await envelope.envelopeStream().forEach(envelopeData.addAll);
     // https://flutter.dev/docs/development/platform-integration/platform-channels#codec
@@ -27,6 +27,6 @@ class FileSystemTransport implements Transport {
       return SentryId.empty();
     }
 
-    return envelope.header.eventId ?? SentryId.empty();
+    return envelope.header.eventId;
   }
 }
