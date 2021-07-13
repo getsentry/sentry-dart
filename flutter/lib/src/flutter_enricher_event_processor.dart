@@ -115,19 +115,23 @@ class FlutterEnricherEventProcessor extends EventProcessor {
     );
   }
 
-  Map<String, dynamic> _getFlutterContext() {
+  Map<String, String> _getFlutterContext() {
     final currentLifecycle = _widgetsBinding?.lifecycleState;
+    final debugPlatformOverride = debugDefaultTargetPlatformOverride;
+    final tempDebugBrightnessOverride = debugBrightnessOverride;
+    final initialLifecycleState = _window?.initialLifecycleState;
+    final defaultRouteName = _window?.defaultRouteName;
 
-    return <String, dynamic>{
-      if (debugBrightnessOverride != null)
-        'debug_brightness_override': debugBrightnessOverride,
-      if (debugDefaultTargetPlatformOverride != null)
+    return <String, String>{
+      if (tempDebugBrightnessOverride != null)
+        'debug_brightness_override': describeEnum(tempDebugBrightnessOverride),
+      if (debugPlatformOverride != null)
         'debug_default_target_platform_override':
-            debugDefaultTargetPlatformOverride,
-      if (_window?.initialLifecycleState.isNotEmpty ?? false)
-        'initial_lifecycle_state': _window?.initialLifecycleState,
-      if (_window?.defaultRouteName.isNotEmpty ?? false)
-        'default_route_name': _window?.defaultRouteName,
+            describeEnum(debugPlatformOverride),
+      if (initialLifecycleState != null && initialLifecycleState.isNotEmpty)
+        'initial_lifecycle_state': initialLifecycleState,
+      if (defaultRouteName != null && defaultRouteName.isNotEmpty)
+        'default_route_name': defaultRouteName,
       if (currentLifecycle != null)
         'current_lifecycle_state': describeEnum(currentLifecycle),
       // Seems to always return false.
@@ -137,12 +141,12 @@ class FlutterEnricherEventProcessor extends EventProcessor {
     };
   }
 
-  Map<String, dynamic> _getAccessibilityContext() {
+  Map<String, bool> _getAccessibilityContext() {
     final window = _window;
     if (window == null) {
       return {};
     }
-    return <String, dynamic>{
+    return <String, bool>{
       'accessible_navigation':
           window.accessibilityFeatures.accessibleNavigation,
       'bold_text': window.accessibilityFeatures.boldText,

@@ -1,5 +1,6 @@
 # Unreleased
 
+* Fix: Serialization of Flutter Context (#520)
 * Feat: Add support for attachments (#505)
 * Feat: Add support for User Feedback (#506)
 
