@@ -191,6 +191,13 @@ class Hub {
       );
       return;
     }
+    if (userFeedback.eventId == SentryId.empty()) {
+      _options.logger(
+        SentryLevel.warning,
+        'Captured UserFeedback with empty id, dropping the feedback',
+      );
+      return;
+    }
     try {
       final item = _peek();
 

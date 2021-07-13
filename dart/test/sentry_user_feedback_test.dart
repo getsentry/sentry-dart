@@ -112,6 +112,19 @@ void main() {
     expect(fixture.transport.envelopes.length, 0);
   });
 
+  test('do not send $SentryUserFeedback with empty id', () async {
+    final fixture = Fixture();
+    final sut = fixture.getSut();
+    await sut.close();
+    await sut.captureUserFeedback(
+      SentryUserFeedbackWithoutAssert(
+        eventId: SentryId.empty(),
+      ),
+    );
+
+    expect(fixture.transport.envelopes.length, 0);
+  });
+
   test('captureUserFeedback does not throw', () async {
     final options = SentryOptions(dsn: fakeDsn);
     final transport = ThrowingTransport();
@@ -134,5 +147,63 @@ class Fixture {
     transport = MockTransport();
     options.transport = transport;
     return Hub(options);
+  }
+}
+
+// You cannot create an instance of SentryUserFeedback with an empty id.
+// In order to test that UserFeedback with an empty id is not sent
+// we need to implement it and remove the assert.
+class SentryUserFeedbackWithoutAssert implements SentryUserFeedback {
+  SentryUserFeedbackWithoutAssert({
+    required this.eventId,
+    this.name,
+    this.email,
+    this.comments,
+  });
+
+  factory SentryUserFeedbackWithoutAssert.fromJson(Map<String, dynamic> json) {
+    return SentryUserFeedbackWithoutAssert(
+      eventId: SentryId.fromId(json['event_id']),
+      name: json['name'],
+      email: json['email'],
+      comments: json['comments'],
+    );
+  }
+
+  @override
+  final SentryId eventId;
+
+  @override
+  final String? name;
+
+  @override
+  final String? email;
+
+  @override
+  final String? comments;
+
+  @override
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'event_id': eventId.toString(),
+      if (name != null) 'name': name,
+      if (email != null) 'email': email,
+      if (comments != null) 'comments': comments,
+    };
+  }
+
+  @override
+  SentryUserFeedback copyWith({
+    SentryId? eventId,
+    String? name,
+    String? email,
+    String? comments,
+  }) {
+    return SentryUserFeedback(
+      eventId: eventId ?? this.eventId,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      comments: comments ?? this.comments,
+    );
   }
 }
