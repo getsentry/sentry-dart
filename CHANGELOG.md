@@ -1,4 +1,4 @@
-# Unreleased
+# 6.0.0-beta.2
 
 * Fix: Serialization of Flutter Context (#520)
 * Feat: Add support for attachments (#505)
