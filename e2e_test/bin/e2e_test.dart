@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:http/http.dart';
 import 'package:sentry/sentry.dart';
 
@@ -10,19 +12,28 @@ const _projectSlug = 'dart';
 const _token = String.fromEnvironment('SENTRY_AUTH_TOKEN');
 
 void main(List<String> arguments) async {
+  print('Starting');
   await Sentry.init((options) {
     options.dsn = _exampleDsn;
   });
 
   final id = await Sentry.captureMessage('E2E Test Message');
+  print('Captured message');
   final url = eventUri(id);
-  await waitForEventToShowUp(url);
+  final found = await waitForEventToShowUp(url);
+  if (found) {
+    print('success');
+  } else {
+    print('failed');
+    exit(1);
+  }
 }
 
 Future<bool> waitForEventToShowUp(Uri url) async {
   var client = Client();
 
   for (var i = 0; i < 10; i++) {
+    print('Try no. $i: Search for event on sentry.io');
     final response = await client.get(
       url,
       headers: <String, String>{'Authorization': 'Bearer $_token'},
@@ -36,6 +47,8 @@ Future<bool> waitForEventToShowUp(Uri url) async {
 }
 
 Uri eventUri(SentryId id) {
+  // https://docs.sentry.io/api/events/retrieve-an-event-for-a-project/
   return Uri.parse(
-      'https://sentry.io/api/0/projects/$_org/$_projectSlug/events/$id/');
+    'https://sentry.io/api/0/projects/$_org/$_projectSlug/events/$id/',
+  );
 }
