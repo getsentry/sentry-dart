@@ -8,7 +8,7 @@ import 'sentry_stack_trace.dart';
 @immutable
 class SentryThread {
   SentryThread({
-    this.id,
+    this.id = 0,
     this.name,
     this.crashed,
     this.current,
