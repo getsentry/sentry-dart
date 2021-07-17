@@ -1,4 +1,5 @@
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/event_processor/deduplication_event_processor.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
@@ -211,6 +212,18 @@ void main() {
 
       expect(integration.callCalls, 1);
       expect(integration.closeCalls, 1);
+    });
+
+    test('$DeduplicationEventProcessor is added on init', () async {
+      await Sentry.init(
+        (options) {
+          options.dsn = fakeDsn;
+          final count = options.eventProcessors
+              .whereType<DeduplicationEventProcessor>()
+              .length;
+          expect(count, 1);
+        },
+      );
     });
   });
 

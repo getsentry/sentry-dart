@@ -1,8 +1,17 @@
 # Unreleased
 
+# 6.0.0-beta.2
+
+* Fix: Serialization of Flutter Context (#520)
+* Feat: Add support for attachments (#505)
+* Feat: Add support for User Feedback (#506)
+
+# 6.0.0-beta.1
+
 * Feat: Browser detection (#502)
 * Feat: Enrich events with more context (#452)
 * Feat: Add Culture Context (#491)
+* Feat: Add DeduplicationEventProcessor (#498)
 * Feat: Capture failed requests as event (#473)
 * Feat: `beforeSend` callback accepts async code (#494)
 
@@ -13,6 +22,13 @@
   * The method signature of `Transport` changed from `Future<SentryId> send(SentryEvent event)` to `Future<SentryId> send(SentryEnvelope envelope)`
 * Remove `Sentry.currentHub` (#490)
 * Ref: Rename `cacheDirSize` to `maxCacheItems` and add `maxCacheItems` for iOS (#495)
+* Ref: Add error and stacktrace parameter to logger (#503)
+* Feat: Change timespans to Durations in SentryOptions (#504)
+* Feat: `beforeSend` callback accepts async code (#494)
+
+## Sentry Self Hosted Compatibility
+
+* Since version `6.0.0` of the `sentry`, [Sentry's version >= v20.6.0](https://github.com/getsentry/onpremise/releases) is required. This only applies to on-premise Sentry, if you are using sentry.io no action is needed.
 
 # 5.1.0
 
@@ -172,8 +188,6 @@ Packages were released on [sentry pubdev](https://pub.dev/packages/sentry) and [
 ## Sentry Self Hosted Compatibility
 
 * Since version `4.0.0` of the `sentry_flutter`, [Sentry's version >= v20.6.0](https://github.com/getsentry/onpremise/releases) is required. This only applies to on-premise Sentry, if you are using sentry.io no action is needed.
-
-We'd love to get feedback.
 
 # 4.0.0-beta.2
 

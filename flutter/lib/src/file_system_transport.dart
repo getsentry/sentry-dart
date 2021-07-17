@@ -10,21 +10,23 @@ class FileSystemTransport implements Transport {
   final SentryOptions _options;
 
   @override
-  Future<SentryId> send(SentryEnvelope envelope) async {
+  Future<SentryId?> send(SentryEnvelope envelope) async {
     final envelopeData = <int>[];
     await envelope.envelopeStream().forEach(envelopeData.addAll);
     // https://flutter.dev/docs/development/platform-integration/platform-channels#codec
     final args = [Uint8List.fromList(envelopeData)];
     try {
       await _channel.invokeMethod<void>('captureEnvelope', args);
-    } catch (error) {
+    } catch (exception, stackTrace) {
       _options.logger(
         SentryLevel.error,
-        'Failed to save envelope: $error',
+        'Failed to save envelope',
+        exception: exception,
+        stackTrace: stackTrace,
       );
       return SentryId.empty();
     }
 
-    return envelope.header.eventId ?? SentryId.empty();
+    return envelope.header.eventId;
   }
 }

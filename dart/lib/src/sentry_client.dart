@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:math';
-
 import 'event_processor.dart';
+import 'sentry_user_feedback.dart';
 import 'transport/rate_limiter.dart';
 import 'protocol.dart';
 import 'scope.dart';
@@ -92,10 +92,12 @@ class SentryClient {
     if (beforeSend != null) {
       try {
         preparedEvent = await beforeSend(preparedEvent, hint: hint);
-      } catch (err) {
+      } catch (exception, stackTrace) {
         _options.logger(
           SentryLevel.error,
-          'The BeforeSend callback threw an exception, error: $err',
+          'The BeforeSend callback threw an exception',
+          exception: exception,
+          stackTrace: stackTrace,
         );
       }
       if (preparedEvent == null) {
@@ -106,8 +108,14 @@ class SentryClient {
         return _sentryId;
       }
     }
-    final envelope = SentryEnvelope.fromEvent(preparedEvent, _options.sdk);
-    return await _options.transport.send(envelope);
+    final envelope = SentryEnvelope.fromEvent(
+      preparedEvent,
+      _options.sdk,
+      attachments: scope?.attachements,
+    );
+
+    final id = await captureEnvelope(envelope);
+    return id ?? SentryId.empty();
   }
 
   SentryEvent _prepareEvent(SentryEvent event, {dynamic stackTrace}) {
@@ -203,6 +211,15 @@ class SentryClient {
     return _options.transport.send(envelope);
   }
 
+  /// Reports the [userFeedback] to Sentry.io.
+  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) {
+    final envelope = SentryEnvelope.fromUserFeedback(
+      userFeedback,
+      _options.sdk,
+    );
+    return _options.transport.send(envelope);
+  }
+
   void close() => _options.httpClient.close();
 
   Future<SentryEvent?> _processEvent(
@@ -214,10 +231,12 @@ class SentryClient {
     for (final processor in eventProcessors) {
       try {
         processedEvent = await processor.apply(processedEvent!, hint: hint);
-      } catch (err) {
+      } catch (exception, stackTrace) {
         _options.logger(
           SentryLevel.error,
-          'An exception occurred while processing event by a processor : $err',
+          'An exception occurred while processing event by a processor',
+          exception: exception,
+          stackTrace: stackTrace,
         );
       }
       if (processedEvent == null) {

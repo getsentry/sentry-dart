@@ -3,6 +3,7 @@ import 'dart:async';
 import 'default_integrations.dart';
 import 'enricher/enricher_event_processor.dart';
 import 'environment_variables.dart';
+import 'event_processor/deduplication_event_processor.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
 import 'noop_isolate_error_integration.dart'
@@ -12,6 +13,7 @@ import 'protocol.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'integration.dart';
+import 'sentry_user_feedback.dart';
 
 /// Configuration options callback
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
@@ -63,6 +65,7 @@ class Sentry {
     }
 
     options.addEventProcessor(getEnricherEventProcessor(options));
+    options.addEventProcessor(DeduplicationEventProcessor(options));
   }
 
   /// This method reads available environment variables and uses them
@@ -173,6 +176,9 @@ class Sentry {
         hint: hint,
         withScope: withScope,
       );
+
+  static Future captureUserFeedback(SentryUserFeedback userFeedback) =>
+      _hub.captureUserFeedback(userFeedback);
 
   /// Close the client SDK
   static Future<void> close() async {

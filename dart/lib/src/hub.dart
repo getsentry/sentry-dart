@@ -5,6 +5,7 @@ import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
+import 'sentry_user_feedback.dart';
 
 /// Configures the scope through the callback.
 typedef ScopeCallback = void Function(Scope);
@@ -75,10 +76,12 @@ class Hub {
           scope: scope,
           hint: hint,
         );
-      } catch (err) {
+      } catch (exception, stackTrace) {
         _options.logger(
           SentryLevel.error,
-          'Error while capturing event with id: ${event.eventId}, error: $err',
+          'Error while capturing event with id: ${event.eventId}',
+          exception: exception,
+          stackTrace: stackTrace,
         );
       } finally {
         _lastEventId = sentryId;
@@ -117,10 +120,12 @@ class Hub {
           scope: scope,
           hint: hint,
         );
-      } catch (err) {
+      } catch (exception, stackTrace) {
         _options.logger(
           SentryLevel.error,
-          'Error while capturing exception : $throwable',
+          'Error while capturing exception',
+          exception: exception,
+          stackTrace: stackTrace,
         );
       } finally {
         _lastEventId = sentryId;
@@ -164,16 +169,47 @@ class Hub {
           scope: scope,
           hint: hint,
         );
-      } catch (err) {
+      } catch (exception, stackTrace) {
         _options.logger(
           SentryLevel.error,
-          'Error while capturing message with id: $message, error: $err',
+          'Error while capturing message with id: $message',
+          exception: exception,
+          stackTrace: stackTrace,
         );
       } finally {
         _lastEventId = sentryId;
       }
     }
     return sentryId;
+  }
+
+  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {
+    if (!_isEnabled) {
+      _options.logger(
+        SentryLevel.warning,
+        "Instance is disabled and this 'captureUserFeedback' call is a no-op.",
+      );
+      return;
+    }
+    if (userFeedback.eventId == SentryId.empty()) {
+      _options.logger(
+        SentryLevel.warning,
+        'Captured UserFeedback with empty id, dropping the feedback',
+      );
+      return;
+    }
+    try {
+      final item = _peek();
+
+      await item.client.captureUserFeedback(userFeedback);
+    } catch (exception, stacktrace) {
+      _options.logger(
+        SentryLevel.error,
+        'Error while capturing user feedback for ${userFeedback.eventId}',
+        exception: exception,
+        stackTrace: stacktrace,
+      );
+    }
   }
 
   Scope _cloneAndRunWithScope(Scope scope, ScopeCallback? withScope) {
@@ -200,8 +236,10 @@ class Hub {
   /// Binds a different client to the hub
   void bindClient(SentryClient client) {
     if (!_isEnabled) {
-      _options.logger(SentryLevel.warning,
-          "Instance is disabled and this 'bindClient' call is a no-op.");
+      _options.logger(
+        SentryLevel.warning,
+        "Instance is disabled and this 'bindClient' call is a no-op.",
+      );
     } else {
       final item = _peek();
       _options.logger(SentryLevel.debug, 'New client bound to scope.');
@@ -238,10 +276,12 @@ class Hub {
 
       try {
         item.client.close();
-      } catch (err) {
+      } catch (exception, stackTrace) {
         _options.logger(
           SentryLevel.error,
-          'Error while closing the Hub, error: $err',
+          'Error while closing the Hub',
+          exception: exception,
+          stackTrace: stackTrace,
         );
       }
 

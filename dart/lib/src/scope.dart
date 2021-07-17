@@ -1,5 +1,5 @@
 import 'dart:collection';
-
+import 'sentry_attachment/sentry_attachment.dart';
 import 'event_processor.dart';
 import 'protocol.dart';
 import 'sentry_options.dart';
@@ -81,6 +81,10 @@ class Scope {
 
   final SentryOptions _options;
 
+  final List<SentryAttachment> _attachements = [];
+
+  List<SentryAttachment> get attachements => List.unmodifiable(_attachements);
+
   Scope(this._options);
 
   /// Adds a breadcrumb to the breadcrumbs queue
@@ -100,7 +104,9 @@ class Scope {
 
       if (processedBreadcrumb == null) {
         _options.logger(
-            SentryLevel.info, 'Breadcrumb was dropped by beforeBreadcrumb');
+          SentryLevel.info,
+          'Breadcrumb was dropped by beforeBreadcrumb',
+        );
         return;
       }
     }
@@ -112,6 +118,14 @@ class Scope {
     }
 
     _breadcrumbs.add(breadcrumb);
+  }
+
+  void addAttachment(SentryAttachment attachment) {
+    _attachements.add(attachment);
+  }
+
+  void clearAttachments() {
+    _attachements.clear();
   }
 
   /// Clear all the breadcrumbs
@@ -127,6 +141,7 @@ class Scope {
   /// Resets the Scope to its default state
   void clear() {
     clearBreadcrumbs();
+    clearAttachments();
     level = null;
     transaction = null;
     user = null;
@@ -184,10 +199,12 @@ class Scope {
     for (final processor in _eventProcessors) {
       try {
         processedEvent = await processor.apply(processedEvent!, hint: hint);
-      } catch (err) {
+      } catch (exception, stackTrace) {
         _options.logger(
           SentryLevel.error,
-          'An exception occurred while processing event by a processor : $err',
+          'An exception occurred while processing event by a processor',
+          exception: exception,
+          stackTrace: stackTrace,
         );
       }
       if (processedEvent == null) {
@@ -280,6 +297,10 @@ class Scope {
         clone.setContexts(key, value);
       }
     });
+
+    for (final attachment in _attachements) {
+      clone.addAttachment(attachment);
+    }
 
     return clone;
   }

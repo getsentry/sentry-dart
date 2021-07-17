@@ -13,3 +13,10 @@ class MockTransport implements Transport {
     return envelope.header.eventId ?? SentryId.empty();
   }
 }
+
+class ThrowingTransport implements Transport {
+  @override
+  Future<SentryId> send(SentryEnvelope envelope) async {
+    throw Exception('foo bar');
+  }
+}

@@ -24,8 +24,7 @@ void main() {
       final headerJsonEncoded = jsonEncode(headerJson);
       final expected = utf8.encode('$headerJsonEncoded\n{fixture}');
 
-      final actualItem = <int>[];
-      await sut.envelopeItemStream().forEach(actualItem.addAll);
+      final actualItem = await sut.envelopeItemStream();
 
       expect(actualItem, expected);
     });

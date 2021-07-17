@@ -1,4 +1,5 @@
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/sentry_user_feedback.dart';
 
 class MockHub implements Hub {
   List<CaptureEventCall> captureEventCalls = [];
@@ -6,6 +7,7 @@ class MockHub implements Hub {
   List<CaptureMessageCall> captureMessageCalls = [];
   List<AddBreadcrumbCall> addBreadcrumbCalls = [];
   List<SentryClient?> bindClientCalls = [];
+  List<SentryUserFeedback> userFeedbackCalls = [];
   int closeCalls = 0;
   bool _isEnabled = true;
 
@@ -102,6 +104,12 @@ class MockHub implements Hub {
   @override
   // TODO: implement lastEventId
   SentryId get lastEventId => throw UnimplementedError();
+
+  @override
+  Future<SentryId> captureUserFeedback(SentryUserFeedback userFeedback) async {
+    userFeedbackCalls.add(userFeedback);
+    return SentryId.empty();
+  }
 }
 
 class CaptureEventCall {

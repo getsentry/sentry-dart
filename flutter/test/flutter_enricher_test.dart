@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/flutter_enricher_event_processor.dart';
@@ -17,14 +18,23 @@ void main() {
     });
 
     testWidgets('flutter context', (WidgetTester tester) async {
+      // These two values need to be changed inside the test,
+      // otherwise the Flutter test framework complains that these
+      // values are changed outside of a test.
+      debugBrightnessOverride = Brightness.dark;
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
       final enricher = fixture.getSut(
         binding: () => tester.binding,
       );
 
       final event = await enricher.apply(SentryEvent());
 
+      debugBrightnessOverride = null;
+      debugDefaultTargetPlatformOverride = null;
+
       final flutterContext = event.contexts['flutter_context'];
       expect(flutterContext, isNotNull);
+      expect(flutterContext, isA<Map<String, String>>());
     });
 
     testWidgets('accessibility context', (WidgetTester tester) async {

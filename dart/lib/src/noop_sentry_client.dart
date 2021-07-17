@@ -4,6 +4,7 @@ import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_client.dart';
 import 'sentry_envelope.dart';
+import 'sentry_user_feedback.dart';
 
 class NoOpSentryClient implements SentryClient {
   NoOpSentryClient._();
@@ -45,6 +46,10 @@ class NoOpSentryClient implements SentryClient {
 
   @override
   Future<SentryId> captureEnvelope(SentryEnvelope envelope) =>
+      Future.value(SentryId.empty());
+
+  @override
+  Future<SentryId> captureUserFeedback(SentryUserFeedback userFeedback) =>
       Future.value(SentryId.empty());
 
   @override
