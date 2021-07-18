@@ -65,5 +65,24 @@ void main() {
 
       expect(actualItem, expectedItem);
     });
+
+    // This test passes if no exceptions are thrown, thus no asserts.
+    // This is a test for https://github.com/getsentry/sentry-dart/issues/523
+    test('serialize with non-serializable class', () async {
+      final event = SentryEvent(extra: {'non-ecodable': NonEncodable()});
+      final sut = SentryEnvelope.fromEvent(
+        event,
+        SdkVersion(
+          name: 'test',
+          version: '1',
+        ),
+      );
+
+      final _ = sut.envelopeStream().map((e) => e);
+    });
   });
+}
+
+class NonEncodable {
+  final String message = 'Hello World';
 }
