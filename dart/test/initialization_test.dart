@@ -9,6 +9,10 @@ import 'mocks.dart';
 // https://github.com/getsentry/sentry-dart/issues/508
 // There are no asserts, test are succesfull if no exceptions are thrown.
 void main() {
+  tearDown(() async {
+    await Sentry.close();
+  });
+
   test('async re-initilization', () async {
     await Sentry.init((options) {
       options.dsn = fakeDsn;
