@@ -2,6 +2,10 @@
 
 * Enhancement: Call `toString()` on all non-serializable fields (#528)
 
+## Breaking Changes:
+
+* Feat: Lists of exceptions and threads (#524)
+
 # 6.0.0-beta.2
 
 * Fix: Serialization of Flutter Context (#520)
