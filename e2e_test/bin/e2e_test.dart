@@ -13,6 +13,10 @@ const _token = String.fromEnvironment('SENTRY_AUTH_TOKEN');
 
 void main(List<String> arguments) async {
   print('Starting');
+  if (_token.trim().isEmpty) {
+    print('AUTH TOKEN is not set');
+    exit(1);
+  }
   await Sentry.init((options) {
     options.dsn = _exampleDsn;
   });
