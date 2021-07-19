@@ -6,8 +6,8 @@ import 'package:sentry/sentry.dart';
 const _exampleDsn =
     'https://8b83cb94764f4701bee40028c2f29e72@o447951.ingest.sentry.io/5428562';
 
-const _org = 'sdk';
-const _projectSlug = 'dart';
+const _org = 'sentry-sdks';
+const _projectSlug = 'sentry-flutter';
 
 const _token = String.fromEnvironment('SENTRY_AUTH_TOKEN');
 
