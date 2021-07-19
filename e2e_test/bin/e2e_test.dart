@@ -38,6 +38,7 @@ Future<bool> waitForEventToShowUp(Uri url) async {
       url,
       headers: <String, String>{'Authorization': 'Bearer $_token'},
     );
+    print('${response.statusCode}: ${response.body}');
     if (response.statusCode == 200) {
       return true;
     }
