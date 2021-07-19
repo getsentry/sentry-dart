@@ -1,6 +1,6 @@
 # Unreleased
 
-* Fix: Re-initialization of Flutter SDK (#509)
+* Fix: Re-initialization of Flutter SDK (#526)
 
 # 6.0.0-beta.2
 
