@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'utils.dart';
 import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_item_type.dart';
 import 'protocol/sentry_event.dart';
@@ -29,41 +29,27 @@ class SentryEnvelopeItem {
 
   /// Create an [SentryEnvelopeItem] which sends [SentryUserFeedback].
   factory SentryEnvelopeItem.fromUserFeedback(SentryUserFeedback feedback) {
-    final cachedItem = _CachedItem(() async {
-      final jsonEncoded = jsonEncode(feedback.toJson());
-      return utf8.encode(jsonEncoded);
-    });
-
-    final getLength = () async {
-      return (await cachedItem.getData()).length;
-    };
+    final bytes = _jsonToBytes(feedback.toJson());
 
     final header = SentryEnvelopeItemHeader(
       SentryItemType.userFeedback,
-      getLength,
+      () async => bytes.length,
       contentType: 'application/json',
     );
-    return SentryEnvelopeItem(header, cachedItem.getData);
+    return SentryEnvelopeItem(header, () async => bytes);
   }
 
   /// Create an [SentryEnvelopeItem] which holds the [SentryEvent] data.
   factory SentryEnvelopeItem.fromEvent(SentryEvent event) {
-    final cachedItem = _CachedItem(() async {
-      final jsonEncoded = jsonEncode(event.toJson());
-      return utf8.encode(jsonEncoded);
-    });
-
-    final getLength = () async {
-      return (await cachedItem.getData()).length;
-    };
+    final bytes = _jsonToBytes(event.toJson());
 
     return SentryEnvelopeItem(
       SentryEnvelopeItemHeader(
         SentryItemType.event,
-        getLength,
+        () async => bytes.length,
         contentType: 'application/json',
       ),
-      cachedItem.getData,
+      () async => bytes,
     );
   }
 
@@ -79,13 +65,25 @@ class SentryEnvelopeItem {
     // Otherwise the header alredy got yielded if the content throws
     // an exception.
     try {
-      final itemHeader = utf8.encode(jsonEncode(await header.toJson()));
+      final itemHeader = utf8.encode(jsonEncode(
+        await header.toJson(),
+        toEncodable: jsonSerializationFallback,
+      ));
       final newLine = utf8.encode('\n');
       final data = await dataFactory();
       return [...itemHeader, ...newLine, ...data];
     } catch (e) {
       return [];
     }
+  }
+
+  static List<int> _jsonToBytes(Map<String, dynamic> json) {
+    return utf8.encode(
+      jsonEncode(
+        json,
+        toEncodable: jsonSerializationFallback,
+      ),
+    );
   }
 }
 

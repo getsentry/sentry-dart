@@ -17,3 +17,10 @@ String formatDateAsIso8601WithMillisPrecision(DateTime date) {
   // appends Z because the substring removed it
   return '${iso}Z';
 }
+
+Object? jsonSerializationFallback(Object? nonEncodable) {
+  if (nonEncodable == null) {
+    return null;
+  }
+  return nonEncodable.toString();
+}
