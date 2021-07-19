@@ -1,6 +1,7 @@
 # Unreleased
 
 * Enhancement: Call `toString()` on all non-serializable fields (#528)
+* Fix: Always call `Flutter.onError` in order to not swallow messages
 
 # 6.0.0-beta.2
 
