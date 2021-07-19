@@ -241,6 +241,7 @@ Future<PackageInfo> loadTestPackage() async {
     packageName: 'packageName',
     version: 'version',
     buildNumber: 'buildNumber',
+    buildSignature: '',
   );
 }
 

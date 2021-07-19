@@ -257,6 +257,7 @@ void main() {
           packageName: '',
           version: '1.2.3',
           buildNumber: '789',
+          buildSignature: '',
         ));
       };
       await fixture
@@ -275,6 +276,7 @@ void main() {
           packageName: '',
           version: '1.2.3',
           buildNumber: '789',
+          buildSignature: '',
         ));
       };
       await fixture
@@ -299,6 +301,7 @@ void main() {
           packageName: '',
           version: '1.0.0\u{0000}',
           buildNumber: '',
+          buildSignature: '',
         ));
       };
       await fixture
@@ -323,6 +326,7 @@ void main() {
           packageName: 'sentry_flutter_example\u{0000}',
           version: '',
           buildNumber: '123\u{0000}',
+          buildSignature: '',
         ));
       };
       await fixture
@@ -339,6 +343,7 @@ void main() {
           packageName: 'a.b.c',
           version: '1.0.0',
           buildNumber: '',
+          buildSignature: '',
         ));
       };
       await fixture
@@ -364,6 +369,7 @@ class Fixture {
       packageName: 'foo.bar',
       version: '1.2.3',
       buildNumber: '789',
+      buildSignature: '',
     ));
   }
 }
