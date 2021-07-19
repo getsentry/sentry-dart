@@ -11,6 +11,7 @@ jobs:
   build:
     name: Build ${{matrix.sdk}} on ${{matrix.os}}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: ./dart
@@ -53,6 +54,7 @@ jobs:
 
   analyze:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: ./dart
@@ -68,6 +70,7 @@ jobs:
 
   package-analysis:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v2
       - uses: axel-op/dart-package-analyzer@v3
