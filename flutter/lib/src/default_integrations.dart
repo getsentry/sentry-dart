@@ -73,7 +73,7 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
         );
       }
       // Call original handler, regardless of `errorDetails.silent` or
-      // `reportSilentFlutterErrors`. This ensures, that we doen't swallow
+      // `reportSilentFlutterErrors`. This ensures, that we don't swallow
       // messages.
       if (_defaultOnError != null) {
         _defaultOnError!(errorDetails);
