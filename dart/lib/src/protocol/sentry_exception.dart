@@ -20,7 +20,7 @@ class SentryException {
   /// An optional object describing the [Mechanism] that created this exception
   final Mechanism? mechanism;
 
-  /// Represents a thread id.
+  /// Represents a [SentryThread.id].
   final int? threadId;
 
   const SentryException({
