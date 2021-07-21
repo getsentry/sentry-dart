@@ -1,6 +1,8 @@
 # Unreleased
 
 * Enhancement: Call `toString()` on all non-serializable fields (#528)
+* Fix: Always call `Flutter.onError` in order to not swallow messages (#533)
+* Bump: Android SDK to 5.1.0-beta.6 (#535)
 
 ## Breaking Changes:
 

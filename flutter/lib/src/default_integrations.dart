@@ -62,12 +62,6 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
         );
 
         await hub.captureEvent(event, stackTrace: errorDetails.stack);
-
-        // call original handler
-        if (_defaultOnError != null) {
-          _defaultOnError!(errorDetails);
-        }
-
         // we don't call Zone.current.handleUncaughtError because we'd like
         // to set a specific mechanism for FlutterError.onError.
       } else {
@@ -77,6 +71,12 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
           'Enable [SentryFlutterOptions.reportSilentFlutterErrors] '
           'if you wish to capture silent errors',
         );
+      }
+      // Call original handler, regardless of `errorDetails.silent` or
+      // `reportSilentFlutterErrors`. This ensures, that we don't swallow
+      // messages.
+      if (_defaultOnError != null) {
+        _defaultOnError!(errorDetails);
       }
     };
     FlutterError.onError = _integrationOnError;
