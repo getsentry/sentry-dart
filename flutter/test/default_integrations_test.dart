@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:package_info_plus/package_info_plus.dart';
+import 'package:package_info/package_info.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/sentry_flutter_options.dart';
@@ -257,7 +257,6 @@ void main() {
           packageName: '',
           version: '1.2.3',
           buildNumber: '789',
-          buildSignature: '',
         ));
       };
       await fixture
@@ -276,7 +275,6 @@ void main() {
           packageName: '',
           version: '1.2.3',
           buildNumber: '789',
-          buildSignature: '',
         ));
       };
       await fixture
@@ -301,7 +299,6 @@ void main() {
           packageName: '',
           version: '1.0.0\u{0000}',
           buildNumber: '',
-          buildSignature: '',
         ));
       };
       await fixture
@@ -326,7 +323,6 @@ void main() {
           packageName: 'sentry_flutter_example\u{0000}',
           version: '',
           buildNumber: '123\u{0000}',
-          buildSignature: '',
         ));
       };
       await fixture
@@ -343,7 +339,6 @@ void main() {
           packageName: 'a.b.c',
           version: '1.0.0',
           buildNumber: '',
-          buildSignature: '',
         ));
       };
       await fixture
@@ -369,7 +364,6 @@ class Fixture {
       packageName: 'foo.bar',
       version: '1.2.3',
       buildNumber: '789',
-      buildSignature: '',
     ));
   }
 }
