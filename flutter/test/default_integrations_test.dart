@@ -46,6 +46,9 @@ void main() {
     final details = FlutterErrorDetails(
       exception: throwable,
       silent: silent,
+      context: DiagnosticsNode.message('while handling a gesture'),
+      library: 'sentry',
+      informationCollector: () => [DiagnosticsNode.message('foo bar')],
     );
     FlutterError.reportError(details);
   }
@@ -64,6 +67,10 @@ void main() {
     final throwableMechanism = event.throwableMechanism as ThrowableMechanism;
     expect(throwableMechanism.mechanism.type, 'FlutterError');
     expect(throwableMechanism.mechanism.handled, true);
+    expect(throwableMechanism.mechanism.data['library'], 'sentry');
+    expect(throwableMechanism.mechanism.data['context'],
+        'while handling a gesture');
+    expect(throwableMechanism.mechanism.data['information'], 'foo bar');
     expect(throwableMechanism.throwable, exception);
   });
 

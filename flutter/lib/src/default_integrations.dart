@@ -44,7 +44,7 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
   void call(Hub hub, SentryFlutterOptions options) {
     _defaultOnError = FlutterError.onError;
     _integrationOnError = (FlutterErrorDetails errorDetails) async {
-      dynamic exception = errorDetails.exception;
+      final exception = errorDetails.exception;
 
       options.logger(
         SentryLevel.debug,
@@ -52,8 +52,23 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
       );
 
       if (errorDetails.silent != true || options.reportSilentFlutterErrors) {
+        final context = errorDetails.context?.toDescription();
+
+        final collector = errorDetails.informationCollector?.call() ?? [];
+        final information =
+            (StringBuffer()..writeAll(collector, '\n')).toString();
+        final library = errorDetails.library;
+
         // FlutterError doesn't crash the App.
-        final mechanism = Mechanism(type: 'FlutterError', handled: true);
+        final mechanism = Mechanism(
+          type: 'FlutterError',
+          handled: true,
+          data: {
+            if (context != null) 'context': context,
+            if (collector.isNotEmpty) 'information': information,
+            if (library != null) 'library': library,
+          },
+        );
         final throwableMechanism = ThrowableMechanism(mechanism, exception);
 
         var event = SentryEvent(
