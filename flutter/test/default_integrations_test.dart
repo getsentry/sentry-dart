@@ -32,6 +32,7 @@ void main() {
     bool silent = false,
     FlutterExceptionHandler? handler,
     dynamic exception,
+    FlutterErrorDetails? optionalDetails,
   }) {
     // replace default error otherwise it fails on testing
     FlutterError.onError =
@@ -50,7 +51,7 @@ void main() {
       library: 'sentry',
       informationCollector: () => [DiagnosticsNode.message('foo bar')],
     );
-    FlutterError.reportError(details);
+    FlutterError.reportError(optionalDetails ?? details);
   }
 
   test('FlutterError capture errors', () async {
@@ -69,9 +70,41 @@ void main() {
     expect(throwableMechanism.mechanism.handled, true);
     expect(throwableMechanism.mechanism.data['library'], 'sentry');
     expect(throwableMechanism.mechanism.data['context'],
-        'while handling a gesture');
+        'thrown while handling a gesture');
     expect(throwableMechanism.mechanism.data['information'], 'foo bar');
     expect(throwableMechanism.throwable, exception);
+  });
+
+  test('FlutterError capture errors with long FlutterErrorDetails.information',
+      () async {
+    final details = FlutterErrorDetails(
+      exception: StateError('error'),
+      silent: false,
+      context: DiagnosticsNode.message('while handling a gesture'),
+      library: 'sentry',
+      informationCollector: () => [
+        DiagnosticsNode.message('foo bar'),
+        DiagnosticsNode.message('Hello World!')
+      ],
+    );
+
+    // exception is ignored in this case
+    _reportError(exception: StateError('error'), optionalDetails: details);
+
+    final event = verify(
+      await fixture.hub.captureEvent(captureAny),
+    ).captured.first as SentryEvent;
+
+    expect(event.level, SentryLevel.fatal);
+
+    final throwableMechanism = event.throwableMechanism as ThrowableMechanism;
+    expect(throwableMechanism.mechanism.type, 'FlutterError');
+    expect(throwableMechanism.mechanism.handled, true);
+    expect(throwableMechanism.mechanism.data['library'], 'sentry');
+    expect(throwableMechanism.mechanism.data['context'],
+        'thrown while handling a gesture');
+    expect(throwableMechanism.mechanism.data['information'],
+        'foo bar\nHello World!');
   });
 
   test('FlutterError calls default error', () async {

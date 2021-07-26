@@ -64,7 +64,9 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
           type: 'FlutterError',
           handled: true,
           data: {
-            // This is a message which should make sense if written after the word `thrown`: https://api.flutter.dev/flutter/foundation/FlutterErrorDetails/context.html
+            // This is a message which should make sense if written after the
+            // word `thrown`:
+            // https://api.flutter.dev/flutter/foundation/FlutterErrorDetails/context.html
             if (context != null) 'context': 'thrown $context',
             if (collector.isNotEmpty) 'information': information,
             if (library != null) 'library': library,
