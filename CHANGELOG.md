@@ -1,4 +1,4 @@
-# Unreleased
+# 6.0.0-beta.3
 
 * Fix: Re-initialization of Flutter SDK (#526)
 * Enhancement: Call `toString()` on all non-serializable fields (#528)
