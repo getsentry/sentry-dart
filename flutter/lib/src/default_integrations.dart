@@ -57,19 +57,27 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
         final collector = errorDetails.informationCollector?.call() ?? [];
         final information =
             (StringBuffer()..writeAll(collector, '\n')).toString();
+        // errorDetails.library defaults to 'Flutter framework' even though it
+        // is nullable. We do null checks anyway, just to be sure.
         final library = errorDetails.library;
+
+        final flutterErrorDetails = <String, String>{
+          // This is a message which should make sense if written after the
+          // word `thrown`:
+          // https://api.flutter.dev/flutter/foundation/FlutterErrorDetails/context.html
+          if (context != null) 'context': 'thrown $context',
+          if (collector.isNotEmpty) 'information': information,
+          if (library != null) 'library': library,
+        };
 
         // FlutterError doesn't crash the App.
         final mechanism = Mechanism(
           type: 'FlutterError',
           handled: true,
           data: {
-            // This is a message which should make sense if written after the
-            // word `thrown`:
-            // https://api.flutter.dev/flutter/foundation/FlutterErrorDetails/context.html
-            if (context != null) 'context': 'thrown $context',
-            if (collector.isNotEmpty) 'information': information,
-            if (library != null) 'library': library,
+            if (flutterErrorDetails.isNotEmpty)
+              'hint':
+                  'See "flutter_error_details" down below for more information'
           },
         );
         final throwableMechanism = ThrowableMechanism(mechanism, exception);
@@ -77,6 +85,9 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
         var event = SentryEvent(
           throwable: throwableMechanism,
           level: SentryLevel.fatal,
+          contexts: flutterErrorDetails.isNotEmpty
+              ? (Contexts()..['flutter_error_details'] = flutterErrorDetails)
+              : null,
         );
 
         await hub.captureEvent(event, stackTrace: errorDetails.stack);

@@ -68,11 +68,14 @@ void main() {
     final throwableMechanism = event.throwableMechanism as ThrowableMechanism;
     expect(throwableMechanism.mechanism.type, 'FlutterError');
     expect(throwableMechanism.mechanism.handled, true);
-    expect(throwableMechanism.mechanism.data['library'], 'sentry');
-    expect(throwableMechanism.mechanism.data['context'],
-        'thrown while handling a gesture');
-    expect(throwableMechanism.mechanism.data['information'], 'foo bar');
+    expect(throwableMechanism.mechanism.data['hint'],
+        'See "flutter_error_details" down below for more information');
     expect(throwableMechanism.throwable, exception);
+
+    expect(event.contexts['flutter_error_details']['library'], 'sentry');
+    expect(event.contexts['flutter_error_details']['context'],
+        'thrown while handling a gesture');
+    expect(event.contexts['flutter_error_details']['information'], 'foo bar');
   });
 
   test('FlutterError capture errors with long FlutterErrorDetails.information',
@@ -100,11 +103,35 @@ void main() {
     final throwableMechanism = event.throwableMechanism as ThrowableMechanism;
     expect(throwableMechanism.mechanism.type, 'FlutterError');
     expect(throwableMechanism.mechanism.handled, true);
-    expect(throwableMechanism.mechanism.data['library'], 'sentry');
-    expect(throwableMechanism.mechanism.data['context'],
+    expect(throwableMechanism.mechanism.data['hint'],
+        'See "flutter_error_details" down below for more information');
+
+    expect(event.contexts['flutter_error_details']['library'], 'sentry');
+    expect(event.contexts['flutter_error_details']['context'],
         'thrown while handling a gesture');
-    expect(throwableMechanism.mechanism.data['information'],
+    expect(event.contexts['flutter_error_details']['information'],
         'foo bar\nHello World!');
+  });
+
+  test('FlutterError capture errors with no FlutterErrorDetails', () async {
+    final details = FlutterErrorDetails(
+        exception: StateError('error'), silent: false, library: null);
+
+    // exception is ignored in this case
+    _reportError(exception: StateError('error'), optionalDetails: details);
+
+    final event = verify(
+      await fixture.hub.captureEvent(captureAny),
+    ).captured.first as SentryEvent;
+
+    expect(event.level, SentryLevel.fatal);
+
+    final throwableMechanism = event.throwableMechanism as ThrowableMechanism;
+    expect(throwableMechanism.mechanism.type, 'FlutterError');
+    expect(throwableMechanism.mechanism.handled, true);
+    expect(throwableMechanism.mechanism.data['hint'], isNull);
+
+    expect(event.contexts['flutter_error_details'], isNull);
   });
 
   test('FlutterError calls default error', () async {
