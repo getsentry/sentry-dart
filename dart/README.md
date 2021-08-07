@@ -107,8 +107,8 @@ var uriResponse = await client.post('https://example.com/whatsit/create',
 
 ##### Tracking HTTP Requests
 
-The `SentryHttpClient` can also catch exceptions which occure during requests
-such as [`SocketExceptions`](https://api.dart.dev/stable/2.13.4/dart-io/SocketException-class.html)s.
+The `SentryHttpClient` can also catch exceptions which may occure during requests
+such as [`SocketException`](https://api.dart.dev/stable/2.13.4/dart-io/SocketException-class.html)s.
 This is currently an opt-in feature. The following example shows how to enable it.
 
 ```dart
