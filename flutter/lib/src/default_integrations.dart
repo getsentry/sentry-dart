@@ -225,7 +225,7 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
   NativeSdkIntegration(this._channel);
 
   final MethodChannel _channel;
-  late SentryFlutterOptions _options;
+  SentryFlutterOptions? _options;
 
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) async {
@@ -272,7 +272,7 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
     try {
       await _channel.invokeMethod<void>('closeNativeSdk');
     } catch (exception, stackTrace) {
-      _options.logger(
+      _options?.logger(
         SentryLevel.fatal,
         'nativeSdkIntegration failed to be closed',
         exception: exception,
