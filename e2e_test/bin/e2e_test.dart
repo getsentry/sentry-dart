@@ -21,10 +21,16 @@ void main(List<String> arguments) async {
     options.dsn = _exampleDsn;
   });
 
-  final id = await Sentry.captureMessage('E2E Test Message');
-  print('Captured message');
-  final url = eventUri(id);
-  final found = await waitForEventToShowUp(url);
+  var id = SentryId.empty();
+  try {
+    throw Exception('E2E Test Message');
+  } catch (e, stacktrace) {
+    id = await Sentry.captureException(e, stackTrace: stacktrace);
+  }
+
+  print('Captured exception');
+  final url = _eventUri(id);
+  final found = await _waitForEventToShowUp(url);
   if (found) {
     print('success');
   } else {
@@ -33,7 +39,7 @@ void main(List<String> arguments) async {
   }
 }
 
-Future<bool> waitForEventToShowUp(Uri url) async {
+Future<bool> _waitForEventToShowUp(Uri url) async {
   var client = Client();
 
   for (var i = 0; i < 10; i++) {
@@ -51,7 +57,7 @@ Future<bool> waitForEventToShowUp(Uri url) async {
   return false;
 }
 
-Uri eventUri(SentryId id) {
+Uri _eventUri(SentryId id) {
   // https://docs.sentry.io/api/events/retrieve-an-event-for-a-project/
   return Uri.parse(
     'https://sentry.io/api/0/projects/$_org/$_projectSlug/events/$id/',
