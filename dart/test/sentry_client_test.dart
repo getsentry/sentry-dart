@@ -29,7 +29,7 @@ void main() {
           (options.transport as MockTransport).envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(capturedEvent.threads?.first.stacktrace is SentryStackTrace, true);
+      expect(capturedEvent.threads?.first.stacktrace, isA<SentryStackTrace>());
     });
 
     test('should attach event stacktrace', () async {
@@ -41,7 +41,7 @@ void main() {
           (options.transport as MockTransport).envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(capturedEvent.threads?.first.stacktrace is SentryStackTrace, true);
+      expect(capturedEvent.threads?.first.stacktrace, isA<SentryStackTrace>());
     });
 
     test('should not attach event stacktrace', () async {
@@ -75,7 +75,7 @@ void main() {
           (options.transport as MockTransport).envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(capturedEvent..threads?.first.stacktrace, isNull);
+      expect(capturedEvent.threads?.first.stacktrace, isNull);
       expect(capturedEvent.exceptions?.first.stackTrace, isNotNull);
     });
 

@@ -191,7 +191,6 @@ class SentryEvent {
     SentryMessage? message,
     String? transaction,
     dynamic throwable,
-    dynamic stackTrace,
     SentryLevel? level,
     String? culprit,
     Map<String, String>? tags,
@@ -362,7 +361,7 @@ class SentryEvent {
 
     final threadIds = exceptions?.map((element) => element.threadId).toList();
     final threadJson = threads
-        ?.where((element) => !(threadIds?.contains(element.id) ?? true))
+        ?.where((element) => !(threadIds?.contains(element.id) ?? false))
         .map((e) => e.toJson())
         .where((e) => e.isNotEmpty)
         .toList(growable: false);

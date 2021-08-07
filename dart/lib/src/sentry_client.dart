@@ -144,12 +144,22 @@ class SentryClient {
       ]);
     }
 
+    // The stacktrace is not part of an exception,
+    // therefore add it to the threads.
+    // https://develop.sentry.dev/sdk/event-payloads/stacktrace/
     if (stackTrace != null || _options.attachStacktrace) {
       stackTrace ??= StackTrace.current;
       final frames = _stackTraceFactory.getStackFrames(stackTrace);
 
       if (frames.isNotEmpty) {
-        event = event.copyWith(stackTrace: SentryStackTrace(frames: frames));
+        event = event.copyWith(threads: [
+          ...(event.threads ?? []),
+          SentryThread(
+            crashed: false,
+            current: true,
+            stacktrace: SentryStackTrace(frames: frames),
+          ),
+        ]);
       }
     }
 

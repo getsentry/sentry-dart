@@ -29,7 +29,7 @@ class SentryException {
     this.module,
     this.stackTrace,
     this.mechanism,
-    this.threadId = 0,
+    this.threadId,
   });
 
   /// Deserializes a [SentryException] from JSON [Map].
