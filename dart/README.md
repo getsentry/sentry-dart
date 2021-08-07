@@ -105,6 +105,48 @@ var uriResponse = await client.post('https://example.com/whatsit/create',
 }
 ```
 
+##### Tracking HTTP Requests
+
+The `SentryHttpClient` can also catch exceptions which occure during requests
+such as [`SocketExceptions`](https://api.dart.dev/stable/2.13.4/dart-io/SocketException-class.html)s.
+This is currently an opt-in feature. The following example shows how to enable it.
+
+```dart
+import 'package:sentry/sentry.dart';
+
+var client = SentryHttpClient(captureFailedRequests: true);
+try {
+var uriResponse = await client.post('https://example.com/whatsit/create',
+     body: {'name': 'doodle', 'color': 'blue'});
+ print(await client.get(uriResponse.bodyFields['uri']));
+} finally {
+ client.close();
+}
+```
+
+Furthermore you can track HTTP requests which are considered bad by you.
+The following example shows how to do it. It captures exceptions for 
+each request with a status code of 400 to 404 and also for 500.
+
+```dart
+import 'package:sentry/sentry.dart';
+
+var client = SentryHttpClient(
+  failedRequestStatusCodes: [
+    SentryStatusCode.range(400, 404),
+    SentryStatusCode(500),
+  ],
+);
+
+try {
+var uriResponse = await client.post('https://example.com/whatsit/create',
+     body: {'name': 'doodle', 'color': 'blue'});
+ print(await client.get(uriResponse.bodyFields['uri']));
+} finally {
+ client.close();
+}
+```
+
 ##### Tips for catching errors
 
 - Use a `try/catch` block.
