@@ -1,12 +1,13 @@
 # Unreleased
 
+* Feat: Collect more information for exceptions collected via `FlutterError.onError` (#538)
+
 # 6.0.0-beta.3
 
 * Fix: Re-initialization of Flutter SDK (#526)
 * Enhancement: Call `toString()` on all non-serializable fields (#528)
 * Fix: Always call `Flutter.onError` in order to not swallow messages (#533)
 * Bump: Android SDK to 5.1.0-beta.6 (#535)
-* Feat: Collect more information for exceptions collected via `FlutterError.onError` (#538)
 
 # 6.0.0-beta.2
 
