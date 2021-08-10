@@ -7,9 +7,9 @@ import '../sentry_dart_plugin.dart';
 import 'utils/log.dart';
 
 class Configuration {
-  // TODO: check if using --split-debug-info=symbols still works cus
-  // it creates a new folder
-  String buildFilesFolder = '${Directory.current.path}/build';
+  // cannot use ${Directory.current.path}/build since --split-debug-info allows
+  // setting a custom path which is a sibling of build
+  String buildFilesFolder = '${Directory.current.path}';
 
   late bool uploadNativeSymbols;
   late bool includeNativeSources;
