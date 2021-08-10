@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:yaml/yaml.dart';
 
-import '../sentry_plugin.dart';
+import '../sentry_dart_plugin.dart';
 // import 'utils/extensions.dart';
 import 'utils/log.dart';
 
@@ -64,7 +64,7 @@ class Configuration {
 
     // TODO: add sentry-cli to assets
     try {
-      Process.runSync(SentryPlugin.sentry_cli, ['help']);
+      Process.runSync(SentryDartPlugin.sentry_cli, ['help']);
     } catch (exception) {
       Log.errorAndExit(
           'sentry-cli isn\'t\ installed, please follow https://docs.sentry.io/product/cli/installation/ \n$exception');

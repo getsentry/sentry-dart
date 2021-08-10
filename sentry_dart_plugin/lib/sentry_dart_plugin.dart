@@ -4,7 +4,7 @@ import 'src/configuration.dart';
 import 'src/utils/injector.dart';
 import 'src/utils/log.dart';
 
-class SentryPlugin {
+class SentryDartPlugin {
   static const sentry_cli = 'sentry-cli';
 
   late Configuration _configuration;
@@ -42,7 +42,7 @@ class SentryPlugin {
       params.add(_configuration.logLevel!);
     }
 
-    // TODO: adds url to onpremise
+    // TODO: add url support for on-premise
 
     params.add('upload-dif');
 
