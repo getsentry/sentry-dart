@@ -11,7 +11,7 @@ dev_dependencies:
 
 ## Run
 ```bash
-flutter pub run sentry_dart_plugin
+dart run sentry_dart_plugin
 ```
 
 The `flutter build apk` or `flutter build ios` is required to upload the symbols

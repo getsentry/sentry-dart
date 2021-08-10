@@ -9,7 +9,7 @@ class SentryDartPlugin {
 
   late Configuration _configuration;
 
-  SentryPlugin() {
+  SentryDartPlugin() {
     initInjector();
   }
 
