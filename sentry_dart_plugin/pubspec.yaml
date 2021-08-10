@@ -1,0 +1,18 @@
+name: sentry_dart_plugin
+version: 1.0.0-alpha.1
+description: >
+  A Dart Build Plugin that uploads symbols to Sentry via sentry-cli
+homepage: https://docs.sentry.io/platforms/dart/
+repository: https://github.com/getsentry/sentry-dart
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+
+dependencies:
+  yaml: ^3.1.0
+  injector: ^2.0.0
+  ansicolor: ^2.0.1
+
+dev_dependencies:
+  pedantic: ^1.11.0
+  coverage: ^1.0.1

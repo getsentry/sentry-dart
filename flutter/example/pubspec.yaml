@@ -2,11 +2,11 @@ name: sentry_flutter_example
 description: Demonstrates how to use the sentry_flutter plugin.
 version: 0.1.2+3
 
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 environment:
-  sdk: '>=2.12.0 <3.0.0'
-  flutter: '>=2.0.0'
+  sdk: ">=2.12.0 <3.0.0"
+  flutter: ">=2.0.0"
 
 dependencies:
   flutter:
@@ -16,11 +16,39 @@ dependencies:
   feedback: ^2.0.0
   provider: ^5.0.0
 
+dev_dependencies:
+  sentry_dart_plugin: ^1.0.0-alpha.1
+
 dependency_overrides:
   sentry:
     path: ../../dart
   sentry_flutter:
     path: ../
+  sentry_dart_plugin:
+    path: ../../sentry_dart_plugin
 
 flutter:
   uses-material-design: true
+
+sentry_plugin:
+  # enabled by default
+  #upload_native_symbols: true
+
+  # disabled by default
+  include_native_sources: true
+
+  # or set by env. var. SENTRY_PROJECT
+  #project: sentry-flutter
+
+  # or set by env. var. SENTRY_ORG
+  #org: sentry-sdks
+
+  # or set by env. var. SENTRY_AUTH_TOKEN
+  #auth_token:
+
+  # disabled by default
+  #wait: true
+
+  # or set by env. var. SENTRY_LOG_LEVEL
+  # default 'warning'
+  log_level: error
