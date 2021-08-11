@@ -1,5 +1,5 @@
 name: e2e_test
-description: A simple command-line application.
+description: Simple program to test if an error is transferred to Sentry.io
 version: 1.0.0
 
 publish_to: none
