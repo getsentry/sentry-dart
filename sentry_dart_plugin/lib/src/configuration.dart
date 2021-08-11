@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:yaml/yaml.dart';
 
 import '../sentry_dart_plugin.dart';
-// import 'utils/extensions.dart';
+import 'utils/extensions.dart';
 import 'utils/log.dart';
 
 class Configuration {
@@ -50,19 +50,18 @@ class Configuration {
     const taskName = 'validating config values';
     Log.startingTask(taskName);
 
-    // TODO: check why String.fromEnvironment isnt returning a value, maybe because
-    // its another process or something?
+    final environments = Platform.environment;
 
-    // if (project.isNull || String.fromEnvironment('SENTRY_PROJECT').isEmpty) {
-    //   Log.errorAndExit('Project is empty, check \'project\' at pubspec.yaml');
-    // }
-    // if (org.isNull || org!.isEmpty) {
-    //   Log.errorAndExit('Organization is empty, check \'org\' at pubspec.yaml');
-    // }
-    // if (authToken.isNull || authToken!.isEmpty) {
-    //   Log.errorAndExit(
-    //       'Auth Token is empty, check \'auth_token\' at pubspec.yaml');
-    // }
+    if (project.isNull && environments['SENTRY_PROJECT'].isNull) {
+      Log.errorAndExit('Project is empty, check \'project\' at pubspec.yaml');
+    }
+    if (org.isNull && environments['SENTRY_ORG'].isNull) {
+      Log.errorAndExit('Organization is empty, check \'org\' at pubspec.yaml');
+    }
+    if (authToken.isNull && environments['SENTRY_AUTH_TOKEN'].isNull) {
+      Log.errorAndExit(
+          'Auth Token is empty, check \'auth_token\' at pubspec.yaml');
+    }
 
     // TODO: add sentry-cli to assets
     try {
