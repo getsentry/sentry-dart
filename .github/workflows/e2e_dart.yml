@@ -26,4 +26,6 @@ jobs:
         - name: Test 
           run: |
             dart pub get
+            dart analyze --fatal-infos
+            dart format --set-exit-if-changed ./
             dart run
