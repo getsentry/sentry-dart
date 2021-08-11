@@ -28,7 +28,7 @@ Add `sentry_plugin:` configuration at the end of your `pubspec.yaml` file:
 ```yaml
 sentry_plugin:
   upload_native_symbols: true
-  include_native_sources: true
+  include_native_sources: false
   project: ...
   org: ...
   auth_token: ...
@@ -41,3 +41,9 @@ sentry_plugin:
 | Configuration Name | Description | Default Value And Type | Required | Alternative Environment variable |
 | - | - | - | - | - |
 | upload_native_symbols | Enables or disables the automatic upload of debug symbols | true (boolean) | no | - |
+| include_native_sources | Enables or disables the automatic upload of debug symbols | false (boolean) | no | - |
+| project | Project's name | e.g. sentry-flutter (string) | yes | SENTRY_PROJECT |
+| org | Organization's slug | e.g. sentry-sdks (string) | yes | SENTRY_ORG |
+| auth_token | Auth Token | e.g. 64 random characteres (string)  | yes | SENTRY_AUTH_TOKEN |
+| wait | Wait for server-side processing of uploaded files | false (boolean)  | no | - |
+| log_level | Configures the log level for sentry-cli | warning (string)  | no | SENTRY_LOG_LEVEL |
