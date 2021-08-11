@@ -1,8 +1,9 @@
 import 'dart:io';
 
+import 'package:package_config/package_config.dart';
+import 'package:system_info/system_info.dart';
 import 'package:yaml/yaml.dart';
 
-import '../sentry_dart_plugin.dart';
 import 'utils/extensions.dart';
 import 'utils/log.dart';
 
@@ -18,6 +19,9 @@ class Configuration {
   late String? org;
   late String? authToken;
   late String? logLevel;
+  late String? _assetsFolder;
+  late String cliPath;
+  String _fileSeparator = Platform.pathSeparator;
 
   dynamic _getPubspec() {
     var pubspecString = File("pubspec.yaml").readAsStringSync();
@@ -29,6 +33,8 @@ class Configuration {
     const taskName = 'reading config values';
     Log.startingTask(taskName);
 
+    await _getAssetsFolderPath();
+    _cliSuffix();
     final pubspec = _getPubspec();
     final config = pubspec['sentry_plugin'];
 
@@ -63,14 +69,51 @@ class Configuration {
           'Auth Token is empty, check \'auth_token\' at pubspec.yaml');
     }
 
-    // TODO: add sentry-cli to assets
     try {
-      Process.runSync(SentryDartPlugin.sentry_cli, ['help']);
+      Process.runSync(cliPath, ['help']);
     } catch (exception) {
       Log.errorAndExit(
-          'sentry-cli isn\'t\ installed, please follow https://docs.sentry.io/product/cli/installation/ \n$exception');
+          'sentry-cli isn\'t\ available, please follow https://docs.sentry.io/product/cli/installation/ \n$exception');
     }
 
     Log.taskCompleted(taskName);
+  }
+
+  /// Get the assets folder path from the .packages file
+  Future<void> _getAssetsFolderPath() async {
+    var packagesConfig = await loadPackageConfig(File(
+        '${Directory.current.path}${_fileSeparator}.dart_tool${_fileSeparator}package_config.json'));
+
+    var package = packagesConfig.packages
+        .firstWhere((package) => package.name == "sentry_dart_plugin");
+    var path =
+        package.packageUriRoot.toString().replaceAll('file://', '') + 'assets';
+
+    _assetsFolder = Uri.decodeFull(path);
+
+    if (_assetsFolder.isNull) {
+      Log.errorAndExit('The assets folder isn\'t\ found.');
+    }
+  }
+
+  void _cliSuffix() {
+    if (Platform.isMacOS) {
+      setCliPrefix("Darwin-x86_64");
+    } else if (Platform.isWindows) {
+      setCliPrefix("Windows-i686.exe");
+    } else if (Platform.isLinux) {
+      final arch = SysInfo.kernelArchitecture;
+      if (arch == "amd64") {
+        setCliPrefix("Linux-x86_64");
+      } else {
+        setCliPrefix("Linux-$arch");
+      }
+    } else {
+      cliPath = 'sentry-cli';
+    }
+  }
+
+  void setCliPrefix(String suffix) {
+    cliPath = "$_assetsFolder${_fileSeparator}sentry-cli-$suffix";
   }
 }

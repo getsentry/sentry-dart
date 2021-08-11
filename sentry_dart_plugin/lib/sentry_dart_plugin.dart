@@ -5,8 +5,6 @@ import 'src/utils/injector.dart';
 import 'src/utils/log.dart';
 
 class SentryDartPlugin {
-  static const sentry_cli = 'sentry-cli';
-
   late Configuration _configuration;
 
   SentryDartPlugin() {
@@ -44,7 +42,6 @@ class SentryDartPlugin {
 
     params.add('upload-dif');
 
-    // TODO: test if the available symbols actually also have the sources
     if (_configuration.includeNativeSources) {
       params.add('--include-sources');
     } else {
@@ -69,7 +66,7 @@ class SentryDartPlugin {
 
     ProcessResult? processResult;
     try {
-      processResult = Process.runSync(sentry_cli, params);
+      processResult = Process.runSync(_configuration.cliPath, params);
     } catch (exception) {
       Log.error('Failed to upload symbols: \n$exception');
     }
