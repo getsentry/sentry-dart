@@ -32,8 +32,8 @@ sentry_plugin:
   project: ...
   org: ...
   auth_token: ...
-  wait: true
-  log_level: error
+  wait: false
+  log_level: error # possible values: trace, debug, info, warn, error
 ```
 
 ###### Available Configuration Fields:
@@ -46,4 +46,4 @@ sentry_plugin:
 | org | Organization's slug | e.g. sentry-sdks (string) | yes | SENTRY_ORG |
 | auth_token | Auth Token | e.g. 64 random characteres (string)  | yes | SENTRY_AUTH_TOKEN |
 | wait | Wait for server-side processing of uploaded files | false (boolean)  | no | - |
-| log_level | Configures the log level for sentry-cli | warning (string)  | no | SENTRY_LOG_LEVEL |
+| log_level | Configures the log level for sentry-cli | warn (string)  | no | SENTRY_LOG_LEVEL |
