@@ -27,4 +27,3 @@ jobs:
           run: |
             dart pub get
             dart run
-            
