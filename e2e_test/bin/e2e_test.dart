@@ -33,6 +33,7 @@ void main(List<String> arguments) async {
   final found = await _waitForEventToShowUp(url);
   if (found) {
     print('success');
+    exit(0);
   } else {
     print('failed');
     exit(1);
