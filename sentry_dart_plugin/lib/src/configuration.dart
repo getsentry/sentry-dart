@@ -19,8 +19,8 @@ class Configuration {
   late String? org;
   late String? authToken;
   late String? logLevel;
-  late String? _assetsFolder;
-  late String cliPath;
+  late String? _assetsPath;
+  late String? cliPath;
   String _fileSeparator = Platform.pathSeparator;
 
   dynamic _getPubspec() {
@@ -34,7 +34,7 @@ class Configuration {
     Log.startingTask(taskName);
 
     await _getAssetsFolderPath();
-    _cliSuffix();
+    _findCliPath();
     final pubspec = _getPubspec();
     final config = pubspec['sentry_plugin'];
 
@@ -70,7 +70,7 @@ class Configuration {
     }
 
     try {
-      Process.runSync(cliPath, ['help']);
+      Process.runSync(cliPath!, ['help']);
     } catch (exception) {
       Log.errorAndExit(
           'sentry-cli isn\'t\ available, please follow https://docs.sentry.io/product/cli/installation/ \n$exception');
@@ -89,31 +89,45 @@ class Configuration {
     var path =
         package.packageUriRoot.toString().replaceAll('file://', '') + 'assets';
 
-    _assetsFolder = Uri.decodeFull(path);
+    _assetsPath = Uri.decodeFull(path);
 
-    if (_assetsFolder.isNull) {
+    if (_assetsPath.isNull) {
       Log.errorAndExit('The assets folder isn\'t\ found.');
     }
   }
 
-  void _cliSuffix() {
+  void _findCliPath() {
     if (Platform.isMacOS) {
-      setCliPrefix("Darwin-x86_64");
+      _setCliPath("Darwin-x86_64");
     } else if (Platform.isWindows) {
-      setCliPrefix("Windows-i686.exe");
+      _setCliPath("Windows-i686.exe");
     } else if (Platform.isLinux) {
       final arch = SysInfo.kernelArchitecture;
       if (arch == "amd64") {
-        setCliPrefix("Linux-x86_64");
+        _setCliPath("Linux-x86_64");
       } else {
-        setCliPrefix("Linux-$arch");
+        _setCliPath("Linux-$arch");
+      }
+    }
+
+    if (cliPath != null) {
+      final cliFile = File(cliPath!);
+
+      if (!cliFile.existsSync()) {
+        _setPreInstalledCli();
       }
     } else {
-      cliPath = 'sentry-cli';
+      _setPreInstalledCli();
     }
   }
 
-  void setCliPrefix(String suffix) {
-    cliPath = "$_assetsFolder${_fileSeparator}sentry-cli-$suffix";
+  void _setPreInstalledCli() {
+    Log.info(
+        'sentry-cli is not available under the assets folder, using pre-installed sentry-cli');
+    cliPath = 'sentry-cli';
+  }
+
+  void _setCliPath(String suffix) {
+    cliPath = "$_assetsPath${_fileSeparator}sentry-cli-$suffix";
   }
 }

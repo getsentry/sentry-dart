@@ -66,7 +66,7 @@ class SentryDartPlugin {
 
     ProcessResult? processResult;
     try {
-      processResult = Process.runSync(_configuration.cliPath, params);
+      processResult = Process.runSync(_configuration.cliPath!, params);
     } catch (exception) {
       Log.error('Failed to upload symbols: \n$exception');
     }
