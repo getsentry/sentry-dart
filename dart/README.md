@@ -126,7 +126,7 @@ var uriResponse = await client.post('https://example.com/whatsit/create',
 
 Furthermore you can track HTTP requests which are considered bad by you.
 The following example shows how to do it. It captures exceptions for 
-each request with a status code of 400 to 404 and also for 500.
+each request with a status code range from 400 to 404 and also for 500.
 
 ```dart
 import 'package:sentry/sentry.dart';
