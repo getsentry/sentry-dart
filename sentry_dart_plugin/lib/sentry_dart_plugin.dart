@@ -85,30 +85,30 @@ class SentryDartPlugin {
     releaseNewParams.addAll(params);
     releaseNewParams.add('new');
 
-    if (_configuration.version != null) {
-      releaseNewParams.add(_configuration.version!);
+    final release = _getRelease();
+    releaseNewParams.add(release);
 
-      _executeAndLog('Failed to create new release', releaseNewParams);
+    Log.info('releaseNewParams $releaseNewParams');
 
-      // upload source maps
-      List<String> releaseFilesParams = [];
-      releaseFilesParams.addAll(params);
-      // TODO: is dart any useful?
-      _addExtensionToParams(
-          ['dart', 'map', 'js'], releaseFilesParams, _configuration.version!);
+    _executeAndLog('Failed to create new release', releaseNewParams);
 
-      Log.info('releaseJsFilesParams $releaseFilesParams');
+    // upload source maps
+    List<String> releaseFilesParams = [];
+    releaseFilesParams.addAll(params);
+    // TODO: is dart any useful?
+    _addExtensionToParams(['dart', 'map', 'js'], releaseFilesParams, release);
 
-      _executeAndLog('Failed to upload source maps', releaseFilesParams);
+    Log.info('releaseFilesParams $releaseFilesParams');
 
-      // finalize new release
-      releaseFinalizeParams.add('finalize');
-      releaseFinalizeParams.add(_configuration.version!);
+    _executeAndLog('Failed to upload source maps', releaseFilesParams);
 
-      _executeAndLog('Failed to create new release', releaseFinalizeParams);
-    } else {
-      Log.info('release is not found');
-    }
+    // finalize new release
+    releaseFinalizeParams.add('finalize');
+    releaseFinalizeParams.add(release);
+
+    Log.info('releaseFinalizeParams $releaseFinalizeParams');
+
+    _executeAndLog('Failed to create new release', releaseFinalizeParams);
 
     Log.taskCompleted(taskName);
   }
@@ -140,7 +140,7 @@ class SentryDartPlugin {
   void _addExtensionToParams(
       List<String> exts, List<String> params, String version) {
     params.add('files');
-    params.add(_configuration.version!);
+    params.add(version);
     params.add('upload-sourcemaps');
     params.add(_configuration.buildFilesFolder);
 
@@ -152,8 +152,11 @@ class SentryDartPlugin {
     if (version.contains('+')) {
       params.add('--dist');
       final values = version.split('+');
-      // Log.info('dist ${values.last}');
       params.add(values.last);
     }
+  }
+
+  String _getRelease() {
+    return '${_configuration.name}@${_configuration.version}';
   }
 }

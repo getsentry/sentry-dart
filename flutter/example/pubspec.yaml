@@ -1,6 +1,6 @@
 name: sentry_flutter_example
 description: Demonstrates how to use the sentry_flutter plugin.
-version: 0.0.4+4
+version: 0.0.5+5
 
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
@@ -45,5 +45,3 @@ sentry_plugin:
 
   # default 'warning'
   log_level: error
-
-  version: sentry_flutter_example@0.0.4+4
