@@ -31,24 +31,13 @@ flutter:
   uses-material-design: true
 
 sentry_plugin:
-  # enabled by default
-  #upload_native_symbols: true
-
   # disabled by default
   include_native_sources: true
-
-  # or set by env. var. SENTRY_PROJECT
-  #project: sentry-flutter
-
-  # or set by env. var. SENTRY_ORG
-  #org: sentry-sdks
+  project: sentry-flutter
+  org: sentry-sdks
 
   # or set by env. var. SENTRY_AUTH_TOKEN
   #auth_token:
 
-  # disabled by default
-  wait: true
-
-  # or set by env. var. SENTRY_LOG_LEVEL
   # default 'warning'
   log_level: error
