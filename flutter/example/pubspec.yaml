@@ -47,7 +47,7 @@ sentry_plugin:
   #auth_token:
 
   # disabled by default
-  #wait: true
+  wait: true
 
   # or set by env. var. SENTRY_LOG_LEVEL
   # default 'warning'

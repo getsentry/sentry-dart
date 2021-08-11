@@ -42,8 +42,6 @@ class SentryDartPlugin {
       params.add(_configuration.logLevel!);
     }
 
-    // TODO: add url support for on-premise
-
     params.add('upload-dif');
 
     // TODO: test if the available symbols actually also have the sources
@@ -68,8 +66,6 @@ class SentryDartPlugin {
     if (_configuration.wait) {
       params.add('--wait');
     }
-
-    // Log.info('CLI params: $params');
 
     ProcessResult? processResult;
     try {

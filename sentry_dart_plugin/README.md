@@ -1,6 +1,8 @@
 # Sentry Dart Plugin
 
-A Dart Build Plugin that uploads symbols for Android and iOS to Sentry via sentry-cli.
+A Dart Build Plugin that uploads symbols for Android and iOS to Sentry via [sentry-cli](https://docs.sentry.io/product/cli/).
+
+For doing it manually, please follow our [docs](https://docs.sentry.io/platforms/flutter/upload-debug/).
 
 ## :clipboard: Install
 
@@ -17,7 +19,7 @@ dev_dependencies:
 dart run sentry_dart_plugin
 ```
 
-The `flutter build apk` or `flutter build ios` is required before executing the `sentry_dart_plugin` plugin.
+The `flutter build apk` or `flutter build ios` (or _macos_) is required before executing the `sentry_dart_plugin` plugin.
 
 ## Configuration (Optional)
 

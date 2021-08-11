@@ -20,10 +20,7 @@ class Log {
   static void info(String message) => _write(message, withColor: gray09);
 
   /// Error log with `red` color
-  static void error(String message) {
-    stdout.writeln();
-    _write(message, withColor: red);
-  }
+  static void error(String message) => _write(message, withColor: red);
 
   /// Write `error` log and exit the program
   static void errorAndExit(String message) {
@@ -41,6 +38,7 @@ class Log {
   static void link(String message) => _write(message, withColor: blue);
 
   static void _write(String message, {required AnsiPen withColor}) {
+    stdout.writeln();
     stdout.writeln(withColor(message));
   }
 
