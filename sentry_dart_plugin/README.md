@@ -43,9 +43,11 @@ sentry_plugin:
 | Configuration Name | Description | Default Value And Type | Required | Alternative Environment variable |
 | - | - | - | - | - |
 | upload_native_symbols | Enables or disables the automatic upload of debug symbols | true (boolean) | no | - |
+| upload_source_maps | Enables or disables the automatic upload of source maps | false (boolean) | no | - |
 | include_native_sources | Does or doesn't include the source code of native code | false (boolean) | no | - |
 | project | Project's name | e.g. sentry-flutter (string) | yes | SENTRY_PROJECT |
 | org | Organization's slug | e.g. sentry-sdks (string) | yes | SENTRY_ORG |
 | auth_token | Auth Token | e.g. 64 random characteres (string)  | yes | SENTRY_AUTH_TOKEN |
 | wait | Wait for server-side processing of uploaded files | false (boolean)  | no | - |
 | log_level | Configures the log level for sentry-cli | warn (string)  | no | SENTRY_LOG_LEVEL |
+| version | The release version for source maps | version from pubspec (string)  | no | - |

@@ -13,6 +13,7 @@ class Configuration {
   String buildFilesFolder = '${Directory.current.path}';
 
   late bool uploadNativeSymbols;
+  late bool uploadSourceMaps;
   late bool includeNativeSources;
   late bool wait;
   late String? project;
@@ -22,6 +23,7 @@ class Configuration {
   String? _assetsPath;
   late String? cliPath;
   String _fileSeparator = Platform.pathSeparator;
+  late String? version;
 
   dynamic _getPubspec() {
     final pubspecString = File("pubspec.yaml").readAsStringSync();
@@ -38,7 +40,10 @@ class Configuration {
     final pubspec = _getPubspec();
     final config = pubspec['sentry_plugin'];
 
+    version = config['version']?.toString() ?? pubspec['version']?.toString();
+
     uploadNativeSymbols = config?['upload_native_symbols'] ?? true;
+    uploadSourceMaps = config?['upload_source_maps'] ?? false;
     includeNativeSources = config?['include_native_sources'] ?? false;
 
     project = config?['project']?.toString(); // or env. var. SENTRY_PROJECT
