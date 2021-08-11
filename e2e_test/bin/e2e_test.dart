@@ -9,7 +9,7 @@ const _exampleDsn =
 const _org = 'sentry-sdks';
 const _projectSlug = 'sentry-flutter';
 
-const _token = String.fromEnvironment('SENTRY_AUTH_TOKEN');
+final _token = Platform.environment['SENTRY_AUTH_TOKEN'] ?? '';
 
 void main(List<String> arguments) async {
   print('Starting');
