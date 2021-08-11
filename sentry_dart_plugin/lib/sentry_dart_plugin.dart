@@ -58,9 +58,7 @@ class SentryDartPlugin {
 
     params.add(_configuration.buildFilesFolder);
 
-    if (_configuration.wait) {
-      params.add('--wait');
-    }
+    _addWait(params);
 
     _executeAndLog('Failed to upload symbols', params);
 
@@ -97,6 +95,8 @@ class SentryDartPlugin {
     releaseFilesParams.addAll(params);
     // TODO: is dart any useful?
     _addExtensionToParams(['dart', 'map', 'js'], releaseFilesParams, release);
+
+    _addWait(releaseFilesParams);
 
     Log.info('releaseFilesParams $releaseFilesParams');
 
@@ -158,5 +158,11 @@ class SentryDartPlugin {
 
   String _getRelease() {
     return '${_configuration.name}@${_configuration.version}';
+  }
+
+  void _addWait(List<String> params) {
+    if (_configuration.wait) {
+      params.add('--wait');
+    }
   }
 }
