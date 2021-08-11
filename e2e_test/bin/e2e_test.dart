@@ -41,7 +41,7 @@ void main(List<String> arguments) async {
 }
 
 Future<bool> _waitForEventToShowUp(Uri url) async {
-  var client = Client();
+  final client = Client();
 
   for (var i = 0; i < 10; i++) {
     print('Try no. $i: Search for event on sentry.io');
