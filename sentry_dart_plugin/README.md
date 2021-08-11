@@ -1,6 +1,6 @@
 # Sentry Dart Plugin
 
-A Dart Build Plugin that uploads symbols for Android and iOS to Sentry via [sentry-cli](https://docs.sentry.io/product/cli/).
+A Dart Build Plugin that uploads symbols for Android and iOS/macOS to Sentry via [sentry-cli](https://docs.sentry.io/product/cli/).
 
 For doing it manually, please follow our [docs](https://docs.sentry.io/platforms/flutter/upload-debug/).
 

@@ -19,13 +19,13 @@ class Configuration {
   late String? org;
   late String? authToken;
   late String? logLevel;
-  late String? _assetsPath;
+  String? _assetsPath;
   late String? cliPath;
   String _fileSeparator = Platform.pathSeparator;
 
   dynamic _getPubspec() {
-    var pubspecString = File("pubspec.yaml").readAsStringSync();
-    var pubspec = loadYaml(pubspecString);
+    final pubspecString = File("pubspec.yaml").readAsStringSync();
+    final pubspec = loadYaml(pubspecString);
     return pubspec;
   }
 
@@ -81,18 +81,22 @@ class Configuration {
 
   /// Get the assets folder path from the .packages file
   Future<void> _getAssetsFolderPath() async {
-    var packagesConfig = await loadPackageConfig(File(
+    final packagesConfig = await loadPackageConfig(File(
         '${Directory.current.path}${_fileSeparator}.dart_tool${_fileSeparator}package_config.json'));
 
-    var package = packagesConfig.packages
-        .firstWhere((package) => package.name == "sentry_dart_plugin");
-    var path =
-        package.packageUriRoot.toString().replaceAll('file://', '') + 'assets';
+    final packages = packagesConfig.packages
+        .where((package) => package.name == "sentry_dart_plugin");
 
-    _assetsPath = Uri.decodeFull(path);
+    if (packages.isNotEmpty) {
+      final path =
+          packages.first.packageUriRoot.toString().replaceAll('file://', '') +
+              'assets';
+
+      _assetsPath = Uri.decodeFull(path);
+    }
 
     if (_assetsPath.isNull) {
-      Log.errorAndExit('The assets folder isn\'t\ found.');
+      Log.info('The assets folder isn\'t\ found.');
     }
   }
 
