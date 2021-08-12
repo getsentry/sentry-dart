@@ -1,0 +1,28 @@
+name: Sentry Dart Plugin
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+jobs:
+  build:
+    name: Analyze and Format
+    runs-on: 'ubuntu-latest'
+    defaults:
+      run:
+        working-directory: ./sentry_dart_plugin
+    strategy:
+      fail-fast: false
+      matrix:
+        sdk: [stable, beta, dev]
+
+    steps:
+        - uses: dart-lang/setup-dart@v1
+          with:
+            sdk: ${{ matrix.sdk }}
+        - uses: actions/checkout@v2
+        - name: Analyze and Format 
+          run: |
+            dart pub get
+            dart analyze --fatal-infos
+            dart format --set-exit-if-changed ./

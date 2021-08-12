@@ -42,7 +42,7 @@ class Configuration {
     final pubspec = _getPubspec();
     final config = pubspec['sentry_plugin'];
 
-    version = config['release']?.toString() ?? pubspec['version'].toString();
+    version = config?['release']?.toString() ?? pubspec['version'].toString();
     name = pubspec['name'].toString();
 
     uploadNativeSymbols = config?['upload_native_symbols'] ?? true;
