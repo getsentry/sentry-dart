@@ -114,7 +114,7 @@ class Configuration {
     }
 
     if (_assetsPath.isNull) {
-      Log.info('The assets folder is not found.');
+      Log.info('Can't find the assets folder.');
     }
   }
 
