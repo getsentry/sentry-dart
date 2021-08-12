@@ -10,7 +10,7 @@ import 'utils/log.dart';
 class Configuration {
   // cannot use ${Directory.current.path}/build since --split-debug-info allows
   // setting a custom path which is a sibling of build
-  String buildFilesFolder = '${Directory.current.path}';
+  String buildFilesFolder = Directory.current.path;
 
   late bool uploadNativeSymbols;
   late bool uploadSourceMaps;
@@ -22,7 +22,7 @@ class Configuration {
   late String? logLevel;
   String? _assetsPath;
   late String? cliPath;
-  String _fileSeparator = Platform.pathSeparator;
+  final String _fileSeparator = Platform.pathSeparator;
   late String version;
   late String name;
   late String webBuildFilesFolder;
@@ -91,7 +91,7 @@ class Configuration {
       Process.runSync(cliPath!, ['help']);
     } catch (exception) {
       Log.errorAndExit(
-          'sentry-cli isn\'t\ available, please follow https://docs.sentry.io/product/cli/installation/ \n$exception');
+          'sentry-cli is not available, please follow https://docs.sentry.io/product/cli/installation/ \n$exception');
     }
 
     Log.taskCompleted(taskName);
@@ -100,7 +100,7 @@ class Configuration {
   /// Get the assets folder path from the .packages file
   Future<void> _getAssetsFolderPath() async {
     final packagesConfig = await loadPackageConfig(File(
-        '${Directory.current.path}${_fileSeparator}.dart_tool${_fileSeparator}package_config.json'));
+        '${Directory.current.path}$_fileSeparator.dart_tool${_fileSeparator}package_config.json'));
 
     final packages = packagesConfig.packages
         .where((package) => package.name == "sentry_dart_plugin");
@@ -114,7 +114,7 @@ class Configuration {
     }
 
     if (_assetsPath.isNull) {
-      Log.info('The assets folder isn\'t\ found.');
+      Log.info('The assets folder is not found.');
     }
   }
 

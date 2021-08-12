@@ -158,10 +158,10 @@ class SentryDartPlugin {
     params.add('upload-sourcemaps');
     params.add(folder);
 
-    exts.forEach((element) {
+    for (final ext in exts) {
       params.add('--ext');
-      params.add(element);
-    });
+      params.add(ext);
+    }
 
     // TODO: add support to custom dist
     if (version.contains('+')) {

@@ -93,7 +93,7 @@ class Log {
   }
 
   static void processResult(ProcessResult result) {
-    if (result.stderr.toString().length > 0) {
+    if (result.stderr.toString().isNotEmpty) {
       Log.error(result.stdout);
       Log.errorAndExit(result.stderr);
     } else if (result.exitCode != 0) {

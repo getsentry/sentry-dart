@@ -5,6 +5,8 @@ description: >
 homepage: https://docs.sentry.io/platforms/dart/
 repository: https://github.com/getsentry/sentry-dart
 
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
 environment:
   sdk: ">=2.12.0 <3.0.0"
 
@@ -16,5 +18,4 @@ dependencies:
   system_info: ^1.0.1
 
 dev_dependencies:
-  pedantic: ^1.11.0
-  coverage: ^1.0.1
+  lints: ^1.0.1
