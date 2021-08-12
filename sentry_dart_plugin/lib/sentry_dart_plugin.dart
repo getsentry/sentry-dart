@@ -31,7 +31,7 @@ class SentryDartPlugin {
   }
 
   void _executeCliForDebugSymbols() {
-    const taskName = 'uploading symbols';
+    const taskName = 'uploading debug symbols';
     Log.startingTask(taskName);
 
     List<String> params = [];
