@@ -1,5 +1,7 @@
 # Unreleased
 
+* Feat: Collect more information for exceptions collected via `FlutterError.onError` (#538)
+
 # 6.0.0-beta.3
 
 * Fix: Re-initialization of Flutter SDK (#526)

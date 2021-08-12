@@ -1,0 +1,31 @@
+name: e2e-sentry-dart
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+jobs:
+  build:
+    name: E2E
+    runs-on: 'ubuntu-latest'
+    defaults:
+      run:
+        working-directory: ./e2e_test
+    strategy:
+      fail-fast: false
+      matrix:
+        sdk: [stable, beta, dev]
+    env:
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+
+    steps:
+        - uses: dart-lang/setup-dart@v1
+          with:
+            sdk: ${{ matrix.sdk }}
+        - uses: actions/checkout@v2
+        - name: Test 
+          run: |
+            dart pub get
+            dart analyze --fatal-infos
+            dart format --set-exit-if-changed ./
+            dart run
