@@ -90,17 +90,31 @@ class SentryDartPlugin {
 
     _executeAndLog('Failed to create new release', releaseNewParams);
 
-    // upload source maps
-    List<String> releaseFilesParams = [];
-    releaseFilesParams.addAll(params);
-    // TODO: is dart any useful?
-    _addExtensionToParams(['dart', 'map', 'js'], releaseFilesParams, release);
+    // upload source maps (js and map)
+    List<String> releaseJsFilesParams = [];
+    releaseJsFilesParams.addAll(params);
 
-    _addWait(releaseFilesParams);
+    _addExtensionToParams(['map', 'js'], releaseJsFilesParams, release,
+        _configuration.webBuildFilesFolder);
 
-    Log.info('releaseFilesParams $releaseFilesParams');
+    _addWait(releaseJsFilesParams);
 
-    _executeAndLog('Failed to upload source maps', releaseFilesParams);
+    Log.info('releaseJsFilesParams $releaseJsFilesParams');
+
+    _executeAndLog('Failed to upload source maps', releaseJsFilesParams);
+
+    // upload source maps (dart)
+    List<String> releaseDartFilesParams = [];
+    releaseDartFilesParams.addAll(params);
+
+    _addExtensionToParams(['dart'], releaseDartFilesParams, release,
+        _configuration.buildFilesFolder);
+
+    _addWait(releaseDartFilesParams);
+
+    Log.info('releaseDartFilesParams $releaseDartFilesParams');
+
+    _executeAndLog('Failed to upload source maps', releaseDartFilesParams);
 
     // finalize new release
     releaseFinalizeParams.add('finalize');
@@ -138,17 +152,18 @@ class SentryDartPlugin {
   }
 
   void _addExtensionToParams(
-      List<String> exts, List<String> params, String version) {
+      List<String> exts, List<String> params, String version, String folder) {
     params.add('files');
     params.add(version);
     params.add('upload-sourcemaps');
-    params.add(_configuration.buildFilesFolder);
+    params.add(folder);
 
     exts.forEach((element) {
       params.add('--ext');
       params.add(element);
     });
 
+    // TODO: add support to custom dist
     if (version.contains('+')) {
       params.add('--dist');
       final values = version.split('+');

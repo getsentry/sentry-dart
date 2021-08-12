@@ -50,4 +50,5 @@ sentry_plugin:
 | auth_token | Auth Token | e.g. 64 random characteres (string)  | yes | SENTRY_AUTH_TOKEN |
 | wait | Wait for server-side processing of uploaded files | false (boolean)  | no | - |
 | log_level | Configures the log level for sentry-cli | warn (string)  | no | SENTRY_LOG_LEVEL |
-| version | The release version for source maps | name@version from pubspec (string)  | no | - |
+| release | The release version for source maps, it should match the release set by the SDK | default: name@version from pubspec (string)  | no | - |
+| web_build_path | The web build folder | default: build/web (string)  | no | - |

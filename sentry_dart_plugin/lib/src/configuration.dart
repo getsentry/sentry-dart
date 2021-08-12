@@ -25,6 +25,7 @@ class Configuration {
   String _fileSeparator = Platform.pathSeparator;
   late String version;
   late String name;
+  late String webBuildFilesFolder;
 
   dynamic _getPubspec() {
     final pubspecString = File("pubspec.yaml").readAsStringSync();
@@ -41,12 +42,15 @@ class Configuration {
     final pubspec = _getPubspec();
     final config = pubspec['sentry_plugin'];
 
-    version = config['version']?.toString() ?? pubspec['version'].toString();
+    version = config['release']?.toString() ?? pubspec['version'].toString();
     name = pubspec['name'].toString();
 
     uploadNativeSymbols = config?['upload_native_symbols'] ?? true;
     uploadSourceMaps = config?['upload_source_maps'] ?? false;
     includeNativeSources = config?['include_native_sources'] ?? false;
+
+    final webBuildPath = config?['web_build_path']?.toString() ?? 'build/web';
+    webBuildFilesFolder = '$buildFilesFolder$_fileSeparator$webBuildPath';
 
     project = config?['project']?.toString(); // or env. var. SENTRY_PROJECT
     org = config?['org']?.toString(); // or env. var. SENTRY_ORG
