@@ -1,6 +1,6 @@
 # Sentry Dart Plugin
 
-A Dart Build Plugin that uploads symbols for Android and iOS/macOS to Sentry via [sentry-cli](https://docs.sentry.io/product/cli/).
+A Dart Build Plugin that uploads symbols for Android, iOS/macOS and Web to Sentry via [sentry-cli](https://docs.sentry.io/product/cli/).
 
 For doing it manually, please follow our [docs](https://docs.sentry.io/platforms/flutter/upload-debug/).
 
@@ -19,7 +19,7 @@ dev_dependencies:
 dart run sentry_dart_plugin
 ```
 
-The `flutter build apk` or `flutter build ios` (or _macos_) is required before executing the `sentry_dart_plugin` plugin.
+The `flutter build apk`, `flutter build ios` (or _macos_) or `flutter build web` is required before executing the `sentry_dart_plugin` plugin.
 
 ## Configuration (Optional)
 
@@ -30,12 +30,15 @@ Add `sentry_plugin:` configuration at the end of your `pubspec.yaml` file:
 ```yaml
 sentry_plugin:
   upload_native_symbols: true
+  upload_source_maps: false
   include_native_sources: false
   project: ...
   org: ...
   auth_token: ...
   wait: false
   log_level: error # possible values: trace, debug, info, warn, error
+  release: ...
+  web_build_path: ...
 ```
 
 ###### Available Configuration Fields:
