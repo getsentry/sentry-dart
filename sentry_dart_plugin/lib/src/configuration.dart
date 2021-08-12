@@ -49,8 +49,15 @@ class Configuration {
     uploadSourceMaps = config?['upload_source_maps'] ?? false;
     includeNativeSources = config?['include_native_sources'] ?? false;
 
+    // uploading JS and Map files need to have the correct folder structure
+    // otherwise symbolication fails, the default path for the web build folder is build/web
+    // but can be customized so making it flexible.
     final webBuildPath = config?['web_build_path']?.toString() ?? 'build/web';
     webBuildFilesFolder = '$buildFilesFolder$_fileSeparator$webBuildPath';
+
+    // pro tip: add rule: stack.abs_path:org-dartlang-sdk* -app
+    // and: stack.abs_path:org-dartlang-sdk* -group
+    // to the issue grouping
 
     project = config?['project']?.toString(); // or env. var. SENTRY_PROJECT
     org = config?['org']?.toString(); // or env. var. SENTRY_ORG
