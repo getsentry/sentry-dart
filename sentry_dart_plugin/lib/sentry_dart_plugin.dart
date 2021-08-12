@@ -86,8 +86,6 @@ class SentryDartPlugin {
     final release = _getRelease();
     releaseNewParams.add(release);
 
-    Log.info('releaseNewParams $releaseNewParams');
-
     _executeAndLog('Failed to create new release', releaseNewParams);
 
     // upload source maps (js and map)
@@ -98,8 +96,6 @@ class SentryDartPlugin {
         _configuration.webBuildFilesFolder);
 
     _addWait(releaseJsFilesParams);
-
-    Log.info('releaseJsFilesParams $releaseJsFilesParams');
 
     _executeAndLog('Failed to upload source maps', releaseJsFilesParams);
 
@@ -112,15 +108,11 @@ class SentryDartPlugin {
 
     _addWait(releaseDartFilesParams);
 
-    Log.info('releaseDartFilesParams $releaseDartFilesParams');
-
     _executeAndLog('Failed to upload source maps', releaseDartFilesParams);
 
     // finalize new release
     releaseFinalizeParams.add('finalize');
     releaseFinalizeParams.add(release);
-
-    Log.info('releaseFinalizeParams $releaseFinalizeParams');
 
     _executeAndLog('Failed to create new release', releaseFinalizeParams);
 
