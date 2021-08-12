@@ -2,11 +2,11 @@ name: sentry_flutter_example
 description: Demonstrates how to use the sentry_flutter plugin.
 version: 0.0.7+7
 
-publish_to: "none" # Remove this line if you wish to publish to pub.dev
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
-  flutter: ">=2.0.0"
+  sdk: '>=2.12.0 <3.0.0'
+  flutter: '>=2.0.0'
 
 dependencies:
   flutter:
@@ -32,7 +32,7 @@ flutter:
 
 sentry_plugin:
   # enabled by default
-  upload_native_symbols: false
+  #upload_native_symbols: true
   # disabled by default
   include_native_sources: true
   # disabled by default
@@ -43,8 +43,14 @@ sentry_plugin:
   # set by env. var. SENTRY_AUTH_TOKEN
   #auth_token:
 
+  # disabled by default
+  wait: true
+
   # default 'warning'
   log_level: error
 
   # default to build/web
   #web_build_path: ...
+
+  # default to name@version from pubspec
+  #release: ...
