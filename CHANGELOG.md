@@ -3,6 +3,7 @@
 ## Breaking Changes:
 
 * Feat: Lists of exceptions and threads (#524)
+* Feat: Collect more information for exceptions collected via `FlutterError.onError` (#538)
 
 # 6.0.0-beta.3
 

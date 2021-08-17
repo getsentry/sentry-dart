@@ -44,7 +44,7 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
   void call(Hub hub, SentryFlutterOptions options) {
     _defaultOnError = FlutterError.onError;
     _integrationOnError = (FlutterErrorDetails errorDetails) async {
-      dynamic exception = errorDetails.exception;
+      final exception = errorDetails.exception;
 
       options.logger(
         SentryLevel.debug,
@@ -52,13 +52,42 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
       );
 
       if (errorDetails.silent != true || options.reportSilentFlutterErrors) {
+        final context = errorDetails.context?.toDescription();
+
+        final collector = errorDetails.informationCollector?.call() ?? [];
+        final information =
+            (StringBuffer()..writeAll(collector, '\n')).toString();
+        // errorDetails.library defaults to 'Flutter framework' even though it
+        // is nullable. We do null checks anyway, just to be sure.
+        final library = errorDetails.library;
+
+        final flutterErrorDetails = <String, String>{
+          // This is a message which should make sense if written after the
+          // word `thrown`:
+          // https://api.flutter.dev/flutter/foundation/FlutterErrorDetails/context.html
+          if (context != null) 'context': 'thrown $context',
+          if (collector.isNotEmpty) 'information': information,
+          if (library != null) 'library': library,
+        };
+
         // FlutterError doesn't crash the App.
-        final mechanism = Mechanism(type: 'FlutterError', handled: true);
+        final mechanism = Mechanism(
+          type: 'FlutterError',
+          handled: true,
+          data: {
+            if (flutterErrorDetails.isNotEmpty)
+              'hint':
+                  'See "flutter_error_details" down below for more information'
+          },
+        );
         final throwableMechanism = ThrowableMechanism(mechanism, exception);
 
         var event = SentryEvent(
           throwable: throwableMechanism,
           level: SentryLevel.fatal,
+          contexts: flutterErrorDetails.isNotEmpty
+              ? (Contexts()..['flutter_error_details'] = flutterErrorDetails)
+              : null,
         );
 
         await hub.captureEvent(event, stackTrace: errorDetails.stack);

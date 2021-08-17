@@ -81,6 +81,10 @@ MaterialApp(
 ```
 For a more throughout example see the [example](example/lib/main.dart).
 
+##### Tracking HTTP events
+
+Please see the instructions [here](https://pub.dev/packages/sentry).
+
 ##### Known limitations
 
 - Flutter `split-debug-info` and `obfuscate` flags aren't supported on iOS yet, but only on Android, if this feature is enabled, Dart stack traces are not human readable

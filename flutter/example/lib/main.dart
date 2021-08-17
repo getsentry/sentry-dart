@@ -147,6 +147,26 @@ class MainScaffold extends StatelessWidget {
                   () => throw Exception('Throws in Future.delayed')),
             ),
             RaisedButton(
+              child: const Text('Capture from FlutterError.onError'),
+              onPressed: () {
+                // modeled after a real exception
+                FlutterError.onError?.call(FlutterErrorDetails(
+                  exception: Exception('A really bad exception'),
+                  silent: false,
+                  context: DiagnosticsNode.message('while handling a gesture'),
+                  library: 'gesture',
+                  informationCollector: () => [
+                    DiagnosticsNode.message(
+                        'Handler: "onTap" Recognizer: TapGestureRecognizer'),
+                    DiagnosticsNode.message(
+                        'Handler: "onTap" Recognizer: TapGestureRecognizer'),
+                    DiagnosticsNode.message(
+                        'Handler: "onTap" Recognizer: TapGestureRecognizer'),
+                  ],
+                ));
+              },
+            ),
+            RaisedButton(
               child: const Text('Dart: Web request'),
               onPressed: () => makeWebRequest(context),
             ),
