@@ -65,7 +65,7 @@ class SentryOptions {
   int get maxAttachmentSize => _maxAttachmentSize;
 
   set maxAttachmentSize(int maxAttachmentSize) {
-    assert(maxAttachmentSize >= 0);
+    assert(maxAttachmentSize > 0);
     _maxAttachmentSize = maxAttachmentSize;
   }
 
