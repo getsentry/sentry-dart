@@ -1,4 +1,7 @@
 import 'dart:convert';
+
+import 'sentry_item_type.dart';
+import 'sentry_options.dart';
 import 'utils.dart';
 import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_envelope_header.dart';
@@ -17,7 +20,7 @@ class SentryEnvelope {
   /// All items contained in the envelope.
   final List<SentryEnvelopeItem> items;
 
-  /// Create an `SentryEnvelope` with containing one `SentryEnvelopeItem` which holds the `SentyEvent` data.
+  /// Create an [SentryEnvelope] with containing one [SentryEnvelopeItem] which holds the [SentryEvent] data.
   factory SentryEnvelope.fromEvent(
     SentryEvent event,
     SdkVersion sdkVersion, {
@@ -44,13 +47,18 @@ class SentryEnvelope {
   }
 
   /// Stream binary data representation of `Envelope` file encoded.
-  Stream<List<int>> envelopeStream() async* {
+  Stream<List<int>> envelopeStream(SentryOptions options) async* {
     yield utf8.encode(jsonEncode(
       header.toJson(),
       toEncodable: jsonSerializationFallback,
     ));
     final newLineData = utf8.encode('\n');
     for (final item in items) {
+      if (item.header.type == SentryItemType.attachment) {
+        if (await item.header.length() > options.maxAttachmentSize) {
+          continue;
+        }
+      }
       final itemStream = await item.envelopeItemStream();
       if (itemStream.isNotEmpty) {
         yield newLineData;

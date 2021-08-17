@@ -1,6 +1,7 @@
 # Unreleased
 
 * Feat: Collect more information for exceptions collected via `FlutterError.onError` (#538)
+* Feat: Add maxAttachmentSize option (#553)
 
 # 6.0.0-beta.3
 

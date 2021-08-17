@@ -35,7 +35,9 @@ void main() {
       final envelope = SentryEnvelope(header, [attachmentItem]);
 
       final envelopeData = <int>[];
-      await envelope.envelopeStream().forEach(envelopeData.addAll);
+      await envelope
+          .envelopeStream(SentryOptions())
+          .forEach(envelopeData.addAll);
 
       final expectedEnvelopeFile =
           File('test_resources/envelope-with-image.envelope');
@@ -59,8 +61,8 @@ void main() {
         attachments: [attachment],
       );
 
-      final data =
-          (await envelope.envelopeStream().toList()).reduce((a, b) => a + b);
+      final data = (await envelope.envelopeStream(SentryOptions()).toList())
+          .reduce((a, b) => a + b);
 
       expect(data, envelopeBinaryData);
     });
