@@ -88,6 +88,8 @@ void main() {
       statusCode: 200,
       requestDuration: Duration.zero,
       timestamp: DateTime.now(),
+      requestBodySize: 2,
+      responseBodySize: 3,
     );
     final json = breadcrumb.toJson();
 
@@ -99,9 +101,30 @@ void main() {
         'method': 'GET',
         'status_code': 200,
         'reason': 'OK',
-        'duration': '0:00:00.000000'
+        'duration': '0:00:00.000000',
+        'request_body_size': 2,
+        'response_body_size': 3,
       },
       'level': 'fatal',
+      'type': 'http',
+    });
+  });
+
+  test('Minimal Breadcrumb http ctor', () {
+    final breadcrumb = Breadcrumb.http(
+      url: Uri.parse('https://example.org'),
+      method: 'GET',
+    );
+    final json = breadcrumb.toJson();
+
+    expect(json, {
+      'timestamp': formatDateAsIso8601WithMillisPrecision(breadcrumb.timestamp),
+      'category': 'http',
+      'data': {
+        'url': 'https://example.org',
+        'method': 'GET',
+      },
+      'level': 'info',
       'type': 'http',
     });
   });
