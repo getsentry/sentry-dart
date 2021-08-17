@@ -1,7 +1,7 @@
 # Unreleased
 
 * Feat: Collect more information for exceptions collected via `FlutterError.onError` (#538)
-* Bump: Sentry-Cocoa to 7.1.4
+* Bump: Sentry-Cocoa to 7.1.4 (#551)
 * Bump: Sentry-Android to 5.1.0-beta.9 (#551)
 
 # 6.0.0-beta.3
