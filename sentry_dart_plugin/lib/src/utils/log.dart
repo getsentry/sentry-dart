@@ -1,3 +1,5 @@
+// Source partly borrowed from: https://github.com/YehudaKremer/msix/blob/main/lib/src/utils/log.dart
+
 import 'dart:io';
 import 'package:ansicolor/ansicolor.dart';
 
@@ -25,7 +27,7 @@ class Log {
   /// Write `error` log and exit the program
   static void errorAndExit(String message) {
     error(message);
-    exit(0);
+    exit(1);
   }
 
   /// Warning log with `yellow` color

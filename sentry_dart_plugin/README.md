@@ -13,29 +13,31 @@ dev_dependencies:
   sentry_dart_plugin: ^1.0.0-alpha.1
 ```
 
+## Build App
+
+The `flutter build apk`, `flutter build ios` (or _macos_) or `flutter build web` is required before executing the `sentry_dart_plugin` plugin, because the build spits out the debug symbols and source maps.
+
 ## Run
 
 ```bash
 dart run sentry_dart_plugin
 ```
 
-The `flutter build apk`, `flutter build ios` (or _macos_) or `flutter build web` is required before executing the `sentry_dart_plugin` plugin.
-
 ## Configuration (Optional)
 
 This tool comes with default configuration, you can configure it to suit your needs.
 
-Add `sentry_plugin:` configuration at the end of your `pubspec.yaml` file:
+Add `sentry:` configuration at the end of your `pubspec.yaml` file:
 
 ```yaml
-sentry_plugin:
+sentry:
   upload_native_symbols: true
   upload_source_maps: false
   include_native_sources: false
   project: ...
   org: ...
   auth_token: ...
-  wait: false
+  wait_for_processing: false
   log_level: error # possible values: trace, debug, info, warn, error
   release: ...
   web_build_path: ...
@@ -51,7 +53,7 @@ sentry_plugin:
 | project | Project's name | e.g. sentry-flutter (string) | yes | SENTRY_PROJECT |
 | org | Organization's slug | e.g. sentry-sdks (string) | yes | SENTRY_ORG |
 | auth_token | Auth Token | e.g. 64 random characteres (string)  | yes | SENTRY_AUTH_TOKEN |
-| wait | Wait for server-side processing of uploaded files | false (boolean)  | no | - |
+| wait_for_processing | Wait for server-side processing of uploaded files | false (boolean)  | no | - |
 | log_level | Configures the log level for sentry-cli | warn (string)  | no | SENTRY_LOG_LEVEL |
 | release | The release version for source maps, it should match the release set by the SDK | default: name@version from pubspec (string)  | no | - |
 | web_build_path | The web build folder | default: build/web (string)  | no | - |

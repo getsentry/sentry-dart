@@ -38,9 +38,9 @@ class Configuration {
     Log.startingTask(taskName);
 
     await _getAssetsFolderPath();
-    _findCliPath();
+    _findAndSetCliPath();
     final pubspec = _getPubspec();
-    final config = pubspec['sentry_plugin'];
+    final config = pubspec['sentry'];
 
     version = config?['release']?.toString() ?? pubspec['version'].toString();
     name = pubspec['name'].toString();
@@ -55,13 +55,9 @@ class Configuration {
     final webBuildPath = config?['web_build_path']?.toString() ?? 'build/web';
     webBuildFilesFolder = '$buildFilesFolder$_fileSeparator$webBuildPath';
 
-    // pro tip: add rule: stack.abs_path:org-dartlang-sdk* -app
-    // and: stack.abs_path:org-dartlang-sdk* -group
-    // to the issue grouping
-
     project = config?['project']?.toString(); // or env. var. SENTRY_PROJECT
     org = config?['org']?.toString(); // or env. var. SENTRY_ORG
-    wait = config?['wait'] ?? false;
+    wait = config?['wait_for_processing'] ?? false;
     authToken =
         config?['auth_token']?.toString(); // or env. var. SENTRY_AUTH_TOKEN
     logLevel =
@@ -77,14 +73,16 @@ class Configuration {
     final environments = Platform.environment;
 
     if (project.isNull && environments['SENTRY_PROJECT'].isNull) {
-      Log.errorAndExit('Project is empty, check \'project\' at pubspec.yaml');
+      Log.errorAndExit(
+          'Project is empty, check \'project\' at pubspec.yaml or SENTRY_PROJECT env. var.');
     }
     if (org.isNull && environments['SENTRY_ORG'].isNull) {
-      Log.errorAndExit('Organization is empty, check \'org\' at pubspec.yaml');
+      Log.errorAndExit(
+          'Organization is empty, check \'org\' at pubspec.yaml or SENTRY_ORG env. var.');
     }
     if (authToken.isNull && environments['SENTRY_AUTH_TOKEN'].isNull) {
       Log.errorAndExit(
-          'Auth Token is empty, check \'auth_token\' at pubspec.yaml');
+          'Auth Token is empty, check \'auth_token\' at pubspec.yaml or SENTRY_AUTH_TOKEN env. var.');
     }
 
     try {
@@ -118,7 +116,7 @@ class Configuration {
     }
   }
 
-  void _findCliPath() {
+  void _findAndSetCliPath() {
     if (Platform.isMacOS) {
       _setCliPath("Darwin-x86_64");
     } else if (Platform.isWindows) {

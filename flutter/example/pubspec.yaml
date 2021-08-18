@@ -30,7 +30,7 @@ dependency_overrides:
 flutter:
   uses-material-design: true
 
-sentry_plugin:
+sentry:
   # enabled by default
   #upload_native_symbols: true
   # disabled by default
@@ -44,7 +44,7 @@ sentry_plugin:
   #auth_token:
 
   # disabled by default
-  wait: true
+  wait_for_processing: true
 
   # default 'warning'
   log_level: error
