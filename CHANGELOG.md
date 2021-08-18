@@ -1,6 +1,7 @@
 # Unreleased
 
 * Feat: Collect more information for exceptions collected via `FlutterError.onError` (#538)
+* Feat: Sentry Dart Plugin - Alpha version (#545)
 
 # 6.0.0-beta.3
 
