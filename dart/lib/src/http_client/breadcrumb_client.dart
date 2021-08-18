@@ -56,6 +56,7 @@ class BreadcrumbClient extends BaseClient {
     var requestHadException = false;
     int? statusCode;
     String? reason;
+    int? responseBodySize;
 
     final stopwatch = Stopwatch();
     stopwatch.start();
@@ -65,6 +66,7 @@ class BreadcrumbClient extends BaseClient {
 
       statusCode = response.statusCode;
       reason = response.reasonPhrase;
+      responseBodySize = response.contentLength;
 
       return response;
     } catch (_) {
@@ -80,6 +82,8 @@ class BreadcrumbClient extends BaseClient {
         statusCode: statusCode,
         reason: reason,
         requestDuration: stopwatch.elapsed,
+        requestBodySize: request.contentLength,
+        responseBodySize: responseBodySize,
       );
 
       _hub.addBreadcrumb(breadcrumb);

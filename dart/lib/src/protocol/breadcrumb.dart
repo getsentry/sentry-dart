@@ -2,8 +2,10 @@ import 'package:meta/meta.dart';
 
 import '../utils.dart';
 import 'sentry_level.dart';
+import '../protocol.dart';
 
-/// Structed data to describe more information pior to the event [captured][Sentry.captureEvent].
+/// Structed data to describe more information pior to the event captured.
+/// See `Sentry.captureEvent()`.
 ///
 /// The outgoing JSON representation is:
 ///
@@ -21,7 +23,7 @@ import 'sentry_level.dart';
 /// * https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
 @immutable
 class Breadcrumb {
-  /// Creates a breadcrumb that can be attached to an [Event].
+  /// Creates a breadcrumb that can be attached to an [SentryEvent].
   Breadcrumb({
     this.message,
     DateTime? timestamp,
@@ -40,6 +42,12 @@ class Breadcrumb {
     Duration? requestDuration,
     SentryLevel? level,
     DateTime? timestamp,
+
+    // Size of the request body in bytes
+    int? requestBodySize,
+
+    // Size of the response body in bytes
+    int? responseBodySize,
   }) {
     return Breadcrumb(
       type: 'http',
@@ -52,6 +60,8 @@ class Breadcrumb {
         if (statusCode != null) 'status_code': statusCode,
         if (reason != null) 'reason': reason,
         if (requestDuration != null) 'duration': requestDuration.toString(),
+        if (requestBodySize != null) 'request_body_size': requestBodySize,
+        if (responseBodySize != null) 'response_body_size': responseBodySize,
       },
     );
   }
