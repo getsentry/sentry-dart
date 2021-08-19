@@ -35,6 +35,8 @@ void main() {
       expect(breadcrumb.data?['status_code'], 200);
       expect(breadcrumb.data?['reason'], 'OK');
       expect(breadcrumb.data?['duration'], isNotNull);
+      expect(breadcrumb.data?['request_body_size'], isNotNull);
+      expect(breadcrumb.data?['response_body_size'], isNotNull);
     });
 
     test('GET: happy path for 404', () async {
