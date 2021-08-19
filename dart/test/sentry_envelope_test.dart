@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_envelope.dart';
@@ -38,7 +39,7 @@ void main() {
           '$expectedHeaderJsonSerialized\n$expectedItemSerialized\n$expectedItemSerialized');
 
       final envelopeData = <int>[];
-      await sut.envelopeStream().forEach(envelopeData.addAll);
+      await sut.envelopeStream(SentryOptions()).forEach(envelopeData.addAll);
       expect(envelopeData, expected);
     });
 
@@ -66,6 +67,41 @@ void main() {
       expect(actualItem, expectedItem);
     });
 
+    test('max attachment size', () async {
+      final attachment = SentryAttachment.fromLoader(
+        loader: () => Uint8List.fromList([1, 2, 3, 4]),
+        filename: 'test.txt',
+      );
+
+      final eventId = SentryId.newId();
+      final sentryEvent = SentryEvent(eventId: eventId);
+      final sdkVersion =
+          SdkVersion(name: 'fixture-name', version: 'fixture-version');
+
+      final sut = SentryEnvelope.fromEvent(
+        sentryEvent,
+        sdkVersion,
+        attachments: [attachment],
+      );
+
+      final expectedEnvelopeItem = SentryEnvelope.fromEvent(
+        sentryEvent,
+        sdkVersion,
+      );
+
+      final sutEnvelopeData = <int>[];
+      await sut
+          .envelopeStream(SentryOptions()..maxAttachmentSize = 1)
+          .forEach(sutEnvelopeData.addAll);
+
+      final envelopeData = <int>[];
+      await expectedEnvelopeItem
+          .envelopeStream(SentryOptions())
+          .forEach(envelopeData.addAll);
+
+      expect(sutEnvelopeData, envelopeData);
+    });
+
     // This test passes if no exceptions are thrown, thus no asserts.
     // This is a test for https://github.com/getsentry/sentry-dart/issues/523
     test('serialize with non-serializable class', () async {
@@ -78,7 +114,7 @@ void main() {
         ),
       );
 
-      final _ = sut.envelopeStream().map((e) => e);
+      final _ = sut.envelopeStream(SentryOptions()).map((e) => e);
     });
   });
 }

@@ -1,6 +1,7 @@
 # Unreleased
 
 * Feat: Collect more information for exceptions collected via `FlutterError.onError` (#538)
+* Feat: Add maxAttachmentSize option (#553)
 * Bump: Sentry-Cocoa to 7.1.4 (#551)
 * Bump: Sentry-Android to 5.1.0 (#551)
 * Feat: HTTP breadcrumbs have the request & response size if available (#552)

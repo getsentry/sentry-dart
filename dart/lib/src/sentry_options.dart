@@ -53,6 +53,22 @@ class SentryOptions {
     _maxBreadcrumbs = maxBreadcrumbs;
   }
 
+  /// Initial value of 20 MiB according to
+  /// https://develop.sentry.dev/sdk/features/#max-attachment-size
+  int _maxAttachmentSize = 20 * 1024 * 1024;
+
+  /// Maximum allowed file size of attachments, in bytes.
+  /// Attachments above this size will be discarded
+  ///
+  /// Remarks: Regardless of this setting, attachments are also limited to 20mb
+  /// (compressed) on Relay.
+  int get maxAttachmentSize => _maxAttachmentSize;
+
+  set maxAttachmentSize(int maxAttachmentSize) {
+    assert(maxAttachmentSize > 0);
+    _maxAttachmentSize = maxAttachmentSize;
+  }
+
   SentryLogger _logger = noOpLogger;
 
   /// Logger interface to log useful debugging information if debug is enabled
