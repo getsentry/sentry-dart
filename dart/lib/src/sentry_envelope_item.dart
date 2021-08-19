@@ -17,7 +17,7 @@ class SentryEnvelopeItem {
       try {
         return (await cachedItem.getData()).length;
       } catch (_) {
-        return 0;
+        return -1;
       }
     };
 

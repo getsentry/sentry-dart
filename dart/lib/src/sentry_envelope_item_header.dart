@@ -12,6 +12,8 @@ class SentryEnvelopeItemHeader {
   final String type;
 
   /// The number of bytes of the encoded item JSON.
+  /// A negative number indicates an invalid envelope which should not be send
+  /// to Sentry.io.
   final Future<int> Function() length;
 
   final String? contentType;

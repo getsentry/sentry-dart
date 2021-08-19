@@ -91,7 +91,7 @@ void main() {
 
       final sutEnvelopeData = <int>[];
       await sut
-          .envelopeStream(SentryOptions()..maxAttachmentSize = 0)
+          .envelopeStream(SentryOptions()..maxAttachmentSize = 1)
           .forEach(sutEnvelopeData.addAll);
 
       final envelopeData = <int>[];

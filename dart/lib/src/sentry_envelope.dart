@@ -54,6 +54,14 @@ class SentryEnvelope {
     ));
     final newLineData = utf8.encode('\n');
     for (final item in items) {
+      final length = await item.header.length();
+      // A length smaller than 0 indicates an invalid envelope, which should not
+      // be send to Sentry.io
+      if (length < 0) {
+        continue;
+      }
+      // Olny attachments should be filtered according to
+      // SentryOptions.maxAttachmentSize
       if (item.header.type == SentryItemType.attachment) {
         if (await item.header.length() > options.maxAttachmentSize) {
           continue;
