@@ -239,8 +239,9 @@ class SentryEvent {
   /// Deserializes a [SentryEvent] from JSON [Map].
   factory SentryEvent.fromJson(Map<String, dynamic> json) {
     final breadcrumbsJson = json['breadcrumbs'] as List<dynamic>?;
-    final breadcrumbs =
-        breadcrumbsJson?.map((e) => Breadcrumb.fromJson(e)).toList();
+    final breadcrumbs = breadcrumbsJson
+        ?.map((e) => Breadcrumb.fromJson(e))
+        .toList(growable: false);
 
     final threadValues = json['threads']?['values'] as List<dynamic>?;
     final threads = threadValues
@@ -272,7 +273,8 @@ class SentryEvent {
       modules: modules,
       tags: tags,
       extra: json['extra'],
-      fingerprint: fingerprintJson?.map((e) => e as String).toList(),
+      fingerprint:
+          fingerprintJson?.map((e) => e as String).toList(growable: false),
       breadcrumbs: breadcrumbs,
       sdk: sdkVersionJson != null && sdkVersionJson.isNotEmpty
           ? SdkVersion.fromJson(sdkVersionJson)
@@ -359,7 +361,8 @@ class SentryEvent {
       json['exception'] = {'values': exceptionsJson};
     }
 
-    final threadIds = exceptions?.map((element) => element.threadId).toList();
+    final threadIds =
+        exceptions?.map((element) => element.threadId).toList(growable: false);
     final threadJson = threads
         ?.where((element) => !(threadIds?.contains(element.id) ?? false))
         .map((e) => e.toJson())
