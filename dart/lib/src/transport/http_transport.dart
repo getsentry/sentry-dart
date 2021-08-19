@@ -90,12 +90,12 @@ class HttpTransport implements Transport {
     if (_options.compressPayload) {
       final compressionSink = compressInSink(streamedRequest.sink, _headers);
       envelope
-          .envelopeStream()
+          .envelopeStream(_options)
           .listen(compressionSink.add)
           .onDone(compressionSink.close);
     } else {
       envelope
-          .envelopeStream()
+          .envelopeStream(_options)
           .listen(streamedRequest.sink.add)
           .onDone(streamedRequest.sink.close);
     }

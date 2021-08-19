@@ -11,11 +11,15 @@ class SentryEnvelopeItem {
   SentryEnvelopeItem(this.header, this.dataFactory);
 
   factory SentryEnvelopeItem.fromAttachment(SentryAttachment attachment) {
-    final cachedItem = _CachedItem(() async {
-      return await attachment.bytes;
-    });
+    final cachedItem = _CachedItem(() async => await attachment.bytes);
 
-    final getLength = () async => (await cachedItem.getData()).length;
+    final getLength = () async {
+      try {
+        return (await cachedItem.getData()).length;
+      } catch (_) {
+        return -1;
+      }
+    };
 
     final header = SentryEnvelopeItemHeader(
       SentryItemType.attachment,

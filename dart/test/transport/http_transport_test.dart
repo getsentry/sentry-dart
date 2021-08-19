@@ -71,7 +71,9 @@ void main() {
       await sut.send(envelope);
 
       final envelopeData = <int>[];
-      await filteredEnvelope.envelopeStream().forEach(envelopeData.addAll);
+      await filteredEnvelope
+          .envelopeStream(fixture.options)
+          .forEach(envelopeData.addAll);
 
       expect(body, envelopeData);
     });
