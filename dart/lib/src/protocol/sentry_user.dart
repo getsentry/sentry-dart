@@ -6,8 +6,10 @@ import 'package:meta/meta.dart';
 /// The user can be specified globally in the [Scope.user] field,
 /// or per event in the [SentryEvent.user] field.
 ///
-/// You should provide at least either an [id] (a unique identifier for an
-/// authenticated user) or [ipAddress] (their IP address).
+/// You should provide at least one of [id], [email], [ipAddress], [username]
+/// for Sentry to be able to tell you how many users are affected by one
+/// issue, for example. Sending a user that has none of these attributes and
+/// only custom attributes is valid, but not as useful.
 ///
 /// Conforms to the User Interface contract for Sentry
 /// https://docs.sentry.io/clientdev/interfaces/user/.
@@ -25,15 +27,17 @@ import 'package:meta/meta.dart';
 /// ```
 @immutable
 class SentryUser {
-  /// At a minimum you must set an [id] or an [ipAddress].
+  /// You should provide at least one of [id], [email], [ipAddress], [username]
+  /// for Sentry to be able to tell you how many users are affected by one
+  /// issue, for example. Sending a user that has none of these attributes and
+  /// only custom attributes is valid, but not as useful.
   SentryUser({
     this.id,
     this.username,
     this.email,
     this.ipAddress,
     Map<String, dynamic>? extras,
-  })  : assert(id != null || ipAddress != null),
-        extras = extras == null ? null : Map.from(extras);
+  }) : extras = extras == null ? null : Map.from(extras);
 
   /// A unique identifier of the user.
   final String? id;
