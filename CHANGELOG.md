@@ -1,5 +1,8 @@
 # Unreleased
 
+## Breaking Changes:
+
+* Feat: Lists of exceptions and threads (#524)
 * Feat: Collect more information for exceptions collected via `FlutterError.onError` (#538)
 * Feat: Add maxAttachmentSize option (#553)
 * Bump: Sentry-Cocoa to 7.1.4 (#551)

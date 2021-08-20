@@ -130,21 +130,36 @@ class SentryClient {
 
     event = _applyDefaultPii(event);
 
-    if (event.exception != null) return event;
+    if (event.exceptions?.isNotEmpty ?? false) return event;
 
     if (event.throwableMechanism != null) {
-      final sentryException = _exceptionFactory
-          .getSentryException(event.throwableMechanism, stackTrace: stackTrace);
+      final sentryException = _exceptionFactory.getSentryException(
+        event.throwableMechanism,
+        stackTrace: stackTrace,
+      );
 
-      return event.copyWith(exception: sentryException);
+      return event.copyWith(exceptions: [
+        ...(event.exceptions ?? []),
+        sentryException,
+      ]);
     }
 
+    // The stacktrace is not part of an exception,
+    // therefore add it to the threads.
+    // https://develop.sentry.dev/sdk/event-payloads/stacktrace/
     if (stackTrace != null || _options.attachStacktrace) {
       stackTrace ??= StackTrace.current;
       final frames = _stackTraceFactory.getStackFrames(stackTrace);
 
       if (frames.isNotEmpty) {
-        event = event.copyWith(stackTrace: SentryStackTrace(frames: frames));
+        event = event.copyWith(threads: [
+          ...(event.threads ?? []),
+          SentryThread(
+            crashed: false,
+            current: true,
+            stacktrace: SentryStackTrace(frames: frames),
+          ),
+        ]);
       }
     }
 
