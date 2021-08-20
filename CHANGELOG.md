@@ -1,5 +1,7 @@
 # Unreleased
 
+* Feat: Add current route as transaction (#560)
+
 # 6.0.0-beta.4
 
 ## Breaking Changes:

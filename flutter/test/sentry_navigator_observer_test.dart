@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+import 'mocks.dart';
 import 'mocks.mocks.dart';
 
 void main() {
@@ -226,5 +227,47 @@ void main() {
         ).data,
       );
     });
+
+    test('route name as transaction', () {
+      final hub = _MockHub();
+      final observer = SentryNavigatorObserver(hub: hub, setTransaction: true);
+
+      final to = routeSettings('to');
+      final previous = routeSettings('previous');
+
+      observer.didPush(route(to), route(previous));
+      expect(hub.scope.transaction, 'to');
+
+      observer.didPop(route(to), route(previous));
+      expect(hub.scope.transaction, 'previous');
+
+      observer.didReplace(newRoute: route(to), oldRoute: route(previous));
+      expect(hub.scope.transaction, 'to');
+    });
+
+    test('disabled route as transaction', () {
+      final hub = _MockHub();
+      final observer = SentryNavigatorObserver(hub: hub, setTransaction: false);
+
+      final to = routeSettings('to');
+      final previous = routeSettings('previous');
+
+      observer.didPush(route(to), route(previous));
+      expect(hub.scope.transaction, null);
+
+      observer.didPop(route(to), route(previous));
+      expect(hub.scope.transaction, null);
+
+      observer.didReplace(newRoute: route(to), oldRoute: route(previous));
+      expect(hub.scope.transaction, null);
+    });
   });
+}
+
+class _MockHub extends MockHub {
+  final Scope scope = Scope(SentryOptions(dsn: fakeDsn));
+  @override
+  void configureScope(ScopeCallback? callback) {
+    callback?.call(scope);
+  }
 }

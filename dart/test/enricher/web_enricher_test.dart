@@ -16,6 +16,20 @@ void main() {
       fixture = Fixture();
     });
 
+    test('add path as transaction if transaction is null', () async {
+      var enricher = fixture.getSut();
+      final event = await enricher.apply(SentryEvent());
+
+      expect(event.transaction, isNotNull);
+    });
+
+    test("don't overwrite transaction", () async {
+      var enricher = fixture.getSut();
+      final event = await enricher.apply(SentryEvent(transaction: 'foobar'));
+
+      expect(event.transaction, 'foobar');
+    });
+
     test('add request with user-agent header', () async {
       var enricher = fixture.getSut();
       final event = await enricher.apply(SentryEvent());
