@@ -95,7 +95,7 @@ Please see the instructions [here](https://pub.dev/packages/sentry).
 
 Debug symbols and Source maps provide information that Sentry displays on the Issue Details page to help you triage an issue. We offer a range of methods to provide Sentry with debug symbols, [follow the docs](https://docs.sentry.io/platforms/flutter/upload-debug/) to learn more about it.
 
-Or [try out the Alpha version of the Sentry Dart Plugin](sentry-dart-plugin) that does it automatically for you, feedback is welcomed.
+Or [try out the Alpha version of the Sentry Dart Plugin](https://github.com/getsentry/sentry-dart-plugin) that does it automatically for you, feedback is welcomed.
 
 ##### Tips for catching errors
 
