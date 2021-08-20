@@ -1,6 +1,6 @@
 # Unreleased
 
-* Fix: Update `SentryUser` according to docs
+* Fix: Update `SentryUser` according to docs (#561)
 
 # 6.0.0-beta.4
 
