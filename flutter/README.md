@@ -91,12 +91,11 @@ Please see the instructions [here](https://pub.dev/packages/sentry).
 - If you enable the `split-debug-info` feature, you must upload the Debug Symbols manually.
 - Layout related errors are only caught by [FlutterError.onError](https://api.flutter.dev/flutter/foundation/FlutterError/onError.html) in debug mode. In release mode, they are removed by the Flutter framework. See [Flutter build modes](https://flutter.dev/docs/testing/build-modes).
 
-##### Uploading Debug Symbols (Android and iOS)
+##### Uploading Debug Symbols and Source maps (Android, iOS/macOS and Web)
 
-- [iOS dSYM files](https://docs.sentry.io/platforms/apple/dsym/)
-- [Android NDK](https://docs.sentry.io/product/cli/dif/#uploading-files), You must do it manually. Do not use the `uploadNativeSymbols` flag from the [Sentry Gradle Plugin](https://docs.sentry.io/platforms/android/proguard/), because it's not yet supported.
-- [Android Proguard/R8 mapping file](https://docs.sentry.io/platforms/android/proguard/)
-- [Source maps for Flutter Web](https://docs.sentry.io/product/cli/releases/#managing-release-artifacts)
+Debug symbols and Source maps provide information that Sentry displays on the Issue Details page to help you triage an issue. We offer a range of methods to provide Sentry with debug symbols, [follow the docs](https://docs.sentry.io/platforms/flutter/upload-debug/) to learn more about it.
+
+Or [try out the Alpha version of the Sentry Dart Plugin](sentry-dart-plugin) that does it automatically for you, feedback is welcomed.
 
 ##### Tips for catching errors
 
