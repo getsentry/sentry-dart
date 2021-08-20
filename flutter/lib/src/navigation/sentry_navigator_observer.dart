@@ -35,13 +35,16 @@ const _navigationKey = 'navigation';
 ///   - [RouteObserver](https://api.flutter.dev/flutter/widgets/RouteObserver-class.html)
 ///   - [Navigating with arguments](https://flutter.dev/docs/cookbook/navigation/navigate-with-arguments)
 class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
-  SentryNavigatorObserver({Hub? hub}) : hub = hub ?? HubAdapter();
+  SentryNavigatorObserver({Hub? hub, this.setTransaction = true})
+      : _hub = hub ?? HubAdapter();
 
-  final Hub hub;
+  final Hub _hub;
+  final bool setTransaction;
 
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPush(route, previousRoute);
+    setCurrentRoute(route.settings.name);
     _addBreadcrumb(
       type: 'didPush',
       from: previousRoute?.settings,
@@ -52,7 +55,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   @override
   void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
     super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
-
+    setCurrentRoute(newRoute?.settings.name);
     _addBreadcrumb(
       type: 'didReplace',
       from: oldRoute?.settings,
@@ -63,7 +66,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   @override
   void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPop(route, previousRoute);
-
+    setCurrentRoute(previousRoute?.settings.name);
     _addBreadcrumb(
       type: 'didPop',
       from: route.settings,
@@ -76,11 +79,19 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     RouteSettings? from,
     RouteSettings? to,
   }) {
-    hub.addBreadcrumb(RouteObserverBreadcrumb(
+    _hub.addBreadcrumb(RouteObserverBreadcrumb(
       navigationType: type,
       from: from,
       to: to,
     ));
+  }
+
+  void setCurrentRoute(String? name) {
+    if (setTransaction) {
+      _hub.configureScope((scope) {
+        scope.transaction = name;
+      });
+    }
   }
 }
 
