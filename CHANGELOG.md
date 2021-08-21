@@ -1,6 +1,6 @@
 # Unreleased
 
-* Feat: Enable or disable reporting of packages
+* Feat: Enable or disable reporting of packages (#563)
 
 # 6.0.0-beta.4
 
