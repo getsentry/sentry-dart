@@ -50,7 +50,7 @@ jobs:
           run: |
             cd example
             dart pub get
-            dart compile
+            dart compile exe bin/example.dart
 
         - uses: codecov/codecov-action@v1
           if: runner.os == 'Linux'
