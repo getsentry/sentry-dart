@@ -1,6 +1,8 @@
 include: package:pedantic/analysis_options.yaml
 
 analyzer:
+  exclude:
+    - example/** # the example has its own 'analysis_options.yaml'
   errors:
     # treat missing required parameters as a warning (not a hint)
     missing_required_param: error
