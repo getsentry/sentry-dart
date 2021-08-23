@@ -2,6 +2,8 @@
 
 * Fix: Update `SentryUser` according to docs (#561)
 * Feat: Enable or disable reporting of packages (#563)
+* Bump: Sentry-Cocoa to 7.2.2 (#566)
+* Bump: Sentry-Android to 5.1.1 (#566)
 
 # 6.0.0-beta.4
 
