@@ -37,7 +37,11 @@ class SentryUser {
     this.email,
     this.ipAddress,
     Map<String, dynamic>? extras,
-  }) : extras = extras == null ? null : Map.from(extras);
+  })  : assert(id != null ||
+            username != null ||
+            email != null ||
+            ipAddress != null),
+        extras = extras == null ? null : Map.from(extras);
 
   /// A unique identifier of the user.
   final String? id;
