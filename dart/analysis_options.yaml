@@ -16,3 +16,6 @@ linter:
   rules:
     prefer_relative_imports: true
     unnecessary_brace_in_string_interps: true
+
+ignore: 
+  - example # the example has its own 'analysis_options.yaml'
