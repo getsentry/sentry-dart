@@ -73,7 +73,10 @@ class FlutterEnricherEventProcessor extends EventProcessor {
   /// - Only packages with licenses are known
   /// - No version information is available
   /// - Flutter's native dependencies are also included.
-  FutureOr<Map<String, String>> _getPackages() async {
+  FutureOr<Map<String, String>?> _getPackages() async {
+    if (!_options.reportPackages) {
+      return null;
+    }
     if (_packages.isEmpty) {
       // This can take some time.
       // Therefore we cache this after running
