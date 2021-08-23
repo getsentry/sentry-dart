@@ -154,6 +154,38 @@ void main() {
     expect(sut.breadcrumbs.length, 0);
   });
 
+  test('adds $SentryAttachment', () {
+    final sut = fixture.getSut();
+
+    final attachment = SentryAttachment.fromIntList([0, 0, 0, 0], 'test.txt');
+    sut.addAttachment(attachment);
+
+    expect(sut.attachements.last, attachment);
+    expect(sut.attachements.length, 1);
+  });
+
+  test('clear() removes all $SentryAttachment', () {
+    final sut = fixture.getSut();
+
+    final attachment = SentryAttachment.fromIntList([0, 0, 0, 0], 'test.txt');
+    sut.addAttachment(attachment);
+    expect(sut.attachements.length, 1);
+    sut.clear();
+
+    expect(sut.attachements.length, 0);
+  });
+
+  test('clearAttachments() removes all $SentryAttachment', () {
+    final sut = fixture.getSut();
+
+    final attachment = SentryAttachment.fromIntList([0, 0, 0, 0], 'test.txt');
+    sut.addAttachment(attachment);
+    expect(sut.attachements.length, 1);
+    sut.clearAttachments();
+
+    expect(sut.attachements.length, 0);
+  });
+
   test('sets tag', () {
     final sut = fixture.getSut();
 
@@ -232,6 +264,13 @@ void main() {
 
   test('clones', () {
     final sut = fixture.getSut();
+
+    sut.addBreadcrumb(Breadcrumb(
+      message: 'test log',
+      timestamp: DateTime.utc(2019),
+    ));
+    sut.addAttachment(SentryAttachment.fromIntList([0, 0, 0, 0], 'test.txt'));
+
     final clone = sut.clone();
     expect(sut.user, clone.user);
     expect(sut.transaction, clone.transaction);
@@ -239,6 +278,7 @@ void main() {
     expect(sut.tags, clone.tags);
     expect(sut.breadcrumbs, clone.breadcrumbs);
     expect(sut.contexts, clone.contexts);
+    expect(sut.attachements, clone.attachements);
     expect(ListEquality().equals(sut.fingerprint, clone.fingerprint), true);
     expect(
       ListEquality().equals(sut.eventProcessors, clone.eventProcessors),

@@ -30,3 +30,4 @@ export 'protocol/sentry_trace_header.dart';
 export 'protocol/span_status.dart';
 export 'protocol/span_id.dart';
 export 'protocol/span_interface.dart';
+export 'protocol/sentry_thread.dart';

@@ -3,10 +3,11 @@ import 'hub.dart';
 import 'protocol.dart';
 import 'sentry.dart';
 import 'sentry_client.dart';
+import 'sentry_user_feedback.dart';
 
 /// Hub adapter to make Integrations testable
 class HubAdapter implements Hub {
-  HubAdapter._();
+  const HubAdapter._();
 
   static final HubAdapter _instance = HubAdapter._();
 
@@ -102,4 +103,8 @@ class HubAdapter implements Hub {
     // TODO: implement traceHeaders
     throw UnimplementedError();
   }
+
+  @override
+  Future captureUserFeedback(SentryUserFeedback userFeedback) =>
+      Sentry.captureUserFeedback(userFeedback);
 }

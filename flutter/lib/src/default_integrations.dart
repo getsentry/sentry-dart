@@ -44,7 +44,7 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
   void call(Hub hub, SentryFlutterOptions options) {
     _defaultOnError = FlutterError.onError;
     _integrationOnError = (FlutterErrorDetails errorDetails) async {
-      dynamic exception = errorDetails.exception;
+      final exception = errorDetails.exception;
 
       options.logger(
         SentryLevel.debug,
@@ -52,22 +52,45 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
       );
 
       if (errorDetails.silent != true || options.reportSilentFlutterErrors) {
+        final context = errorDetails.context?.toDescription();
+
+        final collector = errorDetails.informationCollector?.call() ?? [];
+        final information =
+            (StringBuffer()..writeAll(collector, '\n')).toString();
+        // errorDetails.library defaults to 'Flutter framework' even though it
+        // is nullable. We do null checks anyway, just to be sure.
+        final library = errorDetails.library;
+
+        final flutterErrorDetails = <String, String>{
+          // This is a message which should make sense if written after the
+          // word `thrown`:
+          // https://api.flutter.dev/flutter/foundation/FlutterErrorDetails/context.html
+          if (context != null) 'context': 'thrown $context',
+          if (collector.isNotEmpty) 'information': information,
+          if (library != null) 'library': library,
+        };
+
         // FlutterError doesn't crash the App.
-        final mechanism = Mechanism(type: 'FlutterError', handled: true);
+        final mechanism = Mechanism(
+          type: 'FlutterError',
+          handled: true,
+          data: {
+            if (flutterErrorDetails.isNotEmpty)
+              'hint':
+                  'See "flutter_error_details" down below for more information'
+          },
+        );
         final throwableMechanism = ThrowableMechanism(mechanism, exception);
 
         var event = SentryEvent(
           throwable: throwableMechanism,
           level: SentryLevel.fatal,
+          contexts: flutterErrorDetails.isNotEmpty
+              ? (Contexts()..['flutter_error_details'] = flutterErrorDetails)
+              : null,
         );
 
         await hub.captureEvent(event, stackTrace: errorDetails.stack);
-
-        // call original handler
-        if (_defaultOnError != null) {
-          _defaultOnError!(errorDetails);
-        }
-
         // we don't call Zone.current.handleUncaughtError because we'd like
         // to set a specific mechanism for FlutterError.onError.
       } else {
@@ -77,6 +100,12 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
           'Enable [SentryFlutterOptions.reportSilentFlutterErrors] '
           'if you wish to capture silent errors',
         );
+      }
+      // Call original handler, regardless of `errorDetails.silent` or
+      // `reportSilentFlutterErrors`. This ensures, that we don't swallow
+      // messages.
+      if (_defaultOnError != null) {
+        _defaultOnError!(errorDetails);
       }
     };
     FlutterError.onError = _integrationOnError;
@@ -196,7 +225,7 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
   NativeSdkIntegration(this._channel);
 
   final MethodChannel _channel;
-  late SentryFlutterOptions _options;
+  SentryFlutterOptions? _options;
 
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) async {
@@ -243,7 +272,7 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
     try {
       await _channel.invokeMethod<void>('closeNativeSdk');
     } catch (exception, stackTrace) {
-      _options.logger(
+      _options?.logger(
         SentryLevel.fatal,
         'nativeSdkIntegration failed to be closed',
         exception: exception,
@@ -317,9 +346,11 @@ class _LoadAndroidImageListIntegrationEventProcessor extends EventProcessor {
   @override
   FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {
     try {
-      if (event.exception != null && event.exception!.stackTrace != null) {
-        final needsSymbolication = event.exception!.stackTrace!.frames
-            .any((element) => 'native' == element.platform);
+      final exceptions = event.exceptions;
+      if (exceptions != null && exceptions.first.stackTrace != null) {
+        final needsSymbolication = exceptions.first.stackTrace?.frames
+                .any((element) => 'native' == element.platform) ??
+            false;
 
         // if there are no frames that require symbolication, we don't
         // load the debug image list.
@@ -333,7 +364,7 @@ class _LoadAndroidImageListIntegrationEventProcessor extends EventProcessor {
       // we call on every event because the loaded image list is cached
       // and it could be changed on the Native side.
       final imageList = List<Map<dynamic, dynamic>>.from(
-        await (_channel.invokeMethod('loadImageList')),
+        await _channel.invokeMethod('loadImageList'),
       );
 
       if (imageList.isEmpty) {

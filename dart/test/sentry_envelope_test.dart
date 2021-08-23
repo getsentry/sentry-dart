@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_envelope.dart';
@@ -31,15 +32,14 @@ void main() {
       final expectedHeaderJson = header.toJson();
       final expectedHeaderJsonSerialized = jsonEncode(expectedHeaderJson);
 
-      final expectedItem = <int>[];
-      await item.envelopeItemStream().forEach(expectedItem.addAll);
+      final expectedItem = await item.envelopeItemStream();
       final expectedItemSerialized = utf8.decode(expectedItem);
 
       final expected = utf8.encode(
           '$expectedHeaderJsonSerialized\n$expectedItemSerialized\n$expectedItemSerialized');
 
       final envelopeData = <int>[];
-      await sut.envelopeStream().forEach(envelopeData.addAll);
+      await sut.envelopeStream(SentryOptions()).forEach(envelopeData.addAll);
       expect(envelopeData, expected);
     });
 
@@ -60,15 +60,65 @@ void main() {
       expect(await sut.items[0].header.length(),
           await expectedEnvelopeItem.header.length());
 
-      final actualItem = <int>[];
-      await sut.items[0].envelopeItemStream().forEach(actualItem.addAll);
+      final actualItem = await sut.items[0].envelopeItemStream();
 
-      final expectedItem = <int>[];
-      await expectedEnvelopeItem
-          .envelopeItemStream()
-          .forEach(expectedItem.addAll);
+      final expectedItem = await expectedEnvelopeItem.envelopeItemStream();
 
       expect(actualItem, expectedItem);
     });
+
+    test('max attachment size', () async {
+      final attachment = SentryAttachment.fromLoader(
+        loader: () => Uint8List.fromList([1, 2, 3, 4]),
+        filename: 'test.txt',
+      );
+
+      final eventId = SentryId.newId();
+      final sentryEvent = SentryEvent(eventId: eventId);
+      final sdkVersion =
+          SdkVersion(name: 'fixture-name', version: 'fixture-version');
+
+      final sut = SentryEnvelope.fromEvent(
+        sentryEvent,
+        sdkVersion,
+        attachments: [attachment],
+      );
+
+      final expectedEnvelopeItem = SentryEnvelope.fromEvent(
+        sentryEvent,
+        sdkVersion,
+      );
+
+      final sutEnvelopeData = <int>[];
+      await sut
+          .envelopeStream(SentryOptions()..maxAttachmentSize = 1)
+          .forEach(sutEnvelopeData.addAll);
+
+      final envelopeData = <int>[];
+      await expectedEnvelopeItem
+          .envelopeStream(SentryOptions())
+          .forEach(envelopeData.addAll);
+
+      expect(sutEnvelopeData, envelopeData);
+    });
+
+    // This test passes if no exceptions are thrown, thus no asserts.
+    // This is a test for https://github.com/getsentry/sentry-dart/issues/523
+    test('serialize with non-serializable class', () async {
+      final event = SentryEvent(extra: {'non-ecodable': NonEncodable()});
+      final sut = SentryEnvelope.fromEvent(
+        event,
+        SdkVersion(
+          name: 'test',
+          version: '1',
+        ),
+      );
+
+      final _ = sut.envelopeStream(SentryOptions()).map((e) => e);
+    });
   });
+}
+
+class NonEncodable {
+  final String message = 'Hello World';
 }

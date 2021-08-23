@@ -1,5 +1,32 @@
 # Unreleased
 
+* Fix: Update `SentryUser` according to docs (#561)
+* Feat: Enable or disable reporting of packages (#563)
+
+# 6.0.0-beta.4
+
+## Breaking Changes:
+
+* Feat: Lists of exceptions and threads (#524)
+* Feat: Collect more information for exceptions collected via `FlutterError.onError` (#538)
+* Feat: Add maxAttachmentSize option (#553)
+* Bump: Sentry-Cocoa to 7.1.4 (#551)
+* Bump: Sentry-Android to 5.1.0 (#551)
+* Feat: HTTP breadcrumbs have the request & response size if available (#552)
+
+# 6.0.0-beta.3
+
+* Fix: Re-initialization of Flutter SDK (#526)
+* Enhancement: Call `toString()` on all non-serializable fields (#528)
+* Fix: Always call `Flutter.onError` in order to not swallow messages (#533)
+* Bump: Android SDK to 5.1.0-beta.6 (#535)
+
+# 6.0.0-beta.2
+
+* Fix: Serialization of Flutter Context (#520)
+* Feat: Add support for attachments (#505)
+* Feat: Add support for User Feedback (#506)
+
 # 6.0.0-beta.1
 
 * Feat: Browser detection (#502)
@@ -7,6 +34,7 @@
 * Feat: Add Culture Context (#491)
 * Feat: Add DeduplicationEventProcessor (#498)
 * Feat: Capture failed requests as event (#473)
+* Feat: `beforeSend` callback accepts async code (#494)
 
 ## Breaking Changes:
 

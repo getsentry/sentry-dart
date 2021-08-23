@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'sentry_attachment/sentry_attachment.dart';
 import 'event_processor.dart';
 import 'protocol.dart';
 import 'sentry_options.dart';
@@ -83,6 +84,10 @@ class Scope {
 
   final SentryOptions _options;
 
+  final List<SentryAttachment> _attachements = [];
+
+  List<SentryAttachment> get attachements => List.unmodifiable(_attachements);
+
   Scope(this._options);
 
   /// Adds a breadcrumb to the breadcrumbs queue
@@ -118,6 +123,14 @@ class Scope {
     _breadcrumbs.add(breadcrumb);
   }
 
+  void addAttachment(SentryAttachment attachment) {
+    _attachements.add(attachment);
+  }
+
+  void clearAttachments() {
+    _attachements.clear();
+  }
+
   /// Clear all the breadcrumbs
   void clearBreadcrumbs() {
     _breadcrumbs.clear();
@@ -137,6 +150,7 @@ class Scope {
   /// Resets the Scope to its default state
   void clear() {
     clearBreadcrumbs();
+    clearAttachments();
     level = null;
     transaction = null;
     user = null;
@@ -293,6 +307,10 @@ class Scope {
         clone.setContexts(key, value);
       }
     });
+
+    for (final attachment in _attachements) {
+      clone.addAttachment(attachment);
+    }
 
     return clone;
   }

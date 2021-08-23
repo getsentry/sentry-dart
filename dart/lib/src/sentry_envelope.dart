@@ -1,9 +1,14 @@
 import 'dart:convert';
 import 'protocol/sentry_transaction.dart';
+import 'sentry_item_type.dart';
+import 'sentry_options.dart';
+import 'utils.dart';
+import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_envelope_header.dart';
 import 'sentry_envelope_item.dart';
 import 'protocol/sentry_event.dart';
 import 'protocol/sdk_version.dart';
+import 'sentry_user_feedback.dart';
 
 /// Class representation of `Envelope` file.
 class SentryEnvelope {
@@ -15,10 +20,30 @@ class SentryEnvelope {
   /// All items contained in the envelope.
   final List<SentryEnvelopeItem> items;
 
-  /// Create an `SentryEnvelope` with containing one `SentryEnvelopeItem` which holds the `SentyEvent` data.
-  factory SentryEnvelope.fromEvent(SentryEvent event, SdkVersion sdkVersion) {
-    return SentryEnvelope(SentryEnvelopeHeader(event.eventId, sdkVersion),
-        [SentryEnvelopeItem.fromEvent(event)]);
+  /// Create an [SentryEnvelope] with containing one [SentryEnvelopeItem] which holds the [SentryEvent] data.
+  factory SentryEnvelope.fromEvent(
+    SentryEvent event,
+    SdkVersion sdkVersion, {
+    List<SentryAttachment>? attachments,
+  }) {
+    return SentryEnvelope(
+      SentryEnvelopeHeader(event.eventId, sdkVersion),
+      [
+        SentryEnvelopeItem.fromEvent(event),
+        if (attachments != null)
+          ...attachments.map((e) => SentryEnvelopeItem.fromAttachment(e))
+      ],
+    );
+  }
+
+  factory SentryEnvelope.fromUserFeedback(
+    SentryUserFeedback feedback,
+    SdkVersion sdkVersion,
+  ) {
+    return SentryEnvelope(
+      SentryEnvelopeHeader(feedback.eventId, sdkVersion),
+      [SentryEnvelopeItem.fromUserFeedback(feedback)],
+    );
   }
 
   factory SentryEnvelope.fromTransaction(
@@ -32,13 +57,30 @@ class SentryEnvelope {
   }
 
   /// Stream binary data representation of `Envelope` file encoded.
-  Stream<List<int>> envelopeStream() async* {
-    yield utf8.encode(jsonEncode(header.toJson()));
+  Stream<List<int>> envelopeStream(SentryOptions options) async* {
+    yield utf8.encode(jsonEncode(
+      header.toJson(),
+      toEncodable: jsonSerializationFallback,
+    ));
     final newLineData = utf8.encode('\n');
     for (final item in items) {
-      yield newLineData;
-      await for (final chunk in item.envelopeItemStream()) {
-        yield chunk;
+      final length = await item.header.length();
+      // A length smaller than 0 indicates an invalid envelope, which should not
+      // be send to Sentry.io
+      if (length < 0) {
+        continue;
+      }
+      // Olny attachments should be filtered according to
+      // SentryOptions.maxAttachmentSize
+      if (item.header.type == SentryItemType.attachment) {
+        if (await item.header.length() > options.maxAttachmentSize) {
+          continue;
+        }
+      }
+      final itemStream = await item.envelopeItemStream();
+      if (itemStream.isNotEmpty) {
+        yield newLineData;
+        yield itemStream;
       }
     }
   }

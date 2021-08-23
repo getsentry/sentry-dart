@@ -32,6 +32,7 @@ void main() {
     bool silent = false,
     FlutterExceptionHandler? handler,
     dynamic exception,
+    FlutterErrorDetails? optionalDetails,
   }) {
     // replace default error otherwise it fails on testing
     FlutterError.onError =
@@ -46,8 +47,11 @@ void main() {
     final details = FlutterErrorDetails(
       exception: throwable,
       silent: silent,
+      context: DiagnosticsNode.message('while handling a gesture'),
+      library: 'sentry',
+      informationCollector: () => [DiagnosticsNode.message('foo bar')],
     );
-    FlutterError.reportError(details);
+    FlutterError.reportError(optionalDetails ?? details);
   }
 
   test('FlutterError capture errors', () async {
@@ -64,7 +68,70 @@ void main() {
     final throwableMechanism = event.throwableMechanism as ThrowableMechanism;
     expect(throwableMechanism.mechanism.type, 'FlutterError');
     expect(throwableMechanism.mechanism.handled, true);
+    expect(throwableMechanism.mechanism.data['hint'],
+        'See "flutter_error_details" down below for more information');
     expect(throwableMechanism.throwable, exception);
+
+    expect(event.contexts['flutter_error_details']['library'], 'sentry');
+    expect(event.contexts['flutter_error_details']['context'],
+        'thrown while handling a gesture');
+    expect(event.contexts['flutter_error_details']['information'], 'foo bar');
+  });
+
+  test('FlutterError capture errors with long FlutterErrorDetails.information',
+      () async {
+    final details = FlutterErrorDetails(
+      exception: StateError('error'),
+      silent: false,
+      context: DiagnosticsNode.message('while handling a gesture'),
+      library: 'sentry',
+      informationCollector: () => [
+        DiagnosticsNode.message('foo bar'),
+        DiagnosticsNode.message('Hello World!')
+      ],
+    );
+
+    // exception is ignored in this case
+    _reportError(exception: StateError('error'), optionalDetails: details);
+
+    final event = verify(
+      await fixture.hub.captureEvent(captureAny),
+    ).captured.first as SentryEvent;
+
+    expect(event.level, SentryLevel.fatal);
+
+    final throwableMechanism = event.throwableMechanism as ThrowableMechanism;
+    expect(throwableMechanism.mechanism.type, 'FlutterError');
+    expect(throwableMechanism.mechanism.handled, true);
+    expect(throwableMechanism.mechanism.data['hint'],
+        'See "flutter_error_details" down below for more information');
+
+    expect(event.contexts['flutter_error_details']['library'], 'sentry');
+    expect(event.contexts['flutter_error_details']['context'],
+        'thrown while handling a gesture');
+    expect(event.contexts['flutter_error_details']['information'],
+        'foo bar\nHello World!');
+  });
+
+  test('FlutterError capture errors with no FlutterErrorDetails', () async {
+    final details = FlutterErrorDetails(
+        exception: StateError('error'), silent: false, library: null);
+
+    // exception is ignored in this case
+    _reportError(exception: StateError('error'), optionalDetails: details);
+
+    final event = verify(
+      await fixture.hub.captureEvent(captureAny),
+    ).captured.first as SentryEvent;
+
+    expect(event.level, SentryLevel.fatal);
+
+    final throwableMechanism = event.throwableMechanism as ThrowableMechanism;
+    expect(throwableMechanism.mechanism.type, 'FlutterError');
+    expect(throwableMechanism.mechanism.handled, true);
+    expect(throwableMechanism.mechanism.data['hint'], isNull);
+
+    expect(event.contexts['flutter_error_details'], isNull);
   });
 
   test('FlutterError calls default error', () async {
@@ -257,6 +324,7 @@ void main() {
           packageName: '',
           version: '1.2.3',
           buildNumber: '789',
+          buildSignature: '',
         ));
       };
       await fixture
@@ -275,6 +343,7 @@ void main() {
           packageName: '',
           version: '1.2.3',
           buildNumber: '789',
+          buildSignature: '',
         ));
       };
       await fixture
@@ -299,6 +368,7 @@ void main() {
           packageName: '',
           version: '1.0.0\u{0000}',
           buildNumber: '',
+          buildSignature: '',
         ));
       };
       await fixture
@@ -323,6 +393,7 @@ void main() {
           packageName: 'sentry_flutter_example\u{0000}',
           version: '',
           buildNumber: '123\u{0000}',
+          buildSignature: '',
         ));
       };
       await fixture
@@ -339,6 +410,7 @@ void main() {
           packageName: 'a.b.c',
           version: '1.0.0',
           buildNumber: '',
+          buildSignature: '',
         ));
       };
       await fixture
@@ -364,6 +436,7 @@ class Fixture {
       packageName: 'foo.bar',
       version: '1.2.3',
       buildNumber: '789',
+      buildSignature: '',
     ));
   }
 }

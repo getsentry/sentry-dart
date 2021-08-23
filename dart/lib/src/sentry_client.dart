@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:math';
-
 import 'event_processor.dart';
+import 'sentry_user_feedback.dart';
 import 'transport/rate_limiter.dart';
 import 'protocol.dart';
 import 'scope.dart';
@@ -108,8 +108,14 @@ class SentryClient {
         return _sentryId;
       }
     }
-    final envelope = SentryEnvelope.fromEvent(preparedEvent, _options.sdk);
-    return await _options.transport.send(envelope);
+    final envelope = SentryEnvelope.fromEvent(
+      preparedEvent,
+      _options.sdk,
+      attachments: scope?.attachements,
+    );
+
+    final id = await captureEnvelope(envelope);
+    return id ?? SentryId.empty();
   }
 
   SentryEvent _prepareEvent(SentryEvent event, {dynamic stackTrace}) {
@@ -124,21 +130,36 @@ class SentryClient {
 
     event = _applyDefaultPii(event);
 
-    if (event.exception != null) return event;
+    if (event.exceptions?.isNotEmpty ?? false) return event;
 
     if (event.throwableMechanism != null) {
-      final sentryException = _exceptionFactory
-          .getSentryException(event.throwableMechanism, stackTrace: stackTrace);
+      final sentryException = _exceptionFactory.getSentryException(
+        event.throwableMechanism,
+        stackTrace: stackTrace,
+      );
 
-      return event.copyWith(exception: sentryException);
+      return event.copyWith(exceptions: [
+        ...(event.exceptions ?? []),
+        sentryException,
+      ]);
     }
 
+    // The stacktrace is not part of an exception,
+    // therefore add it to the threads.
+    // https://develop.sentry.dev/sdk/event-payloads/stacktrace/
     if (stackTrace != null || _options.attachStacktrace) {
       stackTrace ??= StackTrace.current;
       final frames = _stackTraceFactory.getStackFrames(stackTrace);
 
       if (frames.isNotEmpty) {
-        event = event.copyWith(stackTrace: SentryStackTrace(frames: frames));
+        event = event.copyWith(threads: [
+          ...(event.threads ?? []),
+          SentryThread(
+            crashed: false,
+            current: true,
+            stacktrace: SentryStackTrace(frames: frames),
+          ),
+        ]);
       }
     }
 
@@ -215,6 +236,15 @@ class SentryClient {
 
   /// Reports the [envelope] to Sentry.io.
   Future<SentryId?> captureEnvelope(SentryEnvelope envelope) {
+    return _options.transport.send(envelope);
+  }
+
+  /// Reports the [userFeedback] to Sentry.io.
+  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) {
+    final envelope = SentryEnvelope.fromUserFeedback(
+      userFeedback,
+      _options.sdk,
+    );
     return _options.transport.send(envelope);
   }
 

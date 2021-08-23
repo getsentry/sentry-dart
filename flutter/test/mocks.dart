@@ -2,6 +2,7 @@ import 'package:mockito/annotations.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry/src/platform_checker.dart';
+import 'package:sentry/src/sentry_user_feedback.dart';
 
 const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
@@ -172,4 +173,7 @@ class NoOpHub implements Hub {
   Map<String, String> traceHeaders() {
     throw UnimplementedError();
   }
+
+  @override
+  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {}
 }

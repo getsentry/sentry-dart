@@ -1,14 +1,18 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
+import 'package:feedback/feedback.dart' as feedback;
+import 'package:provider/provider.dart';
+import 'user_feedback_dialog.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
 const String _exampleDsn =
-    'https://8b83cb94764f4701bee40028c2f29e72@o447951.ingest.sentry.io/5428562';
+    'https://1a83aa1a92144083ab5af46299c67857@o447951.ingest.sentry.io/5428562';
 
 Future<void> main() async {
   await SentryFlutter.init(
@@ -33,11 +37,19 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorObservers: [
-        SentryNavigatorObserver(),
-      ],
-      home: const MainScaffold(),
+    return feedback.BetterFeedback(
+      child: ChangeNotifierProvider<ThemeProvider>(
+        create: (_) => ThemeProvider(),
+        child: Builder(
+          builder: (context) => MaterialApp(
+            navigatorObservers: [
+              SentryNavigatorObserver(),
+            ],
+            theme: Provider.of<ThemeProvider>(context).theme,
+            home: const MainScaffold(),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -49,8 +61,37 @@ class MainScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    var icon = Icons.light_mode;
+    var theme = ThemeData.light();
+    if (themeProvider.theme.brightness == Brightness.light) {
+      icon = Icons.dark_mode;
+      theme = ThemeData.dark();
+    }
     return Scaffold(
-      appBar: AppBar(title: const Text('Sentry Flutter Example')),
+      appBar: AppBar(
+        title: const Text('Sentry Flutter Example'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              themeProvider.theme = theme;
+            },
+            icon: Icon(icon),
+          ),
+          IconButton(
+            onPressed: () {
+              themeProvider.updatePrimatryColor(Colors.orange);
+            },
+            icon: Icon(Icons.circle, color: Colors.orange),
+          ),
+          IconButton(
+            onPressed: () {
+              themeProvider.updatePrimatryColor(Colors.green);
+            },
+            icon: Icon(Icons.circle, color: Colors.lime),
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -106,6 +147,26 @@ class MainScaffold extends StatelessWidget {
                   () => throw Exception('Throws in Future.delayed')),
             ),
             RaisedButton(
+              child: const Text('Capture from FlutterError.onError'),
+              onPressed: () {
+                // modeled after a real exception
+                FlutterError.onError?.call(FlutterErrorDetails(
+                  exception: Exception('A really bad exception'),
+                  silent: false,
+                  context: DiagnosticsNode.message('while handling a gesture'),
+                  library: 'gesture',
+                  informationCollector: () => [
+                    DiagnosticsNode.message(
+                        'Handler: "onTap" Recognizer: TapGestureRecognizer'),
+                    DiagnosticsNode.message(
+                        'Handler: "onTap" Recognizer: TapGestureRecognizer'),
+                    DiagnosticsNode.message(
+                        'Handler: "onTap" Recognizer: TapGestureRecognizer'),
+                  ],
+                ));
+              },
+            ),
+            RaisedButton(
               child: const Text('Dart: Web request'),
               onPressed: () => makeWebRequest(context),
             ),
@@ -150,6 +211,73 @@ class MainScaffold extends StatelessWidget {
                 await Future.delayed(Duration(milliseconds: 250));
                 child2Span.finish();
                 await transction.finish();
+              },
+            ),
+            RaisedButton(
+              child: const Text('Capture message with attachment'),
+              onPressed: () {
+                Sentry.captureMessage(
+                  'This message has an attachment',
+                  withScope: (scope) {
+                    final txt = 'Lorem Ipsum dolar sit amet';
+                    scope.addAttachment(
+                      SentryAttachment.fromIntList(
+                        utf8.encode(txt),
+                        'foobar.txt',
+                        contentType: 'text/plain',
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+            RaisedButton(
+              child: const Text('Capture message with image attachment'),
+              onPressed: () {
+                feedback.BetterFeedback.of(context)
+                    .show((feedback.UserFeedback feedback) {
+                  Sentry.captureMessage(
+                    feedback.text,
+                    withScope: (scope) {
+                      final entries = feedback.extra?.entries;
+                      if (entries != null) {
+                        for (final extra in entries) {
+                          scope.setExtra(extra.key, extra.value);
+                        }
+                      }
+                      scope.addAttachment(
+                        SentryAttachment.fromUint8List(
+                          feedback.screenshot,
+                          'feedback.png',
+                          contentType: 'image/png',
+                        ),
+                      );
+                    },
+                  );
+                });
+              },
+            ),
+            RaisedButton(
+              child: const Text('Capture User Feedback'),
+              onPressed: () async {
+                final id = await Sentry.captureMessage('UserFeedback');
+                await showDialog(
+                  context: context,
+                  builder: (context) {
+                    return UserFeedbackDialog(eventId: id);
+                  },
+                );
+              },
+            ),
+            RaisedButton(
+              child: const Text('Show UserFeedback Dialog without event'),
+              onPressed: () async {
+                await showDialog(
+                  context: context,
+                  builder: (context) {
+                    return UserFeedbackDialog(eventId: SentryId.newId());
+                  },
+                );
               },
             ),
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
@@ -350,4 +478,23 @@ Future<void> makeWebRequest(BuildContext context) async {
       );
     },
   );
+}
+
+class ThemeProvider extends ChangeNotifier {
+  ThemeData _theme = ThemeData.light();
+
+  ThemeData get theme => _theme;
+
+  set theme(ThemeData theme) {
+    _theme = theme;
+    notifyListeners();
+  }
+
+  void updatePrimatryColor(MaterialColor color) {
+    if (theme.brightness == Brightness.light) {
+      theme = ThemeData(primarySwatch: color, brightness: theme.brightness);
+    } else {
+      theme = ThemeData(primarySwatch: color, brightness: theme.brightness);
+    }
+  }
 }
