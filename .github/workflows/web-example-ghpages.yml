@@ -1,8 +1,10 @@
 name: Flutter Web Example GH-Pages
 
+# on:
+#   release:
+#     types: [published]
 on:
-  release:
-    types: [published]
+  pull_request:
 
 jobs:
   build:
