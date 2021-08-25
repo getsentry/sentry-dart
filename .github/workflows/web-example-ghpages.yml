@@ -21,4 +21,5 @@ jobs:
       - name: Upload source maps
         run: |
           cd flutter/example
+          flutter pub get
           dart run sentry_dart_plugin
