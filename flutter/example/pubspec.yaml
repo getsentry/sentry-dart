@@ -16,6 +16,9 @@ dependencies:
   feedback: ^2.0.0
   provider: ^5.0.0
 
+dev_dependencies:
+  sentry_dart_plugin: ^1.0.0-alpha.1
+
 dependency_overrides:
   sentry:
     path: ../../dart
@@ -24,3 +27,10 @@ dependency_overrides:
 
 flutter:
   uses-material-design: true
+
+sentry:
+  upload_native_symbols: false
+  upload_source_maps: true
+  project: sentry-flutter
+  org: sentry-sdks
+  log_level: error
