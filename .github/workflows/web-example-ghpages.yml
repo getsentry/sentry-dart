@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: subosito/flutter-action@v1
-      - uses: erickzanardo/flutter-gh-pages@v6
+      - uses: erickzanardo/flutter-gh-pages@66e3e7b317d4fef824b2cfd3c9a4a112d321f33d
         with:
           workingDir: flutter/example
           customArgs: --source-maps
