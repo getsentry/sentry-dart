@@ -19,6 +19,7 @@ jobs:
       - uses: erickzanardo/flutter-gh-pages@v6
         with:
           workingDir: flutter/example
+          customArgs: --source-maps
 
       - name: Upload source maps
         run: |
