@@ -17,7 +17,7 @@ dependencies:
   provider: ^5.0.0
 
 dev_dependencies:
-  sentry_dart_plugin: ^1.0.0-alpha.1
+  sentry_dart_plugin: ^1.0.0-alpha.2
 
 dependency_overrides:
   sentry:
