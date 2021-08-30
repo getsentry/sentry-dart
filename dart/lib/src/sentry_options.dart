@@ -9,6 +9,7 @@ import 'event_processor.dart';
 import 'integration.dart';
 import 'noop_client.dart';
 import 'protocol.dart';
+import 'tracing.dart';
 import 'transport/noop_transport.dart';
 import 'transport/transport.dart';
 import 'utils.dart';
@@ -225,6 +226,19 @@ class SentryOptions {
     _maxDeduplicationItems = count;
   }
 
+  double? _tracesSampleRate;
+
+  double? get tracesSampleRate => _tracesSampleRate;
+
+  set tracesSampleRate(double? tracesSampleRate) {
+    // validate assert
+    assert(tracesSampleRate != null &&
+        (tracesSampleRate >= 0 || tracesSampleRate <= 1));
+    _tracesSampleRate = tracesSampleRate;
+  }
+
+  TracesSamplerCallback? tracesSampler;
+
   SentryOptions({this.dsn, PlatformChecker? checker}) {
     if (checker != null) {
       platformChecker = checker;
@@ -301,6 +315,9 @@ typedef SentryLogger = void Function(
   Object? exception,
   StackTrace? stackTrace,
 });
+
+typedef TracesSamplerCallback = double? Function(
+    SentrySamplingContext samplingContext);
 
 /// A NoOp logger that does nothing
 void noOpLogger(

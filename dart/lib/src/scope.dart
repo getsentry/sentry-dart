@@ -3,6 +3,7 @@ import 'sentry_attachment/sentry_attachment.dart';
 import 'event_processor.dart';
 import 'protocol.dart';
 import 'sentry_options.dart';
+import 'tracing.dart';
 
 /// Scope data to be sent with the event
 class Scope {
@@ -14,7 +15,8 @@ class Scope {
   String? transactionName;
 
   /// Returns active transaction or null if there is no active transaction.
-  SentryTransaction? transaction;
+  // SentryTransaction? transaction;
+  SentrySpan? span;
 
   /// Information about the current user.
   SentryUser? user;
@@ -138,7 +140,7 @@ class Scope {
 
   /// Resets [transaction] and [transactionName] to null
   void clearTransaction() {
-    transaction = null;
+    span = null;
     transactionName = null;
   }
 
@@ -152,7 +154,7 @@ class Scope {
     clearBreadcrumbs();
     clearAttachments();
     level = null;
-    transaction = null;
+    span = null;
     user = null;
     _fingerprint = [];
     _tags.clear();
@@ -283,7 +285,7 @@ class Scope {
     final clone = Scope(_options)
       ..user = user
       ..fingerprint = List.from(fingerprint)
-      ..transaction = transaction
+      ..span = span
       ..transactionName = transactionName;
 
     for (final tag in _tags.keys) {
@@ -315,7 +317,7 @@ class Scope {
     return clone;
   }
 
-  SpanInterface get span {
-    return (transaction?.root ?? transaction)!;
-  }
+  // SpanInterface get span {
+  //   return (transaction?.root ?? transaction)!;
+  // }
 }

@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:collection';
+
 import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'sentry_user_feedback.dart';
+import 'tracing.dart';
 
 /// Configures the scope through the callback.
 typedef ScopeCallback = void Function(Scope);
@@ -23,6 +25,8 @@ class Hub {
 
   final SentryOptions _options;
 
+  late SentryTracesSampler _tracesSampler;
+
   factory Hub(SentryOptions options) {
     _validateOptions(options);
 
@@ -30,6 +34,7 @@ class Hub {
   }
 
   Hub._(this._options) {
+    _tracesSampler = SentryTracesSampler(_options);
     _stack.add(_StackItem(_getClient(_options), Scope(_options)));
     _isEnabled = true;
   }
@@ -309,47 +314,88 @@ class Hub {
     }
   }
 
-  Map<String, String> traceHeaders() {
-    return {'sentry-trace': ''};
+  // Map<String, String> traceHeaders() {
+  //   return {'sentry-trace': ''};
+  // }
+
+  SentrySpan startTransaction(
+    String name,
+    String operation, {
+    String? description,
+    bool? bindToScope,
+  }) {
+    final transactionContext = SentryTransactionContext();
+    return startTransactionWithContext(
+      transactionContext,
+      bindToScope: bindToScope,
+    );
   }
 
-  void startTransaction() {}
-
-  SentrySpan get span {
-    throw Exception();
-  }
-
-  Future<SentryId> captureTransaction(SentryTransaction transaction) async {
-    var sentryId = SentryId.empty();
-
+  SentrySpan startTransactionWithContext(
+    SentryTransactionContext transactionContext, {
+    Map<String, dynamic>? customSamplingContext,
+    bool? bindToScope,
+  }) {
     if (!_isEnabled) {
       _options.logger(
         SentryLevel.warning,
-        "Instance is disabled and this 'captureEvent' call is a no-op.",
+        "Instance is disabled and this 'startTransactionWithContext' call is a no-op.",
       );
     } else {
       final item = _peek();
-      final event = await item.scope.applyToEvent(transaction.data, null);
-      if (event == null) {
-        return SentryId.empty();
-      }
-      transaction.data = event;
 
-      try {
-        return await item.client.captureTransaction(transaction);
-      } catch (exception, stackTrace) {
-        _options.logger(
-          SentryLevel.error,
-          'Error while capturing transaction with id: ${transaction.eventId}',
-          exception: exception,
-          stackTrace: stackTrace,
-        );
-      } finally {
-        _lastEventId = sentryId;
+      final samplingContext = SentrySamplingContext(
+          transactionContext, customSamplingContext ?? {});
+
+      transactionContext.sampled = _tracesSampler.sample(samplingContext);
+
+      final tracer = SentryTracer(this, transactionContext);
+
+      if (bindToScope ?? false) {
+        item.scope.span = tracer;
       }
+
+      return tracer;
     }
-    return sentryId;
+
+    return SentrySpan(SentrySpanContext()); // create NoOpSentrySpan
   }
+
+  // SentrySpan get span {
+  //   throw Exception();
+  // }
+
+  // Future<SentryId> captureTransaction(SentryTransaction transaction) async {
+  //   var sentryId = SentryId.empty();
+
+  //   if (!_isEnabled) {
+  //     _options.logger(
+  //       SentryLevel.warning,
+  //       "Instance is disabled and this 'captureEvent' call is a no-op.",
+  //     );
+  //   } else {
+  //     final item = _peek();
+  //     final event = await item.scope.applyToEvent(transaction.data, null);
+  //     if (event == null) {
+  //       return SentryId.empty();
+  //     }
+  //     transaction.data = event;
+
+  //     try {
+  //       return await item.client.captureTransaction(transaction);
+  //     } catch (exception, stackTrace) {
+  //       _options.logger(
+  //         SentryLevel.error,
+  //         'Error while capturing transaction with id: ${transaction.eventId}',
+  //         exception: exception,
+  //         stackTrace: stackTrace,
+  //       );
+  //     } finally {
+  //       _lastEventId = sentryId;
+  //     }
+  //   }
+  //   return sentryId;
+  // }
 }
 
 class _StackItem {

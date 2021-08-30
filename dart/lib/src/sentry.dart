@@ -14,6 +14,7 @@ import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'integration.dart';
 import 'sentry_user_feedback.dart';
+import 'tracing.dart';
 
 /// Configuration options callback
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
@@ -220,11 +221,36 @@ class Sentry {
     return true;
   }
 
-  static Future<SentryId> captureTransaction(SentryTransaction transaction) {
-    return _hub.captureTransaction(transaction);
+  // static SentryTransaction startTransaction(SentryTransactionContext context) {
+  //   return SentryTransaction(context: context, hub: _hub);
+  // }
+
+  static SentrySpan startTransaction(
+    String name,
+    String operation, {
+    String? description,
+    bool? bindToScope,
+  }) {
+    return _hub.startTransaction(
+      name,
+      operation,
+      description: description,
+      bindToScope: bindToScope,
+    );
   }
 
-  static SentryTransaction startTransaction(SentryTransactionContext context) {
-    return SentryTransaction(context: context, hub: _hub);
+  // or name and SentryTransactionContext also becomes an optional parameter above
+  static SentrySpan startTransactionWithContext(
+    SentryTransactionContext transactionContext, {
+    Map<String, dynamic>? customSamplingContext,
+    bool? bindToScope,
+  }) {
+    return _hub.startTransactionWithContext(
+      transactionContext,
+      customSamplingContext: customSamplingContext,
+      bindToScope: bindToScope,
+    );
   }
+
+  // missing traceHeaders, getSpan
 }
