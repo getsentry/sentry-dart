@@ -17,7 +17,7 @@ jobs:
         sdk: [stable, beta, dev]
     env:
       SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-      SENTRY_DSN: https://1a83aa1a92144083ab5af46299c67857@o447951.ingest.sentry.io/5428562
+      SENTRY_DIST: 1
     steps:
         - uses: dart-lang/setup-dart@v1
           with:
