@@ -57,6 +57,11 @@ jobs:
           with:
             name: sentry
             file: ./dart/coverage/lcov.info
+        
+        - uses: VeryGoodOpenSource/very_good_coverage@v1.1.1
+          with:
+            path: "./dart/coverage/lcov.info"
+            min_coverage: 90
 
   analyze:
     runs-on: ubuntu-latest
