@@ -1,20 +1,110 @@
+import 'dart:indexed_db';
+
 import '../sentry.dart';
 import 'tracing.dart';
 
-class SentryTracer extends SentrySpan {
-  Hub _hub;
-  SentryTransactionContext _transactionContext;
+class SentryTracer implements ISentrySpan {
+  final Hub _hub;
+  late String _name;
+  late SentrySpanContext _context;
+  DateTime? _timestamp;
+  DateTime _startTimestamp;
+  SpanStatus? _status;
 
   // missing waitForChildren
 
-  String? name;
-  @override
-  late SentrySpanContext context;
-  DateTime? timestamp;
-  DateTime? startTimestamp;
-  late bool isFinished;
+  late ISentrySpan _rootSpan;
+  final List<ISentrySpan> _children = [];
 
-  // find out how to pass its own instance to super
-  SentryTracer(this._hub, this._transactionContext)
-      : super(_transactionContext);
+  SentryTracer(SentryTransactionContext transactionContext, this._hub) {
+    _rootSpan = SentrySpan(this, transactionContext);
+    _name = transactionContext.name;
+  }
+
+  @override
+  void finish({SpanStatus? status}) {
+    _rootSpan.finish(status: status);
+    captureTransaction();
+  }
+
+  @override
+  void removeData(String key) {
+    _rootSpan.removeData(key);
+  }
+
+  @override
+  void removeTag(String key) {
+    _rootSpan.removeTag(key);
+  }
+
+  @override
+  void setData(String key, value) {
+    _rootSpan.setData(key, value);
+  }
+
+  @override
+  void setTag(String key, String value) {
+    _rootSpan.setTag(key, value);
+  }
+
+  @override
+  ISentrySpan startChild(
+    String operation, {
+    String? description,
+  }) {
+    return _rootSpan.startChild(
+      operation,
+      description: description,
+    );
+  }
+
+  ISentrySpan startChildWithParentId(
+    SpanId parentId,
+    String operation, {
+    String? description,
+  }) {
+    final context = SentrySpanContext(
+      traceId: _rootSpan.context.traceId,
+      parentId: parentId,
+      operation: operation,
+      description: description,
+      sampled: _rootSpan.context.sampled,
+    );
+
+    final child = SentrySpan(this, context);
+
+    _children.add(child);
+
+    return child;
+  }
+
+  // missing hasUnfinishedChildren & isWaitingForChildren feature
+
+  void captureTransaction() {
+    _hub.configureScope((scope) {
+      if (scope.span == this) {
+        scope.span = null;
+      }
+    });
+
+    final transaction = _toTransaction();
+    _hub.captureEvent(event)
+  }
+
+  SentryTransaction _toTransaction() {
+    // filter unfinished spans _children
+    return SentryTransaction(this, _children, _name);
+  }
+
+  @override
+  SpanStatus? get status => _status;
+
+  @override
+  SentrySpanContext get context => _context;
+
+  @override
+  DateTime get startTimestamp => _startTimestamp;
+
+  @override
+  DateTime? get timestamp => _timestamp;
 }

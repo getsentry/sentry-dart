@@ -225,7 +225,7 @@ class Sentry {
   //   return SentryTransaction(context: context, hub: _hub);
   // }
 
-  static SentrySpan startTransaction(
+  static ISentrySpan startTransaction(
     String name,
     String operation, {
     String? description,
@@ -240,7 +240,7 @@ class Sentry {
   }
 
   // or name and SentryTransactionContext also becomes an optional parameter above
-  static SentrySpan startTransactionWithContext(
+  static ISentrySpan startTransactionWithContext(
     SentryTransactionContext transactionContext, {
     Map<String, dynamic>? customSamplingContext,
     bool? bindToScope,

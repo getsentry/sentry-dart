@@ -16,7 +16,7 @@ class Scope {
 
   /// Returns active transaction or null if there is no active transaction.
   // SentryTransaction? transaction;
-  SentrySpan? span;
+  ISentrySpan? span;
 
   /// Information about the current user.
   SentryUser? user;

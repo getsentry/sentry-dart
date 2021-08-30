@@ -318,20 +318,20 @@ class Hub {
   //   return {'sentry-trace': ''};
   // }
 
-  SentrySpan startTransaction(
+  ISentrySpan startTransaction(
     String name,
     String operation, {
     String? description,
     bool? bindToScope,
   }) {
-    final transactionContext = SentryTransactionContext();
+    final transactionContext = SentryTransactionContext(name, operation);
     return startTransactionWithContext(
       transactionContext,
       bindToScope: bindToScope,
     );
   }
 
-  SentrySpan startTransactionWithContext(
+  ISentrySpan startTransactionWithContext(
     SentryTransactionContext transactionContext, {
     Map<String, dynamic>? customSamplingContext,
     bool? bindToScope,
@@ -349,7 +349,7 @@ class Hub {
 
       transactionContext.sampled = _tracesSampler.sample(samplingContext);
 
-      final tracer = SentryTracer(this, transactionContext);
+      final tracer = SentryTracer(transactionContext, this);
 
       if (bindToScope ?? false) {
         item.scope.span = tracer;
@@ -358,44 +358,44 @@ class Hub {
       return tracer;
     }
 
-    return SentrySpan(SentrySpanContext()); // create NoOpSentrySpan
+    return NoOpSentrySpan();
   }
 
   // SentrySpan get span {
   //   throw Exception();
   // }
 
-  // Future<SentryId> captureTransaction(SentryTransaction transaction) async {
-  //   var sentryId = SentryId.empty();
+  Future<SentryId> captureTransaction(SentryTransaction transaction) async {
+    var sentryId = SentryId.empty();
 
-  //   if (!_isEnabled) {
-  //     _options.logger(
-  //       SentryLevel.warning,
-  //       "Instance is disabled and this 'captureEvent' call is a no-op.",
-  //     );
-  //   } else {
-  //     final item = _peek();
-  //     final event = await item.scope.applyToEvent(transaction.data, null);
-  //     if (event == null) {
-  //       return SentryId.empty();
-  //     }
-  //     transaction.data = event;
+    if (!_isEnabled) {
+      _options.logger(
+        SentryLevel.warning,
+        "Instance is disabled and this 'captureTransaction' call is a no-op.",
+      );
+    } else {
+      final item = _peek();
+      // final event = await item.scope.applyToEvent(transaction.data, null);
+      // if (event == null) {
+      //   return SentryId.empty();
+      // }
+      // transaction.data = event;
 
-  //     try {
-  //       return await item.client.captureTransaction(transaction);
-  //     } catch (exception, stackTrace) {
-  //       _options.logger(
-  //         SentryLevel.error,
-  //         'Error while capturing transaction with id: ${transaction.eventId}',
-  //         exception: exception,
-  //         stackTrace: stackTrace,
-  //       );
-  //     } finally {
-  //       _lastEventId = sentryId;
-  //     }
-  //   }
-  //   return sentryId;
-  // }
+      try {
+        return await item.client.captureTransaction(transaction);
+      } catch (exception, stackTrace) {
+        _options.logger(
+          SentryLevel.error,
+          'Error while capturing transaction with id: ${transaction.eventId}',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+      } finally {
+        _lastEventId = sentryId;
+      }
+    }
+    return sentryId;
+  }
 }
 
 class _StackItem {
