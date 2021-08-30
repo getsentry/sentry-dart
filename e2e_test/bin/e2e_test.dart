@@ -19,6 +19,16 @@ void main(List<String> arguments) async {
   }
   await Sentry.init((options) {
     options.dsn = _exampleDsn;
+
+    // We check if the configuration which can be set via environment or Dart
+    // defines are passed correctly in the application.
+    if (options.environment != 'e2e') {
+      exit(1);
+    }
+
+    if (options.dist != '1') {
+      exit(1);
+    }
   });
 
   var id = SentryId.empty();
