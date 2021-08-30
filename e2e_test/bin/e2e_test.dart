@@ -17,19 +17,25 @@ void main(List<String> arguments) async {
     print('AUTH TOKEN is not set');
     exit(1);
   }
+  SentryOptions? _options;
   await Sentry.init((options) {
     options.dsn = _exampleDsn;
-
-    // We check if the configuration which can be set via environment or Dart
-    // defines are passed correctly in the application.
-    if (options.environment != 'e2e') {
-      exit(1);
-    }
-
-    if (options.dist != '1') {
-      exit(1);
-    }
+    _options = options;
   });
+
+  // We check if the configuration which can be set via environment or Dart
+  // defines are passed correctly in the application.
+  // The options callback has precedence over the environment, so we need to
+  // check those after init.
+  if (_options?.environment != 'e2e') {
+    print('Environment is not e2e');
+    exit(1);
+  }
+
+  if (_options?.dist != '1') {
+    print('Dist is not 1');
+    exit(1);
+  }
 
   var id = SentryId.empty();
   try {
