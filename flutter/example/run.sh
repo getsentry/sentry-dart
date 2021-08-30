@@ -1,7 +1,10 @@
 #!/bin/bash
 set -e
 
-# Build a release version of the app for a platform and upload symbols
+# Build a release version of the app for a platform and upload debug symbols and source maps.
+
+# Or try out the Alpha version of the Sentry Dart Plugin that does it automatically for you, feedback is welcomed.
+# https://github.com/getsentry/sentry-dart-plugin
 
 export SENTRY_PROJECT=sentry-flutter
 export SENTRY_ORG=sentry-sdks
@@ -24,7 +27,7 @@ elif [ "$1" == "android" ]; then
     echo -e "[\033[92mrun\033[0m] Android app installed"
 elif [ "$1" == "web" ]; then
     # Uses dart2js
-    flutter build web --dart-define=SENTRY_RELEASE=$SENTRY_RELEASE
+    flutter build web --dart-define=SENTRY_RELEASE=$SENTRY_RELEASE --source-maps
     ls -lah $OUTPUT_FOLDER_WEB
     echo -e "[\033[92mrun\033[0m] Built: $OUTPUT_FOLDER_WEB"
 else
@@ -41,14 +44,12 @@ if [ "$1" == "web" ]; then
     sentry-cli releases new $SENTRY_RELEASE
 
     sentry-cli releases files $SENTRY_RELEASE upload-sourcemaps . \
-        --ext dart \
-        --rewrite
+        --ext dart
 
     pushd $OUTPUT_FOLDER_WEB
     sentry-cli releases files $SENTRY_RELEASE upload-sourcemaps . \
         --ext map \
-        --ext js \
-        --rewrite
+        --ext js
 
     sentry-cli releases finalize $SENTRY_RELEASE
 

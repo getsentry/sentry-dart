@@ -8,9 +8,19 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+
     steps:
       - uses: actions/checkout@v2
       - uses: subosito/flutter-action@v1
-      - uses: erickzanardo/flutter-gh-pages@v3
+      - uses: erickzanardo/flutter-gh-pages@66e3e7b317d4fef824b2cfd3c9a4a112d321f33d
         with:
           workingDir: flutter/example
+          customArgs: --source-maps
+
+      - name: Upload source maps
+        run: |
+          cd flutter/example
+          flutter pub get
+          dart run sentry_dart_plugin
