@@ -76,6 +76,11 @@ jobs:
           with:
             name: sentry_flutter
             file: ./flutter/coverage/lcov.info
+        
+        - uses: VeryGoodOpenSource/very_good_coverage@v1.1.1
+          with:
+            path: "./flutter/coverage/lcov.info"
+            min_coverage: 90
 
         - name: Build ${{ matrix.target }}
           env:
