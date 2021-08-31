@@ -4,15 +4,15 @@ class SentryTransaction extends SentryEvent {
   late final DateTime startTimestamp;
   // move to SentryEvent
   final String type = 'transaction';
-  final ISentrySpan trace;
   final List<ISentrySpan> spans;
 
-  SentryTransaction(this.trace, this.spans, String name)
+  SentryTransaction(ISentrySpan trace, this.spans, String name)
       : super(
           timestamp: trace.timestamp,
           transaction: name,
         ) {
     startTimestamp = trace.startTimestamp;
+    contexts.trace = trace.context;
   }
 
   @override
