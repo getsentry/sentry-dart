@@ -20,7 +20,7 @@ Future<void> main() async {
       options.dsn = _exampleDsn;
     },
     // Init your App.
-    appRunner: () => runApp(MyApp()),
+    appRunner: () => runApp(SentryScreenshot(child: MyApp())),
   );
 }
 
@@ -33,6 +33,9 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    Sentry.configureScope((scope) {
+      scope.addAttachment(ScreenshotAttachment());
+    });
   }
 
   @override
