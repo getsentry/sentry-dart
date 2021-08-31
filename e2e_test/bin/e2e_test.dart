@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart';
@@ -9,7 +10,8 @@ const _exampleDsn =
 const _org = 'sentry-sdks';
 const _projectSlug = 'sentry-flutter';
 
-final _token = Platform.environment['SENTRY_AUTH_TOKEN'] ?? '';
+final _token =
+    'ae5165fcefc14d3ca75ec7b832cb8ef4d7cc8a49fce04e3ab8ba4c67856cc80d'; //Platform.environment['SENTRY_AUTH_TOKEN'] ?? '';
 
 void main(List<String> arguments) async {
   print('Starting');
@@ -17,25 +19,9 @@ void main(List<String> arguments) async {
     print('AUTH TOKEN is not set');
     exit(1);
   }
-  SentryOptions? _options;
   await Sentry.init((options) {
     options.dsn = _exampleDsn;
-    _options = options;
   });
-
-  // We check if the configuration which can be set via environment or Dart
-  // defines are passed correctly in the application.
-  // The options callback has precedence over the environment, so we need to
-  // check those after init.
-  if (_options?.environment != 'e2e') {
-    print('Environment is not e2e');
-    exit(1);
-  }
-
-  if (_options?.dist != '1') {
-    print('Dist is not 1');
-    exit(1);
-  }
 
   var id = SentryId.empty();
   try {
@@ -46,17 +32,43 @@ void main(List<String> arguments) async {
 
   print('Captured exception');
   final url = _eventUri(id);
-  final found = await _waitForEventToShowUp(url);
-  if (found) {
-    print('success');
-    exit(0);
+  final event = await _waitForEventToShowUp(url);
+  if (event != null) {
+    final allGood = _verifyEvent(event);
+    if (allGood) {
+      print('success');
+      exit(0);
+    } else {
+      print('Sentry Event does not match expectations');
+      exit(1);
+    }
   } else {
     print('failed');
     exit(1);
   }
 }
 
-Future<bool> _waitForEventToShowUp(Uri url) async {
+bool _verifyEvent(Map<String, dynamic> event) {
+  // We check if the configuration which can be set via environment or Dart
+  // defines are passed correctly in the application.
+
+  final tags = event['tags'] as List<dynamic>;
+  final dist = tags.firstWhere((element) => element['key'] == 'dist');
+  if (dist['value'] != '1') {
+    print('Dist is not 1');
+    return false;
+  }
+  final environment =
+      tags.firstWhere((element) => element['key'] == 'environment');
+  if (environment['value'] != 'e2e') {
+    print('Environment is not e2e');
+    return false;
+  }
+
+  return true;
+}
+
+Future<Map<String, dynamic>?> _waitForEventToShowUp(Uri url) async {
   final client = Client();
 
   for (var i = 0; i < 10; i++) {
@@ -67,11 +79,12 @@ Future<bool> _waitForEventToShowUp(Uri url) async {
     );
     print('${response.statusCode}: ${response.body}');
     if (response.statusCode == 200) {
-      return true;
+      // The json does not match what `SentryEvent.fromJson` expects
+      return jsonDecode(utf8.decode(response.bodyBytes));
     }
     await Future.delayed(Duration(seconds: 15));
   }
-  return false;
+  return null;
 }
 
 Uri _eventUri(SentryId id) {
