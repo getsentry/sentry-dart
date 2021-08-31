@@ -1,6 +1,8 @@
 import '../sentry.dart';
 
 class SentrySpanContext {
+  static const String type = 'trace';
+
   late SentryId traceId;
   late SpanId spanId;
   SpanId? parentId;
@@ -10,7 +12,24 @@ class SentrySpanContext {
   SpanStatus? status;
   late Map<String, String> tags;
 
-  // mayve use required
+  factory SentrySpanContext.fromJson(Map<String, dynamic> json) {
+    return SentrySpanContext(
+      operation: '',
+    );
+  }
+
+  /// Item header encoded as JSON
+  Map<String, dynamic> toJson() {
+    final json = <String, dynamic>{};
+
+    return json;
+  }
+
+  SentrySpanContext clone() => SentrySpanContext(
+        operation: operation,
+      );
+
+  // maybe use required
   SentrySpanContext({
     SentryId? traceId,
     SpanId? spanId,

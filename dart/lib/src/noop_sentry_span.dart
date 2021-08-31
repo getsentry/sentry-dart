@@ -30,10 +30,14 @@ class NoOpSentrySpan implements ISentrySpan {
   }
 
   @override
-  // TODO: implement context
-  SentrySpanContext get context => throw UnimplementedError();
+  SentrySpanContext get context => SentrySpanContext(operation: 'noop');
 
   @override
-  // TODO: implement status
   SpanStatus? get status => null;
+
+  @override
+  DateTime get startTimestamp => DateTime.now();
+
+  @override
+  DateTime? get timestamp => null;
 }

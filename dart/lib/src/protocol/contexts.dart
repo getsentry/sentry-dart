@@ -1,8 +1,7 @@
 import 'dart:collection';
 
-import '../protocol/sentry_span.dart';
-
 import '../protocol.dart';
+import '../tracing.dart';
 
 /// The context interfaces provide additional context data.
 ///

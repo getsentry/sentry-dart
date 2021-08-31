@@ -253,4 +253,7 @@ class Sentry {
   }
 
   // missing traceHeaders, getSpan
+
+  /// internal method
+  static Hub get currentHub => _hub;
 }

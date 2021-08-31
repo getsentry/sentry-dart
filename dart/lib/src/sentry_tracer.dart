@@ -1,15 +1,9 @@
-import 'dart:indexed_db';
-
 import '../sentry.dart';
 import 'tracing.dart';
 
 class SentryTracer implements ISentrySpan {
   final Hub _hub;
   late String _name;
-  late SentrySpanContext _context;
-  DateTime? _timestamp;
-  DateTime _startTimestamp;
-  SpanStatus? _status;
 
   // missing waitForChildren
 
@@ -88,7 +82,7 @@ class SentryTracer implements ISentrySpan {
     });
 
     final transaction = _toTransaction();
-    _hub.captureEvent(event)
+    _hub.captureTransaction(transaction);
   }
 
   SentryTransaction _toTransaction() {
@@ -97,14 +91,14 @@ class SentryTracer implements ISentrySpan {
   }
 
   @override
-  SpanStatus? get status => _status;
+  SpanStatus? get status => _rootSpan.status;
 
   @override
-  SentrySpanContext get context => _context;
+  SentrySpanContext get context => _rootSpan.context;
 
   @override
-  DateTime get startTimestamp => _startTimestamp;
+  DateTime get startTimestamp => _rootSpan.startTimestamp;
 
   @override
-  DateTime? get timestamp => _timestamp;
+  DateTime? get timestamp => _rootSpan.timestamp;
 }

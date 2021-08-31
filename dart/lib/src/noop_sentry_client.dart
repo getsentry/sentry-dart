@@ -5,6 +5,7 @@ import 'scope.dart';
 import 'sentry_client.dart';
 import 'sentry_envelope.dart';
 import 'sentry_user_feedback.dart';
+import 'tracing.dart';
 
 class NoOpSentryClient implements SentryClient {
   NoOpSentryClient._();
