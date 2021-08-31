@@ -31,14 +31,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   @override
-  void initState() {
-    super.initState();
-    Sentry.configureScope((scope) {
-      scope.addAttachment(ScreenshotAttachment());
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     return feedback.BetterFeedback(
       child: ChangeNotifierProvider<ThemeProvider>(

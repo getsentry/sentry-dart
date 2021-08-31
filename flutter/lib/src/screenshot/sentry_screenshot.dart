@@ -25,17 +25,43 @@ final _gloablKey = GlobalKey(debugLabel: 'sentry_screenshot');
 ///   see https://flutter.dev/docs/development/tools/web-renderers
 /// - You can only have one [SentryScreenshot] widget in your widget tree at all
 ///   times.
-class SentryScreenshot extends StatelessWidget {
-  const SentryScreenshot({Key? key, required this.child}) : super(key: key);
+class SentryScreenshot extends StatefulWidget {
+  const SentryScreenshot({Key? key, required this.child, this.hub})
+      : super(key: key);
 
   final Widget child;
+  final Hub? hub;
+
+  @override
+  _SentryScreenshotState createState() => _SentryScreenshotState();
+}
+
+class _SentryScreenshotState extends State<SentryScreenshot> {
+  Hub get hub => widget.hub ?? HubAdapter();
 
   @override
   Widget build(BuildContext context) {
     return RepaintBoundary(
       key: _gloablKey,
-      child: child,
+      child: widget.child,
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    hub.configureScope((scope) {
+      scope.addAttachment(ScreenshotAttachment());
+    });
+  }
+
+  @override
+  void dispose() {
+    hub.configureScope((scope) {
+      // The following doesn't work
+      // scope.attachements.remove(ScreenshotAttachment());
+    });
+    super.dispose();
   }
 }
 
