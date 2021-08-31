@@ -6,7 +6,7 @@ class SentrySpanContext {
   late SentryId traceId;
   late SpanId spanId;
   SpanId? parentId;
-  late bool sampled;
+  bool? sampled;
   late String operation;
   String? description;
   SpanStatus? status;
@@ -43,7 +43,7 @@ class SentrySpanContext {
     this.traceId = traceId ?? SentryId.newId();
     this.spanId = spanId ?? SpanId.newId();
     this.parentId = parentId;
-    this.sampled = sampled ?? false;
+    this.sampled = sampled;
     this.operation = operation;
     this.description = description;
     this.status = status;

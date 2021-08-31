@@ -323,13 +323,11 @@ class Hub {
     String operation, {
     String? description,
     bool? bindToScope,
-  }) {
-    final transactionContext = SentryTransactionContext(name, operation);
-    return startTransactionWithContext(
-      transactionContext,
-      bindToScope: bindToScope,
-    );
-  }
+  }) =>
+      startTransactionWithContext(
+        SentryTransactionContext(name, operation),
+        bindToScope: bindToScope,
+      );
 
   ISentrySpan startTransactionWithContext(
     SentryTransactionContext transactionContext, {
@@ -339,7 +337,7 @@ class Hub {
     if (!_isEnabled) {
       _options.logger(
         SentryLevel.warning,
-        "Instance is disabled and this 'startTransactionWithContext' call is a no-op.",
+        "Instance is disabled and this 'startTransaction' call is a no-op.",
       );
     } else {
       final item = _peek();

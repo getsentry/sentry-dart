@@ -1,11 +1,11 @@
 import 'tracing.dart';
 
 class SentryTransactionContext extends SentrySpanContext {
-  String name;
-  late bool _parentSampled;
+  String _name;
+  bool? _parentSampled;
 
   SentryTransactionContext(
-    this.name,
+    this._name,
     String operation, {
     bool parentSampled = false,
   }) : super(
@@ -15,4 +15,8 @@ class SentryTransactionContext extends SentrySpanContext {
   }
 
   // missing ctor with traceid, spanid, parentspanid,
+
+  bool? get parentSampled => _parentSampled;
+
+  String get name => _name;
 }

@@ -230,27 +230,25 @@ class Sentry {
     String operation, {
     String? description,
     bool? bindToScope,
-  }) {
-    return _hub.startTransaction(
-      name,
-      operation,
-      description: description,
-      bindToScope: bindToScope,
-    );
-  }
+  }) =>
+      _hub.startTransaction(
+        name,
+        operation,
+        description: description,
+        bindToScope: bindToScope,
+      );
 
   // or name and SentryTransactionContext also becomes an optional parameter above
   static ISentrySpan startTransactionWithContext(
     SentryTransactionContext transactionContext, {
     Map<String, dynamic>? customSamplingContext,
     bool? bindToScope,
-  }) {
-    return _hub.startTransactionWithContext(
-      transactionContext,
-      customSamplingContext: customSamplingContext,
-      bindToScope: bindToScope,
-    );
-  }
+  }) =>
+      _hub.startTransactionWithContext(
+        transactionContext,
+        customSamplingContext: customSamplingContext,
+        bindToScope: bindToScope,
+      );
 
   // missing traceHeaders, getSpan
 

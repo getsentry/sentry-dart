@@ -4,8 +4,8 @@ import '../sentry.dart';
 import 'tracing.dart';
 
 class SentryTracesSampler {
-  SentryOptions _options;
-  Random? _random;
+  final SentryOptions _options;
+  late Random _random;
 
   SentryTracesSampler(
     this._options, {
@@ -15,11 +15,31 @@ class SentryTracesSampler {
   }
 
   bool sample(SentrySamplingContext samplingContext) {
-    // implement correct
+    final sampled = samplingContext.transactionContext.sampled;
+    if (sampled != null) {
+      return sampled;
+    }
+
     final tracesSampler = _options.tracesSampler;
     if (tracesSampler != null) {
-      tracesSampler(samplingContext);
+      final result = tracesSampler(samplingContext);
+      if (result != null) {
+        return _sample(result);
+      }
     }
-    return true;
+
+    final parentSampled = samplingContext.transactionContext.parentSampled;
+    if (parentSampled != null) {
+      return parentSampled;
+    }
+
+    final tracesSampleRate = _options.tracesSampleRate;
+    if (tracesSampleRate != null) {
+      return _sample(tracesSampleRate);
+    }
+
+    return false;
   }
+
+  bool _sample(double result) => !(result < _random.nextDouble());
 }
