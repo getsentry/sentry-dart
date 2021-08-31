@@ -6,4 +6,4 @@ export 'src/navigation/sentry_navigator_observer.dart';
 export 'src/sentry_flutter.dart';
 export 'src/sentry_flutter_options.dart';
 export 'src/flutter_sentry_attachment.dart';
-export 'src/screenshot/sentry_screenshot.dart';
+export 'src/screenshot/sentry_screenshot.dart' hide ScreenshotAttachment;
