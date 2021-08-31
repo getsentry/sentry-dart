@@ -1,15 +1,16 @@
 import 'protocol/span_status.dart';
 
 import 'tracing.dart';
+import 'utils.dart';
 
 class SentrySpan implements ISentrySpan {
   final SentrySpanContext _context;
   DateTime? _timestamp;
-  final DateTime _startTimestamp = DateTime.now();
+  final DateTime _startTimestamp = getUtcDateTime();
   // late bool isFinished;
   final SentryTracer _tracer;
-  final Map<String, dynamic> _extras = {};
-  final Map<String, dynamic> _tags = {};
+  final Map<String, dynamic> _data = {};
+  // final Map<String, dynamic> _tags = {};
 
   SentrySpan(
     this._tracer,
@@ -18,28 +19,30 @@ class SentrySpan implements ISentrySpan {
 
   @override
   void finish({SpanStatus? status}) {
-    _context.status = status ?? _context.status;
-    _timestamp = DateTime.now();
+    if (status != null) {
+      _context.status = status;
+    }
+    _timestamp = getUtcDateTime();
   }
 
   @override
   void removeData(String key) {
-    _extras.remove(key);
+    _data.remove(key);
   }
 
   @override
   void removeTag(String key) {
-    _tags.remove(key);
+    context.tags.remove(key);
   }
 
   @override
   void setData(String key, value) {
-    _extras[key] = value;
+    _data[key] = value;
   }
 
   @override
   void setTag(String key, String value) {
-    _tags[key] = value;
+    context.tags[key] = value;
   }
 
   @override
@@ -67,6 +70,15 @@ class SentrySpan implements ISentrySpan {
   SentrySpanContext get context => _context;
 
   Map<String, dynamic> toJson() {
-    return <String, dynamic>{};
+    final json = _context.toJson();
+    json['start_timestamp'] =
+        formatDateAsIso8601WithMillisPrecision(_startTimestamp);
+    if (_timestamp != null) {
+      json['timestamp'] = formatDateAsIso8601WithMillisPrecision(_timestamp!);
+    }
+    if (_data.isNotEmpty) {
+      json['data'] = _data;
+    }
+    return json;
   }
 }

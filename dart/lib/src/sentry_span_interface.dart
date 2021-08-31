@@ -26,4 +26,6 @@ abstract class ISentrySpan {
 
   DateTime get startTimestamp;
   // missing toTraceHeader, maybe isFinished
+
+  // Map<String, dynamic> toJson();
 }

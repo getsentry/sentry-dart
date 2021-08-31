@@ -101,4 +101,7 @@ class SentryTracer implements ISentrySpan {
 
   @override
   DateTime? get timestamp => _rootSpan.timestamp;
+
+  // @override
+  // Map<String, dynamic> toJson() => {};
 }
