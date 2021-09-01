@@ -122,7 +122,8 @@ class Contexts extends MapView<String, dynamic> {
 
   set gpu(SentryGpu? gpu) => this[SentryGpu.type] = gpu;
 
-  /// Trace context describes the GPU of the device.
+  /// looks like trace should not be SentrySpanContext but instead something simpler
+  /// which is not with all the fields from Span
   SentrySpanContext? get trace => this[SentrySpanContext.type];
 
   set trace(SentrySpanContext? trace) => this[SentrySpanContext.type] = trace;
