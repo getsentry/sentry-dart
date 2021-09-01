@@ -1,7 +1,7 @@
 import '../sentry.dart';
 import 'utils.dart';
 
-class NoOpSentrySpan implements ISentrySpan {
+class NoOpSentrySpan extends ISentrySpan {
   NoOpSentrySpan._();
 
   static final NoOpSentrySpan _instance = NoOpSentrySpan._();
@@ -11,7 +11,7 @@ class NoOpSentrySpan implements ISentrySpan {
   }
 
   @override
-  void finish({SpanStatus? status}) {}
+  Future<void> finish({SpanStatus? status}) => Future.value();
 
   @override
   void removeData(String key) {}
@@ -41,7 +41,4 @@ class NoOpSentrySpan implements ISentrySpan {
 
   @override
   DateTime? get timestamp => null;
-
-  // @override
-  // Map<String, dynamic> toJson() => {};
 }

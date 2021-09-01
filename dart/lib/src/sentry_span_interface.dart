@@ -14,7 +14,8 @@ abstract class ISentrySpan {
 
   void removeData(String key);
 
-  void finish({
+  // Future because finish calls hub.captureTransaction, should we do a Future or not?
+  Future<void> finish({
     SpanStatus? status,
   });
 
@@ -27,5 +28,6 @@ abstract class ISentrySpan {
   DateTime get startTimestamp;
   // missing toTraceHeader, maybe isFinished
 
-  // Map<String, dynamic> toJson();
+  // internal
+  Map<String, dynamic> toJson() => {};
 }

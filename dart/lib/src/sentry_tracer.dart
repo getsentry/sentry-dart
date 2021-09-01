@@ -1,7 +1,7 @@
 import '../sentry.dart';
 import 'tracing.dart';
 
-class SentryTracer implements ISentrySpan {
+class SentryTracer extends ISentrySpan {
   final Hub _hub;
   late String _name;
 
@@ -16,9 +16,9 @@ class SentryTracer implements ISentrySpan {
   }
 
   @override
-  void finish({SpanStatus? status}) {
-    _rootSpan.finish(status: status);
-    captureTransaction();
+  Future<void> finish({SpanStatus? status}) async {
+    await _rootSpan.finish(status: status);
+    await captureTransaction();
   }
 
   @override
@@ -74,7 +74,7 @@ class SentryTracer implements ISentrySpan {
 
   // missing hasUnfinishedChildren & isWaitingForChildren feature
 
-  void captureTransaction() {
+  Future<void> captureTransaction() async {
     _hub.configureScope((scope) {
       if (scope.span == this) {
         scope.span = null;
@@ -82,7 +82,7 @@ class SentryTracer implements ISentrySpan {
     });
 
     final transaction = _toTransaction();
-    _hub.captureTransaction(transaction);
+    await _hub.captureTransaction(transaction);
   }
 
   SentryTransaction _toTransaction() {
@@ -101,7 +101,4 @@ class SentryTracer implements ISentrySpan {
 
   @override
   DateTime? get timestamp => _rootSpan.timestamp;
-
-  // @override
-  // Map<String, dynamic> toJson() => {};
 }

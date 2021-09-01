@@ -20,7 +20,7 @@ class SentryTransaction extends SentryEvent {
   Map<String, dynamic> toJson() {
     final json = super.toJson();
     json['type'] = type;
-    json['spans'] = spans.map((e) => e.context.toJson()).toList(growable: false);
+    json['spans'] = spans.map((e) => e.toJson()).toList(growable: false);
     json['start_timestamp'] =
         formatDateAsIso8601WithMillisPrecision(startTimestamp);
 

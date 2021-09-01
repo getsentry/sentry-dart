@@ -3,7 +3,7 @@ import 'protocol/span_status.dart';
 import 'tracing.dart';
 import 'utils.dart';
 
-class SentrySpan implements ISentrySpan {
+class SentrySpan extends ISentrySpan {
   final SentrySpanContext _context;
   DateTime? _timestamp;
   final DateTime _startTimestamp = getUtcDateTime();
@@ -18,7 +18,7 @@ class SentrySpan implements ISentrySpan {
   );
 
   @override
-  void finish({SpanStatus? status}) {
+  Future<void> finish({SpanStatus? status}) async {
     if (status != null) {
       _context.status = status;
     }
@@ -69,6 +69,7 @@ class SentrySpan implements ISentrySpan {
   @override
   SentrySpanContext get context => _context;
 
+  @override
   Map<String, dynamic> toJson() {
     final json = _context.toJson();
     json['start_timestamp'] =

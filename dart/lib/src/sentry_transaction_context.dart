@@ -1,13 +1,13 @@
 import 'tracing.dart';
 
 class SentryTransactionContext extends SentrySpanContext {
-  String _name;
+  final String _name;
   bool? _parentSampled;
 
   SentryTransactionContext(
     this._name,
     String operation, {
-    bool parentSampled = false,
+    bool? parentSampled,
   }) : super(
           operation: operation,
         ) {
