@@ -6,6 +6,7 @@ class SentryTransaction extends SentryEvent {
   // move to SentryEvent
   static const String _type = 'transaction';
   final List<ISentrySpan> _spans;
+  final Map<String, String> _tags = {};
 
   SentryTransaction(ISentrySpan trace, this._spans, String name)
       : super(
@@ -13,7 +14,13 @@ class SentryTransaction extends SentryEvent {
           transaction: name,
         ) {
     _startTimestamp = trace.startTimestamp;
-    contexts.trace = trace.context;
+
+    // tags belong to the event and not trace for transactions
+    final context = trace.context;
+    _tags.addAll(context.tags);
+    context.tags.clear();
+
+    contexts.trace = context;
   }
 
   @override
@@ -26,6 +33,10 @@ class SentryTransaction extends SentryEvent {
     }
     json['start_timestamp'] =
         formatDateAsIso8601WithMillisPrecision(_startTimestamp);
+
+    if (_tags.isNotEmpty) {
+      json['tags'] = _tags;
+    }
 
     return json;
   }
