@@ -10,7 +10,6 @@ class SentrySpan extends ISentrySpan {
   // late bool isFinished;
   final SentryTracer _tracer;
   final Map<String, dynamic> _data = {};
-  // final Map<String, dynamic> _tags = {};
 
   SentrySpan(
     this._tracer,

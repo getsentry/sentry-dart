@@ -4,7 +4,15 @@ import 'utils.dart';
 class NoOpSentrySpan extends ISentrySpan {
   NoOpSentrySpan._();
 
-  static final NoOpSentrySpan _instance = NoOpSentrySpan._();
+  static final _instance = NoOpSentrySpan._();
+
+  static final _spanContext = SentrySpanContext(
+    traceId: SentryId.empty(),
+    spanId: SpanId.empty(),
+    operation: 'noop',
+  );
+
+  static final _timestamp = getUtcDateTime();
 
   factory NoOpSentrySpan() {
     return _instance;
@@ -31,13 +39,13 @@ class NoOpSentrySpan extends ISentrySpan {
   }
 
   @override
-  SentrySpanContext get context => SentrySpanContext(operation: 'noop');
+  SentrySpanContext get context => _spanContext;
 
   @override
   SpanStatus? get status => null;
 
   @override
-  DateTime get startTimestamp => getUtcDateTime();
+  DateTime get startTimestamp => _timestamp;
 
   @override
   DateTime? get timestamp => null;

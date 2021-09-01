@@ -7,9 +7,11 @@ class SentryTransactionContext extends SentrySpanContext {
   SentryTransactionContext(
     this._name,
     String operation, {
+    String? description,
     bool? parentSampled,
   }) : super(
           operation: operation,
+          description: description,
         ) {
     _parentSampled = parentSampled;
   }

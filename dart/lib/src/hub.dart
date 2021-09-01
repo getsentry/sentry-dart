@@ -325,7 +325,11 @@ class Hub {
     bool? bindToScope,
   }) =>
       startTransactionWithContext(
-        SentryTransactionContext(name, operation),
+        SentryTransactionContext(
+          name,
+          operation,
+          description: description,
+        ),
         bindToScope: bindToScope,
       );
 
@@ -372,24 +376,33 @@ class Hub {
         "Instance is disabled and this 'captureTransaction' call is a no-op.",
       );
     } else {
-      final item = _peek();
-      // final event = await item.scope.applyToEvent(transaction.data, null);
-      // if (event == null) {
-      //   return SentryId.empty();
-      // }
-      // transaction.data = event;
-
-      try {
-        return await item.client.captureTransaction(transaction);
-      } catch (exception, stackTrace) {
+      if (!transaction.finished) {
         _options.logger(
-          SentryLevel.error,
-          'Error while capturing transaction with id: ${transaction.eventId}',
-          exception: exception,
-          stackTrace: stackTrace,
+          SentryLevel.warning,
+          'Capturing unfinished transaction: ${transaction.eventId}',
         );
-      } finally {
-        _lastEventId = sentryId;
+      }
+
+      if (!transaction.sampled) {
+        _options.logger(
+          SentryLevel.warning,
+          'Transaction %s was dropped due to sampling decision: ${transaction.eventId}',
+        );
+      } else {
+        final item = _peek();
+
+        try {
+          return await item.client.captureTransaction(transaction);
+        } catch (exception, stackTrace) {
+          _options.logger(
+            SentryLevel.error,
+            'Error while capturing transaction with id: ${transaction.eventId}',
+            exception: exception,
+            stackTrace: stackTrace,
+          );
+        } finally {
+          _lastEventId = sentryId;
+        }
       }
     }
     return sentryId;

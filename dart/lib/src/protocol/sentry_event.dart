@@ -56,7 +56,7 @@ class SentryEvent {
   final SentryId eventId;
 
   /// A timestamp representing when the breadcrumb occurred.
-  final DateTime timestamp;
+  final DateTime? timestamp;
 
   /// A string representing the platform the SDK is submitting from. This will be used by the Sentry interface to customize various components in the interface.
   final String? platform;
@@ -314,7 +314,9 @@ class SentryEvent {
 
     json['event_id'] = eventId.toString();
 
-    json['timestamp'] = formatDateAsIso8601WithMillisPrecision(timestamp);
+    if (timestamp != null) {
+      json['timestamp'] = formatDateAsIso8601WithMillisPrecision(timestamp!);
+    }
 
     if (platform != null) {
       json['platform'] = platform;

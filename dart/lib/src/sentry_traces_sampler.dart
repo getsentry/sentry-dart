@@ -5,14 +5,12 @@ import 'tracing.dart';
 
 class SentryTracesSampler {
   final SentryOptions _options;
-  late Random _random;
+  final Random _random;
 
   SentryTracesSampler(
     this._options, {
     Random? random,
-  }) {
-    _random = random ?? Random();
-  }
+  }) : _random = random ?? Random();
 
   bool sample(SentrySamplingContext samplingContext) {
     final sampled = samplingContext.transactionContext.sampled;
