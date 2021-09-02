@@ -1,4 +1,4 @@
-# Unreleased
+# 6.0.0
 
 * Fix: Update `SentryUser` according to docs (#561)
 * Feat: Enable or disable reporting of packages (#563)
