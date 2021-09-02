@@ -184,7 +184,10 @@ class PrintRecursionMockHub extends MockHub {
   }
 
   @override
-  ISentrySpan startTransactionWithContext(SentryTransactionContext transactionContext, {Map<String, dynamic>? customSamplingContext, bool? bindToScope}) {
+  ISentrySpan startTransactionWithContext(
+      SentryTransactionContext transactionContext,
+      {Map<String, dynamic>? customSamplingContext,
+      bool? bindToScope}) {
     // TODO: implement startTransactionWithContext
     throw UnimplementedError();
   }
