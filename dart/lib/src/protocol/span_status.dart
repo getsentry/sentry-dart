@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:http/http.dart';
 
-// maybe should be an enum instead of a class?
 class SpanStatus {
   const SpanStatus._(this._value);
 

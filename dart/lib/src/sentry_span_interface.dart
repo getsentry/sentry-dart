@@ -9,12 +9,11 @@ abstract class ISentrySpan {
   void setTag(String key, String value);
 
   void removeTag(String key);
-  // exposed to Transaction too but it does not get sent to the backend since transactions dont have the data bag
+
   void setData(String key, dynamic value);
-// exposed to Transaction too but it does not get sent to the backend since transactions dont have the data bag
+
   void removeData(String key);
 
-  // Future because finish calls hub.captureTransaction, should we do a Future or not?
   Future<void> finish({
     SpanStatus? status,
   });
@@ -26,7 +25,7 @@ abstract class ISentrySpan {
   DateTime? get timestamp;
 
   DateTime get startTimestamp;
-  // missing toTraceHeader, maybe isFinished
+  // missing toTraceHeader
 
   // internal
   Map<String, dynamic> toJson() => {};

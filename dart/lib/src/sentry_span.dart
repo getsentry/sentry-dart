@@ -7,7 +7,7 @@ class SentrySpan extends ISentrySpan {
   final SentrySpanContext _context;
   DateTime? _timestamp;
   final DateTime _startTimestamp = getUtcDateTime();
-  // late bool isFinished;
+
   final SentryTracer _tracer;
   final Map<String, dynamic> _data = {};
 

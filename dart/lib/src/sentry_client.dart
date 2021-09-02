@@ -230,7 +230,7 @@ class SentryClient {
     if (event == null) {
       return SentryId.empty();
     }
-    // transaction.data = event;
+
     final id = await captureEnvelope(
         SentryEnvelope.fromTransaction(transaction, _options.sdk));
     return id!;

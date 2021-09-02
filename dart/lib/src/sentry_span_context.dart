@@ -1,8 +1,6 @@
 import '../sentry.dart';
 
 class SentrySpanContext {
-  // static const String type = 'trace';
-
   late SentryId traceId;
   late SpanId spanId;
   SpanId? parentId;
