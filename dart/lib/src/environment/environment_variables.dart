@@ -1,37 +1,30 @@
-import 'platform_checker.dart';
+import '../platform_checker.dart';
+import '_io_environment_variables.dart'
+    if (dart.library.html) '_web_environment_variables.dart' as env;
 
 /// Reads environment variables from the system.
 /// In an Flutter environment these can be set via
 /// `flutter build --dart-define=VARIABLE_NAME=VARIABLE_VALUE`.
-class EnvironmentVariables {
-  static const _sentryEnvironment = 'SENTRY_ENVIRONMENT';
-  static const _sentryDsn = 'SENTRY_DSN';
-  static const _sentryRelease = 'SENTRY_RELEASE';
-  static const _sentryDist = 'SENTRY_DIST';
+abstract class EnvironmentVariables {
+  factory EnvironmentVariables.instance() => env.envs;
+
+  const EnvironmentVariables();
 
   /// `SENTRY_ENVIRONMENT`
   /// See [SentryOptions.environment]
-  String? get environment => const bool.hasEnvironment(_sentryEnvironment)
-      ? const String.fromEnvironment(_sentryEnvironment)
-      : null;
+  String? get environment;
 
   /// `SENTRY_DSN`
   /// See [SentryOptions.dsn]
-  String? get dsn => const bool.hasEnvironment(_sentryDsn)
-      ? const String.fromEnvironment(_sentryDsn)
-      : null;
+  String? get dsn;
 
-  // `SENTRY_RELEASE`
+  /// `SENTRY_RELEASE`
   /// See [SentryOptions.release]
-  String? get release => const bool.hasEnvironment(_sentryRelease)
-      ? const String.fromEnvironment(_sentryRelease)
-      : null;
+  String? get release;
 
   /// `SENTRY_DIST`
   /// See [SentryOptions.dist]
-  String? get dist => const bool.hasEnvironment(_sentryDist)
-      ? const String.fromEnvironment(_sentryDist)
-      : null;
+  String? get dist;
 
   /// Returns an environment based on the compilation mode of Dart or Flutter.
   /// This can be set as [SentryOptions.environment]
