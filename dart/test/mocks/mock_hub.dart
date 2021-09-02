@@ -111,25 +111,46 @@ class MockHub implements Hub {
     throw UnimplementedError();
   }
 
-  @override
-  // TODO: implement span
-  SentrySpan get span => throw UnimplementedError();
+  // @override
+  // // TODO: implement span
+  // SentrySpan get span => throw UnimplementedError();
 
-  @override
-  void startTransaction() {
-    // TODO: implement startTransaction
-  }
+  // @override
+  // void startTransaction() {
+  //   // TODO: implement startTransaction
+  // }
 
-  @override
-  Map<String, String> traceHeaders() {
-    // TODO: implement traceHeaders
-    throw UnimplementedError();
-  }
+  // @override
+  // Map<String, String> traceHeaders() {
+  //   // TODO: implement traceHeaders
+  //   throw UnimplementedError();
+  // }
 
   @override
   Future<SentryId> captureUserFeedback(SentryUserFeedback userFeedback) async {
     userFeedbackCalls.add(userFeedback);
     return SentryId.empty();
+  }
+
+  @override
+  ISentrySpan startTransaction(
+    String name,
+    String operation, {
+    String? description,
+    bool? bindToScope,
+  }) {
+    // TODO: implement startTransaction
+    throw UnimplementedError();
+  }
+
+  @override
+  ISentrySpan startTransactionWithContext(
+    SentryTransactionContext transactionContext, {
+    Map<String, dynamic>? customSamplingContext,
+    bool? bindToScope,
+  }) {
+    // TODO: implement startTransactionWithContext
+    throw UnimplementedError();
   }
 }
 

@@ -182,4 +182,10 @@ class PrintRecursionMockHub extends MockHub {
     print('recursion');
     super.addBreadcrumb(crumb, hint: hint);
   }
+
+  @override
+  ISentrySpan startTransactionWithContext(SentryTransactionContext transactionContext, {Map<String, dynamic>? customSamplingContext, bool? bindToScope}) {
+    // TODO: implement startTransactionWithContext
+    throw UnimplementedError();
+  }
 }
