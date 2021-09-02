@@ -54,9 +54,7 @@ class NoOpSentryClient implements SentryClient {
       Future.value(SentryId.empty());
 
   @override
-  Future<void> close() async {
-    return;
-  }
+  Future<void> close() async {}
 
   @override
   Future<SentryId> captureTransaction(SentryTransaction transaction) =>

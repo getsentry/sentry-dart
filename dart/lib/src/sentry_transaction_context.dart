@@ -16,8 +16,6 @@ class SentryTransactionContext extends SentrySpanContext {
     _parentSampled = parentSampled;
   }
 
-  // missing ctor with traceid, spanid, parentspanid,
-
   bool? get parentSampled => _parentSampled;
 
   String get name => _name;
