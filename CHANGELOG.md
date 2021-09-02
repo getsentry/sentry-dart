@@ -1,9 +1,12 @@
 # Unreleased
 
+# 6.0.0
+
 * Fix: Update `SentryUser` according to docs (#561)
 * Feat: Enable or disable reporting of packages (#563)
-* Bump: Sentry-Cocoa to 7.2.2 (#566)
-* Bump: Sentry-Android to 5.1.1 (#566)
+* Bump: Sentry-Cocoa to 7.2.7 (#578)
+* Bump: Sentry-Android to 5.1.2 (#578)
+* Fix: Read Sentry config from environment variables as fallback (#567)
 
 # 6.0.0-beta.4
 
@@ -12,8 +15,6 @@
 * Feat: Lists of exceptions and threads (#524)
 * Feat: Collect more information for exceptions collected via `FlutterError.onError` (#538)
 * Feat: Add maxAttachmentSize option (#553)
-* Bump: Sentry-Cocoa to 7.1.4 (#551)
-* Bump: Sentry-Android to 5.1.0 (#551)
 * Feat: HTTP breadcrumbs have the request & response size if available (#552)
 
 # 6.0.0-beta.3

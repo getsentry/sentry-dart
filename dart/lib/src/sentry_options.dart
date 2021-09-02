@@ -4,7 +4,7 @@ import 'dart:developer';
 import 'package:http/http.dart';
 
 import 'diagnostic_logger.dart';
-import 'environment_variables.dart';
+import 'environment/environment_variables.dart';
 import 'event_processor.dart';
 import 'integration.dart';
 import 'noop_client.dart';
@@ -198,7 +198,7 @@ class SentryOptions {
 
   /// If [environmentVariables] is provided, it is used get the envirnoment
   /// variables. This is useful in tests.
-  EnvironmentVariables environmentVariables = EnvironmentVariables();
+  EnvironmentVariables environmentVariables = EnvironmentVariables.instance();
 
   /// When enabled, all the threads are automatically attached to all logged events (Android).
   bool attachThreads = false;
