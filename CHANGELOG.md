@@ -4,6 +4,7 @@
 * Feat: Enable or disable reporting of packages (#563)
 * Bump: Sentry-Cocoa to 7.2.2 (#566)
 * Bump: Sentry-Android to 5.1.1 (#566)
+* Fix: Read Sentry config from environment variables as fallback (#567)
 
 # 6.0.0-beta.4
 
