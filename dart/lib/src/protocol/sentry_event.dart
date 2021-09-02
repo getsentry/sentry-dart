@@ -34,6 +34,7 @@ class SentryEvent {
     Contexts? contexts,
     this.request,
     this.debugMeta,
+    this.type,
   })  : eventId = eventId ?? SentryId.newId(),
         timestamp = timestamp ?? getUtcDateTime(),
         contexts = contexts ?? Contexts(),
@@ -178,6 +179,8 @@ class SentryEvent {
   /// and crash reports.
   final DebugMeta? debugMeta;
 
+  final String? type;
+
   SentryEvent copyWith({
     SentryId? eventId,
     DateTime? timestamp,
@@ -204,6 +207,7 @@ class SentryEvent {
     DebugMeta? debugMeta,
     List<SentryException>? exceptions,
     List<SentryThread>? threads,
+    String? type,
   }) =>
       SentryEvent(
         eventId: eventId ?? this.eventId,
@@ -234,6 +238,7 @@ class SentryEvent {
         exceptions: (exceptions != null ? List.from(exceptions) : null) ??
             this.exceptions,
         threads: (threads != null ? List.from(threads) : null) ?? this.threads,
+        type: type,
       );
 
   /// Deserializes a [SentryEvent] from JSON [Map].
@@ -305,6 +310,7 @@ class SentryEvent {
           ? DebugMeta.fromJson(debugMetaJson)
           : null,
       exceptions: exceptions,
+      type: json['type'],
     );
   }
 
@@ -422,6 +428,10 @@ class SentryEvent {
     final debugMetaMap = debugMeta?.toJson();
     if (debugMetaMap?.isNotEmpty ?? false) {
       json['debug_meta'] = debugMetaMap;
+    }
+
+    if (type != null) {
+      json['type'] = type;
     }
 
     return json;

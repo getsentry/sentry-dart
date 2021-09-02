@@ -199,6 +199,7 @@ class MainScaffold extends StatelessWidget {
                   description: 'myTr myOp',
                 );
                 transaction.setTag('myTag', 'myValue');
+                transaction.setData('myExtra', 'myExtraValue');
 
                 await Future.delayed(Duration(milliseconds: 50));
 

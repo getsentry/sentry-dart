@@ -81,4 +81,7 @@ class SentrySpan extends ISentrySpan {
     }
     return json;
   }
+
+  @override
+  bool get finished => _timestamp != null;
 }

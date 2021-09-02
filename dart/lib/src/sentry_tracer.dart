@@ -9,6 +9,7 @@ class SentryTracer extends ISentrySpan {
 
   late ISentrySpan _rootSpan;
   final List<ISentrySpan> _children = [];
+  final Map<String, String> _extra = {};
 
   SentryTracer(SentryTransactionContext transactionContext, this._hub) {
     _rootSpan = SentrySpan(this, transactionContext);
@@ -18,12 +19,19 @@ class SentryTracer extends ISentrySpan {
   @override
   Future<void> finish({SpanStatus? status}) async {
     await _rootSpan.finish(status: status);
+
+    for (final span in _children) {
+      if (!span.finished) {
+        await span.finish(status: SpanStatus.deadlineExceeded());
+      }
+    }
+
     await captureTransaction();
   }
 
   @override
   void removeData(String key) {
-    _rootSpan.removeData(key);
+    _extra.remove(key);
   }
 
   @override
@@ -33,7 +41,7 @@ class SentryTracer extends ISentrySpan {
 
   @override
   void setData(String key, value) {
-    _rootSpan.setData(key, value);
+    _extra[key] = value;
   }
 
   @override
@@ -86,8 +94,7 @@ class SentryTracer extends ISentrySpan {
   }
 
   SentryTransaction _toTransaction() {
-    // filter unfinished spans _children
-    return SentryTransaction(this, _children, _name);
+    return SentryTransaction(this);
   }
 
   @override
@@ -101,4 +108,13 @@ class SentryTracer extends ISentrySpan {
 
   @override
   DateTime? get timestamp => _rootSpan.timestamp;
+
+  String get name => _name;
+
+  Map<String, String> get data => _extra;
+
+  @override
+  bool get finished => _rootSpan.finished;
+
+  List<ISentrySpan> get children => _children;
 }

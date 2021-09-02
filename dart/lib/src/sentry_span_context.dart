@@ -1,7 +1,7 @@
 import '../sentry.dart';
 
 class SentrySpanContext {
-  static const String type = 'trace';
+  // static const String type = 'trace';
 
   late SentryId traceId;
   late SpanId spanId;
@@ -11,6 +11,7 @@ class SentrySpanContext {
   String? description;
   SpanStatus? status;
   late Map<String, String> tags;
+  // missing data
 
   factory SentrySpanContext.fromJson(Map<String, dynamic> json) {
     // assign empty id if non existent instead of null and new id
