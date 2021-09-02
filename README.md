@@ -13,6 +13,8 @@ _Bad software is everywhere, and we're tired of it. Sentry is on a mission to he
 Sentry SDK for Dart and Flutter
 ===========
 
+[![codecov](https://codecov.io/gh/getsentry/sentry-dart/branch/main/graph/badge.svg?token=J0QX0LPmwy)](https://codecov.io/gh/getsentry/sentry-dart)
+
 | package | build | pub | likes | popularity | pub points |
 | ------- | ------- | ------- | ------- | ------- | ------- |
 | sentry | [![build](https://github.com/getsentry/sentry-dart/workflows/sentry-dart/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=workflow%3Asentry-dart) | [![pub package](https://img.shields.io/pub/v/sentry.svg)](https://pub.dev/packages/sentry) | [![likes](https://badges.bar/sentry/likes)](https://pub.dev/packages/sentry/score) | [![popularity](https://badges.bar/sentry/popularity)](https://pub.dev/packages/sentry/score) | [![pub points](https://badges.bar/sentry/pub%20points)](https://pub.dev/packages/sentry/score)

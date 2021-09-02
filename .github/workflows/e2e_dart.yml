@@ -17,7 +17,7 @@ jobs:
         sdk: [stable, beta, dev]
     env:
       SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-
+      SENTRY_DIST: 1
     steps:
         - uses: dart-lang/setup-dart@v1
           with:
@@ -28,4 +28,4 @@ jobs:
             dart pub get
             dart analyze --fatal-infos
             dart format --set-exit-if-changed ./
-            dart run
+            dart run --define=SENTRY_ENVIRONMENT=e2e
