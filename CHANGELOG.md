@@ -1,5 +1,7 @@
 # Unreleased
 
+* Fix: Set custom SentryHttpClientError when HTTP error is captured without an exception
+
 # 6.0.0
 
 * Fix: Update `SentryUser` according to docs (#561)
