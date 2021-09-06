@@ -1,7 +1,7 @@
 import 'protocol/mechanism.dart';
 
-/// An Error decorator that holds a Mechanism related to the decorated Error
-class ThrowableMechanism extends Error {
+/// An Error decorator that holds a Mechanism related to the decorated Exception
+class ThrowableMechanism implements Exception {
   final Mechanism _mechanism;
   final dynamic _throwable;
 
