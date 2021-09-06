@@ -155,7 +155,7 @@ class FailedRequestClient extends BaseClient {
     String? reason,
     required Duration requestDuration,
     required BaseRequest request,
-  }) {
+  }) async {
     // As far as I can tell there's no way to get the uri without the query part
     // so we replace it with an empty string.
     final urlWithoutQuery = request.url.replace(query: '').toString();
@@ -185,7 +185,7 @@ class FailedRequestClient extends BaseClient {
       throwable: throwableMechanism,
       request: sentryRequest,
     );
-    return _hub.captureEvent(event, stackTrace: stackTrace);
+    await _hub.captureEvent(event, stackTrace: stackTrace);
   }
 
   // Types of Request can be found here:
