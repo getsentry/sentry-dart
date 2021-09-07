@@ -38,8 +38,8 @@ class MockTransport implements Transport {
       for (final entry in headersMap.entries) {
         newHeadersMap[entry.key] = entry.value as String;
       }
+      envelopeMap['request']['headers'] = newHeadersMap;
     }
-    envelopeMap['request']['headers'] = newHeadersMap;
 
     final otherMap = requestJson?['other'] as Map<String, dynamic>?;
     final newOtherMap = <String, String>{};
@@ -47,8 +47,8 @@ class MockTransport implements Transport {
       for (final entry in otherMap.entries) {
         newOtherMap[entry.key] = entry.value as String;
       }
+      envelopeMap['request']['other'] = newOtherMap;
     }
-    envelopeMap['request']['other'] = newOtherMap;
 
     return SentryEvent.fromJson(envelopeMap);
   }
