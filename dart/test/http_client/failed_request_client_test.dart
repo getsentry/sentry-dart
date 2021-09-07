@@ -244,7 +244,6 @@ class Fixture {
   Fixture() {
     _options.transport = transport;
     _hub = Hub(_options);
-    _hub.bindClient(SentryClient(_options));
   }
 
   FailedRequestClient getSut({
