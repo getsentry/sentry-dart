@@ -81,7 +81,9 @@ void main() {
 
     expect(sentryException.type, 'CustomError');
     expect(sentryException.stackTrace?.frames, isNotEmpty);
-  });
+
+    // skip on browser because [StackTrace.current] still returns null
+  }, onPlatform: {'browser': Skip()});
 }
 
 class CustomError extends Error {}
