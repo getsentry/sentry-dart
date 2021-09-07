@@ -1,4 +1,5 @@
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/noop_hub.dart';
 import 'package:sentry/src/sentry_user_feedback.dart';
 
 class MockHub implements Hub {
@@ -83,8 +84,7 @@ class MockHub implements Hub {
 
   @override
   Hub clone() {
-    // TODO: implement clone
-    throw UnimplementedError();
+    return NoOpHub();
   }
 
   @override
@@ -94,42 +94,47 @@ class MockHub implements Hub {
   }
 
   @override
-  void configureScope(callback) {
-    // TODO: implement configureScope
-  }
+  void configureScope(callback) {}
 
   @override
   bool get isEnabled => _isEnabled;
 
   @override
-  // TODO: implement lastEventId
-  SentryId get lastEventId => throw UnimplementedError();
+  SentryId get lastEventId => SentryId.empty();
 
   @override
-  Future<SentryId> captureTransaction(SentryTransaction transaction) {
-    // TODO: implement captureTransaction
-    throw UnimplementedError();
-  }
-
-  @override
-  // TODO: implement span
-  SentrySpan get span => throw UnimplementedError();
-
-  @override
-  void startTransaction() {
-    // TODO: implement startTransaction
-  }
-
-  @override
-  Map<String, String> traceHeaders() {
-    // TODO: implement traceHeaders
-    throw UnimplementedError();
+  Future<SentryId> captureTransaction(SentryTransaction transaction) async {
+    return SentryId.empty();
   }
 
   @override
   Future<SentryId> captureUserFeedback(SentryUserFeedback userFeedback) async {
     userFeedbackCalls.add(userFeedback);
     return SentryId.empty();
+  }
+
+  @override
+  ISentrySpan startTransaction(
+    String name,
+    String operation, {
+    String? description,
+    bool? bindToScope,
+  }) {
+    return NoOpSentrySpan();
+  }
+
+  @override
+  ISentrySpan startTransactionWithContext(
+    SentryTransactionContext transactionContext, {
+    Map<String, dynamic>? customSamplingContext,
+    bool? bindToScope,
+  }) {
+    return NoOpSentrySpan();
+  }
+
+  @override
+  ISentrySpan? getSpan() {
+    return null;
   }
 }
 

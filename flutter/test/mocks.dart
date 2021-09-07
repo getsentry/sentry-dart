@@ -164,16 +164,29 @@ class NoOpHub implements Hub {
       Future.value(SentryId.empty());
 
   @override
-  SentrySpan get span => throw UnimplementedError();
+  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {}
 
   @override
-  void startTransaction() {}
-
-  @override
-  Map<String, String> traceHeaders() {
-    throw UnimplementedError();
+  ISentrySpan startTransaction(
+    String name,
+    String operation, {
+    String? description,
+    bool? bindToScope,
+  }) {
+    return NoOpSentrySpan();
   }
 
   @override
-  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {}
+  ISentrySpan startTransactionWithContext(
+    SentryTransactionContext transactionContext, {
+    Map<String, dynamic>? customSamplingContext,
+    bool? bindToScope,
+  }) {
+    return NoOpSentrySpan();
+  }
+
+  @override
+  ISentrySpan? getSpan() {
+    return null;
+  }
 }

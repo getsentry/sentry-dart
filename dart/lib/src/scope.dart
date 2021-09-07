@@ -3,6 +3,7 @@ import 'sentry_attachment/sentry_attachment.dart';
 import 'event_processor.dart';
 import 'protocol.dart';
 import 'sentry_options.dart';
+import 'tracing.dart';
 
 /// Scope data to be sent with the event
 class Scope {
@@ -11,10 +12,10 @@ class Scope {
 
   /// The name of the transaction which generated this event,
   /// for example, the route name: `"/users/<username>/"`.
-  String? transactionName;
+  String? transaction;
 
   /// Returns active transaction or null if there is no active transaction.
-  SentryTransaction? transaction;
+  ISentrySpan? span;
 
   /// Information about the current user.
   SentryUser? user;
@@ -136,10 +137,10 @@ class Scope {
     _breadcrumbs.clear();
   }
 
-  /// Resets [transaction] and [transactionName] to null
-  void clearTransaction() {
+  /// Resets [span] and [transaction] to null
+  void clearSpan() {
+    span = null;
     transaction = null;
-    transactionName = null;
   }
 
   /// Adds an event processor
@@ -152,7 +153,7 @@ class Scope {
     clearBreadcrumbs();
     clearAttachments();
     level = null;
-    transaction = null;
+    clearSpan();
     user = null;
     _fingerprint = [];
     _tags.clear();
@@ -180,7 +181,7 @@ class Scope {
 
   Future<SentryEvent?> applyToEvent(SentryEvent event, dynamic hint) async {
     event = event.copyWith(
-      transaction: event.transaction ?? transactionName,
+      transaction: event.transaction ?? transaction,
       user: _mergeUsers(user, event.user),
       fingerprint: (event.fingerprint?.isNotEmpty ?? false)
           ? event.fingerprint
@@ -283,8 +284,8 @@ class Scope {
     final clone = Scope(_options)
       ..user = user
       ..fingerprint = List.from(fingerprint)
-      ..transaction = transaction
-      ..transactionName = transactionName;
+      // ..span = span
+      ..transaction = transaction;
 
     for (final tag in _tags.keys) {
       clone.setTag(tag, _tags[tag]!);
@@ -313,9 +314,5 @@ class Scope {
     }
 
     return clone;
-  }
-
-  SpanInterface get span {
-    return (transaction?.root ?? transaction)!;
   }
 }

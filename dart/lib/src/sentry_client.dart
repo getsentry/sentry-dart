@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:math';
 import 'event_processor.dart';
+import 'protocol/sentry_thread.dart';
 import 'sentry_user_feedback.dart';
+import 'tracing.dart';
 import 'transport/rate_limiter.dart';
 import 'protocol.dart';
 import 'scope.dart';
@@ -222,13 +224,13 @@ class SentryClient {
   }
 
   Future<SentryId> captureTransaction(SentryTransaction transaction) async {
-    SentryEvent? event = _prepareEvent(transaction.data);
+    SentryEvent? event = _prepareEvent(transaction);
     event =
         await _processEvent(event, eventProcessors: _options.eventProcessors);
     if (event == null) {
       return SentryId.empty();
     }
-    transaction.data = event;
+
     final id = await captureEnvelope(
         SentryEnvelope.fromTransaction(transaction, _options.sdk));
     return id!;

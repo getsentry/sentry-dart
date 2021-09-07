@@ -48,7 +48,7 @@ void runApp() {
         extras: <String, String>{'first-sign-in': '2020-01-01'},
       )
       // ..fingerprint = ['example-dart']
-      ..transactionName = '/example/app'
+      ..transaction = '/example/app'
       ..level = SentryLevel.warning
       ..setTag('build', '579')
       ..setExtra('company-name', 'Dart Inc');

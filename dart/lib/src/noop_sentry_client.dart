@@ -5,6 +5,7 @@ import 'scope.dart';
 import 'sentry_client.dart';
 import 'sentry_envelope.dart';
 import 'sentry_user_feedback.dart';
+import 'tracing.dart';
 
 class NoOpSentryClient implements SentryClient {
   NoOpSentryClient._();
@@ -53,9 +54,7 @@ class NoOpSentryClient implements SentryClient {
       Future.value(SentryId.empty());
 
   @override
-  Future<void> close() async {
-    return;
-  }
+  Future<void> close() async {}
 
   @override
   Future<SentryId> captureTransaction(SentryTransaction transaction) =>
