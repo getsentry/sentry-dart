@@ -29,6 +29,7 @@ class SentryTraceContext {
       status: json['status'] == null
           ? null
           : SpanStatus.fromString(json['status'] as String),
+      sampled: true,
     );
   }
 

@@ -284,7 +284,6 @@ class Scope {
     final clone = Scope(_options)
       ..user = user
       ..fingerprint = List.from(fingerprint)
-      // ..span = span
       ..transaction = transaction;
 
     for (final tag in _tags.keys) {

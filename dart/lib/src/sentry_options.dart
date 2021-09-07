@@ -231,9 +231,8 @@ class SentryOptions {
   double? get tracesSampleRate => _tracesSampleRate;
 
   set tracesSampleRate(double? tracesSampleRate) {
-    // validate assert
     assert(tracesSampleRate != null &&
-        (tracesSampleRate >= 0 || tracesSampleRate <= 1));
+        (tracesSampleRate >= 0 && tracesSampleRate <= 1));
     _tracesSampleRate = tracesSampleRate;
   }
 

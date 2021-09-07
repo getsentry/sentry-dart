@@ -9,7 +9,6 @@ class SentrySpanContext {
   String? description;
   SpanStatus? status;
   late Map<String, String> tags;
-  // missing data
 
   factory SentrySpanContext.fromJson(Map<String, dynamic> json) {
     // assign empty id if non existent instead of null and new id
@@ -27,7 +26,8 @@ class SentrySpanContext {
         status: json['status'] == null
             ? null
             : SpanStatus.fromString(json['status'] as String),
-        tags: json['tags'] as Map<String, String>);
+        tags: json['tags'] as Map<String, String>,
+        sampled: true);
   }
 
   /// Item header encoded as JSON
