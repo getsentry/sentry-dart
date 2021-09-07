@@ -75,14 +75,12 @@ void main() {
   });
 
   test('getSentryException with not thrown Error and frames', () {
-    SentryException sentryException;
-
-    sentryException = fixture.getSut().getSentryException(
+    final sentryException = fixture.getSut().getSentryException(
           CustomError(),
         );
 
     expect(sentryException.type, 'CustomError');
-    expect(sentryException.stackTrace!.frames, isNotEmpty);
+    expect(sentryException.stackTrace?.frames, isNotEmpty);
   });
 }
 
