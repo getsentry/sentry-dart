@@ -16,7 +16,6 @@ class SentryTraceContext {
 
   factory SentryTraceContext.fromJson(Map<String, dynamic> json) {
     // assign empty id if non existent instead of null and new id
-    // missing sampled
     return SentryTraceContext(
       operation: json['op'] as String,
       spanId: SpanId.fromId(['span_id'] as String),
@@ -35,7 +34,6 @@ class SentryTraceContext {
 
   /// Item header encoded as JSON
   Map<String, dynamic> toJson() {
-    // missing sampled
     return {
       'span_id': spanId.toString(),
       'trace_id': traceId.toString(),

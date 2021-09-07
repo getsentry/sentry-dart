@@ -15,7 +15,6 @@ class Scope {
   String? transaction;
 
   /// Returns active transaction or null if there is no active transaction.
-  // SentryTransaction? transaction;
   ISentrySpan? span;
 
   /// Information about the current user.
@@ -138,8 +137,8 @@ class Scope {
     _breadcrumbs.clear();
   }
 
-  /// Resets [transaction] and [transactionName] to null
-  void clearTransaction() {
+  /// Resets [span] and [transaction] to null
+  void clearSpan() {
     span = null;
     transaction = null;
   }
@@ -154,7 +153,7 @@ class Scope {
     clearBreadcrumbs();
     clearAttachments();
     level = null;
-    span = null;
+    clearSpan();
     user = null;
     _fingerprint = [];
     _tags.clear();
@@ -285,7 +284,7 @@ class Scope {
     final clone = Scope(_options)
       ..user = user
       ..fingerprint = List.from(fingerprint)
-      ..span = span
+      // ..span = span
       ..transaction = transaction;
 
     for (final tag in _tags.keys) {
@@ -316,8 +315,4 @@ class Scope {
 
     return clone;
   }
-
-  // SpanInterface get span {
-  //   return (transaction?.root ?? transaction)!;
-  // }
 }

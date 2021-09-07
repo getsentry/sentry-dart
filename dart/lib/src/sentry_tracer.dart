@@ -80,8 +80,6 @@ class SentryTracer extends ISentrySpan {
     return child;
   }
 
-  // missing hasUnfinishedChildren & isWaitingForChildren feature
-
   Future<void> captureTransaction() async {
     _hub.configureScope((scope) {
       if (scope.span == this) {

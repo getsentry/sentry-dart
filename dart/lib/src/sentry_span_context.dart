@@ -32,7 +32,6 @@ class SentrySpanContext {
 
   /// Item header encoded as JSON
   Map<String, dynamic> toJson() {
-    // missing sampled
     return {
       'span_id': spanId.toString(),
       'trace_id': traceId.toString(),

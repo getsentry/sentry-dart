@@ -90,18 +90,10 @@ class HubAdapter implements Hub {
     return Sentry.currentHub.captureTransaction(transaction);
   }
 
-  // @override
-  // SentrySpan get span => throw UnimplementedError();
-
-  // @override
-  // void startTransaction() {
-  //   // TODO: implement startTransaction
-  // }
-
-  // @override
-  // Map<String, String> traceHeaders() {
-  //   throw UnimplementedError();
-  // }
+  @override
+  ISentrySpan? getSpan() {
+    return Sentry.currentHub.getSpan();
+  }
 
   @override
   Future captureUserFeedback(SentryUserFeedback userFeedback) =>

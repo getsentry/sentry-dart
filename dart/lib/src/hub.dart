@@ -314,10 +314,6 @@ class Hub {
     }
   }
 
-  // Map<String, String> traceHeaders() {
-  //   return {'sentry-trace': ''};
-  // }
-
   ISentrySpan startTransaction(
     String name,
     String operation, {
@@ -363,9 +359,21 @@ class Hub {
     return NoOpSentrySpan();
   }
 
-  // SentrySpan get span {
-  //   throw Exception();
-  // }
+  ISentrySpan? getSpan() {
+    ISentrySpan? span;
+    if (!_isEnabled) {
+      _options.logger(
+        SentryLevel.warning,
+        "Instance is disabled and this 'getSpan' call is a no-op.",
+      );
+    } else {
+      final item = _peek();
+
+      span = item.scope.span;
+    }
+
+    return span;
+  }
 
   Future<SentryId> captureTransaction(SentryTransaction transaction) async {
     var sentryId = SentryId.empty();

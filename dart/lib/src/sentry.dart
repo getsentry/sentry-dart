@@ -245,7 +245,9 @@ class Sentry {
         bindToScope: bindToScope,
       );
 
-  // missing traceHeaders, getSpan
+  // missing traceHeaders
+
+  ISentrySpan? getSpan() => _hub.getSpan();
 
   /// internal method
   static Hub get currentHub => _hub;
