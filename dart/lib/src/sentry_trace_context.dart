@@ -8,7 +8,7 @@ class SentryTraceContext {
 
   late final SentryId traceId;
   late final SpanId spanId;
-  final SpanId? parentId;
+  final SpanId? parentSpanId;
   final bool? sampled;
   late final String operation;
   final String? description;
@@ -19,7 +19,7 @@ class SentryTraceContext {
     return SentryTraceContext(
       operation: json['op'] as String,
       spanId: SpanId.fromId(['span_id'] as String),
-      parentId: json['parent_span_id'] == null
+      parentSpanId: json['parent_span_id'] == null
           ? null
           : SpanId.fromId(json['parent_span_id'] as String),
       traceId: json['trace_id'] == null
@@ -39,7 +39,7 @@ class SentryTraceContext {
       'span_id': spanId.toString(),
       'trace_id': traceId.toString(),
       'op': operation,
-      if (parentId != null) 'parent_span_id': parentId?.toString(),
+      if (parentSpanId != null) 'parent_span_id': parentSpanId?.toString(),
       if (description != null) 'description': description,
       if (status != null) 'status': status!.toString(),
     };
@@ -51,7 +51,7 @@ class SentryTraceContext {
         spanId: spanId,
         description: description,
         status: status,
-        parentId: parentId,
+        parentSpanId: parentSpanId,
         sampled: sampled,
       );
 
@@ -59,7 +59,7 @@ class SentryTraceContext {
   SentryTraceContext({
     SentryId? traceId,
     SpanId? spanId,
-    this.parentId,
+    this.parentSpanId,
     this.sampled,
     required this.operation,
     this.description,

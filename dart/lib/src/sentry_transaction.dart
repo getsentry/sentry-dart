@@ -4,11 +4,11 @@ import 'utils.dart';
 class SentryTransaction extends SentryEvent {
   late final DateTime _startTimestamp;
   static const String _type = 'transaction';
-  late final List<ISentrySpan> _spans;
+  late final List<ISentrySpan> spans;
 
   SentryTransaction(SentryTracer tracer)
       : super(
-          timestamp: tracer.timestamp,
+          timestamp: tracer.endTimestamp,
           transaction: tracer.name,
           tags: tracer.context.tags,
           extra: tracer.data,
@@ -17,7 +17,7 @@ class SentryTransaction extends SentryEvent {
     _startTimestamp = tracer.startTimestamp;
 
     final spanContext = tracer.context;
-    _spans = tracer.children;
+    spans = tracer.children;
 
     final traceContext = SentryTraceContext(
       operation: spanContext.operation,
@@ -25,7 +25,7 @@ class SentryTransaction extends SentryEvent {
       spanId: spanContext.spanId,
       description: spanContext.description,
       status: spanContext.status,
-      parentId: spanContext.parentId,
+      parentSpanId: spanContext.parentSpanId,
       sampled: spanContext.sampled,
     );
 
@@ -36,8 +36,8 @@ class SentryTransaction extends SentryEvent {
   Map<String, dynamic> toJson() {
     final json = super.toJson();
 
-    if (_spans.isNotEmpty) {
-      json['spans'] = _spans.map((e) => e.toJson()).toList(growable: false);
+    if (spans.isNotEmpty) {
+      json['spans'] = spans.map((e) => e.toJson()).toList(growable: false);
     }
     json['start_timestamp'] =
         formatDateAsIso8601WithMillisPrecision(_startTimestamp);

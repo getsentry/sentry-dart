@@ -1,27 +1,28 @@
+// import 'package:meta/meta.dart';
+
 import '../sentry.dart';
 
+// @immutable
+// SpanContext is the attribute collection for a Span (Can be an implementation detail). When possible SpanContext should be immutable.
+// status and sampled should be mutable, so how we do it? clone it?
 class SentrySpanContext {
-  late SentryId traceId;
-  late SpanId spanId;
-  SpanId? parentId;
-  bool? sampled;
-  late String operation;
-  String? description;
-  SpanStatus? status;
-  late Map<String, String> tags;
+  final SentryId _traceId;
+  final SpanId _spanId;
+  late final SpanId? _parentSpanId;
+  late bool? sampled;
+  late final String _operation;
+  late final String? _description;
+  late SpanStatus? status;
+  final Map<String, String> _tags;
 
   factory SentrySpanContext.fromJson(Map<String, dynamic> json) {
-    // assign empty id if non existent instead of null and new id
-    // missing sampled
     return SentrySpanContext(
         operation: json['op'] as String,
         spanId: SpanId.fromId(['span_id'] as String),
-        parentId: json['parent_span_id'] == null
+        parentSpanId: json['parent_span_id'] == null
             ? null
             : SpanId.fromId(json['parent_span_id'] as String),
-        traceId: json['trace_id'] == null
-            ? null
-            : SentryId.fromId(json['trace_id'] as String),
+        traceId: SentryId.fromId(json['trace_id'] as String),
         description: json['description'] as String?,
         status: json['status'] == null
             ? null
@@ -33,38 +34,44 @@ class SentrySpanContext {
   /// Item header encoded as JSON
   Map<String, dynamic> toJson() {
     return {
-      'span_id': spanId.toString(),
-      'trace_id': traceId.toString(),
-      'op': operation,
-      if (parentId != null) 'parent_span_id': parentId?.toString(),
-      if (description != null) 'description': description,
-      if (status != null) 'status': status!.toString(),
-      if (tags.isNotEmpty) 'tags': tags,
+      'span_id': _spanId.toString(),
+      'trace_id': _traceId.toString(),
+      'op': _operation,
+      if (_parentSpanId != null) 'parent_span_id': _parentSpanId?.toString(),
+      if (_description != null) 'description': _description,
+      if (status != null) 'status': status.toString(),
+      if (_tags.isNotEmpty) 'tags': _tags,
     };
   }
 
-  SentrySpanContext clone() => SentrySpanContext(
-        operation: operation,
-        traceId: traceId,
-        spanId: spanId,
-        description: description,
+  SentrySpanContext copyWith() => SentrySpanContext(
+        operation: _operation,
+        traceId: _traceId,
+        spanId: _spanId,
+        description: _description,
         status: status,
-        tags: tags,
-        parentId: parentId,
+        tags: _tags,
+        parentSpanId: _parentSpanId,
         sampled: sampled,
       );
 
-  // maybe use required
   SentrySpanContext({
     SentryId? traceId,
     SpanId? spanId,
-    this.parentId,
-    this.sampled,
-    required this.operation,
-    this.description,
-    this.status,
+    SpanId? parentSpanId,
+    bool? sampled,
+    required String operation,
+    String? description,
+    SpanStatus? status,
     Map<String, String>? tags,
-  })  : traceId = traceId ?? SentryId.newId(),
-        spanId = spanId ?? SpanId.newId(),
-        tags = tags ?? {};
+  })  : _traceId = traceId ?? SentryId.newId(),
+        _spanId = spanId ?? SpanId.newId(),
+        _tags = tags ?? {};
+
+  SentryId get traceId => _traceId;
+  SpanId get spanId => _spanId;
+  SpanId? get parentSpanId => _parentSpanId;
+  String get operation => _operation;
+  String? get description => _description;
+  Map<String, String> get tags => Map.unmodifiable(_tags);
 }

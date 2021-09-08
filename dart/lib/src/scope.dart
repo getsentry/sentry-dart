@@ -15,6 +15,11 @@ class Scope {
   String? transaction;
 
   /// Returns active transaction or null if there is no active transaction.
+  ///
+  // I have to set the transaction String from the transaction.name
+  // but the ISentrySpan does not have a name
+  // Java/.NET do not use ISentrySpan but ITransaction
+  // iOS does nit have the transaction String feature
   ISentrySpan? span;
 
   /// Information about the current user.

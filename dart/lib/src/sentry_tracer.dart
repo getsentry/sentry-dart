@@ -3,11 +3,11 @@ import 'tracing.dart';
 
 class SentryTracer extends ISentrySpan {
   final Hub _hub;
-  late String _name;
+  late final String _name;
 
   // missing waitForChildren
 
-  late ISentrySpan _rootSpan;
+  late final ISentrySpan _rootSpan;
   final List<ISentrySpan> _children = [];
   final Map<String, String> _extra = {};
 
@@ -20,13 +20,21 @@ class SentryTracer extends ISentrySpan {
   Future<void> finish({SpanStatus? status}) async {
     await _rootSpan.finish(status: status);
 
+    // finish unfinished spans otherwise transaction gets dropped
     for (final span in _children) {
       if (!span.finished) {
         await span.finish(status: SpanStatus.deadlineExceeded());
       }
     }
 
-    await captureTransaction();
+    // remove from scope
+    _hub.configureScope((scope) {
+      if (scope.span == this) {
+        scope.span = null;
+      }
+    });
+
+    await _captureTransaction();
   }
 
   @override
@@ -60,14 +68,14 @@ class SentryTracer extends ISentrySpan {
     );
   }
 
-  ISentrySpan startChildWithParentId(
-    SpanId parentId,
+  ISentrySpan startChildWithParentSpanId(
+    SpanId parentSpanId,
     String operation, {
     String? description,
   }) {
     final context = SentrySpanContext(
       traceId: _rootSpan.context.traceId,
-      parentId: parentId,
+      parentSpanId: parentSpanId,
       operation: operation,
       description: description,
       sampled: _rootSpan.context.sampled,
@@ -80,13 +88,7 @@ class SentryTracer extends ISentrySpan {
     return child;
   }
 
-  Future<void> captureTransaction() async {
-    _hub.configureScope((scope) {
-      if (scope.span == this) {
-        scope.span = null;
-      }
-    });
-
+  Future<void> _captureTransaction() async {
     final transaction = _toTransaction();
     await _hub.captureTransaction(transaction);
   }
@@ -105,7 +107,7 @@ class SentryTracer extends ISentrySpan {
   DateTime get startTimestamp => _rootSpan.startTimestamp;
 
   @override
-  DateTime? get timestamp => _rootSpan.timestamp;
+  DateTime? get endTimestamp => _rootSpan.endTimestamp;
 
   String get name => _name;
 

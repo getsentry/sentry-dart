@@ -224,6 +224,9 @@ class SentryClient {
   }
 
   Future<SentryId> captureTransaction(SentryTransaction transaction) async {
+    // runs event processors
+    // do not run beforeSend
+    // do not sample by sampleRate
     SentryEvent? event = _prepareEvent(transaction);
     event =
         await _processEvent(event, eventProcessors: _options.eventProcessors);

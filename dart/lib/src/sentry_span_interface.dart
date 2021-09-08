@@ -22,7 +22,7 @@ abstract class ISentrySpan {
 
   SentrySpanContext get context;
 
-  DateTime? get timestamp;
+  DateTime? get endTimestamp;
 
   DateTime get startTimestamp;
   // missing toTraceHeader

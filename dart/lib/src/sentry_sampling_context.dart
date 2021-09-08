@@ -11,5 +11,6 @@ class SentrySamplingContext {
 
   SentryTransactionContext get transactionContext => _transactionContext;
 
-  Map<String, dynamic> get customSamplingContext => _customSamplingContext;
+  Map<String, dynamic> get customSamplingContext =>
+      Map.unmodifiable(_customSamplingContext);
 }

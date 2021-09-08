@@ -49,7 +49,7 @@ class SentrySpan extends ISentrySpan {
     String operation, {
     String? description,
   }) {
-    return _tracer.startChildWithParentId(
+    return _tracer.startChildWithParentSpanId(
       _context.spanId,
       operation,
       description: description,
@@ -63,7 +63,7 @@ class SentrySpan extends ISentrySpan {
   DateTime get startTimestamp => _startTimestamp;
 
   @override
-  DateTime? get timestamp => _timestamp;
+  DateTime? get endTimestamp => _timestamp;
 
   @override
   SentrySpanContext get context => _context;

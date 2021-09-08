@@ -314,6 +314,7 @@ class Hub {
     }
   }
 
+  // maybe add optional params for sampled and customSamplingContext
   ISentrySpan startTransaction(
     String name,
     String operation, {
@@ -338,6 +339,11 @@ class Hub {
       _options.logger(
         SentryLevel.warning,
         "Instance is disabled and this 'startTransaction' call is a no-op.",
+      );
+    } else if (!_options.isTracingEnabled()) {
+      _options.logger(
+        SentryLevel.info,
+        "Tracing is disabled and this 'startTransaction' returns a no-op.",
       );
     } else {
       final item = _peek();
@@ -383,14 +389,12 @@ class Hub {
         SentryLevel.warning,
         "Instance is disabled and this 'captureTransaction' call is a no-op.",
       );
+    } else if (!transaction.finished) {
+      _options.logger(
+        SentryLevel.warning,
+        'Capturing unfinished transaction: ${transaction.eventId}',
+      );
     } else {
-      if (!transaction.finished) {
-        _options.logger(
-          SentryLevel.warning,
-          'Capturing unfinished transaction: ${transaction.eventId}',
-        );
-      }
-
       if (!transaction.sampled) {
         _options.logger(
           SentryLevel.warning,
@@ -400,7 +404,7 @@ class Hub {
         final item = _peek();
 
         try {
-          return await item.client.captureTransaction(transaction);
+          sentryId = await item.client.captureTransaction(transaction);
         } catch (exception, stackTrace) {
           _options.logger(
             SentryLevel.error,

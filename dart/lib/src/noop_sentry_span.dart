@@ -48,7 +48,7 @@ class NoOpSentrySpan extends ISentrySpan {
   DateTime get startTimestamp => _timestamp;
 
   @override
-  DateTime? get timestamp => null;
+  DateTime? get endTimestamp => null;
 
   @override
   bool get finished => false;

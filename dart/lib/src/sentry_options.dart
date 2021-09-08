@@ -288,6 +288,10 @@ class SentryOptions {
   void addInAppInclude(String inApp) {
     _inAppIncludes.add(inApp);
   }
+
+  bool isTracingEnabled() {
+    return tracesSampleRate != null || tracesSampler != null;
+  }
 }
 
 /// This function is called with an SDK specific event object and can return a modified event
