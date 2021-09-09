@@ -1,8 +1,11 @@
+// import 'package:meta/meta.dart';
+
 import 'protocol/span_status.dart';
 
 import 'tracing.dart';
 import 'utils.dart';
 
+// @internal
 class SentrySpan extends ISentrySpan {
   final SentrySpanContext _context;
   DateTime? _timestamp;
@@ -84,4 +87,7 @@ class SentrySpan extends ISentrySpan {
 
   @override
   bool get finished => _timestamp != null;
+
+  @override
+  Map<String, dynamic> get data => _data;
 }

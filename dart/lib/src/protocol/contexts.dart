@@ -1,7 +1,6 @@
 import 'dart:collection';
 
 import '../protocol.dart';
-import '../tracing.dart';
 
 /// The context interfaces provide additional context data.
 ///

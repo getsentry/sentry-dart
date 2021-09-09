@@ -313,7 +313,7 @@ void main() {
         ..setContexts('theme', 'material')
         ..addEventProcessor(AddTagsEventProcessor({'page-locale': 'en-us'}));
 
-      final updatedEvent = await scope.applyToEvent(event, null);
+      final updatedEvent = await scope.applyToEvent(event);
 
       expect(updatedEvent?.user, scopeUser);
       expect(updatedEvent?.transaction, '/example/app');
@@ -344,7 +344,7 @@ void main() {
         ..addBreadcrumb(breadcrumb)
         ..transaction = '/example/app';
 
-      final updatedEvent = await scope.applyToEvent(event, null);
+      final updatedEvent = await scope.applyToEvent(event);
 
       expect(updatedEvent?.user, isNotNull);
       expect(updatedEvent?.user?.id, eventUser.id);
@@ -392,7 +392,7 @@ void main() {
           SentryOperatingSystem(name: 'context-os'),
         );
 
-      final updatedEvent = await scope.applyToEvent(event, null);
+      final updatedEvent = await scope.applyToEvent(event);
 
       expect(updatedEvent?.contexts[SentryDevice.type].name, 'event-device');
       expect(updatedEvent?.contexts[SentryApp.type].name, 'event-app');
@@ -420,7 +420,7 @@ void main() {
         ..setContexts('version', 9)
         ..setContexts('location', {'city': 'London'});
 
-      final updatedEvent = await scope.applyToEvent(event, null);
+      final updatedEvent = await scope.applyToEvent(event);
 
       expect(updatedEvent?.contexts[SentryDevice.type].name, 'context-device');
       expect(updatedEvent?.contexts[SentryApp.type].name, 'context-app');
@@ -443,7 +443,7 @@ void main() {
       final scope = Scope(SentryOptions(dsn: fakeDsn))
         ..level = SentryLevel.error;
 
-      final updatedEvent = await scope.applyToEvent(event, null);
+      final updatedEvent = await scope.applyToEvent(event);
 
       expect(updatedEvent?.level, SentryLevel.error);
     });
@@ -455,7 +455,7 @@ void main() {
     sut.addEventProcessor(fixture.processor);
 
     final event = SentryEvent();
-    var newEvent = await sut.applyToEvent(event, null);
+    var newEvent = await sut.applyToEvent(event);
 
     expect(newEvent, isNull);
   });

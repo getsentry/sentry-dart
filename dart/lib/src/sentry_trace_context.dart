@@ -15,7 +15,6 @@ class SentryTraceContext {
   final SpanStatus? status;
 
   factory SentryTraceContext.fromJson(Map<String, dynamic> json) {
-    // assign empty id if non existent instead of null and new id
     return SentryTraceContext(
       operation: json['op'] as String,
       spanId: SpanId.fromId(['span_id'] as String),

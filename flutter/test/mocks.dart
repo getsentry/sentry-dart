@@ -80,7 +80,7 @@ class MockPlatformChecker implements PlatformChecker {
   final bool isProfile;
   final bool isRelease;
   final bool isWebValue;
-  late final Platform _mockPlatform;
+  final Platform _mockPlatform;
 
   @override
   bool hasNativeIntegration = false;
@@ -160,8 +160,8 @@ class NoOpHub implements Hub {
   SentryId get lastEventId => SentryId.empty();
 
   @override
-  Future<SentryId> captureTransaction(SentryTransaction transaction) =>
-      Future.value(SentryId.empty());
+  Future<SentryId> captureTransaction(SentryTransaction transaction) async =>
+      SentryId.empty();
 
   @override
   Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {}

@@ -5,7 +5,6 @@ import 'scope.dart';
 import 'sentry_client.dart';
 import 'sentry_envelope.dart';
 import 'sentry_user_feedback.dart';
-import 'tracing.dart';
 
 class NoOpSentryClient implements SentryClient {
   NoOpSentryClient._();
@@ -22,8 +21,8 @@ class NoOpSentryClient implements SentryClient {
     dynamic stackTrace,
     Scope? scope,
     dynamic hint,
-  }) =>
-      Future.value(SentryId.empty());
+  }) async =>
+      SentryId.empty();
 
   @override
   Future<SentryId> captureException(
@@ -31,8 +30,8 @@ class NoOpSentryClient implements SentryClient {
     dynamic stackTrace,
     Scope? scope,
     dynamic hint,
-  }) =>
-      Future.value(SentryId.empty());
+  }) async =>
+      SentryId.empty();
 
   @override
   Future<SentryId> captureMessage(
@@ -42,21 +41,24 @@ class NoOpSentryClient implements SentryClient {
     List<dynamic>? params,
     Scope? scope,
     dynamic hint,
-  }) =>
-      Future.value(SentryId.empty());
+  }) async =>
+      SentryId.empty();
 
   @override
-  Future<SentryId> captureEnvelope(SentryEnvelope envelope) =>
-      Future.value(SentryId.empty());
+  Future<SentryId> captureEnvelope(SentryEnvelope envelope) async =>
+      SentryId.empty();
 
   @override
-  Future<SentryId> captureUserFeedback(SentryUserFeedback userFeedback) =>
-      Future.value(SentryId.empty());
+  Future<SentryId> captureUserFeedback(SentryUserFeedback userFeedback) async =>
+      SentryId.empty();
 
   @override
   Future<void> close() async {}
 
   @override
-  Future<SentryId> captureTransaction(SentryTransaction transaction) =>
-      Future.value(SentryId.empty());
+  Future<SentryId> captureTransaction(
+    SentryTransaction transaction, {
+    Scope? scope,
+  }) async =>
+      SentryId.empty();
 }

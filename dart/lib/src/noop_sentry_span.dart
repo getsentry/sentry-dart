@@ -52,4 +52,7 @@ class NoOpSentrySpan extends ISentrySpan {
 
   @override
   bool get finished => false;
+
+  @override
+  Map<String, dynamic> get data => {};
 }

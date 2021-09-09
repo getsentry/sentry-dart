@@ -28,3 +28,5 @@ export 'protocol/sentry_thread.dart';
 // tracing
 export 'protocol/span_status.dart';
 export 'protocol/span_id.dart';
+export 'sentry_transaction.dart';
+export 'sentry_trace_context.dart';

@@ -184,7 +184,10 @@ class Scope {
   /// Removes an extra from the Scope
   void removeExtra(String key) => _extra.remove(key);
 
-  Future<SentryEvent?> applyToEvent(SentryEvent event, dynamic hint) async {
+  Future<SentryEvent?> applyToEvent(
+    SentryEvent event, {
+    dynamic hint,
+  }) async {
     event = event.copyWith(
       transaction: event.transaction ?? transaction,
       user: _mergeUsers(user, event.user),

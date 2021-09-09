@@ -31,4 +31,6 @@ abstract class ISentrySpan {
   Map<String, dynamic> toJson() => {};
 
   bool get finished;
+
+  Map<String, dynamic> get data;
 }

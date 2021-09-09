@@ -1,8 +1,11 @@
+// import 'package:meta/meta.dart';
+
 import '../sentry.dart';
 import 'utils.dart';
 
+// @internal
 class SentryTransaction extends SentryEvent {
-  late final DateTime _startTimestamp;
+  late final DateTime startTimestamp;
   static const String _type = 'transaction';
   late final List<ISentrySpan> spans;
 
@@ -14,7 +17,7 @@ class SentryTransaction extends SentryEvent {
           extra: tracer.data,
           type: _type,
         ) {
-    _startTimestamp = tracer.startTimestamp;
+    startTimestamp = tracer.startTimestamp;
 
     final spanContext = tracer.context;
     spans = tracer.children;
@@ -40,7 +43,7 @@ class SentryTransaction extends SentryEvent {
       json['spans'] = spans.map((e) => e.toJson()).toList(growable: false);
     }
     json['start_timestamp'] =
-        formatDateAsIso8601WithMillisPrecision(_startTimestamp);
+        formatDateAsIso8601WithMillisPrecision(startTimestamp);
 
     return json;
   }
@@ -48,4 +51,37 @@ class SentryTransaction extends SentryEvent {
   bool get finished => timestamp != null;
 
   bool get sampled => contexts.trace?.sampled == true;
+
+  // @override
+  // SentryEvent copyWith({
+  //   SentryId? eventId,
+  //   DateTime? timestamp,
+  //   String? platform,
+  //   String? logger,
+  //   String? serverName,
+  //   String? release,
+  //   String? dist,
+  //   String? environment,
+  //   Map<String, String>? modules,
+  //   SentryMessage? message,
+  //   String? transaction,
+  //   dynamic throwable,
+  //   SentryLevel? level,
+  //   String? culprit,
+  //   Map<String, String>? tags,
+  //   Map<String, dynamic>? extra,
+  //   List<String>? fingerprint,
+  //   SentryUser? user,
+  //   Contexts? contexts,
+  //   List<Breadcrumb>? breadcrumbs,
+  //   SdkVersion? sdk,
+  //   SentryRequest? request,
+  //   DebugMeta? debugMeta,
+  //   List<SentryException>? exceptions,
+  //   List<SentryThread>? threads,
+  //   String? type,
+  // }) {
+  //   final transaction = super.copyWith();
+  //   return super.copyWith();
+  // }
 }

@@ -157,7 +157,7 @@ class Fixture {
   final channel = MethodChannel('sentry_flutter');
   final options = SentryFlutterOptions(dsn: fakeDsn);
 
-  late final Hub hub;
+  late Hub hub;
 
   LoadAndroidImageListIntegration getSut() {
     return LoadAndroidImageListIntegration(channel);

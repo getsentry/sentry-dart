@@ -2,7 +2,7 @@ import 'tracing.dart';
 
 class SentryTransactionContext extends SentrySpanContext {
   final String _name;
-  late final bool? _parentSampled;
+  bool? _parentSampled;
 
   SentryTransactionContext(
     this._name,

@@ -404,7 +404,10 @@ class Hub {
         final item = _peek();
 
         try {
-          sentryId = await item.client.captureTransaction(transaction);
+          sentryId = await item.client.captureTransaction(
+            transaction,
+            scope: item.scope,
+          );
         } catch (exception, stackTrace) {
           _options.logger(
             SentryLevel.error,

@@ -80,7 +80,10 @@ class MockSentryClient implements SentryClient {
   }
 
   @override
-  Future<SentryId> captureTransaction(SentryTransaction transaction) async {
+  Future<SentryId> captureTransaction(
+    SentryTransaction transaction, {
+    Scope? scope,
+  }) async {
     captureTransactionCalls.add(CaptureTransactionCall(transaction));
     return transaction.eventId;
   }

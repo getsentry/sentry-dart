@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'tracing.dart';
+import 'protocol.dart';
 import 'utils.dart';
 import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_item_type.dart';

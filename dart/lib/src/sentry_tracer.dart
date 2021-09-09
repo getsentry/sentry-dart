@@ -1,6 +1,9 @@
+// import 'package:meta/meta.dart';
+
 import '../sentry.dart';
 import 'tracing.dart';
 
+// @internal
 class SentryTracer extends ISentrySpan {
   final Hub _hub;
   late final String _name;
@@ -34,7 +37,8 @@ class SentryTracer extends ISentrySpan {
       }
     });
 
-    await _captureTransaction();
+    final transaction = _toTransaction();
+    await _hub.captureTransaction(transaction);
   }
 
   @override
@@ -88,11 +92,6 @@ class SentryTracer extends ISentrySpan {
     return child;
   }
 
-  Future<void> _captureTransaction() async {
-    final transaction = _toTransaction();
-    await _hub.captureTransaction(transaction);
-  }
-
   SentryTransaction _toTransaction() {
     return SentryTransaction(this);
   }
@@ -111,7 +110,8 @@ class SentryTracer extends ISentrySpan {
 
   String get name => _name;
 
-  Map<String, String> get data => _extra;
+  @override
+  Map<String, String> get data => Map.unmodifiable(_extra);
 
   @override
   bool get finished => _rootSpan.finished;

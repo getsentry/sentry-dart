@@ -23,8 +23,8 @@ class NoOpHub implements Hub {
     dynamic stackTrace,
     dynamic hint,
     ScopeCallback? withScope,
-  }) =>
-      Future.value(SentryId.empty());
+  }) async =>
+      SentryId.empty();
 
   @override
   Future<SentryId> captureException(
@@ -32,8 +32,8 @@ class NoOpHub implements Hub {
     dynamic stackTrace,
     dynamic hint,
     ScopeCallback? withScope,
-  }) =>
-      Future.value(SentryId.empty());
+  }) async =>
+      SentryId.empty();
 
   @override
   Future<SentryId> captureMessage(
@@ -43,8 +43,8 @@ class NoOpHub implements Hub {
     List? params,
     dynamic hint,
     ScopeCallback? withScope,
-  }) =>
-      Future.value(SentryId.empty());
+  }) async =>
+      SentryId.empty();
 
   @override
   Hub clone() => this;

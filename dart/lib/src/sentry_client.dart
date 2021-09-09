@@ -3,7 +3,6 @@ import 'dart:math';
 import 'event_processor.dart';
 import 'protocol/sentry_thread.dart';
 import 'sentry_user_feedback.dart';
-import 'tracing.dart';
 import 'transport/rate_limiter.dart';
 import 'protocol.dart';
 import 'scope.dart';
@@ -69,7 +68,7 @@ class SentryClient {
     SentryEvent? preparedEvent = _prepareEvent(event, stackTrace: stackTrace);
 
     if (scope != null) {
-      preparedEvent = await scope.applyToEvent(preparedEvent, hint);
+      preparedEvent = await scope.applyToEvent(preparedEvent, hint: hint);
     } else {
       _options.logger(SentryLevel.debug, 'No scope is defined');
     }
@@ -223,16 +222,34 @@ class SentryClient {
     return captureEvent(event, scope: scope, hint: hint);
   }
 
-  Future<SentryId> captureTransaction(SentryTransaction transaction) async {
-    // runs event processors
-    // do not run beforeSend
-    // do not sample by sampleRate
-    SentryEvent? event = _prepareEvent(transaction);
-    event =
-        await _processEvent(event, eventProcessors: _options.eventProcessors);
-    if (event == null) {
-      return SentryId.empty();
-    }
+  Future<SentryId> captureTransaction(
+    SentryTransaction transaction, {
+    Scope? scope,
+  }) async {
+    // SentryTransaction? preparedTransaction;
+    // preparedTransaction = _prepareEvent(transaction) as SentryTransaction;
+
+    // if (scope != null) {
+    //   preparedTransaction =
+    //       await scope.applyToEvent(preparedTransaction) as SentryTransaction?;
+    // } else {
+    //   _options.logger(SentryLevel.debug, 'No scope is defined');
+    // }
+
+    // // dropped by scope event processors
+    // if (preparedTransaction == null) {
+    //   return _sentryId;
+    // }
+
+    // preparedTransaction = await _processEvent(
+    //   preparedTransaction,
+    //   eventProcessors: _options.eventProcessors,
+    // ) as SentryTransaction?;
+
+    // // dropped by event processors
+    // if (preparedTransaction == null) {
+    //   return _sentryId;
+    // }
 
     final id = await captureEnvelope(
         SentryEnvelope.fromTransaction(transaction, _options.sdk));

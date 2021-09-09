@@ -377,7 +377,7 @@ void main() {
     final eventUser = SentryUser(id: '987');
     final eventCrumbs = [Breadcrumb(message: 'bread')];
 
-    late final event = SentryEvent(
+    final event = SentryEvent(
       level: SentryLevel.warning,
       transaction: eventTransaction,
       user: eventUser,

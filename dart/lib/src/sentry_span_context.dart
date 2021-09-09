@@ -8,28 +8,28 @@ import '../sentry.dart';
 class SentrySpanContext {
   final SentryId _traceId;
   final SpanId _spanId;
-  late final SpanId? _parentSpanId;
-  late bool? sampled;
+  final SpanId? _parentSpanId;
+  bool? sampled;
   late final String _operation;
-  late final String? _description;
-  late SpanStatus? status;
+  final String? _description;
+  SpanStatus? status;
   final Map<String, String> _tags;
 
-  factory SentrySpanContext.fromJson(Map<String, dynamic> json) {
-    return SentrySpanContext(
-        operation: json['op'] as String,
-        spanId: SpanId.fromId(['span_id'] as String),
-        parentSpanId: json['parent_span_id'] == null
-            ? null
-            : SpanId.fromId(json['parent_span_id'] as String),
-        traceId: SentryId.fromId(json['trace_id'] as String),
-        description: json['description'] as String?,
-        status: json['status'] == null
-            ? null
-            : SpanStatus.fromString(json['status'] as String),
-        tags: json['tags'] as Map<String, String>,
-        sampled: true);
-  }
+  // factory SentrySpanContext.fromJson(Map<String, dynamic> json) {
+  //   return SentrySpanContext(
+  //       operation: json['op'] as String,
+  //       spanId: SpanId.fromId(['span_id'] as String),
+  //       parentSpanId: json['parent_span_id'] == null
+  //           ? null
+  //           : SpanId.fromId(json['parent_span_id'] as String),
+  //       traceId: SentryId.fromId(json['trace_id'] as String),
+  //       description: json['description'] as String?,
+  //       status: json['status'] == null
+  //           ? null
+  //           : SpanStatus.fromString(json['status'] as String),
+  //       tags: json['tags'] as Map<String, String>,
+  //       sampled: true);
+  // }
 
   /// Item header encoded as JSON
   Map<String, dynamic> toJson() {
@@ -44,34 +44,37 @@ class SentrySpanContext {
     };
   }
 
-  SentrySpanContext copyWith() => SentrySpanContext(
-        operation: _operation,
-        traceId: _traceId,
-        spanId: _spanId,
-        description: _description,
-        status: status,
-        tags: _tags,
-        parentSpanId: _parentSpanId,
-        sampled: sampled,
-      );
+  // SentrySpanContext copyWith() => SentrySpanContext(
+  //       operation: _operation,
+  //       traceId: _traceId,
+  //       spanId: _spanId,
+  //       description: _description,
+  //       status: status,
+  //       tags: _tags,
+  //       parentSpanId: _parentSpanId,
+  //       sampled: sampled,
+  //     );
 
   SentrySpanContext({
     SentryId? traceId,
     SpanId? spanId,
     SpanId? parentSpanId,
-    bool? sampled,
+    this.sampled,
     required String operation,
     String? description,
-    SpanStatus? status,
+    this.status,
     Map<String, String>? tags,
   })  : _traceId = traceId ?? SentryId.newId(),
         _spanId = spanId ?? SpanId.newId(),
-        _tags = tags ?? {};
+        _tags = tags ?? {},
+        _parentSpanId = parentSpanId,
+        _operation = operation,
+        _description = description;
 
   SentryId get traceId => _traceId;
   SpanId get spanId => _spanId;
   SpanId? get parentSpanId => _parentSpanId;
   String get operation => _operation;
   String? get description => _description;
-  Map<String, String> get tags => Map.unmodifiable(_tags);
+  Map<String, String> get tags => _tags;
 }
