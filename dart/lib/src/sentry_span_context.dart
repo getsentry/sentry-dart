@@ -15,22 +15,6 @@ class SentrySpanContext {
   SpanStatus? status;
   final Map<String, String> _tags;
 
-  // factory SentrySpanContext.fromJson(Map<String, dynamic> json) {
-  //   return SentrySpanContext(
-  //       operation: json['op'] as String,
-  //       spanId: SpanId.fromId(['span_id'] as String),
-  //       parentSpanId: json['parent_span_id'] == null
-  //           ? null
-  //           : SpanId.fromId(json['parent_span_id'] as String),
-  //       traceId: SentryId.fromId(json['trace_id'] as String),
-  //       description: json['description'] as String?,
-  //       status: json['status'] == null
-  //           ? null
-  //           : SpanStatus.fromString(json['status'] as String),
-  //       tags: json['tags'] as Map<String, String>,
-  //       sampled: true);
-  // }
-
   /// Item header encoded as JSON
   Map<String, dynamic> toJson() {
     return {
@@ -43,17 +27,6 @@ class SentrySpanContext {
       if (_tags.isNotEmpty) 'tags': _tags,
     };
   }
-
-  // SentrySpanContext copyWith() => SentrySpanContext(
-  //       operation: _operation,
-  //       traceId: _traceId,
-  //       spanId: _spanId,
-  //       description: _description,
-  //       status: status,
-  //       tags: _tags,
-  //       parentSpanId: _parentSpanId,
-  //       sampled: sampled,
-  //     );
 
   SentrySpanContext({
     SentryId? traceId,

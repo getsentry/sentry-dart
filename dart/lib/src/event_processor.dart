@@ -9,6 +9,5 @@ abstract class EventProcessor {
   FutureOr<SentryEvent?> apply(
     SentryEvent event, {
     dynamic hint,
-  }) async =>
-      event;
+  });
 }

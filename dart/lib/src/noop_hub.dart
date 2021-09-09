@@ -65,14 +65,12 @@ class NoOpHub implements Hub {
   void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) {}
 
   @override
-  Future<SentryId> captureTransaction(SentryTransaction transaction) async {
-    return SentryId.empty();
-  }
+  Future<SentryId> captureTransaction(SentryTransaction transaction) async =>
+      SentryId.empty();
 
   @override
-  Future<SentryId> captureUserFeedback(SentryUserFeedback userFeedback) async {
-    return SentryId.empty();
-  }
+  Future<SentryId> captureUserFeedback(SentryUserFeedback userFeedback) async =>
+      SentryId.empty();
 
   @override
   ISentrySpan startTransaction(

@@ -103,9 +103,8 @@ class MockHub implements Hub {
   SentryId get lastEventId => SentryId.empty();
 
   @override
-  Future<SentryId> captureTransaction(SentryTransaction transaction) async {
-    return SentryId.empty();
-  }
+  Future<SentryId> captureTransaction(SentryTransaction transaction) async =>
+      SentryId.empty();
 
   @override
   Future<SentryId> captureUserFeedback(SentryUserFeedback userFeedback) async {

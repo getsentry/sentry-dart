@@ -116,9 +116,8 @@ class NoOpHub implements Hub {
     stackTrace,
     hint,
     ScopeCallback? withScope,
-  }) async {
-    return SentryId.empty();
-  }
+  }) async =>
+      SentryId.empty();
 
   @override
   Future<SentryId> captureException(
@@ -126,9 +125,8 @@ class NoOpHub implements Hub {
     stackTrace,
     hint,
     ScopeCallback? withScope,
-  }) async {
-    return SentryId.empty();
-  }
+  }) async =>
+      SentryId.empty();
 
   @override
   Future<SentryId> captureMessage(
@@ -138,9 +136,8 @@ class NoOpHub implements Hub {
     List? params,
     hint,
     ScopeCallback? withScope,
-  }) async {
-    return SentryId.empty();
-  }
+  }) async =>
+      SentryId.empty();
 
   @override
   Hub clone() {

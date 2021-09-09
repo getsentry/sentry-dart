@@ -315,7 +315,6 @@ class Hub {
     }
   }
 
-  // maybe add optional params for sampled and customSamplingContext
   ISentrySpan startTransaction(
     String name,
     String operation, {
@@ -416,8 +415,6 @@ class Hub {
             exception: exception,
             stackTrace: stackTrace,
           );
-        } finally {
-          _lastEventId = sentryId;
         }
       }
     }

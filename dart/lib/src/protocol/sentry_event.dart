@@ -239,7 +239,7 @@ class SentryEvent with SentryEventLike<SentryEvent> {
         exceptions: (exceptions != null ? List.from(exceptions) : null) ??
             this.exceptions,
         threads: (threads != null ? List.from(threads) : null) ?? this.threads,
-        type: type,
+        type: type ?? this.type,
       );
 
   /// Deserializes a [SentryEvent] from JSON [Map].
