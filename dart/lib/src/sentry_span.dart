@@ -1,11 +1,9 @@
-// import 'package:meta/meta.dart';
-
 import 'protocol/span_status.dart';
 
+import 'sentry_tracer.dart';
 import 'tracing.dart';
 import 'utils.dart';
 
-// @internal
 class SentrySpan extends ISentrySpan {
   final SentrySpanContext _context;
   DateTime? _timestamp;

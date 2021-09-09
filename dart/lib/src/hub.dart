@@ -5,6 +5,7 @@ import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
+import 'sentry_tracer.dart';
 import 'sentry_user_feedback.dart';
 import 'tracing.dart';
 

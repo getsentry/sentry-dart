@@ -1,9 +1,9 @@
-// import 'package:meta/meta.dart';
+import 'package:meta/meta.dart';
 
 import '../sentry.dart';
 import 'tracing.dart';
 
-// @internal
+@internal
 class SentryTracer extends ISentrySpan {
   final Hub _hub;
   late final String _name;
