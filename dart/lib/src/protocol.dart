@@ -25,6 +25,7 @@ export 'protocol/sentry_user.dart';
 export 'protocol/max_request_body_size.dart';
 export 'protocol/sentry_culture.dart';
 export 'protocol/sentry_thread.dart';
+export 'sentry_event_like.dart';
 // tracing
 export 'protocol/span_status.dart';
 export 'protocol/span_id.dart';

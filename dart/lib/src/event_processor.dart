@@ -11,11 +11,4 @@ abstract class EventProcessor {
     dynamic hint,
   }) async =>
       event;
-
-  // probably rename both methods then
-  FutureOr<SentryTransaction?> applyTransaction(
-    SentryTransaction transaction, {
-    dynamic hint,
-  }) async =>
-      transaction;
 }

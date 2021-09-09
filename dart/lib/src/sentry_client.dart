@@ -131,6 +131,10 @@ class SentryClient {
 
     event = _applyDefaultPii(event);
 
+    if (event is SentryTransaction) {
+      return event;
+    }
+
     if (event.exceptions?.isNotEmpty ?? false) return event;
 
     if (event.throwableMechanism != null) {
@@ -226,30 +230,30 @@ class SentryClient {
     SentryTransaction transaction, {
     Scope? scope,
   }) async {
-    // SentryTransaction? preparedTransaction;
-    // preparedTransaction = _prepareEvent(transaction) as SentryTransaction;
+    SentryTransaction? preparedTransaction =
+        _prepareEvent(transaction) as SentryTransaction;
 
-    // if (scope != null) {
-    //   preparedTransaction =
-    //       await scope.applyToEvent(preparedTransaction) as SentryTransaction?;
-    // } else {
-    //   _options.logger(SentryLevel.debug, 'No scope is defined');
-    // }
+    if (scope != null) {
+      preparedTransaction =
+          await scope.applyToEvent(preparedTransaction) as SentryTransaction?;
+    } else {
+      _options.logger(SentryLevel.debug, 'No scope is defined');
+    }
 
-    // // dropped by scope event processors
-    // if (preparedTransaction == null) {
-    //   return _sentryId;
-    // }
+    // dropped by scope event processors
+    if (preparedTransaction == null) {
+      return _sentryId;
+    }
 
-    // preparedTransaction = await _processEvent(
-    //   preparedTransaction,
-    //   eventProcessors: _options.eventProcessors,
-    // ) as SentryTransaction?;
+    preparedTransaction = await _processEvent(
+      preparedTransaction,
+      eventProcessors: _options.eventProcessors,
+    ) as SentryTransaction?;
 
-    // // dropped by event processors
-    // if (preparedTransaction == null) {
-    //   return _sentryId;
-    // }
+    // dropped by event processors
+    if (preparedTransaction == null) {
+      return _sentryId;
+    }
 
     final id = await captureEnvelope(
         SentryEnvelope.fromTransaction(transaction, _options.sdk));

@@ -61,10 +61,16 @@ class FlutterEnricherEventProcessor extends EventProcessor {
     // Conflicts with Flutter runtime if it's just called `Flutter`
     contexts['flutter_context'] = _getFlutterContext();
 
-    return event.copyWith(
+    event = event.copyWith(
       contexts: contexts,
-      modules: await _getPackages(),
     );
+
+    if (event is! SentryTransaction) {
+      event = event.copyWith(
+        modules: await _getPackages(),
+      );
+    }
+    return event;
   }
 
   /// Packages are loaded from [LicenseRegistry].

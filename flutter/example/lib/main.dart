@@ -194,8 +194,8 @@ class MainScaffold extends StatelessWidget {
               child: const Text('Capture transaction'),
               onPressed: () async {
                 final transaction = Sentry.startTransaction(
-                  'myTr',
-                  'myOp',
+                  'myNewTr',
+                  'myNewOp',
                   description: 'myTr myOp',
                 );
                 transaction.setTag('myTag', 'myValue');
@@ -222,6 +222,11 @@ class MainScaffold extends StatelessWidget {
                 );
 
                 await Future.delayed(Duration(milliseconds: 110));
+
+                spanChild.startChild(
+                  'unfinishedChild',
+                  description: 'I wont finish',
+                );
 
                 await spanChild.finish(status: SpanStatus.internalError());
 

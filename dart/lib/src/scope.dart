@@ -191,16 +191,20 @@ class Scope {
     event = event.copyWith(
       transaction: event.transaction ?? transaction,
       user: _mergeUsers(user, event.user),
-      fingerprint: (event.fingerprint?.isNotEmpty ?? false)
-          ? event.fingerprint
-          : _fingerprint,
       breadcrumbs: (event.breadcrumbs?.isNotEmpty ?? false)
           ? event.breadcrumbs
           : List.from(_breadcrumbs),
       tags: tags.isNotEmpty ? _mergeEventTags(event) : event.tags,
       extra: extra.isNotEmpty ? _mergeEventExtra(event) : event.extra,
-      level: level ?? event.level,
     );
+
+    if (event is! SentryTransaction) {
+      event = event.copyWith(
+          fingerprint: (event.fingerprint?.isNotEmpty ?? false)
+              ? event.fingerprint
+              : _fingerprint,
+          level: level ?? event.level);
+    }
 
     _contexts.clone().forEach((key, value) {
       // add the contexts runtime list to the event.contexts.runtimes

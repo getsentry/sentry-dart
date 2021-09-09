@@ -6,7 +6,7 @@ import '../utils.dart';
 
 /// An event to be reported to Sentry.io.
 @immutable
-class SentryEvent {
+class SentryEvent with SentryEventLike<SentryEvent> {
   /// Creates an event.
   SentryEvent({
     SentryId? eventId,
@@ -181,6 +181,7 @@ class SentryEvent {
 
   final String? type;
 
+  @override
   SentryEvent copyWith({
     SentryId? eventId,
     DateTime? timestamp,

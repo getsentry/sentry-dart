@@ -6,19 +6,51 @@ class SentryTransaction extends SentryEvent {
   late final DateTime startTimestamp;
   static const String _type = 'transaction';
   late final List<ISentrySpan> spans;
+  final SentryTracer _tracer;
 
-  SentryTransaction(SentryTracer tracer)
-      : super(
-          timestamp: tracer.endTimestamp,
-          transaction: tracer.name,
-          tags: tracer.context.tags,
-          extra: tracer.data,
+  SentryTransaction(
+    this._tracer, {
+    SentryId? eventId,
+    DateTime? timestamp,
+    String? platform,
+    String? serverName,
+    String? release,
+    String? dist,
+    String? environment,
+    String? transaction,
+    dynamic throwable,
+    Map<String, String>? tags,
+    Map<String, dynamic>? extra,
+    SentryUser? user,
+    Contexts? contexts,
+    List<Breadcrumb>? breadcrumbs,
+    SdkVersion? sdk,
+    SentryRequest? request,
+    String? type,
+  }) : super(
+          eventId: eventId,
+          timestamp: timestamp ?? _tracer.endTimestamp,
+          platform: platform,
+          serverName: serverName,
+          release: release,
+          dist: dist,
+          environment: environment,
+          transaction: transaction ?? _tracer.name,
+          throwable: throwable,
+          tags: tags ?? _tracer.context.tags,
+          extra: extra ?? _tracer.data,
+          user: user,
+          contexts: contexts,
+          breadcrumbs: breadcrumbs,
+          sdk: sdk,
+          request: request,
           type: _type,
         ) {
-    startTimestamp = tracer.startTimestamp;
+    startTimestamp = _tracer.startTimestamp;
 
-    final spanContext = tracer.context;
-    spans = tracer.children;
+    final spanContext = _tracer.context;
+    // this.spans = spans ?? _tracer.children;
+    spans = _tracer.children;
 
     final traceContext = SentryTraceContext(
       operation: spanContext.operation,
@@ -30,7 +62,7 @@ class SentryTransaction extends SentryEvent {
       sampled: spanContext.sampled,
     );
 
-    contexts.trace = traceContext;
+    this.contexts.trace = traceContext;
   }
 
   @override
@@ -50,36 +82,56 @@ class SentryTransaction extends SentryEvent {
 
   bool get sampled => contexts.trace?.sampled == true;
 
-  // @override
-  // SentryEvent copyWith({
-  //   SentryId? eventId,
-  //   DateTime? timestamp,
-  //   String? platform,
-  //   String? logger,
-  //   String? serverName,
-  //   String? release,
-  //   String? dist,
-  //   String? environment,
-  //   Map<String, String>? modules,
-  //   SentryMessage? message,
-  //   String? transaction,
-  //   dynamic throwable,
-  //   SentryLevel? level,
-  //   String? culprit,
-  //   Map<String, String>? tags,
-  //   Map<String, dynamic>? extra,
-  //   List<String>? fingerprint,
-  //   SentryUser? user,
-  //   Contexts? contexts,
-  //   List<Breadcrumb>? breadcrumbs,
-  //   SdkVersion? sdk,
-  //   SentryRequest? request,
-  //   DebugMeta? debugMeta,
-  //   List<SentryException>? exceptions,
-  //   List<SentryThread>? threads,
-  //   String? type,
-  // }) {
-  //   final transaction = super.copyWith();
-  //   return super.copyWith();
-  // }
+  @override
+  SentryTransaction copyWith({
+    SentryId? eventId,
+    DateTime? timestamp,
+    String? platform,
+    String? logger,
+    String? serverName,
+    String? release,
+    String? dist,
+    String? environment,
+    Map<String, String>? modules,
+    SentryMessage? message,
+    String? transaction,
+    dynamic throwable,
+    SentryLevel? level,
+    String? culprit,
+    Map<String, String>? tags,
+    Map<String, dynamic>? extra,
+    List<String>? fingerprint,
+    SentryUser? user,
+    Contexts? contexts,
+    List<Breadcrumb>? breadcrumbs,
+    SdkVersion? sdk,
+    SentryRequest? request,
+    DebugMeta? debugMeta,
+    List<SentryException>? exceptions,
+    List<SentryThread>? threads,
+    String? type,
+    // List<ISentrySpan>? spans,
+  }) =>
+      SentryTransaction(
+        _tracer,
+        eventId: eventId ?? this.eventId,
+        timestamp: timestamp ?? this.timestamp,
+        platform: platform ?? this.platform,
+        serverName: serverName ?? this.serverName,
+        release: release ?? this.release,
+        dist: dist ?? this.dist,
+        environment: environment ?? this.environment,
+        transaction: transaction ?? this.transaction,
+        throwable: throwable ?? this.throwable,
+        tags: (tags != null ? Map.from(tags) : null) ?? this.tags,
+        extra: (extra != null ? Map.from(extra) : null) ?? this.extra,
+        user: user ?? this.user,
+        contexts: contexts ?? this.contexts,
+        breadcrumbs: (breadcrumbs != null ? List.from(breadcrumbs) : null) ??
+            this.breadcrumbs,
+        sdk: sdk ?? this.sdk,
+        request: request ?? this.request,
+        type: type ?? this.type,
+        // spans: spans,
+      );
 }
