@@ -28,6 +28,8 @@ class Hub {
 
   late SentryTracesSampler _tracesSampler;
 
+  final Map<dynamic, _Pair<ISentrySpan, String>> _throwableToSpan = {};
+
   factory Hub(SentryOptions options) {
     _validateOptions(options);
 
@@ -75,6 +77,10 @@ class Hub {
       final scope = _cloneAndRunWithScope(item.scope, withScope);
 
       try {
+        if (_options.isTracingEnabled()) {
+          event = _assignTraceContext(event);
+        }
+
         sentryId = await item.client.captureEvent(
           event,
           stackTrace: stackTrace,
@@ -119,8 +125,23 @@ class Hub {
       final scope = _cloneAndRunWithScope(item.scope, withScope);
 
       try {
-        sentryId = await item.client.captureException(
-          throwable,
+        // sentryId = await item.client.captureException(
+        //   throwable,
+        //   stackTrace: stackTrace,
+        //   scope: scope,
+        //   hint: hint,
+        // );
+        var event = SentryEvent(
+          throwable: throwable,
+          timestamp: _options.clock(),
+        );
+
+        if (_options.isTracingEnabled()) {
+          event = _assignTraceContext(event);
+        }
+
+        sentryId = await item.client.captureEvent(
+          event,
           stackTrace: stackTrace,
           scope: scope,
           hint: hint,
@@ -420,6 +441,35 @@ class Hub {
     }
     return sentryId;
   }
+
+  /// internal
+  void setSpanContext(
+    dynamic throwable,
+    ISentrySpan span,
+    String transaction,
+  ) {
+    if (throwable != null && !_throwableToSpan.containsKey(throwable)) {
+      _throwableToSpan[throwable] = _Pair(span, transaction);
+    }
+  }
+
+  SentryEvent _assignTraceContext(SentryEvent event) {
+    // assign trace context
+    if (event.throwable != null && event.contexts.trace == null) {
+      // set span to event.contexts.trace
+      final pair = _throwableToSpan[event.throwable];
+      if (pair != null) {
+        final spanContext = pair.first.context;
+        event.contexts.trace = spanContext.toTraceContext();
+
+        // set transaction name to event.transaction
+        if (event.transaction == null) {
+          event = event.copyWith(transaction: pair.second);
+        }
+      }
+    }
+    return event;
+  }
 }
 
 class _StackItem {
@@ -428,4 +478,11 @@ class _StackItem {
   final Scope scope;
 
   _StackItem(this.client, this.scope);
+}
+
+class _Pair<A, B> {
+  final A first;
+  final B second;
+
+  _Pair(this.first, this.second);
 }

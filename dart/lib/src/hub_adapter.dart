@@ -126,4 +126,9 @@ class HubAdapter implements Hub {
       bindToScope: bindToScope,
     );
   }
+
+  @override
+  void setSpanContext(throwable, ISentrySpan span, String transaction) {
+    Sentry.currentHub.setSpanContext(throwable, span, transaction);
+  }
 }

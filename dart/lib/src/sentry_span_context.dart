@@ -50,4 +50,16 @@ class SentrySpanContext {
   String get operation => _operation;
   String? get description => _description;
   Map<String, String> get tags => _tags;
+
+  SentryTraceContext toTraceContext() {
+    return SentryTraceContext(
+      operation: _operation,
+      traceId: _traceId,
+      spanId: _spanId,
+      description: _description,
+      status: status,
+      parentSpanId: parentSpanId,
+      sampled: sampled,
+    );
+  }
 }

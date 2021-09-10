@@ -135,6 +135,9 @@ class MockHub implements Hub {
   ISentrySpan? getSpan() {
     return null;
   }
+
+  @override
+  void setSpanContext(throwable, ISentrySpan span, String transaction) {}
 }
 
 class CaptureEventCall {

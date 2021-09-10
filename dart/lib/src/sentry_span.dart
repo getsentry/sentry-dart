@@ -1,3 +1,4 @@
+import 'hub.dart';
 import 'protocol/span_status.dart';
 
 import 'sentry_tracer.dart';
@@ -8,13 +9,16 @@ class SentrySpan extends ISentrySpan {
   final SentrySpanContext _context;
   DateTime? _timestamp;
   final DateTime _startTimestamp = getUtcDateTime();
+  final Hub _hub;
 
   final SentryTracer _tracer;
   final Map<String, dynamic> _data = {};
+  dynamic _throwable;
 
   SentrySpan(
     this._tracer,
     this._context,
+    this._hub,
   );
 
   @override
@@ -23,6 +27,11 @@ class SentrySpan extends ISentrySpan {
       _context.status = status;
     }
     _timestamp = getUtcDateTime();
+
+    // associate error
+    if (_throwable != null) {
+      _hub.setSpanContext(_throwable, this, _tracer.name);
+    }
   }
 
   @override
@@ -88,4 +97,10 @@ class SentrySpan extends ISentrySpan {
 
   @override
   Map<String, dynamic> get data => _data;
+
+  @override
+  dynamic get throwable => _throwable;
+
+  @override
+  set throwable(throwable) => _throwable = throwable;
 }

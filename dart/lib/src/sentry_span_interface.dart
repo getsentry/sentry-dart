@@ -33,4 +33,8 @@ abstract class ISentrySpan {
   bool get finished;
 
   Map<String, dynamic> get data;
+
+  dynamic get throwable;
+
+  set throwable(dynamic throwable);
 }

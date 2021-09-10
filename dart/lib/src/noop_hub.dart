@@ -95,4 +95,7 @@ class NoOpHub implements Hub {
   ISentrySpan? getSpan() {
     return NoOpSentrySpan();
   }
+
+  @override
+  void setSpanContext(throwable, ISentrySpan span, String transaction) {}
 }

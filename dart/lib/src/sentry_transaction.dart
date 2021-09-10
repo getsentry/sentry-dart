@@ -36,7 +36,7 @@ class SentryTransaction extends SentryEvent {
           dist: dist,
           environment: environment,
           transaction: transaction ?? _tracer.name,
-          throwable: throwable,
+          throwable: throwable ?? _tracer.throwable,
           tags: tags ?? _tracer.context.tags,
           extra: extra ?? _tracer.data,
           user: user,
@@ -52,17 +52,7 @@ class SentryTransaction extends SentryEvent {
     // this.spans = spans ?? _tracer.children;
     spans = _tracer.children;
 
-    final traceContext = SentryTraceContext(
-      operation: spanContext.operation,
-      traceId: spanContext.traceId,
-      spanId: spanContext.spanId,
-      description: spanContext.description,
-      status: spanContext.status,
-      parentSpanId: spanContext.parentSpanId,
-      sampled: spanContext.sampled,
-    );
-
-    this.contexts.trace = traceContext;
+    this.contexts.trace = spanContext.toTraceContext();
   }
 
   @override

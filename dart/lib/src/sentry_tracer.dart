@@ -6,7 +6,7 @@ import 'tracing.dart';
 @internal
 class SentryTracer extends ISentrySpan {
   final Hub _hub;
-  late final String _name;
+  late final String name;
 
   // missing waitForChildren
 
@@ -15,8 +15,8 @@ class SentryTracer extends ISentrySpan {
   final Map<String, String> _extra = {};
 
   SentryTracer(SentryTransactionContext transactionContext, this._hub) {
-    _rootSpan = SentrySpan(this, transactionContext);
-    _name = transactionContext.name;
+    _rootSpan = SentrySpan(this, transactionContext, _hub);
+    name = transactionContext.name;
   }
 
   @override
@@ -85,7 +85,7 @@ class SentryTracer extends ISentrySpan {
       sampled: _rootSpan.context.sampled,
     );
 
-    final child = SentrySpan(this, context);
+    final child = SentrySpan(this, context, _hub);
 
     _children.add(child);
 
@@ -108,7 +108,7 @@ class SentryTracer extends ISentrySpan {
   @override
   DateTime? get endTimestamp => _rootSpan.endTimestamp;
 
-  String get name => _name;
+  // String get name => _name;
 
   @override
   Map<String, String> get data => Map.unmodifiable(_extra);
@@ -117,4 +117,10 @@ class SentryTracer extends ISentrySpan {
   bool get finished => _rootSpan.finished;
 
   List<ISentrySpan> get children => _children;
+
+  @override
+  dynamic get throwable => _rootSpan.throwable;
+
+  @override
+  set throwable(throwable) => _rootSpan.throwable = throwable;
 }
