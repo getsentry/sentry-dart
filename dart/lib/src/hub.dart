@@ -127,12 +127,6 @@ class Hub {
       final scope = _cloneAndRunWithScope(item.scope, withScope);
 
       try {
-        // sentryId = await item.client.captureException(
-        //   throwable,
-        //   stackTrace: stackTrace,
-        //   scope: scope,
-        //   hint: hint,
-        // );
         var event = SentryEvent(
           throwable: throwable,
           timestamp: _options.clock(),
@@ -406,6 +400,7 @@ class Hub {
     return span;
   }
 
+  @internal
   Future<SentryId> captureTransaction(SentryTransaction transaction) async {
     var sentryId = SentryId.empty();
 
@@ -442,6 +437,8 @@ class Hub {
           );
         }
       }
+      // probably not going to work if throwable are from spans
+      _throwableToSpan.remove(transaction.throwable);
     }
     return sentryId;
   }

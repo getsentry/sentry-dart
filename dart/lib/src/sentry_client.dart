@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:meta/meta.dart';
+
 import 'event_processor.dart';
 import 'protocol/sentry_thread.dart';
 import 'sentry_user_feedback.dart';
@@ -226,6 +228,7 @@ class SentryClient {
     return captureEvent(event, scope: scope, hint: hint);
   }
 
+  @internal
   Future<SentryId> captureTransaction(
     SentryTransaction transaction, {
     Scope? scope,
