@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:meta/meta.dart';
+
 import 'default_integrations.dart';
 import 'enricher/enricher_event_processor.dart';
 import 'environment/environment_variables.dart';
@@ -226,12 +228,14 @@ class Sentry {
     String operation, {
     String? description,
     bool? bindToScope,
+    Map<String, dynamic>? customSamplingContext,
   }) =>
       _hub.startTransaction(
         name,
         operation,
         description: description,
         bindToScope: bindToScope,
+        customSamplingContext: customSamplingContext,
       );
 
   static ISentrySpan startTransactionWithContext(
@@ -249,6 +253,6 @@ class Sentry {
 
   ISentrySpan? getSpan() => _hub.getSpan();
 
-  /// internal method
+  @internal
   static Hub get currentHub => _hub;
 }

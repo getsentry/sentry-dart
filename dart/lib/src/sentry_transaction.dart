@@ -5,7 +5,7 @@ import 'utils.dart';
 class SentryTransaction extends SentryEvent {
   late final DateTime startTimestamp;
   static const String _type = 'transaction';
-  late final List<ISentrySpan> spans;
+  late final List<SentrySpan> spans;
   final SentryTracer _tracer;
 
   SentryTransaction(
@@ -37,7 +37,7 @@ class SentryTransaction extends SentryEvent {
           environment: environment,
           transaction: transaction ?? _tracer.name,
           throwable: throwable ?? _tracer.throwable,
-          tags: tags ?? _tracer.context.tags,
+          tags: tags ?? _tracer.tags,
           extra: extra ?? _tracer.data,
           user: user,
           contexts: contexts,
@@ -49,10 +49,11 @@ class SentryTransaction extends SentryEvent {
     startTimestamp = _tracer.startTimestamp;
 
     final spanContext = _tracer.context;
-    // this.spans = spans ?? _tracer.children;
     spans = _tracer.children;
 
-    this.contexts.trace = spanContext.toTraceContext();
+    this.contexts.trace = spanContext.toTraceContext(
+      sampled: _tracer.sampled,
+    );
   }
 
   @override
@@ -100,7 +101,6 @@ class SentryTransaction extends SentryEvent {
     List<SentryException>? exceptions,
     List<SentryThread>? threads,
     String? type,
-    // List<ISentrySpan>? spans,
   }) =>
       SentryTransaction(
         _tracer,
@@ -122,6 +122,5 @@ class SentryTransaction extends SentryEvent {
         sdk: sdk ?? this.sdk,
         request: request ?? this.request,
         type: type ?? this.type,
-        // spans: spans,
       );
 }

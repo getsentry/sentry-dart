@@ -10,12 +10,17 @@ class SentryTracer extends ISentrySpan {
 
   // missing waitForChildren
 
-  late final ISentrySpan _rootSpan;
-  final List<ISentrySpan> _children = [];
+  late final SentrySpan _rootSpan;
+  final List<SentrySpan> _children = [];
   final Map<String, String> _extra = {};
 
   SentryTracer(SentryTransactionContext transactionContext, this._hub) {
-    _rootSpan = SentrySpan(this, transactionContext, _hub);
+    _rootSpan = SentrySpan(
+      this,
+      transactionContext,
+      _hub,
+      sampled: transactionContext.sampled,
+    );
     name = transactionContext.name;
   }
 
@@ -82,10 +87,14 @@ class SentryTracer extends ISentrySpan {
       parentSpanId: parentSpanId,
       operation: operation,
       description: description,
-      sampled: _rootSpan.context.sampled,
     );
 
-    final child = SentrySpan(this, context, _hub);
+    final child = SentrySpan(
+      this,
+      context,
+      _hub,
+      sampled: _rootSpan.sampled,
+    );
 
     _children.add(child);
 
@@ -108,19 +117,24 @@ class SentryTracer extends ISentrySpan {
   @override
   DateTime? get endTimestamp => _rootSpan.endTimestamp;
 
-  // String get name => _name;
-
-  @override
   Map<String, String> get data => Map.unmodifiable(_extra);
 
   @override
   bool get finished => _rootSpan.finished;
 
-  List<ISentrySpan> get children => _children;
+  List<SentrySpan> get children => _children;
 
   @override
   dynamic get throwable => _rootSpan.throwable;
 
   @override
   set throwable(throwable) => _rootSpan.throwable = throwable;
+
+  @override
+  set status(SpanStatus? status) => _rootSpan.status = status;
+
+  Map<String, String> get tags => _rootSpan.tags;
+
+  @override
+  bool? get sampled => _rootSpan.sampled;
 }

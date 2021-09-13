@@ -78,6 +78,7 @@ class NoOpHub implements Hub {
     String operation, {
     String? description,
     bool? bindToScope,
+    Map<String, dynamic>? customSamplingContext,
   }) {
     return NoOpSentrySpan();
   }

@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:meta/meta.dart';
+
 import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_client.dart';
@@ -341,6 +343,7 @@ class Hub {
     String operation, {
     String? description,
     bool? bindToScope,
+    Map<String, dynamic>? customSamplingContext,
   }) =>
       startTransactionWithContext(
         SentryTransactionContext(
@@ -349,6 +352,7 @@ class Hub {
           description: description,
         ),
         bindToScope: bindToScope,
+        customSamplingContext: customSamplingContext,
       );
 
   ISentrySpan startTransactionWithContext(
@@ -419,7 +423,7 @@ class Hub {
       if (!transaction.sampled) {
         _options.logger(
           SentryLevel.warning,
-          'Transaction %s was dropped due to sampling decision: ${transaction.eventId}',
+          'Transaction ${transaction.eventId} was dropped due to sampling decision.',
         );
       } else {
         final item = _peek();
@@ -442,7 +446,7 @@ class Hub {
     return sentryId;
   }
 
-  /// internal
+  @internal
   void setSpanContext(
     dynamic throwable,
     ISentrySpan span,
@@ -459,8 +463,11 @@ class Hub {
       // set span to event.contexts.trace
       final pair = _throwableToSpan[event.throwable];
       if (pair != null) {
-        final spanContext = pair.first.context;
-        event.contexts.trace = spanContext.toTraceContext();
+        final span = pair.first;
+        final spanContext = span.context;
+        event.contexts.trace = spanContext.toTraceContext(
+          sampled: span.sampled,
+        );
 
         // set transaction name to event.transaction
         if (event.transaction == null) {

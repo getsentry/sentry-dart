@@ -15,16 +15,25 @@ class SentrySpan extends ISentrySpan {
   final Map<String, dynamic> _data = {};
   dynamic _throwable;
 
+  SpanStatus? _status;
+  final Map<String, String> _tags = {};
+
+  @override
+  bool? sampled;
+
   SentrySpan(
     this._tracer,
     this._context,
-    this._hub,
-  );
+    this._hub, {
+    bool? sampled,
+  }) {
+    this.sampled = sampled;
+  }
 
   @override
   Future<void> finish({SpanStatus? status}) async {
     if (status != null) {
-      _context.status = status;
+      _status = status;
     }
     _timestamp = getUtcDateTime();
 
@@ -41,7 +50,7 @@ class SentrySpan extends ISentrySpan {
 
   @override
   void removeTag(String key) {
-    context.tags.remove(key);
+    _tags.remove(key);
   }
 
   @override
@@ -51,7 +60,7 @@ class SentrySpan extends ISentrySpan {
 
   @override
   void setTag(String key, String value) {
-    context.tags[key] = value;
+    _tags[key] = value;
   }
 
   @override
@@ -67,7 +76,10 @@ class SentrySpan extends ISentrySpan {
   }
 
   @override
-  SpanStatus? get status => _context.status;
+  SpanStatus? get status => _status;
+
+  @override
+  set status(SpanStatus? status) => _status = status;
 
   @override
   DateTime get startTimestamp => _startTimestamp;
@@ -78,7 +90,6 @@ class SentrySpan extends ISentrySpan {
   @override
   SentrySpanContext get context => _context;
 
-  @override
   Map<String, dynamic> toJson() {
     final json = _context.toJson();
     json['start_timestamp'] =
@@ -89,6 +100,12 @@ class SentrySpan extends ISentrySpan {
     if (_data.isNotEmpty) {
       json['data'] = _data;
     }
+    if (status != null) {
+      json['status'] = status.toString();
+    }
+    if (_tags.isNotEmpty) {
+      json['tags'] = _tags;
+    }
     return json;
   }
 
@@ -96,11 +113,10 @@ class SentrySpan extends ISentrySpan {
   bool get finished => _timestamp != null;
 
   @override
-  Map<String, dynamic> get data => _data;
-
-  @override
   dynamic get throwable => _throwable;
 
   @override
   set throwable(throwable) => _throwable = throwable;
+
+  Map<String, String> get tags => _tags;
 }

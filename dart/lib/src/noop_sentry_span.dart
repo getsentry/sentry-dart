@@ -54,11 +54,14 @@ class NoOpSentrySpan extends ISentrySpan {
   bool get finished => false;
 
   @override
-  Map<String, dynamic> get data => {};
-
-  @override
   dynamic get throwable => null;
 
   @override
   set throwable(throwable) {}
+
+  @override
+  set status(SpanStatus? status) {}
+
+  @override
+  bool? get sampled => null;
 }

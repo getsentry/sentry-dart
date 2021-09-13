@@ -223,8 +223,8 @@ class MainScaffold extends StatelessWidget {
                   description: 'childOfChildOfMyOp span',
                 );
 
-                final ex = StateError('work pls again');
-                spanChild.throwable = ex;
+                // final ex = StateError('work pls again');
+                // spanChild.throwable = ex;
 
                 await Future.delayed(Duration(milliseconds: 110));
 
@@ -240,7 +240,7 @@ class MainScaffold extends StatelessWidget {
 
                 await transaction.finish(status: SpanStatus.ok());
 
-                Sentry.captureException(ex);
+                // Sentry.captureException(ex);
               },
             ),
             RaisedButton(

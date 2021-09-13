@@ -1,24 +1,24 @@
+// import 'package:meta/meta.dart';
+
 import 'tracing.dart';
 
+// @immutable
+// cannot be immutable because of sampled
+// to set sampled requires running the SentrySamplingContext
+// and the SentrySamplingContext requires the instantiated SentryTransactionContext
 class SentryTransactionContext extends SentrySpanContext {
-  final String _name;
-  bool? _parentSampled;
+  final String name;
+  final bool? parentSampled;
+  bool? sampled;
 
   SentryTransactionContext(
-    this._name,
+    this.name,
     String operation, {
     String? description,
-    bool? sampled,
-    bool? parentSampled,
+    this.sampled,
+    this.parentSampled,
   }) : super(
           operation: operation,
-          sampled: sampled,
           description: description,
-        ) {
-    _parentSampled = parentSampled;
-  }
-
-  bool? get parentSampled => _parentSampled;
-
-  String get name => _name;
+        );
 }

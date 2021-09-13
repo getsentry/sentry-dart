@@ -1,3 +1,5 @@
+import 'package:meta/meta.dart';
+
 import '../sentry.dart';
 
 abstract class ISentrySpan {
@@ -20,6 +22,8 @@ abstract class ISentrySpan {
 
   SpanStatus? get status;
 
+  set status(SpanStatus? status);
+
   SentrySpanContext get context;
 
   DateTime? get endTimestamp;
@@ -27,14 +31,12 @@ abstract class ISentrySpan {
   DateTime get startTimestamp;
   // missing toTraceHeader
 
-  // internal
-  Map<String, dynamic> toJson() => {};
-
   bool get finished;
-
-  Map<String, dynamic> get data;
 
   dynamic get throwable;
 
   set throwable(dynamic throwable);
+
+  @internal
+  bool? get sampled;
 }

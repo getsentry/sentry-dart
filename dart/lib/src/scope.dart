@@ -240,7 +240,9 @@ class Scope {
 
     final span = _span;
     if (event.contexts.trace == null && span != null) {
-      event.contexts.trace = span.context.toTraceContext();
+      event.contexts.trace = span.context.toTraceContext(
+        sampled: span.sampled,
+      );
     }
 
     SentryEvent? processedEvent = event;

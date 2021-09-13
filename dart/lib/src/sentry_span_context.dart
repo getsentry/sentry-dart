@@ -1,63 +1,43 @@
-// import 'package:meta/meta.dart';
+import 'package:meta/meta.dart';
 
 import '../sentry.dart';
 
-// @immutable
-// SpanContext is the attribute collection for a Span (Can be an implementation detail). When possible SpanContext should be immutable.
-// status and sampled should be mutable, so how we do it? clone it?
+@immutable
 class SentrySpanContext {
-  final SentryId _traceId;
-  final SpanId _spanId;
-  final SpanId? _parentSpanId;
-  bool? sampled;
-  late final String _operation;
-  final String? _description;
-  SpanStatus? status;
-  final Map<String, String> _tags;
+  late final SentryId traceId;
+  late final SpanId spanId;
+  final SpanId? parentSpanId;
+  final String operation;
+  final String? description;
 
   /// Item header encoded as JSON
   Map<String, dynamic> toJson() {
     return {
-      'span_id': _spanId.toString(),
-      'trace_id': _traceId.toString(),
-      'op': _operation,
-      if (_parentSpanId != null) 'parent_span_id': _parentSpanId?.toString(),
-      if (_description != null) 'description': _description,
-      if (status != null) 'status': status.toString(),
-      if (_tags.isNotEmpty) 'tags': _tags,
+      'span_id': spanId.toString(),
+      'trace_id': traceId.toString(),
+      'op': operation,
+      if (parentSpanId != null) 'parent_span_id': parentSpanId.toString(),
+      if (description != null) 'description': description,
     };
   }
 
   SentrySpanContext({
     SentryId? traceId,
     SpanId? spanId,
-    SpanId? parentSpanId,
-    this.sampled,
-    required String operation,
-    String? description,
-    this.status,
-    Map<String, String>? tags,
-  })  : _traceId = traceId ?? SentryId.newId(),
-        _spanId = spanId ?? SpanId.newId(),
-        _tags = tags ?? {},
-        _parentSpanId = parentSpanId,
-        _operation = operation,
-        _description = description;
+    this.parentSpanId,
+    required this.operation,
+    this.description,
+  })  : traceId = traceId ?? SentryId.newId(),
+        spanId = spanId ?? SpanId.newId();
 
-  SentryId get traceId => _traceId;
-  SpanId get spanId => _spanId;
-  SpanId? get parentSpanId => _parentSpanId;
-  String get operation => _operation;
-  String? get description => _description;
-  Map<String, String> get tags => _tags;
-
-  SentryTraceContext toTraceContext() {
+  SentryTraceContext toTraceContext({
+    bool? sampled,
+  }) {
     return SentryTraceContext(
-      operation: _operation,
-      traceId: _traceId,
-      spanId: _spanId,
-      description: _description,
-      status: status,
+      operation: operation,
+      traceId: traceId,
+      spanId: spanId,
+      description: description,
       parentSpanId: parentSpanId,
       sampled: sampled,
     );

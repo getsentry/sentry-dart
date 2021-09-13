@@ -118,12 +118,14 @@ class HubAdapter implements Hub {
     String operation, {
     String? description,
     bool? bindToScope,
+    Map<String, dynamic>? customSamplingContext,
   }) {
     return Sentry.startTransaction(
       name,
       operation,
       description: description,
       bindToScope: bindToScope,
+      customSamplingContext: customSamplingContext,
     );
   }
 
