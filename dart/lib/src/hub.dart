@@ -370,7 +370,11 @@ class Hub {
       final samplingContext = SentrySamplingContext(
           transactionContext, customSamplingContext ?? {});
 
-      transactionContext.sampled = _tracesSampler.sample(samplingContext);
+      // if transactionContext has no sampled decision, run the traces sampler
+      if (transactionContext.sampled == null) {
+        final sampled = _tracesSampler.sample(samplingContext);
+        transactionContext = transactionContext.copyWith(sampled: sampled);
+      }
 
       final tracer = SentryTracer(transactionContext, this);
 
