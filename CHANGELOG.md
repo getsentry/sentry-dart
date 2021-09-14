@@ -1,7 +1,7 @@
 # Unreleased
 
 * Fix: Set custom SentryHttpClientError when HTTP error is captured without an exception (#580)
-* Bump: Android AGP 4.1 (#)
+* Bump: Android AGP 4.1 (#586)
 
 # 6.0.0
 
