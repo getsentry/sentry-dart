@@ -42,7 +42,7 @@ class SentryTracer extends ISentrySpan {
       }
     });
 
-    final transaction = _toTransaction();
+    final transaction = SentryTransaction(this);
     await _hub.captureTransaction(transaction);
   }
 
@@ -99,10 +99,6 @@ class SentryTracer extends ISentrySpan {
     _children.add(child);
 
     return child;
-  }
-
-  SentryTransaction _toTransaction() {
-    return SentryTransaction(this);
   }
 
   @override

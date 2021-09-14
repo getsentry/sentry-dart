@@ -317,9 +317,11 @@ class Scope {
   /// Clones the current Scope
   Scope clone() {
     final clone = Scope(_options)
+      ..level = level
       ..user = user
       ..fingerprint = List.from(fingerprint)
-      .._transaction = _transaction;
+      .._transaction = _transaction
+      .._span = _span;
 
     for (final tag in _tags.keys) {
       clone.setTag(tag, _tags[tag]!);
