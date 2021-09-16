@@ -101,6 +101,6 @@ dependencies {
 
 // uncomment this to upload debug symbols to Sentry
 // sentry {
-//     uploadNativeSymbols true
-//     includeNativeSources true
+//     uploadNativeSymbols = true
+//     includeNativeSources = true
 // }
