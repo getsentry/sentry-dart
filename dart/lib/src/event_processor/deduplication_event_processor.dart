@@ -63,7 +63,7 @@ class DeduplicationEventProcessor extends EventProcessor {
     // No duplication detected
     _exceptionToDeduplicate.add(exceptionHashCode);
     if (_exceptionToDeduplicate.length > _options.maxDeduplicationItems) {
-      _exceptionToDeduplicate.removeLast();
+      _exceptionToDeduplicate.removeFirst();
     }
     return event;
   }

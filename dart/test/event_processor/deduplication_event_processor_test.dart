@@ -1,17 +1,19 @@
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/event_processor/deduplication_event_processor.dart';
+import 'package:sentry/src/sentry_tracer.dart';
 import 'package:test/test.dart';
 
 import '../mocks.dart';
+import '../mocks/mock_hub.dart';
 import '../mocks/mock_transport.dart';
 
 void main() {
   group('$DeduplicationEventProcessor', () {
-    var fixture = Fixture();
+    final fixture = Fixture();
 
     test('deduplicates if enabled', () {
       final sut = fixture.getSut(true);
-      var ogEvent = createEvent('foo');
+      var ogEvent = _createEvent('foo');
 
       expect(sut.apply(ogEvent), isNotNull);
       expect(sut.apply(ogEvent), isNull);
@@ -19,27 +21,35 @@ void main() {
 
     test('does not deduplicate if disabled', () {
       final sut = fixture.getSut(false);
-      var ogEvent = createEvent('foo');
+      var ogEvent = _createEvent('foo');
 
       expect(sut.apply(ogEvent), isNotNull);
       expect(sut.apply(ogEvent), isNotNull);
     });
 
     test('does not deduplicate if different events', () {
-      final sut = fixture.getSut(false);
-      var fooEvent = createEvent('foo');
-      var barEvent = createEvent('bar');
+      final sut = fixture.getSut(true);
+      var fooEvent = _createEvent('foo');
+      var barEvent = _createEvent('bar');
 
       expect(sut.apply(fooEvent), isNotNull);
       expect(sut.apply(barEvent), isNotNull);
     });
 
-    test('exceptions to keep for deduplication', () {
-      final sut = fixture.getSut(false, 2);
+    test('does not deduplicate transaction', () {
+      final sut = fixture.getSut(true);
+      final transaction = _createTransaction(fixture.hub);
 
-      var fooEvent = createEvent('foo');
-      var barEvent = createEvent('bar');
-      var fooBarEvent = createEvent('foo bar');
+      expect(sut.apply(transaction), isNotNull);
+      expect(sut.apply(transaction), isNotNull);
+    });
+
+    test('exceptions to keep for deduplication', () {
+      final sut = fixture.getSut(true, 2);
+
+      var fooEvent = _createEvent('foo');
+      var barEvent = _createEvent('bar');
+      var fooBarEvent = _createEvent('foo bar');
 
       expect(sut.apply(fooEvent), isNotNull);
       expect(sut.apply(barEvent), isNotNull);
@@ -86,11 +96,20 @@ void main() {
   });
 }
 
-SentryEvent createEvent(var message) {
+SentryEvent _createEvent(String message) {
   return SentryEvent(throwable: Exception(message));
 }
 
+SentryTransaction _createTransaction(Hub hub) {
+  final context = SentryTransactionContext('name', 'op');
+
+  final tracer = SentryTracer(context, hub);
+  return SentryTransaction(tracer);
+}
+
 class Fixture {
+  final hub = MockHub();
+
   DeduplicationEventProcessor getSut(bool enabled,
       [int? maxDeduplicationItems]) {
     final options = SentryOptions(dsn: fakeDsn)
