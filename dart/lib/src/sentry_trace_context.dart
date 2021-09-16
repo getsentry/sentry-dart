@@ -17,7 +17,7 @@ class SentryTraceContext {
   factory SentryTraceContext.fromJson(Map<String, dynamic> json) {
     return SentryTraceContext(
       operation: json['op'] as String,
-      spanId: SpanId.fromId(['span_id'] as String),
+      spanId: SpanId.fromId(json['span_id'] as String),
       parentSpanId: json['parent_span_id'] == null
           ? null
           : SpanId.fromId(json['parent_span_id'] as String),

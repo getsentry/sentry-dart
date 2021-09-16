@@ -17,14 +17,16 @@ class Scope {
   String? _transaction;
 
   String? get transaction {
-    return (_span as SentryTracer?)?.name ?? _transaction;
+    return ((_span is SentryTracer) ? (_span as SentryTracer?)?.name : null) ??
+        _transaction;
   }
 
   set transaction(String? transaction) {
     _transaction = transaction;
 
     if (_transaction != null && _span != null) {
-      final currentTransaction = (_span as SentryTracer?);
+      final currentTransaction =
+          (_span is SentryTracer) ? (_span as SentryTracer?) : null;
       currentTransaction?.name = _transaction!;
     }
   }
@@ -195,7 +197,8 @@ class Scope {
     _span = span;
 
     if (_span != null) {
-      final currentTransaction = (_span as SentryTracer?);
+      final currentTransaction =
+          (_span is SentryTracer) ? (_span as SentryTracer?) : null;
       _transaction = currentTransaction?.name ?? _transaction;
     }
   }

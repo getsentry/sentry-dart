@@ -270,6 +270,7 @@ void main() {
       timestamp: DateTime.utc(2019),
     ));
     sut.addAttachment(SentryAttachment.fromIntList([0, 0, 0, 0], 'test.txt'));
+    sut.span = NoOpSentrySpan();
 
     final clone = sut.clone();
     expect(sut.user, clone.user);
@@ -284,6 +285,7 @@ void main() {
       ListEquality().equals(sut.eventProcessors, clone.eventProcessors),
       true,
     );
+    expect(sut.span, clone.span);
   });
 
   group('Scope apply', () {
