@@ -1,3 +1,5 @@
+# Unreleased
+
 # 6.0.1
 
 * Fix: Set custom SentryHttpClientError when HTTP error is captured without an exception (#580)
