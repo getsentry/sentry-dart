@@ -8,7 +8,10 @@ import 'package:sentry/src/sentry_envelope_item_header.dart';
 import 'package:sentry/src/sentry_envelope_item.dart';
 import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/protocol/sentry_id.dart';
+import 'package:sentry/src/sentry_tracer.dart';
 import 'package:test/test.dart';
+
+import 'mocks/mock_hub.dart';
 
 void main() {
   group('SentryEnvelope', () {
@@ -53,6 +56,35 @@ void main() {
       final expectedEnvelopeItem = SentryEnvelopeItem.fromEvent(sentryEvent);
 
       expect(sut.header.eventId, eventId);
+      expect(sut.header.sdkVersion, sdkVersion);
+      expect(sut.items[0].header.contentType,
+          expectedEnvelopeItem.header.contentType);
+      expect(sut.items[0].header.type, expectedEnvelopeItem.header.type);
+      expect(await sut.items[0].header.length(),
+          await expectedEnvelopeItem.header.length());
+
+      final actualItem = await sut.items[0].envelopeItemStream();
+
+      final expectedItem = await expectedEnvelopeItem.envelopeItemStream();
+
+      expect(actualItem, expectedItem);
+    });
+
+    test('fromTransaction', () async {
+      final context = SentryTransactionContext(
+        'name',
+        'op',
+      );
+      final tracer = SentryTracer(context, MockHub());
+      final tr = SentryTransaction(tracer);
+
+      final sdkVersion =
+          SdkVersion(name: 'fixture-name', version: 'fixture-version');
+      final sut = SentryEnvelope.fromTransaction(tr, sdkVersion);
+
+      final expectedEnvelopeItem = SentryEnvelopeItem.fromTransaction(tr);
+
+      expect(sut.header.eventId, tr.eventId);
       expect(sut.header.sdkVersion, sdkVersion);
       expect(sut.items[0].header.contentType,
           expectedEnvelopeItem.header.contentType);

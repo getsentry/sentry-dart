@@ -11,6 +11,7 @@ class MockHub implements Hub {
   List<SentryUserFeedback> userFeedbackCalls = [];
   int closeCalls = 0;
   bool _isEnabled = true;
+  int spanContextCals = 0;
 
   /// Useful for tests.
   void reset() {
@@ -21,6 +22,7 @@ class MockHub implements Hub {
     bindClientCalls = [];
     closeCalls = 0;
     _isEnabled = true;
+    spanContextCals = 0;
   }
 
   @override
@@ -138,7 +140,9 @@ class MockHub implements Hub {
   }
 
   @override
-  void setSpanContext(throwable, ISentrySpan span, String transaction) {}
+  void setSpanContext(throwable, ISentrySpan span, String transaction) {
+    spanContextCals++;
+  }
 }
 
 class CaptureEventCall {
