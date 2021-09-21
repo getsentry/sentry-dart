@@ -32,6 +32,7 @@ class SentrySpanContext {
 
   SentryTraceContext toTraceContext({
     bool? sampled,
+    SpanStatus? status,
   }) {
     return SentryTraceContext(
       operation: operation,
@@ -40,6 +41,7 @@ class SentrySpanContext {
       description: description,
       parentSpanId: parentSpanId,
       sampled: sampled,
+      status: status,
     );
   }
 }

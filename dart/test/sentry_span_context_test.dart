@@ -16,10 +16,13 @@ void main() {
     expect(map['description'], 'desc');
   });
 
-  test('toTraceContext gets sampled', () {
+  test('toTraceContext gets sampled and status', () {
     final sut = fixture.getSut();
-
-    final traceContext = sut.toTraceContext(sampled: true);
+    final aborted = SpanStatus.aborted();
+    final traceContext = sut.toTraceContext(
+      sampled: true,
+      status: aborted,
+    );
 
     expect(traceContext.sampled, true);
     expect(traceContext.spanId, isNotNull);
@@ -27,6 +30,7 @@ void main() {
     expect(traceContext.operation, 'op');
     expect(traceContext.parentSpanId, isNotNull);
     expect(traceContext.description, 'desc');
+    expect(traceContext.status, aborted);
   });
 }
 

@@ -56,6 +56,7 @@ class SentryTransaction extends SentryEvent {
 
     this.contexts.trace = spanContext.toTraceContext(
       sampled: _tracer.sampled,
+      status: _tracer.status,
     );
   }
 

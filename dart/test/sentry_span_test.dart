@@ -7,10 +7,10 @@ import 'mocks/mock_hub.dart';
 void main() {
   final fixture = Fixture();
 
-  test('finish sets status', () {
+  test('finish sets status', () async {
     final sut = fixture.getSut();
 
-    sut.finish(status: SpanStatus.aborted());
+    await sut.finish(status: SpanStatus.aborted());
 
     expect(sut.status, SpanStatus.aborted());
   });
@@ -76,13 +76,13 @@ void main() {
     expect(child.context.description, 'desc');
   });
 
-  test('span serializes', () {
+  test('span serializes', () async {
     final sut = fixture.getSut();
 
     sut.setTag('test', 'test');
     sut.setData('test', 'test');
 
-    sut.finish(status: SpanStatus.aborted());
+    await sut.finish(status: SpanStatus.aborted());
 
     final map = sut.toJson();
 

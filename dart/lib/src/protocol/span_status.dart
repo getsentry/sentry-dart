@@ -137,14 +137,7 @@ class SpanStatus {
     return fallback ?? SpanStatus.unknownError();
   }
 
-  // fix
-  factory SpanStatus.fromString(String? value) {
-    if (value != null) {
-      return SpanStatus._(value, 0);
-    } else {
-      return SpanStatus.unknownError();
-    }
-  }
+  factory SpanStatus.fromString(String value) => SpanStatus._(value, 0);
 
   static bool _matches(SpanStatus status, int code) =>
       code >= status._minHttpStatusCode && code <= status._maxHttpStatusCode;
