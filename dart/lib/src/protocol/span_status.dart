@@ -67,7 +67,6 @@ class SpanStatus {
   @override
   String toString() => _value;
 
-  // probably hashcode of min and max too
   @override
   int get hashCode => _value.hashCode;
 

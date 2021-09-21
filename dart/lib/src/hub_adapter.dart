@@ -127,6 +127,9 @@ class HubAdapter implements Hub {
 
   @override
   void setSpanContext(
-          dynamic throwable, ISentrySpan span, String transaction) =>
+    dynamic throwable,
+    ISentrySpan span,
+    String transaction,
+  ) =>
       Sentry.currentHub.setSpanContext(throwable, span, transaction);
 }

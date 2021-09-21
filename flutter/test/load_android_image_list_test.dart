@@ -134,18 +134,6 @@ void main() {
     expect('e77c5713-5311-28c2-ecf0-eb73fc39f450', image.debugId);
     expect('test', image.debugFile);
   });
-
-  // test('Event processor isnt executed for transaction', () async {
-  //   final sut = fixture.getSut();
-
-  //   sut.call(fixture.hub, fixture.options);
-  //   final ep = fixture.options.eventProcessors.first;
-
-  //   var tr = SentryTransaction(fixture.tracer);
-  //   tr = await ep.apply(tr) as SentryTransaction;
-
-  //   expect(tr.debugMeta, isNull);
-  // });
 }
 
 SentryEvent getEvent({bool symbolicated = false}) {
@@ -160,16 +148,8 @@ SentryEvent getEvent({bool symbolicated = false}) {
 }
 
 class Fixture {
-  // late SentryTransactionContext _context;
-  // late SentryTracer tracer;
-
   Fixture() {
-    // _context = SentryTransactionContext(
-    //   'name',
-    //   'op',
-    // );
     hub = Hub(options);
-    // tracer = SentryTracer(_context, hub);
   }
 
   final channel = MethodChannel('sentry_flutter');
