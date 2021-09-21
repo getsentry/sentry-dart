@@ -60,4 +60,39 @@ void main() {
 
     expect(false, options.logger == noOpLogger);
   });
+
+  test('tracesSampler is null by default', () {
+    final options = SentryOptions(dsn: fakeDsn);
+
+    expect(options.tracesSampler, isNull);
+  });
+
+  test('tracesSampleRate is null by default', () {
+    final options = SentryOptions(dsn: fakeDsn);
+
+    expect(options.tracesSampleRate, isNull);
+  });
+
+  test('isTracingEnabled is disabled', () {
+    final options = SentryOptions(dsn: fakeDsn);
+
+    expect(options.isTracingEnabled(), false);
+  });
+
+  test('isTracingEnabled is enabled by theres rate', () {
+    final options = SentryOptions(dsn: fakeDsn);
+    options.tracesSampleRate = 1.0;
+
+    expect(options.isTracingEnabled(), true);
+  });
+
+  test('isTracingEnabled is enabled by theres sampler', () {
+    final options = SentryOptions(dsn: fakeDsn);
+
+    double? sampler(SentrySamplingContext samplingContext) {}
+
+    options.tracesSampler = sampler;
+
+    expect(options.isTracingEnabled(), true);
+  });
 }

@@ -61,6 +61,7 @@ void main() {
       'debug_meta': {
         'sdk_info': {'sdk_name': 'sdkName'}
       },
+      'type': 'type',
     };
 
     final emptyFieldsSentryEventJson = <String, dynamic>{
@@ -105,6 +106,7 @@ void main() {
       expect(sentryEvent.sdk, isNull);
       expect(sentryEvent.request, isNull);
       expect(sentryEvent.debugMeta, isNull);
+      expect(sentryEvent.type, isNull);
     });
   });
 
@@ -226,6 +228,7 @@ void main() {
               )
             ],
           ),
+          type: 'type',
         ).toJson(),
         <String, dynamic>{
           'platform': platformChecker.isWeb ? 'javascript' : 'other',
@@ -281,7 +284,8 @@ void main() {
                 'code_id': '123',
               },
             ]
-          }
+          },
+          'type': 'type',
         },
       );
     });
@@ -405,6 +409,7 @@ void main() {
         breadcrumbs: [Breadcrumb()],
         request: SentryRequest(),
         debugMeta: DebugMeta(images: []),
+        type: null,
       );
       final eventMap = event.toJson();
 
@@ -418,6 +423,7 @@ void main() {
       expect(eventMap['fingerprint'], isNull);
       expect(eventMap['request'], isNull);
       expect(eventMap['debug_meta'], isNull);
+      expect(eventMap['type'], isNull);
     });
 
     test(

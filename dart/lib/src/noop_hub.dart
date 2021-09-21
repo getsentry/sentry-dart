@@ -79,23 +79,19 @@ class NoOpHub implements Hub {
     String? description,
     bool? bindToScope,
     Map<String, dynamic>? customSamplingContext,
-  }) {
-    return NoOpSentrySpan();
-  }
+  }) =>
+      NoOpSentrySpan();
 
   @override
   ISentrySpan startTransactionWithContext(
     SentryTransactionContext transactionContext, {
     Map<String, dynamic>? customSamplingContext,
     bool? bindToScope,
-  }) {
-    return NoOpSentrySpan();
-  }
+  }) =>
+      NoOpSentrySpan();
 
   @override
-  ISentrySpan? getSpan() {
-    return NoOpSentrySpan();
-  }
+  ISentrySpan? getSpan() => NoOpSentrySpan();
 
   @override
   void setSpanContext(throwable, ISentrySpan span, String transaction) {}

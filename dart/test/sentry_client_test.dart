@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
+import 'package:sentry/src/sentry_tracer.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
@@ -300,6 +301,50 @@ void main() {
             .every((frame) => frame.package != 'sentry'),
         true,
       );
+    });
+  });
+
+  group('SentryClient captures transaction', () {
+    late Fixture fixture;
+
+    Error error;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('should contain a transaction in the envelope', () async {
+      try {
+        throw StateError('Error');
+      } on Error catch (err) {
+        error = err;
+      }
+
+      final client = fixture.getSut();
+      final tr = SentryTransaction(fixture.tracer, throwable: error);
+      await client.captureTransaction(tr);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedTr = await transactionFromEnvelope(capturedEnvelope);
+
+      expect(capturedTr['type'], 'transaction');
+    });
+
+    test('should not set exception to transactions', () async {
+      try {
+        throw StateError('Error');
+      } on Error catch (err) {
+        error = err;
+      }
+
+      final client = fixture.getSut();
+      final tr = SentryTransaction(fixture.tracer, throwable: error);
+      await client.captureTransaction(tr);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await transactionFromEnvelope(capturedEnvelope);
+
+      expect(capturedEvent['exception'], isNull);
     });
   });
 
@@ -703,6 +748,16 @@ Future<SentryEvent> eventFromEnvelope(SentryEnvelope envelope) async {
   return SentryEvent.fromJson(envelopeItemJson as Map<String, dynamic>);
 }
 
+Future<Map<String, dynamic>> transactionFromEnvelope(
+    SentryEnvelope envelope) async {
+  final envelopeItemData = <int>[];
+  envelopeItemData.addAll(await envelope.items.first.envelopeItemStream());
+
+  final envelopeItem = utf8.decode(envelopeItemData);
+  final envelopeItemJson = jsonDecode(envelopeItem.split('\n').last);
+  return envelopeItemJson as Map<String, dynamic>;
+}
+
 FutureOr<SentryEvent?> beforeSendCallbackDropEvent(
   SentryEvent event, {
   dynamic hint,
@@ -732,6 +787,8 @@ class Fixture {
   final transport = MockTransport();
 
   final options = SentryOptions(dsn: fakeDsn);
+  late SentryTransactionContext _context;
+  late SentryTracer tracer;
 
   SentryClient getSut({
     bool sendDefaultPii = false,
@@ -740,6 +797,14 @@ class Fixture {
     BeforeSendCallback? beforeSend,
     EventProcessor? eventProcessor,
   }) {
+    final hub = Hub(options);
+    _context = SentryTransactionContext(
+      'name',
+      'op',
+    );
+    tracer = SentryTracer(_context, hub);
+
+    options.tracesSampleRate = 1.0;
     options.sendDefaultPii = sendDefaultPii;
     options.attachStacktrace = attachStacktrace;
     options.sampleRate = sampleRate;
@@ -748,6 +813,9 @@ class Fixture {
       options.addEventProcessor(eventProcessor);
     }
     options.transport = transport;
-    return SentryClient(options);
+    final client = SentryClient(options);
+    // hub.bindClient(client);
+
+    return client;
   }
 }

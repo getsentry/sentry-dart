@@ -9,8 +9,10 @@ class MockHub implements Hub {
   List<AddBreadcrumbCall> addBreadcrumbCalls = [];
   List<SentryClient?> bindClientCalls = [];
   List<SentryUserFeedback> userFeedbackCalls = [];
+  List<SentryTransaction> captureTransactionCalls = [];
   int closeCalls = 0;
   bool _isEnabled = true;
+  int spanContextCals = 0;
 
   /// Useful for tests.
   void reset() {
@@ -21,6 +23,8 @@ class MockHub implements Hub {
     bindClientCalls = [];
     closeCalls = 0;
     _isEnabled = true;
+    spanContextCals = 0;
+    captureTransactionCalls = [];
   }
 
   @override
@@ -103,8 +107,10 @@ class MockHub implements Hub {
   SentryId get lastEventId => SentryId.empty();
 
   @override
-  Future<SentryId> captureTransaction(SentryTransaction transaction) async =>
-      SentryId.empty();
+  Future<SentryId> captureTransaction(SentryTransaction transaction) async {
+    captureTransactionCalls.add(transaction);
+    return transaction.eventId;
+  }
 
   @override
   Future<SentryId> captureUserFeedback(SentryUserFeedback userFeedback) async {
@@ -138,7 +144,9 @@ class MockHub implements Hub {
   }
 
   @override
-  void setSpanContext(throwable, ISentrySpan span, String transaction) {}
+  void setSpanContext(throwable, ISentrySpan span, String transaction) {
+    spanContextCals++;
+  }
 }
 
 class CaptureEventCall {

@@ -34,9 +34,8 @@ class NoOpSentrySpan extends ISentrySpan {
   void setTag(String key, String value) {}
 
   @override
-  ISentrySpan startChild(String operation, {String? description}) {
-    return NoOpSentrySpan();
-  }
+  ISentrySpan startChild(String operation, {String? description}) =>
+      NoOpSentrySpan();
 
   @override
   SentrySpanContext get context => _spanContext;

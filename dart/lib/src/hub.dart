@@ -442,7 +442,9 @@ class Hub {
         }
       }
       // probably not going to work if throwable are from spans
-      _throwableToSpan.remove(transaction.throwable);
+      if (transaction.throwable != null) {
+        _throwableToSpan.remove(transaction.throwable);
+      }
     }
     return sentryId;
   }

@@ -67,6 +67,7 @@ class HubAdapter implements Hub {
         template: template,
         params: params,
         hint: hint,
+        withScope: withScope,
       );
 
   @override
@@ -86,14 +87,11 @@ class HubAdapter implements Hub {
   SentryId get lastEventId => Sentry.lastEventId;
 
   @override
-  Future<SentryId> captureTransaction(SentryTransaction transaction) {
-    return Sentry.currentHub.captureTransaction(transaction);
-  }
+  Future<SentryId> captureTransaction(SentryTransaction transaction) =>
+      Sentry.currentHub.captureTransaction(transaction);
 
   @override
-  ISentrySpan? getSpan() {
-    return Sentry.currentHub.getSpan();
-  }
+  ISentrySpan? getSpan() => Sentry.currentHub.getSpan();
 
   @override
   Future captureUserFeedback(SentryUserFeedback userFeedback) =>
@@ -104,13 +102,12 @@ class HubAdapter implements Hub {
     SentryTransactionContext transactionContext, {
     Map<String, dynamic>? customSamplingContext,
     bool? bindToScope,
-  }) {
-    return Sentry.startTransactionWithContext(
-      transactionContext,
-      customSamplingContext: customSamplingContext,
-      bindToScope: bindToScope,
-    );
-  }
+  }) =>
+      Sentry.startTransactionWithContext(
+        transactionContext,
+        customSamplingContext: customSamplingContext,
+        bindToScope: bindToScope,
+      );
 
   @override
   ISentrySpan startTransaction(
@@ -119,18 +116,20 @@ class HubAdapter implements Hub {
     String? description,
     bool? bindToScope,
     Map<String, dynamic>? customSamplingContext,
-  }) {
-    return Sentry.startTransaction(
-      name,
-      operation,
-      description: description,
-      bindToScope: bindToScope,
-      customSamplingContext: customSamplingContext,
-    );
-  }
+  }) =>
+      Sentry.startTransaction(
+        name,
+        operation,
+        description: description,
+        bindToScope: bindToScope,
+        customSamplingContext: customSamplingContext,
+      );
 
   @override
-  void setSpanContext(throwable, ISentrySpan span, String transaction) {
-    Sentry.currentHub.setSpanContext(throwable, span, transaction);
-  }
+  void setSpanContext(
+    dynamic throwable,
+    ISentrySpan span,
+    String transaction,
+  ) =>
+      Sentry.currentHub.setSpanContext(throwable, span, transaction);
 }

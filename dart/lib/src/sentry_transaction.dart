@@ -1,7 +1,10 @@
+import 'package:meta/meta.dart';
+
 import '../sentry.dart';
 import 'sentry_tracer.dart';
 import 'utils.dart';
 
+@immutable
 class SentryTransaction extends SentryEvent {
   late final DateTime startTimestamp;
   static const String _type = 'transaction';
@@ -53,6 +56,7 @@ class SentryTransaction extends SentryEvent {
 
     this.contexts.trace = spanContext.toTraceContext(
       sampled: _tracer.sampled,
+      status: _tracer.status,
     );
   }
 

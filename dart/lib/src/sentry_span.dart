@@ -119,4 +119,6 @@ class SentrySpan extends ISentrySpan {
   set throwable(throwable) => _throwable = throwable;
 
   Map<String, String> get tags => _tags;
+
+  Map<String, dynamic> get data => _data;
 }

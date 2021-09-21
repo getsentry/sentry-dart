@@ -251,7 +251,7 @@ class Sentry {
 
   // missing traceHeaders
 
-  ISentrySpan? getSpan() => _hub.getSpan();
+  static ISentrySpan? getSpan() => _hub.getSpan();
 
   @internal
   static Hub get currentHub => _hub;
