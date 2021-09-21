@@ -5,7 +5,11 @@ import 'package:test/test.dart';
 import 'mocks/mock_hub.dart';
 
 void main() {
-  final fixture = Fixture();
+  late Fixture fixture;
+
+  setUp(() async {
+    fixture = Fixture();
+  });
 
   test('tracer sets name', () {
     final sut = fixture.getSut();
@@ -98,7 +102,7 @@ void main() {
     final childSpan = tr.spans.first;
 
     expect(childSpan.context.description, 'desc');
-    expect(childSpan.context.operation, 'operation');
+    expect(childSpan.context.operation, 'op');
     expect(childSpan.context.parentSpanId.toString(), parentId.toString());
   });
 }
