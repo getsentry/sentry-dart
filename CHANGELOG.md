@@ -1,5 +1,7 @@
 # Unreleased
 
+* Performance API for Dart/Flutter (#530)
+
 # 6.0.1
 
 * Fix: Set custom SentryHttpClientError when HTTP error is captured without an exception (#580)
