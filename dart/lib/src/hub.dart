@@ -30,7 +30,7 @@ class Hub {
 
   late SentryTracesSampler _tracesSampler;
 
-  final Map<dynamic, _Pair<ISentrySpan, String>> _throwableToSpan = {};
+  final _WeakMap _throwableToSpan = _WeakMap();
 
   factory Hub(SentryOptions options) {
     _validateOptions(options);
@@ -441,10 +441,6 @@ class Hub {
           );
         }
       }
-      // probably not going to work if throwable are from spans
-      if (transaction.throwable != null) {
-        _throwableToSpan.remove(transaction.throwable);
-      }
     }
     return sentryId;
   }
@@ -454,17 +450,14 @@ class Hub {
     dynamic throwable,
     ISentrySpan span,
     String transaction,
-  ) {
-    if (throwable != null && !_throwableToSpan.containsKey(throwable)) {
-      _throwableToSpan[throwable] = _Pair(span, transaction);
-    }
-  }
+  ) =>
+      _throwableToSpan.add(throwable, span, transaction);
 
   SentryEvent _assignTraceContext(SentryEvent event) {
     // assign trace context
     if (event.throwable != null && event.contexts.trace == null) {
       // set span to event.contexts.trace
-      final pair = _throwableToSpan[event.throwable];
+      final pair = _throwableToSpan.get(event.throwable);
       if (pair != null) {
         final span = pair.first;
         final spanContext = span.context;
@@ -495,4 +488,25 @@ class _Pair<A, B> {
   final B second;
 
   _Pair(this.first, this.second);
+}
+
+class _WeakMap {
+  final _expando = Expando();
+
+  void add(
+    dynamic throwable,
+    ISentrySpan span,
+    String transaction,
+  ) {
+    if (throwable != null && _expando[throwable] == null) {
+      _expando[throwable] = _Pair(span, transaction);
+    }
+  }
+
+  _Pair<ISentrySpan, String>? get(dynamic throwable) {
+    if (throwable == null) {
+      return null;
+    }
+    return _expando[throwable] as _Pair<ISentrySpan, String>?;
+  }
 }
