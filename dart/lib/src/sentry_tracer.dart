@@ -6,7 +6,7 @@ import 'tracing.dart';
 @internal
 class SentryTracer extends ISentrySpan {
   final Hub _hub;
-  late final String name;
+  late String name;
 
   // missing waitForChildren
 

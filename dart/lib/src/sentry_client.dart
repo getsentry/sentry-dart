@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:meta/meta.dart';
 
 import 'event_processor.dart';
-import 'protocol/sentry_thread.dart';
 import 'sentry_user_feedback.dart';
 import 'transport/rate_limiter.dart';
 import 'protocol.dart';

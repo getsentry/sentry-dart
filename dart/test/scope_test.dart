@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/sentry_tracer.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
+import 'mocks/mock_hub.dart';
 
 void main() {
   late Fixture fixture;
@@ -27,6 +29,27 @@ void main() {
     sut.transaction = 'test';
 
     expect(sut.transaction, 'test');
+  });
+
+  test('sets transaction overwrites span name', () {
+    final sut = fixture.getSut();
+
+    final tracer = SentryTracer(fixture.context, MockHub());
+    sut.span = tracer;
+    sut.transaction = 'test';
+
+    expect(sut.transaction, 'test');
+    expect((sut.span as SentryTracer).name, 'test');
+  });
+
+  test('sets span overwrites transaction name', () {
+    final sut = fixture.getSut();
+
+    final tracer = SentryTracer(fixture.context, MockHub());
+    sut.span = tracer;
+
+    expect(sut.transaction, 'name');
+    expect((sut.span as SentryTracer).name, 'name');
   });
 
   test('sets $SentryUser', () {
@@ -231,6 +254,7 @@ void main() {
 
     sut.level = SentryLevel.debug;
     sut.transaction = 'test';
+    sut.span = null;
 
     final user = SentryUser(id: 'test');
     sut.user = user;
@@ -250,6 +274,7 @@ void main() {
     expect(sut.level, null);
 
     expect(sut.transaction, null);
+    expect(sut.span, null);
 
     expect(sut.user, null);
 
@@ -271,6 +296,7 @@ void main() {
     ));
     sut.addAttachment(SentryAttachment.fromIntList([0, 0, 0, 0], 'test.txt'));
     sut.span = NoOpSentrySpan();
+    sut.level = SentryLevel.warning;
 
     final clone = sut.clone();
     expect(sut.user, clone.user);
@@ -280,6 +306,7 @@ void main() {
     expect(sut.breadcrumbs, clone.breadcrumbs);
     expect(sut.contexts, clone.contexts);
     expect(sut.attachements, clone.attachements);
+    expect(sut.level, clone.level);
     expect(ListEquality().equals(sut.fingerprint, clone.fingerprint), true);
     expect(
       ListEquality().equals(sut.eventProcessors, clone.eventProcessors),
@@ -327,6 +354,16 @@ void main() {
       expect(
           updatedEvent?.extra, {'e-infos': 'abc', 'company-name': 'Dart Inc'});
       expect(updatedEvent?.contexts['theme'], {'value': 'material'});
+    });
+
+    test('apply trace context to event', () async {
+      final tracer = SentryTracer(fixture.context, MockHub());
+      final event = SentryEvent();
+      final scope = Scope(SentryOptions(dsn: fakeDsn))..span = tracer;
+
+      final updatedEvent = await scope.applyToEvent(event);
+
+      expect(updatedEvent?.contexts['trace'] is SentryTraceContext, true);
     });
 
     test('should not apply the scope properties when event already has it ',
@@ -461,9 +498,34 @@ void main() {
 
     expect(newEvent, isNull);
   });
+
+  test('should not apply fingerprint if transaction', () async {
+    final tracer = SentryTracer(fixture.context, MockHub());
+    var tr = SentryTransaction(tracer);
+    final scope = Scope(SentryOptions(dsn: fakeDsn))..fingerprint = ['test'];
+
+    final updatedTr = await scope.applyToEvent(tr);
+
+    expect(updatedTr?.fingerprint, isNull);
+  });
+
+  test('should not apply level if transaction', () async {
+    final tracer = SentryTracer(fixture.context, MockHub());
+    var tr = SentryTransaction(tracer);
+    final scope = Scope(SentryOptions(dsn: fakeDsn))..level = SentryLevel.error;
+
+    final updatedTr = await scope.applyToEvent(tr);
+
+    expect(updatedTr?.level, isNull);
+  });
 }
 
 class Fixture {
+  final context = SentryTransactionContext(
+    'name',
+    'op',
+  );
+
   Scope getSut({
     int maxBreadcrumbs = 100,
     BeforeBreadcrumbCallback? beforeBreadcrumbCallback,

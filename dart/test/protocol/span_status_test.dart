@@ -74,7 +74,65 @@ void main() {
     expect(SpanStatus.unauthenticated().toString(), 'unauthenticated');
   });
 
-  test('fromHttpStatusCode returns ok if 200', () {
+  test('fromHttpStatusCode returns ok if 200 to 299', () {
     expect(SpanStatus.fromHttpStatusCode(200), SpanStatus.ok());
+    expect(SpanStatus.fromHttpStatusCode(299), SpanStatus.ok());
+  });
+
+  test('fromHttpStatusCode returns cancelled if 499', () {
+    expect(SpanStatus.fromHttpStatusCode(499), SpanStatus.cancelled());
+  });
+
+  test('fromHttpStatusCode returns unknown if 500', () {
+    expect(SpanStatus.fromHttpStatusCode(500), SpanStatus.unknown());
+  });
+
+  test('fromHttpStatusCode returns invalid argument if 500', () {
+    expect(SpanStatus.fromHttpStatusCode(400), SpanStatus.invalidArgument());
+  });
+
+  test('fromHttpStatusCode returns invalid argument if 504', () {
+    expect(SpanStatus.fromHttpStatusCode(504), SpanStatus.deadlineExceeded());
+  });
+
+  test('fromHttpStatusCode returns not found if 404', () {
+    expect(SpanStatus.fromHttpStatusCode(404), SpanStatus.notFound());
+  });
+
+  test('fromHttpStatusCode returns already exists if 409', () {
+    expect(SpanStatus.fromHttpStatusCode(409), SpanStatus.alreadyExists());
+  });
+
+  test('fromHttpStatusCode returns permissionDenied if 403', () {
+    expect(SpanStatus.fromHttpStatusCode(403), SpanStatus.permissionDenied());
+  });
+
+  test('fromHttpStatusCode returns resourceExhausted if 429', () {
+    expect(SpanStatus.fromHttpStatusCode(429), SpanStatus.resourceExhausted());
+  });
+
+  test('fromHttpStatusCode returns unimplemented if 501', () {
+    expect(SpanStatus.fromHttpStatusCode(501), SpanStatus.unimplemented());
+  });
+
+  test('fromHttpStatusCode returns unavailable if 503', () {
+    expect(SpanStatus.fromHttpStatusCode(503), SpanStatus.unavailable());
+  });
+
+  test('fromHttpStatusCode returns unauthenticated if 401', () {
+    expect(SpanStatus.fromHttpStatusCode(401), SpanStatus.unauthenticated());
+  });
+
+  test('fromHttpStatusCode returns unknownError if not found', () {
+    expect(SpanStatus.fromHttpStatusCode(100), SpanStatus.unknownError());
+  });
+
+  test('fromHttpStatusCode returns fallback if not found', () {
+    expect(
+        SpanStatus.fromHttpStatusCode(
+          101,
+          fallback: SpanStatus.aborted(),
+        ),
+        SpanStatus.aborted());
   });
 }

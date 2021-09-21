@@ -16,7 +16,12 @@ void main() {
     var anException = Exception();
 
     setUp(() async {
-      await Sentry.init((options) => options.dsn = fakeDsn);
+      await Sentry.init(
+        (options) => {
+          options.dsn = fakeDsn,
+          options.tracesSampleRate = 1.0,
+        },
+      );
       anException = Exception('anException');
 
       client = MockSentryClient();
@@ -92,6 +97,33 @@ void main() {
       expect(client.captureMessageCalls.length, 1);
       expect(client.captureMessageCalls.first.formatted, fakeMessage.formatted);
       expect(client.captureMessageCalls.first.scope?.user?.id, 'foo bar');
+    });
+
+    test('should start transaction with given values', () async {
+      final tr = Sentry.startTransaction('name', 'op');
+      await tr.finish();
+
+      expect(client.captureTransactionCalls.length, 1);
+    });
+
+    test('should start transaction with context', () async {
+      final tr = Sentry.startTransactionWithContext(
+          SentryTransactionContext('name', 'operation'));
+      await tr.finish();
+
+      expect(client.captureTransactionCalls.length, 1);
+    });
+
+    test('should return span if bound to the scope', () async {
+      final tr = Sentry.startTransaction('name', 'op', bindToScope: true);
+
+      expect(Sentry.getSpan(), tr);
+    });
+
+    test('should not return span if not bound to the scope', () async {
+      Sentry.startTransaction('name', 'op');
+
+      expect(Sentry.getSpan(), isNull);
     });
   });
 
