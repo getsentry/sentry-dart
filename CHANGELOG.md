@@ -1,7 +1,10 @@
 # Unreleased
 
+# 6.0.1
+
 * Fix: Set custom SentryHttpClientError when HTTP error is captured without an exception (#580)
 * Bump: Android AGP 4.1 (#586)
+* Bump: Sentry Cocoa to 7.3.0 (#589)
 
 # 6.0.0
 
