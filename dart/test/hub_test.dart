@@ -56,12 +56,12 @@ void main() {
     test('should capture exception', () async {
       await hub.captureException(fakeException);
 
-      expect(client.captureExceptionCalls.length, 1);
+      expect(client.captureEventCalls.length, 1);
       expect(
-        client.captureExceptionCalls.first.throwable,
+        client.captureEventCalls.first.event.throwable,
         fakeException,
       );
-      expect(client.captureExceptionCalls.first.scope, isNotNull);
+      expect(client.captureEventCalls.first.scope, isNotNull);
     });
 
     test('should capture message', () async {
@@ -196,16 +196,16 @@ void main() {
       });
       await hub.captureException(Exception('2'));
 
-      var calls = fixture.client.captureExceptionCalls;
+      var calls = fixture.client.captureEventCalls;
       expect(calls.length, 3);
       expect(calls[0].scope?.user, isNull);
-      expect(calls[0].throwable?.toString(), 'Exception: 0');
+      expect(calls[0].event.throwable?.toString(), 'Exception: 0');
 
       expect(calls[1].scope?.user?.id, 'foo bar');
-      expect(calls[1].throwable?.toString(), 'Exception: 1');
+      expect(calls[1].event.throwable?.toString(), 'Exception: 1');
 
       expect(calls[2].scope?.user, isNull);
-      expect(calls[2].throwable?.toString(), 'Exception: 2');
+      expect(calls[2].event.throwable?.toString(), 'Exception: 2');
     });
 
     test('captureMessage should create a new scope', () async {

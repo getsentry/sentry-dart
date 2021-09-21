@@ -50,24 +50,24 @@ void main() {
 
     test('should not capture a null exception', () async {
       await Sentry.captureException(null);
-      expect(client.captureExceptionCalls.length, 0);
+      expect(client.captureEventCalls.length, 0);
     });
 
     test('should capture the exception', () async {
       await Sentry.captureException(anException);
-      expect(client.captureExceptionCalls.length, 1);
-      expect(client.captureExceptionCalls.first.throwable, anException);
-      expect(client.captureExceptionCalls.first.stackTrace, isNull);
-      expect(client.captureExceptionCalls.first.scope, isNotNull);
+      expect(client.captureEventCalls.length, 1);
+      expect(client.captureEventCalls.first.event.throwable, anException);
+      expect(client.captureEventCalls.first.stackTrace, isNull);
+      expect(client.captureEventCalls.first.scope, isNotNull);
     });
 
     test('should capture exception withScope', () async {
       await Sentry.captureException(anException, withScope: (scope) {
         scope.user = SentryUser(id: 'foo bar');
       });
-      expect(client.captureExceptionCalls.length, 1);
-      expect(client.captureExceptionCalls.first.throwable, anException);
-      expect(client.captureExceptionCalls.first.scope?.user?.id, 'foo bar');
+      expect(client.captureEventCalls.length, 1);
+      expect(client.captureEventCalls.first.event.throwable, anException);
+      expect(client.captureEventCalls.first.scope?.user?.id, 'foo bar');
     });
 
     test('should capture message', () async {
