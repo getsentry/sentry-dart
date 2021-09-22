@@ -1,6 +1,6 @@
 # Unreleased
 
-* Bump: sentry-android to 5.2.0 (#)
+* Bump: sentry-android to 5.2.0 (#594)
 
 # 6.1.0-alpha.1
 
