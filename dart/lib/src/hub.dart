@@ -459,7 +459,7 @@ class Hub {
       // set span to event.contexts.trace
       final pair = _throwableToSpan.get(event.throwable);
       if (pair != null) {
-        final span = pair.first;
+        final span = pair.key;
         final spanContext = span.context;
         event.contexts.trace = spanContext.toTraceContext(
           sampled: span.sampled,
@@ -467,7 +467,7 @@ class Hub {
 
         // set transaction name to event.transaction
         if (event.transaction == null) {
-          event = event.copyWith(transaction: pair.second);
+          event = event.copyWith(transaction: pair.value);
         }
       }
     }
@@ -483,13 +483,6 @@ class _StackItem {
   _StackItem(this.client, this.scope);
 }
 
-class _Pair<A, B> {
-  final A first;
-  final B second;
-
-  _Pair(this.first, this.second);
-}
-
 class _WeakMap {
   final _expando = Expando();
 
@@ -499,14 +492,14 @@ class _WeakMap {
     String transaction,
   ) {
     if (throwable != null && _expando[throwable] == null) {
-      _expando[throwable] = _Pair(span, transaction);
+      _expando[throwable] = MapEntry(span, transaction);
     }
   }
 
-  _Pair<ISentrySpan, String>? get(dynamic throwable) {
+  MapEntry<ISentrySpan, String>? get(dynamic throwable) {
     if (throwable == null) {
       return null;
     }
-    return _expando[throwable] as _Pair<ISentrySpan, String>?;
+    return _expando[throwable] as MapEntry<ISentrySpan, String>?;
   }
 }

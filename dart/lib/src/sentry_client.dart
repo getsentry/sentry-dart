@@ -71,7 +71,8 @@ class SentryClient {
     if (scope != null) {
       preparedEvent = await scope.applyToEvent(preparedEvent, hint: hint);
     } else {
-      _options.logger(SentryLevel.debug, 'No scope is defined');
+      _options.logger(
+          SentryLevel.debug, 'No scope to apply on event was provided');
     }
 
     // dropped by scope event processors
@@ -239,7 +240,8 @@ class SentryClient {
       preparedTransaction =
           await scope.applyToEvent(preparedTransaction) as SentryTransaction?;
     } else {
-      _options.logger(SentryLevel.debug, 'No scope is defined');
+      _options.logger(
+          SentryLevel.debug, 'No scope to apply on transaction was provided');
     }
 
     // dropped by scope event processors
