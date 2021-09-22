@@ -1,5 +1,7 @@
 # Unreleased
 
+* Bump: sentry-android to 5.2.0 (#)
+
 # 6.1.0-alpha.1
 
 * Performance API for Dart/Flutter (#530)
