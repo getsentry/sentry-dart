@@ -1,4 +1,5 @@
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/sentry_traces_sampler.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';

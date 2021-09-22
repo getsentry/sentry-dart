@@ -4,6 +4,7 @@ import 'protocol.dart';
 import 'sentry_client.dart';
 import 'sentry_user_feedback.dart';
 import 'tracing.dart';
+import 'noop_sentry_span.dart';
 
 class NoOpHub implements Hub {
   NoOpHub._();

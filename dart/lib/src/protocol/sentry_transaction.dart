@@ -1,8 +1,9 @@
 import 'package:meta/meta.dart';
 
-import '../sentry.dart';
-import 'sentry_tracer.dart';
-import 'utils.dart';
+import '../protocol.dart';
+import '../sentry_tracer.dart';
+import 'sentry_span.dart';
+import '../utils.dart';
 
 @immutable
 class SentryTransaction extends SentryEvent {

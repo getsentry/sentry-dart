@@ -1,9 +1,9 @@
-import 'hub.dart';
-import 'protocol/span_status.dart';
+import '../hub.dart';
+import 'span_status.dart';
 
-import 'sentry_tracer.dart';
-import 'tracing.dart';
-import 'utils.dart';
+import '../sentry_tracer.dart';
+import '../tracing.dart';
+import '../utils.dart';
 
 class SentrySpan extends ISentrySpan {
   final SentrySpanContext _context;

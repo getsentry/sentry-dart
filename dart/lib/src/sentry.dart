@@ -223,6 +223,7 @@ class Sentry {
     return true;
   }
 
+  /// Creates a Transaction and returns the instance.
   static ISentrySpan startTransaction(
     String name,
     String operation, {
@@ -238,6 +239,7 @@ class Sentry {
         customSamplingContext: customSamplingContext,
       );
 
+  /// Creates a Transaction and returns the instance.
   static ISentrySpan startTransactionWithContext(
     SentryTransactionContext transactionContext, {
     Map<String, dynamic>? customSamplingContext,
@@ -251,6 +253,7 @@ class Sentry {
 
   // missing traceHeaders
 
+  /// Gets the current active transaction or span.
   static ISentrySpan? getSpan() => _hub.getSpan();
 
   @internal

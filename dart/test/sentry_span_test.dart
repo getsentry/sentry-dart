@@ -1,5 +1,6 @@
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/protocol/sentry_span.dart';
 import 'package:test/test.dart';
 
 import 'mocks/mock_hub.dart';

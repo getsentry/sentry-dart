@@ -1,3 +1,4 @@
+/// The Span statuses
 class SpanStatus {
   const SpanStatus._(
     this._value,
@@ -136,6 +137,7 @@ class SpanStatus {
     return fallback ?? SpanStatus.unknownError();
   }
 
+  /// Creates SpanStatus from a String.
   factory SpanStatus.fromString(String value) => SpanStatus._(value, 0);
 
   static bool _matches(SpanStatus status, int code) =>

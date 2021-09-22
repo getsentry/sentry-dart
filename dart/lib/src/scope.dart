@@ -12,10 +12,10 @@ class Scope {
   /// How important this event is.
   SentryLevel? level;
 
-  /// The name of the transaction which generated this event,
-  /// for example, the route name: `"/users/<username>/"`.
   String? _transaction;
 
+  /// The name of the transaction which generated this event,
+  /// for example, the route name: `"/users/<username>/"`.
   String? get transaction {
     return ((_span is SentryTracer) ? (_span as SentryTracer?)?.name : null) ??
         _transaction;
@@ -31,8 +31,20 @@ class Scope {
     }
   }
 
-  /// Returns active transaction or null if there is no active transaction.
   ISentrySpan? _span;
+
+  /// Returns active transaction or null if there is no active transaction.
+  ISentrySpan? get span => _span;
+
+  set span(ISentrySpan? span) {
+    _span = span;
+
+    if (_span != null) {
+      final currentTransaction =
+          (_span is SentryTracer) ? (_span as SentryTracer?) : null;
+      _transaction = currentTransaction?.name ?? _transaction;
+    }
+  }
 
   /// Information about the current user.
   SentryUser? user;
@@ -190,18 +202,6 @@ class Scope {
 
   /// Removes an extra from the Scope
   void removeExtra(String key) => _extra.remove(key);
-
-  ISentrySpan? get span => _span;
-
-  set span(ISentrySpan? span) {
-    _span = span;
-
-    if (_span != null) {
-      final currentTransaction =
-          (_span is SentryTracer) ? (_span as SentryTracer?) : null;
-      _transaction = currentTransaction?.name ?? _transaction;
-    }
-  }
 
   Future<SentryEvent?> applyToEvent(
     SentryEvent event, {

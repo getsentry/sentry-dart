@@ -121,6 +121,7 @@ class Contexts extends MapView<String, dynamic> {
 
   set gpu(SentryGpu? gpu) => this[SentryGpu.type] = gpu;
 
+  /// The tracing context of the transaction
   SentryTraceContext? get trace => this[SentryTraceContext.type];
 
   set trace(SentryTraceContext? trace) => this[SentryTraceContext.type] = trace;

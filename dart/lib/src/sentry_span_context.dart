@@ -4,13 +4,23 @@ import '../sentry.dart';
 
 @immutable
 class SentrySpanContext {
+  /// Determines which trace the Span belongs to
   late final SentryId traceId;
+
+  /// Span id
   late final SpanId spanId;
+
+  /// Id of a parent span
   final SpanId? parentSpanId;
+
+  /// Short code identifying the type of operation the span is measuring
   final String operation;
+
+  /// Longer description of the span's operation, which uniquely identifies the span but is
+  /// consistent across instances of the span.
   final String? description;
 
-  /// Item header encoded as JSON
+  /// Item encoded as JSON
   Map<String, dynamic> toJson() {
     return {
       'span_id': spanId.toString(),
@@ -30,6 +40,7 @@ class SentrySpanContext {
   })  : traceId = traceId ?? SentryId.newId(),
         spanId = spanId ?? SpanId.newId();
 
+  @internal
   SentryTraceContext toTraceContext({
     bool? sampled,
     SpanStatus? status,

@@ -179,6 +179,9 @@ class SentryEvent with SentryEventLike<SentryEvent> {
   /// and crash reports.
   final DebugMeta? debugMeta;
 
+  /// The event type determines how Sentry handles the event and has an impact
+  /// on processing, rate limiting, and quotas.
+  /// defaults to 'default'
   final String? type;
 
   @override

@@ -228,6 +228,7 @@ class SentryOptions {
 
   double? _tracesSampleRate;
 
+  /// Returns the traces sample rate Default is null (disabled)
   double? get tracesSampleRate => _tracesSampleRate;
 
   set tracesSampleRate(double? tracesSampleRate) {
@@ -236,6 +237,8 @@ class SentryOptions {
     _tracesSampleRate = tracesSampleRate;
   }
 
+  /// This function is called by [TracesSamplerCallback] to determine if transaction is sampled - meant
+  /// to be sent to Sentry.
   TracesSamplerCallback? tracesSampler;
 
   SentryOptions({this.dsn, PlatformChecker? checker}) {
@@ -289,6 +292,8 @@ class SentryOptions {
     _inAppIncludes.add(inApp);
   }
 
+  /// Returns if tracing should be enabled. If tracing is disabled, starting transactions returns
+  /// [NoOpSentrySpan].
   bool isTracingEnabled() {
     return tracesSampleRate != null || tracesSampler != null;
   }

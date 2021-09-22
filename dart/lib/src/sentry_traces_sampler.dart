@@ -1,8 +1,11 @@
 import 'dart:math';
 
+import 'package:meta/meta.dart';
+
 import '../sentry.dart';
 import 'tracing.dart';
 
+@internal
 class SentryTracesSampler {
   final SentryOptions _options;
   final Random _random;

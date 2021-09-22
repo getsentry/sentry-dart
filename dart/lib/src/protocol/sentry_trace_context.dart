@@ -1,17 +1,31 @@
 import 'package:meta/meta.dart';
 
-import 'protocol.dart';
+import '../protocol.dart';
 
 @immutable
 class SentryTraceContext {
   static const String type = 'trace';
 
+  /// Determines which trace the Span belongs to
   late final SentryId traceId;
+
+  /// Span id
   late final SpanId spanId;
+
+  /// Id of a parent span
   final SpanId? parentSpanId;
+
+  /// Whether the span is sampled or not
   final bool? sampled;
+
+  /// Short code identifying the type of operation the span is measuring
   final String operation;
+
+  /// Longer description of the span's operation, which uniquely identifies the span but is
+  /// consistent across instances of the span.
   final String? description;
+
+  /// The Span status
   final SpanStatus? status;
 
   factory SentryTraceContext.fromJson(Map<String, dynamic> json) {
@@ -30,7 +44,7 @@ class SentryTraceContext {
     );
   }
 
-  /// Item header encoded as JSON
+  /// Item encoded as JSON
   Map<String, dynamic> toJson() {
     return {
       'span_id': spanId.toString(),

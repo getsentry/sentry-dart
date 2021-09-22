@@ -1,4 +1,5 @@
-import '../sentry.dart';
+import 'protocol.dart';
+import 'tracing.dart';
 import 'utils.dart';
 
 class NoOpSentrySpan extends ISentrySpan {

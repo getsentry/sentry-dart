@@ -13,13 +13,13 @@ class SpanId {
       : _id = id?.replaceAll('-', '') ??
             _uuidGenerator.v4().replaceAll('-', '').substring(0, 16);
 
-  /// Generates a new SentryId
+  /// Generates a new SpanId
   SpanId.newId() : this._internal();
 
-  /// Generates a SentryId with the given UUID
+  /// Generates a SpanId with the given UUID
   SpanId.fromId(String id) : this._internal(id: id);
 
-  /// SentryId with an empty UUID
+  /// SpanId with an empty UUID
   const SpanId.empty() : _id = '0000000000000000';
 
   @override

@@ -46,6 +46,7 @@ class SentryEnvelope {
     );
   }
 
+  /// Create an [SentryEnvelope] with containing one [SentryEnvelopeItem] which holds the [SentryTransaction] data.
   factory SentryEnvelope.fromTransaction(
     SentryTransaction transaction,
     SdkVersion sdkVersion,

@@ -3,11 +3,13 @@ import 'dart:collection';
 
 import 'package:meta/meta.dart';
 
+import 'noop_sentry_span.dart';
 import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'sentry_tracer.dart';
+import 'sentry_traces_sampler.dart';
 import 'sentry_user_feedback.dart';
 import 'tracing.dart';
 
@@ -332,6 +334,7 @@ class Hub {
     }
   }
 
+  /// Creates a Transaction and returns the instance.
   ISentrySpan startTransaction(
     String name,
     String operation, {
@@ -349,6 +352,7 @@ class Hub {
         customSamplingContext: customSamplingContext,
       );
 
+  /// Creates a Transaction and returns the instance.
   ISentrySpan startTransactionWithContext(
     SentryTransactionContext transactionContext, {
     Map<String, dynamic>? customSamplingContext,
@@ -388,6 +392,7 @@ class Hub {
     return NoOpSentrySpan();
   }
 
+  /// Gets the current active transaction or span.
   ISentrySpan? getSpan() {
     ISentrySpan? span;
     if (!_isEnabled) {
