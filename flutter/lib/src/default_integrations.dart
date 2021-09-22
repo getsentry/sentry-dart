@@ -345,6 +345,10 @@ class _LoadAndroidImageListIntegrationEventProcessor extends EventProcessor {
 
   @override
   FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {
+    if (event is SentryTransaction) {
+      return event;
+    }
+
     try {
       final exceptions = event.exceptions;
       if (exceptions != null && exceptions.first.stackTrace != null) {

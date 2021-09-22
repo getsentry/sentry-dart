@@ -9,6 +9,7 @@ import 'event_processor.dart';
 import 'integration.dart';
 import 'noop_client.dart';
 import 'protocol.dart';
+import 'tracing.dart';
 import 'transport/noop_transport.dart';
 import 'transport/transport.dart';
 import 'utils.dart';
@@ -225,6 +226,21 @@ class SentryOptions {
     _maxDeduplicationItems = count;
   }
 
+  double? _tracesSampleRate;
+
+  /// Returns the traces sample rate Default is null (disabled)
+  double? get tracesSampleRate => _tracesSampleRate;
+
+  set tracesSampleRate(double? tracesSampleRate) {
+    assert(tracesSampleRate == null ||
+        (tracesSampleRate >= 0 && tracesSampleRate <= 1));
+    _tracesSampleRate = tracesSampleRate;
+  }
+
+  /// This function is called by [TracesSamplerCallback] to determine if transaction is sampled - meant
+  /// to be sent to Sentry.
+  TracesSamplerCallback? tracesSampler;
+
   SentryOptions({this.dsn, PlatformChecker? checker}) {
     if (checker != null) {
       platformChecker = checker;
@@ -275,6 +291,12 @@ class SentryOptions {
   void addInAppInclude(String inApp) {
     _inAppIncludes.add(inApp);
   }
+
+  /// Returns if tracing should be enabled. If tracing is disabled, starting transactions returns
+  /// [NoOpSentrySpan].
+  bool isTracingEnabled() {
+    return tracesSampleRate != null || tracesSampler != null;
+  }
 }
 
 /// This function is called with an SDK specific event object and can return a modified event
@@ -301,6 +323,9 @@ typedef SentryLogger = void Function(
   Object? exception,
   StackTrace? stackTrace,
 });
+
+typedef TracesSamplerCallback = double? Function(
+    SentrySamplingContext samplingContext);
 
 /// A NoOp logger that does nothing
 void noOpLogger(

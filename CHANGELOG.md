@@ -1,5 +1,12 @@
 # Unreleased
 
+* Performance API for Dart/Flutter (#530)
+
+## Breaking Changes:
+
+* `SentryEvent` inherits from the `SentryEventLike` mixin
+* `Scope#transaction` sets and reads from the `Scope#span` object if bound to the Scope
+
 # 6.0.1
 
 * Fix: Set custom SentryHttpClientError when HTTP error is captured without an exception (#580)

@@ -27,6 +27,10 @@ class DeduplicationEventProcessor extends EventProcessor {
 
   @override
   FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) {
+    if (event is SentryTransaction) {
+      return event;
+    }
+
     if (!_options.enableDeduplication) {
       _options.logger(SentryLevel.debug, 'Deduplication is disabled');
       return event;
@@ -59,7 +63,7 @@ class DeduplicationEventProcessor extends EventProcessor {
     // No duplication detected
     _exceptionToDeduplicate.add(exceptionHashCode);
     if (_exceptionToDeduplicate.length > _options.maxDeduplicationItems) {
-      _exceptionToDeduplicate.removeLast();
+      _exceptionToDeduplicate.removeFirst();
     }
     return event;
   }

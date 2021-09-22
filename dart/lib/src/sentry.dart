@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:meta/meta.dart';
+
 import 'default_integrations.dart';
 import 'enricher/enricher_event_processor.dart';
 import 'environment/environment_variables.dart';
@@ -14,6 +16,7 @@ import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'integration.dart';
 import 'sentry_user_feedback.dart';
+import 'tracing.dart';
 
 /// Configuration options callback
 typedef OptionsConfiguration = FutureOr<void> Function(SentryOptions);
@@ -219,4 +222,40 @@ class Sentry {
 
     return true;
   }
+
+  /// Creates a Transaction and returns the instance.
+  static ISentrySpan startTransaction(
+    String name,
+    String operation, {
+    String? description,
+    bool? bindToScope,
+    Map<String, dynamic>? customSamplingContext,
+  }) =>
+      _hub.startTransaction(
+        name,
+        operation,
+        description: description,
+        bindToScope: bindToScope,
+        customSamplingContext: customSamplingContext,
+      );
+
+  /// Creates a Transaction and returns the instance.
+  static ISentrySpan startTransactionWithContext(
+    SentryTransactionContext transactionContext, {
+    Map<String, dynamic>? customSamplingContext,
+    bool? bindToScope,
+  }) =>
+      _hub.startTransactionWithContext(
+        transactionContext,
+        customSamplingContext: customSamplingContext,
+        bindToScope: bindToScope,
+      );
+
+  // missing traceHeaders
+
+  /// Gets the current active transaction or span.
+  static ISentrySpan? getSpan() => _hub.getSpan();
+
+  @internal
+  static Hub get currentHub => _hub;
 }

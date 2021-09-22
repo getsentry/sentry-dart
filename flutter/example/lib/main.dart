@@ -18,6 +18,8 @@ Future<void> main() async {
   await SentryFlutter.init(
     (options) {
       options.dsn = _exampleDsn;
+      options.tracesSampleRate = 1.0;
+      options.reportPackages = false;
     },
     // Init your App.
     appRunner: () => runApp(MyApp()),
@@ -187,6 +189,51 @@ class MainScaffold extends StatelessWidget {
                     scope.setTag('foo', 'bar');
                   },
                 );
+              },
+            ),
+            RaisedButton(
+              child: const Text('Capture transaction'),
+              onPressed: () async {
+                final transaction = Sentry.startTransaction(
+                  'myNewTrWithError3',
+                  'myNewOp',
+                  description: 'myTr myOp',
+                );
+                transaction.setTag('myTag', 'myValue');
+                transaction.setData('myExtra', 'myExtraValue');
+
+                await Future.delayed(Duration(milliseconds: 50));
+
+                final span = transaction.startChild(
+                  'childOfMyOp',
+                  description: 'childOfMyOp span',
+                );
+                span.setTag('myNewTag', 'myNewValue');
+                span.setData('myNewData', 'myNewDataValue');
+
+                await Future.delayed(Duration(milliseconds: 70));
+
+                await span.finish(status: SpanStatus.resourceExhausted());
+
+                await Future.delayed(Duration(milliseconds: 90));
+
+                final spanChild = span.startChild(
+                  'childOfChildOfMyOp',
+                  description: 'childOfChildOfMyOp span',
+                );
+
+                await Future.delayed(Duration(milliseconds: 110));
+
+                spanChild.startChild(
+                  'unfinishedChild',
+                  description: 'I wont finish',
+                );
+
+                await spanChild.finish(status: SpanStatus.internalError());
+
+                await Future.delayed(Duration(milliseconds: 50));
+
+                await transaction.finish(status: SpanStatus.ok());
               },
             ),
             RaisedButton(

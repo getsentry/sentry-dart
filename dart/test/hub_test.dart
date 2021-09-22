@@ -1,6 +1,8 @@
 import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/hub.dart';
+import 'package:sentry/src/noop_sentry_span.dart';
+import 'package:sentry/src/sentry_tracer.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
@@ -26,61 +28,253 @@ void main() {
   });
 
   group('Hub captures', () {
-    var options = SentryOptions(dsn: fakeDsn);
-    var hub = Hub(options);
-    var client = MockSentryClient();
+    late Fixture fixture;
 
     setUp(() {
-      options = SentryOptions(dsn: fakeDsn);
-      hub = Hub(options);
-      client = MockSentryClient();
-      hub.bindClient(client);
+      fixture = Fixture();
     });
 
     test(
       'should capture event with the default scope',
       () async {
+        final hub = fixture.getSut();
         await hub.captureEvent(fakeEvent);
 
-        var scope = client.captureEventCalls.first.scope;
+        var scope = fixture.client.captureEventCalls.first.scope;
 
         expect(
-          client.captureEventCalls.first.event,
+          fixture.client.captureEventCalls.first.event,
           fakeEvent,
         );
 
-        expect(scopeEquals(scope, Scope(options)), true);
+        expect(scopeEquals(scope, Scope(fixture.options)), true);
       },
     );
 
     test('should capture exception', () async {
+      final hub = fixture.getSut();
       await hub.captureException(fakeException);
 
-      expect(client.captureExceptionCalls.length, 1);
+      expect(fixture.client.captureEventCalls.length, 1);
       expect(
-        client.captureExceptionCalls.first.throwable,
+        fixture.client.captureEventCalls.first.event.throwable,
         fakeException,
       );
-      expect(client.captureExceptionCalls.first.scope, isNotNull);
+      expect(fixture.client.captureEventCalls.first.scope, isNotNull);
     });
 
     test('should capture message', () async {
+      final hub = fixture.getSut();
       await hub.captureMessage(
         fakeMessage.formatted,
         level: SentryLevel.warning,
       );
 
-      expect(client.captureMessageCalls.length, 1);
-      expect(client.captureMessageCalls.first.formatted, fakeMessage.formatted);
-      expect(client.captureMessageCalls.first.level, SentryLevel.warning);
-      expect(client.captureMessageCalls.first.scope, isNotNull);
+      expect(fixture.client.captureMessageCalls.length, 1);
+      expect(fixture.client.captureMessageCalls.first.formatted,
+          fakeMessage.formatted);
+      expect(
+          fixture.client.captureMessageCalls.first.level, SentryLevel.warning);
+      expect(fixture.client.captureMessageCalls.first.scope, isNotNull);
     });
 
     test('should save the lastEventId', () async {
+      final hub = fixture.getSut();
       final event = SentryEvent();
       final eventId = event.eventId;
       final returnedId = await hub.captureEvent(event);
       expect(eventId.toString(), returnedId.toString());
+    });
+
+    test('capture event should assign trace context', () async {
+      final hub = fixture.getSut();
+
+      final event = SentryEvent(throwable: fakeException);
+      final span = NoOpSentrySpan();
+      hub.setSpanContext(fakeException, span, 'test');
+
+      await hub.captureEvent(event);
+      final capturedEvent = fixture.client.captureEventCalls.first;
+
+      expect(capturedEvent.event.transaction, 'test');
+      expect(capturedEvent.event.contexts.trace, isNotNull);
+    });
+
+    test('capture exception should assign trace context', () async {
+      final hub = fixture.getSut();
+
+      final span = NoOpSentrySpan();
+      hub.setSpanContext(fakeException, span, 'test');
+
+      await hub.captureException(fakeException);
+      final capturedEvent = fixture.client.captureEventCalls.first;
+
+      expect(capturedEvent.event.transaction, 'test');
+      expect(capturedEvent.event.contexts.trace, isNotNull);
+    });
+  });
+
+  group('Hub captures', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('start transaction with given name, op and desc', () async {
+      final hub = fixture.getSut();
+
+      final tr = hub.startTransaction(
+        'name',
+        'op',
+        description: 'desc',
+      );
+
+      expect(tr.context.operation, 'op');
+      expect(tr.context.description, 'desc');
+      expect((tr as SentryTracer).name, 'name');
+    });
+
+    test('start transaction binds span to the scope', () async {
+      final hub = fixture.getSut();
+
+      final tr = hub.startTransaction(
+        'name',
+        'op',
+        description: 'desc',
+        bindToScope: true,
+      );
+
+      hub.configureScope((Scope scope) {
+        expect(scope.span, tr);
+      });
+    });
+
+    test('start transaction does not bind span to the scope', () async {
+      final hub = fixture.getSut();
+
+      hub.startTransaction(
+        'name',
+        'op',
+        description: 'desc',
+      );
+
+      hub.configureScope((Scope scope) {
+        expect(scope.span, isNull);
+      });
+    });
+
+    test('start transaction samples the transaction', () async {
+      final hub = fixture.getSut();
+
+      final tr = hub.startTransaction(
+        'name',
+        'op',
+        description: 'desc',
+      );
+
+      expect(tr.sampled, true);
+    });
+
+    test('start transaction does not sample the transaction', () async {
+      final hub = fixture.getSut(tracesSampleRate: 0.0);
+
+      final tr = hub.startTransaction(
+        'name',
+        'op',
+        description: 'desc',
+      );
+
+      expect(tr.sampled, false);
+    });
+
+    test('start transaction runs callback with customSamplingContext',
+        () async {
+      double? mySampling(SentrySamplingContext samplingContext) {
+        expect(samplingContext.customSamplingContext['test'], '1');
+        return 0.0;
+      }
+
+      final hub = fixture.getSut(
+        tracesSampleRate: null,
+        tracesSampler: mySampling,
+      );
+      final map = {'test': '1'};
+
+      final tr = hub.startTransaction(
+        'name',
+        'op',
+        description: 'desc',
+        customSamplingContext: map,
+      );
+
+      expect(tr.sampled, false);
+    });
+
+    test('start transaction respects given sampled', () async {
+      final hub = fixture.getSut();
+
+      final tr = hub.startTransactionWithContext(
+        SentryTransactionContext('name', 'op', sampled: false),
+      );
+
+      expect(tr.sampled, false);
+    });
+
+    test('start transaction return NoOp if performance is disabled', () async {
+      final hub = fixture.getSut(tracesSampleRate: null);
+
+      final tr = hub.startTransaction(
+        'name',
+        'op',
+        description: 'desc',
+      );
+
+      expect(tr, NoOpSentrySpan());
+    });
+
+    test('get span returns span bound to the scope', () async {
+      final hub = fixture.getSut();
+
+      final tr = hub.startTransaction(
+        'name',
+        'op',
+        description: 'desc',
+        bindToScope: true,
+      );
+
+      expect(hub.getSpan(), tr);
+    });
+
+    test('get span does not return span if not bound to the scope', () async {
+      final hub = fixture.getSut();
+
+      hub.startTransaction(
+        'name',
+        'op',
+        description: 'desc',
+      );
+
+      expect(hub.getSpan(), isNull);
+    });
+
+    test('transaction isnt captured if not sampled', () async {
+      final hub = fixture.getSut(sampled: false);
+
+      var tr = SentryTransaction(fixture.tracer);
+      final id = await hub.captureTransaction(tr);
+
+      expect(id, SentryId.empty());
+    });
+
+    test('transaction is captured', () async {
+      final hub = fixture.getSut();
+
+      var tr = SentryTransaction(fixture.tracer);
+      final id = await hub.captureTransaction(tr);
+
+      expect(id, tr.eventId);
+      expect(fixture.client.captureTransactionCalls.length, 1);
     });
   });
 
@@ -196,16 +390,16 @@ void main() {
       });
       await hub.captureException(Exception('2'));
 
-      var calls = fixture.client.captureExceptionCalls;
+      var calls = fixture.client.captureEventCalls;
       expect(calls.length, 3);
       expect(calls[0].scope?.user, isNull);
-      expect(calls[0].throwable?.toString(), 'Exception: 0');
+      expect(calls[0].event.throwable?.toString(), 'Exception: 0');
 
       expect(calls[1].scope?.user?.id, 'foo bar');
-      expect(calls[1].throwable?.toString(), 'Exception: 1');
+      expect(calls[1].event.throwable?.toString(), 'Exception: 1');
 
       expect(calls[2].scope?.user, isNull);
-      expect(calls[2].throwable?.toString(), 'Exception: 2');
+      expect(calls[2].event.throwable?.toString(), 'Exception: 2');
     });
 
     test('captureMessage should create a new scope', () async {
@@ -231,11 +425,28 @@ void main() {
 }
 
 class Fixture {
-  final MockSentryClient client = MockSentryClient();
-  final SentryOptions options = SentryOptions(dsn: fakeDsn);
+  final client = MockSentryClient();
+  final options = SentryOptions(dsn: fakeDsn);
+  late SentryTransactionContext _context;
+  late SentryTracer tracer;
 
-  Hub getSut() {
+  Hub getSut({
+    double? tracesSampleRate = 1.0,
+    TracesSamplerCallback? tracesSampler,
+    bool? sampled = true,
+  }) {
+    options.tracesSampleRate = tracesSampleRate;
+    options.tracesSampler = tracesSampler;
     final hub = Hub(options);
+
+    _context = SentryTransactionContext(
+      'name',
+      'op',
+      sampled: sampled,
+    );
+
+    tracer = SentryTracer(_context, hub);
+
     hub.bindClient(client);
     return hub;
   }

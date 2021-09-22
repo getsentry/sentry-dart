@@ -24,3 +24,5 @@ export 'src/event_processor.dart';
 export 'src/http_client/sentry_http_client.dart';
 export 'src/sentry_attachment/sentry_attachment.dart';
 export 'src/sentry_user_feedback.dart';
+// tracing
+export 'src/tracing.dart';

@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'protocol.dart';
 import 'sentry_item_type.dart';
 import 'sentry_options.dart';
 import 'utils.dart';
@@ -43,6 +43,17 @@ class SentryEnvelope {
     return SentryEnvelope(
       SentryEnvelopeHeader(feedback.eventId, sdkVersion),
       [SentryEnvelopeItem.fromUserFeedback(feedback)],
+    );
+  }
+
+  /// Create an [SentryEnvelope] with containing one [SentryEnvelopeItem] which holds the [SentryTransaction] data.
+  factory SentryEnvelope.fromTransaction(
+    SentryTransaction transaction,
+    SdkVersion sdkVersion,
+  ) {
+    return SentryEnvelope(
+      SentryEnvelopeHeader(transaction.eventId, sdkVersion),
+      [SentryEnvelopeItem.fromTransaction(transaction)],
     );
   }
 

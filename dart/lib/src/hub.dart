@@ -1,11 +1,17 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:meta/meta.dart';
+
+import 'noop_sentry_span.dart';
 import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
+import 'sentry_tracer.dart';
+import 'sentry_traces_sampler.dart';
 import 'sentry_user_feedback.dart';
+import 'tracing.dart';
 
 /// Configures the scope through the callback.
 typedef ScopeCallback = void Function(Scope);
@@ -24,6 +30,10 @@ class Hub {
 
   final SentryOptions _options;
 
+  late SentryTracesSampler _tracesSampler;
+
+  final _WeakMap _throwableToSpan = _WeakMap();
+
   factory Hub(SentryOptions options) {
     _validateOptions(options);
 
@@ -31,6 +41,7 @@ class Hub {
   }
 
   Hub._(this._options) {
+    _tracesSampler = SentryTracesSampler(_options);
     _stack.add(_StackItem(_getClient(_options), Scope(_options)));
     _isEnabled = true;
   }
@@ -70,6 +81,10 @@ class Hub {
       final scope = _cloneAndRunWithScope(item.scope, withScope);
 
       try {
+        if (_options.isTracingEnabled()) {
+          event = _assignTraceContext(event);
+        }
+
         sentryId = await item.client.captureEvent(
           event,
           stackTrace: stackTrace,
@@ -114,8 +129,17 @@ class Hub {
       final scope = _cloneAndRunWithScope(item.scope, withScope);
 
       try {
-        sentryId = await item.client.captureException(
-          throwable,
+        var event = SentryEvent(
+          throwable: throwable,
+          timestamp: _options.clock(),
+        );
+
+        if (_options.isTracingEnabled()) {
+          event = _assignTraceContext(event);
+        }
+
+        sentryId = await item.client.captureEvent(
+          event,
           stackTrace: stackTrace,
           scope: scope,
           hint: hint,
@@ -309,6 +333,151 @@ class Hub {
       }
     }
   }
+
+  /// Creates a Transaction and returns the instance.
+  ISentrySpan startTransaction(
+    String name,
+    String operation, {
+    String? description,
+    bool? bindToScope,
+    Map<String, dynamic>? customSamplingContext,
+  }) =>
+      startTransactionWithContext(
+        SentryTransactionContext(
+          name,
+          operation,
+          description: description,
+        ),
+        bindToScope: bindToScope,
+        customSamplingContext: customSamplingContext,
+      );
+
+  /// Creates a Transaction and returns the instance.
+  ISentrySpan startTransactionWithContext(
+    SentryTransactionContext transactionContext, {
+    Map<String, dynamic>? customSamplingContext,
+    bool? bindToScope,
+  }) {
+    if (!_isEnabled) {
+      _options.logger(
+        SentryLevel.warning,
+        "Instance is disabled and this 'startTransaction' call is a no-op.",
+      );
+    } else if (!_options.isTracingEnabled()) {
+      _options.logger(
+        SentryLevel.info,
+        "Tracing is disabled and this 'startTransaction' returns a no-op.",
+      );
+    } else {
+      final item = _peek();
+
+      final samplingContext = SentrySamplingContext(
+          transactionContext, customSamplingContext ?? {});
+
+      // if transactionContext has no sampled decision, run the traces sampler
+      if (transactionContext.sampled == null) {
+        final sampled = _tracesSampler.sample(samplingContext);
+        transactionContext = transactionContext.copyWith(sampled: sampled);
+      }
+
+      final tracer = SentryTracer(transactionContext, this);
+
+      if (bindToScope ?? false) {
+        item.scope.span = tracer;
+      }
+
+      return tracer;
+    }
+
+    return NoOpSentrySpan();
+  }
+
+  /// Gets the current active transaction or span.
+  ISentrySpan? getSpan() {
+    ISentrySpan? span;
+    if (!_isEnabled) {
+      _options.logger(
+        SentryLevel.warning,
+        "Instance is disabled and this 'getSpan' call is a no-op.",
+      );
+    } else {
+      final item = _peek();
+
+      span = item.scope.span;
+    }
+
+    return span;
+  }
+
+  @internal
+  Future<SentryId> captureTransaction(SentryTransaction transaction) async {
+    var sentryId = SentryId.empty();
+
+    if (!_isEnabled) {
+      _options.logger(
+        SentryLevel.warning,
+        "Instance is disabled and this 'captureTransaction' call is a no-op.",
+      );
+    } else if (!transaction.finished) {
+      _options.logger(
+        SentryLevel.warning,
+        'Capturing unfinished transaction: ${transaction.eventId}',
+      );
+    } else {
+      if (!transaction.sampled) {
+        _options.logger(
+          SentryLevel.warning,
+          'Transaction ${transaction.eventId} was dropped due to sampling decision.',
+        );
+      } else {
+        final item = _peek();
+
+        try {
+          sentryId = await item.client.captureTransaction(
+            transaction,
+            scope: item.scope,
+          );
+        } catch (exception, stackTrace) {
+          _options.logger(
+            SentryLevel.error,
+            'Error while capturing transaction with id: ${transaction.eventId}',
+            exception: exception,
+            stackTrace: stackTrace,
+          );
+        }
+      }
+    }
+    return sentryId;
+  }
+
+  @internal
+  void setSpanContext(
+    dynamic throwable,
+    ISentrySpan span,
+    String transaction,
+  ) =>
+      _throwableToSpan.add(throwable, span, transaction);
+
+  SentryEvent _assignTraceContext(SentryEvent event) {
+    // assign trace context
+    if (event.throwable != null && event.contexts.trace == null) {
+      // set span to event.contexts.trace
+      final pair = _throwableToSpan.get(event.throwable);
+      if (pair != null) {
+        final span = pair.key;
+        final spanContext = span.context;
+        event.contexts.trace = spanContext.toTraceContext(
+          sampled: span.sampled,
+        );
+
+        // set transaction name to event.transaction
+        if (event.transaction == null) {
+          event = event.copyWith(transaction: pair.value);
+        }
+      }
+    }
+    return event;
+  }
 }
 
 class _StackItem {
@@ -317,4 +486,25 @@ class _StackItem {
   final Scope scope;
 
   _StackItem(this.client, this.scope);
+}
+
+class _WeakMap {
+  final _expando = Expando();
+
+  void add(
+    dynamic throwable,
+    ISentrySpan span,
+    String transaction,
+  ) {
+    if (throwable != null && _expando[throwable] == null) {
+      _expando[throwable] = MapEntry(span, transaction);
+    }
+  }
+
+  MapEntry<ISentrySpan, String>? get(dynamic throwable) {
+    if (throwable == null) {
+      return null;
+    }
+    return _expando[throwable] as MapEntry<ISentrySpan, String>?;
+  }
 }
