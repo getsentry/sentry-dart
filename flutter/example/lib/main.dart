@@ -198,7 +198,6 @@ class MainScaffold extends StatelessWidget {
                   'myNewTrWithError3',
                   'myNewOp',
                   description: 'myTr myOp',
-                  // bindToScope: true,
                 );
                 transaction.setTag('myTag', 'myValue');
                 transaction.setData('myExtra', 'myExtraValue');
@@ -223,9 +222,6 @@ class MainScaffold extends StatelessWidget {
                   description: 'childOfChildOfMyOp span',
                 );
 
-                // final ex = StateError('work pls again');
-                // spanChild.throwable = ex;
-
                 await Future.delayed(Duration(milliseconds: 110));
 
                 spanChild.startChild(
@@ -234,13 +230,10 @@ class MainScaffold extends StatelessWidget {
                 );
 
                 await spanChild.finish(status: SpanStatus.internalError());
-                // Sentry.captureException(ex);
 
                 await Future.delayed(Duration(milliseconds: 50));
 
                 await transaction.finish(status: SpanStatus.ok());
-
-                // Sentry.captureException(ex);
               },
             ),
             RaisedButton(
