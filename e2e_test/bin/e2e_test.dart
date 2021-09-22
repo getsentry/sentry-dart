@@ -5,7 +5,7 @@ import 'package:http/http.dart';
 import 'package:sentry/sentry.dart';
 
 const _exampleDsn =
-    'https://1a83aa1a92144083ab5af46299c67857@o447951.ingest.sentry.io/5428562';
+    'https://9934c532bf8446ef961450973c898537@o447951.ingest.sentry.io/5428562';
 
 const _org = 'sentry-sdks';
 const _projectSlug = 'sentry-flutter';
