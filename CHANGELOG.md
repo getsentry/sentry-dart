@@ -1,6 +1,8 @@
 # Unreleased
 
-* Bump: sentry-android to 5.2.0 (#594)
+* Bump Sentry Android SDK to 5.2.0 ([#594](https://github.com/getsentry/sentry-dart/pull/594))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/5.2.0/CHANGELOG.md)
+  - [diff](https://github.com/getsentry/sentry-java/compare/5.1.2...5.2.0)
 
 # 6.1.0-alpha.1
 
