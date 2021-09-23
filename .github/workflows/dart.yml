@@ -56,6 +56,7 @@ jobs:
             dart compile exe bin/example.dart
             cd ..
             cd example_web
+            dart pub get
             webdev build
 
         - uses: codecov/codecov-action@v1
