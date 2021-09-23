@@ -64,6 +64,7 @@ class IoEnricherEventProcessor extends EventProcessor {
   Map<String, dynamic> _getDartContext(bool includePii) {
     final args = Platform.executableArguments;
     final packageConfig = Platform.packageConfig;
+    final isolate = Isolate.current.debugName;
 
     String? executable;
     if (includePii) {
@@ -84,7 +85,7 @@ class IoEnricherEventProcessor extends EventProcessor {
     return <String, dynamic>{
       if (packageConfig != null) 'package_config': packageConfig,
       'number_of_processors': Platform.numberOfProcessors,
-      'isolate': Isolate.current.debugName,
+      if (isolate != null) 'isolate': isolate,
       // The following information could potentially contain PII
       if (includePii) ...{
         'executable': executable,

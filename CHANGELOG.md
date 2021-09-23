@@ -1,6 +1,6 @@
 # Unreleased
 
-* enrich Dart context with isolate name
+* enrich Dart context with isolate name (#600)
 
 # 6.1.0-alpha.1
 
