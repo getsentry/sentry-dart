@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:isolate';
 
 import '../event_processor.dart';
 import '../protocol.dart';
@@ -83,6 +84,7 @@ class IoEnricherEventProcessor extends EventProcessor {
     return <String, dynamic>{
       if (packageConfig != null) 'package_config': packageConfig,
       'number_of_processors': Platform.numberOfProcessors,
+      'isolate': Isolate.current.debugName,
       // The following information could potentially contain PII
       if (includePii) ...{
         'executable': executable,
