@@ -78,6 +78,7 @@ void main() {
 
       final dartContext = event.contexts['dart_context'];
       expect(dartContext, isNotNull);
+      expect(dartContext['isolate'], isNotNull);
       expect(dartContext['number_of_processors'], isNotNull);
       // Getting the executable sometimes throws
       //expect(dartContext['executable'], isNotNull);
@@ -93,6 +94,7 @@ void main() {
       final dartContext = event.contexts['dart_context'];
       expect(dartContext, isNotNull);
       expect(dartContext['number_of_processors'], isNotNull);
+      expect(dartContext['isolate'], isNotNull);
       expect(dartContext['executable'], isNull);
       expect(dartContext['resolved_executable'], isNull);
       expect(dartContext['script'], isNull);
