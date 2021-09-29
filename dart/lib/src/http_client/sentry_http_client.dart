@@ -1,4 +1,5 @@
 import 'package:http/http.dart';
+import 'package:sentry/src/http_client/tracing_client.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
 import '../protocol.dart';
@@ -79,6 +80,7 @@ class SentryHttpClient extends BaseClient {
     List<SentryStatusCode> failedRequestStatusCodes = const [],
     bool captureFailedRequests = false,
     bool sendDefaultPii = false,
+    bool networkTracing = true,
   }) {
     _hub = hub ?? HubAdapter();
 
@@ -99,6 +101,10 @@ class SentryHttpClient extends BaseClient {
     // However it still should be added for following events.
     if (recordBreadcrumbs) {
       innerClient = BreadcrumbClient(client: innerClient, hub: _hub);
+    }
+
+    if (networkTracing) {
+      innerClient = TracingClient(client: innerClient, hub: _hub);
     }
 
     _client = innerClient;

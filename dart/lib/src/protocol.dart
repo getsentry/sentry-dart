@@ -32,3 +32,4 @@ export 'protocol/span_id.dart';
 export 'protocol/sentry_transaction.dart';
 export 'protocol/sentry_trace_context.dart';
 export 'protocol/sentry_span.dart';
+export 'protocol/sentry_trace_header.dart';

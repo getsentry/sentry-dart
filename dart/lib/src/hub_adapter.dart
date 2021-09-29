@@ -132,4 +132,7 @@ class HubAdapter implements Hub {
     String transaction,
   ) =>
       Sentry.currentHub.setSpanContext(throwable, span, transaction);
+
+  @override
+  SentryTraceHeader? traceHeaders() => Sentry.currentHub.traceHeaders();
 }

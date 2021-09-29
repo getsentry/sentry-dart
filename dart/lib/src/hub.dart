@@ -400,6 +400,11 @@ class Hub {
         SentryLevel.warning,
         "Instance is disabled and this 'getSpan' call is a no-op.",
       );
+    } else if (!_options.isTracingEnabled()) {
+      _options.logger(
+        SentryLevel.info,
+        "Tracing is disabled and this 'getSpan' returns null.",
+      );
     } else {
       final item = _peek();
 
@@ -407,6 +412,28 @@ class Hub {
     }
 
     return span;
+  }
+
+  /// Returns trace header of active transaction or {@code null} if no transaction is active.
+  SentryTraceHeader? traceHeaders() {
+    SentryTraceHeader? header;
+    if (!_isEnabled) {
+      _options.logger(
+        SentryLevel.warning,
+        "Instance is disabled and this 'traceHeaders' call is a no-op.",
+      );
+    } else if (!_options.isTracingEnabled()) {
+      _options.logger(
+        SentryLevel.info,
+        "Tracing is disabled and this 'traceHeaders' returns null.",
+      );
+    } else {
+      final item = _peek();
+
+      header = item.scope.span?.toSentryTrace();
+    }
+
+    return header;
   }
 
   @internal
@@ -417,6 +444,11 @@ class Hub {
       _options.logger(
         SentryLevel.warning,
         "Instance is disabled and this 'captureTransaction' call is a no-op.",
+      );
+    } else if (!_options.isTracingEnabled()) {
+      _options.logger(
+        SentryLevel.info,
+        "Tracing is disabled and this 'captureTransaction' call is a no-op.",
       );
     } else if (!transaction.finished) {
       _options.logger(

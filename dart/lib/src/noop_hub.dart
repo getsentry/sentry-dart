@@ -96,4 +96,7 @@ class NoOpHub implements Hub {
 
   @override
   void setSpanContext(throwable, ISentrySpan span, String transaction) {}
+
+  @override
+  SentryTraceHeader? traceHeaders() => null;
 }

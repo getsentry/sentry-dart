@@ -1,5 +1,5 @@
 import '../hub.dart';
-import 'span_status.dart';
+import '../protocol.dart';
 
 import '../sentry_tracer.dart';
 import '../tracing.dart';
@@ -121,4 +121,11 @@ class SentrySpan extends ISentrySpan {
   Map<String, String> get tags => _tags;
 
   Map<String, dynamic> get data => _data;
+
+  @override
+  SentryTraceHeader toSentryTrace() => SentryTraceHeader(
+        _context.traceId,
+        _context.spanId,
+        sampled: sampled,
+      );
 }
