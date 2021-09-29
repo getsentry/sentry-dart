@@ -102,8 +102,8 @@ class FailedRequestClient extends BaseClient {
     Object? exception;
     StackTrace? stackTrace;
 
-    final stopwatch = Stopwatch();
-    stopwatch.start();
+    // final stopwatch = Stopwatch();
+    // stopwatch.start();
 
     try {
       final response = await _client.send(request);
@@ -114,7 +114,7 @@ class FailedRequestClient extends BaseClient {
       stackTrace = st;
       rethrow;
     } finally {
-      stopwatch.stop();
+      // stopwatch.stop();
 
       // If captureFailedRequests is true, there statusCode is null.
       // So just one of these blocks can be called.
@@ -124,7 +124,7 @@ class FailedRequestClient extends BaseClient {
           exception: exception,
           stackTrace: stackTrace,
           request: request,
-          requestDuration: stopwatch.elapsed,
+          // requestDuration: stopwatch.elapsed,
         );
       } else if (failedRequestStatusCodes.containsStatusCode(statusCode)) {
         final message =
@@ -136,7 +136,7 @@ class FailedRequestClient extends BaseClient {
           exception: exception ?? httpException,
           request: request,
           reason: message,
-          requestDuration: stopwatch.elapsed,
+          // requestDuration: stopwatch.elapsed,
         );
       }
     }
@@ -153,7 +153,7 @@ class FailedRequestClient extends BaseClient {
     required Object? exception,
     StackTrace? stackTrace,
     String? reason,
-    required Duration requestDuration,
+    // required Duration requestDuration,
     required BaseRequest request,
   }) async {
     // As far as I can tell there's no way to get the uri without the query part
@@ -171,7 +171,7 @@ class FailedRequestClient extends BaseClient {
       data: _getDataFromRequest(request),
       other: {
         'content_length': request.contentLength.toString(),
-        'duration': requestDuration.toString(),
+        // 'duration': requestDuration.toString(),
       },
     );
 

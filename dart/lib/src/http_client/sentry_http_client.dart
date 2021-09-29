@@ -1,5 +1,5 @@
 import 'package:http/http.dart';
-import 'package:sentry/src/http_client/tracing_client.dart';
+import 'tracing_client.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
 import '../protocol.dart';

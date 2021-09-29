@@ -58,8 +58,8 @@ class BreadcrumbClient extends BaseClient {
     String? reason;
     int? responseBodySize;
 
-    final stopwatch = Stopwatch();
-    stopwatch.start();
+    // final stopwatch = Stopwatch();
+    // stopwatch.start();
 
     try {
       final response = await _client.send(request);
@@ -73,7 +73,7 @@ class BreadcrumbClient extends BaseClient {
       requestHadException = true;
       rethrow;
     } finally {
-      stopwatch.stop();
+      // stopwatch.stop();
 
       var breadcrumb = Breadcrumb.http(
         level: requestHadException ? SentryLevel.error : SentryLevel.info,
@@ -81,7 +81,7 @@ class BreadcrumbClient extends BaseClient {
         method: request.method,
         statusCode: statusCode,
         reason: reason,
-        requestDuration: stopwatch.elapsed,
+        // requestDuration: stopwatch.elapsed,
         requestBodySize: request.contentLength,
         responseBodySize: responseBodySize,
       );
