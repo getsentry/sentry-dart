@@ -11,7 +11,7 @@ jobs:
   build:
     name: ${{ matrix.target }} | ${{ matrix.os }} | ${{ matrix.channel }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 15
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       # max-parallel: 4
@@ -116,7 +116,7 @@ jobs:
 
   analyze:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v2
       - uses: subosito/flutter-action@v1
@@ -128,7 +128,7 @@ jobs:
 
   package-analysis:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v2
       - uses: axel-op/dart-package-analyzer@d56ba070e9dcacc6d8ba48a41938b1e2b973de41
