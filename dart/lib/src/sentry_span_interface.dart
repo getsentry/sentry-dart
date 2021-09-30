@@ -42,7 +42,6 @@ abstract class ISentrySpan {
 
   /// Returns the star timestamp
   DateTime get startTimestamp;
-  // missing toTraceHeader
 
   /// Returns true if span is finished
   bool get finished;

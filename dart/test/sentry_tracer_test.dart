@@ -105,6 +105,13 @@ void main() {
     expect(childSpan.context.operation, 'op');
     expect(childSpan.context.parentSpanId.toString(), parentId.toString());
   });
+
+  test('toSentryTrace returns trace header', () {
+    final sut = fixture.getSut();
+
+    expect(sut.toSentryTrace().value,
+        '${sut.context.traceId}-${sut.context.spanId}-1');
+  });
 }
 
 class Fixture {

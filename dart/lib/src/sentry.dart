@@ -251,8 +251,6 @@ class Sentry {
         bindToScope: bindToScope,
       );
 
-  // missing traceHeaders
-
   /// Gets the current active transaction or span.
   static ISentrySpan? getSpan() => _hub.getSpan();
 

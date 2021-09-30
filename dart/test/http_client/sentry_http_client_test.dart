@@ -73,6 +73,32 @@ void main() {
       expect(mockHub.captureExceptionCalls.length, 0);
       verify(mockClient.close());
     });
+
+    test('no captured span if tracing disabled', () async {
+      final sut = fixture.getSut(
+        client: fixture.getClient(statusCode: 200, reason: 'OK'),
+        recordBreadcrumbs: false,
+        networkTracing: false,
+      );
+
+      final response = await sut.get(requestUri);
+      expect(response.statusCode, 200);
+
+      expect(fixture.hub.getSpanCalls, 0);
+    });
+
+    test('captured span if tracing enabled', () async {
+      final sut = fixture.getSut(
+        client: fixture.getClient(statusCode: 200, reason: 'OK'),
+        recordBreadcrumbs: false,
+        networkTracing: true,
+      );
+
+      final response = await sut.get(requestUri);
+      expect(response.statusCode, 200);
+
+      expect(fixture.hub.getSpanCalls, 1);
+    });
   });
 }
 
@@ -94,7 +120,7 @@ class Fixture {
     MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never,
     List<SentryStatusCode> badStatusCodes = const [],
     bool recordBreadcrumbs = true,
-    bool networkTracing = true,
+    bool networkTracing = false,
   }) {
     final mc = client ?? getClient();
     return SentryHttpClient(

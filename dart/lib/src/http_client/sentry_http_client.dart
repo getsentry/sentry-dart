@@ -80,7 +80,7 @@ class SentryHttpClient extends BaseClient {
     List<SentryStatusCode> failedRequestStatusCodes = const [],
     bool captureFailedRequests = false,
     bool sendDefaultPii = false,
-    bool networkTracing = true,
+    bool networkTracing = false,
   }) {
     _hub = hub ?? HubAdapter();
 
@@ -116,6 +116,7 @@ class SentryHttpClient extends BaseClient {
   @override
   Future<StreamedResponse> send(BaseRequest request) => _client.send(request);
 
+  // See https://github.com/getsentry/sentry-dart/pull/226#discussion_r536984785
   @override
   void close() => _client.close();
 }

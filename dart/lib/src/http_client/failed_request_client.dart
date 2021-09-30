@@ -142,7 +142,6 @@ class FailedRequestClient extends BaseClient {
     }
   }
 
-  /// See https://github.com/getsentry/sentry-dart/pull/226#discussion_r536984785
   @override
   void close() => _client.close();
 

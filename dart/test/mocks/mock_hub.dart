@@ -14,6 +14,7 @@ class MockHub implements Hub {
   int closeCalls = 0;
   bool _isEnabled = true;
   int spanContextCals = 0;
+  int getSpanCalls = 0;
 
   /// Useful for tests.
   void reset() {
@@ -26,6 +27,7 @@ class MockHub implements Hub {
     _isEnabled = true;
     spanContextCals = 0;
     captureTransactionCalls = [];
+    getSpanCalls = 0;
   }
 
   @override
@@ -141,6 +143,7 @@ class MockHub implements Hub {
 
   @override
   ISentrySpan? getSpan() {
+    getSpanCalls++;
     return null;
   }
 

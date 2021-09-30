@@ -17,7 +17,8 @@ class TracingClient extends BaseClient {
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
     // see https://develop.sentry.dev/sdk/performance/#header-sentry-trace
-    final span = _hub.getSpan()?.startChild(
+    final currentSpan = _hub.getSpan();
+    final span = currentSpan?.startChild(
           'http.client',
           description: '${request.method} ${request.url}',
         );
@@ -44,7 +45,6 @@ class TracingClient extends BaseClient {
     return response;
   }
 
-  /// See https://github.com/getsentry/sentry-dart/pull/226#discussion_r536984785
   @override
   void close() => _client.close();
 }
