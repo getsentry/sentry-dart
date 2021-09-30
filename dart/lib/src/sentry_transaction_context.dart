@@ -26,6 +26,20 @@ class SentryTransactionContext extends SentrySpanContext {
           parentSpanId: parentSpanId,
         );
 
+  factory SentryTransactionContext.fromSentryTrace(
+    String name,
+    String operation,
+    SentryTraceHeader traceHeader,
+  ) {
+    return SentryTransactionContext(
+      name,
+      operation,
+      traceId: traceHeader.traceId,
+      parentSpanId: traceHeader.spanId,
+      parentSampled: traceHeader.sampled,
+    );
+  }
+
   SentryTransactionContext copyWith({
     String? name,
     String? operation,
