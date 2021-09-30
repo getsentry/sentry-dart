@@ -27,4 +27,15 @@ void main() {
 
     expect(header.name, 'sentry-trace');
   });
+
+  test('invalid header throws $InvalidSentryTraceHeaderException', () {
+    var exception;
+    try {
+      SentryTraceHeader.fromTraceHeader('invalidHeader');
+    } catch (error) {
+      exception = error;
+    }
+
+    expect(exception is InvalidSentryTraceHeaderException, true);
+  });
 }
