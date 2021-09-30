@@ -11,7 +11,7 @@ void main() {
   });
 
   test('header adds 0 to not sampled', () {
-    final header = SentryTraceHeader(_traceId, _spanId, sampled: true);
+    final header = SentryTraceHeader(_traceId, _spanId, sampled: false);
 
     expect(header.value, '$_traceId-$_spanId-0');
   });
