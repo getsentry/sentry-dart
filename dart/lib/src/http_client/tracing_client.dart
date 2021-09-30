@@ -19,9 +19,9 @@ class TracingClient extends BaseClient {
     // see https://develop.sentry.dev/sdk/performance/#header-sentry-trace
     final currentSpan = _hub.getSpan();
     final span = currentSpan?.startChild(
-          'http.client',
-          description: '${request.method} ${request.url}',
-        );
+      'http.client',
+      description: '${request.method} ${request.url}',
+    );
 
     StreamedResponse? response;
     try {
