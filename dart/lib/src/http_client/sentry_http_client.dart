@@ -8,9 +8,9 @@ import 'failed_request_client.dart';
 
 /// A [http](https://pub.dev/packages/http)-package compatible HTTP client.
 ///
-/// It can record requests as breadcrumbs. This is on by default.
+/// It records requests as breadcrumbs. This is on by default.
 ///
-/// It can also capture requests which throw an exception. This is off by
+/// It captures requests which throws an exception. This is off by
 /// default, set [captureFailedRequests] to `true` to enable it. This can be for
 /// example for the following reasons:
 /// - In an browser environment this can be requests which fail because of CORS.
@@ -32,6 +32,10 @@ import 'failed_request_client.dart';
 ///   ],
 /// );
 /// ```
+///
+/// It starts and finishes a Span if there's a transaction bound to the Scope
+/// through the [TracingClient] client, it's disabled by default.
+/// Set [networkTracing] to `true` to enable it.
 ///
 /// Remarks: If this client is used as a wrapper, a call to close also closes
 /// the given client.
