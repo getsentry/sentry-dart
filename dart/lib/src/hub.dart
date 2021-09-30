@@ -414,28 +414,6 @@ class Hub {
     return span;
   }
 
-  /// Returns trace header of active transaction or {@code null} if no transaction is active.
-  SentryTraceHeader? traceHeaders() {
-    SentryTraceHeader? header;
-    if (!_isEnabled) {
-      _options.logger(
-        SentryLevel.warning,
-        "Instance is disabled and this 'traceHeaders' call is a no-op.",
-      );
-    } else if (!_options.isTracingEnabled()) {
-      _options.logger(
-        SentryLevel.info,
-        "Tracing is disabled and this 'traceHeaders' returns null.",
-      );
-    } else {
-      final item = _peek();
-
-      header = item.scope.span?.toSentryTrace();
-    }
-
-    return header;
-  }
-
   @internal
   Future<SentryId> captureTransaction(SentryTransaction transaction) async {
     var sentryId = SentryId.empty();

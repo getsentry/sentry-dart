@@ -94,6 +94,7 @@ class Fixture {
     MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never,
     List<SentryStatusCode> badStatusCodes = const [],
     bool recordBreadcrumbs = true,
+    bool networkTracing = true,
   }) {
     final mc = client ?? getClient();
     return SentryHttpClient(
@@ -103,6 +104,7 @@ class Fixture {
       failedRequestStatusCodes: badStatusCodes,
       maxRequestBodySize: maxRequestBodySize,
       recordBreadcrumbs: recordBreadcrumbs,
+      networkTracing: networkTracing,
     );
   }
 

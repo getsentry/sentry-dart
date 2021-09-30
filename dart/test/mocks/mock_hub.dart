@@ -148,9 +148,6 @@ class MockHub implements Hub {
   void setSpanContext(throwable, ISentrySpan span, String transaction) {
     spanContextCals++;
   }
-
-  @override
-  SentryTraceHeader? traceHeaders() => null;
 }
 
 class CaptureEventCall {
