@@ -13,6 +13,12 @@ class NoOpSentrySpan extends ISentrySpan {
     operation: 'noop',
   );
 
+  static final _header = SentryTraceHeader(
+    SentryId.empty(),
+    SpanId.empty(),
+    sampled: false,
+  );
+
   static final _timestamp = getUtcDateTime();
 
   factory NoOpSentrySpan() {
@@ -64,4 +70,7 @@ class NoOpSentrySpan extends ISentrySpan {
 
   @override
   bool? get sampled => null;
+
+  @override
+  SentryTraceHeader toSentryTrace() => _header;
 }

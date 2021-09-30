@@ -106,6 +106,13 @@ void main() {
 
     expect(sut.finished, true);
   });
+
+  test('toSentryTrace returns trace header', () {
+    final sut = fixture.getSut();
+
+    expect(sut.toSentryTrace().value,
+        '${sut.context.traceId}-${sut.context.spanId}-1');
+  });
 }
 
 class Fixture {

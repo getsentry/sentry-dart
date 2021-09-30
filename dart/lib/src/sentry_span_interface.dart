@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import 'protocol/span_status.dart';
+import 'protocol.dart';
 import 'tracing.dart';
 
 /// Represents performance monitoring Span.
@@ -42,7 +42,6 @@ abstract class ISentrySpan {
 
   /// Returns the star timestamp
   DateTime get startTimestamp;
-  // missing toTraceHeader
 
   /// Returns true if span is finished
   bool get finished;
@@ -55,4 +54,7 @@ abstract class ISentrySpan {
 
   @internal
   bool? get sampled;
+
+  /// Returns the trace information that could be sent as a sentry-trace header.
+  SentryTraceHeader toSentryTrace();
 }

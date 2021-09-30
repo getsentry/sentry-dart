@@ -3,7 +3,8 @@
 * Bump Sentry Android SDK to [5.2.0](https://github.com/getsentry/sentry-dart/pull/594) (#594)
   - [changelog](https://github.com/getsentry/sentry-java/blob/5.2.0/CHANGELOG.md)
   - [diff](https://github.com/getsentry/sentry-java/compare/5.1.2...5.2.0)
-* enrich Dart context with isolate name (#600)
+* Feat: Enrich Dart context with isolate name (#600)
+* Feat: Sentry Performance for HTTP client (#603)
 
 # 6.1.0-alpha.1
 
