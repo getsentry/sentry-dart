@@ -33,11 +33,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return feedback.BetterFeedback(
       child: ChangeNotifierProvider<ThemeProvider>(
@@ -45,7 +40,7 @@ class _MyAppState extends State<MyApp> {
         child: Builder(
           builder: (context) => MaterialApp(
             navigatorObservers: [
-              SentryNavigatorObserver(),
+              SentryNavigatorObserver(enableTracing: true),
             ],
             theme: Provider.of<ThemeProvider>(context).theme,
             home: const MainScaffold(),
@@ -473,11 +468,15 @@ class SecondaryScaffold extends StatelessWidget {
 }
 
 Future<void> makeWebRequest(BuildContext context) async {
+  /*
+  SentryNavigatorObserver already startet a transaction, 
+  so we don't have to start another one
   final transaction = Sentry.startTransaction(
     'flutterwebrequest',
     'request',
     bindToScope: true,
   );
+  */
 
   final client = SentryHttpClient(
     captureFailedRequests: true,
@@ -488,7 +487,9 @@ Future<void> makeWebRequest(BuildContext context) async {
   // In case of an exception, let it get caught and reported to Sentry
   final response = await client.get(Uri.parse('https://flutter.dev/'));
 
-  await transaction.finish(status: SpanStatus.ok());
+  // SentryNavigatorObserver already startet a transaction,
+  // so we don't have to finish the one
+  //await transaction.finish(status: SpanStatus.ok());
 
   await showDialog<void>(
     context: context,

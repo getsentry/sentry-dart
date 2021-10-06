@@ -6,6 +6,9 @@ import '../../sentry_flutter.dart';
 /// See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
 const _navigationKey = 'navigation';
 
+/// Used as value for [SentrySpanContext.operation]
+const _transactionOp = 'page_view';
+
 /// This is a navigation observer to record navigational breadcrumbs.
 /// For now it only records navigation events and no gestures.
 ///
@@ -35,9 +38,19 @@ const _navigationKey = 'navigation';
 ///   - [RouteObserver](https://api.flutter.dev/flutter/widgets/RouteObserver-class.html)
 ///   - [Navigating with arguments](https://flutter.dev/docs/cookbook/navigation/navigate-with-arguments)
 class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
-  SentryNavigatorObserver({Hub? hub}) : hub = hub ?? HubAdapter();
+  SentryNavigatorObserver({Hub? hub, this.enableTracing = false})
+      : hub = hub ?? HubAdapter();
 
   final Hub hub;
+
+  /// Create a new transaction, which gets bound to the scope, on each
+  /// navigation event.
+  /// [RouteSettings] are added as extras. The [RouteSettings.name] is used as
+  /// a name.
+  final bool enableTracing;
+
+  ISentrySpan? _currentTransaction;
+  ISentrySpan? _currentSpan;
 
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
@@ -47,6 +60,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       from: previousRoute?.settings,
       to: route.settings,
     );
+    if (route is PopupRoute) {
+      _startSpan(route);
+    } else {
+      _startTrace(route);
+    }
   }
 
   @override
@@ -58,6 +76,14 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       from: oldRoute?.settings,
       to: newRoute?.settings,
     );
+    if (oldRoute is ModalRoute) {
+      _currentSpan?.finish();
+    }
+    if (newRoute is PopupRoute) {
+      _startSpan(newRoute);
+    } else {
+      _startTrace(newRoute);
+    }
   }
 
   @override
@@ -69,6 +95,10 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       from: route.settings,
       to: previousRoute?.settings,
     );
+    if (previousRoute is ModalRoute) {
+      _currentSpan?.finish();
+    }
+    _startTrace(previousRoute);
   }
 
   void _addBreadcrumb({
@@ -81,6 +111,42 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       from: from,
       to: to,
     ));
+  }
+
+  Future<void> _startTrace(Route? route) async {
+    if (!enableTracing) {
+      return;
+    }
+    await _currentTransaction?.finish();
+
+    var span = hub.startTransaction(
+      route?.settings.name ?? 'unnamed page',
+      _transactionOp,
+      bindToScope: true,
+    );
+
+    final arguments = route?.settings.arguments;
+    if (arguments != null) {
+      span.setData('route_settings_arguments', arguments);
+    }
+
+    _currentTransaction = span;
+  }
+
+  Future<void> _startSpan(PopupRoute? route) async {
+    if (!enableTracing) {
+      return;
+    }
+    await _currentSpan?.finish();
+    final span = _currentTransaction?.startChild(
+      _transactionOp,
+      description: route?.settings.name ?? 'unnamed popup',
+    );
+    final arguments = route?.settings.arguments;
+    if (arguments != null) {
+      span?.setData('route_settings_arguments', arguments);
+    }
+    _currentSpan = span;
   }
 }
 
