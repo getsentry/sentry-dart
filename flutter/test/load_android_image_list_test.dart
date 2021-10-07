@@ -1,8 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/sentry_flutter_options.dart';
 
 import 'mocks.dart';
 
@@ -157,7 +155,7 @@ class Fixture {
   final channel = MethodChannel('sentry_flutter');
   final options = SentryFlutterOptions(dsn: fakeDsn);
 
-  late final Hub hub;
+  late Hub hub;
 
   LoadAndroidImageListIntegration getSut() {
     return LoadAndroidImageListIntegration(channel);

@@ -1,4 +1,4 @@
-import 'package:sentry/src/environment_variables.dart';
+import 'package:sentry/src/environment/environment_variables.dart';
 
 class MockEnvironmentVariables extends EnvironmentVariables {
   MockEnvironmentVariables({

@@ -11,6 +11,9 @@ class SentryFlutterOptions extends SentryOptions {
     enableBreadcrumbTrackingForCurrentPlatform();
   }
 
+  /// Enable or disable reporting of used packages.
+  bool reportPackages = true;
+
   /// Enable or disable the Auto session tracking on the Native SDKs (Android/iOS)
   bool enableAutoSessionTracking = true;
 

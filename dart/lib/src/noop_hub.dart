@@ -3,6 +3,8 @@ import 'hub.dart';
 import 'protocol.dart';
 import 'sentry_client.dart';
 import 'sentry_user_feedback.dart';
+import 'tracing.dart';
+import 'noop_sentry_span.dart';
 
 class NoOpHub implements Hub {
   NoOpHub._();
@@ -22,8 +24,8 @@ class NoOpHub implements Hub {
     dynamic stackTrace,
     dynamic hint,
     ScopeCallback? withScope,
-  }) =>
-      Future.value(SentryId.empty());
+  }) async =>
+      SentryId.empty();
 
   @override
   Future<SentryId> captureException(
@@ -31,8 +33,8 @@ class NoOpHub implements Hub {
     dynamic stackTrace,
     dynamic hint,
     ScopeCallback? withScope,
-  }) =>
-      Future.value(SentryId.empty());
+  }) async =>
+      SentryId.empty();
 
   @override
   Future<SentryId> captureMessage(
@@ -42,8 +44,8 @@ class NoOpHub implements Hub {
     List? params,
     dynamic hint,
     ScopeCallback? withScope,
-  }) =>
-      Future.value(SentryId.empty());
+  }) async =>
+      SentryId.empty();
 
   @override
   Hub clone() => this;
@@ -64,7 +66,34 @@ class NoOpHub implements Hub {
   void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) {}
 
   @override
-  Future<SentryId> captureUserFeedback(SentryUserFeedback userFeedback) async {
-    return SentryId.empty();
-  }
+  Future<SentryId> captureTransaction(SentryTransaction transaction) async =>
+      SentryId.empty();
+
+  @override
+  Future<SentryId> captureUserFeedback(SentryUserFeedback userFeedback) async =>
+      SentryId.empty();
+
+  @override
+  ISentrySpan startTransaction(
+    String name,
+    String operation, {
+    String? description,
+    bool? bindToScope,
+    Map<String, dynamic>? customSamplingContext,
+  }) =>
+      NoOpSentrySpan();
+
+  @override
+  ISentrySpan startTransactionWithContext(
+    SentryTransactionContext transactionContext, {
+    Map<String, dynamic>? customSamplingContext,
+    bool? bindToScope,
+  }) =>
+      NoOpSentrySpan();
+
+  @override
+  ISentrySpan? getSpan() => null;
+
+  @override
+  void setSpanContext(throwable, ISentrySpan span, String transaction) {}
 }

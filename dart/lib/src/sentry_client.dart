@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:meta/meta.dart';
+
 import 'event_processor.dart';
 import 'sentry_user_feedback.dart';
 import 'transport/rate_limiter.dart';
@@ -67,9 +69,10 @@ class SentryClient {
     SentryEvent? preparedEvent = _prepareEvent(event, stackTrace: stackTrace);
 
     if (scope != null) {
-      preparedEvent = await scope.applyToEvent(preparedEvent, hint);
+      preparedEvent = await scope.applyToEvent(preparedEvent, hint: hint);
     } else {
-      _options.logger(SentryLevel.debug, 'No scope is defined');
+      _options.logger(
+          SentryLevel.debug, 'No scope to apply on event was provided');
     }
 
     // dropped by scope event processors
@@ -129,6 +132,10 @@ class SentryClient {
     );
 
     event = _applyDefaultPii(event);
+
+    if (event is SentryTransaction) {
+      return event;
+    }
 
     if (event.exceptions?.isNotEmpty ?? false) return event;
 
@@ -219,6 +226,42 @@ class SentryClient {
     );
 
     return captureEvent(event, scope: scope, hint: hint);
+  }
+
+  @internal
+  Future<SentryId> captureTransaction(
+    SentryTransaction transaction, {
+    Scope? scope,
+  }) async {
+    SentryTransaction? preparedTransaction =
+        _prepareEvent(transaction) as SentryTransaction;
+
+    if (scope != null) {
+      preparedTransaction =
+          await scope.applyToEvent(preparedTransaction) as SentryTransaction?;
+    } else {
+      _options.logger(
+          SentryLevel.debug, 'No scope to apply on transaction was provided');
+    }
+
+    // dropped by scope event processors
+    if (preparedTransaction == null) {
+      return _sentryId;
+    }
+
+    preparedTransaction = await _processEvent(
+      preparedTransaction,
+      eventProcessors: _options.eventProcessors,
+    ) as SentryTransaction?;
+
+    // dropped by event processors
+    if (preparedTransaction == null) {
+      return _sentryId;
+    }
+
+    final id = await captureEnvelope(
+        SentryEnvelope.fromTransaction(preparedTransaction, _options.sdk));
+    return id!;
   }
 
   /// Reports the [envelope] to Sentry.io.

@@ -3,7 +3,21 @@ import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
 void main() {
-  final contexts = Contexts(
+  final _traceId = SentryId.fromId('1988bb1b6f0d4c509e232f0cb9aaeaea');
+  final _spanId = SpanId.fromId('976e0cd945864f60');
+  final _parentSpanId = SpanId.fromId('c9c9fc3f9d4346df');
+
+  final _trace = SentryTraceContext(
+    traceId: _traceId,
+    spanId: _spanId,
+    operation: 'op',
+    parentSpanId: _parentSpanId,
+    sampled: true,
+    description: 'desc',
+    status: SpanStatus.ok(),
+  );
+
+  final _contexts = Contexts(
     device: SentryDevice(batteryLevel: 90),
     operatingSystem: SentryOperatingSystem(name: 'name'),
     runtimes: [SentryRuntime(name: 'name')],
@@ -11,9 +25,10 @@ void main() {
     browser: SentryBrowser(name: 'name'),
     gpu: SentryGpu(id: 1),
     culture: SentryCulture(locale: 'foo-bar'),
+    trace: _trace,
   );
 
-  final contextsJson = <String, dynamic>{
+  final _contextsJson = <String, dynamic>{
     'device': {'battery_level': 90.0},
     'os': {'name': 'name'},
     'runtime': {'name': 'name'},
@@ -21,9 +36,17 @@ void main() {
     'browser': {'name': 'name'},
     'gpu': {'id': 1},
     'culture': {'locale': 'foo-bar'},
+    'trace': {
+      'span_id': '976e0cd945864f60',
+      'trace_id': '1988bb1b6f0d4c509e232f0cb9aaeaea',
+      'op': 'op',
+      'parent_span_id': 'c9c9fc3f9d4346df',
+      'description': 'desc',
+      'status': 'ok'
+    },
   };
 
-  final contextsMutlipleRuntimes = Contexts(
+  final _contextsMutlipleRuntimes = Contexts(
     runtimes: [
       SentryRuntime(name: 'name'),
       SentryRuntime(name: 'name'),
@@ -31,44 +54,44 @@ void main() {
     ],
   );
 
-  final contextsMutlipleRuntimesJson = <String, dynamic>{
+  final _contextsMutlipleRuntimesJson = <String, dynamic>{
     'name': {'name': 'name', 'type': 'runtime'},
     'name0': {'name': 'name', 'type': 'runtime'},
   };
 
   group('json', () {
     test('toJson', () {
-      final json = contexts.toJson();
+      final json = _contexts.toJson();
 
       expect(
-        DeepCollectionEquality().equals(contextsJson, json),
+        DeepCollectionEquality().equals(_contextsJson, json),
         true,
       );
     });
     test('toJson multiple runtimes', () {
-      final json = contextsMutlipleRuntimes.toJson();
+      final json = _contextsMutlipleRuntimes.toJson();
 
       expect(
-        DeepCollectionEquality().equals(contextsMutlipleRuntimesJson, json),
+        DeepCollectionEquality().equals(_contextsMutlipleRuntimesJson, json),
         true,
       );
     });
     test('fromJson', () {
-      final contexts = Contexts.fromJson(contextsJson);
+      final contexts = Contexts.fromJson(_contextsJson);
       final json = contexts.toJson();
 
       expect(
-        DeepCollectionEquality().equals(contextsJson, json),
+        DeepCollectionEquality().equals(_contextsJson, json),
         true,
       );
     });
     test('fromJson multiple runtimes', () {
       final contextsMutlipleRuntimes =
-          Contexts.fromJson(contextsMutlipleRuntimesJson);
+          Contexts.fromJson(_contextsMutlipleRuntimesJson);
       final json = contextsMutlipleRuntimes.toJson();
 
       expect(
-        DeepCollectionEquality().equals(contextsMutlipleRuntimesJson, json),
+        DeepCollectionEquality().equals(_contextsMutlipleRuntimesJson, json),
         true,
       );
     });
@@ -76,7 +99,7 @@ void main() {
 
   group('copyWith', () {
     test('copyWith keeps unchanged', () {
-      final data = contexts;
+      final data = _contexts;
 
       final copy = data.copyWith();
 
@@ -87,7 +110,7 @@ void main() {
     });
 
     test('copyWith takes new values', () {
-      final data = contexts;
+      final data = _contexts;
       data['extra'] = 'value';
 
       final device = SentryDevice(batteryLevel: 100);
@@ -97,6 +120,15 @@ void main() {
       final browser = SentryBrowser(name: 'name1');
       final gpu = SentryGpu(id: 2);
       final culture = SentryCulture(locale: 'foo-bar');
+      final trace = SentryTraceContext(
+        traceId: _traceId,
+        spanId: _spanId,
+        operation: 'op',
+        parentSpanId: _parentSpanId,
+        sampled: true,
+        description: 'desc',
+        status: SpanStatus.ok(),
+      );
 
       final copy = data.copyWith(
         device: device,
@@ -106,6 +138,7 @@ void main() {
         browser: browser,
         gpu: gpu,
         culture: culture,
+        trace: _trace,
       );
 
       expect(device.toJson(), copy.device!.toJson());
@@ -118,6 +151,7 @@ void main() {
       expect(browser.toJson(), copy.browser!.toJson());
       expect(culture.toJson(), copy.culture!.toJson());
       expect(gpu.toJson(), copy.gpu!.toJson());
+      expect(trace.toJson(), copy.trace!.toJson());
       expect('value', copy['extra']);
     });
   });

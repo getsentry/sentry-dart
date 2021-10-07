@@ -12,12 +12,14 @@ import 'user_feedback_dialog.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
 const String _exampleDsn =
-    'https://1a83aa1a92144083ab5af46299c67857@o447951.ingest.sentry.io/5428562';
+    'https://9934c532bf8446ef961450973c898537@o447951.ingest.sentry.io/5428562';
 
 Future<void> main() async {
   await SentryFlutter.init(
     (options) {
       options.dsn = _exampleDsn;
+      options.tracesSampleRate = 1.0;
+      options.reportPackages = false;
     },
     // Init your App.
     appRunner: () => runApp(MyApp()),
@@ -187,6 +189,51 @@ class MainScaffold extends StatelessWidget {
                     scope.setTag('foo', 'bar');
                   },
                 );
+              },
+            ),
+            RaisedButton(
+              child: const Text('Capture transaction'),
+              onPressed: () async {
+                final transaction = Sentry.startTransaction(
+                  'myNewTrWithError3',
+                  'myNewOp',
+                  description: 'myTr myOp',
+                );
+                transaction.setTag('myTag', 'myValue');
+                transaction.setData('myExtra', 'myExtraValue');
+
+                await Future.delayed(Duration(milliseconds: 50));
+
+                final span = transaction.startChild(
+                  'childOfMyOp',
+                  description: 'childOfMyOp span',
+                );
+                span.setTag('myNewTag', 'myNewValue');
+                span.setData('myNewData', 'myNewDataValue');
+
+                await Future.delayed(Duration(milliseconds: 70));
+
+                await span.finish(status: SpanStatus.resourceExhausted());
+
+                await Future.delayed(Duration(milliseconds: 90));
+
+                final spanChild = span.startChild(
+                  'childOfChildOfMyOp',
+                  description: 'childOfChildOfMyOp span',
+                );
+
+                await Future.delayed(Duration(milliseconds: 110));
+
+                spanChild.startChild(
+                  'unfinishedChild',
+                  description: 'I wont finish',
+                );
+
+                await spanChild.finish(status: SpanStatus.internalError());
+
+                await Future.delayed(Duration(milliseconds: 50));
+
+                await transaction.finish(status: SpanStatus.ok());
               },
             ),
             RaisedButton(
@@ -432,12 +479,22 @@ class SecondaryScaffold extends StatelessWidget {
 }
 
 Future<void> makeWebRequest(BuildContext context) async {
+  final transaction = Sentry.startTransaction(
+    'flutterwebrequest',
+    'request',
+    bindToScope: true,
+  );
+
   final client = SentryHttpClient(
     captureFailedRequests: true,
+    networkTracing: true,
+    failedRequestStatusCodes: [SentryStatusCode.range(400, 500)],
   );
   // We don't do any exception handling here.
   // In case of an exception, let it get caught and reported to Sentry
   final response = await client.get(Uri.parse('https://flutter.dev/'));
+
+  await transaction.finish(status: SpanStatus.ok());
 
   await showDialog<void>(
     context: context,

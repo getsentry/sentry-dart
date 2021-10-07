@@ -1,4 +1,5 @@
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/noop_sentry_span.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
@@ -181,5 +182,13 @@ class PrintRecursionMockHub extends MockHub {
   void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) {
     print('recursion');
     super.addBreadcrumb(crumb, hint: hint);
+  }
+
+  @override
+  ISentrySpan startTransactionWithContext(
+      SentryTransactionContext transactionContext,
+      {Map<String, dynamic>? customSamplingContext,
+      bool? bindToScope}) {
+    return NoOpSentrySpan();
   }
 }

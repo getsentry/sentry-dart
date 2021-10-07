@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'protocol.dart';
 import 'utils.dart';
 import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_item_type.dart';
@@ -9,6 +10,25 @@ import 'sentry_user_feedback.dart';
 /// Item holding header information and JSON encoded data.
 class SentryEnvelopeItem {
   SentryEnvelopeItem(this.header, this.dataFactory);
+
+  /// Creates an [SentryEnvelopeItem] which sends [SentryTransaction].
+  factory SentryEnvelopeItem.fromTransaction(SentryTransaction transaction) {
+    final cachedItem = _CachedItem(() async {
+      final jsonEncoded = jsonEncode(transaction.toJson());
+      return utf8.encode(jsonEncoded);
+    });
+
+    final getLength = () async {
+      return (await cachedItem.getData()).length;
+    };
+
+    final header = SentryEnvelopeItemHeader(
+      SentryItemType.transaction,
+      getLength,
+      contentType: 'application/json',
+    );
+    return SentryEnvelopeItem(header, cachedItem.getData);
+  }
 
   factory SentryEnvelopeItem.fromAttachment(SentryAttachment attachment) {
     final cachedItem = _CachedItem(() async => await attachment.bytes);

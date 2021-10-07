@@ -1,9 +1,11 @@
 import 'dart:async';
+
 import 'hub.dart';
 import 'protocol.dart';
 import 'sentry.dart';
 import 'sentry_client.dart';
 import 'sentry_user_feedback.dart';
+import 'tracing.dart';
 
 /// Hub adapter to make Integrations testable
 class HubAdapter implements Hub {
@@ -65,6 +67,7 @@ class HubAdapter implements Hub {
         template: template,
         params: params,
         hint: hint,
+        withScope: withScope,
       );
 
   @override
@@ -84,6 +87,49 @@ class HubAdapter implements Hub {
   SentryId get lastEventId => Sentry.lastEventId;
 
   @override
+  Future<SentryId> captureTransaction(SentryTransaction transaction) =>
+      Sentry.currentHub.captureTransaction(transaction);
+
+  @override
+  ISentrySpan? getSpan() => Sentry.currentHub.getSpan();
+
+  @override
   Future captureUserFeedback(SentryUserFeedback userFeedback) =>
       Sentry.captureUserFeedback(userFeedback);
+
+  @override
+  ISentrySpan startTransactionWithContext(
+    SentryTransactionContext transactionContext, {
+    Map<String, dynamic>? customSamplingContext,
+    bool? bindToScope,
+  }) =>
+      Sentry.startTransactionWithContext(
+        transactionContext,
+        customSamplingContext: customSamplingContext,
+        bindToScope: bindToScope,
+      );
+
+  @override
+  ISentrySpan startTransaction(
+    String name,
+    String operation, {
+    String? description,
+    bool? bindToScope,
+    Map<String, dynamic>? customSamplingContext,
+  }) =>
+      Sentry.startTransaction(
+        name,
+        operation,
+        description: description,
+        bindToScope: bindToScope,
+        customSamplingContext: customSamplingContext,
+      );
+
+  @override
+  void setSpanContext(
+    dynamic throwable,
+    ISentrySpan span,
+    String transaction,
+  ) =>
+      Sentry.currentHub.setSpanContext(throwable, span, transaction);
 }

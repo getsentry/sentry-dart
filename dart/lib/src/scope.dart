@@ -1,17 +1,50 @@
 import 'dart:collection';
+
 import 'sentry_attachment/sentry_attachment.dart';
 import 'event_processor.dart';
 import 'protocol.dart';
 import 'sentry_options.dart';
+import 'sentry_tracer.dart';
+import 'tracing.dart';
 
 /// Scope data to be sent with the event
 class Scope {
   /// How important this event is.
   SentryLevel? level;
 
+  String? _transaction;
+
   /// The name of the transaction which generated this event,
   /// for example, the route name: `"/users/<username>/"`.
-  String? transaction;
+  String? get transaction {
+    return ((_span is SentryTracer) ? (_span as SentryTracer?)?.name : null) ??
+        _transaction;
+  }
+
+  set transaction(String? transaction) {
+    _transaction = transaction;
+
+    if (_transaction != null && _span != null) {
+      final currentTransaction =
+          (_span is SentryTracer) ? (_span as SentryTracer?) : null;
+      currentTransaction?.name = _transaction!;
+    }
+  }
+
+  ISentrySpan? _span;
+
+  /// Returns active transaction or null if there is no active transaction.
+  ISentrySpan? get span => _span;
+
+  set span(ISentrySpan? span) {
+    _span = span;
+
+    if (_span != null) {
+      final currentTransaction =
+          (_span is SentryTracer) ? (_span as SentryTracer?) : null;
+      _transaction = currentTransaction?.name ?? _transaction;
+    }
+  }
 
   /// Information about the current user.
   SentryUser? user;
@@ -143,7 +176,8 @@ class Scope {
     clearBreadcrumbs();
     clearAttachments();
     level = null;
-    transaction = null;
+    _span = null;
+    _transaction = null;
     user = null;
     _fingerprint = [];
     _tags.clear();
@@ -169,20 +203,27 @@ class Scope {
   /// Removes an extra from the Scope
   void removeExtra(String key) => _extra.remove(key);
 
-  Future<SentryEvent?> applyToEvent(SentryEvent event, dynamic hint) async {
+  Future<SentryEvent?> applyToEvent(
+    SentryEvent event, {
+    dynamic hint,
+  }) async {
     event = event.copyWith(
-      transaction: event.transaction ?? transaction,
+      transaction: event.transaction ?? _transaction,
       user: _mergeUsers(user, event.user),
-      fingerprint: (event.fingerprint?.isNotEmpty ?? false)
-          ? event.fingerprint
-          : _fingerprint,
       breadcrumbs: (event.breadcrumbs?.isNotEmpty ?? false)
           ? event.breadcrumbs
           : List.from(_breadcrumbs),
       tags: tags.isNotEmpty ? _mergeEventTags(event) : event.tags,
       extra: extra.isNotEmpty ? _mergeEventExtra(event) : event.extra,
-      level: level ?? event.level,
     );
+
+    if (event is! SentryTransaction) {
+      event = event.copyWith(
+          fingerprint: (event.fingerprint?.isNotEmpty ?? false)
+              ? event.fingerprint
+              : _fingerprint,
+          level: level ?? event.level);
+    }
 
     _contexts.clone().forEach((key, value) {
       // add the contexts runtime list to the event.contexts.runtimes
@@ -194,6 +235,13 @@ class Scope {
         event.contexts[key] = value;
       }
     });
+
+    final span = _span;
+    if (event.contexts.trace == null && span != null) {
+      event.contexts.trace = span.context.toTraceContext(
+        sampled: span.sampled,
+      );
+    }
 
     SentryEvent? processedEvent = event;
     for (final processor in _eventProcessors) {
@@ -272,9 +320,11 @@ class Scope {
   /// Clones the current Scope
   Scope clone() {
     final clone = Scope(_options)
+      ..level = level
       ..user = user
       ..fingerprint = List.from(fingerprint)
-      ..transaction = transaction;
+      .._transaction = _transaction
+      .._span = _span;
 
     for (final tag in _tags.keys) {
       clone.setTag(tag, _tags[tag]!);

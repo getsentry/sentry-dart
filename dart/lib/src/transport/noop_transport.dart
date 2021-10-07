@@ -7,5 +7,5 @@ import 'transport.dart';
 
 class NoOpTransport implements Transport {
   @override
-  Future<SentryId?> send(SentryEnvelope envelope) => Future.value(null);
+  Future<SentryId?> send(SentryEnvelope envelope) async => null;
 }

@@ -79,7 +79,7 @@ MaterialApp(
 )
 // ...
 ```
-For a more throughout example see the [example](example/lib/main.dart).
+For a more throughout example see the [example](https://github.com/getsentry/sentry-dart/blob/main/flutter/example/lib/main.dart).
 
 ##### Tracking HTTP events
 

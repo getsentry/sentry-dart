@@ -156,6 +156,31 @@ void main() {
       });
     });
 
+    testWidgets('do no add packages if disabled', (WidgetTester tester) async {
+      final enricher = fixture.getSut(
+        binding: () => tester.binding,
+        reportPackages: false,
+      );
+
+      LicenseRegistry.addLicense(
+        () => Stream.fromIterable(
+          [
+            LicenseEntryWithLineBreaks(
+              [
+                'foo_package',
+                'bar_package',
+              ],
+              'Test License Text',
+            ),
+          ],
+        ),
+      );
+
+      final event = await enricher.apply(SentryEvent());
+
+      expect(event.modules, null);
+    });
+
     testWidgets('adds packages only once', (WidgetTester tester) async {
       final enricher = fixture.getSut(
         binding: () => tester.binding,
@@ -253,6 +278,7 @@ class Fixture {
     required WidgetBindingGetter binding,
     PlatformChecker? checker,
     bool hasNativeIntegration = false,
+    bool reportPackages = true,
   }) {
     final platformChecker = checker ??
         MockPlatformChecker(
@@ -261,7 +287,7 @@ class Fixture {
     final options = SentryFlutterOptions(
       dsn: fakeDsn,
       checker: platformChecker,
-    );
+    )..reportPackages = reportPackages;
     return FlutterEnricherEventProcessor(
       options,
       binding,

@@ -1,6 +1,36 @@
 # Unreleased
 
 * Feat: Add current route as transaction (#560)
+# 6.1.0-alpha.2
+
+* Bump Sentry Android SDK to [5.2.0](https://github.com/getsentry/sentry-dart/pull/594) (#594)
+  - [changelog](https://github.com/getsentry/sentry-java/blob/5.2.0/CHANGELOG.md)
+  - [diff](https://github.com/getsentry/sentry-java/compare/5.1.2...5.2.0)
+* Feat: Enrich Dart context with isolate name (#600)
+* Feat: Sentry Performance for HTTP client (#603)
+
+# 6.1.0-alpha.1
+
+* Performance API for Dart/Flutter (#530)
+
+## Breaking Changes:
+
+* `SentryEvent` inherits from the `SentryEventLike` mixin
+* `Scope#transaction` sets and reads from the `Scope#span` object if bound to the Scope
+
+# 6.0.1
+
+* Fix: Set custom SentryHttpClientError when HTTP error is captured without an exception (#580)
+* Bump: Android AGP 4.1 (#586)
+* Bump: Sentry Cocoa to 7.3.0 (#589)
+
+# 6.0.0
+
+* Fix: Update `SentryUser` according to docs (#561)
+* Feat: Enable or disable reporting of packages (#563)
+* Bump: Sentry-Cocoa to 7.2.7 (#578)
+* Bump: Sentry-Android to 5.1.2 (#578)
+* Fix: Read Sentry config from environment variables as fallback (#567)
 
 # 6.0.0-beta.4
 
@@ -9,8 +39,6 @@
 * Feat: Lists of exceptions and threads (#524)
 * Feat: Collect more information for exceptions collected via `FlutterError.onError` (#538)
 * Feat: Add maxAttachmentSize option (#553)
-* Bump: Sentry-Cocoa to 7.1.4 (#551)
-* Bump: Sentry-Android to 5.1.0 (#551)
 * Feat: HTTP breadcrumbs have the request & response size if available (#552)
 
 # 6.0.0-beta.3

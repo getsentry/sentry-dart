@@ -1,6 +1,6 @@
 name: sentry_flutter_example
 description: Demonstrates how to use the sentry_flutter plugin.
-version: 0.1.2+3
+version: 6.1.0-alpha.3
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
@@ -14,7 +14,10 @@ dependencies:
   sentry_flutter: any
   universal_platform: ^1.0.0-nullsafety
   feedback: ^2.0.0
-  provider: ^5.0.0
+  provider: ^6.0.0
+
+dev_dependencies:
+  sentry_dart_plugin: ^1.0.0-alpha.2
 
 dependency_overrides:
   sentry:
@@ -24,3 +27,11 @@ dependency_overrides:
 
 flutter:
   uses-material-design: true
+
+sentry:
+  upload_native_symbols: false
+  upload_source_maps: true
+  project: sentry-flutter
+  org: sentry-sdks
+  log_level: error
+  wait_for_processing: true

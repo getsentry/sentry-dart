@@ -80,7 +80,7 @@ class MockPlatformChecker implements PlatformChecker {
   final bool isProfile;
   final bool isRelease;
   final bool isWebValue;
-  late final Platform _mockPlatform;
+  final Platform _mockPlatform;
 
   @override
   bool hasNativeIntegration = false;
@@ -116,9 +116,8 @@ class NoOpHub implements Hub {
     stackTrace,
     hint,
     ScopeCallback? withScope,
-  }) async {
-    return SentryId.empty();
-  }
+  }) async =>
+      SentryId.empty();
 
   @override
   Future<SentryId> captureException(
@@ -126,9 +125,8 @@ class NoOpHub implements Hub {
     stackTrace,
     hint,
     ScopeCallback? withScope,
-  }) async {
-    return SentryId.empty();
-  }
+  }) async =>
+      SentryId.empty();
 
   @override
   Future<SentryId> captureMessage(
@@ -138,9 +136,8 @@ class NoOpHub implements Hub {
     List? params,
     hint,
     ScopeCallback? withScope,
-  }) async {
-    return SentryId.empty();
-  }
+  }) async =>
+      SentryId.empty();
 
   @override
   Hub clone() {
@@ -160,5 +157,37 @@ class NoOpHub implements Hub {
   SentryId get lastEventId => SentryId.empty();
 
   @override
+  Future<SentryId> captureTransaction(SentryTransaction transaction) async =>
+      SentryId.empty();
+
+  @override
   Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {}
+
+  @override
+  ISentrySpan startTransaction(
+    String name,
+    String operation, {
+    String? description,
+    bool? bindToScope,
+    Map<String, dynamic>? customSamplingContext,
+  }) {
+    return NoOpSentrySpan();
+  }
+
+  @override
+  ISentrySpan startTransactionWithContext(
+    SentryTransactionContext transactionContext, {
+    Map<String, dynamic>? customSamplingContext,
+    bool? bindToScope,
+  }) {
+    return NoOpSentrySpan();
+  }
+
+  @override
+  ISentrySpan? getSpan() {
+    return null;
+  }
+
+  @override
+  void setSpanContext(throwable, ISentrySpan span, String transaction) {}
 }

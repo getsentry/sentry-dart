@@ -5,7 +5,10 @@ import 'package:sentry/src/sentry_envelope_item_header.dart';
 import 'package:sentry/src/sentry_envelope_item.dart';
 import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/protocol/sentry_id.dart';
+import 'package:sentry/src/sentry_tracer.dart';
 import 'package:test/test.dart';
+
+import 'mocks/mock_hub.dart';
 
 void main() {
   group('SentryEnvelopeItem', () {
@@ -42,6 +45,28 @@ void main() {
 
       expect(sut.header.contentType, 'application/json');
       expect(sut.header.type, SentryItemType.event);
+      expect(actualLength, expectedLength);
+      expect(actualData, expectedData);
+    });
+
+    test('fromTransaction', () async {
+      final context = SentryTransactionContext(
+        'name',
+        'op',
+      );
+      final tracer = SentryTracer(context, MockHub());
+      final tr = SentryTransaction(tracer);
+
+      final sut = SentryEnvelopeItem.fromTransaction(tr);
+
+      final expectedData = utf8.encode(jsonEncode(tr.toJson()));
+      final actualData = await sut.dataFactory();
+
+      final expectedLength = expectedData.length;
+      final actualLength = await sut.header.length();
+
+      expect(sut.header.contentType, 'application/json');
+      expect(sut.header.type, SentryItemType.transaction);
       expect(actualLength, expectedLength);
       expect(actualData, expectedData);
     });
