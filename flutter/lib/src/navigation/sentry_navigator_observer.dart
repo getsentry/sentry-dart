@@ -7,7 +7,7 @@ import '../../sentry_flutter.dart';
 const _navigationKey = 'navigation';
 
 /// Used as value for [SentrySpanContext.operation]
-const _transactionOp = 'page_view';
+const _transactionOp = 'ui.load';
 
 /// This is a navigation observer to record navigational breadcrumbs.
 /// For now it only records navigation events and no gestures.
