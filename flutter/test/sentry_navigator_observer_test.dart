@@ -7,6 +7,12 @@ import 'mocks.dart';
 import 'mocks.mocks.dart';
 
 void main() {
+  late Fixture fixture;
+
+  setUp(() {
+    fixture = Fixture();
+  });
+
   group('RouteObserverBreadcrumb', () {
     test('happy path with string route agrument', () {
       const fromRouteSettings = RouteSettings(
@@ -141,12 +147,12 @@ void main() {
           settings: settings,
         );
 
-    RouteSettings routeSettings(String name, [Object? arguments]) =>
+    RouteSettings routeSettings(String? name, [Object? arguments]) =>
         RouteSettings(name: name, arguments: arguments);
 
     test('Test recording of Breadcrumbs', () {
       final hub = MockHub();
-      final observer = SentryNavigatorObserver(hub: hub);
+      final observer = fixture.getSut(hub: hub);
 
       final to = routeSettings('to', 'foobar');
       final previous = routeSettings('previous', 'foobar');
@@ -167,7 +173,7 @@ void main() {
 
     test('No arguments', () {
       final hub = MockHub();
-      final observer = SentryNavigatorObserver(hub: hub);
+      final observer = fixture.getSut(hub: hub);
 
       final to = routeSettings('to');
       final previous = routeSettings('previous');
@@ -188,7 +194,7 @@ void main() {
 
     test('No arguments & no name', () {
       final hub = MockHub();
-      final observer = SentryNavigatorObserver(hub: hub);
+      final observer = fixture.getSut(hub: hub);
 
       final to = route(null);
       final previous = route(null);
@@ -211,7 +217,7 @@ void main() {
           );
 
       final hub = MockHub();
-      final observer = SentryNavigatorObserver(hub: hub);
+      final observer = fixture.getSut(hub: hub);
 
       final to = route();
       final previous = route();
@@ -230,7 +236,10 @@ void main() {
 
     test('route name as transaction', () {
       final hub = _MockHub();
-      final observer = SentryNavigatorObserver(hub: hub, setTransaction: true);
+      final observer = fixture.getSut(
+        hub: hub,
+        setRouteNameAsTransaction: true,
+      );
 
       final to = routeSettings('to');
       final previous = routeSettings('previous');
@@ -245,9 +254,26 @@ void main() {
       expect(hub.scope.transaction, 'to');
     });
 
+    test('route name does nothing if null', () {
+      final hub = _MockHub();
+      final observer = fixture.getSut(
+        hub: hub,
+        setRouteNameAsTransaction: true,
+      );
+
+      hub.scope.transaction = 'foo bar';
+
+      final to = routeSettings(null);
+      final previous = routeSettings(null);
+
+      observer.didPush(route(to), route(previous));
+      expect(hub.scope.transaction, 'foo bar');
+    });
+
     test('disabled route as transaction', () {
       final hub = _MockHub();
-      final observer = SentryNavigatorObserver(hub: hub, setTransaction: false);
+      final observer =
+          fixture.getSut(hub: hub, setRouteNameAsTransaction: false);
 
       final to = routeSettings('to');
       final previous = routeSettings('previous');
@@ -262,6 +288,18 @@ void main() {
       expect(hub.scope.transaction, null);
     });
   });
+}
+
+class Fixture {
+  SentryNavigatorObserver getSut({
+    required Hub hub,
+    bool setRouteNameAsTransaction = false,
+  }) {
+    return SentryNavigatorObserver(
+      hub: hub,
+      setRouteNameAsTransaction: setRouteNameAsTransaction,
+    );
+  }
 }
 
 class _MockHub extends MockHub {

@@ -1,6 +1,7 @@
 # Unreleased
 
-* Feat: Add current route as transaction (#560)
+* Feat: Add current route as transaction (#615)
+
 # 6.1.0-alpha.2
 
 * Bump Sentry Android SDK to [5.2.0](https://github.com/getsentry/sentry-dart/pull/594) (#594)
