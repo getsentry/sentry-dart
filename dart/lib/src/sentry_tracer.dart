@@ -132,4 +132,7 @@ class SentryTracer extends ISentrySpan {
 
   @override
   bool? get sampled => _rootSpan.sampled;
+
+  @override
+  SentryTraceHeader toSentryTrace() => _rootSpan.toSentryTrace();
 }

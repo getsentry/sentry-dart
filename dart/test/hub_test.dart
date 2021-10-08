@@ -258,8 +258,29 @@ void main() {
       expect(hub.getSpan(), isNull);
     });
 
+    test('get span does not return span if tracing is disabled', () async {
+      final hub = fixture.getSut(tracesSampleRate: null);
+
+      hub.startTransaction(
+        'name',
+        'op',
+        description: 'desc',
+      );
+
+      expect(hub.getSpan(), isNull);
+    });
+
     test('transaction isnt captured if not sampled', () async {
       final hub = fixture.getSut(sampled: false);
+
+      var tr = SentryTransaction(fixture.tracer);
+      final id = await hub.captureTransaction(tr);
+
+      expect(id, SentryId.empty());
+    });
+
+    test('transaction isnt captured if tracing is disabled', () async {
+      final hub = fixture.getSut(tracesSampleRate: null);
 
       var tr = SentryTransaction(fixture.tracer);
       final id = await hub.captureTransaction(tr);

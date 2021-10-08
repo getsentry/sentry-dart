@@ -465,6 +465,12 @@ class SecondaryScaffold extends StatelessWidget {
                 Navigator.pop(context);
               },
             ),
+            MaterialButton(
+              child: const Text('throw uncaught exception'),
+              onPressed: () {
+                throw Exception('Exception from SecondaryScaffold');
+              },
+            ),
           ],
         ),
       ),
@@ -473,13 +479,22 @@ class SecondaryScaffold extends StatelessWidget {
 }
 
 Future<void> makeWebRequest(BuildContext context) async {
+  final transaction = Sentry.startTransaction(
+    'flutterwebrequest',
+    'request',
+    bindToScope: true,
+  );
+
   final client = SentryHttpClient(
     captureFailedRequests: true,
+    networkTracing: true,
     failedRequestStatusCodes: [SentryStatusCode.range(400, 500)],
   );
   // We don't do any exception handling here.
   // In case of an exception, let it get caught and reported to Sentry
   final response = await client.get(Uri.parse('https://flutter.dev/'));
+
+  await transaction.finish(status: SpanStatus.ok());
 
   await showDialog<void>(
     context: context,
