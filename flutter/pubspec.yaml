@@ -19,10 +19,10 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  mockito: ^5.0.16
-  yaml: ^3.1.0 # needed for version match (code and pubspec)
-  pedantic: ^1.11.1
-  build_runner: ^2.1.2
+  mockito: ^5.0.3
+  yaml: ^3.0.0 # needed for version match (code and pubspec)
+  pedantic: ^1.10.0
+  build_runner: ^1.11.5
 
 dependency_overrides:
   sentry:

@@ -57,7 +57,6 @@ jobs:
             cd ..
             cd example_web
             dart pub get
-            dart pub get
             dart run webdev build
 
         - uses: codecov/codecov-action@v1
