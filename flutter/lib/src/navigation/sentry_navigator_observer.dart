@@ -41,7 +41,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final Hub _hub;
 
   /// Enabling this option overrides the current [Scope.transaction].
-  /// So be careful when this is used together with performance tracing.
+  /// So be careful when this is used together with performance monitoring.
   final bool setRouteNameAsTransaction;
 
   @override
