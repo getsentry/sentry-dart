@@ -57,7 +57,7 @@ jobs:
             cd ..
             cd example_web
             dart pub get
-            dart run webdev build
+            webdev build
 
         - uses: codecov/codecov-action@v1
           if: runner.os == 'Linux'
