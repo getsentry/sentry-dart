@@ -29,6 +29,7 @@ class WebEnricherEventProcessor extends EventProcessor {
     return event.copyWith(
       contexts: contexts,
       request: _getRequest(event.request),
+      transaction: event.transaction ?? _window.location.pathname,
     );
   }
 

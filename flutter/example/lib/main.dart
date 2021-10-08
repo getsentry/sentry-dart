@@ -465,6 +465,12 @@ class SecondaryScaffold extends StatelessWidget {
                 Navigator.pop(context);
               },
             ),
+            MaterialButton(
+              child: const Text('throw uncaught exception'),
+              onPressed: () {
+                throw Exception('Exception from SecondaryScaffold');
+              },
+            ),
           ],
         ),
       ),
