@@ -30,19 +30,20 @@ const _navigationKey = 'navigation';
 ///   // other parameter ...
 /// )
 /// ```
+/// Enabling the [setRouteNameAsTransaction] option overrides the current
+/// [Scope.transaction]. So be careful when this is used together with
+/// performance monitoring.
 ///
 /// See also:
 ///   - [RouteObserver](https://api.flutter.dev/flutter/widgets/RouteObserver-class.html)
 ///   - [Navigating with arguments](https://flutter.dev/docs/cookbook/navigation/navigate-with-arguments)
 class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
-  SentryNavigatorObserver({Hub? hub, this.setRouteNameAsTransaction = true})
-      : _hub = hub ?? HubAdapter();
+  SentryNavigatorObserver({Hub? hub, bool setRouteNameAsTransaction = false})
+      : _hub = hub ?? HubAdapter(),
+        _setRouteNameAsTransaction = setRouteNameAsTransaction;
 
   final Hub _hub;
-
-  /// Enabling this option overrides the current [Scope.transaction].
-  /// So be careful when this is used together with performance monitoring.
-  final bool setRouteNameAsTransaction;
+  final bool _setRouteNameAsTransaction;
 
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
@@ -93,7 +94,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     if (name == null) {
       return;
     }
-    if (setRouteNameAsTransaction) {
+    if (_setRouteNameAsTransaction) {
       _hub.configureScope((scope) {
         scope.transaction = name;
       });
