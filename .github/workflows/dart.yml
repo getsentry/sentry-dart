@@ -49,12 +49,16 @@ jobs:
         - name: Install webdev
           run: dart pub global activate webdev
 
-        - name: Build examples
+        - name: Build example
           run: |
             cd example
             dart pub get
             dart compile exe bin/example.dart
-            cd ..
+
+        # if condition because of: The pubspec.lock file has changed since the .dart_tool/package_config.json file was generated, please run "pub get" again.
+        - name: Build Web example
+          if: runner.os != 'Windows'
+          run: |
             cd example_web
             dart pub get
             webdev build
