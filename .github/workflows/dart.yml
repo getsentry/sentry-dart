@@ -46,11 +46,22 @@ jobs:
             dart test -p vm --coverage=coverage
             dart pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.packages --report-on=lib
 
+        - name: Install webdev
+          run: dart pub global activate webdev
+
         - name: Build example
           run: |
             cd example
             dart pub get
             dart compile exe bin/example.dart
+
+        # if condition because of: The pubspec.lock file has changed since the .dart_tool/package_config.json file was generated, please run "pub get" again.
+        - name: Build Web example
+          if: runner.os != 'Windows'
+          run: |
+            cd example_web
+            dart pub get
+            webdev build
 
         - uses: codecov/codecov-action@v1
           if: runner.os == 'Linux'
