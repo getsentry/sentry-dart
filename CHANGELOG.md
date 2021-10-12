@@ -1,7 +1,7 @@
 # Unreleased
 
 * Feat: Add current route as transaction (#615)
-* Feat: Add Breadcrumbs for Flutters `debugPrint` 
+* Feat: Add Breadcrumbs for Flutters `debugPrint` (#618)
 
 # 6.1.0-alpha.2
 
