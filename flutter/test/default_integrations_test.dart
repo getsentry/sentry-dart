@@ -420,31 +420,6 @@ void main() {
       expect(fixture.options.dist, isNull);
     });
   });
-
-  test('$DebugPrintIntegration debugPrint adds a breadcrumb', () {
-    final integration = DebugPrintIntegration();
-    integration.call(fixture.hub, fixture.options);
-
-    debugPrint('Foo Bar');
-
-    final breadcrumb = verify(
-      fixture.hub.addBreadcrumb(captureAny),
-    ).captured.first as Breadcrumb;
-
-    expect(breadcrumb.message, 'Foo Bar');
-  });
-
-  test(
-      '$DebugPrintIntegration debugPrint does not add a breadcrumb after close',
-      () {
-    final integration = DebugPrintIntegration();
-    integration.call(fixture.hub, fixture.options);
-    integration.close();
-
-    debugPrint('Foo Bar');
-
-    verifyNever(fixture.hub.addBreadcrumb(captureAny));
-  });
 }
 
 class Fixture {
