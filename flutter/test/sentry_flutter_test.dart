@@ -4,6 +4,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry/src/platform_checker.dart';
+import 'package:sentry_flutter/src/integrations/debug_print_integration.dart';
 import 'package:sentry_flutter/src/version.dart';
 import 'mocks.dart';
 import 'sentry_flutter_util.dart';
@@ -13,6 +14,7 @@ import 'sentry_flutter_util.dart';
 final platformAgnosticIntegrations = [
   FlutterErrorIntegration,
   LoadReleaseIntegration,
+  DebugPrintIntegration,
 ];
 
 // These should only be added to Android
