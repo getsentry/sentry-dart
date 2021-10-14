@@ -14,9 +14,13 @@ void main() {
     fixture = Fixture();
   });
 
+  tearDown(() {
+    debugPrint = debugPrintSynchronously;
+  });
+
   test('$DebugPrintIntegration: debugPrint adds a breadcrumb', () {
     final integration = fixture.getSut();
-    integration.call(fixture.hub, fixture.options);
+    integration.call(fixture.hub, fixture.getOptions());
 
     debugPrint('Foo Bar');
 
@@ -31,7 +35,7 @@ void main() {
       '$DebugPrintIntegration: debugPrint does not add a breadcrumb after close',
       () {
     final integration = fixture.getSut();
-    integration.call(fixture.hub, fixture.options);
+    integration.call(fixture.hub, fixture.getOptions());
     integration.close();
 
     debugPrint('Foo Bar');
@@ -45,16 +49,47 @@ void main() {
     final original = debugPrint;
 
     final integration = fixture.getSut();
-    integration.call(fixture.hub, fixture.options);
+    integration.call(fixture.hub, fixture.getOptions());
     integration.close();
 
     expect(debugPrint, original);
+  });
+
+  test('$DebugPrintIntegration: disabled in debug builds', () {
+    final integration = fixture.getSut();
+    integration.call(fixture.hub, fixture.getOptions(debug: true));
+
+    debugPrint('Foo Bar');
+
+    verifyNever(fixture.hub.addBreadcrumb(captureAny));
+  });
+
+  test('$DebugPrintIntegration: disabled if enablePrintBreadcrumbs = false',
+      () {
+    final integration = fixture.getSut();
+    integration.call(
+      fixture.hub,
+      fixture.getOptions(enablePrintBreadcrumbs: false),
+    );
+
+    debugPrint('Foo Bar');
+
+    verifyNever(fixture.hub.addBreadcrumb(captureAny));
   });
 }
 
 class Fixture {
   final hub = MockHub();
-  final options = SentryFlutterOptions(dsn: fakeDsn);
+
+  SentryFlutterOptions getOptions({
+    bool debug = false,
+    bool enablePrintBreadcrumbs = true,
+  }) {
+    return SentryFlutterOptions(
+      dsn: fakeDsn,
+      checker: MockPlatformChecker(isDebug: debug),
+    )..enablePrintBreadcrumbs = enablePrintBreadcrumbs;
+  }
 
   DebugPrintIntegration getSut() {
     return DebugPrintIntegration();

@@ -21,6 +21,12 @@ class DebugPrintIntegration extends Integration<SentryFlutterOptions> {
     _options = options;
     _debugPrintBackup = debugPrint;
 
+    final isDebug = options.platformChecker.isDebugMode();
+    final enablePrintBreadcrumbs = options.enablePrintBreadcrumbs;
+    if (isDebug || !enablePrintBreadcrumbs) {
+      return Future.value();
+    }
+
     // We're simply replacing debugPrint here. The default implementation is a
     // a throttling system which prints using Darts print method. It's basically
     // a fire and forget method which completes sometime in the future. We can't
