@@ -74,7 +74,7 @@ class Breadcrumb {
   }) {
     return Breadcrumb(
       message: message,
-      level: level ?? SentryLevel.debug,
+      level: level,
       category: 'console',
       type: 'debug',
       timestamp: timestamp,
