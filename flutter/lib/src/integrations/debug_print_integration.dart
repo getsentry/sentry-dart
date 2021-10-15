@@ -11,7 +11,7 @@ import '../sentry_flutter_options.dart';
 /// This integration fixes the issue described in
 /// [#492](https://github.com/getsentry/sentry-dart/issues/492).
 class DebugPrintIntegration extends Integration<SentryFlutterOptions> {
-  late DebugPrintCallback _debugPrintBackup;
+  DebugPrintCallback? _debugPrintBackup;
   late Hub _hub;
   late SentryFlutterOptions _options;
 
@@ -19,13 +19,14 @@ class DebugPrintIntegration extends Integration<SentryFlutterOptions> {
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
     _hub = hub;
     _options = options;
-    _debugPrintBackup = debugPrint;
 
     final isDebug = options.platformChecker.isDebugMode();
     final enablePrintBreadcrumbs = options.enablePrintBreadcrumbs;
     if (isDebug || !enablePrintBreadcrumbs) {
       return Future.value();
     }
+
+    _debugPrintBackup = debugPrint;
 
     // We're simply replacing debugPrint here. The default implementation is a
     // a throttling system which prints using Darts print method. It's basically
@@ -37,11 +38,15 @@ class DebugPrintIntegration extends Integration<SentryFlutterOptions> {
     // See the docs for more information.
     // https://api.flutter.dev/flutter/foundation/debugPrint.html
     debugPrint = _debugPrint;
+
+    options.sdk.addIntegration('debugPrintIntegration');
   }
 
   @override
   void close() {
-    debugPrint = _debugPrintBackup;
+    if (_debugPrintBackup != null) {
+      debugPrint = _debugPrintBackup!;
+    }
   }
 
   void _debugPrint(String? message, {int? wrapWidth}) {

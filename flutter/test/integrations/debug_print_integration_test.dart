@@ -76,6 +76,15 @@ void main() {
 
     verifyNever(fixture.hub.addBreadcrumb(captureAny));
   });
+
+  test(
+      '$DebugPrintIntegration: close works if debugPrintIntegration.call was not called',
+      () {
+    final integration = fixture.getSut();
+
+    // test is successful if no exception is thrown
+    expect(() => integration.close(), returnsNormally);
+  });
 }
 
 class Fixture {
