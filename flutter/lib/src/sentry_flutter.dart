@@ -5,6 +5,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
 
 import 'flutter_enricher_event_processor.dart';
+import 'integrations/debug_print_integration.dart';
 import 'sentry_flutter_options.dart';
 
 import 'default_integrations.dart';
@@ -106,6 +107,8 @@ mixin SentryFlutter {
         options.platformChecker.platform.isAndroid) {
       integrations.add(LoadAndroidImageListIntegration(channel));
     }
+
+    integrations.add(DebugPrintIntegration());
 
     // This is an Integration because we want to execute it after all the
     // error handlers are in place. Calling a MethodChannel might result

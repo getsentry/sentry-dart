@@ -66,6 +66,22 @@ class Breadcrumb {
     );
   }
 
+  factory Breadcrumb.console({
+    String? message,
+    SentryLevel? level,
+    DateTime? timestamp,
+    Map<String, dynamic>? data,
+  }) {
+    return Breadcrumb(
+      message: message,
+      level: level,
+      category: 'console',
+      type: 'debug',
+      timestamp: timestamp,
+      data: data,
+    );
+  }
+
   /// Describes the breadcrumb.
   ///
   /// This field is optional and may be set to null.
