@@ -11,8 +11,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  sentry:
-    path: ../../dart
   sentry_flutter:
     path: ../
   universal_platform: ^1.0.0-nullsafety
