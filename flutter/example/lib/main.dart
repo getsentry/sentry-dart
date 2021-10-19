@@ -9,10 +9,15 @@ import 'package:universal_platform/universal_platform.dart';
 import 'package:feedback/feedback.dart' as feedback;
 import 'package:provider/provider.dart';
 import 'user_feedback_dialog.dart';
+import 'package:flutter/widgets.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
 const String _exampleDsn =
     'https://9934c532bf8446ef961450973c898537@o447951.ingest.sentry.io/5428562';
+
+
+
+typedef AppRunner = FutureOr<Widget?> Function();
 
 Future<void> main() async {
   await SentryFlutter.init(
@@ -22,8 +27,14 @@ Future<void> main() async {
       options.reportPackages = false;
     },
     // Init your App.
-    appRunner: () => runApp(MyApp()),
+    appRunner: () => MyApp(),
   );
+}
+
+// inside SentryFlutter.init
+final widget = await appRunner();
+if(widget != null) {
+  runApp(SentryWidget(child: widget));
 }
 
 class MyApp extends StatefulWidget {
