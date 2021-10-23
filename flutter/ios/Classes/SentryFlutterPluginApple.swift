@@ -254,7 +254,6 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
                     #endif
                 #endif
                 setEventEnvironmentTag(event: event, origin: origin, environment: "native")
-                break
             default:
                 return
             }
