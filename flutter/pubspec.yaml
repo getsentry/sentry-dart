@@ -22,7 +22,6 @@ dev_dependencies:
   mockito: ^5.0.16
   yaml: ^3.1.0 # needed for version match (code and pubspec)
   pedantic: ^1.11.1
-  build_runner: ^1.12.2
 
 dependency_overrides:
   sentry:
