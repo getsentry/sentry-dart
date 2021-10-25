@@ -240,7 +240,20 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
             switch sdk["name"] as? String {
             case "sentry.cocoa":
-                setEventEnvironmentTag(event: event, origin: "ios", environment: "native")
+                #if os(OSX)
+                    let origin = "mac"
+                #elseif os(watchOS)
+                    let origin = "watch"
+                #elseif os(tvOS)
+                    let origin = "tv"
+                #elseif os(iOS)
+                    #if targetEnvironment(macCatalyst)
+                        let origin = "macCatalyst"
+                    #else
+                        let origin = "ios"
+                    #endif
+                #endif
+                setEventEnvironmentTag(event: event, origin: origin, environment: "native")
             default:
                 return
             }
