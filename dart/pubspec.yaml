@@ -17,8 +17,8 @@ dependencies:
 
 dev_dependencies:
   mockito: ^5.0.16
-  pedantic: ^1.11.1
-  test: ^1.17.2
+  pedantic: ^1.11.1 # discontinued replaced by lints
+  test: ">=1.18.2 <1.19.0" # rollback when https://github.com/dart-lang/test/issues/1620 is fixed
   yaml: ^3.1.0 # needed for version match (code and pubspec)
   collection: ^1.15.0
   coverage: ^1.0.3
