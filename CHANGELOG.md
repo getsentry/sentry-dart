@@ -1,7 +1,19 @@
+# Unreleased
+
 # 6.1.0
 
 * Bump: Sentry-Android to 5.3.0 and Sentry-Cocoa to 7.5.1 (#629)
 * Fix: event.origin tag for macOS and other Apple platforms (#622)
+* Feat: Add current route as transaction (#615)
+* Feat: Add Breadcrumbs for Flutters `debugPrint` (#618)
+* Feat: Enrich Dart context with isolate name (#600)
+* Feat: Sentry Performance for HTTP client (#603)
+* Performance API for Dart/Flutter (#530)
+
+## Breaking Changes:
+
+* `SentryEvent` inherits from the `SentryEventLike` mixin
+* `Scope#transaction` sets and reads from the `Scope#span` object if bound to the Scope
 
 # 6.1.0-beta.1
 
