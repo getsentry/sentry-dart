@@ -1,4 +1,4 @@
-# Unreleased
+# 6.1.0
 
 * Bump: Sentry-Android to 5.3.0 and Sentry-Cocoa to 7.5.1 (#629)
 * Fix: event.origin tag for macOS and other Apple platforms (#622)
