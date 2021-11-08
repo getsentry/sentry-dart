@@ -1,0 +1,97 @@
+name: logging
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+defaults:
+  run:
+    shell: bash
+jobs:
+  build:
+    name: Build ${{matrix.sdk}} on ${{matrix.os}}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: ./sentry-logging
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        sdk: [stable, beta, dev]
+        exclude:
+          # Bad state: Could not run tests with Observatory enabled. Try setting a different port with --port option.
+          - os: ubuntu-latest
+            sdk: beta
+          # hanging often
+          - os: ubuntu-latest
+            sdk: dev
+          - os: macos-latest
+            sdk: beta
+          # macos-latest is taking hours due to limited resources
+          - os: macos-latest
+            sdk: dev
+
+    steps:
+        - uses: dart-lang/setup-dart@v1
+          with:
+            sdk: ${{ matrix.sdk }}
+        - uses: actions/checkout@v2
+        # coverage with 'chrome' platform hangs the build
+        - name: Test (VM and browser)
+          run: |
+            dart pub get
+            dart test -p chrome
+            dart test -p vm --coverage=coverage
+            dart pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.packages --report-on=lib
+
+        - uses: codecov/codecov-action@v1
+          if: runner.os == 'Linux'
+          with:
+            name: sentry
+            file: ./sentry_logging/coverage/lcov.info
+        
+        - uses: VeryGoodOpenSource/very_good_coverage@v1.1.1
+          if: runner.os == 'Linux'
+          with:
+            path: "./sentry_logging/coverage/lcov.info"
+            min_coverage: 90
+
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: ./dart
+    steps:
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+      - uses: actions/checkout@v2
+      - run: |
+          dart pub get
+          dart analyze --fatal-infos
+          dart format --set-exit-if-changed ./
+
+  package-analysis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v2
+      - uses: axel-op/dart-package-analyzer@v3
+        id: analysis
+        with:
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          relativePath: dart/
+      - name: Check scores
+        env:
+          TOTAL: ${{ steps.analysis.outputs.total }}
+          TOTAL_MAX: ${{ steps.analysis.outputs.total_max }}
+        run: |
+          PERCENTAGE=$(( $TOTAL * 100 / $TOTAL_MAX ))
+          if (( $PERCENTAGE < 100 ))
+          then
+            echo Score too low!
+            exit 1
+          fi
