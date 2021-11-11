@@ -1,6 +1,6 @@
 # Unreleased
 
-* Fix: Transaction serialization if not encodable (#)
+* Fix: Transaction serialization if not encodable (#633)
 
 # 6.1.0
 
