@@ -18,9 +18,22 @@ String formatDateAsIso8601WithMillisPrecision(DateTime date) {
   return '${iso}Z';
 }
 
+/// borrowed from flutter diagnostics describeEnum since enum.toString() is
+/// too verbose, Dart 2.15 has enum.name
+/// https://github.com/dart-lang/sdk/issues/30021
+String _describeEnum(Object enumEntry) {
+  final description = enumEntry.toString();
+  final indexOfDot = description.indexOf('.');
+  
+  return description.substring(indexOfDot + 1);
+}
+
 Object? jsonSerializationFallback(Object? nonEncodable) {
   if (nonEncodable == null) {
     return null;
+  }
+  if (nonEncodable is Enum) {
+    return _describeEnum(nonEncodable);
   }
   return nonEncodable.toString();
 }
