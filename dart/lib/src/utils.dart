@@ -24,7 +24,7 @@ String formatDateAsIso8601WithMillisPrecision(DateTime date) {
 String _describeEnum(Object enumEntry) {
   final description = enumEntry.toString();
   final indexOfDot = description.indexOf('.');
-  
+
   return description.substring(indexOfDot + 1);
 }
 
