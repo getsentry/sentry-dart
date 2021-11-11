@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:sentry/src/protocol/sentry_device.dart';
 import 'package:test/test.dart';
 
 import 'package:sentry/src/utils.dart';
@@ -14,6 +15,20 @@ void main() {
       expect(testDate.toIso8601String(), '2017-08-11T16:08:41.598Z');
       expect(formatDateAsIso8601WithMillisPrecision(testDate),
           '2017-08-11T16:08:41.598Z');
+    });
+
+    test('non enum returns toString serialization', () {
+      final value = true;
+      expect(jsonSerializationFallback(value), 'true');
+    });
+
+    test('enum returns described enum during serialization', () {
+      expect(
+          jsonSerializationFallback(SentryOrientation.landscape), 'landscape');
+    });
+
+    test('null Object returns null during serialization', () {
+      expect(jsonSerializationFallback(null), null);
     });
   });
 }
