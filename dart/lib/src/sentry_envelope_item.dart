@@ -14,7 +14,10 @@ class SentryEnvelopeItem {
   /// Creates an [SentryEnvelopeItem] which sends [SentryTransaction].
   factory SentryEnvelopeItem.fromTransaction(SentryTransaction transaction) {
     final cachedItem = _CachedItem(() async {
-      final jsonEncoded = jsonEncode(transaction.toJson());
+      final jsonEncoded = jsonEncode(
+        transaction.toJson(),
+        toEncodable: jsonSerializationFallback,
+      );
       return utf8.encode(jsonEncoded);
     });
 

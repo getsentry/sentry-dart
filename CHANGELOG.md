@@ -1,5 +1,7 @@
 # Unreleased
 
+* Fix: Transaction serialization if not encodable (#633)
+
 # 6.1.0
 
 * Bump: Sentry-Android to 5.3.0 and Sentry-Cocoa to 7.5.1 (#629)
