@@ -1,4 +1,4 @@
-# Unreleased
+# 6.1.1
 
 * Fix: Transaction serialization if not encodable (#633)
 
