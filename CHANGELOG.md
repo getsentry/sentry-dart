@@ -1,6 +1,6 @@
 # Unreleased
 
-* Fix: Remove is Enum check to support older Dart versions (#)
+* Fix: Remove is Enum check to support older Dart versions (#635)
 
 # 6.1.1
 
