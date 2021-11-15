@@ -23,8 +23,8 @@ void main() {
     });
 
     test('enum returns described enum during serialization', () {
-      expect(
-          jsonSerializationFallback(SentryOrientation.landscape), 'SentryOrientation.landscape');
+      expect(jsonSerializationFallback(SentryOrientation.landscape),
+          'SentryOrientation.landscape');
     });
 
     test('null Object returns null during serialization', () {
