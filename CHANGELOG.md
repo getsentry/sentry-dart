@@ -1,5 +1,7 @@
 # Unreleased
 
+* Fix: Remove is Enum check to support older Dart versions (#)
+
 # 6.1.1
 
 * Fix: Transaction serialization if not encodable (#633)
