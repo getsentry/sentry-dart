@@ -8,13 +8,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "sentry_logging/**"
-      - ".github/workflows/logging.yml"
-  pull_request:
-    paths:
-      - "sentry_logging/**"
-      - ".github/workflows/logging.yml"
 defaults:
   run:
     shell: bash
