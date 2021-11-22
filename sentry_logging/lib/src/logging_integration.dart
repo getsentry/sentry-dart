@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:logging/logging.dart';
 import 'package:sentry/sentry.dart';
+import 'version.dart';
 import 'extension.dart';
 
 /// An [Integration] which listens to all messages of the
@@ -13,16 +14,21 @@ class LoggingIntegration extends Integration<SentryOptions> {
   /// messages with errors as an [SentryEvent] instead of an [Breadcrumb].
   /// Setting [logExceptionAsEvent] to false captures everything as
   /// [Breadcrumb]s.
-  LoggingIntegration({bool logExceptionAsEvent = true})
-      : _logExceptionsAsEvents = logExceptionAsEvent;
+  LoggingIntegration({
+    Level minBreadcrumbLevel = Level.INFO,
+    Level minEventLevel = Level.SEVERE,
+  })  : _minBreadcrumbLevel = minBreadcrumbLevel,
+        _minEventLevel = minEventLevel;
 
-  final bool _logExceptionsAsEvents;
+  final Level _minBreadcrumbLevel;
+  final Level _minEventLevel;
   late StreamSubscription<LogRecord> _subscription;
   late Hub _hub;
 
   @override
   FutureOr<void> call(Hub hub, SentryOptions options) {
     _hub = hub;
+    _setSdkVersion(options);
     _subscription = Logger.root.onRecord.listen(
       _onLog,
       onError: (Object error, StackTrace stackTrace) {
@@ -38,21 +44,33 @@ class LoggingIntegration extends Integration<SentryOptions> {
     await _subscription.cancel();
   }
 
-  void _onLog(LogRecord record) {
-    // Everything is just logged as a breadcrumb
-    if (!_logExceptionsAsEvents) {
-      _hub.addBreadcrumb(record.toBreadcrumb());
-      return;
-    }
+  void _setSdkVersion(SentryOptions options) {
+    final sdk = SdkVersion(
+      name: sdkName,
+      version: sdkVersion,
+      integrations: options.sdk.integrations,
+      packages: options.sdk.packages,
+    );
+    sdk.addPackage('pub:sentry_logging', sdkVersion);
+    options.sdk = sdk;
+  }
 
-    // If a LogRecord contains an exception, it gets reported as an SentryEvent
-    if (record.error == null) {
-      _hub.addBreadcrumb(record.toBreadcrumb());
-    } else {
+  bool _isLoggable(Level logLevel, Level minLevel) {
+    return logLevel > minLevel;
+  }
+
+  void _onLog(LogRecord record) {
+    // The event must be logged first, otherwise the log would also be added
+    // to the breadcrumbs for itself.
+    if (_isLoggable(record.level, _minEventLevel)) {
       _hub.captureEvent(
         record.toEvent(),
         stackTrace: record.stackTrace,
       );
+    }
+
+    if (_isLoggable(record.level, _minBreadcrumbLevel)) {
+      _hub.addBreadcrumb(record.toBreadcrumb());
     }
   }
 }
