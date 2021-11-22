@@ -4,6 +4,8 @@ on:
     branches:
       - main
   pull_request:
+    paths-ignore:
+      - 'sentry_logging/**'
 defaults:
   run:
     shell: bash
