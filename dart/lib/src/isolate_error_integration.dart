@@ -52,6 +52,14 @@ Future<void> handleIsolateError(
     final dynamic throwable = error.first;
     final dynamic stackTrace = error.last;
 
+    options.logger(
+      SentryLevel.error,
+      'Uncaught isolate error',
+      logger: 'sentry.isolateError',
+      exception: throwable,
+      stackTrace: StackTrace.fromString(stackTrace),
+    );
+
     //  Isolate errors don't crash the App.
     final mechanism = Mechanism(type: 'isolateError', handled: true);
     final throwableMechanism = ThrowableMechanism(mechanism, throwable);

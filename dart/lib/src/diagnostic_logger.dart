@@ -10,11 +10,18 @@ class DiagnosticLogger {
   void log(
     SentryLevel level,
     String message, {
+    String? logger,
     Object? exception,
     StackTrace? stackTrace,
   }) {
     if (_isEnabled(level)) {
-      _logger(level, message, exception: exception, stackTrace: stackTrace);
+      _logger(
+        level,
+        message,
+        logger: logger,
+        exception: exception,
+        stackTrace: stackTrace,
+      );
     }
   }
 

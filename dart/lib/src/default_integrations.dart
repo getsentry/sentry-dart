@@ -27,6 +27,14 @@ class RunZonedGuardedIntegration extends Integration {
         await _runner();
       },
       (exception, stackTrace) async {
+        options.logger(
+          SentryLevel.error,
+          'Uncaught zone error',
+          logger: 'sentry.runZonedGuarded',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+
         // runZonedGuarded doesn't crash the App.
         final mechanism = Mechanism(type: 'runZonedGuarded', handled: true);
         final throwableMechanism = ThrowableMechanism(mechanism, exception);
