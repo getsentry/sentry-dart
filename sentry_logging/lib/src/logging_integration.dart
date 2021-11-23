@@ -31,8 +31,8 @@ class LoggingIntegration extends Integration<SentryOptions> {
     _setSdkVersion(options);
     _subscription = Logger.root.onRecord.listen(
       _onLog,
-      onError: (Object error, StackTrace stackTrace) {
-        _hub.captureException(error, stackTrace: stackTrace);
+      onError: (Object error, StackTrace stackTrace) async {
+        await _hub.captureException(error, stackTrace: stackTrace);
       },
     );
     options.sdk.addIntegration('LoggingIntegration');
@@ -59,11 +59,11 @@ class LoggingIntegration extends Integration<SentryOptions> {
     return logLevel > minLevel;
   }
 
-  void _onLog(LogRecord record) {
+  void _onLog(LogRecord record) async {
     // The event must be logged first, otherwise the log would also be added
     // to the breadcrumbs for itself.
     if (_isLoggable(record.level, _minEventLevel)) {
-      _hub.captureEvent(
+      await _hub.captureEvent(
         record.toEvent(),
         stackTrace: record.stackTrace,
       );

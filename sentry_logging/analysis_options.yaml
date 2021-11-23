@@ -30,3 +30,4 @@ linter:
     - unnecessary_brace_in_string_interps
     - implementation_imports
     - require_trailing_commas
+    - unawaited_futures
