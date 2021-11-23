@@ -2,8 +2,8 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/noop_sentry_span.dart';
 import 'package:test/test.dart';
 
-import 'mocks.dart';
 import 'mocks/mock_hub.dart';
+import 'mocks.dart';
 
 void main() {
   late Fixture fixture;
@@ -35,7 +35,7 @@ void main() {
     'Isolate error capture errors',
     () async {
       final throwable = StateError('error');
-      final stackTrace = StackTrace.current;
+      final stackTrace = StackTrace.current.toString();
       final error = [throwable, stackTrace];
 
       // we could not find a way to trigger an error to the current Isolate
@@ -66,10 +66,7 @@ void main() {
 
       await integration(fixture.hub, fixture.options);
 
-      expect(
-          true,
-          fixture.options.sdk.integrations
-              .contains('runZonedGuardedIntegration'));
+      expect(true, fixture.options.sdk.integrations.contains('runZonedGuardedIntegration'));
     },
     onPlatform: {
       'browser': Skip(),
@@ -122,9 +119,7 @@ void main() {
     expect(breadcrumb.type, 'debug');
   });
 
-  test(
-      'Run zoned guarded does not log calls to print as breadcrumb if disabled',
-      () async {
+  test('Run zoned guarded does not log calls to print as breadcrumb if disabled', () async {
     fixture.options.enablePrintBreadcrumbs = false;
 
     final integration = fixture.getSut();
@@ -185,10 +180,8 @@ class PrintRecursionMockHub extends MockHub {
   }
 
   @override
-  ISentrySpan startTransactionWithContext(
-      SentryTransactionContext transactionContext,
-      {Map<String, dynamic>? customSamplingContext,
-      bool? bindToScope}) {
+  ISentrySpan startTransactionWithContext(SentryTransactionContext transactionContext,
+      {Map<String, dynamic>? customSamplingContext, bool? bindToScope}) {
     return NoOpSentrySpan();
   }
 }

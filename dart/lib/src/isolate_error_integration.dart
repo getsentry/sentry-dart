@@ -31,7 +31,7 @@ class IsolateErrorIntegration extends Integration {
 
 RawReceivePort _createPort(Hub hub, SentryOptions options) {
   return RawReceivePort(
-    (dynamic error) async {
+    (Object? error) async {
       await handleIsolateError(hub, options, error);
     },
   );
@@ -42,22 +42,22 @@ RawReceivePort _createPort(Hub hub, SentryOptions options) {
 Future<void> handleIsolateError(
   Hub hub,
   SentryOptions options,
-  dynamic error,
+  Object? error,
 ) async {
   options.logger(SentryLevel.debug, 'Capture from IsolateError $error');
 
   // https://api.dartlang.org/stable/2.7.0/dart-isolate/Isolate/addErrorListener.html
   // error is a list of 2 elements
-  if (error is List<dynamic> && error.length == 2) {
-    final dynamic throwable = error.first;
-    final dynamic stackTrace = error.last;
+  if (error is List && error.length == 2) {
+    final Object? throwable = error.first;
+    final String? stackTrace = error.last;
 
     options.logger(
       SentryLevel.error,
       'Uncaught isolate error',
       logger: 'sentry.isolateError',
       exception: throwable,
-      stackTrace: StackTrace.fromString(stackTrace),
+      stackTrace: stackTrace == null ? null : StackTrace.fromString(stackTrace),
     );
 
     //  Isolate errors don't crash the App.
