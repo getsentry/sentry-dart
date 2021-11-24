@@ -66,7 +66,10 @@ void main() {
 
       await integration(fixture.hub, fixture.options);
 
-      expect(true, fixture.options.sdk.integrations.contains('runZonedGuardedIntegration'));
+      expect(
+          true,
+          fixture.options.sdk.integrations
+              .contains('runZonedGuardedIntegration'));
     },
     onPlatform: {
       'browser': Skip(),
@@ -119,7 +122,9 @@ void main() {
     expect(breadcrumb.type, 'debug');
   });
 
-  test('Run zoned guarded does not log calls to print as breadcrumb if disabled', () async {
+  test(
+      'Run zoned guarded does not log calls to print as breadcrumb if disabled',
+      () async {
     fixture.options.enablePrintBreadcrumbs = false;
 
     final integration = fixture.getSut();
@@ -180,8 +185,10 @@ class PrintRecursionMockHub extends MockHub {
   }
 
   @override
-  ISentrySpan startTransactionWithContext(SentryTransactionContext transactionContext,
-      {Map<String, dynamic>? customSamplingContext, bool? bindToScope}) {
+  ISentrySpan startTransactionWithContext(
+      SentryTransactionContext transactionContext,
+      {Map<String, dynamic>? customSamplingContext,
+      bool? bindToScope}) {
     return NoOpSentrySpan();
   }
 }
