@@ -34,7 +34,19 @@ void main() {
     });
 
     test('didPush finishes previous transaction', () {
+      final firstRoute = route(RouteSettings(name: 'First Route'));
+      final secondRoute = route(RouteSettings(name: 'Second Route'));
 
+      final hub = MockHub();
+      final span = MockNoOpSentrySpan();
+      when(hub.startTransaction('First Route', 'ui.load', description: null, bindToScope: true, customSamplingContext: null)).thenReturn(span);
+      when(hub.startTransaction('Second Route', 'ui.load', description: null, bindToScope: true, customSamplingContext: null)).thenReturn(NoOpSentrySpan());
+      final sut = fixture.getSut(hub: hub, setRouteNameAsTransaction: false);
+
+      sut.didPush(firstRoute, null);
+      sut.didPush(secondRoute, firstRoute);
+
+      verify(span.finish());
     });
   });
 

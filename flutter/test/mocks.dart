@@ -6,7 +6,7 @@ import 'package:sentry/src/sentry_user_feedback.dart';
 
 const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
-@GenerateMocks([Hub, Transport])
+@GenerateMocks([Hub, Transport, NoOpSentrySpan])
 void main() {}
 
 class MockPlatform implements Platform {

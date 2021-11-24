@@ -6,6 +6,7 @@ import 'dart:async' as _i5;
 
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:sentry/src/hub.dart' as _i3;
+import 'package:sentry/src/noop_sentry_span.dart' as _i10;
 import 'package:sentry/src/protocol.dart' as _i2;
 import 'package:sentry/src/sentry_client.dart' as _i7;
 import 'package:sentry/src/sentry_envelope.dart' as _i9;
@@ -27,6 +28,14 @@ class _FakeSentryId_0 extends _i1.Fake implements _i2.SentryId {}
 class _FakeHub_1 extends _i1.Fake implements _i3.Hub {}
 
 class _FakeISentrySpan_2 extends _i1.Fake implements _i4.ISentrySpan {}
+
+class _FakeSentrySpanContext_3 extends _i1.Fake
+    implements _i4.SentrySpanContext {}
+
+class _FakeDateTime_4 extends _i1.Fake implements DateTime {}
+
+class _FakeSentryTraceHeader_5 extends _i1.Fake
+    implements _i2.SentryTraceHeader {}
 
 /// A class which mocks [Hub].
 ///
@@ -171,6 +180,69 @@ class MockTransport extends _i1.Mock implements _i8.Transport {
       (super.noSuchMethod(Invocation.method(#send, [envelope]),
               returnValue: Future<_i2.SentryId?>.value())
           as _i5.Future<_i2.SentryId?>);
+  @override
+  String toString() => super.toString();
+}
+
+/// A class which mocks [NoOpSentrySpan].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockNoOpSentrySpan extends _i1.Mock implements _i10.NoOpSentrySpan {
+  MockNoOpSentrySpan() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i4.SentrySpanContext get context =>
+      (super.noSuchMethod(Invocation.getter(#context),
+          returnValue: _FakeSentrySpanContext_3()) as _i4.SentrySpanContext);
+  @override
+  DateTime get startTimestamp =>
+      (super.noSuchMethod(Invocation.getter(#startTimestamp),
+          returnValue: _FakeDateTime_4()) as DateTime);
+  @override
+  bool get finished =>
+      (super.noSuchMethod(Invocation.getter(#finished), returnValue: false)
+          as bool);
+  @override
+  set throwable(dynamic throwable) =>
+      super.noSuchMethod(Invocation.setter(#throwable, throwable),
+          returnValueForMissingStub: null);
+  @override
+  set status(_i2.SpanStatus? status) =>
+      super.noSuchMethod(Invocation.setter(#status, status),
+          returnValueForMissingStub: null);
+  @override
+  _i5.Future<void> finish({_i2.SpanStatus? status}) =>
+      (super.noSuchMethod(Invocation.method(#finish, [], {#status: status}),
+          returnValue: Future<void>.value(),
+          returnValueForMissingStub: Future<void>.value()) as _i5.Future<void>);
+  @override
+  void removeData(String? key) =>
+      super.noSuchMethod(Invocation.method(#removeData, [key]),
+          returnValueForMissingStub: null);
+  @override
+  void removeTag(String? key) =>
+      super.noSuchMethod(Invocation.method(#removeTag, [key]),
+          returnValueForMissingStub: null);
+  @override
+  void setData(String? key, dynamic value) =>
+      super.noSuchMethod(Invocation.method(#setData, [key, value]),
+          returnValueForMissingStub: null);
+  @override
+  void setTag(String? key, String? value) =>
+      super.noSuchMethod(Invocation.method(#setTag, [key, value]),
+          returnValueForMissingStub: null);
+  @override
+  _i4.ISentrySpan startChild(String? operation, {String? description}) =>
+      (super.noSuchMethod(
+          Invocation.method(
+              #startChild, [operation], {#description: description}),
+          returnValue: _FakeISentrySpan_2()) as _i4.ISentrySpan);
+  @override
+  _i2.SentryTraceHeader toSentryTrace() =>
+      (super.noSuchMethod(Invocation.method(#toSentryTrace, []),
+          returnValue: _FakeSentryTraceHeader_5()) as _i2.SentryTraceHeader);
   @override
   String toString() => super.toString();
 }

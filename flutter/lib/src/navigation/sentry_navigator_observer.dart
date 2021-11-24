@@ -55,6 +55,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       from: previousRoute?.settings,
       to: route.settings,
     );
+    _finishTransaction();
     _startTransaction(route.settings.name, route.settings.arguments);
   }
 
@@ -114,6 +115,10 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
   }
 
+  Future<void> _finishTransaction() async {
+    //_transaction?.status ??= SpanStatus.ok();
+    return await _transaction?.finish();
+  }
 }
 
 /// This class makes it easier to record breadcrumbs for events of Flutters
