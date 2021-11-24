@@ -34,7 +34,7 @@ void main() {
   test(
     'Isolate error capture errors',
     () async {
-      final throwable = StateError('error');
+      final throwable = StateError('error').toString();
       final stackTrace = StackTrace.current.toString();
       final error = [throwable, stackTrace];
 

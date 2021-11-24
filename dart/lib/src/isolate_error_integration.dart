@@ -31,7 +31,7 @@ class IsolateErrorIntegration extends Integration {
 
 RawReceivePort _createPort(Hub hub, SentryOptions options) {
   return RawReceivePort(
-    (Object? error) async {
+    (dynamic error) async {
       await handleIsolateError(hub, options, error);
     },
   );
@@ -42,14 +42,20 @@ RawReceivePort _createPort(Hub hub, SentryOptions options) {
 Future<void> handleIsolateError(
   Hub hub,
   SentryOptions options,
-  Object? error,
+  dynamic error,
 ) async {
   options.logger(SentryLevel.debug, 'Capture from IsolateError $error');
 
   // https://api.dartlang.org/stable/2.7.0/dart-isolate/Isolate/addErrorListener.html
   // error is a list of 2 elements
   if (error is List && error.length == 2) {
-    final Object? throwable = error.first;
+    /// The errors are sent back as two-element lists.
+    /// The first element is a `String` representation of the error, usually
+    /// created by calling `toString` on the error.
+    /// The second element is a `String` representation of an accompanying
+    /// stack trace, or `null` if no stack trace was provided.
+    /// To convert this back to a [StackTrace] object, use [StackTrace.fromString].
+    final String throwable = error.first;
     final String? stackTrace = error.last;
 
     options.logger(
