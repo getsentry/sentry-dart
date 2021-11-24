@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
@@ -6,11 +7,35 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'mocks.dart';
 import 'mocks.mocks.dart';
 
+
 void main() {
   late Fixture fixture;
 
+  PageRoute route(RouteSettings? settings) => PageRouteBuilder<void>(
+    pageBuilder: (_, __, ___) => Container(),
+    settings: settings,
+  );
+
   setUp(() {
     fixture = Fixture();
+  });
+
+  group('RouteObserverTransaction', () {
+    test('didPush starts transaction', () {
+      final currentRoute = route(RouteSettings(name: 'Current Route'));
+
+      final hub = MockHub();
+      when(hub.startTransaction('Current Route', 'ui.load', description: null, bindToScope: true, customSamplingContext: null)).thenReturn(NoOpSentrySpan());
+      final sut = fixture.getSut(hub: hub, setRouteNameAsTransaction: false);
+
+      sut.didPush(currentRoute, null);
+
+      verify(hub.startTransaction('Current Route', 'ui.load', description: null, bindToScope: true, customSamplingContext: null));
+    });
+
+    test('didPush finishes previous transaction', () {
+
+    });
   });
 
   group('RouteObserverBreadcrumb', () {
@@ -142,10 +167,7 @@ void main() {
   });
 
   group('SentryNavigatorObserver', () {
-    PageRoute route(RouteSettings? settings) => PageRouteBuilder<void>(
-          pageBuilder: (_, __, ___) => Container(),
-          settings: settings,
-        );
+
 
     RouteSettings routeSettings(String? name, [Object? arguments]) =>
         RouteSettings(name: name, arguments: arguments);

@@ -44,6 +44,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
   final Hub _hub;
   final bool _setRouteNameAsTransaction;
+  ISentrySpan? _transaction;
 
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
@@ -54,6 +55,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       from: previousRoute?.settings,
       to: route.settings,
     );
+    _startTransaction(route.settings.name, route.settings.arguments);
   }
 
   @override
@@ -100,6 +102,18 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       });
     }
   }
+
+  void _startTransaction(String? name, Object? arguments) {
+    _transaction = _hub.startTransaction(
+      name ?? 'unknown',
+      'ui.load',
+      bindToScope: true,
+    );
+    if (arguments != null) {
+      _transaction?.setData('route_settings_arguments', arguments);
+    }
+  }
+
 }
 
 /// This class makes it easier to record breadcrumbs for events of Flutters
