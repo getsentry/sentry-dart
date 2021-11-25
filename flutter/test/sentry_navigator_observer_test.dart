@@ -16,6 +16,17 @@ void main() {
     settings: settings,
   );
 
+  void _whenAnyStart(MockHub mockHub, ISentrySpan thenReturnSpan) {
+    when(
+        mockHub.startTransaction(
+          any, any,
+          description: anyNamed('description'),
+          bindToScope: anyNamed('bindToScope'),
+          customSamplingContext: anyNamed('customSamplingContext'),
+        )
+    ).thenReturn(thenReturnSpan);
+  }
+
   setUp(() {
     fixture = Fixture();
   });
@@ -25,7 +36,7 @@ void main() {
       final currentRoute = route(RouteSettings(name: 'Current Route'));
 
       final hub = MockHub();
-      when(hub.startTransaction('Current Route', 'ui.load', description: null, bindToScope: true, customSamplingContext: null)).thenReturn(NoOpSentrySpan());
+      _whenAnyStart(hub, NoOpSentrySpan());
       final sut = fixture.getSut(hub: hub, setRouteNameAsTransaction: false);
 
       sut.didPush(currentRoute, null);
@@ -39,8 +50,7 @@ void main() {
 
       final hub = MockHub();
       final span = MockNoOpSentrySpan();
-      when(hub.startTransaction('First Route', 'ui.load', description: null, bindToScope: true, customSamplingContext: null)).thenReturn(span);
-      when(hub.startTransaction('Second Route', 'ui.load', description: null, bindToScope: true, customSamplingContext: null)).thenReturn(NoOpSentrySpan());
+      _whenAnyStart(hub, span);
       final sut = fixture.getSut(hub: hub, setRouteNameAsTransaction: false);
 
       sut.didPush(firstRoute, null);
@@ -48,6 +58,8 @@ void main() {
 
       verify(span.finish());
     });
+
+
   });
 
   group('RouteObserverBreadcrumb', () {
@@ -180,12 +192,12 @@ void main() {
 
   group('SentryNavigatorObserver', () {
 
-
     RouteSettings routeSettings(String? name, [Object? arguments]) =>
         RouteSettings(name: name, arguments: arguments);
 
     test('Test recording of Breadcrumbs', () {
       final hub = MockHub();
+      _whenAnyStart(hub, NoOpSentrySpan());
       final observer = fixture.getSut(hub: hub);
 
       final to = routeSettings('to', 'foobar');
@@ -207,6 +219,7 @@ void main() {
 
     test('No arguments', () {
       final hub = MockHub();
+      _whenAnyStart(hub, NoOpSentrySpan());
       final observer = fixture.getSut(hub: hub);
 
       final to = routeSettings('to');
@@ -228,6 +241,7 @@ void main() {
 
     test('No arguments & no name', () {
       final hub = MockHub();
+      _whenAnyStart(hub, NoOpSentrySpan());
       final observer = fixture.getSut(hub: hub);
 
       final to = route(null);
@@ -270,6 +284,7 @@ void main() {
 
     test('route name as transaction', () {
       final hub = _MockHub();
+      _whenAnyStart(hub, NoOpSentrySpan());
       final observer = fixture.getSut(
         hub: hub,
         setRouteNameAsTransaction: true,
@@ -290,6 +305,7 @@ void main() {
 
     test('route name does nothing if null', () {
       final hub = _MockHub();
+      _whenAnyStart(hub, NoOpSentrySpan());
       final observer = fixture.getSut(
         hub: hub,
         setRouteNameAsTransaction: true,
@@ -306,6 +322,7 @@ void main() {
 
     test('disabled route as transaction', () {
       final hub = _MockHub();
+      _whenAnyStart(hub, NoOpSentrySpan());
       final observer =
           fixture.getSut(hub: hub, setRouteNameAsTransaction: false);
 
@@ -325,6 +342,7 @@ void main() {
 }
 
 class Fixture {
+
   SentryNavigatorObserver getSut({
     required Hub hub,
     bool setRouteNameAsTransaction = false,

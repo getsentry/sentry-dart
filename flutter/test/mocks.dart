@@ -4,9 +4,16 @@ import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry/src/platform_checker.dart';
 import 'package:sentry/src/sentry_user_feedback.dart';
 
+import 'mocks.mocks.dart';
+
 const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
-@GenerateMocks([Hub, Transport, NoOpSentrySpan])
+// https://github.com/dart-lang/mockito/blob/master/NULL_SAFETY_README.md#fallback-generators
+ISentrySpan startTransactionShim(String? name, String? operation, {String? description, bool? bindToScope, Map<String, dynamic>? customSamplingContext,}) {
+  return MockNoOpSentrySpan();
+}
+
+@GenerateMocks([Transport, NoOpSentrySpan], customMocks: [MockSpec<Hub>(fallbackGenerators: {#startTransaction: startTransactionShim})])
 void main() {}
 
 class MockPlatform implements Platform {
