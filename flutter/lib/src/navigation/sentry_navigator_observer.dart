@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:sentry/sentry.dart';
 import '../../sentry_flutter.dart';
@@ -44,7 +46,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
   final Hub _hub;
   final bool _setRouteNameAsTransaction;
+
   ISentrySpan? _transaction;
+  Timer? _idleTimer;
 
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
@@ -113,9 +117,13 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     if (arguments != null) {
       _transaction?.setData('route_settings_arguments', arguments);
     }
+    _idleTimer = Timer(Duration(seconds: 3), () async {
+      await _finishTransaction();
+    });
   }
 
   Future<void> _finishTransaction() async {
+    _idleTimer?.cancel();
     //_transaction?.status ??= SpanStatus.ok();
     return await _transaction?.finish();
   }

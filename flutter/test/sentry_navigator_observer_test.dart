@@ -16,10 +16,11 @@ void main() {
     settings: settings,
   );
 
-  void _whenAnyStart(MockHub mockHub, ISentrySpan thenReturnSpan) {
+  void _whenAnyStart(MockHub mockHub, ISentrySpan thenReturnSpan, {String? name}) {
     when(
         mockHub.startTransaction(
-          any, any,
+          name ?? any,
+          any,
           description: anyNamed('description'),
           bindToScope: anyNamed('bindToScope'),
           customSamplingContext: anyNamed('customSamplingContext'),
@@ -59,7 +60,40 @@ void main() {
       verify(span.finish());
     });
 
+    test('didPush finishes transaction after timeout', () async {
+      final currentRoute = route(RouteSettings(name: 'Current Route'));
 
+      final hub = MockHub();
+      final span = MockNoOpSentrySpan();
+      _whenAnyStart(hub, span);
+      final sut = fixture.getSut(hub: hub, setRouteNameAsTransaction: false);
+
+      sut.didPush(currentRoute, null);
+
+      await Future.delayed(Duration(milliseconds: 3100));
+
+      verify(span.finish());
+    });
+
+    test('didPush finish not called multiple times', () async {
+      final firstRoute = route(RouteSettings(name: 'First Route'));
+      final secondRoute = route(RouteSettings(name: 'Second Route'));
+
+      final hub = MockHub();
+      final firstSpan = MockNoOpSentrySpan();
+      final secondSpan = MockNoOpSentrySpan();
+      _whenAnyStart(hub, firstSpan, name: 'First Route');
+      _whenAnyStart(hub, secondSpan, name: 'Second Route');
+      final sut = fixture.getSut(hub: hub, setRouteNameAsTransaction: false);
+
+      sut.didPush(firstRoute, null);
+      sut.didPush(secondRoute, firstRoute);
+
+      await Future.delayed(Duration(milliseconds: 3100));
+
+      verify(firstSpan.finish()).called(1);
+      verify(secondSpan.finish()).called(1);
+    });
   });
 
   group('RouteObserverBreadcrumb', () {
