@@ -84,6 +84,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       to: previousRoute?.settings,
     );
     _finishTransaction();
+    _startTransaction(
+        previousRoute?.settings.name, previousRoute?.settings.arguments);
   }
 
   void _addBreadcrumb({

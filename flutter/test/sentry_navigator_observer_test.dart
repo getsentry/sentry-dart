@@ -97,6 +97,23 @@ void main() {
       verify(span.finish()).called(1);
     });
 
+    test('didPop re-starts previous', () {
+      final previousRoute = route(RouteSettings(name: 'Previous Route'));
+      final currentRoute = route(RouteSettings(name: 'Current Route'));
+
+      final hub = MockHub();
+      final previousSpan = MockNoOpSentrySpan();
+      when(previousSpan.status).thenReturn(null);
+      _whenAnyStart(hub, previousSpan, name: 'Previous Route');
+
+      final sut = fixture.getSut(hub: hub, setRouteNameAsTransaction: false);
+
+      sut.didPop(currentRoute, previousRoute);
+
+      verify(hub.startTransaction('Previous Route', 'ui.load',
+          description: null, bindToScope: true, customSamplingContext: null));
+    });
+
     test('didPush push multiple finishes transactions', () async {
       final firstRoute = route(RouteSettings(name: 'First Route'));
       final secondRoute = route(RouteSettings(name: 'Second Route'));
