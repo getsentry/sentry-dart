@@ -121,14 +121,12 @@ void main() {
       verify(secondSpan.finish()).called(1);
     });
 
-    test('route arguments are set on transaction',  () {
+    test('route arguments are set on transaction', () {
       final arguments = {'foo': 'bar'};
-      final currentRoute = route(
-          RouteSettings(
-            name: 'Current Route',
-            arguments: arguments,
-          )
-      );
+      final currentRoute = route(RouteSettings(
+        name: 'Current Route',
+        arguments: arguments,
+      ));
 
       final hub = MockHub();
       final span = MockNoOpSentrySpan();
