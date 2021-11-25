@@ -44,6 +44,19 @@ void main() {
           description: null, bindToScope: true, customSamplingContext: null));
     });
 
+    test('route with empty name does not start transaction', () {
+      final currentRoute = route(null);
+
+      final hub = MockHub();
+      _whenAnyStart(hub, NoOpSentrySpan());
+      final sut = fixture.getSut(hub: hub, setRouteNameAsTransaction: false);
+
+      sut.didPush(currentRoute, null);
+
+      verifyNever(hub.startTransaction('Current Route', 'ui.load',
+          description: null, bindToScope: true, customSamplingContext: null));
+    });
+
     test('didPush finishes previous transaction', () {
       final firstRoute = route(RouteSettings(name: 'First Route'));
       final secondRoute = route(RouteSettings(name: 'Second Route'));
