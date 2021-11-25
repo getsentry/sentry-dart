@@ -120,6 +120,27 @@ void main() {
       verify(secondSpan.status = SpanStatus.ok());
       verify(secondSpan.finish()).called(1);
     });
+
+    test('route arguments are set on transaction',  () {
+      final arguments = {'foo': 'bar'};
+      final currentRoute = route(
+          RouteSettings(
+            name: 'Current Route',
+            arguments: arguments,
+          )
+      );
+
+      final hub = MockHub();
+      final span = MockNoOpSentrySpan();
+      when(span.status).thenReturn(null);
+      _whenAnyStart(hub, span);
+
+      final sut = fixture.getSut(hub: hub, setRouteNameAsTransaction: false);
+
+      sut.didPush(currentRoute, null);
+
+      verify(span.setData('route_settings_arguments', arguments));
+    });
   });
 
   group('RouteObserverBreadcrumb', () {
