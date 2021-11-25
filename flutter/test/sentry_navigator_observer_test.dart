@@ -50,12 +50,14 @@ void main() {
 
       final hub = MockHub();
       final span = MockNoOpSentrySpan();
+      when(span.status).thenReturn(null);
       _whenAnyStart(hub, span);
       final sut = fixture.getSut(hub: hub, setRouteNameAsTransaction: false);
 
       sut.didPush(firstRoute, null);
       sut.didPush(secondRoute, firstRoute);
 
+      verify(span.status = SpanStatus.ok());
       verify(span.finish());
     });
 
@@ -64,6 +66,7 @@ void main() {
 
       final hub = MockHub();
       final span = MockNoOpSentrySpan();
+      when(span.status).thenReturn(null);
       _whenAnyStart(hub, span);
       final sut = fixture.getSut(hub: hub, setRouteNameAsTransaction: false);
 
@@ -71,6 +74,7 @@ void main() {
 
       await Future.delayed(Duration(milliseconds: 3100));
 
+      verify(span.status = SpanStatus.ok());
       verify(span.finish());
     });
 
@@ -79,6 +83,7 @@ void main() {
 
       final hub = MockHub();
       final span = MockNoOpSentrySpan();
+      when(span.status).thenReturn(null);
       _whenAnyStart(hub, span);
 
       final sut = fixture.getSut(hub: hub, setRouteNameAsTransaction: false);
@@ -88,6 +93,7 @@ void main() {
 
       await Future.delayed(Duration(milliseconds: 3100));
 
+      verify(span.status = SpanStatus.ok());
       verify(span.finish()).called(1);
     });
 
@@ -97,7 +103,9 @@ void main() {
 
       final hub = MockHub();
       final firstSpan = MockNoOpSentrySpan();
+      when(firstSpan.status).thenReturn(null);
       final secondSpan = MockNoOpSentrySpan();
+      when(secondSpan.status).thenReturn(null);
       _whenAnyStart(hub, firstSpan, name: 'First Route');
       _whenAnyStart(hub, secondSpan, name: 'Second Route');
       final sut = fixture.getSut(hub: hub, setRouteNameAsTransaction: false);
@@ -107,7 +115,9 @@ void main() {
 
       await Future.delayed(Duration(milliseconds: 3100));
 
+      verify(firstSpan.status = SpanStatus.ok());
       verify(firstSpan.finish()).called(1);
+      verify(secondSpan.status = SpanStatus.ok());
       verify(secondSpan.finish()).called(1);
     });
   });

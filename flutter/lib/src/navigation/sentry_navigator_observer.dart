@@ -125,7 +125,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
   Future<void> _finishTransaction() async {
     _idleTimer?.cancel();
-    //_transaction?.status ??= SpanStatus.ok();
+    _transaction?.status ??= SpanStatus.ok();
     return await _transaction?.finish();
   }
 }
