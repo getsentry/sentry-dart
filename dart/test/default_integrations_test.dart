@@ -191,4 +191,5 @@ class PrintRecursionMockHub extends MockHub {
       bool? bindToScope}) {
     return NoOpSentrySpan();
   }
+
 }

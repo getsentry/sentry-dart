@@ -113,10 +113,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
   void _startTransaction(String? name, Object? arguments) {
     if (name == null) {
-      _hub.options.logger(
-        SentryLevel.info,
-        'Auto transaction not started because of missing RouteSettings',
-      );
       return;
     }
     _transaction = _hub.startTransaction(

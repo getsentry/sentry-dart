@@ -34,8 +34,6 @@ class Hub {
 
   final _WeakMap _throwableToSpan = _WeakMap();
 
-  SentryOptions get options => _options;
-
   factory Hub(SentryOptions options) {
     _validateOptions(options);
 
