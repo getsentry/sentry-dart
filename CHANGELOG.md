@@ -1,5 +1,7 @@
 # Unreleased
 
+* Feat: Auto Transactions (#643)
+
 # 6.1.2
 
 * Fix: Remove is Enum check to support older Dart versions (#635)
