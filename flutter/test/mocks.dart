@@ -9,11 +9,22 @@ import 'mocks.mocks.dart';
 const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
 // https://github.com/dart-lang/mockito/blob/master/NULL_SAFETY_README.md#fallback-generators
-ISentrySpan startTransactionShim(String? name, String? operation, {String? description, bool? bindToScope, Map<String, dynamic>? customSamplingContext,}) {
+ISentrySpan startTransactionShim(
+  String? name,
+  String? operation, {
+  String? description,
+  bool? bindToScope,
+  Map<String, dynamic>? customSamplingContext,
+}) {
   return MockNoOpSentrySpan();
 }
 
-@GenerateMocks([Transport, NoOpSentrySpan], customMocks: [MockSpec<Hub>(fallbackGenerators: {#startTransaction: startTransactionShim})])
+@GenerateMocks([
+  Transport,
+  NoOpSentrySpan
+], customMocks: [
+  MockSpec<Hub>(fallbackGenerators: {#startTransaction: startTransactionShim})
+])
 void main() {}
 
 class MockPlatform implements Platform {

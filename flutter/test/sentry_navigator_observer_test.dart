@@ -7,25 +7,23 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'mocks.dart';
 import 'mocks.mocks.dart';
 
-
 void main() {
   late Fixture fixture;
 
   PageRoute route(RouteSettings? settings) => PageRouteBuilder<void>(
-    pageBuilder: (_, __, ___) => Container(),
-    settings: settings,
-  );
+        pageBuilder: (_, __, ___) => Container(),
+        settings: settings,
+      );
 
-  void _whenAnyStart(MockHub mockHub, ISentrySpan thenReturnSpan, {String? name}) {
-    when(
-        mockHub.startTransaction(
-          name ?? any,
-          any,
-          description: anyNamed('description'),
-          bindToScope: anyNamed('bindToScope'),
-          customSamplingContext: anyNamed('customSamplingContext'),
-        )
-    ).thenReturn(thenReturnSpan);
+  void _whenAnyStart(MockHub mockHub, ISentrySpan thenReturnSpan,
+      {String? name}) {
+    when(mockHub.startTransaction(
+      name ?? any,
+      any,
+      description: anyNamed('description'),
+      bindToScope: anyNamed('bindToScope'),
+      customSamplingContext: anyNamed('customSamplingContext'),
+    )).thenReturn(thenReturnSpan);
   }
 
   setUp(() {
@@ -42,7 +40,8 @@ void main() {
 
       sut.didPush(currentRoute, null);
 
-      verify(hub.startTransaction('Current Route', 'ui.load', description: null, bindToScope: true, customSamplingContext: null));
+      verify(hub.startTransaction('Current Route', 'ui.load',
+          description: null, bindToScope: true, customSamplingContext: null));
     });
 
     test('didPush finishes previous transaction', () {
@@ -75,7 +74,24 @@ void main() {
       verify(span.finish());
     });
 
-    test('didPush finish not called multiple times', () async {
+    test('didPop finishes transaction', () async {
+      final currentRoute = route(RouteSettings(name: 'Current Route'));
+
+      final hub = MockHub();
+      final span = MockNoOpSentrySpan();
+      _whenAnyStart(hub, span);
+
+      final sut = fixture.getSut(hub: hub, setRouteNameAsTransaction: false);
+
+      sut.didPush(currentRoute, null);
+      sut.didPop(currentRoute, null);
+
+      await Future.delayed(Duration(milliseconds: 3100));
+
+      verify(span.finish()).called(1);
+    });
+
+    test('didPush push multiple finishes transactions', () async {
       final firstRoute = route(RouteSettings(name: 'First Route'));
       final secondRoute = route(RouteSettings(name: 'Second Route'));
 
@@ -225,7 +241,6 @@ void main() {
   });
 
   group('SentryNavigatorObserver', () {
-
     RouteSettings routeSettings(String? name, [Object? arguments]) =>
         RouteSettings(name: name, arguments: arguments);
 
@@ -376,7 +391,6 @@ void main() {
 }
 
 class Fixture {
-
   SentryNavigatorObserver getSut({
     required Hub hub,
     bool setRouteNameAsTransaction = false,
