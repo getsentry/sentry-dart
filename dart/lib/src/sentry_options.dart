@@ -6,16 +6,16 @@ import 'package:http/http.dart';
 import 'diagnostic_logger.dart';
 import 'environment/environment_variables.dart';
 import 'event_processor.dart';
+import 'http_client/sentry_http_client.dart';
 import 'integration.dart';
 import 'noop_client.dart';
+import 'platform_checker.dart';
 import 'protocol.dart';
 import 'tracing.dart';
 import 'transport/noop_transport.dart';
 import 'transport/transport.dart';
 import 'utils.dart';
 import 'version.dart';
-import 'platform_checker.dart';
-import 'http_client/sentry_http_client.dart';
 
 // TODO: Scope observers, enableScopeSync
 // TODO: shutdownTimeout, flushTimeoutMillis
@@ -320,6 +320,7 @@ typedef ClockProvider = DateTime Function();
 typedef SentryLogger = void Function(
   SentryLevel level,
   String message, {
+  String? logger,
   Object? exception,
   StackTrace? stackTrace,
 });
@@ -331,6 +332,7 @@ typedef TracesSamplerCallback = double? Function(
 void noOpLogger(
   SentryLevel level,
   String message, {
+  String? logger,
   Object? exception,
   StackTrace? stackTrace,
 }) {}
@@ -339,13 +341,14 @@ void noOpLogger(
 void dartLogger(
   SentryLevel level,
   String message, {
+  String? logger,
   Object? exception,
   StackTrace? stackTrace,
 }) {
   log(
     '[${level.name}] $message',
     level: level.toDartLogLevel(),
-    name: 'sentry',
+    name: logger ?? 'sentry',
     time: getUtcDateTime(),
     error: exception,
     stackTrace: stackTrace,
