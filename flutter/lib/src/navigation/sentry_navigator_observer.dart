@@ -40,11 +40,16 @@ const _navigationKey = 'navigation';
 ///   - [RouteObserver](https://api.flutter.dev/flutter/widgets/RouteObserver-class.html)
 ///   - [Navigating with arguments](https://flutter.dev/docs/cookbook/navigation/navigate-with-arguments)
 class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
-  SentryNavigatorObserver({Hub? hub, bool setRouteNameAsTransaction = false})
+  SentryNavigatorObserver(
+      {Hub? hub,
+      bool enableAutoTransactions = true,
+      bool setRouteNameAsTransaction = false})
       : _hub = hub ?? HubAdapter(),
+        _enableAutoTransactions = enableAutoTransactions,
         _setRouteNameAsTransaction = setRouteNameAsTransaction;
 
   final Hub _hub;
+  final bool _enableAutoTransactions;
   final bool _setRouteNameAsTransaction;
 
   ISentrySpan? _transaction;
@@ -112,6 +117,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   }
 
   void _startTransaction(String? name, Object? arguments) {
+    if (!_enableAutoTransactions) {
+      return;
+    }
     if (name == null) {
       return;
     }

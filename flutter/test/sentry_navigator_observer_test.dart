@@ -36,7 +36,7 @@ void main() {
 
       final hub = MockHub();
       _whenAnyStart(hub, NoOpSentrySpan());
-      final sut = fixture.getSut(hub: hub, setRouteNameAsTransaction: false);
+      final sut = fixture.getSut(hub: hub);
 
       sut.didPush(currentRoute, null);
 
@@ -49,7 +49,20 @@ void main() {
 
       final hub = MockHub();
       _whenAnyStart(hub, NoOpSentrySpan());
-      final sut = fixture.getSut(hub: hub, setRouteNameAsTransaction: false);
+      final sut = fixture.getSut(hub: hub);
+
+      sut.didPush(currentRoute, null);
+
+      verifyNever(hub.startTransaction('Current Route', 'ui.load',
+          description: null, bindToScope: true, customSamplingContext: null));
+    });
+
+    test('no transaction on opt-out', () {
+      final currentRoute = route(RouteSettings(name: 'Current Route'));
+
+      final hub = MockHub();
+      _whenAnyStart(hub, NoOpSentrySpan());
+      final sut = fixture.getSut(hub: hub, enableAutoTransactions: false);
 
       sut.didPush(currentRoute, null);
 
@@ -65,7 +78,7 @@ void main() {
       final span = MockNoOpSentrySpan();
       when(span.status).thenReturn(null);
       _whenAnyStart(hub, span);
-      final sut = fixture.getSut(hub: hub, setRouteNameAsTransaction: false);
+      final sut = fixture.getSut(hub: hub);
 
       sut.didPush(firstRoute, null);
       sut.didPush(secondRoute, firstRoute);
@@ -81,7 +94,7 @@ void main() {
       final span = MockNoOpSentrySpan();
       when(span.status).thenReturn(null);
       _whenAnyStart(hub, span);
-      final sut = fixture.getSut(hub: hub, setRouteNameAsTransaction: false);
+      final sut = fixture.getSut(hub: hub);
 
       sut.didPush(currentRoute, null);
 
@@ -99,7 +112,7 @@ void main() {
       when(span.status).thenReturn(null);
       _whenAnyStart(hub, span);
 
-      final sut = fixture.getSut(hub: hub, setRouteNameAsTransaction: false);
+      final sut = fixture.getSut(hub: hub);
 
       sut.didPush(currentRoute, null);
       sut.didPop(currentRoute, null);
@@ -119,7 +132,7 @@ void main() {
       when(previousSpan.status).thenReturn(null);
       _whenAnyStart(hub, previousSpan, name: 'Previous Route');
 
-      final sut = fixture.getSut(hub: hub, setRouteNameAsTransaction: false);
+      final sut = fixture.getSut(hub: hub);
 
       sut.didPop(currentRoute, previousRoute);
 
@@ -138,7 +151,7 @@ void main() {
       when(secondSpan.status).thenReturn(null);
       _whenAnyStart(hub, firstSpan, name: 'First Route');
       _whenAnyStart(hub, secondSpan, name: 'Second Route');
-      final sut = fixture.getSut(hub: hub, setRouteNameAsTransaction: false);
+      final sut = fixture.getSut(hub: hub);
 
       sut.didPush(firstRoute, null);
       sut.didPush(secondRoute, firstRoute);
@@ -163,7 +176,7 @@ void main() {
       when(span.status).thenReturn(null);
       _whenAnyStart(hub, span);
 
-      final sut = fixture.getSut(hub: hub, setRouteNameAsTransaction: false);
+      final sut = fixture.getSut(hub: hub);
 
       sut.didPush(currentRoute, null);
 
@@ -452,10 +465,12 @@ void main() {
 class Fixture {
   SentryNavigatorObserver getSut({
     required Hub hub,
+    bool enableAutoTransactions = true,
     bool setRouteNameAsTransaction = false,
   }) {
     return SentryNavigatorObserver(
       hub: hub,
+      enableAutoTransactions: enableAutoTransactions,
       setRouteNameAsTransaction: setRouteNameAsTransaction,
     );
   }
