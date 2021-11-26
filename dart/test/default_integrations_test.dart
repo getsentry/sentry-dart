@@ -2,8 +2,8 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/noop_sentry_span.dart';
 import 'package:test/test.dart';
 
-import 'mocks.dart';
 import 'mocks/mock_hub.dart';
+import 'mocks.dart';
 
 void main() {
   late Fixture fixture;
@@ -34,8 +34,8 @@ void main() {
   test(
     'Isolate error capture errors',
     () async {
-      final throwable = StateError('error');
-      final stackTrace = StackTrace.current;
+      final throwable = StateError('error').toString();
+      final stackTrace = StackTrace.current.toString();
       final error = [throwable, stackTrace];
 
       // we could not find a way to trigger an error to the current Isolate

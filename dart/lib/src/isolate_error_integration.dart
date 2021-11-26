@@ -48,9 +48,23 @@ Future<void> handleIsolateError(
 
   // https://api.dartlang.org/stable/2.7.0/dart-isolate/Isolate/addErrorListener.html
   // error is a list of 2 elements
-  if (error is List<dynamic> && error.length == 2) {
-    final dynamic throwable = error.first;
-    final dynamic stackTrace = error.last;
+  if (error is List && error.length == 2) {
+    /// The errors are sent back as two-element lists.
+    /// The first element is a `String` representation of the error, usually
+    /// created by calling `toString` on the error.
+    /// The second element is a `String` representation of an accompanying
+    /// stack trace, or `null` if no stack trace was provided.
+    /// To convert this back to a [StackTrace] object, use [StackTrace.fromString].
+    final String throwable = error.first;
+    final String? stackTrace = error.last;
+
+    options.logger(
+      SentryLevel.error,
+      'Uncaught isolate error',
+      logger: 'sentry.isolateError',
+      exception: throwable,
+      stackTrace: stackTrace == null ? null : StackTrace.fromString(stackTrace),
+    );
 
     //  Isolate errors don't crash the App.
     final mechanism = Mechanism(type: 'isolateError', handled: true);

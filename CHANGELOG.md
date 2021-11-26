@@ -1,5 +1,7 @@
 # Unreleased
 
+* Feat: Add logger name to `SentryLogger` and send errors in integrations to the registered logger (#641)
+
 # 6.1.2
 
 * Fix: Remove is Enum check to support older Dart versions (#635)
