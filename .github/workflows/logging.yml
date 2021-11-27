@@ -14,7 +14,7 @@ jobs:
     timeout-minutes: 20
     defaults:
       run:
-        working-directory: ./sentry_logging
+        working-directory: ./logging
     strategy:
       fail-fast: false
       matrix:
@@ -50,12 +50,12 @@ jobs:
           if: runner.os == 'Linux'
           with:
             name: sentry
-            file: ./sentry_logging/coverage/lcov.info
+            file: ./logging/coverage/lcov.info
         
         - uses: VeryGoodOpenSource/very_good_coverage@v1.1.1
           if: runner.os == 'Linux'
           with:
-            path: "./sentry_logging/coverage/lcov.info"
+            path: "./logging/coverage/lcov.info"
             min_coverage: 90
 
   analyze:

@@ -5,7 +5,7 @@ on:
       - main
   pull_request:
     paths-ignore:
-      - 'sentry_logging/**'
+      - 'logging/**'
 defaults:
   run:
     shell: bash
