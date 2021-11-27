@@ -1,6 +1,15 @@
 # Unreleased
 
 * Feat: Integration for `logging` (#631)
+* Feat: Add logger name to `SentryLogger` and send errors in integrations to the registered logger (#641)
+
+# 6.1.2
+
+* Fix: Remove is Enum check to support older Dart versions (#635)
+
+# 6.1.1
+
+* Fix: Transaction serialization if not encodable (#633)
 
 # 6.1.0
 
@@ -97,7 +106,7 @@
 
 ## Sentry Self Hosted Compatibility
 
-* Since version `6.0.0` of the `sentry`, [Sentry's version >= v20.6.0](https://github.com/getsentry/onpremise/releases) is required. This only applies to on-premise Sentry, if you are using sentry.io no action is needed.
+* Since version `6.0.0` of the `sentry`, [Sentry's version >= v20.6.0](https://github.com/getsentry/self-hosted/releases) is required. This only applies to on-premise Sentry, if you are using sentry.io no action is needed.
 
 # 5.1.0
 
@@ -130,7 +139,7 @@
 
 ## Sentry Self Hosted Compatibility
 
-* This version of the `sentry` Dart package requires [Sentry server >= v20.6.0](https://github.com/getsentry/onpremise/releases). This only applies to on-premise Sentry, if you are using sentry.io no action is needed.
+* This version of the `sentry` Dart package requires [Sentry server >= v20.6.0](https://github.com/getsentry/self-hosted/releases). This only applies to on-premise Sentry, if you are using sentry.io no action is needed.
 
 # 5.0.0
 
@@ -256,7 +265,7 @@ Packages were released on [sentry pubdev](https://pub.dev/packages/sentry) and [
 
 ## Sentry Self Hosted Compatibility
 
-* Since version `4.0.0` of the `sentry_flutter`, [Sentry's version >= v20.6.0](https://github.com/getsentry/onpremise/releases) is required. This only applies to on-premise Sentry, if you are using sentry.io no action is needed.
+* Since version `4.0.0` of the `sentry_flutter`, [Sentry's version >= v20.6.0](https://github.com/getsentry/self-hosted/releases) is required. This only applies to on-premise Sentry, if you are using sentry.io no action is needed.
 
 # 4.0.0-beta.2
 

@@ -1,10 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
+
 import 'sentry_flutter_options.dart';
 import 'widgets_binding_observer.dart';
 
@@ -69,6 +70,14 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
           if (collector.isNotEmpty) 'information': information,
           if (library != null) 'library': library,
         };
+
+        options.logger(
+          SentryLevel.error,
+          errorDetails.toStringShort(),
+          logger: 'sentry.flutterError',
+          exception: exception,
+          stackTrace: errorDetails.stack,
+        );
 
         // FlutterError doesn't crash the App.
         final mechanism = Mechanism(
