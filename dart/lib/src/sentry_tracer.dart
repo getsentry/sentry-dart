@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:meta/meta.dart';
 
 import '../sentry.dart';
@@ -12,6 +14,7 @@ class SentryTracer extends ISentrySpan {
   late final SentrySpan _rootSpan;
   final List<SentrySpan> _children = [];
   final Map<String, String> _extra = {};
+  Timer? _idleTimer;
 
   SentryTracer(SentryTransactionContext transactionContext, this._hub) {
     _rootSpan = SentrySpan(
@@ -23,8 +26,19 @@ class SentryTracer extends ISentrySpan {
     name = transactionContext.name;
   }
 
+  void finishAfterIdleTime(Duration time) {
+    _idleTimer = Timer(time, () async {
+      SpanStatus? status;
+      if (_rootSpan.status == null) {
+        status = SpanStatus.ok();
+      }
+      await finish(status: status);
+    });
+  }
+
   @override
   Future<void> finish({SpanStatus? status}) async {
+    _idleTimer?.cancel();
     await _rootSpan.finish(status: status);
 
     // finish unfinished spans otherwise transaction gets dropped

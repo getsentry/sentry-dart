@@ -208,6 +208,7 @@ class MockHub extends _i1.Mock implements _i4.Hub {
   _i2.ISentrySpan startTransaction(String? name, String? operation,
           {String? description,
           bool? bindToScope,
+          Duration? idleFinishDuration,
           Map<String, dynamic>? customSamplingContext}) =>
       (super.noSuchMethod(
               Invocation.method(#startTransaction, [
@@ -216,24 +217,28 @@ class MockHub extends _i1.Mock implements _i4.Hub {
               ], {
                 #description: description,
                 #bindToScope: bindToScope,
+                #idleFinishDuration: idleFinishDuration,
                 #customSamplingContext: customSamplingContext
               }),
               returnValue: _i10.startTransactionShim(name, operation,
                   description: description,
                   bindToScope: bindToScope,
+                  idleFinishDuration: idleFinishDuration,
                   customSamplingContext: customSamplingContext))
           as _i2.ISentrySpan);
   @override
   _i2.ISentrySpan startTransactionWithContext(
           _i2.SentryTransactionContext? transactionContext,
           {Map<String, dynamic>? customSamplingContext,
-          bool? bindToScope}) =>
+          bool? bindToScope,
+          Duration? idleFinishDuration}) =>
       (super.noSuchMethod(
           Invocation.method(#startTransactionWithContext, [
             transactionContext
           ], {
             #customSamplingContext: customSamplingContext,
-            #bindToScope: bindToScope
+            #bindToScope: bindToScope,
+            #idleFinishDuration: idleFinishDuration
           }),
           returnValue: _FakeISentrySpan_2()) as _i2.ISentrySpan);
   @override

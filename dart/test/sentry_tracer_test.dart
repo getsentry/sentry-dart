@@ -112,6 +112,15 @@ void main() {
     expect(sut.toSentryTrace().value,
         '${sut.context.traceId}-${sut.context.spanId}-1');
   });
+
+  test('tracer finishes after idle time', () async {
+    final sut = fixture.getSut();
+    sut.finishAfterIdleTime(Duration(milliseconds: 200));
+
+    expect(sut.finished, false);
+    await Future.delayed(Duration(milliseconds: 210));
+    expect(sut.finished, true);
+  });
 }
 
 class Fixture {
