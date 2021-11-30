@@ -28,6 +28,11 @@ abstract class ISentrySpan {
     finishedCallback?.call();
   }
 
+  @internal
+  void finishAfter(Duration duration, {SpanStatus? status}) {
+    // Stub
+  }
+
   /// Gets span status.
   SpanStatus? get status;
 

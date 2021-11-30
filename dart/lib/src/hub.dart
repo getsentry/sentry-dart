@@ -340,7 +340,6 @@ class Hub {
     String operation, {
     String? description,
     bool? bindToScope,
-    Duration? idleFinishDuration,
     Map<String, dynamic>? customSamplingContext,
   }) =>
       startTransactionWithContext(
@@ -358,7 +357,6 @@ class Hub {
     SentryTransactionContext transactionContext, {
     Map<String, dynamic>? customSamplingContext,
     bool? bindToScope,
-    Duration? idleFinishDuration,
   }) {
     if (!_isEnabled) {
       _options.logger(
@@ -385,10 +383,8 @@ class Hub {
       final tracer = SentryTracer(
         transactionContext,
         this,
+        waitForChildren: true
       );
-      if (idleFinishDuration != null) {
-        tracer.finishAfterIdleTime(idleFinishDuration);
-      }
       if (bindToScope ?? false) {
         item.scope.span = tracer;
       }

@@ -28,13 +28,10 @@ class SentryTracer extends ISentrySpan {
     name = transactionContext.name;
   }
 
-  void finishAfterIdleTime(Duration time) {
-    _idleTimer = Timer(time, () async {
-      SpanStatus? status;
-      if (_rootSpan.status == null) {
-        status = SpanStatus.ok();
-      }
-      await finish(status: status);
+  @override
+  void finishAfter(Duration duration, {SpanStatus? status}) {
+    _idleTimer = Timer(duration, () async {
+      await finish(status: _rootSpan.status ?? status);
     });
   }
 

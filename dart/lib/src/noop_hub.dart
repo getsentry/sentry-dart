@@ -79,7 +79,6 @@ class NoOpHub implements Hub {
     String operation, {
     String? description,
     bool? bindToScope,
-    Duration? idleFinishDuration,
     Map<String, dynamic>? customSamplingContext,
   }) =>
       NoOpSentrySpan();
@@ -89,7 +88,6 @@ class NoOpHub implements Hub {
     SentryTransactionContext transactionContext, {
     Map<String, dynamic>? customSamplingContext,
     bool? bindToScope,
-    Duration? idleFinishDuration,
   }) =>
       NoOpSentrySpan();
 

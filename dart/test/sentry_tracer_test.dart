@@ -115,10 +115,11 @@ void main() {
 
   test('tracer finishes after idle time', () async {
     final sut = fixture.getSut();
-    sut.finishAfterIdleTime(Duration(milliseconds: 200));
+    sut.finishAfter(Duration(milliseconds: 200), status: SpanStatus.ok());
 
     expect(sut.finished, false);
     await Future.delayed(Duration(milliseconds: 210));
+    expect(sut.status, SpanStatus.ok());
     expect(sut.finished, true);
   });
 

@@ -22,7 +22,6 @@ void main() {
       any,
       description: anyNamed('description'),
       bindToScope: anyNamed('bindToScope'),
-      idleFinishDuration: anyNamed('idleFinishDuration'),
       customSamplingContext: anyNamed('customSamplingContext'),
     )).thenReturn(thenReturnSpan);
   }
@@ -36,39 +35,47 @@ void main() {
       final currentRoute = route(RouteSettings(name: 'Current Route'));
 
       final hub = _MockHub();
-      _whenAnyStart(hub, NoOpSentrySpan());
+      final span = MockNoOpSentrySpan();
+      _whenAnyStart(hub, span);
       final sut = fixture.getSut(hub: hub);
 
       sut.didPush(currentRoute, null);
 
-      verify(hub.startTransaction('Current Route', 'ui.load',
-          bindToScope: true, idleFinishDuration: Duration(seconds: 3)));
+      verify(
+          hub.startTransaction('Current Route', 'ui.load', bindToScope: true));
+      verify(span.finishAfter(Duration(seconds: 3), status: SpanStatus.ok()));
     });
 
     test('route with empty name does not start transaction', () {
       final currentRoute = route(null);
 
       final hub = _MockHub();
-      _whenAnyStart(hub, NoOpSentrySpan());
+      final span = MockNoOpSentrySpan();
+      _whenAnyStart(hub, span);
       final sut = fixture.getSut(hub: hub);
 
       sut.didPush(currentRoute, null);
 
-      verifyNever(hub.startTransaction('Current Route', 'ui.load',
-          bindToScope: true, idleFinishDuration: Duration(seconds: 3)));
+      verifyNever(
+          hub.startTransaction('Current Route', 'ui.load', bindToScope: true));
+      verifyNever(
+          span.finishAfter(Duration(seconds: 3), status: SpanStatus.ok()));
     });
 
     test('no transaction on opt-out', () {
       final currentRoute = route(RouteSettings(name: 'Current Route'));
 
       final hub = _MockHub();
-      _whenAnyStart(hub, NoOpSentrySpan());
+      final span = MockNoOpSentrySpan();
+      _whenAnyStart(hub, span);
       final sut = fixture.getSut(hub: hub, enableAutoTransactions: false);
 
       sut.didPush(currentRoute, null);
 
-      verifyNever(hub.startTransaction('Current Route', 'ui.load',
-          bindToScope: true, idleFinishDuration: Duration(seconds: 3)));
+      verifyNever(
+          hub.startTransaction('Current Route', 'ui.load', bindToScope: true));
+      verifyNever(
+          span.finishAfter(Duration(seconds: 3), status: SpanStatus.ok()));
     });
 
     test('no transaction when scope already has one', () {
@@ -76,13 +83,16 @@ void main() {
 
       final hub = _MockHub();
       hub.scope.span = NoOpSentrySpan();
-      _whenAnyStart(hub, NoOpSentrySpan());
+      final span = MockNoOpSentrySpan();
+      _whenAnyStart(hub, span);
       final sut = fixture.getSut(hub: hub, enableAutoTransactions: false);
 
       sut.didPush(currentRoute, null);
 
-      verifyNever(hub.startTransaction('Current Route', 'ui.load',
-          bindToScope: true, idleFinishDuration: Duration(seconds: 3)));
+      verifyNever(
+          hub.startTransaction('Current Route', 'ui.load', bindToScope: true));
+      verifyNever(
+          span.finishAfter(Duration(seconds: 3), status: SpanStatus.ok()));
     });
 
     test('didPush finishes previous transaction', () {
@@ -132,8 +142,10 @@ void main() {
 
       sut.didPop(currentRoute, previousRoute);
 
-      verify(hub.startTransaction('Previous Route', 'ui.load',
-          bindToScope: true, idleFinishDuration: Duration(seconds: 3)));
+      verify(
+          hub.startTransaction('Previous Route', 'ui.load', bindToScope: true));
+      verify(previousSpan.finishAfter(Duration(seconds: 3),
+          status: SpanStatus.ok()));
     });
 
     test('didPush push multiple finishes previous', () async {
