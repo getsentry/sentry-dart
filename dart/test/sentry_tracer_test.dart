@@ -121,6 +121,51 @@ void main() {
     await Future.delayed(Duration(milliseconds: 210));
     expect(sut.finished, true);
   });
+
+  test('tracer finish needs child to finish', () async {
+    final sut = fixture.getSut(waitForChildren: true);
+
+    final child = sut.startChild('operation', description: 'description');
+
+    await sut.finish();
+    expect(sut.finished, false);
+
+    await child.finish();
+    expect(sut.finished, true);
+  });
+
+  test('tracer finish needs all children to finish', () async {
+    final sut = fixture.getSut(waitForChildren: true);
+
+    final childA = sut.startChild('operation-a', description: 'description');
+    final childB = sut.startChild('operation-b', description: 'description');
+
+    await sut.finish();
+    expect(sut.finished, false);
+
+    await childA.finish();
+    expect(sut.finished, false);
+
+    await childB.finish();
+    expect(sut.finished, true);
+  });
+
+  test('tracer without finish will not be finished when children are finished',
+      () async {
+    final sut = fixture.getSut(waitForChildren: true);
+
+    final childA = sut.startChild('operation-a', description: 'description');
+    final childB = sut.startChild('operation-b', description: 'description');
+
+    await childA.finish();
+    expect(sut.finished, false);
+
+    await childB.finish();
+    expect(sut.finished, false);
+
+    await sut.finish();
+    expect(sut.finished, true);
+  });
 }
 
 class Fixture {
@@ -128,15 +173,13 @@ class Fixture {
 
   SentryTracer getSut({
     bool? sampled = true,
+    bool waitForChildren = false,
   }) {
     final context = SentryTransactionContext(
       'name',
       'op',
       sampled: sampled,
     );
-    return SentryTracer(
-      context,
-      hub,
-    );
+    return SentryTracer(context, hub, waitForChildren: waitForChildren);
   }
 }

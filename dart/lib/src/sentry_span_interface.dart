@@ -24,9 +24,9 @@ abstract class ISentrySpan {
   void removeData(String key);
 
   /// Sets span timestamp marking this span as finished.
-  Future<void> finish({
-    SpanStatus? status,
-  });
+  Future<void> finish({SpanStatus? status}) async {
+    finishedCallback?.call();
+  }
 
   /// Gets span status.
   SpanStatus? get status;
@@ -54,6 +54,9 @@ abstract class ISentrySpan {
 
   @internal
   bool? get sampled;
+
+  @internal
+  void Function()? finishedCallback;
 
   /// Returns the trace information that could be sent as a sentry-trace header.
   SentryTraceHeader toSentryTrace();
