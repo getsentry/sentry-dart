@@ -29,13 +29,6 @@ class SentryTracer extends ISentrySpan {
   }
 
   @override
-  void finishAfter(Duration duration, {SpanStatus? status}) {
-    _idleTimer = Timer(duration, () async {
-      await finish(status: _rootSpan.status ?? status);
-    });
-  }
-
-  @override
   Future<void> finish({SpanStatus? status}) async {
     _idleTimer?.cancel();
     _finishStatus = SentryTracerFinishStatus.finishing(status);
@@ -59,7 +52,16 @@ class SentryTracer extends ISentrySpan {
 
       final transaction = SentryTransaction(this);
       await _hub.captureTransaction(transaction);
+
+      finishedCallback?.call();
     }
+  }
+
+  @override
+  void finishAfter(Duration duration, {SpanStatus? status}) {
+    _idleTimer = Timer(duration, () async {
+      await finish(status: _rootSpan.status ?? status);
+    });
   }
 
   @override

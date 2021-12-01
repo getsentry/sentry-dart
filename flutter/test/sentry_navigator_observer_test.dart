@@ -22,6 +22,7 @@ void main() {
       any,
       description: anyNamed('description'),
       bindToScope: anyNamed('bindToScope'),
+      waitForChildren: anyNamed('waitForChildren'),
       customSamplingContext: anyNamed('customSamplingContext'),
     )).thenReturn(thenReturnSpan);
   }
@@ -41,8 +42,8 @@ void main() {
 
       sut.didPush(currentRoute, null);
 
-      verify(
-          hub.startTransaction('Current Route', 'ui.load', bindToScope: true));
+      verify(hub.startTransaction('Current Route', 'ui.load',
+          bindToScope: true, waitForChildren: true));
       verify(span.finishAfter(Duration(seconds: 3), status: SpanStatus.ok()));
     });
 
@@ -56,8 +57,8 @@ void main() {
 
       sut.didPush(currentRoute, null);
 
-      verifyNever(
-          hub.startTransaction('Current Route', 'ui.load', bindToScope: true));
+      verifyNever(hub.startTransaction('Current Route', 'ui.load',
+          bindToScope: true, waitForChildren: true));
       verifyNever(
           span.finishAfter(Duration(seconds: 3), status: SpanStatus.ok()));
     });
@@ -72,8 +73,8 @@ void main() {
 
       sut.didPush(currentRoute, null);
 
-      verifyNever(
-          hub.startTransaction('Current Route', 'ui.load', bindToScope: true));
+      verifyNever(hub.startTransaction('Current Route', 'ui.load',
+          bindToScope: true, waitForChildren: true));
       verifyNever(
           span.finishAfter(Duration(seconds: 3), status: SpanStatus.ok()));
     });
@@ -89,8 +90,8 @@ void main() {
 
       sut.didPush(currentRoute, null);
 
-      verifyNever(
-          hub.startTransaction('Current Route', 'ui.load', bindToScope: true));
+      verifyNever(hub.startTransaction('Current Route', 'ui.load',
+          bindToScope: true, waitForChildren: true));
       verifyNever(
           span.finishAfter(Duration(seconds: 3), status: SpanStatus.ok()));
     });
@@ -142,8 +143,8 @@ void main() {
 
       sut.didPop(currentRoute, previousRoute);
 
-      verify(
-          hub.startTransaction('Previous Route', 'ui.load', bindToScope: true));
+      verify(hub.startTransaction('Previous Route', 'ui.load',
+          bindToScope: true, waitForChildren: true));
       verify(previousSpan.finishAfter(Duration(seconds: 3),
           status: SpanStatus.ok()));
     });

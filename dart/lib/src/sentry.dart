@@ -229,6 +229,7 @@ class Sentry {
     String operation, {
     String? description,
     bool? bindToScope,
+    bool? waitForChildren,
     Map<String, dynamic>? customSamplingContext,
   }) =>
       _hub.startTransaction(
@@ -236,6 +237,7 @@ class Sentry {
         operation,
         description: description,
         bindToScope: bindToScope,
+        waitForChildren: waitForChildren,
         customSamplingContext: customSamplingContext,
       );
 
@@ -244,11 +246,13 @@ class Sentry {
     SentryTransactionContext transactionContext, {
     Map<String, dynamic>? customSamplingContext,
     bool? bindToScope,
+    bool? waitForChildren,
   }) =>
       _hub.startTransactionWithContext(
         transactionContext,
         customSamplingContext: customSamplingContext,
         bindToScope: bindToScope,
+        waitForChildren: waitForChildren,
       );
 
   /// Gets the current active transaction or span.

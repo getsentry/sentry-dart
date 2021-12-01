@@ -41,6 +41,7 @@ class SentrySpan extends ISentrySpan {
     if (_throwable != null) {
       _hub.setSpanContext(_throwable, this, _tracer.name);
     }
+    finishedCallback?.call();
     await super.finish(status: status);
   }
 

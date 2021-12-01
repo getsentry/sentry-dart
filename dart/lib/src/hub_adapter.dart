@@ -102,6 +102,7 @@ class HubAdapter implements Hub {
     SentryTransactionContext transactionContext, {
     Map<String, dynamic>? customSamplingContext,
     bool? bindToScope,
+    bool? waitForChildren,
   }) =>
       Sentry.startTransactionWithContext(
         transactionContext,
@@ -115,6 +116,7 @@ class HubAdapter implements Hub {
     String operation, {
     String? description,
     bool? bindToScope,
+    bool? waitForChildren,
     Map<String, dynamic>? customSamplingContext,
   }) =>
       Sentry.startTransaction(

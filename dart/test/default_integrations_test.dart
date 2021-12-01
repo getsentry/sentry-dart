@@ -189,6 +189,7 @@ class PrintRecursionMockHub extends MockHub {
     SentryTransactionContext transactionContext, {
     Map<String, dynamic>? customSamplingContext,
     bool? bindToScope,
+    bool? waitForChildren,
   }) {
     return NoOpSentrySpan();
   }

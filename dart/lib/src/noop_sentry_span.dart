@@ -27,6 +27,7 @@ class NoOpSentrySpan extends ISentrySpan {
 
   @override
   Future<void> finish({SpanStatus? status}) async {
+    finishedCallback?.call();
     await super.finish(status: status);
   }
 

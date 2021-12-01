@@ -130,6 +130,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
           name,
           'ui.load',
           bindToScope: true,
+          waitForChildren: true,
         );
         if (arguments != null) {
           _transaction?.setData('route_settings_arguments', arguments);
