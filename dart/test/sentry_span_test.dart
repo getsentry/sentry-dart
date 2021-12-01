@@ -123,6 +123,17 @@ void main() {
     expect(sut.status, SpanStatus.ok());
     expect(sut.finished, true);
   });
+
+  test('callback called on finish',  () async {
+    final sut = fixture.getSut();
+    var numberOfCallbackCalls = 0;
+    sut.finishedCallback = () {
+      numberOfCallbackCalls += 1;
+    };
+    await sut.finish();
+
+    expect(numberOfCallbackCalls, 1);
+  });
 }
 
 class Fixture {
