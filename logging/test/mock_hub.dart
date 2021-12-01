@@ -33,10 +33,8 @@ class MockHub implements Hub {
     dynamic stackTrace,
     dynamic hint,
     ScopeCallback? withScope,
-  }) {
-    // TODO: implement captureException
-    throw UnimplementedError();
-  }
+  }) async =>
+      SentryId.empty();
 
   @override
   Future<SentryId> captureMessage(
@@ -46,53 +44,33 @@ class MockHub implements Hub {
     List<dynamic>? params,
     dynamic hint,
     ScopeCallback? withScope,
-  }) {
-    // TODO: implement captureMessage
-    throw UnimplementedError();
-  }
+  }) async =>
+      SentryId.empty();
 
   @override
-  Future<SentryId> captureTransaction(SentryTransaction transaction) {
-    // TODO: implement captureTransaction
-    throw UnimplementedError();
-  }
+  Future<SentryId> captureTransaction(SentryTransaction transaction) async =>
+      SentryId.empty();
 
   @override
-  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) {
-    // TODO: implement captureUserFeedback
-    throw UnimplementedError();
-  }
+  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {}
 
   @override
-  Hub clone() {
-    // TODO: implement clone
-    throw UnimplementedError();
-  }
+  Hub clone() => throw UnimplementedError();
 
   @override
-  Future<void> close() {
-    // TODO: implement close
-    throw UnimplementedError();
-  }
+  Future<void> close() async {}
 
   @override
-  void configureScope(ScopeCallback callback) {
-    // TODO: implement configureScope
-  }
+  void configureScope(ScopeCallback callback) {}
 
   @override
-  ISentrySpan? getSpan() {
-    // TODO: implement getSpan
-    throw UnimplementedError();
-  }
+  ISentrySpan? getSpan() => throw UnimplementedError();
 
   @override
-  // TODO: implement isEnabled
-  bool get isEnabled => throw UnimplementedError();
+  bool get isEnabled => true;
 
   @override
-  // TODO: implement lastEventId
-  SentryId get lastEventId => throw UnimplementedError();
+  SentryId get lastEventId => SentryId.empty();
 
   @override
   void setSpanContext(
@@ -108,18 +86,16 @@ class MockHub implements Hub {
     String? description,
     bool? bindToScope,
     Map<String, dynamic>? customSamplingContext,
-  }) {
-    throw UnimplementedError();
-  }
+  }) =>
+      throw UnimplementedError();
 
   @override
   ISentrySpan startTransactionWithContext(
     SentryTransactionContext transactionContext, {
     Map<String, dynamic>? customSamplingContext,
     bool? bindToScope,
-  }) {
-    throw UnimplementedError();
-  }
+  }) =>
+      throw UnimplementedError();
 }
 
 class CapturedEvents {
