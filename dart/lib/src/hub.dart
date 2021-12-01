@@ -383,11 +383,8 @@ class Hub {
         transactionContext = transactionContext.copyWith(sampled: sampled);
       }
 
-      final tracer = SentryTracer(
-        transactionContext,
-        this,
-        waitForChildren: waitForChildren ?? false
-      );
+      final tracer = SentryTracer(transactionContext, this,
+          waitForChildren: waitForChildren ?? false);
       if (bindToScope ?? false) {
         item.scope.span = tracer;
       }

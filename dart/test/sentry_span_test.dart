@@ -124,7 +124,7 @@ void main() {
     expect(sut.finished, true);
   });
 
-  test('callback called on finish',  () async {
+  test('callback called on finish', () async {
     final sut = fixture.getSut();
     var numberOfCallbackCalls = 0;
     sut.finishedCallback = () {
