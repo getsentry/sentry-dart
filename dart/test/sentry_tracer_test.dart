@@ -113,7 +113,7 @@ void main() {
         '${sut.context.traceId}-${sut.context.spanId}-1');
   });
 
-  test('tracer finishes after idle time', () async {
+  test('tracer finishes after duration', () async {
     final sut = fixture.getSut();
     sut.finishAfter(Duration(milliseconds: 200), status: SpanStatus.ok());
 

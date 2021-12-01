@@ -13,7 +13,7 @@ class SentryTracer extends ISentrySpan {
   late final SentrySpan _rootSpan;
   final List<SentrySpan> _children = [];
   final Map<String, String> _extra = {};
-  Timer? _idleTimer;
+  Timer? _finishAfterTimer;
   var _finishStatus = SentryTracerFinishStatus.notFinishing();
 
   SentryTracer(SentryTransactionContext transactionContext, this._hub,
@@ -30,11 +30,12 @@ class SentryTracer extends ISentrySpan {
 
   @override
   Future<void> finish({SpanStatus? status}) async {
-    _idleTimer?.cancel();
+    _finishAfterTimer?.cancel();
     _finishStatus = SentryTracerFinishStatus.finishing(status);
     if (!_rootSpan.finished &&
         (!_waitForChildren || _haveAllChildrenFinished())) {
-      await _rootSpan.finish(status: status);
+      _rootSpan.status ??= status;
+      await _rootSpan.finish();
 
       // finish unfinished spans otherwise transaction gets dropped
       for (final span in _children) {
@@ -59,8 +60,8 @@ class SentryTracer extends ISentrySpan {
 
   @override
   void finishAfter(Duration duration, {SpanStatus? status}) {
-    _idleTimer = Timer(duration, () async {
-      await finish(status: _rootSpan.status ?? status);
+    _finishAfterTimer = Timer(duration, () async {
+      await finish(status: status);
     });
   }
 

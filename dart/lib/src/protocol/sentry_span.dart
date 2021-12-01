@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import '../hub.dart';
 import '../protocol.dart';
 
@@ -17,6 +19,7 @@ class SentrySpan extends ISentrySpan {
 
   SpanStatus? _status;
   final Map<String, String> _tags = {};
+  Timer? _finishAfterTimer;
 
   @override
   bool? sampled;
@@ -32,6 +35,7 @@ class SentrySpan extends ISentrySpan {
 
   @override
   Future<void> finish({SpanStatus? status}) async {
+    _finishAfterTimer?.cancel();
     if (status != null) {
       _status = status;
     }
@@ -43,6 +47,13 @@ class SentrySpan extends ISentrySpan {
     }
     finishedCallback?.call();
     await super.finish(status: status);
+  }
+
+  @override
+  void finishAfter(Duration duration, {SpanStatus? status}) {
+    _finishAfterTimer = Timer(duration, () async {
+      await finish(status: status);
+    });
   }
 
   @override
