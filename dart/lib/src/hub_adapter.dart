@@ -108,6 +108,7 @@ class HubAdapter implements Hub {
         transactionContext,
         customSamplingContext: customSamplingContext,
         bindToScope: bindToScope,
+        waitForChildren: waitForChildren,
       );
 
   @override
@@ -124,6 +125,7 @@ class HubAdapter implements Hub {
         operation,
         description: description,
         bindToScope: bindToScope,
+        waitForChildren: waitForChildren,
         customSamplingContext: customSamplingContext,
       );
 
