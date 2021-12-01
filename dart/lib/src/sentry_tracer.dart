@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../sentry.dart';
+import 'sentry_tracer_finish_status.dart';
 
 @internal
 class SentryTracer extends ISentrySpan {
@@ -171,18 +172,4 @@ class SentryTracer extends ISentrySpan {
     }
     return true;
   }
-}
-
-@internal
-class SentryTracerFinishStatus {
-  final bool finishing;
-  final SpanStatus? status;
-
-  SentryTracerFinishStatus.finishing(SpanStatus? status)
-      : finishing = true,
-        status = status;
-
-  SentryTracerFinishStatus.notFinishing()
-      : finishing = false,
-        status = null;
 }
