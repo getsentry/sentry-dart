@@ -10,10 +10,10 @@ import 'extension.dart';
 class LoggingIntegration extends Integration<SentryOptions> {
   /// Creates the [LoggingIntegration].
   ///
-  /// Setting [logExceptionAsEvent] to true (default) captures all
-  /// messages with errors as an [SentryEvent] instead of an [Breadcrumb].
-  /// Setting [logExceptionAsEvent] to false captures everything as
-  /// [Breadcrumb]s.
+  /// All log events equal or higher than [minBreadcrumbLevel] are recorded as a
+  /// [Breadcrumb].
+  /// All log events equal or higher than [minEventLevel] are recorded as a
+  /// [SentryEvent].
   LoggingIntegration({
     Level minBreadcrumbLevel = Level.INFO,
     Level minEventLevel = Level.SEVERE,
@@ -56,7 +56,7 @@ class LoggingIntegration extends Integration<SentryOptions> {
   }
 
   bool _isLoggable(Level logLevel, Level minLevel) {
-    return logLevel > minLevel;
+    return logLevel >= minLevel;
   }
 
   void _onLog(LogRecord record) async {
