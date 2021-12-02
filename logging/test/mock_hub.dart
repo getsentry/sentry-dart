@@ -1,4 +1,5 @@
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/noop_hub.dart';
 
 final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
@@ -55,7 +56,7 @@ class MockHub implements Hub {
   Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {}
 
   @override
-  Hub clone() => throw UnimplementedError();
+  Hub clone() => NoOpHub();
 
   @override
   Future<void> close() async {}
@@ -64,10 +65,10 @@ class MockHub implements Hub {
   void configureScope(ScopeCallback callback) {}
 
   @override
-  ISentrySpan? getSpan() => throw UnimplementedError();
+  ISentrySpan? getSpan() => NoOpSentrySpan();
 
   @override
-  bool get isEnabled => true;
+  bool get isEnabled => false;
 
   @override
   SentryId get lastEventId => SentryId.empty();
@@ -87,7 +88,7 @@ class MockHub implements Hub {
     bool? bindToScope,
     Map<String, dynamic>? customSamplingContext,
   }) =>
-      throw UnimplementedError();
+      NoOpSentrySpan();
 
   @override
   ISentrySpan startTransactionWithContext(
@@ -95,7 +96,7 @@ class MockHub implements Hub {
     Map<String, dynamic>? customSamplingContext,
     bool? bindToScope,
   }) =>
-      throw UnimplementedError();
+      NoOpSentrySpan();
 }
 
 class CapturedEvents {
