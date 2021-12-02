@@ -1,6 +1,8 @@
 import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry/src/platform_checker.dart';
 
+import 'mock_platform.dart';
+
 class MockPlatformChecker implements PlatformChecker {
   MockPlatformChecker({
     this.isDebug = false,
@@ -31,5 +33,5 @@ class MockPlatformChecker implements PlatformChecker {
   bool get isWeb => isWebValue;
 
   @override
-  Platform get platform => throw UnimplementedError();
+  Platform get platform => MockPlatform();
 }
