@@ -92,8 +92,7 @@ void main() {
 
       verify(hub.startTransaction('Current Route', 'ui.load',
           bindToScope: false, waitForChildren: true));
-      verify(
-          span.finishAfter(Duration(seconds: 3), status: SpanStatus.ok()));
+      verify(span.finishAfter(Duration(seconds: 3), status: SpanStatus.ok()));
     });
 
     test('didPush finishes previous transaction', () {

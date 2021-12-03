@@ -134,8 +134,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       if (arguments != null) {
         _transaction?.setData('route_settings_arguments', arguments);
       }
-      _transaction?.finishAfter(Duration(seconds: 3),
-          status: SpanStatus.ok());
+      _transaction?.finishAfter(Duration(seconds: 3), status: SpanStatus.ok());
     });
   }
 
