@@ -79,20 +79,20 @@ void main() {
           span.finishAfter(Duration(seconds: 3), status: SpanStatus.ok()));
     });
 
-    test('no transaction when scope already has one', () {
+    test('do not bind to scope if already set', () {
       final currentRoute = route(RouteSettings(name: 'Current Route'));
 
       final hub = _MockHub();
       hub.scope.span = NoOpSentrySpan();
       final span = MockNoOpSentrySpan();
       _whenAnyStart(hub, span);
-      final sut = fixture.getSut(hub: hub, enableAutoTransactions: false);
+      final sut = fixture.getSut(hub: hub);
 
       sut.didPush(currentRoute, null);
 
-      verifyNever(hub.startTransaction('Current Route', 'ui.load',
-          bindToScope: true, waitForChildren: true));
-      verifyNever(
+      verify(hub.startTransaction('Current Route', 'ui.load',
+          bindToScope: false, waitForChildren: true));
+      verify(
           span.finishAfter(Duration(seconds: 3), status: SpanStatus.ok()));
     });
 
