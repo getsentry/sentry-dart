@@ -1,5 +1,5 @@
 name: sentry_flutter
-version: 6.2.0
+version: 6.2.1
 description: Sentry SDK for Flutter. This package aims to support different Flutter targets by relying on the many platforms supported by Sentry with native SDKs.
 homepage: https://docs.sentry.io/platforms/flutter/
 repository: https://github.com/getsentry/sentry-dart
