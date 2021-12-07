@@ -1,4 +1,4 @@
-# Unreleased
+# 6.2.0
 
 * Feat: Integration for `logging` (#631)
 * Feat: Add logger name to `SentryLogger` and send errors in integrations to the registered logger (#641)
