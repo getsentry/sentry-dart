@@ -32,9 +32,16 @@ const _navigationKey = 'navigation';
 ///   // other parameter ...
 /// )
 /// ```
+///
+/// The option [enableAutoTransactions] is enabled by default. For every new
+/// route a transaction is started. It's automatically finished after 3 seconds
+/// or when all child spans are finished, if those happen to take longer. The
+/// transaction will be set to [Scope.span] if the latter is empty.
+///
 /// Enabling the [setRouteNameAsTransaction] option overrides the current
-/// [Scope.transaction]. So be careful when this is used together with
-/// performance monitoring.
+/// [Scope.transaction] which will also override the name of the current
+/// [Scope.span]. So be careful when this is used together with performance
+/// monitoring.
 ///
 /// See also:
 ///   - [RouteObserver](https://api.flutter.dev/flutter/widgets/RouteObserver-class.html)
