@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:meta/meta.dart';
 
 import '../sentry.dart';
-import 'tracing.dart';
 
 @internal
 class SentryTracesSampler {

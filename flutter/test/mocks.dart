@@ -1,8 +1,6 @@
 import 'package:mockito/annotations.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/platform/platform.dart';
-import 'package:sentry/src/platform_checker.dart';
-import 'package:sentry/src/sentry_user_feedback.dart';
 
 import 'mocks.mocks.dart';
 

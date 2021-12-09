@@ -1,13 +1,10 @@
 @TestOn('vm')
 import 'dart:io';
 
-import 'package:sentry/sentry.dart';
 import 'package:sentry/sentry_io.dart';
-import 'package:sentry/src/sentry_envelope.dart';
 import 'package:sentry/src/sentry_envelope_header.dart';
 import 'package:sentry/src/sentry_envelope_item_header.dart';
 import 'package:sentry/src/sentry_envelope_item.dart';
-import 'package:sentry/src/protocol/sentry_id.dart';
 import 'package:test/test.dart';
 
 void main() {

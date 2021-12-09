@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
-import 'sentry_flutter_options.dart';
 import '../sentry_flutter.dart';
 
 /// This is a `WidgetsBindingObserver` which can observe some events of a

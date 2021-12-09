@@ -1,5 +1,4 @@
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/noop_sentry_span.dart';
 import 'package:test/test.dart';
 
 import 'mocks/mock_hub.dart';

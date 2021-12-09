@@ -1,5 +1,4 @@
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/sentry_envelope.dart';
 
 class MockSentryClient implements SentryClient {
   List<CaptureEventCall> captureEventCalls = [];

@@ -1,14 +1,10 @@
-import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/sentry_flutter_options.dart';
 
 import 'mocks.dart';
 import 'mocks.mocks.dart';

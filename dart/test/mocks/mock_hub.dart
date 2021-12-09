@@ -1,7 +1,5 @@
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/noop_hub.dart';
-import 'package:sentry/src/noop_sentry_span.dart';
-import 'package:sentry/src/sentry_user_feedback.dart';
 
 class MockHub implements Hub {
   List<CaptureEventCall> captureEventCalls = [];

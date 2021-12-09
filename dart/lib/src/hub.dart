@@ -3,7 +3,6 @@ import 'dart:collection';
 
 import 'package:meta/meta.dart';
 
-import 'noop_sentry_span.dart';
 import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_client.dart';
