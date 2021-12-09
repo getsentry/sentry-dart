@@ -166,6 +166,25 @@ void main() {
     final result = rateLimiter.filter(envelope);
     expect(result, isNull);
   });
+
+  test(
+      'When no sentryRateLimitHeader available, it fallback to retryAfterHeader',
+      () {
+    final rateLimiter = fixture.getSUT();
+    fixture.dateTimeToReturn = 0;
+    final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
+    final envelope = SentryEnvelope(
+      SentryEnvelopeHeader.newEventId(),
+      [eventItem],
+    );
+
+    rateLimiter.updateRetryAfterLimits(null, '50', 429);
+
+    fixture.dateTimeToReturn = 1001;
+
+    final result = rateLimiter.filter(envelope);
+    expect(result, isNull);
+  });
 }
 
 class Fixture {

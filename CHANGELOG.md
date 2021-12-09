@@ -1,5 +1,7 @@
 # Unreleased
 
+* Fix: Rate limiting fallback to retryAfterHeader (#)
+
 # 6.2.0
 
 * Feat: Integration for `logging` (#631)
