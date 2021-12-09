@@ -55,8 +55,7 @@ class RateLimiter {
       rateLimits =
           RateLimitParser(sentryRateLimitHeader).parseRateLimitHeader();
     } else if (errorCode == 429) {
-      rateLimits =
-          RateLimitParser(retryAfterHeader).parseRetryAfterHeader();
+      rateLimits = RateLimitParser(retryAfterHeader).parseRetryAfterHeader();
     }
 
     for (final rateLimit in rateLimits) {
