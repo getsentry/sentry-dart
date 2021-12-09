@@ -54,8 +54,6 @@ class SentryTracer extends ISentrySpan {
 
       final transaction = SentryTransaction(this);
       await _hub.captureTransaction(transaction);
-
-      finishedCallback?.call();
     }
   }
 
@@ -95,12 +93,6 @@ class SentryTracer extends ISentrySpan {
       operation,
       description: description,
     );
-    child.finishedCallback = () {
-      final finishStatus = _finishStatus;
-      if (finishStatus.finishing) {
-        finish(status: finishStatus.status);
-      }
-    };
     return child;
   }
 
@@ -110,18 +102,18 @@ class SentryTracer extends ISentrySpan {
     String? description,
   }) {
     final context = SentrySpanContext(
-      traceId: _rootSpan.context.traceId,
-      parentSpanId: parentSpanId,
-      operation: operation,
-      description: description,
-    );
+        traceId: _rootSpan.context.traceId,
+        parentSpanId: parentSpanId,
+        operation: operation,
+        description: description);
 
-    final child = SentrySpan(
-      this,
-      context,
-      _hub,
-      sampled: _rootSpan.sampled,
-    );
+    final child = SentrySpan(this, context, _hub, sampled: _rootSpan.sampled,
+        finishedCallback: () {
+      final finishStatus = _finishStatus;
+      if (finishStatus.finishing) {
+        finish(status: finishStatus.status);
+      }
+    });
 
     _children.add(child);
 

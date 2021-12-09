@@ -56,9 +56,6 @@ abstract class ISentrySpan {
   @internal
   bool? get sampled;
 
-  @internal
-  void Function()? finishedCallback;
-
   /// Returns the trace information that could be sent as a sentry-trace header.
   SentryTraceHeader toSentryTrace();
 }

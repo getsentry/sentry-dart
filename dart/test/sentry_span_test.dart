@@ -125,11 +125,11 @@ void main() {
   });
 
   test('callback called on finish', () async {
-    final sut = fixture.getSut();
     var numberOfCallbackCalls = 0;
-    sut.finishedCallback = () {
+    final sut = fixture.getSut(finishedCallback: () {
       numberOfCallbackCalls += 1;
-    };
+    });
+
     await sut.finish();
 
     expect(numberOfCallbackCalls, 1);
@@ -144,7 +144,7 @@ class Fixture {
   late SentryTracer tracer;
   final hub = MockHub();
 
-  SentrySpan getSut({bool? sampled = true}) {
+  SentrySpan getSut({bool? sampled = true, Function()? finishedCallback}) {
     tracer = SentryTracer(context, hub);
 
     return SentrySpan(
@@ -152,6 +152,7 @@ class Fixture {
       context,
       hub,
       sampled: sampled,
+      finishedCallback: finishedCallback,
     );
   }
 }

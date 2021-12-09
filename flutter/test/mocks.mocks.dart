@@ -84,10 +84,6 @@ class MockNoOpSentrySpan extends _i1.Mock implements _i2.NoOpSentrySpan {
       super.noSuchMethod(Invocation.setter(#status, status),
           returnValueForMissingStub: null);
   @override
-  set finishedCallback(void Function()? _finishedCallback) => super
-      .noSuchMethod(Invocation.setter(#finishedCallback, _finishedCallback),
-          returnValueForMissingStub: null);
-  @override
   _i6.Future<void> finish({_i3.SpanStatus? status}) =>
       (super.noSuchMethod(Invocation.method(#finish, [], {#status: status}),
           returnValue: Future<void>.value(),
