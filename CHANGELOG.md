@@ -1,8 +1,8 @@
 # Unreleased
 
-* Fix: `sentry_logging` works now on web
-* Fix: `sentry_logging` timestamps are in UTC
-* Fix: `sentry_logging` Level.Off is never recorded
+* Fix: `sentry_logging` works now on web (#660)
+* Fix: `sentry_logging` timestamps are in UTC (#660)
+* Fix: `sentry_logging` Level.Off is never recorded (#660)
 
 # 6.2.0
 
