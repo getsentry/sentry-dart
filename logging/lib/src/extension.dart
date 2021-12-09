@@ -2,7 +2,6 @@
 
 import 'package:logging/logging.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/sentry_io.dart';
 
 extension LogRecordX on LogRecord {
   Breadcrumb toBreadcrumb() {
