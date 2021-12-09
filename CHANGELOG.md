@@ -1,5 +1,9 @@
 # Unreleased
 
+* Fix: `sentry_logging` works now on web
+* Fix: `sentry_logging` timestamps are in UTC
+* Fix: `sentry_logging` Level.Off is never recorded
+
 # 6.2.0
 
 * Feat: Integration for `logging` (#631)
