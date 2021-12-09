@@ -8,7 +8,7 @@ extension LogRecordX on LogRecord {
     return Breadcrumb(
       category: 'log',
       type: 'debug',
-      timestamp: time,
+      timestamp: time.toUtc(),
       level: level.toSentryLevel(),
       message: message,
       data: <String, Object>{
@@ -23,6 +23,7 @@ extension LogRecordX on LogRecord {
 
   SentryEvent toEvent() {
     return SentryEvent(
+      timestamp: time.toUtc(),
       logger: loggerName,
       level: level.toSentryLevel(),
       message: SentryMessage(message),
