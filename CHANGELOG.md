@@ -1,6 +1,6 @@
 # Unreleased
 
-* Fix: Rate limiting fallback to retryAfterHeader (#)
+* Fix: Rate limiting fallback to retryAfterHeader (#658)
 
 # 6.2.0
 
