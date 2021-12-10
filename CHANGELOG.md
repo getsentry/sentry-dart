@@ -3,6 +3,7 @@
 * Fix: `sentry_logging` works now on web (#660)
 * Fix: `sentry_logging` timestamps are in UTC (#660)
 * Fix: `sentry_logging` Level.Off is never recorded (#660)
+* Fix: Rate limiting fallback to retryAfterHeader (#658)
 
 # 6.2.0
 
