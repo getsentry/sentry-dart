@@ -2,14 +2,13 @@
 
 import 'package:logging/logging.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/sentry_io.dart';
 
 extension LogRecordX on LogRecord {
   Breadcrumb toBreadcrumb() {
     return Breadcrumb(
       category: 'log',
       type: 'debug',
-      timestamp: time,
+      timestamp: time.toUtc(),
       level: level.toSentryLevel(),
       message: message,
       data: <String, Object>{
@@ -24,6 +23,7 @@ extension LogRecordX on LogRecord {
 
   SentryEvent toEvent() {
     return SentryEvent(
+      timestamp: time.toUtc(),
       logger: loggerName,
       level: level.toSentryLevel(),
       message: SentryMessage(message),
