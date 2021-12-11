@@ -1,3 +1,5 @@
+# Unreleased
+
 # 6.2.1
 
 * Fix: `sentry_logging` works now on web (#660)
