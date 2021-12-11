@@ -1,4 +1,4 @@
-name: logging
+name: sentry-logging
 on:
   push:
     branches:
