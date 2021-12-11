@@ -10,8 +10,6 @@ pubspec.lock
 .idea/libraries
 .idea/workspace.xml
 *.iml
-android/
-ios/
 build/
 .cxx/
 .vscode/
