@@ -1,5 +1,7 @@
 # Unreleased
 
+* Fix: ConcurrentModificationError in when finishing span #
+
 # 6.2.1
 
 * Fix: `sentry_logging` works now on web (#660)
