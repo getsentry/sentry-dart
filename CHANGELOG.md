@@ -1,6 +1,6 @@
 # Unreleased
 
-* Fix: ConcurrentModificationError in when finishing span #
+* Fix: ConcurrentModificationError in when finishing span (#664)
 
 # 6.2.1
 
