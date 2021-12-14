@@ -1,4 +1,4 @@
-name: logging
+name: sentry-logging
 on:
   push:
     branches:
@@ -63,7 +63,7 @@ jobs:
     timeout-minutes: 20
     defaults:
       run:
-        working-directory: ./dart
+        working-directory: ./logging
     steps:
       - uses: dart-lang/setup-dart@v1
         with:
@@ -83,7 +83,7 @@ jobs:
         id: analysis
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-          relativePath: dart/
+          relativePath: logging/
       - name: Check scores
         env:
           TOTAL: ${{ steps.analysis.outputs.total }}

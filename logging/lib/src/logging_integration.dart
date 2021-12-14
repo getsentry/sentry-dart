@@ -56,6 +56,9 @@ class LoggingIntegration extends Integration<SentryOptions> {
   }
 
   bool _isLoggable(Level logLevel, Level minLevel) {
+    if (logLevel == Level.OFF) {
+      return false;
+    }
     return logLevel >= minLevel;
   }
 
