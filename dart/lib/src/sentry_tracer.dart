@@ -14,11 +14,11 @@ class SentryTracer extends ISentrySpan {
   late final SentrySpan _rootSpan;
   final List<SentrySpan> _children = [];
   final Map<String, String> _extra = {};
-  Timer? _finishAfterTimer;
+  Timer? _autoFinishAfterTimer;
   var _finishStatus = SentryTracerFinishStatus.notFinishing();
 
   SentryTracer(SentryTransactionContext transactionContext, this._hub,
-      {bool waitForChildren = false}) {
+      {bool waitForChildren = false, Duration? autoFinishAfter}) {
     _rootSpan = SentrySpan(
       this,
       transactionContext,
@@ -26,12 +26,17 @@ class SentryTracer extends ISentrySpan {
       sampled: transactionContext.sampled,
     );
     _waitForChildren = waitForChildren;
+    if (autoFinishAfter != null) {
+      _autoFinishAfterTimer = Timer(autoFinishAfter, () async {
+        await finish(status: status ?? SpanStatus.ok());
+      });
+    }
     name = transactionContext.name;
   }
 
   @override
   Future<void> finish({SpanStatus? status}) async {
-    _finishAfterTimer?.cancel();
+    _autoFinishAfterTimer?.cancel();
     _finishStatus = SentryTracerFinishStatus.finishing(status);
     if (!_rootSpan.finished &&
         (!_waitForChildren || _haveAllChildrenFinished())) {
@@ -55,13 +60,6 @@ class SentryTracer extends ISentrySpan {
       final transaction = SentryTransaction(this);
       await _hub.captureTransaction(transaction);
     }
-  }
-
-  @override
-  void finishAfter(Duration duration, {SpanStatus? status}) {
-    _finishAfterTimer = Timer(duration, () async {
-      await finish(status: status);
-    });
   }
 
   @override

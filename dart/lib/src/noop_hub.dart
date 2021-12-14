@@ -79,6 +79,7 @@ class NoOpHub implements Hub {
     String? description,
     bool? bindToScope,
     bool? waitForChildren,
+    Duration? autoFinishAfter,
     Map<String, dynamic>? customSamplingContext,
   }) =>
       NoOpSentrySpan();
@@ -89,6 +90,7 @@ class NoOpHub implements Hub {
     Map<String, dynamic>? customSamplingContext,
     bool? bindToScope,
     bool? waitForChildren,
+    Duration? autoFinishAfter,
   }) =>
       NoOpSentrySpan();
 

@@ -113,9 +113,8 @@ void main() {
         '${sut.context.traceId}-${sut.context.spanId}-1');
   });
 
-  test('tracer finishes after duration', () async {
-    final sut = fixture.getSut();
-    sut.finishAfter(Duration(milliseconds: 200), status: SpanStatus.ok());
+  test('tracer finishes after auto finish duration', () async {
+    final sut = fixture.getSut(autoFinishAfter: Duration(milliseconds: 200));
 
     expect(sut.finished, false);
     await Future.delayed(Duration(milliseconds: 210));
@@ -175,12 +174,18 @@ class Fixture {
   SentryTracer getSut({
     bool? sampled = true,
     bool waitForChildren = false,
+    Duration? autoFinishAfter,
   }) {
     final context = SentryTransactionContext(
       'name',
       'op',
       sampled: sampled,
     );
-    return SentryTracer(context, hub, waitForChildren: waitForChildren);
+    return SentryTracer(
+      context,
+      hub,
+      waitForChildren: waitForChildren,
+      autoFinishAfter: autoFinishAfter,
+    );
   }
 }

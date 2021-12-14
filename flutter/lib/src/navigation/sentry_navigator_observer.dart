@@ -137,11 +137,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         'ui.load',
         bindToScope: scope.span == null,
         waitForChildren: true,
+        autoFinishAfter: Duration(seconds: 3),
       );
       if (arguments != null) {
         _transaction?.setData('route_settings_arguments', arguments);
       }
-      _transaction?.finishAfter(Duration(seconds: 3), status: SpanStatus.ok());
     });
   }
 

@@ -113,16 +113,6 @@ void main() {
         '${sut.context.traceId}-${sut.context.spanId}-1');
   });
 
-  test('finishes after duration', () async {
-    final sut = fixture.getSut();
-    sut.finishAfter(Duration(milliseconds: 200), status: SpanStatus.ok());
-
-    expect(sut.finished, false);
-    await Future.delayed(Duration(milliseconds: 210));
-    expect(sut.status, SpanStatus.ok());
-    expect(sut.finished, true);
-  });
-
   test('callback called on finish', () async {
     var numberOfCallbackCalls = 0;
     final sut = fixture.getSut(finishedCallback: () {

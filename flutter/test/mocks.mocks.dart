@@ -84,8 +84,11 @@ class MockNoOpSentrySpan extends _i1.Mock implements _i2.NoOpSentrySpan {
       super.noSuchMethod(Invocation.setter(#status, status),
           returnValueForMissingStub: null);
   @override
-  _i6.Future<void> finish({_i3.SpanStatus? status}) =>
-      (super.noSuchMethod(Invocation.method(#finish, [], {#status: status}),
+  _i6.Future<void> finish(
+          {_i3.SpanStatus? status, Duration? autoFinishAfter}) =>
+      (super.noSuchMethod(
+          Invocation.method(#finish, [],
+              {#status: status, #autoFinishAfter: autoFinishAfter}),
           returnValue: Future<void>.value(),
           returnValueForMissingStub: Future<void>.value()) as _i6.Future<void>);
   @override
@@ -114,11 +117,6 @@ class MockNoOpSentrySpan extends _i1.Mock implements _i2.NoOpSentrySpan {
   _i3.SentryTraceHeader toSentryTrace() =>
       (super.noSuchMethod(Invocation.method(#toSentryTrace, []),
           returnValue: _FakeSentryTraceHeader_3()) as _i3.SentryTraceHeader);
-  @override
-  void finishAfter(Duration? duration, {_i3.SpanStatus? status}) =>
-      super.noSuchMethod(
-          Invocation.method(#finishAfter, [duration], {#status: status}),
-          returnValueForMissingStub: null);
   @override
   String toString() => super.toString();
 }
@@ -214,6 +212,7 @@ class MockHub extends _i1.Mock implements _i4.Hub {
           {String? description,
           bool? bindToScope,
           bool? waitForChildren,
+          Duration? autoFinishAfter,
           Map<String, dynamic>? customSamplingContext}) =>
       (super.noSuchMethod(
               Invocation.method(#startTransaction, [
@@ -223,12 +222,14 @@ class MockHub extends _i1.Mock implements _i4.Hub {
                 #description: description,
                 #bindToScope: bindToScope,
                 #waitForChildren: waitForChildren,
+                #autoFinishAfter: autoFinishAfter,
                 #customSamplingContext: customSamplingContext
               }),
               returnValue: _i10.startTransactionShim(name, operation,
                   description: description,
                   bindToScope: bindToScope,
                   waitForChildren: waitForChildren,
+                  autoFinishAfter: autoFinishAfter,
                   customSamplingContext: customSamplingContext))
           as _i2.ISentrySpan);
   @override
@@ -236,14 +237,16 @@ class MockHub extends _i1.Mock implements _i4.Hub {
           _i2.SentryTransactionContext? transactionContext,
           {Map<String, dynamic>? customSamplingContext,
           bool? bindToScope,
-          bool? waitForChildren}) =>
+          bool? waitForChildren,
+          Duration? autoFinishAfter}) =>
       (super.noSuchMethod(
           Invocation.method(#startTransactionWithContext, [
             transactionContext
           ], {
             #customSamplingContext: customSamplingContext,
             #bindToScope: bindToScope,
-            #waitForChildren: waitForChildren
+            #waitForChildren: waitForChildren,
+            #autoFinishAfter: autoFinishAfter
           }),
           returnValue: _FakeISentrySpan_2()) as _i2.ISentrySpan);
   @override

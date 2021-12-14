@@ -189,6 +189,7 @@ class PrintRecursionMockHub extends MockHub {
     Map<String, dynamic>? customSamplingContext,
     bool? bindToScope,
     bool? waitForChildren,
+    Duration? autoFinishAfter,
   }) {
     return NoOpSentrySpan();
   }

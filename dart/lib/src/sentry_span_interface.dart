@@ -26,9 +26,6 @@ abstract class ISentrySpan {
   /// Sets span timestamp marking this span as finished.
   Future<void> finish({SpanStatus? status}) async {}
 
-  /// Calls finish after the provided duration with the status parameter.
-  void finishAfter(Duration duration, {SpanStatus? status}) {}
-
   /// Gets span status.
   SpanStatus? get status;
 

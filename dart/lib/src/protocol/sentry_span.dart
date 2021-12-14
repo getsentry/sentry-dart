@@ -19,7 +19,6 @@ class SentrySpan extends ISentrySpan {
 
   SpanStatus? _status;
   final Map<String, String> _tags = {};
-  Timer? _finishAfterTimer;
   void Function()? _finishedCallback;
 
   @override
@@ -37,8 +36,7 @@ class SentrySpan extends ISentrySpan {
   }
 
   @override
-  Future<void> finish({SpanStatus? status}) async {
-    _finishAfterTimer?.cancel();
+  Future<void> finish({SpanStatus? status, Duration? autoFinishAfter}) async {
     if (status != null) {
       _status = status;
     }
@@ -50,13 +48,6 @@ class SentrySpan extends ISentrySpan {
     }
     _finishedCallback?.call();
     await super.finish(status: status);
-  }
-
-  @override
-  void finishAfter(Duration duration, {SpanStatus? status}) {
-    _finishAfterTimer = Timer(duration, () async {
-      await finish(status: status);
-    });
   }
 
   @override
