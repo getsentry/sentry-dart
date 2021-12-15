@@ -194,11 +194,12 @@ class MainScaffold extends StatelessWidget {
             RaisedButton(
               child: const Text('Capture transaction'),
               onPressed: () async {
-                final transaction = Sentry.startTransaction(
-                  'myNewTrWithError3',
-                  'myNewOp',
-                  description: 'myTr myOp',
-                );
+                final transaction = Sentry.getSpan() ??
+                    Sentry.startTransaction(
+                      'myNewTrWithError3',
+                      'myNewOp',
+                      description: 'myTr myOp',
+                    );
                 transaction.setTag('myTag', 'myValue');
                 transaction.setData('myExtra', 'myExtraValue');
 
