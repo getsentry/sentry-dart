@@ -36,9 +36,6 @@ class SentryTracer extends ISentrySpan {
 
   @override
   Future<void> finish({SpanStatus? status}) async {
-    if (finished) {
-      return;
-    }
     _autoFinishAfterTimer?.cancel();
     _finishStatus = SentryTracerFinishStatus.finishing(status);
     if (!_rootSpan.finished &&
