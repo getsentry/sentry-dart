@@ -1,6 +1,6 @@
 # Unreleased
 
-* Feat: Add enableNdkScopeSync Android support #
+* Feat: Add enableNdkScopeSync Android support (#665)
 
 # 6.2.1
 
