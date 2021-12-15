@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.4.31'
+    ext.kotlin_version = '1.4.32'
     repositories {
         google()
         mavenCentral()
@@ -24,7 +24,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
@@ -32,7 +32,7 @@ android {
 
     defaultConfig {
         minSdkVersion 16
-        targetSdkVersion 30
+        targetSdkVersion 31
 
         ndk {
             // Flutter does not currently support building for x86 Android (See Issue 9253).
