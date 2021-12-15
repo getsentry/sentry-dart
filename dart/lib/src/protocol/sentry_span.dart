@@ -36,7 +36,7 @@ class SentrySpan extends ISentrySpan {
   }
 
   @override
-  Future<void> finish({SpanStatus? status, Duration? autoFinishAfter}) async {
+  Future<void> finish({SpanStatus? status}) async {
     if (status != null) {
       _status = status;
     }
