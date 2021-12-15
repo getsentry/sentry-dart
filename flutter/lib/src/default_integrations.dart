@@ -263,6 +263,7 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
         'maxCacheItems': options.maxCacheItems,
         'sendDefaultPii': options.sendDefaultPii,
         'enableOutOfMemoryTracking': options.enableOutOfMemoryTracking,
+        'enableNdkScopeSync': options.enableNdkScopeSync,
       });
 
       options.sdk.addIntegration('nativeSdkIntegration');
