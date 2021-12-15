@@ -65,13 +65,13 @@ jobs:
             dart pub get
             webdev build
 
-        - uses: codecov/codecov-action@v1
+        - uses: codecov/codecov-action@v2
           if: runner.os == 'Linux'
           with:
             name: sentry
             file: ./dart/coverage/lcov.info
         
-        - uses: VeryGoodOpenSource/very_good_coverage@v1.1.1
+        - uses: VeryGoodOpenSource/very_good_coverage@v1.2.0
           if: runner.os == 'Linux'
           with:
             path: "./dart/coverage/lcov.info"

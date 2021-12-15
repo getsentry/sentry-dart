@@ -73,13 +73,13 @@ jobs:
             flutter test --platform chrome
             flutter test --coverage
 
-        - uses: codecov/codecov-action@v1
+        - uses: codecov/codecov-action@v2
           if: runner.os == 'Linux'
           with:
             name: sentry_flutter
             file: ./flutter/coverage/lcov.info
         
-        - uses: VeryGoodOpenSource/very_good_coverage@v1.1.1
+        - uses: VeryGoodOpenSource/very_good_coverage@v1.2.0
           if: runner.os == 'Linux'
           with:
             path: "./flutter/coverage/lcov.info"
@@ -133,7 +133,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v2
-      - uses: axel-op/dart-package-analyzer@d56ba070e9dcacc6d8ba48a41938b1e2b973de41
+      - uses: axel-op/dart-package-analyzer@v3
         id: analysis
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
@@ -177,7 +177,7 @@ jobs:
           curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.40.0/ktlint
           chmod a+x ktlint
           ./ktlint --reporter=checkstyle,output=build/ktlint-report.xml || true
-      - uses: yutailang0119/action-ktlint@v1
+      - uses: yutailang0119/action-ktlint@v2
         with:
           xml_path: build/ktlint-report.xml
 
@@ -185,6 +185,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: natiginfo/action-detekt-all@1.15.0-RC1
+      - uses: natiginfo/action-detekt-all@1.19.0
         with:
           args: -i flutter --baseline flutter/config/detekt-bl.xml
