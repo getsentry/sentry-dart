@@ -158,6 +158,10 @@ class SentryFlutterOptions extends SentryOptions {
   /// https://docs.sentry.io/platforms/apple/guides/ios/configuration/out-of-memory/
   bool enableOutOfMemoryTracking = true;
 
+  /// Enable scope sync from Java to NDK.
+  /// Only available on Android.
+  bool enableNdkScopeSync = false;
+
   /// By using this, you are disabling native [Breadcrumb] tracking and instead
   /// you are just tracking [Breadcrumb]s which result from events available
   /// in the current Flutter environment.
