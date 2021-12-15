@@ -36,6 +36,9 @@ class SentryTracer extends ISentrySpan {
 
   @override
   Future<void> finish({SpanStatus? status}) async {
+    if (finished) {
+      return;
+    }
     _autoFinishAfterTimer?.cancel();
     _finishStatus = SentryTracerFinishStatus.finishing(status);
     if (!_rootSpan.finished &&
@@ -64,21 +67,37 @@ class SentryTracer extends ISentrySpan {
 
   @override
   void removeData(String key) {
+    if (finished) {
+      return;
+    }
+
     _extra.remove(key);
   }
 
   @override
   void removeTag(String key) {
+    if (finished) {
+      return;
+    }
+
     _rootSpan.removeTag(key);
   }
 
   @override
   void setData(String key, value) {
+    if (finished) {
+      return;
+    }
+
     _extra[key] = value;
   }
 
   @override
   void setTag(String key, String value) {
+    if (finished) {
+      return;
+    }
+
     _rootSpan.setTag(key, value);
   }
 
@@ -87,6 +106,10 @@ class SentryTracer extends ISentrySpan {
     String operation, {
     String? description,
   }) {
+    if (finished) {
+      return NoOpSentrySpan();
+    }
+
     return _rootSpan.startChild(
       operation,
       description: description,
@@ -98,6 +121,10 @@ class SentryTracer extends ISentrySpan {
     String operation, {
     String? description,
   }) {
+    if (finished) {
+      return NoOpSentrySpan();
+    }
+
     final context = SentrySpanContext(
         traceId: _rootSpan.context.traceId,
         parentSpanId: parentSpanId,

@@ -1,6 +1,9 @@
 # Unreleased
 
 * Feat: Auto Transactions (#643)
+# 6.2.2
+
+* Fix: ConcurrentModificationError in when finishing span (#664)
 * Feat: Add enableNdkScopeSync Android support (#665)
 
 # 6.2.1

@@ -37,6 +37,10 @@ class SentrySpan extends ISentrySpan {
 
   @override
   Future<void> finish({SpanStatus? status}) async {
+    if (finished) {
+      return;
+    }
+
     if (status != null) {
       _status = status;
     }
@@ -52,21 +56,37 @@ class SentrySpan extends ISentrySpan {
 
   @override
   void removeData(String key) {
+    if (finished) {
+      return;
+    }
+
     _data.remove(key);
   }
 
   @override
   void removeTag(String key) {
+    if (finished) {
+      return;
+    }
+
     _tags.remove(key);
   }
 
   @override
   void setData(String key, value) {
+    if (finished) {
+      return;
+    }
+
     _data[key] = value;
   }
 
   @override
   void setTag(String key, String value) {
+    if (finished) {
+      return;
+    }
+
     _tags[key] = value;
   }
 
@@ -75,6 +95,10 @@ class SentrySpan extends ISentrySpan {
     String operation, {
     String? description,
   }) {
+    if (finished) {
+      return NoOpSentrySpan();
+    }
+
     return _tracer.startChildWithParentSpanId(
       _context.spanId,
       operation,
