@@ -479,11 +479,12 @@ class SecondaryScaffold extends StatelessWidget {
 }
 
 Future<void> makeWebRequest(BuildContext context) async {
-  final transaction = Sentry.startTransaction(
-    'flutterwebrequest',
-    'request',
-    bindToScope: true,
-  );
+  final transaction = Sentry.getSpan() ??
+      Sentry.startTransaction(
+        'flutterwebrequest',
+        'request',
+        bindToScope: true,
+      );
 
   final client = SentryHttpClient(
     captureFailedRequests: true,
