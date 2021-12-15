@@ -1,5 +1,7 @@
 # Unreleased
 
+* Feat: Add enableNdkScopeSync Android support (#665)
+
 # 6.2.1
 
 * Fix: `sentry_logging` works now on web (#660)

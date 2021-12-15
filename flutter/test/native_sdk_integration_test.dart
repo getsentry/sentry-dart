@@ -50,6 +50,7 @@ void main() {
         'maxCacheItems': 30,
         'sendDefaultPii': false,
         'enableOutOfMemoryTracking': true,
+        'enableNdkScopeSync': false,
       });
     });
 
@@ -79,7 +80,8 @@ void main() {
         ..enableAutoNativeBreadcrumbs = false
         ..maxCacheItems = 0
         ..sendDefaultPii = true
-        ..enableOutOfMemoryTracking = false;
+        ..enableOutOfMemoryTracking = false
+        ..enableNdkScopeSync = true;
 
       options.sdk.addIntegration('foo');
       options.sdk.addPackage('bar', '1');
@@ -113,6 +115,7 @@ void main() {
         'maxCacheItems': 0,
         'sendDefaultPii': true,
         'enableOutOfMemoryTracking': false,
+        'enableNdkScopeSync': true,
       });
     });
 
