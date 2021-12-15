@@ -87,11 +87,10 @@ class SentryTracer extends ISentrySpan {
     String operation, {
     String? description,
   }) {
-    final child = _rootSpan.startChild(
+    return _rootSpan.startChild(
       operation,
       description: description,
     );
-    return child;
   }
 
   ISentrySpan startChildWithParentSpanId(
