@@ -113,6 +113,64 @@ void main() {
     expect(sut.toSentryTrace().value,
         '${sut.context.traceId}-${sut.context.spanId}-1');
   });
+
+  test('finish isnt allowed to be called twice', () async {
+    final sut = fixture.getSut();
+
+    await sut.finish(status: SpanStatus.ok());
+    await sut.finish(status: SpanStatus.cancelled());
+
+    expect(sut.status, SpanStatus.ok());
+  });
+
+  test('removeData isnt allowed to be called after finishing', () async {
+    final sut = fixture.getSut();
+
+    sut.setData('key', 'value');
+    await sut.finish(status: SpanStatus.ok());
+    sut.removeData('key');
+
+    expect(sut.data['key'], 'value');
+  });
+
+  test('removeTag isnt allowed to be called after finishing', () async {
+    final sut = fixture.getSut();
+
+    sut.setTag('key', 'value');
+    await sut.finish(status: SpanStatus.ok());
+    sut.removeTag('key');
+
+    expect(sut.tags['key'], 'value');
+  });
+
+  test('setData isnt allowed to be called after finishing', () async {
+    final sut = fixture.getSut();
+
+    sut.setData('key', 'value');
+    await sut.finish(status: SpanStatus.ok());
+    sut.setData('key', 'value2');
+
+    expect(sut.data['key'], 'value');
+  });
+
+  test('setTag isnt allowed to be called after finishing', () async {
+    final sut = fixture.getSut();
+
+    sut.setTag('key', 'value');
+    await sut.finish(status: SpanStatus.ok());
+    sut.setTag('key', 'value2');
+
+    expect(sut.tags['key'], 'value');
+  });
+
+  test('startChild isnt allowed to be called after finishing', () async {
+    final sut = fixture.getSut();
+
+    await sut.finish(status: SpanStatus.ok());
+    final span = sut.startChild('op');
+
+    expect(NoOpSentrySpan(), span);
+  });
 }
 
 class Fixture {
