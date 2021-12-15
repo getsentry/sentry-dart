@@ -32,7 +32,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
     when (call.method) {
       "initNativeSdk" -> initNativeSdk(call, result)
       "captureEnvelope" -> captureEnvelope(call, result)
-      "loadImageList" -> loadImageList(call, result)
+      "loadImageList" -> loadImageList(result)
       "closeNativeSdk" -> closeNativeSdk(result)
       else -> result.notImplemented()
     }
@@ -137,7 +137,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
     result.error("2", "Envelope is null or empty", null)
   }
 
-  private fun loadImageList(call: MethodCall, result: Result) {
+  private fun loadImageList(result: Result) {
     val options = HubAdapter.getInstance().options as SentryAndroidOptions
 
     val newDebugImages = mutableListOf<Map<String, Any?>>()

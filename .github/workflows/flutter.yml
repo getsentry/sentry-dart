@@ -179,7 +179,7 @@ jobs:
           ./ktlint --reporter=checkstyle,output=build/ktlint-report.xml || true
       - uses: yutailang0119/action-ktlint@v2
         with:
-          xml_path: build/ktlint-report.xml
+          report-path: build/ktlint-report.xml
 
   detekt:
     runs-on: ubuntu-latest
