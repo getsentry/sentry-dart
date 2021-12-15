@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.4.31'
+    ext.kotlin_version = '1.4.32'
     repositories {
         google()
         mavenCentral()
@@ -7,7 +7,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'io.sentry:sentry-android-gradle-plugin:2.1.4'
+        classpath 'io.sentry:sentry-android-gradle-plugin:2.1.5'
         // Flutter is incompatible with AGP 4.1.x yet
         //  No such property: scope for class: com.android.build.gradle.internal.variant.ApplicationVariantData
         classpath 'com.android.tools.build:gradle:4.1.0'
