@@ -43,8 +43,16 @@ void main() {
 
       sut.didPush(currentRoute, null);
 
-      verify(hub.startTransaction('Current Route', 'ui.load',
-          waitForChildren: true, autoFinishAfter: Duration(seconds: 3)));
+      verify(hub.startTransaction(
+        'Current Route',
+        'ui.load',
+        waitForChildren: true,
+        autoFinishAfter: Duration(seconds: 3),
+      ));
+
+      hub.configureScope((scope) {
+        expect(scope.span, span);
+      });
     });
 
     test('route with empty name does not start transaction', () {
@@ -57,8 +65,16 @@ void main() {
 
       sut.didPush(currentRoute, null);
 
-      verifyNever(hub.startTransaction('Current Route', 'ui.load',
-          waitForChildren: true, autoFinishAfter: Duration(seconds: 3)));
+      verifyNever(hub.startTransaction(
+        'Current Route',
+        'ui.load',
+        waitForChildren: true,
+        autoFinishAfter: Duration(seconds: 3),
+      ));
+
+      hub.configureScope((scope) {
+        expect(scope.span, null);
+      });
     });
 
     test('no transaction on opt-out', () {
@@ -71,8 +87,16 @@ void main() {
 
       sut.didPush(currentRoute, null);
 
-      verifyNever(hub.startTransaction('Current Route', 'ui.load',
-          waitForChildren: true, autoFinishAfter: Duration(seconds: 3)));
+      verifyNever(hub.startTransaction(
+        'Current Route',
+        'ui.load',
+        waitForChildren: true,
+        autoFinishAfter: Duration(seconds: 3),
+      ));
+
+      hub.configureScope((scope) {
+        expect(scope.span, null);
+      });
     });
 
     test('do not bind to scope if already set', () {
@@ -86,8 +110,16 @@ void main() {
 
       sut.didPush(currentRoute, null);
 
-      verify(hub.startTransaction('Current Route', 'ui.load',
-          waitForChildren: true, autoFinishAfter: Duration(seconds: 3)));
+      verify(hub.startTransaction(
+        'Current Route',
+        'ui.load',
+        waitForChildren: true,
+        autoFinishAfter: Duration(seconds: 3),
+      ));
+
+      hub.configureScope((scope) {
+        expect(scope.span, NoOpSentrySpan());
+      });
     });
 
     test('didPush finishes previous transaction', () {
@@ -137,8 +169,16 @@ void main() {
 
       sut.didPop(currentRoute, previousRoute);
 
-      verify(hub.startTransaction('Previous Route', 'ui.load',
-          waitForChildren: true, autoFinishAfter: Duration(seconds: 3)));
+      verify(hub.startTransaction(
+        'Previous Route',
+        'ui.load',
+        waitForChildren: true,
+        autoFinishAfter: Duration(seconds: 3),
+      ));
+
+      hub.configureScope((scope) {
+        expect(scope.span, previousSpan);
+      });
     });
 
     test('didPush push multiple finishes previous', () async {
