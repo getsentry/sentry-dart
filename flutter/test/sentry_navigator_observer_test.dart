@@ -44,9 +44,7 @@ void main() {
       sut.didPush(currentRoute, null);
 
       verify(hub.startTransaction('Current Route', 'ui.load',
-          bindToScope: true,
-          waitForChildren: true,
-          autoFinishAfter: Duration(seconds: 3)));
+          waitForChildren: true, autoFinishAfter: Duration(seconds: 3)));
     });
 
     test('route with empty name does not start transaction', () {
@@ -60,9 +58,7 @@ void main() {
       sut.didPush(currentRoute, null);
 
       verifyNever(hub.startTransaction('Current Route', 'ui.load',
-          bindToScope: true,
-          waitForChildren: true,
-          autoFinishAfter: Duration(seconds: 3)));
+          waitForChildren: true, autoFinishAfter: Duration(seconds: 3)));
     });
 
     test('no transaction on opt-out', () {
@@ -76,9 +72,7 @@ void main() {
       sut.didPush(currentRoute, null);
 
       verifyNever(hub.startTransaction('Current Route', 'ui.load',
-          bindToScope: true,
-          waitForChildren: true,
-          autoFinishAfter: Duration(seconds: 3)));
+          waitForChildren: true, autoFinishAfter: Duration(seconds: 3)));
     });
 
     test('do not bind to scope if already set', () {
@@ -93,9 +87,7 @@ void main() {
       sut.didPush(currentRoute, null);
 
       verify(hub.startTransaction('Current Route', 'ui.load',
-          bindToScope: false,
-          waitForChildren: true,
-          autoFinishAfter: Duration(seconds: 3)));
+          waitForChildren: true, autoFinishAfter: Duration(seconds: 3)));
     });
 
     test('didPush finishes previous transaction', () {
@@ -146,9 +138,7 @@ void main() {
       sut.didPop(currentRoute, previousRoute);
 
       verify(hub.startTransaction('Previous Route', 'ui.load',
-          bindToScope: true,
-          waitForChildren: true,
-          autoFinishAfter: Duration(seconds: 3)));
+          waitForChildren: true, autoFinishAfter: Duration(seconds: 3)));
     });
 
     test('didPush push multiple finishes previous', () async {
