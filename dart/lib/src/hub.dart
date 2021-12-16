@@ -3,7 +3,6 @@ import 'dart:collection';
 
 import 'package:meta/meta.dart';
 
-import 'noop_sentry_span.dart';
 import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_client.dart';
@@ -340,6 +339,8 @@ class Hub {
     String operation, {
     String? description,
     bool? bindToScope,
+    bool? waitForChildren,
+    Duration? autoFinishAfter,
     Map<String, dynamic>? customSamplingContext,
   }) =>
       startTransactionWithContext(
@@ -349,6 +350,8 @@ class Hub {
           description: description,
         ),
         bindToScope: bindToScope,
+        waitForChildren: waitForChildren,
+        autoFinishAfter: autoFinishAfter,
         customSamplingContext: customSamplingContext,
       );
 
@@ -357,6 +360,8 @@ class Hub {
     SentryTransactionContext transactionContext, {
     Map<String, dynamic>? customSamplingContext,
     bool? bindToScope,
+    bool? waitForChildren,
+    Duration? autoFinishAfter,
   }) {
     if (!_isEnabled) {
       _options.logger(
@@ -380,8 +385,12 @@ class Hub {
         transactionContext = transactionContext.copyWith(sampled: sampled);
       }
 
-      final tracer = SentryTracer(transactionContext, this);
-
+      final tracer = SentryTracer(
+        transactionContext,
+        this,
+        waitForChildren: waitForChildren ?? false,
+        autoFinishAfter: autoFinishAfter,
+      );
       if (bindToScope ?? false) {
         item.scope.span = tracer;
       }

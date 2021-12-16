@@ -3,7 +3,6 @@ import 'package:http/testing.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/http_client/failed_request_client.dart';
-import 'package:sentry/src/http_client/sentry_http_client.dart';
 import 'package:test/test.dart';
 
 import '../mocks.dart';

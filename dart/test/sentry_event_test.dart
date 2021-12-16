@@ -4,8 +4,6 @@
 
 import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/protocol/sentry_request.dart';
-import 'package:sentry/src/protocol/sentry_thread.dart';
 import 'package:sentry/src/version.dart';
 import 'package:sentry/src/utils.dart';
 import 'package:test/test.dart';

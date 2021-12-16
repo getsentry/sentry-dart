@@ -6,8 +6,6 @@ import 'utils.dart';
 import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_envelope_header.dart';
 import 'sentry_envelope_item.dart';
-import 'protocol/sentry_event.dart';
-import 'protocol/sdk_version.dart';
 import 'sentry_user_feedback.dart';
 
 /// Class representation of `Envelope` file.

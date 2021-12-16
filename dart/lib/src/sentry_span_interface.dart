@@ -24,9 +24,7 @@ abstract class ISentrySpan {
   void removeData(String key);
 
   /// Sets span timestamp marking this span as finished.
-  Future<void> finish({
-    SpanStatus? status,
-  });
+  Future<void> finish({SpanStatus? status}) async {}
 
   /// Gets span status.
   SpanStatus? get status;

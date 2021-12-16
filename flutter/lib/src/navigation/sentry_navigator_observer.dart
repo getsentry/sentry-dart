@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:sentry/sentry.dart';
 import '../../sentry_flutter.dart';
@@ -30,20 +32,34 @@ const _navigationKey = 'navigation';
 ///   // other parameter ...
 /// )
 /// ```
+///
+/// The option [enableAutoTransactions] is enabled by default. For every new
+/// route a transaction is started. It's automatically finished after 3 seconds
+/// or when all child spans are finished, if those happen to take longer. The
+/// transaction will be set to [Scope.span] if the latter is empty.
+///
 /// Enabling the [setRouteNameAsTransaction] option overrides the current
-/// [Scope.transaction]. So be careful when this is used together with
-/// performance monitoring.
+/// [Scope.transaction] which will also override the name of the current
+/// [Scope.span]. So be careful when this is used together with performance
+/// monitoring.
 ///
 /// See also:
 ///   - [RouteObserver](https://api.flutter.dev/flutter/widgets/RouteObserver-class.html)
 ///   - [Navigating with arguments](https://flutter.dev/docs/cookbook/navigation/navigate-with-arguments)
 class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
-  SentryNavigatorObserver({Hub? hub, bool setRouteNameAsTransaction = false})
+  SentryNavigatorObserver(
+      {Hub? hub,
+      bool enableAutoTransactions = true,
+      bool setRouteNameAsTransaction = false})
       : _hub = hub ?? HubAdapter(),
+        _enableAutoTransactions = enableAutoTransactions,
         _setRouteNameAsTransaction = setRouteNameAsTransaction;
 
   final Hub _hub;
+  final bool _enableAutoTransactions;
   final bool _setRouteNameAsTransaction;
+
+  ISentrySpan? _transaction;
 
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
@@ -54,6 +70,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       from: previousRoute?.settings,
       to: route.settings,
     );
+    _finishTransaction();
+    _startTransaction(route.settings.name, route.settings.arguments);
   }
 
   @override
@@ -75,6 +93,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       type: 'didPop',
       from: route.settings,
       to: previousRoute?.settings,
+    );
+    _finishTransaction();
+    _startTransaction(
+      previousRoute?.settings.name,
+      previousRoute?.settings.arguments,
     );
   }
 
@@ -99,6 +122,33 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         scope.transaction = name;
       });
     }
+  }
+
+  void _startTransaction(String? name, Object? arguments) {
+    if (!_enableAutoTransactions) {
+      return;
+    }
+    if (name == null) {
+      return;
+    }
+    _transaction = _hub.startTransaction(
+      name,
+      'ui.load',
+      waitForChildren: true,
+      autoFinishAfter: Duration(seconds: 3),
+    );
+    if (arguments != null) {
+      _transaction?.setData('route_settings_arguments', arguments);
+    }
+
+    _hub.configureScope((scope) {
+      scope.span ??= _transaction;
+    });
+  }
+
+  Future<void> _finishTransaction() async {
+    _transaction?.status ??= SpanStatus.ok();
+    return await _transaction?.finish();
   }
 }
 

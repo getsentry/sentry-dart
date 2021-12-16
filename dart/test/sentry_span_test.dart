@@ -1,6 +1,5 @@
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_tracer.dart';
-import 'package:sentry/src/protocol/sentry_span.dart';
 import 'package:test/test.dart';
 
 import 'mocks/mock_hub.dart';
@@ -171,6 +170,17 @@ void main() {
 
     expect(NoOpSentrySpan(), span);
   });
+
+  test('callback called on finish', () async {
+    var numberOfCallbackCalls = 0;
+    final sut = fixture.getSut(finishedCallback: () {
+      numberOfCallbackCalls += 1;
+    });
+
+    await sut.finish();
+
+    expect(numberOfCallbackCalls, 1);
+  });
 }
 
 class Fixture {
@@ -181,7 +191,7 @@ class Fixture {
   late SentryTracer tracer;
   final hub = MockHub();
 
-  SentrySpan getSut({bool? sampled = true}) {
+  SentrySpan getSut({bool? sampled = true, Function()? finishedCallback}) {
     tracer = SentryTracer(context, hub);
 
     return SentrySpan(
@@ -189,6 +199,7 @@ class Fixture {
       context,
       hub,
       sampled: sampled,
+      finishedCallback: finishedCallback,
     );
   }
 }

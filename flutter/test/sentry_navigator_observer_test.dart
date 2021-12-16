@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
@@ -9,8 +10,215 @@ import 'mocks.mocks.dart';
 void main() {
   late Fixture fixture;
 
+  PageRoute route(RouteSettings? settings) => PageRouteBuilder<void>(
+        pageBuilder: (_, __, ___) => Container(),
+        settings: settings,
+      );
+
+  void _whenAnyStart(MockHub mockHub, ISentrySpan thenReturnSpan,
+      {String? name}) {
+    when(mockHub.startTransaction(
+      name ?? any,
+      any,
+      description: anyNamed('description'),
+      bindToScope: anyNamed('bindToScope'),
+      waitForChildren: anyNamed('waitForChildren'),
+      autoFinishAfter: anyNamed('autoFinishAfter'),
+      customSamplingContext: anyNamed('customSamplingContext'),
+    )).thenReturn(thenReturnSpan);
+  }
+
   setUp(() {
     fixture = Fixture();
+  });
+
+  group('RouteObserverTransaction', () {
+    test('didPush starts transaction', () {
+      final currentRoute = route(RouteSettings(name: 'Current Route'));
+
+      final hub = _MockHub();
+      final span = MockNoOpSentrySpan();
+      _whenAnyStart(hub, span);
+      final sut = fixture.getSut(hub: hub);
+
+      sut.didPush(currentRoute, null);
+
+      verify(hub.startTransaction(
+        'Current Route',
+        'ui.load',
+        waitForChildren: true,
+        autoFinishAfter: Duration(seconds: 3),
+      ));
+
+      hub.configureScope((scope) {
+        expect(scope.span, span);
+      });
+    });
+
+    test('route with empty name does not start transaction', () {
+      final currentRoute = route(null);
+
+      final hub = _MockHub();
+      final span = MockNoOpSentrySpan();
+      _whenAnyStart(hub, span);
+      final sut = fixture.getSut(hub: hub);
+
+      sut.didPush(currentRoute, null);
+
+      verifyNever(hub.startTransaction(
+        'Current Route',
+        'ui.load',
+        waitForChildren: true,
+        autoFinishAfter: Duration(seconds: 3),
+      ));
+
+      hub.configureScope((scope) {
+        expect(scope.span, null);
+      });
+    });
+
+    test('no transaction on opt-out', () {
+      final currentRoute = route(RouteSettings(name: 'Current Route'));
+
+      final hub = _MockHub();
+      final span = MockNoOpSentrySpan();
+      _whenAnyStart(hub, span);
+      final sut = fixture.getSut(hub: hub, enableAutoTransactions: false);
+
+      sut.didPush(currentRoute, null);
+
+      verifyNever(hub.startTransaction(
+        'Current Route',
+        'ui.load',
+        waitForChildren: true,
+        autoFinishAfter: Duration(seconds: 3),
+      ));
+
+      hub.configureScope((scope) {
+        expect(scope.span, null);
+      });
+    });
+
+    test('do not bind to scope if already set', () {
+      final currentRoute = route(RouteSettings(name: 'Current Route'));
+
+      final hub = _MockHub();
+      hub.scope.span = NoOpSentrySpan();
+      final span = MockNoOpSentrySpan();
+      _whenAnyStart(hub, span);
+      final sut = fixture.getSut(hub: hub);
+
+      sut.didPush(currentRoute, null);
+
+      verify(hub.startTransaction(
+        'Current Route',
+        'ui.load',
+        waitForChildren: true,
+        autoFinishAfter: Duration(seconds: 3),
+      ));
+
+      hub.configureScope((scope) {
+        expect(scope.span, NoOpSentrySpan());
+      });
+    });
+
+    test('didPush finishes previous transaction', () {
+      final firstRoute = route(RouteSettings(name: 'First Route'));
+      final secondRoute = route(RouteSettings(name: 'Second Route'));
+
+      final hub = _MockHub();
+      final span = MockNoOpSentrySpan();
+      when(span.status).thenReturn(null);
+      _whenAnyStart(hub, span);
+      final sut = fixture.getSut(hub: hub);
+
+      sut.didPush(firstRoute, null);
+      sut.didPush(secondRoute, firstRoute);
+
+      verify(span.status = SpanStatus.ok());
+      verify(span.finish());
+    });
+
+    test('didPop finishes transaction', () async {
+      final currentRoute = route(RouteSettings(name: 'Current Route'));
+
+      final hub = _MockHub();
+      final span = MockNoOpSentrySpan();
+      when(span.status).thenReturn(null);
+      _whenAnyStart(hub, span);
+
+      final sut = fixture.getSut(hub: hub);
+
+      sut.didPush(currentRoute, null);
+      sut.didPop(currentRoute, null);
+
+      verify(span.status = SpanStatus.ok());
+      verify(span.finish());
+    });
+
+    test('didPop re-starts previous', () {
+      final previousRoute = route(RouteSettings(name: 'Previous Route'));
+      final currentRoute = route(RouteSettings(name: 'Current Route'));
+
+      final hub = _MockHub();
+      final previousSpan = MockNoOpSentrySpan();
+      when(previousSpan.status).thenReturn(null);
+      _whenAnyStart(hub, previousSpan, name: 'Previous Route');
+
+      final sut = fixture.getSut(hub: hub);
+
+      sut.didPop(currentRoute, previousRoute);
+
+      verify(hub.startTransaction(
+        'Previous Route',
+        'ui.load',
+        waitForChildren: true,
+        autoFinishAfter: Duration(seconds: 3),
+      ));
+
+      hub.configureScope((scope) {
+        expect(scope.span, previousSpan);
+      });
+    });
+
+    test('didPush push multiple finishes previous', () async {
+      final firstRoute = route(RouteSettings(name: 'First Route'));
+      final secondRoute = route(RouteSettings(name: 'Second Route'));
+
+      final hub = _MockHub();
+      final firstSpan = MockNoOpSentrySpan();
+      when(firstSpan.status).thenReturn(null);
+      final secondSpan = MockNoOpSentrySpan();
+      when(secondSpan.status).thenReturn(null);
+      _whenAnyStart(hub, firstSpan, name: 'First Route');
+      _whenAnyStart(hub, secondSpan, name: 'Second Route');
+      final sut = fixture.getSut(hub: hub);
+
+      sut.didPush(firstRoute, null);
+      sut.didPush(secondRoute, firstRoute);
+
+      verify(firstSpan.status = SpanStatus.ok());
+      verify(firstSpan.finish());
+    });
+
+    test('route arguments are set on transaction', () {
+      final arguments = {'foo': 'bar'};
+      final currentRoute = route(RouteSettings(
+        name: 'Current Route',
+        arguments: arguments,
+      ));
+
+      final hub = _MockHub();
+      final span = MockNoOpSentrySpan();
+      when(span.status).thenReturn(null);
+      _whenAnyStart(hub, span);
+
+      final sut = fixture.getSut(hub: hub);
+
+      sut.didPush(currentRoute, null);
+
+      verify(span.setData('route_settings_arguments', arguments));
+    });
   });
 
   group('RouteObserverBreadcrumb', () {
@@ -142,16 +350,12 @@ void main() {
   });
 
   group('SentryNavigatorObserver', () {
-    PageRoute route(RouteSettings? settings) => PageRouteBuilder<void>(
-          pageBuilder: (_, __, ___) => Container(),
-          settings: settings,
-        );
-
     RouteSettings routeSettings(String? name, [Object? arguments]) =>
         RouteSettings(name: name, arguments: arguments);
 
     test('Test recording of Breadcrumbs', () {
       final hub = MockHub();
+      _whenAnyStart(hub, NoOpSentrySpan());
       final observer = fixture.getSut(hub: hub);
 
       final to = routeSettings('to', 'foobar');
@@ -173,6 +377,7 @@ void main() {
 
     test('No arguments', () {
       final hub = MockHub();
+      _whenAnyStart(hub, NoOpSentrySpan());
       final observer = fixture.getSut(hub: hub);
 
       final to = routeSettings('to');
@@ -194,6 +399,7 @@ void main() {
 
     test('No arguments & no name', () {
       final hub = MockHub();
+      _whenAnyStart(hub, NoOpSentrySpan());
       final observer = fixture.getSut(hub: hub);
 
       final to = route(null);
@@ -236,6 +442,7 @@ void main() {
 
     test('route name as transaction', () {
       final hub = _MockHub();
+      _whenAnyStart(hub, NoOpSentrySpan());
       final observer = fixture.getSut(
         hub: hub,
         setRouteNameAsTransaction: true,
@@ -256,6 +463,7 @@ void main() {
 
     test('route name does nothing if null', () {
       final hub = _MockHub();
+      _whenAnyStart(hub, NoOpSentrySpan());
       final observer = fixture.getSut(
         hub: hub,
         setRouteNameAsTransaction: true,
@@ -272,6 +480,7 @@ void main() {
 
     test('disabled route as transaction', () {
       final hub = _MockHub();
+      _whenAnyStart(hub, NoOpSentrySpan());
       final observer =
           fixture.getSut(hub: hub, setRouteNameAsTransaction: false);
 
@@ -293,10 +502,12 @@ void main() {
 class Fixture {
   SentryNavigatorObserver getSut({
     required Hub hub,
+    bool enableAutoTransactions = true,
     bool setRouteNameAsTransaction = false,
   }) {
     return SentryNavigatorObserver(
       hub: hub,
+      enableAutoTransactions: enableAutoTransactions,
       setRouteNameAsTransaction: setRouteNameAsTransaction,
     );
   }

@@ -4,7 +4,6 @@ import 'protocol.dart';
 import 'sentry_client.dart';
 import 'sentry_user_feedback.dart';
 import 'tracing.dart';
-import 'noop_sentry_span.dart';
 
 class NoOpHub implements Hub {
   NoOpHub._();
@@ -79,6 +78,8 @@ class NoOpHub implements Hub {
     String operation, {
     String? description,
     bool? bindToScope,
+    bool? waitForChildren,
+    Duration? autoFinishAfter,
     Map<String, dynamic>? customSamplingContext,
   }) =>
       NoOpSentrySpan();
@@ -88,6 +89,8 @@ class NoOpHub implements Hub {
     SentryTransactionContext transactionContext, {
     Map<String, dynamic>? customSamplingContext,
     bool? bindToScope,
+    bool? waitForChildren,
+    Duration? autoFinishAfter,
   }) =>
       NoOpSentrySpan();
 

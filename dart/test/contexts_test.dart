@@ -6,7 +6,6 @@ import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/protocol/sentry_gpu.dart';
 import 'package:test/test.dart';
 
 void main() {

@@ -194,11 +194,12 @@ class MainScaffold extends StatelessWidget {
             RaisedButton(
               child: const Text('Capture transaction'),
               onPressed: () async {
-                final transaction = Sentry.startTransaction(
-                  'myNewTrWithError3',
-                  'myNewOp',
-                  description: 'myTr myOp',
-                );
+                final transaction = Sentry.getSpan() ??
+                    Sentry.startTransaction(
+                      'myNewTrWithError3',
+                      'myNewOp',
+                      description: 'myTr myOp',
+                    );
                 transaction.setTag('myTag', 'myValue');
                 transaction.setData('myExtra', 'myExtraValue');
 
@@ -479,11 +480,12 @@ class SecondaryScaffold extends StatelessWidget {
 }
 
 Future<void> makeWebRequest(BuildContext context) async {
-  final transaction = Sentry.startTransaction(
-    'flutterwebrequest',
-    'request',
-    bindToScope: true,
-  );
+  final transaction = Sentry.getSpan() ??
+      Sentry.startTransaction(
+        'flutterwebrequest',
+        'request',
+        bindToScope: true,
+      );
 
   final client = SentryHttpClient(
     captureFailedRequests: true,

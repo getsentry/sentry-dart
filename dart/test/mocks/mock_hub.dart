@@ -1,7 +1,5 @@
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/noop_hub.dart';
-import 'package:sentry/src/noop_sentry_span.dart';
-import 'package:sentry/src/sentry_user_feedback.dart';
 
 class MockHub implements Hub {
   List<CaptureEventCall> captureEventCalls = [];
@@ -127,6 +125,8 @@ class MockHub implements Hub {
     String operation, {
     String? description,
     bool? bindToScope,
+    bool? waitForChildren,
+    Duration? autoFinishAfter,
     Map<String, dynamic>? customSamplingContext,
   }) {
     return NoOpSentrySpan();
@@ -137,6 +137,8 @@ class MockHub implements Hub {
     SentryTransactionContext transactionContext, {
     Map<String, dynamic>? customSamplingContext,
     bool? bindToScope,
+    bool? waitForChildren,
+    Duration? autoFinishAfter,
   }) {
     return NoOpSentrySpan();
   }

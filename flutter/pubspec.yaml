@@ -17,6 +17,7 @@ dependencies:
   package_info_plus: ^1.0.0
 
 dev_dependencies:
+  build_runner: ^2.1.5
   flutter_test:
     sdk: flutter
   mockito: ^5.0.16

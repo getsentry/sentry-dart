@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import '../hub.dart';
 import '../protocol.dart';
 
@@ -17,6 +19,7 @@ class SentrySpan extends ISentrySpan {
 
   SpanStatus? _status;
   final Map<String, String> _tags = {};
+  void Function()? _finishedCallback;
 
   @override
   bool? sampled;
@@ -26,8 +29,10 @@ class SentrySpan extends ISentrySpan {
     this._context,
     this._hub, {
     bool? sampled,
+    Function()? finishedCallback,
   }) {
     this.sampled = sampled;
+    _finishedCallback = finishedCallback;
   }
 
   @override
@@ -45,6 +50,8 @@ class SentrySpan extends ISentrySpan {
     if (_throwable != null) {
       _hub.setSpanContext(_throwable, this, _tracer.name);
     }
+    _finishedCallback?.call();
+    await super.finish(status: status);
   }
 
   @override

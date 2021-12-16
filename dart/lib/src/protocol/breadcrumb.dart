@@ -1,7 +1,6 @@
 import 'package:meta/meta.dart';
 
 import '../utils.dart';
-import 'sentry_level.dart';
 import '../protocol.dart';
 
 /// Structed data to describe more information pior to the event captured.

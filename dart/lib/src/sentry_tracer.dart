@@ -1,52 +1,65 @@
+import 'dart:async';
+
 import 'package:meta/meta.dart';
 
 import '../sentry.dart';
+import 'sentry_tracer_finish_status.dart';
 
 @internal
 class SentryTracer extends ISentrySpan {
   final Hub _hub;
+  late bool _waitForChildren;
   late String name;
-
-  // missing waitForChildren
 
   late final SentrySpan _rootSpan;
   final List<SentrySpan> _children = [];
   final Map<String, String> _extra = {};
+  Timer? _autoFinishAfterTimer;
+  var _finishStatus = SentryTracerFinishStatus.notFinishing();
 
-  SentryTracer(SentryTransactionContext transactionContext, this._hub) {
+  SentryTracer(SentryTransactionContext transactionContext, this._hub,
+      {bool waitForChildren = false, Duration? autoFinishAfter}) {
     _rootSpan = SentrySpan(
       this,
       transactionContext,
       _hub,
       sampled: transactionContext.sampled,
     );
+    _waitForChildren = waitForChildren;
+    if (autoFinishAfter != null) {
+      _autoFinishAfterTimer = Timer(autoFinishAfter, () async {
+        await finish(status: status ?? SpanStatus.ok());
+      });
+    }
     name = transactionContext.name;
   }
 
   @override
   Future<void> finish({SpanStatus? status}) async {
-    if (finished) {
-      return;
-    }
+    _autoFinishAfterTimer?.cancel();
+    _finishStatus = SentryTracerFinishStatus.finishing(status);
+    if (!_rootSpan.finished &&
+        (!_waitForChildren || _haveAllChildrenFinished())) {
+      _rootSpan.status ??= status;
+      await _rootSpan.finish();
 
-    await _rootSpan.finish(status: status);
-
-    // finish unfinished spans otherwise transaction gets dropped
-    for (final span in _children) {
-      if (!span.finished) {
-        await span.finish(status: SpanStatus.deadlineExceeded());
+      // finish unfinished spans otherwise transaction gets dropped
+      for (final span in _children) {
+        if (!span.finished) {
+          await span.finish(status: SpanStatus.deadlineExceeded());
+        }
       }
+
+      // remove from scope
+      _hub.configureScope((scope) {
+        if (scope.span == this) {
+          scope.span = null;
+        }
+      });
+
+      final transaction = SentryTransaction(this);
+      await _hub.captureTransaction(transaction);
     }
-
-    // remove from scope
-    _hub.configureScope((scope) {
-      if (scope.span == this) {
-        scope.span = null;
-      }
-    });
-
-    final transaction = SentryTransaction(this);
-    await _hub.captureTransaction(transaction);
   }
 
   @override
@@ -110,18 +123,18 @@ class SentryTracer extends ISentrySpan {
     }
 
     final context = SentrySpanContext(
-      traceId: _rootSpan.context.traceId,
-      parentSpanId: parentSpanId,
-      operation: operation,
-      description: description,
-    );
+        traceId: _rootSpan.context.traceId,
+        parentSpanId: parentSpanId,
+        operation: operation,
+        description: description);
 
-    final child = SentrySpan(
-      this,
-      context,
-      _hub,
-      sampled: _rootSpan.sampled,
-    );
+    final child = SentrySpan(this, context, _hub, sampled: _rootSpan.sampled,
+        finishedCallback: () {
+      final finishStatus = _finishStatus;
+      if (finishStatus.finishing) {
+        finish(status: finishStatus.status);
+      }
+    });
 
     _children.add(child);
 
@@ -163,4 +176,13 @@ class SentryTracer extends ISentrySpan {
 
   @override
   SentryTraceHeader toSentryTrace() => _rootSpan.toSentryTrace();
+
+  bool _haveAllChildrenFinished() {
+    for (final child in children) {
+      if (!child.finished) {
+        return false;
+      }
+    }
+    return true;
+  }
 }

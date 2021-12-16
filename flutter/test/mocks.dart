@@ -1,12 +1,30 @@
 import 'package:mockito/annotations.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/platform/platform.dart';
-import 'package:sentry/src/platform_checker.dart';
-import 'package:sentry/src/sentry_user_feedback.dart';
+
+import 'mocks.mocks.dart';
 
 const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
-@GenerateMocks([Hub, Transport])
+// https://github.com/dart-lang/mockito/blob/master/NULL_SAFETY_README.md#fallback-generators
+ISentrySpan startTransactionShim(
+  String? name,
+  String? operation, {
+  String? description,
+  bool? bindToScope,
+  bool? waitForChildren,
+  Duration? autoFinishAfter,
+  Map<String, dynamic>? customSamplingContext,
+}) {
+  return MockNoOpSentrySpan();
+}
+
+@GenerateMocks([
+  Transport,
+  NoOpSentrySpan
+], customMocks: [
+  MockSpec<Hub>(fallbackGenerators: {#startTransaction: startTransactionShim})
+])
 void main() {}
 
 class MockPlatform implements Platform {
@@ -169,6 +187,8 @@ class NoOpHub implements Hub {
     String operation, {
     String? description,
     bool? bindToScope,
+    bool? waitForChildren,
+    Duration? autoFinishAfter,
     Map<String, dynamic>? customSamplingContext,
   }) {
     return NoOpSentrySpan();
@@ -179,6 +199,8 @@ class NoOpHub implements Hub {
     SentryTransactionContext transactionContext, {
     Map<String, dynamic>? customSamplingContext,
     bool? bindToScope,
+    bool? waitForChildren,
+    Duration? autoFinishAfter,
   }) {
     return NoOpSentrySpan();
   }

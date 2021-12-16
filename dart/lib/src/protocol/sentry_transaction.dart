@@ -2,7 +2,6 @@ import 'package:meta/meta.dart';
 
 import '../protocol.dart';
 import '../sentry_tracer.dart';
-import 'sentry_span.dart';
 import '../utils.dart';
 
 @immutable

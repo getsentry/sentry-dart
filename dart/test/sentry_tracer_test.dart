@@ -170,6 +170,60 @@ void main() {
 
     expect(NoOpSentrySpan(), span);
   });
+
+  test('tracer finishes after auto finish duration', () async {
+    final sut = fixture.getSut(autoFinishAfter: Duration(milliseconds: 200));
+
+    expect(sut.finished, false);
+    await Future.delayed(Duration(milliseconds: 210));
+    expect(sut.status, SpanStatus.ok());
+    expect(sut.finished, true);
+  });
+
+  test('tracer finish needs child to finish', () async {
+    final sut = fixture.getSut(waitForChildren: true);
+
+    final child = sut.startChild('operation', description: 'description');
+
+    await sut.finish();
+    expect(sut.finished, false);
+
+    await child.finish();
+    expect(sut.finished, true);
+  });
+
+  test('tracer finish needs all children to finish', () async {
+    final sut = fixture.getSut(waitForChildren: true);
+
+    final childA = sut.startChild('operation-a', description: 'description');
+    final childB = sut.startChild('operation-b', description: 'description');
+
+    await sut.finish();
+    expect(sut.finished, false);
+
+    await childA.finish();
+    expect(sut.finished, false);
+
+    await childB.finish();
+    expect(sut.finished, true);
+  });
+
+  test('tracer without finish will not be finished when children are finished',
+      () async {
+    final sut = fixture.getSut(waitForChildren: true);
+
+    final childA = sut.startChild('operation-a', description: 'description');
+    final childB = sut.startChild('operation-b', description: 'description');
+
+    await childA.finish();
+    expect(sut.finished, false);
+
+    await childB.finish();
+    expect(sut.finished, false);
+
+    await sut.finish();
+    expect(sut.finished, true);
+  });
 }
 
 class Fixture {
@@ -177,6 +231,8 @@ class Fixture {
 
   SentryTracer getSut({
     bool? sampled = true,
+    bool waitForChildren = false,
+    Duration? autoFinishAfter,
   }) {
     final context = SentryTransactionContext(
       'name',
@@ -186,6 +242,8 @@ class Fixture {
     return SentryTracer(
       context,
       hub,
+      waitForChildren: waitForChildren,
+      autoFinishAfter: autoFinishAfter,
     );
   }
 }
