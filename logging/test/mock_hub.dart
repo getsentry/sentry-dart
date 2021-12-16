@@ -86,6 +86,8 @@ class MockHub implements Hub {
     String operation, {
     String? description,
     bool? bindToScope,
+    bool? waitForChildren,
+    Duration? autoFinishAfter,
     Map<String, dynamic>? customSamplingContext,
   }) =>
       NoOpSentrySpan();
@@ -95,6 +97,8 @@ class MockHub implements Hub {
     SentryTransactionContext transactionContext, {
     Map<String, dynamic>? customSamplingContext,
     bool? bindToScope,
+    bool? waitForChildren,
+    Duration? autoFinishAfter,
   }) =>
       NoOpSentrySpan();
 }
