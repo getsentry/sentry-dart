@@ -1,6 +1,7 @@
-# Unreleased
+# 6.3.0-alpha.1
 
 * Feat: Automatically create transactions when navigating between screens (#643)
+
 # 6.2.2
 
 * Fix: ConcurrentModificationError in when finishing span (#664)
