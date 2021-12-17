@@ -28,8 +28,6 @@ jobs:
             target: macos
           - os: ubuntu-latest
             target: windows
-          - os: macos-latest
-            target: windows
           - os: windows-latest
             target: ios
           - os: windows-latest
@@ -43,6 +41,8 @@ jobs:
             target: web
           - os: macos-latest
             target: linux
+          - os: macos-latest
+            target: windows
 
     steps:
         - uses: actions/checkout@v2

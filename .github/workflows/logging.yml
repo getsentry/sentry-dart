@@ -19,20 +19,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        sdk: [stable, beta, dev]
-        exclude:
-          # Bad state: Could not run tests with Observatory enabled. Try setting a different port with --port option.
-          - os: ubuntu-latest
-            sdk: beta
-          # hanging often
-          - os: ubuntu-latest
-            sdk: dev
-          - os: macos-latest
-            sdk: beta
-          # macos-latest is taking hours due to limited resources
-          - os: macos-latest
-            sdk: dev
-
+        sdk: [stable, beta]
     steps:
         - uses: dart-lang/setup-dart@v1
           with:
