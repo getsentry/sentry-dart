@@ -1,5 +1,6 @@
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/utils.dart';
 import 'package:test/test.dart';
 
 import 'mocks/mock_hub.dart';
@@ -14,6 +15,17 @@ void main() {
 
     expect(nonUtcStartTimestamp.isUtc, false);
     expect(sut.startTimestamp.isUtc, true);
+  });
+
+  test('convert given endTimestamp to utc date time', () async {
+    final nonUtcEndTimestamp = DateTime.now().toLocal();
+
+    final sut = fixture.getSut(startTimestamp: nonUtcEndTimestamp);
+
+    await sut.finish(endTimestamp: nonUtcEndTimestamp);
+
+    expect(nonUtcEndTimestamp.isUtc, false);
+    expect(sut.endTimestamp?.isUtc, true);
   });
 
   test('finish sets status', () async {
@@ -32,6 +44,15 @@ void main() {
     expect(sut.endTimestamp, isNotNull);
   });
 
+  test('finish uses given end timestamp', () async {
+    final sut = fixture.getSut();
+    final endTimestamp = getUtcDateTime();
+
+    expect(sut.endTimestamp, isNull);
+    await sut.finish(endTimestamp: endTimestamp);
+    expect(sut.endTimestamp, endTimestamp);
+  });
+
   test('finish sets throwable', () {
     final sut = fixture.getSut();
     sut.throwable = StateError('message');
@@ -39,6 +60,17 @@ void main() {
     sut.finish();
 
     expect(fixture.hub.spanContextCals, 1);
+  });
+
+  test(
+      'finish does not set endTimestamp if given end timestamp is before start timestamp',
+      () async {
+    final sut = fixture.getSut();
+
+    final invalidEndTimestamp = sut.startTimestamp.add(-Duration(hours: 1));
+    await sut.finish(endTimestamp: invalidEndTimestamp);
+
+    expect(sut.endTimestamp, isNot(equals(invalidEndTimestamp)));
   });
 
   test('span adds data', () {
@@ -194,7 +226,7 @@ void main() {
 
   test('callback called on finish', () async {
     var numberOfCallbackCalls = 0;
-    final sut = fixture.getSut(finishedCallback: () {
+    final sut = fixture.getSut(finishedCallback: ({DateTime? endTimestamp}) {
       numberOfCallbackCalls += 1;
     });
 
@@ -206,7 +238,7 @@ void main() {
   test('optional endTimestamp set instead of current time', () async {
     final sut = fixture.getSut();
 
-    final endTimestamp = DateTime.now().add(Duration(days: 1));
+    final endTimestamp = getUtcDateTime().add(Duration(days: 1));
 
     await sut.finish(endTimestamp: endTimestamp);
 
@@ -225,7 +257,7 @@ class Fixture {
   SentrySpan getSut(
       {DateTime? startTimestamp,
       bool? sampled = true,
-      Function()? finishedCallback}) {
+      Function({DateTime? endTimestamp})? finishedCallback}) {
     tracer = SentryTracer(context, hub);
 
     return SentrySpan(

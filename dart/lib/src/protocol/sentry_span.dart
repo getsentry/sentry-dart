@@ -9,7 +9,7 @@ import '../utils.dart';
 
 class SentrySpan extends ISentrySpan {
   final SentrySpanContext _context;
-  DateTime? _timestamp;
+  DateTime? _endTimestamp;
   late final DateTime _startTimestamp;
   final Hub _hub;
 
@@ -19,7 +19,7 @@ class SentrySpan extends ISentrySpan {
 
   SpanStatus? _status;
   final Map<String, String> _tags = {};
-  void Function()? _finishedCallback;
+  void Function({DateTime? endTimestamp})? _finishedCallback;
 
   @override
   bool? sampled;
@@ -30,7 +30,7 @@ class SentrySpan extends ISentrySpan {
     this._hub, {
     DateTime? startTimestamp,
     bool? sampled,
-    Function()? finishedCallback,
+    Function({DateTime? endTimestamp})? finishedCallback,
   }) {
     _startTimestamp = startTimestamp?.toUtc() ?? getUtcDateTime();
     this.sampled = sampled;
@@ -43,17 +43,28 @@ class SentrySpan extends ISentrySpan {
       return;
     }
 
+    final utcDateTime = getUtcDateTime();
+
     if (status != null) {
       _status = status;
     }
-    _timestamp = endTimestamp ?? getUtcDateTime();
+
+    if (endTimestamp?.isBefore(_startTimestamp) ?? false) {
+      _hub.options.logger(
+        SentryLevel.warning,
+        'End timestamp ($endTimestamp) cannot be before start timestamp ($_startTimestamp)',
+      );
+      _endTimestamp = utcDateTime;
+    } else {
+      _endTimestamp = endTimestamp?.toUtc() ?? utcDateTime;
+    }
 
     // associate error
     if (_throwable != null) {
       _hub.setSpanContext(_throwable, this, _tracer.name);
     }
-    _finishedCallback?.call();
-    await super.finish(status: status);
+    _finishedCallback?.call(endTimestamp: _endTimestamp);
+    await super.finish(status: status, endTimestamp: _endTimestamp);
   }
 
   @override
@@ -128,7 +139,7 @@ class SentrySpan extends ISentrySpan {
   DateTime get startTimestamp => _startTimestamp;
 
   @override
-  DateTime? get endTimestamp => _timestamp;
+  DateTime? get endTimestamp => _endTimestamp;
 
   @override
   SentrySpanContext get context => _context;
@@ -137,8 +148,9 @@ class SentrySpan extends ISentrySpan {
     final json = _context.toJson();
     json['start_timestamp'] =
         formatDateAsIso8601WithMillisPrecision(_startTimestamp);
-    if (_timestamp != null) {
-      json['timestamp'] = formatDateAsIso8601WithMillisPrecision(_timestamp!);
+    if (_endTimestamp != null) {
+      json['timestamp'] =
+          formatDateAsIso8601WithMillisPrecision(_endTimestamp!);
     }
     if (_data.isNotEmpty) {
       json['data'] = _data;
@@ -153,7 +165,7 @@ class SentrySpan extends ISentrySpan {
   }
 
   @override
-  bool get finished => _timestamp != null;
+  bool get finished => _endTimestamp != null;
 
   @override
   dynamic get throwable => _throwable;

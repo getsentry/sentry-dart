@@ -26,7 +26,7 @@ class NoOpSentrySpan extends ISentrySpan {
   }
 
   @override
-  Future<void> finish({SpanStatus? status}) async {}
+  Future<void> finish({SpanStatus? status, DateTime? endTimestamp}) async {}
 
   @override
   void removeData(String key) {}
