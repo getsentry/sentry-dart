@@ -219,6 +219,28 @@ void main() {
 
       verify(span.setData('route_settings_arguments', arguments));
     });
+
+    test('flutter root name is replaced', () {
+      final rootRoute = route(RouteSettings(name: '/'));
+
+      final hub = _MockHub();
+      final span = MockNoOpSentrySpan();
+      _whenAnyStart(hub, span);
+      final sut = fixture.getSut(hub: hub);
+
+      sut.didPush(rootRoute, null);
+
+      verify(hub.startTransaction(
+        'root',
+        'ui.load',
+        waitForChildren: true,
+        autoFinishAfter: Duration(seconds: 3),
+      ));
+
+      hub.configureScope((scope) {
+        expect(scope.span, span);
+      });
+    });
   });
 
   group('RouteObserverBreadcrumb', () {

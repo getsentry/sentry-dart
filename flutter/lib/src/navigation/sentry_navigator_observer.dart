@@ -131,6 +131,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     if (name == null) {
       return;
     }
+    if (name == '/') {
+      name = 'root';
+    }
     _transaction = _hub.startTransaction(
       name,
       'ui.load',
