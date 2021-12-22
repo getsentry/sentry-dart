@@ -9,6 +9,7 @@ abstract class ISentrySpan {
   ISentrySpan startChild(
     String operation, {
     String? description,
+    DateTime? startTimestamp,
   });
 
   /// Sets the tag on span or transaction.

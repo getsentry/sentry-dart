@@ -33,7 +33,8 @@ class SentryTracer extends ISentrySpan {
   /// transaction after a given "idle time" and we don't want this "idle time"
   /// to be part of the transaction.
   SentryTracer(SentryTransactionContext transactionContext, this._hub,
-      {bool waitForChildren = false,
+      {DateTime? startTimestamp,
+      bool waitForChildren = false,
       Duration? autoFinishAfter,
       bool trimEnd = false}) {
     _rootSpan = SentrySpan(
@@ -41,6 +42,7 @@ class SentryTracer extends ISentrySpan {
       transactionContext,
       _hub,
       sampled: transactionContext.sampled,
+      startTimestamp: startTimestamp,
     );
     _waitForChildren = waitForChildren;
     if (autoFinishAfter != null) {
@@ -136,6 +138,7 @@ class SentryTracer extends ISentrySpan {
   ISentrySpan startChild(
     String operation, {
     String? description,
+    DateTime? startTimestamp,
   }) {
     if (finished) {
       return NoOpSentrySpan();
@@ -152,6 +155,7 @@ class SentryTracer extends ISentrySpan {
     return _rootSpan.startChild(
       operation,
       description: description,
+      startTimestamp: startTimestamp,
     );
   }
 
@@ -159,6 +163,7 @@ class SentryTracer extends ISentrySpan {
     SpanId parentSpanId,
     String operation, {
     String? description,
+    DateTime? startTimestamp,
   }) {
     if (finished) {
       return NoOpSentrySpan();
@@ -178,8 +183,9 @@ class SentryTracer extends ISentrySpan {
         operation: operation,
         description: description);
 
-    final child = SentrySpan(this, context, _hub, sampled: _rootSpan.sampled,
-        finishedCallback: () {
+    final child = SentrySpan(this, context, _hub,
+        sampled: _rootSpan.sampled,
+        startTimestamp: startTimestamp, finishedCallback: () {
       final finishStatus = _finishStatus;
       if (finishStatus.finishing) {
         finish(status: finishStatus.status);

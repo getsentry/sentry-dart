@@ -7,6 +7,15 @@ import 'mocks/mock_hub.dart';
 void main() {
   final fixture = Fixture();
 
+  test('convert given startTimestamp to utc date time', () async {
+    final nonUtcStartTimestamp = DateTime.now().toLocal();
+
+    final sut = fixture.getSut(startTimestamp: nonUtcStartTimestamp);
+
+    expect(nonUtcStartTimestamp.isUtc, false);
+    expect(sut.startTimestamp.isUtc, true);
+  });
+
   test('finish sets status', () async {
     final sut = fixture.getSut();
 
@@ -171,6 +180,18 @@ void main() {
     expect(NoOpSentrySpan(), span);
   });
 
+  test(
+      'startChild isnt allowed to be called if childs startTimestamp is before parents',
+      () async {
+    final parentStartTimestamp = DateTime.now();
+    final childStartTimestamp = parentStartTimestamp.add(-Duration(hours: 1));
+    final sut = fixture.getSut(startTimestamp: parentStartTimestamp);
+
+    final span = sut.startChild('op', startTimestamp: childStartTimestamp);
+
+    expect(NoOpSentrySpan(), span);
+  });
+
   test('callback called on finish', () async {
     var numberOfCallbackCalls = 0;
     final sut = fixture.getSut(finishedCallback: () {
@@ -201,13 +222,17 @@ class Fixture {
   late SentryTracer tracer;
   final hub = MockHub();
 
-  SentrySpan getSut({bool? sampled = true, Function()? finishedCallback}) {
+  SentrySpan getSut(
+      {DateTime? startTimestamp,
+      bool? sampled = true,
+      Function()? finishedCallback}) {
     tracer = SentryTracer(context, hub);
 
     return SentrySpan(
       tracer,
       context,
       hub,
+      startTimestamp: startTimestamp,
       sampled: sampled,
       finishedCallback: finishedCallback,
     );

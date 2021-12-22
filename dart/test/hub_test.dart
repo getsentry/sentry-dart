@@ -139,17 +139,21 @@ void main() {
       fixture = Fixture();
     });
 
-    test('start transaction with given name, op and desc', () async {
+    test('start transaction with given name, op, desc and start time',
+        () async {
       final hub = fixture.getSut();
+      final startTime = DateTime.now();
 
       final tr = hub.startTransaction(
         'name',
         'op',
+        startTimestamp: startTime,
         description: 'desc',
       );
 
       expect(tr.context.operation, 'op');
       expect(tr.context.description, 'desc');
+      expect(tr.startTimestamp.isAtSameMomentAs(startTime), true);
       expect((tr as SentryTracer).name, 'name');
     });
 

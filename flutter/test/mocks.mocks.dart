@@ -107,10 +107,11 @@ class MockNoOpSentrySpan extends _i1.Mock implements _i2.NoOpSentrySpan {
       super.noSuchMethod(Invocation.method(#setTag, [key, value]),
           returnValueForMissingStub: null);
   @override
-  _i2.ISentrySpan startChild(String? operation, {String? description}) =>
+  _i2.ISentrySpan startChild(String? operation,
+          {String? description, DateTime? startTimestamp}) =>
       (super.noSuchMethod(
-          Invocation.method(
-              #startChild, [operation], {#description: description}),
+          Invocation.method(#startChild, [operation],
+              {#description: description, #startTimestamp: startTimestamp}),
           returnValue: _FakeISentrySpan_2()) as _i2.ISentrySpan);
   @override
   _i3.SentryTraceHeader toSentryTrace() =>
@@ -211,6 +212,7 @@ class MockHub extends _i1.Mock implements _i5.Hub {
   @override
   _i2.ISentrySpan startTransaction(String? name, String? operation,
           {String? description,
+          DateTime? startTimestamp,
           bool? bindToScope,
           bool? waitForChildren,
           Duration? autoFinishAfter,
@@ -222,6 +224,7 @@ class MockHub extends _i1.Mock implements _i5.Hub {
                 operation
               ], {
                 #description: description,
+                #startTimestamp: startTimestamp,
                 #bindToScope: bindToScope,
                 #waitForChildren: waitForChildren,
                 #autoFinishAfter: autoFinishAfter,
@@ -230,6 +233,7 @@ class MockHub extends _i1.Mock implements _i5.Hub {
               }),
               returnValue: _i11.startTransactionShim(name, operation,
                   description: description,
+                  startTimestamp: startTimestamp,
                   bindToScope: bindToScope,
                   waitForChildren: waitForChildren,
                   autoFinishAfter: autoFinishAfter,
@@ -240,6 +244,7 @@ class MockHub extends _i1.Mock implements _i5.Hub {
   _i2.ISentrySpan startTransactionWithContext(
           _i2.SentryTransactionContext? transactionContext,
           {Map<String, dynamic>? customSamplingContext,
+          DateTime? startTimestamp,
           bool? bindToScope,
           bool? waitForChildren,
           Duration? autoFinishAfter,
@@ -249,6 +254,7 @@ class MockHub extends _i1.Mock implements _i5.Hub {
             transactionContext
           ], {
             #customSamplingContext: customSamplingContext,
+            #startTimestamp: startTimestamp,
             #bindToScope: bindToScope,
             #waitForChildren: waitForChildren,
             #autoFinishAfter: autoFinishAfter,
