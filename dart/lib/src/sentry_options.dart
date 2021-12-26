@@ -11,6 +11,7 @@ import 'integration.dart';
 import 'noop_client.dart';
 import 'platform_checker.dart';
 import 'protocol.dart';
+import 'scope.dart';
 import 'tracing.dart';
 import 'transport/noop_transport.dart';
 import 'transport/transport.dart';
