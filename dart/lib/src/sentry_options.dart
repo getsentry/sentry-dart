@@ -332,7 +332,7 @@ typedef SentryLogger = void Function(
 typedef TracesSamplerCallback = double? Function(
     SentrySamplingContext samplingContext);
 
-typedef BeforeCaptureWithScopeCallback = void Function(Scope);
+typedef BeforeCaptureWithScopeCallback = void Function(Scope, SentryEvent?);
 
 /// A NoOp logger that does nothing
 void noOpLogger(

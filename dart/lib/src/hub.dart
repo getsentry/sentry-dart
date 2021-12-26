@@ -77,13 +77,14 @@ class Hub {
       );
     } else {
       final item = _peek();
-      final scope =
-          _cloneAndRunWithScope(_cloneAndRunWithScope(item.scope, withScope), _options.beforeCaptureWithScope);
+      var scope = _cloneAndRunWithScope(item.scope, withScope);
 
       try {
         if (_options.isTracingEnabled()) {
           event = _assignTraceContext(event);
         }
+
+        scope = _applyOptionsBeforeCaptureWithScope(scope, event);
 
         sentryId = await item.client.captureEvent(
           event,
@@ -126,8 +127,7 @@ class Hub {
       );
     } else {
       final item = _peek();
-      final scope =
-          _cloneAndRunWithScope(_cloneAndRunWithScope(item.scope, withScope), _options.beforeCaptureWithScope);
+      var scope = _cloneAndRunWithScope(item.scope, withScope);
 
       try {
         var event = SentryEvent(
@@ -138,6 +138,8 @@ class Hub {
         if (_options.isTracingEnabled()) {
           event = _assignTraceContext(event);
         }
+
+        scope = _applyOptionsBeforeCaptureWithScope(scope, event);
 
         sentryId = await item.client.captureEvent(
           event,
@@ -183,8 +185,8 @@ class Hub {
       );
     } else {
       final item = _peek();
-      final scope =
-          _cloneAndRunWithScope(_cloneAndRunWithScope(item.scope, withScope), _options.beforeCaptureWithScope);
+      var scope = _cloneAndRunWithScope(item.scope, withScope);
+      scope = _applyOptionsBeforeCaptureWithScope(scope, null);
 
       try {
         sentryId = await item.client.captureMessage(
@@ -244,6 +246,11 @@ class Hub {
       withScope(scope);
     }
     return scope;
+  }
+
+  Scope _applyOptionsBeforeCaptureWithScope(Scope scope, SentryEvent? event) {
+    return _cloneAndRunWithScope(scope,
+        _options.beforeCaptureWithScope == null ? null : (scope) => _options.beforeCaptureWithScope!(scope, event));
   }
 
   /// Adds a breacrumb to the current Scope
