@@ -77,7 +77,8 @@ class Hub {
       );
     } else {
       final item = _peek();
-      final scope = _cloneAndRunWithScope(item.scope, withScope);
+      final scope =
+          _cloneAndRunWithScope(_cloneAndRunWithScope(item.scope, withScope), _options.beforeCaptureWithScope);
 
       try {
         if (_options.isTracingEnabled()) {
@@ -125,7 +126,8 @@ class Hub {
       );
     } else {
       final item = _peek();
-      final scope = _cloneAndRunWithScope(item.scope, withScope);
+      final scope =
+          _cloneAndRunWithScope(_cloneAndRunWithScope(item.scope, withScope), _options.beforeCaptureWithScope);
 
       try {
         var event = SentryEvent(
@@ -181,7 +183,8 @@ class Hub {
       );
     } else {
       final item = _peek();
-      final scope = _cloneAndRunWithScope(item.scope, withScope);
+      final scope =
+          _cloneAndRunWithScope(_cloneAndRunWithScope(item.scope, withScope), _options.beforeCaptureWithScope);
 
       try {
         sentryId = await item.client.captureMessage(
