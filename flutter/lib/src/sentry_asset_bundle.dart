@@ -1,4 +1,5 @@
 import 'package:flutter/services.dart';
+import 'package:flutter/material.dart';
 import 'package:sentry/sentry.dart';
 
 typedef _Parser<T> = Future<T> Function(String value);
@@ -6,18 +7,23 @@ typedef _Parser<T> = Future<T> Function(String value);
 /// An [AssetBundle] which creates automatic performance traces for loading
 /// assets.
 ///
-/// Example usage:
+/// You can wrap other [AssetBundle]s in it:
 /// ```dart
-/// MaterialApp(
-///    home: DefaultAssetBundle(
-///      bundle: SentryAssetBundle(),
-///      child: const SomeWidget(),
-///    ),
-/// );
-///
-/// // then you'll be able to use
-/// DefaultAssetBundle.of(context).load('path/to/asset');
+/// SentryAssetBundle(bundle: someOtherAssetBundle)
 /// ```
+/// If you're not providing any [AssetBundle], it falls back to the [rootBundle].
+///
+/// If you want to use the [SentryAssetBundle] by default you can achieve this
+/// with the following code:
+/// ```dart
+/// DefaultAssetBundle(
+///   bundle: SentryAssetBundle(),
+///   child: MaterialApp(
+///     home: MyScaffold(),
+///   ),
+/// );
+/// ```
+/// [Image.asset], for example, will then use [SentryAssetBundle].
 class SentryAssetBundle extends AssetBundle {
   SentryAssetBundle({Hub? hub, AssetBundle? bundle})
       : _hub = hub ?? HubAdapter(),
