@@ -22,7 +22,12 @@ Future<void> main() async {
       options.reportPackages = false;
     },
     // Init your App.
-    appRunner: () => runApp(MyApp()),
+    appRunner: () => runApp(
+      DefaultAssetBundle(
+        bundle: SentryAssetBundle(),
+        child: MyApp(),
+      ),
+    ),
   );
 }
 
@@ -171,6 +176,10 @@ class MainScaffold extends StatelessWidget {
             RaisedButton(
               child: const Text('Dart: Web request'),
               onPressed: () => makeWebRequest(context),
+            ),
+            RaisedButton(
+              child: const Text('Flutter: Load assets'),
+              onPressed: () => showDialogWithTextAndImage(context),
             ),
             RaisedButton(
               child: const Text('Record print() as breadcrumb'),
@@ -519,6 +528,45 @@ Future<void> makeWebRequest(BuildContext context) async {
       );
     },
   );
+}
+
+Future<void> showDialogWithTextAndImage(BuildContext context) async {
+  final transaction = Sentry.getSpan() ??
+      Sentry.startTransaction(
+        'asset-bundle-transaction',
+        'load',
+        bindToScope: true,
+      );
+  final text =
+      await DefaultAssetBundle.of(context).loadString('assets/lorem-ipsum.txt');
+  await showDialog<void>(
+    context: context,
+    // gets tracked if using SentryNavigatorObserver
+    routeSettings: RouteSettings(
+      name: 'flutter.dev dialog',
+    ),
+    builder: (context) {
+      return AlertDialog(
+        title: Text('Asset Example'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.asset('assets/sentry-wordmark.png'),
+              Text(text),
+            ],
+          ),
+        ),
+        actions: [
+          MaterialButton(
+            child: Text('Close'),
+            onPressed: () => Navigator.pop(context),
+          )
+        ],
+      );
+    },
+  );
+  await transaction.finish(status: SpanStatus.ok());
 }
 
 class ThemeProvider extends ChangeNotifier {
