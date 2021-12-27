@@ -8,14 +8,12 @@ import '../../sentry_flutter.dart';
 /// See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
 const _navigationKey = 'navigation';
 
-typedef RouteNameExtractor = RouteSettings Function(RouteSettings settings);
+typedef RouteNameExtractor = RouteSettings? Function(RouteSettings? settings);
 
 typedef AdditionalInfoProvider = Map<String, dynamic>? Function(
   RouteSettings? from,
   RouteSettings? to,
 );
-
-RouteSettings defaultNameExtractor(RouteSettings settings) => settings;
 
 /// This is a navigation observer to record navigational breadcrumbs.
 /// For now it only records navigation events and no gestures.
@@ -60,7 +58,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     Hub? hub,
     bool enableAutoTransactions = true,
     bool setRouteNameAsTransaction = false,
-    RouteNameExtractor routeNameExtractor = defaultNameExtractor,
+    RouteNameExtractor? routeNameExtractor,
     AdditionalInfoProvider? additionalInfoProvider,
   })  : _hub = hub ?? HubAdapter(),
         _enableAutoTransactions = enableAutoTransactions,
@@ -71,7 +69,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final Hub _hub;
   final bool _enableAutoTransactions;
   final bool _setRouteNameAsTransaction;
-  final RouteNameExtractor _routeNameExtractor;
+  final RouteNameExtractor? _routeNameExtractor;
   final AdditionalInfoProvider? _additionalInfoProvider;
 
   ISentrySpan? _transaction;
@@ -123,8 +121,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   }) {
     _hub.addBreadcrumb(RouteObserverBreadcrumb(
       navigationType: type,
-      from: from == null ? null : _routeNameExtractor(from),
-      to: to == null ? null : _routeNameExtractor(to),
+      from: _routeNameExtractor?.call(from) ?? from,
+      to: _routeNameExtractor?.call(to) ?? to,
       data: _additionalInfoProvider?.call(from, to),
     ));
   }

@@ -505,7 +505,7 @@ void main() {
       final observer = fixture.getSut(
           hub: hub,
           routeNameExtractor: (settings) {
-            if (settings.name == 'to') {
+            if (settings != null && settings.name == 'to') {
               return settings.copyWith(name: 'changd_to');
             }
             return settings;
@@ -569,7 +569,7 @@ class Fixture {
       hub: hub,
       enableAutoTransactions: enableAutoTransactions,
       setRouteNameAsTransaction: setRouteNameAsTransaction,
-      routeNameExtractor: routeNameExtractor ?? (settings) => settings,
+      routeNameExtractor: routeNameExtractor,
       additionalInfoProvider: additionalInfoProvider,
     );
   }
