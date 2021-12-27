@@ -8,6 +8,15 @@ import '../../sentry_flutter.dart';
 /// See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
 const _navigationKey = 'navigation';
 
+typedef RouteNameExtractor = RouteSettings Function(RouteSettings settings);
+
+typedef AdditionalInfoProvider = Map<String, dynamic>? Function(
+  RouteSettings? from,
+  RouteSettings? to,
+);
+
+RouteSettings defaultNameExtractor(RouteSettings settings) => settings;
+
 /// This is a navigation observer to record navigational breadcrumbs.
 /// For now it only records navigation events and no gestures.
 ///
@@ -47,17 +56,23 @@ const _navigationKey = 'navigation';
 ///   - [RouteObserver](https://api.flutter.dev/flutter/widgets/RouteObserver-class.html)
 ///   - [Navigating with arguments](https://flutter.dev/docs/cookbook/navigation/navigate-with-arguments)
 class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
-  SentryNavigatorObserver(
-      {Hub? hub,
-      bool enableAutoTransactions = true,
-      bool setRouteNameAsTransaction = false})
-      : _hub = hub ?? HubAdapter(),
+  SentryNavigatorObserver({
+    Hub? hub,
+    bool enableAutoTransactions = true,
+    bool setRouteNameAsTransaction = false,
+    RouteNameExtractor routeNameExtractor = defaultNameExtractor,
+    AdditionalInfoProvider? additionalInfoProvider,
+  })  : _hub = hub ?? HubAdapter(),
         _enableAutoTransactions = enableAutoTransactions,
-        _setRouteNameAsTransaction = setRouteNameAsTransaction;
+        _setRouteNameAsTransaction = setRouteNameAsTransaction,
+        _routeNameExtractor = routeNameExtractor,
+        _additionalInfoProvider = additionalInfoProvider;
 
   final Hub _hub;
   final bool _enableAutoTransactions;
   final bool _setRouteNameAsTransaction;
+  final RouteNameExtractor _routeNameExtractor;
+  final AdditionalInfoProvider? _additionalInfoProvider;
 
   ISentrySpan? _transaction;
 
@@ -108,8 +123,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   }) {
     _hub.addBreadcrumb(RouteObserverBreadcrumb(
       navigationType: type,
-      from: from,
-      to: to,
+      from: from == null ? null : _routeNameExtractor(from),
+      to: to == null ? null : _routeNameExtractor(to),
+      data: _additionalInfoProvider?.call(from, to),
     ));
   }
 
@@ -166,6 +182,7 @@ class RouteObserverBreadcrumb extends Breadcrumb {
     RouteSettings? from,
     RouteSettings? to,
     SentryLevel? level,
+    Map<String, dynamic>? data,
   }) {
     final dynamic fromArgs = _formatArgs(from?.arguments);
     final dynamic toArgs = _formatArgs(to?.arguments);
@@ -176,6 +193,7 @@ class RouteObserverBreadcrumb extends Breadcrumb {
       toArgs: toArgs,
       navigationType: navigationType,
       level: level,
+      data: data,
     );
   }
 
@@ -186,6 +204,7 @@ class RouteObserverBreadcrumb extends Breadcrumb {
     String? to,
     dynamic toArgs,
     SentryLevel? level,
+    Map<String, dynamic>? data,
   }) : super(
             category: _navigationKey,
             type: _navigationKey,
@@ -196,6 +215,7 @@ class RouteObserverBreadcrumb extends Breadcrumb {
               if (fromArgs != null) 'from_arguments': fromArgs,
               if (to != null) 'to': to,
               if (toArgs != null) 'to_arguments': toArgs,
+              if (data != null) 'data': data,
             });
 
   static dynamic _formatArgs(Object? args) {

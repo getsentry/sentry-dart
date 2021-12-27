@@ -237,6 +237,7 @@ void main() {
         navigationType: 'didPush',
         from: fromRouteSettings,
         to: toRouteSettings,
+        data: {'foo': 'bar'},
       );
 
       expect(breadcrumb.category, 'navigation');
@@ -246,6 +247,7 @@ void main() {
         'from_arguments': 'PageTitle',
         'to': 'to',
         'to_arguments': 'PageTitle2',
+        'data': {'foo': 'bar'},
       });
     });
 
@@ -496,6 +498,62 @@ void main() {
       observer.didReplace(newRoute: route(to), oldRoute: route(previous));
       expect(hub.scope.transaction, null);
     });
+
+    test('modifying route settings', () {
+      final hub = MockHub();
+      _whenAnyStart(hub, NoOpSentrySpan());
+      final observer = fixture.getSut(
+          hub: hub,
+          routeNameExtractor: (settings) {
+            if (settings.name == 'to') {
+              return settings.copyWith(name: 'changd_to');
+            }
+            return settings;
+          });
+
+      final to = routeSettings('to', 'foobar');
+      final previous = routeSettings('previous', 'foobar');
+
+      observer.didPush(route(to), route(previous));
+
+      final dynamic breadcrumb =
+          verify(hub.addBreadcrumb(captureAny)).captured.single as Breadcrumb;
+      expect(
+        breadcrumb.data,
+        RouteObserverBreadcrumb(
+          navigationType: 'didPush',
+          from: previous,
+          to: to.copyWith(name: 'changed_to'),
+        ).data,
+      );
+    });
+
+    test('add additional data', () {
+      final hub = MockHub();
+      _whenAnyStart(hub, NoOpSentrySpan());
+      final observer = fixture.getSut(
+          hub: hub,
+          additionalInfoProvider: (from, to) {
+            return <String, dynamic>{'foo': 'bar'};
+          });
+
+      final to = routeSettings('to', 'foobar');
+      final previous = routeSettings('previous', 'foobar');
+
+      observer.didPush(route(to), route(previous));
+
+      final dynamic breadcrumb =
+          verify(hub.addBreadcrumb(captureAny)).captured.single as Breadcrumb;
+      expect(
+        breadcrumb.data,
+        RouteObserverBreadcrumb(
+          navigationType: 'didPush',
+          from: previous,
+          to: to.copyWith(name: 'changed_to'),
+          data: {'foo': 'bar'},
+        ).data,
+      );
+    });
   });
 }
 
@@ -504,11 +562,15 @@ class Fixture {
     required Hub hub,
     bool enableAutoTransactions = true,
     bool setRouteNameAsTransaction = false,
+    RouteNameExtractor? routeNameExtractor,
+    AdditionalInfoProvider? additionalInfoProvider,
   }) {
     return SentryNavigatorObserver(
       hub: hub,
       enableAutoTransactions: enableAutoTransactions,
       setRouteNameAsTransaction: setRouteNameAsTransaction,
+      routeNameExtractor: routeNameExtractor ?? (settings) => settings,
+      additionalInfoProvider: additionalInfoProvider,
     );
   }
 }
