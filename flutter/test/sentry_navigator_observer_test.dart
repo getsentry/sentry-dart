@@ -506,7 +506,7 @@ void main() {
           hub: hub,
           routeNameExtractor: (settings) {
             if (settings != null && settings.name == 'to') {
-              return settings.copyWith(name: 'changd_to');
+              return settings.copyWith(name: 'changed_to');
             }
             return settings;
           });
