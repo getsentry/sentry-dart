@@ -1,5 +1,7 @@
 # Unreleased
 
+* Feat: Improve configuration options of `SentryNavigatorObserver` (#684)
+
 # 6.3.0-alpha.1
 
 * Feat: Automatically create transactions when navigating between screens (#643)
