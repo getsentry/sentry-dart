@@ -1,6 +1,6 @@
 # Unreleased
 
-* Feat: Add support for [Dio](https://pub.dev/packages/dio)
+* Feat: Add support for [Dio](https://pub.dev/packages/dio) (#688)
 
 # 6.3.0-alpha.1
 
