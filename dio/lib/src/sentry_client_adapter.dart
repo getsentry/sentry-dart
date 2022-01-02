@@ -2,9 +2,9 @@
 
 import 'dart:typed_data';
 
-import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
+import 'adapter/dio_adapter.dart';
 import 'failed_request_client_adapter.dart';
 import 'tracing_client_adapter.dart';
 import 'breadcrumb_client_adapter.dart';
@@ -61,7 +61,7 @@ class SentryHttpClientAdapter extends HttpClientAdapter {
   }) {
     _hub = hub ?? HubAdapter();
 
-    var innerClient = client ?? DefaultHttpClientAdapter();
+    var innerClient = client ?? createAdapter();
 
     innerClient = FailedRequestClientAdapter(
       failedRequestStatusCodes: failedRequestStatusCodes,

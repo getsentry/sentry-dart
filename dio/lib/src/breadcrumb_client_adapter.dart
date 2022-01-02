@@ -2,9 +2,10 @@
 
 import 'dart:typed_data';
 
-import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
+
+import 'adapter/dio_adapter.dart';
 
 /// A [Dio](https://pub.dev/packages/dio)-package compatible HTTP client adapter
 /// which records requests as breadcrumbs.
@@ -16,7 +17,7 @@ class BreadcrumbClientAdapter extends HttpClientAdapter {
   // ignore: public_member_api_docs
   BreadcrumbClientAdapter({HttpClientAdapter? client, Hub? hub})
       : _hub = hub ?? HubAdapter(),
-        _client = client ?? DefaultHttpClientAdapter();
+        _client = client ?? createAdapter();
 
   final HttpClientAdapter _client;
   final Hub _hub;

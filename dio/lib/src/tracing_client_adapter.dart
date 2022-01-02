@@ -2,9 +2,9 @@
 
 import 'dart:typed_data';
 
-import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
+import 'adapter/dio_adapter.dart';
 
 /// A [Dio](https://pub.dev/packages/dio)-package compatible HTTP client adapter
 /// which adds support to Sentry Performance feature.
@@ -13,7 +13,7 @@ class TracingClientAdapter extends HttpClientAdapter {
   // ignore: public_member_api_docs
   TracingClientAdapter({HttpClientAdapter? client, Hub? hub})
       : _hub = hub ?? HubAdapter(),
-        _client = client ?? DefaultHttpClientAdapter();
+        _client = client ?? createAdapter();
 
   final HttpClientAdapter _client;
   final Hub _hub;
