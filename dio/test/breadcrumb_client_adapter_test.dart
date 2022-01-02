@@ -1,11 +1,6 @@
-import 'dart:io';
-
 import 'package:dio/dio.dart';
-import 'package:http/http.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/http_client/breadcrumb_client.dart';
-import 'package:sentry_dio/sentry_dio.dart';
 import 'package:sentry_dio/src/breadcrumb_client_adapter.dart';
 import 'package:test/test.dart';
 
@@ -91,11 +86,11 @@ void main() {
     /// Tests, that in case an exception gets thrown, that
     /// no exception gets reported by Sentry, in case the user wants to
     /// handle the exception
-    test('no captureException for ClientException', () async {
+    test('no captureException for Exception', () async {
       final sut = fixture.getSut(
         MockHttpClientAdapter((options, requestStream, cancelFuture) async {
           expect(options.uri, Uri.parse('https://example.com/'));
-          throw ClientException('test', Uri.parse('https://example.com/'));
+          throw Exception('test');
         }),
       );
 
@@ -103,28 +98,8 @@ void main() {
         await sut.get<dynamic>('/');
         fail('Method did not throw');
       } on DioError catch (e) {
-        expect(e.message, 'test');
+        expect(e.message, 'Exception: test');
         expect(e.requestOptions.uri, Uri.parse('https://example.com/'));
-      }
-
-      expect(fixture.hub.captureExceptionCalls.length, 0);
-    });
-
-    /// SocketException are only a thing on dart:io platforms.
-    /// otherwise this is equal to the test above
-    test('no captureException for SocketException', () async {
-      final sut = fixture.getSut(
-        MockHttpClientAdapter((options, requestStream, cancelFuture) async {
-          expect(options.uri, Uri.parse('https://example.com/'));
-          throw SocketException('test');
-        }),
-      );
-
-      try {
-        await sut.get<dynamic>('/');
-        fail('Method did not throw');
-      } on DioError catch (e) {
-        expect(e.message, 'SocketException: test');
       }
 
       expect(fixture.hub.captureExceptionCalls.length, 0);
@@ -157,9 +132,9 @@ void main() {
     test('close does get called for user defined client', () async {
       final mockHub = MockHub();
 
-      final mockClient = CloseableMockClient();
+      final mockClient = CloseableMockClientAdapter();
 
-      final client = BreadcrumbClient(client: mockClient, hub: mockHub);
+      final client = BreadcrumbClientAdapter(client: mockClient, hub: mockHub);
       client.close();
 
       expect(mockHub.addBreadcrumbCalls.length, 0);
@@ -189,7 +164,7 @@ void main() {
   });
 }
 
-class CloseableMockClient extends Mock implements BaseClient {}
+class CloseableMockClientAdapter extends Mock implements HttpClientAdapter {}
 
 class Fixture {
   Dio getSut([MockHttpClientAdapter? client]) {
