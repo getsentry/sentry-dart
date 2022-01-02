@@ -49,7 +49,7 @@ jobs:
           if: runner.os == 'Linux'
           with:
             path: "./dio/coverage/lcov.info"
-            min_coverage: 90
+            min_coverage: 81
 
   analyze:
     runs-on: ubuntu-latest
