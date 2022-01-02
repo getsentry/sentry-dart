@@ -1,5 +1,7 @@
 # Unreleased
 
+* Feat: Add support for [Dio](https://pub.dev/packages/dio)
+
 # 6.3.0-alpha.1
 
 * Feat: Automatically create transactions when navigating between screens (#643)
