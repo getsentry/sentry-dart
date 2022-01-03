@@ -549,7 +549,7 @@ void main() {
         RouteObserverBreadcrumb(
           navigationType: 'didPush',
           from: previous,
-          to: to.copyWith(name: 'changed_to'),
+          to: to.copyWith(name: 'to'),
           data: {'foo': 'bar'},
         ).data,
       );
