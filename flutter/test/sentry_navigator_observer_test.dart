@@ -563,7 +563,7 @@ class Fixture {
     bool enableAutoTransactions = true,
     bool setRouteNameAsTransaction = false,
     RouteNameExtractor? routeNameExtractor,
-    AdditionalInfoProvider? additionalInfoProvider,
+    AdditionalInfoExtractor? additionalInfoProvider,
   }) {
     return SentryNavigatorObserver(
       hub: hub,

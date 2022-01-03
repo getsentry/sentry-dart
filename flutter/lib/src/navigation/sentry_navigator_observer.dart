@@ -10,7 +10,7 @@ const _navigationKey = 'navigation';
 
 typedef RouteNameExtractor = RouteSettings? Function(RouteSettings? settings);
 
-typedef AdditionalInfoProvider = Map<String, dynamic>? Function(
+typedef AdditionalInfoExtractor = Map<String, dynamic>? Function(
   RouteSettings? from,
   RouteSettings? to,
 );
@@ -59,7 +59,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     bool enableAutoTransactions = true,
     bool setRouteNameAsTransaction = false,
     RouteNameExtractor? routeNameExtractor,
-    AdditionalInfoProvider? additionalInfoProvider,
+    AdditionalInfoExtractor? additionalInfoProvider,
   })  : _hub = hub ?? HubAdapter(),
         _enableAutoTransactions = enableAutoTransactions,
         _setRouteNameAsTransaction = setRouteNameAsTransaction,
@@ -70,7 +70,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final bool _enableAutoTransactions;
   final bool _setRouteNameAsTransaction;
   final RouteNameExtractor? _routeNameExtractor;
-  final AdditionalInfoProvider? _additionalInfoProvider;
+  final AdditionalInfoExtractor? _additionalInfoProvider;
 
   ISentrySpan? _transaction;
 
