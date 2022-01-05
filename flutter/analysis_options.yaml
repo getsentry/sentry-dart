@@ -14,8 +14,6 @@ analyzer:
     # ignore sentry/path on pubspec as we change it on deployment
     invalid_dependency: ignore
     unnecessary_import: ignore
-  exclude:
-    - example/**
 
 linter:
   rules:

@@ -9,6 +9,8 @@ import 'package:universal_platform/universal_platform.dart';
 import 'package:feedback/feedback.dart' as feedback;
 import 'package:provider/provider.dart';
 import 'user_feedback_dialog.dart';
+import 'package:dio/dio.dart';
+import 'package:sentry_dio/sentry_dio.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
 const String _exampleDsn =
@@ -98,58 +100,61 @@ class MainScaffold extends StatelessWidget {
         child: Column(
           children: [
             const Center(child: Text('Trigger an action:\n')),
-            RaisedButton(
-              child: const Text('Open another Scaffold'),
+            ElevatedButton(
               onPressed: () => SecondaryScaffold.openSecondaryScaffold(context),
+              child: const Text('Open another Scaffold'),
             ),
-            RaisedButton(
-              child: const Text('Dart: try catch'),
+            ElevatedButton(
               onPressed: () => tryCatch(),
+              child: const Text('Dart: try catch'),
             ),
-            RaisedButton(
-              child: const Text('Flutter error : Scaffold.of()'),
+            ElevatedButton(
               onPressed: () => Scaffold.of(context).showBottomSheet<dynamic>(
-                  (context) => const Text('Scaffold error')),
+                (context) => const Text('Scaffold error'),
+              ),
+              child: const Text('Flutter error : Scaffold.of()'),
             ),
-            RaisedButton(
-              child: const Text('Dart: throw onPressed'),
+            ElevatedButton(
               // Warning : not captured if a debugger is attached
               // https://github.com/flutter/flutter/issues/48972
               onPressed: () => throw Exception('Throws onPressed'),
+              child: const Text('Dart: throw onPressed'),
             ),
-            RaisedButton(
-              child: const Text('Dart: assert'),
+            ElevatedButton(
               onPressed: () {
                 // Only relevant in debug builds
                 // Warning : not captured if a debugger is attached
                 // https://github.com/flutter/flutter/issues/48972
                 assert(false, 'assert failure');
               },
+              child: const Text('Dart: assert'),
             ),
             // Calling the SDK with an appRunner will handle errors from Futures
             // in SDKs runZonedGuarded onError handler
-            RaisedButton(
-                child: const Text('Dart: async throws'),
-                onPressed: () async => asyncThrows()),
-            RaisedButton(
-              child: const Text('Dart: Fail in microtask.'),
+            ElevatedButton(
+              onPressed: () async => asyncThrows(),
+              child: const Text('Dart: async throws'),
+            ),
+            ElevatedButton(
               onPressed: () async => {
                 await Future.microtask(
                   () => throw StateError('Failure in a microtask'),
                 )
               },
+              child: const Text('Dart: Fail in microtask.'),
             ),
-            RaisedButton(
-              child: const Text('Dart: Fail in compute'),
+            ElevatedButton(
               onPressed: () async => {await compute(loop, 10)},
+              child: const Text('Dart: Fail in compute'),
             ),
-            RaisedButton(
+            ElevatedButton(
+              onPressed: () => Future.delayed(
+                Duration(milliseconds: 100),
+                () => throw Exception('Throws in Future.delayed'),
+              ),
               child: const Text('Throws in Future.delayed'),
-              onPressed: () => Future.delayed(Duration(milliseconds: 100),
-                  () => throw Exception('Throws in Future.delayed')),
             ),
-            RaisedButton(
-              child: const Text('Capture from FlutterError.onError'),
+            ElevatedButton(
               onPressed: () {
                 // modeled after a real exception
                 FlutterError.onError?.call(FlutterErrorDetails(
@@ -167,21 +172,24 @@ class MainScaffold extends StatelessWidget {
                   ],
                 ));
               },
+              child: const Text('Capture from FlutterError.onError'),
             ),
-            RaisedButton(
-              child: const Text('Dart: Web request'),
+            ElevatedButton(
               onPressed: () => makeWebRequest(context),
+              child: const Text('Dart: Web request'),
             ),
-            RaisedButton(
-              child: const Text('Record print() as breadcrumb'),
+            ElevatedButton(
+              onPressed: () => makeWebRequestWithDio(context),
+              child: const Text('Dio: Web request'),
+            ),
+            ElevatedButton(
               onPressed: () {
                 print('A print breadcrumb');
                 Sentry.captureMessage('A message with a print() Breadcrumb');
               },
+              child: const Text('Record print() as breadcrumb'),
             ),
-            RaisedButton(
-              child:
-                  const Text('Capture message with scope with additional tag'),
+            ElevatedButton(
               onPressed: () {
                 Sentry.captureMessage(
                   'This event has an extra tag',
@@ -190,9 +198,10 @@ class MainScaffold extends StatelessWidget {
                   },
                 );
               },
+              child:
+                  const Text('Capture message with scope with additional tag'),
             ),
-            RaisedButton(
-              child: const Text('Capture transaction'),
+            ElevatedButton(
               onPressed: () async {
                 final transaction = Sentry.getSpan() ??
                     Sentry.startTransaction(
@@ -236,9 +245,9 @@ class MainScaffold extends StatelessWidget {
 
                 await transaction.finish(status: SpanStatus.ok());
               },
+              child: const Text('Capture transaction'),
             ),
-            RaisedButton(
-              child: const Text('Capture message with attachment'),
+            ElevatedButton(
               onPressed: () {
                 Sentry.captureMessage(
                   'This message has an attachment',
@@ -254,9 +263,9 @@ class MainScaffold extends StatelessWidget {
                   },
                 );
               },
+              child: const Text('Capture message with attachment'),
             ),
-            RaisedButton(
-              child: const Text('Capture message with image attachment'),
+            ElevatedButton(
               onPressed: () {
                 feedback.BetterFeedback.of(context)
                     .show((feedback.UserFeedback feedback) {
@@ -280,9 +289,9 @@ class MainScaffold extends StatelessWidget {
                   );
                 });
               },
+              child: const Text('Capture message with image attachment'),
             ),
-            RaisedButton(
-              child: const Text('Capture User Feedback'),
+            ElevatedButton(
               onPressed: () async {
                 final id = await Sentry.captureMessage('UserFeedback');
                 await showDialog(
@@ -292,9 +301,9 @@ class MainScaffold extends StatelessWidget {
                   },
                 );
               },
+              child: const Text('Capture User Feedback'),
             ),
-            RaisedButton(
-              child: const Text('Show UserFeedback Dialog without event'),
+            ElevatedButton(
               onPressed: () async {
                 await showDialog(
                   context: context,
@@ -303,6 +312,7 @@ class MainScaffold extends StatelessWidget {
                   },
                 );
               },
+              child: const Text('Show UserFeedback Dialog without event'),
             ),
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
               const CocoaExample(),
@@ -323,36 +333,36 @@ class AndroidExample extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      RaisedButton(
-        child: const Text('Kotlin Throw unhandled exception'),
+      ElevatedButton(
         onPressed: () async {
           await execute('throw');
         },
+        child: const Text('Kotlin Throw unhandled exception'),
       ),
-      RaisedButton(
-        child: const Text('Kotlin Capture Exception'),
+      ElevatedButton(
         onPressed: () async {
           await execute('capture');
         },
+        child: const Text('Kotlin Capture Exception'),
       ),
-      RaisedButton(
+      ElevatedButton(
         // ANR is disabled by default, enable it to test it
-        child: const Text('ANR: UI blocked 6 seconds'),
         onPressed: () async {
           await execute('anr');
         },
+        child: const Text('ANR: UI blocked 6 seconds'),
       ),
-      RaisedButton(
-        child: const Text('C++ Capture message'),
+      ElevatedButton(
         onPressed: () async {
           await execute('cpp_capture_message');
         },
+        child: const Text('C++ Capture message'),
       ),
-      RaisedButton(
-        child: const Text('C++ SEGFAULT'),
+      ElevatedButton(
         onPressed: () async {
           await execute('crash');
         },
+        child: const Text('C++ SEGFAULT'),
       ),
     ]);
   }
@@ -387,35 +397,35 @@ class CocoaExample extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        RaisedButton(
-          child: const Text('Swift fatalError'),
+        ElevatedButton(
           onPressed: () async {
             await channel.invokeMethod<void>('fatalError');
           },
+          child: const Text('Swift fatalError'),
         ),
-        RaisedButton(
-          child: const Text('Swift Capture NSException'),
+        ElevatedButton(
           onPressed: () async {
             await channel.invokeMethod<void>('capture');
           },
+          child: const Text('Swift Capture NSException'),
         ),
-        RaisedButton(
-          child: const Text('Swift Capture message'),
+        ElevatedButton(
           onPressed: () async {
             await channel.invokeMethod<void>('capture_message');
           },
+          child: const Text('Swift Capture message'),
         ),
-        RaisedButton(
-          child: const Text('Objective-C Throw unhandled exception'),
+        ElevatedButton(
           onPressed: () async {
             await channel.invokeMethod<void>('throw');
           },
+          child: const Text('Objective-C Throw unhandled exception'),
         ),
-        RaisedButton(
-          child: const Text('Objective-C SEGFAULT'),
+        ElevatedButton(
           onPressed: () async {
             await channel.invokeMethod<void>('crash');
           },
+          child: const Text('Objective-C SEGFAULT'),
         ),
       ],
     );
@@ -461,16 +471,16 @@ class SecondaryScaffold extends StatelessWidget {
               'to the crash reports breadcrumbs.',
             ),
             MaterialButton(
-              child: const Text('Go back'),
               onPressed: () {
                 Navigator.pop(context);
               },
+              child: const Text('Go back'),
             ),
             MaterialButton(
-              child: const Text('throw uncaught exception'),
               onPressed: () {
                 throw Exception('Exception from SecondaryScaffold');
               },
+              child: const Text('throw uncaught exception'),
             ),
           ],
         ),
@@ -512,8 +522,52 @@ Future<void> makeWebRequest(BuildContext context) async {
         ),
         actions: [
           MaterialButton(
-            child: Text('Close'),
             onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          )
+        ],
+      );
+    },
+  );
+}
+
+Future<void> makeWebRequestWithDio(BuildContext context) async {
+  final transaction = Sentry.getSpan() ??
+      Sentry.startTransaction(
+        'dio-web-erquest',
+        'request',
+        bindToScope: true,
+      );
+
+  final dio = Dio();
+  dio.httpClientAdapter = SentryHttpClientAdapter(
+    client: dio.httpClientAdapter,
+    captureFailedRequests: true,
+    networkTracing: true,
+    failedRequestStatusCodes: [SentryStatusCode.range(400, 500)],
+  );
+  // We don't do any exception handling here.
+  // In case of an exception, let it get caught and reported to Sentry
+  final response = await dio.get<String>('https://flutter.dev/');
+
+  await transaction.finish(status: SpanStatus.ok());
+
+  await showDialog<void>(
+    context: context,
+    // gets tracked if using SentryNavigatorObserver
+    routeSettings: RouteSettings(
+      name: 'flutter.dev dialog',
+    ),
+    builder: (context) {
+      return AlertDialog(
+        title: Text('Response ${response.statusCode}'),
+        content: SingleChildScrollView(
+          child: Text(response.data!),
+        ),
+        actions: [
+          MaterialButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
           )
         ],
       );
