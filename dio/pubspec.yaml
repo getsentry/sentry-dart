@@ -11,8 +11,7 @@ environment:
 
 dependencies:
   dio: ^4.0.0
-  sentry: 
-    path: ../dart
+  sentry: ^6.3.0-alpha.1
 
 dev_dependencies:
   lints: ^1.0.0
@@ -20,3 +19,7 @@ dev_dependencies:
   yaml: ^3.1.0 # needed for version match (code and pubspec)
   coverage: ^1.0.3
   mockito: ^5.0.16
+
+dependency_overrides:
+  sentry:
+    path: ../dart

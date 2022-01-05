@@ -4,7 +4,6 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
-import 'adapter/dio_adapter.dart';
 
 /// A [Dio](https://pub.dev/packages/dio)-package compatible HTTP client adapter
 /// which records events for failed requests.
@@ -26,14 +25,14 @@ import 'adapter/dio_adapter.dart';
 class FailedRequestClientAdapter extends HttpClientAdapter {
   // ignore: public_member_api_docs
   FailedRequestClientAdapter({
+    required HttpClientAdapter client,
     this.maxRequestBodySize = MaxRequestBodySize.small,
     this.failedRequestStatusCodes = const [],
     this.captureFailedRequests = true,
     this.sendDefaultPii = false,
-    HttpClientAdapter? client,
     Hub? hub,
   })  : _hub = hub ?? HubAdapter(),
-        _client = client ?? createAdapter();
+        _client = client;
 
   final HttpClientAdapter _client;
   final Hub _hub;
