@@ -51,7 +51,9 @@ void main() {
         bindToScope: true,
       );
 
-      await sut.load(_testFileName);
+      try {
+        await sut.load(_testFileName);
+      } catch (_) {}
 
       await tr.finish();
 
@@ -158,10 +160,12 @@ void main() {
           bindToScope: true,
         );
 
-        await sut.loadStructuredData<String>(
-          _testFileName,
-          (value) => throw Exception(),
-        );
+        try {
+          await sut.loadStructuredData<String>(
+            _testFileName,
+            (value) => throw Exception(),
+          );
+        } catch (_) {}
 
         await tr.finish();
 

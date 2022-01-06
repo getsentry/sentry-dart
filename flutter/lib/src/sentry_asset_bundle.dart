@@ -39,7 +39,7 @@ class SentryAssetBundle extends AssetBundle {
 
     try {
       final data = await _bundle.load(key);
-      await span?.finish();
+      await span?.finish(status: SpanStatus.ok());
       return data;
     } catch (e) {
       await span?.finish(status: SpanStatus.internalError());
@@ -62,7 +62,7 @@ class SentryAssetBundle extends AssetBundle {
         key,
         (value) async => await _wrapParsing(parser, value, key, span),
       );
-      await span?.finish();
+      await span?.finish(status: SpanStatus.ok());
       return data;
     } catch (e) {
       await span?.finish(status: SpanStatus.internalError());
