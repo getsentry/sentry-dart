@@ -29,6 +29,7 @@ That will give you native crash support (for Android and iOS), [release health](
 
 ```dart
 import 'package:sentry/sentry.dart';
+import 'package:sentry_dio/sentry_dio.dart';
 
 Future<void> main() async {
   await Sentry.init(
@@ -41,9 +42,14 @@ Future<void> main() async {
 
 void initDio() {
   final dio = Dio();
-  dio.httpClientAdapter = SentryHttpClientAdapter();
+  // Make sure this is the last initialization method, 
+  // otherwise you might override Sentrys configuration.
+  dio.addSentry(...);
 }
 ```
+
+Dependending on you configuration, this can add performance tracing, 
+http breadcrumbs and automatic recording of bad http requests.
 
 #### Resources
 
