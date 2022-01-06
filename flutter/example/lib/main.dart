@@ -534,14 +534,13 @@ Future<void> makeWebRequest(BuildContext context) async {
 Future<void> makeWebRequestWithDio(BuildContext context) async {
   final transaction = Sentry.getSpan() ??
       Sentry.startTransaction(
-        'dio-web-erquest',
+        'dio-web-request',
         'request',
         bindToScope: true,
       );
 
   final dio = Dio();
-  dio.httpClientAdapter = SentryHttpClientAdapter(
-    client: dio.httpClientAdapter,
+  dio.addSentry(
     captureFailedRequests: true,
     networkTracing: true,
     failedRequestStatusCodes: [SentryStatusCode.range(400, 500)],

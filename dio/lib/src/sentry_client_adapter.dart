@@ -52,7 +52,7 @@ class SentryHttpClientAdapter extends HttpClientAdapter {
     required HttpClientAdapter client,
     Hub? hub,
     bool recordBreadcrumbs = true,
-    bool networkTracing = false,
+    bool networkTracing = true,
     MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never,
     List<SentryStatusCode> failedRequestStatusCodes = const [],
     bool captureFailedRequests = false,
