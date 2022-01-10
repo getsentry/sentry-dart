@@ -543,7 +543,7 @@ Future<void> showDialogWithTextAndImage(BuildContext context) async {
     context: context,
     // gets tracked if using SentryNavigatorObserver
     routeSettings: RouteSettings(
-      name: 'flutter.dev dialog',
+      name: 'AssetBundle dialog',
     ),
     builder: (context) {
       return AlertDialog(
