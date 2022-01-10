@@ -110,6 +110,26 @@ void main() {
       expect(capturedEvent.event.transaction, 'test');
       expect(capturedEvent.event.contexts.trace, isNotNull);
     });
+
+    test('Expando does not throw when exception type is not supported',
+        () async {
+      final hub = fixture.getSut();
+
+      try {
+        throw 'string error';
+      } catch (exception, _) {
+        final event = SentryEvent(throwable: exception);
+        final span = NoOpSentrySpan();
+        hub.setSpanContext(exception, span, 'test');
+
+        await hub.captureEvent(event);
+      }
+
+      final capturedEvent = fixture.client.captureEventCalls.first;
+
+      expect(capturedEvent.event.transaction, isNull);
+      expect(capturedEvent.event.contexts.trace, isNull);
+    });
   });
 
   group('Hub captures', () {
