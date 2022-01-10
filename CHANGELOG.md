@@ -1,6 +1,7 @@
 # Unreleased
 
 * Feat: Add support for [Dio](https://pub.dev/packages/dio) (#688)
+* Fix: Use 'navigation' instead of 'ui.load' for auto transaction operation (#675)
 
 # 6.3.0-alpha.1
 

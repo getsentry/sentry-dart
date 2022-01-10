@@ -34,8 +34,8 @@ void main() {
       final span = tracer.children.first;
 
       expect(span.status, SpanStatus.ok());
-      expect(span.context.operation, 'transform-request');
-      expect(span.context.description, 'GET foo');
+      expect(span.context.operation, 'serialize');
+      expect(span.context.description, 'Dio.transformRequest: GET foo');
     });
 
     test('transformRequest finish span if errored request', () async {
@@ -56,8 +56,8 @@ void main() {
       final span = tracer.children.first;
 
       expect(span.status, SpanStatus.internalError());
-      expect(span.context.operation, 'transform-request');
-      expect(span.context.description, 'GET foo');
+      expect(span.context.operation, 'serialize');
+      expect(span.context.description, 'Dio.transformRequest: GET foo');
       expect(span.finished, true);
     });
 
@@ -80,8 +80,8 @@ void main() {
       final span = tracer.children.first;
 
       expect(span.status, SpanStatus.ok());
-      expect(span.context.operation, 'transform-response');
-      expect(span.context.description, 'GET foo');
+      expect(span.context.operation, 'serialize');
+      expect(span.context.description, 'Dio.transformResponse: GET foo');
     });
     test('transformResponse finish span if errored request', () async {
       final sut = fixture.getSut(throwException: true);
@@ -104,8 +104,8 @@ void main() {
       final span = tracer.children.first;
 
       expect(span.status, SpanStatus.internalError());
-      expect(span.context.operation, 'transform-response');
-      expect(span.context.description, 'GET foo');
+      expect(span.context.operation, 'serialize');
+      expect(span.context.description, 'Dio.transformResponse: GET foo');
       expect(span.finished, true);
     });
   });

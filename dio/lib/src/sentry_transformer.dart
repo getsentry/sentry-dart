@@ -14,8 +14,8 @@ class SentryTransformer implements Transformer {
   @override
   Future<String> transformRequest(RequestOptions options) async {
     final span = _hub.getSpan()?.startChild(
-          'transform-request',
-          description: '${options.method} ${options.uri}',
+          'serialize',
+          description: 'Dio.transformRequest: ${options.method} ${options.uri}',
         );
     try {
       final request = await _transformer.transformRequest(options);
@@ -34,8 +34,9 @@ class SentryTransformer implements Transformer {
     ResponseBody response,
   ) async {
     final span = _hub.getSpan()?.startChild(
-          'transform-response',
-          description: '${options.method} ${options.uri}',
+          'serialize',
+          description:
+              'Dio.transformResponse: ${options.method} ${options.uri}',
         );
     try {
       final dynamic transformedResponse =
