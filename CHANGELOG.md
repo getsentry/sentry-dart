@@ -1,5 +1,7 @@
 # Unreleased
 
+* Fix: Use 'navigation' instead of 'ui.load' for auto transaction operation (#675)
+
 # 6.3.0-alpha.1
 
 * Feat: Automatically create transactions when navigating between screens (#643)

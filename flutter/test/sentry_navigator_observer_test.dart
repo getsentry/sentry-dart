@@ -45,7 +45,7 @@ void main() {
 
       verify(hub.startTransaction(
         'Current Route',
-        'ui.load',
+        'navigation',
         waitForChildren: true,
         autoFinishAfter: Duration(seconds: 3),
       ));
@@ -67,7 +67,7 @@ void main() {
 
       verifyNever(hub.startTransaction(
         'Current Route',
-        'ui.load',
+        'navigation',
         waitForChildren: true,
         autoFinishAfter: Duration(seconds: 3),
       ));
@@ -89,7 +89,7 @@ void main() {
 
       verifyNever(hub.startTransaction(
         'Current Route',
-        'ui.load',
+        'navigation',
         waitForChildren: true,
         autoFinishAfter: Duration(seconds: 3),
       ));
@@ -112,7 +112,7 @@ void main() {
 
       verify(hub.startTransaction(
         'Current Route',
-        'ui.load',
+        'navigation',
         waitForChildren: true,
         autoFinishAfter: Duration(seconds: 3),
       ));
@@ -171,7 +171,7 @@ void main() {
 
       verify(hub.startTransaction(
         'Previous Route',
-        'ui.load',
+        'navigation',
         waitForChildren: true,
         autoFinishAfter: Duration(seconds: 3),
       ));
