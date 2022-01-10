@@ -3,9 +3,9 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 
@@ -39,8 +39,9 @@ void main() {
 
       expect(span.status, SpanStatus.ok());
       expect(span.finished, true);
-      expect(span.context.operation, 'SentryAssetBundle.load');
-      expect(span.context.description, _testFileName);
+      expect(span.context.operation, 'file.read');
+      expect(
+          span.context.description, 'AssetBundle.load(key=resources/test.txt)');
     });
 
     test('load: end span with error if exception is thrown', () async {
@@ -62,12 +63,59 @@ void main() {
 
       expect(span.status, SpanStatus.internalError());
       expect(span.finished, true);
-      expect(span.context.operation, 'SentryAssetBundle.load');
-      expect(span.context.description, _testFileName);
+      expect(span.context.operation, 'file.read');
+      expect(
+          span.context.description, 'AssetBundle.load(key=resources/test.txt)');
+    });
+
+    test('loadString: creates a span if transaction is bound to scope',
+        () async {
+      final sut = fixture.getSut();
+      final tr = fixture._hub.startTransaction(
+        'name',
+        'op',
+        bindToScope: true,
+      );
+
+      await sut.loadString(_testFileName);
+
+      await tr.finish();
+
+      final tracer = (tr as SentryTracer);
+      final span = tracer.children.first;
+
+      expect(span.status, SpanStatus.ok());
+      expect(span.finished, true);
+      expect(span.context.operation, 'file.read');
+      expect(span.context.description,
+          'AssetBundle.loadString(key=resources/test.txt, cache=true)');
+    });
+
+    test('loadString: end span with error if exception is thrown', () async {
+      final sut = fixture.getSut(throwException: true);
+      final tr = fixture._hub.startTransaction(
+        'name',
+        'op',
+        bindToScope: true,
+      );
+
+      await expectLater(
+          sut.loadString(_testFileName), throwsA(isA<Exception>()));
+
+      await tr.finish();
+
+      final tracer = (tr as SentryTracer);
+      final span = tracer.children.first;
+
+      expect(span.status, SpanStatus.internalError());
+      expect(span.finished, true);
+      expect(span.context.operation, 'file.read');
+      expect(span.context.description,
+          'AssetBundle.loadString(key=resources/test.txt, cache=true)');
     });
 
     test(
-      'loadStructuredData: creates two spans if transaction is bound to scope',
+      'loadStructuredData: does not create any spans and just forwords the call to the underlying assetbundle',
       () async {
         final sut = fixture.getSut();
         final tr = fixture._hub.startTransaction(
@@ -76,120 +124,28 @@ void main() {
           bindToScope: true,
         );
 
-        await sut.loadStructuredData<String>(
+        final data = await sut.loadStructuredData<String>(
           _testFileName,
           (value) async => value.toString(),
         );
+        expect(data, 'Hello World!');
 
         await tr.finish();
 
         final tracer = (tr as SentryTracer);
 
-        expect(tracer.children.length, 2);
-
-        final outerSpan = tracer.children.first;
-        expect(outerSpan.status, SpanStatus.internalError());
-        expect(outerSpan.finished, true);
-        expect(
-          outerSpan.context.operation,
-          'SentryAssetBundle.loadStructuredData',
-        );
-        expect(outerSpan.context.description, _testFileName);
-
-        final innerSpan = tracer.children[1];
-        expect(innerSpan.status, SpanStatus.internalError());
-        expect(innerSpan.finished, true);
-        expect(
-          innerSpan.context.operation,
-          'SentryAssetBundle.parseStructuredData',
-        );
-        expect(innerSpan.context.description, _testFileName);
+        expect(tracer.children.length, 0);
       },
     );
 
     test(
-      'loadStructuredData: end span with error if exception is thrown while loading',
-      () async {
-        final sut = fixture.getSut(throwException: true);
-        final tr = fixture._hub.startTransaction(
-          'name',
-          'op',
-          bindToScope: true,
-        );
-
-        try {
-          await sut.loadStructuredData<String>(
-            _testFileName,
-            (value) async => value.toString(),
-          );
-        } catch (_) {}
-
-        await tr.finish();
-
-        final tracer = (tr as SentryTracer);
-
-        expect(tracer.children.length, 2);
-
-        final outerSpan = tracer.children.first;
-        expect(outerSpan.status, SpanStatus.internalError());
-        expect(outerSpan.finished, true);
-        expect(
-          outerSpan.context.operation,
-          'SentryAssetBundle.loadStructuredData',
-        );
-        expect(outerSpan.context.description, _testFileName);
-
-        final innerSpan = tracer.children[1];
-        expect(innerSpan.status, SpanStatus.internalError());
-        expect(innerSpan.finished, true);
-        expect(
-          innerSpan.context.operation,
-          'SentryAssetBundle.parseStructuredData',
-        );
-        expect(innerSpan.context.description, _testFileName);
-      },
-    );
-
-    test(
-      'loadStructuredData: end span with error if exception is thrown while parsing',
-      () async {
+      'evict call gets forwarded',
+      () {
         final sut = fixture.getSut();
-        final tr = fixture._hub.startTransaction(
-          'name',
-          'op',
-          bindToScope: true,
-        );
 
-        try {
-          await sut.loadStructuredData<String>(
-            _testFileName,
-            (value) => throw Exception(),
-          );
-        } catch (_) {}
+        sut.evict(_testFileName);
 
-        await tr.finish();
-
-        final tracer = (tr as SentryTracer);
-
-        expect(tracer.children.length, 2);
-
-        final outerSpan = tracer.children.first;
-        expect(outerSpan.status, SpanStatus.ok());
-        expect(outerSpan.finished, true);
-        expect(
-          outerSpan.context.operation,
-          'SentryAssetBundle.loadStructuredData',
-        );
-        expect(outerSpan.context.description, _testFileName);
-
-        final innerSpan = tracer.children[1];
-        expect(innerSpan.status, SpanStatus.ok());
-        expect(innerSpan.finished, true);
-        expect(
-          innerSpan.context.operation,
-          'SentryAssetBundle.parseStructuredData',
-        );
-        expect(innerSpan.context.description, _testFileName);
+        expect(fixture.assetBundle.evictKey, _testFileName);
       },
     );
   });
@@ -199,6 +155,7 @@ class Fixture {
   final _options = SentryOptions(dsn: fakeDsn);
   late Hub _hub;
   final transport = MockTransport();
+  final assetBundle = TestAssetBundle();
   Fixture() {
     _options.transport = transport;
     _options.tracesSampleRate = 1.0;
@@ -208,27 +165,33 @@ class Fixture {
   SentryAssetBundle getSut({
     bool throwException = false,
   }) {
+    when(transport.send(any)).thenAnswer((_) async => SentryId.newId());
     return SentryAssetBundle(
       hub: _hub,
-      bundle: TestAssetBundle(throwException),
+      bundle: assetBundle..throwException = throwException,
     );
   }
 }
 
 class TestAssetBundle extends CachingAssetBundle {
-  TestAssetBundle(this.throwException);
-
-  final bool throwException;
+  bool throwException = false;
+  String? evictKey;
 
   @override
   Future<ByteData> load(String key) async {
     if (throwException) {
-      throw FlutterError('"$key" could not be found in assets');
+      throw Exception('"$key" could not be found in assets');
     }
     if (key == _testFileName) {
       return ByteData.view(
           Uint8List.fromList(utf8.encode('Hello World!')).buffer);
     }
     return ByteData(0);
+  }
+
+  @override
+  void evict(String key) {
+    super.evict(key);
+    evictKey = key;
   }
 }

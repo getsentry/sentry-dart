@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:sentry/sentry.dart';
@@ -24,7 +26,7 @@ typedef _Parser<T> = Future<T> Function(String value);
 /// );
 /// ```
 /// [Image.asset], for example, will then use [SentryAssetBundle].
-class SentryAssetBundle extends AssetBundle {
+class SentryAssetBundle implements AssetBundle {
   SentryAssetBundle({Hub? hub, AssetBundle? bundle})
       : _hub = hub ?? HubAdapter(),
         _bundle = bundle ?? rootBundle;
@@ -34,8 +36,10 @@ class SentryAssetBundle extends AssetBundle {
 
   @override
   Future<ByteData> load(String key) async {
-    final span =
-        _hub.getSpan()?.startChild('SentryAssetBundle.load', description: key);
+    final span = _hub.getSpan()?.startChild(
+          'file.read',
+          description: 'AssetBundle.load(key=$key)',
+        );
 
     try {
       final data = await _bundle.load(key);
@@ -47,47 +51,30 @@ class SentryAssetBundle extends AssetBundle {
     }
   }
 
+  /// Does not create a span. Sometimes [CachingAssetBundle] can throw errors
+  /// which are outside the current zone. This is not easy to handle and can
+  /// result in corrupt spans.
   @override
-  Future<T> loadStructuredData<T>(
-    String key,
-    _Parser<T> parser,
-  ) async {
+  Future<T> loadStructuredData<T>(String key, _Parser<T> parser) =>
+      _bundle.loadStructuredData(key, parser);
+
+  @override
+  Future<String> loadString(String key, {bool cache = true}) async {
     final span = _hub.getSpan()?.startChild(
-          'SentryAssetBundle.loadStructuredData',
-          description: key,
+          'file.read',
+          description: 'AssetBundle.loadString(key=$key, cache=$cache)',
         );
 
     try {
-      final data = await _bundle.loadStructuredData(
-        key,
-        (value) async => await _wrapParsing(parser, value, key, span),
-      );
+      final data = await _bundle.loadString(key, cache: true);
       await span?.finish(status: SpanStatus.ok());
       return data;
-    } catch (e) {
+    } catch (_) {
       await span?.finish(status: SpanStatus.internalError());
       rethrow;
     }
   }
-}
 
-Future<T> _wrapParsing<T>(
-  _Parser<T> parser,
-  String value,
-  String key,
-  ISentrySpan? span,
-) async {
-  final innerSpan = span?.startChild(
-    'SentryAssetBundle.parseStructuredData',
-    description: key,
-  );
-  try {
-    final parsedData = await parser(value);
-    await innerSpan?.finish();
-
-    return parsedData;
-  } catch (e) {
-    await span?.finish(status: SpanStatus.internalError());
-    rethrow;
-  }
+  @override
+  void evict(String key) => _bundle.evict(key);
 }
