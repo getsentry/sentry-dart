@@ -136,7 +136,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
     _transaction = _hub.startTransaction(
       name,
-      'ui.load',
+      'navigation',
       waitForChildren: true,
       autoFinishAfter: Duration(seconds: 3),
     );

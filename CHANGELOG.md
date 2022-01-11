@@ -1,6 +1,7 @@
 # Unreleased
 
 * Enha: Replace flutter default root name '/' with 'root' (#678)
+* Fix: Use 'navigation' instead of 'ui.load' for auto transaction operation (#675)
 
 # 6.3.0-alpha.1
 
