@@ -66,6 +66,9 @@ Future<void> main() async {
 In order to track navigation events you have to add the 
 `SentryNavigatorObserver` to your `MaterialApp`, `WidgetsApp` or `CupertinoApp`.
 
+You should provide a name to route settings: `RouteSettings(name: 'Your Route Name')`. The root 
+route name `/` will be replaced by `root "/"` for clarity's sake.
+
 ```dart
 import 'package:flutter/material.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
