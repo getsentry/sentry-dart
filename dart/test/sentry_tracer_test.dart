@@ -71,6 +71,18 @@ void main() {
     expect(tr.extra?['test'], isNull);
   });
 
+  test('tracer sets non-string data to extra', () async {
+    final sut = fixture.getSut();
+
+    sut.setData('test', {'key': 'value'});
+
+    await sut.finish(status: SpanStatus.aborted());
+
+    final tr = fixture.hub.captureTransactionCalls.first;
+
+    expect(tr.extra?['test'], {'key': 'value'});
+  });
+
   test('tracer starts child', () async {
     final sut = fixture.getSut();
 

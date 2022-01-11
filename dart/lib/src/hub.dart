@@ -31,7 +31,7 @@ class Hub {
 
   late SentryTracesSampler _tracesSampler;
 
-  final _WeakMap _throwableToSpan = _WeakMap();
+  late final _WeakMap _throwableToSpan;
 
   factory Hub(SentryOptions options) {
     _validateOptions(options);
@@ -43,6 +43,7 @@ class Hub {
     _tracesSampler = SentryTracesSampler(_options);
     _stack.add(_StackItem(_getClient(_options), Scope(_options)));
     _isEnabled = true;
+    _throwableToSpan = _WeakMap(_options);
   }
 
   static void _validateOptions(SentryOptions options) {
@@ -510,13 +511,29 @@ class _StackItem {
 class _WeakMap {
   final _expando = Expando();
 
+  final SentryOptions _options;
+
+  _WeakMap(this._options);
+
   void add(
     dynamic throwable,
     ISentrySpan span,
     String transaction,
   ) {
-    if (throwable != null && _expando[throwable] == null) {
-      _expando[throwable] = MapEntry(span, transaction);
+    if (throwable == null) {
+      return;
+    }
+    try {
+      if (_expando[throwable] == null) {
+        _expando[throwable] = MapEntry(span, transaction);
+      }
+    } catch (exception, stackTrace) {
+      _options.logger(
+        SentryLevel.info,
+        'Throwable type: ${throwable.runtimeType} is not supported for associating errors to a transaction.',
+        exception: exception,
+        stackTrace: stackTrace,
+      );
     }
   }
 
@@ -524,6 +541,15 @@ class _WeakMap {
     if (throwable == null) {
       return null;
     }
-    return _expando[throwable] as MapEntry<ISentrySpan, String>?;
+    try {
+      return _expando[throwable] as MapEntry<ISentrySpan, String>?;
+    } catch (exception, stackTrace) {
+      _options.logger(
+        SentryLevel.info,
+        'Throwable type: ${throwable.runtimeType} is not supported for associating errors to a transaction.',
+        exception: exception,
+        stackTrace: stackTrace,
+      );
+    }
   }
 }
