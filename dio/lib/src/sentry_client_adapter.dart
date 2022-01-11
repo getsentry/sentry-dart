@@ -45,7 +45,6 @@ import 'breadcrumb_client_adapter.dart';
 /// Remarks:
 /// HTTP traffic can contain PII (personal identifiable information).
 /// Read more on data scrubbing [here](https://docs.sentry.io/product/data-management-settings/advanced-datascrubbing/).
-/// ```
 class SentryHttpClientAdapter extends HttpClientAdapter {
   // ignore: public_member_api_docs
   SentryHttpClientAdapter({
