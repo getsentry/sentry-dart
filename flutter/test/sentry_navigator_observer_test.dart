@@ -231,7 +231,7 @@ void main() {
       sut.didPush(rootRoute, null);
 
       verify(hub.startTransaction(
-        'root',
+        'root ("/")',
         'ui.load',
         waitForChildren: true,
         autoFinishAfter: Duration(seconds: 3),

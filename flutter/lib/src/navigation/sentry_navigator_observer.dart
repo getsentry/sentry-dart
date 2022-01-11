@@ -132,7 +132,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       return;
     }
     if (name == '/') {
-      name = 'root';
+      name = 'root ("/")';
     }
     _transaction = _hub.startTransaction(
       name,
