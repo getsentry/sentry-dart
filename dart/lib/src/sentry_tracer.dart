@@ -13,7 +13,7 @@ class SentryTracer extends ISentrySpan {
 
   late final SentrySpan _rootSpan;
   final List<SentrySpan> _children = [];
-  final Map<String, String> _extra = {};
+  final Map<String, dynamic> _extra = {};
   Timer? _autoFinishAfterTimer;
   var _finishStatus = SentryTracerFinishStatus.notFinishing();
 
@@ -81,7 +81,7 @@ class SentryTracer extends ISentrySpan {
   }
 
   @override
-  void setData(String key, value) {
+  void setData(String key, dynamic value) {
     if (finished) {
       return;
     }
@@ -153,7 +153,7 @@ class SentryTracer extends ISentrySpan {
   @override
   DateTime? get endTimestamp => _rootSpan.endTimestamp;
 
-  Map<String, String> get data => Map.unmodifiable(_extra);
+  Map<String, dynamic> get data => Map.unmodifiable(_extra);
 
   @override
   bool get finished => _rootSpan.finished;
