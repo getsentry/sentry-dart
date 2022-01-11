@@ -2,6 +2,7 @@
 
 * Fix: Use 'navigation' instead of 'ui.load' for auto transaction operation (#675)
 * Fix: Use correct data/extras type in tracer (#693)
+* Fix: Do not throw when Throwable type is not supported for associating errors to a transaction (#692)
 
 # 6.3.0-alpha.1
 
