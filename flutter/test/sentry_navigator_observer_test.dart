@@ -232,7 +232,7 @@ void main() {
 
       verify(hub.startTransaction(
         'root ("/")',
-        'ui.load',
+        'navigation',
         waitForChildren: true,
         autoFinishAfter: Duration(seconds: 3),
       ));
