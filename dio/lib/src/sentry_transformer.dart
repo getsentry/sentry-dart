@@ -17,14 +17,18 @@ class SentryTransformer implements Transformer {
           'serialize',
           description: 'Dio.transformRequest: ${options.method} ${options.uri}',
         );
+    String? request;
     try {
-      final request = await _transformer.transformRequest(options);
-      await span?.finish(status: SpanStatus.ok());
-      return request;
-    } catch (_) {
-      await span?.finish(status: SpanStatus.internalError());
+      request = await _transformer.transformRequest(options);
+      span?.status = const SpanStatus.ok();
+    } catch (exception) {
+      span?.throwable = exception;
+      span?.status = const SpanStatus.internalError();
       rethrow;
+    } finally {
+      await span?.finish();
     }
+    return request;
   }
 
   @override
@@ -38,14 +42,18 @@ class SentryTransformer implements Transformer {
           description:
               'Dio.transformResponse: ${options.method} ${options.uri}',
         );
+    dynamic transformedResponse;
     try {
-      final dynamic transformedResponse =
+      transformedResponse =
           await _transformer.transformResponse(options, response);
-      await span?.finish(status: SpanStatus.ok());
-      return transformedResponse;
-    } catch (_) {
-      await span?.finish(status: SpanStatus.internalError());
+      span?.status = const SpanStatus.ok();
+    } catch (exception) {
+      span?.throwable = exception;
+      span?.status = const SpanStatus.internalError();
       rethrow;
+    } finally {
+      await span?.finish();
     }
+    return transformedResponse;
   }
 }
