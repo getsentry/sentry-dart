@@ -41,22 +41,27 @@ class SentryAssetBundle implements AssetBundle {
           description: 'AssetBundle.load(key=$key)',
         );
 
+    ByteData? data;
     try {
-      final data = await _bundle.load(key);
-      await span?.finish(status: SpanStatus.ok());
-      return data;
-    } catch (e) {
-      await span?.finish(status: SpanStatus.internalError());
+      data = await _bundle.load(key);
+      span?.status = SpanStatus.ok();
+    } catch (exception) {
+      span?.throwable = exception;
+      span?.status = SpanStatus.internalError();
       rethrow;
+    } finally {
+      await span?.finish();
     }
+    return data;
   }
 
   /// Does not create a span. Sometimes [CachingAssetBundle] can throw errors
   /// which are outside the current zone. This is not easy to handle and can
   /// result in corrupt spans.
   @override
-  Future<T> loadStructuredData<T>(String key, _Parser<T> parser) =>
-      _bundle.loadStructuredData(key, parser);
+  Future<T> loadStructuredData<T>(String key, _Parser<T> parser) {
+    return _bundle.loadStructuredData(key, parser);
+  }
 
   @override
   Future<String> loadString(String key, {bool cache = true}) async {
@@ -65,14 +70,18 @@ class SentryAssetBundle implements AssetBundle {
           description: 'AssetBundle.loadString(key=$key, cache=$cache)',
         );
 
+    String? data;
     try {
-      final data = await _bundle.loadString(key, cache: cache);
-      await span?.finish(status: SpanStatus.ok());
-      return data;
-    } catch (_) {
-      await span?.finish(status: SpanStatus.internalError());
+      data = await _bundle.loadString(key, cache: cache);
+      span?.status = SpanStatus.ok();
+    } catch (exception) {
+      span?.throwable = exception;
+      span?.status = SpanStatus.internalError();
       rethrow;
+    } finally {
+      await span?.finish();
     }
+    return data;
   }
 
   @override
