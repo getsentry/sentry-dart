@@ -115,9 +115,9 @@ void main() {
     });
 
     test(
-      'loadStructuredData: does not create any spans and just forwords the call to the underlying assetbundle',
+      'loadStructuredData: does not create any spans and just forwords the call to the underlying assetbundle if disabled',
       () async {
-        final sut = fixture.getSut();
+        final sut = fixture.getSut(structuredDataTracing: false);
         final tr = fixture._hub.startTransaction(
           'name',
           'op',
@@ -135,6 +135,127 @@ void main() {
         final tracer = (tr as SentryTracer);
 
         expect(tracer.children.length, 0);
+      },
+    );
+
+    test(
+      'loadStructuredData: finish with errored span if loading fails',
+      () async {
+        final sut = fixture.getSut(throwException: true);
+        final tr = fixture._hub.startTransaction(
+          'name',
+          'op',
+          bindToScope: true,
+        );
+        await expectLater(
+          sut.loadStructuredData<String>(
+            _testFileName,
+            (value) async => value.toString(),
+          ),
+          throwsA(isA<Exception>()),
+        );
+
+        await tr.finish();
+
+        final tracer = (tr as SentryTracer);
+        final span = tracer.children.first;
+
+        expect(span.status, SpanStatus.internalError());
+        expect(span.finished, true);
+        expect(span.throwable, isA<Exception>());
+        expect(span.context.operation, 'file.read');
+        expect(
+          span.context.description,
+          'AssetBundle.loadStructuredData<String>(key=resources/test.txt, parser=Closure: (String) => Future<String>)',
+        );
+      },
+    );
+
+    test(
+      'loadStructuredData: finish with errored span if parsing fails',
+      () async {
+        final sut = fixture.getSut(throwException: false);
+        final tr = fixture._hub.startTransaction(
+          'name',
+          'op',
+          bindToScope: true,
+        );
+        await expectLater(
+          sut.loadStructuredData<String>(
+            _testFileName,
+            (value) async => throw Exception('error while parsing'),
+          ),
+          throwsA(isA<Exception>()),
+        );
+
+        await tr.finish();
+
+        final tracer = (tr as SentryTracer);
+        var span = tracer.children.first;
+
+        expect(tracer.children.length, 2);
+
+        expect(span.status, SpanStatus.internalError());
+        expect(span.finished, true);
+        expect(span.throwable, isA<Exception>());
+        expect(span.context.operation, 'file.read');
+        expect(
+          span.context.description,
+          'AssetBundle.loadStructuredData<String>(key=resources/test.txt, parser=Closure: (String) => Future<Never>)',
+        );
+
+        span = tracer.children[1];
+
+        expect(span.status, SpanStatus.internalError());
+        expect(span.finished, true);
+        expect(span.throwable, isA<Exception>());
+        expect(span.context.operation, 'serialize');
+        expect(
+          span.context.description,
+          'parsing "resources/test.txt" with "Closure: (String) => Future<Never>"',
+        );
+      },
+    );
+
+    test(
+      'loadStructuredData: finish with successfully',
+      () async {
+        final sut = fixture.getSut(throwException: false);
+        final tr = fixture._hub.startTransaction(
+          'name',
+          'op',
+          bindToScope: true,
+        );
+
+        await sut.loadStructuredData<String>(
+          _testFileName,
+          (value) async => value.toString(),
+        );
+
+        await tr.finish();
+
+        final tracer = (tr as SentryTracer);
+        var span = tracer.children.first;
+
+        expect(tracer.children.length, 2);
+
+        expect(span.status, SpanStatus.ok());
+        expect(span.finished, true);
+        expect(span.context.operation, 'file.read');
+        expect(
+          span.context.description,
+          'AssetBundle.loadStructuredData<String>(key=resources/test.txt, parser=Closure: (String) => Future<String>)',
+        );
+
+        span = tracer.children[1];
+
+        expect(span.status, SpanStatus.ok());
+        expect(span.finished, true);
+        expect(span.context.operation, 'serialize');
+        expect(
+          span.context.description,
+          'parsing "resources/test.txt" with "Closure: (String) => Future<String>"',
+        );
       },
     );
 
@@ -183,9 +304,11 @@ class Fixture {
 
   SentryAssetBundle getSut({
     bool throwException = false,
+    bool structuredDataTracing = true,
   }) {
     when(transport.send(any)).thenAnswer((_) async => SentryId.newId());
     return SentryAssetBundle(
+      enableStructureDataTracing: structuredDataTracing,
       hub: _hub,
       bundle: assetBundle..throwException = throwException,
     );
@@ -199,7 +322,7 @@ class TestAssetBundle extends CachingAssetBundle {
   @override
   Future<ByteData> load(String key) async {
     if (throwException) {
-      throw Exception('"$key" could not be found in assets');
+      throw Exception('exception thrown for testing purposes');
     }
     if (key == _testFileName) {
       return ByteData.view(

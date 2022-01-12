@@ -26,13 +26,21 @@ typedef _Parser<T> = Future<T> Function(String value);
 /// );
 /// ```
 /// [Image.asset], for example, will then use [SentryAssetBundle].
+///
+/// The `enableStructureDataTracing` setting is an experimental feature.
+/// Use at your own risk.
 class SentryAssetBundle implements AssetBundle {
-  SentryAssetBundle({Hub? hub, AssetBundle? bundle})
-      : _hub = hub ?? HubAdapter(),
-        _bundle = bundle ?? rootBundle;
+  SentryAssetBundle({
+    Hub? hub,
+    AssetBundle? bundle,
+    bool enableStructureDataTracing = false,
+  })  : _hub = hub ?? HubAdapter(),
+        _bundle = bundle ?? rootBundle,
+        _enableStructureDataTracing = enableStructureDataTracing;
 
   final Hub _hub;
   final AssetBundle _bundle;
+  final bool _enableStructureDataTracing;
 
   @override
   Future<ByteData> load(String key) async {
@@ -55,12 +63,50 @@ class SentryAssetBundle implements AssetBundle {
     return data;
   }
 
-  /// Does not create a span. Sometimes [CachingAssetBundle] can throw errors
-  /// which are outside the current zone. This is not easy to handle and can
-  /// result in corrupt spans.
   @override
   Future<T> loadStructuredData<T>(String key, _Parser<T> parser) {
+    if (_enableStructureDataTracing) {
+      return _loadStructuredDataWithTracing(key, parser);
+    }
     return _bundle.loadStructuredData(key, parser);
+  }
+
+  Future<T> _loadStructuredDataWithTracing<T>(
+      String key, _Parser<T> parser) async {
+    final span = _hub.getSpan()?.startChild(
+          'file.read',
+          description:
+              'AssetBundle.loadStructuredData<$T>(key=$key, parser=$parser)',
+        );
+
+    final completer = Completer<T>();
+
+    // This future is intentionally not awaited. Otherwise we deadlock with
+    // the completer.
+    // ignore: unawaited_futures
+    runZonedGuarded(() async {
+      final data = await _bundle.loadStructuredData(
+        key,
+        (value) async => await _wrapParsing(parser, value, key, span),
+      );
+      span?.status = SpanStatus.ok();
+      completer.complete(data);
+    }, (exception, stackTrace) {
+      completer.completeError(exception, stackTrace);
+    });
+
+    T data;
+    try {
+      data = await completer.future;
+      span?.status = const SpanStatus.ok();
+    } catch (e) {
+      span?.throwable = e;
+      span?.status = const SpanStatus.internalError();
+      rethrow;
+    } finally {
+      await span?.finish();
+    }
+    return data;
   }
 
   @override
@@ -102,5 +148,30 @@ class SentryAssetBundle implements AssetBundle {
       // just catch the error which is thrown. On later version the call gets
       // correctly forwarded.
     }
+  }
+
+  static Future<T> _wrapParsing<T>(
+    _Parser<T> parser,
+    String value,
+    String key,
+    ISentrySpan? outerSpan,
+  ) async {
+    final span = outerSpan?.startChild(
+      'serialize',
+      description: 'parsing "$key" with "$parser"',
+    );
+    T data;
+    try {
+      data = await parser(value);
+      span?.status = const SpanStatus.ok();
+    } catch (e) {
+      span?.throwable = e;
+      span?.status = const SpanStatus.internalError();
+      rethrow;
+    } finally {
+      await span?.finish();
+    }
+
+    return data;
   }
 }
