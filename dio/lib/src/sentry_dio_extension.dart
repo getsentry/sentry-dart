@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
 import 'sentry_transformer.dart';
-import 'sentry_client_adapter.dart';
+import 'sentry_dio_client_adapter.dart';
 
 /// Extension to add performance tracing for [Dio]
 extension SentryDioExtension on Dio {
@@ -18,7 +18,7 @@ extension SentryDioExtension on Dio {
     bool sendDefaultPii = false,
   }) {
     // intercept http requests
-    httpClientAdapter = SentryHttpClientAdapter(
+    httpClientAdapter = SentryDioClientAdapter(
       client: httpClientAdapter,
       recordBreadcrumbs: recordBreadcrumbs,
       networkTracing: networkTracing,

@@ -3,7 +3,7 @@ import 'package:http/http.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/http_client/failed_request_client.dart';
-import 'package:sentry_dio/src/sentry_client_adapter.dart';
+import 'package:sentry_dio/src/sentry_dio_client_adapter.dart';
 import 'package:test/test.dart';
 
 import 'mocks/mock_http_client_adapter.dart';
@@ -12,7 +12,7 @@ import 'mocks/mock_hub.dart';
 final requestUri = Uri.parse('https://example.com/');
 
 void main() {
-  group(SentryHttpClientAdapter, () {
+  group(SentryDioClientAdapter, () {
     late Fixture fixture;
 
     setUp(() {
@@ -131,7 +131,7 @@ class Fixture {
   }) {
     final mc = client ?? getClient();
     final dio = Dio(BaseOptions(baseUrl: requestUri.toString()));
-    dio.httpClientAdapter = SentryHttpClientAdapter(
+    dio.httpClientAdapter = SentryDioClientAdapter(
       client: mc,
       hub: hub,
       captureFailedRequests: captureFailedRequests,
