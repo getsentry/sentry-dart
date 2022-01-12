@@ -66,7 +66,7 @@ class SentryAssetBundle implements AssetBundle {
         );
 
     try {
-      final data = await _bundle.loadString(key, cache: true);
+      final data = await _bundle.loadString(key, cache: cache);
       await span?.finish(status: SpanStatus.ok());
       return data;
     } catch (_) {
