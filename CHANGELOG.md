@@ -1,5 +1,7 @@
 # Unreleased
 
+* Bump: Sentry-Android to 5.5.2 and Sentry-Cocoa to 7.8.0 (#696)
+
 # 6.3.0-beta.1
 
 * Enha: Replace flutter default root name '/' with 'root' (#678)
