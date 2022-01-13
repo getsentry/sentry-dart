@@ -57,7 +57,7 @@ class SentryTracer extends ISentrySpan {
         }
       });
 
-      final transaction = SentryTransaction(this);
+      final transaction = SentryTransaction(this, measurements: measurements);
       await _hub.captureTransaction(transaction);
     }
   }
@@ -97,6 +97,8 @@ class SentryTracer extends ISentrySpan {
 
     _rootSpan.setTag(key, value);
   }
+
+  final List<SentryMeasurement> measurements = [];
 
   @override
   ISentrySpan startChild(

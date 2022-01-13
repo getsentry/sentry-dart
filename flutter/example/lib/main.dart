@@ -37,6 +37,8 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    //var frameTracker = FrameTracker();
+    //frameTracker.start();
   }
 
   @override

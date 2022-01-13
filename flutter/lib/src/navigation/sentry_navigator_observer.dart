@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
-import 'package:sentry/sentry.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/sentry_tracer.dart';
 import '../../sentry_flutter.dart';
+import 'frame_tracker.dart' as ft;
 
 /// This key must be used so that the web interface displays the events nicely
 /// See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
@@ -71,6 +73,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final bool _setRouteNameAsTransaction;
   final RouteNameExtractor? _routeNameExtractor;
   final AdditionalInfoExtractor? _additionalInfoProvider;
+  final ft.FrameTracker _frameTracker =
+      ft.FrameTracker(binding: WidgetsBinding.instance!);
 
   ISentrySpan? _transaction;
 
@@ -154,6 +158,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       waitForChildren: true,
       autoFinishAfter: Duration(seconds: 3),
     );
+    _frameTracker.start();
     if (arguments != null) {
       _transaction?.setData('route_settings_arguments', arguments);
     }
@@ -165,6 +170,15 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
   Future<void> _finishTransaction() async {
     _transaction?.status ??= SpanStatus.ok();
+    // ignore: invalid_use_of_internal_member
+    if (_transaction is SentryTracer) {
+      // ignore: invalid_use_of_internal_member
+      final transaction = _transaction as SentryTracer;
+      final measurements = _frameTracker.finish();
+      if (measurements != null) {
+        transaction.measurements.addAll(measurements);
+      }
+    }
     return await _transaction?.finish();
   }
 }
