@@ -1,7 +1,7 @@
-name: sentry_logging
-description: An integration which adds support for recording log from the logging package.
+name: sentry_dio
+description: An integration which adds support for performance tracing for the Dio package.
 version: 6.3.0-beta.2
-homepage: https://docs.sentry.io/platforms/flutter/
+homepage: https://docs.sentry.io/platforms/dart/
 repository: https://github.com/getsentry/sentry-dart
 issue_tracker: https://github.com/getsentry/sentry-dart/issues
 
@@ -9,7 +9,7 @@ environment:
   sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
-  logging: ^1.0.0
+  dio: ^4.0.0
   sentry: ^6.3.0-beta.1
 
 dev_dependencies:
@@ -17,6 +17,8 @@ dev_dependencies:
   test: ^1.16.0
   yaml: ^3.1.0 # needed for version match (code and pubspec)
   coverage: ^1.0.3
+  mockito: ^5.0.16
+  http: ^0.13.0
 
 dependency_overrides:
   sentry:

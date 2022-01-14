@@ -45,7 +45,7 @@ void main() {
 
       verify(hub.startTransaction(
         'Current Route',
-        'ui.load',
+        'navigation',
         waitForChildren: true,
         autoFinishAfter: Duration(seconds: 3),
       ));
@@ -67,7 +67,7 @@ void main() {
 
       verifyNever(hub.startTransaction(
         'Current Route',
-        'ui.load',
+        'navigation',
         waitForChildren: true,
         autoFinishAfter: Duration(seconds: 3),
       ));
@@ -89,7 +89,7 @@ void main() {
 
       verifyNever(hub.startTransaction(
         'Current Route',
-        'ui.load',
+        'navigation',
         waitForChildren: true,
         autoFinishAfter: Duration(seconds: 3),
       ));
@@ -112,7 +112,7 @@ void main() {
 
       verify(hub.startTransaction(
         'Current Route',
-        'ui.load',
+        'navigation',
         waitForChildren: true,
         autoFinishAfter: Duration(seconds: 3),
       ));
@@ -171,7 +171,7 @@ void main() {
 
       verify(hub.startTransaction(
         'Previous Route',
-        'ui.load',
+        'navigation',
         waitForChildren: true,
         autoFinishAfter: Duration(seconds: 3),
       ));
@@ -218,6 +218,28 @@ void main() {
       sut.didPush(currentRoute, null);
 
       verify(span.setData('route_settings_arguments', arguments));
+    });
+
+    test('flutter root name is replaced', () {
+      final rootRoute = route(RouteSettings(name: '/'));
+
+      final hub = _MockHub();
+      final span = MockNoOpSentrySpan();
+      _whenAnyStart(hub, span);
+      final sut = fixture.getSut(hub: hub);
+
+      sut.didPush(rootRoute, null);
+
+      verify(hub.startTransaction(
+        'root ("/")',
+        'navigation',
+        waitForChildren: true,
+        autoFinishAfter: Duration(seconds: 3),
+      ));
+
+      hub.configureScope((scope) {
+        expect(scope.span, span);
+      });
     });
   });
 
