@@ -1,6 +1,8 @@
 # Unreleased
 
 * Add `SentryAssetBundle` for automatic spans for asset loading (#685)
+* Feat: Add support for [Dio](https://pub.dev/packages/dio) (#688)
+* Bump: Sentry-Android to 5.5.2 and Sentry-Cocoa to 7.8.0 (#696)
 
 # 6.3.0-beta.1
 
