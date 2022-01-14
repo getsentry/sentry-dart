@@ -1,6 +1,11 @@
-include: package:pedantic/analysis_options.yaml
+include: package:lints/recommended.yaml
 
 analyzer:
+  strong-mode:
+    implicit-casts: false
+    implicit-dynamic: false
+  language:
+    strict-raw-types: true
   errors:
     # treat missing required parameters as a warning (not a hint)
     missing_required_param: error
@@ -13,9 +18,17 @@ analyzer:
     deprecated_member_use_from_same_package: warning
     # ignore sentry/path on pubspec as we change it on deployment
     invalid_dependency: ignore
+    unnecessary_import: ignore
+  exclude:
+    - example/**
 
 linter:
   rules:
-    prefer_relative_imports: true
-    unnecessary_brace_in_string_interps: true
-    implementation_imports: true
+    - prefer_final_locals
+    - public_member_api_docs
+    - prefer_single_quotes
+    - prefer_relative_imports
+    - unnecessary_brace_in_string_interps
+    - implementation_imports
+    - require_trailing_commas
+    - unawaited_futures
