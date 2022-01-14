@@ -20,6 +20,7 @@ dependencies:
   dio: ^4.0.0
 
 dev_dependencies:
+  pedantic: ^1.11.1
   sentry_dart_plugin: ^1.0.0-alpha.4
 
 dependency_overrides:
