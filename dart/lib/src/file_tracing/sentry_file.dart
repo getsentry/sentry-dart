@@ -257,7 +257,7 @@ class SentryFile implements File {
 
   Future<T> _wrap<T>(Future<T> future, String operation) async {
     final span = _hub.getSpan()?.startChild(operation, description: _file.path);
-
+    span?.setData('async-io', true);
     T data;
     try {
       data = await future;
@@ -274,7 +274,7 @@ class SentryFile implements File {
 
   T _wrapSync<T>(Callback<T> callback, String operation) {
     final span = _hub.getSpan()?.startChild(operation, description: _file.path);
-
+    span?.setData('async-io', false);
     T data;
     try {
       data = callback();
