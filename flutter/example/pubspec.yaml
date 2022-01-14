@@ -11,11 +11,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  path: ^1.8.0
+  path_provider: ^2.0.8
   sentry:
   sentry_flutter:
   sentry_dio:
   universal_platform: ^1.0.0-nullsafety
-  feedback: ^2.0.0
+  feedback: ^2.3.0
   provider: ^6.0.0
   dio: ^4.0.0
 

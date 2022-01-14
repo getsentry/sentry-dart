@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:path/path.dart' as path;
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:feedback/feedback.dart' as feedback;
@@ -11,6 +13,7 @@ import 'package:provider/provider.dart';
 import 'user_feedback_dialog.dart';
 import 'package:dio/dio.dart';
 import 'package:sentry_dio/sentry_dio.dart';
+import 'package:path_provider/path_provider.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
 const String _exampleDsn =
@@ -246,6 +249,24 @@ class MainScaffold extends StatelessWidget {
                 await transaction.finish(status: SpanStatus.ok());
               },
               child: const Text('Capture transaction'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final transaction = Sentry.getSpan() ??
+                    Sentry.startTransaction(
+                      'file-transaction',
+                      'file-mutation',
+                      bindToScope: true,
+                    );
+
+                final appDocDir = await getApplicationDocumentsDirectory();
+                var file = File(path.join(appDocDir.path, 'file.txt'));
+                await file.writeAsString('foo bar');
+                await file.delete();
+
+                await transaction.finish(status: SpanStatus.ok());
+              },
+              child: const Text('Capture File transaction'),
             ),
             ElevatedButton(
               onPressed: () {
