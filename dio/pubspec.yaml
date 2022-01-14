@@ -1,6 +1,6 @@
 name: sentry_dio
 description: An integration which adds support for performance tracing for the Dio package.
-version: 6.3.0
+version: 6.3.0-beta.2
 homepage: https://docs.sentry.io/platforms/dart/
 repository: https://github.com/getsentry/sentry-dart
 issue_tracker: https://github.com/getsentry/sentry-dart/issues
@@ -8,10 +8,9 @@ issue_tracker: https://github.com/getsentry/sentry-dart/issues
 environment:
   sdk: '>=2.12.0 <3.0.0'
 
-
 dependencies:
   dio: ^4.0.0
-  sentry: ^6.3.0-alpha.1
+  sentry: ^6.3.0-beta.1
 
 dev_dependencies:
   lints: ^1.0.0
