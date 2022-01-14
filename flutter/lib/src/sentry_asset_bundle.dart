@@ -75,8 +75,7 @@ class SentryAssetBundle implements AssetBundle {
       String key, _Parser<T> parser) async {
     final span = _hub.getSpan()?.startChild(
           'file.read',
-          description:
-              'AssetBundle.loadStructuredData<$T>(key=$key, parser=$parser)',
+          description: 'AssetBundle.loadStructuredData<$T>(key=$key)',
         );
 
     final completer = Completer<T>();
@@ -158,7 +157,7 @@ class SentryAssetBundle implements AssetBundle {
   ) async {
     final span = outerSpan?.startChild(
       'serialize',
-      description: 'parsing "$key" with "$parser"',
+      description: 'parsing "$key" to "$T"',
     );
     T data;
     try {

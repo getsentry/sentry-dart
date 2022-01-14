@@ -166,7 +166,7 @@ void main() {
         expect(span.context.operation, 'file.read');
         expect(
           span.context.description,
-          'AssetBundle.loadStructuredData<String>(key=resources/test.txt, parser=Closure: (String) => Future<String>)',
+          'AssetBundle.loadStructuredData<String>(key=resources/test.txt)',
         );
       },
     );
@@ -201,7 +201,7 @@ void main() {
         expect(span.context.operation, 'file.read');
         expect(
           span.context.description,
-          'AssetBundle.loadStructuredData<String>(key=resources/test.txt, parser=Closure: (String) => Future<Never>)',
+          'AssetBundle.loadStructuredData<String>(key=resources/test.txt)',
         );
 
         span = tracer.children[1];
@@ -212,7 +212,7 @@ void main() {
         expect(span.context.operation, 'serialize');
         expect(
           span.context.description,
-          'parsing "resources/test.txt" with "Closure: (String) => Future<Never>"',
+          'parsing "resources/test.txt" to "String"',
         );
       },
     );
@@ -244,7 +244,7 @@ void main() {
         expect(span.context.operation, 'file.read');
         expect(
           span.context.description,
-          'AssetBundle.loadStructuredData<String>(key=resources/test.txt, parser=Closure: (String) => Future<String>)',
+          'AssetBundle.loadStructuredData<String>(key=resources/test.txt)',
         );
 
         span = tracer.children[1];
@@ -254,7 +254,7 @@ void main() {
         expect(span.context.operation, 'serialize');
         expect(
           span.context.description,
-          'parsing "resources/test.txt" with "Closure: (String) => Future<String>"',
+          'parsing "resources/test.txt" to "String"',
         );
       },
     );
