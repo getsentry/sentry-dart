@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/sentry_tracer.dart';
 import '../../sentry_flutter.dart';
-import 'frame_tracker.dart' as ft;
+import 'frame_tracker.dart';
 
 /// This key must be used so that the web interface displays the events nicely
 /// See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
@@ -73,8 +73,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final bool _setRouteNameAsTransaction;
   final RouteNameExtractor? _routeNameExtractor;
   final AdditionalInfoExtractor? _additionalInfoProvider;
-  final ft.FrameTracker _frameTracker =
-      ft.FrameTracker(binding: WidgetsBinding.instance!);
+  final FrameTracker _frameTracker =
+      FrameTracker(binding: WidgetsBinding.instance!);
 
   ISentrySpan? _transaction;
 

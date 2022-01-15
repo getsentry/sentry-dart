@@ -10,12 +10,12 @@ class FrameTracker {
     required WidgetsBinding binding,
   }) : _binding = binding;
 
-  static const dataKey = 'measurements';
   final WidgetsBinding _binding;
   bool? _isSupported;
 
   // Checks wether [FrameTracker] is supported on this Flutter version
   bool get isSupported {
+    // TODO: Check if this works on web
     try {
       (_binding.window as dynamic).frameData.frameNumber as int;
     } on NoSuchMethodError catch (_) {
@@ -41,8 +41,8 @@ class FrameTracker {
 
   List<SentryMeasurement>? finish() {
     if (!isSupported || startFrameNumber == -1) {
-      // Either Flutter doesn't support frame numbers yet
-      // or frame tracking hasn't started yet.
+      // Either the current Flutter version doesn't support frame numbers yet
+      // or frame tracking hasn't started.
       return null;
     }
     endFrameNumber = window.currentFrameNumber;
@@ -71,5 +71,6 @@ class FrameTracker {
 }
 
 extension _SingletonFlutterWindowExtension on SingletonFlutterWindow {
+  // Code to make this compatible with Flutter < 2.8
   int get currentFrameNumber => (this as dynamic).frameData.frameNumber as int;
 }
