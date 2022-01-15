@@ -43,10 +43,10 @@ class SentryMeasurement {
         value = duration.inMilliseconds;
 
   final String name;
-  final double value;
+  final num value;
 
   Map<String, dynamic> toJson() {
-    return <String, double>{
+    return <String, num>{
       'value': value,
     };
   }
