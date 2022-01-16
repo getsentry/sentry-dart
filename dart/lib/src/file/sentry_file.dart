@@ -1,19 +1,18 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'dart:typed_data';
-
 import '../protocol/span_status.dart';
-
+import '../sentry_options.dart';
 import '../hub.dart';
 
 typedef Callback<T> = T Function();
 
 class SentryFile implements File {
-  SentryFile(this._file, this._hub);
+  SentryFile(this._file, this._hub, this._options);
 
   final File _file;
   final Hub _hub;
+  final SentryOptions _options;
 
   @override
   File get absolute => _file.absolute;
@@ -46,7 +45,7 @@ class SentryFile implements File {
 
   @override
   void deleteSync({bool recursive = false}) {
-    return _file.deleteSync(recursive: recursive);
+    _wrapSync(() => _file.deleteSync(recursive: recursive), 'file.delete');
   }
 
   @override
@@ -84,7 +83,7 @@ class SentryFile implements File {
 
   @override
   Future<int> length() {
-    return _wrap(_file.length(), 'file.read');
+    return _file.length();
   }
 
   @override
@@ -125,7 +124,7 @@ class SentryFile implements File {
 
   @override
   Uint8List readAsBytesSync() {
-    return _file.readAsBytesSync();
+    return _wrapSync(() => _file.readAsBytesSync(), 'file.read');
   }
 
   @override
@@ -135,7 +134,10 @@ class SentryFile implements File {
 
   @override
   List<String> readAsLinesSync({Encoding encoding = utf8}) {
-    return _file.readAsLinesSync(encoding: encoding);
+    return _wrapSync(
+      () => _file.readAsLinesSync(encoding: encoding),
+      'file.read',
+    );
   }
 
   @override
@@ -145,7 +147,10 @@ class SentryFile implements File {
 
   @override
   String readAsStringSync({Encoding encoding = utf8}) {
-    return _file.readAsStringSync(encoding: encoding);
+    return _wrapSync(
+      () => _file.readAsStringSync(encoding: encoding),
+      'file.read',
+    );
   }
 
   @override
@@ -155,7 +160,7 @@ class SentryFile implements File {
 
   @override
   File renameSync(String newPath) {
-    return _file.renameSync(newPath);
+    return _wrapSync(() => _file.renameSync(newPath), 'file.rename');
   }
 
   @override
@@ -206,6 +211,7 @@ class SentryFile implements File {
     int events = FileSystemEvent.all,
     bool recursive = false,
   }) {
+    // could be intercepted for breadcrumbs
     return _file.watch(events: events, recursive: recursive);
   }
 
@@ -227,7 +233,10 @@ class SentryFile implements File {
     FileMode mode = FileMode.write,
     bool flush = false,
   }) {
-    _file.writeAsBytesSync(bytes, mode: mode, flush: flush);
+    _wrapSync(
+      () => _file.writeAsBytesSync(bytes, mode: mode, flush: flush),
+      'file.write',
+    );
   }
 
   @override
@@ -247,20 +256,29 @@ class SentryFile implements File {
     Encoding encoding = utf8,
     bool flush = false,
   }) {
-    _file.writeAsStringSync(
-      contents,
-      mode: mode,
-      encoding: encoding,
-      flush: flush,
+    _wrapSync(
+      () => _file.writeAsStringSync(
+        contents,
+        mode: mode,
+        encoding: encoding,
+        flush: flush,
+      ),
+      'file.write',
     );
   }
 
   Future<T> _wrap<T>(Future<T> future, String operation) async {
     final span = _hub.getSpan()?.startChild(operation, description: _file.path);
     span?.setData('async-io', true);
+    if (_options.sendDefaultPii || _options.platformChecker.platform.isMobile) {
+      span?.setData('file.path', path);
+    }
     T data;
     try {
       data = await future;
+      if (data is List<int>) {
+        span?.setData('file.size', data.length);
+      }
       span?.status = SpanStatus.ok();
     } catch (exception) {
       span?.throwable = exception;
@@ -275,9 +293,15 @@ class SentryFile implements File {
   T _wrapSync<T>(Callback<T> callback, String operation) {
     final span = _hub.getSpan()?.startChild(operation, description: _file.path);
     span?.setData('async-io', false);
+    if (_options.sendDefaultPii || _options.platformChecker.platform.isMobile) {
+      span?.setData('file.path', path);
+    }
     T data;
     try {
       data = callback();
+      if (data is List<int>) {
+        span?.setData('file.size', data.length);
+      }
       span?.status = SpanStatus.ok();
     } catch (exception) {
       span?.throwable = exception;

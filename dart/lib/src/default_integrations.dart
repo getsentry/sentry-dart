@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'file_tracing/file_tracer.dart';
+import 'file/file_tracer.dart';
 import 'hub.dart';
 import 'integration.dart';
 import 'protocol.dart';
@@ -25,7 +25,7 @@ class RunZonedGuardedIntegration extends Integration {
   FutureOr<void> call(Hub hub, SentryOptions options) {
     runZonedGuarded(
       () async {
-        await runWithFileOverrides(_runner, hub);
+        await runWithFileOverrides(_runner, hub, options);
       },
       (exception, stackTrace) async {
         options.logger(

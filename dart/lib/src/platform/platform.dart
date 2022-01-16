@@ -33,4 +33,6 @@ abstract class Platform {
 
   /// True if the operating system is Fuchsia
   bool get isFuchsia => (operatingSystem == 'fuchsia');
+
+  bool get isMobile => isAndroid || isIOS;
 }
