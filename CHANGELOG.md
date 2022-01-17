@@ -1,4 +1,4 @@
-# Unreleased
+# 6.3.0-beta.2
 
 * Feat: Improve configuration options of `SentryNavigatorObserver` (#684)
 * Feat: Add support for [Dio](https://pub.dev/packages/dio) (#688)
