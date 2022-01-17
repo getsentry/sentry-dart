@@ -141,8 +141,7 @@ class SentryAssetBundle implements AssetBundle {
     int? byteLength;
     if (data is List<int>) {
       byteLength = data.length;
-    }
-    if (data is ByteData) {
+    } else if (data is ByteData) {
       byteLength = data.lengthInBytes;
     }
     if (byteLength != null) {
