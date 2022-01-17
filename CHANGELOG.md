@@ -1,6 +1,7 @@
 # Unreleased
 
 * Add `SentryAssetBundle` for automatic spans for asset loading (#685)
+
 # 6.3.0-beta.2
 
 * Feat: Improve configuration options of `SentryNavigatorObserver` (#684)
