@@ -42,7 +42,7 @@ void main() {
       expect(span.context.operation, 'file.read');
       expect(span.data['file.path'], 'resources/test.txt');
       expect(span.data['file.size'], 12);
-      expect(span.context.description, 'AssetBundle.load');
+      expect(span.context.description, 'AssetBundle.load: test.txt');
     });
 
     test('load: end span with error if exception is thrown', () async {
@@ -65,7 +65,7 @@ void main() {
       expect(span.status, SpanStatus.internalError());
       expect(span.finished, true);
       expect(span.context.operation, 'file.read');
-      expect(span.context.description, 'AssetBundle.load');
+      expect(span.context.description, 'AssetBundle.load: test.txt');
     });
 
     test('loadString: creates a span if transaction is bound to scope',
@@ -89,7 +89,7 @@ void main() {
       expect(span.context.operation, 'file.read');
       expect(span.data['file.path'], 'resources/test.txt');
       expect(span.data['from-cache'], true);
-      expect(span.context.description, 'AssetBundle.loadString');
+      expect(span.context.description, 'AssetBundle.loadString: test.txt');
     });
 
     test('loadString: end span with error if exception is thrown', () async {
@@ -111,7 +111,7 @@ void main() {
       expect(span.status, SpanStatus.internalError());
       expect(span.finished, true);
       expect(span.context.operation, 'file.read');
-      expect(span.context.description, 'AssetBundle.loadString');
+      expect(span.context.description, 'AssetBundle.loadString: test.txt');
     });
 
     test(
@@ -166,7 +166,7 @@ void main() {
         expect(span.context.operation, 'file.read');
         expect(
           span.context.description,
-          'AssetBundle.loadStructuredData<String>',
+          'AssetBundle.loadStructuredData<String>: test.txt',
         );
       },
     );
@@ -201,7 +201,7 @@ void main() {
         expect(span.context.operation, 'file.read');
         expect(
           span.context.description,
-          'AssetBundle.loadStructuredData<String>',
+          'AssetBundle.loadStructuredData<String>: test.txt',
         );
 
         span = tracer.children[1];
@@ -244,7 +244,7 @@ void main() {
         expect(span.context.operation, 'file.read');
         expect(
           span.context.description,
-          'AssetBundle.loadStructuredData<String>',
+          'AssetBundle.loadStructuredData<String>: test.txt',
         );
 
         span = tracer.children[1];

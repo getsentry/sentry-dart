@@ -46,7 +46,7 @@ class SentryAssetBundle implements AssetBundle {
   Future<ByteData> load(String key) async {
     final span = _hub.getSpan()?.startChild(
           'file.read',
-          description: 'AssetBundle.load',
+          description: 'AssetBundle.load: ${_fileName(key)}',
         );
 
     span?.setData('file.path', key);
@@ -78,7 +78,7 @@ class SentryAssetBundle implements AssetBundle {
       String key, _Parser<T> parser) async {
     final span = _hub.getSpan()?.startChild(
           'file.read',
-          description: 'AssetBundle.loadStructuredData<$T>',
+          description: 'AssetBundle.loadStructuredData<$T>: ${_fileName(key)}',
         );
     span?.setData('file.path', key);
 
@@ -117,7 +117,7 @@ class SentryAssetBundle implements AssetBundle {
   Future<String> loadString(String key, {bool cache = true}) async {
     final span = _hub.getSpan()?.startChild(
           'file.read',
-          description: 'AssetBundle.loadString',
+          description: 'AssetBundle.loadString: ${_fileName(key)}',
         );
 
     span?.setData('file.path', key);
@@ -148,6 +148,8 @@ class SentryAssetBundle implements AssetBundle {
       span?.setData('file.size', byteLength);
     }
   }
+
+  String _fileName(String key) => Uri.parse(key).pathSegments.last;
 
   @override
   void evict(String key) => _bundle.evict(key);
