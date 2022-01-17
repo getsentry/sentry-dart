@@ -105,7 +105,7 @@ var uriResponse = await client.post('https://example.com/whatsit/create',
 }
 ```
 
-##### Tracking HTTP Requests
+##### Reporting Bad HTTP Requests as Errors
 
 The `SentryHttpClient` can also catch exceptions that may occur during requests
 such as [`SocketException`](https://api.dart.dev/stable/2.13.4/dart-io/SocketException-class.html)s.
@@ -146,6 +146,33 @@ var uriResponse = await client.post('https://example.com/whatsit/create',
  client.close();
 }
 ```
+
+##### Performance Monitoring for HTTP Requests
+
+The `SentryHttpClient` starts a span out of the active span bound to the scope for each HTTP Request. This is currently an opt-in feature. The following example shows how to enable it.
+
+```dart
+import 'package:sentry/sentry.dart';
+
+final transaction = Sentry.startTransaction(
+  'webrequest',
+  'request',
+  bindToScope: true,
+);
+
+var client = SentryHttpClient(networkTracing: true);
+try {
+var uriResponse = await client.post('https://example.com/whatsit/create',
+     body: {'name': 'doodle', 'color': 'blue'});
+ print(await client.get(uriResponse.bodyFields['uri']));
+} finally {
+ client.close();
+}
+
+await transaction.finish(status: SpanStatus.ok());
+```
+
+Read more about [Automatic Instrumentation](https://docs.sentry.io/platforms/dart/performance/instrumentation/automatic-instrumentation/).
 
 ##### Tips for catching errors
 
