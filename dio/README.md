@@ -14,11 +14,6 @@ Sentry integration for `dio` package
 
 Integration for the [`dio`](https://pub.dev/packages/dio) package.
 
-#### Flutter
-
-For Flutter applications there's [`sentry_flutter`](https://pub.dev/packages/sentry_flutter) which builds on top of this package.
-That will give you native crash support (for Android and iOS), [release health](https://docs.sentry.io/product/releases/health/), offline caching and more.
-
 #### Usage
 
 - Sign up for a Sentry.io account and get a DSN at http://sentry.io.
