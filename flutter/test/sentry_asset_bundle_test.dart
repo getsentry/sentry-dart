@@ -308,7 +308,7 @@ class Fixture {
   }) {
     when(transport.send(any)).thenAnswer((_) async => SentryId.newId());
     return SentryAssetBundle(
-      enableStructureDataTracing: structuredDataTracing,
+      enableStructuredDataTracing: structuredDataTracing,
       hub: _hub,
       bundle: assetBundle..throwException = throwException,
     );

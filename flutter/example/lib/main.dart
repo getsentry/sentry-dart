@@ -26,7 +26,9 @@ Future<void> main() async {
     // Init your App.
     appRunner: () => runApp(
       DefaultAssetBundle(
-        bundle: SentryAssetBundle(),
+        bundle: SentryAssetBundle(
+          enableStructuredDataTracing: true,
+        ),
         child: MyApp(),
       ),
     ),
