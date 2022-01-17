@@ -36,11 +36,11 @@ class SentryAssetBundle implements AssetBundle {
     bool enableStructuredDataTracing = false,
   })  : _hub = hub ?? HubAdapter(),
         _bundle = bundle ?? rootBundle,
-        _enableStructureDataTracing = enableStructuredDataTracing;
+        _enableStructuredDataTracing = enableStructuredDataTracing;
 
   final Hub _hub;
   final AssetBundle _bundle;
-  final bool _enableStructureDataTracing;
+  final bool _enableStructuredDataTracing;
 
   @override
   Future<ByteData> load(String key) async {
@@ -68,7 +68,7 @@ class SentryAssetBundle implements AssetBundle {
 
   @override
   Future<T> loadStructuredData<T>(String key, _Parser<T> parser) {
-    if (_enableStructureDataTracing) {
+    if (_enableStructuredDataTracing) {
       return _loadStructuredDataWithTracing(key, parser);
     }
     return _bundle.loadStructuredData(key, parser);
