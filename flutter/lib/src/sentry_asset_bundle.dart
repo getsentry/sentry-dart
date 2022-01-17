@@ -46,12 +46,15 @@ class SentryAssetBundle implements AssetBundle {
   Future<ByteData> load(String key) async {
     final span = _hub.getSpan()?.startChild(
           'file.read',
-          description: 'AssetBundle.load(key=$key)',
+          description: 'AssetBundle.load',
         );
+
+    span?.setData('file.path', key);
 
     ByteData? data;
     try {
       data = await _bundle.load(key);
+      _setDataLength(data, span);
       span?.status = SpanStatus.ok();
     } catch (exception) {
       span?.throwable = exception;
@@ -75,8 +78,9 @@ class SentryAssetBundle implements AssetBundle {
       String key, _Parser<T> parser) async {
     final span = _hub.getSpan()?.startChild(
           'file.read',
-          description: 'AssetBundle.loadStructuredData<$T>(key=$key)',
+          description: 'AssetBundle.loadStructuredData<$T>',
         );
+    span?.setData('file.path', key);
 
     final completer = Completer<T>();
 
@@ -97,6 +101,7 @@ class SentryAssetBundle implements AssetBundle {
     T data;
     try {
       data = await completer.future;
+      _setDataLength(data, span);
       span?.status = const SpanStatus.ok();
     } catch (e) {
       span?.throwable = e;
@@ -112,8 +117,11 @@ class SentryAssetBundle implements AssetBundle {
   Future<String> loadString(String key, {bool cache = true}) async {
     final span = _hub.getSpan()?.startChild(
           'file.read',
-          description: 'AssetBundle.loadString(key=$key, cache=$cache)',
+          description: 'AssetBundle.loadString',
         );
+
+    span?.setData('file.path', key);
+    span?.setData('from-cache', cache);
 
     String? data;
     try {
@@ -127,6 +135,19 @@ class SentryAssetBundle implements AssetBundle {
       await span?.finish();
     }
     return data;
+  }
+
+  void _setDataLength(dynamic data, ISentrySpan? span) {
+    int? byteLength;
+    if (data is List<int>) {
+      byteLength = data.length;
+    }
+    if (data is ByteData) {
+      byteLength = data.lengthInBytes;
+    }
+    if (byteLength != null) {
+      span?.setData('file.size', byteLength);
+    }
   }
 
   @override
