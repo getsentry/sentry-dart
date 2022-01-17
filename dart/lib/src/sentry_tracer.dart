@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:meta/meta.dart';
+import 'utils.dart';
 
 import '../sentry.dart';
 import 'sentry_tracer_finish_status.dart';
@@ -16,9 +17,12 @@ class SentryTracer extends ISentrySpan {
   final Map<String, dynamic> _extra = {};
   Timer? _autoFinishAfterTimer;
   var _finishStatus = SentryTracerFinishStatus.notFinishing();
+  var _trimEnd = false;
 
   SentryTracer(SentryTransactionContext transactionContext, this._hub,
-      {bool waitForChildren = false, Duration? autoFinishAfter}) {
+      {bool waitForChildren = false,
+      Duration? autoFinishAfter,
+      bool trimEnd = false}) {
     _rootSpan = SentrySpan(
       this,
       transactionContext,
@@ -32,6 +36,7 @@ class SentryTracer extends ISentrySpan {
       });
     }
     name = transactionContext.name;
+    _trimEnd = trimEnd;
   }
 
   @override
@@ -41,7 +46,23 @@ class SentryTracer extends ISentrySpan {
     if (!_rootSpan.finished &&
         (!_waitForChildren || _haveAllChildrenFinished())) {
       _rootSpan.status ??= status;
-      await _rootSpan.finish();
+
+      var _rootEndTimestamp = getUtcDateTime();
+      if (_trimEnd && children.isNotEmpty) {
+        final childEndTimestamps = children
+            .where((child) => child.endTimestamp != null)
+            .map((child) => child.endTimestamp!);
+
+        if (childEndTimestamps.isNotEmpty) {
+          final oldestChildEndTimestamp =
+              childEndTimestamps.reduce((a, b) => a.isAfter(b) ? a : b);
+          if (_rootEndTimestamp.isAfter(oldestChildEndTimestamp)) {
+            _rootEndTimestamp = oldestChildEndTimestamp;
+          }
+        }
+      }
+
+      await _rootSpan.finish(endTimestamp: _rootEndTimestamp);
 
       // finish unfinished spans otherwise transaction gets dropped
       for (final span in _children) {
