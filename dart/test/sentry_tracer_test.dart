@@ -299,9 +299,12 @@ class Fixture {
       'op',
       sampled: sampled,
     );
-    return SentryTracer(context, hub,
-        waitForChildren: waitForChildren,
-        autoFinishAfter: autoFinishAfter,
-        trimEnd: trimEnd,);
+    return SentryTracer(
+      context,
+      hub,
+      waitForChildren: waitForChildren,
+      autoFinishAfter: autoFinishAfter,
+      trimEnd: trimEnd,
+    );
   }
 }

@@ -126,8 +126,7 @@ class SentrySpan extends ISentrySpan {
     json['start_timestamp'] =
         formatDateAsIso8601WithMillisPrecision(_startTimestamp);
     if (_timestamp != null) {
-      json['timestamp'] =
-          formatDateAsIso8601WithMillisPrecision(_timestamp!);
+      json['timestamp'] = formatDateAsIso8601WithMillisPrecision(_timestamp!);
     }
     if (_data.isNotEmpty) {
       json['data'] = _data;
