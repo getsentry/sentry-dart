@@ -302,6 +302,6 @@ class Fixture {
     return SentryTracer(context, hub,
         waitForChildren: waitForChildren,
         autoFinishAfter: autoFinishAfter,
-        trimEnd: trimEnd);
+        trimEnd: trimEnd,);
   }
 }

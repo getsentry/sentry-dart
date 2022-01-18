@@ -17,8 +17,21 @@ class SentryTracer extends ISentrySpan {
   final Map<String, dynamic> _extra = {};
   Timer? _autoFinishAfterTimer;
   var _finishStatus = SentryTracerFinishStatus.notFinishing();
-  var _trimEnd = false;
+  late final bool _trimEnd;
 
+  /// If [waitForChildren] is true, this transaction will not finish until all
+  /// its children are finished.
+  ///
+  /// When [autoFinishAfter] is provided, started transactions will
+  /// automatically be finished after this duration.
+  ///
+  /// If [trimEnd] is true, sets the end timestamp of the transaction to the
+  /// highest timestamp of child spans, trimming the duration of the
+  /// transaction. This is useful to discard extra time in the transaction that
+  /// is not accounted for in child spans, like what happens in the
+  /// [SentryNavigatorObserver] idle transactions, where we finish the
+  /// transaction after a given "idle time" and we don't want this "idle time"
+  /// to be part of the transaction.
   SentryTracer(SentryTransactionContext transactionContext, this._hub,
       {bool waitForChildren = false,
       Duration? autoFinishAfter,
@@ -47,6 +60,13 @@ class SentryTracer extends ISentrySpan {
         (!_waitForChildren || _haveAllChildrenFinished())) {
       _rootSpan.status ??= status;
 
+      // finish unfinished spans otherwise transaction gets dropped
+      for (final span in _children) {
+        if (!span.finished) {
+          await span.finish(status: SpanStatus.deadlineExceeded());
+        }
+      }
+
       var _rootEndTimestamp = getUtcDateTime();
       if (_trimEnd && children.isNotEmpty) {
         final childEndTimestamps = children
@@ -63,13 +83,6 @@ class SentryTracer extends ISentrySpan {
       }
 
       await _rootSpan.finish(endTimestamp: _rootEndTimestamp);
-
-      // finish unfinished spans otherwise transaction gets dropped
-      for (final span in _children) {
-        if (!span.finished) {
-          await span.finish(status: SpanStatus.deadlineExceeded());
-        }
-      }
 
       // remove from scope
       _hub.configureScope((scope) {

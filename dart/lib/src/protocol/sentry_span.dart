@@ -9,7 +9,7 @@ import '../utils.dart';
 
 class SentrySpan extends ISentrySpan {
   final SentrySpanContext _context;
-  DateTime? _endTimestamp;
+  DateTime? _timestamp;
   final DateTime _startTimestamp = getUtcDateTime();
   final Hub _hub;
 
@@ -44,7 +44,7 @@ class SentrySpan extends ISentrySpan {
     if (status != null) {
       _status = status;
     }
-    _endTimestamp = endTimestamp ?? getUtcDateTime();
+    _timestamp = endTimestamp ?? getUtcDateTime();
 
     // associate error
     if (_throwable != null) {
@@ -116,7 +116,7 @@ class SentrySpan extends ISentrySpan {
   DateTime get startTimestamp => _startTimestamp;
 
   @override
-  DateTime? get endTimestamp => _endTimestamp;
+  DateTime? get endTimestamp => _timestamp;
 
   @override
   SentrySpanContext get context => _context;
@@ -125,9 +125,9 @@ class SentrySpan extends ISentrySpan {
     final json = _context.toJson();
     json['start_timestamp'] =
         formatDateAsIso8601WithMillisPrecision(_startTimestamp);
-    if (_endTimestamp != null) {
+    if (_timestamp != null) {
       json['timestamp'] =
-          formatDateAsIso8601WithMillisPrecision(_endTimestamp!);
+          formatDateAsIso8601WithMillisPrecision(_timestamp!);
     }
     if (_data.isNotEmpty) {
       json['data'] = _data;
@@ -142,7 +142,7 @@ class SentrySpan extends ISentrySpan {
   }
 
   @override
-  bool get finished => _endTimestamp != null;
+  bool get finished => _timestamp != null;
 
   @override
   dynamic get throwable => _throwable;

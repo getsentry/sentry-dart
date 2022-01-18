@@ -392,7 +392,7 @@ class Hub {
       final tracer = SentryTracer(transactionContext, this,
           waitForChildren: waitForChildren ?? false,
           autoFinishAfter: autoFinishAfter,
-          trimEnd: trimEnd ?? false);
+          trimEnd: trimEnd ?? false,);
       if (bindToScope ?? false) {
         item.scope.span = tracer;
       }
