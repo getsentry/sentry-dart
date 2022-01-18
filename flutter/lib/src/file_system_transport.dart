@@ -19,7 +19,7 @@ class FileSystemTransport implements Transport {
       debugLabel: 'captureEnvelope $eventIdLabel',
     );
     try {
-      await _channel.invokeMethod<void>('captureEnvelope', args);
+      await _channel.invokeMethod<void>('captureEnvelope', [args]);
     } catch (exception, stackTrace) {
       _options.logger(
         SentryLevel.error,
