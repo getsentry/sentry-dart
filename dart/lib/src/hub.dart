@@ -342,6 +342,7 @@ class Hub {
     bool? bindToScope,
     bool? waitForChildren,
     Duration? autoFinishAfter,
+    bool? trimEnd,
     Map<String, dynamic>? customSamplingContext,
   }) =>
       startTransactionWithContext(
@@ -353,6 +354,7 @@ class Hub {
         bindToScope: bindToScope,
         waitForChildren: waitForChildren,
         autoFinishAfter: autoFinishAfter,
+        trimEnd: trimEnd,
         customSamplingContext: customSamplingContext,
       );
 
@@ -363,6 +365,7 @@ class Hub {
     bool? bindToScope,
     bool? waitForChildren,
     Duration? autoFinishAfter,
+    bool? trimEnd,
   }) {
     if (!_isEnabled) {
       _options.logger(
@@ -386,12 +389,10 @@ class Hub {
         transactionContext = transactionContext.copyWith(sampled: sampled);
       }
 
-      final tracer = SentryTracer(
-        transactionContext,
-        this,
-        waitForChildren: waitForChildren ?? false,
-        autoFinishAfter: autoFinishAfter,
-      );
+      final tracer = SentryTracer(transactionContext, this,
+          waitForChildren: waitForChildren ?? false,
+          autoFinishAfter: autoFinishAfter,
+          trimEnd: trimEnd ?? false);
       if (bindToScope ?? false) {
         item.scope.span = tracer;
       }
