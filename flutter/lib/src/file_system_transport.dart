@@ -15,7 +15,7 @@ class FileSystemTransport implements Transport {
     final eventIdLabel = envelope.header.eventId?.toString() ?? '';
     final args = await compute(
       _convert,
-      envelope,
+      _CaptureEnvelopeData(envelope, _options),
       debugLabel: 'captureEnvelope $eventIdLabel',
     );
     try {
@@ -32,11 +32,20 @@ class FileSystemTransport implements Transport {
 
     return envelope.header.eventId;
   }
+}
 
-  Future<Uint8List> _convert(SentryEnvelope envelope) async {
-    final envelopeData = <int>[];
-    await envelope.envelopeStream(_options).forEach(envelopeData.addAll);
-    // https://flutter.dev/docs/development/platform-integration/platform-channels#codec
-    return Uint8List.fromList(envelopeData);
-  }
+class _CaptureEnvelopeData {
+  SentryEnvelope envelope;
+  SentryOptions options;
+
+  _CaptureEnvelopeData(this.envelope, this.options);
+}
+
+Future<Uint8List> _convert(
+  _CaptureEnvelopeData data,
+) async {
+  final envelopeData = <int>[];
+  await data.envelope.envelopeStream(data.options).forEach(envelopeData.addAll);
+  // https://flutter.dev/docs/development/platform-integration/platform-channels#codec
+  return Uint8List.fromList(envelopeData);
 }
