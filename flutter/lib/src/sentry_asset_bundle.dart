@@ -149,7 +149,13 @@ class SentryAssetBundle implements AssetBundle {
     }
   }
 
-  String _fileName(String key) => Uri.parse(key).pathSegments.last;
+  String _fileName(String key) {
+    final uri = Uri.tryParse(key);
+    if (uri == null) {
+      return key;
+    }
+    return uri.pathSegments.isEmpty ? key : uri.pathSegments.last;
+  }
 
   @override
   void evict(String key) => _bundle.evict(key);

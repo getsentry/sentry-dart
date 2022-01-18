@@ -22,6 +22,29 @@ void main() {
   });
 
   group(SentryAssetBundle, () {
+    test('empty key does not throw', () async {
+      final sut = fixture.getSut();
+      final tr = fixture._hub.startTransaction(
+        'name',
+        'op',
+        bindToScope: true,
+      );
+
+      await sut.load('');
+
+      await tr.finish();
+
+      final tracer = (tr as SentryTracer);
+      final span = tracer.children.first;
+
+      expect(span.status, SpanStatus.ok());
+      expect(span.finished, true);
+      expect(span.context.operation, 'file.read');
+      expect(span.data['file.path'], '');
+      expect(span.data['file.size'], 0);
+      expect(span.context.description, 'AssetBundle.load: ');
+    });
+
     test('load: creates a span if transaction is bound to scope', () async {
       final sut = fixture.getSut();
       final tr = fixture._hub.startTransaction(
