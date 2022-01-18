@@ -1,5 +1,7 @@
 # Unreleased
 
+* Fix: `maxRequestBodySize` should be `never` by default when using the FailedRequestClientAdapter directly (#701)
+
 # 6.3.0-beta.2
 
 * Feat: Improve configuration options of `SentryNavigatorObserver` (#684)
