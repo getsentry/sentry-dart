@@ -1,6 +1,6 @@
 # Unreleased
 
-# Feat: Auto Transactions: Duration Trimming (#702)
+# Feat: Auto transactions duration trimming (#702)
 * Fix: `maxRequestBodySize` should be `never` by default when using the FailedRequestClientAdapter directly (#701)
 
 # 6.3.0-beta.2
