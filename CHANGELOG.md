@@ -1,5 +1,7 @@
 # Unreleased
 
+# Feat: Auto Transactions: Duration Trimming (#668)
+
 # 6.3.0-beta.2
 
 * Feat: Improve configuration options of `SentryNavigatorObserver` (#684)
