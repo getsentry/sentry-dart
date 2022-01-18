@@ -1,6 +1,6 @@
 # Unreleased
 
-# Feat: Auto Transactions: Duration Trimming (#668)
+# Feat: Auto Transactions: Duration Trimming (#702)
 
 # 6.3.0-beta.2
 
