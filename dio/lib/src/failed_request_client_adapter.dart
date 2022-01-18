@@ -26,7 +26,7 @@ class FailedRequestClientAdapter extends HttpClientAdapter {
   // ignore: public_member_api_docs
   FailedRequestClientAdapter({
     required HttpClientAdapter client,
-    this.maxRequestBodySize = MaxRequestBodySize.small,
+    this.maxRequestBodySize = MaxRequestBodySize.never,
     this.failedRequestStatusCodes = const [],
     this.captureFailedRequests = true,
     this.sendDefaultPii = false,
