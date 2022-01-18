@@ -3,6 +3,7 @@
 * Add `SentryAssetBundle` for automatic spans for asset loading (#685)
 * Feat: Configure idle transaction duration (#705)
 * Fix: `maxRequestBodySize` should be `never` by default when using the FailedRequestClientAdapter directly (#701)
+* Enhancement: Use compute to offload heavy work from the main thread (#)
 
 # 6.3.0-beta.2
 
@@ -12,7 +13,7 @@
 
 # 6.3.0-beta.1
 
-* Enha: Replace flutter default root name '/' with 'root' (#678)
+* Enhancement: Replace flutter default root name '/' with 'root' (#678)
 * Fix: Use 'navigation' instead of 'ui.load' for auto transaction operation (#675)
 * Fix: Use correct data/extras type in tracer (#693)
 * Fix: Do not throw when Throwable type is not supported for associating errors to a transaction (#692)
