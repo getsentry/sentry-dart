@@ -1,4 +1,4 @@
-# Unreleased
+# 6.3.0-beta.3
 
 * Feat: Auto transactions duration trimming (#702)
 * Add `SentryAssetBundle` for automatic spans for asset loading (#685)
