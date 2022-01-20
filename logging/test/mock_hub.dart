@@ -88,6 +88,7 @@ class MockHub implements Hub {
     bool? bindToScope,
     bool? waitForChildren,
     Duration? autoFinishAfter,
+    bool? trimEnd,
     Map<String, dynamic>? customSamplingContext,
   }) =>
       NoOpSentrySpan();
@@ -99,6 +100,7 @@ class MockHub implements Hub {
     bool? bindToScope,
     bool? waitForChildren,
     Duration? autoFinishAfter,
+    bool? trimEnd,
   }) =>
       NoOpSentrySpan();
 }

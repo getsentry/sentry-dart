@@ -181,6 +181,16 @@ void main() {
 
     expect(numberOfCallbackCalls, 1);
   });
+
+  test('optional endTimestamp set instead of current time', () async {
+    final sut = fixture.getSut();
+
+    final endTimestamp = DateTime.now().add(Duration(days: 1));
+
+    await sut.finish(endTimestamp: endTimestamp);
+
+    expect(sut.endTimestamp, endTimestamp);
+  });
 }
 
 class Fixture {

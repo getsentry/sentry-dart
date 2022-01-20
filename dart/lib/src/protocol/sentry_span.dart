@@ -36,7 +36,7 @@ class SentrySpan extends ISentrySpan {
   }
 
   @override
-  Future<void> finish({SpanStatus? status}) async {
+  Future<void> finish({SpanStatus? status, DateTime? endTimestamp}) async {
     if (finished) {
       return;
     }
@@ -44,7 +44,7 @@ class SentrySpan extends ISentrySpan {
     if (status != null) {
       _status = status;
     }
-    _timestamp = getUtcDateTime();
+    _timestamp = endTimestamp ?? getUtcDateTime();
 
     // associate error
     if (_throwable != null) {

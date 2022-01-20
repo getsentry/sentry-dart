@@ -25,6 +25,7 @@ void main() {
       waitForChildren: anyNamed('waitForChildren'),
       autoFinishAfter: anyNamed('autoFinishAfter'),
       customSamplingContext: anyNamed('customSamplingContext'),
+      trimEnd: anyNamed('trimEnd'),
     )).thenReturn(thenReturnSpan);
   }
 
@@ -51,6 +52,7 @@ void main() {
         'navigation',
         waitForChildren: true,
         autoFinishAfter: Duration(seconds: 5),
+        trimEnd: true,
       ));
 
       hub.configureScope((scope) {
@@ -73,6 +75,7 @@ void main() {
         'navigation',
         waitForChildren: true,
         autoFinishAfter: Duration(seconds: 3),
+        trimEnd: true,
       ));
 
       hub.configureScope((scope) {
@@ -95,6 +98,7 @@ void main() {
         'navigation',
         waitForChildren: true,
         autoFinishAfter: Duration(seconds: 3),
+        trimEnd: true,
       ));
 
       hub.configureScope((scope) {
@@ -118,6 +122,7 @@ void main() {
         'navigation',
         waitForChildren: true,
         autoFinishAfter: Duration(seconds: 3),
+        trimEnd: true,
       ));
 
       hub.configureScope((scope) {
@@ -177,6 +182,7 @@ void main() {
         'navigation',
         waitForChildren: true,
         autoFinishAfter: Duration(seconds: 3),
+        trimEnd: true,
       ));
 
       hub.configureScope((scope) {
@@ -238,6 +244,7 @@ void main() {
         'navigation',
         waitForChildren: true,
         autoFinishAfter: Duration(seconds: 3),
+        trimEnd: true,
       ));
 
       hub.configureScope((scope) {

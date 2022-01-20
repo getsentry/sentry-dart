@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:meta/meta.dart';
+import 'utils.dart';
 
 import '../sentry.dart';
 import 'sentry_tracer_finish_status.dart';
@@ -16,9 +17,25 @@ class SentryTracer extends ISentrySpan {
   final Map<String, dynamic> _extra = {};
   Timer? _autoFinishAfterTimer;
   var _finishStatus = SentryTracerFinishStatus.notFinishing();
+  late final bool _trimEnd;
 
+  /// If [waitForChildren] is true, this transaction will not finish until all
+  /// its children are finished.
+  ///
+  /// When [autoFinishAfter] is provided, started transactions will
+  /// automatically be finished after this duration.
+  ///
+  /// If [trimEnd] is true, sets the end timestamp of the transaction to the
+  /// highest timestamp of child spans, trimming the duration of the
+  /// transaction. This is useful to discard extra time in the transaction that
+  /// is not accounted for in child spans, like what happens in the
+  /// [SentryNavigatorObserver] idle transactions, where we finish the
+  /// transaction after a given "idle time" and we don't want this "idle time"
+  /// to be part of the transaction.
   SentryTracer(SentryTransactionContext transactionContext, this._hub,
-      {bool waitForChildren = false, Duration? autoFinishAfter}) {
+      {bool waitForChildren = false,
+      Duration? autoFinishAfter,
+      bool trimEnd = false}) {
     _rootSpan = SentrySpan(
       this,
       transactionContext,
@@ -32,6 +49,7 @@ class SentryTracer extends ISentrySpan {
       });
     }
     name = transactionContext.name;
+    _trimEnd = trimEnd;
   }
 
   @override
@@ -41,7 +59,6 @@ class SentryTracer extends ISentrySpan {
     if (!_rootSpan.finished &&
         (!_waitForChildren || _haveAllChildrenFinished())) {
       _rootSpan.status ??= status;
-      await _rootSpan.finish();
 
       // finish unfinished spans otherwise transaction gets dropped
       for (final span in _children) {
@@ -49,6 +66,23 @@ class SentryTracer extends ISentrySpan {
           await span.finish(status: SpanStatus.deadlineExceeded());
         }
       }
+
+      var _rootEndTimestamp = getUtcDateTime();
+      if (_trimEnd && children.isNotEmpty) {
+        final childEndTimestamps = children
+            .where((child) => child.endTimestamp != null)
+            .map((child) => child.endTimestamp!);
+
+        if (childEndTimestamps.isNotEmpty) {
+          final oldestChildEndTimestamp =
+              childEndTimestamps.reduce((a, b) => a.isAfter(b) ? a : b);
+          if (_rootEndTimestamp.isAfter(oldestChildEndTimestamp)) {
+            _rootEndTimestamp = oldestChildEndTimestamp;
+          }
+        }
+      }
+
+      await _rootSpan.finish(endTimestamp: _rootEndTimestamp);
 
       // remove from scope
       _hub.configureScope((scope) {

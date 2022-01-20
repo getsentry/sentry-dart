@@ -14,6 +14,7 @@ ISentrySpan startTransactionShim(
   bool? bindToScope,
   bool? waitForChildren,
   Duration? autoFinishAfter,
+  bool? trimEnd,
   Map<String, dynamic>? customSamplingContext,
 }) {
   return MockNoOpSentrySpan();
@@ -189,6 +190,7 @@ class NoOpHub implements Hub {
     bool? bindToScope,
     bool? waitForChildren,
     Duration? autoFinishAfter,
+    bool? trimEnd,
     Map<String, dynamic>? customSamplingContext,
   }) {
     return NoOpSentrySpan();
@@ -201,6 +203,7 @@ class NoOpHub implements Hub {
     bool? bindToScope,
     bool? waitForChildren,
     Duration? autoFinishAfter,
+    bool? trimEnd,
   }) {
     return NoOpSentrySpan();
   }

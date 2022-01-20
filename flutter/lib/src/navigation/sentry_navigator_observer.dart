@@ -157,6 +157,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       'navigation',
       waitForChildren: true,
       autoFinishAfter: _autoFinishAfter,
+      trimEnd: true,
     );
     if (arguments != null) {
       _transaction?.setData('route_settings_arguments', arguments);
