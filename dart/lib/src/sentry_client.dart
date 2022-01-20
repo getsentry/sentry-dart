@@ -114,7 +114,9 @@ class SentryClient {
     final envelope = SentryEnvelope.fromEvent(
       preparedEvent,
       _options.sdk,
-      attachments: scope?.attachements,
+      attachments: scope?.attachements
+          .where((element) => element.addToTransactions)
+          .toList(),
     );
 
     final id = await captureEnvelope(envelope);

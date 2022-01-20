@@ -87,7 +87,6 @@ void main() {
   });
 
   group('addToTransactions', () {
-
     test('defaults to false fromLoader', () async {
       final attachment = SentryAttachment.fromLoader(
         loader: () => Uint8List.fromList([0, 0, 0, 0]),
@@ -133,9 +132,9 @@ void main() {
 
     test('defaults to false fromIntList', () async {
       final attachment = SentryAttachment.fromIntList(
-          [0, 0, 0, 0],
-          'test.txt',
-          addToTransactions: true,
+        [0, 0, 0, 0],
+        'test.txt',
+        addToTransactions: true,
       );
 
       expect(attachment.addToTransactions, true);
