@@ -1,5 +1,7 @@
 # Unreleased
 
+* Feat: Support Attachment.addToTransactions (#709)
+
 # 6.3.0-beta.3
 
 * Feat: Auto transactions duration trimming (#702)

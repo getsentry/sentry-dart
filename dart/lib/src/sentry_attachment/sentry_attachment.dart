@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ffi';
 import 'dart:typed_data';
 
 // https://develop.sentry.dev/sdk/features/#attachments
