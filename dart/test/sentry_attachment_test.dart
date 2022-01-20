@@ -85,6 +85,82 @@ void main() {
       );
     });
   });
+
+  group('addToTransactions', () {
+
+    test('defaults to false fromLoader', () async {
+      final attachment = SentryAttachment.fromLoader(
+        loader: () => Uint8List.fromList([0, 0, 0, 0]),
+        filename: 'test.txt',
+      );
+
+      expect(attachment.addToTransactions, false);
+    });
+
+    test('defaults to false fromIntList', () async {
+      final attachment = SentryAttachment.fromIntList([0, 0, 0, 0], 'test.txt');
+
+      expect(attachment.addToTransactions, false);
+    });
+
+    test('defaults to false fromUint8List', () async {
+      final attachment = SentryAttachment.fromUint8List(
+        Uint8List.fromList([0, 0, 0, 0]),
+        'test.txt',
+      );
+
+      expect(attachment.addToTransactions, false);
+    });
+
+    test('defaults to false fromByteData', () async {
+      final attachment = SentryAttachment.fromByteData(
+        ByteData.sublistView(Uint8List.fromList([0, 0, 0, 0])),
+        'test.txt',
+      );
+
+      expect(attachment.addToTransactions, false);
+    });
+
+    test('set fromLoader', () async {
+      final attachment = SentryAttachment.fromLoader(
+        loader: () => Uint8List.fromList([0, 0, 0, 0]),
+        filename: 'test.txt',
+        addToTransactions: true,
+      );
+
+      expect(attachment.addToTransactions, true);
+    });
+
+    test('defaults to false fromIntList', () async {
+      final attachment = SentryAttachment.fromIntList(
+          [0, 0, 0, 0],
+          'test.txt',
+          addToTransactions: true,
+      );
+
+      expect(attachment.addToTransactions, true);
+    });
+
+    test('defaults to false fromUint8List', () async {
+      final attachment = SentryAttachment.fromUint8List(
+        Uint8List.fromList([0, 0, 0, 0]),
+        'test.txt',
+        addToTransactions: true,
+      );
+
+      expect(attachment.addToTransactions, true);
+    });
+
+    test('defaults to false fromByteData', () async {
+      final attachment = SentryAttachment.fromByteData(
+        ByteData.sublistView(Uint8List.fromList([0, 0, 0, 0])),
+        'test.txt',
+        addToTransactions: true,
+      );
+
+      expect(attachment.addToTransactions, true);
+    });
+  });
 }
 
 class Fixture {
