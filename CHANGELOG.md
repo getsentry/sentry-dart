@@ -1,6 +1,8 @@
 # Unreleased
 
 # Feat: Auto transactions duration trimming (#702)
+* Add `SentryAssetBundle` for automatic spans for asset loading (#685)
+* Feat: Configure idle transaction duration (#705)
 * Fix: `maxRequestBodySize` should be `never` by default when using the FailedRequestClientAdapter directly (#701)
 
 # 6.3.0-beta.2

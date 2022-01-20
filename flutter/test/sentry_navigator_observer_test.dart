@@ -40,7 +40,10 @@ void main() {
       final hub = _MockHub();
       final span = MockNoOpSentrySpan();
       _whenAnyStart(hub, span);
-      final sut = fixture.getSut(hub: hub);
+      final sut = fixture.getSut(
+        hub: hub,
+        autoFinishAfter: Duration(seconds: 5),
+      );
 
       sut.didPush(currentRoute, null);
 
@@ -48,7 +51,7 @@ void main() {
         'Current Route',
         'navigation',
         waitForChildren: true,
-        autoFinishAfter: Duration(seconds: 3),
+        autoFinishAfter: Duration(seconds: 5),
         trimEnd: true,
       ));
 
@@ -590,6 +593,7 @@ class Fixture {
   SentryNavigatorObserver getSut({
     required Hub hub,
     bool enableAutoTransactions = true,
+    Duration autoFinishAfter = const Duration(seconds: 3),
     bool setRouteNameAsTransaction = false,
     RouteNameExtractor? routeNameExtractor,
     AdditionalInfoExtractor? additionalInfoProvider,
@@ -597,6 +601,7 @@ class Fixture {
     return SentryNavigatorObserver(
       hub: hub,
       enableAutoTransactions: enableAutoTransactions,
+      autoFinishAfter: autoFinishAfter,
       setRouteNameAsTransaction: setRouteNameAsTransaction,
       routeNameExtractor: routeNameExtractor,
       additionalInfoProvider: additionalInfoProvider,
