@@ -161,6 +161,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       'navigation',
       waitForChildren: true,
       autoFinishAfter: _autoFinishAfter,
+      trimEnd: true,
     );
     _frameTracker.start();
     if (arguments != null) {

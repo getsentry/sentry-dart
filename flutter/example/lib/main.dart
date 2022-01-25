@@ -24,7 +24,14 @@ Future<void> main() async {
       options.reportPackages = false;
     },
     // Init your App.
-    appRunner: () => runApp(MyApp()),
+    appRunner: () => runApp(
+      DefaultAssetBundle(
+        bundle: SentryAssetBundle(
+          enableStructuredDataTracing: true,
+        ),
+        child: MyApp(),
+      ),
+    ),
   );
 }
 
@@ -179,6 +186,10 @@ class MainScaffold extends StatelessWidget {
             ElevatedButton(
               onPressed: () => makeWebRequest(context),
               child: const Text('Dart: Web request'),
+            ),
+            ElevatedButton(
+              onPressed: () => showDialogWithTextAndImage(context),
+              child: const Text('Flutter: Load assets'),
             ),
             ElevatedButton(
               onPressed: () => makeWebRequestWithDio(context),
@@ -574,6 +585,45 @@ Future<void> makeWebRequestWithDio(BuildContext context) async {
       );
     },
   );
+}
+
+Future<void> showDialogWithTextAndImage(BuildContext context) async {
+  final transaction = Sentry.getSpan() ??
+      Sentry.startTransaction(
+        'asset-bundle-transaction',
+        'load',
+        bindToScope: true,
+      );
+  final text =
+      await DefaultAssetBundle.of(context).loadString('assets/lorem-ipsum.txt');
+  await showDialog<void>(
+    context: context,
+    // gets tracked if using SentryNavigatorObserver
+    routeSettings: RouteSettings(
+      name: 'AssetBundle dialog',
+    ),
+    builder: (context) {
+      return AlertDialog(
+        title: Text('Asset Example'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.asset('assets/sentry-wordmark.png'),
+              Text(text),
+            ],
+          ),
+        ),
+        actions: [
+          MaterialButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Close'),
+          )
+        ],
+      );
+    },
+  );
+  await transaction.finish(status: SpanStatus.ok());
 }
 
 class ThemeProvider extends ChangeNotifier {

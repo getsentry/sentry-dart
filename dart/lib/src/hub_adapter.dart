@@ -104,6 +104,7 @@ class HubAdapter implements Hub {
     bool? bindToScope,
     bool? waitForChildren,
     Duration? autoFinishAfter,
+    bool? trimEnd,
   }) =>
       Sentry.startTransactionWithContext(
         transactionContext,
@@ -111,6 +112,7 @@ class HubAdapter implements Hub {
         bindToScope: bindToScope,
         waitForChildren: waitForChildren,
         autoFinishAfter: autoFinishAfter,
+        trimEnd: trimEnd,
       );
 
   @override
@@ -121,6 +123,7 @@ class HubAdapter implements Hub {
     bool? bindToScope,
     bool? waitForChildren,
     Duration? autoFinishAfter,
+    bool? trimEnd,
     Map<String, dynamic>? customSamplingContext,
   }) =>
       Sentry.startTransaction(
@@ -130,6 +133,7 @@ class HubAdapter implements Hub {
         bindToScope: bindToScope,
         waitForChildren: waitForChildren,
         autoFinishAfter: autoFinishAfter,
+        trimEnd: trimEnd,
         customSamplingContext: customSamplingContext,
       );
 

@@ -236,6 +236,53 @@ void main() {
     await sut.finish();
     expect(sut.finished, true);
   });
+
+  test('end trimmed to last child', () async {
+    final sut = fixture.getSut(
+        trimEnd: true, autoFinishAfter: Duration(milliseconds: 200));
+
+    final childA = sut.startChild('operation-a', description: 'description');
+    final childB = sut.startChild('operation-b', description: 'description');
+
+    await childA.finish();
+    await Future.delayed(Duration(milliseconds: 10));
+    await childB.finish();
+    await Future.delayed(Duration(milliseconds: 210));
+
+    expect(sut.endTimestamp, childB.endTimestamp);
+  });
+
+  test('end trimmed to child', () async {
+    final sut = fixture.getSut(
+        trimEnd: true, autoFinishAfter: Duration(milliseconds: 200));
+
+    final childA = sut.startChild('operation-a', description: 'description');
+
+    await childA.finish();
+    await Future.delayed(Duration(milliseconds: 210));
+
+    expect(sut.endTimestamp, childA.endTimestamp);
+  });
+
+  test('end not trimmed when no child', () async {
+    final sut = fixture.getSut(
+        trimEnd: true, autoFinishAfter: Duration(milliseconds: 200));
+
+    await Future.delayed(Duration(milliseconds: 210));
+
+    expect(sut.endTimestamp, isNotNull);
+  });
+
+  test('end not trimmed when no finished child', () async {
+    final sut = fixture.getSut(
+        trimEnd: true, autoFinishAfter: Duration(milliseconds: 200));
+
+    sut.startChild('operation-a', description: 'description');
+
+    await Future.delayed(Duration(milliseconds: 210));
+
+    expect(sut.endTimestamp, isNotNull);
+  });
 }
 
 class Fixture {
@@ -244,6 +291,7 @@ class Fixture {
   SentryTracer getSut({
     bool? sampled = true,
     bool waitForChildren = false,
+    bool trimEnd = false,
     Duration? autoFinishAfter,
   }) {
     final context = SentryTransactionContext(
@@ -256,6 +304,7 @@ class Fixture {
       hub,
       waitForChildren: waitForChildren,
       autoFinishAfter: autoFinishAfter,
+      trimEnd: trimEnd,
     );
   }
 }
