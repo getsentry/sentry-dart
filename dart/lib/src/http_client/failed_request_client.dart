@@ -65,7 +65,7 @@ import 'sentry_http_client.dart';
 /// ```
 class FailedRequestClient extends BaseClient {
   FailedRequestClient({
-    this.maxRequestBodySize = MaxRequestBodySize.small,
+    this.maxRequestBodySize = MaxRequestBodySize.never,
     this.failedRequestStatusCodes = const [],
     this.captureFailedRequests = true,
     this.sendDefaultPii = false,

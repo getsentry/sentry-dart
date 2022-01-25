@@ -10,14 +10,9 @@ Sentry integration for `dio` package
 
 | package | build | pub | likes | popularity | pub points |
 | ------- | ------- | ------- | ------- | ------- | ------- |
-| sentry | [![build](https://github.com/getsentry/sentry-dart/workflows/sentry-dio/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=workflow%3Asentry-dio) | [![pub package](https://img.shields.io/pub/v/sentry_dio.svg)](https://pub.dev/packages/sentry_dio) | [![likes](https://badges.bar/sentry_dio/likes)](https://pub.dev/packages/sentry_dio/score) | [![popularity](https://badges.bar/sentry_dio/popularity)](https://pub.dev/packages/sentry_dio/score) | [![pub points](https://badges.bar/sentry_dio/pub%20points)](https://pub.dev/packages/sentry_dio/score)
+| sentry_dio | [![build](https://github.com/getsentry/sentry-dart/workflows/sentry-dio/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=workflow%3Asentry-dio) | [![pub package](https://img.shields.io/pub/v/sentry_dio.svg)](https://pub.dev/packages/sentry_dio) | [![likes](https://badges.bar/sentry_dio/likes)](https://pub.dev/packages/sentry_dio/score) | [![popularity](https://badges.bar/sentry_dio/popularity)](https://pub.dev/packages/sentry_dio/score) | [![pub points](https://badges.bar/sentry_dio/pub%20points)](https://pub.dev/packages/sentry_dio/score)
 
 Integration for the [`dio`](https://pub.dev/packages/dio) package.
-
-#### Flutter
-
-For Flutter applications there's [`sentry_flutter`](https://pub.dev/packages/sentry_flutter) which builds on top of this package.
-That will give you native crash support (for Android and iOS), [release health](https://docs.sentry.io/product/releases/health/), offline caching and more.
 
 #### Usage
 

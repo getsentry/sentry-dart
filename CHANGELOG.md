@@ -1,5 +1,10 @@
 # Unreleased
 
+* Feat: Configure idle transaction duration (#705)
+* Fix: `maxRequestBodySize` should be `never` by default when using the FailedRequestClientAdapter directly (#701)
+
+# 6.3.0-beta.2
+
 * Feat: Improve configuration options of `SentryNavigatorObserver` (#684)
 * Feat: Add support for [Dio](https://pub.dev/packages/dio) (#688)
 * Bump: Sentry-Android to 5.5.2 and Sentry-Cocoa to 7.8.0 (#696)

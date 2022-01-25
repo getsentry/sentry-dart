@@ -43,9 +43,10 @@ typedef AdditionalInfoExtractor = Map<String, dynamic>? Function(
 /// ```
 ///
 /// The option [enableAutoTransactions] is enabled by default. For every new
-/// route a transaction is started. It's automatically finished after 3 seconds
-/// or when all child spans are finished, if those happen to take longer. The
-/// transaction will be set to [Scope.span] if the latter is empty.
+/// route a transaction is started. It's automatically finished after
+/// [autoFinishAfter] duration or when all child spans are finished,
+/// if those happen to take longer. The transaction will be set to [Scope.span]
+/// if the latter is empty.
 ///
 /// Enabling the [setRouteNameAsTransaction] option overrides the current
 /// [Scope.transaction] which will also override the name of the current
@@ -59,17 +60,20 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   SentryNavigatorObserver({
     Hub? hub,
     bool enableAutoTransactions = true,
+    Duration autoFinishAfter = const Duration(seconds: 3),
     bool setRouteNameAsTransaction = false,
     RouteNameExtractor? routeNameExtractor,
     AdditionalInfoExtractor? additionalInfoProvider,
   })  : _hub = hub ?? HubAdapter(),
         _enableAutoTransactions = enableAutoTransactions,
+        _autoFinishAfter = autoFinishAfter,
         _setRouteNameAsTransaction = setRouteNameAsTransaction,
         _routeNameExtractor = routeNameExtractor,
         _additionalInfoProvider = additionalInfoProvider;
 
   final Hub _hub;
   final bool _enableAutoTransactions;
+  final Duration _autoFinishAfter;
   final bool _setRouteNameAsTransaction;
   final RouteNameExtractor? _routeNameExtractor;
   final AdditionalInfoExtractor? _additionalInfoProvider;
@@ -156,7 +160,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       name,
       'navigation',
       waitForChildren: true,
-      autoFinishAfter: Duration(seconds: 3),
+      autoFinishAfter: _autoFinishAfter,
     );
     _frameTracker.start();
     if (arguments != null) {
