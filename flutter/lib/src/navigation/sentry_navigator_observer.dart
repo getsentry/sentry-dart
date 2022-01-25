@@ -179,9 +179,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       // ignore: invalid_use_of_internal_member
       final transaction = _transaction as SentryTracer;
       final measurements = _frameTracker.finish();
-      if (measurements != null) {
-        transaction.measurements.addAll(measurements);
-      }
+      transaction.measurements.addAll(measurements);
     }
     return await _transaction?.finish();
   }

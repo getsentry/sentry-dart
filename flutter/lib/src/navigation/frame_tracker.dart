@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:flutter/widgets.dart';
 import 'package:sentry/sentry.dart';
 
@@ -11,66 +10,61 @@ class FrameTracker {
   }) : _binding = binding;
 
   final WidgetsBinding _binding;
-  bool? _isSupported;
-
-  // Checks wether [FrameTracker] is supported on this Flutter version
-  bool get isSupported {
-    // TODO: Check if this works on web
-    try {
-      (_binding.window as dynamic).frameData.frameNumber as int;
-    } on NoSuchMethodError catch (_) {
-      return _isSupported ??= false;
-    }
-    return _isSupported ??= true;
-  }
 
   SingletonFlutterWindow get window => _binding.window;
 
   final Duration slowFrameThreshold;
   final Duration frozenFrameThreshold;
 
-  var startFrameNumber = -1;
-  var endFrameNumber = -1;
+  DateTime? _timeStamp;
 
-  void start() {
-    if (!isSupported) {
+  var _frameCount = 0;
+  var _slowCount = 0;
+  var _frozenCount = 0;
+
+  void _frameCallback(Duration _) {
+    final timeStamp = _timeStamp;
+    if (timeStamp == null) {
       return;
     }
-    startFrameNumber = window.currentFrameNumber;
+
+    // postFrameCallbacks are called just once,
+    // so we have to add it each frame.
+    _binding.addPostFrameCallback(_frameCallback);
+
+    final now = DateTime.now();
+    _timeStamp = now;
+    final duration = timeStamp.difference(now).abs();
+
+    if (duration > frozenFrameThreshold) {
+      _frozenCount++;
+    } else if (duration > slowFrameThreshold) {
+      _slowCount++;
+    }
+
+    _frameCount++;
   }
 
-  List<SentryMeasurement>? finish() {
-    if (!isSupported || startFrameNumber == -1) {
-      // Either the current Flutter version doesn't support frame numbers yet
-      // or frame tracking hasn't started.
-      return null;
-    }
-    endFrameNumber = window.currentFrameNumber;
+  void start() {
+    _timeStamp = DateTime.now();
+    _binding.addPostFrameCallback(_frameCallback);
+  }
 
-    final metrics = _listToMetrics(
-      startFrameNumber,
-      endFrameNumber,
-    );
+  List<SentryMeasurement> finish() {
+    final metrics = [
+      SentryMeasurement.totalFrames(_frameCount),
+      SentryMeasurement.frozenFrames(_frozenCount),
+      SentryMeasurement.slowFrames(_slowCount),
+    ];
+
     _reset();
     return metrics;
   }
 
   void _reset() {
-    startFrameNumber = -1;
-    endFrameNumber = -1;
+    _timeStamp = null;
+    _frameCount = 0;
+    _slowCount = 0;
+    _frozenCount = 0;
   }
-
-  static List<SentryMeasurement> _listToMetrics(
-    int startFrameNumber,
-    int endFrameNumber,
-  ) {
-    final frameCount = endFrameNumber - startFrameNumber;
-
-    return [SentryMeasurement.totalFrames(frameCount.toDouble())];
-  }
-}
-
-extension _SingletonFlutterWindowExtension on SingletonFlutterWindow {
-  // Code to make this compatible with Flutter < 2.8
-  int get currentFrameNumber => (this as dynamic).frameData.frameNumber as int;
 }
