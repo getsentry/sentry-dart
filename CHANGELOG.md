@@ -1,6 +1,6 @@
 # Unreleased
 
-* Fix: captureTransaction should return emptyId when transaction is discarded (#)
+* Fix: captureTransaction should return emptyId when transaction is discarded (#713)
 
 # 6.3.0-beta.3
 
