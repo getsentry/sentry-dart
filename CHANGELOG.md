@@ -1,5 +1,7 @@
 # Unreleased
 
+* Fix: captureTransaction should return emptyId when transaction is discarded (#)
+
 # 6.3.0-beta.3
 
 * Feat: Auto transactions duration trimming (#702)

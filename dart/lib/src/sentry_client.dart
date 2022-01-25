@@ -261,7 +261,7 @@ class SentryClient {
 
     final id = await captureEnvelope(
         SentryEnvelope.fromTransaction(preparedTransaction, _options.sdk));
-    return id!;
+    return id ?? SentryId.empty();
   }
 
   /// Reports the [envelope] to Sentry.io.
