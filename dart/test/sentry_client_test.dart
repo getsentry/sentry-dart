@@ -346,6 +346,14 @@ void main() {
 
       expect(capturedEvent['exception'], isNull);
     });
+
+    test('should return empty for when transaction is discarded', () async {
+      final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
+      final tr = SentryTransaction(fixture.tracer);
+      final id = await client.captureTransaction(tr);
+
+      expect(id, SentryId.empty());
+    });
   });
 
   group('SentryClient : apply scope to the captured event', () {
