@@ -15,7 +15,6 @@ class HubAdapter implements Hub {
   static final HubAdapter _instance = HubAdapter._();
 
   @override
-  // TODO: implement options
   SentryOptions get options => Sentry.currentHub.options;
 
   factory HubAdapter() {
