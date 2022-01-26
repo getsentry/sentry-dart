@@ -265,7 +265,7 @@ class SentryClient {
               .where((element) => element.addToTransactions)
               .toList()),
     );
-    return id!;
+    return id ?? SentryId.empty();
   }
 
   /// Reports the [envelope] to Sentry.io.
