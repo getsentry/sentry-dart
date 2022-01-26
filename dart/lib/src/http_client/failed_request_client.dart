@@ -208,31 +208,3 @@ class FailedRequestClient extends BaseClient {
     return null;
   }
 }
-
-extension _ListX on List<SentryStatusCode> {
-  bool containsStatusCode(int? statusCode) {
-    if (statusCode == null) {
-      return false;
-    }
-    return any((element) => element.isInRange(statusCode));
-  }
-}
-
-extension _MaxRequestBodySizeX on MaxRequestBodySize {
-  bool shouldAddBody(int contentLength) {
-    if (this == MaxRequestBodySize.never) {
-      return false;
-    }
-    if (this == MaxRequestBodySize.always) {
-      return true;
-    }
-    if (this == MaxRequestBodySize.medium && contentLength <= 10000) {
-      return true;
-    }
-
-    if (this == MaxRequestBodySize.small && contentLength <= 4000) {
-      return true;
-    }
-    return false;
-  }
-}

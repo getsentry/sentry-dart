@@ -22,7 +22,11 @@ Future<void> main() async {
       options.dsn = _exampleDsn;
       options.tracesSampleRate = 1.0;
       options.reportPackages = false;
-      options.addEventProcessor(DioEventProcessor(options));
+      options.addEventProcessor(DioEventProcessor(
+        options,
+        MaxRequestBodySize.small,
+      ));
+      options.sdk.addIntegration('sentry_dio');
     },
     // Init your App.
     appRunner: () => runApp(

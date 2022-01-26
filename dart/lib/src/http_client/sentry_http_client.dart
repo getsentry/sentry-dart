@@ -148,3 +148,12 @@ class SentryStatusCode {
     return '$_min..$_max';
   }
 }
+
+extension SentryStatusCodeListExtension on List<SentryStatusCode> {
+  bool containsStatusCode(int? statusCode) {
+    if (statusCode == null) {
+      return false;
+    }
+    return any((element) => element.isInRange(statusCode));
+  }
+}

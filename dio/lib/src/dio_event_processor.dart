@@ -8,9 +8,10 @@ import 'package:sentry/src/sentry_exception_factory.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 
 class DioEventProcessor extends EventProcessor {
-  DioEventProcessor(this._options);
+  DioEventProcessor(this._options, this._maxRequestBodySize);
 
   final SentryOptions _options;
+  final MaxRequestBodySize _maxRequestBodySize;
   late final sentryExceptionFactory = SentryExceptionFactory(
     _options,
     SentryStackTraceFactory(_options),
@@ -24,8 +25,13 @@ class DioEventProcessor extends EventProcessor {
     }
 
     try {
+      final mechanism = Mechanism(
+        type: 'DioIntegration',
+        description: 'This is the inner exception of the DioError',
+      );
+      final throwableMechanism = ThrowableMechanism(mechanism, dioError.error);
       final exception = sentryExceptionFactory.getSentryException(
-        dioError.error,
+        throwableMechanism,
         stackTrace: dioError.stackTrace,
       );
 
@@ -71,7 +77,34 @@ class DioEventProcessor extends EventProcessor {
       cookies: _options.sendDefaultPii
           ? options.headers['Cookie']?.toString()
           : null,
-      data: _options.sendDefaultPii ? dioError.response?.data : null,
+      data: _getRequestData(dioError.response?.data),
     );
+  }
+
+  /// Returns the request data, if possible according to the users settings.
+  /// Type checks are based on DIOs [ResponseType].
+  Object? _getRequestData(dynamic data) {
+    if (!_options.sendDefaultPii) {
+      return null;
+    }
+    if (data is String) {
+      if (_maxRequestBodySize.shouldAddBody(data.codeUnits.length)) {
+        return data;
+      }
+    } else if (data is List<int>) {
+      if (_maxRequestBodySize.shouldAddBody(data.length)) {
+        return data;
+      }
+    }
+    return null;
+    /*
+    if (data is Map<String, dynamic>) {
+      // Not sure how to proceed here, as converting to bytes is potentially
+      // very expensive.
+      return null;
+    } else if (data is ResponseBody) {
+      // Body is a stream and can't be added.
+    }
+    */
   }
 }
