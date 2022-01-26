@@ -22,6 +22,7 @@ Future<void> main() async {
       options.dsn = _exampleDsn;
       options.tracesSampleRate = 1.0;
       options.reportPackages = false;
+      options.addEventProcessor(DioEventProcessor(options));
     },
     // Init your App.
     appRunner: () => runApp(
@@ -41,11 +42,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return feedback.BetterFeedback(
