@@ -1,4 +1,4 @@
-# Unreleased
+# 6.3.0-beta.4
 
 * Feat: Support Attachment.addToTransactions (#709)
 * Fix: captureTransaction should return emptyId when transaction is discarded (#713)
