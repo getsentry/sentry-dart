@@ -6,6 +6,10 @@ final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 class MockHub implements Hub {
   final List<Breadcrumb> breadcrumbs = [];
   final List<CapturedEvents> events = [];
+  final _options = SentryOptions(empty: true);
+
+  @override
+  SentryOptions get options => _options;
 
   @override
   void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) {

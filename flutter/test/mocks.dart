@@ -123,6 +123,11 @@ class MockPlatformChecker implements PlatformChecker {
 // Does nothing or returns default values.
 // Usefull for when a Hub needs to be passed but is not used.
 class NoOpHub implements Hub {
+  final _options = SentryOptions(empty: true);
+
+  @override
+  SentryOptions get options => _options;
+
   @override
   void addBreadcrumb(Breadcrumb crumb, {hint}) {}
 

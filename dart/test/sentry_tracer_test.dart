@@ -283,6 +283,27 @@ void main() {
 
     expect(sut.endTimestamp, isNotNull);
   });
+
+  test('does not add more spans than configured in options', () async {
+    fixture.hub.options.maxSpans = 2;
+    final sut = fixture.getSut();
+
+    sut.startChild('child1');
+    sut.startChild('child2');
+    sut.startChild('child3');
+
+    expect(sut.children.length, 2);
+  });
+
+  test('when span limit is reached, startChild returns NoOpSpan', () async {
+    fixture.hub.options.maxSpans = 2;
+    final sut = fixture.getSut();
+
+    sut.startChild('child1');
+    sut.startChild('child2');
+
+    expect(sut.startChild('child3'), isA<NoOpSentrySpan>());
+  });
 }
 
 class Fixture {

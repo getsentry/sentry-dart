@@ -253,7 +253,10 @@ class SentryOptions {
   /// to be sent to Sentry.
   TracesSamplerCallback? tracesSampler;
 
-  SentryOptions({this.dsn, PlatformChecker? checker}) {
+  SentryOptions({this.dsn, PlatformChecker? checker, bool empty = false}) {
+    if (empty) {
+      return;
+    }
     if (checker != null) {
       platformChecker = checker;
     }
