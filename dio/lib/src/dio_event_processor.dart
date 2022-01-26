@@ -23,23 +23,23 @@ class DioEventProcessor extends EventProcessor {
       return event;
     }
 
-    // Potential further improvements:
-    // Add dioError.requestOptions to event.extra
-    // Add dioError.response to event.extra
-
     try {
       final exception = sentryExceptionFactory.getSentryException(
         dioError.error,
         stackTrace: dioError.stackTrace,
       );
 
-      final exceptions = event.exceptions;
+      // Remove the StackTrace so the message on Sentry looks much better
+      dioError.stackTrace = null;
 
       return event.copyWith(
         exceptions: [
           exception,
-          if (exceptions != null) ...exceptions,
+          ...?event.exceptions,
         ],
+        // Don't override just parts of the original request.
+        // It's all or nothing.
+        request: event.request ?? _toRequest(dioError),
       );
     } catch (e, stackTrace) {
       _options.logger(
@@ -50,5 +50,28 @@ class DioEventProcessor extends EventProcessor {
       );
     }
     return event;
+  }
+
+  SentryRequest? _toRequest(DioError dioError) {
+    final options = dioError.requestOptions;
+    // As far as I can tell there's no way to get the uri without the query part
+    // so we replace it with an empty string.
+    final urlWithoutQuery = options.uri.replace(query: '').toString();
+
+    final query = options.uri.query.isEmpty ? null : options.uri.query;
+
+    final headers = options.headers
+        .map((key, dynamic value) => MapEntry(key, value?.toString() ?? ''));
+
+    return SentryRequest(
+      method: options.method,
+      headers: _options.sendDefaultPii ? headers : null,
+      url: urlWithoutQuery,
+      queryString: query,
+      cookies: _options.sendDefaultPii
+          ? options.headers['Cookie']?.toString()
+          : null,
+      data: _options.sendDefaultPii ? dioError.response?.data : null,
+    );
   }
 }
