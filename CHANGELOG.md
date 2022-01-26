@@ -1,7 +1,8 @@
 # Unreleased
 
 * Fix: captureTransaction should return emptyId when transaction is discarded (#713)
-
+* Feat: Support maxSpan for performance API and expose SentryOptions through Hub (#716)
+  
 # 6.3.0-beta.3
 
 * Feat: Auto transactions duration trimming (#702)
