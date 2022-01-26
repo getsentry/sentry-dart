@@ -70,6 +70,18 @@ class SentryOptions {
     _maxAttachmentSize = maxAttachmentSize;
   }
 
+  /// Maximum number of spans that can be attached to single transaction.
+  int _maxSpans = 1000;
+
+  /// Returns the maximum number of spans that can be attached to single transaction.
+  int get maxSpans => _maxSpans;
+
+  /// Sets the maximum number of spans that can be attached to single transaction.
+  set maxSpans(int maxSpans) {
+    assert(maxSpans > 0);
+    _maxSpans = maxSpans;
+  }
+
   SentryLogger _logger = noOpLogger;
 
   /// Logger interface to log useful debugging information if debug is enabled
