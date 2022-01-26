@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:test/test.dart';
@@ -345,6 +347,64 @@ void main() {
       final capturedEvent = await transactionFromEnvelope(capturedEnvelope);
 
       expect(capturedEvent['exception'], isNull);
+    });
+
+    test('attachments not added to captured transaction per default', () async {
+      final attachment = SentryAttachment.fromUint8List(
+        Uint8List.fromList([0, 0, 0, 0]),
+        'test.txt',
+      );
+      final scope = Scope(fixture.options);
+      scope.addAttachment(attachment);
+
+      final client = fixture.getSut();
+      final tr = SentryTransaction(fixture.tracer);
+      await client.captureTransaction(tr, scope: scope);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedAttachments = capturedEnvelope.items
+          .where((item) => item.header.type == SentryItemType.attachment);
+
+      expect(capturedAttachments.isEmpty, true);
+    });
+
+    test('attachments added to captured event', () async {
+      final attachment = SentryAttachment.fromUint8List(
+        Uint8List.fromList([0, 0, 0, 0]),
+        'test.txt',
+        addToTransactions: true,
+      );
+      final scope = Scope(fixture.options);
+      scope.addAttachment(attachment);
+
+      final client = fixture.getSut();
+      final tr = SentryTransaction(fixture.tracer);
+      await client.captureTransaction(tr, scope: scope);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedAttachments = capturedEnvelope.items
+          .where((item) => item.header.type == SentryItemType.attachment);
+
+      expect(capturedAttachments.isNotEmpty, true);
+    });
+
+    test('attachments added to captured event per default', () async {
+      final attachment = SentryAttachment.fromUint8List(
+        Uint8List.fromList([0, 0, 0, 0]),
+        'test.txt',
+      );
+      final scope = Scope(fixture.options);
+      scope.addAttachment(attachment);
+
+      final client = fixture.getSut();
+      final event = SentryEvent();
+      await client.captureEvent(event, scope: scope);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedAttachments = capturedEnvelope.items
+          .where((item) => item.header.type == SentryItemType.attachment);
+
+      expect(capturedAttachments.isNotEmpty, true);
     });
 
     test('should return empty for when transaction is discarded', () async {
