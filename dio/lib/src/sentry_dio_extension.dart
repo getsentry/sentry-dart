@@ -16,10 +16,12 @@ extension SentryDioExtension on Dio {
     List<SentryStatusCode> failedRequestStatusCodes = const [],
     bool captureFailedRequests = false,
     bool sendDefaultPii = false,
+    HttpClientAdapter? httpClientAdapter,
+    Transformer? transformer,
   }) {
     // intercept http requests
-    httpClientAdapter = SentryDioClientAdapter(
-      client: httpClientAdapter,
+    this.httpClientAdapter = SentryDioClientAdapter(
+      client: httpClientAdapter ?? this.httpClientAdapter,
       recordBreadcrumbs: recordBreadcrumbs,
       networkTracing: networkTracing,
       maxRequestBodySize: maxRequestBodySize,
@@ -29,6 +31,7 @@ extension SentryDioExtension on Dio {
     );
 
     // intercept transformations
-    transformer = SentryTransformer(transformer: transformer);
+    this.transformer =
+        SentryTransformer(transformer: transformer ?? this.transformer);
   }
 }
