@@ -16,7 +16,7 @@ class MockHub implements Hub {
   int spanContextCals = 0;
   int getSpanCalls = 0;
 
-  final _options = SentryOptions(empty: true);
+  final _options = SentryOptions.empty();
 
   @override
   @internal

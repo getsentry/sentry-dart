@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:http/http.dart';
+import 'package:meta/meta.dart';
 
 import 'diagnostic_logger.dart';
 import 'environment/environment_variables.dart';
@@ -259,10 +260,7 @@ class SentryOptions {
   /// to be sent to Sentry.
   TracesSamplerCallback? tracesSampler;
 
-  SentryOptions({this.dsn, PlatformChecker? checker, bool empty = false}) {
-    if (empty) {
-      return;
-    }
+  SentryOptions({this.dsn, PlatformChecker? checker}) {
     if (checker != null) {
       platformChecker = checker;
     }
@@ -277,6 +275,9 @@ class SentryOptions {
     sdk = SdkVersion(name: sdkName(platformChecker.isWeb), version: sdkVersion);
     sdk.addPackage('pub:sentry', sdkVersion);
   }
+
+  @internal
+  SentryOptions.empty();
 
   /// Adds an event processor
   void addEventProcessor(EventProcessor eventProcessor) {

@@ -14,7 +14,7 @@ class NoOpHub implements Hub {
 
   static final NoOpHub _instance = NoOpHub._();
 
-  final _options = SentryOptions(empty: true);
+  final _options = SentryOptions.empty();
 
   @override
   @internal
