@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -542,8 +543,21 @@ Future<void> makeWebRequest(BuildContext context) async {
   );
 }
 
+class ThrowingHttpClientAdapter implements HttpClientAdapter {
+  @override
+  void close({bool force = false}) {}
+
+  @override
+  Future<ResponseBody> fetch(RequestOptions options,
+      Stream<Uint8List>? requestStream, Future? cancelFuture) {
+    throw Exception('ThrowingHttpClientAdapter');
+  }
+}
+
 Future<void> makeWebRequestWithDio(BuildContext context) async {
   final dio = Dio();
+  dio.httpClientAdapter = ThrowingHttpClientAdapter();
+
   dio.addSentry(
     captureFailedRequests: true,
     networkTracing: true,

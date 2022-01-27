@@ -25,23 +25,17 @@ class DioEventProcessor implements EventProcessor {
     }
 
     try {
-      final mechanism = Mechanism(
-        type: 'DioIntegration',
-        description: 'This is the inner exception of the DioError',
-      );
-      final throwableMechanism = ThrowableMechanism(mechanism, dioError.error);
       final exception = sentryExceptionFactory.getSentryException(
-        throwableMechanism,
+        dioError.error,
         stackTrace: dioError.stackTrace,
       );
 
-      // Remove the StackTrace so the message on Sentry looks much better
-      dioError.stackTrace = null;
+      final exceptions = _removeDioErrorStackTraceFromValue(event, dioError);
 
       return event.copyWith(
         exceptions: [
           exception,
-          ...?event.exceptions,
+          ...exceptions,
         ],
         // Don't override just parts of the original request.
         // It's all or nothing.
@@ -56,6 +50,41 @@ class DioEventProcessor implements EventProcessor {
       );
     }
     return event;
+  }
+
+  /// Remove the StackTrace from [dioError] so the message on Sentry looks
+  /// much better.
+  List<SentryException> _removeDioErrorStackTraceFromValue(
+    SentryEvent event,
+    DioError dioError,
+  ) {
+    // Don't edit the original list
+    final exceptions = List<SentryException>.from(
+      event.exceptions ?? <SentryException>[],
+    );
+
+    final dioErrorValue = dioError.toString();
+
+    final dioSentryExceptions =
+        exceptions.where((element) => element.value == dioErrorValue).toList();
+
+    if (dioSentryExceptions.isEmpty) {
+      return exceptions;
+    }
+    var e = dioSentryExceptions.first;
+    exceptions.removeWhere((element) => element == e);
+    dioError.stackTrace = null;
+    e = sentryExceptionFactory.getSentryException(dioError).copyWith(
+          mechanism: e.mechanism,
+          module: e.module,
+          stackTrace: e.stackTrace,
+          threadId: e.threadId,
+          type: e.type,
+        );
+
+    exceptions.add(e);
+
+    return exceptions;
   }
 
   SentryRequest? _toRequest(DioError dioError) {
