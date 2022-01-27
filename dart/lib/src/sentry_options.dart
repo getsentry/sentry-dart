@@ -275,8 +275,7 @@ class SentryOptions {
     sdk = SdkVersion(name: sdkName(platformChecker.isWeb), version: sdkVersion);
     sdk.addPackage('pub:sentry', sdkVersion);
   }
-
-  @internal
+  
   SentryOptions.empty();
 
   /// Adds an event processor
