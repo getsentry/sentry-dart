@@ -209,7 +209,7 @@ class FailedRequestClient extends BaseClient {
   }
 }
 
-extension SentryStatusCodeListExtension on List<SentryStatusCode> {
+extension _ListX on List<SentryStatusCode> {
   bool containsStatusCode(int? statusCode) {
     if (statusCode == null) {
       return false;
