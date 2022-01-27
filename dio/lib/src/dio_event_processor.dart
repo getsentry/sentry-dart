@@ -7,7 +7,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_exception_factory.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 
-class DioEventProcessor extends EventProcessor {
+class DioEventProcessor implements EventProcessor {
   DioEventProcessor(this._options, this._maxRequestBodySize);
 
   final SentryOptions _options;
