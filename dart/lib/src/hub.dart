@@ -29,6 +29,7 @@ class Hub {
 
   final SentryOptions _options;
 
+  @internal
   SentryOptions get options => _options;
 
   late SentryTracesSampler _tracesSampler;

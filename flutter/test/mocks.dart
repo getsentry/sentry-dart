@@ -2,6 +2,8 @@ import 'package:mockito/annotations.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/platform/platform.dart';
 
+import 'package:meta/meta.dart';
+
 import 'mocks.mocks.dart';
 
 const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
@@ -126,6 +128,7 @@ class NoOpHub implements Hub {
   final _options = SentryOptions(empty: true);
 
   @override
+  @internal
   SentryOptions get options => _options;
 
   @override

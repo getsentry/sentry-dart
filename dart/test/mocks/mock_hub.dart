@@ -1,3 +1,4 @@
+import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/noop_hub.dart';
 
@@ -17,6 +18,7 @@ class MockHub implements Hub {
   final _options = SentryOptions(empty: true);
 
   @override
+  @internal
   SentryOptions get options => _options;
 
   /// Useful for tests.

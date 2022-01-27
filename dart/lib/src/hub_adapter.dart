@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:meta/meta.dart';
+
 import 'hub.dart';
 import 'protocol.dart';
 import 'sentry.dart';
@@ -15,6 +17,7 @@ class HubAdapter implements Hub {
   static final HubAdapter _instance = HubAdapter._();
 
   @override
+  @internal
   SentryOptions get options => Sentry.currentHub.options;
 
   factory HubAdapter() {
