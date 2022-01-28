@@ -35,16 +35,34 @@ class DioEventProcessor implements EventProcessor {
     }
 
     try {
-      final exception = sentryExceptionFactory.getSentryException(
-        dioError.error,
-        stackTrace: dioError.stackTrace,
-      );
+      final innerDioExceptions = <SentryException>[];
+      final dynamic innerDioError = dioError.error;
+      final dynamic innerDioErrorStackTrace = dioError.stackTrace;
+      if (innerDioError is Error) {
+        var exception = sentryExceptionFactory.getSentryException(
+          innerDioError,
+          stackTrace: innerDioError.stackTrace,
+        );
+        innerDioExceptions.add(exception);
+        if (innerDioErrorStackTrace != null) {
+          exception = sentryExceptionFactory.getSentryException(
+            'Inner exception stacktrace',
+            stackTrace: innerDioErrorStackTrace,
+          );
+        }
+      } else {
+        final exception = sentryExceptionFactory.getSentryException(
+          dioError.error,
+          stackTrace: dioError.stackTrace,
+        );
+        innerDioExceptions.add(exception);
+      }
 
       final exceptions = _removeDioErrorStackTraceFromValue(event, dioError);
 
       return event.copyWith(
         exceptions: [
-          exception,
+          ...innerDioExceptions,
           ...exceptions,
         ],
         // Don't override just parts of the original request.
@@ -84,6 +102,7 @@ class DioEventProcessor implements EventProcessor {
     var e = dioSentryExceptions.first;
     exceptions.removeWhere((element) => element == e);
     dioError.stackTrace = null;
+    dioError.error = null;
     e = sentryExceptionFactory.getSentryException(dioError).copyWith(
           mechanism: e.mechanism,
           module: e.module,
@@ -136,14 +155,5 @@ class DioEventProcessor implements EventProcessor {
       }
     }
     return null;
-    /*
-    if (data is Map<String, dynamic>) {
-      // Not sure how to proceed here, as converting to bytes is potentially
-      // very expensive.
-      return null;
-    } else if (data is ResponseBody) {
-      // Body is a stream and can't be added.
-    }
-    */
   }
 }
