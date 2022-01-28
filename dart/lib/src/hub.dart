@@ -420,13 +420,24 @@ class Hub {
         "Tracing is disabled and this 'getSpan' returns null.",
       );
     } else {
-      final item = _peek();
+      span = Zone.current[#_span] as ISentrySpan?;
 
-      span = item.scope.span;
+      if (span == null) {
+        final item = _peek();
+
+        span = item.scope.span;
+      }
     }
 
     return span;
   }
+
+  /// Runs a function in a new [Zone] in which the given [span] becomes the
+  /// current [ISentrySpan].
+  ///
+  /// In the new [Zone], calls to [getSpan] will return the given [span].
+  T runWithSpan<T>(ISentrySpan span, T Function() fn) =>
+      runZoned(fn, zoneValues: {#_span: span});
 
   @internal
   Future<SentryId> captureTransaction(SentryTransaction transaction) async {

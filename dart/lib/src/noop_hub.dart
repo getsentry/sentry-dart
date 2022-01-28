@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'hub.dart';
 import 'protocol.dart';
 import 'sentry_client.dart';
@@ -98,6 +99,9 @@ class NoOpHub implements Hub {
 
   @override
   ISentrySpan? getSpan() => null;
+
+  @override
+  T runWithSpan<T>(ISentrySpan span, T Function() fn) => fn();
 
   @override
   void setSpanContext(throwable, ISentrySpan span, String transaction) {}

@@ -461,6 +461,59 @@ void main() {
       expect(calls[2].formatted, 'foo bar 2');
     });
   });
+
+  group('runWithSpan', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('without binding span to scope', () {
+      final hub = fixture.getSut();
+
+      final span = hub.startTransaction('a', 'a');
+
+      hub.runWithSpan(span, () {
+        expect(hub.getSpan(), span);
+      });
+
+      expect(hub.getSpan(), isNull);
+    });
+
+    test('override span bound to scope', () {
+      final hub = fixture.getSut();
+
+      expect(hub.getSpan(), isNull);
+      final spanA = hub.startTransaction('a', 'a', bindToScope: true);
+      final spanB = hub.startTransaction('b', 'b');
+
+      hub.runWithSpan(spanB, () {
+        expect(hub.getSpan(), spanB);
+      });
+
+      expect(hub.getSpan(), spanA);
+    });
+
+    test('supports nested calls', () {
+      final hub = fixture.getSut();
+
+      final spanA = hub.startTransaction('a', 'a');
+      final spanB = hub.startTransaction('b', 'b');
+
+      hub.runWithSpan(spanA, () {
+        expect(hub.getSpan(), spanA);
+
+        hub.runWithSpan(spanB, () {
+          expect(hub.getSpan(), spanB);
+        });
+
+        expect(hub.getSpan(), spanA);
+      });
+
+      expect(hub.getSpan(), isNull);
+    });
+  });
 }
 
 class Fixture {

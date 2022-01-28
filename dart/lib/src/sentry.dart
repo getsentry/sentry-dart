@@ -8,13 +8,13 @@ import 'environment/environment_variables.dart';
 import 'event_processor/deduplication_event_processor.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
+import 'integration.dart';
+import 'noop_hub.dart';
 import 'noop_isolate_error_integration.dart'
     if (dart.library.io) 'isolate_error_integration.dart';
-import 'noop_hub.dart';
 import 'protocol.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
-import 'integration.dart';
 import 'sentry_user_feedback.dart';
 import 'tracing.dart';
 
@@ -142,7 +142,7 @@ class Sentry {
     dynamic hint,
     ScopeCallback? withScope,
   }) =>
-      _hub.captureEvent(
+      currentHub.captureEvent(
         event,
         stackTrace: stackTrace,
         hint: hint,
@@ -156,7 +156,7 @@ class Sentry {
     dynamic hint,
     ScopeCallback? withScope,
   }) =>
-      _hub.captureException(
+      currentHub.captureException(
         throwable,
         stackTrace: stackTrace,
         hint: hint,
@@ -171,7 +171,7 @@ class Sentry {
     dynamic hint,
     ScopeCallback? withScope,
   }) =>
-      _hub.captureMessage(
+      currentHub.captureMessage(
         message,
         level: level,
         template: template,
@@ -181,7 +181,7 @@ class Sentry {
       );
 
   static Future captureUserFeedback(SentryUserFeedback userFeedback) =>
-      _hub.captureUserFeedback(userFeedback);
+      currentHub.captureUserFeedback(userFeedback);
 
   /// Close the client SDK
   static Future<void> close() async {
@@ -191,24 +191,29 @@ class Sentry {
   }
 
   /// Check if the current Hub is enabled/active.
-  static bool get isEnabled => _hub.isEnabled;
+  static bool get isEnabled => currentHub.isEnabled;
 
   /// Last event id recorded by the current Hub
-  static SentryId get lastEventId => _hub.lastEventId;
+  static SentryId get lastEventId => currentHub.lastEventId;
 
   /// Adds a breacrumb to the current Scope
   static void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) =>
-      _hub.addBreadcrumb(crumb, hint: hint);
+      currentHub.addBreadcrumb(crumb, hint: hint);
 
   /// Configures the scope through the callback.
   static void configureScope(ScopeCallback callback) =>
-      _hub.configureScope(callback);
+      currentHub.configureScope(callback);
 
   /// Clones the current Hub
-  static Hub clone() => _hub.clone();
+  static Hub clone() => currentHub.clone();
+
+  /// Runs a function in a new [Zone] in which a [clone] of the current [hub]
+  /// becomes the new current [Hub].
+  static T runWithClone<T>(T Function() fn) =>
+      runZoned(fn, zoneValues: {#_hub: clone()});
 
   /// Binds a different client to the current hub
-  static void bindClient(SentryClient client) => _hub.bindClient(client);
+  static void bindClient(SentryClient client) => currentHub.bindClient(client);
 
   static Future<bool> _setDefaultConfiguration(SentryOptions options) async {
     // if the DSN is empty, let's disable the SDK
@@ -234,7 +239,7 @@ class Sentry {
     bool? trimEnd,
     Map<String, dynamic>? customSamplingContext,
   }) =>
-      _hub.startTransaction(
+      currentHub.startTransaction(
         name,
         operation,
         description: description,
@@ -254,7 +259,7 @@ class Sentry {
     Duration? autoFinishAfter,
     bool? trimEnd,
   }) =>
-      _hub.startTransactionWithContext(
+      currentHub.startTransactionWithContext(
         transactionContext,
         customSamplingContext: customSamplingContext,
         bindToScope: bindToScope,
@@ -264,8 +269,15 @@ class Sentry {
       );
 
   /// Gets the current active transaction or span.
-  static ISentrySpan? getSpan() => _hub.getSpan();
+  static ISentrySpan? getSpan() => currentHub.getSpan();
+
+  /// Runs a function in a new [Zone] in which the given [span] becomes the
+  /// current [ISentrySpan].
+  ///
+  /// In the new [Zone], calls to [getSpan] will return the given [span].
+  static T runWithSpan<T>(ISentrySpan span, T Function() fn) =>
+      currentHub.runWithSpan(span, fn);
 
   @internal
-  static Hub get currentHub => _hub;
+  static Hub get currentHub => Zone.current[#_hub] as Hub? ?? _hub;
 }

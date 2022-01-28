@@ -68,6 +68,11 @@ class MockHub implements Hub {
   ISentrySpan? getSpan() => NoOpSentrySpan();
 
   @override
+  T runWithSpan<T>(ISentrySpan span, T Function() fn) {
+    return fn();
+  }
+
+  @override
   bool get isEnabled => false;
 
   @override

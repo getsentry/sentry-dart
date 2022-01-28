@@ -152,6 +152,11 @@ class MockHub implements Hub {
   }
 
   @override
+  T runWithSpan<T>(ISentrySpan span, T Function() fn) {
+    return fn();
+  }
+
+  @override
   void setSpanContext(throwable, ISentrySpan span, String transaction) {
     spanContextCals++;
   }

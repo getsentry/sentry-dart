@@ -2,8 +2,8 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/event_processor/deduplication_event_processor.dart';
 import 'package:test/test.dart';
 
-import 'mocks.dart';
 import 'fake_platform_checker.dart';
+import 'mocks.dart';
 import 'mocks/mock_integration.dart';
 import 'mocks/mock_sentry_client.dart';
 
@@ -303,5 +303,54 @@ void main() {
     }, options: sentryOptions);
 
     expect(sentryOptions.logger == dartLogger, false);
+  });
+
+  group('Zone support', () {
+    setUp(() async {
+      await Sentry.init((options) {
+        options
+          ..dsn = fakeDsn
+          ..tracesSampleRate = 1;
+      });
+      addTearDown(Sentry.close);
+    });
+
+    group('runWithSpan', () {
+      test('makes given span the current span in new zone', () {
+        final span = Sentry.startTransaction('a', 'a');
+
+        Sentry.runWithSpan(span, () {
+          expect(Sentry.getSpan(), span);
+        });
+
+        expect(Sentry.getSpan(), isNull);
+      });
+    });
+
+    group('runWithClone', () {
+      test('makes cloned hub the current hub in new zone', () {
+        final hubA = Sentry.currentHub;
+
+        Sentry.runWithClone(() {
+          final hubB = Sentry.currentHub;
+          expect(hubB, isNot(hubA));
+        });
+      });
+
+      test('supports nested calls', () {
+        final hubA = Sentry.currentHub;
+
+        Sentry.runWithClone(() {
+          final hubB = Sentry.currentHub;
+          expect(hubB, isNot(hubA));
+
+          Sentry.runWithClone(() {
+            final hubC = Sentry.currentHub;
+            expect(hubC, isNot(hubA));
+            expect(hubC, isNot(hubB));
+          });
+        });
+      });
+    });
   });
 }
