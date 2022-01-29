@@ -1,4 +1,5 @@
 # Unreleased
+* Fix: `sentry_logging` incorrectly setting SDK name
 
 # 6.3.0-beta.4
 
