@@ -433,7 +433,7 @@ class Hub {
   }
 
   /// Runs a function in a new [Zone] in which the given [span] becomes the
-  /// current [ISentrySpan].
+  /// current span.
   ///
   /// In the new [Zone], calls to [getSpan] will return the given [span].
   T runWithSpan<T>(ISentrySpan span, T Function() fn) =>

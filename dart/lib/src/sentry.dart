@@ -207,7 +207,7 @@ class Sentry {
   /// Clones the current Hub
   static Hub clone() => currentHub.clone();
 
-  /// Runs a function in a new [Zone] in which a [clone] of the current [hub]
+  /// Runs a function in a new [Zone] in which a [clone] of the current [Hub]
   /// becomes the new current [Hub].
   static T runWithClone<T>(T Function() fn) =>
       runZoned(fn, zoneValues: {#_hub: clone()});
@@ -272,7 +272,7 @@ class Sentry {
   static ISentrySpan? getSpan() => currentHub.getSpan();
 
   /// Runs a function in a new [Zone] in which the given [span] becomes the
-  /// current [ISentrySpan].
+  /// current span.
   ///
   /// In the new [Zone], calls to [getSpan] will return the given [span].
   static T runWithSpan<T>(ISentrySpan span, T Function() fn) =>
