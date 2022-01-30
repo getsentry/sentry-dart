@@ -7,6 +7,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
 import 'sentry_native.dart';
 import 'sentry_native_channel.dart';
+import 'platform_exception_event_processor.dart';
 
 import 'flutter_enricher_event_processor.dart';
 import 'integrations/debug_print_integration.dart';
@@ -79,6 +80,7 @@ mixin SentryFlutter {
     var flutterEventProcessor =
         FlutterEnricherEventProcessor.simple(options: options);
     options.addEventProcessor(flutterEventProcessor);
+    options.addEventProcessor(PlatformExceptionEventProcessor(options));
 
     _setSdk(options);
   }

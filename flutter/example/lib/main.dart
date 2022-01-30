@@ -372,6 +372,12 @@ class AndroidExample extends StatelessWidget {
         },
         child: const Text('C++ SEGFAULT'),
       ),
+      ElevatedButton(
+        onPressed: () async {
+          await execute('platform_exception');
+        },
+        child: const Text('Platform exception'),
+      ),
     ]);
   }
 
