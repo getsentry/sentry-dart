@@ -44,11 +44,8 @@ class SentryClient {
   /// Instantiates a client using [SentryOptions]
   SentryClient._(this._options)
       : _random = _options.sampleRate == null ? null : Random() {
-    _stackTraceFactory = SentryStackTraceFactory(_options);
-    _exceptionFactory = SentryExceptionFactory(
-      _options,
-      _stackTraceFactory,
-    );
+    _stackTraceFactory = _options.stackTraceFactory;
+    _exceptionFactory = _options.exceptionFactory;
   }
 
   /// Reports an [event] to Sentry.io.
