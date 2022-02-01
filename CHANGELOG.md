@@ -1,5 +1,7 @@
 # Unreleased
 
+* Fix: await ZonedGuard integration to run (#731)
+
 # 6.3.0-beta.4
 
 * Feat: Support Attachment.addToTransactions (#709)
