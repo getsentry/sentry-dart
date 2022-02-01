@@ -22,7 +22,7 @@ class RunZonedGuardedIntegration extends Integration {
 
   @override
   FutureOr<void> call(Hub hub, SentryOptions options) {
-    final completer = Completer();
+    final completer = Completer<void>();
 
     runZonedGuarded(
       () async {
