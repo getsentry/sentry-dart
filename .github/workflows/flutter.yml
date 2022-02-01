@@ -145,8 +145,7 @@ jobs:
           TOTAL_MAX: ${{ steps.analysis.outputs.total_max }}
         run: |
           PERCENTAGE=$(( $TOTAL * 100 / $TOTAL_MAX ))
-          # 70 because pana does not understand null-safety yet
-          if (( $PERCENTAGE < 70 ))
+          if (( $PERCENTAGE < 90 ))
           then
             echo Score too low!
             exit 1
