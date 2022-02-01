@@ -22,9 +22,15 @@ class RunZonedGuardedIntegration extends Integration {
 
   @override
   FutureOr<void> call(Hub hub, SentryOptions options) {
+    final completer = Completer();
+
     runZonedGuarded(
       () async {
-        await _runner();
+        try {
+          await _runner();
+        } finally {
+          completer.complete();
+        }
       },
       (exception, stackTrace) async {
         options.logger(
@@ -89,5 +95,7 @@ class RunZonedGuardedIntegration extends Integration {
     );
 
     options.sdk.addIntegration('runZonedGuardedIntegration');
+
+    return completer.future;
   }
 }
