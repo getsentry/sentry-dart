@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:meta/meta.dart';
 import 'package:http/http.dart';
 
 import 'diagnostic_logger.dart';
@@ -274,7 +275,8 @@ class SentryOptions {
     sdk = SdkVersion(name: sdkName(platformChecker.isWeb), version: sdkVersion);
     sdk.addPackage('pub:sentry', sdkVersion);
   }
-  
+
+  @internal
   SentryOptions.empty();
 
   /// Adds an event processor
