@@ -8,7 +8,7 @@ final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 class MockHub implements Hub {
   final List<Breadcrumb> breadcrumbs = [];
   final List<CapturedEvents> events = [];
-  final _options = SentryOptions.empty();
+  final _options = SentryOptions(dsn: 'fixture-dsn');
 
   @override
   @internal
