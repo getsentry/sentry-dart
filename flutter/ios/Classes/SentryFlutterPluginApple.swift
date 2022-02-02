@@ -67,7 +67,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             captureEnvelope(call, result: result)
 
         case "fetchNativeAppStart":
-            print("fetchNativeAppStart")
+            fetchNativeAppStart(result: result)
 
         default:
             result(FlutterMethodNotImplemented)
@@ -291,5 +291,17 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         PrivateSentrySDKOnly.capture(envelope)
         result("")
         return
+    }
+
+    private func fetchNativeAppStart(result: @escaping FlutterResult) {
+        let appStartTime = 0.0
+        let isColdStart = true
+
+        let item: [String: Any] = [
+          "appStartTime": appStartTime,
+          "isColdStart": isColdStart
+        ]
+
+        result(item)
     }
 }

@@ -325,6 +325,13 @@ class MainScaffold extends StatelessWidget {
               },
               child: const Text('Show UserFeedback Dialog without event'),
             ),
+            ElevatedButton(
+              onPressed: () async {
+                final result = await SentryFlutter.fetchNativeAppStart();
+                print(result);
+              },
+              child: const Text('fetchNativeAppStart'),
+            ),
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
               const CocoaExample(),
             if (UniversalPlatform.isAndroid) const AndroidExample(),
@@ -374,13 +381,6 @@ class AndroidExample extends StatelessWidget {
           await execute('crash');
         },
         child: const Text('C++ SEGFAULT'),
-      ),
-      ElevatedButton(
-        onPressed: () async {
-          final result = await SentryFlutter.fetchNativeAppStart();
-          print(result);
-        },
-        child: const Text('fetchNativeAppStart'),
       ),
     ]);
   }
