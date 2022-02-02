@@ -66,6 +66,9 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         case "captureEnvelope":
             captureEnvelope(call, result: result)
 
+        case "fetchNativeAppStart":
+            print("fetchNativeAppStart")
+
         default:
             result(FlutterMethodNotImplemented)
         }

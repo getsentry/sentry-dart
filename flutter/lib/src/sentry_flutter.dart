@@ -71,6 +71,14 @@ mixin SentryFlutter {
     _setSdk(options);
   }
 
+  static Future<Map<String, dynamic>?> fetchNativeAppStart() async {
+    try {
+      return await _channel.invokeMapMethod('fetchNativeAppStart');
+    } catch (error, stackTrace) {
+      await Sentry.captureException(error, stackTrace: stackTrace);
+    }
+  }
+
   /// Install default integrations
   /// https://medium.com/flutter-community/error-handling-in-flutter-98fce88a34f0
   static List<Integration> _createDefaultIntegrations(

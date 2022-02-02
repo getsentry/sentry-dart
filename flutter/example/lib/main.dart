@@ -375,6 +375,13 @@ class AndroidExample extends StatelessWidget {
         },
         child: const Text('C++ SEGFAULT'),
       ),
+      ElevatedButton(
+        onPressed: () async {
+          final result = await SentryFlutter.fetchNativeAppStart();
+          print(result);
+        },
+        child: const Text('fetchNativeAppStart'),
+      ),
     ]);
   }
 

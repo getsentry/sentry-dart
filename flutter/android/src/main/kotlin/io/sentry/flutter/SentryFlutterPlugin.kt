@@ -34,6 +34,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
       "captureEnvelope" -> captureEnvelope(call, result)
       "loadImageList" -> loadImageList(result)
       "closeNativeSdk" -> closeNativeSdk(result)
+      "fetchNativeAppStart" -> fetchNativeAppStart(result)
       else -> result.notImplemented()
     }
   }
@@ -118,6 +119,17 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
       // missing proxy, enableScopeSync
     }
     result.success("")
+  }
+
+  private fun fetchNativeAppStart(result: Result) {
+    val appStartTime = 0.0
+    val isColdStart = true
+
+    val item = mutableMapOf<String, Any?>()
+    item["appStartTime"] = appStartTime
+    item["isColdStart"] = isColdStart
+
+    result.success(item)
   }
 
   private fun captureEnvelope(call: MethodCall, result: Result) {
