@@ -1,9 +1,11 @@
+import 'dart:async';
+
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/event_processor/deduplication_event_processor.dart';
 import 'package:test/test.dart';
 
-import 'mocks.dart';
 import 'fake_platform_checker.dart';
+import 'mocks.dart';
 import 'mocks/mock_integration.dart';
 import 'mocks/mock_sentry_client.dart';
 
@@ -256,6 +258,29 @@ void main() {
           expect(count, 1);
         },
       );
+    });
+
+    test('should complete when appRunner completes', () async {
+      final completer = Completer();
+      var completed = false;
+
+      final init = Sentry.init(
+        (options) {
+          options.dsn = fakeDsn;
+        },
+        appRunner: () => completer.future,
+      ).whenComplete(() => completed = true);
+
+      await Future(() {
+        // We make the expectation only after all microtasks have completed,
+        // that Sentry.init might have scheduled.
+        expect(completed, false);
+      });
+
+      completer.complete();
+      await init;
+
+      expect(completed, true);
     });
   });
 
