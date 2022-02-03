@@ -1,3 +1,7 @@
+# Unreleased
+
+* Fix: Add missing return values - dart analyzer (#)
+
 # 6.3.0
 
 * Feat: Support maxSpan for performance API and expose SentryOptions through Hub (#716)

@@ -558,5 +558,6 @@ class _WeakMap {
         stackTrace: stackTrace,
       );
     }
+    return null;
   }
 }
