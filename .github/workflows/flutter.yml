@@ -68,6 +68,7 @@ jobs:
         - run: flutter upgrade
 
         - name: Test
+          if: runner.os != 'macOS'
           run: |
             cd flutter
             flutter pub get
