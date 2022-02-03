@@ -33,6 +33,7 @@ jobs:
         - uses: actions/checkout@v2
         # coverage with 'chrome' platform hangs the build
         - name: Test (VM and browser)
+          if: runner.os != 'macOS'
           run: |
             dart pub get
             dart test -p chrome
