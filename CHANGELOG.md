@@ -3,6 +3,7 @@
 * Feat: Support maxSpan for performance API and expose SentryOptions through Hub (#716)
 * Fix: await ZonedGuard integration to run (#732)
 * Fix: `sentry_logging` incorrectly setting SDK name (#725)
+* Bump: Sentry-Android to 5.6.1 and Sentry-Cocoa to 7.9.0 (#736)
 
 # 6.3.0-beta.4
 
