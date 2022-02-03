@@ -129,9 +129,9 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
     val isColdStart = AppStartState.getInstance().isColdStart();
 
     if (appStartTime == null) {
-      result.error("1", "App start won't be sent due to missing appStartTime.", null);
+      result.error("1", "App start won't be sent due to missing appStartTime", null);
     } else if (isColdStart == null) {
-      result.error("1", "App start won't be sent due to missing isColdStart.", null);
+      result.error("1", "App start won't be sent due to missing isColdStart", null);
     } else {
       val item = mapOf<String, Any?>(
         "appStartTime" to appStartTime.getTime().toDouble(),

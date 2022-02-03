@@ -100,6 +100,8 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             return
         }
 
+        PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
+
         SentrySDK.start { options in
             self.updateOptions(arguments: arguments, options: options)
 
@@ -216,6 +218,10 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         if let enableOutOfMemoryTracking = arguments["enableOutOfMemoryTracking"] as? Bool {
             options.enableOutOfMemoryTracking = enableOutOfMemoryTracking
         }
+
+        if let tracesSampleRate = arguments["tracesSampleRate"] as? Double {
+            options.tracesSampleRate = NSNumber(value: tracesSampleRate) 
+        }
     }
 
     private func logLevelFrom(diagnosticLevel: String) -> SentryLevel {
@@ -293,15 +299,32 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         return
     }
 
+    private var didFetchAppStart = false
+
     private func fetchNativeAppStart(result: @escaping FlutterResult) {
-        let appStartTime = 0.0
-        let isColdStart = true
+        if let appStartMeasurement = PrivateSentrySDKOnly.appStartMeasurement {
 
-        let item: [String: Any] = [
-          "appStartTime": appStartTime,
-          "isColdStart": isColdStart
-        ]
+            let appStartTime = appStartMeasurement.appStartTimestamp.timeIntervalSince1970 * 1000
+            let isColdStart = appStartMeasurement.type == .cold
 
-        result(item)
+            let item: [String: Any] = [
+                "appStartTime": appStartTime,
+                "isColdStart": isColdStart,
+                "didFetchAppStart": didFetchAppStart
+            ]
+
+            result(item)
+        } else {
+            result(
+                FlutterError(
+                    code: "1",
+                    message: "App start won't be sent due to missing appStartMeasurement",
+                    details: nil
+                )
+            )
+        }
+
+        // This is always set to true, as we would only allow an app start fetch to happen once.
+        didFetchAppStart = true
     }
 }
