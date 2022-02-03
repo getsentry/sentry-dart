@@ -3,6 +3,7 @@
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
+import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
 /// A [Dio](https://pub.dev/packages/dio)-package compatible HTTP client adapter
@@ -22,6 +23,7 @@ import 'package:sentry/sentry.dart';
 /// Remarks:
 /// If this client is used as a wrapper, a call to close also closes the
 /// given client.
+@experimental
 class FailedRequestClientAdapter extends HttpClientAdapter {
   // ignore: public_member_api_docs
   FailedRequestClientAdapter({
