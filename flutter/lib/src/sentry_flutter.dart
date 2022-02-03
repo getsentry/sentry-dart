@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
+import 'package:sentry_flutter/src/noop_sentry_native_wrapper.dart';
+import 'package:sentry_flutter/src/sentry_native_wrapper.dart';
 
 import 'flutter_enricher_event_processor.dart';
 import 'integrations/debug_print_integration.dart';
@@ -20,6 +22,7 @@ typedef FlutterOptionsConfiguration = FutureOr<void> Function(
 /// Sentry Flutter SDK main entry point
 mixin SentryFlutter {
   static const _channel = MethodChannel('sentry_flutter');
+  static SentryNativeWrapper native = NoOpSentryNativeWrapper();
 
   static Future<void> init(
     FlutterOptionsConfiguration optionsConfiguration, {
@@ -32,6 +35,8 @@ mixin SentryFlutter {
     if (platformChecker != null) {
       flutterOptions.platformChecker = platformChecker;
     }
+
+    SentryFlutter.native = SentryNativeWrapper(channel, flutterOptions);
 
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
@@ -69,14 +74,6 @@ mixin SentryFlutter {
     options.addEventProcessor(flutterEventProcessor);
 
     _setSdk(options);
-  }
-
-  static Future<Map<String, dynamic>?> fetchNativeAppStart() async {
-    try {
-      return await _channel.invokeMapMethod('fetchNativeAppStart');
-    } catch (error, stackTrace) {
-      await Sentry.captureException(error, stackTrace: stackTrace);
-    }
   }
 
   /// Install default integrations

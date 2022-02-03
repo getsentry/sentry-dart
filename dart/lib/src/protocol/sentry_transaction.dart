@@ -3,6 +3,7 @@ import 'package:meta/meta.dart';
 import '../protocol.dart';
 import '../sentry_tracer.dart';
 import '../utils.dart';
+import '../sentry_measurement.dart';
 
 @immutable
 class SentryTransaction extends SentryEvent {
@@ -10,6 +11,7 @@ class SentryTransaction extends SentryEvent {
   static const String _type = 'transaction';
   late final List<SentrySpan> spans;
   final SentryTracer _tracer;
+  final List<SentryMeasurement>? measurements;
 
   SentryTransaction(
     this._tracer, {
@@ -30,6 +32,7 @@ class SentryTransaction extends SentryEvent {
     SdkVersion? sdk,
     SentryRequest? request,
     String? type,
+    this.measurements,
   }) : super(
           eventId: eventId,
           timestamp: timestamp ?? _tracer.endTimestamp,
@@ -70,6 +73,15 @@ class SentryTransaction extends SentryEvent {
     json['start_timestamp'] =
         formatDateAsIso8601WithMillisPrecision(startTimestamp);
 
+    final ms = measurements;
+    if (ms != null && ms.isNotEmpty) {
+      final map = <String, dynamic>{};
+      for (final m in ms) {
+        map[m.name] = m.toJson();
+      }
+      json['measurements'] = map;
+    }
+
     return json;
   }
 
@@ -105,6 +117,7 @@ class SentryTransaction extends SentryEvent {
     List<SentryException>? exceptions,
     List<SentryThread>? threads,
     String? type,
+    List<SentryMeasurement>? measurements,
   }) =>
       SentryTransaction(
         _tracer,
@@ -126,5 +139,9 @@ class SentryTransaction extends SentryEvent {
         sdk: sdk ?? this.sdk,
         request: request ?? this.request,
         type: type ?? this.type,
+        measurements: (measurements != null
+            ? List<SentryMeasurement>.from(measurements)
+            : null) ??
+            this.measurements,
       );
 }

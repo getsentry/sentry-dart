@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:sentry/sentry.dart';
+import 'package:sentry_flutter/src/sentry_native_wrapper.dart';
 import '../../sentry_flutter.dart';
 
 /// This key must be used so that the web interface displays the events nicely
@@ -51,6 +52,10 @@ typedef AdditionalInfoExtractor = Map<String, dynamic>? Function(
 /// [Scope.span]. So be careful when this is used together with performance
 /// monitoring.
 ///
+/// Setting [enableAppStartTracking] will track the app start time by adding
+/// measurements to the first route transaction. If there is no routing
+/// instrumentation an app start transaction will be started.
+///
 /// See also:
 ///   - [RouteObserver](https://api.flutter.dev/flutter/widgets/RouteObserver-class.html)
 ///   - [Navigating with arguments](https://flutter.dev/docs/cookbook/navigation/navigate-with-arguments)
@@ -60,12 +65,14 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     bool enableAutoTransactions = true,
     Duration autoFinishAfter = const Duration(seconds: 3),
     bool setRouteNameAsTransaction = false,
+    bool enableAppStartTracking = true,
     RouteNameExtractor? routeNameExtractor,
     AdditionalInfoExtractor? additionalInfoProvider,
   })  : _hub = hub ?? HubAdapter(),
         _enableAutoTransactions = enableAutoTransactions,
         _autoFinishAfter = autoFinishAfter,
         _setRouteNameAsTransaction = setRouteNameAsTransaction,
+        _enableAppStartTracking = enableAppStartTracking,
         _routeNameExtractor = routeNameExtractor,
         _additionalInfoProvider = additionalInfoProvider;
 
@@ -73,10 +80,12 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final bool _enableAutoTransactions;
   final Duration _autoFinishAfter;
   final bool _setRouteNameAsTransaction;
+  final bool _enableAppStartTracking;
   final RouteNameExtractor? _routeNameExtractor;
   final AdditionalInfoExtractor? _additionalInfoProvider;
 
   ISentrySpan? _transaction;
+  NativeAppStart? _nativeAppStart;
 
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
@@ -87,6 +96,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       from: previousRoute?.settings,
       to: route.settings,
     );
+    _instrumentAppStart();
     _finishTransaction();
     _startTransaction(route.settings.name, route.settings.arguments);
   }
@@ -116,6 +126,18 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       previousRoute?.settings.name,
       previousRoute?.settings.arguments,
     );
+  }
+
+  void _instrumentAppStart() async {
+    if (!_enableAppStartTracking) {
+      return;
+    }
+    _nativeAppStart = await SentryFlutter.native.fetchNativeAppStart();
+    print(_nativeAppStart);
+  }
+
+  void _addAppStartData(NativeAppStart nativeAppStart, SentryTransaction transaction) {
+
   }
 
   void _addBreadcrumb({
