@@ -1,4 +1,4 @@
-# Unreleased
+# 6.3.0
 
 * Feat: Support maxSpan for performance API and expose SentryOptions through Hub (#716)
 * Fix: await ZonedGuard integration to run (#732)
