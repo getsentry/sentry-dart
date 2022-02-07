@@ -14,6 +14,8 @@ Sentry integration for `dio` package
 
 Integration for the [`dio`](https://pub.dev/packages/dio) package.
 
+`dio` is in an experimental stage and it could lead to bugs. We recognize the irony.
+
 #### Usage
 
 - Sign up for a Sentry.io account and get a DSN at http://sentry.io.

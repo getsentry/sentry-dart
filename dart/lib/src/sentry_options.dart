@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:meta/meta.dart';
 import 'package:http/http.dart';
 import 'package:meta/meta.dart';
 
@@ -71,6 +72,24 @@ class SentryOptions {
   set maxAttachmentSize(int maxAttachmentSize) {
     assert(maxAttachmentSize > 0);
     _maxAttachmentSize = maxAttachmentSize;
+  }
+
+  /// Maximum number of spans that can be attached to single transaction.
+  ///
+  /// The is an experimental feature. Use at your own risk.
+  int _maxSpans = 1000;
+
+  /// Returns the maximum number of spans that can be attached to single transaction.
+  ///
+  /// The is an experimental feature. Use at your own risk.
+  int get maxSpans => _maxSpans;
+
+  /// Sets the maximum number of spans that can be attached to single transaction.
+  ///
+  /// The is an experimental feature. Use at your own risk.
+  set maxSpans(int maxSpans) {
+    assert(maxSpans > 0);
+    _maxSpans = maxSpans;
   }
 
   SentryLogger _logger = noOpLogger;
@@ -259,6 +278,9 @@ class SentryOptions {
     sdk = SdkVersion(name: sdkName(platformChecker.isWeb), version: sdkVersion);
     sdk.addPackage('pub:sentry', sdkVersion);
   }
+
+  @internal
+  SentryOptions.empty();
 
   /// Adds an event processor
   void addEventProcessor(EventProcessor eventProcessor) {

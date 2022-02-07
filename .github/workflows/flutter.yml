@@ -61,13 +61,14 @@ jobs:
             sudo apt install -y network-manager upower
           if: matrix.os == 'ubuntu-latest'
 
-        - uses: subosito/flutter-action@v1
+        - uses: subosito/flutter-action@v2
           with:
             channel: ${{ matrix.channel }}
 
         - run: flutter upgrade
 
         - name: Test
+          if: runner.os != 'macOS'
           run: |
             cd flutter
             flutter pub get
@@ -122,7 +123,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v2
-      - uses: subosito/flutter-action@v1
+      - uses: subosito/flutter-action@v2
       - run: |
           cd flutter
           flutter pub get
@@ -145,8 +146,7 @@ jobs:
           TOTAL_MAX: ${{ steps.analysis.outputs.total_max }}
         run: |
           PERCENTAGE=$(( $TOTAL * 100 / $TOTAL_MAX ))
-          # 70 because pana does not understand null-safety yet
-          if (( $PERCENTAGE < 70 ))
+          if (( $PERCENTAGE < 90 ))
           then
             echo Score too low!
             exit 1

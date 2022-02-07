@@ -89,7 +89,7 @@ void main() {
   test('isTracingEnabled is enabled by theres sampler', () {
     final options = SentryOptions(dsn: fakeDsn);
 
-    double? sampler(SentrySamplingContext samplingContext) {}
+    double? sampler(SentrySamplingContext samplingContext) => 0.0;
 
     options.tracesSampler = sampler;
 
