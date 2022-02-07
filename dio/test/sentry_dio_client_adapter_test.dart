@@ -134,9 +134,6 @@ class Fixture {
     dio.httpClientAdapter = SentryDioClientAdapter(
       client: mc,
       hub: hub,
-      captureFailedRequests: captureFailedRequests,
-      failedRequestStatusCodes: badStatusCodes,
-      maxRequestBodySize: maxRequestBodySize,
       recordBreadcrumbs: recordBreadcrumbs,
       networkTracing: networkTracing,
     );

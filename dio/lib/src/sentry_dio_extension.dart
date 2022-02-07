@@ -20,19 +20,17 @@ extension SentryDioExtension on Dio {
     bool captureFailedRequests = false,
     bool sendDefaultPii = false,
   }) {
-    // Add FailedRequestInterceptor at index 0, so it's the first interceptor.
-    // This ensures that it is called and not skipped by any previous interceptor.
-    interceptors.insert(0, FailedRequestInterceptor());
+    if (captureFailedRequests) {
+      // Add FailedRequestInterceptor at index 0, so it's the first interceptor.
+      // This ensures that it is called and not skipped by any previous interceptor.
+      interceptors.insert(0, FailedRequestInterceptor());
+    }
 
     // intercept http requests
     httpClientAdapter = SentryDioClientAdapter(
       client: httpClientAdapter,
       recordBreadcrumbs: recordBreadcrumbs,
       networkTracing: networkTracing,
-      maxRequestBodySize: maxRequestBodySize,
-      failedRequestStatusCodes: failedRequestStatusCodes,
-      captureFailedRequests: captureFailedRequests,
-      sendDefaultPii: sendDefaultPii,
     );
 
     // intercept transformations

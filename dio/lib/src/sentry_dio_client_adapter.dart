@@ -53,10 +53,6 @@ class SentryDioClientAdapter extends HttpClientAdapter {
     Hub? hub,
     bool recordBreadcrumbs = true,
     bool networkTracing = true,
-    MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never,
-    List<SentryStatusCode> failedRequestStatusCodes = const [],
-    bool captureFailedRequests = false,
-    bool sendDefaultPii = false,
   }) {
     _hub = hub ?? HubAdapter();
 
