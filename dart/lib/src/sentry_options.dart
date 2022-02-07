@@ -302,8 +302,7 @@ class SentryOptions {
   }
 
   @internal
-  late SentryExceptionFactory exceptionFactory =
-      SentryExceptionFactory(this, stackTraceFactory);
+  late SentryExceptionFactory exceptionFactory = SentryExceptionFactory(this);
 
   @internal
   late SentryStackTraceFactory stackTraceFactory =
