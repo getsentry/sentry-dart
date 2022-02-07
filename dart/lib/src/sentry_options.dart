@@ -3,7 +3,6 @@ import 'dart:developer';
 
 import 'package:meta/meta.dart';
 import 'package:http/http.dart';
-import 'package:meta/meta.dart';
 
 import 'sentry_exception_factory.dart';
 import 'sentry_stack_trace_factory.dart';
