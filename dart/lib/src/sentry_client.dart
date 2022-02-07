@@ -28,9 +28,9 @@ class SentryClient {
 
   static final _sentryId = Future.value(SentryId.empty());
 
-  late SentryExceptionFactory _exceptionFactory;
+  SentryExceptionFactory get _exceptionFactory => _options.exceptionFactory;
 
-  late SentryStackTraceFactory _stackTraceFactory;
+  SentryStackTraceFactory get _stackTraceFactory => _options.stackTraceFactory;
 
   /// Instantiates a client using [SentryOptions]
   factory SentryClient(SentryOptions options) {
@@ -43,10 +43,7 @@ class SentryClient {
 
   /// Instantiates a client using [SentryOptions]
   SentryClient._(this._options)
-      : _random = _options.sampleRate == null ? null : Random() {
-    _stackTraceFactory = _options.stackTraceFactory;
-    _exceptionFactory = _options.exceptionFactory;
-  }
+      : _random = _options.sampleRate == null ? null : Random();
 
   /// Reports an [event] to Sentry.io.
   Future<SentryId> captureEvent(
