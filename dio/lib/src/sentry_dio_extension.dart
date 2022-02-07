@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
+import 'failed_request_interceptor.dart';
 import 'sentry_transformer.dart';
 import 'sentry_dio_client_adapter.dart';
 
@@ -19,6 +20,10 @@ extension SentryDioExtension on Dio {
     bool captureFailedRequests = false,
     bool sendDefaultPii = false,
   }) {
+    // Add FailedRequestInterceptor at index 0, so it's the first interceptor.
+    // This ensures that it is called and not skipped by any previous interceptor.
+    interceptors.insert(0, FailedRequestInterceptor());
+
     // intercept http requests
     httpClientAdapter = SentryDioClientAdapter(
       client: httpClientAdapter,
