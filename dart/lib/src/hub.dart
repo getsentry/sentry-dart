@@ -29,6 +29,9 @@ class Hub {
 
   final SentryOptions _options;
 
+  @internal
+  SentryOptions get options => _options;
+
   late SentryTracesSampler _tracesSampler;
 
   late final _WeakMap _throwableToSpan;
@@ -555,5 +558,6 @@ class _WeakMap {
         stackTrace: stackTrace,
       );
     }
+    return null;
   }
 }

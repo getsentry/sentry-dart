@@ -1,10 +1,13 @@
 import 'dart:async';
 
+import 'package:meta/meta.dart';
+
 import 'hub.dart';
 import 'protocol.dart';
 import 'sentry.dart';
 import 'sentry_client.dart';
 import 'sentry_user_feedback.dart';
+import 'sentry_options.dart';
 import 'tracing.dart';
 
 /// Hub adapter to make Integrations testable
@@ -12,6 +15,10 @@ class HubAdapter implements Hub {
   const HubAdapter._();
 
   static final HubAdapter _instance = HubAdapter._();
+
+  @override
+  @internal
+  SentryOptions get options => Sentry.currentHub.options;
 
   factory HubAdapter() {
     return _instance;

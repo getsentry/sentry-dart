@@ -1,8 +1,10 @@
+import 'dart:async';
+
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
-import 'mocks/mock_hub.dart';
 import 'mocks.dart';
+import 'mocks/mock_hub.dart';
 
 void main() {
   late Fixture fixture;
@@ -86,6 +88,51 @@ void main() {
     await integration(fixture.hub, fixture.options);
 
     expect(true, called);
+  }, onPlatform: {'browser': Skip()});
+
+  test('Run zoned guarded completes when callback returns normally', () async {
+    var completed = false;
+    final completer = Completer();
+    Future<void> callback() async {
+      await completer.future;
+    }
+
+    final integration = RunZonedGuardedIntegration(callback);
+
+    final integrationResult = Future.sync(() async {
+      await integration(fixture.hub, fixture.options);
+      completed = true;
+    });
+
+    expect(completed, false);
+
+    completer.complete();
+    await integrationResult;
+
+    expect(completed, true);
+  }, onPlatform: {'browser': Skip()});
+
+  test('Run zoned guarded completes when callback throws', () async {
+    var completed = false;
+    final completer = Completer();
+    Future<void> callback() async {
+      await completer.future;
+      throw Exception('error');
+    }
+
+    final integration = RunZonedGuardedIntegration(callback);
+
+    final integrationResult = Future.sync(() async {
+      await integration(fixture.hub, fixture.options);
+      completed = true;
+    });
+
+    expect(completed, false);
+
+    completer.complete();
+    await integrationResult;
+
+    expect(completed, true);
   }, onPlatform: {'browser': Skip()});
 
   test('Run zoned guarded calls catches integrations errors', () async {

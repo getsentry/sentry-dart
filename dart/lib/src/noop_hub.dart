@@ -1,7 +1,11 @@
 import 'dart:async';
+
+import 'package:meta/meta.dart';
+
 import 'hub.dart';
 import 'protocol.dart';
 import 'sentry_client.dart';
+import 'sentry_options.dart';
 import 'sentry_user_feedback.dart';
 import 'tracing.dart';
 
@@ -9,6 +13,12 @@ class NoOpHub implements Hub {
   NoOpHub._();
 
   static final NoOpHub _instance = NoOpHub._();
+
+  final _options = SentryOptions.empty();
+
+  @override
+  @internal
+  SentryOptions get options => _options;
 
   factory NoOpHub() {
     return _instance;

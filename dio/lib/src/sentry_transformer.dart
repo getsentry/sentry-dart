@@ -1,7 +1,9 @@
 import 'package:dio/dio.dart';
+import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
 /// A transformer which wraps transforming in spans
+@experimental
 class SentryTransformer implements Transformer {
   // ignore: public_member_api_docs
   SentryTransformer({required Transformer transformer, Hub? hub})
