@@ -47,7 +47,7 @@ void initDio() {
 }
 ```
 
-Depending on your configuration, this adds performance tracing and http breadcrumbs.
+Depending on your configuration, this adds performance tracing and http breadcrumbs. Also, exceptions from invalid http status codes or parsing exceptions are automatically captured.
 
 #### Resources
 
