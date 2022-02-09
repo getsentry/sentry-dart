@@ -1,6 +1,5 @@
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_exception_factory.dart';
-import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
@@ -92,9 +91,6 @@ class Fixture {
   final options = SentryOptions(dsn: fakeDsn);
 
   SentryExceptionFactory getSut() {
-    return SentryExceptionFactory(
-      options,
-      SentryStackTraceFactory(options),
-    );
+    return SentryExceptionFactory(options);
   }
 }
