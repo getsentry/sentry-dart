@@ -13,8 +13,8 @@ class FailedRequestInterceptor extends Interceptor {
     DioError err,
     ErrorInterceptorHandler handler,
   ) {
-    _hub.captureException(err);
     _hub.getSpan()?.throwable = err;
+    _hub.captureException(err);
 
     handler.next(err);
   }
