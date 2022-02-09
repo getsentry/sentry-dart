@@ -4,6 +4,8 @@ import 'package:flutter/widgets.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/src/sentry_native_wrapper.dart';
 import '../../sentry_flutter.dart';
+// ignore: implementation_imports
+import 'package:sentry/src/sentry_tracer.dart';
 
 /// This key must be used so that the web interface displays the events nicely
 /// See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
@@ -85,10 +87,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final AdditionalInfoExtractor? _additionalInfoProvider;
 
   ISentrySpan? _transaction;
+  DateTime? _appStartFinishTime;
   NativeAppStart? _nativeAppStart;
 
   @override
-  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) async {
     super.didPush(route, previousRoute);
     _setCurrentRoute(route.settings.name);
     _addBreadcrumb(
@@ -96,8 +99,10 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       from: previousRoute?.settings,
       to: route.settings,
     );
-    _instrumentAppStart();
-    _finishTransaction();
+
+    await _instrumentAppStart();
+    await _finishTransaction();
+
     _startTransaction(route.settings.name, route.settings.arguments);
   }
 
@@ -128,16 +133,21 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     );
   }
 
-  void _instrumentAppStart() async {
+  Future<void> _instrumentAppStart() async {
     if (!_enableAppStartTracking) {
       return;
     }
     _nativeAppStart = await SentryFlutter.native.fetchNativeAppStart();
-    print(_nativeAppStart);
+    _appStartFinishTime = DateTime.now(); // TODO: Set correct app start timestamp
   }
 
-  void _addAppStartData(NativeAppStart nativeAppStart, SentryTransaction transaction) {
+  SentryMeasurement _measurementFrom(NativeAppStart nativeAppStart, DateTime appStartFinishTime) {
+    final appStartTime = DateTime.fromMillisecondsSinceEpoch(nativeAppStart.appStartTime.toInt());
+    final duration = appStartFinishTime.difference(appStartTime);
 
+    return nativeAppStart.isColdStart
+        ? SentryMeasurement.coldAppStart(duration)
+        : SentryMeasurement.warmAppStart(duration);
   }
 
   void _addBreadcrumb({
@@ -171,7 +181,10 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     if (name == null) {
       return;
     }
-    if (name == '/') {
+
+    final isRoot = name == '/';
+
+    if (isRoot) {
       name = 'root ("/")';
     }
     _transaction = _hub.startTransaction(
@@ -183,6 +196,21 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     );
     if (arguments != null) {
       _transaction?.setData('route_settings_arguments', arguments);
+    }
+
+    // ignore: invalid_use_of_internal_member
+    if (isRoot && _transaction is SentryTracer) {
+      // ignore: invalid_use_of_internal_member
+      final tracer = _transaction as SentryTracer;
+      final nativeAppStart = _nativeAppStart;
+      final appStartFinishTime = _appStartFinishTime;
+
+      // TODO(denrase): Add app start child span...
+
+      if (nativeAppStart != null && appStartFinishTime != null) {
+        final appStartMeasurement = _measurementFrom(nativeAppStart, appStartFinishTime);
+        tracer.addMeasurement(appStartMeasurement);
+      }
     }
 
     _hub.configureScope((scope) {
