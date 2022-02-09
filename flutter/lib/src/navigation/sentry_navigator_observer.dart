@@ -201,13 +201,13 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       _transaction?.setData('route_settings_arguments', arguments);
     }
 
-    _hub.configureScope((scope) {
-      scope.span ??= _transaction;
-    });
-
     if (isRoot) {
       _addAppStartData(_transaction);
     }
+
+    _hub.configureScope((scope) {
+      scope.span ??= _transaction;
+    });
   }
 
   void _addAppStartData(ISentrySpan? transaction) {
