@@ -13,6 +13,13 @@ class SentryStackTraceFactory {
   static const _stackTraceViolateDartStandard =
       'This VM has been configured to produce stack traces that violate the Dart standard.';
 
+  static const _sentryPackagesIdentifier = <String>[
+    'sentry',
+    'sentry_flutter',
+    'sentry_logging',
+    'sentry_dio',
+  ];
+
   SentryStackTraceFactory(this._options);
 
   /// returns the [SentryStackFrame] list from a stackTrace ([StackTrace] or [String])
@@ -31,7 +38,7 @@ class SentryStackTraceFactory {
 
       for (final frame in trace.frames) {
         // we don't want to add our own frames
-        if (frame.package == 'sentry') {
+        if (_sentryPackagesIdentifier.contains(frame.package)) {
           continue;
         }
 
