@@ -18,7 +18,6 @@ extension SentryDioExtension on Dio {
     MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never,
     List<SentryStatusCode> failedRequestStatusCodes = const [],
     bool captureFailedRequests = false,
-    bool sendDefaultPii = false,
     Hub? hub,
   }) {
     hub = hub ?? HubAdapter();
@@ -39,7 +38,7 @@ extension SentryDioExtension on Dio {
       maxRequestBodySize: maxRequestBodySize,
       failedRequestStatusCodes: failedRequestStatusCodes,
       captureFailedRequests: captureFailedRequests,
-      sendDefaultPii: sendDefaultPii,
+      sendDefaultPii: options.sendDefaultPii,
       hub: hub,
     );
 
