@@ -1,6 +1,7 @@
 # Unreleased
 
 * Fix: Add missing return values - dart analyzer (#742)
+* Feat: Mobile Vitals - Native App Start (#749)
 
 # 6.3.0
 
