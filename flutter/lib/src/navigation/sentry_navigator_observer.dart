@@ -85,15 +85,17 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final RouteNameExtractor? _routeNameExtractor;
   final AdditionalInfoExtractor? _additionalInfoProvider;
 
+  ISentrySpan? _initialTransaction;
   ISentrySpan? _transaction;
+
   DateTime? _appStartFinishTime;
   NativeAppStart? _nativeAppStart;
 
   @override
-  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) async {
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPush(route, previousRoute);
 
-    await _fetchAppStartValues();
+    _finishAppStart();
 
     _setCurrentRoute(route.settings.name);
 
@@ -103,11 +105,10 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       to: route.settings,
     );
 
-    _startTransaction(
-      route.settings.name,
-      route.settings.arguments,
-      previousRoute == null,
-    );
+    _finishTransaction();
+    _startTransaction(route.settings.name, route.settings.arguments);
+
+    _instrumentAppStart();
   }
 
   @override
@@ -136,17 +137,35 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     _startTransaction(
       previousRoute?.settings.name,
       previousRoute?.settings.arguments,
-      false,
     );
   }
 
-  Future<void> _fetchAppStartValues() async {
-    if (!_enableAppStartTracking || _appStartFinishTime != null) {
+  void _finishAppStart() {
+    if (!_enableAppStartTracking) {
       return;
     }
-    _appStartFinishTime =
-        DateTime.now(); // TODO: Set correct app start timestamp
+    _appStartFinishTime ??= DateTime.now();
+  }
+
+  void _instrumentAppStart() async {
+    if (!_enableAppStartTracking) {
+      return;
+    }
     _nativeAppStart = await SentryFlutter.native.fetchNativeAppStart();
+
+    final initialTransaction = _initialTransaction;
+    // ignore: invalid_use_of_internal_member
+    if (initialTransaction is SentryTracer) {
+      final nativeAppStart = _nativeAppStart;
+      final appStartFinishTime = _appStartFinishTime;
+
+      if (nativeAppStart != null && appStartFinishTime != null) {
+        // TODO: Add app start child span when we are able to provide custom start/end timestamps.
+
+        final measurement = nativeAppStart.toMeasurement(appStartFinishTime);
+        initialTransaction.addMeasurement(measurement);
+      }
+    }
   }
 
   void _addBreadcrumb({
@@ -173,8 +192,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
   }
 
-  void _startTransaction(
-      String? name, Object? arguments, bool isInitialTransaction) {
+  void _startTransaction(String? name, Object? arguments) {
     if (!_enableAutoTransactions) {
       return;
     }
@@ -197,30 +215,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       _transaction?.setData('route_settings_arguments', arguments);
     }
 
-    if (isInitialTransaction) {
-      _addAppStartData(_transaction);
-    }
-
     _hub.configureScope((scope) {
       scope.span ??= _transaction;
     });
-  }
 
-  void _addAppStartData(ISentrySpan? transaction) {
-    // TODO: Resolve how to correctly access internal API.
-
-    // ignore: invalid_use_of_internal_member
-    if (transaction is SentryTracer) {
-      final nativeAppStart = _nativeAppStart;
-      final appStartFinishTime = _appStartFinishTime;
-
-      if (nativeAppStart != null && appStartFinishTime != null) {
-        // TODO: Add app start child span when we are able to provide custom start/end timestamps.
-
-        final measurement = nativeAppStart.toMeasurement(appStartFinishTime);
-        transaction.addMeasurement(measurement);
-      }
-    }
+    _initialTransaction ??= _transaction;
   }
 
   Future<void> _finishTransaction() async {
