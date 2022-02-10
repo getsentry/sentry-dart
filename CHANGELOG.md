@@ -1,6 +1,7 @@
 # Unreleased
 
 * Fix: Add missing return values - dart analyzer (#742)
+* Feature: Add `DioEventProcessor` which improves DioError crash reports (#718)
 
 # 6.3.0
 
