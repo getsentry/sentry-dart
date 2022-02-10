@@ -141,6 +141,14 @@ class SentryTracer extends ISentrySpan {
       return NoOpSentrySpan();
     }
 
+    if (children.length >= _hub.options.maxSpans) {
+      _hub.options.logger(
+        SentryLevel.warning,
+        'Span operation: $operation, description: $description dropped due to limit reached. Returning NoOpSpan.',
+      );
+      return NoOpSentrySpan();
+    }
+
     return _rootSpan.startChild(
       operation,
       description: description,
@@ -153,6 +161,14 @@ class SentryTracer extends ISentrySpan {
     String? description,
   }) {
     if (finished) {
+      return NoOpSentrySpan();
+    }
+
+    if (children.length >= _hub.options.maxSpans) {
+      _hub.options.logger(
+        SentryLevel.warning,
+        'Span operation: $operation, description: $description dropped due to limit reached. Returning NoOpSpan.',
+      );
       return NoOpSentrySpan();
     }
 

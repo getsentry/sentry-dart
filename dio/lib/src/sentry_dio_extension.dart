@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import 'sentry_transformer.dart';
 import 'sentry_dio_client_adapter.dart';
@@ -9,6 +10,7 @@ extension SentryDioExtension on Dio {
   /// as well as request and response transformations.
   /// This must be the last initialization step of the [Dio] setup, otherwise
   /// your configuration of Dio might overwrite the Sentry configuration.
+  @experimental
   void addSentry({
     bool recordBreadcrumbs = true,
     bool networkTracing = true,

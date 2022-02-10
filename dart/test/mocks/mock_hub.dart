@@ -1,3 +1,4 @@
+import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/noop_hub.dart';
 
@@ -13,6 +14,12 @@ class MockHub implements Hub {
   bool _isEnabled = true;
   int spanContextCals = 0;
   int getSpanCalls = 0;
+
+  final _options = SentryOptions.empty();
+
+  @override
+  @internal
+  SentryOptions get options => _options;
 
   /// Useful for tests.
   void reset() {

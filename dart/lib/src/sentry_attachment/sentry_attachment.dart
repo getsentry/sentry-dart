@@ -33,8 +33,10 @@ class SentryAttachment {
     required this.filename,
     String? attachmentType,
     this.contentType,
+    bool? addToTransactions,
   })  : _loader = loader,
-        attachmentType = attachmentType ?? typeAttachmentDefault;
+        attachmentType = attachmentType ?? typeAttachmentDefault,
+        addToTransactions = addToTransactions ?? false;
 
   /// Creates an [SentryAttachment] from a [Uint8List]
   SentryAttachment.fromUint8List(
@@ -42,11 +44,13 @@ class SentryAttachment {
     String fileName, {
     String? contentType,
     String? attachmentType,
+    bool? addToTransactions,
   }) : this.fromLoader(
           attachmentType: attachmentType,
           loader: () => bytes,
           filename: fileName,
           contentType: contentType,
+          addToTransactions: addToTransactions,
         );
 
   /// Creates an [SentryAttachment] from a [List<int>]
@@ -55,11 +59,13 @@ class SentryAttachment {
     String fileName, {
     String? contentType,
     String? attachmentType,
+    bool? addToTransactions,
   }) : this.fromLoader(
           attachmentType: attachmentType,
           loader: () => Uint8List.fromList(bytes),
           filename: fileName,
           contentType: contentType,
+          addToTransactions: addToTransactions,
         );
 
   /// Creates an [SentryAttachment] from [ByteData]
@@ -68,11 +74,13 @@ class SentryAttachment {
     String fileName, {
     String? contentType,
     String? attachmentType,
+    bool? addToTransactions,
   }) : this.fromLoader(
           attachmentType: attachmentType,
           loader: () => bytes.buffer.asUint8List(),
           filename: fileName,
           contentType: contentType,
+          addToTransactions: addToTransactions,
         );
 
   /// Attachment type.
@@ -91,4 +99,8 @@ class SentryAttachment {
   /// Attachment content type.
   /// Inferred by Sentry if it's not given.
   final String? contentType;
+
+  /// If true, attachment should be added to every transaction.
+  /// Defaults to false.
+  final bool addToTransactions;
 }

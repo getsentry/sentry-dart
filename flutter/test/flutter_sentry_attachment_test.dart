@@ -10,11 +10,13 @@ void main() {
     final attachment = FlutterSentryAttachment.fromAsset(
       'foobar.txt',
       bundle: TestAssetBundle(),
+      addToTransactions: true,
     );
 
     expect(attachment.attachmentType, SentryAttachment.typeAttachmentDefault);
     expect(attachment.contentType, isNull);
     expect(attachment.filename, 'foobar.txt');
+    expect(attachment.addToTransactions, true);
     await expectLater(await attachment.bytes, [102, 111, 111, 32, 98, 97, 114]);
   });
 }

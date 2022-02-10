@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:meta/meta.dart';
 import 'package:http/http.dart';
 
+import 'sentry_exception_factory.dart';
+import 'sentry_stack_trace_factory.dart';
 import 'diagnostic_logger.dart';
 import 'environment/environment_variables.dart';
 import 'event_processor.dart';
@@ -68,6 +71,24 @@ class SentryOptions {
   set maxAttachmentSize(int maxAttachmentSize) {
     assert(maxAttachmentSize > 0);
     _maxAttachmentSize = maxAttachmentSize;
+  }
+
+  /// Maximum number of spans that can be attached to single transaction.
+  ///
+  /// The is an experimental feature. Use at your own risk.
+  int _maxSpans = 1000;
+
+  /// Returns the maximum number of spans that can be attached to single transaction.
+  ///
+  /// The is an experimental feature. Use at your own risk.
+  int get maxSpans => _maxSpans;
+
+  /// Sets the maximum number of spans that can be attached to single transaction.
+  ///
+  /// The is an experimental feature. Use at your own risk.
+  set maxSpans(int maxSpans) {
+    assert(maxSpans > 0);
+    _maxSpans = maxSpans;
   }
 
   SentryLogger _logger = noOpLogger;
@@ -257,6 +278,9 @@ class SentryOptions {
     sdk.addPackage('pub:sentry', sdkVersion);
   }
 
+  @internal
+  SentryOptions.empty();
+
   /// Adds an event processor
   void addEventProcessor(EventProcessor eventProcessor) {
     _eventProcessors.add(eventProcessor);
@@ -297,6 +321,13 @@ class SentryOptions {
   bool isTracingEnabled() {
     return tracesSampleRate != null || tracesSampler != null;
   }
+
+  @internal
+  late SentryExceptionFactory exceptionFactory = SentryExceptionFactory(this);
+
+  @internal
+  late SentryStackTraceFactory stackTraceFactory =
+      SentryStackTraceFactory(this);
 }
 
 /// This function is called with an SDK specific event object and can return a modified event

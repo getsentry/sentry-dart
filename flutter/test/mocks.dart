@@ -2,6 +2,8 @@ import 'package:mockito/annotations.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/platform/platform.dart';
 
+import 'package:meta/meta.dart';
+
 import 'mocks.mocks.dart';
 
 const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
@@ -123,6 +125,12 @@ class MockPlatformChecker implements PlatformChecker {
 // Does nothing or returns default values.
 // Usefull for when a Hub needs to be passed but is not used.
 class NoOpHub implements Hub {
+  final _options = SentryOptions(dsn: 'fixture-dsn');
+
+  @override
+  @internal
+  SentryOptions get options => _options;
+
   @override
   void addBreadcrumb(Breadcrumb crumb, {hint}) {}
 
