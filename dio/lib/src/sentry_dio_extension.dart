@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
+import 'dio_event_processor.dart';
 import 'sentry_transformer.dart';
 import 'sentry_dio_client_adapter.dart';
 
@@ -18,7 +19,18 @@ extension SentryDioExtension on Dio {
     List<SentryStatusCode> failedRequestStatusCodes = const [],
     bool captureFailedRequests = false,
     bool sendDefaultPii = false,
+    Hub? hub,
   }) {
+    hub = hub ?? HubAdapter();
+
+    // ignore: invalid_use_of_internal_member
+    final options = hub.options;
+
+    // Add DioEventProcessor when it's not already present
+    if (options.eventProcessors.whereType<DioEventProcessor>().isEmpty) {
+      options.addEventProcessor(DioEventProcessor(options, maxRequestBodySize));
+    }
+
     // intercept http requests
     httpClientAdapter = SentryDioClientAdapter(
       client: httpClientAdapter,
@@ -28,9 +40,13 @@ extension SentryDioExtension on Dio {
       failedRequestStatusCodes: failedRequestStatusCodes,
       captureFailedRequests: captureFailedRequests,
       sendDefaultPii: sendDefaultPii,
+      hub: hub,
     );
 
     // intercept transformations
-    transformer = SentryTransformer(transformer: transformer);
+    transformer = SentryTransformer(
+      transformer: transformer,
+      hub: hub,
+    );
   }
 }

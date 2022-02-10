@@ -1,21 +1,24 @@
-// ignore_for_file: implementation_imports, public_member_api_docs
+// ignore_for_file: implementation_imports
 
 import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_exception_factory.dart';
-import 'package:sentry/src/sentry_stack_trace_factory.dart';
 
+/// This is an [EventProcessor], which improves crash reports of [DioError]s.
+/// It adds information about [DioError.response] if present and also about
+/// the inner exceptions.
 class DioEventProcessor implements EventProcessor {
+  /// This is an [EventProcessor], which improves crash reports of [DioError]s.
   DioEventProcessor(this._options, this._maxRequestBodySize);
 
   final SentryOptions _options;
   final MaxRequestBodySize _maxRequestBodySize;
-  late final sentryExceptionFactory = SentryExceptionFactory(
-    _options,
-    SentryStackTraceFactory(_options),
-  );
+
+  SentryExceptionFactory get _sentryExceptionFactory =>
+      // ignore: invalid_use_of_internal_member
+      _options.exceptionFactory;
 
   @override
   FutureOr<SentryEvent?> apply(SentryEvent event, {dynamic hint}) {
@@ -35,7 +38,7 @@ class DioEventProcessor implements EventProcessor {
     }
 
     try {
-      final exception = sentryExceptionFactory.getSentryException(
+      final exception = _sentryExceptionFactory.getSentryException(
         dioError.error,
         stackTrace: dioError.stackTrace,
       );
@@ -84,7 +87,7 @@ class DioEventProcessor implements EventProcessor {
     var e = dioSentryExceptions.first;
     exceptions.removeWhere((element) => element == e);
     dioError.stackTrace = null;
-    e = sentryExceptionFactory.getSentryException(dioError).copyWith(
+    e = _sentryExceptionFactory.getSentryException(dioError).copyWith(
           mechanism: e.mechanism,
           module: e.module,
           stackTrace: e.stackTrace,
@@ -136,14 +139,5 @@ class DioEventProcessor implements EventProcessor {
       }
     }
     return null;
-    /*
-    if (data is Map<String, dynamic>) {
-      // Not sure how to proceed here, as converting to bytes is potentially
-      // very expensive.
-      return null;
-    } else if (data is ResponseBody) {
-      // Body is a stream and can't be added.
-    }
-    */
   }
 }
