@@ -4,6 +4,8 @@ import 'dart:developer';
 import 'package:meta/meta.dart';
 import 'package:http/http.dart';
 
+import 'sentry_exception_factory.dart';
+import 'sentry_stack_trace_factory.dart';
 import 'diagnostic_logger.dart';
 import 'environment/environment_variables.dart';
 import 'event_processor.dart';
@@ -319,6 +321,13 @@ class SentryOptions {
   bool isTracingEnabled() {
     return tracesSampleRate != null || tracesSampler != null;
   }
+
+  @internal
+  late SentryExceptionFactory exceptionFactory = SentryExceptionFactory(this);
+
+  @internal
+  late SentryStackTraceFactory stackTraceFactory =
+      SentryStackTraceFactory(this);
 }
 
 /// This function is called with an SDK specific event object and can return a modified event
