@@ -27,6 +27,7 @@ extension SentryDioExtension on Dio {
 
     // Add DioEventProcessor when it's not already present
     if (options.eventProcessors.whereType<DioEventProcessor>().isEmpty) {
+      options.sdk.addIntegration('sentry_dio');
       options.addEventProcessor(DioEventProcessor(options, maxRequestBodySize));
     }
 
