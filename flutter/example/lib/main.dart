@@ -553,7 +553,7 @@ Future<void> makeWebRequestWithDio(BuildContext context) async {
       );
   Response<String>? response;
   try {
-    response = await dio.get<String>('https://flutter.dev/segdr');
+    response = await dio.get<String>('https://flutter.dev/');
     transaction.status = SpanStatus.ok();
   } catch (exception, stackTrace) {
     transaction.throwable = exception;
