@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -23,11 +22,6 @@ Future<void> main() async {
       options.dsn = _exampleDsn;
       options.tracesSampleRate = 1.0;
       options.reportPackages = false;
-      options.addEventProcessor(DioEventProcessor(
-        options,
-        MaxRequestBodySize.small,
-      ));
-      options.sdk.addIntegration('sentry_dio');
     },
     // Init your App.
     appRunner: () => runApp(
@@ -543,25 +537,12 @@ Future<void> makeWebRequest(BuildContext context) async {
   );
 }
 
-class ThrowingHttpClientAdapter implements HttpClientAdapter {
-  @override
-  void close({bool force = false}) {}
-
-  @override
-  Future<ResponseBody> fetch(RequestOptions options,
-      Stream<Uint8List>? requestStream, Future? cancelFuture) {
-    throw Exception('ThrowingHttpClientAdapter');
-  }
-}
-
 Future<void> makeWebRequestWithDio(BuildContext context) async {
   final dio = Dio();
-  dio.httpClientAdapter = ThrowingHttpClientAdapter();
 
   dio.addSentry(
     captureFailedRequests: true,
     networkTracing: true,
-    failedRequestStatusCodes: [SentryStatusCode.range(400, 500)],
   );
 
   final transaction = Sentry.getSpan() ??
@@ -572,7 +553,7 @@ Future<void> makeWebRequestWithDio(BuildContext context) async {
       );
   Response<String>? response;
   try {
-    response = await dio.get<String>('https://flutter.dev/');
+    response = await dio.get<String>('https://flutter.dev/segdr');
     transaction.status = SpanStatus.ok();
   } catch (exception, stackTrace) {
     transaction.throwable = exception;
