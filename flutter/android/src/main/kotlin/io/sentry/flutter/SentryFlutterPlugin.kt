@@ -10,7 +10,7 @@ import io.sentry.HubAdapter
 import io.sentry.Sentry
 import io.sentry.SentryEvent
 import io.sentry.SentryLevel
-import io.sentry.android.core.AppStartState;
+import io.sentry.android.core.AppStartState
 import io.sentry.android.core.SentryAndroid
 import io.sentry.android.core.SentryAndroidOptions
 import io.sentry.protocol.DebugImage
@@ -126,13 +126,13 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
   private var didFetchAppStart = false
 
   private fun fetchNativeAppStart(result: Result) {
-    val appStartTime = AppStartState.getInstance().getAppStartTime();
-    val isColdStart = AppStartState.getInstance().isColdStart();
+    val appStartTime = AppStartState.getInstance().getAppStartTime()
+    val isColdStart = AppStartState.getInstance().isColdStart()
 
     if (appStartTime == null) {
-      result.error("1", "App start won't be sent due to missing appStartTime", null);
+      result.error("1", "App start won't be sent due to missing appStartTime", null)
     } else if (isColdStart == null) {
-      result.error("1", "App start won't be sent due to missing isColdStart", null);
+      result.error("1", "App start won't be sent due to missing isColdStart", null)
     } else {
       val item = mapOf<String, Any?>(
         "appStartTime" to appStartTime.getTime().toDouble(),
