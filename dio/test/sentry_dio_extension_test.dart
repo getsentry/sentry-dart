@@ -11,16 +11,18 @@ void main() {
   group('SentryDioExtension', () {
     test('addSentry adds $SentryTransformer', () {
       final dio = Dio();
+      final hub = MockHub();
 
-      dio.addSentry();
+      dio.addSentry(hub: hub);
 
       expect(dio.transformer, isA<SentryTransformer>());
     });
 
     test('addSentry adds $SentryDioClientAdapter', () {
       final dio = Dio();
+      final hub = MockHub();
 
-      dio.addSentry();
+      dio.addSentry(hub: hub);
 
       expect(dio.httpClientAdapter, isA<SentryDioClientAdapter>());
     });
