@@ -1,8 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
-import 'package:sentry/sentry.dart';
-import 'package:sentry_flutter/src/sentry_native_wrapper.dart';
+import '../sentry_native_wrapper.dart';
 import '../../sentry_flutter.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/sentry_tracer.dart';

@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry_flutter/src/noop_sentry_native_wrapper.dart';
-import 'package:sentry_flutter/src/sentry_native_wrapper.dart';
+import 'noop_sentry_native_wrapper.dart';
+import 'sentry_native_wrapper.dart';
 
 import 'flutter_enricher_event_processor.dart';
 import 'integrations/debug_print_integration.dart';

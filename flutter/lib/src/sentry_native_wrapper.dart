@@ -1,5 +1,4 @@
 import 'package:flutter/services.dart';
-
 import '../sentry_flutter.dart';
 
 /// Provide typed methods to access native layer.
@@ -23,6 +22,7 @@ class SentryNativeWrapper {
         exception: error,
         stackTrace: stackTrace,
       );
+      return null;
     }
   }
 }
