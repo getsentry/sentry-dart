@@ -140,8 +140,8 @@ class SentryTransaction extends SentryEvent {
         request: request ?? this.request,
         type: type ?? this.type,
         measurements: (measurements != null
-            ? List<SentryMeasurement>.from(measurements)
-            : null) ??
+                ? List<SentryMeasurement>.from(measurements)
+                : null) ??
             this.measurements,
       );
 }

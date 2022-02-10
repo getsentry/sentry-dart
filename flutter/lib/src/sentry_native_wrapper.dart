@@ -13,7 +13,8 @@ class SentryNativeWrapper {
 
   Future<NativeAppStart?> fetchNativeAppStart() async {
     try {
-      final json = await _channel.invokeMapMethod<String, dynamic>('fetchNativeAppStart');
+      final json = await _channel
+          .invokeMapMethod<String, dynamic>('fetchNativeAppStart');
       return (json != null) ? NativeAppStart.fromJson(json) : null;
     } catch (error, stackTrace) {
       _options.logger(

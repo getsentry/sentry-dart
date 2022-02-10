@@ -94,18 +94,21 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) async {
     super.didPush(route, previousRoute);
 
-    await _instrumentAppStart();
+    await _fetchAppStartValues();
 
     _setCurrentRoute(route.settings.name);
+
     _addBreadcrumb(
       type: 'didPush',
       from: previousRoute?.settings,
       to: route.settings,
     );
 
-    await _finishTransaction();
-
-    _startTransaction(route.settings.name, route.settings.arguments);
+    _startTransaction(
+      route.settings.name,
+      route.settings.arguments,
+      previousRoute == null,
+    );
   }
 
   @override
@@ -122,34 +125,29 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   @override
   void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPop(route, previousRoute);
+
     _setCurrentRoute(previousRoute?.settings.name);
     _addBreadcrumb(
       type: 'didPop',
       from: route.settings,
       to: previousRoute?.settings,
     );
+
     _finishTransaction();
     _startTransaction(
       previousRoute?.settings.name,
       previousRoute?.settings.arguments,
+      false,
     );
   }
 
-  Future<void> _instrumentAppStart() async {
+  Future<void> _fetchAppStartValues() async {
     if (!_enableAppStartTracking || _appStartFinishTime != null) {
       return;
     }
-    _appStartFinishTime = DateTime.now(); // TODO: Set correct app start timestamp
+    _appStartFinishTime =
+        DateTime.now(); // TODO: Set correct app start timestamp
     _nativeAppStart = await SentryFlutter.native.fetchNativeAppStart();
-  }
-
-  SentryMeasurement _measurementFrom(NativeAppStart nativeAppStart, DateTime appStartFinishTime) {
-    final appStartTime = DateTime.fromMillisecondsSinceEpoch(nativeAppStart.appStartTime.toInt());
-    final duration = appStartFinishTime.difference(appStartTime);
-
-    return nativeAppStart.isColdStart
-        ? SentryMeasurement.coldAppStart(duration)
-        : SentryMeasurement.warmAppStart(duration);
   }
 
   void _addBreadcrumb({
@@ -176,7 +174,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
   }
 
-  void _startTransaction(String? name, Object? arguments) {
+  void _startTransaction(
+      String? name, Object? arguments, bool isInitialTransaction) {
     if (!_enableAutoTransactions) {
       return;
     }
@@ -184,11 +183,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       return;
     }
 
-    final isRoot = name == '/';
-    if (isRoot) {
+    if (name == '/') {
       name = 'root ("/")';
     }
-
     _transaction = _hub.startTransaction(
       name,
       'navigation',
@@ -201,7 +198,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       _transaction?.setData('route_settings_arguments', arguments);
     }
 
-    if (isRoot) {
+    if (isInitialTransaction) {
       _addAppStartData(_transaction);
     }
 
@@ -211,20 +208,18 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   }
 
   void _addAppStartData(ISentrySpan? transaction) {
+    // TODO: Resolve how to correctly access internal API.
+
     // ignore: invalid_use_of_internal_member
     if (transaction is SentryTracer) {
-      // ignore: invalid_use_of_internal_member
-      final tracer = transaction as SentryTracer;
       final nativeAppStart = _nativeAppStart;
       final appStartFinishTime = _appStartFinishTime;
 
       if (nativeAppStart != null && appStartFinishTime != null) {
+        // TODO: Add app start child span when we are able to provide custom start/end timestamps.
 
-        // TODO(denrase): Add app start child span when we are able to provide
-        // custom start/end timestamps.
-
-        final appStartMeasurement = _measurementFrom(nativeAppStart, appStartFinishTime);
-        tracer.addMeasurement(appStartMeasurement);
+        final measurement = nativeAppStart.toMeasurement(appStartFinishTime);
+        transaction.addMeasurement(measurement);
       }
     }
   }
@@ -294,5 +289,17 @@ class RouteObserverBreadcrumb extends Breadcrumb {
           MapEntry<String, String>(key, value.toString()));
     }
     return args.toString();
+  }
+}
+
+extension NativeAppStartMeasurement on NativeAppStart {
+  SentryMeasurement toMeasurement(DateTime appStartFinishTime) {
+    final appStartDateTime =
+        DateTime.fromMillisecondsSinceEpoch(appStartTime.toInt());
+    final duration = appStartFinishTime.difference(appStartDateTime);
+
+    return isColdStart
+        ? SentryMeasurement.coldAppStart(duration)
+        : SentryMeasurement.warmAppStart(duration);
   }
 }
