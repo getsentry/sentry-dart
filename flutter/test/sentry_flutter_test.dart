@@ -215,7 +215,7 @@ void main() {
         (options) {
           options.dsn = fakeDsn;
 
-          expect(kDebugMode, options.debug);
+          expect(false, options.debug);
           expect('debug', options.environment);
           expect(sdkName, options.sdk.name);
           expect(sdkVersion, options.sdk.version);
