@@ -22,7 +22,9 @@ Integration for the [`dio`](https://pub.dev/packages/dio) package.
 
 - Follow the installing instructions on [pub.dev](https://pub.dev/packages/sentry/install).
 
-- Initialize the Sentry SDK using the DSN issued by Sentry.io:
+- Initialize the Sentry SDK using the DSN issued by Sentry.io.
+
+- Call `dio.addSentry()`. This *must* be the last initialization step of the Dio setup, otherwise your configuration of Dio might overwrite the Sentry configuration.
 
 ```dart
 import 'package:sentry/sentry.dart';
@@ -39,14 +41,13 @@ Future<void> main() async {
 
 void initDio() {
   final dio = Dio();
-  // Make sure this is the last initialization method, 
-  // otherwise you might override Sentrys configuration.
+  /// This *must* be the last initialization step of the Dio setup, otherwise
+  /// your configuration of Dio might overwrite the Sentry configuration.
   dio.addSentry(...);
 }
 ```
 
-Dependending on you configuration, this can add performance tracing, 
-http breadcrumbs and automatic recording of bad http requests.
+Depending on your configuration, this adds performance tracing and http breadcrumbs. Also, exceptions from invalid http status codes or parsing exceptions are automatically captured.
 
 #### Resources
 
