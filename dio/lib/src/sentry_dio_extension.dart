@@ -17,7 +17,6 @@ extension SentryDioExtension on Dio {
     bool recordBreadcrumbs = true,
     bool networkTracing = true,
     MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never,
-    List<SentryStatusCode> failedRequestStatusCodes = const [],
     bool captureFailedRequests = false,
     Hub? hub,
   }) {
