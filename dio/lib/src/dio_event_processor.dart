@@ -27,33 +27,39 @@ class DioEventProcessor implements EventProcessor {
       return event;
     }
 
+    // Don't override just parts of the original request.
+    // Keep the original one or if there's none create one.
+    event = event.copyWith(request: event.request ?? _requestFrom(dioError));
+
     final innerDioStackTrace = dioError.stackTrace;
     final innerDioErrorException = dioError.error as Object?;
 
-    // Don't override just parts of the original request.
-    // Keep the original one or if there's none create one.
-    final request = event.request ?? _requestFrom(dioError);
-
-    // If the inner errors stacktrace is null, there's no point in creating
-    // a chained exception. We can still add request information, so we do that.
+    // If the inner errors stacktrace is null,
+    // there's nothing to create chained exception
     if (innerDioStackTrace == null) {
-      return event.copyWith(request: request);
+      return event;
     }
 
     try {
-      final exception = _sentryExceptionFactory.getSentryException(
+      var innerException = _sentryExceptionFactory.getSentryException(
         innerDioErrorException ?? 'DioError inner stacktrace',
         stackTrace: innerDioStackTrace,
       );
+      if (innerDioErrorException.runtimeType == String) {
+        innerException =
+            innerException.copyWith(type: 'DioError inner stacktrace');
+      }
 
-      final exceptions = _removeDioErrorStackTraceFromValue(event, dioError);
+      final exceptions = _removeDioErrorStackTraceFromValue(
+        List<SentryException>.from(event.exceptions ?? <SentryException>[]),
+        dioError,
+      );
 
       return event.copyWith(
         exceptions: [
-          exception,
+          innerException,
           ...exceptions,
         ],
-        request: request,
       );
     } catch (e, stackTrace) {
       _options.logger(
@@ -69,30 +75,24 @@ class DioEventProcessor implements EventProcessor {
   /// Remove the StackTrace from [dioError] so the message on Sentry looks
   /// much better.
   List<SentryException> _removeDioErrorStackTraceFromValue(
-    SentryEvent event,
+    List<SentryException> exceptions,
     DioError dioError,
   ) {
-    // Don't edit the original list
-    final exceptions = List<SentryException>.from(
-      event.exceptions ?? <SentryException>[],
-    );
-
-    final dioErrorValue = dioError.toString();
-
     var dioSentryException = exceptions
-        .where((element) => element.value == dioErrorValue)
-        .toList()
+        .where((element) => element.type == dioError.runtimeType.toString())
         .first;
 
-    exceptions.removeWhere((element) => element == dioSentryException);
+    final exceptionIndex = exceptions.indexOf(dioSentryException);
+    exceptions.remove(dioSentryException);
 
     // remove stacktrace, so that it looks better on Sentry.io
     dioError.stackTrace = null;
+
     dioSentryException = dioSentryException.copyWith(
       value: dioError.toString(),
     );
 
-    exceptions.add(dioSentryException);
+    exceptions.insert(exceptionIndex, dioSentryException);
 
     return exceptions;
   }
