@@ -86,17 +86,17 @@ void main() {
 
   test('$DioEventProcessor adds request without pii', () {
     final sut = fixture.getSut(sendDefaultPii: false);
-
-    final event = SentryEvent(
-      throwable: DioError(
-        error: Exception('foo bar'),
+    final dioError = DioError(
+      error: Exception('foo bar'),
+      requestOptions: requestOptions,
+      response: Response<dynamic>(
         requestOptions: requestOptions,
-        response: Response<dynamic>(
-          requestOptions: requestOptions,
-          data: 'foobar',
-        ),
-      )..stackTrace = StackTrace.current,
+        data: 'foobar',
+      ),
     );
+
+    final event = SentryEvent(throwable: dioError);
+
     final processedEvent = sut.apply(event) as SentryEvent;
 
     expect(processedEvent.throwable, event.throwable);

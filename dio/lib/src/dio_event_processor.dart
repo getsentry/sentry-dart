@@ -27,20 +27,23 @@ class DioEventProcessor implements EventProcessor {
       return event;
     }
 
+    final innerDioStackTrace = dioError.stackTrace;
+    final innerDioErrorException = dioError.error as Object?;
+
+    // Don't override just parts of the original request.
+    // Keep the original one or if there's none create one.
+    final request = event.request ?? _requestFrom(dioError);
+
     // If the inner errors stacktrace is null, there's no point in creating
     // a chained exception. We can still add request information, so we do that.
-    if (dioError.stackTrace == null) {
-      return event.copyWith(
-        // Don't override just parts of the original request.
-        // Keep the original one or if there's none create one.
-        request: event.request ?? _requestFrom(dioError),
-      );
+    if (innerDioStackTrace == null) {
+      return event.copyWith(request: request);
     }
 
     try {
       final exception = _sentryExceptionFactory.getSentryException(
-        dioError.error,
-        stackTrace: dioError.stackTrace,
+        innerDioErrorException ?? 'DioError inner stacktrace',
+        stackTrace: innerDioStackTrace,
       );
 
       final exceptions = _removeDioErrorStackTraceFromValue(event, dioError);
@@ -50,9 +53,7 @@ class DioEventProcessor implements EventProcessor {
           exception,
           ...exceptions,
         ],
-        // Don't override just parts of the original request.
-        // Keep the original one or if there's none create one.
-        request: event.request ?? _requestFrom(dioError),
+        request: request,
       );
     } catch (e, stackTrace) {
       _options.logger(
