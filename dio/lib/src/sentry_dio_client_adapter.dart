@@ -5,7 +5,6 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
-import 'failed_request_client_adapter.dart';
 import 'tracing_client_adapter.dart';
 import 'breadcrumb_client_adapter.dart';
 
@@ -54,23 +53,10 @@ class SentryDioClientAdapter extends HttpClientAdapter {
     Hub? hub,
     bool recordBreadcrumbs = true,
     bool networkTracing = true,
-    MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never,
-    List<SentryStatusCode> failedRequestStatusCodes = const [],
-    bool captureFailedRequests = false,
-    bool sendDefaultPii = false,
   }) {
     _hub = hub ?? HubAdapter();
 
     var innerClient = client;
-
-    innerClient = FailedRequestClientAdapter(
-      failedRequestStatusCodes: failedRequestStatusCodes,
-      captureFailedRequests: captureFailedRequests,
-      maxRequestBodySize: maxRequestBodySize,
-      sendDefaultPii: sendDefaultPii,
-      hub: _hub,
-      client: innerClient,
-    );
 
     if (networkTracing) {
       innerClient = TracingClientAdapter(client: innerClient, hub: _hub);

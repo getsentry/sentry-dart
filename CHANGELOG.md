@@ -1,6 +1,7 @@
 # Unreleased
 
 * Fix: Disable log by default in debug mode
+* [Dio] Ref: Replace FailedRequestAdapter with FailedRequestInterceptor (#728)
 * Fix: Add missing return values - dart analyzer (#742)
 
 # 6.3.0
