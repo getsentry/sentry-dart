@@ -1,5 +1,6 @@
 # Unreleased
 
+* Fix: Disable log by default in debug mode
 * Fix: Add missing return values - dart analyzer (#742)
 
 # 6.3.0
