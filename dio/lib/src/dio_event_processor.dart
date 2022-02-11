@@ -33,7 +33,7 @@ class DioEventProcessor implements EventProcessor {
       return event.copyWith(
         // Don't override just parts of the original request.
         // Keep the original one or if there's none create one.
-        request: event.request ?? _toRequest(dioError),
+        request: event.request ?? _requestFrom(dioError),
       );
     }
 
@@ -52,7 +52,7 @@ class DioEventProcessor implements EventProcessor {
         ],
         // Don't override just parts of the original request.
         // Keep the original one or if there's none create one.
-        request: event.request ?? _toRequest(dioError),
+        request: event.request ?? _requestFrom(dioError),
       );
     } catch (e, stackTrace) {
       _options.logger(
@@ -78,29 +78,25 @@ class DioEventProcessor implements EventProcessor {
 
     final dioErrorValue = dioError.toString();
 
-    final dioSentryExceptions =
-        exceptions.where((element) => element.value == dioErrorValue).toList();
+    var dioSentryException = exceptions
+        .where((element) => element.value == dioErrorValue)
+        .toList()
+        .first;
 
-    if (dioSentryExceptions.isEmpty) {
-      return exceptions;
-    }
-    var e = dioSentryExceptions.first;
-    exceptions.removeWhere((element) => element == e);
+    exceptions.removeWhere((element) => element == dioSentryException);
+
+    // remove stacktrace, so that it looks better on Sentry.io
     dioError.stackTrace = null;
-    e = _sentryExceptionFactory.getSentryException(dioError).copyWith(
-          mechanism: e.mechanism,
-          module: e.module,
-          stackTrace: e.stackTrace,
-          threadId: e.threadId,
-          type: e.type,
-        );
+    dioSentryException = dioSentryException.copyWith(
+      value: dioError.toString(),
+    );
 
-    exceptions.add(e);
+    exceptions.add(dioSentryException);
 
     return exceptions;
   }
 
-  SentryRequest? _toRequest(DioError dioError) {
+  SentryRequest? _requestFrom(DioError dioError) {
     final options = dioError.requestOptions;
     // As far as I can tell there's no way to get the uri without the query part
     // so we replace it with an empty string.

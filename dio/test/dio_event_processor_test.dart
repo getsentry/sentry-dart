@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_dio/sentry_dio.dart';
 import 'package:test/test.dart';
+import 'package:sentry/src/sentry_exception_factory.dart';
 
 import 'mocks.dart';
 
@@ -12,7 +13,7 @@ void main() {
     fixture = Fixture();
   });
 
-  test('DioEventProcessor only processes DioErrors', () {
+  test('$DioEventProcessor only processes ${DioError}s', () {
     final sut = fixture.getSut();
 
     final event = SentryEvent(throwable: Exception());
@@ -22,7 +23,7 @@ void main() {
   });
 
   test(
-      'DioEventProcessor does not change anything '
+      '$DioEventProcessor does not change anything '
       'if stacktrace is null and a request is present', () {
     final sut = fixture.getSut();
 
@@ -38,7 +39,7 @@ void main() {
     expect(event.request, processedEvent.request);
   });
 
-  test('DioEventProcessor adds request', () {
+  test('$DioEventProcessor adds request', () {
     final sut = fixture.getSut(sendDefaultPii: true);
 
     final event = SentryEvent(
@@ -62,7 +63,7 @@ void main() {
     expect(processedEvent.request?.data, 'foobar');
   });
 
-  test('DioEventProcessor adds request without pii', () {
+  test('$DioEventProcessor adds request without pii', () {
     final sut = fixture.getSut(sendDefaultPii: false);
 
     final event = SentryEvent(
@@ -83,7 +84,7 @@ void main() {
     expect(processedEvent.request?.headers, <String, String>{});
   });
 
-  test('DioEventProcessor adds request without pii', () {
+  test('$DioEventProcessor adds request without pii', () {
     final sut = fixture.getSut(sendDefaultPii: false);
 
     final event = SentryEvent(
@@ -104,6 +105,31 @@ void main() {
     expect(processedEvent.request?.data, null);
     expect(processedEvent.request?.headers, <String, String>{});
   });
+
+  test('$DioEventProcessor adds chained stacktraces', () {
+    final sut = fixture.getSut(sendDefaultPii: false);
+    final exception = Exception('foo bar');
+    final dioError = DioError(
+      error: exception,
+      requestOptions: requestOptions,
+    )..stackTrace = StackTrace.current;
+
+    final event = SentryEvent(
+      throwable: dioError,
+      exceptions: [fixture.exceptionFactory.getSentryException(dioError)],
+    );
+
+    final processedEvent = sut.apply(event) as SentryEvent;
+
+    expect(processedEvent.exceptions?.length, 2);
+    expect(processedEvent.exceptions?[0].value, exception.toString());
+    expect(processedEvent.exceptions?[0].stackTrace, isNotNull);
+    expect(
+      processedEvent.exceptions?[1].value,
+      (dioError..stackTrace = null).toString(),
+    );
+    expect(processedEvent.exceptions?[1].stackTrace, isNotNull);
+  });
 }
 
 final requestOptions = RequestOptions(
@@ -117,9 +143,14 @@ final requestOptions = RequestOptions(
 );
 
 class Fixture {
+  final SentryOptions options = SentryOptions(dsn: fakeDsn);
+
+  // ignore: invalid_use_of_internal_member
+  SentryExceptionFactory get exceptionFactory => options.exceptionFactory;
+
   DioEventProcessor getSut({bool sendDefaultPii = false}) {
     return DioEventProcessor(
-      SentryOptions(dsn: fakeDsn)..sendDefaultPii = sendDefaultPii,
+      options..sendDefaultPii = sendDefaultPii,
       MaxRequestBodySize.always,
     );
   }
