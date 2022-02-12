@@ -1,9 +1,8 @@
-// ignore_for_file: implementation_imports
-
 import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
+// ignore: implementation_imports
 import 'package:sentry/src/sentry_exception_factory.dart';
 
 /// This is an [EventProcessor], which improves crash reports of [DioError]s.
