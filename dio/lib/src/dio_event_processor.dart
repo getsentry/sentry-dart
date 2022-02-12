@@ -80,8 +80,10 @@ class DioEventProcessor implements EventProcessor {
     final exceptionIndex = exceptions.indexOf(dioSentryException);
     exceptions.remove(dioSentryException);
 
-    // remove stacktrace, so that it looks better on Sentry.io
+    // Remove error and stacktrace, so that the DioError value doesn't
+    // include the chained exception.
     dioError.stackTrace = null;
+    dioError.error = null;
 
     dioSentryException = dioSentryException.copyWith(
       value: dioError.toString(),
