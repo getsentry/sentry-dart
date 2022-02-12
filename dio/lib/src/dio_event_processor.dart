@@ -41,14 +41,10 @@ class DioEventProcessor implements EventProcessor {
     }
 
     try {
-      var innerException = _sentryExceptionFactory.getSentryException(
+      final innerException = _sentryExceptionFactory.getSentryException(
         innerDioErrorException ?? 'DioError inner stacktrace',
         stackTrace: innerDioStackTrace,
       );
-      if (innerDioErrorException.runtimeType == String) {
-        innerException =
-            innerException.copyWith(type: 'DioError inner stacktrace');
-      }
 
       final exceptions = _removeDioErrorStackTraceFromValue(
         List<SentryException>.from(event.exceptions ?? <SentryException>[]),
