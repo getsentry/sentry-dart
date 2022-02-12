@@ -22,6 +22,8 @@ Future<void> main() async {
       options.dsn = _exampleDsn;
       options.tracesSampleRate = 1.0;
       options.reportPackages = false;
+      options.addInAppInclude('sentry_flutter_example');
+      options.considerInAppFramesByDefault = false;
     },
     // Init your App.
     appRunner: () => runApp(
