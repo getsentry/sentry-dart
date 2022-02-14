@@ -291,7 +291,7 @@ void main() {
     await Sentry.init((options) {
       options.dsn = fakeDsn;
       expect(options.environment, 'debug');
-      expect(options.debug, true);
+      expect(options.debug, false);
     }, options: sentryOptions);
   });
 
@@ -317,13 +317,13 @@ void main() {
     }, options: sentryOptions);
   });
 
-  test('options.logger is not dartLogger after debug = false', () async {
+  test('options.logger is not dartLogger', () async {
     final sentryOptions =
         SentryOptions(dsn: fakeDsn, checker: FakePlatformChecker.debugMode());
 
     await Sentry.init((options) {
       options.dsn = fakeDsn;
-      expect(options.logger, dartLogger);
+      expect(options.logger, noOpLogger);
       options.debug = false;
     }, options: sentryOptions);
 
