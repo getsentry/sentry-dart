@@ -3,9 +3,11 @@ import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/noop_hub.dart';
 
+import 'no_such_method_provider.dart';
+
 final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
-class MockHub implements Hub {
+class MockHub with NoSuchMethodProvider implements Hub {
   final List<Breadcrumb> breadcrumbs = [];
   final List<CapturedEvents> events = [];
   final _options = SentryOptions(dsn: 'fixture-dsn');

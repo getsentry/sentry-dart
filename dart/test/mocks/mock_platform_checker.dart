@@ -3,7 +3,9 @@ import 'package:sentry/src/platform_checker.dart';
 
 import 'mock_platform.dart';
 
-class MockPlatformChecker implements PlatformChecker {
+import 'no_such_method_provider.dart';
+
+class MockPlatformChecker with NoSuchMethodProvider implements PlatformChecker {
   MockPlatformChecker({
     this.isDebug = false,
     this.isProfile = false,

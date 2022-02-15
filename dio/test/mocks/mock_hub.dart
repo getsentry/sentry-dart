@@ -3,7 +3,9 @@ import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/noop_hub.dart';
 
-class MockHub implements Hub {
+import 'no_such_method_provider.dart';
+
+class MockHub with NoSuchMethodProvider implements Hub {
   List<CaptureEventCall> captureEventCalls = [];
   List<CaptureExceptionCall> captureExceptionCalls = [];
   List<CaptureMessageCall> captureMessageCalls = [];

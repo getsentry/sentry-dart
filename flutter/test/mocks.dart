@@ -5,6 +5,7 @@ import 'package:sentry/src/platform/platform.dart';
 import 'package:meta/meta.dart';
 
 import 'mocks.mocks.dart';
+import 'no_such_method_provider.dart';
 
 const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
@@ -30,7 +31,7 @@ ISentrySpan startTransactionShim(
 ])
 void main() {}
 
-class MockPlatform implements Platform {
+class MockPlatform with NoSuchMethodProvider implements Platform {
   MockPlatform({
     String? os,
     String? osVersion,
@@ -87,7 +88,7 @@ class MockPlatform implements Platform {
   bool get isFuchsia => (operatingSystem == 'fuchsia');
 }
 
-class MockPlatformChecker implements PlatformChecker {
+class MockPlatformChecker with NoSuchMethodProvider implements PlatformChecker {
   MockPlatformChecker({
     this.isDebug = false,
     this.isProfile = false,
@@ -124,7 +125,7 @@ class MockPlatformChecker implements PlatformChecker {
 
 // Does nothing or returns default values.
 // Usefull for when a Hub needs to be passed but is not used.
-class NoOpHub implements Hub {
+class NoOpHub with NoSuchMethodProvider implements Hub {
   final _options = SentryOptions(dsn: 'fixture-dsn');
 
   @override
