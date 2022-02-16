@@ -1,6 +1,5 @@
 # Unreleased
 
-* Feat: Override `noSuchMethod` for manually written Mock classes (#747)
 * [Dio] Ref: Replace FailedRequestAdapter with FailedRequestInterceptor (#728)
 * Fix: Add missing return values - dart analyzer (#742)
 
