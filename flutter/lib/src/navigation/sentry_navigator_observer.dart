@@ -1,9 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
-import '../sentry_native_wrapper.dart';
 import '../../sentry_flutter.dart';
-import 'package:sentry/src/sentry_tracer.dart';
 
 /// This key must be used so that the web interface displays the events nicely
 /// See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
