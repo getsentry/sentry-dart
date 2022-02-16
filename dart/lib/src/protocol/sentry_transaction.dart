@@ -11,7 +11,7 @@ class SentryTransaction extends SentryEvent {
   static const String _type = 'transaction';
   late final List<SentrySpan> spans;
   final SentryTracer _tracer;
-  final List<SentryMeasurement>? measurements;
+  late final List<SentryMeasurement>? _measurements;
 
   SentryTransaction(
     this._tracer, {
@@ -32,7 +32,7 @@ class SentryTransaction extends SentryEvent {
     SdkVersion? sdk,
     SentryRequest? request,
     String? type,
-    this.measurements,
+    List<SentryMeasurement>? measurements,
   }) : super(
           eventId: eventId,
           timestamp: timestamp ?? _tracer.endTimestamp,
@@ -56,6 +56,7 @@ class SentryTransaction extends SentryEvent {
 
     final spanContext = _tracer.context;
     spans = _tracer.children;
+    _measurements = measurements;
 
     this.contexts.trace = spanContext.toTraceContext(
       sampled: _tracer.sampled,
@@ -73,7 +74,7 @@ class SentryTransaction extends SentryEvent {
     json['start_timestamp'] =
         formatDateAsIso8601WithMillisPrecision(startTimestamp);
 
-    final ms = measurements;
+    final ms = _measurements;
     if (ms != null && ms.isNotEmpty) {
       final map = <String, dynamic>{};
       for (final m in ms) {
@@ -141,7 +142,6 @@ class SentryTransaction extends SentryEvent {
         type: type ?? this.type,
         measurements: (measurements != null
                 ? List<SentryMeasurement>.from(measurements)
-                : null) ??
-            this.measurements,
+                : null) ?? _measurements,
       );
 }

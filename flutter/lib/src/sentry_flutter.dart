@@ -22,7 +22,7 @@ typedef FlutterOptionsConfiguration = FutureOr<void> Function(
 /// Sentry Flutter SDK main entry point
 mixin SentryFlutter {
   static const _channel = MethodChannel('sentry_flutter');
-  static SentryNativeWrapper native = NoOpSentryNativeWrapper();
+  static SentryFlutterOptions? _options;
 
   static Future<void> init(
     FlutterOptionsConfiguration optionsConfiguration, {
@@ -32,16 +32,19 @@ mixin SentryFlutter {
     PlatformChecker? platformChecker,
   }) async {
     final flutterOptions = SentryFlutterOptions();
+    _options = flutterOptions;
+
     if (platformChecker != null) {
       flutterOptions.platformChecker = platformChecker;
     }
 
-    SentryFlutter.native = SentryNativeWrapper(channel, flutterOptions);
+    final nativeWrapper = SentryNativeWrapper(channel, flutterOptions);
 
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
     final defaultIntegrations = _createDefaultIntegrations(
       packageLoader,
+      nativeWrapper,
       channel,
       flutterOptions,
     );
@@ -80,6 +83,7 @@ mixin SentryFlutter {
   /// https://medium.com/flutter-community/error-handling-in-flutter-98fce88a34f0
   static List<Integration> _createDefaultIntegrations(
     PackageLoader packageLoader,
+    SentryNativeWrapper nativeWrapper,
     MethodChannel channel,
     SentryFlutterOptions options,
   ) {
@@ -120,7 +124,15 @@ mixin SentryFlutter {
     // in errors.
     integrations.add(LoadReleaseIntegration(packageLoader));
 
+    integrations.add(MobileVitalsIntegration(nativeWrapper));
+
     return integrations;
+  }
+
+  /// Manually set when you app finished startup. Make sure to set
+  /// [SentryFlutterOptions.autoAppStartFinish] to false on init.
+  static void setAppStartFinish(DateTime appStartFinish) {
+    _options?.appStartFinish = appStartFinish;
   }
 
   static void _setSdk(SentryFlutterOptions options) {

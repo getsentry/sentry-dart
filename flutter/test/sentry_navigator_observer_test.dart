@@ -603,7 +603,6 @@ class Fixture {
       enableAutoTransactions: enableAutoTransactions,
       autoFinishAfter: autoFinishAfter,
       setRouteNameAsTransaction: setRouteNameAsTransaction,
-      enableAppStartTracking: false,
       routeNameExtractor: routeNameExtractor,
       additionalInfoProvider: additionalInfoProvider,
     );

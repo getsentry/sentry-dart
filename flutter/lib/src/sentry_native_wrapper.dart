@@ -1,7 +1,10 @@
 import 'package:flutter/services.dart';
+import 'package:meta/meta.dart';
+
 import '../sentry_flutter.dart';
 
 /// Provide typed methods to access native layer.
+@internal
 class SentryNativeWrapper {
   SentryNativeWrapper(this._channel, this._options);
 
