@@ -28,17 +28,15 @@ class SentryNativeWrapper {
 }
 
 class NativeAppStart {
-  NativeAppStart(this.appStartTime, this.isColdStart, this.didFetchAppStart);
+  NativeAppStart(this.appStartTime, this.isColdStart);
 
   double appStartTime;
   bool isColdStart;
-  bool didFetchAppStart;
 
   factory NativeAppStart.fromJson(Map<String, dynamic> json) {
     return NativeAppStart(
       json['appStartTime'],
       json['isColdStart'],
-      json['didFetchAppStart'],
     );
   }
 }

@@ -220,7 +220,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         }
 
         if let tracesSampleRate = arguments["tracesSampleRate"] as? Double {
-            options.tracesSampleRate = NSNumber(value: tracesSampleRate) 
+            options.tracesSampleRate = NSNumber(value: tracesSampleRate)
         }
     }
 
@@ -299,8 +299,6 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         return
     }
 
-    private var didFetchAppStart = false
-
     private func fetchNativeAppStart(result: @escaping FlutterResult) {
         if let appStartMeasurement = PrivateSentrySDKOnly.appStartMeasurement {
 
@@ -310,7 +308,6 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             let item: [String: Any] = [
                 "appStartTime": appStartTime,
                 "isColdStart": isColdStart,
-                "didFetchAppStart": didFetchAppStart
             ]
 
             result(item)
@@ -323,8 +320,5 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
                 )
             )
         }
-
-        // This is always set to true, as we would only allow an app start fetch to happen once.
-        didFetchAppStart = true
     }
 }

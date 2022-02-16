@@ -123,8 +123,6 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
     result.success("")
   }
 
-  private var didFetchAppStart = false
-
   private fun fetchNativeAppStart(result: Result) {
     val appStartTime = AppStartState.getInstance().getAppStartTime()
     val isColdStart = AppStartState.getInstance().isColdStart()
@@ -136,13 +134,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
     } else {
       val item = mapOf<String, Any?>(
         "appStartTime" to appStartTime.getTime().toDouble(),
-        "isColdStart" to isColdStart,
-        "didFetchAppStart" to didFetchAppStart
+        "isColdStart" to isColdStart
       )
       result.success(item)
     }
-    // This is always set to true, as we would only allow an app start fetch to happen once.
-    didFetchAppStart = true
   }
 
   private fun captureEnvelope(call: MethodCall, result: Result) {
