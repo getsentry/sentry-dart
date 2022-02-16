@@ -246,5 +246,3 @@ class RouteObserverBreadcrumb extends Breadcrumb {
     return args.toString();
   }
 }
-
-

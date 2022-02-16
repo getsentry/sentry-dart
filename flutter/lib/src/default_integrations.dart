@@ -502,18 +502,16 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
 class MobileVitalsIntegration extends Integration<SentryFlutterOptions> {
   MobileVitalsIntegration(this._nativeWrapper);
 
-   final SentryNativeWrapper _nativeWrapper;
+  final SentryNativeWrapper _nativeWrapper;
 
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
-
     SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
       options.appStartFinish = DateTime.now();
     });
 
     options.addEventProcessor(
-        _NativeAppStartEventProcessor(_nativeWrapper, options)
-    );
+        _NativeAppStartEventProcessor(_nativeWrapper, options));
 
     options.sdk.addIntegration('mobileVitalsIntegration');
   }
@@ -531,7 +529,9 @@ class _NativeAppStartEventProcessor extends EventProcessor {
   FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {
     final appStartFinishTime = _options.appStartFinish;
 
-    if (appStartFinishTime != null && event is SentryTransaction && !_didFetchAppStart) {
+    if (appStartFinishTime != null &&
+        event is SentryTransaction &&
+        !_didFetchAppStart) {
       _didFetchAppStart = true;
 
       final nativeAppStart = await _nativeWrapper.fetchNativeAppStart();
@@ -539,10 +539,7 @@ class _NativeAppStartEventProcessor extends EventProcessor {
         return event;
       } else {
         return event.copyWith(
-            measurements: [
-              nativeAppStart.toMeasurement(appStartFinishTime)
-            ]
-        );
+            measurements: [nativeAppStart.toMeasurement(appStartFinishTime)]);
       }
     } else {
       return event;
@@ -553,7 +550,7 @@ class _NativeAppStartEventProcessor extends EventProcessor {
 extension NativeAppStartMeasurement on NativeAppStart {
   SentryMeasurement toMeasurement(DateTime appStartFinishTime) {
     final appStartDateTime =
-    DateTime.fromMillisecondsSinceEpoch(appStartTime.toInt());
+        DateTime.fromMillisecondsSinceEpoch(appStartTime.toInt());
     final duration = appStartFinishTime.difference(appStartDateTime);
 
     return isColdStart
