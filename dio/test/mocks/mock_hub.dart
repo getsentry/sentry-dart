@@ -115,9 +115,6 @@ class MockHub with NoSuchMethodProvider implements Hub {
   }
 
   @override
-  void configureScope(callback) {}
-
-  @override
   bool get isEnabled => _isEnabled;
 
   @override

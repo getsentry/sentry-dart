@@ -24,7 +24,4 @@ class MockHttpClientAdapter extends HttpClientAdapter
   ) {
     return mockFetchMethod(options, requestStream, cancelFuture);
   }
-
-  @override
-  void close({bool force = false}) {}
 }

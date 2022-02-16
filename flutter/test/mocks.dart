@@ -133,12 +133,6 @@ class NoOpHub with NoSuchMethodProvider implements Hub {
   SentryOptions get options => _options;
 
   @override
-  void addBreadcrumb(Breadcrumb crumb, {hint}) {}
-
-  @override
-  void bindClient(SentryClient client) {}
-
-  @override
   Future<SentryId> captureEvent(
     SentryEvent event, {
     stackTrace,
@@ -171,9 +165,6 @@ class NoOpHub with NoSuchMethodProvider implements Hub {
   Hub clone() {
     return NoOpHub();
   }
-
-  @override
-  Future<void> close() async {}
 
   @override
   void configureScope(ScopeCallback callback) {}
@@ -221,7 +212,4 @@ class NoOpHub with NoSuchMethodProvider implements Hub {
   ISentrySpan? getSpan() {
     return null;
   }
-
-  @override
-  void setSpanContext(throwable, ISentrySpan span, String transaction) {}
 }
