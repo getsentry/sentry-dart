@@ -33,7 +33,4 @@ class MockPlatformChecker with NoSuchMethodProvider implements PlatformChecker {
 
   @override
   bool get isWeb => isWebValue;
-
-  @override
-  Platform get platform => MockPlatform();
 }

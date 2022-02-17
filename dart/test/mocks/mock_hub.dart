@@ -97,11 +97,6 @@ class MockHub with NoSuchMethodProvider implements Hub {
   }
 
   @override
-  Hub clone() {
-    return NoOpHub();
-  }
-
-  @override
   Future<void> close() async {
     closeCalls = closeCalls + 1;
     _isEnabled = false;
@@ -109,9 +104,6 @@ class MockHub with NoSuchMethodProvider implements Hub {
 
   @override
   bool get isEnabled => _isEnabled;
-
-  @override
-  SentryId get lastEventId => SentryId.empty();
 
   @override
   Future<SentryId> captureTransaction(SentryTransaction transaction) async {
@@ -123,32 +115,6 @@ class MockHub with NoSuchMethodProvider implements Hub {
   Future<SentryId> captureUserFeedback(SentryUserFeedback userFeedback) async {
     userFeedbackCalls.add(userFeedback);
     return SentryId.empty();
-  }
-
-  @override
-  ISentrySpan startTransaction(
-    String name,
-    String operation, {
-    String? description,
-    bool? bindToScope,
-    bool? waitForChildren,
-    Duration? autoFinishAfter,
-    bool? trimEnd,
-    Map<String, dynamic>? customSamplingContext,
-  }) {
-    return NoOpSentrySpan();
-  }
-
-  @override
-  ISentrySpan startTransactionWithContext(
-    SentryTransactionContext transactionContext, {
-    Map<String, dynamic>? customSamplingContext,
-    bool? bindToScope,
-    bool? waitForChildren,
-    Duration? autoFinishAfter,
-    bool? trimEnd,
-  }) {
-    return NoOpSentrySpan();
   }
 
   @override
