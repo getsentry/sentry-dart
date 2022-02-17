@@ -1,7 +1,4 @@
-import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry/src/platform_checker.dart';
-
-import 'mock_platform.dart';
 
 import 'no_such_method_provider.dart';
 
