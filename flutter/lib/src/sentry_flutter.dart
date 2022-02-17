@@ -123,8 +123,9 @@ mixin SentryFlutter {
     // in errors.
     integrations.add(LoadReleaseIntegration(packageLoader));
 
-    integrations.add(MobileVitalsIntegration(nativeWrapper));
-
+    if (options.platformChecker.hasNativeIntegration) {
+      integrations.add(MobileVitalsIntegration(nativeWrapper));
+    }
     return integrations;
   }
 
