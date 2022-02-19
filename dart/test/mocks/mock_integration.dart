@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:sentry/sentry.dart';
 
-class MockIntegration implements Integration {
+import 'no_such_method_provider.dart';
+
+class MockIntegration with NoSuchMethodProvider implements Integration {
   int closeCalls = 0;
   int callCalls = 0;
 
