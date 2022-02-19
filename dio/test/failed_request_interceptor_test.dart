@@ -34,7 +34,9 @@ class Fixture {
   }
 }
 
-class MockedErrorInterceptorHandler with NoSuchMethodProvider implements ErrorInterceptorHandler {
+class MockedErrorInterceptorHandler
+    with NoSuchMethodProvider
+    implements ErrorInterceptorHandler {
   bool nextWasCalled = false;
 
   @override
