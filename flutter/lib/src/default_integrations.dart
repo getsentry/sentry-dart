@@ -259,9 +259,7 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
       final breadcrumbsList = infos['breadcrumbs'];
       if (breadcrumbsList != null) {
         final breadcrumbs = event.breadcrumbs ?? [];
-        // for some reason I can't use Map<String, dynamic>, it fails.
-        final newBreadcrumbs =
-            List<Map<dynamic, dynamic>>.from(breadcrumbsList as List);
+        final newBreadcrumbs = List<Map>.from(breadcrumbsList as List);
 
         for (final breadcrumb in newBreadcrumbs) {
           final newBreadcrumb = Map<String, dynamic>.from(breadcrumb);
@@ -269,7 +267,9 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
           breadcrumbs.add(crumb);
         }
 
-        // TODO: sort by timestamp
+        breadcrumbs.sort((a, b) {
+          return a.timestamp.compareTo(b.timestamp);
+        });
 
         event = event.copyWith(breadcrumbs: breadcrumbs);
       }
