@@ -175,9 +175,10 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
       final infos = Map<String, dynamic>.from(
         await (_channel.invokeMethod('loadContexts')),
       );
-      if (infos['contexts'] != null) {
+      final contextsMap = infos['contexts'];
+      if (contextsMap != null) {
         final contexts = Contexts.fromJson(
-          Map<String, dynamic>.from(infos['contexts'] as Map),
+          Map<String, dynamic>.from(contextsMap as Map),
         );
         final eventContexts = event.contexts.clone();
 
@@ -195,15 +196,95 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
         event = event.copyWith(contexts: eventContexts);
       }
 
-      if (infos['integrations'] != null) {
-        final integrations = List<String>.from(infos['integrations'] as List);
+      final tagsMap = infos['tags'];
+      if (tagsMap != null) {
+        final tags = event.tags ?? {};
+        final newTags = Map<String, String>.from(tagsMap as Map);
+
+        for (final tag in newTags.entries) {
+          if (!tags.containsKey(tag.key)) {
+            tags[tag.key] = tag.value;
+          }
+        }
+        event = event.copyWith(tags: tags);
+      }
+
+      final extraMap = infos['extra'];
+      if (extraMap != null) {
+        final extras = event.extra ?? {};
+        final newExtras = Map<String, dynamic>.from(extraMap as Map);
+
+        for (final extra in newExtras.entries) {
+          if (!extras.containsKey(extra.key)) {
+            extras[extra.key] = extra.value;
+          }
+        }
+        event = event.copyWith(extra: extras);
+      }
+
+      final userMap = infos['user'];
+      if (event.user == null && userMap != null) {
+        final user = Map<String, dynamic>.from(userMap as Map);
+        event = event.copyWith(user: SentryUser.fromJson(user));
+      }
+
+      final distString = infos['dist'];
+      if (event.dist == null && distString != null) {
+        event = event.copyWith(dist: distString as String);
+      }
+
+      final environmentString = infos['environment'];
+      if (event.environment == null && environmentString != null) {
+        event = event.copyWith(environment: environmentString as String);
+      }
+
+      final fingerprintList = infos['fingerprint'];
+      if (fingerprintList != null) {
+        final eventFingerprints = event.fingerprint ?? [];
+        final newFingerprint = List<String>.from(fingerprintList as List);
+
+        for (final fingerprint in newFingerprint) {
+          if (!eventFingerprints.contains(fingerprint)) {
+            eventFingerprints.add(fingerprint);
+          }
+        }
+        event = event.copyWith(fingerprint: eventFingerprints);
+      }
+
+      final levelString = infos['level'];
+      if (event.level == null && levelString != null) {
+        event = event.copyWith(level: SentryLevel.fromName(levelString));
+      }
+
+      final breadcrumbsList = infos['breadcrumbs'];
+      if (breadcrumbsList != null) {
+        final breadcrumbs = event.breadcrumbs ?? [];
+        // for some reason I can't use Map<String, dynamic>, it fails.
+        final newBreadcrumbs =
+            List<Map<dynamic, dynamic>>.from(breadcrumbsList as List);
+
+        for (final breadcrumb in newBreadcrumbs) {
+          final newBreadcrumb = Map<String, dynamic>.from(breadcrumb);
+          final crumb = Breadcrumb.fromJson(newBreadcrumb);
+          breadcrumbs.add(crumb);
+        }
+
+        // TODO: sort by timestamp
+
+        event = event.copyWith(breadcrumbs: breadcrumbs);
+      }
+
+      final integrationsList = infos['integrations'];
+      if (integrationsList != null) {
+        final integrations = List<String>.from(integrationsList as List);
         final sdk = event.sdk ?? _options.sdk;
         integrations.forEach(sdk.addIntegration);
         event = event.copyWith(sdk: sdk);
       }
 
-      if (infos['package'] != null) {
-        final package = Map<String, String>.from(infos['package'] as Map);
+      final packageMap = infos['package'];
+      if (packageMap != null) {
+        final package = Map<String, String>.from(packageMap as Map);
         final sdk = event.sdk ?? _options.sdk;
         sdk.addPackage(package['sdk_name']!, package['version']!);
         event = event.copyWith(sdk: sdk);

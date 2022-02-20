@@ -73,17 +73,51 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
     private func loadContexts(result: @escaping FlutterResult) {
         SentrySDK.configureScope { scope in
+            // scope.setTag(value: "test", key: "test")
+            // scope.setExtra(value: "test", key: "test")
+            // scope.setUser(User(userId: "test"))
+            // scope.setDist("test")
+            // scope.setFingerprint(["test"])
+            // scope.setLevel(SentryLevel.warning)
+            // scope.add(Breadcrumb(level: SentryLevel.info, category: "test"))
+            // scope.setEnvironment("test")
+
             let serializedScope = scope.serialize()
             let context = serializedScope["context"]
 
             var infos = ["contexts": context]
 
+            if let tags = serializedScope["tags"] as? [String: String] {
+                infos["tags"] = tags
+            }
+            if let extra = serializedScope["extra"] as? [String: Any] {
+                infos["extra"] = extra
+            }
+            if let user = serializedScope["user"] as? [String: Any] {
+                infos["user"] = user
+            }
+            if let dist = serializedScope["dist"] as? String {
+                infos["dist"] = dist
+            }
+            if let environment = serializedScope["environment"] as? String {
+                infos["environment"] = environment
+            }
+            if let fingerprint = serializedScope["fingerprint"] as? [String] {
+                infos["fingerprint"] = fingerprint
+            }
+            if let level = serializedScope["level"] as? String {
+                infos["level"] = level
+            }
+            if let breadcrumbs = serializedScope["breadcrumbs"] as? [[String: Any]] {
+                infos["breadcrumbs"] = breadcrumbs
+            }
+
             if let integrations = self.sentryOptions?.integrations {
                 infos["integrations"] = integrations
             }
 
-            if let sentryOptions = self.sentryOptions {
-                infos["package"] = ["version": sentryOptions.sdkInfo.version, "sdk_name": "cocoapods:sentry-cocoa"]
+            if let sdkInfo = self.sentryOptions?.sdkInfo {
+                infos["package"] = ["version": sdkInfo.version, "sdk_name": "cocoapods:sentry-cocoa"]
             }
 
             result(infos)
