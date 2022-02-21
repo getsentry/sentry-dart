@@ -1,11 +1,12 @@
 import 'package:meta/meta.dart';
 
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/noop_hub.dart';
+
+import 'no_such_method_provider.dart';
 
 final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
-class MockHub implements Hub {
+class MockHub with NoSuchMethodProvider implements Hub {
   final List<Breadcrumb> breadcrumbs = [];
   final List<CapturedEvents> events = [];
   final _options = SentryOptions(dsn: 'fixture-dsn');
@@ -29,87 +30,6 @@ class MockHub implements Hub {
     events.add(CapturedEvents(event, stackTrace));
     return SentryId.newId();
   }
-
-  // everything below is not needed
-
-  @override
-  void bindClient(SentryClient client) {}
-
-  @override
-  Future<SentryId> captureException(
-    dynamic throwable, {
-    dynamic stackTrace,
-    dynamic hint,
-    ScopeCallback? withScope,
-  }) async =>
-      SentryId.empty();
-
-  @override
-  Future<SentryId> captureMessage(
-    String? message, {
-    SentryLevel? level,
-    String? template,
-    List<dynamic>? params,
-    dynamic hint,
-    ScopeCallback? withScope,
-  }) async =>
-      SentryId.empty();
-
-  @override
-  Future<SentryId> captureTransaction(SentryTransaction transaction) async =>
-      SentryId.empty();
-
-  @override
-  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {}
-
-  @override
-  Hub clone() => NoOpHub();
-
-  @override
-  Future<void> close() async {}
-
-  @override
-  void configureScope(ScopeCallback callback) {}
-
-  @override
-  ISentrySpan? getSpan() => NoOpSentrySpan();
-
-  @override
-  bool get isEnabled => false;
-
-  @override
-  SentryId get lastEventId => SentryId.empty();
-
-  @override
-  void setSpanContext(
-    dynamic throwable,
-    ISentrySpan span,
-    String transaction,
-  ) {}
-
-  @override
-  ISentrySpan startTransaction(
-    String name,
-    String operation, {
-    String? description,
-    bool? bindToScope,
-    bool? waitForChildren,
-    Duration? autoFinishAfter,
-    bool? trimEnd,
-    Map<String, dynamic>? customSamplingContext,
-  }) =>
-      NoOpSentrySpan();
-
-  @override
-  ISentrySpan startTransactionWithContext(
-    SentryTransactionContext transactionContext, {
-    Map<String, dynamic>? customSamplingContext,
-    bool? bindToScope,
-    bool? waitForChildren,
-    Duration? autoFinishAfter,
-    bool? trimEnd,
-  }) =>
-      NoOpSentrySpan();
 }
 
 class CapturedEvents {

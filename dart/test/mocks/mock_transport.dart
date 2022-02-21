@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:sentry/sentry.dart';
 
-class MockTransport implements Transport {
+import 'no_such_method_provider.dart';
+
+class MockTransport with NoSuchMethodProvider implements Transport {
   List<SentryEnvelope> envelopes = [];
   List<SentryEvent> events = [];
   int calls = 0;
