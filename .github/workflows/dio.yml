@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - release/**
   pull_request:
     paths-ignore:
       - 'logging/**'
@@ -44,7 +45,7 @@ jobs:
           with:
             name: sentry
             file: ./dio/coverage/lcov.info
-        
+
         - uses: VeryGoodOpenSource/very_good_coverage@v1.2.0
           if: runner.os == 'Linux'
           with:
