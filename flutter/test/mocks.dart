@@ -5,6 +5,7 @@ import 'package:sentry/src/platform/platform.dart';
 import 'package:meta/meta.dart';
 
 import 'mocks.mocks.dart';
+import 'no_such_method_provider.dart';
 
 const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
@@ -30,7 +31,7 @@ ISentrySpan startTransactionShim(
 ])
 void main() {}
 
-class MockPlatform implements Platform {
+class MockPlatform with NoSuchMethodProvider implements Platform {
   MockPlatform({
     String? os,
     String? osVersion,
@@ -87,7 +88,7 @@ class MockPlatform implements Platform {
   bool get isFuchsia => (operatingSystem == 'fuchsia');
 }
 
-class MockPlatformChecker implements PlatformChecker {
+class MockPlatformChecker with NoSuchMethodProvider implements PlatformChecker {
   MockPlatformChecker({
     this.isDebug = false,
     this.isProfile = false,
@@ -123,8 +124,8 @@ class MockPlatformChecker implements PlatformChecker {
 }
 
 // Does nothing or returns default values.
-// Usefull for when a Hub needs to be passed but is not used.
-class NoOpHub implements Hub {
+// Useful for when a Hub needs to be passed but is not used.
+class NoOpHub with NoSuchMethodProvider implements Hub {
   final _options = SentryOptions(dsn: 'fixture-dsn');
 
   @override
@@ -132,95 +133,5 @@ class NoOpHub implements Hub {
   SentryOptions get options => _options;
 
   @override
-  void addBreadcrumb(Breadcrumb crumb, {hint}) {}
-
-  @override
-  void bindClient(SentryClient client) {}
-
-  @override
-  Future<SentryId> captureEvent(
-    SentryEvent event, {
-    stackTrace,
-    hint,
-    ScopeCallback? withScope,
-  }) async =>
-      SentryId.empty();
-
-  @override
-  Future<SentryId> captureException(
-    throwable, {
-    stackTrace,
-    hint,
-    ScopeCallback? withScope,
-  }) async =>
-      SentryId.empty();
-
-  @override
-  Future<SentryId> captureMessage(
-    String? message, {
-    SentryLevel? level,
-    String? template,
-    List? params,
-    hint,
-    ScopeCallback? withScope,
-  }) async =>
-      SentryId.empty();
-
-  @override
-  Hub clone() {
-    return NoOpHub();
-  }
-
-  @override
-  Future<void> close() async {}
-
-  @override
-  void configureScope(ScopeCallback callback) {}
-
-  @override
   bool get isEnabled => false;
-
-  @override
-  SentryId get lastEventId => SentryId.empty();
-
-  @override
-  Future<SentryId> captureTransaction(SentryTransaction transaction) async =>
-      SentryId.empty();
-
-  @override
-  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {}
-
-  @override
-  ISentrySpan startTransaction(
-    String name,
-    String operation, {
-    String? description,
-    bool? bindToScope,
-    bool? waitForChildren,
-    Duration? autoFinishAfter,
-    bool? trimEnd,
-    Map<String, dynamic>? customSamplingContext,
-  }) {
-    return NoOpSentrySpan();
-  }
-
-  @override
-  ISentrySpan startTransactionWithContext(
-    SentryTransactionContext transactionContext, {
-    Map<String, dynamic>? customSamplingContext,
-    bool? bindToScope,
-    bool? waitForChildren,
-    Duration? autoFinishAfter,
-    bool? trimEnd,
-  }) {
-    return NoOpSentrySpan();
-  }
-
-  @override
-  ISentrySpan? getSpan() {
-    return null;
-  }
-
-  @override
-  void setSpanContext(throwable, ISentrySpan span, String transaction) {}
 }
