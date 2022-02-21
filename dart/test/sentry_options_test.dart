@@ -3,7 +3,6 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/noop_client.dart';
 import 'package:test/test.dart';
 
-import 'fake_platform_checker.dart';
 import 'mocks.dart';
 
 void main() {
