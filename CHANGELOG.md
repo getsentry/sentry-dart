@@ -2,6 +2,7 @@
 
 * [Dio] Ref: Replace FailedRequestAdapter with FailedRequestInterceptor (#728)
 * Fix: Add missing return values - dart analyzer (#742)
+* Bump: Kotlin plugin to 1.5.31
 
 # 6.3.0
 
