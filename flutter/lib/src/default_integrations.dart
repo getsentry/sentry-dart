@@ -198,14 +198,29 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
       if (infos['integrations'] != null) {
         final integrations = List<String>.from(infos['integrations'] as List);
         final sdk = event.sdk ?? _options.sdk;
-        integrations.forEach(sdk.addIntegration);
+
+        for (final integration in integrations) {
+          if (!sdk.integrations.contains(integration)) {
+            sdk.addIntegration(integration);
+          }
+        }
+
         event = event.copyWith(sdk: sdk);
       }
 
       if (infos['package'] != null) {
         final package = Map<String, String>.from(infos['package'] as Map);
         final sdk = event.sdk ?? _options.sdk;
-        sdk.addPackage(package['sdk_name']!, package['version']!);
+
+        final name = package['sdk_name'];
+        final version = package['version'];
+        if (name != null &&
+            version != null &&
+            !sdk.packages.any((element) =>
+                element.name == name && element.version == version)) {
+          sdk.addPackage(name, version);
+        }
+
         event = event.copyWith(sdk: sdk);
       }
 
