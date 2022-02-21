@@ -2,6 +2,7 @@
 
 * [Dio] Ref: Replace FailedRequestAdapter with FailedRequestInterceptor (#728)
 * Fix: Add missing return values - dart analyzer (#742)
+* Fix: Do not report duplicated packages and integrations (#760)
 
 # 6.3.0
 
