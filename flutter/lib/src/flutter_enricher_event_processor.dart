@@ -28,7 +28,6 @@ class FlutterEnricherEventProcessor extends EventProcessor {
 
   final SentryFlutterOptions _options;
 
-  bool get _hasNativeIntegration => _checker.hasNativeIntegration;
   PlatformChecker get _checker => _options.platformChecker;
 
   // We can't use `WidgetsBinding` as a direct parameter
@@ -46,8 +45,9 @@ class FlutterEnricherEventProcessor extends EventProcessor {
   }) async {
     // If there's a native integration available, it probably has better
     // information available than Flutter.
-    final device =
-        _hasNativeIntegration ? null : _getDevice(event.contexts.device);
+    final device = _options.isNativeIntegrationsEnabled
+        ? null
+        : _getDevice(event.contexts.device);
 
     final contexts = event.contexts.copyWith(
       device: device,

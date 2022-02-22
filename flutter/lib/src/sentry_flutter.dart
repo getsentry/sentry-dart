@@ -60,7 +60,7 @@ mixin SentryFlutter {
     MethodChannel channel,
   ) async {
     // Not all platforms have a native integration.
-    if (options.platformChecker.hasNativeIntegration) {
+    if (options.isNativeIntegrationsEnabled) {
       options.transport = FileSystemTransport(channel, options);
     }
 
@@ -92,18 +92,21 @@ mixin SentryFlutter {
     // The ordering here matters, as we'd like to first start the native integration.
     // That allow us to send events to the network and then the Flutter integrations.
     // Flutter Web doesn't need that, only Android and iOS.
-    if (options.platformChecker.hasNativeIntegration) {
+    if (options.isNativeIntegrationsEnabled &&
+        options.autoInitializeNative) {
       integrations.add(NativeSdkIntegration(channel));
     }
 
     // Will enrich events with device context, native packages and integrations
-    if (!options.platformChecker.isWeb &&
+    if (options.enableNative &&
+        !options.platformChecker.isWeb &&
         (options.platformChecker.platform.isIOS ||
             options.platformChecker.platform.isMacOS)) {
       integrations.add(LoadContextsIntegration(channel));
     }
 
-    if (!options.platformChecker.isWeb &&
+    if (options.enableNative &&
+        !options.platformChecker.isWeb &&
         options.platformChecker.platform.isAndroid) {
       integrations.add(LoadAndroidImageListIntegration(channel));
     }
