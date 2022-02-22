@@ -5,7 +5,7 @@
 * Fix: Add missing return values - dart analyzer (#742)
 * Feat: Add `DioEventProcessor` which improves DioError crash reports (#718)
 * Fix: Do not report duplicated packages and integrations (#760)
-* Feat: Feat: Allow manual init of the Native SDK or no Native SDK at all
+* Feat: Allow manual init of the Native SDK or no Native SDK at all (#765)
 
 # 6.3.0
 
