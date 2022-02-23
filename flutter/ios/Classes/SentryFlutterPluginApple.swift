@@ -69,6 +69,9 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         case "fetchNativeAppStart":
             fetchNativeAppStart(result: result)
 
+        case "fetchNativeFrames":
+            fetchNativeFrames(result: result)
+
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -316,6 +319,29 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
                 FlutterError(
                     code: "1",
                     message: "App start won't be sent due to missing appStartMeasurement",
+                    details: nil
+                )
+            )
+        }
+    }
+
+    private func fetchNativeFrames(result: @escaping FlutterResult) {
+        if PrivateSentrySDKOnly.isFramesTrackingRunning {
+
+            let frames = PrivateSentrySDKOnly.currentScreenFrames
+
+            let item: [String: Any] = [
+                "totalFrames": frames.total,
+                "frozenFrames": frames.frozen,
+                "slowFrames": frames.slow,
+            ]
+
+            result(item)
+        } else {
+            result(
+                FlutterError(
+                    code: "1",
+                    message: "Native frames tracking not running.",
                     details: nil
                 )
             )
