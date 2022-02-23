@@ -28,6 +28,22 @@ class SentryNativeWrapper {
       return null;
     }
   }
+
+  Future<NativeFrames?> fetchNativeFrames() async {
+    try {
+      final json = await _channel
+          .invokeMapMethod<String, dynamic>('fetchNativeFrames');
+      return (json != null) ? NativeFrames.fromJson(json) : null;
+    } catch (error, stackTrace) {
+      _options.logger(
+        SentryLevel.error,
+        'Native call `fetchNativeFrames` failed',
+        exception: error,
+        stackTrace: stackTrace,
+      );
+      return null;
+    }
+  }
 }
 
 class NativeAppStart {
@@ -40,6 +56,22 @@ class NativeAppStart {
     return NativeAppStart(
       json['appStartTime'],
       json['isColdStart'],
+    );
+  }
+}
+
+class NativeFrames {
+  NativeFrames(this.totalFrames, this.slowFrames, this.frozenFrames);
+
+  int totalFrames;
+  int slowFrames;
+  int frozenFrames;
+
+  factory NativeFrames.fromJson(Map<String, dynamic> json) {
+    return NativeFrames(
+      json['totalFrames'],
+      json['slowFrames'],
+      json['frozenFrames'],
     );
   }
 }
