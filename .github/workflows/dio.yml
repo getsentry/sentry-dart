@@ -35,6 +35,8 @@ jobs:
         # coverage with 'chrome' platform hangs the build
         - name: Test (VM and browser)
           run: |
+            dart pub remove sentry
+            dart pub add sentry --path ../dart
             dart pub get
             dart test -p chrome
             dart test -p vm --coverage=coverage
@@ -64,6 +66,8 @@ jobs:
           sdk: stable
       - uses: actions/checkout@v2
       - run: |
+          dart pub remove sentry
+          dart pub add sentry --path ../dart
           dart pub get
           dart analyze --fatal-infos
           dart format --set-exit-if-changed ./

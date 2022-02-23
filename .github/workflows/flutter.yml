@@ -72,6 +72,8 @@ jobs:
           if: runner.os != 'macOS'
           run: |
             cd flutter
+            flutter pub remove sentry
+            flutter pub add sentry --path ../dart
             flutter pub get
             flutter test --platform chrome
             flutter test --coverage
@@ -127,6 +129,8 @@ jobs:
       - uses: subosito/flutter-action@v2
       - run: |
           cd flutter
+          flutter pub remove sentry
+          flutter pub add sentry --path ../dart
           flutter pub get
           flutter format -n --set-exit-if-changed ./
           flutter analyze
