@@ -1,7 +1,10 @@
 package io.sentry.flutter
 
+import android.app.Activity
 import android.content.Context
 import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.embedding.engine.plugins.activity.ActivityAware
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -18,10 +21,21 @@ import io.sentry.protocol.SdkVersion
 import java.io.File
 import java.util.Locale
 import java.util.UUID
+import androidx.core.app.FrameMetricsAggregator;
 
-class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
+class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   private lateinit var channel: MethodChannel
   private lateinit var context: Context
+
+  // TODO Check if we should read display framerate and calculate accordingly.
+
+  // 700ms to constitute frozen frames.
+  private val frozenFrameThreshold = 700
+  // 16ms (slower than 60fps) to constitute slow frames.
+  private val slowFrameThreshold = 16
+
+  private var activity: Activity? = null
+  private var frameMetricsAggregator: FrameMetricsAggregator? = null
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     context = flutterPluginBinding.applicationContext
@@ -36,6 +50,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
       "loadImageList" -> loadImageList(result)
       "closeNativeSdk" -> closeNativeSdk(result)
       "fetchNativeAppStart" -> fetchNativeAppStart(result)
+      "fetchNativeFrames" -> fetchNativeFrames(result)
       else -> result.notImplemented()
     }
   }
@@ -46,6 +61,22 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
     }
 
     channel.setMethodCallHandler(null)
+  }
+
+  override fun onAttachedToActivity(binding: ActivityPluginBinding) {
+    activity = binding.activity
+  }
+
+  override fun onDetachedFromActivity() {
+    // Stub
+  }
+
+  override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
+    // Stub
+  }
+
+  override fun onDetachedFromActivityForConfigChanges() {
+    // Stub
   }
 
   private fun writeEnvelope(envelope: ByteArray): Boolean {
@@ -120,6 +151,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
 
       // missing proxy, enableScopeSync
     }
+
+    // TODO: Only enable if auto is enabled
+    isFrameMetricsAggregatorEnabled = enableFrameMetricsAggregator()
+
     result.success("")
   }
 
@@ -138,6 +173,84 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
       )
       result.success(item)
     }
+  }
+
+  private fun fetchNativeFrames(result: Result) {
+    if (!isFrameMetricsAggregatorEnabled) {
+      result.error("1", "Native frames not available.", null)
+      return
+    }
+
+    try {
+      var totalFrames = 0
+      var slowFrames = 0
+      var frozenFrames = 0
+
+      val framesRates = frameMetricsAggregator?.getMetrics()
+      if (framesRates != null) {
+        val totalIndexArray = framesRates[FrameMetricsAggregator.TOTAL_INDEX]
+        if (totalIndexArray != null) {
+          for (i in 0 until totalIndexArray.size()) {
+            val frameTime: Int = totalIndexArray.keyAt(i)
+            val numFrames: Int = totalIndexArray.valueAt(i)
+            totalFrames += numFrames
+
+            // Hard coded values, its also in the official android docs and frame metrics API.
+            if (frameTime > frozenFrameThreshold) {
+              // frozen frames, threshold is 700ms
+              frozenFrames += numFrames
+            } else if (frameTime > slowFrameThreshold) {
+              // slow frames, above 16ms, 60 frames/second
+              slowFrames += numFrames;
+            }
+          }
+        }
+      }
+
+      val item = mapOf<String, Any?>(
+        "totalFrames" to totalFrames,
+        "slowFrames" to slowFrames,
+        "frozenFrames" to frozenFrames,
+      )
+
+      result.success(item)
+    } catch (ignored: Exception) {
+      result.error("1", "Error fetching native frames.", "${ignored}")
+    }
+  }
+
+  private fun isFrameMetricsAggregatorAvailable(): Boolean {
+    return try {
+      Class.forName("androidx.core.app.FrameMetricsAggregator")
+      true
+    } catch (ignored: Exception) {
+      false // androidx.core isn't available.
+    }
+  }
+
+  private var isFrameMetricsAggregatorEnabled = false
+
+  private fun enableFrameMetricsAggregator(): Boolean {
+    if (!isFrameMetricsAggregatorAvailable()) {
+      return false
+    }
+    val frameMetricsAggregator = FrameMetricsAggregator() ?: return false
+    val currentActivity = activity ?: return false
+
+    return try {
+      frameMetricsAggregator.add(currentActivity)
+      this.frameMetricsAggregator = frameMetricsAggregator
+      true
+    } catch (ignored: Exception) {
+      // throws ConcurrentModification when calling addOnFrameMetricsAvailableListener
+      // this is a best effort since we can't reproduce it
+      false
+    }
+  }
+
+  private fun diableFrameMetricsAggregator() {
+    frameMetricsAggregator?.stop()
+    frameMetricsAggregator = null
   }
 
   private fun captureEnvelope(call: MethodCall, result: Result) {
@@ -184,6 +297,8 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
 
   private fun closeNativeSdk(result: Result) {
     Sentry.close()
+    diableFrameMetricsAggregator()
+
     result.success("")
   }
 
