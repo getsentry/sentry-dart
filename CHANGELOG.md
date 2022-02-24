@@ -77,6 +77,21 @@
 * Feat: Sentry Performance for HTTP client (#603)
 * Performance API for Dart/Flutter (#530)
 
+## 6.4.0-beta.1
+
+### Various fixes & improvements
+
+- fix: disable log by default in debug mode (#753) by @AliAkberAakash
+- Feature: Improve Dio exception reports (#718) by @ueman
+- Fix: Do not report duplicated packages and integrations (#760) by @marandaneto
+- [Dio] Replace failed http client adapter with interceptor  (#728) by @ueman
+- Fix: Add missing return values - dart analyzer (#742) by @marandaneto
+- Bump: Sentry-Android to 5.6.1 and Sentry-Cocoa to 7.9.0 (#736) by @dgilperez
+- Feat: Support `maxSpan` for performance API and expose `SentryOptions` through `Hub` (#716) by @denrase
+- fix: await ZonedGuard integration to run (#732) by @blaugold
+- Fix wrong SDK being reported when sentry_logging is used (#725) by @kuhnroyal
+- prepare 6.3.0-beta.5 (17894ef5) by @marandaneto
+
 ## Breaking Changes:
 
 * `SentryEvent` inherits from the `SentryEventLike` mixin
