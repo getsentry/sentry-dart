@@ -504,6 +504,36 @@ class MobileVitalsIntegration extends Integration<SentryFlutterOptions> {
 
   final SentryNativeWrapper _nativeWrapper;
 
+  final _nativeStartFramesBySpanId = <SpanId, NativeFrames>{};
+  final _nativeFramesBySpanId = <SpanId, NativeFrames>{};
+
+  @override
+  FutureOr<void> onTransactionStart(ISentrySpan transaction) async {
+    final startFrames = await _nativeWrapper.fetchNativeFrames();
+    if (startFrames != null) {
+      _nativeStartFramesBySpanId[transaction.context.spanId] = startFrames;
+    }
+  }
+
+  @override
+  FutureOr<void> onTransactionFinish(ISentrySpan transaction) async {
+    final startFrames = _nativeStartFramesBySpanId.remove(transaction.context.spanId);
+    final endFrames = await _nativeWrapper.fetchNativeFrames();
+
+    if (startFrames == null || endFrames == null) {
+      return;
+    }
+    _nativeFramesBySpanId[transaction.context.spanId] = NativeFrames(
+        endFrames.totalFrames - startFrames.totalFrames,
+        endFrames.slowFrames - startFrames.totalFrames,
+        endFrames.frozenFrames - startFrames.frozenFrames,
+    );
+
+    Timer(Duration(seconds: 2), () async {
+      _nativeFramesBySpanId.remove(transaction.context.spanId);
+    });
+  }
+
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
     if (options.autoAppStartFinish) {
@@ -514,6 +544,8 @@ class MobileVitalsIntegration extends Integration<SentryFlutterOptions> {
 
     options.addEventProcessor(
         _NativeAppStartEventProcessor(_nativeWrapper, options));
+
+    options.addEventProcessor(_NativeFramesEventProcessor(_nativeFramesBySpanId));
 
     options.sdk.addIntegration('mobileVitalsIntegration');
   }
@@ -540,12 +572,35 @@ class _NativeAppStartEventProcessor extends EventProcessor {
       if (nativeAppStart == null) {
         return event;
       } else {
-        return event.copyWith(
-            measurements: [nativeAppStart.toMeasurement(appStartFinishTime)]);
+        var measurements = event.measurements ?? [];
+        measurements.add(nativeAppStart.toMeasurement(appStartFinishTime));
+        return event.copyWith(measurements: measurements);
       }
     } else {
       return event;
     }
+  }
+}
+
+class _NativeFramesEventProcessor extends EventProcessor {
+  _NativeFramesEventProcessor(this._nativeFramesBySpanId);
+
+  final Map<SpanId, NativeFrames> _nativeFramesBySpanId;
+
+  @override
+  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {
+    if (event is SentryTransaction) {
+      final spanId = event.contexts.trace?.spanId;
+      if (spanId != null) {
+        final nativeFrames = _nativeFramesBySpanId.remove(event.contexts.trace?.spanId);
+        if (nativeFrames != null) {
+          var measurements = event.measurements ?? [];
+          measurements.addAll(nativeFrames.toMeasurements());
+          return event.copyWith(measurements: measurements);
+        }
+      }
+    }
+    return event;
   }
 }
 
@@ -558,5 +613,15 @@ extension NativeAppStartMeasurement on NativeAppStart {
     return isColdStart
         ? SentryMeasurement.coldAppStart(duration)
         : SentryMeasurement.warmAppStart(duration);
+  }
+}
+
+extension NativeFramesMeasurement on NativeFrames {
+  List<SentryMeasurement> toMeasurements() {
+    return [
+      SentryMeasurement.totalFrames(totalFrames),
+      SentryMeasurement.slowFrames(slowFrames),
+      SentryMeasurement.frozenFrames(frozenFrames),
+    ];
   }
 }

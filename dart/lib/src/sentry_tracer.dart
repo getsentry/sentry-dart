@@ -17,6 +17,7 @@ class SentryTracer extends ISentrySpan {
   final Map<String, dynamic> _extra = {};
 
   Timer? _autoFinishAfterTimer;
+  Function(SentryTracer)? _onFinish;
   var _finishStatus = SentryTracerFinishStatus.notFinishing();
   late final bool _trimEnd;
 
@@ -33,10 +34,13 @@ class SentryTracer extends ISentrySpan {
   /// [SentryNavigatorObserver] idle transactions, where we finish the
   /// transaction after a given "idle time" and we don't want this "idle time"
   /// to be part of the transaction.
-  SentryTracer(SentryTransactionContext transactionContext, this._hub,
+  SentryTracer(
+      SentryTransactionContext transactionContext,
+      this._hub,
       {bool waitForChildren = false,
       Duration? autoFinishAfter,
-      bool trimEnd = false}) {
+      bool trimEnd = false,
+      Function(SentryTracer)? onFinish,}) {
     _rootSpan = SentrySpan(
       this,
       transactionContext,
@@ -51,6 +55,7 @@ class SentryTracer extends ISentrySpan {
     }
     name = transactionContext.name;
     _trimEnd = trimEnd;
+    _onFinish = onFinish;
   }
 
   @override
@@ -84,6 +89,7 @@ class SentryTracer extends ISentrySpan {
       }
 
       await _rootSpan.finish(endTimestamp: _rootEndTimestamp);
+      _onFinish?.call(this);
 
       // remove from scope
       _hub.configureScope((scope) {

@@ -398,9 +398,18 @@ class Hub {
         waitForChildren: waitForChildren ?? false,
         autoFinishAfter: autoFinishAfter,
         trimEnd: trimEnd ?? false,
+        onFinish: (tracer) {
+          for (final integration in _options.integrations) {
+            integration.onTransactionFinish(tracer);
+          }
+        }
       );
       if (bindToScope ?? false) {
         item.scope.span = tracer;
+      }
+
+      for (final integration in _options.integrations) {
+        integration.onTransactionStart(tracer);
       }
 
       return tracer;
