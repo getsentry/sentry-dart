@@ -291,7 +291,7 @@ void main() {
     await Sentry.init((options) {
       options.dsn = fakeDsn;
       expect(options.environment, 'debug');
-      expect(options.debug, true);
+      expect(options.debug, false);
     }, options: sentryOptions);
   });
 
@@ -323,8 +323,11 @@ void main() {
 
     await Sentry.init((options) {
       options.dsn = fakeDsn;
+      options.debug = true;
       expect(options.logger, dartLogger);
+
       options.debug = false;
+      expect(options.logger, noOpLogger);
     }, options: sentryOptions);
 
     expect(sentryOptions.logger == dartLogger, false);

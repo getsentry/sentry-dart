@@ -68,7 +68,7 @@ jobs:
           if: runner.os == 'Linux'
           with:
             path: "./dart/coverage/lcov.info"
-            min_coverage: 90
+            min_coverage: 85
 
   analyze:
     runs-on: ubuntu-latest

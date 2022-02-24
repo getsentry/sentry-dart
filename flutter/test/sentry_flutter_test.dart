@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -215,7 +214,7 @@ void main() {
         (options) {
           options.dsn = fakeDsn;
 
-          expect(kDebugMode, options.debug);
+          expect(false, options.debug);
           expect('debug', options.environment);
           expect(sdkName, options.sdk.name);
           expect(sdkVersion, options.sdk.version);
