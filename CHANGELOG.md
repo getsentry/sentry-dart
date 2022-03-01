@@ -1,6 +1,8 @@
 # Changelog
 
-## Unreleased
+## 6.4.0-beta.2
+
+- No documented changes.
 
 ## 6.4.0-beta.1
 
