@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-* Bump: Sentry-Cocoa to 7.10.0 (#736)
+* Bump: Sentry-Cocoa to 7.10.0 (#777)
 
 ## 6.4.0-beta.2
 
