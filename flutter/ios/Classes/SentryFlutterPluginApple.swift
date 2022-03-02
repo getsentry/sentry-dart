@@ -307,7 +307,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
             let item: [String: Any] = [
                 "appStartTime": appStartTime,
-                "isColdStart": isColdStart,
+                "isColdStart": isColdStart
             ]
 
             result(item)
