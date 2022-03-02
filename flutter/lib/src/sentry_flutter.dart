@@ -130,7 +130,7 @@ mixin SentryFlutter {
   }
 
   /// Manually set when you app finished startup. Make sure to set
-  /// [SentryFlutterOptions.autoAppStartFinish] to false on init.
+  /// [SentryFlutterOptions.autoAppStart] to false on init.
   static void setAppStartFinish(DateTime appStartFinish) {
     _options?.appStartFinish = appStartFinish;
   }

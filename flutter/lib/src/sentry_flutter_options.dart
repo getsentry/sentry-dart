@@ -165,7 +165,7 @@ class SentryFlutterOptions extends SentryOptions {
   /// The property [appStartFinish] will be automatically set in
   /// `SchedulerBinding.addPostFrameCallback()`. Set this to false if you want
   /// to set it yourself. It will be sent with the next transaction afterwards.
-  bool autoAppStartFinish = true;
+  bool autoAppStart = true;
 
   /// This timestamp is used as the end of app startup. Either set automatcally,
   /// or by calling [SentryFlutter.setAppStartFinish]

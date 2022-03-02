@@ -506,7 +506,7 @@ class MobileVitalsIntegration extends Integration<SentryFlutterOptions> {
 
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
-    if (options.autoAppStartFinish) {
+    if (options.autoAppStart) {
       SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
         options.appStartFinish = DateTime.now();
       });

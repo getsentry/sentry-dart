@@ -427,7 +427,7 @@ void main() {
     });
 
     test('native app start measurement added to first transaction', () async {
-      fixture.options.autoAppStartFinish = false;
+      fixture.options.autoAppStart = false;
       fixture.options.appStartFinish = DateTime.fromMillisecondsSinceEpoch(10);
       fixture.wrapper.nativeAppStart = NativeAppStart(0, true);
 
@@ -446,7 +446,7 @@ void main() {
 
     test('native app start measurement not added to following transactions',
         () async {
-      fixture.options.autoAppStartFinish = false;
+      fixture.options.autoAppStart = false;
       fixture.options.appStartFinish = DateTime.fromMillisecondsSinceEpoch(10);
       fixture.wrapper.nativeAppStart = NativeAppStart(0, true);
 
