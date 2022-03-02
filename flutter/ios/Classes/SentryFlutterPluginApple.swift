@@ -218,10 +218,6 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         if let enableOutOfMemoryTracking = arguments["enableOutOfMemoryTracking"] as? Bool {
             options.enableOutOfMemoryTracking = enableOutOfMemoryTracking
         }
-
-        if let tracesSampleRate = arguments["tracesSampleRate"] as? Double {
-            options.tracesSampleRate = NSNumber(value: tracesSampleRate)
-        }
     }
 
     private func logLevelFrom(diagnosticLevel: String) -> SentryLevel {
