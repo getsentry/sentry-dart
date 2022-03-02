@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - release/**
   pull_request:
 jobs:
   build:
@@ -23,7 +24,7 @@ jobs:
           with:
             sdk: ${{ matrix.sdk }}
         - uses: actions/checkout@v2
-        - name: Test 
+        - name: Test
           run: |
             dart pub get
             dart analyze --fatal-infos

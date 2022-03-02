@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - release/**
   pull_request:
     paths-ignore:
       - 'logging/**'
@@ -62,12 +63,12 @@ jobs:
           with:
             name: sentry
             file: ./dart/coverage/lcov.info
-        
+
         - uses: VeryGoodOpenSource/very_good_coverage@v1.2.0
           if: runner.os == 'Linux'
           with:
             path: "./dart/coverage/lcov.info"
-            min_coverage: 90
+            min_coverage: 85
 
   analyze:
     runs-on: ubuntu-latest

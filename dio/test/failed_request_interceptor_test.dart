@@ -3,6 +3,7 @@ import 'package:sentry_dio/src/failed_request_interceptor.dart';
 import 'package:test/test.dart';
 
 import 'mocks/mock_hub.dart';
+import 'mocks/no_such_method_provider.dart';
 
 void main() {
   late Fixture fixture;
@@ -33,14 +34,13 @@ class Fixture {
   }
 }
 
-class MockedErrorInterceptorHandler implements ErrorInterceptorHandler {
+class MockedErrorInterceptorHandler
+    with NoSuchMethodProvider
+    implements ErrorInterceptorHandler {
   bool nextWasCalled = false;
 
   @override
   void next(DioError err) {
     nextWasCalled = true;
   }
-
-  @override
-  void noSuchMethod(Invocation invocation) {}
 }

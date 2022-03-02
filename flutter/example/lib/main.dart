@@ -22,6 +22,8 @@ Future<void> main() async {
       options.dsn = _exampleDsn;
       options.tracesSampleRate = 1.0;
       options.reportPackages = false;
+      options.addInAppInclude('sentry_flutter_example');
+      options.considerInAppFramesByDefault = false;
     },
     // Init your App.
     appRunner: () => runApp(
@@ -41,11 +43,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return feedback.BetterFeedback(
@@ -543,24 +540,30 @@ Future<void> makeWebRequest(BuildContext context) async {
 }
 
 Future<void> makeWebRequestWithDio(BuildContext context) async {
+  final dio = Dio();
+
+  dio.addSentry(
+    captureFailedRequests: true,
+    networkTracing: true,
+  );
+
   final transaction = Sentry.getSpan() ??
       Sentry.startTransaction(
         'dio-web-request',
         'request',
         bindToScope: true,
       );
-
-  final dio = Dio();
-  dio.addSentry(
-    captureFailedRequests: true,
-    networkTracing: true,
-    failedRequestStatusCodes: [SentryStatusCode.range(400, 500)],
-  );
-  // We don't do any exception handling here.
-  // In case of an exception, let it get caught and reported to Sentry
-  final response = await dio.get<String>('https://flutter.dev/');
-
-  await transaction.finish(status: SpanStatus.ok());
+  Response<String>? response;
+  try {
+    response = await dio.get<String>('https://flutter.dev/');
+    transaction.status = SpanStatus.ok();
+  } catch (exception, stackTrace) {
+    transaction.throwable = exception;
+    transaction.status = SpanStatus.internalError();
+    await Sentry.captureException(exception, stackTrace: stackTrace);
+  } finally {
+    await transaction.finish();
+  }
 
   await showDialog<void>(
     context: context,
@@ -570,9 +573,9 @@ Future<void> makeWebRequestWithDio(BuildContext context) async {
     ),
     builder: (context) {
       return AlertDialog(
-        title: Text('Response ${response.statusCode}'),
+        title: Text('Response ${response?.statusCode}'),
         content: SingleChildScrollView(
-          child: Text(response.data!),
+          child: Text(response?.data ?? 'failed request'),
         ),
         actions: [
           MaterialButton(

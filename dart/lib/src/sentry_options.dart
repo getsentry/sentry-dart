@@ -267,13 +267,6 @@ class SentryOptions {
       platformChecker = checker;
     }
 
-    // In debug mode we want to log everything by default to the console.
-    // In order to do that, this must be the first thing the SDK does
-    // and the first thing the SDK does, is to instantiate SentryOptions
-    if (platformChecker.isDebugMode()) {
-      debug = true;
-    }
-
     sdk = SdkVersion(name: sdkName(platformChecker.isWeb), version: sdkVersion);
     sdk.addPackage('pub:sentry', sdkVersion);
   }
