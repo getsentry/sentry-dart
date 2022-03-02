@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
@@ -125,7 +126,8 @@ mixin SentryFlutter {
     integrations.add(LoadReleaseIntegration(packageLoader));
 
     if (options.platformChecker.hasNativeIntegration) {
-      integrations.add(MobileVitalsIntegration(nativeWrapper));
+      integrations.add(
+          MobileVitalsIntegration(nativeWrapper, SchedulerBinding.instance));
     }
     return integrations;
   }

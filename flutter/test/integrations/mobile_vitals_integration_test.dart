@@ -3,6 +3,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/mobile_vitals_integration.dart';
 import 'package:sentry_flutter/src/sentry_native_wrapper.dart';
 import 'package:sentry/src/sentry_tracer.dart';
+import 'package:flutter/scheduler.dart';
 
 import '../mocks.dart';
 import '../mocks.mocks.dart';
@@ -61,7 +62,7 @@ class Fixture {
   final wrapper = MockNativeWrapper();
 
   MobileVitalsIntegration getMobileVitalsIntegration() {
-    return MobileVitalsIntegration(wrapper);
+    return MobileVitalsIntegration(wrapper, SchedulerBinding.instance);
   }
 
   // ignore: invalid_use_of_internal_member

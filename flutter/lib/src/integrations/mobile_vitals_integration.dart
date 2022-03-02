@@ -9,14 +9,19 @@ import '../sentry_native_wrapper.dart';
 /// Integration which handles communication with native frameworks in order to
 /// enrich [SentryTransaction] objects with data for mobile vitals.
 class MobileVitalsIntegration extends Integration<SentryFlutterOptions> {
-  MobileVitalsIntegration(this._nativeWrapper);
+  MobileVitalsIntegration(this._nativeWrapper, this._schedulerBinding);
 
   final SentryNativeWrapper _nativeWrapper;
+  final SchedulerBinding? _schedulerBinding;
 
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
     if (options.autoAppStart) {
-      SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
+      if (_schedulerBinding == null) {
+        options.logger(SentryLevel.debug,
+            'Scheduler binding is null. Can\'t auto detect app start time.');
+      }
+      _schedulerBinding?.addPostFrameCallback((timeStamp) {
         options.appStartFinish = DateTime.now();
       });
     }
