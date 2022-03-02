@@ -111,8 +111,7 @@ class FlutterEnricherEventProcessor extends EventProcessor {
   SentryCulture _getCulture(SentryCulture? culture) {
     // The editor says it's fine without a `?` but the compiler complains
     // if it's missing
-    // ignore: invalid_null_aware_operator
-    final languageTag = _window?.locale?.toLanguageTag();
+    final languageTag = _window?.locale.toLanguageTag();
 
     // Future enhancement:
     // _window?.locales
@@ -130,8 +129,18 @@ class FlutterEnricherEventProcessor extends EventProcessor {
     final tempDebugBrightnessOverride = debugBrightnessOverride;
     final initialLifecycleState = _window?.initialLifecycleState;
     final defaultRouteName = _window?.defaultRouteName;
+    final mode = kDebugMode
+        ? 'debug'
+        : kReleaseMode
+            ? 'release'
+            : 'profile';
+    // A FlutterEngine has no renderViewElement if it was started or is
+    // accessed from an isolate different to the main isolate.
+    final hasRenderView = _widgetsBinding?.renderViewElement != null;
 
     return <String, String>{
+      'mode': mode,
+      'has_render_view': hasRenderView.toString(),
       if (tempDebugBrightnessOverride != null)
         'debug_brightness_override': describeEnum(tempDebugBrightnessOverride),
       if (debugPlatformOverride != null)
