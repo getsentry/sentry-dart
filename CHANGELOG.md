@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+* Bump: Sentry-Cocoa to 7.10.0 (#777)
+
 ## 6.4.0-beta.2
 
 - No documented changes.
