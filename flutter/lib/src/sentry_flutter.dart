@@ -7,6 +7,7 @@ import 'sentry_native_wrapper.dart';
 
 import 'flutter_enricher_event_processor.dart';
 import 'integrations/debug_print_integration.dart';
+import 'integrations/mobile_vitals_integration.dart';
 import 'sentry_flutter_options.dart';
 
 import 'default_integrations.dart';
