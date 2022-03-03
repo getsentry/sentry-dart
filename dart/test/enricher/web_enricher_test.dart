@@ -1,8 +1,9 @@
 @TestOn('browser')
+import 'dart:html' as html;
+
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/enricher/web_enricher_event_processor.dart';
 import 'package:test/test.dart';
-import 'dart:html' as html show window;
 
 import '../mocks.dart';
 import '../mocks/mock_platform_checker.dart';

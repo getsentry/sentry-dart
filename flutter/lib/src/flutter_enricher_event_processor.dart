@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sentry/sentry.dart';
+
 import 'sentry_flutter_options.dart';
 
 typedef WidgetBindingGetter = WidgetsBinding? Function();
@@ -33,7 +34,7 @@ class FlutterEnricherEventProcessor extends EventProcessor {
 
   // We can't use `WidgetsBinding` as a direct parameter
   // because it must be called inside the `runZoneGuarded`-Integration.
-  // Thus we call it on demand after all the initialization happend.
+  // Thus we call it on demand after all the initialization happened.
   final WidgetBindingGetter _getWidgetsBinding;
   WidgetsBinding? get _widgetsBinding => _getWidgetsBinding();
   SingletonFlutterWindow? get _window => _widgetsBinding?.window;
