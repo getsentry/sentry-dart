@@ -11,22 +11,24 @@ import '../sentry_native_wrapper.dart';
 /// enrich [SentryTransaction] objects with data for mobile vitals.
 class MobileVitalsIntegration extends Integration<SentryFlutterOptions> {
   MobileVitalsIntegration(
-      this._nativeWrapper, this._nativeState, this._schedulerBinding);
+      this._nativeWrapper, this._nativeState, this._schedulerBindingProvider);
 
   final SentryNativeWrapper _nativeWrapper;
   final SentryNativeState _nativeState;
-  final SchedulerBinding? _schedulerBinding;
+  final SchedulerBindingProvider _schedulerBindingProvider;
 
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
     if (options.autoAppStart) {
-      if (_schedulerBinding == null) {
+      final schedulerBinding = _schedulerBindingProvider();
+      if (schedulerBinding == null) {
         options.logger(SentryLevel.debug,
             'Scheduler binding is null. Can\'t auto detect app start time.');
+      } else {
+        schedulerBinding.addPostFrameCallback((timeStamp) {
+          _nativeState.appStartEnd = DateTime.now();
+        });
       }
-      _schedulerBinding?.addPostFrameCallback((timeStamp) {
-        _nativeState.appStartEnd = DateTime.now();
-      });
     }
 
     options.addEventProcessor(
@@ -80,3 +82,6 @@ extension NativeAppStartMeasurement on NativeAppStart {
         : SentryMeasurement.warmAppStart(duration);
   }
 }
+
+/// Used to provide scheduler binding at call time.
+typedef SchedulerBindingProvider = SchedulerBinding? Function();

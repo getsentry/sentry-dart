@@ -296,25 +296,19 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
     }
 
     private func fetchNativeAppStart(result: @escaping FlutterResult) {
-        if let appStartMeasurement = PrivateSentrySDKOnly.appStartMeasurement {
-
-            let appStartTime = appStartMeasurement.appStartTimestamp.timeIntervalSince1970 * 1000
-            let isColdStart = appStartMeasurement.type == .cold
-
-            let item: [String: Any] = [
-                "appStartTime": appStartTime,
-                "isColdStart": isColdStart
-            ]
-
-            result(item)
-        } else {
-            result(
-                FlutterError(
-                    code: "1",
-                    message: "App start won't be sent due to missing appStartMeasurement",
-                    details: nil
-                )
-            )
+        guard let appStartMeasurement = PrivateSentrySDKOnly.appStartMeasurement else {
+            result(nil)
+            return
         }
+
+        let appStartTime = appStartMeasurement.appStartTimestamp.timeIntervalSince1970 * 1000
+        let isColdStart = appStartMeasurement.type == .cold
+
+        let item: [String: Any] = [
+            "appStartTime": appStartTime,
+            "isColdStart": isColdStart
+        ]
+
+        result(item)
     }
 }

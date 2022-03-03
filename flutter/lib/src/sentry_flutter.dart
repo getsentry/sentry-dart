@@ -131,7 +131,9 @@ mixin SentryFlutter {
       integrations.add(MobileVitalsIntegration(
         nativeWrapper,
         nativeState,
-        SchedulerBinding.instance,
+        () {
+          return SchedulerBinding.instance;
+        },
       ));
     }
     return integrations;

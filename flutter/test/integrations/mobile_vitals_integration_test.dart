@@ -64,7 +64,13 @@ class Fixture {
   final state = SentryNativeState();
 
   MobileVitalsIntegration getMobileVitalsIntegration() {
-    return MobileVitalsIntegration(wrapper, state, SchedulerBinding.instance);
+    return MobileVitalsIntegration(
+      wrapper,
+      state,
+      () {
+        return SchedulerBinding.instance;
+      },
+    );
   }
 
   // ignore: invalid_use_of_internal_member
