@@ -8,15 +8,19 @@ import '../protocol.dart';
 EventProcessor enricherEventProcessor(SentryOptions options) {
   return WebEnricherEventProcessor(
     html.window,
+    options,
   );
 }
 
 class WebEnricherEventProcessor extends EventProcessor {
   WebEnricherEventProcessor(
     this._window,
+    this._options,
   );
 
   final html.Window _window;
+
+  final SentryOptions _options;
 
   @override
   FutureOr<SentryEvent> apply(SentryEvent event, {dynamic hint}) async {
@@ -25,6 +29,8 @@ class WebEnricherEventProcessor extends EventProcessor {
     final contexts = event.contexts.copyWith(
       device: await _getDevice(event.contexts.device),
     );
+
+    contexts['dart_context'] = _getDartContext();
 
     return event.copyWith(
       contexts: contexts,
@@ -83,5 +89,17 @@ class WebEnricherEventProcessor extends EventProcessor {
       }
     }
     return null;
+  }
+
+  Map<String, dynamic> _getDartContext() {
+    final compile_mode = _options.platformChecker.isReleaseMode()
+        ? 'release'
+        : _options.platformChecker.isDebugMode()
+            ? 'debug'
+            : 'profile';
+
+    return <String, dynamic>{
+      'compile_mode': compile_mode,
+    };
   }
 }

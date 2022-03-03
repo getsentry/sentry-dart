@@ -129,17 +129,11 @@ class FlutterEnricherEventProcessor extends EventProcessor {
     final tempDebugBrightnessOverride = debugBrightnessOverride;
     final initialLifecycleState = _window?.initialLifecycleState;
     final defaultRouteName = _window?.defaultRouteName;
-    final mode = kDebugMode
-        ? 'debug'
-        : kReleaseMode
-            ? 'release'
-            : 'profile';
     // A FlutterEngine has no renderViewElement if it was started or is
     // accessed from an isolate different to the main isolate.
     final hasRenderView = _widgetsBinding?.renderViewElement != null;
 
     return <String, String>{
-      'mode': mode,
       'has_render_view': hasRenderView.toString(),
       if (tempDebugBrightnessOverride != null)
         'debug_brightness_override': describeEnum(tempDebugBrightnessOverride),
