@@ -111,7 +111,8 @@ class FlutterEnricherEventProcessor extends EventProcessor {
   SentryCulture _getCulture(SentryCulture? culture) {
     // The editor says it's fine without a `?` but the compiler complains
     // if it's missing
-    final languageTag = _window?.locale.toLanguageTag();
+    // ignore: invalid_null_aware_operator
+    final languageTag = _window?.locale?.toLanguageTag();
 
     // Future enhancement:
     // _window?.locales
