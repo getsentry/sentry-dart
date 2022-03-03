@@ -1,12 +1,15 @@
 import 'dart:async';
 
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
+import 'sentry_native_state.dart';
 import 'sentry_native_wrapper.dart';
 
 import 'flutter_enricher_event_processor.dart';
 import 'integrations/debug_print_integration.dart';
+import 'integrations/mobile_vitals_integration.dart';
 import 'sentry_flutter_options.dart';
 
 import 'default_integrations.dart';
@@ -21,7 +24,7 @@ typedef FlutterOptionsConfiguration = FutureOr<void> Function(
 /// Sentry Flutter SDK main entry point
 mixin SentryFlutter {
   static const _channel = MethodChannel('sentry_flutter');
-  static SentryFlutterOptions? _options;
+  static final _nativeState = SentryNativeState();
 
   static Future<void> init(
     FlutterOptionsConfiguration optionsConfiguration, {
@@ -31,7 +34,6 @@ mixin SentryFlutter {
     PlatformChecker? platformChecker,
   }) async {
     final flutterOptions = SentryFlutterOptions();
-    _options = flutterOptions;
 
     if (platformChecker != null) {
       flutterOptions.platformChecker = platformChecker;
@@ -44,6 +46,7 @@ mixin SentryFlutter {
     final defaultIntegrations = _createDefaultIntegrations(
       packageLoader,
       nativeWrapper,
+      _nativeState,
       channel,
       flutterOptions,
     );
@@ -83,6 +86,7 @@ mixin SentryFlutter {
   static List<Integration> _createDefaultIntegrations(
     PackageLoader packageLoader,
     SentryNativeWrapper nativeWrapper,
+    SentryNativeState nativeState,
     MethodChannel channel,
     SentryFlutterOptions options,
   ) {
@@ -124,15 +128,21 @@ mixin SentryFlutter {
     integrations.add(LoadReleaseIntegration(packageLoader));
 
     if (options.platformChecker.hasNativeIntegration) {
-      integrations.add(MobileVitalsIntegration(nativeWrapper));
+      integrations.add(MobileVitalsIntegration(
+        nativeWrapper,
+        nativeState,
+        () {
+          return SchedulerBinding.instance;
+        },
+      ));
     }
     return integrations;
   }
 
-  /// Manually set when you app finished startup. Make sure to set
-  /// [SentryFlutterOptions.autoAppStartFinish] to false on init.
-  static void setAppStartFinish(DateTime appStartFinish) {
-    _options?.appStartFinish = appStartFinish;
+  /// Manually set when your app finished startup. Make sure to set
+  /// [SentryFlutterOptions.autoAppStart] to false on init.
+  static void setAppStartEnd(DateTime appStartEnd) {
+    _nativeState.appStartEnd = appStartEnd;
   }
 
   static void _setSdk(SentryFlutterOptions options) {

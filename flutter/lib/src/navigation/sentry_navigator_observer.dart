@@ -75,7 +75,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final RouteNameExtractor? _routeNameExtractor;
   final AdditionalInfoExtractor? _additionalInfoProvider;
 
-  ISentrySpan? _initialTransaction;
   ISentrySpan? _transaction;
 
   @override
@@ -173,8 +172,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     _hub.configureScope((scope) {
       scope.span ??= _transaction;
     });
-
-    _initialTransaction ??= _transaction;
   }
 
   Future<void> _finishTransaction() async {

@@ -1,14 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
 
 import 'sentry_flutter_options.dart';
-import 'sentry_native_wrapper.dart';
 import 'widgets_binding_observer.dart';
 
 /// It is necessary to initialize Flutter method channels so that our plugin can
@@ -200,14 +198,29 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
       if (infos['integrations'] != null) {
         final integrations = List<String>.from(infos['integrations'] as List);
         final sdk = event.sdk ?? _options.sdk;
-        integrations.forEach(sdk.addIntegration);
+
+        for (final integration in integrations) {
+          if (!sdk.integrations.contains(integration)) {
+            sdk.addIntegration(integration);
+          }
+        }
+
         event = event.copyWith(sdk: sdk);
       }
 
       if (infos['package'] != null) {
         final package = Map<String, String>.from(infos['package'] as Map);
         final sdk = event.sdk ?? _options.sdk;
-        sdk.addPackage(package['sdk_name']!, package['version']!);
+
+        final name = package['sdk_name'];
+        final version = package['version'];
+        if (name != null &&
+            version != null &&
+            !sdk.packages.any((element) =>
+                element.name == name && element.version == version)) {
+          sdk.addPackage(name, version);
+        }
+
         event = event.copyWith(sdk: sdk);
       }
 
@@ -266,7 +279,6 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
         'sendDefaultPii': options.sendDefaultPii,
         'enableOutOfMemoryTracking': options.enableOutOfMemoryTracking,
         'enableNdkScopeSync': options.enableNdkScopeSync,
-        'tracesSampleRate': options.tracesSampleRate,
       });
 
       options.sdk.addIntegration('nativeSdkIntegration');
@@ -498,130 +510,3 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
   }
 }
 
-/// Enrich [SentryTransaction] objects with native app data for mobile vitals.
-class MobileVitalsIntegration extends Integration<SentryFlutterOptions> {
-  MobileVitalsIntegration(this._nativeWrapper);
-
-  final SentryNativeWrapper _nativeWrapper;
-
-  final _nativeStartFramesBySpanId = <SpanId, NativeFrames>{};
-  final _nativeFramesBySpanId = <SpanId, NativeFrames>{};
-
-  @override
-  FutureOr<void> onTransactionStart(ISentrySpan transaction) async {
-    final startFrames = await _nativeWrapper.fetchNativeFrames();
-    if (startFrames != null) {
-      _nativeStartFramesBySpanId[transaction.context.spanId] = startFrames;
-    }
-  }
-
-  @override
-  FutureOr<void> onTransactionFinish(ISentrySpan transaction) async {
-    final startFrames = _nativeStartFramesBySpanId.remove(transaction.context.spanId);
-    final endFrames = await _nativeWrapper.fetchNativeFrames();
-
-    if (startFrames == null || endFrames == null) {
-      return;
-    }
-    _nativeFramesBySpanId[transaction.context.spanId] = NativeFrames(
-        endFrames.totalFrames - startFrames.totalFrames,
-        endFrames.slowFrames - startFrames.totalFrames,
-        endFrames.frozenFrames - startFrames.frozenFrames,
-    );
-
-    Timer(Duration(seconds: 2), () async {
-      _nativeFramesBySpanId.remove(transaction.context.spanId);
-    });
-  }
-
-  @override
-  FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
-    if (options.autoAppStartFinish) {
-      SchedulerBinding.instance?.addPostFrameCallback((timeStamp) {
-        options.appStartFinish = DateTime.now();
-      });
-    }
-
-    options.addEventProcessor(
-        _NativeAppStartEventProcessor(_nativeWrapper, options));
-
-    options.addEventProcessor(_NativeFramesEventProcessor(_nativeFramesBySpanId));
-
-    options.sdk.addIntegration('mobileVitalsIntegration');
-  }
-}
-
-class _NativeAppStartEventProcessor extends EventProcessor {
-  _NativeAppStartEventProcessor(this._nativeWrapper, this._options);
-
-  final SentryNativeWrapper _nativeWrapper;
-  final SentryFlutterOptions _options;
-
-  var _didFetchAppStart = false;
-
-  @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {
-    final appStartFinishTime = _options.appStartFinish;
-
-    if (appStartFinishTime != null &&
-        event is SentryTransaction &&
-        !_didFetchAppStart) {
-      _didFetchAppStart = true;
-
-      final nativeAppStart = await _nativeWrapper.fetchNativeAppStart();
-      if (nativeAppStart == null) {
-        return event;
-      } else {
-        var measurements = event.measurements ?? [];
-        measurements.add(nativeAppStart.toMeasurement(appStartFinishTime));
-        return event.copyWith(measurements: measurements);
-      }
-    } else {
-      return event;
-    }
-  }
-}
-
-class _NativeFramesEventProcessor extends EventProcessor {
-  _NativeFramesEventProcessor(this._nativeFramesBySpanId);
-
-  final Map<SpanId, NativeFrames> _nativeFramesBySpanId;
-
-  @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {
-    if (event is SentryTransaction) {
-      final spanId = event.contexts.trace?.spanId;
-      if (spanId != null) {
-        final nativeFrames = _nativeFramesBySpanId.remove(event.contexts.trace?.spanId);
-        if (nativeFrames != null) {
-          var measurements = event.measurements ?? [];
-          measurements.addAll(nativeFrames.toMeasurements());
-          return event.copyWith(measurements: measurements);
-        }
-      }
-    }
-    return event;
-  }
-}
-
-extension NativeAppStartMeasurement on NativeAppStart {
-  SentryMeasurement toMeasurement(DateTime appStartFinishTime) {
-    final appStartDateTime =
-        DateTime.fromMillisecondsSinceEpoch(appStartTime.toInt());
-    final duration = appStartFinishTime.difference(appStartDateTime);
-
-    return isColdStart
-        ? SentryMeasurement.coldAppStart(duration)
-        : SentryMeasurement.warmAppStart(duration);
-  }
-}
-
-extension NativeFramesMeasurement on NativeFrames {
-  List<SentryMeasurement> toMeasurements() {
-    return [
-      SentryMeasurement.totalFrames(totalFrames),
-      SentryMeasurement.slowFrames(slowFrames),
-      SentryMeasurement.frozenFrames(frozenFrames),
-    ];
-  }
-}

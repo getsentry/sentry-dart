@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - release/**
   pull_request:
     paths-ignore:
       - 'logging/**'
@@ -80,7 +81,7 @@ jobs:
           with:
             name: sentry_flutter
             file: ./flutter/coverage/lcov.info
-        
+
         - uses: VeryGoodOpenSource/very_good_coverage@v1.2.0
           if: runner.os == 'Linux'
           with:
@@ -131,6 +132,10 @@ jobs:
           flutter analyze
 
   package-analysis:
+    # `axel-op/dart-package-analyzer` is using `flutter pub upgrade` instead of `get`,
+    # which ignores pubspec.yaml `dependency_overrides`. Because of that, all `release/*` branches are failing,
+    # because the package cannot find the "about to be released" version of our sentry-dart package that it depends on.
+    if: ${{ !startsWith(github.ref, 'refs/heads/release/') }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
