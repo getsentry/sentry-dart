@@ -3,6 +3,7 @@
 ## Unreleased
 
 * Bump: Sentry-Cocoa to 7.10.0 (#777)
+* Feat: Mobile Vitals - Native App Start (#749)
 
 ## 6.4.0-beta.2
 
@@ -13,7 +14,6 @@
 * Fix: Disable log by default in debug mode (#753)
 * [Dio] Ref: Replace FailedRequestAdapter with FailedRequestInterceptor (#728)
 * Fix: Add missing return values - dart analyzer (#742)
-* Feat: Mobile Vitals - Native App Start (#749)
 * Feat: Add `DioEventProcessor` which improves DioError crash reports (#718)
 * Fix: Do not report duplicated packages and integrations (#760)
 * Feat: Allow manual init of the Native SDK or no Native SDK at all (#765)

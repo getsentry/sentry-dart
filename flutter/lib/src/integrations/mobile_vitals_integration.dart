@@ -4,14 +4,17 @@ import 'package:flutter/scheduler.dart';
 import 'package:sentry/sentry.dart';
 
 import '../sentry_flutter_options.dart';
+import '../sentry_native_state.dart';
 import '../sentry_native_wrapper.dart';
 
 /// Integration which handles communication with native frameworks in order to
 /// enrich [SentryTransaction] objects with data for mobile vitals.
 class MobileVitalsIntegration extends Integration<SentryFlutterOptions> {
-  MobileVitalsIntegration(this._nativeWrapper, this._schedulerBinding);
+  MobileVitalsIntegration(
+      this._nativeWrapper, this._nativeState, this._schedulerBinding);
 
   final SentryNativeWrapper _nativeWrapper;
+  final SentryNativeState _nativeState;
   final SchedulerBinding? _schedulerBinding;
 
   @override
@@ -22,30 +25,33 @@ class MobileVitalsIntegration extends Integration<SentryFlutterOptions> {
             'Scheduler binding is null. Can\'t auto detect app start time.');
       }
       _schedulerBinding?.addPostFrameCallback((timeStamp) {
-        options.appStartFinish = DateTime.now();
+        _nativeState.appStartEnd = DateTime.now();
       });
     }
 
     options.addEventProcessor(
-        _NativeAppStartEventProcessor(_nativeWrapper, options));
+        _NativeAppStartEventProcessor(_nativeWrapper, _nativeState));
 
     options.sdk.addIntegration('mobileVitalsIntegration');
   }
 }
 
 class _NativeAppStartEventProcessor extends EventProcessor {
-  _NativeAppStartEventProcessor(this._nativeWrapper, this._options);
+  _NativeAppStartEventProcessor(
+    this._nativeWrapper,
+    this._nativeState,
+  );
 
   final SentryNativeWrapper _nativeWrapper;
-  final SentryFlutterOptions _options;
+  final SentryNativeState _nativeState;
 
   var _didFetchAppStart = false;
 
   @override
   FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {
-    final appStartFinishTime = _options.appStartFinish;
+    final appStartEnd = _nativeState.appStartEnd;
 
-    if (appStartFinishTime != null &&
+    if (appStartEnd != null &&
         event is SentryTransaction &&
         !_didFetchAppStart) {
       _didFetchAppStart = true;
@@ -55,7 +61,7 @@ class _NativeAppStartEventProcessor extends EventProcessor {
         return event;
       } else {
         return event.copyWith(
-            measurements: [nativeAppStart.toMeasurement(appStartFinishTime)]);
+            measurements: [nativeAppStart.toMeasurement(appStartEnd)]);
       }
     } else {
       return event;
@@ -64,10 +70,10 @@ class _NativeAppStartEventProcessor extends EventProcessor {
 }
 
 extension NativeAppStartMeasurement on NativeAppStart {
-  SentryMeasurement toMeasurement(DateTime appStartFinishTime) {
+  SentryMeasurement toMeasurement(DateTime appStartEnd) {
     final appStartDateTime =
         DateTime.fromMillisecondsSinceEpoch(appStartTime.toInt());
-    final duration = appStartFinishTime.difference(appStartDateTime);
+    final duration = appStartEnd.difference(appStartDateTime);
 
     return isColdStart
         ? SentryMeasurement.coldAppStart(duration)

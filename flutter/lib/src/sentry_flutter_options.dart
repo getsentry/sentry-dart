@@ -162,14 +162,11 @@ class SentryFlutterOptions extends SentryOptions {
   /// Only available on Android.
   bool enableNdkScopeSync = false;
 
-  /// The property [appStartFinish] will be automatically set in
-  /// `SchedulerBinding.addPostFrameCallback()`. Set this to false if you want
-  /// to set it yourself. It will be sent with the next transaction afterwards.
+  /// Automatically track app start measurement and send it with the
+  /// first transaction. Set to false when configuring option to disable or if
+  /// you want to set the end time of app startup manually using
+  /// [SentryFlutter.setAppStartEnd].
   bool autoAppStart = true;
-
-  /// This timestamp is used as the end of app startup. Either set automatcally,
-  /// or by calling [SentryFlutter.setAppStartFinish]
-  DateTime? appStartFinish;
 
   /// By using this, you are disabling native [Breadcrumb] tracking and instead
   /// you are just tracking [Breadcrumb]s which result from events available
