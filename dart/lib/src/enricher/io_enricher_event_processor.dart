@@ -65,11 +65,6 @@ class IoEnricherEventProcessor extends EventProcessor {
     final args = Platform.executableArguments;
     final packageConfig = Platform.packageConfig;
     final isolate = Isolate.current.debugName;
-    final compile_mode = _options.platformChecker.isReleaseMode()
-        ? 'release'
-        : _options.platformChecker.isDebugMode()
-            ? 'debug'
-            : 'profile';
 
     String? executable;
     if (_options.sendDefaultPii) {
@@ -88,7 +83,7 @@ class IoEnricherEventProcessor extends EventProcessor {
     }
 
     return <String, dynamic>{
-      'compile_mode': compile_mode,
+      'compile_mode': _options.platformChecker.compileMode,
       if (packageConfig != null) 'package_config': packageConfig,
       'number_of_processors': Platform.numberOfProcessors,
       if (isolate != null) 'isolate': isolate,

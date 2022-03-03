@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:html' as html show window, Window;
 
 import '../event_processor.dart';
-import '../sentry_options.dart';
 import '../protocol.dart';
+import '../sentry_options.dart';
 
 EventProcessor enricherEventProcessor(SentryOptions options) {
   return WebEnricherEventProcessor(
@@ -42,10 +42,10 @@ class WebEnricherEventProcessor extends EventProcessor {
   // As seen in
   // https://github.com/getsentry/sentry-javascript/blob/a6f8dc26a4c7ae2146ae64995a2018c8578896a6/packages/browser/src/integrations/useragent.ts
   SentryRequest _getRequest(SentryRequest? request) {
-    final reqestHeader = request?.headers;
-    final header = reqestHeader == null
+    final requestHeader = request?.headers;
+    final header = requestHeader == null
         ? <String, String>{}
-        : Map<String, String>.from(reqestHeader);
+        : Map<String, String>.from(requestHeader);
 
     header.putIfAbsent('User-Agent', () => _window.navigator.userAgent);
 
@@ -92,14 +92,8 @@ class WebEnricherEventProcessor extends EventProcessor {
   }
 
   Map<String, dynamic> _getDartContext() {
-    final compile_mode = _options.platformChecker.isReleaseMode()
-        ? 'release'
-        : _options.platformChecker.isDebugMode()
-            ? 'debug'
-            : 'profile';
-
     return <String, dynamic>{
-      'compile_mode': compile_mode,
+      'compile_mode': _options.platformChecker.compileMode,
     };
   }
 }
