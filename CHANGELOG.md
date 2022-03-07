@@ -23,6 +23,14 @@
 * Fix: await ZonedGuard integration to run (#732)
 * Fix: `sentry_logging` incorrectly setting SDK name (#725)
 * Bump: Sentry-Android to 5.6.1 and Sentry-Cocoa to 7.9.0 (#736)
+* Feat: Support Attachment.addToTransactions (#709)
+* Fix: captureTransaction should return emptyId when transaction is discarded (#713)
+* Add `SentryAssetBundle` for automatic spans for asset loading (#685)
+* Fix: `maxRequestBodySize` should be `never` by default when using the FailedRequestClientAdapter directly (#701)
+* Feat: Add support for [Dio](https://pub.dev/packages/dio) (#688)
+* Fix: Use correct data/extras type in tracer (#693)
+* Fix: Do not throw when Throwable type is not supported for associating errors to a transaction (#692)
+* Feat: Automatically create transactions when navigating between screens (#643)
 
 ## 6.3.0-beta.4
 
