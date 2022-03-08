@@ -4,6 +4,7 @@
 
 * Bump: Sentry-Cocoa to 7.10.0 (#777)
 * Feat: Additional Dart/Flutter context information (#778)
+* Bump: Kotlin plugin to 1.5.31 (#763)
 
 ## 6.4.0-beta.2
 
@@ -14,7 +15,6 @@
 * Fix: Disable log by default in debug mode (#753)
 * [Dio] Ref: Replace FailedRequestAdapter with FailedRequestInterceptor (#728)
 * Fix: Add missing return values - dart analyzer (#742)
-* Bump: Kotlin plugin to 1.5.31 (#763)
 * Feature: Add `DioEventProcessor` which improves DioError crash reports (#718)
 * Feat: Add `DioEventProcessor` which improves DioError crash reports (#718)
 * Fix: Do not report duplicated packages and integrations (#760)
