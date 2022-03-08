@@ -16,7 +16,6 @@
 * [Dio] Ref: Replace FailedRequestAdapter with FailedRequestInterceptor (#728)
 * Fix: Add missing return values - dart analyzer (#742)
 * Feature: Add `DioEventProcessor` which improves DioError crash reports (#718)
-* Feat: Add `DioEventProcessor` which improves DioError crash reports (#718)
 * Fix: Do not report duplicated packages and integrations (#760)
 * Feat: Allow manual init of the Native SDK or no Native SDK at all (#765)
 
