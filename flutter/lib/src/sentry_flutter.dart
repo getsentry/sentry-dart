@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+import 'package:meta/meta.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
 
@@ -21,12 +22,13 @@ typedef FlutterOptionsConfiguration = FutureOr<void> Function(
 mixin SentryFlutter {
   static const _channel = MethodChannel('sentry_flutter');
 
+  /// Initializes the SDK
   static Future<void> init(
     FlutterOptionsConfiguration optionsConfiguration, {
     AppRunner? appRunner,
-    PackageLoader packageLoader = _loadPackageInfo,
-    MethodChannel channel = _channel,
-    PlatformChecker? platformChecker,
+    @internal PackageLoader packageLoader = _loadPackageInfo,
+    @internal MethodChannel channel = _channel,
+    @internal PlatformChecker? platformChecker,
   }) async {
     final flutterOptions = SentryFlutterOptions();
     if (platformChecker != null) {
@@ -51,6 +53,7 @@ mixin SentryFlutter {
         await optionsConfiguration(options as SentryFlutterOptions);
       },
       appRunner: appRunner,
+      // ignore: invalid_use_of_internal_member
       options: flutterOptions,
     );
   }
