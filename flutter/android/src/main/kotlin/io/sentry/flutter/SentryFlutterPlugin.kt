@@ -1,6 +1,7 @@
 package io.sentry.flutter
 
 import android.content.Context
+import android.util.Log
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -127,10 +128,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
     val isColdStart = AppStartState.getInstance().isColdStart()
 
     if (appStartTime == null) {
-      print("Sentry - warning:: App start won't be sent due to missing appStartTime")
+      Log.w("Sentry", "App start won't be sent due to missing appStartTime")
       result.success(null)
     } else if (isColdStart == null) {
-      print("Sentry - warning:: App start won't be sent due to missing isColdStart")
+      Log.w("Sentry", "App start won't be sent due to missing isColdStart")
       result.success(null)
     } else {
       val item = mapOf<String, Any?>(
