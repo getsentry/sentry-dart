@@ -29,15 +29,29 @@ class SentryNativeWrapper {
     }
   }
 
-  Future<NativeFrames?> fetchNativeFrames() async {
+  Future<void> beginNativeFrames() async {
+    try {
+      await _channel.invokeMapMethod<String, dynamic>('beginNativeFrames');
+    } catch (error, stackTrace) {
+      _options.logger(
+        SentryLevel.error,
+        'Native call `beginNativeFrames` failed',
+        exception: error,
+        stackTrace: stackTrace,
+      );
+      return null;
+    }
+  }
+
+  Future<NativeFrames?> endNativeFrames(SentryId id) async {
     try {
       final json = await _channel
-          .invokeMapMethod<String, dynamic>('fetchNativeFrames');
+          .invokeMapMethod<String, dynamic>('endNativeFrames', {'id': id.toString()});
       return (json != null) ? NativeFrames.fromJson(json) : null;
     } catch (error, stackTrace) {
       _options.logger(
         SentryLevel.error,
-        'Native call `fetchNativeFrames` failed',
+        'Native call `endNativeFrames` failed',
         exception: error,
         stackTrace: stackTrace,
       );

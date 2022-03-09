@@ -145,5 +145,8 @@ class MockNativeWrapper implements SentryNativeWrapper {
   Future<NativeAppStart?> fetchNativeAppStart() async => nativeAppStart;
 
   @override
-  Future<NativeFrames?> fetchNativeFrames() async => nativeFrames;
+  Future<void> beginNativeFrames() async => null;
+
+  @override
+  Future<NativeFrames?> endNativeFrames(SentryId id) async => nativeFrames;
 }
