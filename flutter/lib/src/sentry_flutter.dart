@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:meta/meta.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
 import 'sentry_native_state.dart';
@@ -26,12 +27,13 @@ mixin SentryFlutter {
   static const _channel = MethodChannel('sentry_flutter');
   static final _nativeState = SentryNativeState();
 
+  /// Initializes the SDK
   static Future<void> init(
     FlutterOptionsConfiguration optionsConfiguration, {
     AppRunner? appRunner,
-    PackageLoader packageLoader = _loadPackageInfo,
-    MethodChannel channel = _channel,
-    PlatformChecker? platformChecker,
+    @internal PackageLoader packageLoader = _loadPackageInfo,
+    @internal MethodChannel channel = _channel,
+    @internal PlatformChecker? platformChecker,
   }) async {
     final flutterOptions = SentryFlutterOptions();
 
@@ -61,6 +63,7 @@ mixin SentryFlutter {
         await optionsConfiguration(options as SentryFlutterOptions);
       },
       appRunner: appRunner,
+      // ignore: invalid_use_of_internal_member
       options: flutterOptions,
     );
   }

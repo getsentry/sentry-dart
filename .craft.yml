@@ -14,3 +14,4 @@ targets:
     sdks:
       pub:sentry:
       pub:sentry_flutter:
+      pub:sentry_logging:
