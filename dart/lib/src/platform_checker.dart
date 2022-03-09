@@ -25,6 +25,14 @@ class PlatformChecker {
 
   final bool isWeb;
 
+  String get compileMode {
+    return isReleaseMode()
+        ? 'release'
+        : isDebugMode()
+            ? 'debug'
+            : 'profile';
+  }
+
   /// Indicates wether a native integration is available.
   bool get hasNativeIntegration {
     if (isWeb) {

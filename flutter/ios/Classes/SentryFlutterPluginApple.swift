@@ -300,6 +300,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
     private func fetchNativeAppStart(result: @escaping FlutterResult) {
         guard let appStartMeasurement = PrivateSentrySDKOnly.appStartMeasurement else {
+            print("warning: appStartMeasurement is null")
             result(nil)
             return
         }
