@@ -17,8 +17,6 @@ class MobileVitalsIntegration extends Integration<SentryFlutterOptions> {
   final SentryNativeState _nativeState;
   final SchedulerBindingProvider _schedulerBindingProvider;
 
-  final _nativeFramesByTraceId = <SentryId, NativeFrames>{};
-
   @override
   FutureOr<void> onTransactionStart(ISentrySpan transaction) async {
     await _nativeWrapper.beginNativeFrames();
@@ -26,9 +24,9 @@ class MobileVitalsIntegration extends Integration<SentryFlutterOptions> {
 
   @override
   FutureOr<void> onTransactionFinish(ISentrySpan transaction) async {
-    final frames = await _nativeWrapper.endNativeFrames(transaction.context.traceId);
-    if (frames != null) {
-      _nativeFramesByTraceId[transaction.context.traceId] = frames;
+    final nativeFrames = await _nativeWrapper.endNativeFrames(transaction.context.traceId);
+    if (nativeFrames != null) {
+      _nativeState.addNativeFrames(transaction.context.traceId, nativeFrames);
     }
   }
 
@@ -49,7 +47,7 @@ class MobileVitalsIntegration extends Integration<SentryFlutterOptions> {
     options.addEventProcessor(
         _NativeAppStartEventProcessor(_nativeWrapper, _nativeState));
 
-    options.addEventProcessor(_NativeFramesEventProcessor(_nativeFramesByTraceId));
+    options.addEventProcessor(_NativeFramesEventProcessor(_nativeState));
 
     options.sdk.addIntegration('mobileVitalsIntegration');
   }
@@ -64,16 +62,14 @@ class _NativeAppStartEventProcessor extends EventProcessor {
   final SentryNativeWrapper _nativeWrapper;
   final SentryNativeState _nativeState;
 
-  var _didFetchAppStart = false;
-
   @override
   FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {
     final appStartEnd = _nativeState.appStartEnd;
 
     if (appStartEnd != null &&
         event is SentryTransaction &&
-        !_didFetchAppStart) {
-      _didFetchAppStart = true;
+        !_nativeState.didFetchAppStart) {
+      _nativeState.didFetchAppStart = true;
 
       final nativeAppStart = await _nativeWrapper.fetchNativeAppStart();
       if (nativeAppStart == null) {
@@ -89,16 +85,16 @@ class _NativeAppStartEventProcessor extends EventProcessor {
 }
 
 class _NativeFramesEventProcessor extends EventProcessor {
-  _NativeFramesEventProcessor(this._nativeFramesBySpanId);
+  _NativeFramesEventProcessor(this._nativeState);
 
-  final Map<SentryId, NativeFrames> _nativeFramesBySpanId;
+  final SentryNativeState _nativeState;
 
   @override
   FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {
     if (event is SentryTransaction) {
       final traceId = event.contexts.trace?.traceId;
       if (traceId != null) {
-        final nativeFrames = _nativeFramesBySpanId.remove(traceId);
+        final nativeFrames = _nativeState.removeNativeFrames(traceId);
         if (nativeFrames != null) {
           var measurements = event.measurements ?? [];
           measurements.addAll(nativeFrames.toMeasurements());
