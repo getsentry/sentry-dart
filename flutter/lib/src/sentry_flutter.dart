@@ -25,7 +25,6 @@ typedef FlutterOptionsConfiguration = FutureOr<void> Function(
 /// Sentry Flutter SDK main entry point
 mixin SentryFlutter {
   static const _channel = MethodChannel('sentry_flutter');
-  static final _nativeState = SentryNativeState();
 
   /// Initializes the SDK
   static Future<void> init(
@@ -48,7 +47,7 @@ mixin SentryFlutter {
     final defaultIntegrations = _createDefaultIntegrations(
       packageLoader,
       nativeWrapper,
-      _nativeState,
+      SentryNativeState.instance,
       channel,
       flutterOptions,
     );
@@ -145,7 +144,7 @@ mixin SentryFlutter {
   /// Manually set when your app finished startup. Make sure to set
   /// [SentryFlutterOptions.autoAppStart] to false on init.
   static void setAppStartEnd(DateTime appStartEnd) {
-    _nativeState.appStartEnd = appStartEnd;
+    SentryNativeState.instance.appStartEnd = appStartEnd;
   }
 
   static void _setSdk(SentryFlutterOptions options) {
