@@ -20,7 +20,7 @@ class SentryNativeWrapper {
       return (json != null) ? NativeAppStart.fromJson(json) : null;
     } catch (error, stackTrace) {
       _options.logger(
-        SentryLevel.error,
+        SentryLevel.warning,
         'Native call `fetchNativeAppStart` failed',
         exception: error,
         stackTrace: stackTrace,
