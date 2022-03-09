@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 6.4.0-beta.3
 
 * Bump: Sentry-Cocoa to 7.10.0 (#777)
 * Feat: Additional Dart/Flutter context information (#778)
