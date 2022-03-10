@@ -87,6 +87,7 @@ class NoOpHub implements Hub {
     String name,
     String operation, {
     String? description,
+    DateTime? startTimestamp,
     bool? bindToScope,
     bool? waitForChildren,
     Duration? autoFinishAfter,
@@ -99,6 +100,7 @@ class NoOpHub implements Hub {
   ISentrySpan startTransactionWithContext(
     SentryTransactionContext transactionContext, {
     Map<String, dynamic>? customSamplingContext,
+    DateTime? startTimestamp,
     bool? bindToScope,
     bool? waitForChildren,
     Duration? autoFinishAfter,
