@@ -6,9 +6,11 @@ import '../sentry_flutter.dart';
 /// the shared instance with [SentryNativeState.instance].
 @internal
 class SentryNativeState {
-  SentryNativeState();
+  SentryNativeState._();
 
-  static SentryNativeState get instance => SentryNativeState();
+  static final SentryNativeState _instance = SentryNativeState._();
+
+  static SentryNativeState get instance => _instance;
 
   /// This timestamp marks the end of app startup. Either set automatically when
   /// [SentryFlutterOptions.autoAppStart] is true, or by calling
