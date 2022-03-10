@@ -82,7 +82,7 @@ void main() {
 class Fixture {
   final options = SentryFlutterOptions(dsn: fakeDsn);
   final wrapper = MockNativeWrapper();
-  final state = SentryNativeState.instance;
+  final state = SentryNativeState();
 
   MobileVitalsIntegration getMobileVitalsIntegration() {
     return MobileVitalsIntegration(

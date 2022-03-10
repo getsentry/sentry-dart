@@ -47,7 +47,7 @@ mixin SentryFlutter {
     final defaultIntegrations = _createDefaultIntegrations(
       packageLoader,
       nativeWrapper,
-      SentryNativeState.instance,
+      SentryNativeState(),
       channel,
       flutterOptions,
     );
@@ -144,7 +144,7 @@ mixin SentryFlutter {
   /// Manually set when your app finished startup. Make sure to set
   /// [SentryFlutterOptions.autoAppStart] to false on init.
   static void setAppStartEnd(DateTime appStartEnd) {
-    SentryNativeState.instance.appStartEnd = appStartEnd;
+    SentryNativeState().appStartEnd = appStartEnd;
   }
 
   static void _setSdk(SentryFlutterOptions options) {
