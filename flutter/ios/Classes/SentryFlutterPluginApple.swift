@@ -69,8 +69,11 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         case "fetchNativeAppStart":
             fetchNativeAppStart(result: result)
 
-        case "fetchNativeFrames":
-            fetchNativeFrames(result: result)
+        case "beginNativeFrames":
+            beginNativeFrames(result: result)
+
+        case "endNativeFrames":
+            endNativeFrames(result: result)
 
         default:
             result(FlutterMethodNotImplemented)
@@ -316,26 +319,42 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         result(item)
     }
 
-    private func fetchNativeFrames(result: @escaping FlutterResult) {
-        if PrivateSentrySDKOnly.isFramesTrackingRunning {
+    private var totalFrames = 0
+    private var frozenFrames = 0
+    private var slowFrames = 0
 
-            let frames = PrivateSentrySDKOnly.currentScreenFrames
+    private func beginNativeFrames(result: @escaping FlutterResult) {
+      guard !SentryFramesTracker.sharedInstance.isRunning else {
+        print("Native frames tracking already running.")
+        result(nil)
+        return
+      }
 
-            let item: [String: Any] = [
-                "totalFrames": frames.total,
-                "frozenFrames": frames.frozen,
-                "slowFrames": frames.slow,
-            ]
+      let currentFrames = SentryFramesTracker.sharedInstance.currentFrames()
+      totalFrames = currentFrames.total
+      frozenFrames = currentFrames.frozen
+      slowFrames = currentFrames.slow
 
-            result(item)
-        } else {
-            result(
-                FlutterError(
-                    code: "1",
-                    message: "Native frames tracking not running.",
-                    details: nil
-                )
-            )
-        }
+      SentryFramesTracker.sharedInstance.start()
+      result(nil)
+    }
+
+    private func endNativeFrames(result: @escaping FlutterResult) {
+      guard SentryFramesTracker.sharedInstance.isRunning else {
+        print("Native frames tracking not running.")
+        result(nil)
+        return
+      }
+
+      let currentFrames = SentryFramesTracker.sharedInstance.currentFrames()
+      SentryFramesTracker.sharedInstance.end()
+
+      let item: [String: Any] = [
+          "totalFrames": currentFrames.total - totalFrames,
+          "frozenFrames": currentFrames.frozen - frozenFrames,
+          "slowFrames": currentFrames.slow - slowFrames,
+      ]
+
+      result(item)
     }
 }
