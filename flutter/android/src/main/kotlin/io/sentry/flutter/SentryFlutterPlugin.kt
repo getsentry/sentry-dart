@@ -31,14 +31,7 @@ import androidx.core.app.FrameMetricsAggregator;
 class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   private lateinit var channel: MethodChannel
   private lateinit var context: Context
-
-  // TODO Check if we should read display framerate and calculate accordingly.
-
-  // 700ms to constitute frozen frames.
-  private val frozenFrameThreshold = 700
-  // 16ms (slower than 60fps) to constitute slow frames.
-  private val slowFrameThreshold = 16
-
+  
   private var activity: Activity? = null
   private val activityFramesTracker = ActivityFramesTracker(LoadClass())
 

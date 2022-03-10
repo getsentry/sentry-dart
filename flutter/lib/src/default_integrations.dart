@@ -509,4 +509,3 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
         .replaceAll('\u{0000}', '');
   }
 }
-
