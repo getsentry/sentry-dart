@@ -1,6 +1,7 @@
 import 'dart:async';
 
-import '../sentry.dart';
+import 'hub.dart';
+import 'sentry_options.dart';
 
 /// Code that provides middlewares, bindings or hooks into certain frameworks or environments,
 /// along with code that inserts those bindings and activates them.
