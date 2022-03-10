@@ -94,8 +94,8 @@ void main() {
         browser: const SentryBrowser(name: 'eBrowser'),
         runtimes: [const SentryRuntime(name: 'eRT')])
       ..['theme'] = 'cuppertino';
-    var e = SentryEvent(contexts: eventContexts);
-    e = e.copyWith(user: SentryUser(id: 'myId'));
+    final e =
+        SentryEvent(contexts: eventContexts, user: SentryUser(id: 'myId'));
 
     final event = await fixture.options.eventProcessors.first.apply(e);
 
