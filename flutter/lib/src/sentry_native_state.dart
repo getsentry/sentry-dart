@@ -4,7 +4,7 @@ import '../sentry_flutter.dart';
 import 'sentry_native_wrapper.dart';
 
 /// [SentryNative] holds state that it fetches from to the native SDKs. Always
-/// use the shared instance with [SentryNative.instance].
+/// use the shared instance with [SentryNative()].
 @internal
 class SentryNative {
   SentryNative._();

@@ -62,8 +62,9 @@ class _NativeAppStartEventProcessor extends EventProcessor {
       if (nativeAppStart == null) {
         return event;
       } else {
-        return event.copyWith(
-            measurements: [nativeAppStart.toMeasurement(appStartEnd)]);
+        final measurements = event.measurements ?? [];
+        measurements.add(nativeAppStart.toMeasurement(appStartEnd));
+        return event.copyWith(measurements: measurements);
       }
     } else {
       return event;

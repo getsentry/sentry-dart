@@ -150,14 +150,6 @@ mixin SentryFlutter {
     SentryNative().appStartEnd = appStartEnd;
   }
 
-  static void startTrackingNativeFrames(ISentrySpan transaction) {
-
-  }
-
-  static void endTrackingNativeFrames(ISentrySpan transaction) {
-
-  }
-
   static void _setSdk(SentryFlutterOptions options) {
     // overwrite sdk info with current flutter sdk
     final sdk = SdkVersion(

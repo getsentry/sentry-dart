@@ -55,6 +55,27 @@ void main() {
 
       expect(secondEnriched.measurements?.length, 1);
     });
+
+    test('measurements appended', () async {
+      fixture.options.autoAppStart = false;
+      fixture.state.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
+      fixture.wrapper.nativeAppStart = NativeAppStart(0, true);
+      final measurement = SentryMeasurement.warmAppStart(Duration(seconds: 1));
+
+      fixture.getMobileVitalsIntegration().call(MockHub(), fixture.options);
+
+      final tracer = fixture.createTracer();
+      final transaction =
+          SentryTransaction(tracer).copyWith(measurements: [measurement]);
+
+      final processor = fixture.options.eventProcessors.first;
+
+      var enriched = await processor.apply(transaction) as SentryTransaction;
+      var secondEnriched = await processor.apply(enriched) as SentryTransaction;
+
+      expect(secondEnriched.measurements?.length, 2);
+      expect(secondEnriched.measurements?.contains(measurement), true);
+    });
   });
 }
 
