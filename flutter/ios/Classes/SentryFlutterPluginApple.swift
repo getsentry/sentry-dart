@@ -107,6 +107,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         }
 
         PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
+        PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode = true
 
         SentrySDK.start { options in
             self.updateOptions(arguments: arguments, options: options)
@@ -319,35 +320,33 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         result(item)
     }
 
-    private var totalFrames = 0
-    private var frozenFrames = 0
-    private var slowFrames = 0
+    private var totalFrames: UInt = 0
+    private var frozenFrames: UInt = 0
+    private var slowFrames: UInt = 0
 
     private func beginNativeFrames(result: @escaping FlutterResult) {
-      guard !SentryFramesTracker.sharedInstance.isRunning else {
-        print("Native frames tracking already running.")
-        result(nil)
-        return
-      }
-
-      let currentFrames = SentryFramesTracker.sharedInstance.currentFrames()
-      totalFrames = currentFrames.total
-      frozenFrames = currentFrames.frozen
-      slowFrames = currentFrames.slow
-
-      SentryFramesTracker.sharedInstance.start()
-      result(nil)
-    }
-
-    private func endNativeFrames(result: @escaping FlutterResult) {
-      guard SentryFramesTracker.sharedInstance.isRunning else {
+      guard PrivateSentrySDKOnly.isFramesTrackingRunning else {
         print("Native frames tracking not running.")
         result(nil)
         return
       }
 
-      let currentFrames = SentryFramesTracker.sharedInstance.currentFrames()
-      SentryFramesTracker.sharedInstance.end()
+      let currentFrames = PrivateSentrySDKOnly.currentScreenFrames
+      totalFrames = currentFrames.total
+      frozenFrames = currentFrames.frozen
+      slowFrames = currentFrames.slow
+
+      result(nil)
+    }
+
+    private func endNativeFrames(result: @escaping FlutterResult) {
+      guard PrivateSentrySDKOnly.isFramesTrackingRunning else {
+        print("Native frames tracking not running.")
+        result(nil)
+        return
+      }
+
+      let currentFrames = PrivateSentrySDKOnly.currentScreenFrames
 
       let item: [String: Any] = [
           "totalFrames": currentFrames.total - totalFrames,
