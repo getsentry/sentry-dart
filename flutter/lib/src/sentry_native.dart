@@ -11,15 +11,13 @@ class SentryNative {
 
   static final SentryNative _instance = SentryNative._();
 
-  factory SentryNative() {
+  SentryNativeChannel? _nativeChannel;
+
+  factory SentryNative({SentryNativeChannel? nativeChannel}) {
+    if (nativeChannel != null) {
+      _instance._nativeChannel = nativeChannel;
+    }
     return _instance;
-  }
-
-  SentryNativeWrapper? _nativeWrapper;
-
-  /// Inject [SentryNativeWrapper] fot native layer communication.
-  void injectNativeWrapper(SentryNativeWrapper nativeWrapper) {
-    _nativeWrapper = nativeWrapper;
   }
 
   // AppStart
@@ -29,19 +27,27 @@ class SentryNative {
   /// [SentryFlutter.setAppStartEnd]
   DateTime? appStartEnd;
 
-  /// Flag used to only send app start measurement once.
-  bool didFetchAppStart = false;
+  bool _didFetchAppStart = false;
+
+  /// Flag indicating if app start was already fetched.
+  bool get didFetchAppStart => _didFetchAppStart;
+
+  /// Fetch [NativeAppStart] from native channels. Can only be called once.
+  Future<NativeAppStart?> fetchNativeAppStart() async {
+    _didFetchAppStart = true;
+    return await _nativeChannel?.fetchNativeAppStart();
+  }
 
   // NativeFrames
 
   final _nativeFramesByTraceId = <SentryId, NativeFrames>{};
 
   Future<void> beginNativeFramesCollection(SentryId traceId) async {
-    await _nativeWrapper?.beginNativeFrames();
+    await _nativeChannel?.beginNativeFrames();
   }
 
   Future<void> endNativeFramesCollection(SentryId traceId) async {
-    final nativeFrames = await _nativeWrapper?.endNativeFrames(traceId);
+    final nativeFrames = await _nativeChannel?.endNativeFrames(traceId);
     if (nativeFrames != null) {
       _nativeFramesByTraceId[traceId] = nativeFrames;
     }

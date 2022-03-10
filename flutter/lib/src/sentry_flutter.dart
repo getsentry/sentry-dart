@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
-import 'sentry_native_state.dart';
+import 'sentry_native.dart';
 import 'sentry_native_wrapper.dart';
 
 import 'flutter_enricher_event_processor.dart';
@@ -40,17 +40,14 @@ mixin SentryFlutter {
       flutterOptions.platformChecker = platformChecker;
     }
 
-    final nativeWrapper = SentryNativeWrapper(channel, flutterOptions);
-    final sentryNative = SentryNative();
-
-    sentryNative.injectNativeWrapper(nativeWrapper);
+    final nativeChannel = SentryNativeChannel(channel, flutterOptions);
+    final native = SentryNative(nativeChannel: nativeChannel);
 
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
     final defaultIntegrations = _createDefaultIntegrations(
       packageLoader,
-      nativeWrapper,
-      sentryNative,
+      native,
       channel,
       flutterOptions,
     );
@@ -90,8 +87,7 @@ mixin SentryFlutter {
   /// https://medium.com/flutter-community/error-handling-in-flutter-98fce88a34f0
   static List<Integration> _createDefaultIntegrations(
     PackageLoader packageLoader,
-    SentryNativeWrapper nativeWrapper,
-    SentryNative nativeState,
+    SentryNative native,
     MethodChannel channel,
     SentryFlutterOptions options,
   ) {
@@ -134,8 +130,7 @@ mixin SentryFlutter {
 
     if (options.platformChecker.hasNativeIntegration) {
       integrations.add(MobileVitalsIntegration(
-        nativeWrapper,
-        nativeState,
+        native,
         () {
           return SchedulerBinding.instance;
         },

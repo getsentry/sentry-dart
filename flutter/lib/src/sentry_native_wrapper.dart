@@ -5,8 +5,8 @@ import '../sentry_flutter.dart';
 
 /// Provide typed methods to access native layer.
 @internal
-class SentryNativeWrapper {
-  SentryNativeWrapper(this._channel, this._options);
+class SentryNativeChannel {
+  SentryNativeChannel(this._channel, this._options);
 
   final MethodChannel _channel;
   final SentryFlutterOptions _options;

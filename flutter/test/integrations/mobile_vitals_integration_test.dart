@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/mobile_vitals_integration.dart';
-import 'package:sentry_flutter/src/sentry_native_state.dart';
+import 'package:sentry_flutter/src/sentry_native.dart';
 import 'package:sentry_flutter/src/sentry_native_wrapper.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:flutter/scheduler.dart';
@@ -81,7 +81,7 @@ void main() {
 
 class Fixture {
   final options = SentryFlutterOptions(dsn: fakeDsn);
-  final wrapper = MockNativeWrapper();
+  final wrapper = MockNativeChannel();
   final state = SentryNative();
 
   MobileVitalsIntegration getMobileVitalsIntegration() {

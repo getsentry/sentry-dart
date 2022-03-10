@@ -138,7 +138,7 @@ class NoOpHub with NoSuchMethodProvider implements Hub {
   bool get isEnabled => false;
 }
 
-class MockNativeWrapper implements SentryNativeWrapper {
+class MockNativeChannel implements SentryNativeChannel {
   NativeAppStart? nativeAppStart;
   NativeFrames? nativeFrames;
 
