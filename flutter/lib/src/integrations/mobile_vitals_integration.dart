@@ -6,6 +6,7 @@ import 'package:sentry/sentry.dart';
 import '../sentry_flutter_options.dart';
 import '../sentry_native_state.dart';
 import '../sentry_native_wrapper.dart';
+import '../event_processor/native_app_start_event_processor.dart';
 
 /// Integration which handles communication with native frameworks in order to
 /// enrich [SentryTransaction] objects with data for mobile vitals.
@@ -32,55 +33,9 @@ class MobileVitalsIntegration extends Integration<SentryFlutterOptions> {
     }
 
     options.addEventProcessor(
-        _NativeAppStartEventProcessor(_nativeWrapper, _nativeState));
+        NativeAppStartEventProcessor(_nativeWrapper, _nativeState));
 
     options.sdk.addIntegration('mobileVitalsIntegration');
-  }
-}
-
-class _NativeAppStartEventProcessor extends EventProcessor {
-  _NativeAppStartEventProcessor(
-    this._nativeWrapper,
-    this._nativeState,
-  );
-
-  final SentryNativeWrapper _nativeWrapper;
-  final SentryNativeState _nativeState;
-
-  var _didFetchAppStart = false;
-
-  @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {
-    final appStartEnd = _nativeState.appStartEnd;
-
-    if (appStartEnd != null &&
-        event is SentryTransaction &&
-        !_didFetchAppStart) {
-      _didFetchAppStart = true;
-
-      final nativeAppStart = await _nativeWrapper.fetchNativeAppStart();
-      if (nativeAppStart == null) {
-        return event;
-      } else {
-        final measurements = event.measurements ?? [];
-        measurements.add(nativeAppStart.toMeasurement(appStartEnd));
-        return event.copyWith(measurements: measurements);
-      }
-    } else {
-      return event;
-    }
-  }
-}
-
-extension NativeAppStartMeasurement on NativeAppStart {
-  SentryMeasurement toMeasurement(DateTime appStartEnd) {
-    final appStartDateTime =
-        DateTime.fromMillisecondsSinceEpoch(appStartTime.toInt());
-    final duration = appStartEnd.difference(appStartDateTime);
-
-    return isColdStart
-        ? SentryMeasurement.coldAppStart(duration)
-        : SentryMeasurement.warmAppStart(duration);
   }
 }
 
