@@ -6,6 +6,7 @@
 * Bump: Sentry-Cocoa to 7.10.0 (#777)
 * Feat: Additional Dart/Flutter context information (#778)
 * Bump: Kotlin plugin to 1.5.31 (#763)
+* Fix: Missing userId on iOS when userId is not set (#)
 
 ## 6.4.0-beta.2
 
