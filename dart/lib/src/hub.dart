@@ -346,6 +346,7 @@ class Hub {
     bool? waitForChildren,
     Duration? autoFinishAfter,
     bool? trimEnd,
+    Function(ISentrySpan transaction)? onFinish,
     Map<String, dynamic>? customSamplingContext,
   }) =>
       startTransactionWithContext(
@@ -358,6 +359,7 @@ class Hub {
         waitForChildren: waitForChildren,
         autoFinishAfter: autoFinishAfter,
         trimEnd: trimEnd,
+        onFinish: onFinish,
         customSamplingContext: customSamplingContext,
       );
 
@@ -369,6 +371,7 @@ class Hub {
     bool? waitForChildren,
     Duration? autoFinishAfter,
     bool? trimEnd,
+    Function(ISentrySpan transaction)? onFinish,
   }) {
     if (!_isEnabled) {
       _options.logger(
@@ -398,18 +401,10 @@ class Hub {
         waitForChildren: waitForChildren ?? false,
         autoFinishAfter: autoFinishAfter,
         trimEnd: trimEnd ?? false,
-        onFinish: (tracer) {
-          for (final integration in _options.integrations) {
-            integration.onTransactionFinish(tracer);
-          }
-        }
+        onFinish: onFinish,
       );
       if (bindToScope ?? false) {
         item.scope.span = tracer;
-      }
-
-      for (final integration in _options.integrations) {
-        integration.onTransactionStart(tracer);
       }
 
       return tracer;

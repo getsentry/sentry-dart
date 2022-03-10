@@ -1,17 +1,26 @@
-import 'dart:ffi';
-
 import 'package:meta/meta.dart';
 
 import '../sentry_flutter.dart';
 import 'sentry_native_wrapper.dart';
 
-/// [SentryNativeState] holds state that relates to the native SDKs. Always use
-/// the shared instance with [SentryNativeState.instance].
+/// [SentryNative] holds state that it fetches from to the native SDKs. Always
+/// use the shared instance with [SentryNative.instance].
 @internal
-class SentryNativeState {
-  SentryNativeState();
+class SentryNative {
+  SentryNative._();
 
-  static SentryNativeState get instance => SentryNativeState();
+  static final SentryNative _instance = SentryNative._();
+
+  factory SentryNative() {
+    return _instance;
+  }
+
+  SentryNativeWrapper? _nativeWrapper;
+
+  /// Inject [SentryNativeWrapper] fot native layer communication.
+  void injectNativeWrapper(SentryNativeWrapper nativeWrapper) {
+    _nativeWrapper = nativeWrapper;
+  }
 
   // AppStart
 
@@ -27,9 +36,15 @@ class SentryNativeState {
 
   final _nativeFramesByTraceId = <SentryId, NativeFrames>{};
 
-  /// Adds native frames by trace id.
-  void addNativeFrames(SentryId traceId, NativeFrames nativeFrames) {
-    _nativeFramesByTraceId[traceId] = nativeFrames;
+  Future<void> beginNativeFramesCollection(SentryId traceId) async {
+    await _nativeWrapper?.beginNativeFrames();
+  }
+
+  Future<void> endNativeFramesCollection(SentryId traceId) async {
+    final nativeFrames = await _nativeWrapper?.endNativeFrames(traceId);
+    if (nativeFrames != null) {
+      _nativeFramesByTraceId[traceId] = nativeFrames;
+    }
   }
 
   /// Returns and removes native frames by trace id.

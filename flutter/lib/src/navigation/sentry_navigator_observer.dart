@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import '../../sentry_flutter.dart';
+import '../sentry_native_state.dart';
 
 /// This key must be used so that the web interface displays the events nicely
 /// See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
@@ -66,7 +67,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         _autoFinishAfter = autoFinishAfter,
         _setRouteNameAsTransaction = setRouteNameAsTransaction,
         _routeNameExtractor = routeNameExtractor,
-        _additionalInfoProvider = additionalInfoProvider;
+        _additionalInfoProvider = additionalInfoProvider,
+        _native = SentryNative();
 
   final Hub _hub;
   final bool _enableAutoTransactions;
@@ -74,6 +76,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final bool _setRouteNameAsTransaction;
   final RouteNameExtractor? _routeNameExtractor;
   final AdditionalInfoExtractor? _additionalInfoProvider;
+  final SentryNative _native;
 
   ISentrySpan? _transaction;
 
@@ -146,7 +149,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
   }
 
-  void _startTransaction(String? name, Object? arguments) {
+  void _startTransaction(String? name, Object? arguments) async {
     if (!_enableAutoTransactions) {
       return;
     }
@@ -157,21 +160,28 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     if (name == '/') {
       name = 'root ("/")';
     }
-    _transaction = _hub.startTransaction(
+    final transaction = _hub.startTransaction(
       name,
       'navigation',
       waitForChildren: true,
       autoFinishAfter: _autoFinishAfter,
       trimEnd: true,
+      onFinish: (transaction) async {
+        await _native.endNativeFramesCollection(transaction.context.traceId);
+      },
     );
 
     if (arguments != null) {
-      _transaction?.setData('route_settings_arguments', arguments);
+      transaction.setData('route_settings_arguments', arguments);
     }
 
     _hub.configureScope((scope) {
-      scope.span ??= _transaction;
+      scope.span ??= transaction;
     });
+
+    await _native.beginNativeFramesCollection(transaction.context.traceId);
+
+    _transaction = transaction;
   }
 
   Future<void> _finishTransaction() async {

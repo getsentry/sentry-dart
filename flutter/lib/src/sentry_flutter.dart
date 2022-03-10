@@ -41,13 +41,16 @@ mixin SentryFlutter {
     }
 
     final nativeWrapper = SentryNativeWrapper(channel, flutterOptions);
+    final sentryNative = SentryNative();
+
+    sentryNative.injectNativeWrapper(nativeWrapper);
 
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
     final defaultIntegrations = _createDefaultIntegrations(
       packageLoader,
       nativeWrapper,
-      SentryNativeState.instance,
+      sentryNative,
       channel,
       flutterOptions,
     );
@@ -88,7 +91,7 @@ mixin SentryFlutter {
   static List<Integration> _createDefaultIntegrations(
     PackageLoader packageLoader,
     SentryNativeWrapper nativeWrapper,
-    SentryNativeState nativeState,
+    SentryNative nativeState,
     MethodChannel channel,
     SentryFlutterOptions options,
   ) {
@@ -144,7 +147,15 @@ mixin SentryFlutter {
   /// Manually set when your app finished startup. Make sure to set
   /// [SentryFlutterOptions.autoAppStart] to false on init.
   static void setAppStartEnd(DateTime appStartEnd) {
-    SentryNativeState.instance.appStartEnd = appStartEnd;
+    SentryNative().appStartEnd = appStartEnd;
+  }
+
+  static void startTrackingNativeFrames(ISentrySpan transaction) {
+
+  }
+
+  static void endTrackingNativeFrames(ISentrySpan transaction) {
+
   }
 
   static void _setSdk(SentryFlutterOptions options) {

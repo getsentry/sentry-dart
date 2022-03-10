@@ -89,7 +89,7 @@ class SentryTracer extends ISentrySpan {
       }
 
       await _rootSpan.finish(endTimestamp: _rootEndTimestamp);
-      _onFinish?.call(this);
+      await _onFinish?.call(this);
 
       // remove from scope
       _hub.configureScope((scope) {

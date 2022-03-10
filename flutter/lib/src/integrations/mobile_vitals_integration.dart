@@ -14,21 +14,8 @@ class MobileVitalsIntegration extends Integration<SentryFlutterOptions> {
       this._nativeWrapper, this._nativeState, this._schedulerBindingProvider);
 
   final SentryNativeWrapper _nativeWrapper;
-  final SentryNativeState _nativeState;
+  final SentryNative _nativeState;
   final SchedulerBindingProvider _schedulerBindingProvider;
-
-  @override
-  FutureOr<void> onTransactionStart(ISentrySpan transaction) async {
-    await _nativeWrapper.beginNativeFrames();
-  }
-
-  @override
-  FutureOr<void> onTransactionFinish(ISentrySpan transaction) async {
-    final nativeFrames = await _nativeWrapper.endNativeFrames(transaction.context.traceId);
-    if (nativeFrames != null) {
-      _nativeState.addNativeFrames(transaction.context.traceId, nativeFrames);
-    }
-  }
 
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
@@ -60,7 +47,7 @@ class _NativeAppStartEventProcessor extends EventProcessor {
   );
 
   final SentryNativeWrapper _nativeWrapper;
-  final SentryNativeState _nativeState;
+  final SentryNative _nativeState;
 
   @override
   FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {
@@ -87,7 +74,7 @@ class _NativeAppStartEventProcessor extends EventProcessor {
 class _NativeFramesEventProcessor extends EventProcessor {
   _NativeFramesEventProcessor(this._nativeState);
 
-  final SentryNativeState _nativeState;
+  final SentryNative _nativeState;
 
   @override
   FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {

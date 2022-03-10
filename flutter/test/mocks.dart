@@ -19,6 +19,7 @@ ISentrySpan startTransactionShim(
   bool? waitForChildren,
   Duration? autoFinishAfter,
   bool? trimEnd,
+  Function(ISentrySpan)? onFinish,
   Map<String, dynamic>? customSamplingContext,
 }) {
   return MockNoOpSentrySpan();
