@@ -45,8 +45,8 @@ class SentryNativeChannel {
 
   Future<NativeFrames?> endNativeFrames(SentryId id) async {
     try {
-      final json = await _channel
-          .invokeMapMethod<String, dynamic>('endNativeFrames', {'id': id.toString()});
+      final json = await _channel.invokeMapMethod<String, dynamic>(
+          'endNativeFrames', {'id': id.toString()});
       return (json != null) ? NativeFrames.fromJson(json) : null;
     } catch (error, stackTrace) {
       _options.logger(

@@ -35,12 +35,15 @@ class SentryTracer extends ISentrySpan {
   /// [SentryNavigatorObserver] idle transactions, where we finish the
   /// transaction after a given "idle time" and we don't want this "idle time"
   /// to be part of the transaction.
-  SentryTracer(SentryTransactionContext transactionContext, this._hub,
-      {DateTime? startTimestamp,
-      bool waitForChildren = false,
-      Duration? autoFinishAfter,
-      bool trimEnd = false,
-      Function(SentryTracer)? onFinish,}) {
+  SentryTracer(
+    SentryTransactionContext transactionContext,
+    this._hub, {
+    DateTime? startTimestamp,
+    bool waitForChildren = false,
+    Duration? autoFinishAfter,
+    bool trimEnd = false,
+    Function(SentryTracer)? onFinish,
+  }) {
     _rootSpan = SentrySpan(
       this,
       transactionContext,

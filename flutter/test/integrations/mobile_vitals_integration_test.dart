@@ -82,11 +82,10 @@ void main() {
 class Fixture {
   final options = SentryFlutterOptions(dsn: fakeDsn);
   final wrapper = MockNativeChannel();
-  final state = SentryNative();
+  late final state = SentryNative(nativeChannel: wrapper);
 
   MobileVitalsIntegration getMobileVitalsIntegration() {
     return MobileVitalsIntegration(
-      wrapper,
       state,
       () {
         return SchedulerBinding.instance;

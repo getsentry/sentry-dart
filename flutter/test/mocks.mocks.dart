@@ -222,6 +222,7 @@ class MockHub extends _i1.Mock implements _i5.Hub {
           bool? waitForChildren,
           Duration? autoFinishAfter,
           bool? trimEnd,
+          _i5.OnTransactionFinish? onFinish,
           Map<String, dynamic>? customSamplingContext}) =>
       (super.noSuchMethod(
               Invocation.method(#startTransaction, [
@@ -234,6 +235,7 @@ class MockHub extends _i1.Mock implements _i5.Hub {
                 #waitForChildren: waitForChildren,
                 #autoFinishAfter: autoFinishAfter,
                 #trimEnd: trimEnd,
+                #onFinish: onFinish,
                 #customSamplingContext: customSamplingContext
               }),
               returnValue: _i11.startTransactionShim(name, operation,
@@ -243,6 +245,7 @@ class MockHub extends _i1.Mock implements _i5.Hub {
                   waitForChildren: waitForChildren,
                   autoFinishAfter: autoFinishAfter,
                   trimEnd: trimEnd,
+                  onFinish: onFinish,
                   customSamplingContext: customSamplingContext))
           as _i2.ISentrySpan);
   @override
@@ -253,7 +256,8 @@ class MockHub extends _i1.Mock implements _i5.Hub {
           bool? bindToScope,
           bool? waitForChildren,
           Duration? autoFinishAfter,
-          bool? trimEnd}) =>
+          bool? trimEnd,
+          _i5.OnTransactionFinish? onFinish}) =>
       (super.noSuchMethod(
           Invocation.method(#startTransactionWithContext, [
             transactionContext
@@ -263,7 +267,8 @@ class MockHub extends _i1.Mock implements _i5.Hub {
             #bindToScope: bindToScope,
             #waitForChildren: waitForChildren,
             #autoFinishAfter: autoFinishAfter,
-            #trimEnd: trimEnd
+            #trimEnd: trimEnd,
+            #onFinish: onFinish
           }),
           returnValue: _FakeISentrySpan_2()) as _i2.ISentrySpan);
   @override

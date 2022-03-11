@@ -24,8 +24,9 @@ void main() {
       bindToScope: anyNamed('bindToScope'),
       waitForChildren: anyNamed('waitForChildren'),
       autoFinishAfter: anyNamed('autoFinishAfter'),
-      customSamplingContext: anyNamed('customSamplingContext'),
       trimEnd: anyNamed('trimEnd'),
+      onFinish: anyNamed('onFinish'),
+      customSamplingContext: anyNamed('customSamplingContext'),
     )).thenReturn(thenReturnSpan);
   }
 
@@ -39,6 +40,7 @@ void main() {
 
       final hub = _MockHub();
       final span = MockNoOpSentrySpan();
+
       _whenAnyStart(hub, span);
       final sut = fixture.getSut(
         hub: hub,
@@ -53,6 +55,7 @@ void main() {
         waitForChildren: true,
         autoFinishAfter: Duration(seconds: 5),
         trimEnd: true,
+        onFinish: any,
       ));
 
       hub.configureScope((scope) {
@@ -112,6 +115,7 @@ void main() {
       final hub = _MockHub();
       hub.scope.span = NoOpSentrySpan();
       final span = MockNoOpSentrySpan();
+
       _whenAnyStart(hub, span);
       final sut = fixture.getSut(hub: hub);
 
@@ -606,6 +610,10 @@ class Fixture {
       routeNameExtractor: routeNameExtractor,
       additionalInfoProvider: additionalInfoProvider,
     );
+  }
+
+  SentrySpanContext mockContext() {
+    return SentrySpanContext(operation: 'op');
   }
 }
 

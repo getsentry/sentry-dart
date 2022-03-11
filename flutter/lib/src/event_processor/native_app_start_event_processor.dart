@@ -9,8 +9,8 @@ import '../sentry_native_wrapper.dart';
 /// measurement.
 class NativeAppStartEventProcessor extends EventProcessor {
   NativeAppStartEventProcessor(
-      this._native,
-      );
+    this._native,
+  );
 
   final SentryNative _native;
 
@@ -21,7 +21,6 @@ class NativeAppStartEventProcessor extends EventProcessor {
     if (appStartEnd != null &&
         event is SentryTransaction &&
         !_native.didFetchAppStart) {
-
       final nativeAppStart = await _native.fetchNativeAppStart();
       if (nativeAppStart == null) {
         return event;
@@ -39,7 +38,7 @@ class NativeAppStartEventProcessor extends EventProcessor {
 extension NativeAppStartMeasurement on NativeAppStart {
   SentryMeasurement toMeasurement(DateTime appStartEnd) {
     final appStartDateTime =
-    DateTime.fromMillisecondsSinceEpoch(appStartTime.toInt());
+        DateTime.fromMillisecondsSinceEpoch(appStartTime.toInt());
     final duration = appStartEnd.difference(appStartDateTime);
 
     return isColdStart

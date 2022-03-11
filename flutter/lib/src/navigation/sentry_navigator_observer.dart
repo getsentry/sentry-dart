@@ -173,8 +173,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       onFinish: (transaction) async {
         // ignore: invalid_use_of_internal_member
         if (transaction is SentryTracer) {
-          final nativeFrames = await _native.endNativeFramesCollection(
-              transaction.context.traceId);
+          final nativeFrames = await _native
+              .endNativeFramesCollection(transaction.context.traceId);
           if (nativeFrames != null) {
             transaction.addAll(nativeFrames.toMeasurements());
           }
