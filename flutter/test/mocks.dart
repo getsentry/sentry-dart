@@ -3,7 +3,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/platform/platform.dart';
 
 import 'package:meta/meta.dart';
-import 'package:sentry_flutter/src/sentry_native_wrapper.dart';
+import 'package:sentry_flutter/src/sentry_native_channel.dart';
 
 import 'mocks.mocks.dart';
 import 'no_such_method_provider.dart';

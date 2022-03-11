@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:sentry/sentry.dart';
 
 import '../sentry_native.dart';
-import '../sentry_native_wrapper.dart';
+import '../sentry_native_channel.dart';
 
 /// EventProcessor that enriches [SentryTransaction] objects with app start
 /// measurement.

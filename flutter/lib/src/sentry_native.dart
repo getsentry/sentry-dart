@@ -1,7 +1,7 @@
 import 'package:meta/meta.dart';
 
 import '../sentry_flutter.dart';
-import 'sentry_native_wrapper.dart';
+import 'sentry_native_channel.dart';
 
 /// [SentryNative] holds state that it fetches from to the native SDKs. Always
 /// use the shared instance with [SentryNative()].
