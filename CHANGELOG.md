@@ -1,5 +1,9 @@
 # Changelog
 
+# Unreleased
+
+* Feat: Mobile Vitals: Native Frames (#772)
+
 ## 6.4.0-beta.3
 
 * Feat: Allow to set startTimestamp & endTimestamp manually to SentrySpan (#676)
