@@ -24,6 +24,7 @@ import io.sentry.protocol.SdkVersion
 import io.sentry.protocol.SentryId
 
 import java.io.File
+import java.lang.ref.WeakReference
 import java.util.Locale
 import java.util.UUID
 import androidx.core.app.FrameMetricsAggregator;
@@ -31,8 +32,8 @@ import androidx.core.app.FrameMetricsAggregator;
 class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   private lateinit var channel: MethodChannel
   private lateinit var context: Context
-  
-  private var activity: Activity? = null
+
+  private var activity = WeakReference<Activity?>(null)
   private val activityFramesTracker = ActivityFramesTracker(LoadClass())
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
@@ -63,11 +64,11 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   override fun onAttachedToActivity(binding: ActivityPluginBinding) {
-    activity = binding.activity
+    activity = WeakReference(binding.activity)
   }
 
   override fun onDetachedFromActivity() {
-    // Stub
+    activity = WeakReference(null)
   }
 
   override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
@@ -172,7 +173,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   private fun beginNativeFrames(result: Result) {
-    activity?.let {
+    activity.get()?.let {
       activityFramesTracker.addActivity(it)
     }
     result.success(null)
@@ -184,25 +185,31 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       result.success(null)
       return
     }
+
+    val activity = activity.get()
+
+    if (activity == null) {
+      result.success(null)
+      return
+    }
+
     val sentryId = SentryId(id)
-    activity?.let {
-      activityFramesTracker.setMetrics(it, sentryId)
+    activityFramesTracker.setMetrics(activity, sentryId)
 
-      val metrics = activityFramesTracker.takeMetrics(sentryId)
-      val total = metrics?.get("frames_total")?.getValue()
-      val slow = metrics?.get("frames_slow")?.getValue()
-      val frozen = metrics?.get("frames_frozen")?.getValue()
+    val metrics = activityFramesTracker.takeMetrics(sentryId)
+    val total = metrics?.get("frames_total")?.getValue()
+    val slow = metrics?.get("frames_slow")?.getValue()
+    val frozen = metrics?.get("frames_frozen")?.getValue()
 
-      if (total == null || slow == null || frozen == null) {
-        result.success(null)
-      } else {
-        val frames = mapOf<String, Any?>(
-          "totalFrames" to total.toInt(),
-          "slowFrames" to slow.toInt(),
-          "frozenFrames" to frozen.toInt()
-        )
-        result.success(frames)
-      }
+    if (total == null || slow == null || frozen == null) {
+      result.success(null)
+    } else {
+      val frames = mapOf<String, Any?>(
+        "totalFrames" to total.toInt(),
+        "slowFrames" to slow.toInt(),
+        "frozenFrames" to frozen.toInt()
+      )
+      result.success(frames)
     }
   }
 
