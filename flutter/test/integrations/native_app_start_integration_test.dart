@@ -24,7 +24,7 @@ void main() {
       fixture.state.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
       fixture.wrapper.nativeAppStart = NativeAppStart(0, true);
 
-      fixture.getMobileVitalsIntegration().call(MockHub(), fixture.options);
+      fixture.getNativeAppStartIntegration().call(MockHub(), fixture.options);
 
       final tracer = fixture.createTracer();
       final transaction = SentryTransaction(tracer);
@@ -43,7 +43,7 @@ void main() {
       fixture.state.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
       fixture.wrapper.nativeAppStart = NativeAppStart(0, true);
 
-      fixture.getMobileVitalsIntegration().call(MockHub(), fixture.options);
+      fixture.getNativeAppStartIntegration().call(MockHub(), fixture.options);
 
       final tracer = fixture.createTracer();
       final transaction = SentryTransaction(tracer);
@@ -62,7 +62,7 @@ void main() {
       fixture.wrapper.nativeAppStart = NativeAppStart(0, true);
       final measurement = SentryMeasurement.warmAppStart(Duration(seconds: 1));
 
-      fixture.getMobileVitalsIntegration().call(MockHub(), fixture.options);
+      fixture.getNativeAppStartIntegration().call(MockHub(), fixture.options);
 
       final tracer = fixture.createTracer();
       final transaction =
@@ -84,7 +84,7 @@ class Fixture {
   final wrapper = MockNativeChannel();
   late final state = SentryNative(nativeChannel: wrapper);
 
-  NativeAppStartIntegration getMobileVitalsIntegration() {
+  NativeAppStartIntegration getNativeAppStartIntegration() {
     return NativeAppStartIntegration(
       state,
       () {

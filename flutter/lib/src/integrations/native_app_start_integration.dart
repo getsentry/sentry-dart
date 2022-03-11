@@ -31,7 +31,7 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
 
     options.addEventProcessor(NativeAppStartEventProcessor(_native));
 
-    options.sdk.addIntegration('mobileVitalsIntegration');
+    options.sdk.addIntegration('nativeAppStartIntegration');
   }
 }
 
