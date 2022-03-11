@@ -176,7 +176,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
           final nativeFrames = await _native
               .endNativeFramesCollection(transaction.context.traceId);
           if (nativeFrames != null) {
-            transaction.addAll(nativeFrames.toMeasurements());
+            transaction.addMeasurements(nativeFrames.toMeasurements());
           }
         }
       },

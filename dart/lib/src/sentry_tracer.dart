@@ -248,7 +248,7 @@ class SentryTracer extends ISentrySpan {
   @override
   SentryTraceHeader toSentryTrace() => _rootSpan.toSentryTrace();
 
-  void addAll(List<SentryMeasurement> measurements) {
+  void addMeasurements(List<SentryMeasurement> measurements) {
     _measurements.addAll(measurements);
   }
 
