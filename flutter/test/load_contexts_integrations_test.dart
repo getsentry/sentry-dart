@@ -75,6 +75,7 @@ void main() {
       true,
     );
     expect(event?.sdk?.integrations.contains('NativeIntegration'), true);
+    expect(event?.user?.id, '196E065A-AAF7-409A-9A6C-A81F40274CB9');
   });
 
   test(
@@ -93,7 +94,9 @@ void main() {
         browser: const SentryBrowser(name: 'eBrowser'),
         runtimes: [const SentryRuntime(name: 'eRT')])
       ..['theme'] = 'cuppertino';
-    final e = SentryEvent(contexts: eventContexts);
+    final e =
+        SentryEvent(contexts: eventContexts, user: SentryUser(id: 'myId'));
+
     final event = await fixture.options.eventProcessors.first.apply(e);
 
     expect(fixture.called, true);
@@ -107,6 +110,7 @@ void main() {
     expect(
         event?.contexts.runtimes.any((element) => element.name == 'eRT'), true);
     expect(event?.contexts['theme'], 'cuppertino');
+    expect(event?.user?.id, 'myId');
   });
 
   test(
@@ -283,7 +287,8 @@ class Fixture {
           'browser': {'name': 'browser1'},
           'runtime': {'name': 'RT1'},
           'theme': 'material',
-        }
+        },
+        'user': {'id': '196E065A-AAF7-409A-9A6C-A81F40274CB9'}
       }}) {
     channel.setMockMethodCallHandler((MethodCall methodCall) async {
       called = true;

@@ -345,6 +345,7 @@ class Hub {
     String name,
     String operation, {
     String? description,
+    DateTime? startTimestamp,
     bool? bindToScope,
     bool? waitForChildren,
     Duration? autoFinishAfter,
@@ -358,6 +359,7 @@ class Hub {
           operation,
           description: description,
         ),
+        startTimestamp: startTimestamp,
         bindToScope: bindToScope,
         waitForChildren: waitForChildren,
         autoFinishAfter: autoFinishAfter,
@@ -370,6 +372,7 @@ class Hub {
   ISentrySpan startTransactionWithContext(
     SentryTransactionContext transactionContext, {
     Map<String, dynamic>? customSamplingContext,
+    DateTime? startTimestamp,
     bool? bindToScope,
     bool? waitForChildren,
     Duration? autoFinishAfter,
@@ -401,6 +404,7 @@ class Hub {
       final tracer = SentryTracer(
         transactionContext,
         this,
+        startTimestamp: startTimestamp,
         waitForChildren: waitForChildren ?? false,
         autoFinishAfter: autoFinishAfter,
         trimEnd: trimEnd ?? false,

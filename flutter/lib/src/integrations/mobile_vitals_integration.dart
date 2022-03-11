@@ -5,7 +5,7 @@ import 'package:sentry/sentry.dart';
 
 import '../sentry_flutter_options.dart';
 import '../sentry_native.dart';
-import '../sentry_native_wrapper.dart';
+import '../event_processor/native_app_start_event_processor.dart';
 
 /// Integration which handles communication with native frameworks in order to
 /// enrich [SentryTransaction] objects with data for mobile vitals.
@@ -29,50 +29,9 @@ class MobileVitalsIntegration extends Integration<SentryFlutterOptions> {
       }
     }
 
-    options.addEventProcessor(_NativeAppStartEventProcessor(_native));
+    options.addEventProcessor(NativeAppStartEventProcessor(_native));
 
     options.sdk.addIntegration('mobileVitalsIntegration');
-  }
-}
-
-class _NativeAppStartEventProcessor extends EventProcessor {
-  _NativeAppStartEventProcessor(
-    this._native,
-  );
-
-  final SentryNative _native;
-
-  @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {
-    final appStartEnd = _native.appStartEnd;
-
-    if (appStartEnd != null &&
-        event is SentryTransaction &&
-        !_native.didFetchAppStart) {
-
-      final nativeAppStart = await _native.fetchNativeAppStart();
-      if (nativeAppStart == null) {
-        return event;
-      } else {
-        final measurements = event.measurements ?? [];
-        measurements.add(nativeAppStart.toMeasurement(appStartEnd));
-        return event.copyWith(measurements: measurements);
-      }
-    } else {
-      return event;
-    }
-  }
-}
-
-extension NativeAppStartMeasurement on NativeAppStart {
-  SentryMeasurement toMeasurement(DateTime appStartEnd) {
-    final appStartDateTime =
-        DateTime.fromMillisecondsSinceEpoch(appStartTime.toInt());
-    final duration = appStartEnd.difference(appStartDateTime);
-
-    return isColdStart
-        ? SentryMeasurement.coldAppStart(duration)
-        : SentryMeasurement.warmAppStart(duration);
   }
 }
 
