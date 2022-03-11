@@ -164,7 +164,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     if (name == '/') {
       name = 'root ("/")';
     }
-    final transaction = _hub.startTransaction(
+    _transaction = _hub.startTransaction(
       name,
       'navigation',
       waitForChildren: true,
@@ -183,16 +183,17 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     );
 
     if (arguments != null) {
-      transaction.setData('route_settings_arguments', arguments);
+      _transaction?.setData('route_settings_arguments', arguments);
     }
 
     _hub.configureScope((scope) {
-      scope.span ??= transaction;
+      scope.span ??= _transaction;
     });
 
-    await _native.beginNativeFramesCollection(transaction.context.traceId);
-
-    _transaction = transaction;
+    final traceId = _transaction?.context.traceId;
+    if (traceId != null) {
+      await _native.beginNativeFramesCollection(traceId);
+    }
   }
 
   Future<void> _finishTransaction() async {
