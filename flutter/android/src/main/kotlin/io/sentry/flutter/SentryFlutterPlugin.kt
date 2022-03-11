@@ -22,12 +22,10 @@ import io.sentry.android.core.SentryAndroidOptions
 import io.sentry.protocol.DebugImage
 import io.sentry.protocol.SdkVersion
 import io.sentry.protocol.SentryId
-
 import java.io.File
 import java.lang.ref.WeakReference
 import java.util.Locale
 import java.util.UUID
-import androidx.core.app.FrameMetricsAggregator;
 
 class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   private lateinit var channel: MethodChannel
@@ -224,9 +222,9 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     if (total == null || slow == null || frozen == null) {
       result.success(null)
-    } else if (total == 0 && slow == 0 && frozen == 0)(
+    } else if (total == 0 && slow == 0 && frozen == 0) {
       result.success(null)
-    ) else {
+    } else {
       val frames = mapOf<String, Any?>(
         "totalFrames" to total,
         "slowFrames" to slow,
