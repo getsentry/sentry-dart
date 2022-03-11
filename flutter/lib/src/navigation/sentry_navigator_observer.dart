@@ -149,7 +149,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
   }
 
-  void _startTransaction(String? name, Object? arguments) async {
+  Future<void> _startTransaction(String? name, Object? arguments) async {
     if (!_enableAutoTransactions) {
       return;
     }
