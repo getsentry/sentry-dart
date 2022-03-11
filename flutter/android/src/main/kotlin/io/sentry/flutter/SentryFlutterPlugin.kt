@@ -33,6 +33,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   private lateinit var channel: MethodChannel
   private lateinit var context: Context
 
+  private var enableAutoPerformanceTracking = false
   private var activity: WeakReference<Activity>? = null
   private var framesTracker: ActivityFramesTracker? = null
 
@@ -65,7 +66,6 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
   override fun onAttachedToActivity(binding: ActivityPluginBinding) {
     activity = WeakReference(binding.activity)
-    framesTracker = ActivityFramesTracker(LoadClass())
   }
 
   override fun onDetachedFromActivity() {
@@ -144,6 +144,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         // options.isEnableNdk = false
       }
 
+      args.getIfNotNull<Boolean>("enableAutoPerformanceTracking") {
+        enableAutoPerformanceTracking = it
+      }
+
       options.setBeforeSend { event, _ ->
         setEventOriginTag(event)
         addPackages(event, options.sdkVersion)
@@ -156,6 +160,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   private fun fetchNativeAppStart(result: Result) {
+    if (!enableAutoPerformanceTracking) {
+      result.success(null)
+      return
+    }
     val appStartTime = AppStartState.getInstance().getAppStartTime()
     val isColdStart = AppStartState.getInstance().isColdStart()
 
@@ -175,6 +183,13 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   private fun beginNativeFrames(result: Result) {
+    if (!enableAutoPerformanceTracking) {
+      result.success(null)
+      return
+    }
+    if (framesTracker == null) {
+      framesTracker = ActivityFramesTracker(LoadClass())
+    }
     activity?.get()?.let {
       framesTracker?.addActivity(it)
     }
@@ -182,6 +197,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   private fun endNativeFrames(id: String?, result: Result) {
+    if (!enableAutoPerformanceTracking) {
+      result.success(null)
+      return
+    }
     if (id == null) {
       Log.w("Sentry", "Parameter id cannot be null.")
       result.success(null)
