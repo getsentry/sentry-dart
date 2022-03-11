@@ -112,8 +112,6 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             return
         }
 
-
-
         SentrySDK.start { options in
             self.updateOptions(arguments: arguments, options: options)
 
@@ -363,7 +361,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
       let frozen = currentFrames.frozen - frozenFrames
       let slow = currentFrames.slow - slowFrames
 
-      if (total <= 0 && frozen <= 0 && slow <= 0) {
+      if total <= 0 && frozen <= 0 && slow <= 0 {
         result(nil)
         return
       }
@@ -371,7 +369,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
       let item: [String: Any] = [
           "totalFrames": total,
           "frozenFrames": frozen,
-          "slowFrames": slow,
+          "slowFrames": slow
       ]
 
       result(item)
