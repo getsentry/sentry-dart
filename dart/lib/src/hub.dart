@@ -15,6 +15,9 @@ import 'tracing.dart';
 /// Configures the scope through the callback.
 typedef ScopeCallback = void Function(Scope);
 
+/// Called when a transaction is finished.
+typedef OnTransactionFinish = FutureOr<void> Function(ISentrySpan transaction);
+
 /// SDK API contract which combines a client and scope management
 class Hub {
   static SentryClient _getClient(SentryOptions options) {
@@ -346,7 +349,7 @@ class Hub {
     bool? waitForChildren,
     Duration? autoFinishAfter,
     bool? trimEnd,
-    Function(ISentrySpan transaction)? onFinish,
+    OnTransactionFinish? onFinish,
     Map<String, dynamic>? customSamplingContext,
   }) =>
       startTransactionWithContext(
@@ -371,7 +374,7 @@ class Hub {
     bool? waitForChildren,
     Duration? autoFinishAfter,
     bool? trimEnd,
-    Function(ISentrySpan transaction)? onFinish,
+    OnTransactionFinish? onFinish,
   }) {
     if (!_isEnabled) {
       _options.logger(

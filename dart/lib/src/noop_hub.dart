@@ -91,7 +91,7 @@ class NoOpHub implements Hub {
     bool? waitForChildren,
     Duration? autoFinishAfter,
     bool? trimEnd,
-    Function(ISentrySpan transaction)? onFinish,
+    OnTransactionFinish? onFinish,
     Map<String, dynamic>? customSamplingContext,
   }) =>
       NoOpSentrySpan();
@@ -104,7 +104,7 @@ class NoOpHub implements Hub {
     bool? waitForChildren,
     Duration? autoFinishAfter,
     bool? trimEnd,
-    Function(ISentrySpan transaction)? onFinish,
+    OnTransactionFinish? onFinish,
   }) =>
       NoOpSentrySpan();
 

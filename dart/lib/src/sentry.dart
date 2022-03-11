@@ -228,7 +228,7 @@ class Sentry {
     bool? waitForChildren,
     Duration? autoFinishAfter,
     bool? trimEnd,
-    Function(ISentrySpan transaction)? onFinish,
+    OnTransactionFinish? onFinish,
     Map<String, dynamic>? customSamplingContext,
   }) =>
       _hub.startTransaction(
@@ -251,7 +251,7 @@ class Sentry {
     bool? waitForChildren,
     Duration? autoFinishAfter,
     bool? trimEnd,
-    Function(ISentrySpan transaction)? onFinish,
+    OnTransactionFinish? onFinish,
   }) =>
       _hub.startTransactionWithContext(
         transactionContext,

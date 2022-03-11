@@ -112,7 +112,7 @@ class HubAdapter implements Hub {
     bool? waitForChildren,
     Duration? autoFinishAfter,
     bool? trimEnd,
-    Function(ISentrySpan transaction)? onFinish,
+    OnTransactionFinish? onFinish,
   }) =>
       Sentry.startTransactionWithContext(
         transactionContext,
@@ -132,7 +132,7 @@ class HubAdapter implements Hub {
     bool? waitForChildren,
     Duration? autoFinishAfter,
     bool? trimEnd,
-    Function(ISentrySpan transaction)? onFinish,
+    OnTransactionFinish? onFinish,
     Map<String, dynamic>? customSamplingContext,
   }) =>
       Sentry.startTransaction(
