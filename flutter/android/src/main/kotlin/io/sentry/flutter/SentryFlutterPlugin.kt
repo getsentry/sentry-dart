@@ -33,8 +33,8 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   private lateinit var channel: MethodChannel
   private lateinit var context: Context
 
-  private var activity = WeakReference<Activity?>(null)
-  private val activityFramesTracker = ActivityFramesTracker(LoadClass())
+  private var activity: WeakReference<Activity>? = null
+  private var framesTracker: ActivityFramesTracker? = null
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     context = flutterPluginBinding.applicationContext
@@ -65,10 +65,12 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
   override fun onAttachedToActivity(binding: ActivityPluginBinding) {
     activity = WeakReference(binding.activity)
+    framesTracker = ActivityFramesTracker(LoadClass())
   }
 
   override fun onDetachedFromActivity() {
-    activity = WeakReference(null)
+    activity = null
+    framesTracker = null
   }
 
   override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
@@ -173,8 +175,8 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   private fun beginNativeFrames(result: Result) {
-    activity.get()?.let {
-      activityFramesTracker.addActivity(it)
+    activity?.get()?.let {
+      framesTracker?.addActivity(it)
     }
     result.success(null)
   }
@@ -186,7 +188,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       return
     }
 
-    val activity = activity.get()
+    val activity = activity?.get()
 
     if (activity == null) {
       result.success(null)
@@ -194,9 +196,9 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 
     val sentryId = SentryId(id)
-    activityFramesTracker.setMetrics(activity, sentryId)
+    framesTracker?.setMetrics(activity, sentryId)
 
-    val metrics = activityFramesTracker.takeMetrics(sentryId)
+    val metrics = framesTracker?.takeMetrics(sentryId)
     val total = metrics?.get("frames_total")?.getValue()
     val slow = metrics?.get("frames_slow")?.getValue()
     val frozen = metrics?.get("frames_frozen")?.getValue()
@@ -257,7 +259,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
   private fun closeNativeSdk(result: Result) {
     Sentry.close()
-    activityFramesTracker.stop()
+    framesTracker?.stop()
 
     result.success("")
   }
