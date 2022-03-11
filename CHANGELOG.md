@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 6.4.0-beta.3
 
 * Feat: Allow to set startTimestamp & endTimestamp manually to SentrySpan (#676)
 * Bump: Sentry-Cocoa to 7.10.0 (#777)
