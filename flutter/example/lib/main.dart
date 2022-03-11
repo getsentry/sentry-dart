@@ -24,7 +24,6 @@ Future<void> main() async {
       options.reportPackages = false;
       options.addInAppInclude('sentry_flutter_example');
       options.considerInAppFramesByDefault = false;
-      options.enableAutoPerformanceTracking = false;
     },
     // Init your App.
     appRunner: () => runApp(
