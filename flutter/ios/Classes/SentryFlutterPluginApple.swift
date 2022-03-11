@@ -348,10 +348,19 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
       let currentFrames = PrivateSentrySDKOnly.currentScreenFrames
 
+      let total = currentFrames.total - totalFrames
+      let frozen = currentFrames.frozen - frozenFrames
+      let slow = currentFrames.slow - slowFrames
+
+      if (total <= 0 && frozen <= 0 && slow <= 0) {
+        result(nil)
+        return
+      }
+
       let item: [String: Any] = [
-          "totalFrames": currentFrames.total - totalFrames,
-          "frozenFrames": currentFrames.frozen - frozenFrames,
-          "slowFrames": currentFrames.slow - slowFrames,
+          "totalFrames": total,
+          "frozenFrames": frozen,
+          "slowFrames": slow,
       ]
 
       result(item)
