@@ -10,7 +10,7 @@ import 'sentry_native_wrapper.dart';
 
 import 'flutter_enricher_event_processor.dart';
 import 'integrations/debug_print_integration.dart';
-import 'integrations/mobile_vitals_integration.dart';
+import 'integrations/native_app_start_integration.dart';
 import 'sentry_flutter_options.dart';
 
 import 'default_integrations.dart';
@@ -129,7 +129,7 @@ mixin SentryFlutter {
     integrations.add(LoadReleaseIntegration(packageLoader));
 
     if (options.platformChecker.hasNativeIntegration) {
-      integrations.add(MobileVitalsIntegration(
+      integrations.add(NativeAppStartIntegration(
         native,
         () {
           return SchedulerBinding.instance;

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/integrations/mobile_vitals_integration.dart';
+import 'package:sentry_flutter/src/integrations/native_app_start_integration.dart';
 import 'package:sentry_flutter/src/sentry_native.dart';
 import 'package:sentry_flutter/src/sentry_native_wrapper.dart';
 import 'package:sentry/src/sentry_tracer.dart';
@@ -12,7 +12,7 @@ import '../mocks.mocks.dart';
 const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
 void main() {
-  group('$MobileVitalsIntegration', () {
+  group('$NativeAppStartIntegration', () {
     late Fixture fixture;
 
     setUp(() {
@@ -84,8 +84,8 @@ class Fixture {
   final wrapper = MockNativeChannel();
   late final state = SentryNative(nativeChannel: wrapper);
 
-  MobileVitalsIntegration getMobileVitalsIntegration() {
-    return MobileVitalsIntegration(
+  NativeAppStartIntegration getMobileVitalsIntegration() {
+    return NativeAppStartIntegration(
       state,
       () {
         return SchedulerBinding.instance;
