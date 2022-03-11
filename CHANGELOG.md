@@ -2,10 +2,12 @@
 
 ## Unreleased
 
+* Feat: Allow to set startTimestamp & endTimestamp manually to SentrySpan (#676)
 * Bump: Sentry-Cocoa to 7.10.0 (#777)
 * Feat: Mobile Vitals - Native App Start (#749)
 * Feat: Additional Dart/Flutter context information (#778)
 * Bump: Kotlin plugin to 1.5.31 (#763)
+* Fix: Missing userId on iOS when userId is not set (#782)
 
 ## 6.4.0-beta.2
 

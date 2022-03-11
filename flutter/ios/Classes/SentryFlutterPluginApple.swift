@@ -81,12 +81,18 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
             var infos = ["contexts": context]
 
+            if let user = serializedScope["user"] as? [String: Any] {
+                infos["user"] = user
+            } else {
+                infos["user"] = ["id": PrivateSentrySDKOnly.installationID]
+            }
+
             if let integrations = self.sentryOptions?.integrations {
                 infos["integrations"] = integrations
             }
 
-            if let sentryOptions = self.sentryOptions {
-                infos["package"] = ["version": sentryOptions.sdkInfo.version, "sdk_name": "cocoapods:sentry-cocoa"]
+            if let sdkInfo = self.sentryOptions?.sdkInfo {
+                infos["package"] = ["version": sdkInfo.version, "sdk_name": "cocoapods:sentry-cocoa"]
             }
 
             result(infos)

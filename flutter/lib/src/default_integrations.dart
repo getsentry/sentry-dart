@@ -195,6 +195,12 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
         event = event.copyWith(contexts: eventContexts);
       }
 
+      final userMap = infos['user'];
+      if (event.user == null && userMap != null) {
+        final user = Map<String, dynamic>.from(userMap as Map);
+        event = event.copyWith(user: SentryUser.fromJson(user));
+      }
+
       if (infos['integrations'] != null) {
         final integrations = List<String>.from(infos['integrations'] as List);
         final sdk = event.sdk ?? _options.sdk;

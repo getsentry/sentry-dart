@@ -15,6 +15,7 @@ ISentrySpan startTransactionShim(
   String? name,
   String? operation, {
   String? description,
+  DateTime? startTimestamp,
   bool? bindToScope,
   bool? waitForChildren,
   Duration? autoFinishAfter,
