@@ -199,17 +199,19 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     framesTracker?.setMetrics(activity, sentryId)
 
     val metrics = framesTracker?.takeMetrics(sentryId)
-    val total = metrics?.get("frames_total")?.getValue()
-    val slow = metrics?.get("frames_slow")?.getValue()
-    val frozen = metrics?.get("frames_frozen")?.getValue()
+    val total = metrics?.get("frames_total")?.getValue()?.toInt()
+    val slow = metrics?.get("frames_slow")?.getValue()?.toInt()
+    val frozen = metrics?.get("frames_frozen")?.getValue()?.toInt()
 
     if (total == null || slow == null || frozen == null) {
       result.success(null)
-    } else {
+    } else if (total == 0 && slow == 0 && frozen == 0)(
+      result.success(null)
+    ) else {
       val frames = mapOf<String, Any?>(
-        "totalFrames" to total.toInt(),
-        "slowFrames" to slow.toInt(),
-        "frozenFrames" to frozen.toInt()
+        "totalFrames" to total,
+        "slowFrames" to slow,
+        "frozenFrames" to frozen
       )
       result.success(frames)
     }
