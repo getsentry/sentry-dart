@@ -40,21 +40,11 @@ class SentryNative {
 
   // NativeFrames
 
-  final _nativeFramesByTraceId = <SentryId, NativeFrames>{};
-
   Future<void> beginNativeFramesCollection(SentryId traceId) async {
     await _nativeChannel?.beginNativeFrames();
   }
 
-  Future<void> endNativeFramesCollection(SentryId traceId) async {
-    final nativeFrames = await _nativeChannel?.endNativeFrames(traceId);
-    if (nativeFrames != null) {
-      _nativeFramesByTraceId[traceId] = nativeFrames;
-    }
-  }
-
-  /// Returns and removes native frames by trace id.
-  NativeFrames? removeNativeFrames(SentryId traceId) {
-    return _nativeFramesByTraceId.remove(traceId);
+  Future<NativeFrames?> endNativeFramesCollection(SentryId traceId) async {
+    return await _nativeChannel?.endNativeFrames(traceId);
   }
 }

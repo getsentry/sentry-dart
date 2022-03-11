@@ -15,6 +15,7 @@ class SentryTracer extends ISentrySpan {
   late final SentrySpan _rootSpan;
   final List<SentrySpan> _children = [];
   final Map<String, dynamic> _extra = {};
+  final List<SentryMeasurement> _measurements = [];
 
   Timer? _autoFinishAfterTimer;
   Function(SentryTracer)? _onFinish;
@@ -98,7 +99,7 @@ class SentryTracer extends ISentrySpan {
         }
       });
 
-      final transaction = SentryTransaction(this);
+      final transaction = SentryTransaction(this, measurements: _measurements);
       await _hub.captureTransaction(transaction);
     }
   }
@@ -233,6 +234,10 @@ class SentryTracer extends ISentrySpan {
 
   @override
   SentryTraceHeader toSentryTrace() => _rootSpan.toSentryTrace();
+
+  void addAll(List<SentryMeasurement> measurements) {
+    _measurements.addAll(measurements);
+  }
 
   bool _haveAllChildrenFinished() {
     for (final child in children) {

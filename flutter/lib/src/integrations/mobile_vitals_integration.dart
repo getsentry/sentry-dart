@@ -30,7 +30,6 @@ class MobileVitalsIntegration extends Integration<SentryFlutterOptions> {
     }
 
     options.addEventProcessor(_NativeAppStartEventProcessor(_native));
-    options.addEventProcessor(_NativeFramesEventProcessor(_native));
 
     options.sdk.addIntegration('mobileVitalsIntegration');
   }
@@ -65,28 +64,6 @@ class _NativeAppStartEventProcessor extends EventProcessor {
   }
 }
 
-class _NativeFramesEventProcessor extends EventProcessor {
-  _NativeFramesEventProcessor(this._native);
-
-  final SentryNative _native;
-
-  @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {
-    if (event is SentryTransaction) {
-      final traceId = event.contexts.trace?.traceId;
-      if (traceId != null) {
-        final nativeFrames = _native.removeNativeFrames(traceId);
-        if (nativeFrames != null) {
-          var measurements = event.measurements ?? [];
-          measurements.addAll(nativeFrames.toMeasurements());
-          return event.copyWith(measurements: measurements);
-        }
-      }
-    }
-    return event;
-  }
-}
-
 extension NativeAppStartMeasurement on NativeAppStart {
   SentryMeasurement toMeasurement(DateTime appStartEnd) {
     final appStartDateTime =
@@ -96,16 +73,6 @@ extension NativeAppStartMeasurement on NativeAppStart {
     return isColdStart
         ? SentryMeasurement.coldAppStart(duration)
         : SentryMeasurement.warmAppStart(duration);
-  }
-}
-
-extension NativeFramesMeasurement on NativeFrames {
-  List<SentryMeasurement> toMeasurements() {
-    return [
-      SentryMeasurement.totalFrames(totalFrames),
-      SentryMeasurement.slowFrames(slowFrames),
-      SentryMeasurement.frozenFrames(frozenFrames),
-    ];
   }
 }
 

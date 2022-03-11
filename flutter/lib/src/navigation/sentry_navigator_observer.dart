@@ -1,8 +1,12 @@
 import 'dart:async';
 
+// ignore: implementation_imports
+import 'package:sentry/src/sentry_tracer.dart';
 import 'package:flutter/widgets.dart';
+
 import '../../sentry_flutter.dart';
 import '../sentry_native.dart';
+import '../sentry_native_wrapper.dart';
 
 /// This key must be used so that the web interface displays the events nicely
 /// See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
@@ -167,7 +171,14 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       autoFinishAfter: _autoFinishAfter,
       trimEnd: true,
       onFinish: (transaction) async {
-        await _native.endNativeFramesCollection(transaction.context.traceId);
+        // ignore: invalid_use_of_internal_member
+        if (transaction is SentryTracer) {
+          final nativeFrames = await _native.endNativeFramesCollection(
+              transaction.context.traceId);
+          if (nativeFrames != null) {
+            transaction.addAll(nativeFrames.toMeasurements());
+          }
+        }
       },
     );
 
@@ -249,5 +260,15 @@ class RouteObserverBreadcrumb extends Breadcrumb {
           MapEntry<String, String>(key, value.toString()));
     }
     return args.toString();
+  }
+}
+
+extension NativeFramesMeasurement on NativeFrames {
+  List<SentryMeasurement> toMeasurements() {
+    return [
+      SentryMeasurement.totalFrames(totalFrames),
+      SentryMeasurement.slowFrames(slowFrames),
+      SentryMeasurement.frozenFrames(frozenFrames),
+    ];
   }
 }
