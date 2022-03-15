@@ -1,6 +1,7 @@
 package io.sentry.flutter
 
 import android.content.Context
+import android.util.Log
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -10,6 +11,7 @@ import io.sentry.HubAdapter
 import io.sentry.Sentry
 import io.sentry.SentryEvent
 import io.sentry.SentryLevel
+import io.sentry.android.core.AppStartState
 import io.sentry.android.core.SentryAndroid
 import io.sentry.android.core.SentryAndroidOptions
 import io.sentry.protocol.DebugImage
@@ -34,6 +36,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
       "captureEnvelope" -> captureEnvelope(call, result)
       "loadImageList" -> loadImageList(result)
       "closeNativeSdk" -> closeNativeSdk(result)
+      "fetchNativeAppStart" -> fetchNativeAppStart(result)
       else -> result.notImplemented()
     }
   }
@@ -118,6 +121,25 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
       // missing proxy, enableScopeSync
     }
     result.success("")
+  }
+
+  private fun fetchNativeAppStart(result: Result) {
+    val appStartTime = AppStartState.getInstance().getAppStartTime()
+    val isColdStart = AppStartState.getInstance().isColdStart()
+
+    if (appStartTime == null) {
+      Log.w("Sentry", "App start won't be sent due to missing appStartTime")
+      result.success(null)
+    } else if (isColdStart == null) {
+      Log.w("Sentry", "App start won't be sent due to missing isColdStart")
+      result.success(null)
+    } else {
+      val item = mapOf<String, Any?>(
+        "appStartTime" to appStartTime.getTime().toDouble(),
+        "isColdStart" to isColdStart
+      )
+      result.success(item)
+    }
   }
 
   private fun captureEnvelope(call: MethodCall, result: Result) {

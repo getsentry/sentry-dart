@@ -3,6 +3,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/platform/platform.dart';
 
 import 'package:meta/meta.dart';
+import 'package:sentry_flutter/src/sentry_native_wrapper.dart';
 
 import 'mocks.mocks.dart';
 import 'no_such_method_provider.dart';
@@ -135,4 +136,11 @@ class NoOpHub with NoSuchMethodProvider implements Hub {
 
   @override
   bool get isEnabled => false;
+}
+
+class MockNativeWrapper implements SentryNativeWrapper {
+  NativeAppStart? nativeAppStart;
+
+  @override
+  Future<NativeAppStart?> fetchNativeAppStart() async => nativeAppStart;
 }

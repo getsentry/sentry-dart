@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
-import 'package:sentry/sentry.dart';
 import '../../sentry_flutter.dart';
 
 /// This key must be used so that the web interface displays the events nicely
@@ -81,12 +80,15 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPush(route, previousRoute);
+
     _setCurrentRoute(route.settings.name);
+
     _addBreadcrumb(
       type: 'didPush',
       from: previousRoute?.settings,
       to: route.settings,
     );
+
     _finishTransaction();
     _startTransaction(route.settings.name, route.settings.arguments);
   }
@@ -105,12 +107,14 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   @override
   void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPop(route, previousRoute);
+
     _setCurrentRoute(previousRoute?.settings.name);
     _addBreadcrumb(
       type: 'didPop',
       from: route.settings,
       to: previousRoute?.settings,
     );
+
     _finishTransaction();
     _startTransaction(
       previousRoute?.settings.name,
@@ -149,6 +153,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     if (name == null) {
       return;
     }
+
     if (name == '/') {
       name = 'root ("/")';
     }
@@ -159,6 +164,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       autoFinishAfter: _autoFinishAfter,
       trimEnd: true,
     );
+
     if (arguments != null) {
       _transaction?.setData('route_settings_arguments', arguments);
     }

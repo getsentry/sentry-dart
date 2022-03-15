@@ -66,6 +66,9 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         case "captureEnvelope":
             captureEnvelope(call, result: result)
 
+        case "fetchNativeAppStart":
+            fetchNativeAppStart(result: result)
+
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -102,6 +105,8 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             result(FlutterError(code: "4", message: "Arguments is null or empty", details: nil))
             return
         }
+
+        PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
 
         SentrySDK.start { options in
             self.updateOptions(arguments: arguments, options: options)
@@ -294,5 +299,23 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         PrivateSentrySDKOnly.capture(envelope)
         result("")
         return
+    }
+
+    private func fetchNativeAppStart(result: @escaping FlutterResult) {
+        guard let appStartMeasurement = PrivateSentrySDKOnly.appStartMeasurement else {
+            print("warning: appStartMeasurement is null")
+            result(nil)
+            return
+        }
+
+        let appStartTime = appStartMeasurement.appStartTimestamp.timeIntervalSince1970 * 1000
+        let isColdStart = appStartMeasurement.type == .cold
+
+        let item: [String: Any] = [
+            "appStartTime": appStartTime,
+            "isColdStart": isColdStart
+        ]
+
+        result(item)
     }
 }

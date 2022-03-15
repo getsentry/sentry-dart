@@ -15,6 +15,7 @@ class SentryTracer extends ISentrySpan {
   late final SentrySpan _rootSpan;
   final List<SentrySpan> _children = [];
   final Map<String, dynamic> _extra = {};
+
   Timer? _autoFinishAfterTimer;
   var _finishStatus = SentryTracerFinishStatus.notFinishing();
   late final bool _trimEnd;

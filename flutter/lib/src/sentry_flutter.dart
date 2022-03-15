@@ -1,12 +1,16 @@
 import 'dart:async';
 
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
+import 'sentry_native_state.dart';
+import 'sentry_native_wrapper.dart';
 
 import 'flutter_enricher_event_processor.dart';
 import 'integrations/debug_print_integration.dart';
+import 'integrations/mobile_vitals_integration.dart';
 import 'sentry_flutter_options.dart';
 
 import 'default_integrations.dart';
@@ -31,14 +35,19 @@ mixin SentryFlutter {
     @internal PlatformChecker? platformChecker,
   }) async {
     final flutterOptions = SentryFlutterOptions();
+
     if (platformChecker != null) {
       flutterOptions.platformChecker = platformChecker;
     }
+
+    final nativeWrapper = SentryNativeWrapper(channel, flutterOptions);
 
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
     final defaultIntegrations = _createDefaultIntegrations(
       packageLoader,
+      nativeWrapper,
+      SentryNativeState(),
       channel,
       flutterOptions,
     );
@@ -78,6 +87,8 @@ mixin SentryFlutter {
   /// https://medium.com/flutter-community/error-handling-in-flutter-98fce88a34f0
   static List<Integration> _createDefaultIntegrations(
     PackageLoader packageLoader,
+    SentryNativeWrapper nativeWrapper,
+    SentryNativeState nativeState,
     MethodChannel channel,
     SentryFlutterOptions options,
   ) {
@@ -118,7 +129,22 @@ mixin SentryFlutter {
     // in errors.
     integrations.add(LoadReleaseIntegration(packageLoader));
 
+    if (options.platformChecker.hasNativeIntegration) {
+      integrations.add(MobileVitalsIntegration(
+        nativeWrapper,
+        nativeState,
+        () {
+          return SchedulerBinding.instance;
+        },
+      ));
+    }
     return integrations;
+  }
+
+  /// Manually set when your app finished startup. Make sure to set
+  /// [SentryFlutterOptions.autoAppStart] to false on init.
+  static void setAppStartEnd(DateTime appStartEnd) {
+    SentryNativeState().appStartEnd = appStartEnd;
   }
 
   static void _setSdk(SentryFlutterOptions options) {
