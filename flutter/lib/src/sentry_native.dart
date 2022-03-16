@@ -13,11 +13,13 @@ class SentryNative {
 
   SentryNativeChannel? _nativeChannel;
 
-  factory SentryNative({SentryNativeChannel? nativeChannel}) {
-    if (nativeChannel != null) {
-      _instance._nativeChannel = nativeChannel;
-    }
+  factory SentryNative() {
     return _instance;
+  }
+
+  /// Provide [nativeChannel] for native communication.
+  void setNativeChannel(SentryNativeChannel nativeChannel) {
+    _instance._nativeChannel = nativeChannel;
   }
 
   // AppStart

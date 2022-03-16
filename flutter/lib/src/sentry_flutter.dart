@@ -41,7 +41,8 @@ mixin SentryFlutter {
     }
 
     final nativeChannel = SentryNativeChannel(channel, flutterOptions);
-    final native = SentryNative(nativeChannel: nativeChannel);
+    final native = SentryNative();
+    native.setNativeChannel(nativeChannel);
 
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
