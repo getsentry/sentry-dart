@@ -196,7 +196,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   private fun endNativeFrames(id: String?, result: Result) {
-    if (!enableAutoPerformanceTracking) {
+    if (!autoPerformanceTrackingEnabled) {
       result.success(null)
       return
     }
