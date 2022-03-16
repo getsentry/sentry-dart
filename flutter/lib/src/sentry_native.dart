@@ -49,4 +49,10 @@ class SentryNative {
   Future<NativeFrames?> endNativeFramesCollection(SentryId traceId) async {
     return await _nativeChannel?.endNativeFrames(traceId);
   }
+
+  /// Reset state
+  void reset() {
+    appStartEnd = null;
+    _didFetchAppStart = false;
+  }
 }

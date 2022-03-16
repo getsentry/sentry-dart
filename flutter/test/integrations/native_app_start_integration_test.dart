@@ -21,7 +21,7 @@ void main() {
 
     test('native app start measurement added to first transaction', () async {
       fixture.options.autoAppStart = false;
-      fixture.state.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
+      fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
       fixture.wrapper.nativeAppStart = NativeAppStart(0, true);
 
       fixture.getNativeAppStartIntegration().call(MockHub(), fixture.options);
@@ -40,7 +40,7 @@ void main() {
     test('native app start measurement not added to following transactions',
         () async {
       fixture.options.autoAppStart = false;
-      fixture.state.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
+      fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
       fixture.wrapper.nativeAppStart = NativeAppStart(0, true);
 
       fixture.getNativeAppStartIntegration().call(MockHub(), fixture.options);
@@ -58,7 +58,7 @@ void main() {
 
     test('measurements appended', () async {
       fixture.options.autoAppStart = false;
-      fixture.state.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
+      fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
       fixture.wrapper.nativeAppStart = NativeAppStart(0, true);
       final measurement = SentryMeasurement.warmAppStart(Duration(seconds: 1));
 
@@ -82,11 +82,16 @@ void main() {
 class Fixture {
   final options = SentryFlutterOptions(dsn: fakeDsn);
   final wrapper = MockNativeChannel();
-  late final state = SentryNative(nativeChannel: wrapper);
+  late final native = SentryNative();
+
+  Fixture() {
+    native.setNativeChannel(wrapper);
+    native.reset();
+  }
 
   NativeAppStartIntegration getNativeAppStartIntegration() {
     return NativeAppStartIntegration(
-      state,
+      native,
       () {
         return SchedulerBinding.instance;
       },
