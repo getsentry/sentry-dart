@@ -142,8 +142,8 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         // options.isEnableNdk = false
       }
 
-      args.getIfNotNull<Boolean>("enableAutoPerformanceTracking") { enableAutoPerformanceTracking in
-      if (enableAutoPerformanceTracking == true) {
+      args.getIfNotNull<Boolean>("enableAutoPerformanceTracking") { enableAutoPerformanceTracking ->
+        if (enableAutoPerformanceTracking) {
           autoPerformanceTrackingEnabled = true
           framesTracker = ActivityFramesTracker(LoadClass())
         }
@@ -217,9 +217,9 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     framesTracker?.setMetrics(activity, sentryId)
 
     val metrics = framesTracker?.takeMetrics(sentryId)
-    val total = metrics?.get("frames_total")?.getValue()?.toInt() ?? 0
-    val slow = metrics?.get("frames_slow")?.getValue()?.toInt() ?? 0
-    val frozen = metrics?.get("frames_frozen")?.getValue()?.toInt() ?? 0
+    val total = metrics?.get("frames_total")?.getValue()?.toInt() ?: 0
+    val slow = metrics?.get("frames_slow")?.getValue()?.toInt() ?: 0
+    val frozen = metrics?.get("frames_frozen")?.getValue()?.toInt() ?: 0
 
     if (total == 0 && slow == 0 && frozen == 0) {
       result.success(null)
