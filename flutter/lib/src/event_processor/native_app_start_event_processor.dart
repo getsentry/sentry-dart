@@ -22,16 +22,11 @@ class NativeAppStartEventProcessor extends EventProcessor {
         event is SentryTransaction &&
         !_native.didFetchAppStart) {
       final nativeAppStart = await _native.fetchNativeAppStart();
-      if (nativeAppStart == null) {
-        return event;
-      } else {
-        final measurements = event.measurements ?? [];
-        measurements.add(nativeAppStart.toMeasurement(appStartEnd));
-        return event.copyWith(measurements: measurements);
+      if (nativeAppStart != null) {
+        event.measurements.add(nativeAppStart.toMeasurement(appStartEnd));
       }
-    } else {
-      return event;
     }
+    return event;
   }
 }
 

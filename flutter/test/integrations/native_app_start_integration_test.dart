@@ -33,8 +33,8 @@ void main() {
       final enriched = await processor.apply(transaction) as SentryTransaction;
 
       final expected = SentryMeasurement('app_start_cold', 10);
-      expect(enriched.measurements?[0].name, expected.name);
-      expect(enriched.measurements?[0].value, expected.value);
+      expect(enriched.measurements[0].name, expected.name);
+      expect(enriched.measurements[0].value, expected.value);
     });
 
     test('native app start measurement not added to following transactions',
@@ -53,7 +53,7 @@ void main() {
       var enriched = await processor.apply(transaction) as SentryTransaction;
       var secondEnriched = await processor.apply(enriched) as SentryTransaction;
 
-      expect(secondEnriched.measurements?.length, 1);
+      expect(secondEnriched.measurements.length, 1);
     });
 
     test('measurements appended', () async {
@@ -65,16 +65,16 @@ void main() {
       fixture.getNativeAppStartIntegration().call(MockHub(), fixture.options);
 
       final tracer = fixture.createTracer();
-      final transaction =
-          SentryTransaction(tracer).copyWith(measurements: [measurement]);
+      final transaction = SentryTransaction(tracer).copyWith();
+      transaction.measurements.add(measurement);
 
       final processor = fixture.options.eventProcessors.first;
 
       var enriched = await processor.apply(transaction) as SentryTransaction;
       var secondEnriched = await processor.apply(enriched) as SentryTransaction;
 
-      expect(secondEnriched.measurements?.length, 2);
-      expect(secondEnriched.measurements?.contains(measurement), true);
+      expect(secondEnriched.measurements.length, 2);
+      expect(secondEnriched.measurements.contains(measurement), true);
     });
   });
 }

@@ -31,9 +31,9 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   private lateinit var channel: MethodChannel
   private lateinit var context: Context
 
-  private var enableAutoPerformanceTracking = false
   private var activity: WeakReference<Activity>? = null
   private var framesTracker: ActivityFramesTracker? = null
+  private var autoPerformanceTrackingEnabled = false
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     context = flutterPluginBinding.applicationContext
@@ -142,8 +142,11 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         // options.isEnableNdk = false
       }
 
-      args.getIfNotNull<Boolean>("enableAutoPerformanceTracking") {
-        enableAutoPerformanceTracking = it
+      args.getIfNotNull<Boolean>("enableAutoPerformanceTracking") { enableAutoPerformanceTracking in
+      if (enableAutoPerformanceTracking == true) {
+          autoPerformanceTrackingEnabled = true
+          framesTracker = ActivityFramesTracker(LoadClass())
+        }
       }
 
       options.setBeforeSend { event, _ ->
@@ -158,7 +161,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   private fun fetchNativeAppStart(result: Result) {
-    if (!enableAutoPerformanceTracking) {
+    if (!autoPerformanceTrackingEnabled) {
       result.success(null)
       return
     }
@@ -181,13 +184,11 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   private fun beginNativeFrames(result: Result) {
-    if (!enableAutoPerformanceTracking) {
+    if (!autoPerformanceTrackingEnabled) {
       result.success(null)
       return
     }
-    if (framesTracker == null) {
-      framesTracker = ActivityFramesTracker(LoadClass())
-    }
+
     activity?.get()?.let {
       framesTracker?.addActivity(it)
     }
@@ -200,7 +201,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       return
     }
     if (id == null) {
-      Log.w("Sentry", "Parameter id cannot be null.")
+      Log.w("Sentry", "Parameter id cannot be null when calling endNativeFrames.")
       result.success(null)
       return
     }
@@ -216,13 +217,11 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     framesTracker?.setMetrics(activity, sentryId)
 
     val metrics = framesTracker?.takeMetrics(sentryId)
-    val total = metrics?.get("frames_total")?.getValue()?.toInt()
-    val slow = metrics?.get("frames_slow")?.getValue()?.toInt()
-    val frozen = metrics?.get("frames_frozen")?.getValue()?.toInt()
+    val total = metrics?.get("frames_total")?.getValue()?.toInt() ?? 0
+    val slow = metrics?.get("frames_slow")?.getValue()?.toInt() ?? 0
+    val frozen = metrics?.get("frames_frozen")?.getValue()?.toInt() ?? 0
 
-    if (total == null || slow == null || frozen == null) {
-      result.success(null)
-    } else if (total == 0 && slow == 0 && frozen == 0) {
+    if (total == 0 && slow == 0 && frozen == 0) {
       result.success(null)
     } else {
       val frames = mapOf<String, Any?>(
@@ -279,6 +278,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   private fun closeNativeSdk(result: Result) {
     Sentry.close()
     framesTracker?.stop()
+    framesTracker = null
 
     result.success("")
   }
