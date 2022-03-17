@@ -215,7 +215,6 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     val sentryId = SentryId(id)
     framesTracker?.setMetrics(activity, sentryId)
-    native_app_start_integration_test.dart
     val metrics = framesTracker?.takeMetrics(sentryId)
     val total = metrics?.get("frames_total")?.getValue()?.toInt() ?: 0
     val slow = metrics?.get("frames_slow")?.getValue()?.toInt() ?: 0
