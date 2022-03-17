@@ -7,6 +7,7 @@ import FlutterMacOS
 import AppKit
 #endif
 
+// swiftlint:disable:next type_body_length
 public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
     private var sentryOptions: Options?
