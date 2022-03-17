@@ -196,19 +196,11 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   private fun endNativeFrames(id: String?, result: Result) {
-    if (!autoPerformanceTrackingEnabled) {
-      result.success(null)
-      return
-    }
-    if (id == null) {
-      Log.w("Sentry", "Parameter id cannot be null when calling endNativeFrames.")
-      result.success(null)
-      return
-    }
-
     val activity = activity?.get()
-
-    if (activity == null) {
+    if (!autoPerformanceTrackingEnabled || activity == null || id == null) {
+      if (id == null) {
+        Log.w("Sentry", "Parameter id cannot be null when calling endNativeFrames.")
+      }
       result.success(null)
       return
     }
