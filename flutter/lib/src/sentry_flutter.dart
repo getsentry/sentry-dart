@@ -48,7 +48,6 @@ mixin SentryFlutter {
     // so we are able to capture future errors.
     final defaultIntegrations = _createDefaultIntegrations(
       packageLoader,
-      native,
       channel,
       flutterOptions,
     );
@@ -88,7 +87,6 @@ mixin SentryFlutter {
   /// https://medium.com/flutter-community/error-handling-in-flutter-98fce88a34f0
   static List<Integration> _createDefaultIntegrations(
     PackageLoader packageLoader,
-    SentryNative native,
     MethodChannel channel,
     SentryFlutterOptions options,
   ) {
@@ -131,7 +129,7 @@ mixin SentryFlutter {
 
     if (options.platformChecker.hasNativeIntegration) {
       integrations.add(NativeAppStartIntegration(
-        native,
+        SentryNative(),
         () {
           return SchedulerBinding.instance;
         },
