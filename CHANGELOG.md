@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 6.5.0-alpha.1
 
 * Feat: Mobile Vitals - Native App Start (#749)
 * Feat: Mobile Vitals - Native Frames (#772)
