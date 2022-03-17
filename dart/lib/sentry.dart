@@ -27,3 +27,4 @@ export 'src/sentry_attachment/sentry_attachment.dart';
 export 'src/sentry_user_feedback.dart';
 // tracing
 export 'src/tracing.dart';
+export 'src/sentry_measurement.dart';
