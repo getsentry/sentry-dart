@@ -1,8 +1,10 @@
+import 'package:flutter/services.dart';
 import 'package:mockito/annotations.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/platform/platform.dart';
 
 import 'package:meta/meta.dart';
+import 'package:sentry_flutter/src/sentry_native_channel.dart';
 
 import 'mocks.mocks.dart';
 import 'no_such_method_provider.dart';
@@ -19,6 +21,7 @@ ISentrySpan startTransactionShim(
   bool? waitForChildren,
   Duration? autoFinishAfter,
   bool? trimEnd,
+  Function(ISentrySpan)? onFinish,
   Map<String, dynamic>? customSamplingContext,
 }) {
   return MockNoOpSentrySpan();
@@ -26,7 +29,8 @@ ISentrySpan startTransactionShim(
 
 @GenerateMocks([
   Transport,
-  NoOpSentrySpan
+  NoOpSentrySpan,
+  MethodChannel,
 ], customMocks: [
   MockSpec<Hub>(fallbackGenerators: {#startTransaction: startTransactionShim})
 ])
@@ -135,4 +139,29 @@ class NoOpHub with NoSuchMethodProvider implements Hub {
 
   @override
   bool get isEnabled => false;
+}
+
+class MockNativeChannel implements SentryNativeChannel {
+  NativeAppStart? nativeAppStart;
+  NativeFrames? nativeFrames;
+  SentryId? id;
+
+  int numberOfBeginNativeFramesCalls = 0;
+  int numberOfEndNativeFramesCalls = 0;
+
+  @override
+  Future<NativeAppStart?> fetchNativeAppStart() async => nativeAppStart;
+
+  @override
+  Future<void> beginNativeFrames() async {
+    numberOfBeginNativeFramesCalls += 1;
+    return null;
+  }
+
+  @override
+  Future<NativeFrames?> endNativeFrames(SentryId id) async {
+    this.id = id;
+    numberOfEndNativeFramesCalls += 1;
+    return nativeFrames;
+  }
 }

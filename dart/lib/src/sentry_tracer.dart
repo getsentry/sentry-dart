@@ -15,7 +15,10 @@ class SentryTracer extends ISentrySpan {
   late final SentrySpan _rootSpan;
   final List<SentrySpan> _children = [];
   final Map<String, dynamic> _extra = {};
+  final List<SentryMeasurement> _measurements = [];
+
   Timer? _autoFinishAfterTimer;
+  Function(SentryTracer)? _onFinish;
   var _finishStatus = SentryTracerFinishStatus.notFinishing();
   late final bool _trimEnd;
 
@@ -32,11 +35,15 @@ class SentryTracer extends ISentrySpan {
   /// [SentryNavigatorObserver] idle transactions, where we finish the
   /// transaction after a given "idle time" and we don't want this "idle time"
   /// to be part of the transaction.
-  SentryTracer(SentryTransactionContext transactionContext, this._hub,
-      {DateTime? startTimestamp,
-      bool waitForChildren = false,
-      Duration? autoFinishAfter,
-      bool trimEnd = false}) {
+  SentryTracer(
+    SentryTransactionContext transactionContext,
+    this._hub, {
+    DateTime? startTimestamp,
+    bool waitForChildren = false,
+    Duration? autoFinishAfter,
+    bool trimEnd = false,
+    Function(SentryTracer)? onFinish,
+  }) {
     _rootSpan = SentrySpan(
       this,
       transactionContext,
@@ -52,6 +59,7 @@ class SentryTracer extends ISentrySpan {
     }
     name = transactionContext.name;
     _trimEnd = trimEnd;
+    _onFinish = onFinish;
   }
 
   @override
@@ -91,6 +99,7 @@ class SentryTracer extends ISentrySpan {
       }
 
       await _rootSpan.finish(endTimestamp: _rootEndTimestamp);
+      await _onFinish?.call(this);
 
       // remove from scope
       _hub.configureScope((scope) {
@@ -100,6 +109,7 @@ class SentryTracer extends ISentrySpan {
       });
 
       final transaction = SentryTransaction(this);
+      transaction.measurements.addAll(_measurements);
       await _hub.captureTransaction(transaction);
     }
   }
@@ -238,6 +248,10 @@ class SentryTracer extends ISentrySpan {
 
   @override
   SentryTraceHeader toSentryTrace() => _rootSpan.toSentryTrace();
+
+  void addMeasurements(List<SentryMeasurement> measurements) {
+    _measurements.addAll(measurements);
+  }
 
   bool _haveAllChildrenFinished() {
     for (final child in children) {
