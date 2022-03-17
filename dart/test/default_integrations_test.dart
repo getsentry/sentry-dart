@@ -239,6 +239,7 @@ class PrintRecursionMockHub extends MockHub {
     bool? waitForChildren,
     Duration? autoFinishAfter,
     bool? trimEnd,
+    OnTransactionFinish? onFinish,
   }) {
     return NoOpSentrySpan();
   }

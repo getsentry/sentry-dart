@@ -1,45 +1,32 @@
 import 'dart:async';
-import 'package:meta/meta.dart';
 
 import 'package:sentry/sentry.dart';
 
-import '../sentry_native_state.dart';
-import '../sentry_native_wrapper.dart';
+import '../sentry_native.dart';
+import '../sentry_native_channel.dart';
 
 /// EventProcessor that enriches [SentryTransaction] objects with app start
 /// measurement.
-@internal
 class NativeAppStartEventProcessor extends EventProcessor {
   NativeAppStartEventProcessor(
-    this._nativeWrapper,
-    this._nativeState,
+    this._native,
   );
 
-  final SentryNativeWrapper _nativeWrapper;
-  final SentryNativeState _nativeState;
-
-  var _didFetchAppStart = false;
+  final SentryNative _native;
 
   @override
   FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {
-    final appStartEnd = _nativeState.appStartEnd;
+    final appStartEnd = _native.appStartEnd;
 
     if (appStartEnd != null &&
         event is SentryTransaction &&
-        !_didFetchAppStart) {
-      _didFetchAppStart = true;
-
-      final nativeAppStart = await _nativeWrapper.fetchNativeAppStart();
-      if (nativeAppStart == null) {
-        return event;
-      } else {
-        final measurements = event.measurements ?? [];
-        measurements.add(nativeAppStart.toMeasurement(appStartEnd));
-        return event.copyWith(measurements: measurements);
+        !_native.didFetchAppStart) {
+      final nativeAppStart = await _native.fetchNativeAppStart();
+      if (nativeAppStart != null) {
+        event.measurements.add(nativeAppStart.toMeasurement(appStartEnd));
       }
-    } else {
-      return event;
     }
+    return event;
   }
 }
 

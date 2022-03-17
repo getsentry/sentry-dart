@@ -24,8 +24,9 @@ void main() {
       bindToScope: anyNamed('bindToScope'),
       waitForChildren: anyNamed('waitForChildren'),
       autoFinishAfter: anyNamed('autoFinishAfter'),
-      customSamplingContext: anyNamed('customSamplingContext'),
       trimEnd: anyNamed('trimEnd'),
+      onFinish: anyNamed('onFinish'),
+      customSamplingContext: anyNamed('customSamplingContext'),
     )).thenReturn(thenReturnSpan);
   }
 
@@ -39,7 +40,9 @@ void main() {
 
       final hub = _MockHub();
       final span = MockNoOpSentrySpan();
+      when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
       _whenAnyStart(hub, span);
+
       final sut = fixture.getSut(
         hub: hub,
         autoFinishAfter: Duration(seconds: 5),
@@ -53,6 +56,7 @@ void main() {
         waitForChildren: true,
         autoFinishAfter: Duration(seconds: 5),
         trimEnd: true,
+        onFinish: anyNamed('onFinish'),
       ));
 
       hub.configureScope((scope) {
@@ -65,7 +69,9 @@ void main() {
 
       final hub = _MockHub();
       final span = MockNoOpSentrySpan();
+      when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
       _whenAnyStart(hub, span);
+
       final sut = fixture.getSut(hub: hub);
 
       sut.didPush(currentRoute, null);
@@ -76,6 +82,7 @@ void main() {
         waitForChildren: true,
         autoFinishAfter: Duration(seconds: 3),
         trimEnd: true,
+        onFinish: anyNamed('onFinish'),
       ));
 
       hub.configureScope((scope) {
@@ -88,7 +95,9 @@ void main() {
 
       final hub = _MockHub();
       final span = MockNoOpSentrySpan();
+      when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
       _whenAnyStart(hub, span);
+
       final sut = fixture.getSut(hub: hub, enableAutoTransactions: false);
 
       sut.didPush(currentRoute, null);
@@ -99,6 +108,7 @@ void main() {
         waitForChildren: true,
         autoFinishAfter: Duration(seconds: 3),
         trimEnd: true,
+        onFinish: anyNamed('onFinish'),
       ));
 
       hub.configureScope((scope) {
@@ -111,8 +121,11 @@ void main() {
 
       final hub = _MockHub();
       hub.scope.span = NoOpSentrySpan();
+
       final span = MockNoOpSentrySpan();
+      when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
       _whenAnyStart(hub, span);
+
       final sut = fixture.getSut(hub: hub);
 
       sut.didPush(currentRoute, null);
@@ -123,6 +136,7 @@ void main() {
         waitForChildren: true,
         autoFinishAfter: Duration(seconds: 3),
         trimEnd: true,
+        onFinish: anyNamed('onFinish'),
       ));
 
       hub.configureScope((scope) {
@@ -136,8 +150,10 @@ void main() {
 
       final hub = _MockHub();
       final span = MockNoOpSentrySpan();
+      when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
       when(span.status).thenReturn(null);
       _whenAnyStart(hub, span);
+
       final sut = fixture.getSut(hub: hub);
 
       sut.didPush(firstRoute, null);
@@ -152,6 +168,7 @@ void main() {
 
       final hub = _MockHub();
       final span = MockNoOpSentrySpan();
+      when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
       when(span.status).thenReturn(null);
       _whenAnyStart(hub, span);
 
@@ -170,6 +187,7 @@ void main() {
 
       final hub = _MockHub();
       final previousSpan = MockNoOpSentrySpan();
+      when(previousSpan.context).thenReturn(SentrySpanContext(operation: 'op'));
       when(previousSpan.status).thenReturn(null);
       _whenAnyStart(hub, previousSpan, name: 'Previous Route');
 
@@ -183,6 +201,7 @@ void main() {
         waitForChildren: true,
         autoFinishAfter: Duration(seconds: 3),
         trimEnd: true,
+        onFinish: anyNamed('onFinish'),
       ));
 
       hub.configureScope((scope) {
@@ -196,11 +215,16 @@ void main() {
 
       final hub = _MockHub();
       final firstSpan = MockNoOpSentrySpan();
+      when(firstSpan.context).thenReturn(SentrySpanContext(operation: 'op'));
       when(firstSpan.status).thenReturn(null);
+
       final secondSpan = MockNoOpSentrySpan();
+      when(secondSpan.context).thenReturn(SentrySpanContext(operation: 'op'));
       when(secondSpan.status).thenReturn(null);
+
       _whenAnyStart(hub, firstSpan, name: 'First Route');
       _whenAnyStart(hub, secondSpan, name: 'Second Route');
+
       final sut = fixture.getSut(hub: hub);
 
       sut.didPush(firstRoute, null);
@@ -219,6 +243,7 @@ void main() {
 
       final hub = _MockHub();
       final span = MockNoOpSentrySpan();
+      when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
       when(span.status).thenReturn(null);
       _whenAnyStart(hub, span);
 
@@ -234,7 +259,9 @@ void main() {
 
       final hub = _MockHub();
       final span = MockNoOpSentrySpan();
+      when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
       _whenAnyStart(hub, span);
+
       final sut = fixture.getSut(hub: hub);
 
       sut.didPush(rootRoute, null);
@@ -245,6 +272,7 @@ void main() {
         waitForChildren: true,
         autoFinishAfter: Duration(seconds: 3),
         trimEnd: true,
+        onFinish: anyNamed('onFinish'),
       ));
 
       hub.configureScope((scope) {
@@ -606,6 +634,10 @@ class Fixture {
       routeNameExtractor: routeNameExtractor,
       additionalInfoProvider: additionalInfoProvider,
     );
+  }
+
+  SentrySpanContext mockContext() {
+    return SentrySpanContext(operation: 'op');
   }
 }
 

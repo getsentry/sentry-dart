@@ -4,18 +4,15 @@ import 'package:flutter/scheduler.dart';
 import 'package:sentry/sentry.dart';
 
 import '../sentry_flutter_options.dart';
-import '../sentry_native_state.dart';
-import '../sentry_native_wrapper.dart';
+import '../sentry_native.dart';
 import '../event_processor/native_app_start_event_processor.dart';
 
 /// Integration which handles communication with native frameworks in order to
-/// enrich [SentryTransaction] objects with data for mobile vitals.
-class MobileVitalsIntegration extends Integration<SentryFlutterOptions> {
-  MobileVitalsIntegration(
-      this._nativeWrapper, this._nativeState, this._schedulerBindingProvider);
+/// enrich [SentryTransaction] objects with app start data for mobile vitals.
+class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
+  NativeAppStartIntegration(this._native, this._schedulerBindingProvider);
 
-  final SentryNativeWrapper _nativeWrapper;
-  final SentryNativeState _nativeState;
+  final SentryNative _native;
   final SchedulerBindingProvider _schedulerBindingProvider;
 
   @override
@@ -27,15 +24,14 @@ class MobileVitalsIntegration extends Integration<SentryFlutterOptions> {
             'Scheduler binding is null. Can\'t auto detect app start time.');
       } else {
         schedulerBinding.addPostFrameCallback((timeStamp) {
-          _nativeState.appStartEnd = DateTime.now().toUtc();
+          _native.appStartEnd = DateTime.now().toUtc();
         });
       }
     }
 
-    options.addEventProcessor(
-        NativeAppStartEventProcessor(_nativeWrapper, _nativeState));
+    options.addEventProcessor(NativeAppStartEventProcessor(_native));
 
-    options.sdk.addIntegration('mobileVitalsIntegration');
+    options.sdk.addIntegration('nativeAppStartIntegration');
   }
 }
 

@@ -7,6 +7,7 @@ import FlutterMacOS
 import AppKit
 #endif
 
+// swiftlint:disable:next type_body_length
 public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
     private var sentryOptions: Options?
@@ -69,6 +70,12 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         case "fetchNativeAppStart":
             fetchNativeAppStart(result: result)
 
+        case "beginNativeFrames":
+            beginNativeFrames(result: result)
+
+        case "endNativeFrames":
+            endNativeFrames(result: result)
+
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -106,10 +113,15 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             return
         }
 
-        PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
-
         SentrySDK.start { options in
             self.updateOptions(arguments: arguments, options: options)
+
+            if arguments["enableAutoPerformanceTracking"] as? Bool ?? false {
+                PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
+                #if os(iOS) || targetEnvironment(macCatalyst)
+                PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode = true
+                #endif
+            }
 
             self.sentryOptions = options
 
@@ -317,5 +329,59 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         ]
 
         result(item)
+    }
+
+    private var totalFrames: UInt = 0
+    private var frozenFrames: UInt = 0
+    private var slowFrames: UInt = 0
+
+    private func beginNativeFrames(result: @escaping FlutterResult) {
+      #if os(iOS) || targetEnvironment(macCatalyst)
+      guard PrivateSentrySDKOnly.isFramesTrackingRunning else {
+        print("Native frames tracking not running.")
+        result(nil)
+        return
+      }
+
+      let currentFrames = PrivateSentrySDKOnly.currentScreenFrames
+      totalFrames = currentFrames.total
+      frozenFrames = currentFrames.frozen
+      slowFrames = currentFrames.slow
+
+      result(nil)
+      #else
+      result(nil)
+      #endif
+    }
+
+    private func endNativeFrames(result: @escaping FlutterResult) {
+      #if os(iOS) || targetEnvironment(macCatalyst)
+      guard PrivateSentrySDKOnly.isFramesTrackingRunning else {
+        print("Native frames tracking not running.")
+        result(nil)
+        return
+      }
+
+      let currentFrames = PrivateSentrySDKOnly.currentScreenFrames
+
+      let total = currentFrames.total - totalFrames
+      let frozen = currentFrames.frozen - frozenFrames
+      let slow = currentFrames.slow - slowFrames
+
+      if total <= 0 && frozen <= 0 && slow <= 0 {
+        result(nil)
+        return
+      }
+
+      let item: [String: Any] = [
+          "totalFrames": total,
+          "frozenFrames": frozen,
+          "slowFrames": slow
+      ]
+
+      result(item)
+      #else
+      result(nil)
+      #endif
     }
 }

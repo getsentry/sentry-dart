@@ -1,7 +1,12 @@
 import 'dart:async';
 
+// ignore: implementation_imports
+import 'package:sentry/src/sentry_tracer.dart';
 import 'package:flutter/widgets.dart';
+
 import '../../sentry_flutter.dart';
+import '../sentry_native.dart';
+import '../sentry_native_channel.dart';
 
 /// This key must be used so that the web interface displays the events nicely
 /// See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
@@ -66,7 +71,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         _autoFinishAfter = autoFinishAfter,
         _setRouteNameAsTransaction = setRouteNameAsTransaction,
         _routeNameExtractor = routeNameExtractor,
-        _additionalInfoProvider = additionalInfoProvider;
+        _additionalInfoProvider = additionalInfoProvider,
+        _native = SentryNative();
 
   final Hub _hub;
   final bool _enableAutoTransactions;
@@ -74,6 +80,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final bool _setRouteNameAsTransaction;
   final RouteNameExtractor? _routeNameExtractor;
   final AdditionalInfoExtractor? _additionalInfoProvider;
+  final SentryNative _native;
 
   ISentrySpan? _transaction;
 
@@ -146,7 +153,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
   }
 
-  void _startTransaction(String? name, Object? arguments) {
+  Future<void> _startTransaction(String? name, Object? arguments) async {
     if (!_enableAutoTransactions) {
       return;
     }
@@ -163,6 +170,16 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       waitForChildren: true,
       autoFinishAfter: _autoFinishAfter,
       trimEnd: true,
+      onFinish: (transaction) async {
+        // ignore: invalid_use_of_internal_member
+        if (transaction is SentryTracer) {
+          final nativeFrames = await _native
+              .endNativeFramesCollection(transaction.context.traceId);
+          if (nativeFrames != null) {
+            transaction.addMeasurements(nativeFrames.toMeasurements());
+          }
+        }
+      },
     );
 
     if (arguments != null) {
@@ -172,6 +189,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     _hub.configureScope((scope) {
       scope.span ??= _transaction;
     });
+
+    await _native.beginNativeFramesCollection();
   }
 
   Future<void> _finishTransaction() async {
@@ -239,5 +258,15 @@ class RouteObserverBreadcrumb extends Breadcrumb {
           MapEntry<String, String>(key, value.toString()));
     }
     return args.toString();
+  }
+}
+
+extension NativeFramesMeasurement on NativeFrames {
+  List<SentryMeasurement> toMeasurements() {
+    return [
+      SentryMeasurement.totalFrames(totalFrames),
+      SentryMeasurement.slowFrames(slowFrames),
+      SentryMeasurement.frozenFrames(frozenFrames),
+    ];
   }
 }

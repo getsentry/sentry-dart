@@ -5,12 +5,12 @@ import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
-import 'sentry_native_state.dart';
-import 'sentry_native_wrapper.dart';
+import 'sentry_native.dart';
+import 'sentry_native_channel.dart';
 
 import 'flutter_enricher_event_processor.dart';
 import 'integrations/debug_print_integration.dart';
-import 'integrations/mobile_vitals_integration.dart';
+import 'integrations/native_app_start_integration.dart';
 import 'sentry_flutter_options.dart';
 
 import 'default_integrations.dart';
@@ -40,14 +40,14 @@ mixin SentryFlutter {
       flutterOptions.platformChecker = platformChecker;
     }
 
-    final nativeWrapper = SentryNativeWrapper(channel, flutterOptions);
+    final nativeChannel = SentryNativeChannel(channel, flutterOptions);
+    final native = SentryNative();
+    native.setNativeChannel(nativeChannel);
 
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
     final defaultIntegrations = _createDefaultIntegrations(
       packageLoader,
-      nativeWrapper,
-      SentryNativeState(),
       channel,
       flutterOptions,
     );
@@ -87,8 +87,6 @@ mixin SentryFlutter {
   /// https://medium.com/flutter-community/error-handling-in-flutter-98fce88a34f0
   static List<Integration> _createDefaultIntegrations(
     PackageLoader packageLoader,
-    SentryNativeWrapper nativeWrapper,
-    SentryNativeState nativeState,
     MethodChannel channel,
     SentryFlutterOptions options,
   ) {
@@ -130,9 +128,8 @@ mixin SentryFlutter {
     integrations.add(LoadReleaseIntegration(packageLoader));
 
     if (options.platformChecker.hasNativeIntegration) {
-      integrations.add(MobileVitalsIntegration(
-        nativeWrapper,
-        nativeState,
+      integrations.add(NativeAppStartIntegration(
+        SentryNative(),
         () {
           return SchedulerBinding.instance;
         },
@@ -144,7 +141,7 @@ mixin SentryFlutter {
   /// Manually set when your app finished startup. Make sure to set
   /// [SentryFlutterOptions.autoAppStart] to false on init.
   static void setAppStartEnd(DateTime appStartEnd) {
-    SentryNativeState().appStartEnd = appStartEnd;
+    SentryNative().appStartEnd = appStartEnd;
   }
 
   static void _setSdk(SentryFlutterOptions options) {
