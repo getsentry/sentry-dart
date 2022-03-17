@@ -1,6 +1,6 @@
 # Changelog
 
-# Unreleased
+## Unreleased
 
 * Feat: Mobile Vitals - Native App Start (#749)
 * Feat: Mobile Vitals - Native Frames (#772)

@@ -115,8 +115,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         SentrySDK.start { options in
             self.updateOptions(arguments: arguments, options: options)
 
-            if let enableAutoPerformanceTracking = arguments["enableAutoPerformanceTracking"] as? Bool,
-               enableAutoPerformanceTracking {
+            if arguments["enableAutoPerformanceTracking"] as? Bool ?? false {
                 PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
                 #if os(iOS) || targetEnvironment(macCatalyst)
                 PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode = true
