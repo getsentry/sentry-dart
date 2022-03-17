@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:mockito/annotations.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/platform/platform.dart';
@@ -28,7 +29,8 @@ ISentrySpan startTransactionShim(
 
 @GenerateMocks([
   Transport,
-  NoOpSentrySpan
+  NoOpSentrySpan,
+  MethodChannel,
 ], customMocks: [
   MockSpec<Hub>(fallbackGenerators: {#startTransaction: startTransactionShim})
 ])
