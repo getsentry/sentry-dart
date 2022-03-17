@@ -27,6 +27,7 @@ import java.lang.ref.WeakReference
 import java.util.Locale
 import java.util.UUID
 
+@file:Suppress("TooManyFunctions")
 class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   private lateinit var channel: MethodChannel
   private lateinit var context: Context
