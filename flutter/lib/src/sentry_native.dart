@@ -42,7 +42,7 @@ class SentryNative {
 
   // NativeFrames
 
-  Future<void> beginNativeFramesCollection(SentryId traceId) async {
+  Future<void> beginNativeFramesCollection() async {
     await _nativeChannel?.beginNativeFrames();
   }
 

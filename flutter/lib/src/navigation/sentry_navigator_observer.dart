@@ -190,10 +190,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       scope.span ??= _transaction;
     });
 
-    final traceId = _transaction?.context.traceId;
-    if (traceId != null) {
-      await _native.beginNativeFramesCollection(traceId);
-    }
+    await _native.beginNativeFramesCollection();
   }
 
   Future<void> _finishTransaction() async {
