@@ -4,6 +4,7 @@
 
 * Feat: Mobile Vitals - Native App Start (#749)
 * Feat: Mobile Vitals - Native Frames (#772)
+
 ## 6.4.0
 
 ### Various fixes & improvements
