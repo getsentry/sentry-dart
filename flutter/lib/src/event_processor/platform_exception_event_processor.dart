@@ -134,18 +134,6 @@ extension on JvmException {
 
 extension on JvmFrame {
   SentryStackFrame toSentryStackFrame(String nativePackageName) {
-    String? language;
-    if (fileName?.endsWith('java') ?? false) {
-      language = 'Java';
-    } else if (fileName?.endsWith('kt') ?? false) {
-      language = 'Kotlin';
-    }
-
-    String? absPath;
-    if (package != null && fileName != null) {
-      absPath = '$package.$fileName';
-    }
-
     final skippedFrames = this.skippedFrames;
     final framesOmitted = skippedFrames == null ? null : [skippedFrames];
 
@@ -153,11 +141,11 @@ extension on JvmFrame {
       lineNo: lineNumber,
       native: isNativeMethod,
       fileName: fileName,
-      absPath: absPath,
+      absPath: fileName,
       inApp: package?.startsWith(nativePackageName),
       framesOmitted: framesOmitted,
       function: method,
-      platform: language,
+      platform: 'java',
       module: package,
     );
   }
