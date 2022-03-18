@@ -46,6 +46,34 @@ void main() {
       );
       expect(platformException.stackTrace!.frames.length, 18);
     });
+
+    test('does nothing if no PlatformException is there', () async {
+      final exception = fixture.options.exceptionFactory
+          .getSentryException(testPlatformException);
+
+      final event = SentryEvent(
+        exceptions: [exception],
+        throwable: null,
+      );
+
+      final platformExceptionEvent = await fixture.processor.apply(event);
+
+      expect(event, platformExceptionEvent);
+    });
+
+    test('does nothing if PlatformException has no stackTrace', () async {
+      final exception = fixture.options.exceptionFactory
+          .getSentryException(emptyPlatformException);
+
+      final event = SentryEvent(
+        exceptions: [exception],
+        throwable: emptyPlatformException,
+      );
+
+      final platformExceptionEvent = await fixture.processor.apply(event);
+
+      expect(event, platformExceptionEvent);
+    });
   });
 }
 
@@ -81,4 +109,12 @@ final testPlatformException = PlatformException(
 	at java.lang.reflect.Method.invoke(Native Method)
 	at com.android.internal.os.RuntimeInit\$MethodAndArgsCaller.run(RuntimeInit.java:556)
 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1037)""",
+);
+
+final emptyPlatformException = PlatformException(
+  code: 'error',
+  details:
+      "Unsupported value: '[Ljava.lang.StackTraceElement;@fa902f1' of type 'class [Ljava.lang.StackTraceElement;'",
+  message: null,
+  stacktrace: null,
 );
