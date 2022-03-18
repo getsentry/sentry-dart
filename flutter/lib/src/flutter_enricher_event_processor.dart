@@ -24,7 +24,7 @@ class FlutterEnricherEventProcessor extends EventProcessor {
   }) {
     return FlutterEnricherEventProcessor(
       options,
-      () => BindingUtils.getWidgetsBindingInstance(),
+      BindingUtils.getWidgetsBindingInstance,
     );
   }
 
