@@ -5,9 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
+import 'event_processor/platform_exception_event_processor.dart';
 import 'sentry_native.dart';
 import 'sentry_native_channel.dart';
-import 'platform_exception_event_processor.dart';
 
 import 'flutter_enricher_event_processor.dart';
 import 'integrations/debug_print_integration.dart';
@@ -80,7 +80,10 @@ mixin SentryFlutter {
     var flutterEventProcessor =
         FlutterEnricherEventProcessor.simple(options: options);
     options.addEventProcessor(flutterEventProcessor);
-    options.addEventProcessor(PlatformExceptionEventProcessor(options));
+
+    if (options.platformChecker.platform.isAndroid) {
+      options.addEventProcessor(AndroidPlatformExceptionEventProcessor());
+    }
 
     _setSdk(options);
   }
