@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../sentry_flutter.dart';
+import 'binding_utils.dart';
 
 /// This is a `WidgetsBindingObserver` which can observe some events of a
 /// Flutter application.
@@ -60,7 +61,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     if (!_options.enableWindowMetricBreadcrumbs) {
       return;
     }
-    final window = WidgetsBinding.instance?.window;
+    final window = BindingUtils.getWidgetsBindingInstance()?.window;
     _hub.addBreadcrumb(Breadcrumb(
       message: 'Screen size changed',
       category: 'device.screen',
@@ -80,7 +81,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     if (!_options.enableBrightnessChangeBreadcrumbs) {
       return;
     }
-    final brightness = WidgetsBinding.instance?.window.platformBrightness;
+    final brightness = BindingUtils.getWidgetsBindingInstance()?.window.platformBrightness;
     final brightnessDescription =
         brightness == Brightness.dark ? 'dark' : 'light';
 
@@ -101,7 +102,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     if (!_options.enableTextScaleChangeBreadcrumbs) {
       return;
     }
-    final newTextScaleFactor = WidgetsBinding.instance?.window.textScaleFactor;
+    final newTextScaleFactor = BindingUtils.getWidgetsBindingInstance()?.window.textScaleFactor;
     _hub.addBreadcrumb(Breadcrumb(
       message: 'Text scale factor changed to $newTextScaleFactor.',
       type: 'system',
