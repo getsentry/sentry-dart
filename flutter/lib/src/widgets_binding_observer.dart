@@ -81,7 +81,8 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     if (!_options.enableBrightnessChangeBreadcrumbs) {
       return;
     }
-    final brightness = BindingUtils.getWidgetsBindingInstance()?.window.platformBrightness;
+    final brightness =
+        BindingUtils.getWidgetsBindingInstance()?.window.platformBrightness;
     final brightnessDescription =
         brightness == Brightness.dark ? 'dark' : 'light';
 
@@ -102,7 +103,8 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     if (!_options.enableTextScaleChangeBreadcrumbs) {
       return;
     }
-    final newTextScaleFactor = BindingUtils.getWidgetsBindingInstance()?.window.textScaleFactor;
+    final newTextScaleFactor =
+        BindingUtils.getWidgetsBindingInstance()?.window.textScaleFactor;
     _hub.addBreadcrumb(Breadcrumb(
       message: 'Text scale factor changed to $newTextScaleFactor.',
       type: 'system',
