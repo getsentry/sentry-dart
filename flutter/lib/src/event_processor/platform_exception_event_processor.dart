@@ -8,6 +8,10 @@ import 'package:stack_trace_parser/stack_trace_parser.dart';
 class AndroidPlatformExceptionEventProcessor implements EventProcessor {
   const AndroidPlatformExceptionEventProcessor();
 
+  // Because of obfuscation, we need to dynamically get the name
+  static final platformExceptionType =
+      (PlatformException).runtimeType.toString();
+
   @override
   FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {
     final plaformException = event.throwable;
@@ -36,15 +40,51 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
     String nativeStackTrace,
     String packageName,
   ) {
-    final e =
+    final jvmException =
         _JvmExceptionFactory(packageName).fromJvmStackTrace(nativeStackTrace);
 
     return event.copyWith(
       exceptions: [
-        ...?event.exceptions,
-        ...e,
+        ...?_removePlatformExceptionStackTraceFromValue(
+            event.exceptions, exception),
+        ...jvmException,
       ],
     );
+  }
+
+  /// Remove the StackTrace from [dioError] so the message on Sentry looks
+  /// much better.
+  List<SentryException>? _removePlatformExceptionStackTraceFromValue(
+    List<SentryException>? exceptions,
+    PlatformException platformException,
+  ) {
+    if (exceptions == null || exceptions.isEmpty) {
+      return null;
+    }
+
+    var platformExceptionSentryException = exceptions
+        .where((element) => element.type == platformExceptionType)
+        .first;
+
+    final exceptionIndex = exceptions.indexOf(platformExceptionSentryException);
+    exceptions.remove(platformExceptionSentryException);
+
+    // Remove stacktrace, so that the PlatformException value doesn't
+    // include the chained exception.
+    platformException = PlatformException(
+      code: platformException.code,
+      details: platformException.details,
+      message: platformException.message,
+    );
+
+    platformExceptionSentryException =
+        platformExceptionSentryException.copyWith(
+      value: platformException.toString(),
+    );
+
+    exceptions.insert(exceptionIndex, platformExceptionSentryException);
+
+    return exceptions;
   }
 }
 
@@ -69,11 +109,20 @@ class _JvmExceptionFactory {
 
 extension on JvmException {
   SentryException toSentryException(String nativePackageName) {
+    final typeParts = type?.split('.');
+    String? exceptionType;
+    String? module;
+    if (typeParts != null) {
+      if (typeParts.length > 1) {
+        exceptionType = typeParts.last;
+      }
+      typeParts.remove(typeParts.last);
+      module = typeParts.join('.');
+    }
     return SentryException(
-      type: type,
       value: description,
-      // thread is an int, not a string
-      // threadId: exception.thread,
+      type: exceptionType,
+      module: module,
       stackTrace: SentryStackTrace(
         frames: stackTrace.map((e) {
           return e.toSentryStackFrame(nativePackageName);
