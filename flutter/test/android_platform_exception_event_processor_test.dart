@@ -39,7 +39,7 @@ void main() {
 
       final platformException = exceptions[1];
 
-      expect(platformException.type, 'java.lang.IllegalArgumentException');
+      expect(platformException.type, 'IllegalArgumentException');
       expect(
         platformException.value,
         "Unsupported value: '[Ljava.lang.StackTraceElement;@ba6feed' of type 'class [Ljava.lang.StackTraceElement;'",

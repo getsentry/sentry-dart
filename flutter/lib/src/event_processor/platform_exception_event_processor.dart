@@ -9,11 +9,10 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
   const AndroidPlatformExceptionEventProcessor();
 
   // Because of obfuscation, we need to dynamically get the name
-  static final platformExceptionType =
-      (PlatformException).runtimeType.toString();
+  static final platformExceptionType = (PlatformException).toString();
 
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {
+  FutureOr<SentryEvent?> apply(SentryEvent event, {dynamic hint}) async {
     final plaformException = event.throwable;
     if (!(plaformException is PlatformException)) {
       return event;
@@ -24,14 +23,18 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
       return event;
     }
 
-    // PackageInfo has an internal cache, so no need to do it ourselves.
-    final packageInfo = await PackageInfo.fromPlatform();
-    return _processPlatformException(
-      event,
-      plaformException,
-      nativeStackTrace,
-      packageInfo.packageName,
-    );
+    try {
+      // PackageInfo has an internal cache, so no need to do it ourselves.
+      final packageInfo = await PackageInfo.fromPlatform();
+      return _processPlatformException(
+        event,
+        plaformException,
+        nativeStackTrace,
+        packageInfo.packageName,
+      );
+    } catch (_) {
+      return event;
+    }
   }
 
   SentryEvent _processPlatformException(
@@ -43,10 +46,14 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
     final jvmException =
         _JvmExceptionFactory(packageName).fromJvmStackTrace(nativeStackTrace);
 
+    final exceptions = _removePlatformExceptionStackTraceFromValue(
+      event.exceptions,
+      exception,
+    );
+
     return event.copyWith(
       exceptions: [
-        ...?_removePlatformExceptionStackTraceFromValue(
-            event.exceptions, exception),
+        ...?exceptions,
         ...jvmException,
       ],
     );
@@ -61,13 +68,14 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
     if (exceptions == null || exceptions.isEmpty) {
       return null;
     }
+    final exceptionCopy = List<SentryException>.from(exceptions);
 
-    var platformExceptionSentryException = exceptions
+    var sentryException = exceptionCopy
         .where((element) => element.type == platformExceptionType)
         .first;
 
-    final exceptionIndex = exceptions.indexOf(platformExceptionSentryException);
-    exceptions.remove(platformExceptionSentryException);
+    final exceptionIndex = exceptionCopy.indexOf(sentryException);
+    exceptionCopy.remove(sentryException);
 
     // Remove stacktrace, so that the PlatformException value doesn't
     // include the chained exception.
@@ -77,14 +85,13 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
       message: platformException.message,
     );
 
-    platformExceptionSentryException =
-        platformExceptionSentryException.copyWith(
+    sentryException = sentryException.copyWith(
       value: platformException.toString(),
     );
 
-    exceptions.insert(exceptionIndex, platformExceptionSentryException);
+    exceptionCopy.insert(exceptionIndex, sentryException);
 
-    return exceptions;
+    return exceptionCopy;
   }
 }
 
@@ -124,8 +131,8 @@ extension on JvmException {
       type: exceptionType,
       module: module,
       stackTrace: SentryStackTrace(
-        frames: stackTrace.map((e) {
-          return e.toSentryStackFrame(nativePackageName);
+        frames: stackTrace.asMap().entries.map((entry) {
+          return entry.value.toSentryStackFrame(entry.key, nativePackageName);
         }).toList(growable: false),
       ),
     );
@@ -133,15 +140,17 @@ extension on JvmException {
 }
 
 extension on JvmFrame {
-  SentryStackFrame toSentryStackFrame(String nativePackageName) {
+  SentryStackFrame toSentryStackFrame(int index, String nativePackageName) {
     final skippedFrames = this.skippedFrames;
-    final framesOmitted = skippedFrames == null ? null : [skippedFrames];
+    final framesOmitted =
+        skippedFrames == null ? null : [index, index + skippedFrames];
 
+    final absPath = '$package.$declaringClass';
     return SentryStackFrame(
       lineNo: lineNumber,
       native: isNativeMethod,
       fileName: fileName,
-      absPath: fileName,
+      absPath: absPath,
       inApp: package?.startsWith(nativePackageName),
       framesOmitted: framesOmitted,
       function: method,
