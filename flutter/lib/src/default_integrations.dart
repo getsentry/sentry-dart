@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
 
+import 'binding_utils.dart';
 import 'sentry_flutter_options.dart';
 import 'widgets_binding_observer.dart';
 
@@ -331,7 +332,7 @@ class WidgetsBindingIntegration extends Integration<SentryFlutterOptions> {
     // We don't need to call `WidgetsFlutterBinding.ensureInitialized()`
     // because `WidgetsFlutterBindingIntegration` already calls it.
     // If the instance is not created, we skip it to keep going.
-    final instance = WidgetsBinding.instance;
+    final instance = BindingUtils.getWidgetsBindingInstance();
     if (instance != null) {
       instance.addObserver(_observer!);
       options.sdk.addIntegration('widgetsBindingIntegration');
@@ -345,7 +346,7 @@ class WidgetsBindingIntegration extends Integration<SentryFlutterOptions> {
 
   @override
   FutureOr<void> close() {
-    final instance = WidgetsBinding.instance;
+    final instance = BindingUtils.getWidgetsBindingInstance();
     if (instance != null && _observer != null) {
       instance.removeObserver(_observer!);
     }
