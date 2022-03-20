@@ -12,32 +12,8 @@ import 'breadcrumb_client_adapter.dart';
 ///
 /// It records requests as breadcrumbs. This is on by default.
 ///
-/// It captures requests which throws an exception. This is off by
-/// default, set [captureFailedRequests] to `true` to enable it. This can be for
-/// example for the following reasons:
-/// - In an browser environment this can be requests which fail because of CORS.
-/// - In an mobile or desktop application this can be requests which failed
-///   because the connection was interrupted.
-///
-/// Additionally you can configure specific HTTP response codes to be considered
-/// as a failed request. This is off by default. Enable it by using it like
-/// shown in the following example:
-/// The status codes 400 to 404 and 500 are considered a failed request.
-///
-/// ```dart
-/// import 'package:sentry/sentry.dart';
-///
-/// dio.httpClientAdapter = SentryHttpClientAdapter(
-///   failedRequestStatusCodes: [
-///     SentryStatusCode.range(400, 404),
-///     SentryStatusCode(500),
-///   ],
-/// );
-/// ```
-///
 /// It starts and finishes a Span if there's a transaction bound to the Scope
-/// through the [TracingClientAdapter] client, it's disabled by default.
-/// Set [networkTracing] to `true` to enable it.
+/// through the [TracingClientAdapter] client, it's on by default.
 ///
 /// Remarks: If this client is used as a wrapper, a call to close also closes
 /// the given client.
