@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/event_processor/platform_exception_event_processor.dart';
+import 'package:sentry_flutter/src/event_processor/android_platform_exception_event_processor.dart';
 
 import 'integrations/native_app_start_integration_test.dart';
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+* Feat: Support for platform stacktraces on Android (#788)
+
 ## 6.5.0-alpha.1
 
 * Feat: Mobile Vitals - Native App Start (#749)

@@ -3,7 +3,8 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
-import 'package:stack_trace_parser/stack_trace_parser.dart';
+import '../jvm/jvm_exception.dart';
+import '../jvm/jvm_frame.dart';
 
 class AndroidPlatformExceptionEventProcessor implements EventProcessor {
   const AndroidPlatformExceptionEventProcessor();
