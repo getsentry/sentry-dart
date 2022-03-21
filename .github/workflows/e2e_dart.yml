@@ -30,3 +30,4 @@ jobs:
             dart analyze --fatal-infos
             dart format --set-exit-if-changed ./
             dart run --define=SENTRY_ENVIRONMENT=e2e
+          if: env.SENTRY_AUTH_TOKEN != null
