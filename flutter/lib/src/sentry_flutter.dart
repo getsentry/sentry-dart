@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
-import 'event_processor/platform_exception_event_processor.dart';
+import 'event_processor/android_platform_exception_event_processor.dart';
 import 'sentry_native.dart';
 import 'sentry_native_channel.dart';
 
