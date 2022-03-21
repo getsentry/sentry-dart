@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+* Enhancement: Test Native Frames (#793)
+
 ## 6.5.0-alpha.1
 
 * Feat: Mobile Vitals - Native App Start (#749)
