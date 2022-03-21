@@ -56,7 +56,7 @@ void main() {
       verify(mockNative.beginNativeFramesCollection());
     });
 
-    test('transaction finish adds native frames o tracer', () async {
+    test('transaction finish adds native frames to tracer', () async {
       final currentRoute = route(RouteSettings(name: 'Current Route'));
 
       final options = SentryOptions(dsn: fakeDsn);
