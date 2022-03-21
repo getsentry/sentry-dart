@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sentry/sentry.dart';
 
+import 'binding_utils.dart';
 import 'sentry_flutter_options.dart';
 
 typedef WidgetBindingGetter = WidgetsBinding? Function();
@@ -23,7 +24,7 @@ class FlutterEnricherEventProcessor extends EventProcessor {
   }) {
     return FlutterEnricherEventProcessor(
       options,
-      () => WidgetsBinding.instance,
+      BindingUtils.getWidgetsBindingInstance,
     );
   }
 

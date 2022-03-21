@@ -98,7 +98,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       return
     }
 
-    val args = call.arguments() as Map<String, Any>
+    val args = call.arguments() as Map<String, Any>? ?: mapOf<String, Any>()
     if (args.isEmpty()) {
       result.error("4", "Arguments is null or empty", null)
       return
@@ -226,7 +226,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   private fun captureEnvelope(call: MethodCall, result: Result) {
-    val args = call.arguments() as List<Any>
+    val args = call.arguments() as List<Any>? ?: listOf<Any>()
     if (args.isNotEmpty()) {
       val event = args.first() as ByteArray?
 
