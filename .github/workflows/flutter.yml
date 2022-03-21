@@ -89,8 +89,6 @@ jobs:
             min_coverage: 90
 
         - name: Build ${{ matrix.target }}
-          env:
-            SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           run: |
             flutter config --enable-windows-desktop
             flutter config --enable-macos-desktop
