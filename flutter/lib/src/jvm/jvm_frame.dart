@@ -1,15 +1,11 @@
-// https://docs.oracle.com/javase/7/docs/api/java/lang/StackTraceElement.html
-// https://docs.oracle.com/javase/7/docs/api/java/lang/Throwable.html#getStackTrace()
-// ^\\tat ((?:(?:[\\d\\w]*\\.)*[\\d\\w]*))\\.([\\d\\w\\$]*)\\.([\\d\\w\\$]*)\\((?:(?:([\\d\\w]*\\.java):(\\d*))|([\\d\\w\\s]*))\\)$
-
 final stackTraceRegEx = RegExp(
   r'^\\tat ((?:(?:[\\d\\w]*\\.)*[\\d\\w]*))\\.([\\d\\w\\$]*)\\.([\\d\\w\\$]*)\\((?:(?:([\\d\\w]*\\.java):(\\d*))|([\\d\\w\\s]*))\\)$',
 );
 
+/// Equivalent to https://docs.oracle.com/javase/7/docs/api/java/lang/StackTraceElement.html
 class JvmFrame {
   JvmFrame({
-    this.package,
-    this.declaringClass,
+    this.className,
     this.fileName,
     this.method,
     this.lineNumber,
@@ -37,22 +33,43 @@ class JvmFrame {
     }
   }
 
-  final String? package;
-  final String? declaringClass;
+  /// Returns the fully qualified name of the class containing the execution
+  /// point represented by this stack trace element.
+  /// Example: `foo.bar.clazz`
+  final String? className;
+
+  /// Returns the name of the source file containing the execution point
+  /// represented by this stack trace element.
+  /// Example: `clazz.java`
   final String? fileName;
+
+  /// Returns the name of the method containing the execution point represented
+  /// by this stack trace element.
   final String? method;
+
+  /// Returns the line number of the source line containing the execution point
+  /// represented by this stack trace element.
   final int? lineNumber;
+
+  /// Returns true if the method containing the execution point represented by
+  /// this stack trace element is a native method.
   final bool isNativeMethod;
+
+  /// Describes how many skipped frames this stack trace element contains
+  /// For examples, this is 2, if the stack trace element contained of of the
+  /// following texts:
+  /// '... 2 more'
+  /// '... 2 filtered'
   final int? skippedFrames;
 
+  /// This is the unparsed original frames
   final String originalFrame;
 
   @override
   String toString() => originalFrame;
 
   bool get unparsed =>
-      package == null &&
-      declaringClass == null &&
+      className == null &&
       fileName == null &&
       method == null &&
       lineNumber == null;
@@ -88,8 +105,6 @@ class JvmFrame {
 
     final method = packageAndMethodSplitted.last;
     packageAndMethodSplitted.removeLast();
-    final className = packageAndMethodSplitted.last;
-    packageAndMethodSplitted.removeLast();
 
     final fileName = fileAndLineSplitted.first;
     final isNativeMethod = fileName == 'Native Method';
@@ -101,9 +116,8 @@ class JvmFrame {
       fileName: isNativeMethod ? null : fileAndLineSplitted.first,
       lineNumber: lineNumber,
       method: method,
-      declaringClass: className,
+      className: packageAndMethodSplitted.join('.'),
       isNativeMethod: isNativeMethod,
-      package: packageAndMethodSplitted.join('.'),
     );
   }
 }

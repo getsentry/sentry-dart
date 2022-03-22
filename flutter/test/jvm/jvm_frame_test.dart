@@ -7,8 +7,7 @@ void main() {
     expect(frame.fileName, 'Assert.java');
     expect(frame.lineNumber, 86);
     expect(frame.method, 'fail');
-    expect(frame.package, 'org.junit');
-    expect(frame.declaringClass, 'Assert');
+    expect(frame.className, 'org.junit.Assert');
     expect(frame.skippedFrames, null);
     expect(frame.isNativeMethod, false);
   });
@@ -18,8 +17,7 @@ void main() {
     expect(frame.fileName, 'Assert.java');
     expect(frame.lineNumber, 86);
     expect(frame.method, 'fail');
-    expect(frame.package, 'org.junit');
-    expect(frame.declaringClass, 'Assert');
+    expect(frame.className, 'org.junit.Assert');
     expect(frame.skippedFrames, null);
     expect(frame.isNativeMethod, false);
   });
@@ -31,8 +29,7 @@ void main() {
     expect(frame.fileName, null);
     expect(frame.lineNumber, null);
     expect(frame.method, 'invoke0');
-    expect(frame.package, 'sun.reflect');
-    expect(frame.declaringClass, 'NativeMethodAccessorImpl');
+    expect(frame.className, 'sun.reflect.NativeMethodAccessorImpl');
     expect(frame.isNativeMethod, true);
     expect(frame.skippedFrames, null);
     expect(frame.toString(),
@@ -44,8 +41,7 @@ void main() {
     expect(frame.fileName, null);
     expect(frame.lineNumber, null);
     expect(frame.method, null);
-    expect(frame.package, null);
-    expect(frame.declaringClass, null);
+    expect(frame.className, null);
     expect(frame.isNativeMethod, false);
     expect(frame.skippedFrames, 2);
     expect(frame.toString(), '          ... 2 more');
@@ -66,10 +62,9 @@ void main() {
     expect(frame.fileName, 'Unknown Source');
     expect(frame.lineNumber, 2);
     expect(frame.method, 'onMethodCall');
-    expect(frame.package, 'io.sentry.samples.flutter');
     expect(
-      frame.declaringClass,
-      '-\$\$Lambda\$MainActivity\$TiSaAm1LIEmKLVswI4BlR_5sw5Y',
+      frame.className,
+      'io.sentry.samples.flutter.-\$\$Lambda\$MainActivity\$TiSaAm1LIEmKLVswI4BlR_5sw5Y',
     );
     expect(frame.skippedFrames, null);
     expect(frame.isNativeMethod, false);

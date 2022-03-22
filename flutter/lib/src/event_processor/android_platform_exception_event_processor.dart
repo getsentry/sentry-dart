@@ -61,8 +61,8 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
     );
   }
 
-  /// Remove the StackTrace from [dioError] so the message on Sentry looks
-  /// much better.
+  /// Remove the StackTrace from [PlatformException] so the message on Sentry
+  /// looks much better.
   List<SentryException>? _removePlatformExceptionStackTraceFromValue(
     List<SentryException>? exceptions,
     PlatformException platformException,
@@ -72,19 +72,30 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
     }
     final exceptionCopy = List<SentryException>.from(exceptions);
 
-    var sentryException = exceptionCopy
-        .where((element) => element.type == platformExceptionType)
-        .first;
+    final sentryExceptions =
+        exceptionCopy.where((element) => element.type == platformExceptionType);
+    if (sentryExceptions.isEmpty) {
+      return [];
+    }
+    var sentryException = sentryExceptions.first;
 
     final exceptionIndex = exceptionCopy.indexOf(sentryException);
     exceptionCopy.remove(sentryException);
 
     // Remove stacktrace, so that the PlatformException value doesn't
     // include the chained exception.
+    // PlatformException.stackTrace is an empty string so that
+    // PlatformException.toString() results in
+    // `PlatformException(error, Exception Message, null, )`
+    // instead of
+    // `PlatformException(error, Exception Message, null, null)`.
+    // While `null` for `PlatformException.stackTrace` is technically correct
+    // it's semantically wrong.
     platformException = PlatformException(
       code: platformException.code,
       details: platformException.details,
       message: platformException.message,
+      stacktrace: '',
     );
 
     sentryException = sentryException.copyWith(
@@ -118,9 +129,9 @@ class _JvmExceptionFactory {
 
 extension on JvmException {
   SentryException toSentryException(String nativePackageName) {
-    final typeParts = type?.split('.');
     String? exceptionType;
     String? module;
+    final typeParts = type?.split('.');
     if (typeParts != null) {
       if (typeParts.length > 1) {
         exceptionType = typeParts.last;
@@ -128,14 +139,16 @@ extension on JvmException {
       typeParts.remove(typeParts.last);
       module = typeParts.join('.');
     }
+    final stackFrames = stackTrace.asMap().entries.map((entry) {
+      return entry.value.toSentryStackFrame(entry.key, nativePackageName);
+    }).toList(growable: false);
+
     return SentryException(
       value: description,
       type: exceptionType,
       module: module,
       stackTrace: SentryStackTrace(
-        frames: stackTrace.asMap().entries.map((entry) {
-          return entry.value.toSentryStackFrame(entry.key, nativePackageName);
-        }).toList(growable: false),
+        frames: stackFrames.reversed.toList(growable: false),
       ),
     );
   }
@@ -147,17 +160,15 @@ extension on JvmFrame {
     final framesOmitted =
         skippedFrames == null ? null : [index, index + skippedFrames];
 
-    final absPath = '$package.$declaringClass';
     return SentryStackFrame(
       lineNo: lineNumber,
       native: isNativeMethod,
       fileName: fileName,
-      absPath: absPath,
-      inApp: package?.startsWith(nativePackageName),
+      inApp: className?.startsWith(nativePackageName),
       framesOmitted: framesOmitted,
       function: method,
       platform: 'java',
-      module: package,
+      module: className,
     );
   }
 }

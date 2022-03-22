@@ -79,8 +79,8 @@ void main() {
     expect(exception.causes, null);
     expect(exception.suppressed, null);
 
-    expect(exception.stackTrace[0].package, 'io.flutter.plugin.common');
-    expect(exception.stackTrace[0].declaringClass, 'StandardMessageCodec');
+    expect(exception.stackTrace[0].className,
+        'io.flutter.plugin.common.StandardMessageCodec');
     expect(exception.stackTrace[0].method, 'writeValue');
     expect(exception.stackTrace[0].fileName, 'StandardMessageCodec.java');
     expect(exception.stackTrace[0].lineNumber, 292);
