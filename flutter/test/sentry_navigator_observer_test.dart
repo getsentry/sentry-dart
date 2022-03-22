@@ -37,23 +37,29 @@ void main() {
     fixture = Fixture();
   });
 
+  tearDown(() {
+    SentryNative().reset();
+  });
+
   group('NativeFrames', () {
     test('transaction start begins frames collection', () {
       final currentRoute = route(RouteSettings(name: 'Current Route'));
       final mockHub = _MockHub();
-      final mockNative = MockSentryNative();
+      final native = SentryNative();
+      final mockNativeChannel = MockNativeChannel();
+      native.setNativeChannel(mockNativeChannel);
 
       final tracer = MockNoOpSentrySpan();
       _whenAnyStart(mockHub, tracer);
 
       final sut = fixture.getSut(
         hub: mockHub,
-        sentryNative: mockNative,
+        sentryNative: native,
       );
 
       sut.didPush(currentRoute, null);
 
-      verify(mockNative.beginNativeFramesCollection());
+      expect(mockNativeChannel.numberOfBeginNativeFramesCalls, 1);
     });
 
     test('transaction finish adds native frames to tracer', () async {
@@ -64,11 +70,11 @@ void main() {
       final hub = Hub(options);
 
       final nativeFrames = NativeFrames(3, 2, 1);
-      var nativeFramesFuture = Future<NativeFrames>.value(nativeFrames);
+      final mockNativeChannel = MockNativeChannel();
+      mockNativeChannel.nativeFrames = nativeFrames;
 
-      final mockNative = MockSentryNative();
-      when(mockNative.endNativeFramesCollection(any))
-          .thenAnswer((realInvocation) => nativeFramesFuture);
+      final mockNative = SentryNative();
+      mockNative.setNativeChannel(mockNativeChannel);
 
       final sut = fixture.getSut(
         hub: hub,
@@ -88,7 +94,7 @@ void main() {
 
       await Future.delayed(Duration(milliseconds: 20));
 
-      verify(mockNative.endNativeFramesCollection(any));
+      expect(mockNativeChannel.numberOfEndNativeFramesCalls, 1);
 
       final measurements = actualTransaction?.measurements ?? [];
 
