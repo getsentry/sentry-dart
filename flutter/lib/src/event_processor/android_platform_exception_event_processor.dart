@@ -6,6 +6,7 @@ import 'package:sentry/sentry.dart';
 import '../jvm/jvm_exception.dart';
 import '../jvm/jvm_frame.dart';
 
+/// Transforms an Android PlatformException to a human readable SentryException
 class AndroidPlatformExceptionEventProcessor implements EventProcessor {
   const AndroidPlatformExceptionEventProcessor();
 
