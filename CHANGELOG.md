@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 6.5.0-alpha.2
 
 * Bump: Sentry-Android to 5.7.0 and Sentry-Cocoa to 7.11.0 (#796)
 * Fix: Dio event processor safelly bails if no DioError in the exception list (#795)
