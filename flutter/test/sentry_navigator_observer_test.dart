@@ -52,10 +52,7 @@ void main() {
       final tracer = MockNoOpSentrySpan();
       _whenAnyStart(mockHub, tracer);
 
-      final sut = fixture.getSut(
-        hub: mockHub,
-        sentryNative: native,
-      );
+      final sut = fixture.getSut(hub: mockHub);
 
       sut.didPush(currentRoute, null);
 
@@ -79,7 +76,6 @@ void main() {
       final sut = fixture.getSut(
         hub: hub,
         autoFinishAfter: Duration(milliseconds: 10),
-        sentryNative: mockNative,
       );
 
       sut.didPush(currentRoute, null);
@@ -707,7 +703,6 @@ class Fixture {
     bool setRouteNameAsTransaction = false,
     RouteNameExtractor? routeNameExtractor,
     AdditionalInfoExtractor? additionalInfoProvider,
-    SentryNative? sentryNative,
   }) {
     return SentryNavigatorObserver(
       hub: hub,
@@ -716,7 +711,6 @@ class Fixture {
       setRouteNameAsTransaction: setRouteNameAsTransaction,
       routeNameExtractor: routeNameExtractor,
       additionalInfoProvider: additionalInfoProvider,
-      sentryNative: sentryNative,
     );
   }
 
