@@ -82,7 +82,8 @@ mixin SentryFlutter {
     options.addEventProcessor(flutterEventProcessor);
 
     if (options.platformChecker.platform.isAndroid) {
-      options.addEventProcessor(AndroidPlatformExceptionEventProcessor());
+      options
+          .addEventProcessor(AndroidPlatformExceptionEventProcessor(options));
     }
 
     _setSdk(options);
