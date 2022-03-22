@@ -9,6 +9,9 @@ import 'package:sentry/src/sentry_exception_factory.dart';
 /// It adds information about [DioError.response] if present and also about
 /// the inner exceptions.
 class DioEventProcessor implements EventProcessor {
+  // Because of obfuscation, we need to dynamically get the name
+  static final _dioErrorType = (DioError).toString();
+
   /// This is an [EventProcessor], which improves crash reports of [DioError]s.
   DioEventProcessor(this._options, this._maxRequestBodySize);
 
@@ -73,9 +76,13 @@ class DioEventProcessor implements EventProcessor {
     List<SentryException> exceptions,
     DioError dioError,
   ) {
-    var dioSentryException = exceptions
-        .where((element) => element.type == dioError.runtimeType.toString())
-        .first;
+    final dioSentryExceptions =
+        exceptions.where((element) => element.type == _dioErrorType);
+
+    if (dioSentryExceptions.isEmpty) {
+      return exceptions;
+    }
+    var dioSentryException = dioSentryExceptions.first;
 
     final exceptionIndex = exceptions.indexOf(dioSentryException);
     exceptions.remove(dioSentryException);
