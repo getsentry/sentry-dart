@@ -253,6 +253,9 @@ class SentryTracer extends ISentrySpan {
     _measurements.addAll(measurements);
   }
 
+  @visibleForTesting
+  List<SentryMeasurement> get measurements => _measurements;
+
   bool _haveAllChildrenFinished() {
     for (final child in children) {
       if (!child.finished) {

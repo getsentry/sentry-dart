@@ -3,6 +3,9 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/sentry_native.dart';
+import 'package:sentry_flutter/src/sentry_native_channel.dart';
+import 'package:sentry/src/sentry_tracer.dart';
 
 import 'mocks.dart';
 import 'mocks.mocks.dart';
@@ -32,6 +35,81 @@ void main() {
 
   setUp(() {
     fixture = Fixture();
+  });
+
+  tearDown(() {
+    SentryNative().reset();
+  });
+
+  group('NativeFrames', () {
+    test('transaction start begins frames collection', () {
+      final currentRoute = route(RouteSettings(name: 'Current Route'));
+      final mockHub = _MockHub();
+      final native = SentryNative();
+      final mockNativeChannel = MockNativeChannel();
+      native.setNativeChannel(mockNativeChannel);
+
+      final tracer = MockNoOpSentrySpan();
+      _whenAnyStart(mockHub, tracer);
+
+      final sut = fixture.getSut(hub: mockHub);
+
+      sut.didPush(currentRoute, null);
+
+      expect(mockNativeChannel.numberOfBeginNativeFramesCalls, 1);
+    });
+
+    test('transaction finish adds native frames to tracer', () async {
+      final currentRoute = route(RouteSettings(name: 'Current Route'));
+
+      final options = SentryOptions(dsn: fakeDsn);
+      options.tracesSampleRate = 1;
+      final hub = Hub(options);
+
+      final nativeFrames = NativeFrames(3, 2, 1);
+      final mockNativeChannel = MockNativeChannel();
+      mockNativeChannel.nativeFrames = nativeFrames;
+
+      final mockNative = SentryNative();
+      mockNative.setNativeChannel(mockNativeChannel);
+
+      final sut = fixture.getSut(
+        hub: hub,
+        autoFinishAfter: Duration(milliseconds: 10),
+      );
+
+      sut.didPush(currentRoute, null);
+
+      // Get ref to created transaction
+      // ignore: invalid_use_of_internal_member
+      SentryTracer? actualTransaction;
+      hub.configureScope((scope) {
+        // ignore: invalid_use_of_internal_member
+        actualTransaction = scope.span as SentryTracer;
+      });
+
+      await Future.delayed(Duration(milliseconds: 20));
+
+      expect(mockNativeChannel.numberOfEndNativeFramesCalls, 1);
+
+      final measurements = actualTransaction?.measurements ?? [];
+
+      expect(measurements.length, 3);
+
+      final expectedTotal = SentryMeasurement.totalFrames(3);
+      final expectedSlow = SentryMeasurement.slowFrames(2);
+      final expectedFrozen = SentryMeasurement.frozenFrames(1);
+
+      for (final measurement in measurements) {
+        if (measurement.name == expectedTotal.name) {
+          expect(measurement.value, expectedTotal.value);
+        } else if (measurement.name == expectedSlow.name) {
+          expect(measurement.value, expectedSlow.value);
+        } else if (measurement.name == expectedFrozen.name) {
+          expect(measurement.value, expectedFrozen.value);
+        }
+      }
+    });
   });
 
   group('RouteObserverTransaction', () {
