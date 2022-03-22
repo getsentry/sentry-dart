@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+* Fix: Dio event processor safelly bails if no DioError in the exception list (#795)
+
 ## 6.5.0-alpha.1
 
 * Feat: Mobile Vitals - Native App Start (#749)
