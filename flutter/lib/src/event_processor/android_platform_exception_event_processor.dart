@@ -2,16 +2,18 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:sentry/sentry.dart';
+import '../../sentry_flutter.dart';
 import '../jvm/jvm_exception.dart';
 import '../jvm/jvm_frame.dart';
 
 /// Transforms an Android PlatformException to a human readable SentryException
 class AndroidPlatformExceptionEventProcessor implements EventProcessor {
-  const AndroidPlatformExceptionEventProcessor();
+  const AndroidPlatformExceptionEventProcessor(this._options);
+
+  final SentryFlutterOptions _options;
 
   // Because of obfuscation, we need to dynamically get the name
-  static final platformExceptionType = (PlatformException).toString();
+  static final _platformExceptionType = (PlatformException).toString();
 
   @override
   FutureOr<SentryEvent?> apply(SentryEvent event, {dynamic hint}) async {
@@ -34,7 +36,14 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
         nativeStackTrace,
         packageInfo.packageName,
       );
-    } catch (_) {
+    } catch (e, stackTrace) {
+      _options.logger(
+        SentryLevel.info,
+        "Couldn't prettify PlatformException. "
+        'The exception will still be reported.',
+        exception: e,
+        stackTrace: stackTrace,
+      );
       return event;
     }
   }
@@ -72,8 +81,8 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
     }
     final exceptionCopy = List<SentryException>.from(exceptions);
 
-    final sentryExceptions =
-        exceptionCopy.where((element) => element.type == platformExceptionType);
+    final sentryExceptions = exceptionCopy
+        .where((element) => element.type == _platformExceptionType);
     if (sentryExceptions.isEmpty) {
       return [];
     }
