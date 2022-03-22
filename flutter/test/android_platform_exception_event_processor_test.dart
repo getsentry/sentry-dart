@@ -78,10 +78,10 @@ void main() {
 }
 
 class Fixture {
-  AndroidPlatformExceptionEventProcessor processor =
-      AndroidPlatformExceptionEventProcessor();
+  late AndroidPlatformExceptionEventProcessor processor =
+      AndroidPlatformExceptionEventProcessor(options);
 
-  SentryOptions options = SentryOptions(dsn: fakeDsn);
+  SentryFlutterOptions options = SentryFlutterOptions(dsn: fakeDsn);
 }
 
 final testPlatformException = PlatformException(
