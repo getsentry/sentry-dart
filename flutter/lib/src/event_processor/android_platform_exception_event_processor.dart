@@ -84,7 +84,7 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
     final sentryExceptions = exceptionCopy
         .where((element) => element.type == _platformExceptionType);
     if (sentryExceptions.isEmpty) {
-      return [];
+      return null;
     }
     var sentryException = sentryExceptions.first;
 
