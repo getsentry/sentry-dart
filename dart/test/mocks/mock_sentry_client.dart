@@ -70,9 +70,8 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
   }
 
   @override
-  Future<SentryId> captureUserFeedback(SentryUserFeedback userFeedback) async {
+  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {
     userFeedbackCalls.add(userFeedback);
-    return userFeedback.eventId;
   }
 
   @override

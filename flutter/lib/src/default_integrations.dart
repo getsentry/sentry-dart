@@ -124,14 +124,13 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
   }
 
   @override
-  FutureOr<void> close() {
+  FutureOr<void> close() async {
     /// Restore default if the integration error is still set.
     if (FlutterError.onError == _integrationOnError) {
       FlutterError.onError = _defaultOnError;
       _defaultOnError = null;
       _integrationOnError = null;
     }
-    super.close();
   }
 }
 

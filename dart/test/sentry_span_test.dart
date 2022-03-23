@@ -36,10 +36,10 @@ void main() {
     expect(sut.status, SpanStatus.aborted());
   });
 
-  test('finish sets end timestamp', () {
+  test('finish sets end timestamp', () async {
     final sut = fixture.getSut();
     expect(sut.endTimestamp, isNull);
-    sut.finish();
+    await sut.finish();
 
     expect(sut.endTimestamp, isNotNull);
   });
@@ -53,11 +53,11 @@ void main() {
     expect(sut.endTimestamp, endTimestamp);
   });
 
-  test('finish sets throwable', () {
+  test('finish sets throwable', () async {
     final sut = fixture.getSut();
     sut.throwable = StateError('message');
 
-    sut.finish();
+    await sut.finish();
 
     expect(fixture.hub.spanContextCals, 1);
   });
@@ -140,9 +140,9 @@ void main() {
     expect(sut.finished, false);
   });
 
-  test('finished returns true if finished', () {
+  test('finished returns true if finished', () async {
     final sut = fixture.getSut();
-    sut.finish();
+    await sut.finish();
 
     expect(sut.finished, true);
   });

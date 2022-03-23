@@ -18,7 +18,7 @@ void main() {
   );
 
   final _contexts = Contexts(
-    device: SentryDevice(batteryLevel: 90),
+    device: SentryDevice(batteryLevel: 90.0),
     operatingSystem: SentryOperatingSystem(name: 'name'),
     runtimes: [SentryRuntime(name: 'name')],
     app: SentryApp(name: 'name'),
@@ -110,7 +110,7 @@ void main() {
     });
 
     test('copyWith takes new values', () {
-      final data = _contexts;
+      final data = _contexts.copyWith();
       data['extra'] = 'value';
 
       final device = SentryDevice(batteryLevel: 100);

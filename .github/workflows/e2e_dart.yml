@@ -14,7 +14,6 @@ jobs:
   build:
     name: E2E
     runs-on: 'ubuntu-latest'
-    if: env.SENTRY_AUTH_TOKEN != null
     defaults:
       run:
         working-directory: ./e2e_test
@@ -32,4 +31,7 @@ jobs:
             dart pub get
             dart analyze --fatal-infos
             dart format --set-exit-if-changed ./
+        - name: Run
+          if: env.SENTRY_AUTH_TOKEN != null
+          run: |
             dart run --define=SENTRY_ENVIRONMENT=e2e
