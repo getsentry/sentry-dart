@@ -73,8 +73,8 @@ jobs:
           run: |
             cd flutter
             flutter pub get
-            flutter test --platform chrome --test-randomize-ordering-seed=random --chain-stack-traces
-            flutter test --coverage --test-randomize-ordering-seed=random --chain-stack-traces
+            flutter test --platform chrome --test-randomize-ordering-seed=random
+            flutter test --coverage --test-randomize-ordering-seed=random
 
         - uses: codecov/codecov-action@v2
           if: runner.os == 'Linux'
