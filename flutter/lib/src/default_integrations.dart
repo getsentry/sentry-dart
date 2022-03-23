@@ -131,7 +131,6 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
       _defaultOnError = null;
       _integrationOnError = null;
     }
-    return super.close();
   }
 }
 

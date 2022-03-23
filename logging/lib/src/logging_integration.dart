@@ -41,7 +41,6 @@ class LoggingIntegration extends Integration<SentryOptions> {
 
   @override
   Future<void> close() async {
-    await super.close();
     await _subscription.cancel();
   }
 
