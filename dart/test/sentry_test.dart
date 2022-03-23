@@ -130,11 +130,11 @@ void main() {
   });
 
   group('Sentry is enabled or disabled', () {
-    tearDown(() async {
+    setUp(() async {
       await Sentry.close();
     });
 
-    test('null DSN', () {
+    test('null DSN', () async {
       expect(
         () async => await Sentry.init((options) => options.dsn = null),
         throwsArgumentError,

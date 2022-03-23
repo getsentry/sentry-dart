@@ -27,14 +27,14 @@ void main() {
 
   // This is the failure from
   // https://github.com/getsentry/sentry-dart/issues/508
-  test('re-initilization', () {
-    SentryFlutter.init((options) {
+  test('re-initilization', () async {
+    await SentryFlutter.init((options) {
       options.dsn = fakeDsn;
     });
 
-    Sentry.close();
+    await Sentry.close();
 
-    SentryFlutter.init((options) {
+    await SentryFlutter.init((options) {
       options.dsn = fakeDsn;
     });
   });

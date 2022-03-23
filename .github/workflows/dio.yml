@@ -15,7 +15,7 @@ jobs:
   build:
     name: Build ${{matrix.sdk}} on ${{matrix.os}}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: ./dio
@@ -36,8 +36,8 @@ jobs:
         - name: Test (VM and browser)
           run: |
             dart pub get
-            dart test -p chrome
-            dart test -p vm --coverage=coverage
+            dart test -p chrome --test-randomize-ordering-seed=random --chain-stack-traces
+            dart test -p vm --coverage=coverage --test-randomize-ordering-seed=random --chain-stack-traces
             dart pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.packages --report-on=lib
 
         - uses: codecov/codecov-action@v2

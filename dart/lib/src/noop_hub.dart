@@ -79,8 +79,7 @@ class NoOpHub implements Hub {
       SentryId.empty();
 
   @override
-  Future<SentryId> captureUserFeedback(SentryUserFeedback userFeedback) async =>
-      SentryId.empty();
+  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {}
 
   @override
   ISentrySpan startTransaction(

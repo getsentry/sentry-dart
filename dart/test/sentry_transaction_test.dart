@@ -18,11 +18,11 @@ void main() {
     return SentryTracer(context, MockHub());
   }
 
-  test('toJson serializes', () {
+  test('toJson serializes', () async {
     final tracer = _createTracer();
     final child = tracer.startChild('child');
-    child.finish();
-    tracer.finish();
+    await child.finish();
+    await tracer.finish();
 
     final sut = fixture.getSut(tracer);
     final map = sut.toJson();
@@ -32,11 +32,11 @@ void main() {
     expect(map['spans'], isNotNull);
   });
 
-  test('returns finished if it is', () {
+  test('returns finished if it is', () async {
     final tracer = _createTracer();
     final child = tracer.startChild('child');
-    child.finish();
-    tracer.finish();
+    await child.finish();
+    await tracer.finish();
 
     final sut = fixture.getSut(tracer);
 
@@ -53,22 +53,22 @@ void main() {
   //   expect(sut.finished, false);
   // });
 
-  test('returns sampled if theres context', () {
+  test('returns sampled if theres context', () async {
     final tracer = _createTracer(sampled: true);
     final child = tracer.startChild('child');
-    child.finish();
-    tracer.finish();
+    await child.finish();
+    await tracer.finish();
 
     final sut = fixture.getSut(tracer);
 
     expect(sut.sampled, true);
   });
 
-  test('returns sampled false if not sampled', () {
+  test('returns sampled false if not sampled', () async {
     final tracer = _createTracer(sampled: false);
     final child = tracer.startChild('child');
-    child.finish();
-    tracer.finish();
+    await child.finish();
+    await tracer.finish();
 
     final sut = fixture.getSut(tracer);
 

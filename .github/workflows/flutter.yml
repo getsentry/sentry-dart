@@ -15,7 +15,7 @@ jobs:
   build:
     name: ${{ matrix.target }} | ${{ matrix.os }} | ${{ matrix.channel }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       # max-parallel: 4
@@ -73,8 +73,8 @@ jobs:
           run: |
             cd flutter
             flutter pub get
-            flutter test --platform chrome
-            flutter test --coverage
+            flutter test --platform chrome --test-randomize-ordering-seed=random
+            flutter test --coverage --test-randomize-ordering-seed=random
 
         - uses: codecov/codecov-action@v2
           if: runner.os == 'Linux'
