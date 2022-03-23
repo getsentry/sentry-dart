@@ -49,8 +49,7 @@ class NoOpSentryClient implements SentryClient {
       SentryId.empty();
 
   @override
-  Future<SentryId> captureUserFeedback(SentryUserFeedback userFeedback) async =>
-      SentryId.empty();
+  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {}
 
   @override
   Future<void> close() async {}

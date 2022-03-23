@@ -101,7 +101,7 @@ class HubAdapter implements Hub {
   ISentrySpan? getSpan() => Sentry.currentHub.getSpan();
 
   @override
-  Future captureUserFeedback(SentryUserFeedback userFeedback) =>
+  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) =>
       Sentry.captureUserFeedback(userFeedback);
 
   @override

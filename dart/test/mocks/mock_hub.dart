@@ -111,9 +111,8 @@ class MockHub with NoSuchMethodProvider implements Hub {
   }
 
   @override
-  Future<SentryId> captureUserFeedback(SentryUserFeedback userFeedback) async {
+  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {
     userFeedbackCalls.add(userFeedback);
-    return SentryId.empty();
   }
 
   @override
