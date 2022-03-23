@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:html' as html show window, Window;
 
 import '../event_processor.dart';
@@ -23,11 +22,11 @@ class WebEnricherEventProcessor extends EventProcessor {
   final SentryOptions _options;
 
   @override
-  FutureOr<SentryEvent> apply(SentryEvent event, {dynamic hint}) async {
+  SentryEvent apply(SentryEvent event, {dynamic hint}) {
     // Web has no native integration, so no need to check for it
 
     final contexts = event.contexts.copyWith(
-      device: await _getDevice(event.contexts.device),
+      device: _getDevice(event.contexts.device),
     );
 
     contexts['dart_context'] = _getDartContext();
@@ -55,7 +54,7 @@ class WebEnricherEventProcessor extends EventProcessor {
     );
   }
 
-  Future<SentryDevice> _getDevice(SentryDevice? device) async {
+  SentryDevice _getDevice(SentryDevice? device) {
     return (device ?? SentryDevice()).copyWith(
       online: device?.online ?? _window.navigator.onLine,
       memorySize: device?.memorySize ?? _getMemorySize(),

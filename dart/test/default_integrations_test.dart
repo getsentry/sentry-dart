@@ -15,9 +15,9 @@ void main() {
 
   test(
     'Isolate error adds integration',
-    () async {
+    () {
       final integration = IsolateErrorIntegration();
-      await integration(
+      integration(
         fixture.hub,
         fixture.options,
       );
