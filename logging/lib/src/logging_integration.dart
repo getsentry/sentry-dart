@@ -52,7 +52,7 @@ class LoggingIntegration extends Integration<SentryOptions> {
     return logLevel >= minLevel;
   }
 
-  void _onLog(LogRecord record) async {
+  Future<void> _onLog(LogRecord record) async {
     // The event must be logged first, otherwise the log would also be added
     // to the breadcrumbs for itself.
     if (_isLoggable(record.level, _minEventLevel)) {
