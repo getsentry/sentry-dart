@@ -12,9 +12,9 @@ class FailedRequestInterceptor extends Interceptor {
   void onError(
     DioError err,
     ErrorInterceptorHandler handler,
-  ) {
+  ) async {
     _hub.getSpan()?.throwable = err;
-    _hub.captureException(err);
+    await _hub.captureException(err);
 
     handler.next(err);
   }
