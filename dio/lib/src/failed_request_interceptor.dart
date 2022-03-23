@@ -9,7 +9,7 @@ class FailedRequestInterceptor extends Interceptor {
   final Hub _hub;
 
   @override
-  void onError(
+  Future<void> onError(
     DioError err,
     ErrorInterceptorHandler handler,
   ) async {
