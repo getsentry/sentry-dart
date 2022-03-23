@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:html' as html show window, Window;
 
 import '../event_processor.dart';
@@ -22,7 +23,7 @@ class WebEnricherEventProcessor extends EventProcessor {
   final SentryOptions _options;
 
   @override
-  SentryEvent apply(SentryEvent event, {dynamic hint}) {
+  FutureOr<SentryEvent> apply(SentryEvent event, {dynamic hint}) {
     // Web has no native integration, so no need to check for it
 
     final contexts = event.contexts.copyWith(
