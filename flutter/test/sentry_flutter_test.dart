@@ -142,7 +142,7 @@ void main() {
       );
     });
 
-    test('Web && (iOS) ', () async {
+    test('Web && (iOS)', () async {
       // Tests that iOS || macOS integrations aren't added on a browswer which
       // runs on iOS or macOS
       await SentryFlutter.init(
@@ -164,7 +164,7 @@ void main() {
       );
     });
 
-    test('Web && (macOS) ', () async {
+    test('Web && (macOS)', () async {
       // Tests that iOS || macOS integrations aren't added on a browswer which
       // runs on iOS or macOS
       await SentryFlutter.init(
