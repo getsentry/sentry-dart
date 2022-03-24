@@ -4,7 +4,6 @@ import 'package:sentry_flutter/src/integrations/native_app_start_integration.dar
 import 'package:sentry_flutter/src/sentry_native.dart';
 import 'package:sentry_flutter/src/sentry_native_channel.dart';
 import 'package:sentry/src/sentry_tracer.dart';
-import 'package:flutter/scheduler.dart';
 
 import '../mocks.dart';
 import '../mocks.mocks.dart';
@@ -16,6 +15,8 @@ void main() {
     late Fixture fixture;
 
     setUp(() {
+      TestWidgetsFlutterBinding.ensureInitialized();
+
       fixture = Fixture();
     });
 
@@ -93,7 +94,7 @@ class Fixture {
     return NativeAppStartIntegration(
       native,
       () {
-        return SchedulerBinding.instance;
+        return TestWidgetsFlutterBinding.ensureInitialized();
       },
     );
   }

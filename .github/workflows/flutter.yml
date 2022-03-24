@@ -68,12 +68,21 @@ jobs:
 
         - run: flutter upgrade
 
-        - name: Test
-          if: runner.os != 'macOS'
+        - name: Pub Get
           run: |
             cd flutter
             flutter pub get
+
+        - name: Test chrome
+          if: runner.os != 'macOS'
+          run: |
+            cd flutter
             flutter test --platform chrome --test-randomize-ordering-seed=random
+
+        - name: Test VM with coverage
+          if: runner.os != 'macOS'
+          run: |
+            cd flutter
             flutter test --coverage --test-randomize-ordering-seed=random
 
         - uses: codecov/codecov-action@v2

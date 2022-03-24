@@ -1,5 +1,4 @@
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -14,7 +13,7 @@ void main() {
     late SentryFlutterOptions flutterTrackingDisabledOptions;
 
     setUp(() {
-      WidgetsFlutterBinding.ensureInitialized();
+      TestWidgetsFlutterBinding.ensureInitialized();
 
       flutterTrackingEnabledOptions = SentryFlutterOptions();
       flutterTrackingEnabledOptions.useFlutterBreadcrumbTracking();
@@ -79,7 +78,8 @@ void main() {
 
     testWidgets('lifecycle breadcrumbs', (WidgetTester tester) async {
       Future<void> sendLifecycle(String event) async {
-        final messenger = getServicesBindingInstance()!.defaultBinaryMessenger;
+        final messenger = TestWidgetsFlutterBinding.ensureInitialized()
+            .defaultBinaryMessenger;
         final message =
             const StringCodec().encodeMessage('AppLifecycleState.$event');
         await messenger.handlePlatformMessage(
@@ -144,7 +144,8 @@ void main() {
 
     testWidgets('disable lifecycle breadcrumbs', (WidgetTester tester) async {
       Future<void> sendLifecycle(String event) async {
-        final messenger = getServicesBindingInstance()!.defaultBinaryMessenger;
+        final messenger = TestWidgetsFlutterBinding.ensureInitialized()
+            .defaultBinaryMessenger;
         final message =
             const StringCodec().encodeMessage('AppLifecycleState.$event');
         await messenger.handlePlatformMessage(
@@ -321,12 +322,4 @@ void main() {
       instance.removeObserver(observer);
     });
   });
-}
-
-/// Flutter >= 2.12 throws if ServicesBinding.instance isn't initialized.
-ServicesBinding? getServicesBindingInstance() {
-  try {
-    return ServicesBinding.instance;
-  } catch (_) {}
-  return null;
 }

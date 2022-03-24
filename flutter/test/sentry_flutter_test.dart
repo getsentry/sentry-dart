@@ -33,7 +33,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('Test platform integrations', () {
-    tearDown(() async {
+    setUp(() async {
       await Sentry.close();
     });
 
@@ -52,6 +52,8 @@ void main() {
         packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.android()),
       );
+
+      await Sentry.close();
     }, testOn: 'vm');
 
     test('iOS', () async {
@@ -69,6 +71,8 @@ void main() {
         packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
       );
+
+      await Sentry.close();
     }, testOn: 'vm');
 
     test('macOS', () async {
@@ -86,6 +90,8 @@ void main() {
         packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.macOs()),
       );
+
+      await Sentry.close();
     }, testOn: 'vm');
 
     test('Windows', () async {
@@ -103,6 +109,8 @@ void main() {
         packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.windows()),
       );
+
+      await Sentry.close();
     }, testOn: 'vm');
 
     test('Linux', () async {
@@ -120,6 +128,8 @@ void main() {
         packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.linux()),
       );
+
+      await Sentry.close();
     }, testOn: 'vm');
 
     test('Web', () async {
@@ -140,6 +150,8 @@ void main() {
           platform: MockPlatform.linux(),
         ),
       );
+
+      await Sentry.close();
     });
 
     test('Web && (iOS)', () async {
@@ -162,6 +174,8 @@ void main() {
           platform: MockPlatform.iOs(),
         ),
       );
+
+      await Sentry.close();
     });
 
     test('Web && (macOS)', () async {
@@ -184,6 +198,8 @@ void main() {
           platform: MockPlatform.macOs(),
         ),
       );
+
+      await Sentry.close();
     });
 
     test('Web && Android', () async {
@@ -205,11 +221,13 @@ void main() {
           platform: MockPlatform.android(),
         ),
       );
+
+      await Sentry.close();
     });
   });
 
   group('initial values', () {
-    tearDown(() async {
+    setUp(() async {
       await Sentry.close();
     });
 
@@ -232,6 +250,8 @@ void main() {
           isWeb: true,
         ),
       );
+
+      await Sentry.close();
     });
   });
 }
