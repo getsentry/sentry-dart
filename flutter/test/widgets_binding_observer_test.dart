@@ -1,5 +1,4 @@
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -14,7 +13,7 @@ void main() {
     late SentryFlutterOptions flutterTrackingDisabledOptions;
 
     setUp(() {
-      WidgetsFlutterBinding.ensureInitialized();
+      TestWidgetsFlutterBinding.ensureInitialized();
 
       flutterTrackingEnabledOptions = SentryFlutterOptions();
       flutterTrackingEnabledOptions.useFlutterBreadcrumbTracking();
