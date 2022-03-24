@@ -50,11 +50,11 @@ class JvmException {
       var trimmed = line.trim();
 
       if (trimmed.startsWith(_causedBy)) {
-        trimmed = trimmed.replaceAll(_causedBy, _emptyString).trim();
+        trimmed = trimmed.replaceFirst(_causedBy, _emptyString).trim();
         causes.add(<String>[]);
         frames = causes.last;
       } else if (trimmed.startsWith(_suppressed)) {
-        trimmed = trimmed.replaceAll(_suppressed, _emptyString).trim();
+        trimmed = trimmed.replaceFirst(_suppressed, _emptyString).trim();
         supressed.add(<String>[]);
         frames = supressed.last;
       }

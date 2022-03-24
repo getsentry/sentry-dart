@@ -47,6 +47,17 @@ void main() {
     expect(frame.toString(), '          ... 2 more');
   });
 
+  test('parses filtered frames ', () {
+    final frame = JvmFrame.parse('          ... 2 filtered');
+    expect(frame.fileName, null);
+    expect(frame.lineNumber, null);
+    expect(frame.method, null);
+    expect(frame.className, null);
+    expect(frame.isNativeMethod, false);
+    expect(frame.skippedFrames, 2);
+    expect(frame.toString(), '          ... 2 filtered');
+  });
+
   test('parses a lot of frames', () {
     final lines =
         frames.split('\n').where((element) => element.trim().isNotEmpty);

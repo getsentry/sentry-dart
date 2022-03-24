@@ -1,4 +1,3 @@
-
 /// Equivalent to https://docs.oracle.com/javase/7/docs/api/java/lang/StackTraceElement.html
 class JvmFrame {
   JvmFrame({
@@ -83,6 +82,7 @@ class JvmFrame {
       // '... 2 filtered'
       frame = frame.replaceAll('... ', '');
       frame = frame.replaceAll(' more', '');
+      frame = frame.replaceAll(' filtered', '');
       return JvmFrame(
         isNativeMethod: false,
         originalFrame: jvmFrame,
