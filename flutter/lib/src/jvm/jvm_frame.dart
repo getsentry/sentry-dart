@@ -1,6 +1,3 @@
-final stackTraceRegEx = RegExp(
-  r'^\\tat ((?:(?:[\\d\\w]*\\.)*[\\d\\w]*))\\.([\\d\\w\\$]*)\\.([\\d\\w\\$]*)\\((?:(?:([\\d\\w]*\\.java):(\\d*))|([\\d\\w\\s]*))\\)$',
-);
 
 /// Equivalent to https://docs.oracle.com/javase/7/docs/api/java/lang/StackTraceElement.html
 class JvmFrame {
