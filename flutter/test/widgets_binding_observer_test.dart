@@ -78,7 +78,8 @@ void main() {
 
     testWidgets('lifecycle breadcrumbs', (WidgetTester tester) async {
       Future<void> sendLifecycle(String event) async {
-        final messenger = getServicesBindingInstance()!.defaultBinaryMessenger;
+        final messenger = TestWidgetsFlutterBinding.ensureInitialized()
+            .defaultBinaryMessenger;
         final message =
             const StringCodec().encodeMessage('AppLifecycleState.$event');
         await messenger.handlePlatformMessage(
@@ -143,7 +144,8 @@ void main() {
 
     testWidgets('disable lifecycle breadcrumbs', (WidgetTester tester) async {
       Future<void> sendLifecycle(String event) async {
-        final messenger = getServicesBindingInstance()!.defaultBinaryMessenger;
+        final messenger = TestWidgetsFlutterBinding.ensureInitialized()
+            .defaultBinaryMessenger;
         final message =
             const StringCodec().encodeMessage('AppLifecycleState.$event');
         await messenger.handlePlatformMessage(
@@ -320,12 +322,4 @@ void main() {
       instance.removeObserver(observer);
     });
   });
-}
-
-/// Flutter >= 2.12 throws if ServicesBinding.instance isn't initialized.
-ServicesBinding? getServicesBindingInstance() {
-  try {
-    return ServicesBinding.instance;
-  } catch (_) {}
-  return null;
 }
