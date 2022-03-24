@@ -53,8 +53,7 @@ class JvmException {
         trimmed = trimmed.replaceAll(_causedBy, _emptyString).trim();
         causes.add(<String>[]);
         frames = causes.last;
-      }
-      if (trimmed.startsWith(_suppressed)) {
+      } else if (trimmed.startsWith(_suppressed)) {
         trimmed = trimmed.replaceAll(_suppressed, _emptyString).trim();
         supressed.add(<String>[]);
         frames = supressed.last;
