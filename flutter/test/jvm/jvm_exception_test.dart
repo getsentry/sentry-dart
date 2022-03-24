@@ -141,7 +141,7 @@ Caused by: org.hibernate.exception.ConstraintViolationException: could not inser
     at java.lang.reflect.Method.invoke(Method.java:597)
     at org.hibernate.context.ThreadLocalSessionContext\$TransactionProtectionWrapper.invoke(ThreadLocalSessionContext.java:344)
     at \$Proxy19.save(Unknown Source)
-    at com.example.myproject.MyEntityService.save(MyEntityService.java:59) <-- relevant call (see notes below)
+    at com.example.myproject.MyEntityService.save(MyEntityService.java:59)
     at com.example.myproject.MyServlet.doPost(MyServlet.java:164)
     ... 32 more
 Caused by: java.sql.SQLException: Violation of unique constraint MY_ENTITY_UK_1: duplicate value(s) for column(s) MY_COLUMN in statement [...]
