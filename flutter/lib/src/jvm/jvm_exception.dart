@@ -99,9 +99,15 @@ class JvmException {
     }
     final firstLineSplitted = firstLine.split(': ');
     final type = firstLineSplitted.first;
-    final description = firstLine.substring(type.length + 2).trim();
+
+    final desciption =
+        firstLine.replaceFirst('${firstLineSplitted.first}: ', '');
     list.add(type);
-    list.add(description.isEmpty ? null : description);
+    if (firstLineSplitted.length == 1) {
+      list.add(null);
+    } else {
+      list.add(desciption.isEmpty ? null : desciption);
+    }
     return list;
   }
 }
