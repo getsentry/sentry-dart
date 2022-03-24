@@ -131,7 +131,11 @@ mixin SentryFlutter {
       integrations.add(NativeAppStartIntegration(
         SentryNative(),
         () {
-          return SchedulerBinding.instance;
+          try {
+            /// Flutter >= 2.12 throws if SchedulerBinding.instance isn't initialized.
+            return SchedulerBinding.instance;
+          } catch (_) {}
+          return null;
         },
       ));
     }
