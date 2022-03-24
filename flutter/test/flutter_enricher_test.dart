@@ -13,7 +13,9 @@ void main() {
   group('FlutterEnricher', () {
     late Fixture fixture;
 
-    setUp(() {
+    setUp(() async {
+      await Sentry.close();
+
       LicenseRegistry.reset();
       fixture = Fixture();
     });
