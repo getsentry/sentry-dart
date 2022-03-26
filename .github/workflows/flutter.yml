@@ -129,8 +129,6 @@ jobs:
   analyze:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    strategy:
-      fail-fast: false
     steps:
       - uses: actions/checkout@v2
       - uses: subosito/flutter-action@v2
@@ -147,8 +145,6 @@ jobs:
     if: ${{ !startsWith(github.ref, 'refs/heads/release/') }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    strategy:
-      fail-fast: false
     steps:
       - uses: actions/checkout@v2
       - uses: axel-op/dart-package-analyzer@v3
@@ -170,8 +166,6 @@ jobs:
 
   pod-lint:
     runs-on: macos-latest
-    strategy:
-      fail-fast: false
     steps:
       - uses: actions/checkout@v2
       # https://github.com/CocoaPods/CocoaPods/issues/5275#issuecomment-315461879
@@ -180,16 +174,12 @@ jobs:
 
   swift-lint:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
     steps:
       - uses: actions/checkout@v2
       - uses: norio-nomura/action-swiftlint@3.2.1
 
   ktlint:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-java@v2
@@ -206,8 +196,6 @@ jobs:
 
   detekt:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
     steps:
       - uses: actions/checkout@v2
       - uses: natiginfo/action-detekt-all@1.19.0

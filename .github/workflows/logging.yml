@@ -58,8 +58,6 @@ jobs:
     defaults:
       run:
         working-directory: ./logging
-    strategy:
-      fail-fast: false
     steps:
       - uses: dart-lang/setup-dart@v1
         with:
@@ -77,8 +75,6 @@ jobs:
     if: ${{ !startsWith(github.ref, 'refs/heads/release/') }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    strategy:
-      fail-fast: false
     steps:
       - uses: actions/checkout@v2
       - uses: axel-op/dart-package-analyzer@v3
