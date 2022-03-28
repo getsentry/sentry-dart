@@ -45,6 +45,9 @@ jobs:
             target: linux
           - os: macos-latest
             target: windows
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
 
     steps:
         - uses: actions/checkout@v2
