@@ -11,10 +11,10 @@ class ClientReportRecorder {
   ClientReportRecorder([this._dateTimeProvider = getUtcDateTime]);
 
   final DateTime Function() _dateTimeProvider;
-  final Map<_ClientReportKey, int> _quantities = {};
+  final Map<_QuantityKey, int> _quantities = {};
 
   void recordLostEvent(final Outcome reason, final RateLimitCategory category) {
-    final key = _ClientReportKey(reason, category);
+    final key = _QuantityKey(reason, category);
     var current = _quantities[key] ?? 0;
     _quantities[key] = current + 1;
   }
@@ -35,8 +35,8 @@ class ClientReportRecorder {
   }
 }
 
-class _ClientReportKey {
-  _ClientReportKey(this.reason, this.category);
+class _QuantityKey {
+  _QuantityKey(this.reason, this.category);
 
   final Outcome reason;
   final RateLimitCategory category;
@@ -46,7 +46,7 @@ class _ClientReportKey {
 
   @override
   bool operator ==(dynamic other) {
-    return other is _ClientReportKey &&
+    return other is _QuantityKey &&
         other.reason == reason &&
         other.category == category;
   }
