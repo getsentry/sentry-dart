@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 6.5.0-alpha.3
 
 * Feat: Support for platform stacktraces on Android (#788)
 
