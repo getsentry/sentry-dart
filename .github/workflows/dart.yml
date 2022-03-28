@@ -6,8 +6,8 @@ on:
       - release/**
   pull_request:
     paths-ignore:
-      - 'logging/**'
-      - 'dio/**'
+      - "logging/**"
+      - "dio/**"
 defaults:
   run:
     shell: bash
@@ -28,47 +28,52 @@ jobs:
           - os: macos-latest
             sdk: beta
     steps:
-        - uses: dart-lang/setup-dart@v1
-          with:
-            sdk: ${{ matrix.sdk }}
-        - uses: actions/checkout@v2
-        # coverage with 'chrome' platform hangs the build
-        - name: Test (VM and browser)
-          if: runner.os != 'macOS'
-          run: |
-            dart pub get
-            dart test -p chrome --test-randomize-ordering-seed=random --chain-stack-traces
-            dart test -p vm --coverage=coverage --test-randomize-ordering-seed=random --chain-stack-traces
-            dart pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.packages --report-on=lib
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@a40b8845c0683271d9f53dfcb887a7e181d3918b
+        with:
+          access_token: ${{ github.token }}
 
-        - name: Install webdev
-          run: dart pub global activate webdev
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: ${{ matrix.sdk }}
+      - uses: actions/checkout@v2
+      # coverage with 'chrome' platform hangs the build
+      - name: Test (VM and browser)
+        if: runner.os != 'macOS'
+        run: |
+          dart pub get
+          dart test -p chrome --test-randomize-ordering-seed=random --chain-stack-traces
+          dart test -p vm --coverage=coverage --test-randomize-ordering-seed=random --chain-stack-traces
+          dart pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.packages --report-on=lib
 
-        - name: Build example
-          run: |
-            cd example
-            dart pub get
-            dart compile exe bin/example.dart
+      - name: Install webdev
+        run: dart pub global activate webdev
 
-        # if condition because of: The pubspec.lock file has changed since the .dart_tool/package_config.json file was generated, please run "pub get" again.
-        - name: Build Web example
-          if: runner.os != 'Windows'
-          run: |
-            cd example_web
-            dart pub get
-            webdev build
+      - name: Build example
+        run: |
+          cd example
+          dart pub get
+          dart compile exe bin/example.dart
 
-        - uses: codecov/codecov-action@v2
-          if: runner.os == 'Linux'
-          with:
-            name: sentry
-            file: ./dart/coverage/lcov.info
+      # if condition because of: The pubspec.lock file has changed since the .dart_tool/package_config.json file was generated, please run "pub get" again.
+      - name: Build Web example
+        if: runner.os != 'Windows'
+        run: |
+          cd example_web
+          dart pub get
+          webdev build
 
-        - uses: VeryGoodOpenSource/very_good_coverage@v1.2.0
-          if: runner.os == 'Linux'
-          with:
-            path: "./dart/coverage/lcov.info"
-            min_coverage: 85
+      - uses: codecov/codecov-action@v2
+        if: runner.os == 'Linux'
+        with:
+          name: sentry
+          file: ./dart/coverage/lcov.info
+
+      - uses: VeryGoodOpenSource/very_good_coverage@v1.2.0
+        if: runner.os == 'Linux'
+        with:
+          path: "./dart/coverage/lcov.info"
+          min_coverage: 85
 
   analyze:
     runs-on: ubuntu-latest

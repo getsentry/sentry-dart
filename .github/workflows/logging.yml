@@ -6,8 +6,8 @@ on:
       - release/**
   pull_request:
     paths-ignore:
-        - 'dio/**'
-        - 'flutter/**'
+      - "dio/**"
+      - "flutter/**"
 defaults:
   run:
     shell: bash
@@ -28,29 +28,34 @@ jobs:
           - os: macos-latest
             sdk: beta
     steps:
-        - uses: dart-lang/setup-dart@v1
-          with:
-            sdk: ${{ matrix.sdk }}
-        - uses: actions/checkout@v2
-        # coverage with 'chrome' platform hangs the build
-        - name: Test (VM and browser)
-          run: |
-            dart pub get
-            dart test -p chrome --test-randomize-ordering-seed=random --chain-stack-traces
-            dart test -p vm --coverage=coverage --test-randomize-ordering-seed=random --chain-stack-traces
-            dart pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.packages --report-on=lib
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@a40b8845c0683271d9f53dfcb887a7e181d3918b
+        with:
+          access_token: ${{ github.token }}
 
-        - uses: codecov/codecov-action@v2
-          if: runner.os == 'Linux'
-          with:
-            name: sentry
-            file: ./logging/coverage/lcov.info
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: ${{ matrix.sdk }}
+      - uses: actions/checkout@v2
+      # coverage with 'chrome' platform hangs the build
+      - name: Test (VM and browser)
+        run: |
+          dart pub get
+          dart test -p chrome --test-randomize-ordering-seed=random --chain-stack-traces
+          dart test -p vm --coverage=coverage --test-randomize-ordering-seed=random --chain-stack-traces
+          dart pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.packages --report-on=lib
 
-        - uses: VeryGoodOpenSource/very_good_coverage@v1.2.0
-          if: runner.os == 'Linux'
-          with:
-            path: "./logging/coverage/lcov.info"
-            min_coverage: 90
+      - uses: codecov/codecov-action@v2
+        if: runner.os == 'Linux'
+        with:
+          name: sentry
+          file: ./logging/coverage/lcov.info
+
+      - uses: VeryGoodOpenSource/very_good_coverage@v1.2.0
+        if: runner.os == 'Linux'
+        with:
+          path: "./logging/coverage/lcov.info"
+          min_coverage: 90
 
   analyze:
     runs-on: ubuntu-latest
