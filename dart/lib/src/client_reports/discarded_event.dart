@@ -12,12 +12,10 @@ class DiscardedEvent {
   final int quantity;
 
   Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{};
-
-    json['reason'] = reason.toStringValue();
-    json['category'] = category.toStringValue();
-    json['quantity'] = quantity;
-
-    return json;
+    return {
+      'reason': reason.toStringValue(),
+      'category': category.toStringValue(),
+      'quantity': quantity,
+    };
   }
 }
