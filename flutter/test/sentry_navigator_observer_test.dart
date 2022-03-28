@@ -34,6 +34,7 @@ void main() {
   }
 
   setUp(() {
+    SentryNative().reset();
     fixture = Fixture();
   });
 
@@ -75,7 +76,7 @@ void main() {
 
       final sut = fixture.getSut(
         hub: hub,
-        autoFinishAfter: Duration(milliseconds: 10),
+        autoFinishAfter: Duration(milliseconds: 50),
       );
 
       sut.didPush(currentRoute, null);
@@ -88,7 +89,7 @@ void main() {
         actualTransaction = scope.span as SentryTracer;
       });
 
-      await Future.delayed(Duration(milliseconds: 20));
+      await Future.delayed(Duration(milliseconds: 500));
 
       expect(mockNativeChannel.numberOfEndNativeFramesCalls, 1);
 
