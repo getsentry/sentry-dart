@@ -1,10 +1,14 @@
 import 'dart:convert';
 
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/client_reports/client_report.dart';
+import 'package:sentry/src/client_reports/discarded_event.dart';
+import 'package:sentry/src/client_reports/outcome.dart';
 import 'package:sentry/src/sentry_envelope_item_header.dart';
 import 'package:sentry/src/sentry_envelope_item.dart';
 import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/transport/rate_limit_category.dart';
 import 'package:sentry/src/utils.dart';
 import 'package:test/test.dart';
 
@@ -79,6 +83,31 @@ void main() {
 
       expect(sut.header.contentType, 'application/json');
       expect(sut.header.type, SentryItemType.transaction);
+      expect(actualLength, expectedLength);
+      expect(actualData, expectedData);
+    });
+
+    test('fromClientReport', () async {
+      final timestamp = DateTime(0);
+      final discardedEvents = [
+        DiscardedEvent(Outcome.ratelimitBackoff, RateLimitCategory.error, 1)
+      ];
+
+      final cr = ClientReport(timestamp, discardedEvents);
+
+      final sut = SentryEnvelopeItem.fromClientReport(cr);
+
+      final expectedData = utf8.encode(jsonEncode(
+        cr.toJson(),
+        toEncodable: jsonSerializationFallback,
+      ));
+      final actualData = await sut.dataFactory();
+
+      final expectedLength = expectedData.length;
+      final actualLength = await sut.header.length();
+
+      expect(sut.header.contentType, 'application/json');
+      expect(sut.header.type, SentryItemType.clientReport);
       expect(actualLength, expectedLength);
       expect(actualData, expectedData);
     });

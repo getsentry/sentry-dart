@@ -10,4 +10,14 @@ class DiscardedEvent {
   final Outcome reason;
   final RateLimitCategory category;
   final int quantity;
+
+  Map<String, dynamic> toJson() {
+    final json = <String, dynamic>{};
+
+    json['reason'] = reason.toStringValue();
+    json['category'] = category.toStringValue();
+    json['quantity'] = quantity;
+
+    return json;
+  }
 }

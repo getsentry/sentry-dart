@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'client_reports/client_report.dart';
 import 'protocol.dart';
 import 'utils.dart';
 import 'sentry_attachment/sentry_attachment.dart';
@@ -72,6 +73,20 @@ class SentryEnvelopeItem {
     return SentryEnvelopeItem(
       SentryEnvelopeItemHeader(
         SentryItemType.event,
+        () async => bytes.length,
+        contentType: 'application/json',
+      ),
+      () async => bytes,
+    );
+  }
+
+  /// Create an [SentryEnvelopeItem] which holds the [ClientReport] data.
+  factory SentryEnvelopeItem.fromClientReport(ClientReport clientReport) {
+    final bytes = _jsonToBytes(clientReport.toJson());
+
+    return SentryEnvelopeItem(
+      SentryEnvelopeItemHeader(
+        SentryItemType.clientReport,
         () async => bytes.length,
         contentType: 'application/json',
       ),
