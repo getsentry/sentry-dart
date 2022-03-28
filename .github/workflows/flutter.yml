@@ -45,11 +45,13 @@ jobs:
             target: linux
           - os: macos-latest
             target: windows
-    concurrency:
-      group: ${{ github.head_ref || github.run_id }}
-      cancel-in-progress: true
 
     steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@a40b8845c0683271d9f53dfcb887a7e181d3918b
+        with:
+          access_token: ${{ github.token }}
+
         - uses: actions/checkout@v2
 
         - uses: actions/setup-java@v2
