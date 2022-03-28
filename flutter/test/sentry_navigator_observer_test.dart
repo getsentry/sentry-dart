@@ -34,6 +34,7 @@ void main() {
   }
 
   setUp(() {
+    SentryNative().reset();
     fixture = Fixture();
   });
 
