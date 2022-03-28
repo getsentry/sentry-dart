@@ -46,7 +46,7 @@ jobs:
           - os: macos-latest
             target: windows
     concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}
+      group: ${{ github.head_ref || github.run_id }}
       cancel-in-progress: true
 
     steps:
