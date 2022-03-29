@@ -98,7 +98,7 @@ void main() {
 class Fixture {
   FileSystemTransport getSut(MethodChannel channel) {
     final options = SentryOptions(dsn: '');
-    final recorder = ClientReportRecorder();
+    final recorder = ClientReportRecorder(options.clock);
     return FileSystemTransport(channel, options, recorder);
   }
 }

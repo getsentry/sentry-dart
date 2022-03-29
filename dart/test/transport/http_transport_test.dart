@@ -151,7 +151,7 @@ class Fixture {
     dsn: 'https://public:secret@sentry.example.com/1',
   );
 
-  final clientReportRecorder = ClientReportRecorder();
+  late var clientReportRecorder = ClientReportRecorder(options.clock);
 
   HttpTransport getSut(http.Client client, RateLimiter rateLimiter) {
     options.httpClient = client;

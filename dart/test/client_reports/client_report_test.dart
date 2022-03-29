@@ -8,16 +8,30 @@ import 'package:sentry/src/utils.dart';
 
 void main() {
   group('json', () {
-    final timestamp = DateTime.fromMillisecondsSinceEpoch(0);
+    late Fixture fixture;
 
-    final clientReport = ClientReport(
-      timestamp,
-      [
-        DiscardedEvent(Outcome.ratelimitBackoff, RateLimitCategory.error, 2),
-      ],
-    );
+    setUp(() async {
+      fixture = Fixture();
+    });
 
-    final clientReportJson = <String, dynamic>{
+    test('toJson', () {
+      final sut = fixture.getSut();
+      final json = sut.toJson();
+
+      expect(
+        DeepCollectionEquality().equals(fixture.clientReportJson, json),
+        true,
+      );
+    });
+  });
+}
+
+class Fixture {
+  final timestamp = DateTime.fromMillisecondsSinceEpoch(0);
+  late Map<String, dynamic> clientReportJson;
+
+  Fixture() {
+    clientReportJson = <String, dynamic>{
       'timestamp': formatDateAsIso8601WithMillisPrecision(timestamp),
       'discarded_events': [
         {
@@ -27,14 +41,14 @@ void main() {
         }
       ],
     };
+  }
 
-    test('toJson', () {
-      final json = clientReport.toJson();
-
-      expect(
-        DeepCollectionEquality().equals(clientReportJson, json),
-        true,
-      );
-    });
-  });
+  ClientReport getSut() {
+    return ClientReport(
+      timestamp,
+      [
+        DiscardedEvent(Outcome.ratelimitBackoff, RateLimitCategory.error, 2),
+      ],
+    );
+  }
 }

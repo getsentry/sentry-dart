@@ -33,7 +33,7 @@ class SentryClient {
       options.transport = HttpTransport(
         options,
         RateLimiter(options.clock),
-        ClientReportRecorder(),
+        ClientReportRecorder(options.clock),
       );
     }
 
