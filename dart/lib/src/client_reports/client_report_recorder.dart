@@ -27,7 +27,7 @@ class ClientReportRecorder {
     final events = _quantities.keys.map((key) {
       final quantity = _quantities[key] ?? 0;
       return DiscardedEvent(key.reason, key.category, quantity);
-    }).toList();
+    }).toList(growable: false);
 
     _quantities.clear();
 
