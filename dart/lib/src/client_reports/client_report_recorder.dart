@@ -1,12 +1,9 @@
-import 'package:meta/meta.dart';
-
 import '../utils.dart';
 import 'client_report.dart';
 import 'discarded_event.dart';
 import 'outcome.dart';
 import '../transport/rate_limit_category.dart';
 
-@internal
 class ClientReportRecorder {
   ClientReportRecorder([this._dateTimeProvider = getUtcDateTime]);
 

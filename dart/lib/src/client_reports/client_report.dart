@@ -1,9 +1,6 @@
-import 'package:meta/meta.dart';
-
 import 'discarded_event.dart';
 import '../utils.dart';
 
-@internal
 class ClientReport {
   ClientReport(this.timestamp, this.discardedEvents);
 

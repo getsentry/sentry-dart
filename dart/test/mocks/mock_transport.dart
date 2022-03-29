@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:sentry/sentry.dart';
-
 import 'no_such_method_provider.dart';
 
 class MockTransport with NoSuchMethodProvider implements Transport {
@@ -67,4 +66,7 @@ class ThrowingTransport implements Transport {
   Future<SentryId> send(SentryEnvelope envelope) async {
     throw Exception('foo bar');
   }
+
+  @override
+  ClientReportRecorder get recorder => throw Exception('foo bar');
 }

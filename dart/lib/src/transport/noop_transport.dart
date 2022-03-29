@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import '../sentry_envelope.dart';
-
-import '../protocol.dart';
-import 'transport.dart';
+import '../../sentry.dart';
 
 class NoOpTransport implements Transport {
   @override
   Future<SentryId?> send(SentryEnvelope envelope) async => null;
+
+  @override
+  ClientReportRecorder get recorder => ClientReportRecorder();
 }

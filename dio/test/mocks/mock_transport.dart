@@ -67,4 +67,7 @@ class ThrowingTransport implements Transport {
   Future<SentryId> send(SentryEnvelope envelope) async {
     throw Exception('foo bar');
   }
+
+  @override
+  ClientReportRecorder get recorder => throw Exception('foo bar');
 }

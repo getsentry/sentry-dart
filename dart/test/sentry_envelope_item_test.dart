@@ -1,11 +1,9 @@
 import 'dart:convert';
 
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/client_reports/client_report.dart';
 import 'package:sentry/src/client_reports/discarded_event.dart';
 import 'package:sentry/src/client_reports/outcome.dart';
 import 'package:sentry/src/sentry_envelope_item_header.dart';
-import 'package:sentry/src/sentry_envelope_item.dart';
 import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/transport/rate_limit_category.dart';

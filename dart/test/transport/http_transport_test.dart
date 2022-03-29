@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:sentry/src/sentry_envelope_header.dart';
-import 'package:sentry/src/sentry_envelope_item.dart';
 import 'package:sentry/src/sentry_envelope_item_header.dart';
 import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/transport/rate_limiter.dart';
@@ -152,8 +151,10 @@ class Fixture {
     dsn: 'https://public:secret@sentry.example.com/1',
   );
 
+  final clientReportRecorder = ClientReportRecorder();
+
   HttpTransport getSut(http.Client client, RateLimiter rateLimiter) {
     options.httpClient = client;
-    return HttpTransport(options, rateLimiter);
+    return HttpTransport(options, rateLimiter, clientReportRecorder);
   }
 }

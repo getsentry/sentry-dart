@@ -1,6 +1,3 @@
-import 'package:meta/meta.dart';
-
-@internal
 enum Outcome { ratelimitBackoff, networkError }
 
 extension OutcomeExtension on Outcome {
