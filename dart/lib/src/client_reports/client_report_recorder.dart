@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import '../utils.dart';
+import '../sentry_options.dart';
 import 'client_report.dart';
 import 'discarded_event.dart';
 import 'outcome.dart';
@@ -8,9 +8,9 @@ import '../transport/rate_limit_category.dart';
 
 @internal
 class ClientReportRecorder {
-  ClientReportRecorder([this._dateTimeProvider = getUtcDateTime]);
+  ClientReportRecorder(this._clock);
 
-  final DateTime Function() _dateTimeProvider;
+  final ClockProvider _clock;
   final Map<_QuantityKey, int> _quantities = {};
 
   void recordLostEvent(final Outcome reason, final RateLimitCategory category) {
@@ -27,11 +27,11 @@ class ClientReportRecorder {
     final events = _quantities.keys.map((key) {
       final quantity = _quantities[key] ?? 0;
       return DiscardedEvent(key.reason, key.category, quantity);
-    }).toList();
+    }).toList(growable: false);
 
     _quantities.clear();
 
-    return ClientReport(_dateTimeProvider(), events);
+    return ClientReport(_clock(), events);
   }
 }
 
