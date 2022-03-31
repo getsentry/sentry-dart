@@ -253,7 +253,8 @@ class Fixture {
     bool sendDefaultPii = true,
   }) {
     final mc = client ?? getClient();
-    var hub = _hub..options.sendDefaultPii = sendDefaultPii;
+    var hub = _hub;
+    hub.options.sendDefaultPii = sendDefaultPii;
     return FailedRequestClient(
       client: mc,
       hub: hub,
