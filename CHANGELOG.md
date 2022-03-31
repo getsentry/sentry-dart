@@ -1,7 +1,7 @@
 # Changelog
 
 ## Unreleased
-- Fix: Remove `SentryOptions` related parameters from classes which also take `Hub` as a parameter
+- Fix: Remove `SentryOptions` related parameters from classes which also take `Hub` as a parameter (#816)
 
 ## 6.5.0-beta.1
 
