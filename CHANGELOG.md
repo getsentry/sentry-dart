@@ -1,5 +1,7 @@
 # Changelog
 
+- Fix: Remove `SentryOptions` related parameters from classes which also take `Hub` as a parameter
+
 ## 6.5.0-alpha.1
 
 * Feat: Mobile Vitals - Native App Start (#749)
