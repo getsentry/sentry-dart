@@ -259,7 +259,6 @@ class Fixture {
       captureFailedRequests: captureFailedRequests,
       failedRequestStatusCodes: badStatusCodes,
       maxRequestBodySize: maxRequestBodySize,
-      sendDefaultPii: sendDefaultPii,
     );
   }
 

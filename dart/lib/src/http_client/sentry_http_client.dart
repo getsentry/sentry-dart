@@ -83,7 +83,6 @@ class SentryHttpClient extends BaseClient {
     MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never,
     List<SentryStatusCode> failedRequestStatusCodes = const [],
     bool captureFailedRequests = false,
-    bool sendDefaultPii = false,
     bool networkTracing = false,
   }) {
     _hub = hub ?? HubAdapter();
@@ -94,7 +93,6 @@ class SentryHttpClient extends BaseClient {
       failedRequestStatusCodes: failedRequestStatusCodes,
       captureFailedRequests: captureFailedRequests,
       maxRequestBodySize: maxRequestBodySize,
-      sendDefaultPii: sendDefaultPii,
       hub: _hub,
       client: innerClient,
     );

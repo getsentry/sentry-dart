@@ -68,7 +68,6 @@ class FailedRequestClient extends BaseClient {
     this.maxRequestBodySize = MaxRequestBodySize.never,
     this.failedRequestStatusCodes = const [],
     this.captureFailedRequests = true,
-    this.sendDefaultPii = false,
     Client? client,
     Hub? hub,
   })  : _hub = hub ?? HubAdapter(),
@@ -93,8 +92,6 @@ class FailedRequestClient extends BaseClient {
   ///
   /// Per default no status code is considered a failed request.
   final List<SentryStatusCode> failedRequestStatusCodes;
-
-  final bool sendDefaultPii;
 
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
@@ -161,10 +158,10 @@ class FailedRequestClient extends BaseClient {
 
     final sentryRequest = SentryRequest(
       method: request.method,
-      headers: sendDefaultPii ? request.headers : null,
+      headers: _hub.options.sendDefaultPii ? request.headers : null,
       url: urlWithoutQuery,
       queryString: query,
-      cookies: sendDefaultPii ? request.headers['Cookie'] : null,
+      cookies: _hub.options.sendDefaultPii ? request.headers['Cookie'] : null,
       data: _getDataFromRequest(request),
       other: {
         'content_length': request.contentLength.toString(),
