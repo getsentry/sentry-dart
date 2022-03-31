@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- Fix: Remove `SentryOptions` related parameters from classes which also take `Hub` as a parameter
+
 ## 6.5.0-beta.1
 
 - No documented changes.
@@ -12,7 +15,6 @@
 
 * Bump: Sentry-Android to 5.7.0 and Sentry-Cocoa to 7.11.0 (#796)
 * Fix: Dio event processor safelly bails if no DioError in the exception list (#795)
-- Fix: Remove `SentryOptions` related parameters from classes which also take `Hub` as a parameter
 
 ## 6.5.0-alpha.1
 
