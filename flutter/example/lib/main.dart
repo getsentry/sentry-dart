@@ -25,9 +25,18 @@ Future<void> main() async {
       options.dsn = _exampleDsn;
       options.tracesSampleRate = 1.0;
       options.reportPackages = false;
+      options.addInAppInclude('sentry_flutter_example');
+      options.considerInAppFramesByDefault = false;
     },
     // Init your App.
-    appRunner: () => runApp(MyApp()),
+    appRunner: () => runApp(
+      DefaultAssetBundle(
+        bundle: SentryAssetBundle(
+          enableStructuredDataTracing: true,
+        ),
+        child: MyApp(),
+      ),
+    ),
   );
 }
 
@@ -37,11 +46,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  @override
-  void initState() {
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return feedback.BetterFeedback(
@@ -180,6 +184,10 @@ class MainScaffold extends StatelessWidget {
             ElevatedButton(
               onPressed: () => makeWebRequest(context),
               child: const Text('Dart: Web request'),
+            ),
+            ElevatedButton(
+              onPressed: () => showDialogWithTextAndImage(context),
+              child: const Text('Flutter: Load assets'),
             ),
             ElevatedButton(
               onPressed: () => makeWebRequestWithDio(context),
@@ -385,6 +393,12 @@ class AndroidExample extends StatelessWidget {
         },
         child: const Text('C++ SEGFAULT'),
       ),
+      ElevatedButton(
+        onPressed: () async {
+          await execute('platform_exception');
+        },
+        child: const Text('Platform exception'),
+      ),
     ]);
   }
 
@@ -553,24 +567,30 @@ Future<void> makeWebRequest(BuildContext context) async {
 }
 
 Future<void> makeWebRequestWithDio(BuildContext context) async {
+  final dio = Dio();
+
+  dio.addSentry(
+    captureFailedRequests: true,
+    networkTracing: true,
+  );
+
   final transaction = Sentry.getSpan() ??
       Sentry.startTransaction(
         'dio-web-request',
         'request',
         bindToScope: true,
       );
-
-  final dio = Dio();
-  dio.addSentry(
-    captureFailedRequests: true,
-    networkTracing: true,
-    failedRequestStatusCodes: [SentryStatusCode.range(400, 500)],
-  );
-  // We don't do any exception handling here.
-  // In case of an exception, let it get caught and reported to Sentry
-  final response = await dio.get<String>('https://flutter.dev/');
-
-  await transaction.finish(status: SpanStatus.ok());
+  Response<String>? response;
+  try {
+    response = await dio.get<String>('https://flutter.dev/');
+    transaction.status = SpanStatus.ok();
+  } catch (exception, stackTrace) {
+    transaction.throwable = exception;
+    transaction.status = SpanStatus.internalError();
+    await Sentry.captureException(exception, stackTrace: stackTrace);
+  } finally {
+    await transaction.finish();
+  }
 
   await showDialog<void>(
     context: context,
@@ -580,9 +600,9 @@ Future<void> makeWebRequestWithDio(BuildContext context) async {
     ),
     builder: (context) {
       return AlertDialog(
-        title: Text('Response ${response.statusCode}'),
+        title: Text('Response ${response?.statusCode}'),
         content: SingleChildScrollView(
-          child: Text(response.data!),
+          child: Text(response?.data ?? 'failed request'),
         ),
         actions: [
           MaterialButton(
@@ -593,6 +613,45 @@ Future<void> makeWebRequestWithDio(BuildContext context) async {
       );
     },
   );
+}
+
+Future<void> showDialogWithTextAndImage(BuildContext context) async {
+  final transaction = Sentry.getSpan() ??
+      Sentry.startTransaction(
+        'asset-bundle-transaction',
+        'load',
+        bindToScope: true,
+      );
+  final text =
+      await DefaultAssetBundle.of(context).loadString('assets/lorem-ipsum.txt');
+  await showDialog<void>(
+    context: context,
+    // gets tracked if using SentryNavigatorObserver
+    routeSettings: RouteSettings(
+      name: 'AssetBundle dialog',
+    ),
+    builder: (context) {
+      return AlertDialog(
+        title: Text('Asset Example'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.asset('assets/sentry-wordmark.png'),
+              Text(text),
+            ],
+          ),
+        ),
+        actions: [
+          MaterialButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Close'),
+          )
+        ],
+      );
+    },
+  );
+  await transaction.finish(status: SpanStatus.ok());
 }
 
 class ThemeProvider extends ChangeNotifier {

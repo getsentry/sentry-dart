@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:meta/meta.dart';
+import 'utils.dart';
 
 import '../sentry.dart';
 import 'sentry_tracer_finish_status.dart';
@@ -14,16 +15,41 @@ class SentryTracer extends ISentrySpan {
   late final SentrySpan _rootSpan;
   final List<SentrySpan> _children = [];
   final Map<String, dynamic> _extra = {};
-  Timer? _autoFinishAfterTimer;
-  var _finishStatus = SentryTracerFinishStatus.notFinishing();
+  final List<SentryMeasurement> _measurements = [];
 
-  SentryTracer(SentryTransactionContext transactionContext, this._hub,
-      {bool waitForChildren = false, Duration? autoFinishAfter}) {
+  Timer? _autoFinishAfterTimer;
+  Function(SentryTracer)? _onFinish;
+  var _finishStatus = SentryTracerFinishStatus.notFinishing();
+  late final bool _trimEnd;
+
+  /// If [waitForChildren] is true, this transaction will not finish until all
+  /// its children are finished.
+  ///
+  /// When [autoFinishAfter] is provided, started transactions will
+  /// automatically be finished after this duration.
+  ///
+  /// If [trimEnd] is true, sets the end timestamp of the transaction to the
+  /// highest timestamp of child spans, trimming the duration of the
+  /// transaction. This is useful to discard extra time in the transaction that
+  /// is not accounted for in child spans, like what happens in the
+  /// [SentryNavigatorObserver] idle transactions, where we finish the
+  /// transaction after a given "idle time" and we don't want this "idle time"
+  /// to be part of the transaction.
+  SentryTracer(
+    SentryTransactionContext transactionContext,
+    this._hub, {
+    DateTime? startTimestamp,
+    bool waitForChildren = false,
+    Duration? autoFinishAfter,
+    bool trimEnd = false,
+    Function(SentryTracer)? onFinish,
+  }) {
     _rootSpan = SentrySpan(
       this,
       transactionContext,
       _hub,
       sampled: transactionContext.sampled,
+      startTimestamp: startTimestamp,
     );
     _waitForChildren = waitForChildren;
     if (autoFinishAfter != null) {
@@ -32,23 +58,48 @@ class SentryTracer extends ISentrySpan {
       });
     }
     name = transactionContext.name;
+    _trimEnd = trimEnd;
+    _onFinish = onFinish;
   }
 
   @override
-  Future<void> finish({SpanStatus? status}) async {
+  Future<void> finish({SpanStatus? status, DateTime? endTimestamp}) async {
+    final commonEndTimestamp = endTimestamp ?? getUtcDateTime();
     _autoFinishAfterTimer?.cancel();
     _finishStatus = SentryTracerFinishStatus.finishing(status);
     if (!_rootSpan.finished &&
         (!_waitForChildren || _haveAllChildrenFinished())) {
       _rootSpan.status ??= status;
-      await _rootSpan.finish();
+
+      // remove span where its endTimestamp is before startTimestamp
+      _children.removeWhere(
+          (span) => !_hasSpanSuitableTimestamps(span, commonEndTimestamp));
 
       // finish unfinished spans otherwise transaction gets dropped
-      for (final span in _children) {
-        if (!span.finished) {
-          await span.finish(status: SpanStatus.deadlineExceeded());
+      final spansToBeFinished = _children.where((span) => !span.finished);
+      await Future.forEach(
+          spansToBeFinished,
+          (SentrySpan span) async => await span.finish(
+              status: SpanStatus.deadlineExceeded(),
+              endTimestamp: commonEndTimestamp));
+
+      var _rootEndTimestamp = commonEndTimestamp;
+      if (_trimEnd && children.isNotEmpty) {
+        final childEndTimestamps = children
+            .where((child) => child.endTimestamp != null)
+            .map((child) => child.endTimestamp!);
+
+        if (childEndTimestamps.isNotEmpty) {
+          final oldestChildEndTimestamp =
+              childEndTimestamps.reduce((a, b) => a.isAfter(b) ? a : b);
+          if (_rootEndTimestamp.isAfter(oldestChildEndTimestamp)) {
+            _rootEndTimestamp = oldestChildEndTimestamp;
+          }
         }
       }
+
+      await _rootSpan.finish(endTimestamp: _rootEndTimestamp);
+      await _onFinish?.call(this);
 
       // remove from scope
       _hub.configureScope((scope) {
@@ -58,6 +109,7 @@ class SentryTracer extends ISentrySpan {
       });
 
       final transaction = SentryTransaction(this);
+      transaction.measurements.addAll(_measurements);
       await _hub.captureTransaction(transaction);
     }
   }
@@ -102,14 +154,24 @@ class SentryTracer extends ISentrySpan {
   ISentrySpan startChild(
     String operation, {
     String? description,
+    DateTime? startTimestamp,
   }) {
     if (finished) {
+      return NoOpSentrySpan();
+    }
+
+    if (children.length >= _hub.options.maxSpans) {
+      _hub.options.logger(
+        SentryLevel.warning,
+        'Span operation: $operation, description: $description dropped due to limit reached. Returning NoOpSpan.',
+      );
       return NoOpSentrySpan();
     }
 
     return _rootSpan.startChild(
       operation,
       description: description,
+      startTimestamp: startTimestamp,
     );
   }
 
@@ -117,8 +179,17 @@ class SentryTracer extends ISentrySpan {
     SpanId parentSpanId,
     String operation, {
     String? description,
+    DateTime? startTimestamp,
   }) {
     if (finished) {
+      return NoOpSentrySpan();
+    }
+
+    if (children.length >= _hub.options.maxSpans) {
+      _hub.options.logger(
+        SentryLevel.warning,
+        'Span operation: $operation, description: $description dropped due to limit reached. Returning NoOpSpan.',
+      );
       return NoOpSentrySpan();
     }
 
@@ -128,11 +199,12 @@ class SentryTracer extends ISentrySpan {
         operation: operation,
         description: description);
 
-    final child = SentrySpan(this, context, _hub, sampled: _rootSpan.sampled,
-        finishedCallback: () {
+    final child = SentrySpan(this, context, _hub,
+        sampled: _rootSpan.sampled, startTimestamp: startTimestamp,
+        finishedCallback: ({DateTime? endTimestamp}) {
       final finishStatus = _finishStatus;
       if (finishStatus.finishing) {
-        finish(status: finishStatus.status);
+        finish(status: finishStatus.status, endTimestamp: endTimestamp);
       }
     });
 
@@ -177,6 +249,13 @@ class SentryTracer extends ISentrySpan {
   @override
   SentryTraceHeader toSentryTrace() => _rootSpan.toSentryTrace();
 
+  void addMeasurements(List<SentryMeasurement> measurements) {
+    _measurements.addAll(measurements);
+  }
+
+  @visibleForTesting
+  List<SentryMeasurement> get measurements => _measurements;
+
   bool _haveAllChildrenFinished() {
     for (final child in children) {
       if (!child.finished) {
@@ -185,4 +264,9 @@ class SentryTracer extends ISentrySpan {
     }
     return true;
   }
+
+  bool _hasSpanSuitableTimestamps(
+          SentrySpan span, DateTime endTimestampCandidate) =>
+      !span.startTimestamp
+          .isAfter((span.endTimestamp ?? endTimestampCandidate));
 }

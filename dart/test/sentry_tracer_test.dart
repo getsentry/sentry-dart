@@ -1,5 +1,6 @@
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/utils.dart';
 import 'package:test/test.dart';
 
 import 'mocks/mock_hub.dart';
@@ -32,6 +33,32 @@ void main() {
     final trace = tr.contexts.trace;
 
     expect(trace?.status.toString(), 'aborted');
+  });
+
+  test('tracer finishes with end timestamp', () async {
+    final sut = fixture.getSut();
+    final endTimestamp = getUtcDateTime();
+
+    await sut.finish(endTimestamp: endTimestamp);
+
+    expect(sut.endTimestamp, endTimestamp);
+  });
+
+  test(
+      'tracer finish sets given end timestamp to all children while finishing them',
+      () async {
+    final sut = fixture.getSut();
+
+    final childA = sut.startChild('operation-a', description: 'description');
+    final childB = sut.startChild('operation-b', description: 'description');
+    final endTimestamp = getUtcDateTime();
+
+    await sut.finish(endTimestamp: endTimestamp);
+    await childA.finish();
+    await childB.finish();
+
+    expect(childA.endTimestamp, endTimestamp);
+    expect(childB.endTimestamp, endTimestamp);
   });
 
   test('tracer finishes unfinished spans', () async {
@@ -236,6 +263,65 @@ void main() {
     await sut.finish();
     expect(sut.finished, true);
   });
+
+  test('end trimmed to last child', () async {
+    final sut = fixture.getSut(trimEnd: true);
+    final endTimestamp = getUtcDateTime().add(Duration(minutes: 1));
+    final olderEndTimeStamp = endTimestamp.add(Duration(seconds: 1));
+    final oldestEndTimeStamp = olderEndTimeStamp.add(Duration(seconds: 1));
+
+    final childA = sut.startChild('operation-a', description: 'description');
+    final childB = sut.startChild('operation-b', description: 'description');
+
+    await childA.finish(endTimestamp: endTimestamp);
+    await childB.finish(endTimestamp: olderEndTimeStamp);
+    await sut.finish(endTimestamp: oldestEndTimeStamp);
+
+    expect(sut.endTimestamp, childB.endTimestamp);
+  });
+
+  test('end trimmed to child', () async {
+    final sut = fixture.getSut(trimEnd: true);
+    final endTimestamp = getUtcDateTime().add(Duration(minutes: 1));
+    final olderEndTimeStamp = endTimestamp.add(Duration(seconds: 1));
+
+    final childA = sut.startChild('operation-a', description: 'description');
+
+    await childA.finish(endTimestamp: endTimestamp);
+    await sut.finish(endTimestamp: olderEndTimeStamp);
+
+    expect(sut.endTimestamp, childA.endTimestamp);
+  });
+
+  test('end not trimmed when no child', () async {
+    final sut = fixture.getSut(trimEnd: true);
+    final endTimestamp = getUtcDateTime();
+
+    await sut.finish(endTimestamp: endTimestamp);
+
+    expect(sut.endTimestamp, endTimestamp);
+  });
+
+  test('does not add more spans than configured in options', () async {
+    fixture.hub.options.maxSpans = 2;
+    final sut = fixture.getSut();
+
+    sut.startChild('child1');
+    sut.startChild('child2');
+    sut.startChild('child3');
+
+    expect(sut.children.length, 2);
+  });
+
+  test('when span limit is reached, startChild returns NoOpSpan', () async {
+    fixture.hub.options.maxSpans = 2;
+    final sut = fixture.getSut();
+
+    sut.startChild('child1');
+    sut.startChild('child2');
+
+    expect(sut.startChild('child3'), isA<NoOpSentrySpan>());
+  });
 }
 
 class Fixture {
@@ -244,6 +330,7 @@ class Fixture {
   SentryTracer getSut({
     bool? sampled = true,
     bool waitForChildren = false,
+    bool trimEnd = false,
     Duration? autoFinishAfter,
   }) {
     final context = SentryTransactionContext(
@@ -256,6 +343,7 @@ class Fixture {
       hub,
       waitForChildren: waitForChildren,
       autoFinishAfter: autoFinishAfter,
+      trimEnd: trimEnd,
     );
   }
 }

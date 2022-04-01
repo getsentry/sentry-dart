@@ -7,16 +7,16 @@ import 'throwable_mechanism.dart';
 class SentryExceptionFactory {
   final SentryOptions _options;
 
-  final SentryStackTraceFactory _stacktraceFactory;
+  SentryStackTraceFactory get _stacktraceFactory => _options.stackTraceFactory;
 
-  SentryExceptionFactory(this._options, this._stacktraceFactory);
+  SentryExceptionFactory(this._options);
 
   SentryException getSentryException(
     dynamic exception, {
     dynamic stackTrace,
   }) {
     var throwable = exception;
-    var mechanism;
+    Mechanism? mechanism;
     if (exception is ThrowableMechanism) {
       throwable = exception.throwable;
       mechanism = exception.mechanism;

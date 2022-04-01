@@ -15,6 +15,9 @@ import 'tracing.dart';
 /// Configures the scope through the callback.
 typedef ScopeCallback = void Function(Scope);
 
+/// Called when a transaction is finished.
+typedef OnTransactionFinish = FutureOr<void> Function(ISentrySpan transaction);
+
 /// SDK API contract which combines a client and scope management
 class Hub {
   static SentryClient _getClient(SentryOptions options) {
@@ -28,6 +31,9 @@ class Hub {
   _StackItem _peek() => _stack.first;
 
   final SentryOptions _options;
+
+  @internal
+  SentryOptions get options => _options;
 
   late SentryTracesSampler _tracesSampler;
 
@@ -339,9 +345,12 @@ class Hub {
     String name,
     String operation, {
     String? description,
+    DateTime? startTimestamp,
     bool? bindToScope,
     bool? waitForChildren,
     Duration? autoFinishAfter,
+    bool? trimEnd,
+    OnTransactionFinish? onFinish,
     Map<String, dynamic>? customSamplingContext,
   }) =>
       startTransactionWithContext(
@@ -350,9 +359,12 @@ class Hub {
           operation,
           description: description,
         ),
+        startTimestamp: startTimestamp,
         bindToScope: bindToScope,
         waitForChildren: waitForChildren,
         autoFinishAfter: autoFinishAfter,
+        trimEnd: trimEnd,
+        onFinish: onFinish,
         customSamplingContext: customSamplingContext,
       );
 
@@ -360,9 +372,12 @@ class Hub {
   ISentrySpan startTransactionWithContext(
     SentryTransactionContext transactionContext, {
     Map<String, dynamic>? customSamplingContext,
+    DateTime? startTimestamp,
     bool? bindToScope,
     bool? waitForChildren,
     Duration? autoFinishAfter,
+    bool? trimEnd,
+    OnTransactionFinish? onFinish,
   }) {
     if (!_isEnabled) {
       _options.logger(
@@ -389,8 +404,11 @@ class Hub {
       final tracer = SentryTracer(
         transactionContext,
         this,
+        startTimestamp: startTimestamp,
         waitForChildren: waitForChildren ?? false,
         autoFinishAfter: autoFinishAfter,
+        trimEnd: trimEnd ?? false,
+        onFinish: onFinish,
       );
       if (bindToScope ?? false) {
         item.scope.span = tracer;
@@ -551,5 +569,6 @@ class _WeakMap {
         stackTrace: stackTrace,
       );
     }
+    return null;
   }
 }

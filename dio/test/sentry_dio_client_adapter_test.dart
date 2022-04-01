@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:http/http.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/http_client/failed_request_client.dart';
 import 'package:sentry_dio/src/sentry_dio_client_adapter.dart';
 import 'package:test/test.dart';
 
@@ -44,27 +43,6 @@ void main() {
       );
 
       expect(fixture.hub.captureEventCalls.length, 0);
-      expect(fixture.hub.addBreadcrumbCalls.length, 1);
-    });
-
-    test('one captured event with when enabling $FailedRequestClient',
-        () async {
-      final sut = fixture.getSut(
-        client: createThrowingClient(),
-        captureFailedRequests: true,
-        recordBreadcrumbs: true,
-      );
-
-      await expectLater(
-        () async => await sut.get<dynamic>('/'),
-        throwsException,
-      );
-
-      expect(fixture.hub.captureEventCalls.length, 1);
-      // The event should not have breadcrumbs from the BreadcrumbClient
-      expect(fixture.hub.captureEventCalls.first.event.breadcrumbs, null);
-      // The breadcrumb for the request should still be added for every
-      // following event.
       expect(fixture.hub.addBreadcrumbCalls.length, 1);
     });
 
@@ -134,9 +112,6 @@ class Fixture {
     dio.httpClientAdapter = SentryDioClientAdapter(
       client: mc,
       hub: hub,
-      captureFailedRequests: captureFailedRequests,
-      failedRequestStatusCodes: badStatusCodes,
-      maxRequestBodySize: maxRequestBodySize,
       recordBreadcrumbs: recordBreadcrumbs,
       networkTracing: networkTracing,
     );

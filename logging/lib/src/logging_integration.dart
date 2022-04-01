@@ -2,8 +2,9 @@ import 'dart:async';
 
 import 'package:logging/logging.dart';
 import 'package:sentry/sentry.dart';
-import 'version.dart';
+
 import 'extension.dart';
+import 'version.dart';
 
 /// An [Integration] which listens to all messages of the
 /// [logging](https://pub.dev/packages/logging) package.
@@ -28,31 +29,19 @@ class LoggingIntegration extends Integration<SentryOptions> {
   @override
   FutureOr<void> call(Hub hub, SentryOptions options) {
     _hub = hub;
-    _setSdkVersion(options);
     _subscription = Logger.root.onRecord.listen(
       _onLog,
       onError: (Object error, StackTrace stackTrace) async {
         await _hub.captureException(error, stackTrace: stackTrace);
       },
     );
+    options.sdk.addPackage(packageName, sdkVersion);
     options.sdk.addIntegration('LoggingIntegration');
   }
 
   @override
   Future<void> close() async {
-    await super.close();
     await _subscription.cancel();
-  }
-
-  void _setSdkVersion(SentryOptions options) {
-    final sdk = SdkVersion(
-      name: sdkName,
-      version: sdkVersion,
-      integrations: options.sdk.integrations,
-      packages: options.sdk.packages,
-    );
-    sdk.addPackage('pub:sentry_logging', sdkVersion);
-    options.sdk = sdk;
   }
 
   bool _isLoggable(Level logLevel, Level minLevel) {
@@ -62,7 +51,7 @@ class LoggingIntegration extends Integration<SentryOptions> {
     return logLevel >= minLevel;
   }
 
-  void _onLog(LogRecord record) async {
+  Future<void> _onLog(LogRecord record) async {
     // The event must be logged first, otherwise the log would also be added
     // to the breadcrumbs for itself.
     if (_isLoggable(record.level, _minEventLevel)) {

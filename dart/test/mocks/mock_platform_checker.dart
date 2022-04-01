@@ -1,9 +1,8 @@
-import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry/src/platform_checker.dart';
 
-import 'mock_platform.dart';
+import 'no_such_method_provider.dart';
 
-class MockPlatformChecker implements PlatformChecker {
+class MockPlatformChecker extends PlatformChecker with NoSuchMethodProvider {
   MockPlatformChecker({
     this.isDebug = false,
     this.isProfile = false,
@@ -31,7 +30,4 @@ class MockPlatformChecker implements PlatformChecker {
 
   @override
   bool get isWeb => isWebValue;
-
-  @override
-  Platform get platform => MockPlatform();
 }

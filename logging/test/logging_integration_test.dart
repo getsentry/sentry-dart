@@ -28,10 +28,9 @@ void main() {
     await sut.call(fixture.hub, fixture.options);
     await sut.close();
 
-    expect(fixture.options.sdk.name, sdkName);
-    final package = fixture.options.sdk.packages
-        .firstWhere((it) => it.name == 'pub:sentry_logging');
-    expect(package.name, 'pub:sentry_logging');
+    final package =
+        fixture.options.sdk.packages.firstWhere((it) => it.name == packageName);
+    expect(package.name, packageName);
     expect(package.version, sdkVersion);
   });
 
@@ -49,7 +48,7 @@ void main() {
     expect(crumb.message, 'A log message');
     expect(crumb.data, <String, dynamic>{
       'LogRecord.loggerName': 'FooBarLogger',
-      'LogRecord.sequenceNumber': 0,
+      'LogRecord.sequenceNumber': isNotNull,
     });
     expect(crumb.timestamp, isNotNull);
     expect(crumb.category, 'log');

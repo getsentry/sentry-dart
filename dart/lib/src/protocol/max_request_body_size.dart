@@ -15,3 +15,22 @@ enum MaxRequestBodySize {
   /// make sense of it
   always,
 }
+
+extension MaxRequestBodySizeX on MaxRequestBodySize {
+  bool shouldAddBody(int contentLength) {
+    if (this == MaxRequestBodySize.never) {
+      return false;
+    }
+    if (this == MaxRequestBodySize.always) {
+      return true;
+    }
+    if (this == MaxRequestBodySize.medium && contentLength <= 10000) {
+      return true;
+    }
+
+    if (this == MaxRequestBodySize.small && contentLength <= 4000) {
+      return true;
+    }
+    return false;
+  }
+}
