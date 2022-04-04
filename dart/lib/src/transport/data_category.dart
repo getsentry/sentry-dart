@@ -1,7 +1,7 @@
 /// Different category types of data sent to Sentry. Used for rate limiting and client reports.
 enum DataCategory {
   all,
-  rate_limit_default, // default
+  data_category_default, // default
   error,
   session,
   transaction,
@@ -16,7 +16,7 @@ extension DataCategoryExtension on DataCategory {
       case '__all__':
         return DataCategory.all;
       case 'default':
-        return DataCategory.rate_limit_default;
+        return DataCategory.data_category_default;
       case 'error':
         return DataCategory.error;
       case 'session':
@@ -35,7 +35,7 @@ extension DataCategoryExtension on DataCategory {
     switch (this) {
       case DataCategory.all:
         return '__all__';
-      case DataCategory.rate_limit_default:
+      case DataCategory.data_category_default:
         return 'default';
       case DataCategory.error:
         return 'error';
