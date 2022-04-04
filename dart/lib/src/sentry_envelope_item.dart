@@ -13,9 +13,8 @@ class SentryEnvelopeItem {
 
   /// Creates an [SentryEnvelopeItem] which sends [SentryTransaction].
   factory SentryEnvelopeItem.fromTransaction(SentryTransaction transaction) {
-    final cachedItem = _CachedItem(() async {
-      return _jsonToBytes(transaction.toJson());
-    });
+    final cachedItem =
+        _CachedItem(() async => _jsonToBytes(transaction.toJson()));
 
     final header = SentryEnvelopeItemHeader(
       SentryItemType.transaction,
@@ -40,21 +39,19 @@ class SentryEnvelopeItem {
 
   /// Create an [SentryEnvelopeItem] which sends [SentryUserFeedback].
   factory SentryEnvelopeItem.fromUserFeedback(SentryUserFeedback feedback) {
-    final bytes = _jsonToBytes(feedback.toJson());
+    final cachedItem = _CachedItem(() async => _jsonToBytes(feedback.toJson()));
 
     final header = SentryEnvelopeItemHeader(
       SentryItemType.userFeedback,
-      () async => bytes.length,
+      cachedItem.getDataLength,
       contentType: 'application/json',
     );
-    return SentryEnvelopeItem(header, () async => bytes);
+    return SentryEnvelopeItem(header, cachedItem.getData);
   }
 
   /// Create an [SentryEnvelopeItem] which holds the [SentryEvent] data.
   factory SentryEnvelopeItem.fromEvent(SentryEvent event) {
-    final cachedItem = _CachedItem(() async {
-      return _jsonToBytes(event.toJson());
-    });
+    final cachedItem = _CachedItem(() async => _jsonToBytes(event.toJson()));
 
     return SentryEnvelopeItem(
       SentryEnvelopeItemHeader(
@@ -68,15 +65,16 @@ class SentryEnvelopeItem {
 
   /// Create an [SentryEnvelopeItem] which holds the [ClientReport] data.
   factory SentryEnvelopeItem.fromClientReport(ClientReport clientReport) {
-    final bytes = _jsonToBytes(clientReport.toJson());
+    final cachedItem =
+        _CachedItem(() async => _jsonToBytes(clientReport.toJson()));
 
     return SentryEnvelopeItem(
       SentryEnvelopeItemHeader(
         SentryItemType.clientReport,
-        () async => bytes.length,
+        cachedItem.getDataLength,
         contentType: 'application/json',
       ),
-      () async => bytes,
+      cachedItem.getData,
     );
   }
 
