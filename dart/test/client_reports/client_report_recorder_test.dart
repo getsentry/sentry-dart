@@ -1,4 +1,4 @@
-import 'package:sentry/src/client_reports/outcome.dart';
+import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';
 
@@ -23,7 +23,7 @@ void main() {
     test('flush returns client report with current date', () {
       final sut = fixture.getSut();
 
-      sut.recordLostEvent(DiscardReason.ratelimitBackoff, DataCategory.error);
+      sut.recordLostEvent(DiscardReason.rateLimitBackoff, DataCategory.error);
 
       final clientReport = sut.flush();
 
@@ -33,15 +33,15 @@ void main() {
     test('record lost event', () {
       final sut = fixture.getSut();
 
-      sut.recordLostEvent(DiscardReason.ratelimitBackoff, DataCategory.error);
-      sut.recordLostEvent(DiscardReason.ratelimitBackoff, DataCategory.error);
+      sut.recordLostEvent(DiscardReason.rateLimitBackoff, DataCategory.error);
+      sut.recordLostEvent(DiscardReason.rateLimitBackoff, DataCategory.error);
 
       final clientReport = sut.flush();
 
       final event = clientReport?.discardedEvents
           .firstWhere((element) => element.category == DataCategory.error);
 
-      expect(event?.reason, DiscardReason.ratelimitBackoff);
+      expect(event?.reason, DiscardReason.rateLimitBackoff);
       expect(event?.category, DataCategory.error);
       expect(event?.quantity, 2);
     });
@@ -49,9 +49,9 @@ void main() {
     test('record outcomes with different categories recorded separately', () {
       final sut = fixture.getSut();
 
-      sut.recordLostEvent(DiscardReason.ratelimitBackoff, DataCategory.error);
+      sut.recordLostEvent(DiscardReason.rateLimitBackoff, DataCategory.error);
       sut.recordLostEvent(
-          DiscardReason.ratelimitBackoff, DataCategory.transaction);
+          DiscardReason.rateLimitBackoff, DataCategory.transaction);
 
       final clientReport = sut.flush();
 
@@ -61,11 +61,11 @@ void main() {
       final second = clientReport?.discardedEvents
           .firstWhere((event) => event.category == DataCategory.transaction);
 
-      expect(first?.reason, DiscardReason.ratelimitBackoff);
+      expect(first?.reason, DiscardReason.rateLimitBackoff);
       expect(first?.category, DataCategory.error);
       expect(first?.quantity, 1);
 
-      expect(second?.reason, DiscardReason.ratelimitBackoff);
+      expect(second?.reason, DiscardReason.rateLimitBackoff);
       expect(second?.category, DataCategory.transaction);
       expect(second?.quantity, 1);
     });
@@ -73,7 +73,7 @@ void main() {
     test('calling flush multiple times returns null', () {
       final sut = fixture.getSut();
 
-      sut.recordLostEvent(DiscardReason.ratelimitBackoff, DataCategory.error);
+      sut.recordLostEvent(DiscardReason.rateLimitBackoff, DataCategory.error);
 
       sut.flush();
       final clientReport = sut.flush();

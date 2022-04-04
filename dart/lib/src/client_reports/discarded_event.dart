@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import 'outcome.dart';
+import 'discard_reason.dart';
 import '../transport/data_category.dart';
 
 @internal

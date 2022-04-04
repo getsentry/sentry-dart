@@ -3,7 +3,7 @@ import 'package:meta/meta.dart';
 import '../sentry_options.dart';
 import 'client_report.dart';
 import 'discarded_event.dart';
-import 'outcome.dart';
+import 'discard_reason.dart';
 import '../transport/data_category.dart';
 
 @internal
