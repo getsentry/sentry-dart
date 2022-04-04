@@ -1,14 +1,14 @@
 import 'package:meta/meta.dart';
 
 @internal
-enum Outcome { ratelimitBackoff, networkError }
+enum DiscardReason { ratelimitBackoff, networkError }
 
-extension OutcomeExtension on Outcome {
+extension OutcomeExtension on DiscardReason {
   String toStringValue() {
     switch (this) {
-      case Outcome.ratelimitBackoff:
+      case DiscardReason.ratelimitBackoff:
         return 'ratelimit_backoff';
-      case Outcome.networkError:
+      case DiscardReason.networkError:
         return 'network_error';
     }
   }
