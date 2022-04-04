@@ -3,8 +3,8 @@ import 'package:meta/meta.dart';
 import '../sentry_options.dart';
 import 'client_report.dart';
 import 'discarded_event.dart';
-import 'outcome.dart';
-import '../transport/rate_limit_category.dart';
+import 'discard_reason.dart';
+import '../transport/data_category.dart';
 
 @internal
 class ClientReportRecorder {
@@ -13,7 +13,8 @@ class ClientReportRecorder {
   final ClockProvider _clock;
   final Map<_QuantityKey, int> _quantities = {};
 
-  void recordLostEvent(final Outcome reason, final RateLimitCategory category) {
+  void recordLostEvent(
+      final DiscardReason reason, final DataCategory category) {
     final key = _QuantityKey(reason, category);
     var current = _quantities[key] ?? 0;
     _quantities[key] = current + 1;
@@ -38,8 +39,8 @@ class ClientReportRecorder {
 class _QuantityKey {
   _QuantityKey(this.reason, this.category);
 
-  final Outcome reason;
-  final RateLimitCategory category;
+  final DiscardReason reason;
+  final DataCategory category;
 
   @override
   int get hashCode => Object.hash(reason, category);
