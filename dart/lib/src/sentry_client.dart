@@ -30,11 +30,9 @@ class SentryClient {
   /// Instantiates a client using [SentryOptions]
   factory SentryClient(SentryOptions options) {
     if (options.transport is NoOpTransport) {
-      options.transport = HttpTransport(
-        options,
-        RateLimiter(options.clock),
-        ClientReportRecorder(options.clock),
-      );
+      final recorder = ClientReportRecorder(options.clock);
+      final rateLimiter = RateLimiter(options.clock, recorder);
+      options.transport = HttpTransport(options, rateLimiter, recorder);
     }
 
     return SentryClient._(options);

@@ -54,10 +54,6 @@ class HttpTransport implements Transport {
   Future<SentryId?> send(SentryEnvelope envelope) async {
     final filteredEnvelope = _rateLimiter.filter(envelope);
     if (filteredEnvelope == null) {
-      _clientReportRecorder.recordLostEvent(
-        DiscardReason.rateLimitBackoff,
-        DataCategory.error,
-      );
       return SentryId.empty();
     }
 

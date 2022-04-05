@@ -197,29 +197,6 @@ void main() {
 
       expect(clientReport, mockEnvelope.clientReport);
     });
-
-    test('lost event recorded due to rate limiting', () async {
-      final mockClient = MockClient((http.Request request) async {
-        return http.Response('{}', 200);
-      });
-      final mockRateLimiter = MockRateLimiter()..filterReturnsNull = true;
-
-      final sut = fixture.getSut(mockClient, mockRateLimiter);
-
-      final sentryEvent = SentryEvent();
-      final envelope = SentryEnvelope.fromEvent(
-        sentryEvent,
-        fixture.options.sdk,
-      );
-
-      await sut.send(envelope);
-
-      expect(fixture.clientReportRecorder.category, DataCategory.error);
-      expect(
-        fixture.clientReportRecorder.reason,
-        DiscardReason.rateLimitBackoff,
-      );
-    });
   });
 }
 

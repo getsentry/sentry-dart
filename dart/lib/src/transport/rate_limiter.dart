@@ -1,16 +1,16 @@
+import '../../sentry.dart';
+import '../client_reports/discard_reason.dart';
 import '../transport/rate_limit_parser.dart';
 
-import '../sentry_options.dart';
-import '../sentry_envelope.dart';
-import '../sentry_envelope_item.dart';
 import 'rate_limit.dart';
 import 'data_category.dart';
 
 /// Controls retry limits on different category types sent to Sentry.
 class RateLimiter {
-  RateLimiter(this._clockProvider);
+  RateLimiter(this._clockProvider, this._clientReportRecorder);
 
   final ClockProvider _clockProvider;
+  final ClientReportRecorder _clientReportRecorder;
   final _rateLimitedUntil = <DataCategory, DateTime>{};
 
   /// Filter out envelopes that are rate limited.
@@ -22,6 +22,19 @@ class RateLimiter {
       if (_isRetryAfter(item.header.type)) {
         dropItems ??= [];
         dropItems.add(item);
+
+        final category = _categoryFromItemType(item.header.type);
+        if (category == DataCategory.transaction) {
+          _clientReportRecorder.recordLostEvent(
+            DiscardReason.rateLimitBackoff,
+            DataCategory.transaction,
+          );
+        } else {
+          _clientReportRecorder.recordLostEvent(
+            DiscardReason.rateLimitBackoff,
+            DataCategory.error,
+          );
+        }
       }
     }
 
