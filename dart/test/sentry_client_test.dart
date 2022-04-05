@@ -816,7 +816,7 @@ void main() {
       fixture = Fixture();
     });
 
-    test('event processor dropped event', () async {
+    test('record event processor dropping event', () async {
       final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
 
       await client.captureEvent(fakeEvent);
@@ -825,7 +825,7 @@ void main() {
       expect(fixture.transport.recorder.category, DataCategory.error);
     });
 
-    test('event processor dropped transaction', () async {
+    test('record event processor dropping transaction', () async {
       final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
 
       final context = SentryTransactionContext('name', 'op');
@@ -836,6 +836,17 @@ void main() {
 
       expect(fixture.transport.recorder.reason, DiscardReason.eventProcessor);
       expect(fixture.transport.recorder.category, DataCategory.transaction);
+    });
+
+    test('record beforeSend dropping event', () async {
+      final client = fixture.getSut();
+
+      fixture.options.beforeSend = fixture.droppingBeforeSend;
+
+      await client.captureEvent(fakeEvent);
+
+      expect(fixture.transport.recorder.reason, DiscardReason.beforeSend);
+      expect(fixture.transport.recorder.category, DataCategory.error);
     });
   });
 }
@@ -919,5 +930,10 @@ class Fixture {
     // hub.bindClient(client);
 
     return client;
+  }
+
+  FutureOr<SentryEvent?> droppingBeforeSend(SentryEvent event,
+      {dynamic hint}) async {
+    return null;
   }
 }

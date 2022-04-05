@@ -85,6 +85,7 @@ class SentryClient {
 
     final beforeSend = _options.beforeSend;
     if (beforeSend != null) {
+      final beforeSendEvent = preparedEvent;
       try {
         preparedEvent = await beforeSend(preparedEvent, hint: hint);
       } catch (exception, stackTrace) {
@@ -96,6 +97,7 @@ class SentryClient {
         );
       }
       if (preparedEvent == null) {
+        _recordLostEvent(beforeSendEvent, DiscardReason.beforeSend);
         _options.logger(
           SentryLevel.debug,
           'Event was dropped by BeforeSend callback',
@@ -294,18 +296,7 @@ class SentryClient {
         );
       }
       if (processedEvent == null) {
-        if (event is SentryTransaction) {
-          _options.transport.recorder.recordLostEvent(
-            DiscardReason.eventProcessor,
-            DataCategory.transaction,
-          );
-        } else {
-          _options.transport.recorder.recordLostEvent(
-            DiscardReason.eventProcessor,
-            DataCategory.error,
-          );
-        }
-
+        _recordLostEvent(event, DiscardReason.eventProcessor);
         _options.logger(SentryLevel.debug, 'Event was dropped by a processor');
         break;
       }
@@ -318,5 +309,18 @@ class SentryClient {
       return (_options.sampleRate! < _random!.nextDouble());
     }
     return false;
+  }
+
+  void _recordLostEvent(SentryEvent event, DiscardReason reason) {
+    DataCategory category;
+    if (event is SentryTransaction) {
+      category = DataCategory.transaction;
+    } else {
+      category = DataCategory.error;
+    }
+    _options.transport.recorder.recordLostEvent(
+      reason,
+      category,
+    );
   }
 }
