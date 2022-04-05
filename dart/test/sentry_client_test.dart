@@ -3,12 +3,17 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';
+import 'package:mockito/mockito.dart';
 
 import 'mocks.dart';
+import 'mocks/mock_client_report_recorder.dart';
+import 'mocks/mock_hub.dart';
 import 'mocks/mock_transport.dart';
 
 void main() {
@@ -805,6 +810,36 @@ void main() {
       expect(capturedEnvelope, fakeEnvelope);
     });
   });
+
+  group('ClientReportRecorder', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('event processor dropped event', () async {
+      final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
+
+      await client.captureEvent(fakeEvent);
+
+      expect(fixture.recorder.reason, DiscardReason.eventProcessor);
+      expect(fixture.recorder.category, DataCategory.error);
+    });
+
+    test('event processor dropped transaction', () async {
+      final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
+
+      final context = SentryTransactionContext('name', 'op');
+      final tracer = SentryTracer(context, MockHub());
+      final transaction = SentryTransaction(tracer);
+
+      await client.captureTransaction(transaction);
+
+      expect(fixture.recorder.reason, DiscardReason.eventProcessor);
+      expect(fixture.recorder.category, DataCategory.transaction);
+    });
+  });
 }
 
 Future<SentryEvent> eventFromEnvelope(SentryEnvelope envelope) async {
@@ -855,6 +890,8 @@ class Fixture {
   final transport = MockTransport();
 
   final options = SentryOptions(dsn: fakeDsn);
+  final recorder = MockClientReportRecorder();
+
   late SentryTransactionContext _context;
   late SentryTracer tracer;
 
@@ -881,6 +918,7 @@ class Fixture {
       options.addEventProcessor(eventProcessor);
     }
     options.transport = transport;
+    options.recorder = recorder;
     final client = SentryClient(options);
     // hub.bindClient(client);
 

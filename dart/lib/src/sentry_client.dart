@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:meta/meta.dart';
 
 import '../sentry.dart';
+import 'client_reports/discard_reason.dart';
+import 'transport/data_category.dart';
 import 'transport/rate_limiter.dart';
 import 'sentry_exception_factory.dart';
 import 'sentry_stack_trace_factory.dart';
@@ -30,15 +32,13 @@ class SentryClient {
   /// Instantiates a client using [SentryOptions]
   factory SentryClient(SentryOptions options) {
     if (options.transport is NoOpTransport) {
-      final recorder = ClientReportRecorder(options.clock);
-      final rateLimiter = RateLimiter(options.clock, recorder);
-      options.transport = HttpTransport(options, rateLimiter, recorder);
+      final rateLimiter = RateLimiter(options.clock, options.recorder);
+      options.transport = HttpTransport(options, rateLimiter, options.recorder);
     }
-
     return SentryClient._(options);
   }
 
-  /// Instantiates a client using [SentryOptions]
+  /// Instantiates a client using [SentryOptions] and [ClientReportRecorder]
   SentryClient._(this._options)
       : _random = _options.sampleRate == null ? null : Random();
 
@@ -293,6 +293,13 @@ class SentryClient {
         );
       }
       if (processedEvent == null) {
+
+        if (event is SentryTransaction) {
+          _options.recorder.recordLostEvent(DiscardReason.eventProcessor, DataCategory.transaction);
+        } else {
+          _options.recorder.recordLostEvent(DiscardReason.eventProcessor, DataCategory.error);
+        }
+
         _options.logger(SentryLevel.debug, 'Event was dropped by a processor');
         break;
       }

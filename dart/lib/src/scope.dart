@@ -256,6 +256,9 @@ class Scope {
         );
       }
       if (processedEvent == null) {
+
+
+        // TODO client report
         _options.logger(SentryLevel.debug, 'Event was dropped by a processor');
         break;
       }
