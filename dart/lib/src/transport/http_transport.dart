@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'package:http/http.dart';
 
 import '../client_reports/client_report_recorder.dart';
+import '../client_reports/discard_reason.dart';
+import 'data_category.dart';
 import 'noop_encode.dart' if (dart.library.io) 'encode.dart';
 import '../noop_client.dart';
 import '../protocol.dart';
@@ -52,6 +54,10 @@ class HttpTransport implements Transport {
   Future<SentryId?> send(SentryEnvelope envelope) async {
     final filteredEnvelope = _rateLimiter.filter(envelope);
     if (filteredEnvelope == null) {
+      _clientReportRecorder.recordLostEvent(
+        DiscardReason.rateLimitBackoff,
+        DataCategory.error,
+      );
       return SentryId.empty();
     }
 
