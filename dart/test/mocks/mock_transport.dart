@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:sentry/sentry.dart';
-import 'no_such_method_provider.dart';
+import 'mock_client_report_recorder.dart';
 
-class MockTransport with NoSuchMethodProvider implements Transport {
+class MockTransport implements Transport {
   List<SentryEnvelope> envelopes = [];
   List<SentryEvent> events = [];
   int calls = 0;
@@ -59,6 +59,9 @@ class MockTransport with NoSuchMethodProvider implements Transport {
     events.clear();
     calls = 0;
   }
+
+  @override
+  MockClientReportRecorder recorder = MockClientReportRecorder();
 }
 
 class ThrowingTransport implements Transport {

@@ -32,8 +32,9 @@ class SentryClient {
   /// Instantiates a client using [SentryOptions]
   factory SentryClient(SentryOptions options) {
     if (options.transport is NoOpTransport) {
-      final rateLimiter = RateLimiter(options.clock, options.recorder);
-      options.transport = HttpTransport(options, rateLimiter, options.recorder);
+      final recorder = ClientReportRecorder(options.clock);
+      final rateLimiter = RateLimiter(options.clock, recorder);
+      options.transport = HttpTransport(options, rateLimiter, recorder);
     }
     return SentryClient._(options);
   }
@@ -293,11 +294,16 @@ class SentryClient {
         );
       }
       if (processedEvent == null) {
-
         if (event is SentryTransaction) {
-          _options.recorder.recordLostEvent(DiscardReason.eventProcessor, DataCategory.transaction);
+          _options.transport.recorder.recordLostEvent(
+            DiscardReason.eventProcessor,
+            DataCategory.transaction,
+          );
         } else {
-          _options.recorder.recordLostEvent(DiscardReason.eventProcessor, DataCategory.error);
+          _options.transport.recorder.recordLostEvent(
+            DiscardReason.eventProcessor,
+            DataCategory.error,
+          );
         }
 
         _options.logger(SentryLevel.debug, 'Event was dropped by a processor');

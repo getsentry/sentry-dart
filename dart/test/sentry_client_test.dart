@@ -9,10 +9,8 @@ import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';
-import 'package:mockito/mockito.dart';
 
 import 'mocks.dart';
-import 'mocks/mock_client_report_recorder.dart';
 import 'mocks/mock_hub.dart';
 import 'mocks/mock_transport.dart';
 
@@ -823,8 +821,8 @@ void main() {
 
       await client.captureEvent(fakeEvent);
 
-      expect(fixture.recorder.reason, DiscardReason.eventProcessor);
-      expect(fixture.recorder.category, DataCategory.error);
+      expect(fixture.transport.recorder.reason, DiscardReason.eventProcessor);
+      expect(fixture.transport.recorder.category, DataCategory.error);
     });
 
     test('event processor dropped transaction', () async {
@@ -836,8 +834,8 @@ void main() {
 
       await client.captureTransaction(transaction);
 
-      expect(fixture.recorder.reason, DiscardReason.eventProcessor);
-      expect(fixture.recorder.category, DataCategory.transaction);
+      expect(fixture.transport.recorder.reason, DiscardReason.eventProcessor);
+      expect(fixture.transport.recorder.category, DataCategory.transaction);
     });
   });
 }
@@ -890,7 +888,6 @@ class Fixture {
   final transport = MockTransport();
 
   final options = SentryOptions(dsn: fakeDsn);
-  final recorder = MockClientReportRecorder();
 
   late SentryTransactionContext _context;
   late SentryTracer tracer;
@@ -918,7 +915,6 @@ class Fixture {
       options.addEventProcessor(eventProcessor);
     }
     options.transport = transport;
-    options.recorder = recorder;
     final client = SentryClient(options);
     // hub.bindClient(client);
 

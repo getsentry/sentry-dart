@@ -9,15 +9,8 @@ import 'sentry_exception_factory.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'diagnostic_logger.dart';
 import 'environment/environment_variables.dart';
-import 'event_processor.dart';
-import 'http_client/sentry_http_client.dart';
-import 'integration.dart';
 import 'noop_client.dart';
-import 'platform_checker.dart';
-import 'protocol.dart';
-import 'tracing.dart';
 import 'transport/noop_transport.dart';
-import 'transport/transport.dart';
 import 'utils.dart';
 import 'version.dart';
 
@@ -262,9 +255,6 @@ class SentryOptions {
   /// This function is called by [TracesSamplerCallback] to determine if transaction is sampled - meant
   /// to be sent to Sentry.
   TracesSamplerCallback? tracesSampler;
-
-  /// The recorder is an internal component used to track client data.
-  late ClientReportRecorder recorder = ClientReportRecorder(clock);
 
   SentryOptions({this.dsn, PlatformChecker? checker}) {
     if (checker != null) {
