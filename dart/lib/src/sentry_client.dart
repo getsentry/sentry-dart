@@ -51,6 +51,7 @@ class SentryClient {
     dynamic hint,
   }) async {
     if (_sampleRate()) {
+      _recordLostEvent(event, DiscardReason.sampleRate);
       _options.logger(
         SentryLevel.debug,
         'Event ${event.eventId.toString()} was dropped due to sampling decision.',

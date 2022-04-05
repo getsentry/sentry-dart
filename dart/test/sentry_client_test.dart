@@ -848,6 +848,17 @@ void main() {
       expect(fixture.transport.recorder.reason, DiscardReason.beforeSend);
       expect(fixture.transport.recorder.category, DataCategory.error);
     });
+
+    test('record sample rate dropping event', () async {
+      final client = fixture.getSut(sampleRate: 0.0);
+
+      fixture.options.beforeSend = fixture.droppingBeforeSend;
+
+      await client.captureEvent(fakeEvent);
+
+      expect(fixture.transport.recorder.reason, DiscardReason.sampleRate);
+      expect(fixture.transport.recorder.category, DataCategory.error);
+    });
   });
 }
 
