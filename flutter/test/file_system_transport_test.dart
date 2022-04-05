@@ -1,10 +1,16 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:mockito/mockito.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/src/file_system_transport.dart';
+import 'package:sentry/src/client_reports/discard_reason.dart';
+import 'package:sentry/src/client_reports/discarded_event.dart';
+import 'package:sentry/src/transport/data_category.dart';
+
+import 'mocks.mocks.dart';
 
 void main() {
   const _channel = MethodChannel('sentry_flutter');
@@ -93,12 +99,46 @@ void main() {
 
     expect(item, eventString);
   });
+
+  test('flush called', () async {
+    final sut = fixture.getSut(_channel);
+
+    final sentryEvent = SentryEvent();
+    final envelope = SentryEnvelope.fromEvent(
+      sentryEvent,
+      fixture.options.sdk,
+    );
+
+    when(fixture.recorder.flush()).thenReturn(null);
+
+    await sut.send(envelope);
+
+    verify(fixture.recorder.flush());
+  });
+
+  test('client report added to envelope', () async {
+    final mockEnvelope = MockSentryEnvelope();
+    when(mockEnvelope.envelopeStream(any)).thenAnswer((_) => Stream.empty());
+
+    final sut = fixture.getSut(_channel);
+
+    final clientReport = ClientReport(
+      DateTime(0),
+      [DiscardedEvent(DiscardReason.rateLimitBackoff, DataCategory.error, 1)],
+    );
+    when(fixture.recorder.flush()).thenReturn(clientReport);
+
+    await sut.send(mockEnvelope);
+
+    verify(mockEnvelope.addClientReport(clientReport));
+  });
 }
 
 class Fixture {
+  final options = SentryOptions(dsn: '');
+  final recorder = MockClientReportRecorder();
+
   FileSystemTransport getSut(MethodChannel channel) {
-    final options = SentryOptions(dsn: '');
-    final recorder = ClientReportRecorder(options.clock);
     return FileSystemTransport(channel, options, recorder);
   }
 }

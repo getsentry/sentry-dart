@@ -33,6 +33,8 @@ ISentrySpan startTransactionShim(
   NoOpSentrySpan,
   MethodChannel,
   SentryNative,
+  ClientReportRecorder,
+  SentryEnvelope,
 ], customMocks: [
   MockSpec<Hub>(fallbackGenerators: {#startTransaction: startTransactionShim})
 ])

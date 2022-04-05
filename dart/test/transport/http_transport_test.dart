@@ -177,7 +177,7 @@ void main() {
       expect(fixture.clientReportRecorder.flushCalled, true);
     });
 
-    test('event client report added to envelope', () async {
+    test('client report added to envelope', () async {
       final mockClient = MockClient((http.Request request) async {
         return http.Response('{}', 200);
       });
