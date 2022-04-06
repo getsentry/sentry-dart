@@ -11,6 +11,9 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
   List<SentryUserFeedback> userFeedbackCalls = [];
   int closeCalls = 0;
 
+  DiscardReason? reason;
+  DataCategory? category;
+
   @override
   Future<SentryId> captureEvent(
     SentryEvent event, {
@@ -86,6 +89,12 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
   }) async {
     captureTransactionCalls.add(CaptureTransactionCall(transaction));
     return transaction.eventId;
+  }
+
+  @override
+  void recordLostEvent(DiscardReason reason, DataCategory category) {
+    this.reason = reason;
+    this.category = category;
   }
 }
 

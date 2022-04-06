@@ -465,6 +465,24 @@ void main() {
       expect(calls[2].formatted, 'foo bar 2');
     });
   });
+
+  group('ClientReportRecorder', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('record sample rate dropping transaction', () async {
+      final hub = fixture.getSut(sampled: false);
+      var transaction = SentryTransaction(fixture.tracer);
+
+      await hub.captureTransaction(transaction);
+
+      expect(fixture.client.reason, DiscardReason.sampleRate);
+      expect(fixture.client.category, DataCategory.transaction);
+    });
+  });
 }
 
 class Fixture {

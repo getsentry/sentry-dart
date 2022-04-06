@@ -277,6 +277,11 @@ class SentryClient {
 
   void close() => _options.httpClient.close();
 
+  void recordLostEvent(
+      final DiscardReason reason, final DataCategory category) {
+    _options.transport.recordLostEvent(reason, category);
+  }
+
   Future<SentryEvent?> _processEvent(
     SentryEvent event, {
     dynamic hint,
@@ -317,9 +322,6 @@ class SentryClient {
     } else {
       category = DataCategory.error;
     }
-    _options.transport.recordLostEvent(
-      reason,
-      category,
-    );
+    recordLostEvent(reason, category);
   }
 }
