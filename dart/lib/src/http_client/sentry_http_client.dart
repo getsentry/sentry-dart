@@ -2,7 +2,6 @@ import 'package:http/http.dart';
 import 'tracing_client.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
-import '../protocol.dart';
 import 'breadcrumb_client.dart';
 import 'failed_request_client.dart';
 

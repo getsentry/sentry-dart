@@ -29,7 +29,7 @@ extension SentryDioExtension on Dio {
       options.addEventProcessor(DioEventProcessor(options, maxRequestBodySize));
     }
 
-    if (hub.options.captureFailedRequests) {
+    if (options.captureFailedRequests) {
       // Add FailedRequestInterceptor at index 0, so it's the first interceptor.
       // This ensures that it is called and not skipped by any previous interceptor.
       interceptors.insert(0, FailedRequestInterceptor());
