@@ -2,13 +2,21 @@ import 'dart:async';
 import 'dart:math';
 import 'package:meta/meta.dart';
 
-import '../sentry.dart';
+import 'event_processor.dart';
+import 'sentry_user_feedback.dart';
 import 'transport/rate_limiter.dart';
+import 'protocol.dart';
+import 'scope.dart';
 import 'sentry_exception_factory.dart';
+import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'transport/http_transport.dart';
 import 'transport/noop_transport.dart';
 import 'version.dart';
+import 'sentry_envelope.dart';
+import 'client_reports/client_report_recorder.dart';
+import 'client_reports/discard_reason.dart';
+import 'transport/data_category.dart';
 
 /// Default value for [User.ipAddress]. It gets set when an event does not have
 /// a user and IP address. Only applies if [SentryOptions.sendDefaultPii] is set
