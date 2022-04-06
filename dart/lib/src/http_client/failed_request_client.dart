@@ -67,7 +67,6 @@ class FailedRequestClient extends BaseClient {
   FailedRequestClient({
     this.maxRequestBodySize = MaxRequestBodySize.never,
     this.failedRequestStatusCodes = const [],
-    this.captureFailedRequests = true,
     Client? client,
     Hub? hub,
   })  : _hub = hub ?? HubAdapter(),
@@ -75,13 +74,6 @@ class FailedRequestClient extends BaseClient {
 
   final Client _client;
   final Hub _hub;
-
-  /// Configures wether to record exceptions for failed requests.
-  /// Examples for captures exceptions are:
-  /// - In an browser environment this can be requests which fail because of CORS.
-  /// - In an mobile or desktop application this can be requests which failed
-  ///   because the connection was interrupted.
-  final bool captureFailedRequests;
 
   /// Configures up to which size request bodies should be included in events.
   /// This does not change wether an event is captured.
@@ -116,7 +108,7 @@ class FailedRequestClient extends BaseClient {
       // If captureFailedRequests is true, there statusCode is null.
       // So just one of these blocks can be called.
 
-      if (captureFailedRequests && exception != null) {
+      if (_hub.options.captureFailedRequests && exception != null) {
         await _captureEvent(
           exception: exception,
           stackTrace: stackTrace,

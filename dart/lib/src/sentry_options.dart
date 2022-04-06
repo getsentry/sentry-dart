@@ -228,6 +228,13 @@ class SentryOptions {
   /// Whether to send personal identifiable information along with events
   bool sendDefaultPii = false;
 
+  /// Configures whether to record exceptions for failed requests.
+  /// Examples for captures exceptions are:
+  /// - In an browser environment this can be requests which fail because of CORS.
+  /// - In an mobile or desktop application this can be requests which failed
+  ///   because the connection was interrupted.
+  bool captureFailedRequests = false;
+
   /// Whether [SentryEvent] deduplication is enabled.
   /// Can be further configured with [maxDeduplicationItems].
   /// Shoud be set to true if

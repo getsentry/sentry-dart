@@ -16,7 +16,6 @@ extension SentryDioExtension on Dio {
   void addSentry({
     bool recordBreadcrumbs = true,
     MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never,
-    bool captureFailedRequests = false,
     Hub? hub,
   }) {
     hub = hub ?? HubAdapter();
@@ -30,7 +29,7 @@ extension SentryDioExtension on Dio {
       options.addEventProcessor(DioEventProcessor(options, maxRequestBodySize));
     }
 
-    if (captureFailedRequests) {
+    if (hub.options.captureFailedRequests) {
       // Add FailedRequestInterceptor at index 0, so it's the first interceptor.
       // This ensures that it is called and not skipped by any previous interceptor.
       interceptors.insert(0, FailedRequestInterceptor());
