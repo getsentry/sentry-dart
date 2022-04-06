@@ -93,13 +93,7 @@ class SentryOptions {
 
   /// Configures up to which size request bodies should be included in events.
   /// This does not change whether an event is captured.
-  MaxRequestBodySize _maxRequestBodySize = MaxRequestBodySize.never;
-
-  MaxRequestBodySize get maxRequestBodySize => _maxRequestBodySize;
-
-  set maxRequestBodySize(MaxRequestBodySize maxRequestBodySize){
-    _maxRequestBodySize = maxRequestBodySize;
-  }
+  MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never;
 
   SentryLogger _logger = noOpLogger;
 
