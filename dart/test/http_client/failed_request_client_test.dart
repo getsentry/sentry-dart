@@ -31,9 +31,10 @@ void main() {
     });
 
     test('exception gets reported if client throws', () async {
+      fixture._hub.options.captureFailedRequests=true;
+      fixture._hub.options.sendDefaultPii=true;
       final sut = fixture.getSut(
         client: createThrowingClient(),
-        captureFailedRequests: true,
       );
 
       await expectLater(
@@ -64,7 +65,6 @@ void main() {
     test('exception gets not reported if disabled', () async {
       final sut = fixture.getSut(
         client: createThrowingClient(),
-        captureFailedRequests: false,
       );
 
       await expectLater(
@@ -76,6 +76,7 @@ void main() {
     });
 
     test('exception gets reported if bad status code occurs', () async {
+      fixture._hub.options.sendDefaultPii=true;
       final sut = fixture.getSut(
         client: fixture.getClient(statusCode: 404, reason: 'Not Found'),
         badStatusCodes: [SentryStatusCode(404)],
@@ -118,7 +119,6 @@ void main() {
       final sut = fixture.getSut(
         client: fixture.getClient(statusCode: 404, reason: 'Not Found'),
         badStatusCodes: [SentryStatusCode(404)],
-        captureFailedRequests: true,
       );
 
       await sut.get(requestUri, headers: {'Cookie': 'foo=bar'});
@@ -140,10 +140,9 @@ void main() {
     });
 
     test('pii is not send on exception', () async {
+      fixture._hub.options.captureFailedRequests=true;
       final sut = fixture.getSut(
         client: createThrowingClient(),
-        captureFailedRequests: true,
-        sendDefaultPii: false,
       );
 
       await expectLater(
@@ -161,8 +160,6 @@ void main() {
       final sut = fixture.getSut(
         client: fixture.getClient(statusCode: 404, reason: 'Not Found'),
         badStatusCodes: [SentryStatusCode(404)],
-        captureFailedRequests: false,
-        sendDefaultPii: false,
       );
 
       await sut.get(requestUri, headers: {'Cookie': 'foo=bar'});
@@ -194,13 +191,13 @@ void main() {
         MaxRequestBodySizeTestConfig(MaxRequestBodySize.medium, 10001, false),
       ];
 
+      fixture._hub.options.captureFailedRequests=true;
       for (final scenario in scenarios) {
+        fixture._hub.options.maxRequestBodySize=scenario.maxRequestBodySize;
         fixture.transport.reset();
 
         final sut = fixture.getSut(
           client: createThrowingClient(),
-          captureFailedRequests: true,
-          maxRequestBodySize: scenario.maxRequestBodySize,
         );
 
         final request = Request('GET', requestUri)
@@ -247,17 +244,12 @@ class Fixture {
 
   FailedRequestClient getSut({
     MockClient? client,
-    bool captureFailedRequests = false,
-    MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.small,
     List<SentryStatusCode> badStatusCodes = const [],
-    bool sendDefaultPii = true,
   }) {
     final mc = client ?? getClient();
-    var hub = _hub;
-    hub.options.sendDefaultPii = sendDefaultPii;
     return FailedRequestClient(
       client: mc,
-      hub: hub,
+      hub: _hub,
       failedRequestStatusCodes: badStatusCodes,
     );
   }
