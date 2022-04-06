@@ -83,7 +83,6 @@ class SentryHttpClient extends BaseClient {
     MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never,
     List<SentryStatusCode> failedRequestStatusCodes = const [],
     bool captureFailedRequests = false,
-    bool networkTracing = false,
   }) {
     _hub = hub ?? HubAdapter();
 
@@ -97,7 +96,7 @@ class SentryHttpClient extends BaseClient {
       client: innerClient,
     );
 
-    if (networkTracing) {
+    if (_hub.options.isTracingEnabled()) {
       innerClient = TracingClient(client: innerClient, hub: _hub);
     }
 

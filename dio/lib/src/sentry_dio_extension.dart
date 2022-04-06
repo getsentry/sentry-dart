@@ -15,7 +15,6 @@ extension SentryDioExtension on Dio {
   @experimental
   void addSentry({
     bool recordBreadcrumbs = true,
-    bool networkTracing = true,
     MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never,
     bool captureFailedRequests = false,
     Hub? hub,
@@ -41,7 +40,6 @@ extension SentryDioExtension on Dio {
     httpClientAdapter = SentryDioClientAdapter(
       client: httpClientAdapter,
       recordBreadcrumbs: recordBreadcrumbs,
-      networkTracing: networkTracing,
       hub: hub,
     );
 

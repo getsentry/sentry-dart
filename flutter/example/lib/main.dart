@@ -513,7 +513,6 @@ Future<void> makeWebRequest(BuildContext context) async {
 
   final client = SentryHttpClient(
     captureFailedRequests: true,
-    networkTracing: true,
     failedRequestStatusCodes: [SentryStatusCode.range(400, 500)],
   );
   // We don't do any exception handling here.
@@ -550,7 +549,6 @@ Future<void> makeWebRequestWithDio(BuildContext context) async {
 
   dio.addSentry(
     captureFailedRequests: true,
-    networkTracing: true,
   );
 
   final transaction = Sentry.getSpan() ??
