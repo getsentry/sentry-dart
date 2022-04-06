@@ -3,11 +3,9 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:sentry/src/sentry_tracer.dart';
-import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
@@ -821,8 +819,8 @@ void main() {
 
       await client.captureEvent(fakeEvent);
 
-      expect(fixture.transport.recorder.reason, DiscardReason.eventProcessor);
-      expect(fixture.transport.recorder.category, DataCategory.error);
+      expect(fixture.transport.reason, DiscardReason.eventProcessor);
+      expect(fixture.transport.category, DataCategory.error);
     });
 
     test('record event processor dropping transaction', () async {
@@ -834,8 +832,8 @@ void main() {
 
       await client.captureTransaction(transaction);
 
-      expect(fixture.transport.recorder.reason, DiscardReason.eventProcessor);
-      expect(fixture.transport.recorder.category, DataCategory.transaction);
+      expect(fixture.transport.reason, DiscardReason.eventProcessor);
+      expect(fixture.transport.category, DataCategory.transaction);
     });
 
     test('record beforeSend dropping event', () async {
@@ -845,8 +843,8 @@ void main() {
 
       await client.captureEvent(fakeEvent);
 
-      expect(fixture.transport.recorder.reason, DiscardReason.beforeSend);
-      expect(fixture.transport.recorder.category, DataCategory.error);
+      expect(fixture.transport.reason, DiscardReason.beforeSend);
+      expect(fixture.transport.category, DataCategory.error);
     });
 
     test('record sample rate dropping event', () async {
@@ -856,8 +854,8 @@ void main() {
 
       await client.captureEvent(fakeEvent);
 
-      expect(fixture.transport.recorder.reason, DiscardReason.sampleRate);
-      expect(fixture.transport.recorder.category, DataCategory.error);
+      expect(fixture.transport.reason, DiscardReason.sampleRate);
+      expect(fixture.transport.category, DataCategory.error);
     });
   });
 }

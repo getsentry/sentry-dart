@@ -3,8 +3,6 @@ import 'dart:math';
 import 'package:meta/meta.dart';
 
 import '../sentry.dart';
-import 'client_reports/discard_reason.dart';
-import 'transport/data_category.dart';
 import 'transport/rate_limiter.dart';
 import 'sentry_exception_factory.dart';
 import 'sentry_stack_trace_factory.dart';
@@ -319,7 +317,7 @@ class SentryClient {
     } else {
       category = DataCategory.error;
     }
-    _options.transport.recorder.recordLostEvent(
+    _options.transport.recordLostEvent(
       reason,
       category,
     );

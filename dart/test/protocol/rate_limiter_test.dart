@@ -1,8 +1,6 @@
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
-import 'package:sentry/src/client_reports/discard_reason.dart';
-import 'package:sentry/src/transport/data_category.dart';
 import 'package:sentry/src/transport/rate_limiter.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/sentry_envelope_header.dart';

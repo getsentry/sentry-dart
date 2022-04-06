@@ -32,3 +32,5 @@ export 'src/sentry_measurement.dart';
 // client reports
 export 'src/client_reports/client_report.dart';
 export 'src/client_reports/client_report_recorder.dart';
+export 'src/client_reports/discard_reason.dart';
+export 'src/transport/data_category.dart';

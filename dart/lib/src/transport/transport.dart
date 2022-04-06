@@ -7,5 +7,5 @@ import '../../sentry.dart';
 abstract class Transport {
   Future<SentryId?> send(SentryEnvelope envelope);
 
-  ClientReportRecorder get recorder;
+  void recordLostEvent(final DiscardReason reason, final DataCategory category);
 }

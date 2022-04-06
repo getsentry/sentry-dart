@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'package:http/http.dart';
 
 import '../client_reports/client_report_recorder.dart';
+import '../client_reports/discard_reason.dart';
+import 'data_category.dart';
 import 'noop_encode.dart' if (dart.library.io) 'encode.dart';
 import '../noop_client.dart';
 import '../protocol.dart';
@@ -111,9 +113,6 @@ class HttpTransport implements Transport {
     return streamedRequest;
   }
 
-  @override
-  ClientReportRecorder get recorder => _clientReportRecorder;
-
   void _updateRetryAfterLimits(Response response) {
     // seconds
     final retryAfterHeader = response.headers['Retry-After'];
@@ -127,6 +126,11 @@ class HttpTransport implements Transport {
     final sentryRateLimitHeader = response.headers['X-Sentry-Rate-Limits'];
     _rateLimiter.updateRetryAfterLimits(
         sentryRateLimitHeader, retryAfterHeader, response.statusCode);
+  }
+
+  @override
+  void recordLostEvent(DiscardReason reason, DataCategory category) {
+    _clientReportRecorder.recordLostEvent(reason, category);
   }
 }
 

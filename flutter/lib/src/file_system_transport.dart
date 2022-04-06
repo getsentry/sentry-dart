@@ -35,5 +35,7 @@ class FileSystemTransport implements Transport {
   }
 
   @override
-  ClientReportRecorder get recorder => _clientReportRecorder;
+  void recordLostEvent(DiscardReason reason, DataCategory category) {
+    _clientReportRecorder.recordLostEvent(reason, category);
+  }
 }

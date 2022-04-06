@@ -1,9 +1,6 @@
-import '../../sentry.dart';
-import '../client_reports/discard_reason.dart';
-import '../transport/rate_limit_parser.dart';
-
 import 'rate_limit.dart';
-import 'data_category.dart';
+import '../../sentry.dart';
+import '../transport/rate_limit_parser.dart';
 
 /// Controls retry limits on different category types sent to Sentry.
 class RateLimiter {

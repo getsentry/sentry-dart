@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:sentry/sentry.dart';
-import 'mock_client_report_recorder.dart';
 
 class MockTransport implements Transport {
   List<SentryEnvelope> envelopes = [];
@@ -60,8 +59,14 @@ class MockTransport implements Transport {
     calls = 0;
   }
 
+  DiscardReason? reason;
+  DataCategory? category;
+
   @override
-  MockClientReportRecorder recorder = MockClientReportRecorder();
+  void recordLostEvent(DiscardReason reason, DataCategory category) {
+    this.reason = reason;
+    this.category = category;
+  }
 }
 
 class ThrowingTransport implements Transport {
@@ -71,5 +76,7 @@ class ThrowingTransport implements Transport {
   }
 
   @override
-  ClientReportRecorder get recorder => throw Exception('foo bar');
+  void recordLostEvent(DiscardReason reason, DataCategory category) {
+    throw Exception('foo bar');
+  }
 }

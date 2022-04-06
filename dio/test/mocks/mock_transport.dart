@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/client_reports/discard_reason.dart';
+import 'package:sentry/src/transport/data_category.dart';
 
 import 'no_such_method_provider.dart';
 
@@ -69,5 +71,7 @@ class ThrowingTransport implements Transport {
   }
 
   @override
-  ClientReportRecorder get recorder => throw Exception('foo bar');
+  void recordLostEvent(DiscardReason reason, DataCategory category) {
+    throw Exception('foo bar');
+  }
 }

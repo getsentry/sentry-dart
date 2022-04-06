@@ -6,9 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/src/file_system_transport.dart';
-import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/client_reports/discarded_event.dart';
-import 'package:sentry/src/transport/data_category.dart';
 
 import 'mocks.mocks.dart';
 
@@ -30,6 +28,8 @@ void main() {
   test('FileSystemTransport wont throw', () async {
     _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
 
+    when(fixture.recorder.flush()).thenReturn(null);
+
     final transport = fixture.getSut(_channel);
     final event = SentryEvent();
     final sdkVersion =
@@ -45,6 +45,8 @@ void main() {
     _channel.setMockMethodCallHandler((MethodCall methodCall) async {
       throw Exception();
     });
+
+    when(fixture.recorder.flush()).thenReturn(null);
 
     final transport = fixture.getSut(_channel);
     final event = SentryEvent();
@@ -62,6 +64,8 @@ void main() {
     _channel.setMockMethodCallHandler((MethodCall methodCall) async {
       arguments = methodCall.arguments;
     });
+
+    when(fixture.recorder.flush()).thenReturn(null);
 
     final transport = fixture.getSut(_channel);
 
