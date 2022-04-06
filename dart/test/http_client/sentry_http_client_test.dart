@@ -44,9 +44,9 @@ void main() {
 
     test('one captured event with when enabling $FailedRequestClient',
         () async {
+      fixture.hub.options.captureFailedRequests=true;
       final sut = fixture.getSut(
         client: createThrowingClient(),
-        captureFailedRequests: true,
         recordBreadcrumbs: true,
       );
 
@@ -77,7 +77,6 @@ void main() {
       final sut = fixture.getSut(
         client: fixture.getClient(statusCode: 200, reason: 'OK'),
         recordBreadcrumbs: false,
-        networkTracing: false,
       );
 
       final response = await sut.get(requestUri);
@@ -87,10 +86,10 @@ void main() {
     });
 
     test('captured span if tracing enabled', () async {
+      fixture.hub.options.tracesSampleRate=1.0;
       final sut = fixture.getSut(
         client: fixture.getClient(statusCode: 200, reason: 'OK'),
         recordBreadcrumbs: false,
-        networkTracing: true,
       );
 
       final response = await sut.get(requestUri);
@@ -115,11 +114,9 @@ class CloseableMockClient extends Mock implements BaseClient {}
 class Fixture {
   SentryHttpClient getSut({
     MockClient? client,
-    bool captureFailedRequests = false,
     MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never,
     List<SentryStatusCode> badStatusCodes = const [],
     bool recordBreadcrumbs = true,
-    bool networkTracing = false,
   }) {
     final mc = client ?? getClient();
     return SentryHttpClient(
