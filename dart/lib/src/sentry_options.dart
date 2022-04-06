@@ -4,13 +4,19 @@ import 'dart:developer';
 import 'package:meta/meta.dart';
 import 'package:http/http.dart';
 
-import '../sentry.dart';
 import 'sentry_exception_factory.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'diagnostic_logger.dart';
 import 'environment/environment_variables.dart';
+import 'event_processor.dart';
+import 'http_client/sentry_http_client.dart';
+import 'integration.dart';
 import 'noop_client.dart';
+import 'platform_checker.dart';
+import 'protocol.dart';
+import 'tracing.dart';
 import 'transport/noop_transport.dart';
+import 'transport/transport.dart';
 import 'utils.dart';
 import 'version.dart';
 

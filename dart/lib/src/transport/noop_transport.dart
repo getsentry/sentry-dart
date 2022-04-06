@@ -1,6 +1,11 @@
 import 'dart:async';
 
-import '../../sentry.dart';
+import '../sentry_envelope.dart';
+
+import '../protocol.dart';
+import 'transport.dart';
+import '../client_reports/discard_reason.dart';
+import 'data_category.dart';
 
 class NoOpTransport implements Transport {
   @override

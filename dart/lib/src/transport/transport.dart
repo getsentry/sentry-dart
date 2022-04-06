@@ -1,6 +1,9 @@
 import 'dart:async';
 
-import '../../sentry.dart';
+import '../sentry_envelope.dart';
+import '../protocol.dart';
+import '../client_reports/discard_reason.dart';
+import 'data_category.dart';
 
 /// A transport is in charge of sending the event/envelope either via http
 /// or caching in the disk.

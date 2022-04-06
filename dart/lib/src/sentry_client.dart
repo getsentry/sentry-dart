@@ -37,7 +37,7 @@ class SentryClient {
     return SentryClient._(options);
   }
 
-  /// Instantiates a client using [SentryOptions] and [ClientReportRecorder]
+  /// Instantiates a client using [SentryOptions]
   SentryClient._(this._options)
       : _random = _options.sampleRate == null ? null : Random();
 
@@ -277,8 +277,7 @@ class SentryClient {
 
   void close() => _options.httpClient.close();
 
-  void recordLostEvent(
-      final DiscardReason reason, final DataCategory category) {
+  void recordLostEvent(DiscardReason reason, DataCategory category) {
     _options.transport.recordLostEvent(reason, category);
   }
 
