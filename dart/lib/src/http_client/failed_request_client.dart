@@ -176,7 +176,7 @@ class FailedRequestClient extends BaseClient {
     if (contentLength == null) {
       return null;
     }
-    if (!maxRequestBodySize.shouldAddBody(contentLength)) {
+    if (!_hub.options.maxRequestBodySize.shouldAddBody(contentLength)) {
       return null;
     }
     if (request is MultipartRequest) {

@@ -258,9 +258,7 @@ class Fixture {
     return FailedRequestClient(
       client: mc,
       hub: hub,
-      captureFailedRequests: captureFailedRequests,
       failedRequestStatusCodes: badStatusCodes,
-      maxRequestBodySize: maxRequestBodySize,
     );
   }
 
