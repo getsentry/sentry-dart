@@ -65,7 +65,6 @@ import 'sentry_http_client.dart';
 /// ```
 class FailedRequestClient extends BaseClient {
   FailedRequestClient({
-    this.maxRequestBodySize = MaxRequestBodySize.never,
     this.failedRequestStatusCodes = const [],
     Client? client,
     Hub? hub,
@@ -74,10 +73,6 @@ class FailedRequestClient extends BaseClient {
 
   final Client _client;
   final Hub _hub;
-
-  /// Configures up to which size request bodies should be included in events.
-  /// This does not change wether an event is captured.
-  final MaxRequestBodySize maxRequestBodySize;
 
   /// Describes which HTTP status codes should be considered as a failed
   /// requests.
