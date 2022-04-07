@@ -181,16 +181,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
             if arguments["debugImages"] as? Bool ?? false {
                 let debugImages = self.sentryIOSPrivate.getDebugImages() as [DebugMeta]
-                infos["debugImages"] = debugImages.map {
-                    [
-                        "uuid": $0.uuid,
-                        "type": $0.type,
-                        "name": $0.name,
-                        "image_size": $0.imageSize,
-                        "image_addr": $0.imageAddress,
-                        "image_vmaddr": $0.imageVmAddress,
-                    ]
-                }
+                infos["debugImages"] = debugImages.map { $0.serialize() }
             }
 
             result(infos)
