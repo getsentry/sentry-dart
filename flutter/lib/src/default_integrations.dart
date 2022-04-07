@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -173,7 +174,12 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
   FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {
     try {
       final infos = Map<String, dynamic>.from(
-        await (_channel.invokeMethod('loadContexts')),
+        await (_channel.invokeMethod('loadContexts', {
+          // The list of libraries is long (~300 in the example app), so only
+          // load it if needed for the current event.
+          'debugImages':
+              _LoadImageListIntegrationEventProcessor.needsSymbolication(event)
+        })),
       );
       final contextsMap = infos['contexts'] as Map?;
       if (contextsMap != null && contextsMap.isNotEmpty) {
@@ -312,6 +318,11 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
         }
 
         event = event.copyWith(sdk: sdk);
+      }
+
+      if (infos['debugImages'] != null) {
+        event = _LoadImageListIntegrationEventProcessor.copyWithDebugImages(
+            event, infos['debugImages']);
       }
 
       // on iOS, captureEnvelope does not call the beforeSend callback,
@@ -454,77 +465,32 @@ class LoadAndroidImageListIntegration
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
     options.addEventProcessor(
-      _LoadAndroidImageListIntegrationEventProcessor(_channel, options),
+      _LoadImageListIntegrationEventProcessor(_channel, options),
     );
 
     options.sdk.addIntegration('loadAndroidImageListIntegration');
   }
 }
 
-class _LoadAndroidImageListIntegrationEventProcessor extends EventProcessor {
-  _LoadAndroidImageListIntegrationEventProcessor(this._channel, this._options);
+class _LoadImageListIntegrationEventProcessor extends EventProcessor {
+  _LoadImageListIntegrationEventProcessor(this._channel, this._options);
 
   final MethodChannel _channel;
   final SentryFlutterOptions _options;
 
   @override
   FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {
-    if (event is SentryTransaction) {
+    if (event is SentryTransaction || !needsSymbolication(event)) {
       return event;
     }
 
     try {
-      final exceptions = event.exceptions;
-      if (exceptions != null && exceptions.first.stackTrace != null) {
-        final needsSymbolication = exceptions.first.stackTrace?.frames
-                .any((element) => 'native' == element.platform) ??
-            false;
-
-        // if there are no frames that require symbolication, we don't
-        // load the debug image list.
-        if (!needsSymbolication) {
-          return event;
-        }
-      } else {
-        return event;
-      }
-
       // we call on every event because the loaded image list is cached
       // and it could be changed on the Native side.
       final imageList = List<Map<dynamic, dynamic>>.from(
         await _channel.invokeMethod('loadImageList'),
       );
-
-      if (imageList.isEmpty) {
-        return event;
-      }
-
-      final newDebugImages = <DebugImage>[];
-
-      for (final item in imageList) {
-        final codeFile = item['code_file'] as String?;
-        final codeId = item['code_id'] as String?;
-        final imageAddr = item['image_addr'] as String?;
-        final imageSize = item['image_size'] as int?;
-        final type = item['type'] as String;
-        final debugId = item['debug_id'] as String?;
-        final debugFile = item['debug_file'] as String?;
-
-        final image = DebugImage(
-          type: type,
-          imageAddr: imageAddr,
-          imageSize: imageSize,
-          codeFile: codeFile,
-          debugId: debugId,
-          codeId: codeId,
-          debugFile: debugFile,
-        );
-        newDebugImages.add(image);
-      }
-
-      final debugMeta = DebugMeta(images: newDebugImages);
-
-      event = event.copyWith(debugMeta: debugMeta);
+      return copyWithDebugImages(event, imageList);
     } catch (exception, stackTrace) {
       _options.logger(
         SentryLevel.error,
@@ -535,6 +501,30 @@ class _LoadAndroidImageListIntegrationEventProcessor extends EventProcessor {
     }
 
     return event;
+  }
+
+  static bool needsSymbolication(SentryEvent event) {
+    final frames = event.exceptions?.first.stackTrace?.frames;
+    if (frames == null) return false;
+    return Platform.isAndroid
+        ? frames.any((frame) => 'native' == frame.platform)
+        : frames.isNotEmpty;
+  }
+
+  static SentryEvent copyWithDebugImages(
+      SentryEvent event, List<Object?> imageList) {
+    if (imageList.isEmpty) {
+      return event;
+    }
+
+    final newDebugImages = <DebugImage>[];
+    for (final obj in imageList) {
+      final jsonMap = Map<String, dynamic>.from(obj as Map<dynamic, dynamic>);
+      final image = DebugImage.fromJson(jsonMap);
+      newDebugImages.add(image);
+    }
+
+    return event.copyWith(debugMeta: DebugMeta(images: newDebugImages));
   }
 }
 

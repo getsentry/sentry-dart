@@ -13,6 +13,7 @@ import AppKit
 public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
     private var sentryOptions: Options?
+    let sentryIOSPrivate = PrivateSentrySDKOnly()
 
     // The Cocoa SDK is init. after the notification didBecomeActiveNotification is registered.
     // We need to be able to receive this notification and start a session when the SDK is fully operational.
@@ -59,7 +60,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method as String {
         case "loadContexts":
-            loadContexts(result: result)
+            loadContexts(call, result: result)
 
         case "initNativeSdk":
             initNativeSdk(call, result: result)
@@ -126,7 +127,13 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
     }
 
     // swiftlint:disable:next cyclomatic_complexity
-    private func loadContexts(result: @escaping FlutterResult) {
+    private func loadContexts(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let arguments = call.arguments as? [String: Any], !arguments.isEmpty else {
+            print("Arguments is null or empty")
+            result(FlutterError(code: "4", message: "Arguments is null or empty", details: nil))
+            return
+        }
+
         SentrySDK.configureScope { scope in
             let serializedScope = scope.serialize()
             let context = serializedScope["context"]
@@ -170,6 +177,20 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
             if let sdkInfo = self.sentryOptions?.sdkInfo {
                 infos["package"] = ["version": sdkInfo.version, "sdk_name": "cocoapods:sentry-cocoa"]
+            }
+
+            if arguments["debugImages"] as? Bool ?? false {
+                let debugImages = self.sentryIOSPrivate.getDebugImages() as [DebugMeta]
+                infos["debugImages"] = debugImages.map {
+                    [
+                        "uuid": $0.uuid,
+                        "type": $0.type,
+                        "name": $0.name,
+                        "image_size": $0.imageSize,
+                        "image_addr": $0.imageAddress,
+                        "image_vmaddr": $0.imageVmAddress,
+                    ]
+                }
             }
 
             result(infos)
