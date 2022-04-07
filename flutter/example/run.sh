@@ -15,14 +15,16 @@ export SENTRY_RELEASE=$(date +%Y-%m-%d_%H-%M-%S)
 
 echo -e "[\033[92mrun\033[0m] $1"
 
+# using 'build' as the base dir because `flutter clean` will delete it, so we don't end up with leftover symbols from a previous build
+symbolsDir=build/symbols
+
 if [ "$1" == "ios" ]; then
-    # iOS does not support split-debug-info and obfuscate yet
-    flutter build ios
-    # TODO: Install the iOS app via CLI
-    #.. install build/ios/Release-iphoneos/Runner.app
+    flutter build ios --split-debug-info=$symbolsDir --obfuscate
+    # see https://github.com/ios-control/ios-deploy (or just install: `brew install ios-deploy`)
+    ios-deploy --justlaunch --bundle build/ios/Release-iphoneos/Runner.app
 elif [ "$1" == "android" ]; then
-    flutter build apk --split-debug-info=symbols --obfuscate
-    adb install build/app/outputs/flutter-apk/app-release.apk 
+    flutter build apk --split-debug-info=$symbolsDir --obfuscate
+    adb install build/app/outputs/flutter-apk/app-release.apk
     adb shell am start -n io.sentry.samples.flutter/io.sentry.samples.flutter.MainActivity
     echo -e "[\033[92mrun\033[0m] Android app installed"
 elif [ "$1" == "web" ]; then
@@ -58,6 +60,5 @@ if [ "$1" == "web" ]; then
 else
     echo -e "[\033[92mrun\033[0m] Uploading debug information files"
     # directory 'symbols' contain the Dart debug info files but to include platform ones, use current dir.
-    sentry-cli upload-dif --org $SENTRY_ORG --project $SENTRY_PROJECT .
+    sentry-cli upload-dif --wait --org $SENTRY_ORG --project $SENTRY_PROJECT .
 fi
-
