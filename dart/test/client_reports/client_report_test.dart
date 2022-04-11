@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:sentry/src/client_reports/client_report.dart';
-import 'package:sentry/src/client_reports/discarded_event.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
+import 'package:sentry/src/client_reports/discarded_event.dart';
 import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';
 import 'package:sentry/src/utils.dart';
