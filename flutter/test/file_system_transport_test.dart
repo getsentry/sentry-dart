@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/src/file_system_transport.dart';
 import 'package:sentry/src/client_reports/discarded_event.dart';
+import 'package:sentry/src/sentry_envelope_header.dart';
 
 import 'mocks.mocks.dart';
 
@@ -105,6 +106,8 @@ void main() {
   });
 
   test('flush called', () async {
+    _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
+
     final sut = fixture.getSut(_channel);
 
     final sentryEvent = SentryEvent();
@@ -121,7 +124,11 @@ void main() {
   });
 
   test('client report added to envelope', () async {
+    _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
+
+    final mockEnvelopeHeader = SentryEnvelopeHeader.newEventId();
     final mockEnvelope = MockSentryEnvelope();
+    when(mockEnvelope.header).thenReturn(mockEnvelopeHeader);
     when(mockEnvelope.envelopeStream(any)).thenAnswer((_) => Stream.empty());
 
     final sut = fixture.getSut(_channel);
