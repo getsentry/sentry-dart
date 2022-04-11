@@ -285,6 +285,7 @@ class SentryClient {
 
   void close() => _options.httpClient.close();
 
+  @internal
   void recordLostEvent(DiscardReason reason, DataCategory category) {
     _options.transport.recordLostEvent(reason, category);
   }
