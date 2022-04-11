@@ -4,17 +4,13 @@ import 'package:flutter/services.dart';
 import 'package:sentry/sentry.dart';
 
 class FileSystemTransport implements Transport {
-  FileSystemTransport(this._channel, this._options, this._clientReportRecorder);
+  FileSystemTransport(this._channel, this._options);
 
   final MethodChannel _channel;
   final SentryOptions _options;
-  final ClientReportRecorder _clientReportRecorder;
 
   @override
   Future<SentryId?> send(SentryEnvelope envelope) async {
-    final clientReport = _clientReportRecorder.flush();
-    envelope.addClientReport(clientReport);
-
     final envelopeData = <int>[];
     await envelope.envelopeStream(_options).forEach(envelopeData.addAll);
     // https://flutter.dev/docs/development/platform-integration/platform-channels#codec
@@ -32,10 +28,5 @@ class FileSystemTransport implements Transport {
     }
 
     return envelope.header.eventId;
-  }
-
-  @override
-  void recordLostEvent(DiscardReason reason, DataCategory category) {
-    _clientReportRecorder.recordLostEvent(reason, category);
   }
 }

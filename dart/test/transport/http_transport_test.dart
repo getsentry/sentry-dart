@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:sentry/src/client_reports/discarded_event.dart';
 import 'package:sentry/src/sentry_envelope_header.dart';
 import 'package:sentry/src/sentry_envelope_item_header.dart';
 import 'package:sentry/src/sentry_item_type.dart';
@@ -15,7 +14,6 @@ import 'package:sentry/src/transport/http_transport.dart';
 
 import '../mocks.dart';
 import '../mocks/mock_client_report_recorder.dart';
-import '../mocks/mock_envelope.dart';
 import '../mocks/mock_hub.dart';
 
 void main() {
@@ -149,53 +147,6 @@ void main() {
           'fixture-sentryRateLimitHeader');
     });
   });
-
-  group('client reports', () {
-    late Fixture fixture;
-
-    setUp(() {
-      fixture = Fixture();
-    });
-
-    test('flush called', () async {
-      final mockClient = MockClient((http.Request request) async {
-        return http.Response('{}', 200);
-      });
-      final mockRateLimiter = MockRateLimiter();
-
-      final sut = fixture.getSut(mockClient, mockRateLimiter);
-      final sentryEvent = SentryEvent();
-      final envelope = SentryEnvelope.fromEvent(
-        sentryEvent,
-        fixture.options.sdk,
-      );
-
-      await sut.send(envelope);
-
-      expect(fixture.clientReportRecorder.flushCalled, true);
-    });
-
-    test('client report added to envelope', () async {
-      final mockClient = MockClient((http.Request request) async {
-        return http.Response('{}', 200);
-      });
-      final mockRateLimiter = MockRateLimiter();
-
-      final clientReport = ClientReport(
-        DateTime(0),
-        [DiscardedEvent(DiscardReason.rateLimitBackoff, DataCategory.error, 1)],
-      );
-
-      fixture.clientReportRecorder.clientReport = clientReport;
-
-      final sut = fixture.getSut(mockClient, mockRateLimiter);
-      final mockEnvelope = MockEnvelope();
-
-      await sut.send(mockEnvelope);
-
-      expect(clientReport, mockEnvelope.clientReport);
-    });
-  });
 }
 
 class Fixture {
@@ -207,7 +158,7 @@ class Fixture {
 
   HttpTransport getSut(http.Client client, RateLimiter rateLimiter) {
     options.httpClient = client;
-    return HttpTransport(options, rateLimiter, clientReportRecorder);
+    return HttpTransport(options, rateLimiter);
   }
 
   SentryTracer createTracer({

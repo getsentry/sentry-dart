@@ -1,5 +1,6 @@
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_envelope_header.dart';
+import 'package:sentry/src/client_reports/client_report.dart';
 
 class MockEnvelope implements SentryEnvelope {
   ClientReport? clientReport;
@@ -21,5 +22,5 @@ class MockEnvelope implements SentryEnvelope {
       );
 
   @override
-  List<SentryEnvelopeItem> get items => [];
+  List<SentryEnvelopeItem> items = [];
 }

@@ -1,9 +1,6 @@
 import 'dart:convert';
 
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/client_reports/discard_reason.dart';
-import 'package:sentry/src/transport/data_category.dart';
-
 import 'no_such_method_provider.dart';
 
 class MockTransport with NoSuchMethodProvider implements Transport {
@@ -67,11 +64,6 @@ class MockTransport with NoSuchMethodProvider implements Transport {
 class ThrowingTransport implements Transport {
   @override
   Future<SentryId> send(SentryEnvelope envelope) async {
-    throw Exception('foo bar');
-  }
-
-  @override
-  void recordLostEvent(DiscardReason reason, DataCategory category) {
     throw Exception('foo bar');
   }
 }

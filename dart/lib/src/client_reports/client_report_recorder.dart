@@ -1,9 +1,12 @@
+import 'package:meta/meta.dart';
+
 import '../sentry_options.dart';
 import 'client_report.dart';
 import 'discarded_event.dart';
 import 'discard_reason.dart';
 import '../transport/data_category.dart';
 
+@internal
 class ClientReportRecorder {
   ClientReportRecorder(this._clock);
 

@@ -3,12 +3,18 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/client_reports/client_report.dart';
+import 'package:sentry/src/client_reports/discard_reason.dart';
+import 'package:sentry/src/client_reports/discarded_event.dart';
 import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
+import 'mocks/mock_client_report_recorder.dart';
+import 'mocks/mock_envelope.dart';
 import 'mocks/mock_hub.dart';
 import 'mocks/mock_transport.dart';
 
@@ -814,13 +820,81 @@ void main() {
       fixture = Fixture();
     });
 
+    test('captureEnvelope calls flush', () async {
+      final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
+
+      final envelope = MockEnvelope();
+      envelope.items = [SentryEnvelopeItem.fromEvent(SentryEvent())];
+
+      await client.captureEnvelope(envelope);
+
+      expect(fixture.recorder.flushCalled, true);
+    });
+
+    test('captureEnvelope adds client report', () async {
+      final clientReport = ClientReport(
+        DateTime(0),
+        [DiscardedEvent(DiscardReason.rateLimitBackoff, DataCategory.error, 1)],
+      );
+      fixture.recorder.clientReport = clientReport;
+
+      final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
+
+      final envelope = MockEnvelope();
+      envelope.items = [SentryEnvelopeItem.fromEvent(SentryEvent())];
+
+      await client.captureEnvelope(envelope);
+
+      expect(envelope.clientReport, clientReport);
+    });
+
+    test('captureUserFeedback calls flush', () async {
+      final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
+
+      final id = SentryId.newId();
+      final feedback = SentryUserFeedback(
+        eventId: id,
+        comments: 'this is awesome',
+        email: 'sentry@example.com',
+        name: 'Rockstar Developer',
+      );
+      await client.captureUserFeedback(feedback);
+
+      expect(fixture.recorder.flushCalled, true);
+    });
+
+    test('captureUserFeedback adds client report', () async {
+      final clientReport = ClientReport(
+        DateTime(0),
+        [DiscardedEvent(DiscardReason.rateLimitBackoff, DataCategory.error, 1)],
+      );
+      fixture.recorder.clientReport = clientReport;
+
+      final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
+
+      final id = SentryId.newId();
+      final feedback = SentryUserFeedback(
+        eventId: id,
+        comments: 'this is awesome',
+        email: 'sentry@example.com',
+        name: 'Rockstar Developer',
+      );
+      await client.captureUserFeedback(feedback);
+
+      final envelope = fixture.transport.envelopes.first;
+      final item = envelope.items.last;
+
+      // Only partial test, as the envelope is created internally from feedback.
+      expect(item.header.type, SentryItemType.clientReport);
+    });
+
     test('record event processor dropping event', () async {
       final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
 
       await client.captureEvent(fakeEvent);
 
-      expect(fixture.transport.reason, DiscardReason.eventProcessor);
-      expect(fixture.transport.category, DataCategory.error);
+      expect(fixture.recorder.reason, DiscardReason.eventProcessor);
+      expect(fixture.recorder.category, DataCategory.error);
     });
 
     test('record event processor dropping transaction', () async {
@@ -832,8 +906,8 @@ void main() {
 
       await client.captureTransaction(transaction);
 
-      expect(fixture.transport.reason, DiscardReason.eventProcessor);
-      expect(fixture.transport.category, DataCategory.transaction);
+      expect(fixture.recorder.reason, DiscardReason.eventProcessor);
+      expect(fixture.recorder.category, DataCategory.transaction);
     });
 
     test('record beforeSend dropping event', () async {
@@ -843,8 +917,8 @@ void main() {
 
       await client.captureEvent(fakeEvent);
 
-      expect(fixture.transport.reason, DiscardReason.beforeSend);
-      expect(fixture.transport.category, DataCategory.error);
+      expect(fixture.recorder.reason, DiscardReason.beforeSend);
+      expect(fixture.recorder.category, DataCategory.error);
     });
 
     test('record sample rate dropping event', () async {
@@ -854,8 +928,8 @@ void main() {
 
       await client.captureEvent(fakeEvent);
 
-      expect(fixture.transport.reason, DiscardReason.sampleRate);
-      expect(fixture.transport.category, DataCategory.error);
+      expect(fixture.recorder.reason, DiscardReason.sampleRate);
+      expect(fixture.recorder.category, DataCategory.error);
     });
   });
 }
@@ -905,6 +979,7 @@ FutureOr<SentryEvent?> beforeSendCallback(SentryEvent event, {dynamic hint}) {
 }
 
 class Fixture {
+  final recorder = MockClientReportRecorder();
   final transport = MockTransport();
 
   final options = SentryOptions(dsn: fakeDsn);
@@ -937,6 +1012,7 @@ class Fixture {
     options.transport = transport;
     final client = SentryClient(options);
     // hub.bindClient(client);
+    options.recorder = recorder;
 
     return client;
   }

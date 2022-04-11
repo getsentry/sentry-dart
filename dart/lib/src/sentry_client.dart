@@ -37,10 +37,12 @@ class SentryClient {
 
   /// Instantiates a client using [SentryOptions]
   factory SentryClient(SentryOptions options) {
+    if (options.sendClientReports) {
+      options.recorder = ClientReportRecorder(options.clock);
+    }
     if (options.transport is NoOpTransport) {
-      final recorder = ClientReportRecorder(options.clock);
-      final rateLimiter = RateLimiter(options.clock, recorder);
-      options.transport = HttpTransport(options, rateLimiter, recorder);
+      final rateLimiter = RateLimiter(options.clock, options.recorder);
+      options.transport = HttpTransport(options, rateLimiter);
     }
     return SentryClient._(options);
   }
@@ -271,7 +273,7 @@ class SentryClient {
 
   /// Reports the [envelope] to Sentry.io.
   Future<SentryId?> captureEnvelope(SentryEnvelope envelope) {
-    return _options.transport.send(envelope);
+    return _attachClientReportsAndSend(envelope);
   }
 
   /// Reports the [userFeedback] to Sentry.io.
@@ -280,15 +282,10 @@ class SentryClient {
       userFeedback,
       _options.sdk,
     );
-    return _options.transport.send(envelope);
+    return _attachClientReportsAndSend(envelope);
   }
 
   void close() => _options.httpClient.close();
-
-  @internal
-  void recordLostEvent(DiscardReason reason, DataCategory category) {
-    _options.transport.recordLostEvent(reason, category);
-  }
 
   Future<SentryEvent?> _processEvent(
     SentryEvent event, {
@@ -330,6 +327,12 @@ class SentryClient {
     } else {
       category = DataCategory.error;
     }
-    recordLostEvent(reason, category);
+    _options.recorder.recordLostEvent(reason, category);
+  }
+
+  Future<SentryId?> _attachClientReportsAndSend(SentryEnvelope envelope) {
+    final clientReport = _options.recorder.flush();
+    envelope.addClientReport(clientReport);
+    return _options.transport.send(envelope);
   }
 }

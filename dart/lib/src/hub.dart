@@ -2,8 +2,10 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:meta/meta.dart';
+import 'transport/data_category.dart';
 
 import '../sentry.dart';
+import 'client_reports/discard_reason.dart';
 import 'sentry_tracer.dart';
 import 'sentry_traces_sampler.dart';
 
@@ -460,8 +462,10 @@ class Hub {
       final item = _peek();
 
       if (!transaction.sampled) {
-        item.client.recordLostEvent(
-            DiscardReason.sampleRate, DataCategory.transaction);
+        _options.recorder.recordLostEvent(
+          DiscardReason.sampleRate,
+          DataCategory.transaction,
+        );
         _options.logger(
           SentryLevel.warning,
           'Transaction ${transaction.eventId} was dropped due to sampling decision.',

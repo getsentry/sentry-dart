@@ -1,15 +1,10 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:mockito/mockito.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/src/file_system_transport.dart';
-import 'package:sentry/src/client_reports/discarded_event.dart';
-import 'package:sentry/src/sentry_envelope_header.dart';
-
-import 'mocks.mocks.dart';
 
 void main() {
   const _channel = MethodChannel('sentry_flutter');
@@ -29,8 +24,6 @@ void main() {
   test('FileSystemTransport wont throw', () async {
     _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
 
-    when(fixture.recorder.flush()).thenReturn(null);
-
     final transport = fixture.getSut(_channel);
     final event = SentryEvent();
     final sdkVersion =
@@ -46,8 +39,6 @@ void main() {
     _channel.setMockMethodCallHandler((MethodCall methodCall) async {
       throw Exception();
     });
-
-    when(fixture.recorder.flush()).thenReturn(null);
 
     final transport = fixture.getSut(_channel);
     final event = SentryEvent();
@@ -65,8 +56,6 @@ void main() {
     _channel.setMockMethodCallHandler((MethodCall methodCall) async {
       arguments = methodCall.arguments;
     });
-
-    when(fixture.recorder.flush()).thenReturn(null);
 
     final transport = fixture.getSut(_channel);
 
@@ -104,52 +93,12 @@ void main() {
 
     expect(item, eventString);
   });
-
-  test('flush called', () async {
-    _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
-
-    final sut = fixture.getSut(_channel);
-
-    final sentryEvent = SentryEvent();
-    final envelope = SentryEnvelope.fromEvent(
-      sentryEvent,
-      fixture.options.sdk,
-    );
-
-    when(fixture.recorder.flush()).thenReturn(null);
-
-    await sut.send(envelope);
-
-    verify(fixture.recorder.flush());
-  });
-
-  test('client report added to envelope', () async {
-    _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
-
-    final mockEnvelopeHeader = SentryEnvelopeHeader.newEventId();
-    final mockEnvelope = MockSentryEnvelope();
-    when(mockEnvelope.header).thenReturn(mockEnvelopeHeader);
-    when(mockEnvelope.envelopeStream(any)).thenAnswer((_) => Stream.empty());
-
-    final sut = fixture.getSut(_channel);
-
-    final clientReport = ClientReport(
-      DateTime(0),
-      [DiscardedEvent(DiscardReason.rateLimitBackoff, DataCategory.error, 1)],
-    );
-    when(fixture.recorder.flush()).thenReturn(clientReport);
-
-    await sut.send(mockEnvelope);
-
-    verify(mockEnvelope.addClientReport(clientReport));
-  });
 }
 
 class Fixture {
   final options = SentryOptions(dsn: '');
-  final recorder = MockClientReportRecorder();
 
   FileSystemTransport getSut(MethodChannel channel) {
-    return FileSystemTransport(channel, options, recorder);
+    return FileSystemTransport(channel, options);
   }
 }

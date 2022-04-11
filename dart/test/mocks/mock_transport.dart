@@ -58,25 +58,11 @@ class MockTransport implements Transport {
     events.clear();
     calls = 0;
   }
-
-  DiscardReason? reason;
-  DataCategory? category;
-
-  @override
-  void recordLostEvent(DiscardReason reason, DataCategory category) {
-    this.reason = reason;
-    this.category = category;
-  }
 }
 
 class ThrowingTransport implements Transport {
   @override
   Future<SentryId> send(SentryEnvelope envelope) async {
-    throw Exception('foo bar');
-  }
-
-  @override
-  void recordLostEvent(DiscardReason reason, DataCategory category) {
     throw Exception('foo bar');
   }
 }

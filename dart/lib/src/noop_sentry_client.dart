@@ -1,12 +1,10 @@
 import 'dart:async';
 
-import 'client_reports/discard_reason.dart';
 import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_client.dart';
 import 'sentry_envelope.dart';
 import 'sentry_user_feedback.dart';
-import 'transport/data_category.dart';
 
 class NoOpSentryClient implements SentryClient {
   NoOpSentryClient._();
@@ -62,7 +60,4 @@ class NoOpSentryClient implements SentryClient {
     Scope? scope,
   }) async =>
       SentryId.empty();
-
-  @override
-  void recordLostEvent(DiscardReason reason, DataCategory category) {}
 }

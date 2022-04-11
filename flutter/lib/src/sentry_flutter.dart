@@ -74,11 +74,7 @@ mixin SentryFlutter {
   ) async {
     // Not all platforms have a native integration.
     if (options.platformChecker.hasNativeIntegration) {
-      options.transport = FileSystemTransport(
-        channel,
-        options,
-        ClientReportRecorder(options.clock),
-      );
+      options.transport = FileSystemTransport(channel, options);
     }
 
     var flutterEventProcessor =
