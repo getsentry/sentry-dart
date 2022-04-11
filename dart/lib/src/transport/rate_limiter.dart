@@ -25,18 +25,10 @@ class RateLimiter {
         dropItems ??= [];
         dropItems.add(item);
 
-        final category = _categoryFromItemType(item.header.type);
-        if (category == DataCategory.transaction) {
-          _clientReportRecorder.recordLostEvent(
-            DiscardReason.rateLimitBackoff,
-            DataCategory.transaction,
-          );
-        } else {
-          _clientReportRecorder.recordLostEvent(
-            DiscardReason.rateLimitBackoff,
-            DataCategory.error,
-          );
-        }
+        _clientReportRecorder.recordLostEvent(
+          DiscardReason.rateLimitBackoff,
+          _categoryFromItemType(item.header.type),
+        );
       }
     }
 
