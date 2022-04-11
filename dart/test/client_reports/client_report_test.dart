@@ -1,8 +1,8 @@
 import 'package:collection/collection.dart';
 import 'package:sentry/src/client_reports/client_report.dart';
+import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/client_reports/discarded_event.dart';
-import 'package:sentry/src/client_reports/outcome.dart';
-import 'package:sentry/src/transport/rate_limit_category.dart';
+import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';
 import 'package:sentry/src/utils.dart';
 
@@ -47,7 +47,7 @@ class Fixture {
     return ClientReport(
       timestamp,
       [
-        DiscardedEvent(Outcome.ratelimitBackoff, RateLimitCategory.error, 2),
+        DiscardedEvent(DiscardReason.rateLimitBackoff, DataCategory.error, 2),
       ],
     );
   }
