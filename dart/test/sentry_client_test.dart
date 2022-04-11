@@ -6,6 +6,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/client_report.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/client_reports/discarded_event.dart';
+import 'package:sentry/src/client_reports/noop_client_report_recorder.dart';
 import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:sentry/src/sentry_tracer.dart';
@@ -820,6 +821,29 @@ void main() {
       fixture = Fixture();
     });
 
+    test('recorder is not noop if client reports are enabled', () async {
+      fixture.options.sendClientReports = true;
+
+      fixture.getSut(
+        eventProcessor: DropAllEventProcessor(),
+        provideMockRecorder: false,
+      );
+
+      expect(fixture.options.recorder is NoOpClientReportRecorder, false);
+      expect(fixture.options.recorder is MockClientReportRecorder, false);
+    });
+
+    test('recorder is noop if client reports are disabled', () {
+      fixture.options.sendClientReports = false;
+
+      fixture.getSut(
+        eventProcessor: DropAllEventProcessor(),
+        provideMockRecorder: false,
+      );
+
+      expect(fixture.options.recorder is NoOpClientReportRecorder, true);
+    });
+
     test('captureEnvelope calls flush', () async {
       final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
 
@@ -993,6 +1017,7 @@ class Fixture {
     double? sampleRate,
     BeforeSendCallback? beforeSend,
     EventProcessor? eventProcessor,
+    bool provideMockRecorder = true,
   }) {
     final hub = Hub(options);
     _context = SentryTransactionContext(
@@ -1012,8 +1037,9 @@ class Fixture {
     options.transport = transport;
     final client = SentryClient(options);
     // hub.bindClient(client);
-    options.recorder = recorder;
-
+    if (provideMockRecorder) {
+      options.recorder = recorder;
+    }
     return client;
   }
 
