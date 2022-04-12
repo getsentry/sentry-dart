@@ -50,7 +50,7 @@ void main() {
       final mockNativeChannel = MockNativeChannel();
       native.setNativeChannel(mockNativeChannel);
 
-      final tracer = MockNoOpSentrySpan();
+      final tracer = getMockSentryTracer();
       _whenAnyStart(mockHub, tracer);
 
       final sut = fixture.getSut(hub: mockHub);
@@ -118,7 +118,7 @@ void main() {
       final currentRoute = route(RouteSettings(name: 'Current Route'));
 
       final hub = _MockHub();
-      final span = MockNoOpSentrySpan();
+      final span = getMockSentryTracer();
       when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
       _whenAnyStart(hub, span);
 
@@ -176,7 +176,7 @@ void main() {
       final currentRoute = route(null);
 
       final hub = _MockHub();
-      final span = MockNoOpSentrySpan();
+      final span = getMockSentryTracer();
       when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
       _whenAnyStart(hub, span);
 
@@ -202,7 +202,7 @@ void main() {
       final currentRoute = route(RouteSettings(name: 'Current Route'));
 
       final hub = _MockHub();
-      final span = MockNoOpSentrySpan();
+      final span = getMockSentryTracer();
       when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
       _whenAnyStart(hub, span);
 
@@ -230,7 +230,7 @@ void main() {
       final hub = _MockHub();
       hub.scope.span = NoOpSentrySpan();
 
-      final span = MockNoOpSentrySpan();
+      final span = getMockSentryTracer();
       when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
       _whenAnyStart(hub, span);
 
@@ -257,7 +257,7 @@ void main() {
       final secondRoute = route(RouteSettings(name: 'Second Route'));
 
       final hub = _MockHub();
-      final span = MockNoOpSentrySpan();
+      final span = getMockSentryTracer();
       when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
       when(span.status).thenReturn(null);
       _whenAnyStart(hub, span);
@@ -275,7 +275,7 @@ void main() {
       final currentRoute = route(RouteSettings(name: 'Current Route'));
 
       final hub = _MockHub();
-      final span = MockNoOpSentrySpan();
+      final span = getMockSentryTracer();
       when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
       when(span.status).thenReturn(null);
       _whenAnyStart(hub, span);
@@ -294,7 +294,7 @@ void main() {
       final currentRoute = route(RouteSettings(name: 'Current Route'));
 
       final hub = _MockHub();
-      final previousSpan = MockNoOpSentrySpan();
+      final previousSpan = getMockSentryTracer();
       when(previousSpan.context).thenReturn(SentrySpanContext(operation: 'op'));
       when(previousSpan.status).thenReturn(null);
       _whenAnyStart(hub, previousSpan, name: 'Previous Route');
@@ -322,11 +322,11 @@ void main() {
       final secondRoute = route(RouteSettings(name: 'Second Route'));
 
       final hub = _MockHub();
-      final firstSpan = MockNoOpSentrySpan();
+      final firstSpan = getMockSentryTracer();
       when(firstSpan.context).thenReturn(SentrySpanContext(operation: 'op'));
       when(firstSpan.status).thenReturn(null);
 
-      final secondSpan = MockNoOpSentrySpan();
+      final secondSpan = getMockSentryTracer();
       when(secondSpan.context).thenReturn(SentrySpanContext(operation: 'op'));
       when(secondSpan.status).thenReturn(null);
 
@@ -350,7 +350,7 @@ void main() {
       ));
 
       final hub = _MockHub();
-      final span = MockNoOpSentrySpan();
+      final span = getMockSentryTracer();
       when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
       when(span.status).thenReturn(null);
       _whenAnyStart(hub, span);
@@ -366,7 +366,7 @@ void main() {
       final rootRoute = route(RouteSettings(name: '/'));
 
       final hub = _MockHub();
-      final span = MockNoOpSentrySpan();
+      final span = getMockSentryTracer();
       when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
       _whenAnyStart(hub, span);
 
@@ -755,4 +755,10 @@ class _MockHub extends MockHub {
   void configureScope(ScopeCallback? callback) {
     callback?.call(scope);
   }
+}
+
+ISentrySpan getMockSentryTracer() {
+  final tracer = MockSentryTracer();
+  when(tracer.name).thenReturn('name');
+  return tracer;
 }

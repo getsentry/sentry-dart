@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:mockito/annotations.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/platform/platform.dart';
+import 'package:sentry/src/sentry_tracer.dart';
 
 import 'package:meta/meta.dart';
 import 'package:sentry_flutter/src/sentry_native.dart';
@@ -25,12 +26,13 @@ ISentrySpan startTransactionShim(
   Function(ISentrySpan)? onFinish,
   Map<String, dynamic>? customSamplingContext,
 }) {
-  return MockNoOpSentrySpan();
+  return MockSentryTracer();
 }
 
 @GenerateMocks([
   Transport,
-  NoOpSentrySpan,
+  // ignore: invalid_use_of_internal_member
+  SentryTracer,
   MethodChannel,
   SentryNative,
 ], customMocks: [
