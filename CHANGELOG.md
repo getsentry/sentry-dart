@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-* Fix: Do not find the transaction to scope if no op (#)
+* Fix: Do not find the transaction to scope if no op (#828)
 
 ## 6.5.0-beta.1
 
