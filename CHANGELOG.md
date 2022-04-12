@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 6.5.0-beta.2
 
 * Fix: Do not set the transaction to scope if no op (#828)
 
