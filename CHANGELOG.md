@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+* Fix: Do not find the transaction to scope if no op (#)
+
 ## 6.5.0-beta.1
 
 - No documented changes.

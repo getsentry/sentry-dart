@@ -143,6 +143,35 @@ void main() {
       });
     });
 
+    test('do not bind transaction to scope if no op', () {
+      final currentRoute = route(RouteSettings(name: 'Current Route'));
+
+      final hub = _MockHub();
+
+      final span = NoOpSentrySpan();
+      _whenAnyStart(hub, span);
+
+      final sut = fixture.getSut(
+        hub: hub,
+        autoFinishAfter: Duration(seconds: 5),
+      );
+
+      sut.didPush(currentRoute, null);
+
+      verify(hub.startTransaction(
+        'Current Route',
+        'navigation',
+        waitForChildren: true,
+        autoFinishAfter: Duration(seconds: 5),
+        trimEnd: true,
+        onFinish: anyNamed('onFinish'),
+      ));
+
+      hub.configureScope((scope) {
+        expect(scope.span, null);
+      });
+    });
+
     test('route with empty name does not start transaction', () {
       final currentRoute = route(null);
 
