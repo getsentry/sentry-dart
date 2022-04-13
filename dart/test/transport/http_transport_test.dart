@@ -3,16 +3,18 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:sentry/src/sentry_envelope_header.dart';
-import 'package:sentry/src/sentry_envelope_item.dart';
 import 'package:sentry/src/sentry_envelope_item_header.dart';
 import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/transport/rate_limiter.dart';
 import 'package:test/test.dart';
+import 'package:sentry/src/sentry_tracer.dart';
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/transport/http_transport.dart';
 
 import '../mocks.dart';
+import '../mocks/mock_client_report_recorder.dart';
+import '../mocks/mock_hub.dart';
 
 void main() {
   SentryEnvelope givenEnvelope() {
@@ -152,8 +154,21 @@ class Fixture {
     dsn: 'https://public:secret@sentry.example.com/1',
   );
 
+  late var clientReportRecorder = MockClientReportRecorder();
+
   HttpTransport getSut(http.Client client, RateLimiter rateLimiter) {
     options.httpClient = client;
     return HttpTransport(options, rateLimiter);
+  }
+
+  SentryTracer createTracer({
+    bool? sampled,
+  }) {
+    final context = SentryTransactionContext(
+      'name',
+      'op',
+      sampled: sampled,
+    );
+    return SentryTracer(context, MockHub());
   }
 }

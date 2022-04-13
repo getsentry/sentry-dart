@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:sentry/sentry.dart';
-
 import 'no_such_method_provider.dart';
 
 class MockTransport with NoSuchMethodProvider implements Transport {
