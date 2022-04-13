@@ -4,19 +4,15 @@ import 'dart:developer';
 import 'package:meta/meta.dart';
 import 'package:http/http.dart';
 
+import '../sentry.dart';
+import 'client_reports/client_report_recorder.dart';
+import 'client_reports/noop_client_report_recorder.dart';
 import 'sentry_exception_factory.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'diagnostic_logger.dart';
 import 'environment/environment_variables.dart';
-import 'event_processor.dart';
-import 'http_client/sentry_http_client.dart';
-import 'integration.dart';
 import 'noop_client.dart';
-import 'platform_checker.dart';
-import 'protocol.dart';
-import 'tracing.dart';
 import 'transport/noop_transport.dart';
-import 'transport/transport.dart';
 import 'utils.dart';
 import 'version.dart';
 
@@ -261,6 +257,12 @@ class SentryOptions {
   /// This function is called by [TracesSamplerCallback] to determine if transaction is sampled - meant
   /// to be sent to Sentry.
   TracesSamplerCallback? tracesSampler;
+
+  /// Send statistics to sentry when the client drops events.
+  bool sendClientReports = true;
+
+  @internal
+  late ClientReportRecorder recorder = NoOpClientReportRecorder();
 
   SentryOptions({this.dsn, PlatformChecker? checker}) {
     if (checker != null) {
