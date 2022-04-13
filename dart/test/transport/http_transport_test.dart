@@ -213,7 +213,8 @@ class Fixture {
 
   HttpTransport getSut(http.Client client, RateLimiter rateLimiter) {
     options.httpClient = client;
-    return HttpTransport(options, rateLimiter, clientReportRecorder);
+    options.recorder = clientReportRecorder;
+    return HttpTransport(options, rateLimiter);
   }
 
   SentryTracer createTracer({

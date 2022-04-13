@@ -28,13 +28,12 @@ class HttpTransport implements Transport {
 
   final Map<String, String> _headers;
 
-  factory HttpTransport(SentryOptions options, RateLimiter rateLimiter,
-      ClientReportRecorder recorder) {
+  factory HttpTransport(SentryOptions options, RateLimiter rateLimiter) {
     if (options.httpClient is NoOpClient) {
       options.httpClient = Client();
     }
 
-    return HttpTransport._(options, rateLimiter, recorder);
+    return HttpTransport._(options, rateLimiter, options.recorder);
   }
 
   HttpTransport._(this._options, this._rateLimiter, this._recorder)
