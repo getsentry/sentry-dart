@@ -1,10 +1,14 @@
+import 'package:sentry/sentry.dart';
+import 'package:sentry/src/client_reports/discard_reason.dart';
+import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';
 
 import 'package:sentry/src/transport/rate_limiter.dart';
-import 'package:sentry/src/protocol/sentry_event.dart';
-import 'package:sentry/src/sentry_envelope.dart';
+import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/sentry_envelope_header.dart';
-import 'package:sentry/src/sentry_envelope_item.dart';
+
+import '../mocks/mock_client_report_recorder.dart';
+import '../mocks/mock_hub.dart';
 
 void main() {
   var fixture = Fixture();
@@ -185,16 +189,67 @@ void main() {
     final result = rateLimiter.filter(envelope);
     expect(result, isNull);
   });
+
+  test('dropping of event recorded', () {
+    final rateLimiter = fixture.getSUT();
+
+    final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
+    final eventEnvelope = SentryEnvelope(
+      SentryEnvelopeHeader.newEventId(),
+      [eventItem],
+    );
+
+    rateLimiter.updateRetryAfterLimits(
+        '1:error:key, 5:error:organization', null, 1);
+
+    final result = rateLimiter.filter(eventEnvelope);
+    expect(result, isNull);
+
+    expect(fixture.mockRecorder.category, DataCategory.error);
+    expect(fixture.mockRecorder.reason, DiscardReason.rateLimitBackoff);
+  });
+
+  test('dropping of transaction recorded', () {
+    final rateLimiter = fixture.getSUT();
+
+    final transaction = fixture.getTransaction();
+    final eventItem = SentryEnvelopeItem.fromTransaction(transaction);
+    final eventEnvelope = SentryEnvelope(
+      SentryEnvelopeHeader.newEventId(),
+      [eventItem],
+    );
+
+    rateLimiter.updateRetryAfterLimits(
+        '1:transaction:key, 5:transaction:organization', null, 1);
+
+    final result = rateLimiter.filter(eventEnvelope);
+    expect(result, isNull);
+
+    expect(fixture.mockRecorder.category, DataCategory.transaction);
+    expect(fixture.mockRecorder.reason, DiscardReason.rateLimitBackoff);
+  });
 }
 
 class Fixture {
   var dateTimeToReturn = 0;
 
+  late var mockRecorder = MockClientReportRecorder();
+
   RateLimiter getSUT() {
-    return RateLimiter(_currentDateTime);
+    return RateLimiter(_currentDateTime, mockRecorder);
   }
 
   DateTime _currentDateTime() {
     return DateTime.fromMillisecondsSinceEpoch(dateTimeToReturn);
+  }
+
+  SentryTransaction getTransaction() {
+    final context = SentryTransactionContext(
+      'name',
+      'op',
+      sampled: true,
+    );
+    final tracer = SentryTracer(context, MockHub());
+    return SentryTransaction(tracer);
   }
 }

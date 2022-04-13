@@ -10,4 +10,12 @@ class DiscardedEvent {
   final DiscardReason reason;
   final DataCategory category;
   final int quantity;
+
+  Map<String, dynamic> toJson() {
+    return {
+      'reason': reason.toStringValue(),
+      'category': category.toStringValue(),
+      'quantity': quantity,
+    };
+  }
 }
