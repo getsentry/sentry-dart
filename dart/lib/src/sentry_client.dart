@@ -42,7 +42,7 @@ class SentryClient {
     }
     if (options.transport is NoOpTransport) {
       final rateLimiter = RateLimiter(options.clock, options.recorder);
-      options.transport = HttpTransport(options, rateLimiter);
+      options.transport = HttpTransport(options, rateLimiter, options.recorder);
     }
     return SentryClient._(options);
   }
