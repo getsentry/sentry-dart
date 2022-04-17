@@ -13,10 +13,9 @@ class DioEventProcessor implements EventProcessor {
   static final _dioErrorType = (DioError).toString();
 
   /// This is an [EventProcessor], which improves crash reports of [DioError]s.
-  DioEventProcessor(this._options, this._maxRequestBodySize);
+  DioEventProcessor(this._options);
 
   final SentryOptions _options;
-  final MaxRequestBodySize _maxRequestBodySize;
 
   SentryExceptionFactory get _sentryExceptionFactory =>
       // ignore: invalid_use_of_internal_member
@@ -131,11 +130,11 @@ class DioEventProcessor implements EventProcessor {
       return null;
     }
     if (data is String) {
-      if (_maxRequestBodySize.shouldAddBody(data.codeUnits.length)) {
+      if (_options.maxRequestBodySize.shouldAddBody(data.codeUnits.length)) {
         return data;
       }
     } else if (data is List<int>) {
-      if (_maxRequestBodySize.shouldAddBody(data.length)) {
+      if (_options.maxRequestBodySize.shouldAddBody(data.length)) {
         return data;
       }
     }

@@ -15,7 +15,6 @@ extension SentryDioExtension on Dio {
   @experimental
   void addSentry({
     bool recordBreadcrumbs = true,
-    MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never,
     Hub? hub,
   }) {
     hub = hub ?? HubAdapter();
@@ -26,7 +25,7 @@ extension SentryDioExtension on Dio {
     // Add DioEventProcessor when it's not already present
     if (options.eventProcessors.whereType<DioEventProcessor>().isEmpty) {
       options.sdk.addIntegration('sentry_dio');
-      options.addEventProcessor(DioEventProcessor(options, maxRequestBodySize));
+      options.addEventProcessor(DioEventProcessor(options));
     }
 
     if (options.captureFailedRequests) {
