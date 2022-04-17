@@ -78,7 +78,6 @@ class SentryHttpClient extends BaseClient {
   SentryHttpClient({
     Client? client,
     Hub? hub,
-    bool recordBreadcrumbs = true,
     List<SentryStatusCode> failedRequestStatusCodes = const [],
   }) {
     _hub = hub ?? HubAdapter();
@@ -99,7 +98,7 @@ class SentryHttpClient extends BaseClient {
     // We don't want to include the breadcrumbs for the current request
     // when capturing it as a failed request.
     // However it still should be added for following events.
-    if (recordBreadcrumbs) {
+    if (_hub.options.recordHttpBreadcrumbs) {
       innerClient = BreadcrumbClient(client: innerClient, hub: _hub);
     }
 

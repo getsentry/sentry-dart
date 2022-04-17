@@ -239,6 +239,9 @@ class SentryOptions {
   ///   because the connection was interrupted.
   bool captureFailedRequests = false;
 
+  /// Whether to records requests as breadcrumbs. This is on by default.
+  bool recordHttpBreadcrumbs = true;
+
   /// Whether [SentryEvent] deduplication is enabled.
   /// Can be further configured with [maxDeduplicationItems].
   /// Shoud be set to true if
