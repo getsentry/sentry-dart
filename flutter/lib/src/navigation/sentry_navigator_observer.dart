@@ -182,6 +182,12 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       },
     );
 
+    // if _enableAutoTransactions is enabled but there's no traces sample rate
+    if (_transaction is NoOpSentrySpan) {
+      _transaction = null;
+      return;
+    }
+
     if (arguments != null) {
       _transaction?.setData('route_settings_arguments', arguments);
     }
