@@ -114,7 +114,6 @@ class CloseableMockClient extends Mock implements BaseClient {}
 class Fixture {
   SentryHttpClient getSut({
     MockClient? client,
-    MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never,
     List<SentryStatusCode> badStatusCodes = const [],
     bool recordBreadcrumbs = true,
   }) {
