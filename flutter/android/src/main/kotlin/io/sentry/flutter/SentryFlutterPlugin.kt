@@ -150,6 +150,11 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         }
       }
 
+      // TODO Set sendClientReports when available on Android
+//      args.getIfNotNull<Boolean>("sendClientReports") { sendClientReports ->
+//        options.sendClientReports = sendClientReports
+//      }
+
       options.setBeforeSend { event, _ ->
         setEventOriginTag(event)
         addPackages(event, options.sdkVersion)
