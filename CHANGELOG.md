@@ -1,5 +1,13 @@
 # Changelog
 
+## 6.5.0-beta.2
+
+* Fix: Do not set the transaction to scope if no op (#828)
+
+## 6.5.0-beta.1
+
+- No documented changes.
+
 ## 6.5.0-alpha.3
 
 * Feat: Support for platform stacktraces on Android (#788)
