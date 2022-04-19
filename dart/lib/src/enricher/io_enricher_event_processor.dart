@@ -37,7 +37,7 @@ class IoEnricherEventProcessor extends EventProcessor {
       runtimes: _getRuntimes(event.contexts.runtimes),
     );
 
-    contexts['dart_context'] = _getDartContext(_options.sendDefaultPii);
+    contexts['dart_context'] = _getDartContext();
 
     return event.copyWith(
       contexts: contexts,
@@ -61,13 +61,13 @@ class IoEnricherEventProcessor extends EventProcessor {
     ];
   }
 
-  Map<String, dynamic> _getDartContext(bool includePii) {
+  Map<String, dynamic> _getDartContext() {
     final args = Platform.executableArguments;
     final packageConfig = Platform.packageConfig;
     final isolate = Isolate.current.debugName;
 
     String? executable;
-    if (includePii) {
+    if (_options.sendDefaultPii) {
       try {
         // This throws sometimes for some reason
         // https://github.com/flutter/flutter/issues/83921
@@ -83,11 +83,12 @@ class IoEnricherEventProcessor extends EventProcessor {
     }
 
     return <String, dynamic>{
+      'compile_mode': _options.platformChecker.compileMode,
       if (packageConfig != null) 'package_config': packageConfig,
       'number_of_processors': Platform.numberOfProcessors,
       if (isolate != null) 'isolate': isolate,
       // The following information could potentially contain PII
-      if (includePii) ...{
+      if (_options.sendDefaultPii) ...{
         'executable': executable,
         'resolved_executable': Platform.resolvedExecutable,
         'script': Platform.script.toString(),

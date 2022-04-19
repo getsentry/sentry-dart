@@ -15,9 +15,9 @@ void main() {
 
   test(
     'Isolate error adds integration',
-    () async {
+    () {
       final integration = IsolateErrorIntegration();
-      await integration(
+      integration(
         fixture.hub,
         fixture.options,
       );
@@ -234,10 +234,12 @@ class PrintRecursionMockHub extends MockHub {
   ISentrySpan startTransactionWithContext(
     SentryTransactionContext transactionContext, {
     Map<String, dynamic>? customSamplingContext,
+    DateTime? startTimestamp,
     bool? bindToScope,
     bool? waitForChildren,
     Duration? autoFinishAfter,
     bool? trimEnd,
+    OnTransactionFinish? onFinish,
   }) {
     return NoOpSentrySpan();
   }

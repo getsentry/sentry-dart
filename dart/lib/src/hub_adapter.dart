@@ -101,21 +101,24 @@ class HubAdapter implements Hub {
   ISentrySpan? getSpan() => Sentry.currentHub.getSpan();
 
   @override
-  Future captureUserFeedback(SentryUserFeedback userFeedback) =>
+  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) =>
       Sentry.captureUserFeedback(userFeedback);
 
   @override
   ISentrySpan startTransactionWithContext(
     SentryTransactionContext transactionContext, {
     Map<String, dynamic>? customSamplingContext,
+    DateTime? startTimestamp,
     bool? bindToScope,
     bool? waitForChildren,
     Duration? autoFinishAfter,
     bool? trimEnd,
+    OnTransactionFinish? onFinish,
   }) =>
       Sentry.startTransactionWithContext(
         transactionContext,
         customSamplingContext: customSamplingContext,
+        startTimestamp: startTimestamp,
         bindToScope: bindToScope,
         waitForChildren: waitForChildren,
         autoFinishAfter: autoFinishAfter,
@@ -127,20 +130,24 @@ class HubAdapter implements Hub {
     String name,
     String operation, {
     String? description,
+    DateTime? startTimestamp,
     bool? bindToScope,
     bool? waitForChildren,
     Duration? autoFinishAfter,
     bool? trimEnd,
+    OnTransactionFinish? onFinish,
     Map<String, dynamic>? customSamplingContext,
   }) =>
       Sentry.startTransaction(
         name,
         operation,
         description: description,
+        startTimestamp: startTimestamp,
         bindToScope: bindToScope,
         waitForChildren: waitForChildren,
         autoFinishAfter: autoFinishAfter,
         trimEnd: trimEnd,
+        onFinish: onFinish,
         customSamplingContext: customSamplingContext,
       );
 

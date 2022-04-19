@@ -48,7 +48,7 @@ void main() {
     expect(crumb.message, 'A log message');
     expect(crumb.data, <String, dynamic>{
       'LogRecord.loggerName': 'FooBarLogger',
-      'LogRecord.sequenceNumber': 0,
+      'LogRecord.sequenceNumber': isNotNull,
     });
     expect(crumb.timestamp, isNotNull);
     expect(crumb.category, 'log');

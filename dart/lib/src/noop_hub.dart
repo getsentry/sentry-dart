@@ -79,18 +79,19 @@ class NoOpHub implements Hub {
       SentryId.empty();
 
   @override
-  Future<SentryId> captureUserFeedback(SentryUserFeedback userFeedback) async =>
-      SentryId.empty();
+  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {}
 
   @override
   ISentrySpan startTransaction(
     String name,
     String operation, {
     String? description,
+    DateTime? startTimestamp,
     bool? bindToScope,
     bool? waitForChildren,
     Duration? autoFinishAfter,
     bool? trimEnd,
+    OnTransactionFinish? onFinish,
     Map<String, dynamic>? customSamplingContext,
   }) =>
       NoOpSentrySpan();
@@ -99,10 +100,12 @@ class NoOpHub implements Hub {
   ISentrySpan startTransactionWithContext(
     SentryTransactionContext transactionContext, {
     Map<String, dynamic>? customSamplingContext,
+    DateTime? startTimestamp,
     bool? bindToScope,
     bool? waitForChildren,
     Duration? autoFinishAfter,
     bool? trimEnd,
+    OnTransactionFinish? onFinish,
   }) =>
       NoOpSentrySpan();
 

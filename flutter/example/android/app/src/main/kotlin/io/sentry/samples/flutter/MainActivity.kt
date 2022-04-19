@@ -36,6 +36,9 @@ class MainActivity : FlutterActivity() {
         "cpp_capture_message" -> {
           message()
         }
+        "platform_exception" -> {
+          result.success(Thread.currentThread().getStackTrace())
+        }
         else -> {
           result.notImplemented()
         }

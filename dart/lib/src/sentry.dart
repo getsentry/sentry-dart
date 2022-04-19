@@ -8,13 +8,13 @@ import 'environment/environment_variables.dart';
 import 'event_processor/deduplication_event_processor.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
+import 'integration.dart';
+import 'noop_hub.dart';
 import 'noop_isolate_error_integration.dart'
     if (dart.library.io) 'isolate_error_integration.dart';
-import 'noop_hub.dart';
 import 'protocol.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
-import 'integration.dart';
 import 'sentry_user_feedback.dart';
 import 'tracing.dart';
 
@@ -33,14 +33,10 @@ class Sentry {
   /// Initializes the SDK
   /// passing a [AppRunner] callback allows to run the app within its own error
   /// zone ([`runZonedGuarded`](https://api.dart.dev/stable/2.10.4/dart-async/runZonedGuarded.html))
-  ///
-  /// You should use [optionsConfiguration] instead of passing [sentryOptions]
-  /// yourself. [sentryOptions] is mainly intendet for use by other Sentry clients
-  /// such as SentryFlutter.
   static Future<void> init(
     OptionsConfiguration optionsConfiguration, {
     AppRunner? appRunner,
-    SentryOptions? options,
+    @internal SentryOptions? options,
   }) async {
     final sentryOptions = options ?? SentryOptions();
     await _initDefaultValues(sentryOptions, appRunner);
@@ -75,7 +71,7 @@ class Sentry {
   /// accordingly.
   /// To see which environment variables are available, see [EnvironmentVariables]
   ///
-  /// The precendence of these options are also described on
+  /// The precedence of these options are also described on
   /// https://docs.sentry.io/platforms/dart/configuration/options/
   static void _setEnvironmentVariables(SentryOptions options) {
     final vars = options.environmentVariables;
@@ -180,7 +176,7 @@ class Sentry {
         withScope: withScope,
       );
 
-  static Future captureUserFeedback(SentryUserFeedback userFeedback) =>
+  static Future<void> captureUserFeedback(SentryUserFeedback userFeedback) =>
       _hub.captureUserFeedback(userFeedback);
 
   /// Close the client SDK
@@ -228,20 +224,24 @@ class Sentry {
     String name,
     String operation, {
     String? description,
+    DateTime? startTimestamp,
     bool? bindToScope,
     bool? waitForChildren,
     Duration? autoFinishAfter,
     bool? trimEnd,
+    OnTransactionFinish? onFinish,
     Map<String, dynamic>? customSamplingContext,
   }) =>
       _hub.startTransaction(
         name,
         operation,
         description: description,
+        startTimestamp: startTimestamp,
         bindToScope: bindToScope,
         waitForChildren: waitForChildren,
         autoFinishAfter: autoFinishAfter,
         trimEnd: trimEnd,
+        onFinish: onFinish,
         customSamplingContext: customSamplingContext,
       );
 
@@ -249,18 +249,22 @@ class Sentry {
   static ISentrySpan startTransactionWithContext(
     SentryTransactionContext transactionContext, {
     Map<String, dynamic>? customSamplingContext,
+    DateTime? startTimestamp,
     bool? bindToScope,
     bool? waitForChildren,
     Duration? autoFinishAfter,
     bool? trimEnd,
+    OnTransactionFinish? onFinish,
   }) =>
       _hub.startTransactionWithContext(
         transactionContext,
         customSamplingContext: customSamplingContext,
+        startTimestamp: startTimestamp,
         bindToScope: bindToScope,
         waitForChildren: waitForChildren,
         autoFinishAfter: autoFinishAfter,
         trimEnd: trimEnd,
+        onFinish: onFinish,
       );
 
   /// Gets the current active transaction or span.

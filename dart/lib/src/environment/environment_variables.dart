@@ -29,7 +29,7 @@ abstract class EnvironmentVariables {
   /// Returns an environment based on the compilation mode of Dart or Flutter.
   /// This can be set as [SentryOptions.environment]
   String environmentForMode(PlatformChecker checker) {
-    // We infer the enviroment based on the release/non-release and profile
+    // We infer the environment based on the release/non-release and profile
     // constants.
 
     if (checker.isReleaseMode()) {

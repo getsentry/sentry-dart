@@ -93,6 +93,7 @@ void main() {
 
       final dartContext = event.contexts['dart_context'];
       expect(dartContext, isNotNull);
+      expect(dartContext['compile_mode'], isNotNull);
       expect(dartContext['number_of_processors'], isNotNull);
       expect(dartContext['isolate'], isNotNull);
       expect(dartContext['executable'], isNull);

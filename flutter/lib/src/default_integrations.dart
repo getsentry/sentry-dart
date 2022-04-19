@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
 
+import 'binding_utils.dart';
 import 'sentry_flutter_options.dart';
 import 'widgets_binding_observer.dart';
 
@@ -123,14 +124,13 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
   }
 
   @override
-  FutureOr<void> close() {
+  FutureOr<void> close() async {
     /// Restore default if the integration error is still set.
     if (FlutterError.onError == _integrationOnError) {
       FlutterError.onError = _defaultOnError;
       _defaultOnError = null;
       _integrationOnError = null;
     }
-    super.close();
   }
 }
 
@@ -278,7 +278,13 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
       if (integrationsList != null) {
         final integrations = List<String>.from(integrationsList as List);
         final sdk = event.sdk ?? _options.sdk;
-        integrations.forEach(sdk.addIntegration);
+
+        for (final integration in integrations) {
+          if (!sdk.integrations.contains(integration)) {
+            sdk.addIntegration(integration);
+          }
+        }
+
         event = event.copyWith(sdk: sdk);
       }
 
@@ -286,7 +292,16 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
       if (packageMap != null) {
         final package = Map<String, String>.from(packageMap as Map);
         final sdk = event.sdk ?? _options.sdk;
-        sdk.addPackage(package['sdk_name']!, package['version']!);
+
+        final name = package['sdk_name'];
+        final version = package['version'];
+        if (name != null &&
+            version != null &&
+            !sdk.packages.any((element) =>
+                element.name == name && element.version == version)) {
+          sdk.addPackage(name, version);
+        }
+
         event = event.copyWith(sdk: sdk);
       }
 
@@ -345,6 +360,7 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
         'sendDefaultPii': options.sendDefaultPii,
         'enableOutOfMemoryTracking': options.enableOutOfMemoryTracking,
         'enableNdkScopeSync': options.enableNdkScopeSync,
+        'enableAutoPerformanceTracking': options.enableAutoPerformanceTracking,
       });
 
       options.sdk.addIntegration('nativeSdkIntegration');
@@ -390,7 +406,7 @@ class WidgetsBindingIntegration extends Integration<SentryFlutterOptions> {
     // We don't need to call `WidgetsFlutterBinding.ensureInitialized()`
     // because `WidgetsFlutterBindingIntegration` already calls it.
     // If the instance is not created, we skip it to keep going.
-    final instance = WidgetsBinding.instance;
+    final instance = BindingUtils.getWidgetsBindingInstance();
     if (instance != null) {
       instance.addObserver(_observer!);
       options.sdk.addIntegration('widgetsBindingIntegration');
@@ -404,7 +420,7 @@ class WidgetsBindingIntegration extends Integration<SentryFlutterOptions> {
 
   @override
   FutureOr<void> close() {
-    final instance = WidgetsBinding.instance;
+    final instance = BindingUtils.getWidgetsBindingInstance();
     if (instance != null && _observer != null) {
       instance.removeObserver(_observer!);
     }
