@@ -113,10 +113,12 @@ void main() {
             screenHeightPixels: 1080,
             screenWidthPixels: 1920,
             screenDensity: 2,
-            timezone: 'foo_timezone',
           ),
           operatingSystem: SentryOperatingSystem(
             name: 'sentry_os',
+          ),
+          culture: SentryCulture(
+            timezone: 'foo_timezone',
           ),
         ),
       );
