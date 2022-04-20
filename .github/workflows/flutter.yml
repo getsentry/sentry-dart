@@ -65,6 +65,7 @@ jobs:
         - uses: subosito/flutter-action@v2
           with:
             channel: ${{ matrix.channel }}
+            architecture: x64
 
         - run: flutter upgrade
 
