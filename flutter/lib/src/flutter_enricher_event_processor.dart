@@ -55,6 +55,7 @@ class FlutterEnricherEventProcessor extends EventProcessor {
       device: device,
       runtimes: _getRuntimes(event.contexts.runtimes),
       culture: _getCulture(event.contexts.culture),
+      operatingSystem: _getOperatingSystem(event.contexts.operatingSystem),
     );
 
     // Flutter has a lot of Accessibility Settings available and exposes them
@@ -188,7 +189,12 @@ class FlutterEnricherEventProcessor extends EventProcessor {
       screenWidthPixels:
           device?.screenWidthPixels ?? window.physicalSize.width.toInt(),
       screenDensity: device?.screenDensity ?? window.devicePixelRatio,
-      theme: device?.theme ?? describeEnum(window.platformBrightness),
+    );
+  }
+
+  SentryOperatingSystem _getOperatingSystem(SentryOperatingSystem? os) {
+    return (os ?? SentryOperatingSystem()).copyWith(
+      theme: os?.theme ?? describeEnum(window.platformBrightness),
     );
   }
 
