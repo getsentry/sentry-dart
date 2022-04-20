@@ -1,6 +1,8 @@
 import 'package:sentry/sentry.dart';
 
-class MockSentryClient implements SentryClient {
+import 'no_such_method_provider.dart';
+
+class MockSentryClient with NoSuchMethodProvider implements SentryClient {
   List<CaptureEventCall> captureEventCalls = [];
   List<CaptureExceptionCall> captureExceptionCalls = [];
   List<CaptureMessageCall> captureMessageCalls = [];
@@ -68,9 +70,8 @@ class MockSentryClient implements SentryClient {
   }
 
   @override
-  Future<SentryId> captureUserFeedback(SentryUserFeedback userFeedback) async {
+  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {
     userFeedbackCalls.add(userFeedback);
-    return userFeedback.eventId;
   }
 
   @override

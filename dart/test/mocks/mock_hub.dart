@@ -1,7 +1,9 @@
+import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/noop_hub.dart';
 
-class MockHub implements Hub {
+import 'no_such_method_provider.dart';
+
+class MockHub with NoSuchMethodProvider implements Hub {
   List<CaptureEventCall> captureEventCalls = [];
   List<CaptureExceptionCall> captureExceptionCalls = [];
   List<CaptureMessageCall> captureMessageCalls = [];
@@ -13,6 +15,12 @@ class MockHub implements Hub {
   bool _isEnabled = true;
   int spanContextCals = 0;
   int getSpanCalls = 0;
+
+  final _options = SentryOptions.empty();
+
+  @override
+  @internal
+  SentryOptions get options => _options;
 
   /// Useful for tests.
   void reset() {
@@ -88,24 +96,13 @@ class MockHub implements Hub {
   }
 
   @override
-  Hub clone() {
-    return NoOpHub();
-  }
-
-  @override
   Future<void> close() async {
     closeCalls = closeCalls + 1;
     _isEnabled = false;
   }
 
   @override
-  void configureScope(callback) {}
-
-  @override
   bool get isEnabled => _isEnabled;
-
-  @override
-  SentryId get lastEventId => SentryId.empty();
 
   @override
   Future<SentryId> captureTransaction(SentryTransaction transaction) async {
@@ -114,33 +111,8 @@ class MockHub implements Hub {
   }
 
   @override
-  Future<SentryId> captureUserFeedback(SentryUserFeedback userFeedback) async {
+  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {
     userFeedbackCalls.add(userFeedback);
-    return SentryId.empty();
-  }
-
-  @override
-  ISentrySpan startTransaction(
-    String name,
-    String operation, {
-    String? description,
-    bool? bindToScope,
-    bool? waitForChildren,
-    Duration? autoFinishAfter,
-    Map<String, dynamic>? customSamplingContext,
-  }) {
-    return NoOpSentrySpan();
-  }
-
-  @override
-  ISentrySpan startTransactionWithContext(
-    SentryTransactionContext transactionContext, {
-    Map<String, dynamic>? customSamplingContext,
-    bool? bindToScope,
-    bool? waitForChildren,
-    Duration? autoFinishAfter,
-  }) {
-    return NoOpSentrySpan();
   }
 
   @override

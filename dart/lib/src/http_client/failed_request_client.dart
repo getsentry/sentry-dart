@@ -65,7 +65,7 @@ import 'sentry_http_client.dart';
 /// ```
 class FailedRequestClient extends BaseClient {
   FailedRequestClient({
-    this.maxRequestBodySize = MaxRequestBodySize.small,
+    this.maxRequestBodySize = MaxRequestBodySize.never,
     this.failedRequestStatusCodes = const [],
     this.captureFailedRequests = true,
     this.sendDefaultPii = false,
@@ -215,24 +215,5 @@ extension _ListX on List<SentryStatusCode> {
       return false;
     }
     return any((element) => element.isInRange(statusCode));
-  }
-}
-
-extension _MaxRequestBodySizeX on MaxRequestBodySize {
-  bool shouldAddBody(int contentLength) {
-    if (this == MaxRequestBodySize.never) {
-      return false;
-    }
-    if (this == MaxRequestBodySize.always) {
-      return true;
-    }
-    if (this == MaxRequestBodySize.medium && contentLength <= 10000) {
-      return true;
-    }
-
-    if (this == MaxRequestBodySize.small && contentLength <= 4000) {
-      return true;
-    }
-    return false;
   }
 }

@@ -7,49 +7,37 @@ import 'mocks.mocks.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  var called = false;
-
   late Fixture fixture;
 
   setUp(() {
     fixture = Fixture();
-
-    fixture.channel.setMockMethodCallHandler((MethodCall methodCall) async {
-      called = true;
-      return {
-        'integrations': ['NativeIntegration'],
-        'package': {'sdk_name': 'native-package', 'version': '1.0'},
-        'contexts': {
-          'device': {'name': 'Device1'},
-          'app': {'app_name': 'test-app'},
-          'os': {'name': 'os1'},
-          'gpu': {'name': 'gpu1'},
-          'browser': {'name': 'browser1'},
-          'runtime': {'name': 'RT1'},
-          'theme': 'material',
-        }
-      };
-    });
   });
 
-  tearDown(() {
-    fixture.channel.setMockMethodCallHandler(null);
-  });
-
-  SdkVersion getSdkVersion({String name = 'sentry.dart'}) {
+  SdkVersion getSdkVersion({
+    String name = 'sentry.dart',
+    List<String> integrations = const [],
+    List<SentryPackage> packages = const [],
+  }) {
     return SdkVersion(
         name: name,
         version: '1.0',
-        integrations: const ['EventIntegration'],
-        packages: const [SentryPackage('event-package', '2.0')]);
+        integrations: integrations,
+        packages: packages);
   }
 
-  SentryEvent getEvent({
-    SdkVersion? sdk,
-    Map<String, String>? tags,
-  }) {
+  SentryEvent getEvent(
+      {SdkVersion? sdk,
+      Map<String, String>? tags,
+      List<String> integrations = const ['EventIntegration'],
+      List<SentryPackage> packages = const [
+        SentryPackage('event-package', '2.0')
+      ]}) {
     return SentryEvent(
-      sdk: sdk ?? getSdkVersion(),
+      sdk: sdk ??
+          getSdkVersion(
+            integrations: integrations,
+            packages: packages,
+          ),
       tags: tags,
     );
   }
@@ -73,7 +61,7 @@ void main() {
     final e = SentryEvent();
     final event = await fixture.options.eventProcessors.first.apply(e);
 
-    expect(called, true);
+    expect(fixture.called, true);
     expect(event?.contexts.device?.name, 'Device1');
     expect(event?.contexts.app?.name, 'test-app');
     expect(event?.contexts.operatingSystem?.name, 'os1');
@@ -87,6 +75,7 @@ void main() {
       true,
     );
     expect(event?.sdk?.integrations.contains('NativeIntegration'), true);
+    expect(event?.user?.id, '196E065A-AAF7-409A-9A6C-A81F40274CB9');
   });
 
   test(
@@ -105,10 +94,12 @@ void main() {
         browser: const SentryBrowser(name: 'eBrowser'),
         runtimes: [const SentryRuntime(name: 'eRT')])
       ..['theme'] = 'cuppertino';
-    final e = SentryEvent(contexts: eventContexts);
+    final e =
+        SentryEvent(contexts: eventContexts, user: SentryUser(id: 'myId'));
+
     final event = await fixture.options.eventProcessors.first.apply(e);
 
-    expect(called, true);
+    expect(fixture.called, true);
     expect(event?.contexts.device?.name, 'eDevice');
     expect(event?.contexts.app?.name, 'eApp');
     expect(event?.contexts.operatingSystem?.name, 'eOS');
@@ -119,6 +110,7 @@ void main() {
     expect(
         event?.contexts.runtimes.any((element) => element.name == 'eRT'), true);
     expect(event?.contexts['theme'], 'cuppertino');
+    expect(event?.user?.id, 'myId');
   });
 
   test(
@@ -140,6 +132,76 @@ void main() {
       );
       expect(event?.sdk?.integrations.contains('NativeIntegration'), true);
       expect(event?.sdk?.integrations.contains('EventIntegration'), true);
+    },
+  );
+
+  test(
+    'should not duplicate integration if already there',
+    () async {
+      final integration = fixture.getSut(contexts: {
+        'integrations': ['EventIntegration']
+      });
+      integration(fixture.hub, fixture.options);
+
+      final e = getEvent();
+      final event = await fixture.options.eventProcessors.first.apply(e);
+
+      expect(
+          event?.sdk?.integrations
+              .where((element) => element == 'EventIntegration')
+              .toList(growable: false)
+              .length,
+          1);
+    },
+  );
+
+  test(
+    'should not duplicate package if already there',
+    () async {
+      final integration = fixture.getSut(contexts: {
+        'package': {'sdk_name': 'event-package', 'version': '2.0'}
+      });
+      integration(fixture.hub, fixture.options);
+
+      final e = getEvent();
+      final event = await fixture.options.eventProcessors.first.apply(e);
+
+      expect(
+          event?.sdk?.packages
+              .where((element) =>
+                  element.name == 'event-package' && element.version == '2.0')
+              .toList(growable: false)
+              .length,
+          1);
+    },
+  );
+
+  test(
+    'adds package if different version',
+    () async {
+      final integration = fixture.getSut(contexts: {
+        'package': {'sdk_name': 'event-package', 'version': '3.0'}
+      });
+      integration(fixture.hub, fixture.options);
+
+      final e = getEvent();
+      final event = await fixture.options.eventProcessors.first.apply(e);
+
+      expect(
+          event?.sdk?.packages
+              .where((element) =>
+                  element.name == 'event-package' && element.version == '2.0')
+              .toList(growable: false)
+              .length,
+          1);
+
+      expect(
+          event?.sdk?.packages
+              .where((element) =>
+                  element.name == 'event-package' && element.version == '3.0')
+              .toList(growable: false)
+              .length,
+          1);
     },
   );
 
@@ -211,7 +273,28 @@ class Fixture {
   final hub = MockHub();
   final options = SentryFlutterOptions();
 
-  LoadContextsIntegration getSut() {
+  var called = false;
+
+  LoadContextsIntegration getSut(
+      {Map<String, dynamic> contexts = const {
+        'integrations': ['NativeIntegration'],
+        'package': {'sdk_name': 'native-package', 'version': '1.0'},
+        'contexts': {
+          'device': {'name': 'Device1'},
+          'app': {'app_name': 'test-app'},
+          'os': {'name': 'os1'},
+          'gpu': {'name': 'gpu1'},
+          'browser': {'name': 'browser1'},
+          'runtime': {'name': 'RT1'},
+          'theme': 'material',
+        },
+        'user': {'id': '196E065A-AAF7-409A-9A6C-A81F40274CB9'}
+      }}) {
+    channel.setMockMethodCallHandler((MethodCall methodCall) async {
+      called = true;
+      return contexts;
+    });
+
     return LoadContextsIntegration(channel);
   }
 }

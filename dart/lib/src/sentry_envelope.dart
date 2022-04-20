@@ -47,11 +47,16 @@ class SentryEnvelope {
   /// Create an [SentryEnvelope] with containing one [SentryEnvelopeItem] which holds the [SentryTransaction] data.
   factory SentryEnvelope.fromTransaction(
     SentryTransaction transaction,
-    SdkVersion sdkVersion,
-  ) {
+    SdkVersion sdkVersion, {
+    List<SentryAttachment>? attachments,
+  }) {
     return SentryEnvelope(
       SentryEnvelopeHeader(transaction.eventId, sdkVersion),
-      [SentryEnvelopeItem.fromTransaction(transaction)],
+      [
+        SentryEnvelopeItem.fromTransaction(transaction),
+        if (attachments != null)
+          ...attachments.map((e) => SentryEnvelopeItem.fromAttachment(e))
+      ],
     );
   }
 

@@ -4,6 +4,8 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sentry/sentry.dart';
+
+import 'binding_utils.dart';
 import 'sentry_flutter_options.dart';
 
 typedef WidgetBindingGetter = WidgetsBinding? Function();
@@ -22,7 +24,7 @@ class FlutterEnricherEventProcessor extends EventProcessor {
   }) {
     return FlutterEnricherEventProcessor(
       options,
-      () => WidgetsBinding.instance,
+      BindingUtils.getWidgetsBindingInstance,
     );
   }
 
@@ -33,7 +35,7 @@ class FlutterEnricherEventProcessor extends EventProcessor {
 
   // We can't use `WidgetsBinding` as a direct parameter
   // because it must be called inside the `runZoneGuarded`-Integration.
-  // Thus we call it on demand after all the initialization happend.
+  // Thus we call it on demand after all the initialization happened.
   final WidgetBindingGetter _getWidgetsBinding;
   WidgetsBinding? get _widgetsBinding => _getWidgetsBinding();
   SingletonFlutterWindow? get _window => _widgetsBinding?.window;
@@ -130,8 +132,12 @@ class FlutterEnricherEventProcessor extends EventProcessor {
     final tempDebugBrightnessOverride = debugBrightnessOverride;
     final initialLifecycleState = _window?.initialLifecycleState;
     final defaultRouteName = _window?.defaultRouteName;
+    // A FlutterEngine has no renderViewElement if it was started or is
+    // accessed from an isolate different to the main isolate.
+    final hasRenderView = _widgetsBinding?.renderViewElement != null;
 
     return <String, String>{
+      'has_render_view': hasRenderView.toString(),
       if (tempDebugBrightnessOverride != null)
         'debug_brightness_override': describeEnum(tempDebugBrightnessOverride),
       if (debugPlatformOverride != null)

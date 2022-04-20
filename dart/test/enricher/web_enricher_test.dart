@@ -1,10 +1,12 @@
 @TestOn('browser')
+import 'dart:html' as html;
+
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/enricher/web_enricher_event_processor.dart';
 import 'package:test/test.dart';
-import 'dart:html' as html show window;
 
 import '../mocks.dart';
+import '../mocks/mock_platform_checker.dart';
 
 // can be tested on command line with
 // `dart test -p chrome --name web_enricher`
@@ -76,6 +78,15 @@ void main() {
       final event = await enricher.apply(SentryEvent());
 
       expect(event.contexts.device, isNotNull);
+    });
+
+    test('adds Dart context', () async {
+      final enricher = fixture.getSut();
+      final event = await enricher.apply(SentryEvent());
+
+      final dartContext = event.contexts['dart_context'];
+      expect(dartContext, isNotNull);
+      expect(dartContext['compile_mode'], isNotNull);
     });
 
     test('device has timezone, screendensity', () async {
@@ -164,8 +175,13 @@ void main() {
 
 class Fixture {
   WebEnricherEventProcessor getSut() {
+    final options = SentryOptions(
+        dsn: fakeDsn,
+        checker: MockPlatformChecker(hasNativeIntegration: false));
+
     return WebEnricherEventProcessor(
       html.window,
+      options,
     );
   }
 }
