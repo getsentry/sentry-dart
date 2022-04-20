@@ -45,6 +45,9 @@ jobs:
             target: linux
           - os: macos-latest
             target: windows
+          # Bad CPU type in executable
+          - os: macos-latest
+            channel: beta
 
     steps:
         - uses: actions/checkout@v2
