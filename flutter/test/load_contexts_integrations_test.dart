@@ -28,6 +28,13 @@ void main() {
   SentryEvent getEvent(
       {SdkVersion? sdk,
       Map<String, String>? tags,
+      Map<String, dynamic>? extra,
+      SentryUser? user,
+      String? dist,
+      String? environment,
+      List<String>? fingerprint,
+      SentryLevel? level,
+      List<Breadcrumb>? breadcrumbs,
       List<String> integrations = const ['EventIntegration'],
       List<SentryPackage> packages = const [
         SentryPackage('event-package', '2.0')
@@ -39,6 +46,13 @@ void main() {
             packages: packages,
           ),
       tags: tags,
+      extra: extra,
+      user: user,
+      dist: dist,
+      environment: environment,
+      fingerprint: fingerprint,
+      level: level,
+      breadcrumbs: breadcrumbs,
     );
   }
 
@@ -265,6 +279,144 @@ void main() {
       expect(event?.tags?.containsKey('event.environment'), false);
     },
   );
+
+  test('should merge in tags from native without overriding flutter keys', () async {
+    final integration = fixture.getSut();
+    integration(fixture.hub, fixture.options);
+
+    final e = getEvent(tags: {'key': 'flutter', 'key-a': 'flutter'});
+    final event = await fixture.options.eventProcessors.first.apply(e);
+
+    expect(event?.tags?['key'], 'flutter');
+    expect(event?.tags?['key-a'], 'flutter');
+    expect(event?.tags?['key-b'], 'native');
+  });
+
+  test('should merge in extra from native without overriding flutter keys', () async {
+    final integration = fixture.getSut();
+    integration(fixture.hub, fixture.options);
+
+    final e = getEvent(extra: {'key': 'flutter', 'key-a': 'flutter'});
+    final event = await fixture.options.eventProcessors.first.apply(e);
+
+    expect(event?.extra?['key'], 'flutter');
+    expect(event?.extra?['key-a'], 'flutter');
+    expect(event?.extra?['key-b'], 'native');
+  });
+
+  test('should set user from native', () async {
+    final integration = fixture.getSut();
+    integration(fixture.hub, fixture.options);
+
+    final e = getEvent();
+    final event = await fixture.options.eventProcessors.first.apply(e);
+
+    expect(event?.user?.id, '196E065A-AAF7-409A-9A6C-A81F40274CB9');
+    expect(event?.user?.username, 'fixture-username');
+    expect(event?.user?.email, 'fixture-email');
+    expect(event?.user?.ipAddress, 'fixture-ip_address');
+    expect(event?.user?.extras?['key'], 'value');
+  });
+
+  test('should not override user with native', () async {
+    final integration = fixture.getSut();
+    integration(fixture.hub, fixture.options);
+
+    final e = getEvent(user: SentryUser(id: 'abc'));
+    final event = await fixture.options.eventProcessors.first.apply(e);
+
+    expect(event?.user?.id, 'abc');
+  });
+
+  test('should set dist from native', () async {
+    final integration = fixture.getSut();
+    integration(fixture.hub, fixture.options);
+
+    final e = getEvent();
+    final event = await fixture.options.eventProcessors.first.apply(e);
+
+    expect(event?.dist, 'fixture-dist');
+  });
+
+  test('should not override dist with native', () async {
+    final integration = fixture.getSut();
+    integration(fixture.hub, fixture.options);
+
+    final e = getEvent(dist: 'abc');
+    final event = await fixture.options.eventProcessors.first.apply(e);
+
+    expect(event?.dist, 'abc');
+  });
+
+  test('should set environment from native', () async {
+    final integration = fixture.getSut();
+    integration(fixture.hub, fixture.options);
+
+    final e = getEvent();
+    final event = await fixture.options.eventProcessors.first.apply(e);
+
+    expect(event?.environment, 'fixture-environment');
+  });
+
+  test('should not override environment with native', () async {
+    final integration = fixture.getSut();
+    integration(fixture.hub, fixture.options);
+
+    final e = getEvent(environment: 'abc');
+    final event = await fixture.options.eventProcessors.first.apply(e);
+
+    expect(event?.environment, 'abc');
+  });
+
+  test('should merge in fingerprint from native without duplicating entries', () async {
+    final integration = fixture.getSut();
+    integration(fixture.hub, fixture.options);
+
+    final e = getEvent(fingerprint: ['fingerprint-a', 'fingerprint-b']);
+    final event = await fixture.options.eventProcessors.first.apply(e);
+
+    expect(event?.fingerprint, ['fingerprint-a', 'fingerprint-b']);
+  });
+
+  test('should set level from native', () async {
+    final integration = fixture.getSut();
+    integration(fixture.hub, fixture.options);
+
+    final e = getEvent();
+    final event = await fixture.options.eventProcessors.first.apply(e);
+
+    expect(event?.level, SentryLevel.error);
+  });
+
+  test('should not override level with native', () async {
+    final integration = fixture.getSut();
+    integration(fixture.hub, fixture.options);
+
+    final e = getEvent(level: SentryLevel.fatal);
+    final event = await fixture.options.eventProcessors.first.apply(e);
+
+    expect(event?.level, SentryLevel.fatal);
+  });
+
+  test('should merge in breadcrumbs sorted by timestamp', () async {
+    final integration = fixture.getSut();
+    integration(fixture.hub, fixture.options);
+
+    final breadcrumb = Breadcrumb(
+      message: 'flutter-crumb',
+      timestamp: DateTime.fromMillisecondsSinceEpoch(100),
+    );
+    final e = getEvent(breadcrumbs: [breadcrumb]);
+    final event = await fixture.options.eventProcessors.first.apply(e);
+
+    expect(event?.breadcrumbs?[0].message, 'native-crumb');
+    expect(event?.breadcrumbs?[1].message, 'flutter-crumb');
+  });
+
+  test('other properties', () async {
+    // TODO Which ones are relevant?
+    // platform, logger, serverName, release, modules, message, exceptions, threads, transaction, level, culprit, sdk, request, debugMeta, type
+  });
 }
 
 class Fixture {
@@ -288,7 +440,25 @@ class Fixture {
           'runtime': {'name': 'RT1'},
           'theme': 'material',
         },
-        'user': {'id': '196E065A-AAF7-409A-9A6C-A81F40274CB9'}
+        'user': {
+          'id': '196E065A-AAF7-409A-9A6C-A81F40274CB9',
+          'username': 'fixture-username',
+          'email': 'fixture-email',
+          'ip_address': 'fixture-ip_address',
+          'extras': {'key': 'value'},
+        },
+        'tags': {'key-a': 'native', 'key-b': 'native'},
+        'extra': {'key-a': 'native', 'key-b': 'native'},
+        'dist': 'fixture-dist',
+        'environment': 'fixture-environment',
+        'fingerprint': ['fingerprint-a'],
+        'level': 'error',
+        'breadcrumbs': [
+          <String, dynamic>{
+            'timestamp': '1970-01-01T01:00:00.000',
+            'message': 'native-crumb',
+          }
+        ]
       }}) {
     channel.setMockMethodCallHandler((MethodCall methodCall) async {
       called = true;
