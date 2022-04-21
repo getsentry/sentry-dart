@@ -107,6 +107,10 @@ class IoEnricherEventProcessor extends EventProcessor {
     return (device ?? SentryDevice()).copyWith(
       name: device?.name ?? Platform.localHostname,
       processorCount: Platform.numberOfProcessors,
+      // ignore: deprecated_member_use_from_same_package
+      language: device?.language ?? Platform.localeName,
+      // ignore: deprecated_member_use_from_same_package
+      timezone: device?.timezone ?? DateTime.now().timeZoneName,
     );
   }
 

@@ -67,6 +67,8 @@ class WebEnricherEventProcessor extends EventProcessor {
           device?.screenWidthPixels ?? _window.screen?.available.width.toInt(),
       screenDensity:
           device?.screenDensity ?? _window.devicePixelRatio.toDouble(),
+      // ignore: deprecated_member_use_from_same_package
+      timezone: device?.timezone ?? DateTime.now().timeZoneName,
     );
   }
 
