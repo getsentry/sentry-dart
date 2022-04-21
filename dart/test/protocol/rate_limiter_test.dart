@@ -18,7 +18,7 @@ void main() {
   });
 
   test('uses X-Sentry-Rate-Limit and allows sending if time has passed', () {
-    final rateLimiter = fixture.getSUT();
+    final rateLimiter = fixture.getSut();
     fixture.dateTimeToReturn = 0;
 
     final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
@@ -40,7 +40,7 @@ void main() {
   test(
       'parse X-Sentry-Rate-Limit and set its values and retry after should be true',
       () {
-    final rateLimiter = fixture.getSUT();
+    final rateLimiter = fixture.getSut();
     fixture.dateTimeToReturn = 0;
     final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
 
@@ -61,7 +61,7 @@ void main() {
   test(
       'parse X-Sentry-Rate-Limit and set its values and retry after should be false',
       () {
-    final rateLimiter = fixture.getSUT();
+    final rateLimiter = fixture.getSut();
     fixture.dateTimeToReturn = 0;
     final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
 
@@ -83,7 +83,7 @@ void main() {
   test(
       'When X-Sentry-Rate-Limit categories are empty, applies to all the categories',
       () {
-    final rateLimiter = fixture.getSUT();
+    final rateLimiter = fixture.getSut();
     fixture.dateTimeToReturn = 0;
     final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
     final envelope = SentryEnvelope(
@@ -100,7 +100,7 @@ void main() {
   test(
       'When all categories is set but expired, applies only for specific category',
       () {
-    final rateLimiter = fixture.getSUT();
+    final rateLimiter = fixture.getSut();
     fixture.dateTimeToReturn = 0;
     final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
     final envelope = SentryEnvelope(
@@ -119,7 +119,7 @@ void main() {
 
   test('When category has shorter rate limiting, do not apply new timestamp',
       () {
-    final rateLimiter = fixture.getSUT();
+    final rateLimiter = fixture.getSut();
     fixture.dateTimeToReturn = 0;
     final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
     final envelope = SentryEnvelope(
@@ -137,7 +137,7 @@ void main() {
   });
 
   test('When category has longer rate limiting, apply new timestamp', () {
-    final rateLimiter = fixture.getSUT();
+    final rateLimiter = fixture.getSut();
     fixture.dateTimeToReturn = 0;
     final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
     final envelope = SentryEnvelope(
@@ -155,7 +155,7 @@ void main() {
   });
 
   test('When both retry headers are not present, default delay is set', () {
-    final rateLimiter = fixture.getSUT();
+    final rateLimiter = fixture.getSut();
     fixture.dateTimeToReturn = 0;
     final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
     final envelope = SentryEnvelope(
@@ -174,7 +174,7 @@ void main() {
   test(
       'When no sentryRateLimitHeader available, it fallback to retryAfterHeader',
       () {
-    final rateLimiter = fixture.getSUT();
+    final rateLimiter = fixture.getSut();
     fixture.dateTimeToReturn = 0;
     final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
     final envelope = SentryEnvelope(
@@ -191,7 +191,7 @@ void main() {
   });
 
   test('dropping of event recorded', () {
-    final rateLimiter = fixture.getSUT();
+    final rateLimiter = fixture.getSut();
 
     final eventItem = SentryEnvelopeItem.fromEvent(SentryEvent());
     final eventEnvelope = SentryEnvelope(
@@ -210,7 +210,7 @@ void main() {
   });
 
   test('dropping of transaction recorded', () {
-    final rateLimiter = fixture.getSUT();
+    final rateLimiter = fixture.getSut();
 
     final transaction = fixture.getTransaction();
     final eventItem = SentryEnvelopeItem.fromTransaction(transaction);
@@ -235,8 +235,12 @@ class Fixture {
 
   late var mockRecorder = MockClientReportRecorder();
 
-  RateLimiter getSUT() {
-    return RateLimiter(_currentDateTime, mockRecorder);
+  RateLimiter getSut() {
+    final options = SentryOptions();
+    options.clock = _currentDateTime;
+    options.recorder = mockRecorder;
+
+    return RateLimiter(options);
   }
 
   DateTime _currentDateTime() {

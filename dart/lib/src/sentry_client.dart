@@ -41,7 +41,7 @@ class SentryClient {
       options.recorder = ClientReportRecorder(options.clock);
     }
     if (options.transport is NoOpTransport) {
-      final rateLimiter = RateLimiter(options.clock, options.recorder);
+      final rateLimiter = RateLimiter(options);
       options.transport = HttpTransport(options, rateLimiter);
     }
     return SentryClient._(options);
