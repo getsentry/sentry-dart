@@ -3,6 +3,9 @@
 ## Unreleased
 
 * Feat: Client Reports (#829)
+## 6.5.0
+
+- No documented changes.
 
 ## 6.5.0-beta.2
 
