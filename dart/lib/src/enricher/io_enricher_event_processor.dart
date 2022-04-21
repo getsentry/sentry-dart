@@ -106,7 +106,7 @@ class IoEnricherEventProcessor extends EventProcessor {
   SentryDevice _getDevice(SentryDevice? device) {
     return (device ?? SentryDevice()).copyWith(
       name: device?.name ?? Platform.localHostname,
-      processorCount: Platform.numberOfProcessors,
+      processorCount: device?.processorCount ?? Platform.numberOfProcessors,
       // ignore: deprecated_member_use_from_same_package
       language: device?.language ?? Platform.localeName,
       // ignore: deprecated_member_use_from_same_package
