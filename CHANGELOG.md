@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+* Feat: Client Reports (#829)
+
 ## 6.5.0-beta.2
 
 * Fix: Do not set the transaction to scope if no op (#828)
