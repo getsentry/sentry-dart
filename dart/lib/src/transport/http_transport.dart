@@ -33,11 +33,12 @@ class HttpTransport implements Transport {
       options.httpClient = Client();
     }
 
-    return HttpTransport._(options, rateLimiter, options.recorder);
+    return HttpTransport._(options, rateLimiter);
   }
 
-  HttpTransport._(this._options, this._rateLimiter, this._recorder)
+  HttpTransport._(this._options, this._rateLimiter)
       : _dsn = Dsn.parse(_options.dsn!),
+        _recorder = _options.recorder,
         _headers = _buildHeaders(
           _options.platformChecker.isWeb,
           _options.sdk.identifier,
