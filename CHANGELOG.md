@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Update event contexts (#838)
+
 ## 6.5.0
 
 - No documented changes.
