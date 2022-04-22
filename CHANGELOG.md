@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 6.5.1
 
 - Update event contexts (#838)
 
