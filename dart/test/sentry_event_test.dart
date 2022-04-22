@@ -297,16 +297,46 @@ void main() {
       expect(serialized['exception'], null);
     });
 
-    test('should serialize thread', () {
-      final serialized = SentryEvent(threads: [
-        SentryThread(
-          id: 0,
-          crashed: true,
-          current: true,
-          name: 'Isolate',
-        )
-      ]).toJson();
-      expect(serialized['threads']['values'], isNotNull);
+    test('should serialize $SentryThread', () {
+      final serialized = SentryEvent(
+        exceptions: [
+          SentryException(
+            type: 'foo',
+            value: 'bar',
+            threadId: 0,
+          )
+        ],
+        threads: [
+          SentryThread(
+            id: 0,
+            crashed: true,
+            current: true,
+            name: 'Isolate',
+          )
+        ],
+      ).toJson();
+      expect(serialized['threads']?['values'], isNotEmpty);
+    });
+
+    test('should serialize $SentryThread', () {
+      final serialized = SentryEvent(
+        threads: [
+          SentryThread(
+            id: 0,
+            crashed: true,
+            current: true,
+            name: 'Isolate',
+          )
+        ],
+        exceptions: [
+          SentryException(
+            type: 'foo',
+            value: 'bar',
+            threadId: 0,
+          )
+        ],
+      ).toJson();
+      expect(serialized['threads']['values'], isNotEmpty);
     });
 
     test(
