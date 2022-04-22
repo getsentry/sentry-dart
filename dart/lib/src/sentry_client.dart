@@ -12,6 +12,7 @@ import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'transport/http_transport.dart';
 import 'transport/noop_transport.dart';
+import 'utils/isolate_utils.dart';
 import 'version.dart';
 import 'sentry_envelope.dart';
 
@@ -133,16 +134,38 @@ class SentryClient {
 
     if (event.exceptions?.isNotEmpty ?? false) return event;
 
+    final isolateName = getIsolateName();
+    // isolates have no id, so we use the hashCode as id
+    final isolateId = isolateName?.hashCode;
+
     if (event.throwableMechanism != null) {
-      final sentryException = _exceptionFactory.getSentryException(
+      var sentryException = _exceptionFactory.getSentryException(
         event.throwableMechanism,
         stackTrace: stackTrace,
       );
 
-      return event.copyWith(exceptions: [
-        ...(event.exceptions ?? []),
-        sentryException,
-      ]);
+      if (_options.platformChecker.isWeb) {
+        return event.copyWith(
+          exceptions: [
+            ...?event.exceptions,
+            sentryException,
+          ],
+        );
+      }
+
+      sentryException = sentryException.copyWith(threadId: isolateId);
+
+      final thread = SentryThread(
+        id: isolateId,
+        name: isolateName,
+        current: true,
+        crashed: true,
+      );
+
+      return event.copyWith(
+        exceptions: [...?event.exceptions, sentryException],
+        threads: [...?event.threads, thread],
+      );
     }
 
     // The stacktrace is not part of an exception,
@@ -156,6 +179,8 @@ class SentryClient {
         event = event.copyWith(threads: [
           ...(event.threads ?? []),
           SentryThread(
+            name: isolateName,
+            id: isolateId,
             crashed: false,
             current: true,
             stacktrace: SentryStackTrace(frames: frames),
