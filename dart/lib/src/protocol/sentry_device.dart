@@ -1,4 +1,7 @@
 import 'package:meta/meta.dart';
+import 'sentry_operating_system.dart';
+import 'sentry_culture.dart';
+import '../sentry_options.dart';
 
 /// If a device is on portrait or landscape mode
 enum SentryOrientation { portrait, landscape }
@@ -38,6 +41,17 @@ class SentryDevice {
     this.timezone,
     this.language,
     this.theme,
+    this.processorCount,
+    this.cpuDescription,
+    this.processorFrequency,
+    this.deviceType,
+    this.batteryStatus,
+    this.deviceUniqueIdentifier,
+    this.supportsVibration,
+    this.supportsAccelerometer,
+    this.supportsGyroscope,
+    this.supportsAudio,
+    this.supportsLocationService,
   }) : assert(
           batteryLevel == null || (batteryLevel >= 0 && batteryLevel <= 100),
         );
@@ -75,6 +89,12 @@ class SentryDevice {
   final String? brand;
 
   /// The screen resolution. (e.g.: `800x600`, `3040x1444`).
+  /// This field is deprecated, please use [screenHeightPixels]
+  /// and [screenWidthPixels] instead.
+  @Deprecated(
+    'Scheduled for removal in v7.0.0. '
+    'Use SentryDevice.screenHeightPixels and SentryDevice.screenWidthPixels instead',
+  )
   final String? screenResolution;
 
   /// The screen height in pixels. (e.g.: `600`, `1080`).
@@ -128,13 +148,67 @@ class SentryDevice {
   final DateTime? bootTime;
 
   /// The timezone of the device, e.g.: `Europe/Vienna`.
+  /// This field is deprecated, please use [SentryCulture.timezone] instead.
+  @Deprecated(
+    'Scheduled for removal in v7.0.0. '
+    'Use SentryCulture.timezone instead',
+  )
   final String? timezone;
 
   /// The language of the device, e.g.: `en_US`.
+  /// This field is deprecated, please use [SentryCulture.locale] instead.
+  @Deprecated(
+    'Scheduled for removal in v7.0.0. '
+    'Use SentryCulture.locale instead',
+  )
   final String? language;
 
   /// The theme of the device. Typically `light` or `dark`
+  /// Deprecated: Use [SentryOperatingSystem.theme] instead.
+  @Deprecated(
+    'Scheduled for removal in v7.0.0. '
+    'Use SentryOperatingSystem.theme instead',
+  )
   final String? theme;
+
+  /// Optional. Number of "logical processors". For example, `8`.
+  final int? processorCount;
+
+  /// Optional. CPU description. For example, `Intel(R) Core(TM)2 Quad CPU Q6600 @ 2.40GHz`.
+  final String? cpuDescription;
+
+  /// Optional. Processor frequency in MHz. Note that the actual CPU frequency
+  /// might vary depending on current load and power conditions,
+  /// especially on low-powered devices like phones and laptops.
+  final double? processorFrequency;
+
+  /// Optional. Kind of device the application is running on.
+  /// For example, `Unknown`, `Handheld`, `Console`, `Desktop`.
+  final String? deviceType;
+
+  /// Optional. Status of the device's battery.
+  /// For example, `Unknown`, `Charging`, `Discharging`, `NotCharging`, `Full`.
+  final String? batteryStatus;
+
+  /// Optional. Unique device identifier.
+  /// This value might only be used if [SentryOptions.sendDefaultPii]
+  ///  is enabled.
+  final String? deviceUniqueIdentifier;
+
+  /// Optional. Is vibration available on the device?
+  final bool? supportsVibration;
+
+  /// Optional. Is accelerometer available on the device?
+  final bool? supportsAccelerometer;
+
+  /// Optional. Is gyroscope available on the device?
+  final bool? supportsGyroscope;
+
+  /// Optional. Is audio available on the device?
+  final bool? supportsAudio;
+
+  /// Optional. Is the device capable of reporting its location?
+  final bool? supportsLocationService;
 
   /// Deserializes a [SentryDevice] from JSON [Map].
   factory SentryDevice.fromJson(Map<String, dynamic> data) => SentryDevice(
@@ -173,12 +247,21 @@ class SentryDevice {
         timezone: data['timezone'],
         language: data['language'],
         theme: data['theme'],
+        processorCount: data['processor_count'],
+        cpuDescription: data['cpu_description'],
+        processorFrequency: data['processor_frequency'],
+        deviceType: data['device_type'],
+        batteryStatus: data['battery_status'],
+        deviceUniqueIdentifier: data['device_unique_identifier'],
+        supportsVibration: data['supports_vibration'],
+        supportsAccelerometer: data['supports_accelerometer'],
+        supportsGyroscope: data['supports_gyroscope'],
+        supportsAudio: data['supports_audio'],
+        supportsLocationService: data['supports_location_service'],
       );
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{};
-
     String? orientation;
 
     switch (this.orientation) {
@@ -192,124 +275,58 @@ class SentryDevice {
         orientation = null;
         break;
     }
-
-    if (name != null) {
-      json['name'] = name;
-    }
-
-    if (family != null) {
-      json['family'] = family;
-    }
-
-    if (model != null) {
-      json['model'] = model;
-    }
-
-    if (modelId != null) {
-      json['model_id'] = modelId;
-    }
-
-    if (arch != null) {
-      json['arch'] = arch;
-    }
-
-    if (batteryLevel != null) {
-      json['battery_level'] = batteryLevel;
-    }
-
-    if (orientation != null) {
-      json['orientation'] = orientation;
-    }
-
-    if (manufacturer != null) {
-      json['manufacturer'] = manufacturer;
-    }
-
-    if (brand != null) {
-      json['brand'] = brand;
-    }
-
-    if (screenResolution != null) {
-      json['screen_resolution'] = screenResolution;
-    }
-
-    if (screenWidthPixels != null) {
-      json['screen_width_pixels'] = screenWidthPixels;
-    }
-
-    if (screenHeightPixels != null) {
-      json['screen_height_pixels'] = screenHeightPixels;
-    }
-
-    if (screenDensity != null) {
-      json['screen_density'] = screenDensity;
-    }
-
-    if (screenDpi != null) {
-      json['screen_dpi'] = screenDpi;
-    }
-
-    if (online != null) {
-      json['online'] = online;
-    }
-
-    if (charging != null) {
-      json['charging'] = charging;
-    }
-
-    if (lowMemory != null) {
-      json['low_memory'] = lowMemory;
-    }
-
-    if (simulator != null) {
-      json['simulator'] = simulator;
-    }
-
-    if (memorySize != null) {
-      json['memory_size'] = memorySize;
-    }
-
-    if (freeMemory != null) {
-      json['free_memory'] = freeMemory;
-    }
-
-    if (usableMemory != null) {
-      json['usable_memory'] = usableMemory;
-    }
-
-    if (storageSize != null) {
-      json['storage_size'] = storageSize;
-    }
-
-    if (freeStorage != null) {
-      json['free_storage'] = freeStorage;
-    }
-
-    if (externalStorageSize != null) {
-      json['external_storage_size'] = externalStorageSize;
-    }
-
-    if (externalFreeStorage != null) {
-      json['external_free_storage'] = externalFreeStorage;
-    }
-
-    if (bootTime != null) {
-      json['boot_time'] = bootTime!.toIso8601String();
-    }
-
-    if (timezone != null) {
-      json['timezone'] = timezone;
-    }
-
-    if (language != null) {
-      json['language'] = language;
-    }
-
-    if (theme != null) {
-      json['theme'] = theme;
-    }
-
-    return json;
+    return <String, dynamic>{
+      if (name != null) 'name': name,
+      if (family != null) 'family': family,
+      if (model != null) 'model': model,
+      if (modelId != null) 'model_id': modelId,
+      if (arch != null) 'arch': arch,
+      if (batteryLevel != null) 'battery_level': batteryLevel,
+      if (orientation != null) 'orientation': orientation,
+      if (manufacturer != null) 'manufacturer': manufacturer,
+      if (brand != null) 'brand': brand,
+      if (screenWidthPixels != null) 'screen_width_pixels': screenWidthPixels,
+      if (screenHeightPixels != null)
+        'screen_height_pixels': screenHeightPixels,
+      if (screenDensity != null) 'screen_density': screenDensity,
+      if (screenDpi != null) 'screen_dpi': screenDpi,
+      if (online != null) 'online': online,
+      if (charging != null) 'charging': charging,
+      if (lowMemory != null) 'low_memory': lowMemory,
+      if (simulator != null) 'simulator': simulator,
+      if (memorySize != null) 'memory_size': memorySize,
+      if (freeMemory != null) 'free_memory': freeMemory,
+      if (usableMemory != null) 'usable_memory': usableMemory,
+      if (storageSize != null) 'storage_size': storageSize,
+      if (freeStorage != null) 'free_storage': freeStorage,
+      if (externalStorageSize != null)
+        'external_storage_size': externalStorageSize,
+      if (externalFreeStorage != null)
+        'external_free_storage': externalFreeStorage,
+      if (bootTime != null) 'boot_time': bootTime!.toIso8601String(),
+      if (processorCount != null) 'processor_count': processorCount,
+      if (cpuDescription != null) 'cpu_description': cpuDescription,
+      if (processorFrequency != null) 'processor_frequency': processorFrequency,
+      if (deviceType != null) 'device_type': deviceType,
+      if (batteryStatus != null) 'battery_status': batteryStatus,
+      if (deviceUniqueIdentifier != null)
+        'device_unique_identifier': deviceUniqueIdentifier,
+      if (supportsVibration != null) 'supports_vibration': supportsVibration,
+      if (supportsAccelerometer != null)
+        'supports_accelerometer': supportsAccelerometer,
+      if (supportsGyroscope != null) 'supports_gyroscope': supportsGyroscope,
+      if (supportsAudio != null) 'supports_audio': supportsAudio,
+      if (supportsLocationService != null)
+        'supports_location_service': supportsLocationService,
+      // ignore: deprecated_member_use_from_same_package
+      if (screenResolution != null) 'screen_resolution': screenResolution,
+      // ignore: deprecated_member_use_from_same_package
+      if (timezone != null) 'timezone': timezone,
+      // ignore: deprecated_member_use_from_same_package
+      if (language != null) 'language': language,
+      // ignore: deprecated_member_use_from_same_package
+      if (theme != null) 'theme': theme,
+    };
   }
 
   SentryDevice clone() => SentryDevice(
@@ -322,7 +339,6 @@ class SentryDevice {
         orientation: orientation,
         manufacturer: manufacturer,
         brand: brand,
-        screenResolution: screenResolution,
         screenHeightPixels: screenHeightPixels,
         screenWidthPixels: screenWidthPixels,
         screenDensity: screenDensity,
@@ -339,8 +355,24 @@ class SentryDevice {
         externalStorageSize: externalStorageSize,
         externalFreeStorage: externalFreeStorage,
         bootTime: bootTime,
+        processorCount: processorCount,
+        cpuDescription: cpuDescription,
+        processorFrequency: processorFrequency,
+        deviceType: deviceType,
+        batteryStatus: batteryStatus,
+        deviceUniqueIdentifier: deviceUniqueIdentifier,
+        supportsVibration: supportsVibration,
+        supportsAccelerometer: supportsAccelerometer,
+        supportsGyroscope: supportsGyroscope,
+        supportsAudio: supportsAudio,
+        supportsLocationService: supportsLocationService,
+        // ignore: deprecated_member_use_from_same_package
+        screenResolution: screenResolution,
+        // ignore: deprecated_member_use_from_same_package
         timezone: timezone,
+        // ignore: deprecated_member_use_from_same_package
         theme: theme,
+        // ignore: deprecated_member_use_from_same_package
         language: language,
       );
 
@@ -374,6 +406,17 @@ class SentryDevice {
     String? timezone,
     String? language,
     String? theme,
+    int? processorCount,
+    String? cpuDescription,
+    double? processorFrequency,
+    String? deviceType,
+    String? batteryStatus,
+    String? deviceUniqueIdentifier,
+    bool? supportsVibration,
+    bool? supportsAccelerometer,
+    bool? supportsGyroscope,
+    bool? supportsAudio,
+    bool? supportsLocationService,
   }) =>
       SentryDevice(
         name: name ?? this.name,
@@ -385,7 +428,6 @@ class SentryDevice {
         orientation: orientation ?? this.orientation,
         manufacturer: manufacturer ?? this.manufacturer,
         brand: brand ?? this.brand,
-        screenResolution: screenResolution ?? this.screenResolution,
         screenHeightPixels: screenHeightPixels ?? this.screenHeightPixels,
         screenWidthPixels: screenWidthPixels ?? this.screenWidthPixels,
         screenDensity: screenDensity ?? this.screenDensity,
@@ -402,8 +444,27 @@ class SentryDevice {
         externalStorageSize: externalStorageSize ?? this.externalStorageSize,
         externalFreeStorage: externalFreeStorage ?? this.externalFreeStorage,
         bootTime: bootTime ?? this.bootTime,
+        processorCount: processorCount ?? this.processorCount,
+        cpuDescription: cpuDescription ?? this.cpuDescription,
+        processorFrequency: processorFrequency ?? this.processorFrequency,
+        deviceType: deviceType ?? this.deviceType,
+        batteryStatus: batteryStatus ?? this.batteryStatus,
+        deviceUniqueIdentifier:
+            deviceUniqueIdentifier ?? this.deviceUniqueIdentifier,
+        supportsVibration: supportsVibration ?? this.supportsVibration,
+        supportsAccelerometer:
+            supportsAccelerometer ?? this.supportsAccelerometer,
+        supportsGyroscope: supportsGyroscope ?? this.supportsGyroscope,
+        supportsAudio: supportsAudio ?? this.supportsAudio,
+        supportsLocationService:
+            supportsLocationService ?? this.supportsLocationService,
+        // ignore: deprecated_member_use_from_same_package
+        screenResolution: screenResolution ?? this.screenResolution,
+        // ignore: deprecated_member_use_from_same_package
         timezone: timezone ?? this.timezone,
+        // ignore: deprecated_member_use_from_same_package
         language: language ?? this.language,
+        // ignore: deprecated_member_use_from_same_package
         theme: theme ?? this.theme,
       );
 }
