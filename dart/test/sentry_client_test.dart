@@ -102,6 +102,28 @@ void main() {
       expect(capturedEvent.exceptions?.first.stackTrace, isNotNull);
     });
 
+    test('should attach isolate info in thread', () async {
+      final client = fixture.getSut();
+
+      await client.captureException(
+        Exception(),
+        stackTrace: StackTrace.current,
+      );
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect(capturedEvent.threads?.first.current, true);
+      expect(capturedEvent.threads?.first.crashed, false);
+      expect(capturedEvent.threads?.first.name, isNotNull);
+      expect(capturedEvent.threads?.first.id, isNotNull);
+
+      expect(
+        capturedEvent.exceptions?.first.threadId,
+        capturedEvent.threads?.first.id,
+      );
+    });
+
     test('should capture message', () async {
       final client = fixture.getSut();
       await client.captureMessage(

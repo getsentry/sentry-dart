@@ -132,7 +132,9 @@ class SentryClient {
       return event;
     }
 
-    if (event.exceptions?.isNotEmpty ?? false) return event;
+    if (event.exceptions?.isNotEmpty ?? false) {
+      return event;
+    }
 
     final isolateName = getIsolateName();
     // isolates have no id, so we use the hashCode as id
@@ -158,8 +160,8 @@ class SentryClient {
       final thread = SentryThread(
         id: isolateId,
         name: isolateName,
+        crashed: false,
         current: true,
-        crashed: true,
       );
 
       return event.copyWith(
@@ -177,7 +179,7 @@ class SentryClient {
 
       if (frames.isNotEmpty) {
         event = event.copyWith(threads: [
-          ...(event.threads ?? []),
+          ...?event.threads,
           SentryThread(
             name: isolateName,
             id: isolateId,

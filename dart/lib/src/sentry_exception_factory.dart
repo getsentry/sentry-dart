@@ -45,14 +45,11 @@ class SentryExceptionFactory {
 
     // if --obfuscate feature is enabled, 'type' won't be human readable.
     // https://flutter.dev/docs/deployment/obfuscate#caveat
-    final sentryException = SentryException(
+    return SentryException(
       type: (throwable.runtimeType).toString(),
       value: throwable.toString(),
       mechanism: mechanism,
       stackTrace: sentryStackTrace,
-      threadId: 0,
     );
-
-    return sentryException;
   }
 }
