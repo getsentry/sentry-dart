@@ -83,15 +83,6 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
     private func loadContexts(result: @escaping FlutterResult) {
         SentrySDK.configureScope { scope in
-            // scope.setTag(value: "test", key: "test")
-            // scope.setExtra(value: "test", key: "test")
-            // scope.setUser(User(userId: "test"))
-            // scope.setDist("test")
-            // scope.setFingerprint(["test"])
-            // scope.setLevel(SentryLevel.warning)
-            // scope.add(Breadcrumb(level: SentryLevel.info, category: "test"))
-            // scope.setEnvironment("test")
-
             let serializedScope = scope.serialize()
             let context = serializedScope["context"]
 
