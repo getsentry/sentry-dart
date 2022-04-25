@@ -3,6 +3,7 @@
 ## Unreleased
 
 * Feat: Client Reports (#829)
+
 ## 6.5.1
 
 - Update event contexts (#838)
