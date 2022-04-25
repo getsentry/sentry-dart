@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Attach Isolate name to thread context (#847)
+
 ## 6.5.1
 
 - Update event contexts (#838)
