@@ -150,7 +150,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         }
       }
 
-      args.getIfNotNull<Boolean>("sendClientReports") { options.setSendClientReports(it)  }
+      args.getIfNotNull<Boolean>("sendClientReports") { options.setSendClientReports(it) }
 
       options.setBeforeSend { event, _ ->
         setEventOriginTag(event)
