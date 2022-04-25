@@ -412,11 +412,6 @@ void main() {
     expect(event?.breadcrumbs?[0].message, 'native-crumb');
     expect(event?.breadcrumbs?[1].message, 'flutter-crumb');
   });
-
-  test('other properties', () async {
-    // TODO Which ones are relevant?
-    // platform, logger, serverName, release, modules, message, exceptions, threads, transaction, level, culprit, sdk, request, debugMeta, type
-  });
 }
 
 class Fixture {
