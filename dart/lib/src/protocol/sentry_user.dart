@@ -63,9 +63,9 @@ class SentryUser {
 
   /// Deserializes a [SentryUser] from JSON [Map].
   factory SentryUser.fromJson(Map<String, dynamic> json) {
-    var extras = json['extras'] as Map?;
+    var extras = json['extras'];
     if (extras != null) {
-      extras = Map<String, dynamic>.from(extras);
+      extras = Map<String, dynamic>.from(extras as Map);
     }
     return SentryUser(
       id: json['id'],
