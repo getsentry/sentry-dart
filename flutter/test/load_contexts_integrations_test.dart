@@ -412,7 +412,9 @@ void main() {
     final e = getEvent(breadcrumbs: [breadcrumb]);
     final event = await fixture.options.eventProcessors.first.apply(e);
 
-    expect(event?.breadcrumbs?[0].message, 'native-crumb');
+    expect(event?.breadcrumbs?[0].message, 'native-crumb',
+        reason:
+            'with timestamps of crumb1: ${event?.breadcrumbs?[0].timestamp.millisecondsSinceEpoch} and crumb2: ${event?.breadcrumbs?[1].timestamp.millisecondsSinceEpoch}');
     expect(event?.breadcrumbs?[1].message, 'flutter-crumb');
   });
 }
