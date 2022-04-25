@@ -280,7 +280,8 @@ void main() {
     },
   );
 
-  test('should merge in tags from native without overriding flutter keys', () async {
+  test('should merge in tags from native without overriding flutter keys',
+      () async {
     final integration = fixture.getSut();
     integration(fixture.hub, fixture.options);
 
@@ -292,7 +293,8 @@ void main() {
     expect(event?.tags?['key-b'], 'native');
   });
 
-  test('should merge in extra from native without overriding flutter keys', () async {
+  test('should merge in extra from native without overriding flutter keys',
+      () async {
     final integration = fixture.getSut();
     integration(fixture.hub, fixture.options);
 
@@ -368,7 +370,8 @@ void main() {
     expect(event?.environment, 'abc');
   });
 
-  test('should merge in fingerprint from native without duplicating entries', () async {
+  test('should merge in fingerprint from native without duplicating entries',
+      () async {
     final integration = fixture.getSut();
     integration(fixture.hub, fixture.options);
 

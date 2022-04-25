@@ -233,7 +233,7 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
         event = event.copyWith(dist: distString);
       }
 
-      final environmentString = infos['environment']  as String?;
+      final environmentString = infos['environment'] as String?;
       if (event.environment == null && environmentString != null) {
         event = event.copyWith(environment: environmentString);
       }
