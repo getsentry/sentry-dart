@@ -407,14 +407,13 @@ void main() {
 
     final breadcrumb = Breadcrumb(
       message: 'flutter-crumb',
-      timestamp: DateTime.fromMillisecondsSinceEpoch(100),
+      timestamp: DateTime.fromMillisecondsSinceEpoch(1),
     );
     final e = getEvent(breadcrumbs: [breadcrumb]);
     final event = await fixture.options.eventProcessors.first.apply(e);
 
-    expect(event?.breadcrumbs?[0].message, 'native-crumb',
-        reason:
-            'with timestamps of crumb1: ${event?.breadcrumbs?[0].timestamp.millisecondsSinceEpoch} and crumb2: ${event?.breadcrumbs?[1].timestamp.millisecondsSinceEpoch}');
+    expect(event?.breadcrumbs?.length, 2);
+    expect(event?.breadcrumbs?[0].message, 'native-crumb');
     expect(event?.breadcrumbs?[1].message, 'flutter-crumb');
   });
 }
@@ -455,7 +454,7 @@ class Fixture {
         'level': 'error',
         'breadcrumbs': [
           <String, dynamic>{
-            'timestamp': '1970-01-01T01:00:00.000',
+            'timestamp': '1970-01-01T00:00:00.000Z',
             'message': 'native-crumb',
           }
         ]
