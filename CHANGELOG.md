@@ -3,6 +3,13 @@
 ## Unreleased: 
 
 * Feat: Add missing iOS contexts (#761)
+## 6.5.1
+
+- Update event contexts (#838)
+
+## 6.5.0
+
+- No documented changes.
 
 ## 6.5.0-beta.2
 
