@@ -175,10 +175,10 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
       final infos = Map<String, dynamic>.from(
         await (_channel.invokeMethod('loadContexts')),
       );
-      final contextsMap = infos['contexts'];
-      if (contextsMap != null) {
+      final contextsMap = infos['contexts'] as Map?;
+      if (contextsMap != null && contextsMap.isNotEmpty) {
         final contexts = Contexts.fromJson(
-          Map<String, dynamic>.from(contextsMap as Map),
+          Map<String, dynamic>.from(contextsMap),
         );
         final eventContexts = event.contexts.clone();
 
@@ -196,10 +196,10 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
         event = event.copyWith(contexts: eventContexts);
       }
 
-      final tagsMap = infos['tags'];
-      if (tagsMap != null) {
+      final tagsMap = infos['tags'] as Map?;
+      if (tagsMap != null && tagsMap.isNotEmpty) {
         final tags = event.tags ?? {};
-        final newTags = Map<String, String>.from(tagsMap as Map);
+        final newTags = Map<String, String>.from(tagsMap);
 
         for (final tag in newTags.entries) {
           if (!tags.containsKey(tag.key)) {
@@ -209,10 +209,10 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
         event = event.copyWith(tags: tags);
       }
 
-      final extraMap = infos['extra'];
-      if (extraMap != null) {
+      final extraMap = infos['extra'] as Map?;
+      if (extraMap != null && extraMap.isNotEmpty) {
         final extras = event.extra ?? {};
-        final newExtras = Map<String, dynamic>.from(extraMap as Map);
+        final newExtras = Map<String, dynamic>.from(extraMap);
 
         for (final extra in newExtras.entries) {
           if (!extras.containsKey(extra.key)) {
@@ -222,26 +222,26 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
         event = event.copyWith(extra: extras);
       }
 
-      final userMap = infos['user'];
-      if (event.user == null && userMap != null) {
-        final user = Map<String, dynamic>.from(userMap as Map);
+      final userMap = infos['user'] as Map?;
+      if (event.user == null && userMap != null && userMap.isNotEmpty) {
+        final user = Map<String, dynamic>.from(userMap);
         event = event.copyWith(user: SentryUser.fromJson(user));
       }
 
-      final distString = infos['dist'];
+      final distString = infos['dist'] as String?;
       if (event.dist == null && distString != null) {
-        event = event.copyWith(dist: distString as String);
+        event = event.copyWith(dist: distString);
       }
 
-      final environmentString = infos['environment'];
+      final environmentString = infos['environment']  as String?;
       if (event.environment == null && environmentString != null) {
-        event = event.copyWith(environment: environmentString as String);
+        event = event.copyWith(environment: environmentString);
       }
 
-      final fingerprintList = infos['fingerprint'];
-      if (fingerprintList != null) {
+      final fingerprintList = infos['fingerprint'] as List?;
+      if (fingerprintList != null && fingerprintList.isNotEmpty) {
         final eventFingerprints = event.fingerprint ?? [];
-        final newFingerprint = List<String>.from(fingerprintList as List);
+        final newFingerprint = List<String>.from(fingerprintList);
 
         for (final fingerprint in newFingerprint) {
           if (!eventFingerprints.contains(fingerprint)) {
@@ -251,15 +251,15 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
         event = event.copyWith(fingerprint: eventFingerprints);
       }
 
-      final levelString = infos['level'];
+      final levelString = infos['level'] as String?;
       if (event.level == null && levelString != null) {
         event = event.copyWith(level: SentryLevel.fromName(levelString));
       }
 
-      final breadcrumbsList = infos['breadcrumbs'];
-      if (breadcrumbsList != null) {
+      final breadcrumbsList = infos['breadcrumbs'] as List?;
+      if (breadcrumbsList != null && breadcrumbsList.isNotEmpty) {
         final breadcrumbs = event.breadcrumbs ?? [];
-        final newBreadcrumbs = List<Map>.from(breadcrumbsList as List);
+        final newBreadcrumbs = List<Map>.from(breadcrumbsList);
 
         for (final breadcrumb in newBreadcrumbs) {
           final newBreadcrumb = Map<String, dynamic>.from(breadcrumb);
@@ -274,9 +274,9 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
         event = event.copyWith(breadcrumbs: breadcrumbs);
       }
 
-      final integrationsList = infos['integrations'];
-      if (integrationsList != null) {
-        final integrations = List<String>.from(integrationsList as List);
+      final integrationsList = infos['integrations'] as List?;
+      if (integrationsList != null && integrationsList.isNotEmpty) {
+        final integrations = List<String>.from(integrationsList);
         final sdk = event.sdk ?? _options.sdk;
 
         for (final integration in integrations) {
@@ -288,9 +288,9 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
         event = event.copyWith(sdk: sdk);
       }
 
-      final packageMap = infos['package'];
-      if (packageMap != null) {
-        final package = Map<String, String>.from(packageMap as Map);
+      final packageMap = infos['package'] as Map?;
+      if (packageMap != null && packageMap.isNotEmpty) {
+        final package = Map<String, String>.from(packageMap);
         final sdk = event.sdk ?? _options.sdk;
 
         final name = package['sdk_name'];
