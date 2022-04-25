@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased: 
+
+* Feat: Add missing iOS contexts (#761)
+
 ## 6.5.0-beta.2
 
 * Fix: Do not set the transaction to scope if no op (#828)
