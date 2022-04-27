@@ -5,6 +5,7 @@
     <a href="https://flutter.dev/docs/development/packages-and-plugins/favorites" target="_blank" align="right">
     <img src="https://github.com/getsentry/sentry-dart/raw/main/.github/flutter_favorite.svg" width="100">
   </a>
+<a href="https://app.fossa.com/projects/git%2Bgithub.com%2Fgetsentry%2Fsentry-dart?ref=badge_shield" alt="FOSSA Status"><img src="https://app.fossa.com/api/projects/git%2Bgithub.com%2Fgetsentry%2Fsentry-dart.svg?type=shield"/></a>
   <br />
 </p>
 
@@ -44,3 +45,7 @@ For detailed usage, check out the inner [dart](https://github.com/getsentry/sent
 * [![Discord Chat](https://img.shields.io/discord/621778831602221064?logo=discord&logoColor=ffffff&color=7389D8)](https://discord.gg/PXa5Apfe7K)  
 * [![Stack Overflow](https://img.shields.io/badge/stack%20overflow-sentry-green.svg)](https://stackoverflow.com/questions/tagged/sentry)
 * [![Twitter Follow](https://img.shields.io/twitter/follow/getsentry?label=getsentry&style=social)](https://twitter.com/intent/follow?screen_name=getsentry)
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fgetsentry%2Fsentry-dart.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fgetsentry%2Fsentry-dart?ref=badge_large)
