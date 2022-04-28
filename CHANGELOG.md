@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Attach Isolate name to thread context (#847)
+
 ## 6.6.0-alpha.1
 
 * Feat: Client Reports (#829)
