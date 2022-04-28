@@ -136,7 +136,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       val nativeCrashHandling = (args["enableNativeCrashHandling"] as? Boolean) ?: true
       // nativeCrashHandling has priority over anrEnabled
       if (!nativeCrashHandling) {
-        options.enableUncaughtExceptionHandler = false
+        options.setEnableUncaughtExceptionHandler(false)
         options.isAnrEnabled = false
         // if split symbols are enabled, we need Ndk integration so we can't really offer the option
         // to turn it off
@@ -149,6 +149,8 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
           framesTracker = ActivityFramesTracker(LoadClass())
         }
       }
+
+      args.getIfNotNull<Boolean>("sendClientReports") { options.setSendClientReports(it) }
 
       options.setBeforeSend { event, _ ->
         setEventOriginTag(event)
