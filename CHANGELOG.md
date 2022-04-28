@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased: 
+
+* Fix: Add missing iOS contexts (#761)
+
 ## 6.5.1
 
 - Update event contexts (#838)
