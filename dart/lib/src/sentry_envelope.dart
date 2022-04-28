@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'client_reports/client_report.dart';
 import 'protocol.dart';
 import 'sentry_item_type.dart';
 import 'sentry_options.dart';
@@ -12,7 +13,7 @@ import 'sentry_user_feedback.dart';
 class SentryEnvelope {
   SentryEnvelope(this.header, this.items);
 
-  /// Header descriping envelope content.
+  /// Header describing envelope content.
   final SentryEnvelopeHeader header;
 
   /// All items contained in the envelope.
@@ -74,7 +75,7 @@ class SentryEnvelope {
       if (length < 0) {
         continue;
       }
-      // Olny attachments should be filtered according to
+      // Only attachments should be filtered according to
       // SentryOptions.maxAttachmentSize
       if (item.header.type == SentryItemType.attachment) {
         if (await item.header.length() > options.maxAttachmentSize) {
@@ -86,6 +87,14 @@ class SentryEnvelope {
         yield newLineData;
         yield itemStream;
       }
+    }
+  }
+
+  /// Add an envelope item containing client report data.
+  void addClientReport(ClientReport? clientReport) {
+    if (clientReport != null) {
+      final envelopeItem = SentryEnvelopeItem.fromClientReport(clientReport);
+      items.add(envelopeItem);
     }
   }
 }

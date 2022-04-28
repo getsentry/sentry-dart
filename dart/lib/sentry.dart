@@ -14,6 +14,7 @@ export 'src/protocol.dart';
 export 'src/scope.dart';
 export 'src/sentry.dart';
 export 'src/sentry_envelope.dart';
+export 'src/sentry_envelope_item.dart';
 export 'src/sentry_client.dart';
 export 'src/sentry_options.dart';
 // useful for integrations
