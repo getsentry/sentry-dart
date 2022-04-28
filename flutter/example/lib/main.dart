@@ -378,25 +378,17 @@ class AndroidExample extends StatelessWidget {
       ),
       ElevatedButton(
         onPressed: () async {
-          await _channel.invokeMethod<void>('startProfiling');
+          await execute('startProfiling');
         },
         child: const Text('Start native profiling'),
       ),
       ElevatedButton(
         onPressed: () async {
-          await _channel.invokeMethod<void>('stopProfiling');
+          await execute('stopProfiling');
         },
         child: const Text('Stop native profiling'),
       ),
     ]);
-  }
-
-  Future<void> execute(String method) async {
-    try {
-      await _channel.invokeMethod<void>(method);
-    } catch (error, stackTrace) {
-      await Sentry.captureException(error, stackTrace: stackTrace);
-    }
   }
 }
 
@@ -421,31 +413,31 @@ class CocoaExample extends StatelessWidget {
       children: [
         ElevatedButton(
           onPressed: () async {
-            await _channel.invokeMethod<void>('fatalError');
+            await execute('fatalError');
           },
           child: const Text('Swift fatalError'),
         ),
         ElevatedButton(
           onPressed: () async {
-            await _channel.invokeMethod<void>('capture');
+            await execute('capture');
           },
           child: const Text('Swift Capture NSException'),
         ),
         ElevatedButton(
           onPressed: () async {
-            await _channel.invokeMethod<void>('capture_message');
+            await execute('capture_message');
           },
           child: const Text('Swift Capture message'),
         ),
         ElevatedButton(
           onPressed: () async {
-            await _channel.invokeMethod<void>('throw');
+            await execute('throw');
           },
           child: const Text('Objective-C Throw unhandled exception'),
         ),
         ElevatedButton(
           onPressed: () async {
-            await _channel.invokeMethod<void>('crash');
+            await execute('crash');
           },
           child: const Text('Objective-C SEGFAULT'),
         ),
@@ -659,4 +651,8 @@ class ThemeProvider extends ChangeNotifier {
       theme = ThemeData(primarySwatch: color, brightness: theme.brightness);
     }
   }
+}
+
+Future<void> execute(String method) async {
+  await _channel.invokeMethod<void>(method);
 }
