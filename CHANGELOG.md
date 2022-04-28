@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 6.6.0-alpha.1
 
 * Feat: Client Reports (#829)
 * Fix: Add missing iOS contexts (#761)
