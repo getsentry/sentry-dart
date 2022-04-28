@@ -17,7 +17,7 @@ class MainActivity : FlutterActivity() {
       when (call.method) {
         "throw" -> {
           thread(isDaemon = true) {
-            throw Exception("Thrown from Kotlin!")
+            throw Exception("Catch this java exception thrown from Kotlin thread!")
           }
         }
         "anr" -> {
@@ -25,7 +25,7 @@ class MainActivity : FlutterActivity() {
         }
         "capture" -> {
           try {
-            throw RuntimeException("Catch this exception!")
+            throw RuntimeException("Catch this java exception!")
           } catch (e: Exception) {
             Sentry.captureException(e)
           }
@@ -37,7 +37,7 @@ class MainActivity : FlutterActivity() {
           message()
         }
         "platform_exception" -> {
-          result.success(Thread.currentThread().getStackTrace())
+          throw RuntimeException("Catch this platform exception!")
         }
         else -> {
           result.notImplemented()
