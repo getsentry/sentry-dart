@@ -3,6 +3,7 @@
 ## Unreleased: 
 
 * Fix: Add missing iOS contexts (#761)
+* Feat: Pass the enableProfiling configuration through to the native SDK (#851)
 
 ## 6.5.1
 
