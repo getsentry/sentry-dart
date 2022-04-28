@@ -236,6 +236,10 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         if let enableOutOfMemoryTracking = arguments["enableOutOfMemoryTracking"] as? Bool {
             options.enableOutOfMemoryTracking = enableOutOfMemoryTracking
         }
+
+        if let enableProfiling = arguments["enableProfiling"] as? Bool {
+            options.enableProfiling = enableProfiling
+        }
     }
 
     private func logLevelFrom(diagnosticLevel: String) -> SentryLevel {

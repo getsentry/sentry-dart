@@ -286,6 +286,7 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
         'enableOutOfMemoryTracking': options.enableOutOfMemoryTracking,
         'enableNdkScopeSync': options.enableNdkScopeSync,
         'enableAutoPerformanceTracking': options.enableAutoPerformanceTracking,
+        'enableProfiling': options.enableProfiling,
       });
 
       options.sdk.addIntegration('nativeSdkIntegration');
