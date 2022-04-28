@@ -169,7 +169,7 @@ class SentryClient {
       final thread = SentryThread(
         id: isolateId,
         name: isolateName,
-        crashed: false,
+        crashed: true,
         current: true,
       );
 

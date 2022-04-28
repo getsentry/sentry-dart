@@ -124,7 +124,7 @@ void main() {
         final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
         expect(capturedEvent.threads?.first.current, true);
-        expect(capturedEvent.threads?.first.crashed, false);
+        expect(capturedEvent.threads?.first.crashed, true);
         expect(capturedEvent.threads?.first.name, isNotNull);
         expect(capturedEvent.threads?.first.id, isNotNull);
 
