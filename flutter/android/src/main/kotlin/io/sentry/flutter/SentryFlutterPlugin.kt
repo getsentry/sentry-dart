@@ -132,7 +132,13 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       args.getIfNotNull<Boolean>("anrEnabled") { options.isAnrEnabled = it }
       args.getIfNotNull<Boolean>("sendDefaultPii") { options.isSendDefaultPii = it }
       args.getIfNotNull<Boolean>("enableNdkScopeSync") { options.isEnableScopeSync = it }
-      args.getIfNotNull<Boolean>("enableProfiling") { options.isProfilingEnabled = it }
+      args.getIfNotNull<Boolean>("enableProfiling") {
+        options.isProfilingEnabled = it
+
+        if (options.isProfilingEnabled) {
+          options.tracesSampleRate = 1.0 // read tracesSampleRate from args which is yet not given
+        }
+      }
 
       val nativeCrashHandling = (args["enableNativeCrashHandling"] as? Boolean) ?: true
       // nativeCrashHandling has priority over anrEnabled

@@ -3,11 +3,15 @@ package io.sentry.samples.flutter
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
+import io.sentry.ITransaction
 import io.sentry.Sentry
+import io.sentry.SpanStatus
 import kotlin.concurrent.thread
 
 class MainActivity : FlutterActivity() {
   private val _channel = "example.flutter.sentry.io"
+
+  private var transaction: ITransaction? = null
 
   override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
     super.configureFlutterEngine(flutterEngine)
@@ -38,6 +42,12 @@ class MainActivity : FlutterActivity() {
         }
         "platform_exception" -> {
           result.success(Thread.currentThread().getStackTrace())
+        }
+        "startProfiling" -> {
+          transaction = Sentry.startTransaction("myTransactionWithProfiling", "task")
+        }
+        "stopProfiling" -> {
+          transaction?.finish(SpanStatus.OK)
         }
         else -> {
           result.notImplemented()

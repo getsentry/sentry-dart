@@ -16,6 +16,8 @@ import 'package:sentry_dio/sentry_dio.dart';
 const String _exampleDsn =
     'https://9934c532bf8446ef961450973c898537@o447951.ingest.sentry.io/5428562';
 
+final _channel = const MethodChannel('example.flutter.sentry.io');
+
 Future<void> main() async {
   await SentryFlutter.init(
     (options) {
@@ -24,6 +26,7 @@ Future<void> main() async {
       options.reportPackages = false;
       options.addInAppInclude('sentry_flutter_example');
       options.considerInAppFramesByDefault = false;
+      options.enableProfiling = true;
     },
     // Init your App.
     appRunner: () => runApp(
@@ -333,9 +336,6 @@ class MainScaffold extends StatelessWidget {
 class AndroidExample extends StatelessWidget {
   const AndroidExample({Key? key}) : super(key: key);
 
-  // ignore: avoid_field_initializers_in_const_classes
-  final channel = const MethodChannel('example.flutter.sentry.io');
-
   @override
   Widget build(BuildContext context) {
     return Column(children: [
@@ -376,12 +376,24 @@ class AndroidExample extends StatelessWidget {
         },
         child: const Text('Platform exception'),
       ),
+      ElevatedButton(
+        onPressed: () async {
+          await _channel.invokeMethod<void>('startProfiling');
+        },
+        child: const Text('Start native profiling'),
+      ),
+      ElevatedButton(
+        onPressed: () async {
+          await _channel.invokeMethod<void>('stopProfiling');
+        },
+        child: const Text('Stop native profiling'),
+      ),
     ]);
   }
 
   Future<void> execute(String method) async {
     try {
-      await channel.invokeMethod<void>(method);
+      await _channel.invokeMethod<void>(method);
     } catch (error, stackTrace) {
       await Sentry.captureException(error, stackTrace: stackTrace);
     }
@@ -403,39 +415,37 @@ Future<void> asyncThrows() async {
 class CocoaExample extends StatelessWidget {
   const CocoaExample({Key? key}) : super(key: key);
 
-  final channel = const MethodChannel('example.flutter.sentry.io');
-
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         ElevatedButton(
           onPressed: () async {
-            await channel.invokeMethod<void>('fatalError');
+            await _channel.invokeMethod<void>('fatalError');
           },
           child: const Text('Swift fatalError'),
         ),
         ElevatedButton(
           onPressed: () async {
-            await channel.invokeMethod<void>('capture');
+            await _channel.invokeMethod<void>('capture');
           },
           child: const Text('Swift Capture NSException'),
         ),
         ElevatedButton(
           onPressed: () async {
-            await channel.invokeMethod<void>('capture_message');
+            await _channel.invokeMethod<void>('capture_message');
           },
           child: const Text('Swift Capture message'),
         ),
         ElevatedButton(
           onPressed: () async {
-            await channel.invokeMethod<void>('throw');
+            await _channel.invokeMethod<void>('throw');
           },
           child: const Text('Objective-C Throw unhandled exception'),
         ),
         ElevatedButton(
           onPressed: () async {
-            await channel.invokeMethod<void>('crash');
+            await _channel.invokeMethod<void>('crash');
           },
           child: const Text('Objective-C SEGFAULT'),
         ),
