@@ -88,6 +88,31 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
             var infos = ["contexts": context]
 
+            if let tags = serializedScope["tags"] as? [String: String] {
+                infos["tags"] = tags
+            }
+            if let extra = serializedScope["extra"] as? [String: Any] {
+                infos["extra"] = extra
+            }
+            if let user = serializedScope["user"] as? [String: Any] {
+                infos["user"] = user
+            }
+            if let dist = serializedScope["dist"] as? String {
+                infos["dist"] = dist
+            }
+            if let environment = serializedScope["environment"] as? String {
+                infos["environment"] = environment
+            }
+            if let fingerprint = serializedScope["fingerprint"] as? [String] {
+                infos["fingerprint"] = fingerprint
+            }
+            if let level = serializedScope["level"] as? String {
+                infos["level"] = level
+            }
+            if let breadcrumbs = serializedScope["breadcrumbs"] as? [[String: Any]] {
+                infos["breadcrumbs"] = breadcrumbs
+            }
+
             if let user = serializedScope["user"] as? [String: Any] {
                 infos["user"] = user
             } else {

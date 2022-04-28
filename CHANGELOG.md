@@ -5,6 +5,9 @@
 Starting with version `6.6.0` of `sentry`, [Sentry's version >= v21.9.0](https://github.com/getsentry/self-hosted/releases) is required or you have to manually disable sending client reports via the `sendClientReports` option. This only applies to self-hosted Sentry. If you are using [sentry.io](https://sentry.io), no action is needed.
 
 * Feat: Client Reports (#829)
+## Unreleased: 
+
+* Fix: Add missing iOS contexts (#761)
 
 ## 6.5.1
 
