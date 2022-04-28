@@ -265,6 +265,10 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         if let enableProfiling = arguments["enableProfiling"] as? Bool {
             options.enableProfiling = enableProfiling
         }
+
+        if let sendClientReports = arguments["sendClientReports"] as? Bool {
+            options.sendClientReports = sendClientReports
+        }
     }
 
     private func logLevelFrom(diagnosticLevel: String) -> SentryLevel {

@@ -53,6 +53,7 @@ void main() {
         'enableNdkScopeSync': false,
         'enableAutoPerformanceTracking': true,
         'enableProfiling': false,
+        'sendClientReports': true,
       });
     });
 
@@ -85,7 +86,8 @@ void main() {
         ..enableOutOfMemoryTracking = false
         ..enableNdkScopeSync = true
         ..enableAutoPerformanceTracking = false
-        ..enableProfiling = true;
+        ..enableProfiling = true
+        ..sendClientReports = false;
 
       options.sdk.addIntegration('foo');
       options.sdk.addPackage('bar', '1');
@@ -122,6 +124,7 @@ void main() {
         'enableNdkScopeSync': true,
         'enableAutoPerformanceTracking': false,
         'enableProfiling': true,
+        'sendClientReports': false,
       });
     });
 

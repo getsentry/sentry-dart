@@ -2,15 +2,12 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:meta/meta.dart';
+import 'transport/data_category.dart';
 
-import 'protocol.dart';
-import 'scope.dart';
-import 'sentry_client.dart';
-import 'sentry_options.dart';
+import '../sentry.dart';
+import 'client_reports/discard_reason.dart';
 import 'sentry_tracer.dart';
 import 'sentry_traces_sampler.dart';
-import 'sentry_user_feedback.dart';
-import 'tracing.dart';
 
 /// Configures the scope through the callback.
 typedef ScopeCallback = void Function(Scope);
@@ -462,14 +459,18 @@ class Hub {
         'Capturing unfinished transaction: ${transaction.eventId}',
       );
     } else {
+      final item = _peek();
+
       if (!transaction.sampled) {
+        _options.recorder.recordLostEvent(
+          DiscardReason.sampleRate,
+          DataCategory.transaction,
+        );
         _options.logger(
           SentryLevel.warning,
           'Transaction ${transaction.eventId} was dropped due to sampling decision.',
         );
       } else {
-        final item = _peek();
-
         try {
           sentryId = await item.client.captureTransaction(
             transaction,
