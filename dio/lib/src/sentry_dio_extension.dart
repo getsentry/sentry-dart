@@ -14,7 +14,6 @@ extension SentryDioExtension on Dio {
   /// your configuration of Dio might overwrite the Sentry configuration.
   @experimental
   void addSentry({
-    bool recordBreadcrumbs = true,
     Hub? hub,
   }) {
     hub = hub ?? HubAdapter();
@@ -37,7 +36,6 @@ extension SentryDioExtension on Dio {
     // intercept http requests
     httpClientAdapter = SentryDioClientAdapter(
       client: httpClientAdapter,
-      recordBreadcrumbs: recordBreadcrumbs,
       hub: hub,
     );
 
