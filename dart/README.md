@@ -160,7 +160,7 @@ final transaction = Sentry.startTransaction(
   bindToScope: true,
 );
 
-var client = SentryHttpClient(networkTracing: true);
+var client = SentryHttpClient();
 try {
 var uriResponse = await client.post('https://example.com/whatsit/create',
      body: {'name': 'doodle', 'color': 'blue'});
