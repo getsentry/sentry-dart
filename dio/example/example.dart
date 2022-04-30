@@ -19,10 +19,7 @@ Future<void> main() async {
 
 Future<void> runApp() async {
   final dio = Dio();
-  dio.addSentry(
-    maxRequestBodySize: MaxRequestBodySize.small,
-    captureFailedRequests: true,
-  );
+  dio.addSentry();
 
   final transaction = Sentry.startTransaction(
     'dio-web-request',
