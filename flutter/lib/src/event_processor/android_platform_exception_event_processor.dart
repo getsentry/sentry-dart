@@ -64,20 +64,17 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
       exception,
     );
 
-    final threads = _markThreadsAsNonCrashed(event.threads);
+    final threads = _markDartThreadsAsNonCrashed(event.threads);
 
     final jvmExceptions = jvmException.map((e) => e.key);
-    var jvmThreads = jvmException
-        .map((e) => e.value)
-        .where((element) => element != null)
-        .whereType<SentryThread>() // whereNotNull
-        .toList(growable: false);
+
+    var jvmThreads = jvmException.map((e) => e.value).toList(growable: false);
     if (jvmThreads.isNotEmpty) {
-      // filter duplicates
+      // filter potential duplicated threads
       final first = jvmThreads.first;
       jvmThreads = jvmThreads
           .skip(1)
-          .where((element) => element.id == first.id)
+          .where((element) => element.id != first.id)
           .toList(growable: true);
       jvmThreads.add(first);
     }
@@ -93,7 +90,7 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
 
   /// If the crash originated on Android, the Dart side didn't crash.
   /// Mark it accordingly.
-  List<SentryThread>? _markThreadsAsNonCrashed(
+  List<SentryThread>? _markDartThreadsAsNonCrashed(
     List<SentryThread>? threads,
   ) {
     return threads
@@ -156,7 +153,7 @@ class _JvmExceptionFactory {
 
   final String nativePackageName;
 
-  List<MapEntry<SentryException, SentryThread?>> fromJvmStackTrace(
+  List<MapEntry<SentryException, SentryThread>> fromJvmStackTrace(
       String exceptionAsString) {
     final jvmException = JvmException.parse(exceptionAsString);
     final jvmExceptions = <JvmException>[
@@ -172,7 +169,7 @@ class _JvmExceptionFactory {
 }
 
 extension on JvmException {
-  MapEntry<SentryException, SentryThread?> toSentryException(
+  MapEntry<SentryException, SentryThread> toSentryException(
       String nativePackageName) {
     String? exceptionType;
     String? module;
@@ -200,7 +197,7 @@ extension on JvmException {
     String threadName;
     if (thread != null) {
       // Needs to be prefixed with 'Android', otherwise this thread id might
-      // clash with threads from the Dart side.
+      // clash with isolate names from the Dart side.
       threadName = 'Android: $thread';
     } else {
       // If there's no thread in the exception, we just indicate that it's

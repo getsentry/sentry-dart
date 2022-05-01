@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+* Feat: Add Android thread to platform stacktraces
+
 ## 6.6.0-alpha.1
 
 * Feat: Client Reports (#829)
