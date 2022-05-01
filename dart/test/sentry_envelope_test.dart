@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_envelope_header.dart';
 import 'package:sentry/src/sentry_envelope_item_header.dart';
-import 'package:sentry/src/sentry_envelope_item.dart';
 import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/utils.dart';

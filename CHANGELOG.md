@@ -3,6 +3,14 @@
 ## Unreleased
 
 - Fix serialization of threads (#844)
+## 6.6.0-alpha.1
+
+* Feat: Client Reports (#829)
+* Fix: Add missing iOS contexts (#761)
+
+### Sentry Self-hosted Compatibility
+
+- Starting with version `6.6.0` of `sentry`, [Sentry's version >= v21.9.0](https://github.com/getsentry/self-hosted/releases) is required or you have to manually disable sending client reports via the `sendClientReports` option. This only applies to self-hosted Sentry. If you are using [sentry.io](https://sentry.io), no action is needed.
 
 ## 6.5.1
 

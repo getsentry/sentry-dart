@@ -14,6 +14,9 @@ import 'transport/http_transport.dart';
 import 'transport/noop_transport.dart';
 import 'version.dart';
 import 'sentry_envelope.dart';
+import 'client_reports/client_report_recorder.dart';
+import 'client_reports/discard_reason.dart';
+import 'transport/data_category.dart';
 
 /// Default value for [User.ipAddress]. It gets set when an event does not have
 /// a user and IP address. Only applies if [SentryOptions.sendDefaultPii] is set
@@ -34,10 +37,13 @@ class SentryClient {
 
   /// Instantiates a client using [SentryOptions]
   factory SentryClient(SentryOptions options) {
-    if (options.transport is NoOpTransport) {
-      options.transport = HttpTransport(options, RateLimiter(options.clock));
+    if (options.sendClientReports) {
+      options.recorder = ClientReportRecorder(options.clock);
     }
-
+    if (options.transport is NoOpTransport) {
+      final rateLimiter = RateLimiter(options);
+      options.transport = HttpTransport(options, rateLimiter);
+    }
     return SentryClient._(options);
   }
 
@@ -53,6 +59,7 @@ class SentryClient {
     dynamic hint,
   }) async {
     if (_sampleRate()) {
+      _recordLostEvent(event, DiscardReason.sampleRate);
       _options.logger(
         SentryLevel.debug,
         'Event ${event.eventId.toString()} was dropped due to sampling decision.',
@@ -87,6 +94,7 @@ class SentryClient {
 
     final beforeSend = _options.beforeSend;
     if (beforeSend != null) {
+      final beforeSendEvent = preparedEvent;
       try {
         preparedEvent = await beforeSend(preparedEvent, hint: hint);
       } catch (exception, stackTrace) {
@@ -98,6 +106,7 @@ class SentryClient {
         );
       }
       if (preparedEvent == null) {
+        _recordLostEvent(beforeSendEvent, DiscardReason.beforeSend);
         _options.logger(
           SentryLevel.debug,
           'Event was dropped by BeforeSend callback',
@@ -264,7 +273,7 @@ class SentryClient {
 
   /// Reports the [envelope] to Sentry.io.
   Future<SentryId?> captureEnvelope(SentryEnvelope envelope) {
-    return _options.transport.send(envelope);
+    return _attachClientReportsAndSend(envelope);
   }
 
   /// Reports the [userFeedback] to Sentry.io.
@@ -273,7 +282,7 @@ class SentryClient {
       userFeedback,
       _options.sdk,
     );
-    return _options.transport.send(envelope);
+    return _attachClientReportsAndSend(envelope);
   }
 
   void close() => _options.httpClient.close();
@@ -296,6 +305,7 @@ class SentryClient {
         );
       }
       if (processedEvent == null) {
+        _recordLostEvent(event, DiscardReason.eventProcessor);
         _options.logger(SentryLevel.debug, 'Event was dropped by a processor');
         break;
       }
@@ -308,5 +318,21 @@ class SentryClient {
       return (_options.sampleRate! < _random!.nextDouble());
     }
     return false;
+  }
+
+  void _recordLostEvent(SentryEvent event, DiscardReason reason) {
+    DataCategory category;
+    if (event is SentryTransaction) {
+      category = DataCategory.transaction;
+    } else {
+      category = DataCategory.error;
+    }
+    _options.recorder.recordLostEvent(reason, category);
+  }
+
+  Future<SentryId?> _attachClientReportsAndSend(SentryEnvelope envelope) {
+    final clientReport = _options.recorder.flush();
+    envelope.addClientReport(clientReport);
+    return _options.transport.send(envelope);
   }
 }
