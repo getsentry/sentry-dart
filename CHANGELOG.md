@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fix serialization of threads (#844)
+
 ## 6.6.0-alpha.1
 
 * Feat: Client Reports (#829)
