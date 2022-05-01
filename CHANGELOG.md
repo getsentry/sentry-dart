@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Fix serialization of threads (#844)
+
 ## 6.5.1
 
 - Update event contexts (#838)
