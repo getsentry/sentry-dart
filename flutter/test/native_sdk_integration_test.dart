@@ -132,7 +132,7 @@ void main() {
       final options = createOptions();
       await sut.call(HubAdapter(), options);
 
-      expect(options.sdk.integrations, ['nativeSdkIntegration']);
+      expect(options.sdk.integrations, ['initNativeSdkIntegration']);
 
       channel.setMethodCallHandler(null);
     });
