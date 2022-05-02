@@ -1,5 +1,6 @@
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/utils.dart';
 import 'package:test/test.dart';
 
 import 'mocks/mock_hub.dart';
@@ -32,6 +33,32 @@ void main() {
     final trace = tr.contexts.trace;
 
     expect(trace?.status.toString(), 'aborted');
+  });
+
+  test('tracer finishes with end timestamp', () async {
+    final sut = fixture.getSut();
+    final endTimestamp = getUtcDateTime();
+
+    await sut.finish(endTimestamp: endTimestamp);
+
+    expect(sut.endTimestamp, endTimestamp);
+  });
+
+  test(
+      'tracer finish sets given end timestamp to all children while finishing them',
+      () async {
+    final sut = fixture.getSut();
+
+    final childA = sut.startChild('operation-a', description: 'description');
+    final childB = sut.startChild('operation-b', description: 'description');
+    final endTimestamp = getUtcDateTime();
+
+    await sut.finish(endTimestamp: endTimestamp);
+    await childA.finish();
+    await childB.finish();
+
+    expect(childA.endTimestamp, endTimestamp);
+    expect(childB.endTimestamp, endTimestamp);
   });
 
   test('tracer finishes unfinished spans', () async {
@@ -238,50 +265,41 @@ void main() {
   });
 
   test('end trimmed to last child', () async {
-    final sut = fixture.getSut(
-        trimEnd: true, autoFinishAfter: Duration(milliseconds: 200));
+    final sut = fixture.getSut(trimEnd: true);
+    final endTimestamp = getUtcDateTime().add(Duration(minutes: 1));
+    final olderEndTimeStamp = endTimestamp.add(Duration(seconds: 1));
+    final oldestEndTimeStamp = olderEndTimeStamp.add(Duration(seconds: 1));
 
     final childA = sut.startChild('operation-a', description: 'description');
     final childB = sut.startChild('operation-b', description: 'description');
 
-    await childA.finish();
-    await Future.delayed(Duration(milliseconds: 10));
-    await childB.finish();
-    await Future.delayed(Duration(milliseconds: 210));
+    await childA.finish(endTimestamp: endTimestamp);
+    await childB.finish(endTimestamp: olderEndTimeStamp);
+    await sut.finish(endTimestamp: oldestEndTimeStamp);
 
     expect(sut.endTimestamp, childB.endTimestamp);
   });
 
   test('end trimmed to child', () async {
-    final sut = fixture.getSut(
-        trimEnd: true, autoFinishAfter: Duration(milliseconds: 200));
+    final sut = fixture.getSut(trimEnd: true);
+    final endTimestamp = getUtcDateTime().add(Duration(minutes: 1));
+    final olderEndTimeStamp = endTimestamp.add(Duration(seconds: 1));
 
     final childA = sut.startChild('operation-a', description: 'description');
 
-    await childA.finish();
-    await Future.delayed(Duration(milliseconds: 210));
+    await childA.finish(endTimestamp: endTimestamp);
+    await sut.finish(endTimestamp: olderEndTimeStamp);
 
     expect(sut.endTimestamp, childA.endTimestamp);
   });
 
   test('end not trimmed when no child', () async {
-    final sut = fixture.getSut(
-        trimEnd: true, autoFinishAfter: Duration(milliseconds: 200));
+    final sut = fixture.getSut(trimEnd: true);
+    final endTimestamp = getUtcDateTime();
 
-    await Future.delayed(Duration(milliseconds: 210));
+    await sut.finish(endTimestamp: endTimestamp);
 
-    expect(sut.endTimestamp, isNotNull);
-  });
-
-  test('end not trimmed when no finished child', () async {
-    final sut = fixture.getSut(
-        trimEnd: true, autoFinishAfter: Duration(milliseconds: 200));
-
-    sut.startChild('operation-a', description: 'description');
-
-    await Future.delayed(Duration(milliseconds: 210));
-
-    expect(sut.endTimestamp, isNotNull);
+    expect(sut.endTimestamp, endTimestamp);
   });
 
   test('does not add more spans than configured in options', () async {

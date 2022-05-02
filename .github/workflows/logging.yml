@@ -15,7 +15,7 @@ jobs:
   build:
     name: Build ${{matrix.sdk}} on ${{matrix.os}}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: ./logging
@@ -36,8 +36,8 @@ jobs:
         - name: Test (VM and browser)
           run: |
             dart pub get
-            dart test -p chrome
-            dart test -p vm --coverage=coverage
+            dart test -p chrome --test-randomize-ordering-seed=random --chain-stack-traces
+            dart test -p vm --coverage=coverage --test-randomize-ordering-seed=random --chain-stack-traces
             dart pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.packages --report-on=lib
 
         - uses: codecov/codecov-action@v2
@@ -69,6 +69,10 @@ jobs:
           dart format --set-exit-if-changed ./
 
   package-analysis:
+    # `axel-op/dart-package-analyzer` is using `flutter pub upgrade` instead of `get`,
+    # which ignores pubspec.yaml `dependency_overrides`. Because of that, all `release/*` branches are failing,
+    # because the package cannot find the "about to be released" version of our sentry-dart package that it depends on.
+    if: ${{ !startsWith(github.ref, 'refs/heads/release/') }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:

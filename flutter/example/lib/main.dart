@@ -16,6 +16,8 @@ import 'package:sentry_dio/sentry_dio.dart';
 const String _exampleDsn =
     'https://9934c532bf8446ef961450973c898537@o447951.ingest.sentry.io/5428562';
 
+final _channel = const MethodChannel('example.flutter.sentry.io');
+
 Future<void> main() async {
   await SentryFlutter.init(
     (options) {
@@ -28,9 +30,7 @@ Future<void> main() async {
     // Init your App.
     appRunner: () => runApp(
       DefaultAssetBundle(
-        bundle: SentryAssetBundle(
-          enableStructuredDataTracing: true,
-        ),
+        bundle: SentryAssetBundle(enableStructuredDataTracing: true),
         child: MyApp(),
       ),
     ),
@@ -335,9 +335,6 @@ class MainScaffold extends StatelessWidget {
 class AndroidExample extends StatelessWidget {
   const AndroidExample({Key? key}) : super(key: key);
 
-  // ignore: avoid_field_initializers_in_const_classes
-  final channel = const MethodChannel('example.flutter.sentry.io');
-
   @override
   Widget build(BuildContext context) {
     return Column(children: [
@@ -372,15 +369,13 @@ class AndroidExample extends StatelessWidget {
         },
         child: const Text('C++ SEGFAULT'),
       ),
+      ElevatedButton(
+        onPressed: () async {
+          await execute('platform_exception');
+        },
+        child: const Text('Platform exception'),
+      ),
     ]);
-  }
-
-  Future<void> execute(String method) async {
-    try {
-      await channel.invokeMethod<void>(method);
-    } catch (error, stackTrace) {
-      await Sentry.captureException(error, stackTrace: stackTrace);
-    }
   }
 }
 
@@ -399,39 +394,37 @@ Future<void> asyncThrows() async {
 class CocoaExample extends StatelessWidget {
   const CocoaExample({Key? key}) : super(key: key);
 
-  final channel = const MethodChannel('example.flutter.sentry.io');
-
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         ElevatedButton(
           onPressed: () async {
-            await channel.invokeMethod<void>('fatalError');
+            await execute('fatalError');
           },
           child: const Text('Swift fatalError'),
         ),
         ElevatedButton(
           onPressed: () async {
-            await channel.invokeMethod<void>('capture');
+            await execute('capture');
           },
           child: const Text('Swift Capture NSException'),
         ),
         ElevatedButton(
           onPressed: () async {
-            await channel.invokeMethod<void>('capture_message');
+            await execute('capture_message');
           },
           child: const Text('Swift Capture message'),
         ),
         ElevatedButton(
           onPressed: () async {
-            await channel.invokeMethod<void>('throw');
+            await execute('throw');
           },
           child: const Text('Objective-C Throw unhandled exception'),
         ),
         ElevatedButton(
           onPressed: () async {
-            await channel.invokeMethod<void>('crash');
+            await execute('crash');
           },
           child: const Text('Objective-C SEGFAULT'),
         ),
@@ -507,6 +500,7 @@ Future<void> makeWebRequest(BuildContext context) async {
 
   final client = SentryHttpClient(
     captureFailedRequests: true,
+    maxRequestBodySize: MaxRequestBodySize.always,
     networkTracing: true,
     failedRequestStatusCodes: [SentryStatusCode.range(400, 500)],
   );
@@ -544,7 +538,7 @@ Future<void> makeWebRequestWithDio(BuildContext context) async {
 
   dio.addSentry(
     captureFailedRequests: true,
-    networkTracing: true,
+    maxRequestBodySize: MaxRequestBodySize.always,
   );
 
   final transaction = Sentry.getSpan() ??
@@ -644,4 +638,8 @@ class ThemeProvider extends ChangeNotifier {
       theme = ThemeData(primarySwatch: color, brightness: theme.brightness);
     }
   }
+}
+
+Future<void> execute(String method) async {
+  await _channel.invokeMethod<void>(method);
 }

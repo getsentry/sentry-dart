@@ -9,6 +9,7 @@ abstract class ISentrySpan {
   ISentrySpan startChild(
     String operation, {
     String? description,
+    DateTime? startTimestamp,
   });
 
   /// Sets the tag on span or transaction.
@@ -24,7 +25,7 @@ abstract class ISentrySpan {
   void removeData(String key);
 
   /// Sets span timestamp marking this span as finished.
-  Future<void> finish({SpanStatus? status}) async {}
+  Future<void> finish({SpanStatus? status, DateTime? endTimestamp}) async {}
 
   /// Gets span status.
   SpanStatus? get status;

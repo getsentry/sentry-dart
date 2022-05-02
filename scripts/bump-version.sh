@@ -15,8 +15,6 @@ for pkg in {dart,flutter,logging,dio}; do
   perl -pi -e "s/^version: .*/version: $NEW_VERSION/" $pkg/pubspec.yaml
   # Bump sentry dependency version in pubspec.yaml
   perl -pi -e "s/sentry: \^.*/sentry: \^$NEW_VERSION/" $pkg/pubspec.yaml
-  # Remove dependency_overrides in pubspec.yaml
-  perl -pi -e "BEGIN {undef $/} s/\ndependency_overrides:\n  sentry:\n    path: \.\.\/dart\n//" $pkg/pubspec.yaml
 done
 
 # Bump version in version.dart

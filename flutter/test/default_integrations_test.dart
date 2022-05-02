@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/binding_utils.dart';
 
 import 'mocks.dart';
 import 'mocks.mocks.dart';
@@ -281,7 +281,7 @@ void main() {
     var called = false;
     var ensureInitialized = () {
       called = true;
-      return WidgetsBinding.instance!;
+      return BindingUtils.getWidgetsBindingInstance()!;
     };
     final integration = WidgetsFlutterBindingIntegration(ensureInitialized);
     await integration(fixture.hub, fixture.options);

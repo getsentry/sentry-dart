@@ -1,4 +1,4 @@
-minVersion: 0.29.0
+minVersion: 0.29.2
 changelogPolicy: auto
 artifactProvider:
   name: none
@@ -14,3 +14,5 @@ targets:
     sdks:
       pub:sentry:
       pub:sentry_flutter:
+      pub:sentry_logging:
+      pub:sentry_dio:

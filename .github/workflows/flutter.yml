@@ -15,7 +15,7 @@ jobs:
   build:
     name: ${{ matrix.target }} | ${{ matrix.os }} | ${{ matrix.channel }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       # max-parallel: 4
@@ -45,6 +45,9 @@ jobs:
             target: linux
           - os: macos-latest
             target: windows
+          # Bad CPU type in executable
+          - os: macos-latest
+            channel: beta
 
     steps:
         - uses: actions/checkout@v2
@@ -68,13 +71,22 @@ jobs:
 
         - run: flutter upgrade
 
-        - name: Test
-          if: runner.os != 'macOS'
+        - name: Pub Get
           run: |
             cd flutter
             flutter pub get
-            flutter test --platform chrome
-            flutter test --coverage
+
+        - name: Test chrome
+          if: runner.os != 'macOS'
+          run: |
+            cd flutter
+            flutter test --platform chrome --test-randomize-ordering-seed=random
+
+        - name: Test VM with coverage
+          if: runner.os != 'macOS'
+          run: |
+            cd flutter
+            flutter test --coverage --test-randomize-ordering-seed=random
 
         - uses: codecov/codecov-action@v2
           if: runner.os == 'Linux'
@@ -89,8 +101,6 @@ jobs:
             min_coverage: 90
 
         - name: Build ${{ matrix.target }}
-          env:
-            SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           run: |
             flutter config --enable-windows-desktop
             flutter config --enable-macos-desktop
@@ -132,6 +142,10 @@ jobs:
           flutter analyze
 
   package-analysis:
+    # `axel-op/dart-package-analyzer` is using `flutter pub upgrade` instead of `get`,
+    # which ignores pubspec.yaml `dependency_overrides`. Because of that, all `release/*` branches are failing,
+    # because the package cannot find the "about to be released" version of our sentry-dart package that it depends on.
+    if: ${{ !startsWith(github.ref, 'refs/heads/release/') }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:

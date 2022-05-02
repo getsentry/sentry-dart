@@ -31,13 +31,18 @@ class IoEnricherEventProcessor extends EventProcessor {
         ? null
         : _getDevice(event.contexts.device);
 
+    final culture = _options.platformChecker.hasNativeIntegration
+        ? null
+        : _getSentryCulture(event.contexts.culture);
+
     final contexts = event.contexts.copyWith(
       operatingSystem: os,
       device: device,
       runtimes: _getRuntimes(event.contexts.runtimes),
+      culture: culture,
     );
 
-    contexts['dart_context'] = _getDartContext(_options.sendDefaultPii);
+    contexts['dart_context'] = _getDartContext();
 
     return event.copyWith(
       contexts: contexts,
@@ -61,13 +66,13 @@ class IoEnricherEventProcessor extends EventProcessor {
     ];
   }
 
-  Map<String, dynamic> _getDartContext(bool includePii) {
+  Map<String, dynamic> _getDartContext() {
     final args = Platform.executableArguments;
     final packageConfig = Platform.packageConfig;
     final isolate = Isolate.current.debugName;
 
     String? executable;
-    if (includePii) {
+    if (_options.sendDefaultPii) {
       try {
         // This throws sometimes for some reason
         // https://github.com/flutter/flutter/issues/83921
@@ -83,11 +88,12 @@ class IoEnricherEventProcessor extends EventProcessor {
     }
 
     return <String, dynamic>{
+      'compile_mode': _options.platformChecker.compileMode,
       if (packageConfig != null) 'package_config': packageConfig,
-      'number_of_processors': Platform.numberOfProcessors,
+      // should be moved to event.thread.name
       if (isolate != null) 'isolate': isolate,
       // The following information could potentially contain PII
-      if (includePii) ...{
+      if (_options.sendDefaultPii) ...{
         'executable': executable,
         'resolved_executable': Platform.resolvedExecutable,
         'script': Platform.script.toString(),
@@ -99,8 +105,11 @@ class IoEnricherEventProcessor extends EventProcessor {
 
   SentryDevice _getDevice(SentryDevice? device) {
     return (device ?? SentryDevice()).copyWith(
-      language: device?.language ?? Platform.localeName,
       name: device?.name ?? Platform.localHostname,
+      processorCount: device?.processorCount ?? Platform.numberOfProcessors,
+      // ignore: deprecated_member_use_from_same_package
+      language: device?.language ?? Platform.localeName,
+      // ignore: deprecated_member_use_from_same_package
       timezone: device?.timezone ?? DateTime.now().timeZoneName,
     );
   }
@@ -109,6 +118,13 @@ class IoEnricherEventProcessor extends EventProcessor {
     return (os ?? SentryOperatingSystem()).copyWith(
       name: os?.name ?? Platform.operatingSystem,
       version: os?.version ?? Platform.operatingSystemVersion,
+    );
+  }
+
+  SentryCulture _getSentryCulture(SentryCulture? culture) {
+    return (culture ?? SentryCulture()).copyWith(
+      locale: culture?.locale ?? Platform.localeName,
+      timezone: culture?.timezone ?? DateTime.now().timeZoneName,
     );
   }
 }

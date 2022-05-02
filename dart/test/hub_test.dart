@@ -1,9 +1,12 @@
 import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
+import 'mocks/mock_client_report_recorder.dart';
 import 'mocks/mock_sentry_client.dart';
 
 void main() {
@@ -139,17 +142,21 @@ void main() {
       fixture = Fixture();
     });
 
-    test('start transaction with given name, op and desc', () async {
+    test('start transaction with given name, op, desc and start time',
+        () async {
       final hub = fixture.getSut();
+      final startTime = DateTime.now();
 
       final tr = hub.startTransaction(
         'name',
         'op',
+        startTimestamp: startTime,
         description: 'desc',
       );
 
       expect(tr.context.operation, 'op');
       expect(tr.context.description, 'desc');
+      expect(tr.startTimestamp.isAtSameMomentAs(startTime), true);
       expect((tr as SentryTracer).name, 'name');
     });
 
@@ -461,10 +468,30 @@ void main() {
       expect(calls[2].formatted, 'foo bar 2');
     });
   });
+
+  group('ClientReportRecorder', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('record sample rate dropping transaction', () async {
+      final hub = fixture.getSut(sampled: false);
+      var transaction = SentryTransaction(fixture.tracer);
+
+      await hub.captureTransaction(transaction);
+
+      expect(fixture.recorder.reason, DiscardReason.sampleRate);
+      expect(fixture.recorder.category, DataCategory.transaction);
+    });
+  });
 }
 
 class Fixture {
   final client = MockSentryClient();
+  final recorder = MockClientReportRecorder();
+
   final options = SentryOptions(dsn: fakeDsn);
   late SentryTransactionContext _context;
   late SentryTracer tracer;
@@ -487,6 +514,8 @@ class Fixture {
     tracer = SentryTracer(_context, hub);
 
     hub.bindClient(client);
+    options.recorder = recorder;
+
     return hub;
   }
 }

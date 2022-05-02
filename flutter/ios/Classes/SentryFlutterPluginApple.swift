@@ -7,6 +7,7 @@ import FlutterMacOS
 import AppKit
 #endif
 
+// swiftlint:disable:next type_body_length
 public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
     private var sentryOptions: Options?
@@ -66,6 +67,15 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         case "captureEnvelope":
             captureEnvelope(call, result: result)
 
+        case "fetchNativeAppStart":
+            fetchNativeAppStart(result: result)
+
+        case "beginNativeFrames":
+            beginNativeFrames(result: result)
+
+        case "endNativeFrames":
+            endNativeFrames(result: result)
+
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -78,12 +88,43 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
             var infos = ["contexts": context]
 
+            if let tags = serializedScope["tags"] as? [String: String] {
+                infos["tags"] = tags
+            }
+            if let extra = serializedScope["extra"] as? [String: Any] {
+                infos["extra"] = extra
+            }
+            if let user = serializedScope["user"] as? [String: Any] {
+                infos["user"] = user
+            }
+            if let dist = serializedScope["dist"] as? String {
+                infos["dist"] = dist
+            }
+            if let environment = serializedScope["environment"] as? String {
+                infos["environment"] = environment
+            }
+            if let fingerprint = serializedScope["fingerprint"] as? [String] {
+                infos["fingerprint"] = fingerprint
+            }
+            if let level = serializedScope["level"] as? String {
+                infos["level"] = level
+            }
+            if let breadcrumbs = serializedScope["breadcrumbs"] as? [[String: Any]] {
+                infos["breadcrumbs"] = breadcrumbs
+            }
+
+            if let user = serializedScope["user"] as? [String: Any] {
+                infos["user"] = user
+            } else {
+                infos["user"] = ["id": PrivateSentrySDKOnly.installationID]
+            }
+
             if let integrations = self.sentryOptions?.integrations {
                 infos["integrations"] = integrations
             }
 
-            if let sentryOptions = self.sentryOptions {
-                infos["package"] = ["version": sentryOptions.sdkInfo.version, "sdk_name": "cocoapods:sentry-cocoa"]
+            if let sdkInfo = self.sentryOptions?.sdkInfo {
+                infos["package"] = ["version": sdkInfo.version, "sdk_name": "cocoapods:sentry-cocoa"]
             }
 
             result(infos)
@@ -99,6 +140,13 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
         SentrySDK.start { options in
             self.updateOptions(arguments: arguments, options: options)
+
+            if arguments["enableAutoPerformanceTracking"] as? Bool ?? false {
+                PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
+                #if os(iOS) || targetEnvironment(macCatalyst)
+                PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode = true
+                #endif
+            }
 
             self.sentryOptions = options
 
@@ -213,6 +261,10 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         if let enableOutOfMemoryTracking = arguments["enableOutOfMemoryTracking"] as? Bool {
             options.enableOutOfMemoryTracking = enableOutOfMemoryTracking
         }
+
+        if let sendClientReports = arguments["sendClientReports"] as? Bool {
+            options.sendClientReports = sendClientReports
+        }
     }
 
     private func logLevelFrom(diagnosticLevel: String) -> SentryLevel {
@@ -288,5 +340,77 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         PrivateSentrySDKOnly.capture(envelope)
         result("")
         return
+    }
+
+    private func fetchNativeAppStart(result: @escaping FlutterResult) {
+        guard let appStartMeasurement = PrivateSentrySDKOnly.appStartMeasurement else {
+            print("warning: appStartMeasurement is null")
+            result(nil)
+            return
+        }
+
+        let appStartTime = appStartMeasurement.appStartTimestamp.timeIntervalSince1970 * 1000
+        let isColdStart = appStartMeasurement.type == .cold
+
+        let item: [String: Any] = [
+            "appStartTime": appStartTime,
+            "isColdStart": isColdStart
+        ]
+
+        result(item)
+    }
+
+    private var totalFrames: UInt = 0
+    private var frozenFrames: UInt = 0
+    private var slowFrames: UInt = 0
+
+    private func beginNativeFrames(result: @escaping FlutterResult) {
+      #if os(iOS) || targetEnvironment(macCatalyst)
+      guard PrivateSentrySDKOnly.isFramesTrackingRunning else {
+        print("Native frames tracking not running.")
+        result(nil)
+        return
+      }
+
+      let currentFrames = PrivateSentrySDKOnly.currentScreenFrames
+      totalFrames = currentFrames.total
+      frozenFrames = currentFrames.frozen
+      slowFrames = currentFrames.slow
+
+      result(nil)
+      #else
+      result(nil)
+      #endif
+    }
+
+    private func endNativeFrames(result: @escaping FlutterResult) {
+      #if os(iOS) || targetEnvironment(macCatalyst)
+      guard PrivateSentrySDKOnly.isFramesTrackingRunning else {
+        print("Native frames tracking not running.")
+        result(nil)
+        return
+      }
+
+      let currentFrames = PrivateSentrySDKOnly.currentScreenFrames
+
+      let total = currentFrames.total - totalFrames
+      let frozen = currentFrames.frozen - frozenFrames
+      let slow = currentFrames.slow - slowFrames
+
+      if total <= 0 && frozen <= 0 && slow <= 0 {
+        result(nil)
+        return
+      }
+
+      let item: [String: Any] = [
+          "totalFrames": total,
+          "frozenFrames": frozen,
+          "slowFrames": slow
+      ]
+
+      result(item)
+      #else
+      result(nil)
+      #endif
     }
 }

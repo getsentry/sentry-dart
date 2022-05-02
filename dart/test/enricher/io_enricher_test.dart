@@ -38,30 +38,40 @@ void main() {
       expect(event.contexts.runtimes.length, 2);
     });
 
-    test('does not add device and os if native integration is available',
+    test(
+        'does not add device, os and culture if native integration is available',
         () async {
       final enricher = fixture.getSut(hasNativeIntegration: true);
       final event = await enricher.apply(SentryEvent());
 
       expect(event.contexts.device, isNull);
       expect(event.contexts.operatingSystem, isNull);
+      expect(event.contexts.culture, isNull);
     });
 
-    test('adds device and os if no native integration is available', () async {
+    test('adds device, os and culture if no native integration is available',
+        () async {
       final enricher = fixture.getSut(hasNativeIntegration: false);
       final event = await enricher.apply(SentryEvent());
 
       expect(event.contexts.device, isNotNull);
       expect(event.contexts.operatingSystem, isNotNull);
+      expect(event.contexts.culture, isNotNull);
     });
 
-    test('device has language, name and timezone', () async {
+    test('device has name', () async {
       final enricher = fixture.getSut();
       final event = await enricher.apply(SentryEvent());
 
-      expect(event.contexts.device?.language, isNotNull);
       expect(event.contexts.device?.name, isNotNull);
-      expect(event.contexts.device?.timezone, isNotNull);
+    });
+
+    test('culture has locale and timezone', () async {
+      final enricher = fixture.getSut();
+      final event = await enricher.apply(SentryEvent());
+
+      expect(event.contexts.culture?.locale, isNotNull);
+      expect(event.contexts.culture?.timezone, isNotNull);
     });
 
     test('os has name and version', () async {
@@ -79,7 +89,6 @@ void main() {
       final dartContext = event.contexts['dart_context'];
       expect(dartContext, isNotNull);
       expect(dartContext['isolate'], isNotNull);
-      expect(dartContext['number_of_processors'], isNotNull);
       // Getting the executable sometimes throws
       //expect(dartContext['executable'], isNotNull);
       expect(dartContext['resolved_executable'], isNotNull);
@@ -93,7 +102,7 @@ void main() {
 
       final dartContext = event.contexts['dart_context'];
       expect(dartContext, isNotNull);
-      expect(dartContext['number_of_processors'], isNotNull);
+      expect(dartContext['compile_mode'], isNotNull);
       expect(dartContext['isolate'], isNotNull);
       expect(dartContext['executable'], isNull);
       expect(dartContext['resolved_executable'], isNull);
@@ -114,6 +123,10 @@ void main() {
             name: 'sentry_os',
             version: 'best version',
           ),
+          culture: SentryCulture(
+            locale: 'de',
+            timezone: 'timezone',
+          ),
         ),
       );
 
@@ -126,16 +139,17 @@ void main() {
 
       // contexts.device
       expect(
-        event.contexts.device?.language,
-        fakeEvent.contexts.device?.language,
-      );
-      expect(
         event.contexts.device?.name,
         fakeEvent.contexts.device?.name,
       );
+      // contexts.culture
       expect(
-        event.contexts.device?.timezone,
-        fakeEvent.contexts.device?.timezone,
+        event.contexts.culture?.locale,
+        fakeEvent.contexts.culture?.locale,
+      );
+      expect(
+        event.contexts.culture?.timezone,
+        fakeEvent.contexts.culture?.timezone,
       );
       // contexts.operatingSystem
       expect(

@@ -33,7 +33,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('Test platform integrations', () {
-    tearDown(() async {
+    setUp(() async {
       await Sentry.close();
     });
 
@@ -52,6 +52,8 @@ void main() {
         packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.android()),
       );
+
+      await Sentry.close();
     }, testOn: 'vm');
 
     test('Android enableNative false', () async {
@@ -99,6 +101,8 @@ void main() {
         packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
       );
+
+      await Sentry.close();
     }, testOn: 'vm');
 
     test('iOS enableNative false', () async {
@@ -147,6 +151,8 @@ void main() {
         packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.macOs()),
       );
+
+      await Sentry.close();
     }, testOn: 'vm');
 
     test('macOS enableNative false', () async {
@@ -195,6 +201,8 @@ void main() {
         packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.windows()),
       );
+
+      await Sentry.close();
     }, testOn: 'vm');
 
     test('Linux', () async {
@@ -212,6 +220,8 @@ void main() {
         packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.linux()),
       );
+
+      await Sentry.close();
     }, testOn: 'vm');
 
     test('Web', () async {
@@ -232,6 +242,8 @@ void main() {
           platform: MockPlatform.linux(),
         ),
       );
+
+      await Sentry.close();
     });
 
     test('Web && (iOS || macOS) ', () async {
@@ -255,6 +267,12 @@ void main() {
         ),
       );
 
+      await Sentry.close();
+    });
+
+    test('Web && (macOS)', () async {
+      // Tests that iOS || macOS integrations aren't added on a browswer which
+      // runs on iOS or macOS
       await SentryFlutter.init(
         getConfigurationTester(
           hasFileSystemTransport: false,
@@ -272,6 +290,8 @@ void main() {
           platform: MockPlatform.macOs(),
         ),
       );
+
+      await Sentry.close();
     });
 
     test('Web && Android', () async {
@@ -293,11 +313,13 @@ void main() {
           platform: MockPlatform.android(),
         ),
       );
+
+      await Sentry.close();
     });
   });
 
   group('initial values', () {
-    tearDown(() async {
+    setUp(() async {
       await Sentry.close();
     });
 
@@ -320,6 +342,8 @@ void main() {
           isWeb: true,
         ),
       );
+
+      await Sentry.close();
     });
   });
 }

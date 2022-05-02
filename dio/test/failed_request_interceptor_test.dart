@@ -12,9 +12,9 @@ void main() {
     fixture = Fixture();
   });
 
-  test('interceptor send error', () {
+  test('interceptor send error', () async {
     final interceptor = fixture.getSut();
-    interceptor.onError(
+    await interceptor.onError(
       DioError(requestOptions: RequestOptions(path: '')),
       fixture.errorInterceptorHandler,
     );

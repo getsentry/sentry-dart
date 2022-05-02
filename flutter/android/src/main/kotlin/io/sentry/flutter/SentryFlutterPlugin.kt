@@ -1,7 +1,11 @@
 package io.sentry.flutter
 
+import android.app.Activity
 import android.content.Context
+import android.util.Log
 import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.embedding.engine.plugins.activity.ActivityAware
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -9,17 +13,27 @@ import io.flutter.plugin.common.MethodChannel.Result
 import io.sentry.HubAdapter
 import io.sentry.SentryEvent
 import io.sentry.SentryLevel
+import io.sentry.android.core.ActivityFramesTracker
+import io.sentry.android.core.AppStartState
+import io.sentry.android.core.LoadClass
 import io.sentry.android.core.SentryAndroid
 import io.sentry.android.core.SentryAndroidOptions
 import io.sentry.protocol.DebugImage
 import io.sentry.protocol.SdkVersion
+import io.sentry.protocol.SentryId
 import java.io.File
+import java.lang.ref.WeakReference
 import java.util.Locale
 import java.util.UUID
 
-class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
+@Suppress("TooManyFunctions")
+class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   private lateinit var channel: MethodChannel
   private lateinit var context: Context
+
+  private var activity: WeakReference<Activity>? = null
+  private var framesTracker: ActivityFramesTracker? = null
+  private var autoPerformanceTrackingEnabled = false
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     context = flutterPluginBinding.applicationContext
@@ -33,6 +47,9 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
       "captureEnvelope" -> captureEnvelope(call, result)
       "loadImageList" -> loadImageList(result)
       "closeNativeSdk" -> closeNativeSdk(result)
+      "fetchNativeAppStart" -> fetchNativeAppStart(result)
+      "beginNativeFrames" -> beginNativeFrames(result)
+      "endNativeFrames" -> endNativeFrames(call.argument("id"), result)
       else -> result.notImplemented()
     }
   }
@@ -43,6 +60,23 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
     }
 
     channel.setMethodCallHandler(null)
+  }
+
+  override fun onAttachedToActivity(binding: ActivityPluginBinding) {
+    activity = WeakReference(binding.activity)
+  }
+
+  override fun onDetachedFromActivity() {
+    activity = null
+    framesTracker = null
+  }
+
+  override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
+    // Stub
+  }
+
+  override fun onDetachedFromActivityForConfigChanges() {
+    // Stub
   }
 
   private fun writeEnvelope(envelope: ByteArray): Boolean {
@@ -63,7 +97,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
       return
     }
 
-    val args = call.arguments() as Map<String, Any>
+    val args = call.arguments() as Map<String, Any>? ?: mapOf<String, Any>()
     if (args.isEmpty()) {
       result.error("4", "Arguments is null or empty", null)
       return
@@ -101,12 +135,21 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
       val nativeCrashHandling = (args["enableNativeCrashHandling"] as? Boolean) ?: true
       // nativeCrashHandling has priority over anrEnabled
       if (!nativeCrashHandling) {
-        options.enableUncaughtExceptionHandler = false
+        options.setEnableUncaughtExceptionHandler(false)
         options.isAnrEnabled = false
         // if split symbols are enabled, we need Ndk integration so we can't really offer the option
         // to turn it off
         // options.isEnableNdk = false
       }
+
+      args.getIfNotNull<Boolean>("enableAutoPerformanceTracking") { enableAutoPerformanceTracking ->
+        if (enableAutoPerformanceTracking) {
+          autoPerformanceTrackingEnabled = true
+          framesTracker = ActivityFramesTracker(LoadClass())
+        }
+      }
+
+      args.getIfNotNull<Boolean>("sendClientReports") { options.setSendClientReports(it) }
 
       options.setBeforeSend { event, _ ->
         setEventOriginTag(event)
@@ -119,8 +162,72 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
     result.success("")
   }
 
+  private fun fetchNativeAppStart(result: Result) {
+    if (!autoPerformanceTrackingEnabled) {
+      result.success(null)
+      return
+    }
+    val appStartTime = AppStartState.getInstance().getAppStartTime()
+    val isColdStart = AppStartState.getInstance().isColdStart()
+
+    if (appStartTime == null) {
+      Log.w("Sentry", "App start won't be sent due to missing appStartTime")
+      result.success(null)
+    } else if (isColdStart == null) {
+      Log.w("Sentry", "App start won't be sent due to missing isColdStart")
+      result.success(null)
+    } else {
+      val item = mapOf<String, Any?>(
+        "appStartTime" to appStartTime.getTime().toDouble(),
+        "isColdStart" to isColdStart
+      )
+      result.success(item)
+    }
+  }
+
+  private fun beginNativeFrames(result: Result) {
+    if (!autoPerformanceTrackingEnabled) {
+      result.success(null)
+      return
+    }
+
+    activity?.get()?.let {
+      framesTracker?.addActivity(it)
+    }
+    result.success(null)
+  }
+
+  private fun endNativeFrames(id: String?, result: Result) {
+    val activity = activity?.get()
+    if (!autoPerformanceTrackingEnabled || activity == null || id == null) {
+      if (id == null) {
+        Log.w("Sentry", "Parameter id cannot be null when calling endNativeFrames.")
+      }
+      result.success(null)
+      return
+    }
+
+    val sentryId = SentryId(id)
+    framesTracker?.setMetrics(activity, sentryId)
+    val metrics = framesTracker?.takeMetrics(sentryId)
+    val total = metrics?.get("frames_total")?.getValue()?.toInt() ?: 0
+    val slow = metrics?.get("frames_slow")?.getValue()?.toInt() ?: 0
+    val frozen = metrics?.get("frames_frozen")?.getValue()?.toInt() ?: 0
+
+    if (total == 0 && slow == 0 && frozen == 0) {
+      result.success(null)
+    } else {
+      val frames = mapOf<String, Any?>(
+        "totalFrames" to total,
+        "slowFrames" to slow,
+        "frozenFrames" to frozen
+      )
+      result.success(frames)
+    }
+  }
+
   private fun captureEnvelope(call: MethodCall, result: Result) {
-    val args = call.arguments() as List<Any>
+    val args = call.arguments() as List<Any>? ?: listOf<Any>()
     if (args.isNotEmpty()) {
       val event = args.first() as ByteArray?
 
@@ -163,6 +270,9 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
 
   private fun closeNativeSdk(result: Result) {
     HubAdapter.getInstance().close()
+    framesTracker?.stop()
+    framesTracker = null
+
     result.success("")
   }
 

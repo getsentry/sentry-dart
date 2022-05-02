@@ -13,7 +13,9 @@ void main() {
   group('FlutterEnricher', () {
     late Fixture fixture;
 
-    setUp(() {
+    setUp(() async {
+      await Sentry.close();
+
       LicenseRegistry.reset();
       fixture = Fixture();
     });
@@ -214,7 +216,9 @@ void main() {
             screenHeightPixels: 1080,
             screenWidthPixels: 1920,
             screenDensity: 2,
-            theme: 'sentry_theme',
+          ),
+          operatingSystem: SentryOperatingSystem(
+            theme: 'dark',
           ),
         ),
       );
@@ -244,8 +248,8 @@ void main() {
         fakeEvent.contexts.device?.screenDensity,
       );
       expect(
-        event.contexts.device?.theme,
-        fakeEvent.contexts.device?.theme,
+        event.contexts.operatingSystem?.theme,
+        fakeEvent.contexts.operatingSystem?.theme,
       );
     });
 

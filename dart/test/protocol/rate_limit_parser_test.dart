@@ -1,5 +1,5 @@
 import 'package:sentry/src/transport/rate_limit_parser.dart';
-import 'package:sentry/src/transport/rate_limit_category.dart';
+import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -8,7 +8,7 @@ void main() {
       final sut = RateLimitParser('50:transaction').parseRateLimitHeader();
 
       expect(sut.length, 1);
-      expect(sut[0].category, RateLimitCategory.transaction);
+      expect(sut[0].category, DataCategory.transaction);
       expect(sut[0].duration.inMilliseconds, 50000);
     });
 
@@ -17,9 +17,9 @@ void main() {
           RateLimitParser('50:transaction;session').parseRateLimitHeader();
 
       expect(sut.length, 2);
-      expect(sut[0].category, RateLimitCategory.transaction);
+      expect(sut[0].category, DataCategory.transaction);
       expect(sut[0].duration.inMilliseconds, 50000);
-      expect(sut[1].category, RateLimitCategory.session);
+      expect(sut[1].category, DataCategory.session);
       expect(sut[1].duration.inMilliseconds, 50000);
     });
 
@@ -33,7 +33,7 @@ void main() {
       final sut = RateLimitParser('50::key').parseRateLimitHeader();
 
       expect(sut.length, 1);
-      expect(sut[0].category, RateLimitCategory.all);
+      expect(sut[0].category, DataCategory.all);
       expect(sut[0].duration.inMilliseconds, 50000);
     });
 
@@ -42,9 +42,9 @@ void main() {
           RateLimitParser('50:transaction, 70:session').parseRateLimitHeader();
 
       expect(sut.length, 2);
-      expect(sut[0].category, RateLimitCategory.transaction);
+      expect(sut[0].category, DataCategory.transaction);
       expect(sut[0].duration.inMilliseconds, 50000);
-      expect(sut[1].category, RateLimitCategory.session);
+      expect(sut[1].category, DataCategory.session);
       expect(sut[1].duration.inMilliseconds, 70000);
     });
 
@@ -53,9 +53,9 @@ void main() {
           .parseRateLimitHeader();
 
       expect(sut.length, 2);
-      expect(sut[0].category, RateLimitCategory.transaction);
+      expect(sut[0].category, DataCategory.transaction);
       expect(sut[0].duration.inMilliseconds, 50000);
-      expect(sut[1].category, RateLimitCategory.transaction);
+      expect(sut[1].category, DataCategory.transaction);
       expect(sut[1].duration.inMilliseconds, 70000);
     });
 
@@ -63,7 +63,7 @@ void main() {
       final sut = RateLimitParser('50:TRANSACTION').parseRateLimitHeader();
 
       expect(sut.length, 1);
-      expect(sut[0].category, RateLimitCategory.transaction);
+      expect(sut[0].category, DataCategory.transaction);
       expect(sut[0].duration.inMilliseconds, 50000);
     });
 
@@ -71,7 +71,7 @@ void main() {
       final sut = RateLimitParser('foobar:transaction').parseRateLimitHeader();
 
       expect(sut.length, 1);
-      expect(sut[0].category, RateLimitCategory.transaction);
+      expect(sut[0].category, DataCategory.transaction);
       expect(sut[0].duration.inMilliseconds,
           RateLimitParser.httpRetryAfterDefaultDelay.inMilliseconds);
     });
@@ -82,7 +82,7 @@ void main() {
       final sut = RateLimitParser(null).parseRetryAfterHeader();
 
       expect(sut.length, 1);
-      expect(sut[0].category, RateLimitCategory.all);
+      expect(sut[0].category, DataCategory.all);
       expect(sut[0].duration.inMilliseconds,
           RateLimitParser.httpRetryAfterDefaultDelay.inMilliseconds);
     });
@@ -91,7 +91,7 @@ void main() {
       final sut = RateLimitParser('8').parseRetryAfterHeader();
 
       expect(sut.length, 1);
-      expect(sut[0].category, RateLimitCategory.all);
+      expect(sut[0].category, DataCategory.all);
       expect(sut[0].duration.inMilliseconds, 8000);
     });
 
@@ -99,7 +99,7 @@ void main() {
       final sut = RateLimitParser('foobar').parseRetryAfterHeader();
 
       expect(sut.length, 1);
-      expect(sut[0].category, RateLimitCategory.all);
+      expect(sut[0].category, DataCategory.all);
       expect(sut[0].duration.inMilliseconds,
           RateLimitParser.httpRetryAfterDefaultDelay.inMilliseconds);
     });

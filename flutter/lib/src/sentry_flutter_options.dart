@@ -182,6 +182,15 @@ class SentryFlutterOptions extends SentryOptions {
   /// Only available on Android.
   bool enableNdkScopeSync = false;
 
+  /// Enable auto performance tracking by default.
+  bool enableAutoPerformanceTracking = true;
+
+  /// Automatically track app start measurement and send it with the
+  /// first transaction. Set to false when configuring option to disable or if
+  /// you want to set the end time of app startup manually using
+  /// [SentryFlutter.setAppStartEnd].
+  bool autoAppStart = true;
+
   /// By using this, you are disabling native [Breadcrumb] tracking and instead
   /// you are just tracking [Breadcrumb]s which result from events available
   /// in the current Flutter environment.
