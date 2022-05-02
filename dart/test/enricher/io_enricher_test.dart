@@ -60,14 +60,15 @@ void main() {
     });
 
     test('adds device, os and culture if native integration is disabled',
-            () async {
-          final enricher = fixture.getSut(hasNativeIntegration: true, enableNative: false);
-          final event = await enricher.apply(SentryEvent());
+        () async {
+      final enricher =
+          fixture.getSut(hasNativeIntegration: true, enableNative: false);
+      final event = await enricher.apply(SentryEvent());
 
-          expect(event.contexts.device, isNotNull);
-          expect(event.contexts.operatingSystem, isNotNull);
-          expect(event.contexts.culture, isNotNull);
-        });
+      expect(event.contexts.device, isNotNull);
+      expect(event.contexts.operatingSystem, isNotNull);
+      expect(event.contexts.culture, isNotNull);
+    });
 
     test('device has name', () async {
       final enricher = fixture.getSut();
