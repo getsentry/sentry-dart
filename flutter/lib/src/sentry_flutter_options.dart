@@ -231,7 +231,7 @@ class SentryFlutterOptions extends SentryOptions {
   /// available in the Flutter environment. This way you get more detailed
   /// information where available.
   void enableBreadcrumbTrackingForCurrentPlatform() {
-    if (isNativeIntegrationsEnabled) {
+    if (isNativeIntegrationAvailableAndEnabled) {
       useNativeBreadcrumbTracking();
     } else {
       useFlutterBreadcrumbTracking();

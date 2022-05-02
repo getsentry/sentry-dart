@@ -330,8 +330,7 @@ class SentryOptions {
   late SentryStackTraceFactory stackTraceFactory =
       SentryStackTraceFactory(this);
 
-  /// Indicates wether a native integration is available and enabled.
-  bool get isNativeIntegrationsEnabled =>
+  bool get isNativeIntegrationAvailableAndEnabled =>
       enableNative && platformChecker.hasNativeIntegration;
 }
 

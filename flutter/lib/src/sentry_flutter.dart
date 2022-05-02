@@ -79,7 +79,7 @@ mixin SentryFlutter {
     MethodChannel channel,
   ) async {
     // Not all platforms have a native integration.
-    if (options.isNativeIntegrationsEnabled) {
+    if (options.isNativeIntegrationAvailableAndEnabled) {
       options.transport = FileSystemTransport(channel, options);
     }
 
@@ -116,7 +116,7 @@ mixin SentryFlutter {
     // The ordering here matters, as we'd like to first start the native integration.
     // That allow us to send events to the network and then the Flutter integrations.
     // Flutter Web doesn't need that, only Android and iOS.
-    if (options.isNativeIntegrationsEnabled && options.autoInitializeNative) {
+    if (options.isNativeIntegrationAvailableAndEnabled && options.autoInitializeNative) {
       integrations.add(InitNativeSdkIntegration(channel));
     }
 
@@ -141,7 +141,7 @@ mixin SentryFlutter {
     // in errors.
     integrations.add(LoadReleaseIntegration(packageLoader));
 
-    if (options.isNativeIntegrationsEnabled) {
+    if (options.isNativeIntegrationAvailableAndEnabled) {
       integrations.add(NativeAppStartIntegration(
         SentryNative(),
         () {

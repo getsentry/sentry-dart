@@ -47,7 +47,7 @@ class FlutterEnricherEventProcessor extends EventProcessor {
   }) async {
     // If there's a native integration available, it probably has better
     // information available than Flutter.
-    final device = _options.isNativeIntegrationsEnabled
+    final device = _options.isNativeIntegrationAvailableAndEnabled
         ? null
         : _getDevice(event.contexts.device);
 
