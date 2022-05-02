@@ -375,6 +375,12 @@ class AndroidExample extends StatelessWidget {
         },
         child: const Text('Platform exception'),
       ),
+      ElevatedButton(
+        onPressed: () async {
+          await execute('platform_exception_with_cause');
+        },
+        child: const Text('Platform exception with a cause'),
+      ),
     ]);
   }
 }
