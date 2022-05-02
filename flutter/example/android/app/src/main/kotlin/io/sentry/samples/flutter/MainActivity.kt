@@ -39,6 +39,9 @@ class MainActivity : FlutterActivity() {
         "platform_exception" -> {
           throw RuntimeException("Catch this platform exception!")
         }
+        "platform_exception_with_cause" -> {
+          throw RuntimeException("Catch this platform exception!", RuntimeException("This is the cause for the other exception"))
+        }
         else -> {
           result.notImplemented()
         }
