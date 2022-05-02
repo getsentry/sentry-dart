@@ -44,7 +44,7 @@ void main() {
 
     test('one captured event with when enabling $FailedRequestClient',
         () async {
-      fixture.hub.options.captureFailedRequests = true;
+      fixture.hub.options.captureFailedHttpRequests = true;
       fixture.hub.options.recordHttpBreadcrumbs = true;
       final sut = fixture.getSut(
         client: createThrowingClient(),

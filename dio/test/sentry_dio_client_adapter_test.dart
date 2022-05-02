@@ -60,7 +60,7 @@ void main() {
     });
 
     test('no captured span if tracing disabled', () async {
-      fixture.hub.options.captureFailedRequests = false;
+      fixture.hub.options.captureFailedHttpRequests = false;
       fixture.hub.options.recordHttpBreadcrumbs = false;
       final sut = fixture.getSut(
         client: fixture.getClient(statusCode: 200, reason: 'OK'),

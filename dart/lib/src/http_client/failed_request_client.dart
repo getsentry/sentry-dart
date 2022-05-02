@@ -103,7 +103,7 @@ class FailedRequestClient extends BaseClient {
       // If captureFailedRequests is true, there statusCode is null.
       // So just one of these blocks can be called.
 
-      if (_hub.options.captureFailedRequests && exception != null) {
+      if (_hub.options.captureFailedHttpRequests && exception != null) {
         await _captureEvent(
           exception: exception,
           stackTrace: stackTrace,

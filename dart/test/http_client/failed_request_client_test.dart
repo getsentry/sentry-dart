@@ -31,7 +31,7 @@ void main() {
     });
 
     test('exception gets reported if client throws', () async {
-      fixture._hub.options.captureFailedRequests = true;
+      fixture._hub.options.captureFailedHttpRequests = true;
       fixture._hub.options.sendDefaultPii = true;
       final sut = fixture.getSut(
         client: createThrowingClient(),
@@ -140,7 +140,7 @@ void main() {
     });
 
     test('pii is not send on exception', () async {
-      fixture._hub.options.captureFailedRequests = true;
+      fixture._hub.options.captureFailedHttpRequests = true;
       final sut = fixture.getSut(
         client: createThrowingClient(),
       );
@@ -191,7 +191,7 @@ void main() {
         MaxRequestBodySizeTestConfig(MaxRequestBodySize.medium, 10001, false),
       ];
 
-      fixture._hub.options.captureFailedRequests = true;
+      fixture._hub.options.captureFailedHttpRequests = true;
       for (final scenario in scenarios) {
         fixture._hub.options.maxRequestBodySize = scenario.maxRequestBodySize;
         fixture.transport.reset();
