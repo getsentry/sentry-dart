@@ -141,7 +141,7 @@ mixin SentryFlutter {
     // in errors.
     integrations.add(LoadReleaseIntegration(packageLoader));
 
-    if (options.platformChecker.hasNativeIntegration) {
+    if (options.isNativeIntegrationsEnabled) {
       integrations.add(NativeAppStartIntegration(
         SentryNative(),
         () {
