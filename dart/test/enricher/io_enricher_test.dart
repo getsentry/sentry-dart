@@ -59,6 +59,16 @@ void main() {
       expect(event.contexts.culture, isNotNull);
     });
 
+    test('adds device, os and culture if native integration is disabled',
+            () async {
+          final enricher = fixture.getSut(hasNativeIntegration: true, enableNative: false);
+          final event = await enricher.apply(SentryEvent());
+
+          expect(event.contexts.device, isNotNull);
+          expect(event.contexts.operatingSystem, isNotNull);
+          expect(event.contexts.culture, isNotNull);
+        });
+
     test('device has name', () async {
       final enricher = fixture.getSut();
       final event = await enricher.apply(SentryEvent());
@@ -183,13 +193,15 @@ void main() {
 class Fixture {
   IoEnricherEventProcessor getSut({
     bool hasNativeIntegration = false,
+    bool enableNative = true,
     bool includePii = false,
   }) {
     final options = SentryOptions(
         dsn: fakeDsn,
         checker:
             MockPlatformChecker(hasNativeIntegration: hasNativeIntegration))
-      ..sendDefaultPii = includePii;
+      ..sendDefaultPii = includePii
+      ..enableNative = enableNative;
 
     return IoEnricherEventProcessor(options);
   }
