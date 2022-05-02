@@ -220,11 +220,11 @@ class SentryOptions {
   /// breadcrumbs.
   bool enablePrintBreadcrumbs = true;
 
-  /// If [platformChecker] is provided, it is used get the envirnoment.
+  /// If [platformChecker] is provided, it is used get the environment.
   /// This is useful in tests. Should be an implementation of [PlatformChecker].
   PlatformChecker platformChecker = PlatformChecker();
 
-  /// If [environmentVariables] is provided, it is used get the envirnoment
+  /// If [environmentVariables] is provided, it is used get the environment
   /// variables. This is useful in tests.
   EnvironmentVariables environmentVariables = EnvironmentVariables.instance();
 

@@ -27,10 +27,19 @@ mixin SentryFlutter {
     PackageLoader packageLoader = _loadPackageInfo,
     MethodChannel channel = _channel,
     PlatformChecker? platformChecker,
+    bool? enableNative = true,
+    bool? autoInitializeNative = true
   }) async {
     final flutterOptions = SentryFlutterOptions();
+
     if (platformChecker != null) {
       flutterOptions.platformChecker = platformChecker;
+    }
+    if (enableNative != null) {
+      flutterOptions.enableNative = enableNative;
+    }
+    if (autoInitializeNative != null) {
+      flutterOptions.autoInitializeNative = autoInitializeNative;
     }
 
     // first step is to install the native integration and set default values,
@@ -94,7 +103,7 @@ mixin SentryFlutter {
     // Flutter Web doesn't need that, only Android and iOS.
     if (options.isNativeIntegrationsEnabled &&
         options.autoInitializeNative) {
-      integrations.add(NativeSdkIntegration(channel));
+      integrations.add(InitNativeSdkIntegration(channel));
     }
 
     // Will enrich events with device context, native packages and integrations

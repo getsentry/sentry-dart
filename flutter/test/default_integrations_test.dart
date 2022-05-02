@@ -221,7 +221,7 @@ void main() {
   test('nativeSdkIntegration adds integration', () async {
     _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
 
-    final integration = NativeSdkIntegration(_channel);
+    final integration = InitNativeSdkIntegration(_channel);
 
     await integration(fixture.hub, fixture.options);
 
@@ -234,7 +234,7 @@ void main() {
       throw Exception();
     });
 
-    final integration = NativeSdkIntegration(_channel);
+    final integration = InitNativeSdkIntegration(_channel);
 
     await integration(fixture.hub, fixture.options);
 
@@ -249,7 +249,7 @@ void main() {
       closeCalled = true;
     });
 
-    final integration = NativeSdkIntegration(_channel);
+    final integration = InitNativeSdkIntegration(_channel);
 
     await integration.close();
 

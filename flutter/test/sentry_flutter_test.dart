@@ -26,7 +26,7 @@ final iOsAndMacOsIntegrations = [
 
 // These should be added to every platform which has a native integration.
 final nativeIntegrations = [
-  NativeSdkIntegration,
+  InitNativeSdkIntegration,
 ];
 
 void main() {
@@ -54,6 +54,37 @@ void main() {
       );
     }, testOn: 'vm');
 
+    test('Android enableNative false', () async {
+      await SentryFlutter.init(
+          getConfigurationTester(
+            hasFileSystemTransport: false,
+            shouldHaveIntegrations: [],
+            shouldNotHaveIntegrations: [
+              ...androidIntegrations,
+              ...nativeIntegrations,
+            ]
+          ),
+          appRunner: appRunner,
+          packageLoader: loadTestPackage,
+          platformChecker: getPlatformChecker(platform: MockPlatform.android()),
+          enableNative: false,
+      );
+    }, testOn: 'vm');
+
+    test('Android autoInitializeNative false', () async {
+      await SentryFlutter.init(
+        getConfigurationTester(
+          hasFileSystemTransport: true,
+          shouldHaveIntegrations: androidIntegrations,
+          shouldNotHaveIntegrations: [InitNativeSdkIntegration],
+        ),
+        appRunner: appRunner,
+        packageLoader: loadTestPackage,
+        platformChecker: getPlatformChecker(platform: MockPlatform.android()),
+        autoInitializeNative: false,
+      );
+    }, testOn: 'vm');
+
     test('iOS', () async {
       await SentryFlutter.init(
         getConfigurationTester(
@@ -71,6 +102,37 @@ void main() {
       );
     }, testOn: 'vm');
 
+    test('iOS enableNative false', () async {
+      await SentryFlutter.init(
+        getConfigurationTester(
+          hasFileSystemTransport: false,
+          shouldHaveIntegrations: [],
+          shouldNotHaveIntegrations: [
+            ...iOsAndMacOsIntegrations,
+            ...nativeIntegrations
+          ],
+        ),
+        appRunner: appRunner,
+        packageLoader: loadTestPackage,
+        platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
+        enableNative: false,
+      );
+    }, testOn: 'vm');
+
+    test('iOS autoInitializeNative false', () async {
+      await SentryFlutter.init(
+        getConfigurationTester(
+          hasFileSystemTransport: true,
+          shouldHaveIntegrations: iOsAndMacOsIntegrations,
+          shouldNotHaveIntegrations: [InitNativeSdkIntegration],
+        ),
+        appRunner: appRunner,
+        packageLoader: loadTestPackage,
+        platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
+        autoInitializeNative: false,
+      );
+    }, testOn: 'vm');
+
     test('macOS', () async {
       await SentryFlutter.init(
         getConfigurationTester(
@@ -85,6 +147,37 @@ void main() {
         appRunner: appRunner,
         packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.macOs()),
+      );
+    }, testOn: 'vm');
+
+    test('macOS enableNative false', () async {
+      await SentryFlutter.init(
+        getConfigurationTester(
+          hasFileSystemTransport: false,
+          shouldHaveIntegrations: [],
+          shouldNotHaveIntegrations: [
+            ...iOsAndMacOsIntegrations,
+            ...nativeIntegrations
+          ],
+        ),
+        appRunner: appRunner,
+        packageLoader: loadTestPackage,
+        platformChecker: getPlatformChecker(platform: MockPlatform.macOs()),
+        enableNative: false,
+      );
+    }, testOn: 'vm');
+
+    test('macOS autoInitializeNative false', () async {
+      await SentryFlutter.init(
+        getConfigurationTester(
+          hasFileSystemTransport: true,
+          shouldHaveIntegrations: iOsAndMacOsIntegrations,
+          shouldNotHaveIntegrations: [InitNativeSdkIntegration],
+        ),
+        appRunner: appRunner,
+        packageLoader: loadTestPackage,
+        platformChecker: getPlatformChecker(platform: MockPlatform.macOs()),
+        autoInitializeNative: false,
       );
     }, testOn: 'vm');
 
@@ -143,7 +236,7 @@ void main() {
     });
 
     test('Web && (iOS || macOS) ', () async {
-      // Tests that iOS || macOS integrations aren't added on a browswer which
+      // Tests that iOS || macOS integrations aren't added on a browser which
       // runs on iOS or macOS
       await SentryFlutter.init(
         getConfigurationTester(

@@ -14,6 +14,9 @@ class SentryFlutterOptions extends SentryOptions {
   /// Enables native transport + device info + offline caching.
   /// Currently Supported Native SDKs are Android, iOS and macOS.
   /// Defaults to `true`.
+  ///
+  /// Set in [SentryFlutter.init] as it needs to be configured before
+  /// the [optionsConfiguration] callback is called.
   @override
   bool enableNative = true;
 
@@ -23,6 +26,9 @@ class SentryFlutterOptions extends SentryOptions {
   /// NOTE: Be careful and only use this if you know what you are doing.
   /// If you use this flag, make sure a native SDK is running before the Flutter Engine initializes or events might not be captured.
   /// Defaults to `true`.
+  ///
+  /// Set in [SentryFlutter.init] as it needs to be configured before
+  /// the [optionsConfiguration] callback is called.
   bool autoInitializeNative = true;
 
   /// Enable or disable reporting of used packages.

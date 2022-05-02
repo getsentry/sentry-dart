@@ -35,8 +35,8 @@ class Sentry {
   /// zone ([`runZonedGuarded`](https://api.dart.dev/stable/2.10.4/dart-async/runZonedGuarded.html))
   ///
   /// You should use [optionsConfiguration] instead of passing [sentryOptions]
-  /// yourself. [sentryOptions] is mainly intendet for use by other Sentry clients
-  /// such as SentryFlutter.
+  /// yourself. [sentryOptions] is mainly intended for use by other Sentry clients
+  /// such as SentryFlutter
   static Future<void> init(
     OptionsConfiguration optionsConfiguration, {
     AppRunner? appRunner,

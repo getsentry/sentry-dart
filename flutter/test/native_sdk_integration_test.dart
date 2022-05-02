@@ -6,7 +6,7 @@ import 'package:sentry_flutter/src/version.dart';
 import 'mocks.dart';
 
 void main() {
-  group('$NativeSdkIntegration', () {
+  group('$InitNativeSdkIntegration', () {
     late Fixture fixture;
     setUp(() {
       fixture = Fixture();
@@ -161,7 +161,7 @@ SentryFlutterOptions createOptions() {
 }
 
 class Fixture {
-  NativeSdkIntegration getSut(MethodChannel channel) {
-    return NativeSdkIntegration(channel);
+  InitNativeSdkIntegration getSut(MethodChannel channel) {
+    return InitNativeSdkIntegration(channel);
   }
 }
