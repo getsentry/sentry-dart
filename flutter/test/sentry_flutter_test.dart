@@ -56,18 +56,17 @@ void main() {
 
     test('Android enableNative false', () async {
       await SentryFlutter.init(
-          getConfigurationTester(
+        getConfigurationTester(
             hasFileSystemTransport: false,
             shouldHaveIntegrations: [],
             shouldNotHaveIntegrations: [
               ...androidIntegrations,
               ...nativeIntegrations,
-            ]
-          ),
-          appRunner: appRunner,
-          packageLoader: loadTestPackage,
-          platformChecker: getPlatformChecker(platform: MockPlatform.android()),
-          enableNative: false,
+            ]),
+        appRunner: appRunner,
+        packageLoader: loadTestPackage,
+        platformChecker: getPlatformChecker(platform: MockPlatform.android()),
+        enableNative: false,
       );
     }, testOn: 'vm');
 

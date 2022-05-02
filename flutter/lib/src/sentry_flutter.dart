@@ -21,15 +21,13 @@ typedef FlutterOptionsConfiguration = FutureOr<void> Function(
 mixin SentryFlutter {
   static const _channel = MethodChannel('sentry_flutter');
 
-  static Future<void> init(
-    FlutterOptionsConfiguration optionsConfiguration, {
-    AppRunner? appRunner,
-    PackageLoader packageLoader = _loadPackageInfo,
-    MethodChannel channel = _channel,
-    PlatformChecker? platformChecker,
-    bool? enableNative = true,
-    bool? autoInitializeNative = true
-  }) async {
+  static Future<void> init(FlutterOptionsConfiguration optionsConfiguration,
+      {AppRunner? appRunner,
+      PackageLoader packageLoader = _loadPackageInfo,
+      MethodChannel channel = _channel,
+      PlatformChecker? platformChecker,
+      bool? enableNative = true,
+      bool? autoInitializeNative = true}) async {
     final flutterOptions = SentryFlutterOptions();
 
     if (platformChecker != null) {
@@ -101,8 +99,7 @@ mixin SentryFlutter {
     // The ordering here matters, as we'd like to first start the native integration.
     // That allow us to send events to the network and then the Flutter integrations.
     // Flutter Web doesn't need that, only Android and iOS.
-    if (options.isNativeIntegrationsEnabled &&
-        options.autoInitializeNative) {
+    if (options.isNativeIntegrationsEnabled && options.autoInitializeNative) {
       integrations.add(InitNativeSdkIntegration(channel));
     }
 
