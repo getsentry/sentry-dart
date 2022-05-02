@@ -225,7 +225,8 @@ void main() {
 
     await integration(fixture.hub, fixture.options);
 
-    expect(fixture.options.sdk.integrations.contains('initNativeSdkIntegration'),
+    expect(
+        fixture.options.sdk.integrations.contains('initNativeSdkIntegration'),
         true);
   });
 
