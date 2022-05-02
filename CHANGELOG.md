@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-* Feat: Add Android thread to platform stacktraces
+* Feat: Add Android thread to platform stacktraces (#853)
 
 ## 6.6.0-alpha.1
 
