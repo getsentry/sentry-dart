@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Attach Isolate name to thread context (#847)
+- Fix serialization of threads (#844)
 
 ## 6.6.0-alpha.1
 
