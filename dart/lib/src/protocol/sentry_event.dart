@@ -320,124 +320,70 @@ class SentryEvent with SentryEventLike<SentryEvent> {
 
   /// Serializes this event to JSON.
   Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{};
-
-    json['event_id'] = eventId.toString();
-
-    if (timestamp != null) {
-      json['timestamp'] = formatDateAsIso8601WithMillisPrecision(timestamp!);
-    }
-
-    if (platform != null) {
-      json['platform'] = platform;
-    }
-
-    if (logger != null) {
-      json['logger'] = logger;
-    }
-
-    if (serverName != null) {
-      json['server_name'] = serverName;
-    }
-
-    if (release != null) {
-      json['release'] = release;
-    }
-
-    if (dist != null) {
-      json['dist'] = dist;
-    }
-
-    if (environment != null) {
-      json['environment'] = environment;
-    }
-
-    if (modules != null && modules!.isNotEmpty) {
-      json['modules'] = modules;
-    }
-
-    Map<String, dynamic> messageMap;
-    if (message != null && (messageMap = message!.toJson()).isNotEmpty) {
-      json['message'] = messageMap;
-    }
-
-    if (transaction != null) {
-      json['transaction'] = transaction;
-    }
-
+    var messageMap = message?.toJson();
+    final contextsMap = contexts.toJson();
+    final userMap = user?.toJson();
+    final sdkMap = sdk?.toJson();
+    final requestMap = request?.toJson();
+    final debugMetaMap = debugMeta?.toJson();
     final exceptionsJson = exceptions
         ?.map((e) => e.toJson())
         .where((e) => e.isNotEmpty)
         .toList(growable: false);
-    if (exceptionsJson?.isNotEmpty ?? false) {
-      json['exception'] = {'values': exceptionsJson};
-    }
 
-    final threadIds =
-        exceptions?.map((element) => element.threadId).toList(growable: false);
+    // Thread serialization is tricky:
+    // - Thread should not have a stacktrace when an exception is connected to it
+    // - Thread should serializae a stacktrace when no exception is connected to it
+
+    // These are the thread ids with a connected exception
+    final threadIds = exceptions
+        ?.map((element) => element.threadId)
+        .where((element) => element != null)
+        .toSet();
+
     final threadJson = threads
-        ?.where((element) => !(threadIds?.contains(element.id) ?? false))
-        .map((e) => e.toJson())
+        ?.map((element) {
+          if (threadIds?.contains(element.id) ?? false) {
+            // remove thread.stacktrace if a connected exception exists
+            final json = element.toJson();
+            json.remove('stacktrace');
+            return json;
+          }
+          return element.toJson();
+        })
         .where((e) => e.isNotEmpty)
         .toList(growable: false);
-    if (threadJson?.isNotEmpty ?? false) {
-      json['threads'] = {'values': threadJson};
-    }
 
-    if (level != null) {
-      json['level'] = level!.name;
-    }
-
-    if (culprit != null) {
-      json['culprit'] = culprit;
-    }
-
-    if (tags?.isNotEmpty ?? false) {
-      json['tags'] = tags;
-    }
-
-    if (extra?.isNotEmpty ?? false) {
-      json['extra'] = extra;
-    }
-
-    final contextsMap = contexts.toJson();
-    if (contextsMap.isNotEmpty) {
-      json['contexts'] = contextsMap;
-    }
-
-    final userMap = user?.toJson();
-    if (userMap?.isNotEmpty ?? false) {
-      json['user'] = userMap;
-    }
-
-    if (fingerprint?.isNotEmpty ?? false) {
-      json['fingerprint'] = fingerprint;
-    }
-
-    if (breadcrumbs?.isNotEmpty ?? false) {
-      json['breadcrumbs'] =
-          breadcrumbs?.map((b) => b.toJson()).toList(growable: false);
-    }
-
-    final sdkMap = sdk?.toJson();
-    if (sdkMap?.isNotEmpty ?? false) {
-      json['sdk'] = sdkMap;
-    }
-
-    final requestMap = request?.toJson();
-    if (requestMap?.isNotEmpty ?? false) {
-      json['request'] = requestMap;
-    }
-
-    final debugMetaMap = debugMeta?.toJson();
-    if (debugMetaMap?.isNotEmpty ?? false) {
-      json['debug_meta'] = debugMetaMap;
-    }
-
-    if (type != null) {
-      json['type'] = type;
-    }
-
-    return json;
+    return <String, dynamic>{
+      'event_id': eventId.toString(),
+      if (timestamp != null)
+        'timestamp': formatDateAsIso8601WithMillisPrecision(timestamp!),
+      if (platform != null) 'platform': platform,
+      if (logger != null) 'logger': logger,
+      if (serverName != null) 'server_name': serverName,
+      if (release != null) 'release': release,
+      if (dist != null) 'dist': dist,
+      if (environment != null) 'environment': environment,
+      if (modules != null && modules!.isNotEmpty) 'modules': modules,
+      if (transaction != null) 'transaction': transaction,
+      if (level != null) 'level': level!.name,
+      if (culprit != null) 'culprit': culprit,
+      if (tags?.isNotEmpty ?? false) 'tags': tags,
+      if (extra?.isNotEmpty ?? false) 'extra': extra,
+      if (type != null) 'type': type,
+      if (fingerprint?.isNotEmpty ?? false) 'fingerprint': fingerprint,
+      if (breadcrumbs?.isNotEmpty ?? false)
+        'breadcrumbs':
+            breadcrumbs?.map((b) => b.toJson()).toList(growable: false),
+      if (messageMap?.isNotEmpty ?? false) 'message': messageMap,
+      if (contextsMap.isNotEmpty) 'contexts': contextsMap,
+      if (userMap?.isNotEmpty ?? false) 'user': userMap,
+      if (sdkMap?.isNotEmpty ?? false) 'sdk': sdkMap,
+      if (requestMap?.isNotEmpty ?? false) 'request': requestMap,
+      if (debugMetaMap?.isNotEmpty ?? false) 'debug_meta': debugMetaMap,
+      if (exceptionsJson?.isNotEmpty ?? false)
+        'exception': {'values': exceptionsJson},
+      if (threadJson?.isNotEmpty ?? false) 'threads': {'values': threadJson},
+    };
   }
 }

@@ -3,6 +3,7 @@
 ## Unreleased
 
 * Feat: Add Android thread to platform stacktraces (#853)
+- Fix serialization of threads (#844)
 
 ## 6.6.0-alpha.1
 
