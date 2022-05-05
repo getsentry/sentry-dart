@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:isolate';
 
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -84,7 +85,7 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
       ...jvmExceptions,
     ], threads: [
       ...?threads,
-      ...jvmThreads,
+      if (_options.attachThreads) ...jvmThreads,
     ]);
   }
 
@@ -96,7 +97,9 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
     return threads
         ?.map((e) => e.copyWith(
               crashed: false,
-              current: false,
+              // Isolate is safe to use directly,
+              // because Android is only run in the dart:io context.
+              current: e.name == Isolate.current.debugName,
             ))
         .toList(growable: false);
   }
@@ -208,7 +211,7 @@ extension on JvmException {
 
     final sentryThread = SentryThread(
       crashed: true,
-      current: true,
+      current: false,
       name: threadName,
       id: threadId,
     );

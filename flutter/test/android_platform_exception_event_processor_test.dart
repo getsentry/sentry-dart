@@ -1,5 +1,7 @@
 // ignore_for_file: invalid_use_of_internal_member
 
+@TestOn('vm')
+
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -41,7 +43,7 @@ void main() {
     });
 
     test(
-        'Dart thread is not current and not active if Android exception is present',
+        'Dart thread is current and not crashed if Android exception is present',
         () async {
       final platformExceptionEvent =
           await fixture.processor.apply(fixture.eventWithPlatformStackTrace);
@@ -49,7 +51,7 @@ void main() {
       final exceptions = platformExceptionEvent!.exceptions!;
       expect(exceptions.length, 2);
 
-      expect(platformExceptionEvent.threads?.first.current, false);
+      expect(platformExceptionEvent.threads?.first.current, true);
       expect(platformExceptionEvent.threads?.first.crashed, false);
     });
 
@@ -64,9 +66,23 @@ void main() {
       final platformThread = platformExceptionEvent.threads?[1];
 
       expect(platformException.threadId, platformThread?.id);
-      expect(platformThread?.current, true);
+      expect(platformThread?.current, false);
       expect(platformThread?.crashed, true);
       expect(platformThread?.name, 'Android');
+    });
+
+    test('platformexception has no Android thread attached if disabled',
+        () async {
+      fixture.options.attachThreads = false;
+      final threadCount = fixture.eventWithPlatformStackTrace.threads?.length;
+
+      final platformExceptionEvent =
+          await fixture.processor.apply(fixture.eventWithPlatformStackTrace);
+
+      final exceptions = platformExceptionEvent!.exceptions!;
+      expect(exceptions.length, 2);
+
+      expect(platformExceptionEvent.threads?.length, threadCount);
     });
 
     test('does nothing if no PlatformException is there', () async {
@@ -123,7 +139,8 @@ class Fixture {
     name: 'main',
   );
 
-  SentryFlutterOptions options = SentryFlutterOptions(dsn: fakeDsn);
+  SentryFlutterOptions options = SentryFlutterOptions(dsn: fakeDsn)
+    ..attachThreads = true;
 }
 
 final testPlatformException = PlatformException(
