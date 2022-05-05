@@ -113,7 +113,7 @@ void main() {
     test(
       'should attach isolate info in thread',
       () async {
-        final client = fixture.getSut();
+        final client = fixture.getSut(attachThreads: true);
 
         await client.captureException(
           Exception(),
@@ -132,6 +132,24 @@ void main() {
           capturedEvent.exceptions?.first.threadId,
           capturedEvent.threads?.first.id,
         );
+      },
+      onPlatform: {'js': Skip("Isolates don't exist on the web")},
+    );
+
+    test(
+      'should not attach isolate info in thread if disabled',
+      () async {
+        final client = fixture.getSut(attachThreads: false);
+
+        await client.captureException(
+          Exception(),
+          stackTrace: StackTrace.current,
+        );
+
+        final capturedEnvelope = (fixture.transport).envelopes.first;
+        final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+        expect(capturedEvent.threads, null);
       },
       onPlatform: {'js': Skip("Isolates don't exist on the web")},
     );
@@ -1040,6 +1058,7 @@ class Fixture {
   SentryClient getSut({
     bool sendDefaultPii = false,
     bool attachStacktrace = true,
+    bool attachThreads = false,
     double? sampleRate,
     BeforeSendCallback? beforeSend,
     EventProcessor? eventProcessor,
@@ -1055,14 +1074,16 @@ class Fixture {
     options.tracesSampleRate = 1.0;
     options.sendDefaultPii = sendDefaultPii;
     options.attachStacktrace = attachStacktrace;
+    options.attachThreads = attachThreads;
     options.sampleRate = sampleRate;
     options.beforeSend = beforeSend;
+
     if (eventProcessor != null) {
       options.addEventProcessor(eventProcessor);
     }
     options.transport = transport;
     final client = SentryClient(options);
-    // hub.bindClient(client);
+
     if (provideMockRecorder) {
       options.recorder = recorder;
     }
