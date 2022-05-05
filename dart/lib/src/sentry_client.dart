@@ -195,14 +195,13 @@ class SentryClient {
       if (frames.isNotEmpty) {
         event = event.copyWith(threads: [
           ...?event.threads,
-          if (isolateName != null && _options.attachThreads)
-            SentryThread(
-              name: isolateName,
-              id: isolateId,
-              crashed: false,
-              current: true,
-              stacktrace: SentryStackTrace(frames: frames),
-            ),
+          SentryThread(
+            name: isolateName,
+            id: isolateId,
+            crashed: false,
+            current: true,
+            stacktrace: SentryStackTrace(frames: frames),
+          ),
         ]);
       }
     }
