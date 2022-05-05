@@ -28,9 +28,7 @@ Future<void> main() async {
     // Init your App.
     appRunner: () => runApp(
       DefaultAssetBundle(
-        bundle: SentryAssetBundle(
-          enableStructuredDataTracing: true,
-        ),
+        bundle: SentryAssetBundle(enableStructuredDataTracing: true),
         child: MyApp(),
       ),
     ),
@@ -512,8 +510,6 @@ Future<void> makeWebRequest(BuildContext context) async {
       );
 
   final client = SentryHttpClient(
-    captureFailedRequests: true,
-    networkTracing: true,
     failedRequestStatusCodes: [SentryStatusCode.range(400, 500)],
   );
   // We don't do any exception handling here.
@@ -548,10 +544,7 @@ Future<void> makeWebRequest(BuildContext context) async {
 Future<void> makeWebRequestWithDio(BuildContext context) async {
   final dio = Dio();
 
-  dio.addSentry(
-    captureFailedRequests: true,
-    networkTracing: true,
-  );
+  dio.addSentry();
 
   final transaction = Sentry.getSpan() ??
       Sentry.startTransaction(

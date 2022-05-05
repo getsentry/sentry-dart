@@ -2,20 +2,10 @@ import 'package:http/http.dart';
 import 'tracing_client.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
-import '../protocol.dart';
 import 'breadcrumb_client.dart';
 import 'failed_request_client.dart';
 
 /// A [http](https://pub.dev/packages/http)-package compatible HTTP client.
-///
-/// It records requests as breadcrumbs. This is on by default.
-///
-/// It captures requests which throws an exception. This is off by
-/// default, set [captureFailedRequests] to `true` to enable it. This can be for
-/// example for the following reasons:
-/// - In an browser environment this can be requests which fail because of CORS.
-/// - In an mobile or desktop application this can be requests which failed
-///   because the connection was interrupted.
 ///
 /// Additionally you can configure specific HTTP response codes to be considered
 /// as a failed request. This is off by default. Enable it by using it like
@@ -32,10 +22,6 @@ import 'failed_request_client.dart';
 ///   ],
 /// );
 /// ```
-///
-/// It starts and finishes a Span if there's a transaction bound to the Scope
-/// through the [TracingClient] client, it's disabled by default.
-/// Set [networkTracing] to `true` to enable it.
 ///
 /// Remarks: If this client is used as a wrapper, a call to close also closes
 /// the given client.
@@ -79,12 +65,7 @@ class SentryHttpClient extends BaseClient {
   SentryHttpClient({
     Client? client,
     Hub? hub,
-    bool recordBreadcrumbs = true,
-    MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never,
     List<SentryStatusCode> failedRequestStatusCodes = const [],
-    bool captureFailedRequests = false,
-    bool sendDefaultPii = false,
-    bool networkTracing = false,
   }) {
     _hub = hub ?? HubAdapter();
 
@@ -92,14 +73,11 @@ class SentryHttpClient extends BaseClient {
 
     innerClient = FailedRequestClient(
       failedRequestStatusCodes: failedRequestStatusCodes,
-      captureFailedRequests: captureFailedRequests,
-      maxRequestBodySize: maxRequestBodySize,
-      sendDefaultPii: sendDefaultPii,
       hub: _hub,
       client: innerClient,
     );
 
-    if (networkTracing) {
+    if (_hub.options.isTracingEnabled()) {
       innerClient = TracingClient(client: innerClient, hub: _hub);
     }
 
@@ -107,7 +85,7 @@ class SentryHttpClient extends BaseClient {
     // We don't want to include the breadcrumbs for the current request
     // when capturing it as a failed request.
     // However it still should be added for following events.
-    if (recordBreadcrumbs) {
+    if (_hub.options.recordHttpBreadcrumbs) {
       innerClient = BreadcrumbClient(client: innerClient, hub: _hub);
     }
 

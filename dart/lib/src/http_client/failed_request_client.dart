@@ -65,10 +65,7 @@ import 'sentry_http_client.dart';
 /// ```
 class FailedRequestClient extends BaseClient {
   FailedRequestClient({
-    this.maxRequestBodySize = MaxRequestBodySize.never,
     this.failedRequestStatusCodes = const [],
-    this.captureFailedRequests = true,
-    this.sendDefaultPii = false,
     Client? client,
     Hub? hub,
   })  : _hub = hub ?? HubAdapter(),
@@ -77,24 +74,11 @@ class FailedRequestClient extends BaseClient {
   final Client _client;
   final Hub _hub;
 
-  /// Configures wether to record exceptions for failed requests.
-  /// Examples for captures exceptions are:
-  /// - In an browser environment this can be requests which fail because of CORS.
-  /// - In an mobile or desktop application this can be requests which failed
-  ///   because the connection was interrupted.
-  final bool captureFailedRequests;
-
-  /// Configures up to which size request bodies should be included in events.
-  /// This does not change wether an event is captured.
-  final MaxRequestBodySize maxRequestBodySize;
-
   /// Describes which HTTP status codes should be considered as a failed
   /// requests.
   ///
   /// Per default no status code is considered a failed request.
   final List<SentryStatusCode> failedRequestStatusCodes;
-
-  final bool sendDefaultPii;
 
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
@@ -119,7 +103,7 @@ class FailedRequestClient extends BaseClient {
       // If captureFailedRequests is true, there statusCode is null.
       // So just one of these blocks can be called.
 
-      if (captureFailedRequests && exception != null) {
+      if (_hub.options.captureFailedHttpRequests && exception != null) {
         await _captureEvent(
           exception: exception,
           stackTrace: stackTrace,
@@ -161,10 +145,10 @@ class FailedRequestClient extends BaseClient {
 
     final sentryRequest = SentryRequest(
       method: request.method,
-      headers: sendDefaultPii ? request.headers : null,
+      headers: _hub.options.sendDefaultPii ? request.headers : null,
       url: urlWithoutQuery,
       queryString: query,
-      cookies: sendDefaultPii ? request.headers['Cookie'] : null,
+      cookies: _hub.options.sendDefaultPii ? request.headers['Cookie'] : null,
       data: _getDataFromRequest(request),
       other: {
         'content_length': request.contentLength.toString(),
@@ -192,7 +176,7 @@ class FailedRequestClient extends BaseClient {
     if (contentLength == null) {
       return null;
     }
-    if (!maxRequestBodySize.shouldAddBody(contentLength)) {
+    if (!_hub.options.maxRequestBodySize.shouldAddBody(contentLength)) {
       return null;
     }
     if (request is MultipartRequest) {

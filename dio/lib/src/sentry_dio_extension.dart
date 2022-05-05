@@ -14,10 +14,6 @@ extension SentryDioExtension on Dio {
   /// your configuration of Dio might overwrite the Sentry configuration.
   @experimental
   void addSentry({
-    bool recordBreadcrumbs = true,
-    bool networkTracing = true,
-    MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never,
-    bool captureFailedRequests = false,
     Hub? hub,
   }) {
     hub = hub ?? HubAdapter();
@@ -28,10 +24,10 @@ extension SentryDioExtension on Dio {
     // Add DioEventProcessor when it's not already present
     if (options.eventProcessors.whereType<DioEventProcessor>().isEmpty) {
       options.sdk.addIntegration('sentry_dio');
-      options.addEventProcessor(DioEventProcessor(options, maxRequestBodySize));
+      options.addEventProcessor(DioEventProcessor(options));
     }
 
-    if (captureFailedRequests) {
+    if (options.captureFailedHttpRequests) {
       // Add FailedRequestInterceptor at index 0, so it's the first interceptor.
       // This ensures that it is called and not skipped by any previous interceptor.
       interceptors.insert(0, FailedRequestInterceptor());
@@ -40,8 +36,6 @@ extension SentryDioExtension on Dio {
     // intercept http requests
     httpClientAdapter = SentryDioClientAdapter(
       client: httpClientAdapter,
-      recordBreadcrumbs: recordBreadcrumbs,
-      networkTracing: networkTracing,
       hub: hub,
     );
 

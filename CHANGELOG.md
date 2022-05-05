@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+- Fix: Remove `SentryOptions` related parameters from classes which also take `Hub` as a parameter (#816)
+## 6.5.0-beta.2
+
+* Fix: Do not set the transaction to scope if no op (#828)
+
 ## 6.5.0-beta.1
 
 - No documented changes.

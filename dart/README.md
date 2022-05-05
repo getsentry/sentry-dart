@@ -114,7 +114,7 @@ This is currently an opt-in feature. The following example shows how to enable i
 ```dart
 import 'package:sentry/sentry.dart';
 
-var client = SentryHttpClient(captureFailedRequests: true);
+var client = SentryHttpClient();
 try {
 var uriResponse = await client.post('https://example.com/whatsit/create',
      body: {'name': 'doodle', 'color': 'blue'});
@@ -160,7 +160,7 @@ final transaction = Sentry.startTransaction(
   bindToScope: true,
 );
 
-var client = SentryHttpClient(networkTracing: true);
+var client = SentryHttpClient();
 try {
 var uriResponse = await client.post('https://example.com/whatsit/create',
      body: {'name': 'doodle', 'color': 'blue'});

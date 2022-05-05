@@ -60,10 +60,10 @@ void main() {
     });
 
     test('no captured span if tracing disabled', () async {
+      fixture.hub.options.captureFailedHttpRequests = false;
+      fixture.hub.options.recordHttpBreadcrumbs = false;
       final sut = fixture.getSut(
         client: fixture.getClient(statusCode: 200, reason: 'OK'),
-        recordBreadcrumbs: false,
-        networkTracing: false,
       );
 
       final response = await sut.get<dynamic>('/');
@@ -73,16 +73,15 @@ void main() {
     });
 
     test('captured span if tracing enabled', () async {
+      fixture.hub.options.recordHttpBreadcrumbs = false;
       final sut = fixture.getSut(
         client: fixture.getClient(statusCode: 200, reason: 'OK'),
-        recordBreadcrumbs: false,
-        networkTracing: true,
       );
 
       final response = await sut.get<dynamic>('/');
       expect(response.statusCode, 200);
 
-      expect(fixture.hub.getSpanCalls, 1);
+      expect(fixture.hub.getSpanCalls, 0);
     });
   });
 }
@@ -101,19 +100,14 @@ class CloseableMockClient extends Mock implements BaseClient {}
 class Fixture {
   Dio getSut({
     MockHttpClientAdapter? client,
-    bool captureFailedRequests = false,
     MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never,
     List<SentryStatusCode> badStatusCodes = const [],
-    bool recordBreadcrumbs = true,
-    bool networkTracing = false,
   }) {
     final mc = client ?? getClient();
     final dio = Dio(BaseOptions(baseUrl: requestUri.toString()));
     dio.httpClientAdapter = SentryDioClientAdapter(
       client: mc,
       hub: hub,
-      recordBreadcrumbs: recordBreadcrumbs,
-      networkTracing: networkTracing,
     );
     return dio;
   }
