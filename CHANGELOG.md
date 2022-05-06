@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fix serialization of threads (#844)
+- Feat: Allow manual init of the Native SDK (#765)
 
 ## 6.6.0-alpha.1
 
