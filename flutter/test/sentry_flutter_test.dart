@@ -56,20 +56,6 @@ void main() {
       await Sentry.close();
     }, testOn: 'vm');
 
-    test('Android autoInitializeNative false', () async {
-      await SentryFlutter.init(
-        getConfigurationTester(
-          hasFileSystemTransport: true,
-          shouldHaveIntegrations: androidIntegrations,
-          shouldNotHaveIntegrations: [NativeSdkIntegration],
-        ),
-        appRunner: appRunner,
-        packageLoader: loadTestPackage,
-        platformChecker: getPlatformChecker(platform: MockPlatform.android()),
-        autoInitializeNative: false,
-      );
-    }, testOn: 'vm');
-
     test('iOS', () async {
       await SentryFlutter.init(
         getConfigurationTester(
@@ -89,20 +75,6 @@ void main() {
       await Sentry.close();
     }, testOn: 'vm');
 
-    test('iOS autoInitializeNative false', () async {
-      await SentryFlutter.init(
-        getConfigurationTester(
-          hasFileSystemTransport: true,
-          shouldHaveIntegrations: iOsAndMacOsIntegrations,
-          shouldNotHaveIntegrations: [NativeSdkIntegration],
-        ),
-        appRunner: appRunner,
-        packageLoader: loadTestPackage,
-        platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
-        autoInitializeNative: false,
-      );
-    }, testOn: 'vm');
-
     test('macOS', () async {
       await SentryFlutter.init(
         getConfigurationTester(
@@ -120,20 +92,6 @@ void main() {
       );
 
       await Sentry.close();
-    }, testOn: 'vm');
-
-    test('macOS autoInitializeNative false', () async {
-      await SentryFlutter.init(
-        getConfigurationTester(
-          hasFileSystemTransport: true,
-          shouldHaveIntegrations: iOsAndMacOsIntegrations,
-          shouldNotHaveIntegrations: [NativeSdkIntegration],
-        ),
-        appRunner: appRunner,
-        packageLoader: loadTestPackage,
-        platformChecker: getPlatformChecker(platform: MockPlatform.macOs()),
-        autoInitializeNative: false,
-      );
     }, testOn: 'vm');
 
     test('Windows', () async {

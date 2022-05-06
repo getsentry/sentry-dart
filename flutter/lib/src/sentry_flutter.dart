@@ -32,15 +32,11 @@ mixin SentryFlutter {
     PackageLoader packageLoader = _loadPackageInfo,
     MethodChannel channel = _channel,
     PlatformChecker? platformChecker,
-    bool? autoInitializeNative = true,
   }) async {
     final flutterOptions = SentryFlutterOptions();
 
     if (platformChecker != null) {
       flutterOptions.platformChecker = platformChecker;
-    }
-    if (autoInitializeNative != null) {
-      flutterOptions.autoInitializeNative = autoInitializeNative;
     }
 
     final nativeChannel = SentryNativeChannel(channel, flutterOptions);
@@ -112,8 +108,7 @@ mixin SentryFlutter {
     // The ordering here matters, as we'd like to first start the native integration.
     // That allow us to send events to the network and then the Flutter integrations.
     // Flutter Web doesn't need that, only Android and iOS.
-    if (options.platformChecker.hasNativeIntegration &&
-        options.autoInitializeNative) {
+    if (options.platformChecker.hasNativeIntegration) {
       integrations.add(NativeSdkIntegration(channel));
     }
 
