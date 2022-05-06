@@ -11,15 +11,6 @@ class SentryFlutterOptions extends SentryOptions {
     enableBreadcrumbTrackingForCurrentPlatform();
   }
 
-  /// Enables native transport + device info + offline caching.
-  /// Currently Supported Native SDKs are Android, iOS and macOS.
-  /// Defaults to `true`.
-  ///
-  /// Set in [SentryFlutter.init] as it needs to be configured before
-  /// the [optionsConfiguration] callback is called.
-  @override
-  bool enableNative = true;
-
   /// Initializes the Native SDKs on init.
   /// Set this to `false` if you have an existing native SDK and don't want to re-initialize.
   ///
@@ -231,7 +222,7 @@ class SentryFlutterOptions extends SentryOptions {
   /// available in the Flutter environment. This way you get more detailed
   /// information where available.
   void enableBreadcrumbTrackingForCurrentPlatform() {
-    if (isNativeIntegrationAvailableAndEnabled) {
+    if (platformChecker.hasNativeIntegration) {
       useNativeBreadcrumbTracking();
     } else {
       useFlutterBreadcrumbTracking();

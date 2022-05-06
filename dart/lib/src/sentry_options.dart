@@ -22,12 +22,6 @@ import 'version.dart';
 
 /// Sentry SDK options
 class SentryOptions {
-  /// Enables native transport + device info + offline caching.
-  /// Currently Supported Native SDKs are Android, iOS and macOS.
-  /// Defaults to `false`.
-  /// This property is overriden in the sentry_flutter package and Defaults to `true`.
-  bool enableNative = false;
-
   /// Default Log level if not specified Default is DEBUG
   static final SentryLevel _defaultDiagnosticLevel = SentryLevel.debug;
 
@@ -329,9 +323,6 @@ class SentryOptions {
   @internal
   late SentryStackTraceFactory stackTraceFactory =
       SentryStackTraceFactory(this);
-
-  bool get isNativeIntegrationAvailableAndEnabled =>
-      enableNative && platformChecker.hasNativeIntegration;
 }
 
 /// This function is called with an SDK specific event object and can return a modified event

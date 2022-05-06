@@ -25,15 +25,15 @@ class IoEnricherEventProcessor extends EventProcessor {
     // If there's a native integration available, it probably has better
     // information available than Flutter.
 
-    final os = _options.isNativeIntegrationAvailableAndEnabled
+    final os = _options.platformChecker.hasNativeIntegration
         ? null
         : _getOperatingSystem(event.contexts.operatingSystem);
 
-    final device = _options.isNativeIntegrationAvailableAndEnabled
+    final device = _options.platformChecker.hasNativeIntegration
         ? null
         : _getDevice(event.contexts.device);
 
-    final culture = _options.isNativeIntegrationAvailableAndEnabled
+    final culture = _options.platformChecker.hasNativeIntegration
         ? null
         : _getSentryCulture(event.contexts.culture);
 

@@ -6,7 +6,7 @@ import 'package:sentry_flutter/src/version.dart';
 import 'mocks.dart';
 
 void main() {
-  group('$InitNativeSdkIntegration', () {
+  group('$NativeSdkIntegration', () {
     late Fixture fixture;
     setUp(() {
       fixture = Fixture();
@@ -132,7 +132,7 @@ void main() {
       final options = createOptions();
       await sut.call(HubAdapter(), options);
 
-      expect(options.sdk.integrations, ['initNativeSdkIntegration']);
+      expect(options.sdk.integrations, ['nativeSdkIntegration']);
 
       channel.setMethodCallHandler(null);
     });
@@ -167,7 +167,7 @@ SentryFlutterOptions createOptions() {
 }
 
 class Fixture {
-  InitNativeSdkIntegration getSut(MethodChannel channel) {
-    return InitNativeSdkIntegration(channel);
+  NativeSdkIntegration getSut(MethodChannel channel) {
+    return NativeSdkIntegration(channel);
   }
 }

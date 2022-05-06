@@ -325,9 +325,9 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
   }
 }
 
-/// Initializes Sentry's native SDKs (Android and iOS) with options.
-class InitNativeSdkIntegration extends Integration<SentryFlutterOptions> {
-  InitNativeSdkIntegration(this._channel);
+/// Enables Sentry's native SDKs (Android and iOS) with options.
+class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
+  NativeSdkIntegration(this._channel);
 
   final MethodChannel _channel;
   SentryFlutterOptions? _options;
@@ -364,7 +364,7 @@ class InitNativeSdkIntegration extends Integration<SentryFlutterOptions> {
         'sendClientReports': options.sendClientReports,
       });
 
-      options.sdk.addIntegration('initNativeSdkIntegration');
+      options.sdk.addIntegration('nativeSdkIntegration');
     } catch (exception, stackTrace) {
       options.logger(
         SentryLevel.fatal,
