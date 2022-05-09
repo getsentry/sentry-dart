@@ -435,6 +435,9 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
           if let ipAddress = user["ip_address"] as? String {
             userInstance.ipAddress = ipAddress
           }
+          if let extras = user["extras"] as? Dictionary<String, Any?> {
+            userInstance.data = extras
+          }
 
           scope.setUser(userInstance)
         } else {
