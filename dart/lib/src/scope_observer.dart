@@ -1,4 +1,3 @@
-
 import '../sentry.dart';
 
 abstract class ScopeObserver {

@@ -76,6 +76,10 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         case "endNativeFrames":
             endNativeFrames(result: result)
 
+        case "setUser":
+            let arguments = call.arguments as? Dictionary<String, Any?>
+            setUser(user: arguments?["user"] as? Dictionary<String, Any?>, result: result)
+
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -412,5 +416,31 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
       #else
       result(nil)
       #endif
+    }
+
+    private func setUser(user: Dictionary<String, Any?>?, result: @escaping FlutterResult) {
+      SentrySDK.configureScope { scope in
+        if let user = user {
+          let userInstance = User()
+
+          if let email = user["email"] as? String {
+            userInstance.email = email
+          }
+          if let id = user["id"] as? String {
+            userInstance.userId = id
+          }
+          if let username = user["username"] as? String {
+            userInstance.username = username
+          }
+          if let ipAddress = user["ip_address"] as? String {
+            userInstance.ipAddress = ipAddress
+          }
+
+          scope.setUser(userInstance)
+        } else {
+          scope.setUser(nil)
+        }
+        result("")
+      }
     }
 }
