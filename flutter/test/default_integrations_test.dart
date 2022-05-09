@@ -256,6 +256,37 @@ void main() {
     expect(closeCalled, true);
   });
 
+  test('nativeSdkIntegration does not call native sdk when auto init disabled',
+      () async {
+    var methodChannelCalled = false;
+    _channel.setMockMethodCallHandler((MethodCall methodCall) async {
+      methodChannelCalled = true;
+    });
+    fixture.options.autoInitializeNative = false;
+
+    final integration = NativeSdkIntegration(_channel);
+
+    await integration.call(fixture.hub, fixture.options);
+
+    expect(methodChannelCalled, false);
+  });
+
+  test('nativeSdkIntegration does not close native when auto init disabled',
+      () async {
+    var methodChannelCalled = false;
+    _channel.setMockMethodCallHandler((MethodCall methodCall) async {
+      methodChannelCalled = true;
+    });
+    fixture.options.autoInitializeNative = false;
+
+    final integration = NativeSdkIntegration(_channel);
+
+    await integration(fixture.hub, fixture.options);
+    await integration.close();
+
+    expect(methodChannelCalled, false);
+  });
+
   test('loadContextsIntegration adds integration', () async {
     _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
 
