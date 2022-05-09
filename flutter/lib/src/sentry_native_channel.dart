@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 
@@ -19,12 +21,7 @@ class SentryNativeChannel {
           .invokeMapMethod<String, dynamic>('fetchNativeAppStart');
       return (json != null) ? NativeAppStart.fromJson(json) : null;
     } catch (error, stackTrace) {
-      _options.logger(
-        SentryLevel.warning,
-        'Native call `fetchNativeAppStart` failed',
-        exception: error,
-        stackTrace: stackTrace,
-      );
+      _logError('fetchNativeAppStart', error, stackTrace);
       return null;
     }
   }
@@ -33,13 +30,8 @@ class SentryNativeChannel {
     try {
       await _channel.invokeMapMethod<String, dynamic>('beginNativeFrames');
     } catch (error, stackTrace) {
-      _options.logger(
-        SentryLevel.error,
-        'Native call `beginNativeFrames` failed',
-        exception: error,
-        stackTrace: stackTrace,
-      );
-      return null;
+      _logError('beginNativeFrames', error, stackTrace);
+      return;
     }
   }
 
@@ -49,14 +41,29 @@ class SentryNativeChannel {
           'endNativeFrames', {'id': id.toString()});
       return (json != null) ? NativeFrames.fromJson(json) : null;
     } catch (error, stackTrace) {
-      _options.logger(
-        SentryLevel.error,
-        'Native call `endNativeFrames` failed',
-        exception: error,
-        stackTrace: stackTrace,
-      );
+      _logError('endNativeFrames', error, stackTrace);
       return null;
     }
+  }
+
+  FutureOr<void> setUser(SentryUser? user) async {
+    try {
+      await _channel.invokeMethod('setUser', {'user': user?.toJson()});
+    } catch (error, stackTrace) {
+      _logError('setUser', error, stackTrace);
+      return;
+    }
+  }
+
+  // Helper
+
+  void _logError(String nativeMethodName, Object error, StackTrace stackTrace) {
+    _options.logger(
+      SentryLevel.error,
+      'Native call `$nativeMethodName` failed',
+      exception: error,
+      stackTrace: stackTrace,
+    );
   }
 }
 

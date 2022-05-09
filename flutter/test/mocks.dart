@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:mockito/annotations.dart';
 import 'package:sentry/sentry.dart';
@@ -152,6 +154,7 @@ class MockNativeChannel implements SentryNativeChannel {
 
   int numberOfBeginNativeFramesCalls = 0;
   int numberOfEndNativeFramesCalls = 0;
+  int numberOfSetUserCalls = 0;
 
   @override
   Future<NativeAppStart?> fetchNativeAppStart() async => nativeAppStart;
@@ -167,5 +170,10 @@ class MockNativeChannel implements SentryNativeChannel {
     this.id = id;
     numberOfEndNativeFramesCalls += 1;
     return nativeFrames;
+  }
+
+  @override
+  FutureOr<void> setUser(SentryUser? user) {
+    numberOfSetUserCalls = 0;
   }
 }

@@ -7,6 +7,7 @@ import 'package:http/http.dart';
 import '../sentry.dart';
 import 'client_reports/client_report_recorder.dart';
 import 'client_reports/noop_client_report_recorder.dart';
+import 'scope_observer.dart';
 import 'sentry_exception_factory.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'diagnostic_logger.dart';
@@ -260,6 +261,17 @@ class SentryOptions {
 
   /// Send statistics to sentry when the client drops events.
   bool sendClientReports = true;
+
+  /// If enabled, scope observers will be called when mutating scope.
+  bool enableScopeSync = true;
+
+  final List<ScopeObserver> _scopeObservers = [];
+
+  List<ScopeObserver> get scopeObservers => _scopeObservers;
+
+  void addScopeObserver(ScopeObserver scopeObserver) {
+    _scopeObservers.add(scopeObserver);
+  }
 
   @internal
   late ClientReportRecorder recorder = NoOpClientReportRecorder();

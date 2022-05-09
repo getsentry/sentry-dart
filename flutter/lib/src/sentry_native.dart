@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:meta/meta.dart';
 
 import '../sentry_flutter.dart';
@@ -48,6 +50,12 @@ class SentryNative {
 
   Future<NativeFrames?> endNativeFramesCollection(SentryId traceId) async {
     return await _nativeChannel?.endNativeFrames(traceId);
+  }
+
+  // Scope
+
+  FutureOr<void> setUser(SentryUser? sentryUser) async {
+    return await _nativeChannel?.setUser(sentryUser);
   }
 
   /// Reset state

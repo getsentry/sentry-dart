@@ -22,6 +22,7 @@ import io.sentry.android.core.SentryAndroidOptions
 import io.sentry.protocol.DebugImage
 import io.sentry.protocol.SdkVersion
 import io.sentry.protocol.SentryId
+import io.sentry.protocol.User;
 import java.io.File
 import java.lang.ref.WeakReference
 import java.util.Locale
@@ -51,6 +52,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       "fetchNativeAppStart" -> fetchNativeAppStart(result)
       "beginNativeFrames" -> beginNativeFrames(result)
       "endNativeFrames" -> endNativeFrames(call.argument("id"), result)
+      "setUser" -> setUser(call.argument("user"), result)
       else -> result.notImplemented()
     }
   }
@@ -224,6 +226,27 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         "frozenFrames" to frozen
       )
       result.success(frames)
+    }
+  }
+
+  private fun setUser(user: Map<String, Any?>?, result: Result) {
+    Sentry.configureScope { scope ->
+      if (user == null) {
+        scope.user = null
+      } else {
+        val userInstance = User()
+
+        (user["email"] as? String)?.let { userInstance.email = it }
+        (user["id"] as? String)?.let { userInstance.id = it }
+        (user["username"] as? String)?.let { userInstance.username = it }
+        (user["ip_address"] as? String)?.let { userInstance.ipAddress = it }
+
+        // TODO Extras
+
+        scope.user = userInstance
+      }
+
+      result.success("")
     }
   }
 

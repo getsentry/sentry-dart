@@ -6,6 +6,7 @@ import 'package:meta/meta.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
 import 'event_processor/android_platform_exception_event_processor.dart';
+import 'native_scope_observer.dart';
 import 'sentry_native.dart';
 import 'sentry_native_channel.dart';
 
@@ -84,6 +85,7 @@ mixin SentryFlutter {
     if (options.platformChecker.platform.isAndroid) {
       options
           .addEventProcessor(AndroidPlatformExceptionEventProcessor(options));
+      options.addScopeObserver(NativeScopeObserver(SentryNative()));
     }
 
     _setSdk(options);

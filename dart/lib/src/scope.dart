@@ -46,8 +46,20 @@ class Scope {
     }
   }
 
-  /// Information about the current user.
-  SentryUser? user;
+  SentryUser? _user;
+
+  /// Get the current user.
+  SentryUser? get user => _user;
+
+  /// Set the current user.
+  set user(SentryUser? user) {
+    _user = user;
+    if (_options.enableScopeSync) {
+      _options.scopeObservers.forEach((scopeObserver) {
+        scopeObserver.setUser(user);
+      });
+    }
+  }
 
   List<String> _fingerprint = [];
 
