@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:meta/meta.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
 import 'event_processor/android_platform_exception_event_processor.dart';
@@ -29,9 +30,9 @@ mixin SentryFlutter {
   static Future<void> init(
     FlutterOptionsConfiguration optionsConfiguration, {
     AppRunner? appRunner,
-    PackageLoader packageLoader = _loadPackageInfo,
-    MethodChannel channel = _channel,
-    PlatformChecker? platformChecker,
+    @internal PackageLoader packageLoader = _loadPackageInfo,
+    @internal MethodChannel channel = _channel,
+    @internal PlatformChecker? platformChecker,
   }) async {
     final flutterOptions = SentryFlutterOptions();
 
