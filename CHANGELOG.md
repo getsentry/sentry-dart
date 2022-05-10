@@ -2,9 +2,11 @@
 
 ## Unreleased
 
-- Attach Isolate name to thread context (#847)
+- Feat: Attach Isolate name to thread context (#847)
+- Feat: Add Android thread to platform stacktraces (#853)
 
 ## 6.6.0-alpha.2
+
 - Fix serialization of threads (#844)
 - Feat: Allow manual init of the Native SDK (#765)
 
