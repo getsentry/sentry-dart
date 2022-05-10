@@ -82,7 +82,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
         case "addBreadcrumb":
             let arguments = call.arguments as? Dictionary<String, Any?>
-            addBreadcrumb(user: arguments?["breadcrumb"] as? Dictionary<String, Any?>, result: result)
+            addBreadcrumb(breadcrumb: arguments?["breadcrumb"] as? Dictionary<String, Any?>, result: result)
 
         default:
             result(FlutterMethodNotImplemented)
@@ -457,37 +457,41 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         return
       }
 
-      let breadcrumbInstance = Breadcrumb()
+      SentrySDK.configureScope { scope in
+        let breadcrumbInstance = Breadcrumb()
 
-      if let message = breadcrumb["message"] as? String {
-        breadcrumbInstance.message = message
-      }
-      if let type = breadcrumb["type"] as? String {
-        breadcrumbInstance.type = type
-      }
-      if let category = breadcrumb["category"] as? String {
-        breadcrumbInstance.category = category
-      }
-      if let level = breadcrumb["level"] as? String {
-        switch level {
-            case "fatal":
-              breadcrumbInstance.level = SentryLevel.fatal
-            case "warning":
-              breadcrumbInstance.level = SentryLevel.warning
-            case "info":
-              breadcrumbInstance.level = SentryLevel.info
-            case "debug":
-              breadcrumbInstance.level = SentryLevel.debug
-            case "error":
-              breadcrumbInstance.level = SentryLevel.error
-            default:
-              breadcrumbInstance.level = SentryLevel.error
+        if let message = breadcrumb["message"] as? String {
+          breadcrumbInstance.message = message
         }
-      }
-      if let data = breadcrumb["data"] as? Dictionary<String, Any?> {
-        breadcrumbInstance.data = data
-      }
+        if let type = breadcrumb["type"] as? String {
+          breadcrumbInstance.type = type
+        }
+        if let category = breadcrumb["category"] as? String {
+          breadcrumbInstance.category = category
+        }
+        if let level = breadcrumb["level"] as? String {
+          switch level {
+              case "fatal":
+                breadcrumbInstance.level = SentryLevel.fatal
+              case "warning":
+                breadcrumbInstance.level = SentryLevel.warning
+              case "info":
+                breadcrumbInstance.level = SentryLevel.info
+              case "debug":
+                breadcrumbInstance.level = SentryLevel.debug
+              case "error":
+                breadcrumbInstance.level = SentryLevel.error
+              default:
+                breadcrumbInstance.level = SentryLevel.error
+          }
+        }
+        if let data = breadcrumb["data"] as? Dictionary<String, Any?> {
+          breadcrumbInstance.data = data
+        }
 
-      result("")
+        scope.add(breadcrumbInstance)
+
+        result("")
+      }
     }
 }
