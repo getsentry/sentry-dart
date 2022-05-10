@@ -262,7 +262,7 @@ void main() {
     _channel.setMockMethodCallHandler((MethodCall methodCall) async {
       methodChannelCalled = true;
     });
-    fixture.options.autoInitializeNative = false;
+    fixture.options.autoInitializeNativeSdk = false;
 
     final integration = NativeSdkIntegration(_channel);
 
@@ -277,7 +277,7 @@ void main() {
     _channel.setMockMethodCallHandler((MethodCall methodCall) async {
       methodChannelCalled = true;
     });
-    fixture.options.autoInitializeNative = false;
+    fixture.options.autoInitializeNativeSdk = false;
 
     final integration = NativeSdkIntegration(_channel);
 

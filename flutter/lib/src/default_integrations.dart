@@ -335,7 +335,7 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) async {
     _options = options;
-    if (!options.autoInitializeNative) {
+    if (!options.autoInitializeNativeSdk) {
       return;
     }
     try {
@@ -381,7 +381,7 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
   @override
   FutureOr<void> close() async {
     final options = _options;
-    if (options != null && !options.autoInitializeNative) {
+    if (options != null && !options.autoInitializeNativeSdk) {
       return;
     }
     try {
