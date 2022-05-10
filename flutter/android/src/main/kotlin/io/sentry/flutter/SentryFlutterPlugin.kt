@@ -57,6 +57,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       "addBreadcrumb" -> addBreadcrumb(call.argument("breadcrumb"), result)
       "clearBreadcrumbs" -> clearBreadcrumbs(result)
       "setExtra" -> setExtra(call.argument("key"), call.argument("value"), result)
+      "setTag" -> setTag(call.argument("key"), call.argument("value"), result)
       else -> result.notImplemented()
     }
   }
@@ -310,6 +311,18 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
     Sentry.configureScope { scope ->
       scope.setExtra(key, value)
+
+      result.success("")
+    }
+  }
+
+  private fun setTag(key: String?, value: String?, result: Result) {
+    if (key == null || value == null) {
+      result.success("")
+      return
+    }
+    Sentry.configureScope { scope ->
+      scope.setTag(key, value)
 
       result.success("")
     }

@@ -82,6 +82,15 @@ class SentryNativeChannel {
     }
   }
 
+  FutureOr<void> setTag(String key, dynamic value) async {
+    try {
+      await _channel.invokeMethod('setTag', {'key': key, 'value': value});
+    } catch (error, stackTrace) {
+      _logError('setTag', error, stackTrace);
+      return;
+    }
+  }
+
   // Helper
 
   void _logError(String nativeMethodName, Object error, StackTrace stackTrace) {

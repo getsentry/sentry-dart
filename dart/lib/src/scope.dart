@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import '../sentry.dart';
 import 'sentry_attachment/sentry_attachment.dart';
 import 'event_processor.dart';
 import 'protocol.dart';
@@ -54,11 +55,7 @@ class Scope {
   /// Set the current user.
   set user(SentryUser? user) {
     _user = user;
-    if (_options.enableScopeSync) {
-      _options.scopeObservers.forEach((scopeObserver) {
-        scopeObserver.setUser(user);
-      });
-    }
+    callScopeObservers((scopeObserver) => scopeObserver.setUser(user));
   }
 
   List<String> _fingerprint = [];
@@ -164,11 +161,7 @@ class Scope {
 
     _breadcrumbs.add(breadcrumb);
 
-    if (_options.enableScopeSync) {
-      _options.scopeObservers.forEach((scopeObserver) {
-        scopeObserver.addBreadcrumb(breadcrumb);
-      });
-    }
+    callScopeObservers((scopeObserver) => scopeObserver.addBreadcrumb(breadcrumb));
   }
 
   void addAttachment(SentryAttachment attachment) {
@@ -182,11 +175,7 @@ class Scope {
   /// Clear all the breadcrumbs
   void clearBreadcrumbs() {
     _breadcrumbs.clear();
-    if (_options.enableScopeSync) {
-      _options.scopeObservers.forEach((scopeObserver) {
-        scopeObserver.clearBreadcrumbs();
-      });
-    }
+    callScopeObservers((scopeObserver) => scopeObserver.clearBreadcrumbs());
   }
 
   /// Adds an event processor
@@ -211,6 +200,7 @@ class Scope {
   /// Sets a tag to the Scope
   void setTag(String key, String value) {
     _tags[key] = value;
+    callScopeObservers((scopeObserver) => scopeObserver.setTag(key, value));
   }
 
   /// Removes a tag from the Scope
@@ -221,11 +211,7 @@ class Scope {
   /// Sets an extra to the Scope
   void setExtra(String key, dynamic value) {
     _extra[key] = value;
-    if (_options.enableScopeSync) {
-      _options.scopeObservers.forEach((scopeObserver) {
-        scopeObserver.setExtra(key, value);
-      });
-    }
+    callScopeObservers((scopeObserver) => scopeObserver.setExtra(key, value));
   }
 
   /// Removes an extra from the Scope
@@ -343,6 +329,12 @@ class Scope {
       map.putIfAbsent(value.key, () => value.value);
     }
     return map;
+  }
+
+  void callScopeObservers(Function (ScopeObserver) action) {
+    if (_options.enableScopeSync) {
+      _options.scopeObservers.forEach(action);
+    }
   }
 
   /// Clones the current Scope

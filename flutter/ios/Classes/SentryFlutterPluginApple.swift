@@ -95,6 +95,12 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             let value = arguments?["value"] as? Any
             setExtra(key: key, value: value, result: result)
 
+        case "setTag":
+            let arguments = call.arguments as? Dictionary<String, Any?>
+            let key = arguments?["key"] as? String
+            let value = arguments?["value"] as? Any
+            setTag(key: key, value: value, result: result)
+
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -521,6 +527,18 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
       }
       SentrySDK.configureScope { scope in
         scope.setExtra(value: value, key: key)
+
+        result("")
+      }
+    }
+
+    private func setTag(key: String?, value: String?, result: @escaping FlutterResult) {
+      guard let key = key, let value = value else {
+        result("")
+        return
+      }
+      SentrySDK.configureScope { scope in
+        scope.setTag(value: value, key: key)
 
         result("")
       }
