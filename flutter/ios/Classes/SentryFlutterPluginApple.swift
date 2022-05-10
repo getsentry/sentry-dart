@@ -78,11 +78,22 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
         case "setUser":
             let arguments = call.arguments as? Dictionary<String, Any?>
-            setUser(user: arguments?["user"] as? Dictionary<String, Any?>, result: result)
+            let user = arguments?["user"] as? Dictionary<String, Any?>
+            setUser(user: user, result: result)
 
         case "addBreadcrumb":
             let arguments = call.arguments as? Dictionary<String, Any?>
-            addBreadcrumb(breadcrumb: arguments?["breadcrumb"] as? Dictionary<String, Any?>, result: result)
+            let breadcrumb = arguments?["breadcrumb"] as? Dictionary<String, Any?>
+            addBreadcrumb(breadcrumb: breadcrumb, result: result)
+
+        case "clearBreadcrumbs":
+            clearBreadcrumbs(result: result)
+
+        case "setExtra":
+            let arguments = call.arguments as? Dictionary<String, Any?>
+            let key = arguments?["key"] as? String
+            let value = arguments?["value"] as? Any
+            setExtra(key: key, value: value, result: result)
 
         default:
             result(FlutterMethodNotImplemented)
@@ -490,6 +501,26 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         }
 
         scope.add(breadcrumbInstance)
+
+        result("")
+      }
+    }
+
+    private func clearBreadcrumbs(result: @escaping FlutterResult) {
+      SentrySDK.configureScope { scope in
+        scope.clearBreadcrumbs()
+
+        result("")
+      }
+    }
+
+    private func setExtra(key: String?, value: Any?, result: @escaping FlutterResult) {
+      guard let key = key else {
+        result("")
+        return
+      }
+      SentrySDK.configureScope { scope in
+        scope.setExtra(value: value, key: key)
 
         result("")
       }

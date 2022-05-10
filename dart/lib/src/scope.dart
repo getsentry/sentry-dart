@@ -182,6 +182,11 @@ class Scope {
   /// Clear all the breadcrumbs
   void clearBreadcrumbs() {
     _breadcrumbs.clear();
+    if (_options.enableScopeSync) {
+      _options.scopeObservers.forEach((scopeObserver) {
+        scopeObserver.clearBreadcrumbs();
+      });
+    }
   }
 
   /// Adds an event processor
@@ -216,6 +221,11 @@ class Scope {
   /// Sets an extra to the Scope
   void setExtra(String key, dynamic value) {
     _extra[key] = value;
+    if (_options.enableScopeSync) {
+      _options.scopeObservers.forEach((scopeObserver) {
+        scopeObserver.setExtra(key, value);
+      });
+    }
   }
 
   /// Removes an extra from the Scope

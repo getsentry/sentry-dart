@@ -64,6 +64,24 @@ class SentryNativeChannel {
     }
   }
 
+  FutureOr<void> clearBreadcrumbs() async {
+    try {
+      await _channel.invokeMethod('clearBreadcrumbs');
+    } catch (error, stackTrace) {
+      _logError('clearBreadcrumbs', error, stackTrace);
+      return;
+    }
+  }
+
+  FutureOr<void> setExtra(String key, dynamic value) async {
+    try {
+      await _channel.invokeMethod('setExtra', {'key': key, 'value': value});
+    } catch (error, stackTrace) {
+      _logError('setExtra', error, stackTrace);
+      return;
+    }
+  }
+
   // Helper
 
   void _logError(String nativeMethodName, Object error, StackTrace stackTrace) {

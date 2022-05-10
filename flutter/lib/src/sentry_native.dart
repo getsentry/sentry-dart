@@ -62,6 +62,14 @@ class SentryNative {
     return await _nativeChannel?.addBreadcrumb(breadcrumb);
   }
 
+  FutureOr<void> clearBreadcrumbs() async {
+    return await _nativeChannel?.clearBreadcrumbs();
+  }
+
+  FutureOr<void> setExtra(String key, dynamic value) async {
+    return await _nativeChannel?.setExtra(key, value);
+  }
+
   /// Reset state
   void reset() {
     appStartEnd = null;

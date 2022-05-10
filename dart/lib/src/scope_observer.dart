@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import '../sentry.dart';
 
 abstract class ScopeObserver {
-  void setUser(SentryUser? user);
-  void addBreadcrumb(Breadcrumb breadcrumb);
+  FutureOr<void> setUser(SentryUser? user);
+  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb);
+  FutureOr<void> clearBreadcrumbs();
+  FutureOr<void> setExtra(String key, dynamic value);
 }

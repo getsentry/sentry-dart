@@ -55,6 +55,8 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       "endNativeFrames" -> endNativeFrames(call.argument("id"), result)
       "setUser" -> setUser(call.argument("user"), result)
       "addBreadcrumb" -> addBreadcrumb(call.argument("breadcrumb"), result)
+      "clearBreadcrumbs" -> clearBreadcrumbs(result)
+      "setExtra" -> setExtra(call.argument("key"), call.argument("value"), result)
       else -> result.notImplemented()
     }
   }
@@ -288,6 +290,28 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       }
 
       scope.addBreadcrumb(breadcrumbInstance)
+
+      result.success("")
+    }
+  }
+
+  private fun clearBreadcrumbs(result: Result) {
+    Sentry.configureScope { scope ->
+      scope.clearBreadcrumbs()
+
+      result.success("")
+    }
+  }
+
+  private fun setExtra(key: String?, value: String?, result: Result) {
+    if (key == null || value == null) {
+      result.success("")
+      return
+    }
+    Sentry.configureScope { scope ->
+      scope.setExtra(key, value)
+
+      result.success("")
     }
   }
 

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:sentry/sentry.dart';
 
 import 'sentry_native.dart';
@@ -8,12 +10,22 @@ class NativeScopeObserver implements ScopeObserver {
   final SentryNative _sentryNative;
 
   @override
-  void setUser(SentryUser? user) {
-    _sentryNative.setUser(user);
+  FutureOr<void> setUser(SentryUser? user) async {
+    await _sentryNative.setUser(user);
   }
 
   @override
-  void addBreadcrumb(Breadcrumb breadcrumb) {
-    _sentryNative.addBreadcrumb(breadcrumb);
+  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) async {
+    await _sentryNative.addBreadcrumb(breadcrumb);
+  }
+
+  @override
+  FutureOr<void> clearBreadcrumbs() async {
+    await _sentryNative.clearBreadcrumbs();
+  }
+
+  @override
+  FutureOr<void> setExtra(String key, dynamic value) async {
+    await _sentryNative.setExtra(key, value);
   }
 }
