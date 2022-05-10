@@ -58,6 +58,10 @@ class SentryNative {
     return await _nativeChannel?.setUser(sentryUser);
   }
 
+  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) async {
+    return await _nativeChannel?.addBreadcrumb(breadcrumb);
+  }
+
   /// Reset state
   void reset() {
     appStartEnd = null;

@@ -11,4 +11,9 @@ class NativeScopeObserver implements ScopeObserver {
   void setUser(SentryUser? user) {
     _sentryNative.setUser(user);
   }
+
+  @override
+  void addBreadcrumb(Breadcrumb breadcrumb) {
+    _sentryNative.addBreadcrumb(breadcrumb);
+  }
 }

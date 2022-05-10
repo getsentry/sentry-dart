@@ -10,6 +10,7 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
+import io.sentry.Breadcrumb;
 import io.sentry.HubAdapter
 import io.sentry.Sentry
 import io.sentry.SentryEvent
@@ -53,6 +54,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       "beginNativeFrames" -> beginNativeFrames(result)
       "endNativeFrames" -> endNativeFrames(call.argument("id"), result)
       "setUser" -> setUser(call.argument("user"), result)
+      "addBreadcrumb" -> addBreadcrumb(call.argument("breadcrumb"), result)
       else -> result.notImplemented()
     }
   }
@@ -255,6 +257,37 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       }
 
       result.success("")
+    }
+  }
+
+  private fun addBreadcrumb(breadcrumb: Map<String, Any?>?, result: Result) {
+    if (breadcrumb == null) {
+      result.success("")
+      return
+    }
+    Sentry.configureScope { scope ->
+      val breadcrumbInstance = Breadcrumb()
+
+      (breadcrumb["message"] as? String)?.let { breadcrumbInstance.message = it }
+      (breadcrumb["type"] as? String)?.let { breadcrumbInstance.type = it }
+      (breadcrumb["category"] as? String)?.let { breadcrumbInstance.category = it }
+      (breadcrumb["level"] as? String)?.let {
+        breadcrumbInstance.level = when (it) {
+          "fatal" -> SentryLevel.FATAL
+          "warning" -> SentryLevel.WARNING
+          "info" -> SentryLevel.INFO
+          "debug" -> SentryLevel.DEBUG
+          "error" -> SentryLevel.ERROR
+          else -> SentryLevel.ERROR
+        }
+      }
+      (breadcrumb["data"] as? Map<String, Any?>)?.let { data ->
+        data.forEach { key, value ->
+          breadcrumbInstance.data[key] = value
+        }
+      }
+
+      scope.addBreadcrumb(breadcrumbInstance)
     }
   }
 

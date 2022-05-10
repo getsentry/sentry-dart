@@ -163,6 +163,12 @@ class Scope {
     }
 
     _breadcrumbs.add(breadcrumb);
+
+    if (_options.enableScopeSync) {
+      _options.scopeObservers.forEach((scopeObserver) {
+        scopeObserver.addBreadcrumb(breadcrumb);
+      });
+    }
   }
 
   void addAttachment(SentryAttachment attachment) {
