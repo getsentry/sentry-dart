@@ -17,7 +17,7 @@ class SentryFlutterOptions extends SentryOptions {
   /// NOTE: Be careful and only use this if you know what you are doing.
   /// If you use this flag, make sure a native SDK is running before the Flutter Engine initializes or events might not be captured.
   /// Defaults to `true`.
-  bool autoInitializeNative = true;
+  bool autoInitializeNativeSdk = true;
 
   /// Enable or disable reporting of used packages.
   bool reportPackages = true;
