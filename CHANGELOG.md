@@ -3,6 +3,7 @@
 ## Unreleased
 
 * Feat: Add Android thread to platform stacktraces (#853)
+* Fix: Rename auto initialize property (#857)
 
 ## 6.6.0-alpha.2
 
