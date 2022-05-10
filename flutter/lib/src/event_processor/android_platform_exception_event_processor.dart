@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:isolate';
 
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -7,6 +8,8 @@ import '../jvm/jvm_exception.dart';
 import '../jvm/jvm_frame.dart';
 
 /// Transforms an Android PlatformException to a human readable SentryException
+// Relevant links:
+// - https://docs.flutter.dev/development/platform-integration/platform-channels?tab=ios-channel-objective-c-tab#channels-and-platform-threading
 class AndroidPlatformExceptionEventProcessor implements EventProcessor {
   const AndroidPlatformExceptionEventProcessor(this._options);
 
@@ -62,12 +65,43 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
       exception,
     );
 
-    return event.copyWith(
-      exceptions: [
-        ...?exceptions,
-        ...jvmException,
-      ],
-    );
+    final threads = _markDartThreadsAsNonCrashed(event.threads);
+
+    final jvmExceptions = jvmException.map((e) => e.key);
+
+    var jvmThreads = jvmException.map((e) => e.value).toList(growable: false);
+    if (jvmThreads.isNotEmpty) {
+      // filter potential duplicated threads
+      final first = jvmThreads.first;
+      jvmThreads = jvmThreads
+          .skip(1)
+          .where((element) => element.id != first.id)
+          .toList(growable: true);
+      jvmThreads.add(first);
+    }
+
+    return event.copyWith(exceptions: [
+      ...?exceptions,
+      ...jvmExceptions,
+    ], threads: [
+      ...?threads,
+      if (_options.attachThreads) ...jvmThreads,
+    ]);
+  }
+
+  /// If the crash originated on Android, the Dart side didn't crash.
+  /// Mark it accordingly.
+  List<SentryThread>? _markDartThreadsAsNonCrashed(
+    List<SentryThread>? threads,
+  ) {
+    return threads
+        ?.map((e) => e.copyWith(
+              crashed: false,
+              // Isolate is safe to use directly,
+              // because Android is only run in the dart:io context.
+              current: e.name == Isolate.current.debugName,
+            ))
+        .toList(growable: false);
   }
 
   /// Remove the StackTrace from [PlatformException] so the message on Sentry
@@ -122,7 +156,8 @@ class _JvmExceptionFactory {
 
   final String nativePackageName;
 
-  List<SentryException> fromJvmStackTrace(String exceptionAsString) {
+  List<MapEntry<SentryException, SentryThread>> fromJvmStackTrace(
+      String exceptionAsString) {
     final jvmException = JvmException.parse(exceptionAsString);
     final jvmExceptions = <JvmException>[
       jvmException,
@@ -137,7 +172,8 @@ class _JvmExceptionFactory {
 }
 
 extension on JvmException {
-  SentryException toSentryException(String nativePackageName) {
+  MapEntry<SentryException, SentryThread> toSentryException(
+      String nativePackageName) {
     String? exceptionType;
     String? module;
     final typeParts = type?.split('.');
@@ -152,7 +188,7 @@ extension on JvmException {
       return entry.value.toSentryStackFrame(entry.key, nativePackageName);
     }).toList(growable: false);
 
-    return SentryException(
+    var exception = SentryException(
       value: description,
       type: exceptionType,
       module: module,
@@ -160,6 +196,28 @@ extension on JvmException {
         frames: stackFrames.reversed.toList(growable: false),
       ),
     );
+
+    String threadName;
+    if (thread != null) {
+      // Needs to be prefixed with 'Android', otherwise this thread id might
+      // clash with isolate names from the Dart side.
+      threadName = 'Android: $thread';
+    } else {
+      // If there's no thread in the exception, we just indicate that it's
+      // from Android
+      threadName = 'Android';
+    }
+    final threadId = threadName.hashCode;
+
+    final sentryThread = SentryThread(
+      crashed: true,
+      current: false,
+      name: threadName,
+      id: threadId,
+    );
+    exception = exception.copyWith(threadId: threadId);
+
+    return MapEntry(exception, sentryThread);
   }
 }
 

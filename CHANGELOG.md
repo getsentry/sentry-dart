@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+* Feat: Add Android thread to platform stacktraces (#853)
+
 ## 6.6.0-alpha.2
 
 - Fix serialization of threads (#844)
