@@ -27,7 +27,6 @@ typedef FlutterOptionsConfiguration = FutureOr<void> Function(
 mixin SentryFlutter {
   static const _channel = MethodChannel('sentry_flutter');
 
-  /// Initializes the SDK
   static Future<void> init(
     FlutterOptionsConfiguration optionsConfiguration, {
     AppRunner? appRunner,
@@ -115,13 +114,15 @@ mixin SentryFlutter {
     }
 
     // Will enrich events with device context, native packages and integrations
-    if (!options.platformChecker.isWeb &&
+    if (options.platformChecker.hasNativeIntegration &&
+        !options.platformChecker.isWeb &&
         (options.platformChecker.platform.isIOS ||
             options.platformChecker.platform.isMacOS)) {
       integrations.add(LoadContextsIntegration(channel));
     }
 
-    if (!options.platformChecker.isWeb &&
+    if (options.platformChecker.hasNativeIntegration &&
+        !options.platformChecker.isWeb &&
         options.platformChecker.platform.isAndroid) {
       integrations.add(LoadAndroidImageListIntegration(channel));
     }

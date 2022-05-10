@@ -1,9 +1,10 @@
 # Changelog
 
-## Unreleased
+## 6.6.0-alpha.2
 
 * Feat: Add Android thread to platform stacktraces (#853)
 - Fix serialization of threads (#844)
+- Feat: Allow manual init of the Native SDK (#765)
 
 ## 6.6.0-alpha.1
 
@@ -68,7 +69,7 @@
 * Fix: Disable log by default in debug mode (#753)
 * [Dio] Ref: Replace FailedRequestAdapter with FailedRequestInterceptor (#728)
 * Fix: Add missing return values - dart analyzer (#742)
-* Feature: Add `DioEventProcessor` which improves DioError crash reports (#718)
+* Feat: Add `DioEventProcessor` which improves DioError crash reports (#718)
 * Fix: Do not report duplicated packages and integrations (#760)
 * Feat: Allow manual init of the Native SDK or no Native SDK at all (#765)
 

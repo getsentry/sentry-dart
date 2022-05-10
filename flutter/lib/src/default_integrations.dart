@@ -325,7 +325,7 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
   }
 }
 
-/// Enables Sentry's native SDKs (Android and iOS)
+/// Enables Sentry's native SDKs (Android and iOS) with options.
 class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
   NativeSdkIntegration(this._channel);
 
@@ -335,6 +335,9 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) async {
     _options = options;
+    if (!options.autoInitializeNative) {
+      return;
+    }
     try {
       await _channel.invokeMethod<void>('initNativeSdk', <String, dynamic>{
         'dsn': options.dsn,
@@ -377,6 +380,10 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
 
   @override
   FutureOr<void> close() async {
+    final options = _options;
+    if (options != null && !options.autoInitializeNative) {
+      return;
+    }
     try {
       await _channel.invokeMethod<void>('closeNativeSdk');
     } catch (exception, stackTrace) {
