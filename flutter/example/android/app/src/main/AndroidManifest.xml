@@ -42,5 +42,7 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
+        <meta-data android:name="io.sentry.traces.profiling.enable" android:value="true" />
     </application>
 </manifest>

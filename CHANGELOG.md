@@ -14,6 +14,7 @@
 
 * Feat: Client Reports (#829)
 * Fix: Add missing iOS contexts (#761)
+* Feat: Pass the enableProfiling configuration through to the native SDK (#851)
 
 ### Sentry Self-hosted Compatibility
 

@@ -179,6 +179,11 @@ class SentryFlutterOptions extends SentryOptions {
   /// [SentryFlutter.setAppStartEnd].
   bool autoAppStart = true;
 
+  /// Enable capturing CPU profiles alongside transactions.
+  /// Only available on iOS and Android. This is currently a beta feature that is
+  /// not available to all Sentry customers.
+  bool enableProfiling = false;
+
   /// By using this, you are disabling native [Breadcrumb] tracking and instead
   /// you are just tracking [Breadcrumb]s which result from events available
   /// in the current Flutter environment.

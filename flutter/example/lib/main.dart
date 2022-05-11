@@ -26,6 +26,7 @@ Future<void> main() async {
       options.reportPackages = false;
       options.addInAppInclude('sentry_flutter_example');
       options.considerInAppFramesByDefault = false;
+      options.enableProfiling = true;
     },
     // Init your App.
     appRunner: () => runApp(
@@ -374,6 +375,18 @@ class AndroidExample extends StatelessWidget {
           await execute('platform_exception');
         },
         child: const Text('Platform exception'),
+      ),
+      ElevatedButton(
+        onPressed: () async {
+          await execute('startProfiling');
+        },
+        child: const Text('Start native profiling'),
+      ),
+      ElevatedButton(
+        onPressed: () async {
+          await execute('stopProfiling');
+        },
+        child: const Text('Stop native profiling'),
       ),
     ]);
   }
