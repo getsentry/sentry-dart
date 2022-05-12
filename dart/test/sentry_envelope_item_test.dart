@@ -27,10 +27,8 @@ void main() {
       final sut = SentryEnvelopeItem(header, dataFactory);
 
       final headerJson = await header.toJson();
-      final headerJsonEncoded = jsonEncode(
-        headerJson,
-        toEncodable: jsonSerializationFallback,
-      );
+      final headerJsonEncoded = utf8JsonEncoder.convert(headerJson);
+
       final expected = utf8.encode('$headerJsonEncoded\n{fixture}');
 
       final actualItem = await sut.envelopeItemStream();
@@ -43,10 +41,8 @@ void main() {
       final sentryEvent = SentryEvent(eventId: eventId);
       final sut = SentryEnvelopeItem.fromEvent(sentryEvent);
 
-      final expectedData = utf8.encode(jsonEncode(
-        sentryEvent.toJson(),
-        toEncodable: jsonSerializationFallback,
-      ));
+      final expectedData = utf8JsonEncoder.convert(sentryEvent.toJson());
+
       final actualData = await sut.dataFactory();
 
       final expectedLength = expectedData.length;
@@ -71,10 +67,8 @@ void main() {
 
       final sut = SentryEnvelopeItem.fromTransaction(tr);
 
-      final expectedData = utf8.encode(jsonEncode(
-        tr.toJson(),
-        toEncodable: jsonSerializationFallback,
-      ));
+      final expectedData = utf8JsonEncoder.convert(tr.toJson());
+
       final actualData = await sut.dataFactory();
 
       final expectedLength = expectedData.length;
@@ -96,10 +90,8 @@ void main() {
 
       final sut = SentryEnvelopeItem.fromClientReport(cr);
 
-      final expectedData = utf8.encode(jsonEncode(
-        cr.toJson(),
-        toEncodable: jsonSerializationFallback,
-      ));
+      final expectedData = utf8JsonEncoder.convert(cr.toJson());
+
       final actualData = await sut.dataFactory();
 
       final expectedLength = expectedData.length;

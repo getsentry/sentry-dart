@@ -31,10 +31,8 @@ void main() {
       final sut = SentryEnvelope(header, [item, item]);
 
       final expectedHeaderJson = header.toJson();
-      final expectedHeaderJsonSerialized = jsonEncode(
-        expectedHeaderJson,
-        toEncodable: jsonSerializationFallback,
-      );
+      final expectedHeaderJsonSerialized =
+          utf8JsonEncoder.convert(expectedHeaderJson);
 
       final expectedItem = await item.envelopeItemStream();
       final expectedItemSerialized = utf8.decode(expectedItem);
