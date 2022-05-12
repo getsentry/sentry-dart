@@ -1,4 +1,4 @@
-include: package:pedantic/analysis_options.yaml
+include: package:lints/recommended.yaml
 
 analyzer:
   exclude:
@@ -18,3 +18,6 @@ linter:
   rules:
     prefer_relative_imports: true
     unnecessary_brace_in_string_interps: true
+    prefer_function_declarations_over_variables: false
+    no_leading_underscores_for_local_identifiers: false
+    avoid_renaming_method_parameters: false

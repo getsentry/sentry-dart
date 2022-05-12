@@ -265,8 +265,11 @@ class Scope {
   }
 
   /// Merge the scope contexts runtimes and the event contexts runtimes.
-  void _mergeEventContextsRuntimes(List value, SentryEvent event) =>
-      value.forEach((runtime) => event.contexts.addRuntime(runtime));
+  void _mergeEventContextsRuntimes(List values, SentryEvent event) {
+    for (final runtime in values) {
+      event.contexts.addRuntime(runtime);
+    }
+  }
 
   /// If the scope and the event have tag entries with the same key,
   /// the event tags will be kept.
