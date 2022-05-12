@@ -38,7 +38,7 @@ jobs:
             dart pub get
             dart test -p chrome --test-randomize-ordering-seed=random --chain-stack-traces
             dart test -p vm --coverage=coverage --test-randomize-ordering-seed=random --chain-stack-traces
-            dart pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.packages --report-on=lib
+            dart pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
 
         - uses: codecov/codecov-action@v2
           if: runner.os == 'Linux'
