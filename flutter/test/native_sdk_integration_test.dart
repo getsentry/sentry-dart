@@ -1,3 +1,5 @@
+@TestOn('vm')
+
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -156,7 +158,7 @@ void main() {
 MethodChannel createChannelWithCallback(
   Future<dynamic>? Function(MethodCall call)? handler,
 ) {
-  final channel = const MethodChannel('initNativeSdk');
+  final channel = MethodChannel('initNativeSdk');
   channel.setMockMethodCallHandler(handler);
   return channel;
 }

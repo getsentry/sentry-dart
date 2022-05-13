@@ -21,7 +21,7 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
   @override
   FutureOr<SentryEvent?> apply(SentryEvent event, {dynamic hint}) async {
     final plaformException = event.throwable;
-    if (!(plaformException is PlatformException)) {
+    if (plaformException is! PlatformException) {
       return event;
     }
 

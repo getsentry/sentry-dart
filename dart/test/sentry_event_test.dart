@@ -395,7 +395,7 @@ void main() {
     });
 
     test('serializes to JSON with sentryException', () {
-      var sentryException;
+      SentryException? sentryException;
       try {
         throw StateError('an error');
       } catch (err) {
