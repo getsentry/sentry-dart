@@ -11,7 +11,6 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.sentry.HubAdapter
-import io.sentry.Sentry
 import io.sentry.SentryEvent
 import io.sentry.SentryLevel
 import io.sentry.android.core.ActivityFramesTracker
@@ -270,7 +269,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   private fun closeNativeSdk(result: Result) {
-    Sentry.close()
+    HubAdapter.getInstance().close()
     framesTracker?.stop()
     framesTracker = null
 
