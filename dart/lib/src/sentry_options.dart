@@ -218,7 +218,15 @@ class SentryOptions {
   /// variables. This is useful in tests.
   EnvironmentVariables environmentVariables = EnvironmentVariables.instance();
 
-  /// When enabled, all the threads are automatically attached to all logged events (Android).
+  /// When enabled, the current isolate will be attached to the event.
+  /// This only applies to Dart:io platforms and only the current isolate.
+  /// The Dart runtime doesn't provide information about other active isolates.
+  ///
+  /// When running on web, this option has no effect at all.
+  ///
+  /// When running in the Flutter context, this enables attaching of threads
+  /// for native events, if supported for the native platform.
+  /// Currently, this is only supported on Android.
   bool attachThreads = false;
 
   /// Whether to send personal identifiable information along with events

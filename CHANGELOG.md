@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Attach Isolate name to thread context (#847)
+* Feat: Attach Isolate name to thread context (#847)
 * Feat: Add Android thread to platform stacktraces (#853)
 * Fix: Rename auto initialize property (#857)
 

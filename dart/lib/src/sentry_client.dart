@@ -146,7 +146,7 @@ class SentryClient {
     }
 
     final isolateName = getIsolateName();
-    // isolates have no id, so we use the hashCode as id
+    // Isolates have no id, so the hashCode of the name will be used as id
     final isolateId = isolateName?.hashCode;
 
     if (event.throwableMechanism != null) {
@@ -164,18 +164,24 @@ class SentryClient {
         );
       }
 
-      sentryException = sentryException.copyWith(threadId: isolateId);
+      SentryThread? thread;
 
-      final thread = SentryThread(
-        id: isolateId,
-        name: isolateName,
-        crashed: true,
-        current: true,
-      );
+      if (isolateName != null && _options.attachThreads) {
+        sentryException = sentryException.copyWith(threadId: isolateId);
+        thread = SentryThread(
+          id: isolateId,
+          name: isolateName,
+          crashed: true,
+          current: true,
+        );
+      }
 
       return event.copyWith(
         exceptions: [...?event.exceptions, sentryException],
-        threads: [...?event.threads, thread],
+        threads: [
+          ...?event.threads,
+          if (thread != null) thread,
+        ],
       );
     }
 
