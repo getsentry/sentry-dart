@@ -31,7 +31,7 @@ jobs:
         - uses: dart-lang/setup-dart@v1
           with:
             sdk: ${{ matrix.sdk }}
-        - uses: actions/checkout@v2
+        - uses: actions/checkout@v3
         # coverage with 'chrome' platform hangs the build
         - name: Test (VM and browser)
           run: |
@@ -46,6 +46,7 @@ jobs:
             name: sentry_logging
             file: ./logging/coverage/lcov.info
 
+        # 1.2.1
         - uses: VeryGoodOpenSource/very_good_coverage@feed99cc060453828a8f12e74b404baace8e4502
           if: runner.os == 'Linux'
           with:
@@ -62,7 +63,7 @@ jobs:
       - uses: dart-lang/setup-dart@v1
         with:
           sdk: stable
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: |
           dart pub get
           dart analyze --fatal-infos
@@ -76,7 +77,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: axel-op/dart-package-analyzer@v3
         id: analysis
         with:

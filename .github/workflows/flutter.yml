@@ -50,9 +50,9 @@ jobs:
             channel: beta
 
     steps:
-        - uses: actions/checkout@v2
+        - uses: actions/checkout@v3
 
-        - uses: actions/setup-java@v2
+        - uses: actions/setup-java@v3
           with:
             distribution: 'adopt'
             java-version: '8'
@@ -94,6 +94,7 @@ jobs:
             name: sentry_flutter
             file: ./flutter/coverage/lcov.info
 
+        # 1.2.1
         - uses: VeryGoodOpenSource/very_good_coverage@feed99cc060453828a8f12e74b404baace8e4502
           if: runner.os == 'Linux'
           with:
@@ -133,7 +134,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
       - run: |
           cd flutter
@@ -149,7 +150,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: axel-op/dart-package-analyzer@v3
         id: analysis
         with:
@@ -170,7 +171,7 @@ jobs:
   pod-lint:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       # https://github.com/CocoaPods/CocoaPods/issues/5275#issuecomment-315461879
       - run: pod lib lint flutter/ios/sentry_flutter.podspec --configuration=Debug --skip-import-validation --allow-warnings
       - run: pod lib lint flutter/macos/sentry_flutter.podspec --configuration=Debug --skip-import-validation --allow-warnings
@@ -178,14 +179,14 @@ jobs:
   swift-lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: norio-nomura/action-swiftlint@3.2.1
 
   ktlint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-java@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
         with:
           distribution: 'adopt'
           java-version: '8'
@@ -200,7 +201,8 @@ jobs:
   detekt:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: natiginfo/action-detekt-all@1.19.0
+      - uses: actions/checkout@v3
+      # 1.20.0
+      - uses: natiginfo/action-detekt-all@74990bda6bfc47977e1e06aae9f47f320e7587ce
         with:
           args: -i flutter --baseline flutter/config/detekt-bl.xml

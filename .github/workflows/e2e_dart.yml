@@ -25,7 +25,7 @@ jobs:
         - uses: dart-lang/setup-dart@v1
           with:
             sdk: ${{ matrix.sdk }}
-        - uses: actions/checkout@v2
+        - uses: actions/checkout@v3
         - name: Test
           run: |
             dart pub get
