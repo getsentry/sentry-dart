@@ -42,7 +42,7 @@ jobs:
             dart pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
 
         - name: Install webdev
-          run: dart pub global activate webdev 2.7.7
+          run: dart pub global activate webdev
 
         - name: Build example
           run: |
