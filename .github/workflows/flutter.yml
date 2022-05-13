@@ -77,7 +77,7 @@ jobs:
             flutter pub get
 
         - name: Test chrome
-          if: runner.os != 'macOS'
+          if: runner.os == 'Linux'
           run: |
             cd flutter
             flutter test --platform chrome --test-randomize-ordering-seed=random
