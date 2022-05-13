@@ -39,7 +39,6 @@ class SentryNativeChannel {
         exception: error,
         stackTrace: stackTrace,
       );
-      return null;
     }
   }
 
