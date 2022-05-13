@@ -1,10 +1,18 @@
-minVersion: 0.23.1
+minVersion: 0.29.2
 changelogPolicy: auto
 artifactProvider:
   name: none
 targets:
+  - name: pub-dev
+    packages:
+      dart:
+      flutter:
+      logging:
+      dio:
   - name: github
   - name: registry
     sdks:
       pub:sentry:
       pub:sentry_flutter:
+      pub:sentry_logging:
+      pub:sentry_dio:

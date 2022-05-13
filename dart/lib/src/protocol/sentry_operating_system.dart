@@ -15,6 +15,7 @@ class SentryOperatingSystem {
     this.kernelVersion,
     this.rooted,
     this.rawDescription,
+    this.theme,
   });
 
   /// The name of the operating system.
@@ -40,6 +41,10 @@ class SentryOperatingSystem {
   /// version from this string, if they are not explicitly given.
   final String? rawDescription;
 
+  /// Optional. Either light or dark.
+  /// Describes whether the OS runs in dark mode or not.
+  final String? theme;
+
   /// Deserializes a [SentryOperatingSystem] from JSON [Map].
   factory SentryOperatingSystem.fromJson(Map<String, dynamic> data) =>
       SentryOperatingSystem(
@@ -49,37 +54,20 @@ class SentryOperatingSystem {
         kernelVersion: data['kernel_version'],
         rooted: data['rooted'],
         rawDescription: data['raw_description'],
+        theme: data['theme'],
       );
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{};
-
-    if (name != null) {
-      json['name'] = name;
-    }
-
-    if (version != null) {
-      json['version'] = version;
-    }
-
-    if (build != null) {
-      json['build'] = build;
-    }
-
-    if (kernelVersion != null) {
-      json['kernel_version'] = kernelVersion;
-    }
-
-    if (rooted != null) {
-      json['rooted'] = rooted;
-    }
-
-    if (rawDescription != null) {
-      json['raw_description'] = rawDescription;
-    }
-
-    return json;
+    return <String, dynamic>{
+      if (name != null) 'name': name,
+      if (version != null) 'version': version,
+      if (build != null) 'build': build,
+      if (kernelVersion != null) 'kernel_version': kernelVersion,
+      if (rooted != null) 'rooted': rooted,
+      if (rawDescription != null) 'raw_description': rawDescription,
+      if (theme != null) 'theme': theme,
+    };
   }
 
   SentryOperatingSystem clone() => SentryOperatingSystem(
@@ -89,6 +77,7 @@ class SentryOperatingSystem {
         kernelVersion: kernelVersion,
         rooted: rooted,
         rawDescription: rawDescription,
+        theme: theme,
       );
 
   SentryOperatingSystem copyWith({
@@ -98,6 +87,7 @@ class SentryOperatingSystem {
     String? kernelVersion,
     bool? rooted,
     String? rawDescription,
+    String? theme,
   }) =>
       SentryOperatingSystem(
         name: name ?? this.name,
@@ -106,5 +96,6 @@ class SentryOperatingSystem {
         kernelVersion: kernelVersion ?? this.kernelVersion,
         rooted: rooted ?? this.rooted,
         rawDescription: rawDescription ?? this.rawDescription,
+        theme: theme ?? this.theme,
       );
 }

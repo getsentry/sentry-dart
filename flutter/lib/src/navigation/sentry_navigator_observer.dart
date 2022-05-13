@@ -1,12 +1,23 @@
 import 'dart:async';
 
+// ignore: implementation_imports
+import 'package:sentry/src/sentry_tracer.dart';
 import 'package:flutter/widgets.dart';
-import 'package:sentry/sentry.dart';
+
 import '../../sentry_flutter.dart';
+import '../sentry_native.dart';
+import '../sentry_native_channel.dart';
 
 /// This key must be used so that the web interface displays the events nicely
 /// See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
 const _navigationKey = 'navigation';
+
+typedef RouteNameExtractor = RouteSettings? Function(RouteSettings? settings);
+
+typedef AdditionalInfoExtractor = Map<String, dynamic>? Function(
+  RouteSettings? from,
+  RouteSettings? to,
+);
 
 /// This is a navigation observer to record navigational breadcrumbs.
 /// For now it only records navigation events and no gestures.
@@ -34,9 +45,10 @@ const _navigationKey = 'navigation';
 /// ```
 ///
 /// The option [enableAutoTransactions] is enabled by default. For every new
-/// route a transaction is started. It's automatically finished after 3 seconds
-/// or when all child spans are finished, if those happen to take longer. The
-/// transaction will be set to [Scope.span] if the latter is empty.
+/// route a transaction is started. It's automatically finished after
+/// [autoFinishAfter] duration or when all child spans are finished,
+/// if those happen to take longer. The transaction will be set to [Scope.span]
+/// if the latter is empty.
 ///
 /// Enabling the [setRouteNameAsTransaction] option overrides the current
 /// [Scope.transaction] which will also override the name of the current
@@ -47,29 +59,43 @@ const _navigationKey = 'navigation';
 ///   - [RouteObserver](https://api.flutter.dev/flutter/widgets/RouteObserver-class.html)
 ///   - [Navigating with arguments](https://flutter.dev/docs/cookbook/navigation/navigate-with-arguments)
 class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
-  SentryNavigatorObserver(
-      {Hub? hub,
-      bool enableAutoTransactions = true,
-      bool setRouteNameAsTransaction = false})
-      : _hub = hub ?? HubAdapter(),
+  SentryNavigatorObserver({
+    Hub? hub,
+    bool enableAutoTransactions = true,
+    Duration autoFinishAfter = const Duration(seconds: 3),
+    bool setRouteNameAsTransaction = false,
+    RouteNameExtractor? routeNameExtractor,
+    AdditionalInfoExtractor? additionalInfoProvider,
+  })  : _hub = hub ?? HubAdapter(),
         _enableAutoTransactions = enableAutoTransactions,
-        _setRouteNameAsTransaction = setRouteNameAsTransaction;
+        _autoFinishAfter = autoFinishAfter,
+        _setRouteNameAsTransaction = setRouteNameAsTransaction,
+        _routeNameExtractor = routeNameExtractor,
+        _additionalInfoProvider = additionalInfoProvider,
+        _native = SentryNative();
 
   final Hub _hub;
   final bool _enableAutoTransactions;
+  final Duration _autoFinishAfter;
   final bool _setRouteNameAsTransaction;
+  final RouteNameExtractor? _routeNameExtractor;
+  final AdditionalInfoExtractor? _additionalInfoProvider;
+  final SentryNative _native;
 
   ISentrySpan? _transaction;
 
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPush(route, previousRoute);
+
     _setCurrentRoute(route.settings.name);
+
     _addBreadcrumb(
       type: 'didPush',
       from: previousRoute?.settings,
       to: route.settings,
     );
+
     _finishTransaction();
     _startTransaction(route.settings.name, route.settings.arguments);
   }
@@ -88,12 +114,14 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   @override
   void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPop(route, previousRoute);
+
     _setCurrentRoute(previousRoute?.settings.name);
     _addBreadcrumb(
       type: 'didPop',
       from: route.settings,
       to: previousRoute?.settings,
     );
+
     _finishTransaction();
     _startTransaction(
       previousRoute?.settings.name,
@@ -108,8 +136,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   }) {
     _hub.addBreadcrumb(RouteObserverBreadcrumb(
       navigationType: type,
-      from: from,
-      to: to,
+      from: _routeNameExtractor?.call(from) ?? from,
+      to: _routeNameExtractor?.call(to) ?? to,
+      data: _additionalInfoProvider?.call(from, to),
     ));
   }
 
@@ -124,19 +153,41 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
   }
 
-  void _startTransaction(String? name, Object? arguments) {
+  Future<void> _startTransaction(String? name, Object? arguments) async {
     if (!_enableAutoTransactions) {
       return;
     }
     if (name == null) {
       return;
     }
+
+    if (name == '/') {
+      name = 'root ("/")';
+    }
     _transaction = _hub.startTransaction(
       name,
-      'ui.load',
+      'navigation',
       waitForChildren: true,
-      autoFinishAfter: Duration(seconds: 3),
+      autoFinishAfter: _autoFinishAfter,
+      trimEnd: true,
+      onFinish: (transaction) async {
+        // ignore: invalid_use_of_internal_member
+        if (transaction is SentryTracer) {
+          final nativeFrames = await _native
+              .endNativeFramesCollection(transaction.context.traceId);
+          if (nativeFrames != null) {
+            transaction.addMeasurements(nativeFrames.toMeasurements());
+          }
+        }
+      },
     );
+
+    // if _enableAutoTransactions is enabled but there's no traces sample rate
+    if (_transaction is NoOpSentrySpan) {
+      _transaction = null;
+      return;
+    }
+
     if (arguments != null) {
       _transaction?.setData('route_settings_arguments', arguments);
     }
@@ -144,6 +195,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     _hub.configureScope((scope) {
       scope.span ??= _transaction;
     });
+
+    await _native.beginNativeFramesCollection();
   }
 
   Future<void> _finishTransaction() async {
@@ -166,6 +219,7 @@ class RouteObserverBreadcrumb extends Breadcrumb {
     RouteSettings? from,
     RouteSettings? to,
     SentryLevel? level,
+    Map<String, dynamic>? data,
   }) {
     final dynamic fromArgs = _formatArgs(from?.arguments);
     final dynamic toArgs = _formatArgs(to?.arguments);
@@ -176,6 +230,7 @@ class RouteObserverBreadcrumb extends Breadcrumb {
       toArgs: toArgs,
       navigationType: navigationType,
       level: level,
+      data: data,
     );
   }
 
@@ -186,6 +241,7 @@ class RouteObserverBreadcrumb extends Breadcrumb {
     String? to,
     dynamic toArgs,
     SentryLevel? level,
+    Map<String, dynamic>? data,
   }) : super(
             category: _navigationKey,
             type: _navigationKey,
@@ -196,6 +252,7 @@ class RouteObserverBreadcrumb extends Breadcrumb {
               if (fromArgs != null) 'from_arguments': fromArgs,
               if (to != null) 'to': to,
               if (toArgs != null) 'to_arguments': toArgs,
+              if (data != null) 'data': data,
             });
 
   static dynamic _formatArgs(Object? args) {
@@ -207,5 +264,15 @@ class RouteObserverBreadcrumb extends Breadcrumb {
           MapEntry<String, String>(key, value.toString()));
     }
     return args.toString();
+  }
+}
+
+extension NativeFramesMeasurement on NativeFrames {
+  List<SentryMeasurement> toMeasurements() {
+    return [
+      SentryMeasurement.totalFrames(totalFrames),
+      SentryMeasurement.slowFrames(slowFrames),
+      SentryMeasurement.frozenFrames(frozenFrames),
+    ];
   }
 }

@@ -1,35 +1,152 @@
-# Unreleased
+# Changelog
 
-# 6.3.0-alpha.1
+## Unreleased
+
+* Feat: Add Android thread to platform stacktraces (#853)
+* Fix: Rename auto initialize property (#857)
+
+## 6.6.0-alpha.2
+
+- Fix serialization of threads (#844)
+- Feat: Allow manual init of the Native SDK (#765)
+
+## 6.6.0-alpha.1
+
+* Feat: Client Reports (#829)
+* Fix: Add missing iOS contexts (#761)
+
+### Sentry Self-hosted Compatibility
+
+- Starting with version `6.6.0` of `sentry`, [Sentry's version >= v21.9.0](https://github.com/getsentry/self-hosted/releases) is required or you have to manually disable sending client reports via the `sendClientReports` option. This only applies to self-hosted Sentry. If you are using [sentry.io](https://sentry.io), no action is needed.
+
+## 6.5.1
+
+- Update event contexts (#838)
+
+## 6.5.0
+
+- No documented changes.
+
+## 6.5.0-beta.2
+
+* Fix: Do not set the transaction to scope if no op (#828)
+
+## 6.5.0-beta.1
+
+- No documented changes.
+
+## 6.5.0-alpha.3
+
+* Feat: Support for platform stacktraces on Android (#788)
+
+## 6.5.0-alpha.2
+
+* Bump: Sentry-Android to 5.7.0 and Sentry-Cocoa to 7.11.0 (#796)
+* Fix: Dio event processor safelly bails if no DioError in the exception list (#795)
+
+## 6.5.0-alpha.1
+
+* Feat: Mobile Vitals - Native App Start (#749)
+* Feat: Mobile Vitals - Native Frames (#772)
+
+## 6.4.0
+
+### Various fixes & improvements
+
+- Fix: Missing userId on iOS when userId is not set (#782) by @marandaneto
+- Allow to set startTimestamp & endTimestamp manually to SentrySpan (#676) by @fatihergin
+
+## 6.4.0-beta.3
+
+* Feat: Allow to set startTimestamp & endTimestamp manually to SentrySpan (#676)
+* Bump: Sentry-Cocoa to 7.10.0 (#777)
+* Feat: Additional Dart/Flutter context information (#778)
+* Bump: Kotlin plugin to 1.5.31 (#763)
+* Fix: Missing userId on iOS when userId is not set (#782)
+
+## 6.4.0-beta.2
+
+- No documented changes.
+
+## 6.4.0-beta.1
+
+* Fix: Disable log by default in debug mode (#753)
+* [Dio] Ref: Replace FailedRequestAdapter with FailedRequestInterceptor (#728)
+* Fix: Add missing return values - dart analyzer (#742)
+* Feat: Add `DioEventProcessor` which improves DioError crash reports (#718)
+* Fix: Do not report duplicated packages and integrations (#760)
+* Feat: Allow manual init of the Native SDK or no Native SDK at all (#765)
+
+## 6.3.0
+
+* Feat: Support maxSpan for performance API and expose SentryOptions through Hub (#716)
+* Fix: await ZonedGuard integration to run (#732)
+* Fix: `sentry_logging` incorrectly setting SDK name (#725)
+* Bump: Sentry-Android to 5.6.1 and Sentry-Cocoa to 7.9.0 (#736)
+* Feat: Support Attachment.addToTransactions (#709)
+* Fix: captureTransaction should return emptyId when transaction is discarded (#713)
+* Add `SentryAssetBundle` for automatic spans for asset loading (#685)
+* Fix: `maxRequestBodySize` should be `never` by default when using the FailedRequestClientAdapter directly (#701)
+* Feat: Add support for [Dio](https://pub.dev/packages/dio) (#688)
+* Fix: Use correct data/extras type in tracer (#693)
+* Fix: Do not throw when Throwable type is not supported for associating errors to a transaction (#692)
+* Feat: Automatically create transactions when navigating between screens (#643)
+
+## 6.3.0-beta.4
+
+* Feat: Support Attachment.addToTransactions (#709)
+* Fix: captureTransaction should return emptyId when transaction is discarded (#713)
+
+## 6.3.0-beta.3
+
+* Feat: Auto transactions duration trimming (#702)
+* Add `SentryAssetBundle` for automatic spans for asset loading (#685)
+* Feat: Configure idle transaction duration (#705)
+* Fix: `maxRequestBodySize` should be `never` by default when using the FailedRequestClientAdapter directly (#701)
+
+## 6.3.0-beta.2
+
+* Feat: Improve configuration options of `SentryNavigatorObserver` (#684)
+* Feat: Add support for [Dio](https://pub.dev/packages/dio) (#688)
+* Bump: Sentry-Android to 5.5.2 and Sentry-Cocoa to 7.8.0 (#696)
+
+## 6.3.0-beta.1
+
+* Enha: Replace flutter default root name '/' with 'root' (#678)
+* Fix: Use 'navigation' instead of 'ui.load' for auto transaction operation (#675)
+* Fix: Use correct data/extras type in tracer (#693)
+* Fix: Do not throw when Throwable type is not supported for associating errors to a transaction (#692)
+
+## 6.3.0-alpha.1
 
 * Feat: Automatically create transactions when navigating between screens (#643)
 
-# 6.2.2
+## 6.2.2
 
 * Fix: ConcurrentModificationError in when finishing span (#664)
 * Feat: Add enableNdkScopeSync Android support (#665)
 
-# 6.2.1
+## 6.2.1
 
 * Fix: `sentry_logging` works now on web (#660)
 * Fix: `sentry_logging` timestamps are in UTC (#660)
 * Fix: `sentry_logging` Level.Off is never recorded (#660)
 * Fix: Rate limiting fallback to retryAfterHeader (#658)
 
-# 6.2.0
+## 6.2.0
 
 * Feat: Integration for `logging` (#631)
 * Feat: Add logger name to `SentryLogger` and send errors in integrations to the registered logger (#641)
 
-# 6.1.2
+## 6.1.2
 
 * Fix: Remove is Enum check to support older Dart versions (#635)
 
-# 6.1.1
+## 6.1.1
 
 * Fix: Transaction serialization if not encodable (#633)
 
-# 6.1.0
+## 6.1.0
 
 * Bump: Sentry-Android to 5.3.0 and Sentry-Cocoa to 7.5.1 (#629)
 * Fix: event.origin tag for macOS and other Apple platforms (#622)
@@ -39,17 +156,17 @@
 * Feat: Sentry Performance for HTTP client (#603)
 * Performance API for Dart/Flutter (#530)
 
-## Breaking Changes:
+### Breaking Changes:
 
 * `SentryEvent` inherits from the `SentryEventLike` mixin
 * `Scope#transaction` sets and reads from the `Scope#span` object if bound to the Scope
 
-# 6.1.0-beta.1
+## 6.1.0-beta.1
 
 * Feat: Add current route as transaction (#615)
 * Feat: Add Breadcrumbs for Flutters `debugPrint` (#618)
 
-# 6.1.0-alpha.2
+## 6.1.0-alpha.2
 
 * Bump Sentry Android SDK to [5.2.0](https://github.com/getsentry/sentry-dart/pull/594) (#594)
   - [changelog](https://github.com/getsentry/sentry-java/blob/5.2.0/CHANGELOG.md)
@@ -57,22 +174,22 @@
 * Feat: Enrich Dart context with isolate name (#600)
 * Feat: Sentry Performance for HTTP client (#603)
 
-# 6.1.0-alpha.1
+## 6.1.0-alpha.1
 
 * Performance API for Dart/Flutter (#530)
 
-## Breaking Changes:
+### Breaking Changes:
 
 * `SentryEvent` inherits from the `SentryEventLike` mixin
 * `Scope#transaction` sets and reads from the `Scope#span` object if bound to the Scope
 
-# 6.0.1
+## 6.0.1
 
 * Fix: Set custom SentryHttpClientError when HTTP error is captured without an exception (#580)
 * Bump: Android AGP 4.1 (#586)
 * Bump: Sentry Cocoa to 7.3.0 (#589)
 
-# 6.0.0
+## 6.0.0
 
 * Fix: Update `SentryUser` according to docs (#561)
 * Feat: Enable or disable reporting of packages (#563)
@@ -80,29 +197,29 @@
 * Bump: Sentry-Android to 5.1.2 (#578)
 * Fix: Read Sentry config from environment variables as fallback (#567)
 
-# 6.0.0-beta.4
+## 6.0.0-beta.4
 
-## Breaking Changes:
+### Breaking Changes:
 
 * Feat: Lists of exceptions and threads (#524)
 * Feat: Collect more information for exceptions collected via `FlutterError.onError` (#538)
 * Feat: Add maxAttachmentSize option (#553)
 * Feat: HTTP breadcrumbs have the request & response size if available (#552)
 
-# 6.0.0-beta.3
+## 6.0.0-beta.3
 
 * Fix: Re-initialization of Flutter SDK (#526)
 * Enhancement: Call `toString()` on all non-serializable fields (#528)
 * Fix: Always call `Flutter.onError` in order to not swallow messages (#533)
 * Bump: Android SDK to 5.1.0-beta.6 (#535)
 
-# 6.0.0-beta.2
+## 6.0.0-beta.2
 
 * Fix: Serialization of Flutter Context (#520)
 * Feat: Add support for attachments (#505)
 * Feat: Add support for User Feedback (#506)
 
-# 6.0.0-beta.1
+## 6.0.0-beta.1
 
 * Feat: Browser detection (#502)
 * Feat: Enrich events with more context (#452)
@@ -111,7 +228,7 @@
 * Feat: Capture failed requests as event (#473)
 * Feat: `beforeSend` callback accepts async code (#494)
 
-## Breaking Changes:
+### Breaking Changes:
 
 * Ref: EventProcessor changed to an interface (#489)
 * Feat: Support envelope based transport for events (#391)
@@ -122,18 +239,18 @@
 * Feat: Change timespans to Durations in SentryOptions (#504)
 * Feat: `beforeSend` callback accepts async code (#494)
 
-## Sentry Self Hosted Compatibility
+### Sentry Self Hosted Compatibility
 
 * Since version `6.0.0` of the `sentry`, [Sentry's version >= v20.6.0](https://github.com/getsentry/self-hosted/releases) is required. This only applies to on-premise Sentry, if you are using sentry.io no action is needed.
 
-# 5.1.0
+## 5.1.0
 
 * Fix: Merge user from event and scope (#467)
 * Feature: Allow setting of default values for in-app-frames via `SentryOptions.considerInAppFramesByDefault` (#482)
 * Bump: sentry-android to v5.0.1 (#486)
 * Bump: Sentry-Cocoa to 7.1.3 for iOS and macOS (#488)
 
-# 5.1.0-beta.1
+## 5.1.0-beta.1
 
 * Fix: `Sentry.close()` closes native SDK integrations (#388)
 * Feat: Support for macOS (#389)
@@ -155,11 +272,11 @@
 * Feature: Add `withScope` callback to capture methods (#463)
 * Fix: Add missing properties `language`, `screenHeightPixels` and `screenWidthPixels` to `SentryDevice` (#465)
 
-## Sentry Self Hosted Compatibility
+### Sentry Self Hosted Compatibility
 
 * This version of the `sentry` Dart package requires [Sentry server >= v20.6.0](https://github.com/getsentry/self-hosted/releases). This only applies to on-premise Sentry, if you are using sentry.io no action is needed.
 
-# 5.0.0
+## 5.0.0
 
 * Sound null safety
 * Fix: event.origin and event.environment tags have wrong value for iOS (#365) and (#369)
@@ -171,19 +288,19 @@
 * Fix: Set `SentryOptions.debug` in `sentry` (#376)
 * Fix: Read all environment variables in `sentry` (#375)
 
-## Breaking Changes:
+### Breaking Changes:
 
 * Return type of `Sentry.close()` changed from `void` to `Future<void>` and `Integration.close()` changed from `void` to `FutureOr<void>` (#395)
 * Remove deprecated member `enableLifecycleBreadcrumbs`. Use `enableAppLifecycleBreadcrumbs` instead. (#366)
 
-# 4.1.0-nullsafety.1
+## 4.1.0-nullsafety.1
 
 * Bump: sentry-android to v4.3.0 (#343)
 * Fix: Multiple FlutterError.onError calls in FlutterErrorIntegration (#345)
 * Fix: Pass hint to EventProcessors (#356)
 * Fix: EventProcessors were not dropping events when returning null (#353)
 
-## Breaking Changes:
+### Breaking Changes:
 
 * Fix: Plugin Registrant class moved to barrel file (#358)
   * This changed the import from `import 'package:sentry_flutter/src/sentry_flutter_web.dart';` 
@@ -203,34 +320,34 @@
     * `User` -> `SentryUser`
     * `Orientation` -> `SentryOrientation`
 
-# 4.1.0-nullsafety.0
+## 4.1.0-nullsafety.0
 
 * Fix: Do not append stack trace to the exception if there are no frames
 * Fix: Empty DSN disables the SDK and runs the App
 * Feat: sentry and sentry_flutter null-safety thanks to @ueman and @fzyzcjy
 
-# 4.0.6
+## 4.0.6
 
 * Fix: captureMessage defaults SentryLevel to info
 * Fix: SentryEvent.throwable returns the unwrapped throwable instead of the throwableMechanism
 * Feat: Support enableNativeCrashHandling on iOS
 
-# 4.0.5
+## 4.0.5
 
 * Bump: sentry-android to v4.0.0
 * Fix: Pana Flutter upper bound deprecation
 * Fix: sentry_flutter static analysis (pana) using stable version
 
-# 4.0.4
+## 4.0.4
 
 * Fix: Call WidgetsFlutterBinding.ensureInitialized() within runZoneGuarded
 
-# 4.0.3
+## 4.0.3
 
 * Fix: Auto session tracking start on iOS #274
 * Bump: Sentry-cocoa to 6.1.4
 
-# 4.0.2
+## 4.0.2
 
 * Fix: Mark session as `errored` in iOS #270
 * Fix: Pass auto session tracking interval to iOS
@@ -240,18 +357,18 @@
 * Feat: Respect FlutterError silent flag #248
 * Bump: Android SDK to v3.2.1 #273
 
-# 4.0.1
+## 4.0.1
 
 * Ref: Changed category of Flutter lifecycle tracking [#240](https://github.com/getsentry/sentry-dart/issues/240)
 * Fix: Envelope length should be based on the UTF8 array instead of String length
 
-# 4.0.0
+## 4.0.0
 
 Release of Sentry's new SDK for Dart/Flutter.
 
 New features not offered by <= v4.0.0:
 
-## Dart SDK
+### Dart SDK
 
 * Sentry's [Unified API](https://develop.sentry.dev/sdk/unified-api/).
 * Complete Sentry's [Protocol](https://develop.sentry.dev/sdk/event-payloads/) available.
@@ -260,7 +377,7 @@ New features not offered by <= v4.0.0:
 * No boilerplate for `runZonedGuarded` and `Isolate.current.addErrorListener`
 * All events are enriched with [Scope's Contexts](https://develop.sentry.dev/sdk/event-payloads/#scope-interfaces), this includes Breadcrumbs, tags, User, etc...
 
-## Flutter SDK
+### Flutter SDK
 
 * The Flutter SDK is built on top of the Dart SDK, so it includes all the available features, plus
 * [Flutter SDK](https://docs.sentry.io/platforms/flutter/) docs.
@@ -281,11 +398,11 @@ Improvements:
 
 Packages were released on [sentry pubdev](https://pub.dev/packages/sentry) and [sentry_flutter pubdev](https://pub.dev/packages/sentry_flutter)
 
-## Sentry Self Hosted Compatibility
+### Sentry Self Hosted Compatibility
 
 * Since version `4.0.0` of the `sentry_flutter`, [Sentry's version >= v20.6.0](https://github.com/getsentry/self-hosted/releases) is required. This only applies to on-premise Sentry, if you are using sentry.io no action is needed.
 
-# 4.0.0-beta.2
+## 4.0.0-beta.2
 
 * Ref: Remove duplicated attachStackTrace field
 * Fix: Flutter Configurations should be able to mutate the SentryFlutterOptions
@@ -298,12 +415,12 @@ Packages were released on [sentry pubdev](https://pub.dev/packages/sentry) and [
 * Fix: Scope Event processors should be awaited
 * Fix: Package usage as git dependency
 
-## Breaking changes
+### Breaking changes
 
 * `Logger` typedef is renamed to `SentryLogger`
 * `attachStackTrace` is renamed to `attachStacktrace`
 
-# 4.0.0-beta.1
+## 4.0.0-beta.1
 
 * Fix: StackTrace frames with 'package' uri.scheme are inApp by default #185
 * Fix: Missing App's StackTrace frames for Flutter errors
@@ -319,14 +436,14 @@ Packages were released on [sentry pubdev](https://pub.dev/packages/sentry) and [
 * Fix: the event payload must never serialize null or empty fields
 * Ref: Make hints optional
 
-## Breaking changes
+### Breaking changes
 
 * `Sentry.init` and `SentryFlutter.init` have an optional callback argument which runs the host App after Sentry initialization.
 * `Integration` is an `Interface` instead of a pure Function
 * `Hints` are optional arguments
 * Sentry Dart SDK adds an `IsolateError` handler by default
 
-# 4.0.0-alpha.2
+## 4.0.0-alpha.2
 
 * Enhancement: `Contexts` were added to the `Scope` #154
 * Fix: App. would hang if `debug` mode was enabled and refactoring ##157
@@ -335,7 +452,7 @@ Packages were released on [sentry pubdev](https://pub.dev/packages/sentry) and [
 * Feat: Added `attachStackTrace` options to attach stack traces on `captureMessage` calls
 * Feat: Flutter SDK has the Native SDKs embedded (Android and Apple) #158
 
-## Breaking changes
+### Breaking changes
 
 * `Sentry.init` returns a `Future`.
 * Dart min. SDK is `2.8.0`
@@ -348,9 +465,7 @@ Packages were released on [sentry pubdev](https://pub.dev/packages/sentry) and [
 
 * Since version `4.0.0` of the `sentry_flutter`, `Sentry` version >= `v20.6.0` is required. This only applies to on-premise Sentry, if you are using sentry.io no action is needed.
 
-# `package:sentry` changelog
-
-# 4.0.0-alpha.1
+## 4.0.0-alpha.1
 
 First Release of Sentry's new SDK for Dart/Flutter.
 
@@ -366,87 +481,87 @@ Packages were released on [pubdev](https://pub.dev/packages/sentry)
 We'd love to get feedback and we'll work in getting the GA 4.0.0 out soon.
 Until then, the stable SDK offered by Sentry is at version [3.0.1](https://github.com/getsentry/sentry-dart/releases/tag/3.0.1)
 
-# 3.0.1
+## 3.0.1
 
 * Add support for Contexts in Sentry events
 
-# 3.0.0+1
+## 3.0.0+1
 
 * `pubspec.yaml` and example code clean-up.
 
-# 3.0.0
+## 3.0.0
 
 * Support Web
   * `SentryClient` from `package:sentry/sentry.dart` with conditional import
   * `SentryBrowserClient` for web from `package:sentry/browser_client.dart`
   * `SentryIOClient` for VM and Flutter from `package:sentry/io_client.dart`
 
-# 2.3.1
+## 2.3.1
 
 * Support non-standard port numbers and paths in DSN URL.
 
-# 2.3.0
+## 2.3.0
 
 * Add [breadcrumb](https://docs.sentry.io/development/sdk-dev/event-payloads/breadcrumbs/) support.
 
-# 2.2.0
+## 2.2.0
 
 * Add a `stackFrameFilter` argument to `SentryClient`'s `capture` method (96be842).
 * Clean-up code using pre-Dart 2 API (91c7706, b01ebf8).
 
-# 2.1.1
+## 2.1.1
 
 * Defensively copy internal maps event attributes to
   avoid shared mutable state (https://github.com/flutter/sentry/commit/044e4c1f43c2d199ed206e5529e2a630c90e4434)
 
-# 2.1.0
+## 2.1.0
 
 * Support DNS format without secret key.
 * Remove dependency on `package:quiver`.
 * The `clock` argument to `SentryClient` constructor _should_ now be
   `ClockProvider` (but still accepts `Clock` for backwards compatibility).
 
-# 2.0.2
+## 2.0.2
 
 * Add support for user context in Sentry events.
 
-# 2.0.1
+## 2.0.1
 
 * Invert stack frames to be compatible with Sentry's default culprit detection.
 
-# 2.0.0
+## 2.0.0
 
 * Fixed deprecation warnings for Dart 2
 * Refactored tests to work with Dart 2
 
-# 1.0.0
+## 1.0.0
 
 * first and last Dart 1-compatible release (we may fix bugs on a separate branch if there's demand)
 * fix code for Dart 2
 
-# 0.0.6
+## 0.0.6
 
 * use UTC in the `timestamp` field
 
-# 0.0.5
+## 0.0.5
 
 * remove sub-seconds from the timestamp
 
-# 0.0.4
+## 0.0.4
 
 * parse and report async gaps in stack traces
 
-# 0.0.3
+## 0.0.3
 
 * environment attributes
 * auto-generate event_id and timestamp for events
 
-# 0.0.2
+## 0.0.2
 
 * parse and report stack traces
 * use x-sentry-error HTTP response header
 * gzip outgoing payloads by default
 
-# 0.0.1
+## 0.0.1
 
 * basic ability to send exception reports to Sentry.io

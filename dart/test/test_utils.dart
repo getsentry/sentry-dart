@@ -390,7 +390,8 @@ void runTest({Codec<List<int>, List<int>?>? gzip, bool isWeb = false}) {
       ..compressPayload = false
       ..serverName = 'test.server.com'
       ..release = '1.2.3'
-      ..environment = 'staging';
+      ..environment = 'staging'
+      ..sendClientReports = false;
 
     final client = SentryClient(options);
 

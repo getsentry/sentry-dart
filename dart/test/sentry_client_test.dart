@@ -1,12 +1,22 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/client_reports/client_report.dart';
+import 'package:sentry/src/client_reports/discard_reason.dart';
+import 'package:sentry/src/client_reports/discarded_event.dart';
+import 'package:sentry/src/client_reports/noop_client_report_recorder.dart';
+import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
+import 'mocks/mock_client_report_recorder.dart';
+import 'mocks/mock_envelope.dart';
+import 'mocks/mock_hub.dart';
 import 'mocks/mock_transport.dart';
 
 void main() {
@@ -345,6 +355,72 @@ void main() {
       final capturedEvent = await transactionFromEnvelope(capturedEnvelope);
 
       expect(capturedEvent['exception'], isNull);
+    });
+
+    test('attachments not added to captured transaction per default', () async {
+      final attachment = SentryAttachment.fromUint8List(
+        Uint8List.fromList([0, 0, 0, 0]),
+        'test.txt',
+      );
+      final scope = Scope(fixture.options);
+      scope.addAttachment(attachment);
+
+      final client = fixture.getSut();
+      final tr = SentryTransaction(fixture.tracer);
+      await client.captureTransaction(tr, scope: scope);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedAttachments = capturedEnvelope.items
+          .where((item) => item.header.type == SentryItemType.attachment);
+
+      expect(capturedAttachments.isEmpty, true);
+    });
+
+    test('attachments added to captured event', () async {
+      final attachment = SentryAttachment.fromUint8List(
+        Uint8List.fromList([0, 0, 0, 0]),
+        'test.txt',
+        addToTransactions: true,
+      );
+      final scope = Scope(fixture.options);
+      scope.addAttachment(attachment);
+
+      final client = fixture.getSut();
+      final tr = SentryTransaction(fixture.tracer);
+      await client.captureTransaction(tr, scope: scope);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedAttachments = capturedEnvelope.items
+          .where((item) => item.header.type == SentryItemType.attachment);
+
+      expect(capturedAttachments.isNotEmpty, true);
+    });
+
+    test('attachments added to captured event per default', () async {
+      final attachment = SentryAttachment.fromUint8List(
+        Uint8List.fromList([0, 0, 0, 0]),
+        'test.txt',
+      );
+      final scope = Scope(fixture.options);
+      scope.addAttachment(attachment);
+
+      final client = fixture.getSut();
+      final event = SentryEvent();
+      await client.captureEvent(event, scope: scope);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedAttachments = capturedEnvelope.items
+          .where((item) => item.header.type == SentryItemType.attachment);
+
+      expect(capturedAttachments.isNotEmpty, true);
+    });
+
+    test('should return empty for when transaction is discarded', () async {
+      final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
+      final tr = SentryTransaction(fixture.tracer);
+      final id = await client.captureTransaction(tr);
+
+      expect(id, SentryId.empty());
     });
   });
 
@@ -737,6 +813,149 @@ void main() {
       expect(capturedEnvelope, fakeEnvelope);
     });
   });
+
+  group('ClientReportRecorder', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('recorder is not noop if client reports are enabled', () async {
+      fixture.options.sendClientReports = true;
+
+      fixture.getSut(
+        eventProcessor: DropAllEventProcessor(),
+        provideMockRecorder: false,
+      );
+
+      expect(fixture.options.recorder is NoOpClientReportRecorder, false);
+      expect(fixture.options.recorder is MockClientReportRecorder, false);
+    });
+
+    test('recorder is noop if client reports are disabled', () {
+      fixture.options.sendClientReports = false;
+
+      fixture.getSut(
+        eventProcessor: DropAllEventProcessor(),
+        provideMockRecorder: false,
+      );
+
+      expect(fixture.options.recorder is NoOpClientReportRecorder, true);
+    });
+
+    test('captureEnvelope calls flush', () async {
+      final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
+
+      final envelope = MockEnvelope();
+      envelope.items = [SentryEnvelopeItem.fromEvent(SentryEvent())];
+
+      await client.captureEnvelope(envelope);
+
+      expect(fixture.recorder.flushCalled, true);
+    });
+
+    test('captureEnvelope adds client report', () async {
+      final clientReport = ClientReport(
+        DateTime(0),
+        [DiscardedEvent(DiscardReason.rateLimitBackoff, DataCategory.error, 1)],
+      );
+      fixture.recorder.clientReport = clientReport;
+
+      final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
+
+      final envelope = MockEnvelope();
+      envelope.items = [SentryEnvelopeItem.fromEvent(SentryEvent())];
+
+      await client.captureEnvelope(envelope);
+
+      expect(envelope.clientReport, clientReport);
+    });
+
+    test('captureUserFeedback calls flush', () async {
+      final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
+
+      final id = SentryId.newId();
+      final feedback = SentryUserFeedback(
+        eventId: id,
+        comments: 'this is awesome',
+        email: 'sentry@example.com',
+        name: 'Rockstar Developer',
+      );
+      await client.captureUserFeedback(feedback);
+
+      expect(fixture.recorder.flushCalled, true);
+    });
+
+    test('captureUserFeedback adds client report', () async {
+      final clientReport = ClientReport(
+        DateTime(0),
+        [DiscardedEvent(DiscardReason.rateLimitBackoff, DataCategory.error, 1)],
+      );
+      fixture.recorder.clientReport = clientReport;
+
+      final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
+
+      final id = SentryId.newId();
+      final feedback = SentryUserFeedback(
+        eventId: id,
+        comments: 'this is awesome',
+        email: 'sentry@example.com',
+        name: 'Rockstar Developer',
+      );
+      await client.captureUserFeedback(feedback);
+
+      final envelope = fixture.transport.envelopes.first;
+      final item = envelope.items.last;
+
+      // Only partial test, as the envelope is created internally from feedback.
+      expect(item.header.type, SentryItemType.clientReport);
+    });
+
+    test('record event processor dropping event', () async {
+      final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
+
+      await client.captureEvent(fakeEvent);
+
+      expect(fixture.recorder.reason, DiscardReason.eventProcessor);
+      expect(fixture.recorder.category, DataCategory.error);
+    });
+
+    test('record event processor dropping transaction', () async {
+      final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
+
+      final context = SentryTransactionContext('name', 'op');
+      final tracer = SentryTracer(context, MockHub());
+      final transaction = SentryTransaction(tracer);
+
+      await client.captureTransaction(transaction);
+
+      expect(fixture.recorder.reason, DiscardReason.eventProcessor);
+      expect(fixture.recorder.category, DataCategory.transaction);
+    });
+
+    test('record beforeSend dropping event', () async {
+      final client = fixture.getSut();
+
+      fixture.options.beforeSend = fixture.droppingBeforeSend;
+
+      await client.captureEvent(fakeEvent);
+
+      expect(fixture.recorder.reason, DiscardReason.beforeSend);
+      expect(fixture.recorder.category, DataCategory.error);
+    });
+
+    test('record sample rate dropping event', () async {
+      final client = fixture.getSut(sampleRate: 0.0);
+
+      fixture.options.beforeSend = fixture.droppingBeforeSend;
+
+      await client.captureEvent(fakeEvent);
+
+      expect(fixture.recorder.reason, DiscardReason.sampleRate);
+      expect(fixture.recorder.category, DataCategory.error);
+    });
+  });
 }
 
 Future<SentryEvent> eventFromEnvelope(SentryEnvelope envelope) async {
@@ -784,9 +1003,11 @@ FutureOr<SentryEvent?> beforeSendCallback(SentryEvent event, {dynamic hint}) {
 }
 
 class Fixture {
+  final recorder = MockClientReportRecorder();
   final transport = MockTransport();
 
   final options = SentryOptions(dsn: fakeDsn);
+
   late SentryTransactionContext _context;
   late SentryTracer tracer;
 
@@ -796,6 +1017,7 @@ class Fixture {
     double? sampleRate,
     BeforeSendCallback? beforeSend,
     EventProcessor? eventProcessor,
+    bool provideMockRecorder = true,
   }) {
     final hub = Hub(options);
     _context = SentryTransactionContext(
@@ -815,7 +1037,14 @@ class Fixture {
     options.transport = transport;
     final client = SentryClient(options);
     // hub.bindClient(client);
-
+    if (provideMockRecorder) {
+      options.recorder = recorder;
+    }
     return client;
+  }
+
+  FutureOr<SentryEvent?> droppingBeforeSend(SentryEvent event,
+      {dynamic hint}) async {
+    return null;
   }
 }

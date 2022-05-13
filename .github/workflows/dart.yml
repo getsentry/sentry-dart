@@ -3,9 +3,11 @@ on:
   push:
     branches:
       - main
+      - release/**
   pull_request:
     paths-ignore:
       - 'logging/**'
+      - 'dio/**'
 defaults:
   run:
     shell: bash
@@ -13,7 +15,7 @@ jobs:
   build:
     name: Build ${{matrix.sdk}} on ${{matrix.os}}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: ./dart
@@ -32,10 +34,11 @@ jobs:
         - uses: actions/checkout@v2
         # coverage with 'chrome' platform hangs the build
         - name: Test (VM and browser)
+          if: runner.os != 'macOS'
           run: |
             dart pub get
-            dart test -p chrome
-            dart test -p vm --coverage=coverage
+            dart test -p chrome --test-randomize-ordering-seed=random --chain-stack-traces
+            dart test -p vm --coverage=coverage --test-randomize-ordering-seed=random --chain-stack-traces
             dart pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.packages --report-on=lib
 
         - name: Install webdev
@@ -60,12 +63,12 @@ jobs:
           with:
             name: sentry
             file: ./dart/coverage/lcov.info
-        
+
         - uses: VeryGoodOpenSource/very_good_coverage@v1.2.0
           if: runner.os == 'Linux'
           with:
             path: "./dart/coverage/lcov.info"
-            min_coverage: 90
+            min_coverage: 85
 
   analyze:
     runs-on: ubuntu-latest
@@ -99,7 +102,7 @@ jobs:
           TOTAL_MAX: ${{ steps.analysis.outputs.total_max }}
         run: |
           PERCENTAGE=$(( $TOTAL * 100 / $TOTAL_MAX ))
-          if (( $PERCENTAGE < 100 ))
+          if (( $PERCENTAGE < 90 ))
           then
             echo Score too low!
             exit 1

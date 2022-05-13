@@ -1,7 +1,11 @@
 import 'dart:async';
+
+import 'package:meta/meta.dart';
+
 import 'hub.dart';
 import 'protocol.dart';
 import 'sentry_client.dart';
+import 'sentry_options.dart';
 import 'sentry_user_feedback.dart';
 import 'tracing.dart';
 
@@ -9,6 +13,12 @@ class NoOpHub implements Hub {
   NoOpHub._();
 
   static final NoOpHub _instance = NoOpHub._();
+
+  final _options = SentryOptions.empty();
+
+  @override
+  @internal
+  SentryOptions get options => _options;
 
   factory NoOpHub() {
     return _instance;
@@ -69,17 +79,19 @@ class NoOpHub implements Hub {
       SentryId.empty();
 
   @override
-  Future<SentryId> captureUserFeedback(SentryUserFeedback userFeedback) async =>
-      SentryId.empty();
+  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {}
 
   @override
   ISentrySpan startTransaction(
     String name,
     String operation, {
     String? description,
+    DateTime? startTimestamp,
     bool? bindToScope,
     bool? waitForChildren,
     Duration? autoFinishAfter,
+    bool? trimEnd,
+    OnTransactionFinish? onFinish,
     Map<String, dynamic>? customSamplingContext,
   }) =>
       NoOpSentrySpan();
@@ -88,9 +100,12 @@ class NoOpHub implements Hub {
   ISentrySpan startTransactionWithContext(
     SentryTransactionContext transactionContext, {
     Map<String, dynamic>? customSamplingContext,
+    DateTime? startTimestamp,
     bool? bindToScope,
     bool? waitForChildren,
     Duration? autoFinishAfter,
+    bool? trimEnd,
+    OnTransactionFinish? onFinish,
   }) =>
       NoOpSentrySpan();
 

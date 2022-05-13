@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/binding_utils.dart';
 
 import 'mocks.dart';
 import 'mocks.mocks.dart';
@@ -256,6 +256,37 @@ void main() {
     expect(closeCalled, true);
   });
 
+  test('nativeSdkIntegration does not call native sdk when auto init disabled',
+      () async {
+    var methodChannelCalled = false;
+    _channel.setMockMethodCallHandler((MethodCall methodCall) async {
+      methodChannelCalled = true;
+    });
+    fixture.options.autoInitializeNativeSdk = false;
+
+    final integration = NativeSdkIntegration(_channel);
+
+    await integration.call(fixture.hub, fixture.options);
+
+    expect(methodChannelCalled, false);
+  });
+
+  test('nativeSdkIntegration does not close native when auto init disabled',
+      () async {
+    var methodChannelCalled = false;
+    _channel.setMockMethodCallHandler((MethodCall methodCall) async {
+      methodChannelCalled = true;
+    });
+    fixture.options.autoInitializeNativeSdk = false;
+
+    final integration = NativeSdkIntegration(_channel);
+
+    await integration(fixture.hub, fixture.options);
+    await integration.close();
+
+    expect(methodChannelCalled, false);
+  });
+
   test('loadContextsIntegration adds integration', () async {
     _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
 
@@ -281,7 +312,7 @@ void main() {
     var called = false;
     var ensureInitialized = () {
       called = true;
-      return WidgetsBinding.instance!;
+      return BindingUtils.getWidgetsBindingInstance()!;
     };
     final integration = WidgetsFlutterBindingIntegration(ensureInitialized);
     await integration(fixture.hub, fixture.options);

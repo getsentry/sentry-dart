@@ -1,6 +1,9 @@
 import 'package:sentry/src/environment/environment_variables.dart';
 
-class MockEnvironmentVariables extends EnvironmentVariables {
+import 'no_such_method_provider.dart';
+
+class MockEnvironmentVariables extends EnvironmentVariables
+    with NoSuchMethodProvider {
   MockEnvironmentVariables({
     String? dist,
     String? dsn,

@@ -96,8 +96,9 @@ void main() {
 }
 
 class Fixture {
+  final options = SentryOptions(dsn: '');
+
   FileSystemTransport getSut(MethodChannel channel) {
-    final options = SentryOptions(dsn: '');
     return FileSystemTransport(channel, options);
   }
 }

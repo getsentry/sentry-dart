@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
 
+import 'binding_utils.dart';
 import 'sentry_flutter_options.dart';
 import 'widgets_binding_observer.dart';
 
@@ -123,14 +124,13 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
   }
 
   @override
-  FutureOr<void> close() {
+  FutureOr<void> close() async {
     /// Restore default if the integration error is still set.
     if (FlutterError.onError == _integrationOnError) {
       FlutterError.onError = _defaultOnError;
       _defaultOnError = null;
       _integrationOnError = null;
     }
-    super.close();
   }
 }
 
@@ -175,9 +175,10 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
       final infos = Map<String, dynamic>.from(
         await (_channel.invokeMethod('loadContexts')),
       );
-      if (infos['contexts'] != null) {
+      final contextsMap = infos['contexts'] as Map?;
+      if (contextsMap != null && contextsMap.isNotEmpty) {
         final contexts = Contexts.fromJson(
-          Map<String, dynamic>.from(infos['contexts'] as Map),
+          Map<String, dynamic>.from(contextsMap),
         );
         final eventContexts = event.contexts.clone();
 
@@ -195,17 +196,112 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
         event = event.copyWith(contexts: eventContexts);
       }
 
-      if (infos['integrations'] != null) {
-        final integrations = List<String>.from(infos['integrations'] as List);
+      final tagsMap = infos['tags'] as Map?;
+      if (tagsMap != null && tagsMap.isNotEmpty) {
+        final tags = event.tags ?? {};
+        final newTags = Map<String, String>.from(tagsMap);
+
+        for (final tag in newTags.entries) {
+          if (!tags.containsKey(tag.key)) {
+            tags[tag.key] = tag.value;
+          }
+        }
+        event = event.copyWith(tags: tags);
+      }
+
+      final extraMap = infos['extra'] as Map?;
+      if (extraMap != null && extraMap.isNotEmpty) {
+        final extras = event.extra ?? {};
+        final newExtras = Map<String, dynamic>.from(extraMap);
+
+        for (final extra in newExtras.entries) {
+          if (!extras.containsKey(extra.key)) {
+            extras[extra.key] = extra.value;
+          }
+        }
+        event = event.copyWith(extra: extras);
+      }
+
+      final userMap = infos['user'] as Map?;
+      if (event.user == null && userMap != null && userMap.isNotEmpty) {
+        final user = Map<String, dynamic>.from(userMap);
+        event = event.copyWith(user: SentryUser.fromJson(user));
+      }
+
+      final distString = infos['dist'] as String?;
+      if (event.dist == null && distString != null) {
+        event = event.copyWith(dist: distString);
+      }
+
+      final environmentString = infos['environment'] as String?;
+      if (event.environment == null && environmentString != null) {
+        event = event.copyWith(environment: environmentString);
+      }
+
+      final fingerprintList = infos['fingerprint'] as List?;
+      if (fingerprintList != null && fingerprintList.isNotEmpty) {
+        final eventFingerprints = event.fingerprint ?? [];
+        final newFingerprint = List<String>.from(fingerprintList);
+
+        for (final fingerprint in newFingerprint) {
+          if (!eventFingerprints.contains(fingerprint)) {
+            eventFingerprints.add(fingerprint);
+          }
+        }
+        event = event.copyWith(fingerprint: eventFingerprints);
+      }
+
+      final levelString = infos['level'] as String?;
+      if (event.level == null && levelString != null) {
+        event = event.copyWith(level: SentryLevel.fromName(levelString));
+      }
+
+      final breadcrumbsList = infos['breadcrumbs'] as List?;
+      if (breadcrumbsList != null && breadcrumbsList.isNotEmpty) {
+        final breadcrumbs = event.breadcrumbs ?? [];
+        final newBreadcrumbs = List<Map>.from(breadcrumbsList);
+
+        for (final breadcrumb in newBreadcrumbs) {
+          final newBreadcrumb = Map<String, dynamic>.from(breadcrumb);
+          final crumb = Breadcrumb.fromJson(newBreadcrumb);
+          breadcrumbs.add(crumb);
+        }
+
+        breadcrumbs.sort((a, b) {
+          return a.timestamp.compareTo(b.timestamp);
+        });
+
+        event = event.copyWith(breadcrumbs: breadcrumbs);
+      }
+
+      final integrationsList = infos['integrations'] as List?;
+      if (integrationsList != null && integrationsList.isNotEmpty) {
+        final integrations = List<String>.from(integrationsList);
         final sdk = event.sdk ?? _options.sdk;
-        integrations.forEach(sdk.addIntegration);
+
+        for (final integration in integrations) {
+          if (!sdk.integrations.contains(integration)) {
+            sdk.addIntegration(integration);
+          }
+        }
+
         event = event.copyWith(sdk: sdk);
       }
 
-      if (infos['package'] != null) {
-        final package = Map<String, String>.from(infos['package'] as Map);
+      final packageMap = infos['package'] as Map?;
+      if (packageMap != null && packageMap.isNotEmpty) {
+        final package = Map<String, String>.from(packageMap);
         final sdk = event.sdk ?? _options.sdk;
-        sdk.addPackage(package['sdk_name']!, package['version']!);
+
+        final name = package['sdk_name'];
+        final version = package['version'];
+        if (name != null &&
+            version != null &&
+            !sdk.packages.any((element) =>
+                element.name == name && element.version == version)) {
+          sdk.addPackage(name, version);
+        }
+
         event = event.copyWith(sdk: sdk);
       }
 
@@ -229,7 +325,7 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
   }
 }
 
-/// Enables Sentry's native SDKs (Android and iOS)
+/// Enables Sentry's native SDKs (Android and iOS) with options.
 class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
   NativeSdkIntegration(this._channel);
 
@@ -239,6 +335,9 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) async {
     _options = options;
+    if (!options.autoInitializeNativeSdk) {
+      return;
+    }
     try {
       await _channel.invokeMethod<void>('initNativeSdk', <String, dynamic>{
         'dsn': options.dsn,
@@ -264,6 +363,8 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
         'sendDefaultPii': options.sendDefaultPii,
         'enableOutOfMemoryTracking': options.enableOutOfMemoryTracking,
         'enableNdkScopeSync': options.enableNdkScopeSync,
+        'enableAutoPerformanceTracking': options.enableAutoPerformanceTracking,
+        'sendClientReports': options.sendClientReports,
       });
 
       options.sdk.addIntegration('nativeSdkIntegration');
@@ -279,6 +380,10 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
 
   @override
   FutureOr<void> close() async {
+    final options = _options;
+    if (options != null && !options.autoInitializeNativeSdk) {
+      return;
+    }
     try {
       await _channel.invokeMethod<void>('closeNativeSdk');
     } catch (exception, stackTrace) {
@@ -309,7 +414,7 @@ class WidgetsBindingIntegration extends Integration<SentryFlutterOptions> {
     // We don't need to call `WidgetsFlutterBinding.ensureInitialized()`
     // because `WidgetsFlutterBindingIntegration` already calls it.
     // If the instance is not created, we skip it to keep going.
-    final instance = WidgetsBinding.instance;
+    final instance = BindingUtils.getWidgetsBindingInstance();
     if (instance != null) {
       instance.addObserver(_observer!);
       options.sdk.addIntegration('widgetsBindingIntegration');
@@ -323,7 +428,7 @@ class WidgetsBindingIntegration extends Integration<SentryFlutterOptions> {
 
   @override
   FutureOr<void> close() {
-    final instance = WidgetsBinding.instance;
+    final instance = BindingUtils.getWidgetsBindingInstance();
     if (instance != null && _observer != null) {
       instance.removeObserver(_observer!);
     }

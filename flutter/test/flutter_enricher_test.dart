@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/flutter_enricher_event_processor.dart';
 
@@ -12,7 +13,9 @@ void main() {
   group('FlutterEnricher', () {
     late Fixture fixture;
 
-    setUp(() {
+    setUp(() async {
+      await Sentry.close();
+
       LicenseRegistry.reset();
       fixture = Fixture();
     });
@@ -213,7 +216,9 @@ void main() {
             screenHeightPixels: 1080,
             screenWidthPixels: 1920,
             screenDensity: 2,
-            theme: 'sentry_theme',
+          ),
+          operatingSystem: SentryOperatingSystem(
+            theme: 'dark',
           ),
         ),
       );
@@ -243,8 +248,8 @@ void main() {
         fakeEvent.contexts.device?.screenDensity,
       );
       expect(
-        event.contexts.device?.theme,
-        fakeEvent.contexts.device?.theme,
+        event.contexts.operatingSystem?.theme,
+        fakeEvent.contexts.operatingSystem?.theme,
       );
     });
 
@@ -262,6 +267,7 @@ void main() {
         platformChecker: MockPlatformChecker(
           hasNativeIntegration: false,
         ),
+        packageLoader: loadTestPackage,
       );
       await Sentry.close();
 
@@ -293,4 +299,14 @@ class Fixture {
       binding,
     );
   }
+}
+
+Future<PackageInfo> loadTestPackage() async {
+  return PackageInfo(
+    appName: 'appName',
+    packageName: 'packageName',
+    version: 'version',
+    buildNumber: 'buildNumber',
+    buildSignature: '',
+  );
 }

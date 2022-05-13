@@ -1,8 +1,15 @@
+import 'package:flutter/services.dart';
 import 'package:mockito/annotations.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/platform/platform.dart';
+import 'package:sentry/src/sentry_tracer.dart';
+
+import 'package:meta/meta.dart';
+import 'package:sentry_flutter/src/sentry_native.dart';
+import 'package:sentry_flutter/src/sentry_native_channel.dart';
 
 import 'mocks.mocks.dart';
+import 'no_such_method_provider.dart';
 
 const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
@@ -11,23 +18,29 @@ ISentrySpan startTransactionShim(
   String? name,
   String? operation, {
   String? description,
+  DateTime? startTimestamp,
   bool? bindToScope,
   bool? waitForChildren,
   Duration? autoFinishAfter,
+  bool? trimEnd,
+  Function(ISentrySpan)? onFinish,
   Map<String, dynamic>? customSamplingContext,
 }) {
-  return MockNoOpSentrySpan();
+  return MockSentryTracer();
 }
 
 @GenerateMocks([
   Transport,
-  NoOpSentrySpan
+  // ignore: invalid_use_of_internal_member
+  SentryTracer,
+  MethodChannel,
+  SentryNative,
 ], customMocks: [
   MockSpec<Hub>(fallbackGenerators: {#startTransaction: startTransactionShim})
 ])
 void main() {}
 
-class MockPlatform implements Platform {
+class MockPlatform with NoSuchMethodProvider implements Platform {
   MockPlatform({
     String? os,
     String? osVersion,
@@ -84,7 +97,7 @@ class MockPlatform implements Platform {
   bool get isFuchsia => (operatingSystem == 'fuchsia');
 }
 
-class MockPlatformChecker implements PlatformChecker {
+class MockPlatformChecker with NoSuchMethodProvider implements PlatformChecker {
   MockPlatformChecker({
     this.isDebug = false,
     this.isProfile = false,
@@ -120,96 +133,39 @@ class MockPlatformChecker implements PlatformChecker {
 }
 
 // Does nothing or returns default values.
-// Usefull for when a Hub needs to be passed but is not used.
-class NoOpHub implements Hub {
-  @override
-  void addBreadcrumb(Breadcrumb crumb, {hint}) {}
+// Useful for when a Hub needs to be passed but is not used.
+class NoOpHub with NoSuchMethodProvider implements Hub {
+  final _options = SentryOptions(dsn: 'fixture-dsn');
 
   @override
-  void bindClient(SentryClient client) {}
-
-  @override
-  Future<SentryId> captureEvent(
-    SentryEvent event, {
-    stackTrace,
-    hint,
-    ScopeCallback? withScope,
-  }) async =>
-      SentryId.empty();
-
-  @override
-  Future<SentryId> captureException(
-    throwable, {
-    stackTrace,
-    hint,
-    ScopeCallback? withScope,
-  }) async =>
-      SentryId.empty();
-
-  @override
-  Future<SentryId> captureMessage(
-    String? message, {
-    SentryLevel? level,
-    String? template,
-    List? params,
-    hint,
-    ScopeCallback? withScope,
-  }) async =>
-      SentryId.empty();
-
-  @override
-  Hub clone() {
-    return NoOpHub();
-  }
-
-  @override
-  Future<void> close() async {}
-
-  @override
-  void configureScope(ScopeCallback callback) {}
+  @internal
+  SentryOptions get options => _options;
 
   @override
   bool get isEnabled => false;
+}
+
+class MockNativeChannel implements SentryNativeChannel {
+  NativeAppStart? nativeAppStart;
+  NativeFrames? nativeFrames;
+  SentryId? id;
+
+  int numberOfBeginNativeFramesCalls = 0;
+  int numberOfEndNativeFramesCalls = 0;
 
   @override
-  SentryId get lastEventId => SentryId.empty();
+  Future<NativeAppStart?> fetchNativeAppStart() async => nativeAppStart;
 
   @override
-  Future<SentryId> captureTransaction(SentryTransaction transaction) async =>
-      SentryId.empty();
-
-  @override
-  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {}
-
-  @override
-  ISentrySpan startTransaction(
-    String name,
-    String operation, {
-    String? description,
-    bool? bindToScope,
-    bool? waitForChildren,
-    Duration? autoFinishAfter,
-    Map<String, dynamic>? customSamplingContext,
-  }) {
-    return NoOpSentrySpan();
-  }
-
-  @override
-  ISentrySpan startTransactionWithContext(
-    SentryTransactionContext transactionContext, {
-    Map<String, dynamic>? customSamplingContext,
-    bool? bindToScope,
-    bool? waitForChildren,
-    Duration? autoFinishAfter,
-  }) {
-    return NoOpSentrySpan();
-  }
-
-  @override
-  ISentrySpan? getSpan() {
+  Future<void> beginNativeFrames() async {
+    numberOfBeginNativeFramesCalls += 1;
     return null;
   }
 
   @override
-  void setSpanContext(throwable, ISentrySpan span, String transaction) {}
+  Future<NativeFrames?> endNativeFrames(SentryId id) async {
+    this.id = id;
+    numberOfEndNativeFramesCalls += 1;
+    return nativeFrames;
+  }
 }

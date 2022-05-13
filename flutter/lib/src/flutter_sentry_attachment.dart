@@ -17,6 +17,7 @@ class FlutterSentryAttachment extends SentryAttachment {
     AssetBundle? bundle,
     String? type,
     String? contentType,
+    bool? addToTransactions,
   }) : super.fromLoader(
           loader: () async {
             final data = await (bundle ?? rootBundle).load(key);
@@ -25,5 +26,6 @@ class FlutterSentryAttachment extends SentryAttachment {
           filename: filename ?? Uri.parse(key).pathSegments.last,
           attachmentType: type,
           contentType: contentType,
+          addToTransactions: addToTransactions,
         );
 }

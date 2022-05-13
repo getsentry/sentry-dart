@@ -14,6 +14,7 @@ export 'src/protocol.dart';
 export 'src/scope.dart';
 export 'src/sentry.dart';
 export 'src/sentry_envelope.dart';
+export 'src/sentry_envelope_item.dart';
 export 'src/sentry_client.dart';
 export 'src/sentry_options.dart';
 // useful for integrations
@@ -22,7 +23,9 @@ export 'src/transport/transport.dart';
 export 'src/integration.dart';
 export 'src/event_processor.dart';
 export 'src/http_client/sentry_http_client.dart';
+export 'src/http_client/sentry_http_client_error.dart';
 export 'src/sentry_attachment/sentry_attachment.dart';
 export 'src/sentry_user_feedback.dart';
 // tracing
 export 'src/tracing.dart';
+export 'src/sentry_measurement.dart';

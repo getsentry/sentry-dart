@@ -1,8 +1,8 @@
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/binding_utils.dart';
 import 'package:sentry_flutter/src/widgets_binding_observer.dart';
 
 import 'mocks.mocks.dart';
@@ -13,7 +13,7 @@ void main() {
     late SentryFlutterOptions flutterTrackingDisabledOptions;
 
     setUp(() {
-      WidgetsFlutterBinding.ensureInitialized();
+      TestWidgetsFlutterBinding.ensureInitialized();
 
       flutterTrackingEnabledOptions = SentryFlutterOptions();
       flutterTrackingEnabledOptions.useFlutterBreadcrumbTracking();
@@ -29,12 +29,13 @@ void main() {
         hub: hub,
         options: flutterTrackingEnabledOptions,
       );
-      WidgetsBinding.instance!.addObserver(observer);
+      final instance = BindingUtils.getWidgetsBindingInstance();
+      instance!.addObserver(observer);
 
       final message = const JSONMessageCodec()
           .encodeMessage(<String, dynamic>{'type': 'memoryPressure'});
 
-      await WidgetsBinding.instance!.defaultBinaryMessenger
+      await instance.defaultBinaryMessenger
           .handlePlatformMessage('flutter/system', message, (_) {});
 
       final breadcrumb =
@@ -50,7 +51,7 @@ void main() {
       expect(breadcrumb.type, 'system');
       expect(breadcrumb.category, 'device.event');
 
-      WidgetsBinding.instance!.removeObserver(observer);
+      instance.removeObserver(observer);
     });
 
     testWidgets('disable memory pressure breadcrumb',
@@ -61,22 +62,24 @@ void main() {
         hub: hub,
         options: flutterTrackingDisabledOptions,
       );
-      WidgetsBinding.instance!.addObserver(observer);
+      final instance = BindingUtils.getWidgetsBindingInstance();
+      instance!.addObserver(observer);
 
       final message = const JSONMessageCodec()
           .encodeMessage(<String, dynamic>{'type': 'memoryPressure'});
 
-      await WidgetsBinding.instance!.defaultBinaryMessenger
+      await instance.defaultBinaryMessenger
           .handlePlatformMessage('flutter/system', message, (_) {});
 
       verifyNever(hub.addBreadcrumb(captureAny));
 
-      WidgetsBinding.instance!.removeObserver(observer);
+      instance.removeObserver(observer);
     });
 
     testWidgets('lifecycle breadcrumbs', (WidgetTester tester) async {
       Future<void> sendLifecycle(String event) async {
-        final messenger = ServicesBinding.instance!.defaultBinaryMessenger;
+        final messenger = TestWidgetsFlutterBinding.ensureInitialized()
+            .defaultBinaryMessenger;
         final message =
             const StringCodec().encodeMessage('AppLifecycleState.$event');
         await messenger.handlePlatformMessage(
@@ -93,7 +96,8 @@ void main() {
         hub: hub,
         options: flutterTrackingEnabledOptions,
       );
-      WidgetsBinding.instance!.addObserver(observer);
+      final instance = BindingUtils.getWidgetsBindingInstance();
+      instance!.addObserver(observer);
 
       // paused lifecycle event
       await sendLifecycle('paused');
@@ -135,12 +139,13 @@ void main() {
       expect(breadcrumb.data, mapForLifecycle('detached'));
       expect(breadcrumb.level, SentryLevel.info);
 
-      WidgetsBinding.instance!.removeObserver(observer);
+      instance.removeObserver(observer);
     });
 
     testWidgets('disable lifecycle breadcrumbs', (WidgetTester tester) async {
       Future<void> sendLifecycle(String event) async {
-        final messenger = ServicesBinding.instance!.defaultBinaryMessenger;
+        final messenger = TestWidgetsFlutterBinding.ensureInitialized()
+            .defaultBinaryMessenger;
         final message =
             const StringCodec().encodeMessage('AppLifecycleState.$event');
         await messenger.handlePlatformMessage(
@@ -153,13 +158,14 @@ void main() {
         hub: hub,
         options: flutterTrackingDisabledOptions,
       );
-      WidgetsBinding.instance!.addObserver(observer);
+      final instance = BindingUtils.getWidgetsBindingInstance();
+      instance!.addObserver(observer);
 
       await sendLifecycle('paused');
 
       verifyNever(hub.addBreadcrumb(captureAny));
 
-      WidgetsBinding.instance!.removeObserver(observer);
+      instance.removeObserver(observer);
     });
 
     testWidgets('metrics changed breadcrumb', (WidgetTester tester) async {
@@ -169,9 +175,10 @@ void main() {
         hub: hub,
         options: flutterTrackingEnabledOptions,
       );
-      WidgetsBinding.instance!.addObserver(observer);
+      final instance = BindingUtils.getWidgetsBindingInstance();
+      instance!.addObserver(observer);
 
-      final window = WidgetsBinding.instance!.window;
+      final window = instance.window;
 
       window.onMetricsChanged!();
 
@@ -188,7 +195,7 @@ void main() {
         'new_width': window.physicalSize.width,
       });
 
-      WidgetsBinding.instance!.removeObserver(observer);
+      instance.removeObserver(observer);
     });
 
     testWidgets('disable metrics changed breadcrumb',
@@ -199,15 +206,16 @@ void main() {
         hub: hub,
         options: flutterTrackingDisabledOptions,
       );
-      WidgetsBinding.instance!.addObserver(observer);
+      final instance = BindingUtils.getWidgetsBindingInstance();
+      instance!.addObserver(observer);
 
-      final window = WidgetsBinding.instance!.window;
+      final window = instance.window;
 
       window.onMetricsChanged!();
 
       verifyNever(hub.addBreadcrumb(captureAny));
 
-      WidgetsBinding.instance!.removeObserver(observer);
+      instance.removeObserver(observer);
     });
 
     testWidgets('platform brightness breadcrumb', (WidgetTester tester) async {
@@ -217,13 +225,14 @@ void main() {
         hub: hub,
         options: flutterTrackingEnabledOptions,
       );
-      WidgetsBinding.instance!.addObserver(observer);
+      final instance = BindingUtils.getWidgetsBindingInstance();
+      instance!.addObserver(observer);
 
-      final window = WidgetsBinding.instance!.window;
+      final window = instance.window;
 
       window.onPlatformBrightnessChanged!();
 
-      final brightness = WidgetsBinding.instance!.window.platformBrightness;
+      final brightness = instance.window.platformBrightness;
       final brightnessDescription =
           brightness == Brightness.dark ? 'dark' : 'light';
 
@@ -240,7 +249,7 @@ void main() {
         'action': 'BRIGHTNESS_CHANGED_TO_${brightnessDescription.toUpperCase()}'
       });
 
-      WidgetsBinding.instance!.removeObserver(observer);
+      instance.removeObserver(observer);
     });
 
     testWidgets('disable platform brightness breadcrumb',
@@ -251,15 +260,16 @@ void main() {
         hub: hub,
         options: flutterTrackingDisabledOptions,
       );
-      WidgetsBinding.instance!.addObserver(observer);
+      final instance = BindingUtils.getWidgetsBindingInstance();
+      instance!.addObserver(observer);
 
-      final window = WidgetsBinding.instance!.window;
+      final window = instance.window;
 
       window.onPlatformBrightnessChanged!();
 
       verifyNever(hub.addBreadcrumb(captureAny));
 
-      WidgetsBinding.instance!.removeObserver(observer);
+      instance.removeObserver(observer);
     });
 
     testWidgets('text scale factor brightness changed breadcrumb',
@@ -270,14 +280,14 @@ void main() {
         hub: hub,
         options: flutterTrackingEnabledOptions,
       );
-      WidgetsBinding.instance!.addObserver(observer);
+      final instance = BindingUtils.getWidgetsBindingInstance();
+      instance!.addObserver(observer);
 
-      final window = WidgetsBinding.instance!.window;
+      final window = instance.window;
 
       window.onTextScaleFactorChanged!();
 
-      final newTextScaleFactor =
-          WidgetsBinding.instance!.window.textScaleFactor;
+      final newTextScaleFactor = instance.window.textScaleFactor;
 
       final breadcrumb =
           verify(hub.addBreadcrumb(captureAny)).captured.single as Breadcrumb;
@@ -291,7 +301,7 @@ void main() {
         'action': 'TEXT_SCALE_CHANGED_TO_$newTextScaleFactor'
       });
 
-      WidgetsBinding.instance!.removeObserver(observer);
+      instance.removeObserver(observer);
     });
 
     testWidgets('disable text scale factor brightness changed breadcrumb',
@@ -300,15 +310,16 @@ void main() {
 
       final observer = SentryWidgetsBindingObserver(
           hub: hub, options: flutterTrackingDisabledOptions);
-      WidgetsBinding.instance!.addObserver(observer);
+      final instance = BindingUtils.getWidgetsBindingInstance();
+      instance!.addObserver(observer);
 
-      final window = WidgetsBinding.instance!.window;
+      final window = instance.window;
 
       window.onTextScaleFactorChanged!();
 
       verifyNever(hub.addBreadcrumb(captureAny));
 
-      WidgetsBinding.instance!.removeObserver(observer);
+      instance.removeObserver(observer);
     });
   });
 }

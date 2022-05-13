@@ -1,20 +1,18 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:meta/meta.dart';
 import 'package:http/http.dart';
 
+import '../sentry.dart';
+import 'client_reports/client_report_recorder.dart';
+import 'client_reports/noop_client_report_recorder.dart';
+import 'sentry_exception_factory.dart';
+import 'sentry_stack_trace_factory.dart';
 import 'diagnostic_logger.dart';
 import 'environment/environment_variables.dart';
-import 'event_processor.dart';
-import 'http_client/sentry_http_client.dart';
-import 'integration.dart';
 import 'noop_client.dart';
-import 'platform_checker.dart';
-import 'protocol.dart';
-import 'scope.dart';
-import 'tracing.dart';
 import 'transport/noop_transport.dart';
-import 'transport/transport.dart';
 import 'utils.dart';
 import 'version.dart';
 
@@ -69,6 +67,24 @@ class SentryOptions {
   set maxAttachmentSize(int maxAttachmentSize) {
     assert(maxAttachmentSize > 0);
     _maxAttachmentSize = maxAttachmentSize;
+  }
+
+  /// Maximum number of spans that can be attached to single transaction.
+  ///
+  /// The is an experimental feature. Use at your own risk.
+  int _maxSpans = 1000;
+
+  /// Returns the maximum number of spans that can be attached to single transaction.
+  ///
+  /// The is an experimental feature. Use at your own risk.
+  int get maxSpans => _maxSpans;
+
+  /// Sets the maximum number of spans that can be attached to single transaction.
+  ///
+  /// The is an experimental feature. Use at your own risk.
+  set maxSpans(int maxSpans) {
+    assert(maxSpans > 0);
+    _maxSpans = maxSpans;
   }
 
   SentryLogger _logger = noOpLogger;
@@ -194,11 +210,11 @@ class SentryOptions {
   /// breadcrumbs.
   bool enablePrintBreadcrumbs = true;
 
-  /// If [platformChecker] is provided, it is used get the envirnoment.
+  /// If [platformChecker] is provided, it is used get the environment.
   /// This is useful in tests. Should be an implementation of [PlatformChecker].
   PlatformChecker platformChecker = PlatformChecker();
 
-  /// If [environmentVariables] is provided, it is used get the envirnoment
+  /// If [environmentVariables] is provided, it is used get the environment
   /// variables. This is useful in tests.
   EnvironmentVariables environmentVariables = EnvironmentVariables.instance();
 
@@ -245,21 +261,23 @@ class SentryOptions {
   /// callback before capturing exceptions or events
   BeforeCaptureWithScopeCallback? beforeCaptureWithScope;
 
+  /// Send statistics to sentry when the client drops events.
+  bool sendClientReports = true;
+
+  @internal
+  late ClientReportRecorder recorder = NoOpClientReportRecorder();
+
   SentryOptions({this.dsn, PlatformChecker? checker}) {
     if (checker != null) {
       platformChecker = checker;
     }
 
-    // In debug mode we want to log everything by default to the console.
-    // In order to do that, this must be the first thing the SDK does
-    // and the first thing the SDK does, is to instantiate SentryOptions
-    if (platformChecker.isDebugMode()) {
-      debug = true;
-    }
-
     sdk = SdkVersion(name: sdkName(platformChecker.isWeb), version: sdkVersion);
     sdk.addPackage('pub:sentry', sdkVersion);
   }
+
+  @internal
+  SentryOptions.empty();
 
   /// Adds an event processor
   void addEventProcessor(EventProcessor eventProcessor) {
@@ -301,6 +319,13 @@ class SentryOptions {
   bool isTracingEnabled() {
     return tracesSampleRate != null || tracesSampler != null;
   }
+
+  @internal
+  late SentryExceptionFactory exceptionFactory = SentryExceptionFactory(this);
+
+  @internal
+  late SentryStackTraceFactory stackTraceFactory =
+      SentryStackTraceFactory(this);
 }
 
 /// This function is called with an SDK specific event object and can return a modified event

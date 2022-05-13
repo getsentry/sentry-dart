@@ -11,6 +11,14 @@ class SentryFlutterOptions extends SentryOptions {
     enableBreadcrumbTrackingForCurrentPlatform();
   }
 
+  /// Initializes the Native SDKs on init.
+  /// Set this to `false` if you have an existing native SDK and don't want to re-initialize.
+  ///
+  /// NOTE: Be careful and only use this if you know what you are doing.
+  /// If you use this flag, make sure a native SDK is running before the Flutter Engine initializes or events might not be captured.
+  /// Defaults to `true`.
+  bool autoInitializeNativeSdk = true;
+
   /// Enable or disable reporting of used packages.
   bool reportPackages = true;
 
@@ -161,6 +169,15 @@ class SentryFlutterOptions extends SentryOptions {
   /// Enable scope sync from Java to NDK.
   /// Only available on Android.
   bool enableNdkScopeSync = false;
+
+  /// Enable auto performance tracking by default.
+  bool enableAutoPerformanceTracking = true;
+
+  /// Automatically track app start measurement and send it with the
+  /// first transaction. Set to false when configuring option to disable or if
+  /// you want to set the end time of app startup manually using
+  /// [SentryFlutter.setAppStartEnd].
+  bool autoAppStart = true;
 
   /// By using this, you are disabling native [Breadcrumb] tracking and instead
   /// you are just tracking [Breadcrumb]s which result from events available

@@ -3,7 +3,13 @@ on:
   push:
     branches:
       - main
+      - release/**
   pull_request:
+
+env:
+  SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+  SENTRY_DIST: 1
+
 jobs:
   build:
     name: E2E
@@ -15,17 +21,17 @@ jobs:
       fail-fast: false
       matrix:
         sdk: [stable, beta]
-    env:
-      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-      SENTRY_DIST: 1
     steps:
         - uses: dart-lang/setup-dart@v1
           with:
             sdk: ${{ matrix.sdk }}
         - uses: actions/checkout@v2
-        - name: Test 
+        - name: Test
           run: |
             dart pub get
             dart analyze --fatal-infos
             dart format --set-exit-if-changed ./
+        - name: Run
+          if: env.SENTRY_AUTH_TOKEN != null
+          run: |
             dart run --define=SENTRY_ENVIRONMENT=e2e
