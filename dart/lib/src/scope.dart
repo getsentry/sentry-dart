@@ -106,11 +106,15 @@ class Scope {
     _contexts[key] = (value is num || value is bool || value is String)
         ? {'value': value}
         : value;
+
+    _callScopeObservers((scopeObserver) => scopeObserver.setContexts(key, value));
   }
 
   /// Removes a value from the Scope's contexts
   void removeContexts(String key) {
     _contexts.remove(key);
+
+    _callScopeObservers((scopeObserver) => scopeObserver.removeContexts(key));
   }
 
   /// Scope's event processor list

@@ -54,6 +54,14 @@ class SentryNative {
 
   // Scope
 
+  FutureOr<void> setContexts(String key, dynamic value) async {
+    return await _nativeChannel?.setContexts(key, value);
+  }
+
+  FutureOr<void> removeContexts(String key) async {
+    return await _nativeChannel?.removeContexts(key);
+  }
+
   FutureOr<void> setUser(SentryUser? sentryUser) async {
     return await _nativeChannel?.setUser(sentryUser);
   }

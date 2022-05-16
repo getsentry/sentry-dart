@@ -73,6 +73,24 @@ class SentryNativeChannel {
     }
   }
 
+  FutureOr<void> setContexts(String key, dynamic value) async {
+    try {
+      await _channel.invokeMethod('setContexts', {'key': key, 'value': value});
+    } catch (error, stackTrace) {
+      _logError('setContexts', error, stackTrace);
+      return;
+    }
+  }
+
+  FutureOr<void> removeContexts(String key) async {
+    try {
+      await _channel.invokeMethod('removeContexts', {'key': key});
+    } catch (error, stackTrace) {
+      _logError('removeContexts', error, stackTrace);
+      return;
+    }
+  }
+
   FutureOr<void> setExtra(String key, dynamic value) async {
     try {
       await _channel.invokeMethod('setExtra', {'key': key, 'value': value});

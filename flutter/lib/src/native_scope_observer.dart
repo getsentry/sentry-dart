@@ -10,6 +10,16 @@ class NativeScopeObserver implements ScopeObserver {
   final SentryNative _sentryNative;
 
   @override
+  FutureOr<void> setContexts(String key, value) async {
+    await _sentryNative.setContexts(key, value);
+  }
+
+  @override
+  FutureOr<void> removeContexts(String key) async {
+    await _sentryNative.removeContexts(key);
+  }
+
+  @override
   FutureOr<void> setUser(SentryUser? user) async {
     await _sentryNative.setUser(user);
   }
