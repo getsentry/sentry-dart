@@ -31,7 +31,6 @@ class SentryNativeChannel {
       await _channel.invokeMapMethod<String, dynamic>('beginNativeFrames');
     } catch (error, stackTrace) {
       _logError('beginNativeFrames', error, stackTrace);
-      return;
     }
   }
 
@@ -51,7 +50,6 @@ class SentryNativeChannel {
       await _channel.invokeMethod('setUser', {'user': user?.toJson()});
     } catch (error, stackTrace) {
       _logError('setUser', error, stackTrace);
-      return;
     }
   }
 
@@ -60,7 +58,6 @@ class SentryNativeChannel {
       await _channel.invokeMethod('addBreadcrumb', {'breadcrumb': breadcrumb.toJson()});
     } catch (error, stackTrace) {
       _logError('addBreadcrumb', error, stackTrace);
-      return;
     }
   }
 
@@ -69,7 +66,6 @@ class SentryNativeChannel {
       await _channel.invokeMethod('clearBreadcrumbs');
     } catch (error, stackTrace) {
       _logError('clearBreadcrumbs', error, stackTrace);
-      return;
     }
   }
 
@@ -78,7 +74,6 @@ class SentryNativeChannel {
       await _channel.invokeMethod('setContexts', {'key': key, 'value': value});
     } catch (error, stackTrace) {
       _logError('setContexts', error, stackTrace);
-      return;
     }
   }
 
@@ -87,7 +82,6 @@ class SentryNativeChannel {
       await _channel.invokeMethod('removeContexts', {'key': key});
     } catch (error, stackTrace) {
       _logError('removeContexts', error, stackTrace);
-      return;
     }
   }
 
@@ -96,7 +90,6 @@ class SentryNativeChannel {
       await _channel.invokeMethod('setExtra', {'key': key, 'value': value});
     } catch (error, stackTrace) {
       _logError('setExtra', error, stackTrace);
-      return;
     }
   }
 
@@ -105,7 +98,6 @@ class SentryNativeChannel {
       await _channel.invokeMethod('removeExtra', {'key': key});
     } catch (error, stackTrace) {
       _logError('removeExtra', error, stackTrace);
-      return;
     }
   }
 
@@ -114,7 +106,6 @@ class SentryNativeChannel {
       await _channel.invokeMethod('setTag', {'key': key, 'value': value});
     } catch (error, stackTrace) {
       _logError('setTag', error, stackTrace);
-      return;
     }
   }
 
@@ -123,7 +114,6 @@ class SentryNativeChannel {
       await _channel.invokeMethod('removeTag', {'key': key});
     } catch (error, stackTrace) {
       _logError('removeTag', error, stackTrace);
-      return;
     }
   }
 
