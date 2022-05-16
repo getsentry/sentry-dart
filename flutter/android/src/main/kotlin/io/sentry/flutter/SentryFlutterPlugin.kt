@@ -263,32 +263,30 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   private fun setUser(user: Map<String, Any?>?, result: Result) {
-    Sentry.configureScope { scope ->
-      if (user == null) {
-        scope.user = null
-      } else {
-        val userInstance = User()
+    if (user == null) {
+      Sentry.setUser(null)
+    } else {
+      val userInstance = User()
 
-        (user["email"] as? String)?.let { userInstance.email = it }
-        (user["id"] as? String)?.let { userInstance.id = it }
-        (user["username"] as? String)?.let { userInstance.username = it }
-        (user["ip_address"] as? String)?.let { userInstance.ipAddress = it }
-        (user["extras"] as? Map<String, Any?>)?.let { extras ->
-          val others = mutableMapOf<String, String>()
-          extras.forEach { key, value ->
-            val stringValue = value as? String
-            if (stringValue != null) {
-              others[key] = stringValue
-            }
+      (user["email"] as? String)?.let { userInstance.email = it }
+      (user["id"] as? String)?.let { userInstance.id = it }
+      (user["username"] as? String)?.let { userInstance.username = it }
+      (user["ip_address"] as? String)?.let { userInstance.ipAddress = it }
+      (user["extras"] as? Map<String, Any?>)?.let { extras ->
+        val others = mutableMapOf<String, String>()
+        extras.forEach { key, value ->
+          val stringValue = value as? String
+          if (stringValue != null) {
+            others[key] = stringValue
           }
-          userInstance.others = others
         }
-
-        scope.user = userInstance
+        userInstance.others = others
       }
 
-      result.success("")
+      Sentry.setUser(userInstance)
     }
+
+    result.success("")
   }
 
   private fun addBreadcrumb(breadcrumb: Map<String, Any?>?, result: Result) {
@@ -296,40 +294,36 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       result.success("")
       return
     }
-    Sentry.configureScope { scope ->
-      val breadcrumbInstance = Breadcrumb()
+    val breadcrumbInstance = Breadcrumb()
 
-      (breadcrumb["message"] as? String)?.let { breadcrumbInstance.message = it }
-      (breadcrumb["type"] as? String)?.let { breadcrumbInstance.type = it }
-      (breadcrumb["category"] as? String)?.let { breadcrumbInstance.category = it }
-      (breadcrumb["level"] as? String)?.let {
-        breadcrumbInstance.level = when (it) {
-          "fatal" -> SentryLevel.FATAL
-          "warning" -> SentryLevel.WARNING
-          "info" -> SentryLevel.INFO
-          "debug" -> SentryLevel.DEBUG
-          "error" -> SentryLevel.ERROR
-          else -> SentryLevel.ERROR
-        }
+    (breadcrumb["message"] as? String)?.let { breadcrumbInstance.message = it }
+    (breadcrumb["type"] as? String)?.let { breadcrumbInstance.type = it }
+    (breadcrumb["category"] as? String)?.let { breadcrumbInstance.category = it }
+    (breadcrumb["level"] as? String)?.let {
+      breadcrumbInstance.level = when (it) {
+        "fatal" -> SentryLevel.FATAL
+        "warning" -> SentryLevel.WARNING
+        "info" -> SentryLevel.INFO
+        "debug" -> SentryLevel.DEBUG
+        "error" -> SentryLevel.ERROR
+        else -> SentryLevel.ERROR
       }
-      (breadcrumb["data"] as? Map<String, Any?>)?.let { data ->
-        data.forEach { key, value ->
-          breadcrumbInstance.data[key] = value
-        }
-      }
-
-      scope.addBreadcrumb(breadcrumbInstance)
-
-      result.success("")
     }
+    (breadcrumb["data"] as? Map<String, Any?>)?.let { data ->
+      data.forEach { key, value ->
+        breadcrumbInstance.data[key] = value
+      }
+    }
+
+    Sentry.addBreadcrumb(breadcrumbInstance)
+
+    result.success("")
   }
 
   private fun clearBreadcrumbs(result: Result) {
-    Sentry.configureScope { scope ->
-      scope.clearBreadcrumbs()
+    Sentry.clearBreadcrumbs()
 
-      result.success("")
-    }
+    result.success("")
   }
 
   private fun setExtra(key: String?, value: String?, result: Result) {
@@ -337,11 +331,9 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       result.success("")
       return
     }
-    Sentry.configureScope { scope ->
-      scope.setExtra(key, value)
+    Sentry.setExtra(key, value)
 
-      result.success("")
-    }
+    result.success("")
   }
 
   private fun removeExtra(key: String?, result: Result) {
@@ -349,11 +341,9 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       result.success("")
       return
     }
-    Sentry.configureScope { scope ->
-      scope.removeExtra(key)
+    Sentry.removeExtra(key)
 
-      result.success("")
-    }
+    result.success("")
   }
 
   private fun setTag(key: String?, value: String?, result: Result) {
@@ -361,11 +351,9 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       result.success("")
       return
     }
-    Sentry.configureScope { scope ->
-      scope.setTag(key, value)
+    Sentry.setTag(key, value)
 
-      result.success("")
-    }
+    result.success("")
   }
 
   private fun removeTag(key: String?, result: Result) {
@@ -373,11 +361,9 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       result.success("")
       return
     }
-    Sentry.configureScope { scope ->
-      scope.removeTag(key)
+    Sentry.removeTag(key)
 
-      result.success("")
-    }
+    result.success("")
   }
 
   private fun captureEnvelope(call: MethodCall, result: Result) {
