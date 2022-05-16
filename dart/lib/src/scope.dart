@@ -206,6 +206,7 @@ class Scope {
   /// Removes a tag from the Scope
   void removeTag(String key) {
     _tags.remove(key);
+    _callScopeObservers((scopeObserver) => scopeObserver.removeTag(key));
   }
 
   /// Sets an extra to the Scope
@@ -215,7 +216,10 @@ class Scope {
   }
 
   /// Removes an extra from the Scope
-  void removeExtra(String key) => _extra.remove(key);
+  void removeExtra(String key) {
+    _extra.remove(key);
+    _callScopeObservers((scopeObserver) => scopeObserver.removeExtra(key));
+  }
 
   Future<SentryEvent?> applyToEvent(
     SentryEvent event, {

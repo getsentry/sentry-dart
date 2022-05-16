@@ -70,8 +70,16 @@ class SentryNative {
     return await _nativeChannel?.setExtra(key, value);
   }
 
+  FutureOr<void> removeExtra(String key) async {
+    return await _nativeChannel?.removeExtra(key);
+  }
+
   FutureOr<void> setTag(String key, String value) async {
     return await _nativeChannel?.setTag(key, value);
+  }
+
+  FutureOr<void> removeTag(String key) async {
+    return await _nativeChannel?.removeTag(key);
   }
 
   /// Reset state

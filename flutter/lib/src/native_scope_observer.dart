@@ -30,7 +30,17 @@ class NativeScopeObserver implements ScopeObserver {
   }
 
   @override
+  FutureOr<void> removeExtra(String key) async {
+    await _sentryNative.removeExtra(key);
+  }
+
+  @override
   FutureOr<void> setTag(String key, String value) async {
     await _sentryNative.setExtra(key, value);
+  }
+
+  @override
+  FutureOr<void> removeTag(String key) async {
+    await _sentryNative.removeTag(key);
   }
 }

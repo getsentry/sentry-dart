@@ -82,11 +82,29 @@ class SentryNativeChannel {
     }
   }
 
+  FutureOr<void> removeExtra(String key) async {
+    try {
+      await _channel.invokeMethod('removeExtra', {'key': key});
+    } catch (error, stackTrace) {
+      _logError('removeExtra', error, stackTrace);
+      return;
+    }
+  }
+
   FutureOr<void> setTag(String key, dynamic value) async {
     try {
       await _channel.invokeMethod('setTag', {'key': key, 'value': value});
     } catch (error, stackTrace) {
       _logError('setTag', error, stackTrace);
+      return;
+    }
+  }
+
+  FutureOr<void> removeTag(String key) async {
+    try {
+      await _channel.invokeMethod('removeTag', {'key': key});
+    } catch (error, stackTrace) {
+      _logError('removeTag', error, stackTrace);
       return;
     }
   }
