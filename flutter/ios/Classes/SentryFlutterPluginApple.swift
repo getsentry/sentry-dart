@@ -95,11 +95,21 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             let value = arguments?["value"] as? Any
             setExtra(key: key, value: value, result: result)
 
+        case "removeExtra":
+            let arguments = call.arguments as? Dictionary<String, Any?>
+            let key = arguments?["key"] as? String
+            removeExtra(key: key, result: result)
+
         case "setTag":
             let arguments = call.arguments as? Dictionary<String, Any?>
             let key = arguments?["key"] as? String
-            let value = arguments?["value"] as? Any
+            let value = arguments?["value"] as? String
             setTag(key: key, value: value, result: result)
+
+        case "removeTag":
+            let arguments = call.arguments as? Dictionary<String, Any?>
+            let key = arguments?["key"] as? String
+            removeTag(key: key, result: result)
 
         default:
             result(FlutterMethodNotImplemented)
@@ -532,6 +542,18 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
       }
     }
 
+    private func removeExtra(key: String?, result: @escaping FlutterResult) {
+      guard let key = key else {
+        result("")
+        return
+      }
+      SentrySDK.configureScope { scope in
+        scope.removeExtra(key: key)
+
+        result("")
+      }
+    }
+
     private func setTag(key: String?, value: String?, result: @escaping FlutterResult) {
       guard let key = key, let value = value else {
         result("")
@@ -539,6 +561,18 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
       }
       SentrySDK.configureScope { scope in
         scope.setTag(value: value, key: key)
+
+        result("")
+      }
+    }
+
+    private func removeTag(key: String?, result: @escaping FlutterResult) {
+      guard let key = key else {
+        result("")
+        return
+      }
+      SentrySDK.configureScope { scope in
+        scope.removeTag(key: key)
 
         result("")
       }
