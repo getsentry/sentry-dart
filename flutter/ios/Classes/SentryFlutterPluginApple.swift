@@ -489,32 +489,30 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
     }
 
     private func setUser(user: Dictionary<String, Any?>?, result: @escaping FlutterResult) {
-      SentrySDK.configureScope { scope in
-        if let user = user {
-          let userInstance = User()
+      if let user = user {
+        let userInstance = User()
 
-          if let email = user["email"] as? String {
-            userInstance.email = email
-          }
-          if let id = user["id"] as? String {
-            userInstance.userId = id
-          }
-          if let username = user["username"] as? String {
-            userInstance.username = username
-          }
-          if let ipAddress = user["ip_address"] as? String {
-            userInstance.ipAddress = ipAddress
-          }
-          if let extras = user["extras"] as? Dictionary<String, Any?> {
-            userInstance.data = extras
-          }
-
-          scope.setUser(userInstance)
-        } else {
-          scope.setUser(nil)
+        if let email = user["email"] as? String {
+          userInstance.email = email
         }
-        result("")
+        if let id = user["id"] as? String {
+          userInstance.userId = id
+        }
+        if let username = user["username"] as? String {
+          userInstance.username = username
+        }
+        if let ipAddress = user["ip_address"] as? String {
+          userInstance.ipAddress = ipAddress
+        }
+        if let extras = user["extras"] as? Dictionary<String, Any?> {
+          userInstance.data = extras
+        }
+
+        SentrySDK.setUser(userInstance)
+      } else {
+        SentrySDK.setUser(nil)
       }
+      result("")
     }
 
     private func addBreadcrumb(breadcrumb: Dictionary<String, Any?>?, result: @escaping FlutterResult) {
@@ -523,42 +521,40 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         return
       }
 
-      SentrySDK.configureScope { scope in
-        let breadcrumbInstance = Breadcrumb()
+      let breadcrumbInstance = Breadcrumb()
 
-        if let message = breadcrumb["message"] as? String {
-          breadcrumbInstance.message = message
-        }
-        if let type = breadcrumb["type"] as? String {
-          breadcrumbInstance.type = type
-        }
-        if let category = breadcrumb["category"] as? String {
-          breadcrumbInstance.category = category
-        }
-        if let level = breadcrumb["level"] as? String {
-          switch level {
-              case "fatal":
-                breadcrumbInstance.level = SentryLevel.fatal
-              case "warning":
-                breadcrumbInstance.level = SentryLevel.warning
-              case "info":
-                breadcrumbInstance.level = SentryLevel.info
-              case "debug":
-                breadcrumbInstance.level = SentryLevel.debug
-              case "error":
-                breadcrumbInstance.level = SentryLevel.error
-              default:
-                breadcrumbInstance.level = SentryLevel.error
-          }
-        }
-        if let data = breadcrumb["data"] as? Dictionary<String, Any?> {
-          breadcrumbInstance.data = data
-        }
-
-        scope.add(breadcrumbInstance)
-
-        result("")
+      if let message = breadcrumb["message"] as? String {
+        breadcrumbInstance.message = message
       }
+      if let type = breadcrumb["type"] as? String {
+        breadcrumbInstance.type = type
+      }
+      if let category = breadcrumb["category"] as? String {
+        breadcrumbInstance.category = category
+      }
+      if let level = breadcrumb["level"] as? String {
+        switch level {
+            case "fatal":
+              breadcrumbInstance.level = SentryLevel.fatal
+            case "warning":
+              breadcrumbInstance.level = SentryLevel.warning
+            case "info":
+              breadcrumbInstance.level = SentryLevel.info
+            case "debug":
+              breadcrumbInstance.level = SentryLevel.debug
+            case "error":
+              breadcrumbInstance.level = SentryLevel.error
+            default:
+              breadcrumbInstance.level = SentryLevel.error
+        }
+      }
+      if let data = breadcrumb["data"] as? Dictionary<String, Any?> {
+        breadcrumbInstance.data = data
+      }
+
+      SentrySDK.addBreadcrumb(crumb: breadcrumbInstance)
+
+      result("")
     }
 
     private func clearBreadcrumbs(result: @escaping FlutterResult) {
