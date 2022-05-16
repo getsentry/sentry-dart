@@ -55,7 +55,7 @@ class Scope {
   /// Set the current user.
   set user(SentryUser? user) {
     _user = user;
-    callScopeObservers((scopeObserver) => scopeObserver.setUser(user));
+    _callScopeObservers((scopeObserver) => scopeObserver.setUser(user));
   }
 
   List<String> _fingerprint = [];
@@ -161,7 +161,7 @@ class Scope {
 
     _breadcrumbs.add(breadcrumb);
 
-    callScopeObservers((scopeObserver) => scopeObserver.addBreadcrumb(breadcrumb));
+    _callScopeObservers((scopeObserver) => scopeObserver.addBreadcrumb(breadcrumb));
   }
 
   void addAttachment(SentryAttachment attachment) {
@@ -175,7 +175,7 @@ class Scope {
   /// Clear all the breadcrumbs
   void clearBreadcrumbs() {
     _breadcrumbs.clear();
-    callScopeObservers((scopeObserver) => scopeObserver.clearBreadcrumbs());
+    _callScopeObservers((scopeObserver) => scopeObserver.clearBreadcrumbs());
   }
 
   /// Adds an event processor
@@ -200,7 +200,7 @@ class Scope {
   /// Sets a tag to the Scope
   void setTag(String key, String value) {
     _tags[key] = value;
-    callScopeObservers((scopeObserver) => scopeObserver.setTag(key, value));
+    _callScopeObservers((scopeObserver) => scopeObserver.setTag(key, value));
   }
 
   /// Removes a tag from the Scope
@@ -211,7 +211,7 @@ class Scope {
   /// Sets an extra to the Scope
   void setExtra(String key, dynamic value) {
     _extra[key] = value;
-    callScopeObservers((scopeObserver) => scopeObserver.setExtra(key, value));
+    _callScopeObservers((scopeObserver) => scopeObserver.setExtra(key, value));
   }
 
   /// Removes an extra from the Scope
@@ -331,12 +331,6 @@ class Scope {
     return map;
   }
 
-  void callScopeObservers(Function (ScopeObserver) action) {
-    if (_options.enableScopeSync) {
-      _options.scopeObservers.forEach(action);
-    }
-  }
-
   /// Clones the current Scope
   Scope clone() {
     final clone = Scope(_options)
@@ -373,5 +367,11 @@ class Scope {
     }
 
     return clone;
+  }
+
+  void _callScopeObservers(Function (ScopeObserver) action) {
+    if (_options.enableScopeSync) {
+      _options.scopeObservers.forEach(action);
+    }
   }
 }
