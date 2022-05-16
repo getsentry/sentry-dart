@@ -76,6 +76,12 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         case "endNativeFrames":
             endNativeFrames(result: result)
 
+        case "setContexts":
+            let arguments = call.arguments as? Dictionary<String, Any?>
+            let key = arguments?["key"] as? String
+            let value = arguments?["value"] as? Any
+            setContexts(key: key, value: value, result: result)
+
         case "setUser":
             let arguments = call.arguments as? Dictionary<String, Any?>
             let user = arguments?["user"] as? Dictionary<String, Any?>
@@ -447,6 +453,39 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
       #else
       result(nil)
       #endif
+    }
+
+    private func setContexts(key: String?, value: Any?, result: @escaping FlutterResult) {
+      guard let key = key else {
+        result("")
+        return
+      }
+
+      SentrySDK.configureScope { scope in
+        if let dictionary = value as? Dictionary<String, Any?> {
+          scope.setContext(value: dictionary, key: key)
+        } else if let string = value as? String? {
+          scope.setContext(value: ["value": string], key: key)
+        } else if let int = value as? Int {
+          scope.setContext(value: ["value": int], key: key)
+        } else if let double = value as? Double {
+          scope.setContext(value: ["value": double], key: key)
+        } else if let bool = value as? Bool {
+          scope.setContext(value: ["value": bool], key: key)
+        }
+        result("")
+      }
+    }
+
+    private func removeContexts(key: String?, result: @escaping FlutterResult) {
+      guard let key = key else {
+        result("")
+        return
+      }
+      SentrySDK.configureScope { scope in
+        scope.removeContext(key: key)
+        result("")
+      }
     }
 
     private func setUser(user: Dictionary<String, Any?>?, result: @escaping FlutterResult) {
