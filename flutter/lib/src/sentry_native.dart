@@ -54,39 +54,39 @@ class SentryNative {
 
   // Scope
 
-  FutureOr<void> setContexts(String key, dynamic value) async {
+  Future<void> setContexts(String key, dynamic value) async {
     return await _nativeChannel?.setContexts(key, value);
   }
 
-  FutureOr<void> removeContexts(String key) async {
+  Future<void> removeContexts(String key) async {
     return await _nativeChannel?.removeContexts(key);
   }
 
-  FutureOr<void> setUser(SentryUser? sentryUser) async {
+  Future<void> setUser(SentryUser? sentryUser) async {
     return await _nativeChannel?.setUser(sentryUser);
   }
 
-  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) async {
+  Future<void> addBreadcrumb(Breadcrumb breadcrumb) async {
     return await _nativeChannel?.addBreadcrumb(breadcrumb);
   }
 
-  FutureOr<void> clearBreadcrumbs() async {
+  Future<void> clearBreadcrumbs() async {
     return await _nativeChannel?.clearBreadcrumbs();
   }
 
-  FutureOr<void> setExtra(String key, dynamic value) async {
+  Future<void> setExtra(String key, dynamic value) async {
     return await _nativeChannel?.setExtra(key, value);
   }
 
-  FutureOr<void> removeExtra(String key) async {
+  Future<void> removeExtra(String key) async {
     return await _nativeChannel?.removeExtra(key);
   }
 
-  FutureOr<void> setTag(String key, String value) async {
+  Future<void> setTag(String key, String value) async {
     return await _nativeChannel?.setTag(key, value);
   }
 
-  FutureOr<void> removeTag(String key) async {
+  Future<void> removeTag(String key) async {
     return await _nativeChannel?.removeTag(key);
   }
 

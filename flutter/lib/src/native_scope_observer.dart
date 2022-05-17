@@ -10,47 +10,47 @@ class NativeScopeObserver implements ScopeObserver {
   final SentryNative _sentryNative;
 
   @override
-  FutureOr<void> setContexts(String key, value) async {
+  Future<void> setContexts(String key, value) async {
     await _sentryNative.setContexts(key, value);
   }
 
   @override
-  FutureOr<void> removeContexts(String key) async {
+  Future<void> removeContexts(String key) async {
     await _sentryNative.removeContexts(key);
   }
 
   @override
-  FutureOr<void> setUser(SentryUser? user) async {
+  Future<void> setUser(SentryUser? user) async {
     await _sentryNative.setUser(user);
   }
 
   @override
-  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) async {
+  Future<void> addBreadcrumb(Breadcrumb breadcrumb) async {
     await _sentryNative.addBreadcrumb(breadcrumb);
   }
 
   @override
-  FutureOr<void> clearBreadcrumbs() async {
+  Future<void> clearBreadcrumbs() async {
     await _sentryNative.clearBreadcrumbs();
   }
 
   @override
-  FutureOr<void> setExtra(String key, dynamic value) async {
+  Future<void> setExtra(String key, dynamic value) async {
     await _sentryNative.setExtra(key, value);
   }
 
   @override
-  FutureOr<void> removeExtra(String key) async {
+  Future<void> removeExtra(String key) async {
     await _sentryNative.removeExtra(key);
   }
 
   @override
-  FutureOr<void> setTag(String key, String value) async {
+  Future<void> setTag(String key, String value) async {
     await _sentryNative.setExtra(key, value);
   }
 
   @override
-  FutureOr<void> removeTag(String key) async {
+  Future<void> removeTag(String key) async {
     await _sentryNative.removeTag(key);
   }
 }

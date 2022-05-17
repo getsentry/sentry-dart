@@ -45,7 +45,7 @@ class SentryNativeChannel {
     }
   }
 
-  FutureOr<void> setUser(SentryUser? user) async {
+  Future<void> setUser(SentryUser? user) async {
     try {
       await _channel.invokeMethod('setUser', {'user': user?.toJson()});
     } catch (error, stackTrace) {
@@ -53,7 +53,7 @@ class SentryNativeChannel {
     }
   }
 
-  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb) async {
+  Future<void> addBreadcrumb(Breadcrumb breadcrumb) async {
     try {
       await _channel.invokeMethod('addBreadcrumb', {'breadcrumb': breadcrumb.toJson()});
     } catch (error, stackTrace) {
@@ -61,7 +61,7 @@ class SentryNativeChannel {
     }
   }
 
-  FutureOr<void> clearBreadcrumbs() async {
+  Future<void> clearBreadcrumbs() async {
     try {
       await _channel.invokeMethod('clearBreadcrumbs');
     } catch (error, stackTrace) {
@@ -69,7 +69,7 @@ class SentryNativeChannel {
     }
   }
 
-  FutureOr<void> setContexts(String key, dynamic value) async {
+  Future<void> setContexts(String key, dynamic value) async {
     try {
       await _channel.invokeMethod('setContexts', {'key': key, 'value': value});
     } catch (error, stackTrace) {
@@ -77,7 +77,7 @@ class SentryNativeChannel {
     }
   }
 
-  FutureOr<void> removeContexts(String key) async {
+  Future<void> removeContexts(String key) async {
     try {
       await _channel.invokeMethod('removeContexts', {'key': key});
     } catch (error, stackTrace) {
@@ -85,7 +85,7 @@ class SentryNativeChannel {
     }
   }
 
-  FutureOr<void> setExtra(String key, dynamic value) async {
+  Future<void> setExtra(String key, dynamic value) async {
     try {
       await _channel.invokeMethod('setExtra', {'key': key, 'value': value});
     } catch (error, stackTrace) {
@@ -93,7 +93,7 @@ class SentryNativeChannel {
     }
   }
 
-  FutureOr<void> removeExtra(String key) async {
+  Future<void> removeExtra(String key) async {
     try {
       await _channel.invokeMethod('removeExtra', {'key': key});
     } catch (error, stackTrace) {
@@ -101,7 +101,7 @@ class SentryNativeChannel {
     }
   }
 
-  FutureOr<void> setTag(String key, dynamic value) async {
+  Future<void> setTag(String key, dynamic value) async {
     try {
       await _channel.invokeMethod('setTag', {'key': key, 'value': value});
     } catch (error, stackTrace) {
@@ -109,7 +109,7 @@ class SentryNativeChannel {
     }
   }
 
-  FutureOr<void> removeTag(String key) async {
+  Future<void> removeTag(String key) async {
     try {
       await _channel.invokeMethod('removeTag', {'key': key});
     } catch (error, stackTrace) {
