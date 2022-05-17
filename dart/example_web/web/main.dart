@@ -40,18 +40,21 @@ void runApp() {
 
   Sentry.configureScope((scope) {
     scope
-      ..user = SentryUser(
-        id: '800',
-        username: 'first-user',
-        email: 'first@user.lan',
-        // ipAddress: '127.0.0.1',
-        extras: <String, String>{'first-sign-in': '2020-01-01'},
-      )
       // ..fingerprint = ['example-dart']
       ..transaction = '/example/app'
       ..level = SentryLevel.warning
       ..setTag('build', '579')
       ..setExtra('company-name', 'Dart Inc');
+
+    scope.setUser(
+      SentryUser(
+        id: '800',
+        username: 'first-user',
+        email: 'first@user.lan',
+        // ipAddress: '127.0.0.1',
+        extras: <String, String>{'first-sign-in': '2020-01-01'},
+      ),
+    );
   });
 
   querySelector('#btEvent')

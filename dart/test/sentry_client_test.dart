@@ -454,13 +454,14 @@ void main() {
       fixture = Fixture();
 
       scope = Scope(fixture.options)
-        ..user = user
         ..level = level
         ..transaction = transaction
         ..fingerprint = fingerprint
         ..addBreadcrumb(crumb)
         ..setTag(scopeTagKey, scopeTagValue)
         ..setExtra(scopeExtraKey, scopeExtraValue);
+
+      scope.setUser(user);
     });
 
     test('should apply the scope', () async {
@@ -507,11 +508,12 @@ void main() {
     );
 
     Scope createScope(SentryOptions options) {
-      return Scope(options)
-        ..user = user
+      final scope = Scope(options)
         ..transaction = transaction
         ..fingerprint = fingerprint
         ..addBreadcrumb(crumb);
+      scope.setUser(user);
+      return scope;
     }
 
     setUp(() {
@@ -539,7 +541,7 @@ void main() {
       final client = fixture.getSut(sendDefaultPii: true);
       final scope = createScope(fixture.options);
 
-      scope.user = SentryUser(id: '987');
+      scope.setUser(SentryUser(id: '987'));
 
       var eventWithUser = event.copyWith(
         user: SentryUser(id: '123', username: 'foo bar'),
@@ -562,12 +564,14 @@ void main() {
       final client = fixture.getSut(sendDefaultPii: true);
       final scope = createScope(fixture.options);
 
-      scope.user = SentryUser(
-        id: 'id',
-        extras: {
-          'foo': 'bar',
-          'bar': 'foo',
-        },
+      scope.setUser(
+        SentryUser(
+          id: 'id',
+          extras: {
+            'foo': 'bar',
+            'bar': 'foo',
+          },
+        ),
       );
 
       var eventWithUser = event.copyWith(

@@ -407,15 +407,22 @@ void runTest({Codec<List<int>, List<int>?>? gzip, bool isWeb = false}) {
         throwable: error,
         user: eventUser,
       );
+
+      final scope = Scope(options);
+      scope.setUser(clientUser);
+
       await client.captureEvent(
         eventWithoutContext,
-        scope: Scope(options)..user = clientUser,
+        scope: scope,
       );
       expect(loggedUserId, clientUser.id);
 
+      final secondScope = Scope(options);
+      secondScope.setUser(clientUser);
+
       await client.captureEvent(
         eventWithContext,
-        scope: Scope(options)..user = clientUser,
+        scope: secondScope,
       );
       expect(loggedUserId, eventUser.id);
     }

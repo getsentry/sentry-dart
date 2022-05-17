@@ -337,9 +337,10 @@ void main() {
     test('should configure its scope', () async {
       hub.configureScope((Scope scope) {
         scope
-          ..user = fakeUser
           ..level = SentryLevel.debug
           ..fingerprint = ['1', '2'];
+
+        scope.setUser(fakeUser);
       });
       await hub.captureEvent(fakeEvent);
 
@@ -348,13 +349,16 @@ void main() {
       expect(client.captureEventCalls.first.scope, isNotNull);
       final scope = client.captureEventCalls.first.scope;
 
+      final otherScope = Scope(SentryOptions(dsn: fakeDsn))
+        ..level = SentryLevel.debug
+        ..fingerprint = ['1', '2'];
+
+      otherScope.setUser(fakeUser);
+
       expect(
         scopeEquals(
           scope,
-          Scope(SentryOptions(dsn: fakeDsn))
-            ..level = SentryLevel.debug
-            ..user = fakeUser
-            ..fingerprint = ['1', '2'],
+          otherScope,
         ),
         true,
       );
@@ -417,7 +421,7 @@ void main() {
       final hub = fixture.getSut();
       await hub.captureEvent(SentryEvent());
       await hub.captureEvent(SentryEvent(), withScope: (scope) {
-        scope.user = SentryUser(id: 'foo bar');
+        scope.setUser(SentryUser(id: 'foo bar'));
       });
       await hub.captureEvent(SentryEvent());
 
@@ -432,7 +436,7 @@ void main() {
       final hub = fixture.getSut();
       await hub.captureException(Exception('0'));
       await hub.captureException(Exception('1'), withScope: (scope) {
-        scope.user = SentryUser(id: 'foo bar');
+        scope.setUser(SentryUser(id: 'foo bar'));
       });
       await hub.captureException(Exception('2'));
 
@@ -452,7 +456,7 @@ void main() {
       final hub = fixture.getSut();
       await hub.captureMessage('foo bar 0');
       await hub.captureMessage('foo bar 1', withScope: (scope) {
-        scope.user = SentryUser(id: 'foo bar');
+        scope.setUser(SentryUser(id: 'foo bar'));
       });
       await hub.captureMessage('foo bar 2');
 

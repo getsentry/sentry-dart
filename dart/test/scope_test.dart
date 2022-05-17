@@ -56,7 +56,7 @@ void main() {
     final sut = fixture.getSut();
 
     final user = SentryUser(id: 'test');
-    sut.user = user;
+    sut.setUser(user);
 
     expect(sut.user, user);
   });
@@ -183,8 +183,8 @@ void main() {
     final attachment = SentryAttachment.fromIntList([0, 0, 0, 0], 'test.txt');
     sut.addAttachment(attachment);
 
-    expect(sut.attachements.last, attachment);
-    expect(sut.attachements.length, 1);
+    expect(sut.attachments.last, attachment);
+    expect(sut.attachments.length, 1);
   });
 
   test('clear() removes all $SentryAttachment', () {
@@ -192,10 +192,10 @@ void main() {
 
     final attachment = SentryAttachment.fromIntList([0, 0, 0, 0], 'test.txt');
     sut.addAttachment(attachment);
-    expect(sut.attachements.length, 1);
+    expect(sut.attachments.length, 1);
     sut.clear();
 
-    expect(sut.attachements.length, 0);
+    expect(sut.attachments.length, 0);
   });
 
   test('clearAttachments() removes all $SentryAttachment', () {
@@ -203,10 +203,10 @@ void main() {
 
     final attachment = SentryAttachment.fromIntList([0, 0, 0, 0], 'test.txt');
     sut.addAttachment(attachment);
-    expect(sut.attachements.length, 1);
+    expect(sut.attachments.length, 1);
     sut.clearAttachments();
 
-    expect(sut.attachements.length, 0);
+    expect(sut.attachments.length, 0);
   });
 
   test('sets tag', () {
@@ -257,7 +257,7 @@ void main() {
     sut.span = null;
 
     final user = SentryUser(id: 'test');
-    sut.user = user;
+    sut.setUser(user);
 
     final fingerprints = ['test'];
     sut.fingerprint = fingerprints;
@@ -305,7 +305,7 @@ void main() {
     expect(sut.tags, clone.tags);
     expect(sut.breadcrumbs, clone.breadcrumbs);
     expect(sut.contexts, clone.contexts);
-    expect(sut.attachements, clone.attachements);
+    expect(sut.attachments, clone.attachments);
     expect(sut.level, clone.level);
     expect(ListEquality().equals(sut.fingerprint, clone.fingerprint), true);
     expect(
@@ -332,7 +332,6 @@ void main() {
         extra: const {'e-infos': 'abc'},
       );
       final scope = Scope(SentryOptions(dsn: fakeDsn))
-        ..user = scopeUser
         ..fingerprint = ['example-dart']
         ..addBreadcrumb(breadcrumb)
         ..transaction = '/example/app'
@@ -341,6 +340,8 @@ void main() {
         ..setExtra('company-name', 'Dart Inc')
         ..setContexts('theme', 'material')
         ..addEventProcessor(AddTagsEventProcessor({'page-locale': 'en-us'}));
+
+      scope.setUser(scopeUser);
 
       final updatedEvent = await scope.applyToEvent(event);
 
@@ -378,10 +379,11 @@ void main() {
         breadcrumbs: [eventBreadcrumb],
       );
       final scope = Scope(SentryOptions(dsn: fakeDsn))
-        ..user = scopeUser
         ..fingerprint = ['example-dart']
         ..addBreadcrumb(breadcrumb)
         ..transaction = '/example/app';
+
+      scope.setUser(scopeUser);
 
       final updatedEvent = await scope.applyToEvent(event);
 

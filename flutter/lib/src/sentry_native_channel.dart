@@ -55,7 +55,8 @@ class SentryNativeChannel {
 
   Future<void> addBreadcrumb(Breadcrumb breadcrumb) async {
     try {
-      await _channel.invokeMethod('addBreadcrumb', {'breadcrumb': breadcrumb.toJson()});
+      await _channel
+          .invokeMethod('addBreadcrumb', {'breadcrumb': breadcrumb.toJson()});
     } catch (error, stackTrace) {
       _logError('addBreadcrumb', error, stackTrace);
     }
