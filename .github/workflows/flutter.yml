@@ -13,7 +13,7 @@ defaults:
     shell: bash
 jobs:
   build:
-    name: ${{ matrix.target }} | ${{ matrix.os }} | ${{ matrix.channel }}
+    name: ${{ matrix.target }} | ${{ matrix.os }} | ${{ matrix.sdk }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     strategy:
@@ -22,7 +22,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         target: ['ios', 'android', 'web', 'macos', 'linux', 'windows']
-        channel: ['stable', 'beta']
+        sdk: ['stable', 'beta']
         exclude:
           - os: ubuntu-latest
             target: ios
@@ -47,7 +47,7 @@ jobs:
             target: windows
           # Bad CPU type in executable
           - os: macos-latest
-            channel: beta
+            sdk: beta
 
     steps:
         - uses: actions/checkout@v3
@@ -67,7 +67,7 @@ jobs:
 
         - uses: subosito/flutter-action@v2
           with:
-            channel: ${{ matrix.channel }}
+            channel: ${{ matrix.sdk }}
 
         - run: flutter upgrade
 
@@ -89,14 +89,14 @@ jobs:
             flutter test --coverage --test-randomize-ordering-seed=random
 
         - uses: codecov/codecov-action@v3
-          if: runner.os == 'Linux'
+          if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
           with:
             name: sentry_flutter
             file: ./flutter/coverage/lcov.info
 
         # 1.2.1
         - uses: VeryGoodOpenSource/very_good_coverage@feed99cc060453828a8f12e74b404baace8e4502
-          if: runner.os == 'Linux'
+          if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
           with:
             path: "./flutter/coverage/lcov.info"
             min_coverage: 90
