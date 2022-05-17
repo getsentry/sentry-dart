@@ -58,11 +58,11 @@ jobs:
             dart pub get
             webdev build
 
-        - uses: codecov/codecov-action@v3
+        - uses: codecov/codecov-action@v2
           if: runner.os == 'Linux' && matrix.sdk == 'stable'
           with:
             name: sentry
-            file: ./dart/coverage/lcov.info
+            files: ./dart/coverage/lcov.info
 
         # 1.2.1
         - uses: VeryGoodOpenSource/very_good_coverage@feed99cc060453828a8f12e74b404baace8e4502
