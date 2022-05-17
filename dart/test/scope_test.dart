@@ -7,6 +7,7 @@ import 'package:test/test.dart';
 
 import 'mocks.dart';
 import 'mocks/mock_hub.dart';
+import 'mocks/mock_scope_observer.dart';
 
 void main() {
   late Fixture fixture;
@@ -520,6 +521,69 @@ void main() {
 
     expect(updatedTr?.level, isNull);
   });
+
+  test('addBreadcrumb should call scope observers', () async {
+    final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
+    sut.addBreadcrumb(Breadcrumb());
+
+    expect(true, fixture.mockScopeObserver.calledAddBreadcrumb);
+  });
+
+  test('clearBreadcrumbs should call scope observers', () async {
+    final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
+    sut.clearBreadcrumbs();
+
+    expect(true, fixture.mockScopeObserver.calledClearBreadcrumbs);
+  });
+
+  test('removeContexts should call scope observers', () async {
+    final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
+    sut.removeContexts('fixture-key');
+
+    expect(true, fixture.mockScopeObserver.calledRemoveContexts);
+  });
+
+  test('removeExtra should call scope observers', () async {
+    final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
+    sut.removeExtra('fixture-key');
+
+    expect(true, fixture.mockScopeObserver.calledRemoveExtra);
+  });
+
+  test('removeTag should call scope observers', () async {
+    final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
+    sut.removeTag('fixture-key');
+
+    expect(true, fixture.mockScopeObserver.calledRemoveTag);
+  });
+
+  test('setContexts should call scope observers', () async {
+    final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
+    sut.setContexts('fixture-key', 'fixture-value');
+
+    expect(true, fixture.mockScopeObserver.calledSetContexts);
+  });
+
+  test('setExtra should call scope observers', () async {
+    final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
+    sut.setExtra('fixture-key', 'fixture-value');
+
+    expect(true, fixture.mockScopeObserver.calledSetExtra);
+  });
+
+  test('setTag should call scope observers', () async {
+    final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
+    sut.setTag('fixture-key', 'fixture-value');
+
+    expect(true, fixture.mockScopeObserver.calledSetTag);
+  });
+
+  test('setUser should call scope observers', () async {
+    final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
+    sut.setUser(null);
+
+    expect(true, fixture.mockScopeObserver.calledSetUser);
+  });
 }
 
 class Fixture {
@@ -527,14 +591,19 @@ class Fixture {
     'name',
     'op',
   );
+  final mockScopeObserver = MockScopeObserver();
 
   Scope getSut({
     int maxBreadcrumbs = 100,
     BeforeBreadcrumbCallback? beforeBreadcrumbCallback,
+    ScopeObserver? scopeObserver,
   }) {
     final options = SentryOptions(dsn: fakeDsn);
     options.maxBreadcrumbs = maxBreadcrumbs;
     options.beforeBreadcrumb = beforeBreadcrumbCallback;
+    if (scopeObserver != null) {
+      options.addScopeObserver(scopeObserver);
+    }
     return Scope(options);
   }
 
