@@ -5,6 +5,10 @@ on:
       - main
       - release/**
   pull_request:
+    paths-ignore:
+      - 'logging/**'
+      - 'dio/**'
+      - 'flutter/**'
 
 env:
   SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}

@@ -170,20 +170,28 @@ jobs:
 
   pod-lint:
     runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: ./flutter
     steps:
       - uses: actions/checkout@v3
       # https://github.com/CocoaPods/CocoaPods/issues/5275#issuecomment-315461879
-      - run: pod lib lint flutter/ios/sentry_flutter.podspec --configuration=Debug --skip-import-validation --allow-warnings
-      - run: pod lib lint flutter/macos/sentry_flutter.podspec --configuration=Debug --skip-import-validation --allow-warnings
+      - run: pod lib lint ios/sentry_flutter.podspec --configuration=Debug --skip-import-validation --allow-warnings
 
   swift-lint:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./flutter
     steps:
       - uses: actions/checkout@v3
       - uses: norio-nomura/action-swiftlint@3.2.1
 
   ktlint:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./flutter
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-java@v3
@@ -200,9 +208,12 @@ jobs:
 
   detekt:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./flutter
     steps:
       - uses: actions/checkout@v3
       # 1.20.0
       - uses: natiginfo/action-detekt-all@74990bda6bfc47977e1e06aae9f47f320e7587ce
         with:
-          args: -i flutter --baseline flutter/config/detekt-bl.xml
+          args: --baseline config/detekt-bl.xml
