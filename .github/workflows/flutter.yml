@@ -89,10 +89,11 @@ jobs:
             flutter test --coverage --test-randomize-ordering-seed=random
 
         - uses: codecov/codecov-action@v2
-          if: runner.os == 'Windows' && matrix.sdk == 'stable' && matrix.target == 'windows'
+          if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
           with:
             name: sentry_flutter
             files: ./flutter/coverage/lcov.info
+            verbose: true
 
         # 1.2.1
         - uses: VeryGoodOpenSource/very_good_coverage@feed99cc060453828a8f12e74b404baace8e4502
