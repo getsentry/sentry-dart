@@ -206,8 +206,7 @@ jobs:
   detekt:
     runs-on: ubuntu-latest
     steps:
-      # 1.3
-      - uses: actions/checkout@58b3c386f5160049b0a1d0f986c56e0d0717140a
+      - uses: actions/checkout@v3
       # 1.20.0
       - uses: natiginfo/action-detekt-all@74990bda6bfc47977e1e06aae9f47f320e7587ce
         with:
