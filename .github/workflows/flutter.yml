@@ -194,29 +194,19 @@ jobs:
         working-directory: ./flutter
     steps:
       - uses: actions/checkout@v3
-      # - uses: actions/setup-java@v3
-      #   with:
-      #     distribution: 'adopt'
-      #     java-version: '8'
-      # - run: |
-      #     curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.40.0/ktlint
-      #     chmod a+x ktlint
-      #     ./ktlint --reporter=checkstyle,output=build/ktlint-report.xml || true
+
       - name: ktlint
         uses: ScaCap/action-ktlint@master
         with:
           github_token: ${{ secrets.github_token }}
           reporter: github-pr-review
-          baseline: build/ktlint-report.xml
           android: true
-      # - uses: yutailang0119/action-ktlint@v2
-      #   with:
-      #     report-path: build/ktlint-report.xml
 
   detekt:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      # 1.3
+      - uses: actions/checkout@58b3c386f5160049b0a1d0f986c56e0d0717140a
       # 1.20.0
       - uses: natiginfo/action-detekt-all@74990bda6bfc47977e1e06aae9f47f320e7587ce
         with:
