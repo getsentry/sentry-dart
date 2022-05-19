@@ -12,7 +12,7 @@ class MainActivity : FlutterActivity() {
   override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
     super.configureFlutterEngine(flutterEngine)
     MethodChannel(flutterEngine.dartExecutor.binaryMessenger, _channel).setMethodCallHandler {
-      call, result ->
+        call, result ->
       // Note: this method is invoked on the main thread.
       when (call.method) {
         "throw" -> {
