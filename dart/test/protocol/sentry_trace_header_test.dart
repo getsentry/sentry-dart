@@ -29,7 +29,7 @@ void main() {
   });
 
   test('invalid header throws $InvalidSentryTraceHeaderException', () {
-    var exception;
+    Object? exception;
     try {
       SentryTraceHeader.fromTraceHeader('invalidHeader');
     } catch (error) {

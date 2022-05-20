@@ -5,6 +5,10 @@ on:
       - main
       - release/**
   pull_request:
+    paths-ignore:
+      - 'logging/**'
+      - 'dio/**'
+      - 'flutter/**'
 
 env:
   SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
@@ -25,13 +29,25 @@ jobs:
         - uses: dart-lang/setup-dart@v1
           with:
             sdk: ${{ matrix.sdk }}
-        - uses: actions/checkout@v2
-        - name: Test
-          run: |
-            dart pub get
-            dart analyze --fatal-infos
-            dart format --set-exit-if-changed ./
+        - uses: actions/checkout@v3
         - name: Run
           if: env.SENTRY_AUTH_TOKEN != null
           run: |
+            dart pub get
             dart run --define=SENTRY_ENVIRONMENT=e2e
+
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: ./e2e_test
+    steps:
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+      - uses: actions/checkout@v3
+      - run: |
+          dart pub get
+          dart analyze --fatal-infos
+          dart format --set-exit-if-changed ./

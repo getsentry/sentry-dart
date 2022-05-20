@@ -11,6 +11,14 @@ class SentryFlutterOptions extends SentryOptions {
     enableBreadcrumbTrackingForCurrentPlatform();
   }
 
+  /// Initializes the Native SDKs on init.
+  /// Set this to `false` if you have an existing native SDK and don't want to re-initialize.
+  ///
+  /// NOTE: Be careful and only use this if you know what you are doing.
+  /// If you use this flag, make sure a native SDK is running before the Flutter Engine initializes or events might not be captured.
+  /// Defaults to `true`.
+  bool autoInitializeNativeSdk = true;
+
   /// Enable or disable reporting of used packages.
   bool reportPackages = true;
 
