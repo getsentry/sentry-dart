@@ -114,6 +114,20 @@ class SentryClient {
         return _sentryId;
       }
     }
+
+    if (_options.platformChecker.platform.isAndroid &&
+        _options.enableScopeSync) {
+      /*
+      We do this to avoid duplicate breadcrumbs on Android as sentry-android applies the breadcrumbs
+      from the native scope onto every envelope sent through it. This scope will contain the breadcrumbs
+      sent through the scope sync feature. This causes duplicate breadcrumbs.
+      We then remove the breadcrumbs in all cases but if it is handled == false,
+      this is a signal that the app would crash and android would lose the breadcrumbs by the time the app is restarted to read
+      the envelope.
+      */
+      preparedEvent = _eventWithRemovedBreadcrumbsIfHandled(preparedEvent);
+    }
+
     final envelope = SentryEnvelope.fromEvent(
       preparedEvent,
       _options.sdk,
@@ -328,6 +342,19 @@ class SentryClient {
       category = DataCategory.error;
     }
     _options.recorder.recordLostEvent(reason, category);
+  }
+
+  SentryEvent _eventWithRemovedBreadcrumbsIfHandled(SentryEvent event) {
+    final exceptions = event.exceptions ?? [];
+    final handled = exceptions.isNotEmpty
+        ? exceptions.first.mechanism?.handled == true
+        : false;
+
+    if (handled) {
+      return event.copyWith(breadcrumbs: []);
+    } else {
+      return event;
+    }
   }
 
   Future<SentryId?> _attachClientReportsAndSend(SentryEnvelope envelope) {
