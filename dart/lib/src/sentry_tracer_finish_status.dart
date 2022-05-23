@@ -7,9 +7,7 @@ class SentryTracerFinishStatus {
   final bool finishing;
   final SpanStatus? status;
 
-  SentryTracerFinishStatus.finishing(SpanStatus? status)
-      : finishing = true,
-        status = status;
+  SentryTracerFinishStatus.finishing(this.status) : finishing = true;
 
   SentryTracerFinishStatus.notFinishing()
       : finishing = false,

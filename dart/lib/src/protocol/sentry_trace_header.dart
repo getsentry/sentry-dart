@@ -26,8 +26,8 @@ class SentryTraceHeader {
   SentryTraceHeader(
     this.traceId,
     this.spanId, {
-    bool? sampled,
-  }) : sampled = sampled;
+    this.sampled,
+  });
 
   factory SentryTraceHeader.fromTraceHeader(String header) {
     final parts = header.split('-');

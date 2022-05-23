@@ -1,3 +1,4 @@
+@TestOn('vm')
 // ignore_for_file: invalid_use_of_internal_member
 
 import 'package:flutter/services.dart';
@@ -24,15 +25,8 @@ void main() {
 
   group(AndroidPlatformExceptionEventProcessor, () {
     test('exception is correctly parsed', () async {
-      final exception = fixture.options.exceptionFactory
-          .getSentryException(testPlatformException);
-
-      final event = SentryEvent(
-        exceptions: [exception],
-        throwable: testPlatformException,
-      );
-
-      final platformExceptionEvent = await fixture.processor.apply(event);
+      final platformExceptionEvent =
+          await fixture.processor.apply(fixture.eventWithPlatformStackTrace);
 
       final exceptions = platformExceptionEvent!.exceptions!;
       expect(exceptions.length, 2);
@@ -45,6 +39,49 @@ void main() {
         "Unsupported value: '[Ljava.lang.StackTraceElement;@ba6feed' of type 'class [Ljava.lang.StackTraceElement;'",
       );
       expect(platformException.stackTrace!.frames.length, 18);
+    });
+
+    test(
+        'Dart thread is current and not crashed if Android exception is present',
+        () async {
+      final platformExceptionEvent =
+          await fixture.processor.apply(fixture.eventWithPlatformStackTrace);
+
+      final exceptions = platformExceptionEvent!.exceptions!;
+      expect(exceptions.length, 2);
+
+      expect(platformExceptionEvent.threads?.first.current, true);
+      expect(platformExceptionEvent.threads?.first.crashed, false);
+    });
+
+    test('platformexception has Android thread attached', () async {
+      final platformExceptionEvent =
+          await fixture.processor.apply(fixture.eventWithPlatformStackTrace);
+
+      final exceptions = platformExceptionEvent!.exceptions!;
+      expect(exceptions.length, 2);
+
+      final platformException = exceptions[1];
+      final platformThread = platformExceptionEvent.threads?[1];
+
+      expect(platformException.threadId, platformThread?.id);
+      expect(platformThread?.current, false);
+      expect(platformThread?.crashed, true);
+      expect(platformThread?.name, 'Android');
+    });
+
+    test('platformexception has no Android thread attached if disabled',
+        () async {
+      fixture.options.attachThreads = false;
+      final threadCount = fixture.eventWithPlatformStackTrace.threads?.length;
+
+      final platformExceptionEvent =
+          await fixture.processor.apply(fixture.eventWithPlatformStackTrace);
+
+      final exceptions = platformExceptionEvent!.exceptions!;
+      expect(exceptions.length, 2);
+
+      expect(platformExceptionEvent.threads?.length, threadCount);
     });
 
     test('does nothing if no PlatformException is there', () async {
@@ -62,17 +99,10 @@ void main() {
     });
 
     test('does nothing if PlatformException has no stackTrace', () async {
-      final exception = fixture.options.exceptionFactory
-          .getSentryException(emptyPlatformException);
+      final platformExceptionEvent =
+          await fixture.processor.apply(fixture.eventWithoutPlatformStackTrace);
 
-      final event = SentryEvent(
-        exceptions: [exception],
-        throwable: emptyPlatformException,
-      );
-
-      final platformExceptionEvent = await fixture.processor.apply(event);
-
-      expect(event, platformExceptionEvent);
+      expect(fixture.eventWithoutPlatformStackTrace, platformExceptionEvent);
     });
   });
 }
@@ -81,7 +111,35 @@ class Fixture {
   late AndroidPlatformExceptionEventProcessor processor =
       AndroidPlatformExceptionEventProcessor(options);
 
-  SentryFlutterOptions options = SentryFlutterOptions(dsn: fakeDsn);
+  late SentryException withPlatformStackTrace = options.exceptionFactory
+      .getSentryException(testPlatformException)
+      .copyWith(threadId: 1);
+
+  late SentryException withoutPlatformStackTrace = options.exceptionFactory
+      .getSentryException(emptyPlatformException)
+      .copyWith(threadId: 1);
+
+  late SentryEvent eventWithPlatformStackTrace = SentryEvent(
+    exceptions: [withPlatformStackTrace],
+    throwable: testPlatformException,
+    threads: [dartThread],
+  );
+
+  late SentryEvent eventWithoutPlatformStackTrace = SentryEvent(
+    exceptions: [withoutPlatformStackTrace],
+    throwable: emptyPlatformException,
+    threads: [dartThread],
+  );
+
+  late SentryThread dartThread = SentryThread(
+    crashed: true,
+    current: true,
+    id: 1,
+    name: 'main',
+  );
+
+  SentryFlutterOptions options = SentryFlutterOptions(dsn: fakeDsn)
+    ..attachThreads = true;
 }
 
 final testPlatformException = PlatformException(

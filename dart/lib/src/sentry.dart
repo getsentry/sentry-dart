@@ -105,8 +105,8 @@ class Sentry {
     // execute integrations after hub being enabled
     if (appRunner != null) {
       var runIntegrationsAndAppRunner = () async {
-        final integrations = options.integrations
-            .where((i) => !(i is RunZonedGuardedIntegration));
+        final integrations =
+            options.integrations.where((i) => i is! RunZonedGuardedIntegration);
         await _callIntegrations(integrations, options);
         await appRunner();
       };
