@@ -14,6 +14,7 @@ import io.sentry.Breadcrumb
 import io.sentry.HubAdapter
 import io.sentry.SentryEvent
 import io.sentry.SentryLevel
+import io.sentry.Sentry
 import io.sentry.android.core.ActivityFramesTracker
 import io.sentry.android.core.AppStartState
 import io.sentry.android.core.LoadClass
