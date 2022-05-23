@@ -10,7 +10,7 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-import io.sentry.Breadcrumb;
+import io.sentry.Breadcrumb
 import io.sentry.HubAdapter
 import io.sentry.SentryEvent
 import io.sentry.SentryLevel
@@ -22,7 +22,7 @@ import io.sentry.android.core.SentryAndroidOptions
 import io.sentry.protocol.DebugImage
 import io.sentry.protocol.SdkVersion
 import io.sentry.protocol.SentryId
-import io.sentry.protocol.User;
+import io.sentry.protocol.User
 import java.io.File
 import java.lang.ref.WeakReference
 import java.util.Locale
