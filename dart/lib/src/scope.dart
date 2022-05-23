@@ -1,7 +1,12 @@
 import 'dart:async';
 import 'dart:collection';
 
-import '../sentry.dart';
+import 'event_processor.dart';
+import 'protocol.dart';
+import 'scope_observer.dart';
+import 'sentry_attachment/sentry_attachment.dart';
+import 'sentry_options.dart';
+import 'sentry_span_interface.dart';
 import 'sentry_tracer.dart';
 
 /// Scope data to be sent with the event
