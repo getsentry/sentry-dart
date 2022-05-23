@@ -1,7 +1,5 @@
 import 'package:sentry/sentry.dart';
 
-// TODO: Scope observers, enableScopeSync
-
 /// This class adds options which are only availble in a Flutter environment.
 /// Note that some of these options require native Sentry integration, which is
 /// not available on all platforms.
