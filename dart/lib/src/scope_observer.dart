@@ -1,6 +1,7 @@
 import 'dart:async';
 
-import '../sentry.dart';
+import 'protocol/breadcrumb.dart';
+import 'protocol/sentry_user.dart';
 
 abstract class ScopeObserver {
   Future<void> setContexts(String key, dynamic value);
