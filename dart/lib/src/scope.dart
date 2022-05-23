@@ -54,7 +54,7 @@ class Scope {
   SentryUser? get user => _user;
 
   /// Set the current user.
-  FutureOr<void> setUser(SentryUser? user) async {
+  Future<void> setUser(SentryUser? user) async {
     _user = user;
     await _callScopeObservers(
         (scopeObserver) async => await scopeObserver.setUser(user));
@@ -104,7 +104,7 @@ class Scope {
   Map<String, dynamic> get contexts => Map.unmodifiable(_contexts);
 
   /// add an entry to the Scope's contexts
-  FutureOr<void> setContexts(String key, dynamic value) async {
+  Future<void> setContexts(String key, dynamic value) async {
     _contexts[key] = (value is num || value is bool || value is String)
         ? {'value': value}
         : value;
@@ -114,7 +114,7 @@ class Scope {
   }
 
   /// Removes a value from the Scope's contexts
-  FutureOr<void> removeContexts(String key) async {
+  Future<void> removeContexts(String key) async {
     _contexts.remove(key);
 
     await _callScopeObservers(
@@ -141,7 +141,7 @@ class Scope {
   Scope(this._options);
 
   /// Adds a breadcrumb to the breadcrumbs queue
-  FutureOr<void> addBreadcrumb(Breadcrumb breadcrumb, {dynamic hint}) async {
+  Future<void> addBreadcrumb(Breadcrumb breadcrumb, {dynamic hint}) async {
     // bail out if maxBreadcrumbs is zero
     if (_options.maxBreadcrumbs == 0) {
       return;
@@ -185,7 +185,7 @@ class Scope {
   }
 
   /// Clear all the breadcrumbs
-  FutureOr<void> clearBreadcrumbs() async {
+  Future<void> clearBreadcrumbs() async {
     _breadcrumbs.clear();
 
     await _callScopeObservers(
@@ -212,28 +212,28 @@ class Scope {
   }
 
   /// Sets a tag to the Scope
-  FutureOr<void> setTag(String key, String value) async {
+  Future<void> setTag(String key, String value) async {
     _tags[key] = value;
     await _callScopeObservers(
         (scopeObserver) async => await scopeObserver.setTag(key, value));
   }
 
   /// Removes a tag from the Scope
-  FutureOr<void> removeTag(String key) async {
+  Future<void> removeTag(String key) async {
     _tags.remove(key);
     await _callScopeObservers(
         (scopeObserver) async => await scopeObserver.removeTag(key));
   }
 
   /// Sets an extra to the Scope
-  FutureOr<void> setExtra(String key, dynamic value) async {
+  Future<void> setExtra(String key, dynamic value) async {
     _extra[key] = value;
     await _callScopeObservers(
         (scopeObserver) async => await scopeObserver.setExtra(key, value));
   }
 
   /// Removes an extra from the Scope
-  FutureOr<void> removeExtra(String key) async {
+  Future<void> removeExtra(String key) async {
     _extra.remove(key);
     await _callScopeObservers(
         (scopeObserver) async => await scopeObserver.removeExtra(key));
