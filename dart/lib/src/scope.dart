@@ -135,6 +135,9 @@ class Scope {
 
   List<SentryAttachment> get attachments => List.unmodifiable(_attachments);
 
+  @Deprecated('Use attachments instead')
+  List<SentryAttachment> get attachements => List.unmodifiable(_attachments);
+
   Scope(this._options);
 
   /// Adds a breadcrumb to the breadcrumbs queue
