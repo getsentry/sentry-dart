@@ -35,11 +35,11 @@ void testHeaders(
 
   if (withSecret) {
     expectedHeaders['X-Sentry-Auth'] =
-        expectedHeaders['X-Sentry-Auth']! + 'sentry_secret=secret, ';
+        '${expectedHeaders['X-Sentry-Auth']!}sentry_secret=secret, ';
   }
 
-  expectedHeaders['X-Sentry-Auth'] = expectedHeaders['X-Sentry-Auth']! +
-      'sentry_timestamp=${fakeClockProvider().millisecondsSinceEpoch}';
+  expectedHeaders['X-Sentry-Auth'] =
+      '${expectedHeaders['X-Sentry-Auth']!}sentry_timestamp=${fakeClockProvider().millisecondsSinceEpoch}';
 
   if (withUserAgent) {
     expectedHeaders['User-Agent'] = '$sdkName/$sdkVersion';

@@ -159,7 +159,6 @@ class MockNativeChannel implements SentryNativeChannel {
   @override
   Future<void> beginNativeFrames() async {
     numberOfBeginNativeFramesCalls += 1;
-    return null;
   }
 
   @override

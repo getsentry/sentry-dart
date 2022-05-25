@@ -29,11 +29,10 @@ class SentrySpan extends ISentrySpan {
     this._context,
     this._hub, {
     DateTime? startTimestamp,
-    bool? sampled,
+    this.sampled,
     Function({DateTime? endTimestamp})? finishedCallback,
   }) {
     _startTimestamp = startTimestamp?.toUtc() ?? getUtcDateTime();
-    this.sampled = sampled;
     _finishedCallback = finishedCallback;
   }
 

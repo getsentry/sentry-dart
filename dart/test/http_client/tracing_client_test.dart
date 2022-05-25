@@ -109,7 +109,7 @@ void main() {
       final span = tracer.children.first;
 
       expect(response.request!.headers['sentry-trace'],
-          '${span.toSentryTrace().value}');
+          span.toSentryTrace().value);
     });
 
     test('do not throw if no span bound to the scope', () async {
