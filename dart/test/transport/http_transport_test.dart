@@ -16,7 +16,7 @@ import '../mocks.dart';
 
 void main() {
   SentryEnvelope givenEnvelope() {
-    final filteredEnvelopeHeader = SentryEnvelopeHeader(SentryId.empty(), null);
+    final filteredEnvelopeHeader = SentryEnvelopeHeader(SentryId.empty(), null, null);
     final filteredItemHeader =
         SentryEnvelopeItemHeader(SentryItemType.event, () async {
       return 2;
@@ -66,8 +66,9 @@ void main() {
       final sut = fixture.getSut(httpMock, mockRateLimiter);
 
       final sentryEvent = SentryEvent();
+      final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
       final envelope =
-          SentryEnvelope.fromEvent(sentryEvent, fixture.options.sdk);
+          SentryEnvelope.fromEvent(sentryEvent, fixture.options.sdk, fakeDsn);
       await sut.send(envelope);
 
       final envelopeData = <int>[];
@@ -90,8 +91,9 @@ void main() {
       final sut = fixture.getSut(httpMock, mockRateLimiter);
 
       final sentryEvent = SentryEvent();
+      final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
       final envelope =
-          SentryEnvelope.fromEvent(sentryEvent, fixture.options.sdk);
+          SentryEnvelope.fromEvent(sentryEvent, fixture.options.sdk, fakeDsn);
       final eventId = await sut.send(envelope);
 
       expect(eventId, SentryId.empty());
@@ -114,8 +116,9 @@ void main() {
       final sut = fixture.getSut(httpMock, mockRateLimiter);
 
       final sentryEvent = SentryEvent();
+      final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
       final envelope =
-          SentryEnvelope.fromEvent(sentryEvent, fixture.options.sdk);
+          SentryEnvelope.fromEvent(sentryEvent, fixture.options.sdk, fakeDsn);
       await sut.send(envelope);
 
       expect(mockRateLimiter.envelopeToFilter?.header.eventId,
@@ -135,8 +138,9 @@ void main() {
       final sut = fixture.getSut(httpMock, mockRateLimiter);
 
       final sentryEvent = SentryEvent();
+      final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
       final envelope =
-          SentryEnvelope.fromEvent(sentryEvent, fixture.options.sdk);
+          SentryEnvelope.fromEvent(sentryEvent, fixture.options.sdk, fakeDsn);
       await sut.send(envelope);
 
       expect(mockRateLimiter.errorCode, 200);

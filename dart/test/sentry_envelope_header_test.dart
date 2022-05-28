@@ -5,7 +5,7 @@ import 'package:test/test.dart';
 void main() {
   group('SentryEnvelopeHeader', () {
     test('toJson empty', () {
-      final sut = SentryEnvelopeHeader(null, null);
+      final sut = SentryEnvelopeHeader(null, null, null);
       final expected = <String, dynamic>{};
       expect(sut.toJson(), expected);
     });
@@ -16,7 +16,7 @@ void main() {
         name: 'fixture-sdkName',
         version: 'fixture-version',
       );
-      final sut = SentryEnvelopeHeader(eventId, sdkVersion);
+      final sut = SentryEnvelopeHeader(eventId, sdkVersion, null);
       final expextedSkd = sdkVersion.toJson();
       final expected = <String, dynamic>{
         'event_id': eventId.toString(),

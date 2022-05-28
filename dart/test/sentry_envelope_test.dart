@@ -28,7 +28,7 @@ void main() {
 
       final item = SentryEnvelopeItem(itemHeader, dataFactory);
 
-      final header = SentryEnvelopeHeader(eventId, null);
+      final header = SentryEnvelopeHeader(eventId, null, null);
       final sut = SentryEnvelope(header, [item, item]);
 
       final expectedHeaderJson = header.toJson();
@@ -53,7 +53,9 @@ void main() {
       final sentryEvent = SentryEvent(eventId: eventId);
       final sdkVersion =
           SdkVersion(name: 'fixture-name', version: 'fixture-version');
-      final sut = SentryEnvelope.fromEvent(sentryEvent, sdkVersion);
+      final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
+      final sut =
+          SentryEnvelope.fromEvent(sentryEvent, sdkVersion, fakeDsn);
 
       final expectedEnvelopeItem = SentryEnvelopeItem.fromEvent(sentryEvent);
 
@@ -111,16 +113,19 @@ void main() {
       final sentryEvent = SentryEvent(eventId: eventId);
       final sdkVersion =
           SdkVersion(name: 'fixture-name', version: 'fixture-version');
+      final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
       final sut = SentryEnvelope.fromEvent(
         sentryEvent,
         sdkVersion,
+        fakeDsn,
         attachments: [attachment],
       );
 
       final expectedEnvelopeItem = SentryEnvelope.fromEvent(
         sentryEvent,
         sdkVersion,
+        fakeDsn,
       );
 
       final sutEnvelopeData = <int>[];
@@ -140,12 +145,14 @@ void main() {
     // This is a test for https://github.com/getsentry/sentry-dart/issues/523
     test('serialize with non-serializable class', () async {
       final event = SentryEvent(extra: {'non-ecodable': NonEncodable()});
+      final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
       final sut = SentryEnvelope.fromEvent(
         event,
         SdkVersion(
           name: 'test',
           version: '1',
         ),
+        fakeDsn,
       );
 
       final _ = sut.envelopeStream(SentryOptions()).map((e) => e);

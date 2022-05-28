@@ -108,6 +108,7 @@ class SentryClient {
     final envelope = SentryEnvelope.fromEvent(
       preparedEvent,
       _options.sdk,
+      _options.dsn,
       attachments: scope?.attachements,
     );
 

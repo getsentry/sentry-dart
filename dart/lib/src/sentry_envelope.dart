@@ -21,11 +21,12 @@ class SentryEnvelope {
   /// Create an [SentryEnvelope] with containing one [SentryEnvelopeItem] which holds the [SentryEvent] data.
   factory SentryEnvelope.fromEvent(
     SentryEvent event,
-    SdkVersion sdkVersion, {
+    SdkVersion sdkVersion,
+    String? dsn, {
     List<SentryAttachment>? attachments,
   }) {
     return SentryEnvelope(
-      SentryEnvelopeHeader(event.eventId, sdkVersion),
+      SentryEnvelopeHeader(event.eventId, sdkVersion, dsn),
       [
         SentryEnvelopeItem.fromEvent(event),
         if (attachments != null)
@@ -39,7 +40,7 @@ class SentryEnvelope {
     SdkVersion sdkVersion,
   ) {
     return SentryEnvelope(
-      SentryEnvelopeHeader(feedback.eventId, sdkVersion),
+      SentryEnvelopeHeader(feedback.eventId, sdkVersion, null),
       [SentryEnvelopeItem.fromUserFeedback(feedback)],
     );
   }
@@ -51,7 +52,7 @@ class SentryEnvelope {
     List<SentryAttachment>? attachments,
   }) {
     return SentryEnvelope(
-      SentryEnvelopeHeader(transaction.eventId, sdkVersion),
+      SentryEnvelopeHeader(transaction.eventId, sdkVersion, null),
       [
         SentryEnvelopeItem.fromTransaction(transaction),
         if (attachments != null)

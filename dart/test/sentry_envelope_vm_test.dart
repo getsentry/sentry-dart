@@ -28,7 +28,7 @@ void main() {
 
       final eventId = SentryId.fromId('3b382f22ee67491f80f7dee18016a7b1');
       final sdkVersion = SdkVersion(name: 'test', version: 'version');
-      final header = SentryEnvelopeHeader(eventId, sdkVersion);
+      final header = SentryEnvelopeHeader(eventId, sdkVersion, null);
       final envelope = SentryEnvelope(header, [attachmentItem]);
 
       final envelopeData = <int>[];
@@ -51,10 +51,12 @@ void main() {
       final sdkVersion = SdkVersion(name: '', version: '');
       final attachment =
           IoSentryAttachment.fromPath('this_path_does_not_exist.txt');
+      final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
       final envelope = SentryEnvelope.fromEvent(
         event,
         sdkVersion,
+        fakeDsn,
         attachments: [attachment],
       );
 

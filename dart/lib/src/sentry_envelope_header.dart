@@ -3,16 +3,20 @@ import 'protocol/sdk_version.dart';
 
 /// Header containing `SentryId` and `SdkVersion`.
 class SentryEnvelopeHeader {
-  SentryEnvelopeHeader(this.eventId, this.sdkVersion);
+  SentryEnvelopeHeader(this.eventId, this.sdkVersion, this.dsn);
   SentryEnvelopeHeader.newEventId()
       : eventId = SentryId.newId(),
-        sdkVersion = null;
+        sdkVersion = null,
+        dsn = null;
 
   /// The identifier of encoded `SentryEvent`.
   final SentryId? eventId;
 
   /// The `SdkVersion` with which the envelope was send.
   final SdkVersion? sdkVersion;
+
+  /// The `DSN` of the Sentry project.
+  final String? dsn;
 
   /// Header encoded as JSON
   Map<String, dynamic> toJson() {
@@ -24,6 +28,9 @@ class SentryEnvelopeHeader {
     final tempSdkVersion = sdkVersion;
     if (tempSdkVersion != null) {
       json['sdk'] = tempSdkVersion.toJson();
+    }
+    if (dsn != null) {
+      json['dsn'] = dsn;
     }
     return json;
   }
