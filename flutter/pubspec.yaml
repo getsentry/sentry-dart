@@ -14,7 +14,8 @@ dependencies:
     sdk: flutter
   flutter_web_plugins:
     sdk: flutter
-  sentry: ^6.5.1
+  sentry:
+    path: ../dart
   package_info_plus: ^1.0.0
   meta: ^1.3.0
 
