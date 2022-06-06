@@ -182,7 +182,7 @@ class SentryAssetBundle implements AssetBundle {
   }
 
   @override
-  // This is an override on Flutter 3.1 (I guess) and later
+  // This is an override on Flutter greater than 3.1
   // ignore: override_on_non_overriding_member
   Future<ImmutableBuffer> loadBuffer(String key) async {
     final span = _hub.getSpan()?.startChild(
