@@ -211,7 +211,7 @@ class SentryAssetBundle implements AssetBundle {
     try {
       return (_bundle as dynamic).loadBuffer(key);
     } on NoSuchMethodError catch (_) {
-      // The loadBuffer method exists as of Flutter 3.1
+      // The loadBuffer method exists as of Flutter greater than 3.1
       // Previous versions don't have it, but later versions do.
       // We can't use `extends` in order to provide this method because this is
       // a wrapper and thus the method call must be forwarded.
