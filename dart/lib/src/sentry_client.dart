@@ -12,6 +12,7 @@ import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'transport/http_transport.dart';
 import 'transport/noop_transport.dart';
+import 'utils/isolate_utils.dart';
 import 'version.dart';
 import 'sentry_envelope.dart';
 import 'client_reports/client_report_recorder.dart';
@@ -154,18 +155,48 @@ class SentryClient {
       return event;
     }
 
-    if (event.exceptions?.isNotEmpty ?? false) return event;
+    if (event.exceptions?.isNotEmpty ?? false) {
+      return event;
+    }
+
+    final isolateName = getIsolateName();
+    // Isolates have no id, so the hashCode of the name will be used as id
+    final isolateId = isolateName?.hashCode;
 
     if (event.throwableMechanism != null) {
-      final sentryException = _exceptionFactory.getSentryException(
+      var sentryException = _exceptionFactory.getSentryException(
         event.throwableMechanism,
         stackTrace: stackTrace,
       );
 
-      return event.copyWith(exceptions: [
-        ...(event.exceptions ?? []),
-        sentryException,
-      ]);
+      if (_options.platformChecker.isWeb) {
+        return event.copyWith(
+          exceptions: [
+            ...?event.exceptions,
+            sentryException,
+          ],
+        );
+      }
+
+      SentryThread? thread;
+
+      if (isolateName != null && _options.attachThreads) {
+        sentryException = sentryException.copyWith(threadId: isolateId);
+        thread = SentryThread(
+          id: isolateId,
+          name: isolateName,
+          crashed: true,
+          current: true,
+        );
+      }
+
+      return event.copyWith(
+        exceptions: [...?event.exceptions, sentryException],
+        threads: [
+          ...?event.threads,
+          if (thread != null) thread,
+        ],
+      );
     }
 
     // The stacktrace is not part of an exception,
@@ -177,8 +208,10 @@ class SentryClient {
 
       if (frames.isNotEmpty) {
         event = event.copyWith(threads: [
-          ...(event.threads ?? []),
+          ...?event.threads,
           SentryThread(
+            name: isolateName,
+            id: isolateId,
             crashed: false,
             current: true,
             stacktrace: SentryStackTrace(frames: frames),
