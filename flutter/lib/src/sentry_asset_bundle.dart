@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:typed_data';
+import 'dart:ui';
 
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
@@ -143,6 +145,8 @@ class SentryAssetBundle implements AssetBundle {
       byteLength = data.length;
     } else if (data is ByteData) {
       byteLength = data.lengthInBytes;
+    } else if (data is ImmutableBuffer) {
+      byteLength = data.length;
     }
     if (byteLength != null) {
       span?.setData('file.size', byteLength);
@@ -174,6 +178,49 @@ class SentryAssetBundle implements AssetBundle {
       // On Flutter version before 2.8 we can't forward this call and
       // just catch the error which is thrown. On later version the call gets
       // correctly forwarded.
+    }
+  }
+
+  @override
+  // This is an override on Flutter greater than 3.1
+  // ignore: override_on_non_overriding_member
+  Future<ImmutableBuffer> loadBuffer(String key) async {
+    final span = _hub.getSpan()?.startChild(
+          'file.read',
+          description: 'AssetBundle.loadBuffer: ${_fileName(key)}',
+        );
+
+    span?.setData('file.path', key);
+
+    ImmutableBuffer data;
+    try {
+      data = await _loadBuffer(key);
+      _setDataLength(data, span);
+      span?.status = SpanStatus.ok();
+    } catch (exception) {
+      span?.throwable = exception;
+      span?.status = SpanStatus.internalError();
+      rethrow;
+    } finally {
+      await span?.finish();
+    }
+    return data;
+  }
+
+  Future<ImmutableBuffer> _loadBuffer(String key) async {
+    try {
+      return (_bundle as dynamic).loadBuffer(key);
+    } on NoSuchMethodError catch (_) {
+      // The loadBuffer method exists as of Flutter greater than 3.1
+      // Previous versions don't have it, but later versions do.
+      // We can't use `extends` in order to provide this method because this is
+      // a wrapper and thus the method call must be forwarded.
+      // On Flutter versions <=3.1 we can't forward this call and
+      // just catch the error which is thrown. On later version the call gets
+      // correctly forwarded.
+      //
+      // In case of a NoSuchMethodError we just return an empty list
+      return ImmutableBuffer.fromUint8List(Uint8List.fromList([]));
     }
   }
 
