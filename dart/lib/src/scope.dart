@@ -118,7 +118,7 @@ class Scope {
     _contexts.remove(key);
 
     await _callScopeObservers(
-        (scopeObserver) async => scopeObserver.removeContexts(key));
+        (scopeObserver) async => await scopeObserver.removeContexts(key));
   }
 
   /// Scope's event processor list
