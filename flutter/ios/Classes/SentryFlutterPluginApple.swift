@@ -7,7 +7,9 @@ import FlutterMacOS
 import AppKit
 #endif
 
-// swiftlint:disable:next type_body_length file_length
+// swiftlint:disable file_length
+
+// swiftlint:disable:next type_body_length
 public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
     private var sentryOptions: Options?
@@ -78,43 +80,43 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             endNativeFrames(result: result)
 
         case "setContexts":
-            let arguments = call.arguments as? Dictionary<String, Any?>
+            let arguments = call.arguments as? [String: Any?]
             let key = arguments?["key"] as? String
             let value = arguments?["value"] as? Any
             setContexts(key: key, value: value, result: result)
 
         case "setUser":
-            let arguments = call.arguments as? Dictionary<String, Any?>
-            let user = arguments?["user"] as? Dictionary<String, Any?>
+            let arguments = call.arguments as? [String: Any?]
+            let user = arguments?["user"] as? [String: Any?]
             setUser(user: user, result: result)
 
         case "addBreadcrumb":
-            let arguments = call.arguments as? Dictionary<String, Any?>
-            let breadcrumb = arguments?["breadcrumb"] as? Dictionary<String, Any?>
+            let arguments = call.arguments as? [String: Any?]
+            let breadcrumb = arguments?["breadcrumb"] as? [String: Any?]
             addBreadcrumb(breadcrumb: breadcrumb, result: result)
 
         case "clearBreadcrumbs":
             clearBreadcrumbs(result: result)
 
         case "setExtra":
-            let arguments = call.arguments as? Dictionary<String, Any?>
+            let arguments = call.arguments as? [String: Any?]
             let key = arguments?["key"] as? String
             let value = arguments?["value"] as? Any
             setExtra(key: key, value: value, result: result)
 
         case "removeExtra":
-            let arguments = call.arguments as? Dictionary<String, Any?>
+            let arguments = call.arguments as? [String: Any?]
             let key = arguments?["key"] as? String
             removeExtra(key: key, result: result)
 
         case "setTag":
-            let arguments = call.arguments as? Dictionary<String, Any?>
+            let arguments = call.arguments as? [String: Any?]
             let key = arguments?["key"] as? String
             let value = arguments?["value"] as? String
             setTag(key: key, value: value, result: result)
 
         case "removeTag":
-            let arguments = call.arguments as? Dictionary<String, Any?>
+            let arguments = call.arguments as? [String: Any?]
             let key = arguments?["key"] as? String
             removeTag(key: key, result: result)
 
