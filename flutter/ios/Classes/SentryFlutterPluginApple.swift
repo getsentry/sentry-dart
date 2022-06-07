@@ -7,7 +7,7 @@ import FlutterMacOS
 import AppKit
 #endif
 
-// swiftlint:disable:next type_body_length
+// swiftlint:disable:next type_body_length file_length
 public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
     private var sentryOptions: Options?
@@ -53,6 +53,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
     }
 
+    // swiftlint:disable:next cyclomatic_complexity function_body_length
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method as String {
         case "loadContexts":
@@ -122,6 +123,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         }
     }
 
+    // swiftlint:disable:next cyclomatic_complexity
     private func loadContexts(result: @escaping FlutterResult) {
         SentrySDK.configureScope { scope in
             let serializedScope = scope.serialize()
@@ -515,6 +517,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
       result("")
     }
 
+    // swiftlint:disable:next cyclomatic_complexity
     private func addBreadcrumb(breadcrumb: Dictionary<String, Any?>?, result: @escaping FlutterResult) {
       guard let breadcrumb = breadcrumb else {
         result("")
@@ -545,7 +548,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         case "error":
           breadcrumbInstance.level = SentryLevel.error
         default:
-            breadcrumbInstance.level = SentryLevel.error
+          breadcrumbInstance.level = SentryLevel.error
         }
       }
       if let data = breadcrumb["data"] as? Dictionary<String, Any?> {
