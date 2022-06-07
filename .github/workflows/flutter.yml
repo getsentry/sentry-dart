@@ -208,7 +208,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       # 1.20.0
-      # To recreate baseline run: cd flutter; detekt -i android -b config/detekt-bl.xml -cb
+      # To recreate baseline run: detekt -i flutter/android,flutter/example/android -b flutter/config/detekt-bl.xml -cb
       - uses: natiginfo/action-detekt-all@74990bda6bfc47977e1e06aae9f47f320e7587ce
         with:
-          args: -i flutter --baseline flutter/config/detekt-bl.xml
+          args: -i flutter/android,flutter/example/android --baseline flutter/config/detekt-bl.xml
