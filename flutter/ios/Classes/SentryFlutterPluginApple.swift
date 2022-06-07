@@ -534,18 +534,18 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
       }
       if let level = breadcrumb["level"] as? String {
         switch level {
-            case "fatal":
-              breadcrumbInstance.level = SentryLevel.fatal
-            case "warning":
-              breadcrumbInstance.level = SentryLevel.warning
-            case "info":
-              breadcrumbInstance.level = SentryLevel.info
-            case "debug":
-              breadcrumbInstance.level = SentryLevel.debug
-            case "error":
-              breadcrumbInstance.level = SentryLevel.error
-            default:
-              breadcrumbInstance.level = SentryLevel.error
+        case "fatal":
+          breadcrumbInstance.level = SentryLevel.fatal
+        case "warning":
+          breadcrumbInstance.level = SentryLevel.warning
+        case "info":
+          breadcrumbInstance.level = SentryLevel.info
+        case "debug":
+          breadcrumbInstance.level = SentryLevel.debug
+        case "error":
+          breadcrumbInstance.level = SentryLevel.error
+        default:
+            breadcrumbInstance.level = SentryLevel.error
         }
       }
       if let data = breadcrumb["data"] as? Dictionary<String, Any?> {
