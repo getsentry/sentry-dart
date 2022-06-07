@@ -265,25 +265,27 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   private fun setUser(user: Map<String, Any?>?, result: Result) {
     if (user == null) {
       Sentry.setUser(null)
-    } else {
-      val userInstance = User()
-
-      (user["email"] as? String)?.let { userInstance.email = it }
-      (user["id"] as? String)?.let { userInstance.id = it }
-      (user["username"] as? String)?.let { userInstance.username = it }
-      (user["ip_address"] as? String)?.let { userInstance.ipAddress = it }
-      (user["extras"] as? Map<String, Any?>)?.let { extras ->
-        val others = mutableMapOf<String, String>()
-        extras.forEach { key, value ->
-          if (value != null) {
-            others[key] = value.toString()
-          }
-        }
-        userInstance.others = others
-      }
-
-      Sentry.setUser(userInstance)
+      result.success("")
+      return
     }
+
+    val userInstance = User()
+
+    (user["email"] as? String)?.let { userInstance.email = it }
+    (user["id"] as? String)?.let { userInstance.id = it }
+    (user["username"] as? String)?.let { userInstance.username = it }
+    (user["ip_address"] as? String)?.let { userInstance.ipAddress = it }
+    (user["extras"] as? Map<String, Any?>)?.let { extras ->
+      val others = mutableMapOf<String, String>()
+      extras.forEach { key, value ->
+        if (value != null) {
+          others[key] = value.toString()
+        }
+      }
+      userInstance.others = others
+    }
+
+    Sentry.setUser(userInstance)
 
     result.success("")
   }
