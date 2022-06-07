@@ -198,13 +198,13 @@ class Scope {
   }
 
   /// Resets the Scope to its default state
-  void clear() {
-    clearBreadcrumbs();
+  Future<void> clear() async {
+    await clearBreadcrumbs();
     clearAttachments();
     level = null;
     _span = null;
     _transaction = null;
-    setUser(null);
+    await setUser(null);
     _fingerprint = [];
     _tags.clear();
     _extra.clear();
