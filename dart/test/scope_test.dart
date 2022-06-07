@@ -165,7 +165,7 @@ void main() {
     expect(sut.breadcrumbs.length, maxBreadcrumbs);
   });
 
-  test('clears $Breadcrumb list', () {
+  test('clears $Breadcrumb list', () async {
     final sut = fixture.getSut();
 
     final breadcrumb1 = Breadcrumb(
@@ -173,7 +173,7 @@ void main() {
       timestamp: DateTime.utc(2019),
     );
     sut.addBreadcrumb(breadcrumb1);
-    sut.clear();
+    await sut.clear();
 
     expect(sut.breadcrumbs.length, 0);
   });
@@ -188,13 +188,13 @@ void main() {
     expect(sut.attachments.length, 1);
   });
 
-  test('clear() removes all $SentryAttachment', () {
+  test('clear() removes all $SentryAttachment', () async {
     final sut = fixture.getSut();
 
     final attachment = SentryAttachment.fromIntList([0, 0, 0, 0], 'test.txt');
     sut.addAttachment(attachment);
     expect(sut.attachments.length, 1);
-    sut.clear();
+    await sut.clear();
 
     expect(sut.attachments.length, 0);
   });
@@ -244,7 +244,7 @@ void main() {
     expect(sut.extra['test'], null);
   });
 
-  test('clears $Scope', () {
+  test('clears $Scope', () async {
     final sut = fixture.getSut();
 
     final breadcrumb1 = Breadcrumb(
@@ -268,7 +268,7 @@ void main() {
 
     sut.addEventProcessor(fixture.processor);
 
-    sut.clear();
+    await sut.clear();
 
     expect(sut.breadcrumbs.length, 0);
 
