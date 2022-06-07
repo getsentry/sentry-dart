@@ -5,7 +5,7 @@
 * Fix: Fix `SentryAssetBundle` on Flutter >= 3.1 (#877)
 * Feat: Add Android thread to platform stacktraces (#853)
 * Fix: Rename auto initialize property (#857)
-* Bump: Sentry-Android to 6.0.0 (#879)
+* Bump: Sentry-Android to 6.0.0 (#880)
 
 ## 6.6.0-alpha.2
 
