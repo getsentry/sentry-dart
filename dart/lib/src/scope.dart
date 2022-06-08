@@ -53,9 +53,20 @@ class Scope {
   /// Get the current user.
   SentryUser? get user => _user;
 
+  /// Sets the current user
+  /// This method is deprecated, use the [setUser(user)] instead.
+  /// This method will be removed in the future.
+  /// The breaking change is due to the [enableScopeSync] feature that
+  /// requires returning a [Future].
+  @Deprecated('Use setUser(user) instead')
+  set user(SentryUser? user) {
+    _user = user;
+  }
+
   /// Set the current user.
   Future<void> setUser(SentryUser? user) async {
-    _user = user;
+    // ignore: deprecated_member_use_from_same_package
+    this.user = user;
     await _callScopeObservers(
         (scopeObserver) async => await scopeObserver.setUser(user));
   }
@@ -135,7 +146,7 @@ class Scope {
 
   List<SentryAttachment> get attachments => List.unmodifiable(_attachments);
 
-  @Deprecated('Use attachments instead')
+  @Deprecated('Use [attachments] instead')
   List<SentryAttachment> get attachements => attachments;
 
   Scope(this._options);
