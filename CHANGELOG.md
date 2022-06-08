@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 6.6.0-beta.1
 
 * Feat: Sync Scope to Native (#858)
 
