@@ -65,8 +65,7 @@ class Scope {
 
   /// Set the current user.
   Future<void> setUser(SentryUser? user) async {
-    // ignore: deprecated_member_use_from_same_package
-    this.user = user;
+    _user = user;
     await _callScopeObservers(
         (scopeObserver) async => await scopeObserver.setUser(user));
   }
