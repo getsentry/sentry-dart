@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 6.6.0-beta.2
 
 * Fix: Add user setter back in the scope (#883)
 * Fix: clear method sets all properties synchronously (#882)
