@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 6.6.0-alpha.3
 
 * Feat: Attach Isolate name to thread context (#847)
 * Fix: Fix `SentryAssetBundle` on Flutter >= 3.1 (#877)
