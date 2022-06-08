@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-* Fix: Add user setter back in the scope #
+* Fix: Add user setter back in the scope (#883)
 
 ## 6.6.0-beta.1
 
