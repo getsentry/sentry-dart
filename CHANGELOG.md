@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+* Fix: clear method sets all properties synchronously (#)
+
 ## 6.6.0-beta.1
 
 * Feat: Sync Scope to Native (#858)
