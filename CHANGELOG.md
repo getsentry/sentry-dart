@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+* Fix: Add user setter back in the scope #
+
 ## 6.6.0-beta.1
 
 * Feat: Sync Scope to Native (#858)
