@@ -63,9 +63,13 @@ class Scope {
     _user = user;
   }
 
+  void _setUserSync(SentryUser? user) {
+    _user = user;
+  }
+
   /// Set the current user.
   Future<void> setUser(SentryUser? user) async {
-    _user = user;
+    _setUserSync(user);
     await _callScopeObservers(
         (scopeObserver) async => await scopeObserver.setUser(user));
   }
@@ -194,10 +198,13 @@ class Scope {
     _attachments.clear();
   }
 
+  void _clearBreadcrumbsSync() {
+    _breadcrumbs.clear();
+  }
+
   /// Clear all the breadcrumbs
   Future<void> clearBreadcrumbs() async {
-    _breadcrumbs.clear();
-
+    _clearBreadcrumbsSync();
     await _callScopeObservers(
         (scopeObserver) async => await scopeObserver.clearBreadcrumbs());
   }
@@ -209,16 +216,20 @@ class Scope {
 
   /// Resets the Scope to its default state
   Future<void> clear() async {
-    await clearBreadcrumbs();
     clearAttachments();
     level = null;
     _span = null;
     _transaction = null;
-    await setUser(null);
     _fingerprint = [];
     _tags.clear();
     _extra.clear();
     _eventProcessors.clear();
+
+    _clearBreadcrumbsSync();
+    _setUserSync(null);
+
+    await clearBreadcrumbs();
+    await setUser(null);
   }
 
   /// Sets a tag to the Scope
