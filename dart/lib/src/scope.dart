@@ -58,7 +58,7 @@ class Scope {
   /// This method will be removed in the future.
   /// The breaking change is due to the [enableScopeSync] feature that
   /// requires returning a [Future].
-  @Deprecated('Use setUser(user) instead')
+  @Deprecated('Use [setUser(user)] instead')
   set user(SentryUser? user) {
     _user = user;
   }
