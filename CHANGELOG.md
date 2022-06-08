@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-* Fix: clear method sets all properties synchronously (#)
+* Fix: clear method sets all properties synchronously (#882)
 
 ## 6.6.0-beta.1
 
