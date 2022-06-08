@@ -7,6 +7,8 @@ import FlutterMacOS
 import AppKit
 #endif
 
+// swiftlint:disable file_length
+
 // swiftlint:disable:next type_body_length
 public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
@@ -53,6 +55,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
     }
 
+    // swiftlint:disable:next cyclomatic_complexity function_body_length
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method as String {
         case "loadContexts":
@@ -76,11 +79,53 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         case "endNativeFrames":
             endNativeFrames(result: result)
 
+        case "setContexts":
+            let arguments = call.arguments as? [String: Any?]
+            let key = arguments?["key"] as? String
+            let value = arguments?["value"] as? Any
+            setContexts(key: key, value: value, result: result)
+
+        case "setUser":
+            let arguments = call.arguments as? [String: Any?]
+            let user = arguments?["user"] as? [String: Any?]
+            setUser(user: user, result: result)
+
+        case "addBreadcrumb":
+            let arguments = call.arguments as? [String: Any?]
+            let breadcrumb = arguments?["breadcrumb"] as? [String: Any?]
+            addBreadcrumb(breadcrumb: breadcrumb, result: result)
+
+        case "clearBreadcrumbs":
+            clearBreadcrumbs(result: result)
+
+        case "setExtra":
+            let arguments = call.arguments as? [String: Any?]
+            let key = arguments?["key"] as? String
+            let value = arguments?["value"] as? Any
+            setExtra(key: key, value: value, result: result)
+
+        case "removeExtra":
+            let arguments = call.arguments as? [String: Any?]
+            let key = arguments?["key"] as? String
+            removeExtra(key: key, result: result)
+
+        case "setTag":
+            let arguments = call.arguments as? [String: Any?]
+            let key = arguments?["key"] as? String
+            let value = arguments?["value"] as? String
+            setTag(key: key, value: value, result: result)
+
+        case "removeTag":
+            let arguments = call.arguments as? [String: Any?]
+            let key = arguments?["key"] as? String
+            removeTag(key: key, result: result)
+
         default:
             result(FlutterMethodNotImplemented)
         }
     }
 
+    // swiftlint:disable:next cyclomatic_complexity
     private func loadContexts(result: @escaping FlutterResult) {
         SentrySDK.configureScope { scope in
             let serializedScope = scope.serialize()
@@ -412,5 +457,164 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
       #else
       result(nil)
       #endif
+    }
+
+    private func setContexts(key: String?, value: Any?, result: @escaping FlutterResult) {
+      guard let key = key else {
+        result("")
+        return
+      }
+
+      SentrySDK.configureScope { scope in
+        if let dictionary = value as? Dictionary<String, Any?> {
+          scope.setContext(value: dictionary, key: key)
+        } else if let string = value as? String? {
+          scope.setContext(value: ["value": string], key: key)
+        } else if let int = value as? Int {
+          scope.setContext(value: ["value": int], key: key)
+        } else if let double = value as? Double {
+          scope.setContext(value: ["value": double], key: key)
+        } else if let bool = value as? Bool {
+          scope.setContext(value: ["value": bool], key: key)
+        }
+        result("")
+      }
+    }
+
+    private func removeContexts(key: String?, result: @escaping FlutterResult) {
+      guard let key = key else {
+        result("")
+        return
+      }
+      SentrySDK.configureScope { scope in
+        scope.removeContext(key: key)
+        result("")
+      }
+    }
+
+    private func setUser(user: Dictionary<String, Any?>?, result: @escaping FlutterResult) {
+      if let user = user {
+        let userInstance = User()
+
+        if let email = user["email"] as? String {
+          userInstance.email = email
+        }
+        if let id = user["id"] as? String {
+          userInstance.userId = id
+        }
+        if let username = user["username"] as? String {
+          userInstance.username = username
+        }
+        if let ipAddress = user["ip_address"] as? String {
+          userInstance.ipAddress = ipAddress
+        }
+        if let extras = user["extras"] as? Dictionary<String, Any?> {
+          userInstance.data = extras
+        }
+
+        SentrySDK.setUser(userInstance)
+      } else {
+        SentrySDK.setUser(nil)
+      }
+      result("")
+    }
+
+    // swiftlint:disable:next cyclomatic_complexity
+    private func addBreadcrumb(breadcrumb: Dictionary<String, Any?>?, result: @escaping FlutterResult) {
+      guard let breadcrumb = breadcrumb else {
+        result("")
+        return
+      }
+
+      let breadcrumbInstance = Breadcrumb()
+
+      if let message = breadcrumb["message"] as? String {
+        breadcrumbInstance.message = message
+      }
+      if let type = breadcrumb["type"] as? String {
+        breadcrumbInstance.type = type
+      }
+      if let category = breadcrumb["category"] as? String {
+        breadcrumbInstance.category = category
+      }
+      if let level = breadcrumb["level"] as? String {
+        switch level {
+        case "fatal":
+          breadcrumbInstance.level = SentryLevel.fatal
+        case "warning":
+          breadcrumbInstance.level = SentryLevel.warning
+        case "info":
+          breadcrumbInstance.level = SentryLevel.info
+        case "debug":
+          breadcrumbInstance.level = SentryLevel.debug
+        case "error":
+          breadcrumbInstance.level = SentryLevel.error
+        default:
+          breadcrumbInstance.level = SentryLevel.error
+        }
+      }
+      if let data = breadcrumb["data"] as? Dictionary<String, Any?> {
+        breadcrumbInstance.data = data
+      }
+
+      SentrySDK.addBreadcrumb(crumb: breadcrumbInstance)
+
+      result("")
+    }
+
+    private func clearBreadcrumbs(result: @escaping FlutterResult) {
+      SentrySDK.configureScope { scope in
+        scope.clearBreadcrumbs()
+
+        result("")
+      }
+    }
+
+    private func setExtra(key: String?, value: Any?, result: @escaping FlutterResult) {
+      guard let key = key else {
+        result("")
+        return
+      }
+      SentrySDK.configureScope { scope in
+        scope.setExtra(value: value, key: key)
+
+        result("")
+      }
+    }
+
+    private func removeExtra(key: String?, result: @escaping FlutterResult) {
+      guard let key = key else {
+        result("")
+        return
+      }
+      SentrySDK.configureScope { scope in
+        scope.removeExtra(key: key)
+
+        result("")
+      }
+    }
+
+    private func setTag(key: String?, value: String?, result: @escaping FlutterResult) {
+      guard let key = key, let value = value else {
+        result("")
+        return
+      }
+      SentrySDK.configureScope { scope in
+        scope.setTag(value: value, key: key)
+
+        result("")
+      }
+    }
+
+    private func removeTag(key: String?, result: @escaping FlutterResult) {
+      guard let key = key else {
+        result("")
+        return
+      }
+      SentrySDK.configureScope { scope in
+        scope.removeTag(key: key)
+
+        result("")
+      }
     }
 }

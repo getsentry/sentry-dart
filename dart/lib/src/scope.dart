@@ -1,11 +1,13 @@
+import 'dart:async';
 import 'dart:collection';
 
-import 'sentry_attachment/sentry_attachment.dart';
 import 'event_processor.dart';
 import 'protocol.dart';
+import 'scope_observer.dart';
+import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_options.dart';
+import 'sentry_span_interface.dart';
 import 'sentry_tracer.dart';
-import 'tracing.dart';
 
 /// Scope data to be sent with the event
 class Scope {
@@ -46,8 +48,17 @@ class Scope {
     }
   }
 
-  /// Information about the current user.
-  SentryUser? user;
+  SentryUser? _user;
+
+  /// Get the current user.
+  SentryUser? get user => _user;
+
+  /// Set the current user.
+  Future<void> setUser(SentryUser? user) async {
+    _user = user;
+    await _callScopeObservers(
+        (scopeObserver) async => await scopeObserver.setUser(user));
+  }
 
   List<String> _fingerprint = [];
 
@@ -93,15 +104,21 @@ class Scope {
   Map<String, dynamic> get contexts => Map.unmodifiable(_contexts);
 
   /// add an entry to the Scope's contexts
-  void setContexts(String key, dynamic value) {
+  Future<void> setContexts(String key, dynamic value) async {
     _contexts[key] = (value is num || value is bool || value is String)
         ? {'value': value}
         : value;
+
+    await _callScopeObservers(
+        (scopeObserver) async => await scopeObserver.setContexts(key, value));
   }
 
   /// Removes a value from the Scope's contexts
-  void removeContexts(String key) {
+  Future<void> removeContexts(String key) async {
     _contexts.remove(key);
+
+    await _callScopeObservers(
+        (scopeObserver) async => await scopeObserver.removeContexts(key));
   }
 
   /// Scope's event processor list
@@ -114,14 +131,17 @@ class Scope {
 
   final SentryOptions _options;
 
-  final List<SentryAttachment> _attachements = [];
+  final List<SentryAttachment> _attachments = [];
 
-  List<SentryAttachment> get attachements => List.unmodifiable(_attachements);
+  List<SentryAttachment> get attachments => List.unmodifiable(_attachments);
+
+  @Deprecated('Use attachments instead')
+  List<SentryAttachment> get attachements => attachments;
 
   Scope(this._options);
 
   /// Adds a breadcrumb to the breadcrumbs queue
-  void addBreadcrumb(Breadcrumb breadcrumb, {dynamic hint}) {
+  Future<void> addBreadcrumb(Breadcrumb breadcrumb, {dynamic hint}) async {
     // bail out if maxBreadcrumbs is zero
     if (_options.maxBreadcrumbs == 0) {
       return;
@@ -151,19 +171,25 @@ class Scope {
     }
 
     _breadcrumbs.add(breadcrumb);
+
+    await _callScopeObservers(
+        (scopeObserver) async => await scopeObserver.addBreadcrumb(breadcrumb));
   }
 
   void addAttachment(SentryAttachment attachment) {
-    _attachements.add(attachment);
+    _attachments.add(attachment);
   }
 
   void clearAttachments() {
-    _attachements.clear();
+    _attachments.clear();
   }
 
   /// Clear all the breadcrumbs
-  void clearBreadcrumbs() {
+  Future<void> clearBreadcrumbs() async {
     _breadcrumbs.clear();
+
+    await _callScopeObservers(
+        (scopeObserver) async => await scopeObserver.clearBreadcrumbs());
   }
 
   /// Adds an event processor
@@ -172,13 +198,13 @@ class Scope {
   }
 
   /// Resets the Scope to its default state
-  void clear() {
-    clearBreadcrumbs();
+  Future<void> clear() async {
+    await clearBreadcrumbs();
     clearAttachments();
     level = null;
     _span = null;
     _transaction = null;
-    user = null;
+    await setUser(null);
     _fingerprint = [];
     _tags.clear();
     _extra.clear();
@@ -186,22 +212,32 @@ class Scope {
   }
 
   /// Sets a tag to the Scope
-  void setTag(String key, String value) {
+  Future<void> setTag(String key, String value) async {
     _tags[key] = value;
+    await _callScopeObservers(
+        (scopeObserver) async => await scopeObserver.setTag(key, value));
   }
 
   /// Removes a tag from the Scope
-  void removeTag(String key) {
+  Future<void> removeTag(String key) async {
     _tags.remove(key);
+    await _callScopeObservers(
+        (scopeObserver) async => await scopeObserver.removeTag(key));
   }
 
   /// Sets an extra to the Scope
-  void setExtra(String key, dynamic value) {
+  Future<void> setExtra(String key, dynamic value) async {
     _extra[key] = value;
+    await _callScopeObservers(
+        (scopeObserver) async => await scopeObserver.setExtra(key, value));
   }
 
   /// Removes an extra from the Scope
-  void removeExtra(String key) => _extra.remove(key);
+  Future<void> removeExtra(String key) async {
+    _extra.remove(key);
+    await _callScopeObservers(
+        (scopeObserver) async => await scopeObserver.removeExtra(key));
+  }
 
   Future<SentryEvent?> applyToEvent(
     SentryEvent event, {
@@ -327,10 +363,11 @@ class Scope {
   Scope clone() {
     final clone = Scope(_options)
       ..level = level
-      ..user = user
       ..fingerprint = List.from(fingerprint)
       .._transaction = _transaction
       .._span = _span;
+
+    clone.setUser(user);
 
     for (final tag in _tags.keys) {
       clone.setTag(tag, _tags[tag]!);
@@ -354,10 +391,19 @@ class Scope {
       }
     });
 
-    for (final attachment in _attachements) {
+    for (final attachment in _attachments) {
       clone.addAttachment(attachment);
     }
 
     return clone;
+  }
+
+  Future<void> _callScopeObservers(
+      Future<void> Function(ScopeObserver) action) async {
+    if (_options.enableScopeSync) {
+      for (final scopeObserver in _options.scopeObservers) {
+        await action(scopeObserver);
+      }
+    }
   }
 }

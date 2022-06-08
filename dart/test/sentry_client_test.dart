@@ -17,6 +17,8 @@ import 'mocks.dart';
 import 'mocks/mock_client_report_recorder.dart';
 import 'mocks/mock_envelope.dart';
 import 'mocks/mock_hub.dart';
+import 'mocks/mock_platform.dart';
+import 'mocks/mock_platform_checker.dart';
 import 'mocks/mock_transport.dart';
 
 void main() {
@@ -498,13 +500,14 @@ void main() {
       fixture = Fixture();
 
       scope = Scope(fixture.options)
-        ..user = user
         ..level = level
         ..transaction = transaction
         ..fingerprint = fingerprint
         ..addBreadcrumb(crumb)
         ..setTag(scopeTagKey, scopeTagValue)
         ..setExtra(scopeExtraKey, scopeExtraValue);
+
+      scope.setUser(user);
     });
 
     test('should apply the scope', () async {
@@ -551,11 +554,12 @@ void main() {
     );
 
     Scope createScope(SentryOptions options) {
-      return Scope(options)
-        ..user = user
+      final scope = Scope(options)
         ..transaction = transaction
         ..fingerprint = fingerprint
         ..addBreadcrumb(crumb);
+      scope.setUser(user);
+      return scope;
     }
 
     setUp(() {
@@ -583,7 +587,7 @@ void main() {
       final client = fixture.getSut(sendDefaultPii: true);
       final scope = createScope(fixture.options);
 
-      scope.user = SentryUser(id: '987');
+      scope.setUser(SentryUser(id: '987'));
 
       var eventWithUser = event.copyWith(
         user: SentryUser(id: '123', username: 'foo bar'),
@@ -606,12 +610,14 @@ void main() {
       final client = fixture.getSut(sendDefaultPii: true);
       final scope = createScope(fixture.options);
 
-      scope.user = SentryUser(
-        id: 'id',
-        extras: {
-          'foo': 'bar',
-          'bar': 'foo',
-        },
+      scope.setUser(
+        SentryUser(
+          id: 'id',
+          extras: {
+            'foo': 'bar',
+            'bar': 'foo',
+          },
+        ),
       );
 
       var eventWithUser = event.copyWith(
@@ -855,6 +861,68 @@ void main() {
       final capturedEnvelope = (fixture.transport).envelopes.first;
 
       expect(capturedEnvelope, fakeEnvelope);
+    });
+  });
+
+  group('Breadcrumbs', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('Clears breadcrumbs on Android if mechanism.handled is true',
+        () async {
+      fixture.options.enableScopeSync = true;
+      fixture.options.platformChecker =
+          MockPlatformChecker(platform: MockPlatform.android());
+
+      final client = fixture.getSut();
+      final event = SentryEvent(exceptions: [
+        SentryException(
+          type: "type",
+          value: "value",
+          mechanism: Mechanism(
+            type: 'type',
+            handled: true,
+          ),
+        )
+      ], breadcrumbs: [
+        Breadcrumb()
+      ]);
+      await client.captureEvent(event);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect((capturedEvent.breadcrumbs ?? []).isEmpty, true);
+    });
+
+    test('Does not clear breadcrumbs on Android if mechanism.handled is false',
+        () async {
+      fixture.options.enableScopeSync = true;
+      fixture.options.platformChecker =
+          MockPlatformChecker(platform: MockPlatform.android());
+
+      final client = fixture.getSut();
+      final event = SentryEvent(exceptions: [
+        SentryException(
+          type: "type",
+          value: "value",
+          mechanism: Mechanism(
+            type: 'type',
+            handled: false,
+          ),
+        )
+      ], breadcrumbs: [
+        Breadcrumb()
+      ]);
+      await client.captureEvent(event);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect((capturedEvent.breadcrumbs ?? []).isNotEmpty, true);
     });
   });
 

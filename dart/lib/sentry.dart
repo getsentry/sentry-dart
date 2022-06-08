@@ -12,6 +12,7 @@ export 'src/noop_isolate_error_integration.dart'
     if (dart.library.io) 'src/isolate_error_integration.dart';
 export 'src/protocol.dart';
 export 'src/scope.dart';
+export 'src/scope_observer.dart';
 export 'src/sentry.dart';
 export 'src/sentry_envelope.dart';
 export 'src/sentry_envelope_item.dart';

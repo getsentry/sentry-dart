@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:mockito/annotations.dart';
 import 'package:sentry/sentry.dart';
@@ -152,6 +154,15 @@ class MockNativeChannel implements SentryNativeChannel {
 
   int numberOfBeginNativeFramesCalls = 0;
   int numberOfEndNativeFramesCalls = 0;
+  int numberOfSetUserCalls = 0;
+  int numberOfAddBreadcrumbCalls = 0;
+  int numberOfClearBreadcrumbCalls = 0;
+  int numberOfRemoveContextsCalls = 0;
+  int numberOfRemoveExtraCalls = 0;
+  int numberOfRemoveTagCalls = 0;
+  int numberOfSetContextsCalls = 0;
+  int numberOfSetExtraCalls = 0;
+  int numberOfSetTagCalls = 0;
 
   @override
   Future<NativeAppStart?> fetchNativeAppStart() async => nativeAppStart;
@@ -166,5 +177,50 @@ class MockNativeChannel implements SentryNativeChannel {
     this.id = id;
     numberOfEndNativeFramesCalls += 1;
     return nativeFrames;
+  }
+
+  @override
+  Future<void> setUser(SentryUser? user) async {
+    numberOfSetUserCalls += 1;
+  }
+
+  @override
+  Future<void> addBreadcrumb(Breadcrumb breadcrumb) async {
+    numberOfAddBreadcrumbCalls += 1;
+  }
+
+  @override
+  Future<void> clearBreadcrumbs() async {
+    numberOfClearBreadcrumbCalls += 1;
+  }
+
+  @override
+  Future<void> removeContexts(String key) async {
+    numberOfRemoveContextsCalls += 1;
+  }
+
+  @override
+  Future<void> removeExtra(String key) async {
+    numberOfRemoveExtraCalls += 1;
+  }
+
+  @override
+  Future<void> removeTag(String key) async {
+    numberOfRemoveTagCalls += 1;
+  }
+
+  @override
+  Future<void> setContexts(String key, value) async {
+    numberOfSetContextsCalls += 1;
+  }
+
+  @override
+  Future<void> setExtra(String key, value) async {
+    numberOfSetExtraCalls += 1;
+  }
+
+  @override
+  Future<void> setTag(String key, value) async {
+    numberOfSetTagCalls += 1;
   }
 }

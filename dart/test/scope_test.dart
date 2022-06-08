@@ -7,6 +7,7 @@ import 'package:test/test.dart';
 
 import 'mocks.dart';
 import 'mocks/mock_hub.dart';
+import 'mocks/mock_scope_observer.dart';
 
 void main() {
   late Fixture fixture;
@@ -56,7 +57,7 @@ void main() {
     final sut = fixture.getSut();
 
     final user = SentryUser(id: 'test');
-    sut.user = user;
+    sut.setUser(user);
 
     expect(sut.user, user);
   });
@@ -164,7 +165,7 @@ void main() {
     expect(sut.breadcrumbs.length, maxBreadcrumbs);
   });
 
-  test('clears $Breadcrumb list', () {
+  test('clears $Breadcrumb list', () async {
     final sut = fixture.getSut();
 
     final breadcrumb1 = Breadcrumb(
@@ -172,7 +173,7 @@ void main() {
       timestamp: DateTime.utc(2019),
     );
     sut.addBreadcrumb(breadcrumb1);
-    sut.clear();
+    await sut.clear();
 
     expect(sut.breadcrumbs.length, 0);
   });
@@ -183,19 +184,19 @@ void main() {
     final attachment = SentryAttachment.fromIntList([0, 0, 0, 0], 'test.txt');
     sut.addAttachment(attachment);
 
-    expect(sut.attachements.last, attachment);
-    expect(sut.attachements.length, 1);
+    expect(sut.attachments.last, attachment);
+    expect(sut.attachments.length, 1);
   });
 
-  test('clear() removes all $SentryAttachment', () {
+  test('clear() removes all $SentryAttachment', () async {
     final sut = fixture.getSut();
 
     final attachment = SentryAttachment.fromIntList([0, 0, 0, 0], 'test.txt');
     sut.addAttachment(attachment);
-    expect(sut.attachements.length, 1);
-    sut.clear();
+    expect(sut.attachments.length, 1);
+    await sut.clear();
 
-    expect(sut.attachements.length, 0);
+    expect(sut.attachments.length, 0);
   });
 
   test('clearAttachments() removes all $SentryAttachment', () {
@@ -203,10 +204,10 @@ void main() {
 
     final attachment = SentryAttachment.fromIntList([0, 0, 0, 0], 'test.txt');
     sut.addAttachment(attachment);
-    expect(sut.attachements.length, 1);
+    expect(sut.attachments.length, 1);
     sut.clearAttachments();
 
-    expect(sut.attachements.length, 0);
+    expect(sut.attachments.length, 0);
   });
 
   test('sets tag', () {
@@ -243,7 +244,7 @@ void main() {
     expect(sut.extra['test'], null);
   });
 
-  test('clears $Scope', () {
+  test('clears $Scope', () async {
     final sut = fixture.getSut();
 
     final breadcrumb1 = Breadcrumb(
@@ -257,7 +258,7 @@ void main() {
     sut.span = null;
 
     final user = SentryUser(id: 'test');
-    sut.user = user;
+    sut.setUser(user);
 
     final fingerprints = ['test'];
     sut.fingerprint = fingerprints;
@@ -267,7 +268,7 @@ void main() {
 
     sut.addEventProcessor(fixture.processor);
 
-    sut.clear();
+    await sut.clear();
 
     expect(sut.breadcrumbs.length, 0);
 
@@ -305,7 +306,7 @@ void main() {
     expect(sut.tags, clone.tags);
     expect(sut.breadcrumbs, clone.breadcrumbs);
     expect(sut.contexts, clone.contexts);
-    expect(sut.attachements, clone.attachements);
+    expect(sut.attachments, clone.attachments);
     expect(sut.level, clone.level);
     expect(ListEquality().equals(sut.fingerprint, clone.fingerprint), true);
     expect(
@@ -332,7 +333,6 @@ void main() {
         extra: const {'e-infos': 'abc'},
       );
       final scope = Scope(SentryOptions(dsn: fakeDsn))
-        ..user = scopeUser
         ..fingerprint = ['example-dart']
         ..addBreadcrumb(breadcrumb)
         ..transaction = '/example/app'
@@ -341,6 +341,8 @@ void main() {
         ..setExtra('company-name', 'Dart Inc')
         ..setContexts('theme', 'material')
         ..addEventProcessor(AddTagsEventProcessor({'page-locale': 'en-us'}));
+
+      scope.setUser(scopeUser);
 
       final updatedEvent = await scope.applyToEvent(event);
 
@@ -378,10 +380,11 @@ void main() {
         breadcrumbs: [eventBreadcrumb],
       );
       final scope = Scope(SentryOptions(dsn: fakeDsn))
-        ..user = scopeUser
         ..fingerprint = ['example-dart']
         ..addBreadcrumb(breadcrumb)
         ..transaction = '/example/app';
+
+      scope.setUser(scopeUser);
 
       final updatedEvent = await scope.applyToEvent(event);
 
@@ -518,6 +521,69 @@ void main() {
 
     expect(updatedTr?.level, isNull);
   });
+
+  test('addBreadcrumb should call scope observers', () async {
+    final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
+    sut.addBreadcrumb(Breadcrumb());
+
+    expect(true, fixture.mockScopeObserver.calledAddBreadcrumb);
+  });
+
+  test('clearBreadcrumbs should call scope observers', () async {
+    final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
+    sut.clearBreadcrumbs();
+
+    expect(true, fixture.mockScopeObserver.calledClearBreadcrumbs);
+  });
+
+  test('removeContexts should call scope observers', () async {
+    final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
+    sut.removeContexts('fixture-key');
+
+    expect(true, fixture.mockScopeObserver.calledRemoveContexts);
+  });
+
+  test('removeExtra should call scope observers', () async {
+    final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
+    sut.removeExtra('fixture-key');
+
+    expect(true, fixture.mockScopeObserver.calledRemoveExtra);
+  });
+
+  test('removeTag should call scope observers', () async {
+    final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
+    sut.removeTag('fixture-key');
+
+    expect(true, fixture.mockScopeObserver.calledRemoveTag);
+  });
+
+  test('setContexts should call scope observers', () async {
+    final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
+    sut.setContexts('fixture-key', 'fixture-value');
+
+    expect(true, fixture.mockScopeObserver.calledSetContexts);
+  });
+
+  test('setExtra should call scope observers', () async {
+    final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
+    sut.setExtra('fixture-key', 'fixture-value');
+
+    expect(true, fixture.mockScopeObserver.calledSetExtra);
+  });
+
+  test('setTag should call scope observers', () async {
+    final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
+    sut.setTag('fixture-key', 'fixture-value');
+
+    expect(true, fixture.mockScopeObserver.calledSetTag);
+  });
+
+  test('setUser should call scope observers', () async {
+    final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
+    sut.setUser(null);
+
+    expect(true, fixture.mockScopeObserver.calledSetUser);
+  });
 }
 
 class Fixture {
@@ -525,14 +591,19 @@ class Fixture {
     'name',
     'op',
   );
+  final mockScopeObserver = MockScopeObserver();
 
   Scope getSut({
     int maxBreadcrumbs = 100,
     BeforeBreadcrumbCallback? beforeBreadcrumbCallback,
+    ScopeObserver? scopeObserver,
   }) {
     final options = SentryOptions(dsn: fakeDsn);
     options.maxBreadcrumbs = maxBreadcrumbs;
     options.beforeBreadcrumb = beforeBreadcrumbCallback;
+    if (scopeObserver != null) {
+      options.addScopeObserver(scopeObserver);
+    }
     return Scope(options);
   }
 

@@ -54,6 +54,69 @@ void main() {
       expect(fixture.channel.numberOfEndNativeFramesCalls, 1);
     });
 
+    test('setUser', () async {
+      final sut = fixture.getSut();
+      await sut.setUser(null);
+
+      expect(fixture.channel.numberOfSetUserCalls, 1);
+    });
+
+    test('addBreadcrumb', () async {
+      final sut = fixture.getSut();
+      await sut.addBreadcrumb(Breadcrumb());
+
+      expect(fixture.channel.numberOfAddBreadcrumbCalls, 1);
+    });
+
+    test('clearBreadcrumbs', () async {
+      final sut = fixture.getSut();
+      await sut.clearBreadcrumbs();
+
+      expect(fixture.channel.numberOfClearBreadcrumbCalls, 1);
+    });
+
+    test('setContexts', () async {
+      final sut = fixture.getSut();
+      await sut.setContexts('fixture-key', 'fixture-value');
+
+      expect(fixture.channel.numberOfSetContextsCalls, 1);
+    });
+
+    test('removeContexts', () async {
+      final sut = fixture.getSut();
+      await sut.removeContexts('fixture-key');
+
+      expect(fixture.channel.numberOfRemoveContextsCalls, 1);
+    });
+
+    test('setExtra', () async {
+      final sut = fixture.getSut();
+      await sut.setExtra('fixture-key', 'fixture-value');
+
+      expect(fixture.channel.numberOfSetExtraCalls, 1);
+    });
+
+    test('removeExtra', () async {
+      final sut = fixture.getSut();
+      await sut.removeExtra('fixture-key');
+
+      expect(fixture.channel.numberOfRemoveExtraCalls, 1);
+    });
+
+    test('setTag', () async {
+      final sut = fixture.getSut();
+      await sut.setTag('fixture-key', 'fixture-value');
+
+      expect(fixture.channel.numberOfSetTagCalls, 1);
+    });
+
+    test('removeTag', () async {
+      final sut = fixture.getSut();
+      await sut.removeTag('fixture-key');
+
+      expect(fixture.channel.numberOfRemoveTagCalls, 1);
+    });
+
     test('reset', () async {
       final sut = fixture.getSut();
 

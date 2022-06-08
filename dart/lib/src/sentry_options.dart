@@ -16,7 +16,6 @@ import 'transport/noop_transport.dart';
 import 'utils.dart';
 import 'version.dart';
 
-// TODO: Scope observers, enableScopeSync
 // TODO: shutdownTimeout, flushTimeoutMillis
 // https://api.dart.dev/stable/2.10.2/dart-io/HttpClient/close.html doesn't have a timeout param, we'd need to implement manually
 
@@ -268,6 +267,17 @@ class SentryOptions {
 
   /// Send statistics to sentry when the client drops events.
   bool sendClientReports = true;
+
+  /// If enabled, [scopeObservers] will be called when mutating scope.
+  bool enableScopeSync = true;
+
+  final List<ScopeObserver> _scopeObservers = [];
+
+  List<ScopeObserver> get scopeObservers => _scopeObservers;
+
+  void addScopeObserver(ScopeObserver scopeObserver) {
+    _scopeObservers.add(scopeObserver);
+  }
 
   @internal
   late ClientReportRecorder recorder = NoOpClientReportRecorder();
