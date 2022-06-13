@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+* Bump: Sentry-Cocoa to 7.16.1 (#886)
+
 ## 6.6.0-beta.2
 
 * Fix: Add user setter back in the scope (#883)
