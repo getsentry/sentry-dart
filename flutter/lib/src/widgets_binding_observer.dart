@@ -68,7 +68,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   /// when a phone is rotated or an application window is resized.
   ///
   /// See also:
-  ///   - [Window.onMetricsChanged](https://api.flutter.dev/flutter/dart-ui/Window/onMetricsChanged.html)
+  ///   - [SingletonFlutterWindow.onMetricsChanged](https://api.flutter.dev/flutter/dart-ui/SingletonFlutterWindow/onMetricsChanged.html)
   @override
   void didChangeMetrics() {
     if (!_options.enableWindowMetricBreadcrumbs) {
