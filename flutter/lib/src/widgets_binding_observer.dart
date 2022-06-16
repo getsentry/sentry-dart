@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../sentry_flutter.dart';
 import 'binding_utils.dart';
@@ -20,10 +21,22 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     Hub? hub,
     required SentryFlutterOptions options,
   })  : _hub = hub ?? HubAdapter(),
-        _options = options;
+        _options = options {
+    if (_options.enableWindowMetricBreadcrumbs) {
+      final window = BindingUtils.getWidgetsBindingInstance()?.window;
+
+      _lastSentMetrics = <String, dynamic>{
+        'new_pixel_ratio': window?.devicePixelRatio,
+        'new_height': window?.physicalSize.height,
+        'new_width': window?.physicalSize.width,
+      };
+    }
+  }
 
   final Hub _hub;
   final SentryFlutterOptions _options;
+
+  Map<String, dynamic>? _lastSentMetrics;
 
   /// This method records lifecycle events.
   /// It tries to mimic the behavior of ActivityBreadcrumbsIntegration of Sentry
@@ -62,16 +75,24 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
       return;
     }
     final window = BindingUtils.getWidgetsBindingInstance()?.window;
-    _hub.addBreadcrumb(Breadcrumb(
-      message: 'Screen size changed',
-      category: 'device.screen',
-      type: 'navigation',
-      data: <String, dynamic>{
-        'new_pixel_ratio': window?.devicePixelRatio,
-        'new_height': window?.physicalSize.height,
-        'new_width': window?.physicalSize.width,
-      },
-    ));
+    final data = <String, dynamic>{
+      'new_pixel_ratio': window?.devicePixelRatio,
+      'new_height': window?.physicalSize.height,
+      'new_width': window?.physicalSize.width,
+    };
+
+    final dataChanged = !mapEquals(data, _lastSentMetrics);
+
+    if (dataChanged) {
+      _lastSentMetrics = data;
+
+      _hub.addBreadcrumb(Breadcrumb(
+        message: 'Screen size changed',
+        category: 'device.screen',
+        type: 'navigation',
+        data: data,
+      ));
+    }
   }
 
   /// See also:

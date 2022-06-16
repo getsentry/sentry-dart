@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
@@ -168,19 +170,22 @@ void main() {
       instance.removeObserver(observer);
     });
 
-    testWidgets('metrics changed breadcrumb', (WidgetTester tester) async {
+    testWidgets('metrics changed breadcrumb (screen size)',
+        (WidgetTester tester) async {
       final hub = MockHub();
 
       final observer = SentryWidgetsBindingObserver(
         hub: hub,
         options: flutterTrackingEnabledOptions,
       );
-      final instance = BindingUtils.getWidgetsBindingInstance();
-      instance!.addObserver(observer);
+      final instance = tester.binding;
+      instance.addObserver(observer);
 
       final window = instance.window;
 
-      window.onMetricsChanged!();
+      const newWidth = 123.0;
+      const newHeight = 456.0;
+      window.physicalSizeTestValue = Size(newWidth, newHeight);
 
       final breadcrumb =
           verify(hub.addBreadcrumb(captureAny)).captured.single as Breadcrumb;
@@ -191,9 +196,61 @@ void main() {
       expect(breadcrumb.level, SentryLevel.info);
       expect(breadcrumb.data, <String, dynamic>{
         'new_pixel_ratio': window.devicePixelRatio,
+        'new_height': newHeight,
+        'new_width': newWidth,
+      });
+
+      instance.removeObserver(observer);
+    });
+
+    testWidgets('metrics changed breadcrumb (pixel ratio)',
+        (WidgetTester tester) async {
+      final hub = MockHub();
+
+      final observer = SentryWidgetsBindingObserver(
+        hub: hub,
+        options: flutterTrackingEnabledOptions,
+      );
+      final instance = tester.binding;
+      instance.addObserver(observer);
+
+      final window = instance.window;
+
+      const newPixelRatio = 1.618;
+      window.devicePixelRatioTestValue = newPixelRatio;
+
+      final breadcrumb =
+          verify(hub.addBreadcrumb(captureAny)).captured.single as Breadcrumb;
+
+      expect(breadcrumb.message, 'Screen size changed');
+      expect(breadcrumb.category, 'device.screen');
+      expect(breadcrumb.type, 'navigation');
+      expect(breadcrumb.level, SentryLevel.info);
+      expect(breadcrumb.data, <String, dynamic>{
+        'new_pixel_ratio': newPixelRatio,
         'new_height': window.physicalSize.height,
         'new_width': window.physicalSize.width,
       });
+
+      instance.removeObserver(observer);
+    });
+
+    testWidgets('no breadcrumb on unrelated metrics changes',
+        (WidgetTester tester) async {
+      final hub = MockHub();
+
+      final observer = SentryWidgetsBindingObserver(
+        hub: hub,
+        options: flutterTrackingEnabledOptions,
+      );
+      final instance = tester.binding;
+      instance.addObserver(observer);
+
+      final window = instance.window;
+
+      window.viewInsetsTestValue = WindowPadding.zero;
+
+      verifyNever(hub.addBreadcrumb(captureAny));
 
       instance.removeObserver(observer);
     });
