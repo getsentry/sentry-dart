@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-* Bump: Sentry-Cocoa to 7.17.0 and Sentry-Android to 6.1.1 (#)
+* Bump: Sentry-Cocoa to 7.17.0 and Sentry-Android to 6.1.1 (#891)
 
 ## 6.6.0-beta.3
 
