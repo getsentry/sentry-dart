@@ -8,7 +8,24 @@
 
 ## 6.6.0
 
+### Fixes
+
 * Bump: Sentry-Cocoa to 7.18.0 and Sentry-Android to 6.1.2 (#892)
+* Fix: Add missing iOS contexts (#761)
+* Fix serialization of threads (#844)
+* Fix: `SentryAssetBundle` on Flutter >= 3.1 (#877)
+
+### Features
+
+* Feat: Client Reports (#829)
+* Feat: Allow manual init of the Native SDK (#765)
+* Feat: Attach Isolate name to thread context (#847)
+* Feat: Add Android thread to platform stacktraces (#853)
+* Feat: Sync Scope to Native (#858)
+
+### Sentry Self-hosted Compatibility
+
+* Starting with version `6.6.0` of `sentry`, [Sentry's version >= v21.9.0](https://github.com/getsentry/self-hosted/releases) is required or you have to manually disable sending client reports via the `sendClientReports` option. This only applies to self-hosted Sentry. If you are using [sentry.io](https://sentry.io), no action is needed.
 
 ## 6.6.0-beta.4
 
