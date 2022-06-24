@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+* Filter out app starts with more than 60s (#895)
+
 ## 6.6.0
 
 ### Fixes
