@@ -170,8 +170,7 @@ void main() {
       instance.removeObserver(observer);
     });
 
-    testWidgets('metrics changed breadcrumb (screen size)',
-        (WidgetTester tester) async {
+    testWidgets('metrics changed breadcrumb', (WidgetTester tester) async {
       final hub = MockHub();
 
       final observer = SentryWidgetsBindingObserver(
@@ -203,8 +202,7 @@ void main() {
       instance.removeObserver(observer);
     });
 
-    testWidgets('metrics changed breadcrumb (pixel ratio)',
-        (WidgetTester tester) async {
+    testWidgets('only unique metrics emit events', (WidgetTester tester) async {
       final hub = MockHub();
 
       final observer = SentryWidgetsBindingObserver(
@@ -215,6 +213,8 @@ void main() {
       instance.addObserver(observer);
 
       final window = instance.window;
+
+      window.physicalSizeTestValue = window.physicalSize;
 
       const newPixelRatio = 1.618;
       window.devicePixelRatioTestValue = newPixelRatio;
