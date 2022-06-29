@@ -222,8 +222,8 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             }
         }
 
-       if (didReceiveDidBecomeActiveNotification &&
-          (sentryOptions?.enableAutoSessionTracking == true || sentryOptions?.enableOutOfMemoryTracking == true)) {
+       if didReceiveDidBecomeActiveNotification &&
+          (sentryOptions?.enableAutoSessionTracking == true || sentryOptions?.enableOutOfMemoryTracking == true) {
             // We send a SentryHybridSdkDidBecomeActive to the Sentry Cocoa SDK, so the SDK will mimics
             // the didBecomeActiveNotification notification. This is needed for session and OOM tracking.
            NotificationCenter.default.post(name: Notification.Name("SentryHybridSdkDidBecomeActive"), object: nil)
