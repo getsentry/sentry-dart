@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Send DidBecomeActiveNotification when OOM enabled (#905)
+
 ## 6.6.1
 
 ### Fixes
