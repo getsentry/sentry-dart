@@ -83,6 +83,9 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
   }
 }
 
+/// This class wraps the `this as dynamic` hack in a type-safe manner.
+/// It helps to introduce code, which uses newer features from Flutter
+/// without breaking Sentry on older versions of Flutter.
 // Should not become part of public API.
 @visibleForTesting
 class PlatformDispatcherWrapper {
