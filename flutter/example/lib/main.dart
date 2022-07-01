@@ -180,6 +180,17 @@ class MainScaffold extends StatelessWidget {
               child: const Text('Capture from FlutterError.onError'),
             ),
             ElevatedButton(
+              onPressed: () {
+                (WidgetsBinding.instance.platformDispatcher as dynamic)
+                    .onError
+                    ?.call(
+                      Exception('PlatformDispatcher.onError'),
+                      StackTrace.current,
+                    );
+              },
+              child: const Text('Capture from PlatformDispatcher.onError'),
+            ),
+            ElevatedButton(
               onPressed: () => makeWebRequest(context),
               child: const Text('Dart: Web request'),
             ),
