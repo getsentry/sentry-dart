@@ -3,7 +3,6 @@
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
-import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import 'tracing_client_adapter.dart';
 import 'breadcrumb_client_adapter.dart';
@@ -21,7 +20,6 @@ import 'breadcrumb_client_adapter.dart';
 /// Remarks:
 /// HTTP traffic can contain PII (personal identifiable information).
 /// Read more on data scrubbing [here](https://docs.sentry.io/product/data-management-settings/advanced-datascrubbing/).
-@experimental
 class SentryDioClientAdapter extends HttpClientAdapter {
   // ignore: public_member_api_docs
   SentryDioClientAdapter({
