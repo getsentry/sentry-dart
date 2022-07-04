@@ -10,7 +10,7 @@ import 'sentry_tracer.dart';
 import 'sentry_traces_sampler.dart';
 
 /// Configures the scope through the callback.
-typedef ScopeCallback = void Function(Scope);
+typedef ScopeCallback = FutureOr<void> Function(Scope);
 
 /// Called when a transaction is finished.
 typedef OnTransactionFinish = FutureOr<void> Function(ISentrySpan transaction);
@@ -81,7 +81,7 @@ class Hub {
       );
     } else {
       final item = _peek();
-      final scope = _cloneAndRunWithScope(item.scope, withScope);
+      final scope = await _cloneAndRunWithScope(item.scope, withScope);
 
       try {
         if (_options.isTracingEnabled()) {
@@ -129,7 +129,7 @@ class Hub {
       );
     } else {
       final item = _peek();
-      final scope = _cloneAndRunWithScope(item.scope, withScope);
+      final scope = await _cloneAndRunWithScope(item.scope, withScope);
 
       try {
         var event = SentryEvent(
@@ -185,7 +185,7 @@ class Hub {
       );
     } else {
       final item = _peek();
-      final scope = _cloneAndRunWithScope(item.scope, withScope);
+      final scope = await _cloneAndRunWithScope(item.scope, withScope);
 
       try {
         sentryId = await item.client.captureMessage(
@@ -239,10 +239,11 @@ class Hub {
     }
   }
 
-  Scope _cloneAndRunWithScope(Scope scope, ScopeCallback? withScope) {
+  Future<Scope> _cloneAndRunWithScope(
+      Scope scope, ScopeCallback? withScope) async {
     if (withScope != null) {
       scope = scope.clone();
-      withScope(scope);
+      await withScope(scope);
     }
     return scope;
   }
@@ -317,7 +318,7 @@ class Hub {
   }
 
   /// Configures the scope through the callback.
-  void configureScope(ScopeCallback callback) {
+  FutureOr<void> configureScope(ScopeCallback callback) {
     if (!_isEnabled) {
       _options.logger(
         SentryLevel.warning,
