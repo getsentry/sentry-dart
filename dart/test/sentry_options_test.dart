@@ -1,4 +1,5 @@
 import 'package:http/http.dart';
+import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/noop_client.dart';
 import 'package:test/test.dart';
@@ -72,5 +73,17 @@ void main() {
     options.tracesSampler = sampler;
 
     expect(options.isTracingEnabled(), true);
+  });
+
+  test('SentryOptions empty inits the late var', () {
+    final options = SentryOptions.empty();
+    options.sdk.addPackage('test', '1.2.3');
+
+    expect(
+        options.sdk.packages
+            .where((element) =>
+                element.name == 'test' && element.version == '1.2.3')
+            .isNotEmpty,
+        true);
   });
 }

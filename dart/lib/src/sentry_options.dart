@@ -292,7 +292,9 @@ class SentryOptions {
   }
 
   @internal
-  SentryOptions.empty();
+  SentryOptions.empty() {
+    sdk = SdkVersion(name: 'noop', version: sdkVersion);
+  }
 
   /// Adds an event processor
   void addEventProcessor(EventProcessor eventProcessor) {
