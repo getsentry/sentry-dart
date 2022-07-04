@@ -277,7 +277,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     (user["ip_address"] as? String)?.let { userInstance.ipAddress = it }
     (user["extras"] as? Map<String, Any?>)?.let { extras ->
       val others = mutableMapOf<String, String>()
-      extras.forEach { key, value ->
+      for ((key, value) in extras.entries) {
         if (value != null) {
           others[key] = value.toString()
         }
@@ -311,7 +311,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       }
     }
     (breadcrumb["data"] as? Map<String, Any?>)?.let { data ->
-      data.forEach { key, value ->
+      for ((key, value) in data.entries) {
         breadcrumbInstance.data[key] = value
       }
     }
