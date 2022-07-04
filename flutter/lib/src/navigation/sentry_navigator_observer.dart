@@ -140,18 +140,18 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     ));
   }
 
-  void _setCurrentRoute(String? name) {
+  Future<void> _setCurrentRoute(String? name) async {
     if (name == null) {
       return;
     }
     if (_setRouteNameAsTransaction) {
-      _hub.configureScope((scope) {
+      await _hub.configureScope((scope) {
         scope.transaction = name;
       });
     }
   }
 
-  void _startTransaction(String? name, Object? arguments) {
+  Future<void> _startTransaction(String? name, Object? arguments) async {
     if (!_enableAutoTransactions) {
       return;
     }
@@ -190,16 +190,16 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       _transaction?.setData('route_settings_arguments', arguments);
     }
 
-    _hub.configureScope((scope) {
+    await _hub.configureScope((scope) {
       scope.span ??= _transaction;
     });
 
-    _native.beginNativeFramesCollection();
+    await _native.beginNativeFramesCollection();
   }
 
-  void _finishTransaction() {
+  Future<void> _finishTransaction() async {
     _transaction?.status ??= SpanStatus.ok();
-    _transaction?.finish();
+    await _transaction?.finish();
   }
 }
 

@@ -45,7 +45,7 @@ void main() {
   });
 
   group('NativeFrames', () {
-    test('transaction start begins frames collection', () {
+    test('transaction start begins frames collection', () async {
       final currentRoute = route(RouteSettings(name: 'Current Route'));
       final mockHub = _MockHub();
       final native = SentryNative();
@@ -59,7 +59,10 @@ void main() {
 
       sut.didPush(currentRoute, null);
 
-      expect(mockNativeChannel.numberOfBeginNativeFramesCalls, 1);
+      // Handle internal async method calls.
+      await Future.delayed(const Duration(milliseconds: 10), () {
+        expect(mockNativeChannel.numberOfBeginNativeFramesCalls, 1);
+      });
     });
 
     test('transaction finish adds native frames to tracer', () async {
