@@ -420,8 +420,8 @@ void main() {
     test('captureEvent should create a new scope', () async {
       final hub = fixture.getSut();
       await hub.captureEvent(SentryEvent());
-      await hub.captureEvent(SentryEvent(), withScope: (scope) {
-        scope.setUser(SentryUser(id: 'foo bar'));
+      await hub.captureEvent(SentryEvent(), withScope: (scope) async {
+        await scope.setUser(SentryUser(id: 'foo bar'));
       });
       await hub.captureEvent(SentryEvent());
 
@@ -435,8 +435,8 @@ void main() {
     test('captureException should create a new scope', () async {
       final hub = fixture.getSut();
       await hub.captureException(Exception('0'));
-      await hub.captureException(Exception('1'), withScope: (scope) {
-        scope.setUser(SentryUser(id: 'foo bar'));
+      await hub.captureException(Exception('1'), withScope: (scope) async {
+        await scope.setUser(SentryUser(id: 'foo bar'));
       });
       await hub.captureException(Exception('2'));
 
@@ -455,8 +455,8 @@ void main() {
     test('captureMessage should create a new scope', () async {
       final hub = fixture.getSut();
       await hub.captureMessage('foo bar 0');
-      await hub.captureMessage('foo bar 1', withScope: (scope) {
-        scope.setUser(SentryUser(id: 'foo bar'));
+      await hub.captureMessage('foo bar 1', withScope: (scope) async {
+        await scope.setUser(SentryUser(id: 'foo bar'));
       });
       await hub.captureMessage('foo bar 2');
 
