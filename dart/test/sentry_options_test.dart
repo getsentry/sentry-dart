@@ -1,5 +1,4 @@
 import 'package:http/http.dart';
-import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/noop_client.dart';
 import 'package:test/test.dart';
