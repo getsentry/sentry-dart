@@ -197,8 +197,8 @@ class Sentry {
       _hub.addBreadcrumb(crumb, hint: hint);
 
   /// Configures the scope through the callback.
-  static void configureScope(ScopeCallback callback) =>
-      _hub.configureScope(callback);
+  static FutureOr<void> configureScope(ScopeCallback callback) async =>
+      await _hub.configureScope(callback);
 
   /// Clones the current Hub
   static Hub clone() => _hub.clone();

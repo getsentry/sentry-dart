@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ffi';
 
 import 'package:meta/meta.dart';
 
@@ -84,8 +85,8 @@ class HubAdapter implements Hub {
   Future<void> close() => Sentry.close();
 
   @override
-  void configureScope(ScopeCallback callback) =>
-      Sentry.configureScope(callback);
+  FutureOr<void> configureScope(ScopeCallback callback) async =>
+      await Sentry.configureScope(callback);
 
   @override
   bool get isEnabled => Sentry.isEnabled;

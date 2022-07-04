@@ -1,5 +1,3 @@
-import 'dart:async';
-
 // ignore: implementation_imports
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:flutter/widgets.dart';
@@ -153,7 +151,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
   }
 
-  Future<void> _startTransaction(String? name, Object? arguments) async {
+  void _startTransaction(String? name, Object? arguments) {
     if (!_enableAutoTransactions) {
       return;
     }
@@ -196,12 +194,12 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       scope.span ??= _transaction;
     });
 
-    await _native.beginNativeFramesCollection();
+    _native.beginNativeFramesCollection();
   }
 
-  Future<void> _finishTransaction() async {
+  void _finishTransaction() {
     _transaction?.status ??= SpanStatus.ok();
-    return await _transaction?.finish();
+    _transaction?.finish();
   }
 }
 

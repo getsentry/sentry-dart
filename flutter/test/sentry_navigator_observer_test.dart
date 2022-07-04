@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -752,8 +754,8 @@ class Fixture {
 class _MockHub extends MockHub {
   final Scope scope = Scope(SentryOptions(dsn: fakeDsn));
   @override
-  void configureScope(ScopeCallback? callback) {
-    callback?.call(scope);
+  FutureOr<void> configureScope(ScopeCallback? callback) async {
+    await callback?.call(scope);
   }
 }
 

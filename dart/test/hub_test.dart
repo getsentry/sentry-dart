@@ -170,7 +170,7 @@ void main() {
         bindToScope: true,
       );
 
-      hub.configureScope((Scope scope) {
+      await hub.configureScope((Scope scope) {
         expect(scope.span, tr);
       });
     });
@@ -184,7 +184,7 @@ void main() {
         description: 'desc',
       );
 
-      hub.configureScope((Scope scope) {
+      await hub.configureScope((Scope scope) {
         expect(scope.span, isNull);
       });
     });
@@ -335,7 +335,7 @@ void main() {
     });
 
     test('should configure its scope', () async {
-      hub.configureScope((Scope scope) {
+      await hub.configureScope((Scope scope) {
         scope
           ..level = SentryLevel.debug
           ..fingerprint = ['1', '2'];
@@ -364,12 +364,12 @@ void main() {
       );
     });
 
-    test('should add breadcrumb to current Scope', () {
-      hub.configureScope((Scope scope) {
+    test('should add breadcrumb to current Scope', () async {
+      await hub.configureScope((Scope scope) {
         expect(0, scope.breadcrumbs.length);
       });
       hub.addBreadcrumb(Breadcrumb(message: 'test'));
-      hub.configureScope((Scope scope) {
+      await hub.configureScope((Scope scope) {
         expect(1, scope.breadcrumbs.length);
         expect('test', scope.breadcrumbs.first.message);
       });

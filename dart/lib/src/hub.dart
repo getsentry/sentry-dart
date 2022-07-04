@@ -318,7 +318,7 @@ class Hub {
   }
 
   /// Configures the scope through the callback.
-  FutureOr<void> configureScope(ScopeCallback callback) {
+  FutureOr<void> configureScope(ScopeCallback callback) async {
     if (!_isEnabled) {
       _options.logger(
         SentryLevel.warning,
@@ -328,7 +328,7 @@ class Hub {
       final item = _peek();
 
       try {
-        callback(item.scope);
+        await callback(item.scope);
       } catch (err) {
         _options.logger(
           SentryLevel.error,
