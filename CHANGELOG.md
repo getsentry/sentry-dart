@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* Fix: addBreadcrumb throws on Android API < 24 because of NewApi usage ([#900](https://github.com/getsentry/sentry-dart/pull/900))
+
 ### Features
 
 - Bump Android SDK to v6.1.4 ([#900](https://github.com/getsentry/sentry-dart/pull/900))
