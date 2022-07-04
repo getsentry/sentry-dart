@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-* Fix: `dio.addSentry` hangs if `dsn` is empty and SDK NoOp ([#900](https://github.com/getsentry/sentry-dart/pull/900))
+* Fix: `dio.addSentry` hangs if `dsn` is empty and SDK NoOp ([#920](https://github.com/getsentry/sentry-dart/pull/920))
 
 ### Features
 
