@@ -3,6 +3,7 @@
 ## Unreleased
 
 * Fix: `dio.addSentry` hangs if `dsn` is empty and SDK NoOp ([#920](https://github.com/getsentry/sentry-dart/pull/920))
+* [`sentry_dio`](https://pub.dev/packages/sentry_dio) is promoted to GA and not experimental anymore ([#914](https://github.com/getsentry/sentry-dart/pull/914))
 
 ### Features
 
