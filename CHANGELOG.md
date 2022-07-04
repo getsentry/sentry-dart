@@ -2,22 +2,22 @@
 
 ## Unreleased
 
-* Fix: addBreadcrumb throws on Android API < 24 because of NewApi usage ([#923](https://github.com/getsentry/sentry-dart/pull/923))
-* [`sentry_dio`](https://pub.dev/packages/sentry_dio) is promoted to GA and not experimental anymore ([#914](https://github.com/getsentry/sentry-dart/pull/914))
-* Fix: Context Escape with ScopeCallback ([#925](https://github.com/getsentry/sentry-dart/pull/925))
-
 ### Features
 
 - Bump Android SDK to v6.1.4 ([#900](https://github.com/getsentry/sentry-dart/pull/900))
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#614)
   - [diff](https://github.com/getsentry/sentry-java/compare/6.1.2...6.1.4)
-- Bump Cocoa SDK to v7.18.1 ([#901](https://github.com/getsentry/sentry-dart/pull/901))
-  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/master/CHANGELOG.md#7181)
-  - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.18.0...7.18.1)
+- Bump Cocoa SDK to v7.19.0 ([#901](https://github.com/getsentry/sentry-dart/pull/901), [#928](https://github.com/getsentry/sentry-dart/pull/928))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/master/CHANGELOG.md#7190)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.18.0...7.19.0)
 
 ### Fixes
 
-- Send DidBecomeActiveNotification when OOM enabled (#905)
+* Send DidBecomeActiveNotification when OOM enabled (#905)
+* `dio.addSentry` hangs if `dsn` is empty and SDK NoOp ([#920](https://github.com/getsentry/sentry-dart/pull/920))
+* addBreadcrumb throws on Android API < 24 because of NewApi usage ([#923](https://github.com/getsentry/sentry-dart/pull/923))
+* [`sentry_dio`](https://pub.dev/packages/sentry_dio) is promoted to GA and not experimental anymore ([#914](https://github.com/getsentry/sentry-dart/pull/914))
+* Fix: Context Escape with ScopeCallback ([#925](https://github.com/getsentry/sentry-dart/pull/925))
 
 ## 6.6.1
 
@@ -73,8 +73,8 @@
 
 ## 6.6.0-alpha.2
 
-- Fix serialization of threads (#844)
-- Feat: Allow manual init of the Native SDK (#765)
+* Fix serialization of threads (#844)
+* Feat: Allow manual init of the Native SDK (#765)
 
 ## 6.6.0-alpha.1
 
@@ -83,15 +83,15 @@
 
 ### Sentry Self-hosted Compatibility
 
-- Starting with version `6.6.0` of `sentry`, [Sentry's version >= v21.9.0](https://github.com/getsentry/self-hosted/releases) is required or you have to manually disable sending client reports via the `sendClientReports` option. This only applies to self-hosted Sentry. If you are using [sentry.io](https://sentry.io), no action is needed.
+* Starting with version `6.6.0` of `sentry`, [Sentry's version >= v21.9.0](https://github.com/getsentry/self-hosted/releases) is required or you have to manually disable sending client reports via the `sendClientReports` option. This only applies to self-hosted Sentry. If you are using [sentry.io](https://sentry.io), no action is needed.
 
 ## 6.5.1
 
-- Update event contexts (#838)
+* Update event contexts (#838)
 
 ## 6.5.0
 
-- No documented changes.
+* No documented changes.
 
 ## 6.5.0-beta.2
 
@@ -99,7 +99,7 @@
 
 ## 6.5.0-beta.1
 
-- No documented changes.
+* No documented changes.
 
 ## 6.5.0-alpha.3
 
@@ -119,8 +119,8 @@
 
 ### Various fixes & improvements
 
-- Fix: Missing userId on iOS when userId is not set (#782) by @marandaneto
-- Allow to set startTimestamp & endTimestamp manually to SentrySpan (#676) by @fatihergin
+* Fix: Missing userId on iOS when userId is not set (#782) by @marandaneto
+* Allow to set startTimestamp & endTimestamp manually to SentrySpan (#676) by @fatihergin
 
 ## 6.4.0-beta.3
 
@@ -132,7 +132,7 @@
 
 ## 6.4.0-beta.2
 
-- No documented changes.
+* No documented changes.
 
 ## 6.4.0-beta.1
 
