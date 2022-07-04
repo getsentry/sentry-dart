@@ -288,7 +288,7 @@ void main() {
     expect(sut.eventProcessors.length, 0);
   });
 
-  test('clones', () {
+  test('clones', () async {
     final sut = fixture.getSut();
 
     sut.addBreadcrumb(Breadcrumb(
@@ -299,7 +299,7 @@ void main() {
     sut.span = NoOpSentrySpan();
     sut.level = SentryLevel.warning;
 
-    final clone = sut.clone();
+    final clone = await sut.clone();
     expect(sut.user, clone.user);
     expect(sut.transaction, clone.transaction);
     expect(sut.extra, clone.extra);

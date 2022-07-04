@@ -242,7 +242,7 @@ class Hub {
   Future<Scope> _cloneAndRunWithScope(
       Scope scope, ScopeCallback? withScope) async {
     if (withScope != null) {
-      scope = scope.clone();
+      scope = await scope.clone();
       await withScope(scope);
     }
     return scope;
@@ -276,13 +276,13 @@ class Hub {
   }
 
   /// Clones the Hub
-  Hub clone() {
+  FutureOr<Hub> clone() async {
     if (!_isEnabled) {
       _options.logger(SentryLevel.warning, 'Disabled Hub cloned.');
     }
     final clone = Hub(_options);
     for (final item in _stack) {
-      clone._stack.add(_StackItem(item.client, item.scope.clone()));
+      clone._stack.add(_StackItem(item.client, await item.scope.clone()));
     }
     return clone;
   }

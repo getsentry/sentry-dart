@@ -381,25 +381,25 @@ class Scope {
   }
 
   /// Clones the current Scope
-  Scope clone() {
+  FutureOr<Scope> clone() async {
     final clone = Scope(_options)
       ..level = level
       ..fingerprint = List.from(fingerprint)
       .._transaction = _transaction
       .._span = _span;
 
-    clone.setUser(user);
+    await clone.setUser(user);
 
     for (final tag in _tags.keys) {
-      clone.setTag(tag, _tags[tag]!);
+      await clone.setTag(tag, _tags[tag]!);
     }
 
     for (final extraKey in _extra.keys) {
-      clone.setExtra(extraKey, _extra[extraKey]);
+      await clone.setExtra(extraKey, _extra[extraKey]);
     }
 
     for (final breadcrumb in _breadcrumbs) {
-      clone.addBreadcrumb(breadcrumb);
+      await clone.addBreadcrumb(breadcrumb);
     }
 
     for (final eventProcessor in _eventProcessors) {

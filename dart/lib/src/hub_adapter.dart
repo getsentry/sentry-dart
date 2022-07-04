@@ -78,7 +78,7 @@ class HubAdapter implements Hub {
       );
 
   @override
-  Hub clone() => Sentry.clone();
+  FutureOr<Hub> clone() async => await Sentry.clone();
 
   @override
   Future<void> close() => Sentry.close();
