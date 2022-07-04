@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* Fix: `dio.addSentry` hangs if `dsn` is empty and SDK NoOp ([#900](https://github.com/getsentry/sentry-dart/pull/900))
+
 ### Features
 
 - Bump Android SDK to v6.1.4 ([#900](https://github.com/getsentry/sentry-dart/pull/900))
@@ -13,7 +15,7 @@
 
 ### Fixes
 
-- Send DidBecomeActiveNotification when OOM enabled (#905)
+* Send DidBecomeActiveNotification when OOM enabled (#905)
 
 ## 6.6.1
 
@@ -69,8 +71,8 @@
 
 ## 6.6.0-alpha.2
 
-- Fix serialization of threads (#844)
-- Feat: Allow manual init of the Native SDK (#765)
+* Fix serialization of threads (#844)
+* Feat: Allow manual init of the Native SDK (#765)
 
 ## 6.6.0-alpha.1
 
@@ -79,15 +81,15 @@
 
 ### Sentry Self-hosted Compatibility
 
-- Starting with version `6.6.0` of `sentry`, [Sentry's version >= v21.9.0](https://github.com/getsentry/self-hosted/releases) is required or you have to manually disable sending client reports via the `sendClientReports` option. This only applies to self-hosted Sentry. If you are using [sentry.io](https://sentry.io), no action is needed.
+* Starting with version `6.6.0` of `sentry`, [Sentry's version >= v21.9.0](https://github.com/getsentry/self-hosted/releases) is required or you have to manually disable sending client reports via the `sendClientReports` option. This only applies to self-hosted Sentry. If you are using [sentry.io](https://sentry.io), no action is needed.
 
 ## 6.5.1
 
-- Update event contexts (#838)
+* Update event contexts (#838)
 
 ## 6.5.0
 
-- No documented changes.
+* No documented changes.
 
 ## 6.5.0-beta.2
 
@@ -95,7 +97,7 @@
 
 ## 6.5.0-beta.1
 
-- No documented changes.
+* No documented changes.
 
 ## 6.5.0-alpha.3
 
@@ -115,8 +117,8 @@
 
 ### Various fixes & improvements
 
-- Fix: Missing userId on iOS when userId is not set (#782) by @marandaneto
-- Allow to set startTimestamp & endTimestamp manually to SentrySpan (#676) by @fatihergin
+* Fix: Missing userId on iOS when userId is not set (#782) by @marandaneto
+* Allow to set startTimestamp & endTimestamp manually to SentrySpan (#676) by @fatihergin
 
 ## 6.4.0-beta.3
 
@@ -128,7 +130,7 @@
 
 ## 6.4.0-beta.2
 
-- No documented changes.
+* No documented changes.
 
 ## 6.4.0-beta.1
 
