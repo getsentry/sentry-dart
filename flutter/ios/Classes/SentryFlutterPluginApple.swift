@@ -13,7 +13,6 @@ import AppKit
 public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
     private var sentryOptions: Options?
-    let sentryIOSPrivate = PrivateSentrySDKOnly()
 
     // The Cocoa SDK is init. after the notification didBecomeActiveNotification is registered.
     // We need to be able to receive this notification and start a session when the SDK is fully operational.
@@ -180,7 +179,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             }
 
             if arguments["debugImages"] as? Bool ?? false {
-                let debugImages = self.sentryIOSPrivate.getDebugImages() as [DebugMeta]
+                let debugImages = PrivateSentrySDKOnly.getDebugImages() as [DebugMeta]
                 infos["debugImages"] = debugImages.map { $0.serialize() }
             }
 
