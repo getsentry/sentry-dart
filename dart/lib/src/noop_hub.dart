@@ -57,7 +57,7 @@ class NoOpHub implements Hub {
       SentryId.empty();
 
   @override
-  Hub clone() => this;
+  Future<Hub> clone() async => this;
 
   @override
   Future<void> close() async {}
