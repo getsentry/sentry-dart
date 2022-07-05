@@ -26,6 +26,7 @@ import 'mocks.dart' as _i12;
 // ignore_for_file: prefer_const_constructors
 // ignore_for_file: unnecessary_parenthesis
 // ignore_for_file: camel_case_types
+// ignore_for_file: invalid_use_of_internal_member
 
 class _FakeSentrySpanContext_0 extends _i1.Fake
     implements _i2.SentrySpanContext {}
