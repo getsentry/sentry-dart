@@ -364,6 +364,26 @@ void main() {
       );
     });
 
+    test('should configure scope async', () async {
+      await hub.configureScope((Scope scope) async {
+        await Future.delayed(Duration(milliseconds: 10));
+        return scope.setUser(fakeUser);
+      });
+
+      await hub.captureEvent(fakeEvent);
+
+      final scope = client.captureEventCalls.first.scope;
+      final otherScope = Scope(SentryOptions(dsn: fakeDsn));
+      await otherScope.setUser(fakeUser);
+
+      expect(
+          scopeEquals(
+            scope,
+            otherScope,
+          ),
+          true);
+    });
+
     test('should add breadcrumb to current Scope', () async {
       await hub.configureScope((Scope scope) {
         expect(0, scope.breadcrumbs.length);
