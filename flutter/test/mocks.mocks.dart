@@ -361,9 +361,11 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           returnValue: Future<void>.value(),
           returnValueForMissingStub: Future<void>.value()) as _i6.Future<void>);
   @override
-  void addBreadcrumb(_i3.Breadcrumb? crumb, {dynamic hint}) => super
-      .noSuchMethod(Invocation.method(#addBreadcrumb, [crumb], {#hint: hint}),
-          returnValueForMissingStub: null);
+  _i6.Future<void> addBreadcrumb(_i3.Breadcrumb? crumb, {dynamic hint}) =>
+      (super.noSuchMethod(
+          Invocation.method(#addBreadcrumb, [crumb], {#hint: hint}),
+          returnValue: Future<void>.value(),
+          returnValueForMissingStub: Future<void>.value()) as _i6.Future<void>);
   @override
   void bindClient(_i2.SentryClient? client) =>
       super.noSuchMethod(Invocation.method(#bindClient, [client]),

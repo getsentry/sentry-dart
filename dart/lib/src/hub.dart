@@ -249,7 +249,7 @@ class Hub {
   }
 
   /// Adds a breacrumb to the current Scope
-  void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) {
+  Future<void> addBreadcrumb(Breadcrumb crumb, {dynamic hint}) async {
     if (!_isEnabled) {
       _options.logger(
         SentryLevel.warning,
@@ -257,7 +257,7 @@ class Hub {
       );
     } else {
       final item = _peek();
-      item.scope.addBreadcrumb(crumb, hint: hint);
+      await item.scope.addBreadcrumb(crumb, hint: hint);
     }
   }
 

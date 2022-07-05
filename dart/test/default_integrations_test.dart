@@ -225,9 +225,9 @@ class PrintRecursionMockHub extends MockHub {
   bool get isEnabled => true;
 
   @override
-  void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) {
+  Future<void> addBreadcrumb(Breadcrumb crumb, {dynamic hint}) async {
     print('recursion');
-    super.addBreadcrumb(crumb, hint: hint);
+    await super.addBreadcrumb(crumb, hint: hint);
   }
 
   @override

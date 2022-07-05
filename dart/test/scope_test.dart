@@ -291,7 +291,7 @@ void main() {
   test('clones', () async {
     final sut = fixture.getSut();
 
-    sut.addBreadcrumb(Breadcrumb(
+    await sut.addBreadcrumb(Breadcrumb(
       message: 'test log',
       timestamp: DateTime.utc(2019),
     ));
@@ -334,15 +334,15 @@ void main() {
       );
       final scope = Scope(SentryOptions(dsn: fakeDsn))
         ..fingerprint = ['example-dart']
-        ..addBreadcrumb(breadcrumb)
         ..transaction = '/example/app'
         ..level = SentryLevel.warning
-        ..setTag('build', '579')
-        ..setExtra('company-name', 'Dart Inc')
-        ..setContexts('theme', 'material')
         ..addEventProcessor(AddTagsEventProcessor({'page-locale': 'en-us'}));
 
-      scope.setUser(scopeUser);
+      await scope.addBreadcrumb(breadcrumb);
+      await scope.setTag('build', '579');
+      await scope.setExtra('company-name', 'Dart Inc');
+      await scope.setContexts('theme', 'material');
+      await scope.setUser(scopeUser);
 
       final updatedEvent = await scope.applyToEvent(event);
 
@@ -381,10 +381,10 @@ void main() {
       );
       final scope = Scope(SentryOptions(dsn: fakeDsn))
         ..fingerprint = ['example-dart']
-        ..addBreadcrumb(breadcrumb)
         ..transaction = '/example/app';
 
-      scope.setUser(scopeUser);
+      await scope.addBreadcrumb(breadcrumb);
+      await scope.setUser(scopeUser);
 
       final updatedEvent = await scope.applyToEvent(event);
 
@@ -408,31 +408,31 @@ void main() {
           operatingSystem: SentryOperatingSystem(name: 'event-os'),
         ),
       );
-      final scope = Scope(SentryOptions(dsn: fakeDsn))
-        ..setContexts(
-          SentryDevice.type,
-          SentryDevice(name: 'context-device'),
-        )
-        ..setContexts(
-          SentryApp.type,
-          SentryApp(name: 'context-app'),
-        )
-        ..setContexts(
-          SentryGpu.type,
-          SentryGpu(name: 'context-gpu'),
-        )
-        ..setContexts(
-          SentryRuntime.listType,
-          [SentryRuntime(name: 'context-runtime')],
-        )
-        ..setContexts(
-          SentryBrowser.type,
-          SentryBrowser(name: 'context-browser'),
-        )
-        ..setContexts(
-          SentryOperatingSystem.type,
-          SentryOperatingSystem(name: 'context-os'),
-        );
+      final scope = Scope(SentryOptions(dsn: fakeDsn));
+      await scope.setContexts(
+        SentryDevice.type,
+        SentryDevice(name: 'context-device'),
+      );
+      await scope.setContexts(
+        SentryApp.type,
+        SentryApp(name: 'context-app'),
+      );
+      await scope.setContexts(
+        SentryGpu.type,
+        SentryGpu(name: 'context-gpu'),
+      );
+      await scope.setContexts(
+        SentryRuntime.listType,
+        [SentryRuntime(name: 'context-runtime')],
+      );
+      await scope.setContexts(
+        SentryBrowser.type,
+        SentryBrowser(name: 'context-browser'),
+      );
+      await scope.setContexts(
+        SentryOperatingSystem.type,
+        SentryOperatingSystem(name: 'context-os'),
+      );
 
       final updatedEvent = await scope.applyToEvent(event);
 
@@ -448,19 +448,20 @@ void main() {
 
     test('should apply the scope.contexts values ', () async {
       final event = SentryEvent();
-      final scope = Scope(SentryOptions(dsn: fakeDsn))
-        ..setContexts(SentryDevice.type, SentryDevice(name: 'context-device'))
-        ..setContexts(SentryApp.type, SentryApp(name: 'context-app'))
-        ..setContexts(SentryGpu.type, SentryGpu(name: 'context-gpu'))
-        ..setContexts(
-            SentryRuntime.listType, [SentryRuntime(name: 'context-runtime')])
-        ..setContexts(
-            SentryBrowser.type, SentryBrowser(name: 'context-browser'))
-        ..setContexts(SentryOperatingSystem.type,
-            SentryOperatingSystem(name: 'context-os'))
-        ..setContexts('theme', 'material')
-        ..setContexts('version', 9)
-        ..setContexts('location', {'city': 'London'});
+      final scope = Scope(SentryOptions(dsn: fakeDsn));
+      await scope.setContexts(
+          SentryDevice.type, SentryDevice(name: 'context-device'));
+      await scope.setContexts(SentryApp.type, SentryApp(name: 'context-app'));
+      await scope.setContexts(SentryGpu.type, SentryGpu(name: 'context-gpu'));
+      await scope.setContexts(
+          SentryRuntime.listType, [SentryRuntime(name: 'context-runtime')]);
+      await scope.setContexts(
+          SentryBrowser.type, SentryBrowser(name: 'context-browser'));
+      await scope.setContexts(SentryOperatingSystem.type,
+          SentryOperatingSystem(name: 'context-os'));
+      await scope.setContexts('theme', 'material');
+      await scope.setContexts('version', 9);
+      await scope.setContexts('location', {'city': 'London'});
 
       final updatedEvent = await scope.applyToEvent(event);
 
@@ -524,63 +525,63 @@ void main() {
 
   test('addBreadcrumb should call scope observers', () async {
     final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
-    sut.addBreadcrumb(Breadcrumb());
+    await sut.addBreadcrumb(Breadcrumb());
 
     expect(true, fixture.mockScopeObserver.calledAddBreadcrumb);
   });
 
   test('clearBreadcrumbs should call scope observers', () async {
     final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
-    sut.clearBreadcrumbs();
+    await sut.clearBreadcrumbs();
 
     expect(true, fixture.mockScopeObserver.calledClearBreadcrumbs);
   });
 
   test('removeContexts should call scope observers', () async {
     final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
-    sut.removeContexts('fixture-key');
+    await sut.removeContexts('fixture-key');
 
     expect(true, fixture.mockScopeObserver.calledRemoveContexts);
   });
 
   test('removeExtra should call scope observers', () async {
     final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
-    sut.removeExtra('fixture-key');
+    await sut.removeExtra('fixture-key');
 
     expect(true, fixture.mockScopeObserver.calledRemoveExtra);
   });
 
   test('removeTag should call scope observers', () async {
     final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
-    sut.removeTag('fixture-key');
+    await sut.removeTag('fixture-key');
 
     expect(true, fixture.mockScopeObserver.calledRemoveTag);
   });
 
   test('setContexts should call scope observers', () async {
     final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
-    sut.setContexts('fixture-key', 'fixture-value');
+    await sut.setContexts('fixture-key', 'fixture-value');
 
     expect(true, fixture.mockScopeObserver.calledSetContexts);
   });
 
   test('setExtra should call scope observers', () async {
     final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
-    sut.setExtra('fixture-key', 'fixture-value');
+    await sut.setExtra('fixture-key', 'fixture-value');
 
     expect(true, fixture.mockScopeObserver.calledSetExtra);
   });
 
   test('setTag should call scope observers', () async {
     final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
-    sut.setTag('fixture-key', 'fixture-value');
+    await sut.setTag('fixture-key', 'fixture-value');
 
     expect(true, fixture.mockScopeObserver.calledSetTag);
   });
 
   test('setUser should call scope observers', () async {
     final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
-    sut.setUser(null);
+    await sut.setUser(null);
 
     expect(true, fixture.mockScopeObserver.calledSetUser);
   });

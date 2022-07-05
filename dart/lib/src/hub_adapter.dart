@@ -25,8 +25,8 @@ class HubAdapter implements Hub {
   }
 
   @override
-  void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) =>
-      Sentry.addBreadcrumb(crumb, hint: hint);
+  Future<void> addBreadcrumb(Breadcrumb crumb, {dynamic hint}) async =>
+      await Sentry.addBreadcrumb(crumb, hint: hint);
 
   @override
   void bindClient(SentryClient client) => Sentry.bindClient(client);

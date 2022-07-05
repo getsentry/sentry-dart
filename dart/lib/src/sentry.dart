@@ -193,8 +193,8 @@ class Sentry {
   static SentryId get lastEventId => _hub.lastEventId;
 
   /// Adds a breacrumb to the current Scope
-  static void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) =>
-      _hub.addBreadcrumb(crumb, hint: hint);
+  static Future<void> addBreadcrumb(Breadcrumb crumb, {dynamic hint}) async =>
+      await _hub.addBreadcrumb(crumb, hint: hint);
 
   /// Configures the scope through the callback.
   static FutureOr<void> configureScope(ScopeCallback callback) async =>

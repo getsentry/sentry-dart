@@ -114,7 +114,7 @@ void main() {
       expect(capturedEvent.event.contexts.trace, isNotNull);
     });
 
-    test('Expando does not throw when exception type is not supported',
+    test('Expand does not throw when exception type is not supported',
         () async {
       final hub = fixture.getSut();
 
@@ -353,7 +353,7 @@ void main() {
         ..level = SentryLevel.debug
         ..fingerprint = ['1', '2'];
 
-      otherScope.setUser(fakeUser);
+      await otherScope.setUser(fakeUser);
 
       expect(
         scopeEquals(
@@ -388,7 +388,7 @@ void main() {
       await hub.configureScope((Scope scope) {
         expect(0, scope.breadcrumbs.length);
       });
-      hub.addBreadcrumb(Breadcrumb(message: 'test'));
+      await hub.addBreadcrumb(Breadcrumb(message: 'test'));
       await hub.configureScope((Scope scope) {
         expect(1, scope.breadcrumbs.length);
         expect('test', scope.breadcrumbs.first.message);

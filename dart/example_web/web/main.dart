@@ -26,7 +26,7 @@ Future<void> runApp() async {
 
   querySelector('#output')?.text = 'Your Dart app is running.';
 
-  Sentry.addBreadcrumb(
+  await Sentry.addBreadcrumb(
     Breadcrumb(
       message: 'Authenticated user',
       category: 'auth',

@@ -65,7 +65,7 @@ class BreadcrumbClientAdapter extends HttpClientAdapter {
         responseBodySize: responseBodySize,
       );
 
-      _hub.addBreadcrumb(breadcrumb);
+      await _hub.addBreadcrumb(breadcrumb);
     }
   }
 
