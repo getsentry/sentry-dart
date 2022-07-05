@@ -119,9 +119,10 @@ class Scope {
 
   /// add an entry to the Scope's contexts
   Future<void> setContexts(String key, dynamic value) async {
-    _contexts[key] = (value is num || value is bool || value is String)
-        ? {'value': value}
-        : value;
+    _contexts[key] =
+        (value is num || value is bool || value is String || value is List)
+            ? {'value': value}
+            : value;
 
     await _callScopeObservers(
         (scopeObserver) async => await scopeObserver.setContexts(key, value));

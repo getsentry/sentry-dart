@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+* `Scope#setContexts` pasing a List value would't not work ([#900](https://github.com/getsentry/sentry-dart/pull/900))
+
 ## 6.6.2
 
 ### Features

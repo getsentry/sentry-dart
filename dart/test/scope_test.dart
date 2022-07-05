@@ -460,7 +460,8 @@ void main() {
             SentryOperatingSystem(name: 'context-os'))
         ..setContexts('theme', 'material')
         ..setContexts('version', 9)
-        ..setContexts('location', {'city': 'London'});
+        ..setContexts('location', {'city': 'London'})
+        ..setContexts('items', [1, 2, 3]);
 
       final updatedEvent = await scope.applyToEvent(event);
 
@@ -478,6 +479,7 @@ void main() {
       expect(updatedEvent?.contexts['theme']['value'], 'material');
       expect(updatedEvent?.contexts['version']['value'], 9);
       expect(updatedEvent?.contexts['location'], {'city': 'London'});
+      expect(updatedEvent?.contexts['items'], [1, 2, 3]);
     });
 
     test('should apply the scope level', () async {
