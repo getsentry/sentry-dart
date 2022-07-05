@@ -4,7 +4,7 @@
 
 ### Fixes
 
-* Add request instead of response data to `SentryRequest` in `DioEventProcessor`
+* Add request instead of response data to `SentryRequest` in `DioEventProcessor` [#933](https://github.com/getsentry/sentry-dart/pull/933)
 
 ## 6.6.2
 
