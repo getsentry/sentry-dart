@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+* Context Escape with ScopeCallback ([#925](https://github.com/getsentry/sentry-dart/pull/925))
+
 ## 6.6.2
 
 ### Features
@@ -17,7 +23,6 @@
 * `dio.addSentry` hangs if `dsn` is empty and SDK NoOp ([#920](https://github.com/getsentry/sentry-dart/pull/920))
 * addBreadcrumb throws on Android API < 24 because of NewApi usage ([#923](https://github.com/getsentry/sentry-dart/pull/923))
 * [`sentry_dio`](https://pub.dev/packages/sentry_dio) is promoted to GA and not experimental anymore ([#914](https://github.com/getsentry/sentry-dart/pull/914))
-* Fix: Context Escape with ScopeCallback ([#925](https://github.com/getsentry/sentry-dart/pull/925))
 
 ## 6.6.1
 
