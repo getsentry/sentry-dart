@@ -276,7 +276,7 @@ class Hub {
   }
 
   /// Clones the Hub
-  FutureOr<Hub> clone() async {
+  Future<Hub> clone() async {
     if (!_isEnabled) {
       _options.logger(SentryLevel.warning, 'Disabled Hub cloned.');
     }

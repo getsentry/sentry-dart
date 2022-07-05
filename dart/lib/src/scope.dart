@@ -381,7 +381,7 @@ class Scope {
   }
 
   /// Clones the current Scope
-  FutureOr<Scope> clone() async {
+  Future<Scope> clone() async {
     final clone = Scope(_options)
       ..level = level
       ..fingerprint = List.from(fingerprint)

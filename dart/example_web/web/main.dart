@@ -21,7 +21,7 @@ Future<void> main() async {
   );
 }
 
-FutureOr<void> runApp() async {
+Future<void> runApp() async {
   print('runApp');
 
   querySelector('#output')?.text = 'Your Dart app is running.';
