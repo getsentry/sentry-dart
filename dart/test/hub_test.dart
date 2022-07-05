@@ -114,7 +114,7 @@ void main() {
       expect(capturedEvent.event.contexts.trace, isNotNull);
     });
 
-    test('Expand does not throw when exception type is not supported',
+    test('Expando does not throw when exception type is not supported',
         () async {
       final hub = fixture.getSut();
 
