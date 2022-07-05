@@ -42,19 +42,22 @@ void main() {
   test('$DioEventProcessor adds request', () {
     final sut = fixture.getSut(sendDefaultPii: true);
 
+    final request = requestOptions.copyWith(
+      method: 'POST',
+      data: 'foobar',
+    );
     final event = SentryEvent(
       throwable: DioError(
-        requestOptions: requestOptions,
+        requestOptions: request,
         response: Response<dynamic>(
-          requestOptions: requestOptions,
-          data: 'foobar',
+          requestOptions: request,
         ),
       ),
     );
     final processedEvent = sut.apply(event) as SentryEvent;
 
     expect(processedEvent.throwable, event.throwable);
-    expect(processedEvent.request?.method, 'GET');
+    expect(processedEvent.request?.method, 'POST');
     expect(processedEvent.request?.queryString, 'foo=bar');
     expect(processedEvent.request?.headers, <String, String>{
       'foo': 'bar',

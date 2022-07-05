@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+* Add request instead of response data to `SentryRequest` in `DioEventProcessor`
+
 ## 6.6.2
 
 ### Features

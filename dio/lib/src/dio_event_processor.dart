@@ -6,7 +6,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_exception_factory.dart';
 
 /// This is an [EventProcessor], which improves crash reports of [DioError]s.
-/// It adds information about [DioError.response] if present and also about
+/// It adds information about [DioError.requestOptions] if present and also about
 /// the inner exceptions.
 class DioEventProcessor implements EventProcessor {
   // Because of obfuscation, we need to dynamically get the name
@@ -120,12 +120,11 @@ class DioEventProcessor implements EventProcessor {
       cookies: _options.sendDefaultPii
           ? options.headers['Cookie']?.toString()
           : null,
-      data: _getRequestData(dioError.response?.data),
+      data: _getRequestData(dioError.requestOptions.data),
     );
   }
 
   /// Returns the request data, if possible according to the users settings.
-  /// Type checks are based on DIOs [ResponseType].
   Object? _getRequestData(dynamic data) {
     if (!_options.sendDefaultPii) {
       return null;
