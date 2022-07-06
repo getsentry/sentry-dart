@@ -24,3 +24,4 @@ linter:
     library_private_types_in_public_api: false
     no_leading_underscores_for_local_identifiers: false
     prefer_function_declarations_over_variables: false
+    unawaited_futures: true
