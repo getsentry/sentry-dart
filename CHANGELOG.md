@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+* Context Escape with ScopeCallback ([#925](https://github.com/getsentry/sentry-dart/pull/925))
+
 ## 6.6.2
 
 ### Features

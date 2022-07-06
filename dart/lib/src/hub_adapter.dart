@@ -25,8 +25,8 @@ class HubAdapter implements Hub {
   }
 
   @override
-  void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) =>
-      Sentry.addBreadcrumb(crumb, hint: hint);
+  Future<void> addBreadcrumb(Breadcrumb crumb, {dynamic hint}) async =>
+      await Sentry.addBreadcrumb(crumb, hint: hint);
 
   @override
   void bindClient(SentryClient client) => Sentry.bindClient(client);
@@ -78,14 +78,14 @@ class HubAdapter implements Hub {
       );
 
   @override
-  Hub clone() => Sentry.clone();
+  Future<Hub> clone() async => await Sentry.clone();
 
   @override
   Future<void> close() => Sentry.close();
 
   @override
-  void configureScope(ScopeCallback callback) =>
-      Sentry.configureScope(callback);
+  FutureOr<void> configureScope(ScopeCallback callback) async =>
+      await Sentry.configureScope(callback);
 
   @override
   bool get isEnabled => Sentry.isEnabled;

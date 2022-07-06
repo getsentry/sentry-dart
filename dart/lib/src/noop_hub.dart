@@ -57,7 +57,7 @@ class NoOpHub implements Hub {
       SentryId.empty();
 
   @override
-  Hub clone() => this;
+  Future<Hub> clone() async => this;
 
   @override
   Future<void> close() async {}
@@ -72,7 +72,7 @@ class NoOpHub implements Hub {
   SentryId get lastEventId => SentryId.empty();
 
   @override
-  void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) {}
+  Future<void> addBreadcrumb(Breadcrumb crumb, {dynamic hint}) async {}
 
   @override
   Future<SentryId> captureTransaction(SentryTransaction transaction) async =>

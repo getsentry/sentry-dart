@@ -587,7 +587,7 @@ void main() {
       final client = fixture.getSut(sendDefaultPii: true);
       final scope = createScope(fixture.options);
 
-      scope.setUser(SentryUser(id: '987'));
+      await scope.setUser(SentryUser(id: '987'));
 
       var eventWithUser = event.copyWith(
         user: SentryUser(id: '123', username: 'foo bar'),
@@ -610,7 +610,7 @@ void main() {
       final client = fixture.getSut(sendDefaultPii: true);
       final scope = createScope(fixture.options);
 
-      scope.setUser(
+      await scope.setUser(
         SentryUser(
           id: 'id',
           extras: {
