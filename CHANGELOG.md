@@ -4,7 +4,7 @@
 
 ### Fixes
 
-* Maps with Key Object, Object would fail during serialization if not String, Object ([#925](https://github.com/getsentry/sentry-dart/pull/925))
+* Maps with Key Object, Object would fail during serialization if not String, Object ([#935](https://github.com/getsentry/sentry-dart/pull/935))
 
 ## 6.6.3
 
