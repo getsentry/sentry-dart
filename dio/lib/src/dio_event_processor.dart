@@ -34,12 +34,12 @@ class DioEventProcessor implements EventProcessor {
       return event;
     }
 
-    final response = _responseFrom(dioError)?.toJson();
-    Contexts? contexts;
-    if (response != null && response.isNotEmpty) {
-      contexts = event.contexts..[SentryResponse.type] = response;
-    }
+    final response = _responseFrom(dioError);
 
+    Contexts contexts = event.contexts;
+    if (event.contexts.response == null) {
+      contexts = contexts.copyWith(response: response);
+    }
     // Don't override just parts of the original request.
     // Keep the original one or if there's none create one.
     event = event.copyWith(
@@ -168,6 +168,8 @@ class DioEventProcessor implements EventProcessor {
       url: response?.realUri.toString(),
       redirected: response?.isRedirect,
       body: _getResponseData(dioError.response?.data),
+      statusCode: response?.statusCode,
+      status: response?.statusMessage,
     );
   }
 

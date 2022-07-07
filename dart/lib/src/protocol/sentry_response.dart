@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+import 'contexts.dart';
 
 /// The response interface contains information on a HTTP request related to the event.
 /// This is an experimental feature. It might be removed at any time.
@@ -6,19 +7,25 @@ import 'package:meta/meta.dart';
 @immutable
 class SentryResponse {
   /// The tpye of this class in the [Contexts] field
-  static String type = 'response';
+  static const String type = 'response';
 
   /// The URL of the response if available.
-  /// Might be the redirected URL
+  /// This might be the redirected URL
   final String? url;
 
   /// Indicates whether or not the response is the result of a redirect
   /// (that is, its URL list has more than one entry).
   final bool? redirected;
 
+  /// The body of the response
   final Object? body;
 
-  final Map<String, String>? _headers;
+  /// The HTTP status code of the response.
+  /// See https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+  final int? statusCode;
+
+  /// The status message for the corresponding [statusCode]
+  final String? status;
 
   /// An immutable dictionary of submitted headers.
   /// If a header appears multiple times it,
@@ -26,14 +33,18 @@ class SentryResponse {
   /// Header names are treated case-insensitively by Sentry.
   Map<String, String> get headers => Map.unmodifiable(_headers ?? const {});
 
-  final Map<String, String>? _other;
+  final Map<String, String>? _headers;
 
   Map<String, String> get other => Map.unmodifiable(_other ?? const {});
+
+  final Map<String, String>? _other;
 
   SentryResponse({
     this.url,
     this.body,
     this.redirected,
+    this.statusCode,
+    this.status,
     Map<String, String>? headers,
     Map<String, String>? other,
   })  : _headers = headers != null ? Map.from(headers) : null,
@@ -46,6 +57,8 @@ class SentryResponse {
       headers: json['headers'],
       other: json['other'],
       body: json['body'],
+      statusCode: json['status_code'],
+      status: json['status'],
       redirected: json['redirected'],
     );
   }
@@ -58,15 +71,19 @@ class SentryResponse {
       if (other.isNotEmpty) 'other': other,
       if (redirected != null) 'redirected': redirected,
       if (body != null) 'body': body,
+      if (status != null) 'status': status,
+      if (statusCode != null) 'status_code': statusCode,
     };
   }
 
   SentryResponse copyWith({
     String? url,
+    bool? redirected,
+    int? statusCode,
+    String? status,
+    Object? body,
     Map<String, String>? headers,
     Map<String, String>? other,
-    bool? redirected,
-    Object? body,
   }) =>
       SentryResponse(
         url: url ?? this.url,
@@ -74,5 +91,17 @@ class SentryResponse {
         redirected: redirected ?? this.redirected,
         other: other ?? _other,
         body: body ?? this.body,
+        status: status ?? this.status,
+        statusCode: statusCode ?? this.statusCode,
+      );
+
+  SentryResponse clone() => SentryResponse(
+        body: body,
+        headers: headers,
+        other: other,
+        redirected: redirected,
+        status: status,
+        statusCode: statusCode,
+        url: url,
       );
 }
