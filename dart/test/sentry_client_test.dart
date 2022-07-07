@@ -553,12 +553,12 @@ void main() {
       breadcrumbs: eventCrumbs,
     );
 
-    Scope createScope(SentryOptions options) {
+    Future<Scope> createScope(SentryOptions options) async {
       final scope = Scope(options)
         ..transaction = transaction
-        ..fingerprint = fingerprint
-        ..addBreadcrumb(crumb);
-      scope.setUser(user);
+        ..fingerprint = fingerprint;
+      await scope.addBreadcrumb(crumb);
+      await scope.setUser(user);
       return scope;
     }
 
@@ -568,7 +568,7 @@ void main() {
 
     test('should not apply the scope to non null event fields ', () async {
       final client = fixture.getSut(sendDefaultPii: true);
-      final scope = createScope(fixture.options);
+      final scope = await createScope(fixture.options);
 
       await client.captureEvent(event, scope: scope);
 
@@ -585,7 +585,7 @@ void main() {
 
     test('should apply the scope user to null event user fields ', () async {
       final client = fixture.getSut(sendDefaultPii: true);
-      final scope = createScope(fixture.options);
+      final scope = await createScope(fixture.options);
 
       await scope.setUser(SentryUser(id: '987'));
 
@@ -608,7 +608,7 @@ void main() {
 
     test('merge scope user and event user extra', () async {
       final client = fixture.getSut(sendDefaultPii: true);
-      final scope = createScope(fixture.options);
+      final scope = await createScope(fixture.options);
 
       await scope.setUser(
         SentryUser(
