@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+* Breadcrumbs should not be duplicated if there is no mechaism ([#925](https://github.com/getsentry/sentry-dart/pull/925))
+
 ## 6.6.3
 
 ### Fixes
