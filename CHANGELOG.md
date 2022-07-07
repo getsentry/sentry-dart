@@ -4,7 +4,7 @@
 
 ### Fixes
 
-* Breadcrumbs should not be duplicated if there is no mechaism on Android ([#936](https://github.com/getsentry/sentry-dart/pull/936))
+* Breadcrumbs should not be duplicated if there is no mechanism on Android ([#936](https://github.com/getsentry/sentry-dart/pull/936))
 
 ## 6.6.3
 
