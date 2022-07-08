@@ -32,14 +32,24 @@ jobs:
           with:
             sdk: ${{ matrix.sdk }}
         - uses: actions/checkout@v3
+
+        - name: Pub Get
+          if: runner.os != 'macOS'
+          run: |
+            dart pub get
+
+        - name: Test VM with coverage
+          if: runner.os != 'macOS'
+          run: |
+            dart test -p vm --coverage=coverage --test-randomize-ordering-seed=random --chain-stack-traces
+            dart pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
+
         # coverage with 'chrome' platform hangs the build
-        - name: Test (VM and browser)
+        - name: Test chrome
           if: runner.os != 'macOS'
           run: |
             dart pub get
             dart test -p chrome --test-randomize-ordering-seed=random --chain-stack-traces
-            dart test -p vm --coverage=coverage --test-randomize-ordering-seed=random --chain-stack-traces
-            dart pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
 
         - name: Install webdev
           run: dart pub global activate webdev

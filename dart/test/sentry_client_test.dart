@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/client_report.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
@@ -579,8 +580,14 @@ void main() {
       expect(capturedEvent.level!.name, SentryLevel.warning.name);
       expect(capturedEvent.transaction, eventTransaction);
       expect(capturedEvent.fingerprint, eventFingerprint);
-      expect(capturedEvent.breadcrumbs?.map((e) => e.toJson()),
-          eventCrumbs.map((e) => e.toJson()));
+      // expect(capturedEvent.breadcrumbs?.map((e) => e.toJson()),
+      //     eventCrumbs.map((e) => e.toJson()));
+      expect(
+        DeepCollectionEquality().equals(
+            capturedEvent.breadcrumbs?.map((e) => e.toJson()),
+            eventCrumbs.map((e) => e.toJson())),
+        true,
+      );
     });
 
     test('should apply the scope user to null event user fields ', () async {
@@ -602,8 +609,14 @@ void main() {
       expect(capturedEvent.level!.name, SentryLevel.warning.name);
       expect(capturedEvent.transaction, eventTransaction);
       expect(capturedEvent.fingerprint, eventFingerprint);
-      expect(capturedEvent.breadcrumbs?.map((e) => e.toJson()),
-          eventCrumbs.map((e) => e.toJson()));
+      // expect(capturedEvent.breadcrumbs?.map((e) => e.toJson()),
+      //     eventCrumbs.map((e) => e.toJson()));
+      expect(
+        DeepCollectionEquality().equals(
+            capturedEvent.breadcrumbs?.map((e) => e.toJson()),
+            eventCrumbs.map((e) => e.toJson())),
+        true,
+      );
     });
 
     test('merge scope user and event user extra', () async {
