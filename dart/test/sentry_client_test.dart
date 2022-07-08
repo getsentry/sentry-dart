@@ -497,18 +497,19 @@ void main() {
 
     late Fixture fixture;
 
-    setUp(() {
+    setUp(() async {
       fixture = Fixture();
 
       scope = Scope(fixture.options)
         ..level = level
         ..transaction = transaction
-        ..fingerprint = fingerprint
-        ..addBreadcrumb(crumb)
-        ..setTag(scopeTagKey, scopeTagValue)
-        ..setExtra(scopeExtraKey, scopeExtraValue);
+        ..fingerprint = fingerprint;
+      await scope.addBreadcrumb(crumb);
+      await scope.setExtra(scopeExtraKey, scopeExtraValue);
+      await scope.setTag(scopeTagKey, scopeTagValue);
+      await scope.addBreadcrumb(crumb);
 
-      scope.setUser(user);
+      await scope.setUser(user);
     });
 
     test('should apply the scope', () async {

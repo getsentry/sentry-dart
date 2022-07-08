@@ -406,9 +406,9 @@ class Scope {
       clone.addEventProcessor(eventProcessor);
     }
 
-    contexts.forEach((key, value) {
+    contexts.forEach((key, value) async {
       if (value != null) {
-        clone.setContexts(key, value);
+        await clone.setContexts(key, value);
       }
     });
 

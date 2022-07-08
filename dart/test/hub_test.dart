@@ -335,12 +335,12 @@ void main() {
     });
 
     test('should configure its scope', () async {
-      await hub.configureScope((Scope scope) {
+      await hub.configureScope((Scope scope) async {
         scope
           ..level = SentryLevel.debug
           ..fingerprint = ['1', '2'];
 
-        scope.setUser(fakeUser);
+        await scope.setUser(fakeUser);
       });
       await hub.captureEvent(fakeEvent);
 
@@ -367,7 +367,7 @@ void main() {
     test('should configure scope async', () async {
       await hub.configureScope((Scope scope) async {
         await Future.delayed(Duration(milliseconds: 10));
-        return scope.setUser(fakeUser);
+        return await scope.setUser(fakeUser);
       });
 
       await hub.captureEvent(fakeEvent);

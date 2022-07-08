@@ -45,8 +45,8 @@ void main() {
     test('should capture the event withScope', () async {
       await Sentry.captureEvent(
         fakeEvent,
-        withScope: (scope) {
-          scope.setUser(SentryUser(id: 'foo bar'));
+        withScope: (scope) async {
+          await scope.setUser(SentryUser(id: 'foo bar'));
         },
       );
 
@@ -69,8 +69,8 @@ void main() {
     });
 
     test('should capture exception withScope', () async {
-      await Sentry.captureException(anException, withScope: (scope) {
-        scope.setUser(SentryUser(id: 'foo bar'));
+      await Sentry.captureException(anException, withScope: (scope) async {
+        await scope.setUser(SentryUser(id: 'foo bar'));
       });
       expect(client.captureEventCalls.length, 1);
       expect(client.captureEventCalls.first.event.throwable, anException);
@@ -91,8 +91,8 @@ void main() {
     test('should capture message withScope', () async {
       await Sentry.captureMessage(
         fakeMessage.formatted,
-        withScope: (scope) {
-          scope.setUser(SentryUser(id: 'foo bar'));
+        withScope: (scope) async {
+          await scope.setUser(SentryUser(id: 'foo bar'));
         },
       );
 

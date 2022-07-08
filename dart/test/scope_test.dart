@@ -53,11 +53,11 @@ void main() {
     expect((sut.span as SentryTracer).name, 'name');
   });
 
-  test('sets $SentryUser', () {
+  test('sets $SentryUser', () async {
     final sut = fixture.getSut();
 
     final user = SentryUser(id: 'test');
-    sut.setUser(user);
+    await sut.setUser(user);
 
     expect(sut.user, user);
   });
@@ -71,19 +71,19 @@ void main() {
     expect(sut.fingerprint, fingerprints);
   });
 
-  test('adds $Breadcrumb', () {
+  test('adds $Breadcrumb', () async {
     final sut = fixture.getSut();
 
     final breadcrumb = Breadcrumb(
       message: 'test log',
       timestamp: DateTime.utc(2019),
     );
-    sut.addBreadcrumb(breadcrumb);
+    await sut.addBreadcrumb(breadcrumb);
 
     expect(sut.breadcrumbs.last, breadcrumb);
   });
 
-  test('Executes and drops $Breadcrumb', () {
+  test('Executes and drops $Breadcrumb', () async {
     final sut = fixture.getSut(
       beforeBreadcrumbCallback: fixture.beforeBreadcrumbCallback,
     );
@@ -92,7 +92,7 @@ void main() {
       message: 'test log',
       timestamp: DateTime.utc(2019),
     );
-    sut.addBreadcrumb(breadcrumb);
+    await sut.addBreadcrumb(breadcrumb);
 
     expect(sut.breadcrumbs.length, 0);
   });
@@ -105,7 +105,7 @@ void main() {
     expect(sut.eventProcessors.last, isA<DropAllEventProcessor>());
   });
 
-  test('respects max $Breadcrumb', () {
+  test('respects max $Breadcrumb', () async {
     final maxBreadcrumbs = 2;
     final sut = fixture.getSut(maxBreadcrumbs: maxBreadcrumbs);
 
@@ -121,14 +121,14 @@ void main() {
       message: 'test log',
       timestamp: DateTime.utc(2019),
     );
-    sut.addBreadcrumb(breadcrumb1);
-    sut.addBreadcrumb(breadcrumb2);
-    sut.addBreadcrumb(breadcrumb3);
+    await sut.addBreadcrumb(breadcrumb1);
+    await sut.addBreadcrumb(breadcrumb2);
+    await sut.addBreadcrumb(breadcrumb3);
 
     expect(sut.breadcrumbs.length, maxBreadcrumbs);
   });
 
-  test('rotates $Breadcrumb', () {
+  test('rotates $Breadcrumb', () async {
     final sut = fixture.getSut(maxBreadcrumbs: 2);
 
     final breadcrumb1 = Breadcrumb(
@@ -143,16 +143,16 @@ void main() {
       message: 'test log',
       timestamp: DateTime.utc(2019),
     );
-    sut.addBreadcrumb(breadcrumb1);
-    sut.addBreadcrumb(breadcrumb2);
-    sut.addBreadcrumb(breadcrumb3);
+    await sut.addBreadcrumb(breadcrumb1);
+    await sut.addBreadcrumb(breadcrumb2);
+    await sut.addBreadcrumb(breadcrumb3);
 
     expect(sut.breadcrumbs.first, breadcrumb2);
 
     expect(sut.breadcrumbs.last, breadcrumb3);
   });
 
-  test('empty $Breadcrumb list', () {
+  test('empty $Breadcrumb list', () async {
     final maxBreadcrumbs = 0;
     final sut = fixture.getSut(maxBreadcrumbs: maxBreadcrumbs);
 
@@ -160,20 +160,20 @@ void main() {
       message: 'test log',
       timestamp: DateTime.utc(2019),
     );
-    sut.addBreadcrumb(breadcrumb1);
+    await sut.addBreadcrumb(breadcrumb1);
 
     expect(sut.breadcrumbs.length, maxBreadcrumbs);
   });
 
-  test('clears $Breadcrumb list', () {
+  test('clears $Breadcrumb list', () async {
     final sut = fixture.getSut();
 
     final breadcrumb1 = Breadcrumb(
       message: 'test log',
       timestamp: DateTime.utc(2019),
     );
-    sut.addBreadcrumb(breadcrumb1);
-    sut.clear();
+    await sut.addBreadcrumb(breadcrumb1);
+    await sut.clear();
 
     expect(sut.breadcrumbs.length, 0);
   });
@@ -188,13 +188,13 @@ void main() {
     expect(sut.attachments.length, 1);
   });
 
-  test('clear() removes all $SentryAttachment', () {
+  test('clear() removes all $SentryAttachment', () async {
     final sut = fixture.getSut();
 
     final attachment = SentryAttachment.fromIntList([0, 0, 0, 0], 'test.txt');
     sut.addAttachment(attachment);
     expect(sut.attachments.length, 1);
-    sut.clear();
+    await sut.clear();
 
     expect(sut.attachments.length, 0);
   });
@@ -210,65 +210,65 @@ void main() {
     expect(sut.attachments.length, 0);
   });
 
-  test('sets tag', () {
+  test('sets tag', () async {
     final sut = fixture.getSut();
 
-    sut.setTag('test', 'test');
+    await sut.setTag('test', 'test');
 
     expect(sut.tags['test'], 'test');
   });
 
-  test('removes tag', () {
+  test('removes tag', () async {
     final sut = fixture.getSut();
 
-    sut.setTag('test', 'test');
-    sut.removeTag('test');
+    await sut.setTag('test', 'test');
+    await sut.removeTag('test');
 
     expect(sut.tags['test'], null);
   });
 
-  test('sets extra', () {
+  test('sets extra', () async {
     final sut = fixture.getSut();
 
-    sut.setExtra('test', 'test');
+    await sut.setExtra('test', 'test');
 
     expect(sut.extra['test'], 'test');
   });
 
-  test('removes extra', () {
+  test('removes extra', () async {
     final sut = fixture.getSut();
 
-    sut.setExtra('test', 'test');
-    sut.removeExtra('test');
+    await sut.setExtra('test', 'test');
+    await sut.removeExtra('test');
 
     expect(sut.extra['test'], null);
   });
 
-  test('clears $Scope', () {
+  test('clears $Scope', () async {
     final sut = fixture.getSut();
 
     final breadcrumb1 = Breadcrumb(
       message: 'test log',
       timestamp: DateTime.utc(2019),
     );
-    sut.addBreadcrumb(breadcrumb1);
+    await sut.addBreadcrumb(breadcrumb1);
 
     sut.level = SentryLevel.debug;
     sut.transaction = 'test';
     sut.span = null;
 
     final user = SentryUser(id: 'test');
-    sut.setUser(user);
+    await sut.setUser(user);
 
     final fingerprints = ['test'];
     sut.fingerprint = fingerprints;
 
-    sut.setTag('test', 'test');
-    sut.setExtra('test', 'test');
+    await sut.setTag('test', 'test');
+    await sut.setExtra('test', 'test');
 
     sut.addEventProcessor(fixture.processor);
 
-    sut.clear();
+    await sut.clear();
 
     expect(sut.breadcrumbs.length, 0);
 
