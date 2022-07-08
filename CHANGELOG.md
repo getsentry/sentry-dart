@@ -4,7 +4,6 @@
 
 ### Fixes
 
-* Breadcrumbs should not be duplicated if there is no mechanism on Android ([#936](https://github.com/getsentry/sentry-dart/pull/936))
 * Maps with Key Object, Object would fail during serialization if not String, Object ([#935](https://github.com/getsentry/sentry-dart/pull/935))
 
 ## 6.6.3
