@@ -406,11 +406,11 @@ class Scope {
       clone.addEventProcessor(eventProcessor);
     }
 
-    contexts.forEach((key, value) async {
-      if (value != null) {
-        await clone.setContexts(key, value);
+    for (final entry in contexts.entries) {
+      if (entry.value != null) {
+        await clone.setContexts(entry.key, entry.value);
       }
-    });
+    }
 
     for (final attachment in _attachments) {
       clone.addAttachment(attachment);
