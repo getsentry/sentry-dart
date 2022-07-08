@@ -276,8 +276,8 @@ class SentryEvent with SentryEventLike<SentryEvent> {
     final debugMetaJson = json['debug_meta'] as Map<String, dynamic>?;
 
     var extra = json['extra'];
-    if (extra != null) {
-      extra = Map<String, dynamic>.from(extra as Map);
+    if (extra != null && extra is Map) {
+      extra = Map<String, dynamic>.from(extra);
     }
 
     return SentryEvent(

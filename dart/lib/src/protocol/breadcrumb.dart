@@ -131,8 +131,8 @@ class Breadcrumb {
     final timestamp = json['timestamp'];
 
     var data = json['data'];
-    if (data != null) {
-      data = Map<String, dynamic>.from(data as Map);
+    if (data != null && data is Map) {
+      data = Map<String, dynamic>.from(data);
     }
 
     return Breadcrumb(

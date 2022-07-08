@@ -77,13 +77,13 @@ class Mechanism {
   /// Deserializes a [Mechanism] from JSON [Map].
   factory Mechanism.fromJson(Map<String, dynamic> json) {
     var data = json['data'];
-    if (data != null) {
-      data = Map<String, dynamic>.from(data as Map);
+    if (data != null && data is Map) {
+      data = Map<String, dynamic>.from(data);
     }
 
     var meta = json['meta'];
-    if (meta != null) {
-      meta = Map<String, dynamic>.from(meta as Map);
+    if (meta != null && meta is Map) {
+      meta = Map<String, dynamic>.from(meta);
     }
 
     return Mechanism(
