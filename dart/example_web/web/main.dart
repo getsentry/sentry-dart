@@ -21,12 +21,12 @@ Future<void> main() async {
   );
 }
 
-void runApp() {
+Future<void> runApp() async {
   print('runApp');
 
   querySelector('#output')?.text = 'Your Dart app is running.';
 
-  Sentry.addBreadcrumb(
+  await Sentry.addBreadcrumb(
     Breadcrumb(
       message: 'Authenticated user',
       category: 'auth',
@@ -38,15 +38,15 @@ void runApp() {
     ),
   );
 
-  Sentry.configureScope((scope) {
+  await Sentry.configureScope((scope) async {
     scope
       // ..fingerprint = ['example-dart']
       ..transaction = '/example/app'
-      ..level = SentryLevel.warning
-      ..setTag('build', '579')
-      ..setExtra('company-name', 'Dart Inc');
+      ..level = SentryLevel.warning;
+    await scope.setTag('build', '579');
+    await scope.setExtra('company-name', 'Dart Inc');
 
-    scope.setUser(
+    await scope.setUser(
       SentryUser(
         id: '800',
         username: 'first-user',

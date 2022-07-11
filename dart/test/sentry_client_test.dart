@@ -587,7 +587,7 @@ void main() {
       final client = fixture.getSut(sendDefaultPii: true);
       final scope = createScope(fixture.options);
 
-      scope.setUser(SentryUser(id: '987'));
+      await scope.setUser(SentryUser(id: '987'));
 
       var eventWithUser = event.copyWith(
         user: SentryUser(id: '123', username: 'foo bar'),
@@ -610,7 +610,7 @@ void main() {
       final client = fixture.getSut(sendDefaultPii: true);
       final scope = createScope(fixture.options);
 
-      scope.setUser(
+      await scope.setUser(
         SentryUser(
           id: 'id',
           extras: {
@@ -886,6 +886,28 @@ void main() {
             type: 'type',
             handled: true,
           ),
+        )
+      ], breadcrumbs: [
+        Breadcrumb()
+      ]);
+      await client.captureEvent(event);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect((capturedEvent.breadcrumbs ?? []).isEmpty, true);
+    });
+
+    test('Clears breadcrumbs on Android if theres no mechanism', () async {
+      fixture.options.enableScopeSync = true;
+      fixture.options.platformChecker =
+          MockPlatformChecker(platform: MockPlatform.android());
+
+      final client = fixture.getSut();
+      final event = SentryEvent(exceptions: [
+        SentryException(
+          type: "type",
+          value: "value",
         )
       ], breadcrumbs: [
         Breadcrumb()

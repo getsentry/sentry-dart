@@ -62,7 +62,7 @@ class LoggingIntegration extends Integration<SentryOptions> {
     }
 
     if (_isLoggable(record.level, _minBreadcrumbLevel)) {
-      _hub.addBreadcrumb(record.toBreadcrumb());
+      await _hub.addBreadcrumb(record.toBreadcrumb());
     }
   }
 }

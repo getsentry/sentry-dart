@@ -275,13 +275,18 @@ class SentryEvent with SentryEventLike<SentryEvent> {
     final requestJson = json['request'] as Map<String, dynamic>?;
     final debugMetaJson = json['debug_meta'] as Map<String, dynamic>?;
 
+    var extra = json['extra'];
+    if (extra != null) {
+      extra = Map<String, dynamic>.from(extra as Map);
+    }
+
     return SentryEvent(
       eventId: SentryId.fromId(json['event_id']),
       timestamp:
           timestampJson != null ? DateTime.tryParse(timestampJson) : null,
       modules: modules,
       tags: tags,
-      extra: json['extra'],
+      extra: extra,
       fingerprint:
           fingerprintJson?.map((e) => e as String).toList(growable: false),
       breadcrumbs: breadcrumbs,

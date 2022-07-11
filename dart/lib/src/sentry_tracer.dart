@@ -102,7 +102,7 @@ class SentryTracer extends ISentrySpan {
       await _onFinish?.call(this);
 
       // remove from scope
-      _hub.configureScope((scope) {
+      await _hub.configureScope((scope) {
         if (scope.span == this) {
           scope.span = null;
         }
