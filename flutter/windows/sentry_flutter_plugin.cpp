@@ -57,6 +57,7 @@ void SentryFlutterPlugin::HandleMethodCall(
     const flutter::MethodCall<flutter::EncodableValue> &method_call,
     std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
   // Native features will be added in a next release
+  result->NotImplemented();
 }
 
 }  // namespace
