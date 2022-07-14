@@ -39,8 +39,8 @@ Future<void> runApp() async {
     ),
   );
 
-  Sentry.configureScope((scope) {
-    scope.setUser(SentryUser(
+  await Sentry.configureScope((scope) async {
+    await scope.setUser(SentryUser(
       id: '800',
       username: 'first-user',
       email: 'first@user.lan',
@@ -50,9 +50,9 @@ Future<void> runApp() async {
     scope
       // ..fingerprint = ['example-dart'], fingerprint forces events to group together
       ..transaction = '/example/app'
-      ..level = SentryLevel.warning
-      ..setTag('build', '579')
-      ..setExtra('company-name', 'Dart Inc');
+      ..level = SentryLevel.warning;
+    await scope.setTag('build', '579');
+    await scope.setExtra('company-name', 'Dart Inc');
   });
 
   // Sends a full Sentry event payload to show the different parts of the UI.

@@ -409,7 +409,7 @@ void runTest({Codec<List<int>, List<int>?>? gzip, bool isWeb = false}) {
       );
 
       final scope = Scope(options);
-      scope.setUser(clientUser);
+      await scope.setUser(clientUser);
 
       await client.captureEvent(
         eventWithoutContext,
@@ -418,7 +418,7 @@ void runTest({Codec<List<int>, List<int>?>? gzip, bool isWeb = false}) {
       expect(loggedUserId, clientUser.id);
 
       final secondScope = Scope(options);
-      secondScope.setUser(clientUser);
+      await secondScope.setUser(clientUser);
 
       await client.captureEvent(
         eventWithContext,
