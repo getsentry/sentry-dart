@@ -398,7 +398,7 @@ class Scope {
       await clone.setExtra(extraKey, _extra[extraKey]);
     }
 
-    for (final breadcrumb in _breadcrumbs) {
+    for (final breadcrumb in List.from(_breadcrumbs)) {
       await clone.addBreadcrumb(breadcrumb);
     }
 
@@ -406,9 +406,9 @@ class Scope {
       clone.addEventProcessor(eventProcessor);
     }
 
-    contexts.forEach((key, value) {
+    contexts.forEach((key, value) async {
       if (value != null) {
-        clone.setContexts(key, value);
+        await clone.setContexts(key, value);
       }
     });
 
