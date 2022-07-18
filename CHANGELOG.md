@@ -6,6 +6,7 @@
 
 * Breadcrumbs should not be duplicated if there is no mechanism on Android ([#936](https://github.com/getsentry/sentry-dart/pull/936))
 * Maps with Key Object, Object would fail during serialization if not String, Object ([#935](https://github.com/getsentry/sentry-dart/pull/935))
+* Fix: Breadcrumbs "Concurrent Modification" ([#948](https://github.com/getsentry/sentry-dart/pull/948))
 
 ### Features
 
