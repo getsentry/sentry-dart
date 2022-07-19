@@ -513,6 +513,8 @@ void main() {
     });
 
     test('should apply the scope', () async {
+      expect(scope.breadcrumbs.first.toJson(), crumb.toJson()); // Check for flaky test
+
       final client = fixture.getSut();
       await client.captureEvent(event, scope: scope);
 
