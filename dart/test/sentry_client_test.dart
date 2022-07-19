@@ -509,13 +509,14 @@ void main() {
       await scope.setTag(scopeTagKey, scopeTagValue);
       await scope.addBreadcrumb(crumb);
 
-      await scope.setUser(user);
+      return await scope.setUser(user);
     });
 
     test('should apply the scope', () async {
       final client = fixture.getSut();
       await client.captureEvent(event, scope: scope);
 
+      expect(scope.breadcrumbs.first.toJson(), crumb.toJson()); // Test if scope has crumb in flaky test
       expect(event.breadcrumbs?.first.toJson(), crumb.toJson()); // Test if event has crumb in flaky test
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
