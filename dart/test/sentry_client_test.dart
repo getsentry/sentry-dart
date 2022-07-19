@@ -516,6 +516,8 @@ void main() {
       final client = fixture.getSut();
       await client.captureEvent(event, scope: scope);
 
+      expect(event.breadcrumbs?.first.toJson(), crumb.toJson()); // Test if event has crumb in flaky test
+
       final capturedEnvelope = (fixture.transport).envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
