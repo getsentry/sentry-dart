@@ -19,6 +19,7 @@
 
 ### Fixes
 
+* Add request instead of response data to `SentryRequest` in `DioEventProcessor` [#933](https://github.com/getsentry/sentry-dart/pull/933)
 * Context Escape with ScopeCallback ([#925](https://github.com/getsentry/sentry-dart/pull/925))
 
 ## 6.6.2
