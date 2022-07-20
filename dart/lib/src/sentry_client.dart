@@ -378,11 +378,12 @@ class SentryClient {
   }
 
   SentryEvent _eventWithRemovedBreadcrumbsIfHandled(SentryEvent event) {
-    final foundNotHandled = event.exceptions
-            ?.any((element) => element.mechanism?.handled == false) ??
-        false;
+    final exceptions = event.exceptions ?? [];
+    final handled = exceptions.isNotEmpty
+        ? exceptions.first.mechanism?.handled == true
+        : false;
 
-    if (!foundNotHandled) {
+    if (handled) {
       return event.copyWith(breadcrumbs: []);
     } else {
       return event;
