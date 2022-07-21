@@ -898,6 +898,28 @@ void main() {
       expect((capturedEvent.breadcrumbs ?? []).isEmpty, true);
     });
 
+    test('Clears breadcrumbs on Android if theres no mechanism', () async {
+      fixture.options.enableScopeSync = true;
+      fixture.options.platformChecker =
+          MockPlatformChecker(platform: MockPlatform.android());
+
+      final client = fixture.getSut();
+      final event = SentryEvent(exceptions: [
+        SentryException(
+          type: "type",
+          value: "value",
+        )
+      ], breadcrumbs: [
+        Breadcrumb()
+      ]);
+      await client.captureEvent(event);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect((capturedEvent.breadcrumbs ?? []).isEmpty, true);
+    });
+
     test('Does not clear breadcrumbs on Android if mechanism.handled is false',
         () async {
       fixture.options.enableScopeSync = true;
@@ -906,6 +928,42 @@ void main() {
 
       final client = fixture.getSut();
       final event = SentryEvent(exceptions: [
+        SentryException(
+          type: "type",
+          value: "value",
+          mechanism: Mechanism(
+            type: 'type',
+            handled: false,
+          ),
+        )
+      ], breadcrumbs: [
+        Breadcrumb()
+      ]);
+      await client.captureEvent(event);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect((capturedEvent.breadcrumbs ?? []).isNotEmpty, true);
+    });
+
+    test(
+        'Does not clear breadcrumbs on Android if any mechanism.handled is false',
+        () async {
+      fixture.options.enableScopeSync = true;
+      fixture.options.platformChecker =
+          MockPlatformChecker(platform: MockPlatform.android());
+
+      final client = fixture.getSut();
+      final event = SentryEvent(exceptions: [
+        SentryException(
+          type: "type",
+          value: "value",
+          mechanism: Mechanism(
+            type: 'type',
+            handled: true,
+          ),
+        ),
         SentryException(
           type: "type",
           value: "value",
