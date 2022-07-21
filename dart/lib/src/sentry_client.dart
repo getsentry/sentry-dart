@@ -126,7 +126,7 @@ class SentryClient {
       this is a signal that the app would crash and android would lose the breadcrumbs by the time the app is restarted to read
       the envelope.
       */
-      //preparedEvent = _eventWithRemovedBreadcrumbsIfHandled(preparedEvent);
+      preparedEvent = _eventWithRemovedBreadcrumbsIfHandled(preparedEvent);
     }
 
     final envelope = SentryEnvelope.fromEvent(
