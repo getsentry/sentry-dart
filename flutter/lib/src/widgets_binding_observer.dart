@@ -1,3 +1,7 @@
+import 'dart:async';
+import 'dart:ui';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../sentry_flutter.dart';
 import 'binding_utils.dart';
@@ -20,10 +24,30 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     Hub? hub,
     required SentryFlutterOptions options,
   })  : _hub = hub ?? HubAdapter(),
-        _options = options;
+        _options = options,
+        _screenSizeStreamController = StreamController(sync: true) {
+    if (_options.enableWindowMetricBreadcrumbs) {
+      _screenSizeStreamController.stream
+          .map(
+            (window) => {
+              'new_pixel_ratio': window?.devicePixelRatio,
+              'new_height': window?.physicalSize.height,
+              'new_width': window?.physicalSize.width,
+            },
+          )
+          .distinct(mapEquals)
+          .skip(1) // Skip initial event added below in constructor
+          .listen(_onScreenSizeChanged);
+
+      final window = BindingUtils.getWidgetsBindingInstance()?.window;
+      _screenSizeStreamController.add(window);
+    }
+  }
 
   final Hub _hub;
   final SentryFlutterOptions _options;
+
+  final StreamController<SingletonFlutterWindow?> _screenSizeStreamController;
 
   /// This method records lifecycle events.
   /// It tries to mimic the behavior of ActivityBreadcrumbsIntegration of Sentry
@@ -55,22 +79,22 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   /// when a phone is rotated or an application window is resized.
   ///
   /// See also:
-  ///   - [Window.onMetricsChanged](https://api.flutter.dev/flutter/dart-ui/Window/onMetricsChanged.html)
+  ///   - [SingletonFlutterWindow.onMetricsChanged](https://api.flutter.dev/flutter/dart-ui/SingletonFlutterWindow/onMetricsChanged.html)
   @override
   void didChangeMetrics() {
     if (!_options.enableWindowMetricBreadcrumbs) {
       return;
     }
     final window = BindingUtils.getWidgetsBindingInstance()?.window;
+    _screenSizeStreamController.add(window);
+  }
+
+  void _onScreenSizeChanged(Map<String, dynamic> data) {
     _hub.addBreadcrumb(Breadcrumb(
       message: 'Screen size changed',
       category: 'device.screen',
       type: 'navigation',
-      data: <String, dynamic>{
-        'new_pixel_ratio': window?.devicePixelRatio,
-        'new_height': window?.physicalSize.height,
-        'new_width': window?.physicalSize.width,
-      },
+      data: data,
     ));
   }
 
