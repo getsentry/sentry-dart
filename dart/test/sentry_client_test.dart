@@ -575,6 +575,9 @@ void main() {
       final capturedEnvelope = fixture.transport.envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
+      expect(fixture.options.enableScopeSync, true);
+      expect(fixture.options.platformChecker.platform.isAndroid, false);
+
       expect(capturedEvent.user!.id, eventUser.id);
       expect(capturedEvent.level!.name, SentryLevel.warning.name);
       expect(capturedEvent.transaction, eventTransaction);
