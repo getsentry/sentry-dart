@@ -15,5 +15,4 @@ class MockPlatform extends Platform with NoSuchMethodProvider {
 
   @override
   String operatingSystem;
-
 }
