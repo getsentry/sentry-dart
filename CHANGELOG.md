@@ -9,9 +9,9 @@
 
 ### Features
 
-- Bump Android SDK to v6.2.1 ([#945](https://github.com/getsentry/sentry-dart/pull/945))
-  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#621)
-  - [diff](https://github.com/getsentry/sentry-java/compare/6.1.4...6.2.1)
+- Bump Android SDK to v6.3.0 ([#945](https://github.com/getsentry/sentry-dart/pull/945), [#950](https://github.com/getsentry/sentry-dart/pull/950))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#630)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.1.4...6.3.0)
 - Bump Cocoa SDK to v7.21.0 ([#947](https://github.com/getsentry/sentry-dart/pull/947))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/master/CHANGELOG.md#7210)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.19.0...7.21.0)
@@ -20,6 +20,7 @@
 
 ### Fixes
 
+* Add request instead of response data to `SentryRequest` in `DioEventProcessor` [#933](https://github.com/getsentry/sentry-dart/pull/933)
 * Context Escape with ScopeCallback ([#925](https://github.com/getsentry/sentry-dart/pull/925))
 
 ## 6.6.2
