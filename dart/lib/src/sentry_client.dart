@@ -382,7 +382,7 @@ class SentryClient {
         (event.exceptions ?? []).map((e) => e.mechanism).whereType<Mechanism>();
     final hasNoMechanism = mechanisms.isEmpty;
     final hasOnlyHandledMechanism =
-        mechanisms.every((e) => (e.handled ?? false));
+        mechanisms.every((e) => (e.handled ?? true));
 
     if (hasNoMechanism || hasOnlyHandledMechanism) {
       return event.copyWith(breadcrumbs: []);

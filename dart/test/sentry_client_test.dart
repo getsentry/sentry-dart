@@ -898,6 +898,30 @@ void main() {
       expect((capturedEvent.breadcrumbs ?? []).isEmpty, true);
     });
 
+    test('Clears breadcrumbs on Android if mechanism.handled is null',
+        () async {
+      fixture.options.enableScopeSync = true;
+      fixture.options.platformChecker =
+          MockPlatformChecker(platform: MockPlatform.android());
+
+      final client = fixture.getSut();
+      final event = SentryEvent(exceptions: [
+        SentryException(
+          type: "type",
+          value: "value",
+          mechanism: Mechanism(type: 'type'),
+        )
+      ], breadcrumbs: [
+        Breadcrumb()
+      ]);
+      await client.captureEvent(event);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect((capturedEvent.breadcrumbs ?? []).isEmpty, true);
+    });
+
     test('Clears breadcrumbs on Android if theres no mechanism', () async {
       fixture.options.enableScopeSync = true;
       fixture.options.platformChecker =
