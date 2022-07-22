@@ -7,6 +7,7 @@
 * Maps with Key Object, Object would fail during serialization if not String, Object ([#935](https://github.com/getsentry/sentry-dart/pull/935))
 * Breadcrumbs "Concurrent Modification" ([#948](https://github.com/getsentry/sentry-dart/pull/948))
 * Duplicative Screen size changed breadcrumbs ([#888](https://github.com/getsentry/sentry-dart/pull/888))
+* Duplicated Android Breadcrumbs with no Mechanism ([#954](https://github.com/getsentry/sentry-dart/pull/954))
 * Fix windows native method need default result ([#943](https://github.com/getsentry/sentry-dart/pull/943))
 
 ### Features
