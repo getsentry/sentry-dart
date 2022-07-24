@@ -6,7 +6,6 @@ import 'package:meta/meta.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
 import 'event_processor/android_platform_exception_event_processor.dart';
-import 'integrations/on_error_integration.dart';
 import 'native_scope_observer.dart';
 import 'sentry_native.dart';
 import 'sentry_native_channel.dart';
@@ -105,9 +104,6 @@ mixin SentryFlutter {
 
     // Will catch any errors that may occur in the Flutter framework itself.
     integrations.add(FlutterErrorIntegration());
-
-    // Will catch any errors that may occur in the root zone
-    integrations.add(OnErrorIntegration());
 
     // This tracks Flutter application events, such as lifecycle events.
     integrations.add(WidgetsBindingIntegration());
