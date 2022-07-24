@@ -27,6 +27,7 @@ Future<void> main() async {
       options.addInAppInclude('sentry_flutter_example');
       options.considerInAppFramesByDefault = false;
       options.attachThreads = true;
+      options.enableWindowMetricBreadcrumbs = true;
     },
     // Init your App.
     appRunner: () => runApp(

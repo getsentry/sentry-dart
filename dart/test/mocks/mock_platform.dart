@@ -9,9 +9,10 @@ class MockPlatform extends Platform with NoSuchMethodProvider {
     return MockPlatform(os: 'android');
   }
 
-  @override
-  String operatingSystem;
+  factory MockPlatform.iOS() {
+    return MockPlatform(os: 'ios');
+  }
 
   @override
-  bool get isAndroid => (operatingSystem == 'android');
+  String operatingSystem;
 }

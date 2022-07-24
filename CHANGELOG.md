@@ -1,10 +1,15 @@
 # Changelog
 
-## Unreleased
+## 6.7.0
 
 ### Fixes
 
 * Maps with Key Object, Object would fail during serialization if not String, Object ([#935](https://github.com/getsentry/sentry-dart/pull/935))
+* Breadcrumbs "Concurrent Modification" ([#948](https://github.com/getsentry/sentry-dart/pull/948))
+* Duplicative Screen size changed breadcrumbs ([#888](https://github.com/getsentry/sentry-dart/pull/888))
+* Duplicated Android Breadcrumbs with no Mechanism ([#954](https://github.com/getsentry/sentry-dart/pull/954))
+* Fix windows native method need default result ([#943](https://github.com/getsentry/sentry-dart/pull/943))
+* Add request instead of response data to `SentryRequest` in `DioEventProcessor` [#933](https://github.com/getsentry/sentry-dart/pull/933)
 
 ### Features
 
@@ -19,7 +24,6 @@
 
 ### Fixes
 
-* Add request instead of response data to `SentryRequest` in `DioEventProcessor` [#933](https://github.com/getsentry/sentry-dart/pull/933)
 * Context Escape with ScopeCallback ([#925](https://github.com/getsentry/sentry-dart/pull/925))
 
 ## 6.6.2
