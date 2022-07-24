@@ -390,29 +390,29 @@ class Scope {
 
     await clone.setUser(user);
 
-    for (final tag in _tags.keys) {
+    for (final tag in List.from(_tags.keys)) {
       await clone.setTag(tag, _tags[tag]!);
     }
 
-    for (final extraKey in _extra.keys) {
+    for (final extraKey in List.from(_extra.keys)) {
       await clone.setExtra(extraKey, _extra[extraKey]);
     }
 
-    for (final breadcrumb in _breadcrumbs) {
+    for (final breadcrumb in List.from(_breadcrumbs)) {
       await clone.addBreadcrumb(breadcrumb);
     }
 
-    for (final eventProcessor in _eventProcessors) {
+    for (final eventProcessor in List.from(_eventProcessors)) {
       clone.addEventProcessor(eventProcessor);
     }
 
-    contexts.forEach((key, value) {
-      if (value != null) {
-        clone.setContexts(key, value);
+    for (final entry in Map.from(contexts).entries) {
+      if (entry.value != null) {
+        await clone.setContexts(entry.key, entry.value);
       }
-    });
+    }
 
-    for (final attachment in _attachments) {
+    for (final attachment in List.from(_attachments)) {
       clone.addAttachment(attachment);
     }
 

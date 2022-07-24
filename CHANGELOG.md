@@ -1,16 +1,21 @@
 # Changelog
 
-## Unreleased
+## 6.7.0
 
 ### Fixes
 
 * Maps with Key Object, Object would fail during serialization if not String, Object ([#935](https://github.com/getsentry/sentry-dart/pull/935))
+* Breadcrumbs "Concurrent Modification" ([#948](https://github.com/getsentry/sentry-dart/pull/948))
+* Duplicative Screen size changed breadcrumbs ([#888](https://github.com/getsentry/sentry-dart/pull/888))
+* Duplicated Android Breadcrumbs with no Mechanism ([#954](https://github.com/getsentry/sentry-dart/pull/954))
+* Fix windows native method need default result ([#943](https://github.com/getsentry/sentry-dart/pull/943))
+* Add request instead of response data to `SentryRequest` in `DioEventProcessor` [#933](https://github.com/getsentry/sentry-dart/pull/933)
 
 ### Features
 
-- Bump Android SDK to v6.2.1 ([#945](https://github.com/getsentry/sentry-dart/pull/945))
-  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#621)
-  - [diff](https://github.com/getsentry/sentry-java/compare/6.1.4...6.2.1)
+- Bump Android SDK to v6.3.0 ([#945](https://github.com/getsentry/sentry-dart/pull/945), [#950](https://github.com/getsentry/sentry-dart/pull/950))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#630)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.1.4...6.3.0)
 - Bump Cocoa SDK to v7.21.0 ([#947](https://github.com/getsentry/sentry-dart/pull/947))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/master/CHANGELOG.md#7210)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.19.0...7.21.0)
