@@ -185,10 +185,19 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
         contexts.forEach(
           (key, dynamic value) {
             if (value != null) {
+              final currentValue = eventContexts[key];
               if (key == SentryRuntime.listType) {
                 contexts.runtimes.forEach(eventContexts.addRuntime);
-              } else if (eventContexts[key] == null) {
+              } else if (currentValue == null) {
                 eventContexts[key] = value;
+              } else {
+                if (key == SentryOperatingSystem.type &&
+                    currentValue is SentryOperatingSystem &&
+                    value is SentryOperatingSystem) {
+                  final osMap = {...value.toJson(), ...currentValue.toJson()};
+                  final os = SentryOperatingSystem.fromJson(osMap);
+                  eventContexts[key] = os;
+                }
               }
             }
           },
