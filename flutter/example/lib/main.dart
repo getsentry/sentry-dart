@@ -28,6 +28,8 @@ Future<void> main() async {
       options.considerInAppFramesByDefault = false;
       options.attachThreads = true;
       options.enableWindowMetricBreadcrumbs = true;
+      // Only usable on Flutter >= 3.3
+      options.addIntegration(OnErrorIntegration());
     },
     // Init your App.
     appRunner: () => runApp(

@@ -1,6 +1,3 @@
-@TestOn('vm')
-// Run only on vm for now because of
-// https://github.com/flutter/engine/pull/34428
 import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';

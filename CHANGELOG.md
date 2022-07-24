@@ -1,5 +1,11 @@
 # Changelog
 
+## 6.6.2
+
+### Features
+
+* Add integration for `PlatformDispatcher.onError` ([#915](https://github.com/getsentry/sentry-dart/pull/915))
+
 ## 6.7.0
 
 ### Fixes
@@ -30,7 +36,6 @@
 
 ### Features
 
-- Add integration for `PlatformDispatcher.onError` ([#915](https://github.com/getsentry/sentry-dart/pull/915))
 - Bump Android SDK to v6.1.4 ([#900](https://github.com/getsentry/sentry-dart/pull/900))
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#614)
   - [diff](https://github.com/getsentry/sentry-java/compare/6.1.2...6.1.4)
