@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+* Missing OS context for iOS events ([#958](https://github.com/getsentry/sentry-dart/pull/958))
+
 ### Features
 
 * Dio Integration adds response data ([#934](https://github.com/getsentry/sentry-dart/pull/934))
