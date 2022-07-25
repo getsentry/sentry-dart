@@ -201,7 +201,7 @@ class Sentry {
       await _hub.configureScope(callback);
 
   /// Clones the current Hub
-  static Future<Hub> clone() async => await _hub.clone();
+  static Hub clone() => _hub.clone();
 
   /// Binds a different client to the current hub
   static void bindClient(SentryClient client) => _hub.bindClient(client);
