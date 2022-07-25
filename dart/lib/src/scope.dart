@@ -117,12 +117,15 @@ class Scope {
   /// * https://docs.sentry.io/platforms/java/enriching-events/context/
   Map<String, dynamic> get contexts => Map.unmodifiable(_contexts);
 
-  /// add an entry to the Scope's contexts
-  Future<void> setContexts(String key, dynamic value) async {
+  void _setContextsSync(String key, dynamic value) {
     _contexts[key] = (value is num || value is bool || value is String)
         ? {'value': value}
         : value;
+  }
 
+  /// add an entry to the Scope's contexts
+  Future<void> setContexts(String key, dynamic value) async {
+    _setContextsSync(key, value);
     await _callScopeObservers(
         (scopeObserver) async => await scopeObserver.setContexts(key, value));
   }
@@ -154,11 +157,10 @@ class Scope {
 
   Scope(this._options);
 
-  /// Adds a breadcrumb to the breadcrumbs queue
-  Future<void> addBreadcrumb(Breadcrumb breadcrumb, {dynamic hint}) async {
+  bool _addBreadCrumbSync(Breadcrumb breadcrumb, {dynamic hint}) {
     // bail out if maxBreadcrumbs is zero
     if (_options.maxBreadcrumbs == 0) {
-      return;
+      return false;
     }
 
     Breadcrumb? processedBreadcrumb = breadcrumb;
@@ -174,7 +176,7 @@ class Scope {
           SentryLevel.info,
           'Breadcrumb was dropped by beforeBreadcrumb',
         );
-        return;
+        return false;
       }
     }
 
@@ -185,9 +187,15 @@ class Scope {
     }
 
     _breadcrumbs.add(breadcrumb);
+    return true;
+  }
 
-    await _callScopeObservers(
-        (scopeObserver) async => await scopeObserver.addBreadcrumb(breadcrumb));
+  /// Adds a breadcrumb to the breadcrumbs queue
+  Future<void> addBreadcrumb(Breadcrumb breadcrumb, {dynamic hint}) async {
+    if (_addBreadCrumbSync(breadcrumb, hint: hint)) {
+      await _callScopeObservers((scopeObserver) async =>
+          await scopeObserver.addBreadcrumb(breadcrumb));
+    }
   }
 
   void addAttachment(SentryAttachment attachment) {
@@ -232,9 +240,13 @@ class Scope {
     await setUser(null);
   }
 
+  void _setTagSync(String key, String value) {
+    _tags[key] = value;
+  }
+
   /// Sets a tag to the Scope
   Future<void> setTag(String key, String value) async {
-    _tags[key] = value;
+    _setTagSync(key, value);
     await _callScopeObservers(
         (scopeObserver) async => await scopeObserver.setTag(key, value));
   }
@@ -246,9 +258,13 @@ class Scope {
         (scopeObserver) async => await scopeObserver.removeTag(key));
   }
 
+  void _setExtraSync(String key, dynamic value) {
+    _extra[key] = value;
+  }
+
   /// Sets an extra to the Scope
   Future<void> setExtra(String key, dynamic value) async {
-    _extra[key] = value;
+    _setExtraSync(key, value);
     await _callScopeObservers(
         (scopeObserver) async => await scopeObserver.setExtra(key, value));
   }
@@ -381,25 +397,29 @@ class Scope {
   }
 
   /// Clones the current Scope
-  Future<Scope> clone() async {
+  Scope clone() {
     final clone = Scope(_options)
       ..level = level
       ..fingerprint = List.from(fingerprint)
       .._transaction = _transaction
       .._span = _span;
 
-    await clone.setUser(user);
+    _setUserSync(user);
 
-    for (final tag in List.from(_tags.keys)) {
-      await clone.setTag(tag, _tags[tag]!);
+    final tags = List.from(_tags.keys);
+    for (final tag in tags) {
+      final value = tags[tag];
+      if (value != null) {
+        clone._setTagSync(tag, value);
+      }
     }
 
     for (final extraKey in List.from(_extra.keys)) {
-      await clone.setExtra(extraKey, _extra[extraKey]);
+      clone._setExtraSync(extraKey, _extra[extraKey]);
     }
 
     for (final breadcrumb in List.from(_breadcrumbs)) {
-      await clone.addBreadcrumb(breadcrumb);
+      clone._addBreadCrumbSync(breadcrumb);
     }
 
     for (final eventProcessor in List.from(_eventProcessors)) {
@@ -408,7 +428,7 @@ class Scope {
 
     for (final entry in Map.from(contexts).entries) {
       if (entry.value != null) {
-        await clone.setContexts(entry.key, entry.value);
+        clone._setContextsSync(entry.key, entry.value);
       }
     }
 

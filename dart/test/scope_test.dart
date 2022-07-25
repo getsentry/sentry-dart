@@ -299,7 +299,7 @@ void main() {
     sut.span = NoOpSentrySpan();
     sut.level = SentryLevel.warning;
 
-    final clone = await sut.clone();
+    final clone = sut.clone();
     expect(sut.user, clone.user);
     expect(sut.transaction, clone.transaction);
     expect(sut.extra, clone.extra);
@@ -314,6 +314,32 @@ void main() {
       true,
     );
     expect(sut.span, clone.span);
+  });
+
+  test('clone does not additionally call observers', () async {
+    final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
+
+    await sut.setContexts("fixture-contexts-key", "fixture-contexts-value");
+    await sut.removeContexts("fixture-contexts-key");
+    await sut.setUser(SentryUser(username: "fixture-username"));
+    await sut.addBreadcrumb(Breadcrumb());
+    await sut.clearBreadcrumbs();
+    await sut.setExtra("fixture-extra-key", "fixture-extra-value");
+    await sut.removeExtra("fixture-extra-key");
+    await sut.setTag("fixture-tag-key", "fixture-tag-value");
+    await sut.removeTag("fixture-tag-key");
+
+    sut.clone();
+
+    expect(1, fixture.mockScopeObserver.numberOfSetContextsCalls);
+    expect(1, fixture.mockScopeObserver.numberOfRemoveContextsCalls);
+    expect(1, fixture.mockScopeObserver.numberOfSetUserCalls);
+    expect(1, fixture.mockScopeObserver.numberOfAddBreadcrumbCalls);
+    expect(1, fixture.mockScopeObserver.numberOfClearBreadcrumbsCalls);
+    expect(1, fixture.mockScopeObserver.numberOfSetExtraCalls);
+    expect(1, fixture.mockScopeObserver.numberOfRemoveExtraCalls);
+    expect(1, fixture.mockScopeObserver.numberOfSetTagCalls);
+    expect(1, fixture.mockScopeObserver.numberOfRemoveTagCalls);
   });
 
   group('Scope apply', () {
