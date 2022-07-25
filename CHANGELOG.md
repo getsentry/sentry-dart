@@ -1,10 +1,11 @@
 # Changelog
 
-## 6.6.2
+## Unreleased
 
 ### Features
 
 * Add integration for `PlatformDispatcher.onError` ([#915](https://github.com/getsentry/sentry-dart/pull/915))
+
 ## 6.8.0
 
 ### Fixes

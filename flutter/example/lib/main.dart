@@ -28,8 +28,6 @@ Future<void> main() async {
       options.considerInAppFramesByDefault = false;
       options.attachThreads = true;
       options.enableWindowMetricBreadcrumbs = true;
-      // Only usable on Flutter >= 3.3
-      options.addIntegration(OnErrorIntegration());
     },
     // Init your App.
     appRunner: () => runApp(
@@ -184,6 +182,9 @@ class MainScaffold extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
+                // Only usable on Flutter >= 3.3
+                // and needs the following additional setup:
+                // options.addIntegration(OnErrorIntegration());
                 (WidgetsBinding.instance.platformDispatcher as dynamic)
                     .onError
                     ?.call(
