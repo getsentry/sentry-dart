@@ -12,6 +12,7 @@ Future<void> main() async {
       options.dsn = dsn;
       options.tracesSampleRate = 1.0; // needed for Dio `networkTracing` feature
       options.debug = true;
+      options.sendDefaultPii = true;
     },
     appRunner: runApp, // Init your App.
   );
@@ -21,6 +22,7 @@ Future<void> runApp() async {
   final dio = Dio();
   dio.addSentry(
     maxRequestBodySize: MaxRequestBodySize.small,
+    maxResponseBodySize: MaxResponseBodySize.small,
     captureFailedRequests: true,
   );
 

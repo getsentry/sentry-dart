@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+* Dio Integration adds response data ([#934](https://github.com/getsentry/sentry-dart/pull/934))
+
 ## 6.7.0
 
 ### Fixes
