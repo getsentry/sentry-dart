@@ -11,7 +11,6 @@ class MockScopeObserver extends ScopeObserver {
   bool calledSetTag = false;
   bool calledSetUser = false;
 
-
   int numberOfAddBreadcrumbCalls = 0;
   int numberOfClearBreadcrumbsCalls = 0;
   int numberOfRemoveContextsCalls = 0;
