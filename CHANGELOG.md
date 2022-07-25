@@ -5,6 +5,7 @@
 ### Fixes
 
 * Missing OS context for iOS events ([#958](https://github.com/getsentry/sentry-dart/pull/958))
+* Fix: `Scope#clone` calls the Native bridges again via the `scopeObserver` ([#959](https://github.com/getsentry/sentry-dart/pull/959))
 
 ### Features
 
