@@ -371,9 +371,8 @@ class MockHub extends _i1.Mock implements _i2.Hub {
       super.noSuchMethod(Invocation.method(#bindClient, [client]),
           returnValueForMissingStub: null);
   @override
-  _i6.Future<_i2.Hub> clone() => (super.noSuchMethod(
-      Invocation.method(#clone, []),
-      returnValue: Future<_i2.Hub>.value(_FakeHub_8())) as _i6.Future<_i2.Hub>);
+  _i2.Hub clone() => (super.noSuchMethod(Invocation.method(#clone, []),
+      returnValue: _FakeHub_8()) as _i2.Hub);
   @override
   _i6.Future<void> close() => (super.noSuchMethod(Invocation.method(#close, []),
       returnValue: Future<void>.value(),

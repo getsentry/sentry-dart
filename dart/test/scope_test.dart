@@ -299,7 +299,7 @@ void main() {
     sut.span = NoOpSentrySpan();
     sut.level = SentryLevel.warning;
 
-    final clone = await sut.clone();
+    final clone = sut.clone();
     expect(sut.user, clone.user);
     expect(sut.transaction, clone.transaction);
     expect(sut.extra, clone.extra);
