@@ -5,6 +5,7 @@
 ### Fixes
 
 * `Scope#setContexts` pasing a List value would't not work ([#932](https://github.com/getsentry/sentry-dart/pull/932))
+
 ### Features
 
 * Add integration for `PlatformDispatcher.onError` ([#915](https://github.com/getsentry/sentry-dart/pull/915))

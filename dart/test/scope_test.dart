@@ -474,7 +474,6 @@ void main() {
 
     test('should apply the scope.contexts values ', () async {
       final event = SentryEvent();
-
       final scope = Scope(SentryOptions(dsn: fakeDsn));
       await scope.setContexts(
           SentryDevice.type, SentryDevice(name: 'context-device'));
