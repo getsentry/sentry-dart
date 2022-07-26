@@ -1,5 +1,3 @@
-import 'dart:async';
-
 // ignore: implementation_imports
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:flutter/widgets.dart';
@@ -142,12 +140,12 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     ));
   }
 
-  void _setCurrentRoute(String? name) {
+  Future<void> _setCurrentRoute(String? name) async {
     if (name == null) {
       return;
     }
     if (_setRouteNameAsTransaction) {
-      _hub.configureScope((scope) {
+      await _hub.configureScope((scope) {
         scope.transaction = name;
       });
     }
@@ -192,7 +190,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       _transaction?.setData('route_settings_arguments', arguments);
     }
 
-    _hub.configureScope((scope) {
+    await _hub.configureScope((scope) {
       scope.span ??= _transaction;
     });
 
@@ -201,7 +199,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
   Future<void> _finishTransaction() async {
     _transaction?.status ??= SpanStatus.ok();
-    return await _transaction?.finish();
+    await _transaction?.finish();
   }
 }
 

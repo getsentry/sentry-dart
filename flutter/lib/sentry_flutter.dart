@@ -7,3 +7,4 @@ export 'src/sentry_flutter.dart';
 export 'src/sentry_flutter_options.dart';
 export 'src/flutter_sentry_attachment.dart';
 export 'src/sentry_asset_bundle.dart';
+export 'src/integrations/on_error_integration.dart';

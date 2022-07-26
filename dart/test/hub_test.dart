@@ -170,7 +170,7 @@ void main() {
         bindToScope: true,
       );
 
-      hub.configureScope((Scope scope) {
+      await hub.configureScope((Scope scope) {
         expect(scope.span, tr);
       });
     });
@@ -184,7 +184,7 @@ void main() {
         description: 'desc',
       );
 
-      hub.configureScope((Scope scope) {
+      await hub.configureScope((Scope scope) {
         expect(scope.span, isNull);
       });
     });
@@ -335,7 +335,7 @@ void main() {
     });
 
     test('should configure its scope', () async {
-      hub.configureScope((Scope scope) {
+      await hub.configureScope((Scope scope) {
         scope
           ..level = SentryLevel.debug
           ..fingerprint = ['1', '2'];
@@ -353,7 +353,7 @@ void main() {
         ..level = SentryLevel.debug
         ..fingerprint = ['1', '2'];
 
-      otherScope.setUser(fakeUser);
+      await otherScope.setUser(fakeUser);
 
       expect(
         scopeEquals(
@@ -364,12 +364,32 @@ void main() {
       );
     });
 
-    test('should add breadcrumb to current Scope', () {
-      hub.configureScope((Scope scope) {
+    test('should configure scope async', () async {
+      await hub.configureScope((Scope scope) async {
+        await Future.delayed(Duration(milliseconds: 10));
+        return scope.setUser(fakeUser);
+      });
+
+      await hub.captureEvent(fakeEvent);
+
+      final scope = client.captureEventCalls.first.scope;
+      final otherScope = Scope(SentryOptions(dsn: fakeDsn));
+      await otherScope.setUser(fakeUser);
+
+      expect(
+          scopeEquals(
+            scope,
+            otherScope,
+          ),
+          true);
+    });
+
+    test('should add breadcrumb to current Scope', () async {
+      await hub.configureScope((Scope scope) {
         expect(0, scope.breadcrumbs.length);
       });
-      hub.addBreadcrumb(Breadcrumb(message: 'test'));
-      hub.configureScope((Scope scope) {
+      await hub.addBreadcrumb(Breadcrumb(message: 'test'));
+      await hub.configureScope((Scope scope) {
         expect(1, scope.breadcrumbs.length);
         expect('test', scope.breadcrumbs.first.message);
       });
@@ -420,8 +440,8 @@ void main() {
     test('captureEvent should create a new scope', () async {
       final hub = fixture.getSut();
       await hub.captureEvent(SentryEvent());
-      await hub.captureEvent(SentryEvent(), withScope: (scope) {
-        scope.setUser(SentryUser(id: 'foo bar'));
+      await hub.captureEvent(SentryEvent(), withScope: (scope) async {
+        await scope.setUser(SentryUser(id: 'foo bar'));
       });
       await hub.captureEvent(SentryEvent());
 
@@ -435,8 +455,8 @@ void main() {
     test('captureException should create a new scope', () async {
       final hub = fixture.getSut();
       await hub.captureException(Exception('0'));
-      await hub.captureException(Exception('1'), withScope: (scope) {
-        scope.setUser(SentryUser(id: 'foo bar'));
+      await hub.captureException(Exception('1'), withScope: (scope) async {
+        await scope.setUser(SentryUser(id: 'foo bar'));
       });
       await hub.captureException(Exception('2'));
 
@@ -455,8 +475,8 @@ void main() {
     test('captureMessage should create a new scope', () async {
       final hub = fixture.getSut();
       await hub.captureMessage('foo bar 0');
-      await hub.captureMessage('foo bar 1', withScope: (scope) {
-        scope.setUser(SentryUser(id: 'foo bar'));
+      await hub.captureMessage('foo bar 1', withScope: (scope) async {
+        await scope.setUser(SentryUser(id: 'foo bar'));
       });
       await hub.captureMessage('foo bar 2');
 

@@ -27,6 +27,7 @@ Future<void> main() async {
       options.addInAppInclude('sentry_flutter_example');
       options.considerInAppFramesByDefault = false;
       options.attachThreads = true;
+      options.enableWindowMetricBreadcrumbs = true;
     },
     // Init your App.
     appRunner: () => runApp(
@@ -178,6 +179,20 @@ class MainScaffold extends StatelessWidget {
                 ));
               },
               child: const Text('Capture from FlutterError.onError'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Only usable on Flutter >= 3.3
+                // and needs the following additional setup:
+                // options.addIntegration(OnErrorIntegration());
+                (WidgetsBinding.instance.platformDispatcher as dynamic)
+                    .onError
+                    ?.call(
+                      Exception('PlatformDispatcher.onError'),
+                      StackTrace.current,
+                    );
+              },
+              child: const Text('Capture from PlatformDispatcher.onError'),
             ),
             ElevatedButton(
               onPressed: () => makeWebRequest(context),

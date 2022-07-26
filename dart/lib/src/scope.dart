@@ -117,13 +117,15 @@ class Scope {
   /// * https://docs.sentry.io/platforms/java/enriching-events/context/
   Map<String, dynamic> get contexts => Map.unmodifiable(_contexts);
 
+  void _setContextsSync(String key, dynamic value) {
+    (value is num || value is bool || value is String || value is List)
+        ? {'value': value}
+        : value;
+  }
+
   /// add an entry to the Scope's contexts
   Future<void> setContexts(String key, dynamic value) async {
-    _contexts[key] =
-        (value is num || value is bool || value is String || value is List)
-            ? {'value': value}
-            : value;
-
+    _setContextsSync(key, value);
     await _callScopeObservers(
         (scopeObserver) async => await scopeObserver.setContexts(key, value));
   }
@@ -155,11 +157,10 @@ class Scope {
 
   Scope(this._options);
 
-  /// Adds a breadcrumb to the breadcrumbs queue
-  Future<void> addBreadcrumb(Breadcrumb breadcrumb, {dynamic hint}) async {
+  bool _addBreadCrumbSync(Breadcrumb breadcrumb, {dynamic hint}) {
     // bail out if maxBreadcrumbs is zero
     if (_options.maxBreadcrumbs == 0) {
-      return;
+      return false;
     }
 
     Breadcrumb? processedBreadcrumb = breadcrumb;
@@ -175,7 +176,7 @@ class Scope {
           SentryLevel.info,
           'Breadcrumb was dropped by beforeBreadcrumb',
         );
-        return;
+        return false;
       }
     }
 
@@ -186,9 +187,15 @@ class Scope {
     }
 
     _breadcrumbs.add(breadcrumb);
+    return true;
+  }
 
-    await _callScopeObservers(
-        (scopeObserver) async => await scopeObserver.addBreadcrumb(breadcrumb));
+  /// Adds a breadcrumb to the breadcrumbs queue
+  Future<void> addBreadcrumb(Breadcrumb breadcrumb, {dynamic hint}) async {
+    if (_addBreadCrumbSync(breadcrumb, hint: hint)) {
+      await _callScopeObservers((scopeObserver) async =>
+          await scopeObserver.addBreadcrumb(breadcrumb));
+    }
   }
 
   void addAttachment(SentryAttachment attachment) {
@@ -233,9 +240,13 @@ class Scope {
     await setUser(null);
   }
 
+  void _setTagSync(String key, String value) {
+    _tags[key] = value;
+  }
+
   /// Sets a tag to the Scope
   Future<void> setTag(String key, String value) async {
-    _tags[key] = value;
+    _setTagSync(key, value);
     await _callScopeObservers(
         (scopeObserver) async => await scopeObserver.setTag(key, value));
   }
@@ -247,9 +258,13 @@ class Scope {
         (scopeObserver) async => await scopeObserver.removeTag(key));
   }
 
+  void _setExtraSync(String key, dynamic value) {
+    _extra[key] = value;
+  }
+
   /// Sets an extra to the Scope
   Future<void> setExtra(String key, dynamic value) async {
-    _extra[key] = value;
+    _setExtraSync(key, value);
     await _callScopeObservers(
         (scopeObserver) async => await scopeObserver.setExtra(key, value));
   }
@@ -389,31 +404,35 @@ class Scope {
       .._transaction = _transaction
       .._span = _span;
 
-    clone.setUser(user);
+    _setUserSync(user);
 
-    for (final tag in _tags.keys) {
-      clone.setTag(tag, _tags[tag]!);
+    final tags = List.from(_tags.keys);
+    for (final tag in tags) {
+      final value = tags[tag];
+      if (value != null) {
+        clone._setTagSync(tag, value);
+      }
     }
 
-    for (final extraKey in _extra.keys) {
-      clone.setExtra(extraKey, _extra[extraKey]);
+    for (final extraKey in List.from(_extra.keys)) {
+      clone._setExtraSync(extraKey, _extra[extraKey]);
     }
 
-    for (final breadcrumb in _breadcrumbs) {
-      clone.addBreadcrumb(breadcrumb);
+    for (final breadcrumb in List.from(_breadcrumbs)) {
+      clone._addBreadCrumbSync(breadcrumb);
     }
 
-    for (final eventProcessor in _eventProcessors) {
+    for (final eventProcessor in List.from(_eventProcessors)) {
       clone.addEventProcessor(eventProcessor);
     }
 
-    contexts.forEach((key, value) {
-      if (value != null) {
-        clone.setContexts(key, value);
+    for (final entry in Map.from(contexts).entries) {
+      if (entry.value != null) {
+        clone._setContextsSync(entry.key, entry.value);
       }
-    });
+    }
 
-    for (final attachment in _attachments) {
+    for (final attachment in List.from(_attachments)) {
       clone.addAttachment(attachment);
     }
 
