@@ -5,6 +5,9 @@
 ### Features
 
 * Add integration for `PlatformDispatcher.onError` ([#915](https://github.com/getsentry/sentry-dart/pull/915))
+- Bump Cocoa SDK to v7.22.0 ([#960](https://github.com/getsentry/sentry-dart/pull/960))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/master/CHANGELOG.md#7220)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.21.0...7.22.0)
 
 ## 6.8.0
 
