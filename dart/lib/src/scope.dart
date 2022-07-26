@@ -118,6 +118,9 @@ class Scope {
   Map<String, dynamic> get contexts => Map.unmodifiable(_contexts);
 
   void _setContextsSync(String key, dynamic value) {
+    // if it's a List, it should not be a List<SentryRuntime> because it can't
+    // be wrapped by the value object since it's a special property for having
+    // multiple runtimes and it has a dedicated property within the Contexts class.
     _contexts[key] = (value is num ||
             value is bool ||
             value is String ||
