@@ -506,7 +506,8 @@ void main() {
       expect(updatedEvent?.contexts['theme']['value'], 'material');
       expect(updatedEvent?.contexts['version']['value'], 9);
       expect(updatedEvent?.contexts['location'], {'city': 'London'});
-      expect(updatedEvent?.contexts['items'], [1, 2, 3]);
+      final items = updatedEvent?.contexts['items'];
+      expect(items['value'], [1, 2, 3]);
     });
 
     test('should apply the scope level', () async {

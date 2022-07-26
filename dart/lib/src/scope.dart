@@ -118,10 +118,12 @@ class Scope {
   Map<String, dynamic> get contexts => Map.unmodifiable(_contexts);
 
   void _setContextsSync(String key, dynamic value) {
-    _contexts[key] =
-        (value is num || value is bool || value is String || value is List)
-            ? {'value': value}
-            : value;
+    _contexts[key] = (value is num ||
+            value is bool ||
+            value is String ||
+            (value is List && value is! List<SentryRuntime>))
+        ? {'value': value}
+        : value;
   }
 
   /// add an entry to the Scope's contexts
