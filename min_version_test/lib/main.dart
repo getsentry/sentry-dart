@@ -1,7 +1,19 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MyApp());
+import 'package:sentry_flutter/sentry_flutter.dart';
+
+// ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
+const String _exampleDsn =
+    'https://9934c532bf8446ef961450973c898537@o447951.ingest.sentry.io/5428562';
+
+Future<void> main() async {
+  await SentryFlutter.init(
+    (options) {
+      options.dsn = _exampleDsn;
+    },
+    // Init your App.
+    appRunner: () => runApp(const MyApp()),
+  );
 }
 
 class MyApp extends StatelessWidget {
