@@ -124,7 +124,9 @@ class Scope {
     _contexts[key] = (value is num ||
             value is bool ||
             value is String ||
-            (value is List && value is! List<SentryRuntime>))
+            (value is List &&
+                (value is! List<SentryRuntime> &&
+                    key != SentryRuntime.listType)))
         ? {'value': value}
         : value;
   }
