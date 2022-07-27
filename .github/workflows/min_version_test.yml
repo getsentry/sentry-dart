@@ -13,15 +13,9 @@ defaults:
     shell: bash
 jobs:
   build:
-    name: ${{ matrix.target }} | ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+    name: Build
+    runs-on: macos-latest
     timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      # max-parallel: 4
-      matrix:
-        os: [macos-latest]
-        target: ['ios', 'android']
 
     steps:
         - uses: actions/checkout@v3
@@ -31,45 +25,13 @@ jobs:
             distribution: 'adopt'
             java-version: '11'
 
-        # Install required dependencies for Flutter on Linux on Ubuntu
-        - name: 'Setup Linux'
-          run: |
-            sudo apt update
-            sudo apt install -y cmake dbus libblkid-dev libgtk-3-dev liblzma-dev ninja-build pkg-config xvfb
-            sudo apt install -y network-manager upower
-          if: matrix.os == 'ubuntu-latest'
-
         - uses: subosito/flutter-action@v2
           with:
             flutter-version: '2.0.0'
 
-        - name: Pub Get
+        - name: Build
           run: |
             cd min_version_test
             flutter pub get
-
-        - name: Build ${{ matrix.target }}
-          run: |
-            cd min_version_test
-            TARGET=${{ matrix.target }}
-            flutter pub get
-            case $TARGET in
-            ios)
             flutter build ios --no-codesign
-            ;;
-            macos)
-            flutter build macos
-            ;;
-            android)
             flutter build appbundle
-            ;;
-            web)
-            flutter build web
-            ;;
-            linux)
-            flutter build linux
-            ;;
-            windows)
-            flutter build windows
-            ;;
-            esac
