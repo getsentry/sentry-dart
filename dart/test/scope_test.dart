@@ -488,6 +488,7 @@ void main() {
       await scope.setContexts('theme', 'material');
       await scope.setContexts('version', 9);
       await scope.setContexts('location', {'city': 'London'});
+      await scope.setContexts('items', [1, 2, 3]);
 
       final updatedEvent = await scope.applyToEvent(event);
 
@@ -505,6 +506,8 @@ void main() {
       expect(updatedEvent?.contexts['theme']['value'], 'material');
       expect(updatedEvent?.contexts['version']['value'], 9);
       expect(updatedEvent?.contexts['location'], {'city': 'London'});
+      final items = updatedEvent?.contexts['items'];
+      expect(items['value'], [1, 2, 3]);
     });
 
     test('should apply the scope level', () async {
