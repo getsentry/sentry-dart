@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 
+import 'package:logging/logging.dart';
+import 'package:dio/dio.dart';
+
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_dio/sentry_dio.dart';
+import 'package:sentry_logging/sentry_logging.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
 const String _exampleDsn =
@@ -10,6 +15,7 @@ Future<void> main() async {
   await SentryFlutter.init(
     (options) {
       options.dsn = _exampleDsn;
+      options.addIntegration(LoggingIntegration());
     },
     // Init your App.
     appRunner: () => runApp(const MyApp()),
@@ -62,14 +68,23 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
-  void _incrementCounter() {
-    setState(() {
+  Future<void> _incrementCounter() async {
+    setState(() async {
       // This call to setState tells the Flutter framework that something has
       // changed in this State, which causes it to rerun the build method below
       // so that the display can reflect the updated values. If we changed
       // _counter without calling setState(), then the build method would not be
       // called again, and so nothing would appear to happen.
       _counter++;
+
+      final dio = Dio();
+      dio.addSentry();
+      final log = Logger('_MyHomePageState');
+      try {
+        await dio.get<String>('https://flutter.dev/');
+      } catch (exception, stackTrace) {
+        log.info(exception.toString(), exception, stackTrace);
+      }
     });
   }
 

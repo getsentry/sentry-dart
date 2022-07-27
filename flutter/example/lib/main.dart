@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:logging/logging.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:feedback/feedback.dart' as feedback;
@@ -11,6 +12,7 @@ import 'package:provider/provider.dart';
 import 'user_feedback_dialog.dart';
 import 'package:dio/dio.dart';
 import 'package:sentry_dio/sentry_dio.dart';
+import 'package:sentry_logging/sentry_logging.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
 const String _exampleDsn =
@@ -28,6 +30,7 @@ Future<void> main() async {
       options.considerInAppFramesByDefault = false;
       options.attachThreads = true;
       options.enableWindowMetricBreadcrumbs = true;
+      options.addIntegration(LoggingIntegration());
     },
     // Init your App.
     appRunner: () => runApp(
@@ -390,6 +393,13 @@ class AndroidExample extends StatelessWidget {
           await execute('platform_exception');
         },
         child: const Text('Platform exception'),
+      ),
+      ElevatedButton(
+        onPressed: () {
+          final log = Logger('Logging');
+          log.info('My Logging test');
+        },
+        child: const Text('Logging'),
       ),
     ]);
   }
