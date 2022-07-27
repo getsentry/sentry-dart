@@ -33,5 +33,5 @@ jobs:
           run: |
             cd min_version_test
             flutter pub get
-            flutter build ios --no-codesign
+            # flutter build ios --no-codesign
             flutter build appbundle
