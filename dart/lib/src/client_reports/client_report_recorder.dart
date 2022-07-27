@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import '../sentry_options.dart';
+import '../utils/hash_code.dart';
 import 'client_report.dart';
 import 'discarded_event.dart';
 import 'discard_reason.dart';
@@ -43,7 +44,7 @@ class _QuantityKey {
   final DataCategory category;
 
   @override
-  int get hashCode => Object.hash(reason, category);
+  int get hashCode => hash2(reason.hashCode, category.hashCode);
 
   @override
   bool operator ==(dynamic other) {
