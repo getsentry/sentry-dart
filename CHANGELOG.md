@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+* Fix back compatibility for OnErrorIntegration integration ([#932](https://github.com/getsentry/sentry-dart/pull/932))
+
 ## 6.8.1
 
 ### Fixes
