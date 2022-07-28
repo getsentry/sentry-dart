@@ -6,6 +6,8 @@
 
 * Bump Flutter's min. supported version from 1.17.0 to 2.0.0 ([#966](https://github.com/getsentry/sentry-dart/pull/966))
 
+This should not break anything since the Dart's min. version is already 2.12.0 and Flutter 2.0.0 uses Dart 2.12.0
+
 ## 6.8.1
 
 ### Fixes
