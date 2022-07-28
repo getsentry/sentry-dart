@@ -8,6 +8,10 @@
 
 This should not break anything since the Dart's min. version is already 2.12.0 and Flutter 2.0.0 uses Dart 2.12.0
 
+### Fixes
+
+* Back compatibility of Object.hash for Dart 2.12.0 ([#966](https://github.com/getsentry/sentry-dart/pull/966))
+
 ## 6.8.1
 
 ### Fixes
