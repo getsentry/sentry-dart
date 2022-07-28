@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
@@ -8,6 +6,7 @@ import 'package:sentry_flutter/src/sentry_flutter_options.dart';
 
 import '../mocks.dart';
 import '../mocks.mocks.dart';
+import 'mock_platform_dispatcher.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -140,21 +139,4 @@ class Fixture {
       PlatformDispatcherWrapper(MockPlatformDispatcher());
 
   bool onErrorReturnValue = true;
-}
-
-class MockPlatformDispatcher implements PlatformDispatcher {
-  ErrorCallback? onErrorHandler;
-
-  @override
-  // ignore: override_on_non_overriding_member
-  ErrorCallback? get onError => onErrorHandler;
-
-  @override
-  // ignore: override_on_non_overriding_member
-  set onError(ErrorCallback? onError) {
-    onErrorHandler = onError;
-  }
-
-  @override
-  void noSuchMethod(Invocation invocation) {}
 }

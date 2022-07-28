@@ -11,6 +11,7 @@ This should not break anything since the Dart's min. version is already 2.12.0 a
 ### Fixes
 
 * Back compatibility of Object.hash for Dart 2.12.0 ([#966](https://github.com/getsentry/sentry-dart/pull/966))
+* Fix back compatibility for OnErrorIntegration integration ([#965](https://github.com/getsentry/sentry-dart/pull/965))
 
 ## 6.8.1
 

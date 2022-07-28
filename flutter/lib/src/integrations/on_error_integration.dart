@@ -29,7 +29,6 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
   @override
   void call(Hub hub, SentryFlutterOptions options) {
     _options = options;
-    // remove when https://github.com/getsentry/sentry-dart/pull/965/files gets merged
     final binding = BindingUtils.getWidgetsBindingInstance();
 
     if (binding == null) {
@@ -37,7 +36,6 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
     }
 
     final wrapper = dispatchWrapper ??
-        // WidgetsBinding works with WidgetsFlutterBinding and other custom bindings
         PlatformDispatcherWrapper(binding.platformDispatcher);
 
     if (!wrapper.isOnErrorSupported(options)) {
