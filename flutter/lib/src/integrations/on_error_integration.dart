@@ -35,6 +35,7 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
       return;
     }
 
+    // WidgetsBinding works with WidgetsFlutterBinding and other custom bindings
     final wrapper = dispatchWrapper ??
         PlatformDispatcherWrapper(binding.platformDispatcher);
 
