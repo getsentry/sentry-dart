@@ -32,6 +32,9 @@ elif [ "$1" == "web" ]; then
     flutter build web --dart-define=SENTRY_RELEASE=$SENTRY_RELEASE --source-maps
     ls -lah $OUTPUT_FOLDER_WEB
     echo -e "[\033[92mrun\033[0m] Built: $OUTPUT_FOLDER_WEB"
+elif [ "$1" == "macos" ]; then
+    flutter build macos --split-debug-info=$symbolsDir --obfuscate
+    ./build/macos/Build/Products/Release/sentry_flutter_example.app/Contents/MacOS/sentry_flutter_example &
 else
     if [ "$1" == "" ]; then
         echo -e "[\033[92mrun\033[0m] Pass the platform you'd like to run: android, ios, web"
@@ -60,5 +63,6 @@ if [ "$1" == "web" ]; then
 else
     echo -e "[\033[92mrun\033[0m] Uploading debug information files"
     # directory 'symbols' contain the Dart debug info files but to include platform ones, use current dir.
-    sentry-cli upload-dif --wait --org $SENTRY_ORG --project $SENTRY_PROJECT .
+    # TODO move actually launching the app after the symbols are uploaded and procesed on the server.
+    sentry-cli upload-dif --wait --org $SENTRY_ORG --project $SENTRY_PROJECT build
 fi
