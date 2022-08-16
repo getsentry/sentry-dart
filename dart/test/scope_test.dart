@@ -97,6 +97,20 @@ void main() {
     expect(sut.breadcrumbs.length, 0);
   });
 
+  test('Executes and mutates $Breadcrumb', () {
+    final sut = fixture.getSut(
+      beforeBreadcrumbCallback: fixture.beforeBreadcrumbMutateCallback,
+    );
+
+    final breadcrumb = Breadcrumb(
+      message: 'message',
+      timestamp: DateTime.utc(2019),
+    );
+    sut.addBreadcrumb(breadcrumb);
+
+    expect(sut.breadcrumbs.first.message, 'new message');
+  });
+
   test('adds $EventProcessor', () {
     final sut = fixture.getSut();
 
@@ -642,6 +656,10 @@ class Fixture {
   Breadcrumb? beforeBreadcrumbCallback(Breadcrumb? breadcrumb,
           {dynamic hint}) =>
       null;
+
+  Breadcrumb? beforeBreadcrumbMutateCallback(Breadcrumb? breadcrumb,
+          {dynamic hint}) =>
+      breadcrumb?.copyWith(message: 'new message');
 }
 
 class AddTagsEventProcessor extends EventProcessor {

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+* beforeBreadcrumb was not adding the mutated breadcrumb ([#966](https://github.com/getsentry/sentry-dart/pull/966))
+
 ### Features
 
 - Bump Cocoa SDK to v7.23.0 ([#968](https://github.com/getsentry/sentry-dart/pull/968))
