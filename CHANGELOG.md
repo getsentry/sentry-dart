@@ -4,7 +4,7 @@
 
 ### Fixes
 
-* beforeBreadcrumb was not adding the mutated breadcrumb ([#966](https://github.com/getsentry/sentry-dart/pull/966))
+* beforeBreadcrumb was not adding the mutated breadcrumb ([#982](https://github.com/getsentry/sentry-dart/pull/982))
 
 ### Features
 
