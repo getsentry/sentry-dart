@@ -194,7 +194,7 @@ class Scope {
       _breadcrumbs.removeFirst();
     }
 
-    _breadcrumbs.add(breadcrumb);
+    _breadcrumbs.add(processedBreadcrumb);
     return true;
   }
 
