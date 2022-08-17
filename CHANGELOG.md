@@ -4,6 +4,7 @@
 
 ### Fixes
 
+* Scope.clone incorrectly accesses tags ([#978](https://github.com/getsentry/sentry-dart/pull/978))
 * beforeBreadcrumb was not adding the mutated breadcrumb ([#982](https://github.com/getsentry/sentry-dart/pull/982))
 
 ### Features
