@@ -194,7 +194,7 @@ class Scope {
       _breadcrumbs.removeFirst();
     }
 
-    _breadcrumbs.add(breadcrumb);
+    _breadcrumbs.add(processedBreadcrumb);
     return true;
   }
 
@@ -416,7 +416,7 @@ class Scope {
 
     final tags = List.from(_tags.keys);
     for (final tag in tags) {
-      final value = tags[tag];
+      final value = _tags[tag];
       if (value != null) {
         clone._setTagSync(tag, value);
       }

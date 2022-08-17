@@ -154,7 +154,7 @@ class Fixture {
   MockClient getClient({int statusCode = 200, String? reason}) {
     return MockClient((request) async {
       expect(request.url, requestUri);
-      return Response('', statusCode, reasonPhrase: reason);
+      return Response('', statusCode, reasonPhrase: reason, request: request);
     });
   }
 }
