@@ -30,5 +30,5 @@ export 'src/sentry_user_feedback.dart';
 // tracing
 export 'src/tracing.dart';
 export 'src/sentry_measurement.dart';
-// feature flag
+// feature flags
 export 'src/feature_flags/feature_flag.dart';

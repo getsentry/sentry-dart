@@ -1,3 +1,6 @@
+import 'package:meta/meta.dart';
+
+@immutable
 class Evaluation {
   final String type;
   final double? percentage;
