@@ -233,12 +233,14 @@ void main() {
       expect(rollout.result, true);
       expect(rollout.tags['userSegment'], 'slow');
       expect(rollout.type, EvaluationType.rollout);
+      expect(rollout.payload, isNull);
 
       final match = accessToProfiling.evaluations.last;
       expect(match.percentage, isNull);
       expect(match.result, true);
       expect(match.tags['isSentryDev'], 'true');
       expect(match.type, EvaluationType.match);
+      expect(match.payload!['background_image'], 'https://example.com/modus1.png');
 
       // profilingEnabled
       final profilingEnabled = flags['profilingEnabled']!;
@@ -250,12 +252,14 @@ void main() {
       expect(rolloutProfiling.result, true);
       expect(rolloutProfiling.tags['isSentryDev'], 'true');
       expect(rolloutProfiling.type, EvaluationType.rollout);
+      expect(rolloutProfiling.payload, isNull);
 
       final matchProfiling = profilingEnabled.evaluations.last;
       expect(matchProfiling.percentage, isNull);
       expect(matchProfiling.result, true);
       expect(matchProfiling.tags.isEmpty, true);
       expect(matchProfiling.type, EvaluationType.match);
+      expect(matchProfiling.payload, isNull);
     });
   });
 }

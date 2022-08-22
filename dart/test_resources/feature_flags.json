@@ -11,13 +11,17 @@
           "result": true,
           "tags": {
             "userSegment": "slow"
-          }
+          },
+          "payload": null
         },
         {
           "type": "match",
           "result": true,
           "tags": {
             "isSentryDev": "true"
+          },
+          "payload": {
+            "background_image": "https://example.com/modus1.png"
           }
         }
       ]
