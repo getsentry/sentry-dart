@@ -23,9 +23,7 @@
       ]
     },
     "profilingEnabled": {
-      "tags": {
-        "isEarlyAdopter": "true"
-      },
+      "tags": {},
       "evaluation": [
         {
           "type": "rollout",
@@ -38,9 +36,7 @@
         {
           "type": "match",
           "result": true,
-          "tags": {
-            "isSentryDev": "true"
-          }
+          "tags": {}
         }
       ]
     }

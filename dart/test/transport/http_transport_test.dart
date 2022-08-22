@@ -223,9 +223,39 @@ void main() {
 
       final flags = await sut.fetchFeatureFlags();
 
-      for (final flag in flags!.entries) {
-        print(flag.key);
-      }
+      // accessToProfiling
+      final accessToProfiling = flags!['accessToProfiling']!;
+
+      expect(accessToProfiling.tags['isEarlyAdopter'], 'true');
+
+      final rollout = accessToProfiling.evaluations.first;
+      expect(rollout.percentage, 0.5);
+      expect(rollout.result, true);
+      expect(rollout.tags['userSegment'], 'slow');
+      expect(rollout.type, EvaluationType.rollout);
+
+      final match = accessToProfiling.evaluations.last;
+      expect(match.percentage, isNull);
+      expect(match.result, true);
+      expect(match.tags['isSentryDev'], 'true');
+      expect(match.type, EvaluationType.match);
+
+      // profilingEnabled
+      final profilingEnabled = flags['profilingEnabled']!;
+
+      expect(profilingEnabled.tags.isEmpty, true);
+
+      final rolloutProfiling = profilingEnabled.evaluations.first;
+      expect(rolloutProfiling.percentage, 0.05);
+      expect(rolloutProfiling.result, true);
+      expect(rolloutProfiling.tags['isSentryDev'], 'true');
+      expect(rolloutProfiling.type, EvaluationType.rollout);
+
+      final matchProfiling = profilingEnabled.evaluations.last;
+      expect(matchProfiling.percentage, isNull);
+      expect(matchProfiling.result, true);
+      expect(matchProfiling.tags.isEmpty, true);
+      expect(matchProfiling.type, EvaluationType.match);
     });
   });
 }

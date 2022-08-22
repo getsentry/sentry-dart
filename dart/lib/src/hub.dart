@@ -527,10 +527,11 @@ class Hub {
       );
       return null;
     }
+
     try {
       final item = _peek();
 
-      await item.client.fetchFeatureFlags();
+      return item.client.fetchFeatureFlags();
     } catch (exception, stacktrace) {
       _options.logger(
         SentryLevel.error,
