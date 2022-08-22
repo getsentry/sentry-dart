@@ -99,14 +99,43 @@ class HttpTransport implements Transport {
   // TODO: implement
   @override
   Future<List<FeatureFlag>?> fetchFeatureFlags() async {
-    
+    final response =
+        await _options.httpClient.get(_dsn.featureFlagsUri, headers: _headers);
 
-    return null;
+    if (response.statusCode != 200) {
+      // body guard to not log the error as it has performance impact to allocate
+      // the body String.
+      if (_options.debug) {
+        _options.logger(
+          SentryLevel.error,
+          'API returned an error, statusCode = ${response.statusCode}, '
+          'body = ${response.body}',
+        );
+      }
+      return null;
+    }
+
+    final responseJson = json.decode(response.body);
+    final featureFlagsJson = responseJson['feature_flags'] as Map?;
+
+    // for(final keys in  featureFlagsJson)
+    if (featureFlagsJson == null || featureFlagsJson.entries.isEmpty) {
+      return null;
+    }
+
+    List<FeatureFlag> featureFlags = [];
+    for (final value in featureFlagsJson.entries) {
+      Map<String, dynamic> json = {'name': value.key, ...value.value};
+
+      final flag = FeatureFlag.fromJson(json);
+      featureFlags.add(flag);
+    }
+    return featureFlags;
   }
 
   Future<StreamedRequest> _createStreamedRequest(
       SentryEnvelope envelope) async {
-    final streamedRequest = StreamedRequest('POST', _dsn.postUri);
+    final streamedRequest = StreamedRequest('POST', _dsn.envelopeUri);
 
     if (_options.compressPayload) {
       final compressionSink = compressInSink(streamedRequest.sink, _headers);

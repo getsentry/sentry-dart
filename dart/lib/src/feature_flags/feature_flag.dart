@@ -13,4 +13,17 @@ class FeatureFlag {
   List<Evaluation> get evaluations => List.unmodifiable(_evaluations);
 
   FeatureFlag(this.name, this._tags, this._evaluations);
+
+  factory FeatureFlag.fromJson(Map<String, dynamic> json) {
+    final evaluationsList = json['evaluation'] as List<dynamic>? ?? [];
+    final evaluations = evaluationsList
+        .map((e) => Evaluation.fromJson(e))
+        .toList(growable: false);
+
+    return FeatureFlag(
+      json['name'] as String,
+      Map<String, dynamic>.from(json['tags'] as Map),
+      evaluations,
+    );
+  }
 }

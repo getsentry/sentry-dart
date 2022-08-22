@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -200,6 +201,31 @@ void main() {
 
       expect(fixture.clientReportRecorder.reason, DiscardReason.networkError);
       expect(fixture.clientReportRecorder.category, DataCategory.error);
+    });
+  });
+
+  group('feature flags', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('parses the feature flag list', () async {
+      final featureFlagsFile = File('test_resources/feature_flags.json');
+      final featureFlagsJson = await featureFlagsFile.readAsString();
+
+      final httpMock = MockClient((http.Request request) async {
+        return http.Response(featureFlagsJson, 200, headers: {});
+      });
+      final mockRateLimiter = MockRateLimiter();
+      final sut = fixture.getSut(httpMock, mockRateLimiter);
+
+      final flags = await sut.fetchFeatureFlags();
+
+      for (final flag in flags!) {
+        print(flag.name);
+      }
     });
   });
 }

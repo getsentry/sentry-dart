@@ -24,28 +24,16 @@ class Dsn {
   /// The DSN URI.
   final Uri? uri;
 
-  Uri get postUri {
-    final uriCopy = uri!;
-    final port = uriCopy.hasPort &&
-            ((uriCopy.scheme == 'http' && uriCopy.port != 80) ||
-                (uriCopy.scheme == 'https' && uriCopy.port != 443))
-        ? ':${uriCopy.port}'
-        : '';
+  @Deprecated('Use [envelopeUri] instead')
+  Uri get postUri => envelopeUri;
 
-    final pathLength = uriCopy.pathSegments.length;
+  Uri get envelopeUri => _UriData.fromUri(uri!, projectId).envelopeUri;
 
-    String apiPath;
-    if (pathLength > 1) {
-      // some paths would present before the projectID in the uri
-      apiPath =
-          (uriCopy.pathSegments.sublist(0, pathLength - 1) + ['api']).join('/');
-    } else {
-      apiPath = 'api';
-    }
-    return Uri.parse(
-      '${uriCopy.scheme}://${uriCopy.host}$port/$apiPath/$projectId/envelope/',
-    );
-  }
+  Uri get featureFlagsUri => _UriData.fromUri(uri!, projectId).featureFlagsUri;
+
+  // Uri get featureFlagsUri {
+  //   return postUri.replace()
+  // }
 
   /// Parses a DSN String to a Dsn object
   factory Dsn.parse(String dsn) {
@@ -65,4 +53,41 @@ class Dsn {
       uri: uri,
     );
   }
+}
+
+class _UriData {
+  final String scheme;
+  final String host;
+  final String port;
+  final String apiPath;
+  final String projectId;
+
+  _UriData(this.scheme, this.host, this.port, this.apiPath, this.projectId);
+
+  factory _UriData.fromUri(Uri uri, String projectId) {
+    final port = uri.hasPort &&
+            ((uri.scheme == 'http' && uri.port != 80) ||
+                (uri.scheme == 'https' && uri.port != 443))
+        ? ':${uri.port}'
+        : '';
+
+    final pathLength = uri.pathSegments.length;
+
+    String apiPath;
+    if (pathLength > 1) {
+      // some paths would present before the projectID in the uri
+      apiPath =
+          (uri.pathSegments.sublist(0, pathLength - 1) + ['api']).join('/');
+    } else {
+      apiPath = 'api';
+    }
+
+    return _UriData(uri.scheme, uri.host, port, apiPath, projectId);
+  }
+
+  Uri get envelopeUri =>
+      Uri.parse('$scheme://$host}$port/$apiPath/$projectId/envelope/');
+
+  Uri get featureFlagsUri =>
+      Uri.parse('$scheme://$host}$port/$apiPath/$projectId/feature_flags/');
 }
