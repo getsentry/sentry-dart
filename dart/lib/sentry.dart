@@ -32,3 +32,5 @@ export 'src/tracing.dart';
 export 'src/sentry_measurement.dart';
 // feature flags
 export 'src/feature_flags/feature_flag.dart';
+export 'src/feature_flags/evaluation_rule.dart';
+export 'src/feature_flags/evaluation_type.dart';

@@ -89,5 +89,5 @@ class _UriData {
       Uri.parse('$scheme://$host}$port/$apiPath/$projectId/envelope/');
 
   Uri get featureFlagsUri =>
-      Uri.parse('$scheme://$host}$port/$apiPath/$projectId/feature_flags/');
+      Uri.parse('$scheme://$host}$port/$apiPath/$projectId/feature-flags/');
 }

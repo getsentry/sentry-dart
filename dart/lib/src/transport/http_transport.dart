@@ -97,7 +97,6 @@ class HttpTransport implements Transport {
     return SentryId.fromId(eventId);
   }
 
-  // TODO: implement
   @override
   Future<Map<String, FeatureFlag>?> fetchFeatureFlags() async {
     final response =

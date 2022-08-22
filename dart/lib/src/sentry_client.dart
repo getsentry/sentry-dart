@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:meta/meta.dart';
 
 import 'event_processor.dart';
+import 'feature_flags/feature_flag.dart';
 import 'sentry_user_feedback.dart';
 import 'transport/rate_limiter.dart';
 import 'protocol.dart';
@@ -396,4 +397,7 @@ class SentryClient {
     envelope.addClientReport(clientReport);
     return _options.transport.send(envelope);
   }
+
+  Future<Map<String, FeatureFlag>?> fetchFeatureFlags() =>
+      _options.transport.fetchFeatureFlags();
 }

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 
+import 'feature_flags/feature_flag.dart';
 import 'hub.dart';
 import 'protocol.dart';
 import 'sentry.dart';
@@ -158,4 +159,8 @@ class HubAdapter implements Hub {
     String transaction,
   ) =>
       Sentry.currentHub.setSpanContext(throwable, span, transaction);
+
+  @override
+  Future<Map<String, FeatureFlag>?> fetchFeatureFlags() async =>
+      Sentry.fetchFeatureFlags();
 }

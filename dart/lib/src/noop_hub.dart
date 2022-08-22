@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 
+import 'feature_flags/feature_flag.dart';
 import 'hub.dart';
 import 'protocol.dart';
 import 'sentry_client.dart';
@@ -114,4 +115,7 @@ class NoOpHub implements Hub {
 
   @override
   void setSpanContext(throwable, ISentrySpan span, String transaction) {}
+
+  @override
+  Future<Map<String, FeatureFlag>?> fetchFeatureFlags() async => null;
 }
