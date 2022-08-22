@@ -11,5 +11,5 @@ class NoOpTransport implements Transport {
   Future<SentryId?> send(SentryEnvelope envelope) async => null;
 
   @override
-  Future<List<FeatureFlag>?> fetchFeatureFlags() async => null;
+  Future<Map<String, FeatureFlag>?> fetchFeatureFlags() async => null;
 }

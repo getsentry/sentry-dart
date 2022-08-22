@@ -24,7 +24,7 @@ class MockTransport with NoSuchMethodProvider implements Transport {
   }
 
   @override
-  Future<List<FeatureFlag>?> fetchFeatureFlags() async => null;
+  Future<Map<String, FeatureFlag>?> fetchFeatureFlags() async => null;
 
   Future<SentryEvent> _eventFromEnvelope(SentryEnvelope envelope) async {
     final envelopeItemData = <int>[];
@@ -71,5 +71,5 @@ class ThrowingTransport implements Transport {
   }
 
   @override
-  Future<List<FeatureFlag>?> fetchFeatureFlags() async => null;
+  Future<Map<String, FeatureFlag>?> fetchFeatureFlags() async => null;
 }

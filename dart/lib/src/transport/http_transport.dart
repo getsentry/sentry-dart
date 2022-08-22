@@ -5,6 +5,7 @@ import 'package:http/http.dart';
 
 import '../client_reports/client_report_recorder.dart';
 import '../client_reports/discard_reason.dart';
+import '../feature_flags/feature_dump.dart';
 import '../feature_flags/feature_flag.dart';
 import 'data_category.dart';
 import 'noop_encode.dart' if (dart.library.io) 'encode.dart';
@@ -98,7 +99,7 @@ class HttpTransport implements Transport {
 
   // TODO: implement
   @override
-  Future<List<FeatureFlag>?> fetchFeatureFlags() async {
+  Future<Map<String, FeatureFlag>?> fetchFeatureFlags() async {
     final response =
         await _options.httpClient.get(_dsn.featureFlagsUri, headers: _headers);
 
@@ -116,21 +117,7 @@ class HttpTransport implements Transport {
     }
 
     final responseJson = json.decode(response.body);
-    final featureFlagsJson = responseJson['feature_flags'] as Map?;
-
-    // for(final keys in  featureFlagsJson)
-    if (featureFlagsJson == null || featureFlagsJson.entries.isEmpty) {
-      return null;
-    }
-
-    List<FeatureFlag> featureFlags = [];
-    for (final value in featureFlagsJson.entries) {
-      Map<String, dynamic> json = {'name': value.key, ...value.value};
-
-      final flag = FeatureFlag.fromJson(json);
-      featureFlags.add(flag);
-    }
-    return featureFlags;
+    return FeatureDump.fromJson(responseJson).featureFlags;
   }
 
   Future<StreamedRequest> _createStreamedRequest(

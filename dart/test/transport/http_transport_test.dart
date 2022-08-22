@@ -223,8 +223,8 @@ void main() {
 
       final flags = await sut.fetchFeatureFlags();
 
-      for (final flag in flags!) {
-        print(flag.name);
+      for (final flag in flags!.entries) {
+        print(flag.key);
       }
     });
   });

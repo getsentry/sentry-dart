@@ -9,5 +9,5 @@ import '../protocol.dart';
 abstract class Transport {
   Future<SentryId?> send(SentryEnvelope envelope);
 
-  Future<List<FeatureFlag>?> fetchFeatureFlags();
+  Future<Map<String, FeatureFlag>?> fetchFeatureFlags();
 }

@@ -32,5 +32,5 @@ class FileSystemTransport implements Transport {
 
   // TODO: implement or fallback to http transport
   @override
-  Future<List<FeatureFlag>?> fetchFeatureFlags() async => null;
+  Future<Map<String, FeatureFlag>?> fetchFeatureFlags() async => null;
 }
