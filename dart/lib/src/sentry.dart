@@ -276,4 +276,7 @@ class Sentry {
 
   static Future<Map<String, FeatureFlag>?> fetchFeatureFlags() =>
       _hub.fetchFeatureFlags();
+
+  static Future<bool> isFeatureEnabled(String key) =>
+      _hub.isFeatureEnabled(key);
 }

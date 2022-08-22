@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:meta/meta.dart';
 
 import 'event_processor.dart';
+import 'feature_flags/evaluation_type.dart';
 import 'feature_flags/feature_flag.dart';
 import 'sentry_user_feedback.dart';
 import 'transport/rate_limiter.dart';
@@ -400,4 +401,46 @@ class SentryClient {
 
   Future<Map<String, FeatureFlag>?> fetchFeatureFlags() =>
       _options.transport.fetchFeatureFlags();
+
+  Future<bool> isFeatureEnabled(String key) async {
+    // TODO: ideally cache the result of fetchFeatureFlags or
+    // let the user decide if it uses the cached value or not
+    final flags = await fetchFeatureFlags();
+    final flag = flags?[key];
+
+    if (flag == null) {
+      // TODO default value
+      return false;
+    }
+
+    // TODO: build context and fall back to global context
+    Map<String, dynamic> context = {};
+
+    for (final evalConfig in flag.evaluations) {
+      if (!_matchesTags(evalConfig.tags, context)) {
+        continue;
+      }
+
+      switch (evalConfig.type) {
+        case EvaluationType.rollout:
+          break;
+        case EvaluationType.match:
+          break;
+        default:
+          break;
+      }
+    }
+
+    // TODO default value
+    return false;
+  }
+
+  // double _rollRandomNumber(Map<String, dynamic> context) {
+    
+  // }
+
+  bool _matchesTags(Map<String, dynamic> tags, Map<String, dynamic> context) {
+    // TODO: implement
+    return true;
+  }
 }

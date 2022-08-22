@@ -542,6 +542,32 @@ class Hub {
     }
     return null;
   }
+
+  Future<bool> isFeatureEnabled(String key) async {
+    if (!_isEnabled) {
+      _options.logger(
+        SentryLevel.warning,
+        "Instance is disabled and this 'isFeatureEnabled' call is a no-op.",
+      );
+      // TODO: default value
+      return false;
+    }
+
+    try {
+      final item = _peek();
+
+      return item.client.isFeatureEnabled(key);
+    } catch (exception, stacktrace) {
+      _options.logger(
+        SentryLevel.error,
+        'Error while fetching feature flags',
+        exception: exception,
+        stackTrace: stacktrace,
+      );
+    }
+    // TODO: default value
+    return false;
+  }
 }
 
 class _StackItem {
