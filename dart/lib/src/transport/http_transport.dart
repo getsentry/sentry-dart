@@ -5,6 +5,7 @@ import 'package:http/http.dart';
 
 import '../client_reports/client_report_recorder.dart';
 import '../client_reports/discard_reason.dart';
+import '../feature_flags/feature_flag.dart';
 import 'data_category.dart';
 import 'noop_encode.dart' if (dart.library.io) 'encode.dart';
 import '../noop_client.dart';
@@ -93,6 +94,13 @@ class HttpTransport implements Transport {
       return null;
     }
     return SentryId.fromId(eventId);
+  }
+
+  @override
+  Future<List<FeatureFlag>?> fetchFeatureFlags() async {
+    
+
+    return null;
   }
 
   Future<StreamedRequest> _createStreamedRequest(

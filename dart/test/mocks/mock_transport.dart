@@ -22,6 +22,9 @@ class MockTransport implements Transport {
     return envelope.header.eventId ?? SentryId.empty();
   }
 
+  @override
+  Future<List<FeatureFlag>?> fetchFeatureFlags() async => null;
+
   Future<SentryEvent> _eventFromEnvelope(SentryEnvelope envelope) async {
     final envelopeItemData = <int>[];
     envelopeItemData.addAll(await envelope.items.first.envelopeItemStream());
@@ -65,4 +68,7 @@ class ThrowingTransport implements Transport {
   Future<SentryId> send(SentryEnvelope envelope) async {
     throw Exception('foo bar');
   }
+
+  @override
+  Future<List<FeatureFlag>?> fetchFeatureFlags() async => null;
 }

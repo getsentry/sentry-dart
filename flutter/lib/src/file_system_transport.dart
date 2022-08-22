@@ -29,4 +29,8 @@ class FileSystemTransport implements Transport {
 
     return envelope.header.eventId;
   }
+
+  // TODO: implement or fallback to http transport
+  @override
+  Future<List<FeatureFlag>?> fetchFeatureFlags() async => null;
 }
