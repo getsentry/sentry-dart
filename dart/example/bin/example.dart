@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:sentry/sentry.dart';
 
@@ -11,8 +12,10 @@ import 'event_example.dart';
 /// Sends a test exception report to Sentry.io using this Dart client.
 Future<void> main() async {
   // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
+  // const dsn =
+  //     'https://9934c532bf8446ef961450973c898537@o447951.ingest.sentry.io/5428562';
   const dsn =
-      'https://9934c532bf8446ef961450973c898537@o447951.ingest.sentry.io/5428562';
+      'https://60d3409215134fd1a60765f2400b6b38@ac75-72-74-53-151.ngrok.io/1';
 
   await Sentry.init(
     (options) => options
@@ -22,71 +25,77 @@ Future<void> main() async {
       ..addEventProcessor(TagEventProcessor()),
     appRunner: runApp,
   );
+
+  final featureFlags = await Sentry.fetchFeatureFlags();
+  for (final flag in featureFlags!.entries) {
+    print(flag.key);
+  }
 }
 
 Future<void> runApp() async {
   print('\nReporting a complete event example: ');
+  // await Sentry.captureMessage('test');
 
-  Sentry.addBreadcrumb(
-    Breadcrumb(
-      message: 'Authenticated user',
-      category: 'auth',
-      type: 'debug',
-      data: {
-        'admin': true,
-        'permissions': [1, 2, 3]
-      },
-    ),
-  );
+  // Sentry.addBreadcrumb(
+  //   Breadcrumb(
+  //     message: 'Authenticated user',
+  //     category: 'auth',
+  //     type: 'debug',
+  //     data: {
+  //       'admin': true,
+  //       'permissions': [1, 2, 3]
+  //     },
+  //   ),
+  // );
 
-  await Sentry.configureScope((scope) async {
-    await scope.setUser(SentryUser(
-      id: '800',
-      username: 'first-user',
-      email: 'first@user.lan',
-      // ipAddress: '127.0.0.1', sendDefaultPii feature is enabled
-      extras: <String, String>{'first-sign-in': '2020-01-01'},
-    ));
-    scope
-      // ..fingerprint = ['example-dart'], fingerprint forces events to group together
-      ..transaction = '/example/app'
-      ..level = SentryLevel.warning;
-    await scope.setTag('build', '579');
-    await scope.setExtra('company-name', 'Dart Inc');
-  });
+  // await Sentry.configureScope((scope) async {
+  //   await scope.setUser(SentryUser(
+  //     id: '800',
+  //     username: 'first-user',
+  //     email: 'first@user.lan',
+  //     // ipAddress: '127.0.0.1', sendDefaultPii feature is enabled
+  //     extras: <String, String>{'first-sign-in': '2020-01-01'},
+  //   ));
+  //   scope
+  //     // ..fingerprint = ['example-dart'], fingerprint forces events to group together
+  //     ..transaction = '/example/app'
+  //     ..level = SentryLevel.warning;
+  //   await scope.setTag('build', '579');
+  //   await scope.setExtra('company-name', 'Dart Inc');
+  // });
 
-  // Sends a full Sentry event payload to show the different parts of the UI.
-  final sentryId = await Sentry.captureEvent(event);
+  // // Sends a full Sentry event payload to show the different parts of the UI.
+  // final sentryId = await Sentry.captureEvent(event);
 
-  print('Capture event result : SentryId : $sentryId');
+  // print('Capture event result : SentryId : $sentryId');
 
-  print('\nCapture message: ');
+  // print('\nCapture message: ');
 
-  // Sends a full Sentry event payload to show the different parts of the UI.
-  final messageSentryId = await Sentry.captureMessage(
-    'Message 1',
-    level: SentryLevel.warning,
-    template: 'Message %s',
-    params: ['1'],
-  );
+  // // Sends a full Sentry event payload to show the different parts of the UI.
+  // final messageSentryId = await Sentry.captureMessage(
+  //   'Message 1',
+  //   level: SentryLevel.warning,
+  //   template: 'Message %s',
+  //   params: ['1'],
+  // );
 
-  print('Capture message result : SentryId : $messageSentryId');
+  // print('Capture message result : SentryId : $messageSentryId');
 
-  try {
-    await loadConfig();
-  } catch (error, stackTrace) {
-    print('\nReporting the following stack trace: ');
-    print(stackTrace);
-    final sentryId = await Sentry.captureException(
-      error,
-      stackTrace: stackTrace,
-    );
+  // try {
+  //   await loadConfig();
+  // } catch (error, stackTrace) {
+  //   print('\nReporting the following stack trace: ');
+  //   print(stackTrace);
+  //   final sentryId = await Sentry.captureException(
+  //     error,
+  //     stackTrace: stackTrace,
+  //   );
 
-    print('Capture exception result : SentryId : $sentryId');
-  }
+  //   print('Capture exception result : SentryId : $sentryId');
+  // }
 
-  // capture unhandled error
-  await loadConfig();
+  // // capture unhandled error
+  // await loadConfig();
 }
 
 Future<void> loadConfig() async {

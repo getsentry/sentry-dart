@@ -99,8 +99,8 @@ class HttpTransport implements Transport {
 
   @override
   Future<Map<String, FeatureFlag>?> fetchFeatureFlags() async {
-    final response =
-        await _options.httpClient.get(_dsn.featureFlagsUri, headers: _headers);
+    final response = await _options.httpClient.post(_dsn.featureFlagsUri,
+        headers: _credentialBuilder.configure(_headers));
 
     if (response.statusCode != 200) {
       // body guard to not log the error as it has performance impact to allocate
