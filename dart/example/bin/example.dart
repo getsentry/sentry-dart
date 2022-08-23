@@ -46,71 +46,7 @@ Future<void> main() async {
   final flag = await Sentry.getFeatureFlagInfo('test');
 }
 
-Future<void> runApp() async {
-  print('\nReporting a complete event example: ');
-  // await Sentry.captureMessage('test');
-
-  // Sentry.addBreadcrumb(
-  //   Breadcrumb(
-  //     message: 'Authenticated user',
-  //     category: 'auth',
-  //     type: 'debug',
-  //     data: {
-  //       'admin': true,
-  //       'permissions': [1, 2, 3]
-  //     },
-  //   ),
-  // );
-
-  // await Sentry.configureScope((scope) async {
-  //   await scope.setUser(SentryUser(
-  //     id: '800',
-  //     username: 'first-user',
-  //     email: 'first@user.lan',
-  //     // ipAddress: '127.0.0.1', sendDefaultPii feature is enabled
-  //     extras: <String, String>{'first-sign-in': '2020-01-01'},
-  //   ));
-  //   scope
-  //     // ..fingerprint = ['example-dart'], fingerprint forces events to group together
-  //     ..transaction = '/example/app'
-  //     ..level = SentryLevel.warning;
-  //   await scope.setTag('build', '579');
-  //   await scope.setExtra('company-name', 'Dart Inc');
-  // });
-
-  // // Sends a full Sentry event payload to show the different parts of the UI.
-  // final sentryId = await Sentry.captureEvent(event);
-
-  // print('Capture event result : SentryId : $sentryId');
-
-  // print('\nCapture message: ');
-
-  // // Sends a full Sentry event payload to show the different parts of the UI.
-  // final messageSentryId = await Sentry.captureMessage(
-  //   'Message 1',
-  //   level: SentryLevel.warning,
-  //   template: 'Message %s',
-  //   params: ['1'],
-  // );
-
-  // print('Capture message result : SentryId : $messageSentryId');
-
-  // try {
-  //   await loadConfig();
-  // } catch (error, stackTrace) {
-  //   print('\nReporting the following stack trace: ');
-  //   print(stackTrace);
-  //   final sentryId = await Sentry.captureException(
-  //     error,
-  //     stackTrace: stackTrace,
-  //   );
-
-  //   print('Capture exception result : SentryId : $sentryId');
-  // }
-
-  // // capture unhandled error
-  // await loadConfig();
-}
+Future<void> runApp() async {}
 
 Future<void> loadConfig() async {
   await parseConfig();

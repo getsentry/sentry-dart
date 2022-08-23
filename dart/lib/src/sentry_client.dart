@@ -447,7 +447,7 @@ class SentryClient {
 
     // fallback stickyId if not provided by the user
     // fallbacks to userId if set or deviceId
-    // if none were provided, it generated an Uuid
+    // if none were provided, it generates an Uuid
     var stickyId = featureFlagContext.tags['stickyId'];
     if (stickyId == null) {
       stickyId = featureFlagContext.tags['userId'] ??

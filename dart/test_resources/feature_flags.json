@@ -35,8 +35,7 @@
         },
         {
           "type": "match",
-          "result": true,
-          "tags": {}
+          "result": true
         }
       ]
     }
