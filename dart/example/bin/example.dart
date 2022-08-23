@@ -21,8 +21,8 @@ Future<void> main() async {
     (options) => options
       ..dsn = dsn
       ..debug = true
-      ..sendDefaultPii = true
-      ..addEventProcessor(TagEventProcessor()),
+      ..release = 'myapp@1.0.0+1'
+      ..environment = 'prod',
     appRunner: runApp,
   );
   await Sentry.configureScope((scope) async {

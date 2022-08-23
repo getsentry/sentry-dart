@@ -543,15 +543,17 @@ class Hub {
   //   return null;
   // }
 
-  Future<bool> isFeatureEnabled(String key,
-      {FeatureFlagContextCallback? context}) async {
+  Future<bool> isFeatureEnabled(
+    String key, {
+    bool defaultValue = false,
+    FeatureFlagContextCallback? context,
+  }) async {
     if (!_isEnabled) {
       _options.logger(
         SentryLevel.warning,
         "Instance is disabled and this 'isFeatureEnabled' call is a no-op.",
       );
-      // TODO: default value
-      return false;
+      return defaultValue;
     }
 
     try {
@@ -560,6 +562,7 @@ class Hub {
       return item.client.isFeatureEnabled(
         key,
         scope: item.scope,
+        defaultValue: defaultValue,
         context: context,
       );
     } catch (exception, stacktrace) {
@@ -570,8 +573,7 @@ class Hub {
         stackTrace: stacktrace,
       );
     }
-    // TODO: default value
-    return false;
+    return defaultValue;
   }
 }
 

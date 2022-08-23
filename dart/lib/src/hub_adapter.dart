@@ -167,7 +167,12 @@ class HubAdapter implements Hub {
   @override
   Future<bool> isFeatureEnabled(
     String key, {
+    bool defaultValue = false,
     FeatureFlagContextCallback? context,
   }) =>
-      Sentry.isFeatureEnabled(key, context: context);
+      Sentry.isFeatureEnabled(
+        key,
+        defaultValue: defaultValue,
+        context: context,
+      );
 }

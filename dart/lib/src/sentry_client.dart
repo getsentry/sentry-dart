@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:meta/meta.dart';
+import 'package:uuid/uuid.dart';
 
 import 'event_processor.dart';
 import 'feature_flags/evaluation_type.dart';
@@ -407,6 +408,7 @@ class SentryClient {
   Future<bool> isFeatureEnabled(
     String key, {
     Scope? scope,
+    bool defaultValue = false,
     FeatureFlagContextCallback? context,
   }) async {
     // TODO: ideally cache the result of fetchFeatureFlags or
@@ -415,11 +417,9 @@ class SentryClient {
     final flag = flags?[key];
 
     if (flag == null) {
-      // TODO default value
-      return false;
+      return defaultValue;
     }
 
-    // TODO: build context and fall back to global context
     final featureFlagContext = FeatureFlagContext({
       'deviceId': 'myDeviceId', // TODO: get from flutter thru message channels
     });
@@ -447,9 +447,11 @@ class SentryClient {
 
     // fallback stickyId if not provided by the user
     // fallbacks to userId if set or deviceId
+    // if none were provided, it generated an Uuid
     if (!featureFlagContext.tags.containsKey('stickyId')) {
       final stickyId = featureFlagContext.tags['userId'] ??
-          featureFlagContext.tags['deviceId'];
+          featureFlagContext.tags['deviceId'] ??
+          Uuid().v4().toString();
       featureFlagContext.tags['stickyId'] = stickyId;
     }
 
@@ -462,11 +464,11 @@ class SentryClient {
         case EvaluationType.rollout:
           final percentage = _rollRandomNumber(evalConfig.tags);
           if (percentage >= (evalConfig.percentage ?? 0)) {
-            return evalConfig.result ?? false; // TODO: return default value
+            return evalConfig.result ?? defaultValue;
           }
           break;
         case EvaluationType.match:
-          return evalConfig.result ?? false; // TODO: return default value
+          return evalConfig.result ?? defaultValue;
         default:
           break;
       }

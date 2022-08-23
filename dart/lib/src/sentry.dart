@@ -281,7 +281,12 @@ class Sentry {
 
   static Future<bool> isFeatureEnabled(
     String key, {
+    bool defaultValue = false,
     FeatureFlagContextCallback? context,
   }) =>
-      _hub.isFeatureEnabled(key, context: context);
+      _hub.isFeatureEnabled(
+        key,
+        defaultValue: defaultValue,
+        context: context,
+      );
 }

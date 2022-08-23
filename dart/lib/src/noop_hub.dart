@@ -122,6 +122,7 @@ class NoOpHub implements Hub {
   @override
   Future<bool> isFeatureEnabled(
     String key, {
+    bool defaultValue = false,
     FeatureFlagContextCallback? context,
   }) async =>
       false;

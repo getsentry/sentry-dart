@@ -70,6 +70,7 @@ class NoOpSentryClient implements SentryClient {
   Future<bool> isFeatureEnabled(
     String key, {
     Scope? scope,
+    bool defaultValue = false,
     FeatureFlagContextCallback? context,
   }) async =>
       false;
