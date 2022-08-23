@@ -240,7 +240,8 @@ void main() {
       expect(match.result, true);
       expect(match.tags['isSentryDev'], 'true');
       expect(match.type, EvaluationType.match);
-      expect(match.payload!['background_image'], 'https://example.com/modus1.png');
+      expect(
+          match.payload!['background_image'], 'https://example.com/modus1.png');
 
       // profilingEnabled
       final profilingEnabled = flags['profilingEnabled']!;

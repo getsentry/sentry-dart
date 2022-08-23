@@ -25,11 +25,23 @@ Future<void> main() async {
       ..addEventProcessor(TagEventProcessor()),
     appRunner: runApp,
   );
+  await Sentry.configureScope((scope) async {
+    await scope.setUser(
+      SentryUser(
+        id: '800',
+      ),
+    );
+  });
 
-  final featureFlags = await Sentry.fetchFeatureFlags();
-  for (final flag in featureFlags!.entries) {
-    print(flag.key);
-  }
+  // final featureFlags = await Sentry.fetchFeatureFlags();
+  // for (final flag in featureFlags!.entries) {
+  //   print(flag.key);
+  // }
+  final enabled = await Sentry.isFeatureEnabled('test',
+      context: (myContext) => {
+            myContext.tags['stickyId'] = 'myCustomStickyId',
+          });
+  print(enabled);
 }
 
 Future<void> runApp() async {

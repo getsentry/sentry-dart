@@ -34,3 +34,4 @@ export 'src/sentry_measurement.dart';
 export 'src/feature_flags/feature_flag.dart';
 export 'src/feature_flags/evaluation_rule.dart';
 export 'src/feature_flags/evaluation_type.dart';
+export 'src/feature_flags/feature_flag_context.dart';

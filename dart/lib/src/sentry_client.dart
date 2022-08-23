@@ -5,6 +5,8 @@ import 'package:meta/meta.dart';
 import 'event_processor.dart';
 import 'feature_flags/evaluation_type.dart';
 import 'feature_flags/feature_flag.dart';
+import 'feature_flags/feature_flag_context.dart';
+import 'feature_flags/xor_shift_rand.dart';
 import 'sentry_user_feedback.dart';
 import 'transport/rate_limiter.dart';
 import 'protocol.dart';
@@ -402,7 +404,11 @@ class SentryClient {
   Future<Map<String, FeatureFlag>?> fetchFeatureFlags() =>
       _options.transport.fetchFeatureFlags();
 
-  Future<bool> isFeatureEnabled(String key) async {
+  Future<bool> isFeatureEnabled(
+    String key, {
+    Scope? scope,
+    FeatureFlagContextCallback? context,
+  }) async {
     // TODO: ideally cache the result of fetchFeatureFlags or
     // let the user decide if it uses the cached value or not
     final flags = await fetchFeatureFlags();
@@ -414,18 +420,53 @@ class SentryClient {
     }
 
     // TODO: build context and fall back to global context
-    Map<String, dynamic> context = {};
+    final featureFlagContext = FeatureFlagContext({
+      'deviceId': 'myDeviceId', // TODO: get from flutter thru message channels
+    });
+
+    // add userId from Scope
+    final userId = scope?.user?.id;
+    if (userId != null) {
+      featureFlagContext.tags['userId'] = userId;
+    }
+    // add the release
+    final release = _options.release;
+    if (release != null) {
+      featureFlagContext.tags['release'] = release;
+    }
+    // add the env
+    final environment = _options.environment;
+    if (environment != null) {
+      featureFlagContext.tags['environment'] = environment;
+    }
+
+    // run feature flag context callback and allow user adding/removing tags
+    if (context != null) {
+      context(featureFlagContext);
+    }
+
+    // fallback stickyId if not provided by the user
+    // fallbacks to userId if set or deviceId
+    if (!featureFlagContext.tags.containsKey('stickyId')) {
+      final stickyId = featureFlagContext.tags['userId'] ??
+          featureFlagContext.tags['deviceId'];
+      featureFlagContext.tags['stickyId'] = stickyId;
+    }
 
     for (final evalConfig in flag.evaluations) {
-      if (!_matchesTags(evalConfig.tags, context)) {
+      if (!_matchesTags(evalConfig.tags, featureFlagContext.tags)) {
         continue;
       }
 
       switch (evalConfig.type) {
         case EvaluationType.rollout:
+          final percentage = _rollRandomNumber(evalConfig.tags);
+          if (percentage >= (evalConfig.percentage ?? 0)) {
+            return evalConfig.result ?? false; // TODO: return default value
+          }
           break;
         case EvaluationType.match:
-          break;
+          return evalConfig.result ?? false; // TODO: return default value
         default:
           break;
       }
@@ -435,12 +476,20 @@ class SentryClient {
     return false;
   }
 
-  // double _rollRandomNumber(Map<String, dynamic> context) {
-    
-  // }
+  double _rollRandomNumber(Map<String, dynamic> tags) {
+    final stickyId = tags['stickyId'] as String;
+
+    final rand = XorShiftRandom(stickyId);
+    return rand.next();
+  }
 
   bool _matchesTags(Map<String, dynamic> tags, Map<String, dynamic> context) {
-    // TODO: implement
+    // TODO: double check this impl.
+    for (final item in tags.entries) {
+      if (item.value != context[item.key]) {
+        return false;
+      }
+    }
     return true;
   }
 }

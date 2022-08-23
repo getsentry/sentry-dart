@@ -519,31 +519,32 @@ class Hub {
     return event;
   }
 
-  Future<Map<String, FeatureFlag>?> fetchFeatureFlags() async {
-    if (!_isEnabled) {
-      _options.logger(
-        SentryLevel.warning,
-        "Instance is disabled and this 'fetchFeatureFlags' call is a no-op.",
-      );
-      return null;
-    }
+  // Future<Map<String, FeatureFlag>?> fetchFeatureFlags() async {
+  //   if (!_isEnabled) {
+  //     _options.logger(
+  //       SentryLevel.warning,
+  //       "Instance is disabled and this 'fetchFeatureFlags' call is a no-op.",
+  //     );
+  //     return null;
+  //   }
 
-    try {
-      final item = _peek();
+  //   try {
+  //     final item = _peek();
 
-      return item.client.fetchFeatureFlags();
-    } catch (exception, stacktrace) {
-      _options.logger(
-        SentryLevel.error,
-        'Error while fetching feature flags',
-        exception: exception,
-        stackTrace: stacktrace,
-      );
-    }
-    return null;
-  }
+  //     return item.client.fetchFeatureFlags();
+  //   } catch (exception, stacktrace) {
+  //     _options.logger(
+  //       SentryLevel.error,
+  //       'Error while fetching feature flags',
+  //       exception: exception,
+  //       stackTrace: stacktrace,
+  //     );
+  //   }
+  //   return null;
+  // }
 
-  Future<bool> isFeatureEnabled(String key) async {
+  Future<bool> isFeatureEnabled(String key,
+      {FeatureFlagContextCallback? context}) async {
     if (!_isEnabled) {
       _options.logger(
         SentryLevel.warning,
@@ -556,7 +557,11 @@ class Hub {
     try {
       final item = _peek();
 
-      return item.client.isFeatureEnabled(key);
+      return item.client.isFeatureEnabled(
+        key,
+        scope: item.scope,
+        context: context,
+      );
     } catch (exception, stacktrace) {
       _options.logger(
         SentryLevel.error,
