@@ -41,6 +41,8 @@ class SentryClient {
 
   SentryStackTraceFactory get _stackTraceFactory => _options.stackTraceFactory;
 
+  Map<String, FeatureFlag>? _featureFlags;
+
   /// Instantiates a client using [SentryOptions]
   factory SentryClient(SentryOptions options) {
     if (options.sendClientReports) {
@@ -411,10 +413,9 @@ class SentryClient {
     bool defaultValue = false,
     FeatureFlagContextCallback? context,
   }) async {
-    // TODO: ideally cache the result of fetchFeatureFlags or
-    // let the user decide if it uses the cached value or not
-    final flags = await fetchFeatureFlags();
-    final flag = flags?[key];
+    // TODO: add mechanism to reset caching
+    _featureFlags = _featureFlags ?? await fetchFeatureFlags();
+    final flag = _featureFlags?[key];
 
     if (flag == null) {
       return defaultValue;

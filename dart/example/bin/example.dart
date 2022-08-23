@@ -37,10 +37,13 @@ Future<void> main() async {
   // for (final flag in featureFlags!.entries) {
   //   print(flag.key);
   // }
-  final enabled = await Sentry.isFeatureEnabled('test',
-      context: (myContext) => {
-            myContext.tags['stickyId'] = 'myCustomStickyId',
-          });
+  final enabled = await Sentry.isFeatureEnabled(
+    'test',
+    defaultValue: false,
+    context: (myContext) => {
+      myContext.tags['stickyId'] = 'myCustomStickyId',
+    },
+  );
   print(enabled);
 }
 
