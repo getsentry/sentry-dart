@@ -413,9 +413,8 @@ class SentryClient {
     bool defaultValue = false,
     FeatureFlagContextCallback? context,
   }) async {
-    // TODO: add mechanism to reset caching
-    _featureFlags = _featureFlags ?? await fetchFeatureFlags();
-    final flag = _featureFlags?[key];
+    final featureFlags = await _getFeatureFlagsFromCacheOrNetwork();
+    final flag = featureFlags?[key];
 
     if (flag == null) {
       return defaultValue;
@@ -449,8 +448,9 @@ class SentryClient {
     // fallback stickyId if not provided by the user
     // fallbacks to userId if set or deviceId
     // if none were provided, it generated an Uuid
-    if (!featureFlagContext.tags.containsKey('stickyId')) {
-      final stickyId = featureFlagContext.tags['userId'] ??
+    var stickyId = featureFlagContext.tags['stickyId'];
+    if (stickyId == null) {
+      stickyId = featureFlagContext.tags['userId'] ??
           featureFlagContext.tags['deviceId'] ??
           Uuid().v4().toString();
       featureFlagContext.tags['stickyId'] = stickyId;
@@ -463,36 +463,43 @@ class SentryClient {
 
       switch (evalConfig.type) {
         case EvaluationType.rollout:
-          final percentage = _rollRandomNumber(evalConfig.tags);
-          if (percentage >= (evalConfig.percentage ?? 0)) {
-            return evalConfig.result ?? defaultValue;
+          final percentage = _rollRandomNumber(stickyId);
+          if (percentage >= (evalConfig.percentage ?? 0.0)) {
+            return evalConfig.result;
           }
           break;
         case EvaluationType.match:
-          return evalConfig.result ?? defaultValue;
+          return evalConfig.result;
         default:
           break;
       }
     }
 
-    // TODO default value
-    return false;
+    return defaultValue;
   }
 
-  double _rollRandomNumber(Map<String, dynamic> tags) {
-    final stickyId = tags['stickyId'] as String;
-
+  double _rollRandomNumber(String stickyId) {
     final rand = XorShiftRandom(stickyId);
     return rand.next();
   }
 
   bool _matchesTags(Map<String, dynamic> tags, Map<String, dynamic> context) {
-    // TODO: double check this impl.
     for (final item in tags.entries) {
       if (item.value != context[item.key]) {
         return false;
       }
     }
     return true;
+  }
+
+  Future<FeatureFlag?> getFeatureFlagInfo(String key) async {
+    final featureFlags = await _getFeatureFlagsFromCacheOrNetwork();
+    return featureFlags?[key];
+  }
+
+  Future<Map<String, FeatureFlag>?> _getFeatureFlagsFromCacheOrNetwork() async {
+    // TODO: add mechanism to reset caching
+    _featureFlags = _featureFlags ?? await fetchFeatureFlags();
+    return _featureFlags;
   }
 }

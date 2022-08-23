@@ -519,30 +519,6 @@ class Hub {
     return event;
   }
 
-  // Future<Map<String, FeatureFlag>?> fetchFeatureFlags() async {
-  //   if (!_isEnabled) {
-  //     _options.logger(
-  //       SentryLevel.warning,
-  //       "Instance is disabled and this 'fetchFeatureFlags' call is a no-op.",
-  //     );
-  //     return null;
-  //   }
-
-  //   try {
-  //     final item = _peek();
-
-  //     return item.client.fetchFeatureFlags();
-  //   } catch (exception, stacktrace) {
-  //     _options.logger(
-  //       SentryLevel.error,
-  //       'Error while fetching feature flags',
-  //       exception: exception,
-  //       stackTrace: stacktrace,
-  //     );
-  //   }
-  //   return null;
-  // }
-
   Future<bool> isFeatureEnabled(
     String key, {
     bool defaultValue = false,
@@ -574,6 +550,30 @@ class Hub {
       );
     }
     return defaultValue;
+  }
+
+  Future<FeatureFlag?> getFeatureFlagInfo(String key) async {
+    if (!_isEnabled) {
+      _options.logger(
+        SentryLevel.warning,
+        "Instance is disabled and this 'getFeatureFlagInfo' call is a no-op.",
+      );
+      return null;
+    }
+
+    try {
+      final item = _peek();
+
+      return item.client.getFeatureFlagInfo(key);
+    } catch (exception, stacktrace) {
+      _options.logger(
+        SentryLevel.error,
+        'Error while fetching feature flags',
+        exception: exception,
+        stackTrace: stacktrace,
+      );
+    }
+    return null;
   }
 }
 

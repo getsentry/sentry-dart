@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 
+import 'feature_flags/feature_flag.dart';
 import 'feature_flags/feature_flag_context.dart';
 import 'hub.dart';
 import 'protocol.dart';
@@ -116,9 +117,6 @@ class NoOpHub implements Hub {
   @override
   void setSpanContext(throwable, ISentrySpan span, String transaction) {}
 
-  // @override
-  // Future<Map<String, FeatureFlag>?> fetchFeatureFlags() async => null;
-
   @override
   Future<bool> isFeatureEnabled(
     String key, {
@@ -126,4 +124,7 @@ class NoOpHub implements Hub {
     FeatureFlagContextCallback? context,
   }) async =>
       false;
+
+  @override
+  Future<FeatureFlag?> getFeatureFlagInfo(String key) async => null;
 }

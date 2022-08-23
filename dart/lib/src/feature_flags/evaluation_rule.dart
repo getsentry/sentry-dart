@@ -5,7 +5,7 @@ import 'evaluation_type.dart';
 class EvaluationRule {
   final EvaluationType type;
   final double? percentage;
-  final bool? result;
+  final bool result;
   final Map<String, dynamic> _tags;
   final Map<String, dynamic>? _payload;
 
@@ -24,11 +24,13 @@ class EvaluationRule {
 
   factory EvaluationRule.fromJson(Map<String, dynamic> json) {
     final payload = json['payload'];
+    final tags = json['tags'];
+
     return EvaluationRule(
       (json['type'] as String).toEvaluationType(),
       json['percentage'] as double?,
-      json['result'] as bool?,
-      Map<String, dynamic>.from(json['tags'] as Map),
+      json['result'] as bool,
+      tags != null ? Map<String, dynamic>.from(tags) : {},
       payload != null ? Map<String, dynamic>.from(payload) : null,
     );
   }

@@ -74,4 +74,7 @@ class NoOpSentryClient implements SentryClient {
     FeatureFlagContextCallback? context,
   }) async =>
       false;
+
+  @override
+  Future<FeatureFlag?> getFeatureFlagInfo(String key) async => null;
 }
