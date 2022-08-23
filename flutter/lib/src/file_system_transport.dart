@@ -9,6 +9,11 @@ class FileSystemTransport implements Transport {
   final MethodChannel _channel;
   final SentryOptions _options;
 
+  // late because the configuration callback needs to run first
+  // before creating the http transport with the dsn
+  late final HttpTransport _httpTransport =
+      HttpTransport(_options, RateLimiter(_options));
+
   @override
   Future<SentryId?> send(SentryEnvelope envelope) async {
     final envelopeData = <int>[];
@@ -30,7 +35,7 @@ class FileSystemTransport implements Transport {
     return envelope.header.eventId;
   }
 
-  // TODO: implement or fallback to http transport
   @override
-  Future<Map<String, FeatureFlag>?> fetchFeatureFlags() async => null;
+  Future<Map<String, FeatureFlag>?> fetchFeatureFlags() async =>
+      _httpTransport.fetchFeatureFlags();
 }

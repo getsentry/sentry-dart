@@ -16,7 +16,7 @@ import 'package:sentry_logging/sentry_logging.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
 const String _exampleDsn =
-    'https://9934c532bf8446ef961450973c898537@o447951.ingest.sentry.io/5428562';
+    'https://60d3409215134fd1a60765f2400b6b38@ac75-72-74-53-151.ngrok.io/1';
 
 final _channel = const MethodChannel('example.flutter.sentry.io');
 
@@ -400,6 +400,27 @@ class AndroidExample extends StatelessWidget {
           log.info('My Logging test');
         },
         child: const Text('Logging'),
+      ),
+      ElevatedButton(
+        onPressed: () async {
+          await Sentry.configureScope((scope) async {
+            await scope.setUser(
+              SentryUser(
+                id: '800',
+              ),
+            );
+          });
+
+          final enabled = await Sentry.isFeatureEnabled(
+            '@@accessToProfiling',
+            defaultValue: false,
+            context: (myContext) => {
+              myContext.tags['myCustomTag'] = 'myCustomValue',
+            },
+          );
+          print(enabled);
+        },
+        child: const Text('Check feature flags'),
       ),
     ]);
   }

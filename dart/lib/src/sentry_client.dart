@@ -419,22 +419,25 @@ class SentryClient {
     if (flag == null) {
       return defaultValue;
     }
+    final featureFlagContext = FeatureFlagContext({});
 
-    final featureFlagContext = FeatureFlagContext({
-      'deviceId': 'myDeviceId', // TODO: get from flutter thru message channels
-    });
+    // set the device id
+    final deviceId = _options.distinctId;
+    if (deviceId != null) {
+      featureFlagContext.tags['deviceId'] = deviceId;
+    }
 
-    // add userId from Scope
+    // set userId from Scope
     final userId = scope?.user?.id;
     if (userId != null) {
       featureFlagContext.tags['userId'] = userId;
     }
-    // add the release
+    // set the release
     final release = _options.release;
     if (release != null) {
       featureFlagContext.tags['release'] = release;
     }
-    // add the env
+    // set the env
     final environment = _options.environment;
     if (environment != null) {
       featureFlagContext.tags['environment'] = environment;

@@ -231,7 +231,12 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
            didReceiveDidBecomeActiveNotification = false
        }
 
-        result("")
+        let deviceId = PrivateSentrySDKOnly.installationID
+        let item: [String: Any] = [
+            "deviceId": deviceId
+        ]
+
+        result(item)
     }
 
     private func closeNativeSdk(_ call: FlutterMethodCall, result: @escaping FlutterResult) {

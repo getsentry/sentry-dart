@@ -171,7 +171,12 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
       // missing proxy, enableScopeSync
     }
-    result.success("")
+
+    // make Installation.id(context) public
+    val item = mapOf<String, Any?>(
+        "deviceId" to Sentry.getCurrentHub().options.distinctId
+    )
+    result.success(item)
   }
 
   private fun fetchNativeAppStart(result: Result) {
