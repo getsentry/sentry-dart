@@ -6,8 +6,8 @@ import 'default_integrations.dart';
 import 'enricher/enricher_event_processor.dart';
 import 'environment/environment_variables.dart';
 import 'event_processor/deduplication_event_processor.dart';
-import 'feature_flags/feature_flag.dart';
 import 'feature_flags/feature_flag_context.dart';
+import 'feature_flags/feature_flag_info.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
 import 'integration.dart';
@@ -286,6 +286,12 @@ class Sentry {
         context: context,
       );
 
-  static Future<FeatureFlag?> getFeatureFlagInfo(String key) =>
-      _hub.getFeatureFlagInfo(key);
+  static Future<FeatureFlagInfo?> getFeatureFlagInfo(
+    String key, {
+    FeatureFlagContextCallback? context,
+  }) =>
+      _hub.getFeatureFlagInfo(
+        key,
+        context: context,
+      );
 }

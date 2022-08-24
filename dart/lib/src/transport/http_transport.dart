@@ -99,23 +99,71 @@ class HttpTransport implements Transport {
 
   @override
   Future<Map<String, FeatureFlag>?> fetchFeatureFlags() async {
-    final response = await _options.httpClient.post(_dsn.featureFlagsUri,
-        headers: _credentialBuilder.configure(_headers));
+    // TODO: handle rate limiting, client reports, etc...
 
-    if (response.statusCode != 200) {
-      // body guard to not log the error as it has performance impact to allocate
-      // the body String.
-      if (_options.debug) {
-        _options.logger(
-          SentryLevel.error,
-          'API returned an error, statusCode = ${response.statusCode}, '
-          'body = ${response.body}',
-        );
+    // final response = await _options.httpClient.post(_dsn.featureFlagsUri,
+    //     headers: _credentialBuilder.configure(_headers));
+
+    // if (response.statusCode != 200) {
+    //   if (_options.debug) {
+    //     _options.logger(
+    //       SentryLevel.error,
+    //       'API returned an error, statusCode = ${response.statusCode}, '
+    //       'body = ${response.body}',
+    //     );
+    //   }
+    //   return null;
+    // }
+
+    // final responseJson = json.decode(response.body);
+
+    final responseJson = json.decode('''{
+      "feature_flags": {
+        "accessToProfiling": {
+          "kind": "bool",
+          "evaluation": [
+            {
+              "type": "rollout",
+              "percentage": 0.5,
+              "result": true,
+              "tags": {
+                "userSegment": "slow"
+              },
+              "payload": null
+            },
+            {
+              "type": "match",
+              "result": true,
+              "tags": {
+                "isSentryDev": "true"
+              },
+              "payload": {
+                "background_image": "https://example.com/modus1.png"
+              }
+            }
+          ]
+        },
+        "profilingEnabled": {
+          "kind": "bool",
+          "evaluation": [
+            {
+              "type": "rollout",
+              "percentage": 0.05,
+              "result": true,
+              "tags": {
+                "isSentryDev": "true"
+              }
+            },
+            {
+              "type": "match",
+              "result": true
+            }
+          ]
+        }
       }
-      return null;
     }
+    ''');
 
-    final responseJson = json.decode(response.body);
     return FeatureDump.fromJson(responseJson).featureFlags;
   }
 

@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 
-import 'feature_flags/feature_flag.dart';
 import 'feature_flags/feature_flag_context.dart';
+import 'feature_flags/feature_flag_info.dart';
 import 'hub.dart';
 import 'protocol.dart';
 import 'sentry_client.dart';
@@ -126,5 +126,9 @@ class NoOpHub implements Hub {
       false;
 
   @override
-  Future<FeatureFlag?> getFeatureFlagInfo(String key) async => null;
+  Future<FeatureFlagInfo?> getFeatureFlagInfo(
+    String key, {
+    FeatureFlagContextCallback? context,
+  }) async =>
+      null;
 }

@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 
-import 'feature_flags/feature_flag.dart';
 import 'feature_flags/feature_flag_context.dart';
+import 'feature_flags/feature_flag_info.dart';
 import 'hub.dart';
 import 'protocol.dart';
 import 'sentry.dart';
@@ -174,6 +174,12 @@ class HubAdapter implements Hub {
       );
 
   @override
-  Future<FeatureFlag?> getFeatureFlagInfo(String key) =>
-      Sentry.getFeatureFlagInfo(key);
+  Future<FeatureFlagInfo?> getFeatureFlagInfo(
+    String key, {
+    FeatureFlagContextCallback? context,
+  }) =>
+      Sentry.getFeatureFlagInfo(
+        key,
+        context: context,
+      );
 }

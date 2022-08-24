@@ -34,16 +34,21 @@ Future<void> main() async {
   });
 
   final enabled = await Sentry.isFeatureEnabled(
-    '@@accessToProfiling',
+    'accessToProfiling',
     defaultValue: false,
     context: (myContext) => {
-      myContext.tags['stickyId'] = 'myCustomStickyId',
+      myContext.tags['isSentryDev'] = 'true',
     },
   );
   print(enabled);
 
   // TODO: does it return the active EvaluationRule? do we create a new model for that?
-  final flag = await Sentry.getFeatureFlagInfo('test');
+  final flag = await Sentry.getFeatureFlagInfo('accessToProfiling',
+      context: (myContext) => {
+            myContext.tags['isSentryDev'] = 'true',
+          });
+
+  print(flag?.result ?? 'whaat');
 }
 
 Future<void> runApp() async {}

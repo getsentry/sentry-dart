@@ -1,6 +1,7 @@
 {
   "feature_flags": {
     "accessToProfiling": {
+      "kind": "bool",
       "evaluation": [
         {
           "type": "rollout",
@@ -24,6 +25,7 @@
       ]
     },
     "profilingEnabled": {
+      "kind": "bool",
       "evaluation": [
         {
           "type": "rollout",

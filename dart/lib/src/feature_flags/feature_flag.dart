@@ -4,11 +4,8 @@ import 'evaluation_rule.dart';
 
 @immutable
 class FeatureFlag {
-  // final Map<String, dynamic> _tags;
   final List<EvaluationRule> _evaluations;
   final String kind;
-
-  // Map<String, dynamic> get tags => Map.unmodifiable(_tags);
 
   List<EvaluationRule> get evaluations => List.unmodifiable(_evaluations);
 

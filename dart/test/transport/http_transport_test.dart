@@ -8,12 +8,10 @@ import 'package:sentry/src/sentry_envelope_header.dart';
 import 'package:sentry/src/sentry_envelope_item_header.dart';
 import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/transport/data_category.dart';
-import 'package:sentry/src/transport/rate_limiter.dart';
 import 'package:test/test.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/transport/http_transport.dart';
 
 import '../mocks.dart';
 import '../mocks/mock_client_report_recorder.dart';

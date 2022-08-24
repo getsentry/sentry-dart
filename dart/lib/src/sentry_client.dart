@@ -4,9 +4,11 @@ import 'package:meta/meta.dart';
 import 'package:uuid/uuid.dart';
 
 import 'event_processor.dart';
+import 'feature_flags/evaluation_rule.dart';
 import 'feature_flags/evaluation_type.dart';
 import 'feature_flags/feature_flag.dart';
 import 'feature_flags/feature_flag_context.dart';
+import 'feature_flags/feature_flag_info.dart';
 import 'feature_flags/xor_shift_rand.dart';
 import 'sentry_user_feedback.dart';
 import 'transport/rate_limiter.dart';
@@ -419,6 +421,95 @@ class SentryClient {
     if (flag == null) {
       return defaultValue;
     }
+    final featureFlagContext = _getFeatureFlagContext(scope, context);
+    // there's always a stickyId
+    final stickyId = featureFlagContext.tags['stickyId']!;
+
+    final evaluationRule =
+        _getEvaluationRuleMatch(flag, featureFlagContext, stickyId);
+
+    return evaluationRule?.result ?? defaultValue;
+  }
+
+  double _rollRandomNumber(String stickyId) {
+    final rand = XorShiftRandom(stickyId);
+    return rand.next();
+  }
+
+  bool _matchesTags(Map<String, dynamic> tags, Map<String, dynamic> context) {
+    for (final item in tags.entries) {
+      if (item.value != context[item.key]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  Future<FeatureFlagInfo?> getFeatureFlagInfo(
+    String key, {
+    Scope? scope,
+    FeatureFlagContextCallback? context,
+  }) async {
+    final featureFlags = await _getFeatureFlagsFromCacheOrNetwork();
+    final featureFlag = featureFlags?[key];
+
+    if (featureFlag == null) {
+      return null;
+    }
+
+    final featureFlagContext = _getFeatureFlagContext(scope, context);
+    // there's always a stickyId
+    final stickyId = featureFlagContext.tags['stickyId']!;
+    final evaluationRule =
+        _getEvaluationRuleMatch(featureFlag, featureFlagContext, stickyId);
+
+    if (evaluationRule == null) {
+      return null;
+    }
+    final payload = evaluationRule.payload != null
+        ? Map<String, dynamic>.from(evaluationRule.payload as Map)
+        : null;
+
+    return FeatureFlagInfo(
+      evaluationRule.result,
+      Map.from(evaluationRule.tags),
+      payload,
+    );
+  }
+
+  EvaluationRule? _getEvaluationRuleMatch(
+    FeatureFlag featureFlag,
+    FeatureFlagContext context,
+    String stickyId,
+  ) {
+    EvaluationRule? ruleMatch;
+    for (final evalConfig in featureFlag.evaluations) {
+      if (!_matchesTags(evalConfig.tags, context.tags)) {
+        continue;
+      }
+
+      switch (evalConfig.type) {
+        case EvaluationType.rollout:
+          final percentage = _rollRandomNumber(stickyId);
+          if (percentage >= (evalConfig.percentage ?? 0.0)) {
+            ruleMatch = evalConfig;
+          }
+          break;
+        case EvaluationType.match:
+          ruleMatch = evalConfig;
+          break;
+        default:
+          break;
+      }
+    }
+
+    return ruleMatch;
+  }
+
+  FeatureFlagContext _getFeatureFlagContext(
+    Scope? scope,
+    FeatureFlagContextCallback? context,
+  ) {
     final featureFlagContext = FeatureFlagContext({});
 
     // set the device id
@@ -459,45 +550,7 @@ class SentryClient {
       featureFlagContext.tags['stickyId'] = stickyId;
     }
 
-    for (final evalConfig in flag.evaluations) {
-      if (!_matchesTags(evalConfig.tags, featureFlagContext.tags)) {
-        continue;
-      }
-
-      switch (evalConfig.type) {
-        case EvaluationType.rollout:
-          final percentage = _rollRandomNumber(stickyId);
-          if (percentage >= (evalConfig.percentage ?? 0.0)) {
-            return evalConfig.result;
-          }
-          break;
-        case EvaluationType.match:
-          return evalConfig.result;
-        default:
-          break;
-      }
-    }
-
-    return defaultValue;
-  }
-
-  double _rollRandomNumber(String stickyId) {
-    final rand = XorShiftRandom(stickyId);
-    return rand.next();
-  }
-
-  bool _matchesTags(Map<String, dynamic> tags, Map<String, dynamic> context) {
-    for (final item in tags.entries) {
-      if (item.value != context[item.key]) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  Future<FeatureFlag?> getFeatureFlagInfo(String key) async {
-    final featureFlags = await _getFeatureFlagsFromCacheOrNetwork();
-    return featureFlags?[key];
+    return featureFlagContext;
   }
 
   Future<Map<String, FeatureFlag>?> _getFeatureFlagsFromCacheOrNetwork() async {

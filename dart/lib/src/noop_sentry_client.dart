@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'feature_flags/feature_flag.dart';
 import 'feature_flags/feature_flag_context.dart';
+import 'feature_flags/feature_flag_info.dart';
 import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_client.dart';
@@ -76,5 +77,10 @@ class NoOpSentryClient implements SentryClient {
       false;
 
   @override
-  Future<FeatureFlag?> getFeatureFlagInfo(String key) async => null;
+  Future<FeatureFlagInfo?> getFeatureFlagInfo(
+    String key, {
+    Scope? scope,
+    FeatureFlagContextCallback? context,
+  }) async =>
+      null;
 }

@@ -552,7 +552,10 @@ class Hub {
     return defaultValue;
   }
 
-  Future<FeatureFlag?> getFeatureFlagInfo(String key) async {
+  Future<FeatureFlagInfo?> getFeatureFlagInfo(
+    String key, {
+    FeatureFlagContextCallback? context,
+  }) async {
     if (!_isEnabled) {
       _options.logger(
         SentryLevel.warning,
@@ -564,7 +567,11 @@ class Hub {
     try {
       final item = _peek();
 
-      return item.client.getFeatureFlagInfo(key);
+      return item.client.getFeatureFlagInfo(
+        key,
+        scope: item.scope,
+        context: context,
+      );
     } catch (exception, stacktrace) {
       _options.logger(
         SentryLevel.error,
