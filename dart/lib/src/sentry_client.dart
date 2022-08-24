@@ -423,29 +423,27 @@ class SentryClient {
       return defaultValue;
     }
     final featureFlagContext = _getFeatureFlagContext(scope, context);
-    // there's always a stickyId
-    final stickyId = featureFlagContext.tags['stickyId']!;
 
     final evaluationRule =
-        _getEvaluationRuleMatch(flag, featureFlagContext, stickyId);
+        _getEvaluationRuleMatch(flag.evaluations, featureFlagContext);
 
     if (evaluationRule == null) {
       return defaultValue;
     }
 
-    final resultType = _checkResultType<T>(evaluationRule, flag.kind);
+    final resultType = _checkResultType<T>(evaluationRule.result, flag.kind);
 
     return resultType ? evaluationRule.result as T : defaultValue;
   }
 
-  bool _checkResultType<T>(EvaluationRule rule, String kind) {
+  bool _checkResultType<T>(dynamic result, String kind) {
     switch (kind) {
       case 'bool':
-        return rule.result is bool && rule.result is T ? true : false;
+        return result is bool && result is T ? true : false;
       case 'string':
-        return rule.result is String && rule.result is T ? true : false;
+        return result is String && result is T ? true : false;
       case 'number':
-        return rule.result is num && rule.result is T ? true : false;
+        return result is num && result is T ? true : false;
       default:
         return false;
     }
@@ -456,9 +454,10 @@ class SentryClient {
     return rand.next();
   }
 
-  bool _matchesTags(Map<String, dynamic> tags, Map<String, dynamic> context) {
+  bool _matchesTags(
+      Map<String, dynamic> tags, Map<String, dynamic> contextTags) {
     for (final item in tags.entries) {
-      if (item.value != context[item.key]) {
+      if (item.value != contextTags[item.key]) {
         return false;
       }
     }
@@ -479,10 +478,9 @@ class SentryClient {
     }
 
     final featureFlagContext = _getFeatureFlagContext(scope, context);
-    // there's always a stickyId
-    final stickyId = featureFlagContext.tags['stickyId']!;
+
     final evaluationRule =
-        _getEvaluationRuleMatch(featureFlag, featureFlagContext, stickyId);
+        _getEvaluationRuleMatch(featureFlag.evaluations, featureFlagContext);
 
     if (evaluationRule == null) {
       return null;
@@ -499,11 +497,13 @@ class SentryClient {
   }
 
   EvaluationRule? _getEvaluationRuleMatch(
-    FeatureFlag featureFlag,
+    List<EvaluationRule> evaluations,
     FeatureFlagContext context,
-    String stickyId,
   ) {
-    for (final evalConfig in featureFlag.evaluations) {
+    // there's always a stickyId
+    final stickyId = context.tags['stickyId']!;
+
+    for (final evalConfig in evaluations) {
       if (!_matchesTags(evalConfig.tags, context.tags)) {
         continue;
       }
