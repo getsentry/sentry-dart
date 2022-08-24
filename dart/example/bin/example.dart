@@ -15,7 +15,7 @@ Future<void> main() async {
   // const dsn =
   //     'https://9934c532bf8446ef961450973c898537@o447951.ingest.sentry.io/5428562';
   const dsn =
-      'https://60d3409215134fd1a60765f2400b6b38@ac75-72-74-53-151.ngrok.io/1';
+      'https://fe85fc5123d44d5c99202d9e8f09d52e@395f015cf6c1.eu.ngrok.io/2';
 
   await Sentry.init(
     (options) => options

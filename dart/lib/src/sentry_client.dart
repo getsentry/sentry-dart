@@ -431,22 +431,13 @@ class SentryClient {
       return defaultValue;
     }
 
-    final resultType = _checkResultType<T>(evaluationRule.result, flag.kind);
+    final resultType = _checkResultType<T>(evaluationRule.result);
 
     return resultType ? evaluationRule.result as T : defaultValue;
   }
 
-  bool _checkResultType<T>(dynamic result, String kind) {
-    switch (kind) {
-      case 'bool':
-        return result is bool && result is T ? true : false;
-      case 'string':
-        return result is String && result is T ? true : false;
-      case 'number':
-        return result is num && result is T ? true : false;
-      default:
-        return false;
-    }
+  bool _checkResultType<T>(dynamic result) {
+    return result is T ? true : false;
   }
 
   double _rollRandomNumber(String stickyId) {
@@ -455,9 +446,13 @@ class SentryClient {
   }
 
   bool _matchesTags(
-      Map<String, dynamic> tags, Map<String, dynamic> contextTags) {
+      Map<String, dynamic> tags, Map<String, String> contextTags) {
     for (final item in tags.entries) {
-      if (item.value != contextTags[item.key]) {
+      if (item.value is List) {
+        if (!(item.value as List).contains(contextTags[item.key])) {
+          return false;
+        }
+      } else if (item.value != contextTags[item.key]) {
         return false;
       }
     }
