@@ -112,89 +112,92 @@ class HttpTransport implements Transport {
           'body = ${response.body}',
         );
       }
-      return null;
+      // return null;
     }
 
-    final responseJson = json.decode(response.body);
+    // final responseJson = json.decode(response.body);
 
-//     final responseJson = json.decode('''
-// {
-//   "feature_flags": {
-//     "accessToProfiling": {
-//       "kind": "bool",
-//       "evaluation": [
-//         {
-//           "type": "rollout",
-//           "percentage": 0.5,
-//           "result": true,
-//           "tags": {
-//             "userSegment": "slow"
-//           }
-//         },
-//         {
-//           "type": "match",
-//           "result": true,
-//           "tags": {
-//             "isSentryDev": "true"
-//           },
-//           "payload": {
-//             "internal_setting": "wat"
-//           }
-//         }
-//       ]
-//     },
-//     "profilingEnabled": {
-//       "kind": "bool",
-//       "evaluation": [
-//         {
-//           "type": "match",
-//           "result": true,
-//           "tags": {
-//             "isSentryDev": "true"
-//           }
-//         },
-//         {
-//           "type": "rollout",
-//           "percentage": 0.05,
-//           "result": true
-//         }
-//       ]
-//     },
-//     "loginBanner": {
-//       "kind": "string",
-//       "evaluation": [
-//         {
-//           "type": "match",
-//           "result": "banner1",
-//           "tags": {
-//             "isSentryDev": "true"
-//           },
-//           "payload": {
-//             "imageUrl": "https://mycdn.com/banner1.png"
-//           }
-//         },
-//         {
-//           "type": "match",
-//           "result": "banner2",
-//           "payload": {
-//             "imageUrl": "https://mycdn.com/banner2.png"
-//           }
-//         }
-//       ]
-//     },
-//     "tracesSampleRate": {
-//       "kind": "number",
-//       "evaluation": [
-//         {
-//           "type": "match",
-//           "result": 0.25
-//         }
-//       ]
-//     }
-
-//   }
-// }
-//       ''');
+    final responseJson = json.decode('''
+{
+  "feature_flags": {
+    "@@accessToProfiling": {
+      "evaluation": [
+        {
+          "type": "match",
+          "result": true,
+          "tags": {
+            "isSentryDev": "true"
+          }
+        },
+        {
+          "type": "rollout",
+          "percentage": 0.5,
+          "result": true
+        }
+      ],
+      "kind": "boolean"
+    },
+    "@@errorsSampleRate": {
+      "evaluation": [
+        {
+          "type": "match",
+          "result": 0.75
+        }
+      ],
+      "kind": "number"
+    },
+    "@@profilingEnabled": {
+      "evaluation": [
+        {
+          "type": "match",
+          "result": true,
+          "tags": {
+            "isSentryDev": "true"
+          }
+        },
+        {
+          "type": "rollout",
+          "percentage": 0.05,
+          "result": true
+        }
+      ],
+      "kind": "boolean"
+    },
+    "@@tracesSampleRate": {
+      "evaluation": [
+        {
+          "type": "match",
+          "result": 0.25
+        }
+      ],
+      "kind": "number"
+    },
+    "accessToProfiling": {
+      "evaluation": [
+        {
+          "type": "rollout",
+          "percentage": 1.0,
+          "result": true
+        }
+      ],
+      "kind": "boolean"
+    },
+    "welcomeBanner": {
+      "evaluation": [
+        {
+          "type": "rollout",
+          "percentage": 1.0,
+          "result": "dev.png",
+          "tags": {
+            "environment": "dev"
+          }
+        }
+      ],
+      "kind": "string"
+    }
+  }
+}
+      ''');
 
     return FeatureDump.fromJson(responseJson).featureFlags;
   }

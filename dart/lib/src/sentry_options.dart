@@ -285,6 +285,11 @@ class SentryOptions {
   @internal
   late ClientReportRecorder recorder = NoOpClientReportRecorder();
 
+  /// experimental features
+  final Map<String, dynamic> experimental = {
+    'featureFlagsEnabled': false,
+  };
+
   SentryOptions({this.dsn, PlatformChecker? checker}) {
     if (checker != null) {
       platformChecker = checker;

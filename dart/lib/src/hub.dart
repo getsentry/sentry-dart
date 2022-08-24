@@ -393,9 +393,18 @@ class Hub {
       final samplingContext = SentrySamplingContext(
           transactionContext, customSamplingContext ?? {});
 
+      final tracesSampleRate = item.client.getFeatureFlagValue<double?>(
+        '@@tracesSampleRate',
+        scope: item.scope,
+        defaultValue: _options.tracesSampleRate,
+      );
+
       // if transactionContext has no sampled decision, run the traces sampler
       if (transactionContext.sampled == null) {
-        final sampled = _tracesSampler.sample(samplingContext);
+        final sampled = _tracesSampler.sample(
+          samplingContext,
+          tracesSampleRate,
+        );
         transactionContext = transactionContext.copyWith(sampled: sampled);
       }
 
@@ -520,7 +529,7 @@ class Hub {
   }
 
   @experimental
-  Future<T?> getFeatureFlagValue<T>(
+  Future<T?> getFeatureFlagValueAsync<T>(
     String key, {
     T? defaultValue,
     FeatureFlagContextCallback? context,
@@ -528,7 +537,41 @@ class Hub {
     if (!_isEnabled) {
       _options.logger(
         SentryLevel.warning,
-        "Instance is disabled and this 'getFeatureFlag' call is a no-op.",
+        "Instance is disabled and this 'getFeatureFlagValueAsync' call is a no-op.",
+      );
+      return defaultValue;
+    }
+
+    try {
+      final item = _peek();
+
+      return item.client.getFeatureFlagValueAsync<T>(
+        key,
+        scope: item.scope,
+        defaultValue: defaultValue,
+        context: context,
+      );
+    } catch (exception, stacktrace) {
+      _options.logger(
+        SentryLevel.error,
+        'Error while fetching feature flags',
+        exception: exception,
+        stackTrace: stacktrace,
+      );
+    }
+    return defaultValue;
+  }
+
+  @experimental
+  T? getFeatureFlagValue<T>(
+    String key, {
+    T? defaultValue,
+    FeatureFlagContextCallback? context,
+  }) {
+    if (!_isEnabled) {
+      _options.logger(
+        SentryLevel.warning,
+        "Instance is disabled and this 'getFeatureFlagValue' call is a no-op.",
       );
       return defaultValue;
     }

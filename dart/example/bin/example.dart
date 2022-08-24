@@ -18,13 +18,16 @@ Future<void> main() async {
       'https://fe85fc5123d44d5c99202d9e8f09d52e@395f015cf6c1.eu.ngrok.io/2';
 
   await Sentry.init(
-    (options) => options
-      ..dsn = dsn
-      ..debug = true
-      ..release = 'myapp@1.0.0+1'
-      ..environment = 'prod',
+    (options) {
+      options.dsn = dsn;
+      options.debug = true;
+      options.release = 'myapp@1.0.0+1';
+      options.environment = 'prod';
+      options.experimental['featureFlagsEnabled'] = true;
+    },
     appRunner: runApp,
   );
+
   await Sentry.configureScope((scope) async {
     await scope.setUser(
       SentryUser(
@@ -74,7 +77,7 @@ Future<void> main() async {
       'profilingEnabledRollout $profilingEnabledRollout'); // false for user 800
 
   // loginBannerMatch
-  final loginBannerMatch = await Sentry.getFeatureFlagValue<String>(
+  final loginBannerMatch = await Sentry.getFeatureFlagValueAsync<String>(
     'loginBanner',
     defaultValue: 'banner0',
     context: (myContext) => {
@@ -84,14 +87,14 @@ Future<void> main() async {
   print('loginBannerMatch $loginBannerMatch'); // returns banner1
 
   // loginBannerMatch2
-  final loginBannerMatch2 = await Sentry.getFeatureFlagValue<String>(
+  final loginBannerMatch2 = await Sentry.getFeatureFlagValueAsync<String>(
     'loginBanner',
     defaultValue: 'banner0',
   );
   print('loginBannerMatch2 $loginBannerMatch2'); // returns banner2
 
   // tracesSampleRate
-  final tracesSampleRate = await Sentry.getFeatureFlagValue<double>(
+  final tracesSampleRate = await Sentry.getFeatureFlagValueAsync<double>(
     'tracesSampleRate',
     defaultValue: 0.0,
   );

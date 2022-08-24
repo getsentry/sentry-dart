@@ -281,7 +281,7 @@ class Sentry {
     bool defaultValue = false,
     FeatureFlagContextCallback? context,
   }) async {
-    return await getFeatureFlagValue<bool>(
+    return await getFeatureFlagValueAsync<bool>(
           key,
           defaultValue: defaultValue,
           context: context,
@@ -289,7 +289,20 @@ class Sentry {
         defaultValue;
   }
 
-  static Future<T?> getFeatureFlagValue<T>(
+  @experimental
+  static Future<T?> getFeatureFlagValueAsync<T>(
+    String key, {
+    T? defaultValue,
+    FeatureFlagContextCallback? context,
+  }) =>
+      _hub.getFeatureFlagValueAsync<T>(
+        key,
+        defaultValue: defaultValue,
+        context: context,
+      );
+
+  @experimental
+  static T? getFeatureFlagValue<T>(
     String key, {
     T? defaultValue,
     FeatureFlagContextCallback? context,

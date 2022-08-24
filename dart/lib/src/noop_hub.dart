@@ -118,11 +118,19 @@ class NoOpHub implements Hub {
   void setSpanContext(throwable, ISentrySpan span, String transaction) {}
 
   @override
-  Future<T?> getFeatureFlagValue<T>(
+  Future<T?> getFeatureFlagValueAsync<T>(
     String key, {
     T? defaultValue,
     FeatureFlagContextCallback? context,
   }) async =>
+      null;
+
+  @override
+  T? getFeatureFlagValue<T>(
+    String key, {
+    T? defaultValue,
+    FeatureFlagContextCallback? context,
+  }) =>
       null;
 
   @override

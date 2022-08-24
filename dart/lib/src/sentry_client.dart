@@ -35,7 +35,7 @@ const _defaultIpAddress = '{{auto}}';
 class SentryClient {
   final SentryOptions _options;
 
-  final Random? _random;
+  final _random = Random();
 
   static final _sentryId = Future.value(SentryId.empty());
 
@@ -58,8 +58,7 @@ class SentryClient {
   }
 
   /// Instantiates a client using [SentryOptions]
-  SentryClient._(this._options)
-      : _random = _options.sampleRate == null ? null : Random();
+  SentryClient._(this._options);
 
   /// Reports an [event] to Sentry.io.
   Future<SentryId> captureEvent(
@@ -68,7 +67,7 @@ class SentryClient {
     dynamic stackTrace,
     dynamic hint,
   }) async {
-    if (_sampleRate()) {
+    if (_sampleRate(scope)) {
       _recordLostEvent(event, DiscardReason.sampleRate);
       _options.logger(
         SentryLevel.debug,
@@ -369,9 +368,14 @@ class SentryClient {
     return processedEvent;
   }
 
-  bool _sampleRate() {
-    if (_options.sampleRate != null && _random != null) {
-      return (_options.sampleRate! < _random!.nextDouble());
+  bool _sampleRate(Scope? scope) {
+    final sampleRate = getFeatureFlagValue<num?>(
+      '@@errorsSampleRate',
+      scope: scope,
+      defaultValue: _options.sampleRate,
+    );
+    if (sampleRate != null) {
+      return (sampleRate < _random.nextDouble());
     }
     return false;
   }
@@ -406,17 +410,13 @@ class SentryClient {
     return _options.transport.send(envelope);
   }
 
-  Future<Map<String, FeatureFlag>?> fetchFeatureFlags() =>
-      _options.transport.fetchFeatureFlags();
-
-  @experimental
-  Future<T?> getFeatureFlagValue<T>(
+  T? _getFeatureFlagValue<T>(
+    Map<String, FeatureFlag>? featureFlags,
     String key, {
     Scope? scope,
     T? defaultValue,
     FeatureFlagContextCallback? context,
-  }) async {
-    final featureFlags = await _getFeatureFlagsFromCacheOrNetwork();
+  }) {
     final flag = featureFlags?[key];
 
     if (flag == null) {
@@ -434,6 +434,47 @@ class SentryClient {
     final resultType = _checkResultType<T>(evaluationRule.result);
 
     return resultType ? evaluationRule.result as T : defaultValue;
+  }
+
+  @experimental
+  Future<T?> getFeatureFlagValueAsync<T>(
+    String key, {
+    Scope? scope,
+    T? defaultValue,
+    FeatureFlagContextCallback? context,
+  }) async {
+    if (!_isFeatureFlagsEnabled()) {
+      return defaultValue;
+    }
+
+    final featureFlags = await _getFeatureFlagsFromCacheOrNetwork();
+    return _getFeatureFlagValue(
+      featureFlags,
+      key,
+      scope: scope,
+      defaultValue: defaultValue,
+      context: context,
+    );
+  }
+
+  @experimental
+  T? getFeatureFlagValue<T>(
+    String key, {
+    Scope? scope,
+    T? defaultValue,
+    FeatureFlagContextCallback? context,
+  }) {
+    if (!_isFeatureFlagsEnabled()) {
+      return defaultValue;
+    }
+
+    return _getFeatureFlagValue(
+      _featureFlags,
+      key,
+      scope: scope,
+      defaultValue: defaultValue,
+      context: context,
+    );
   }
 
   bool _checkResultType<T>(dynamic result) {
@@ -465,6 +506,10 @@ class SentryClient {
     Scope? scope,
     FeatureFlagContextCallback? context,
   }) async {
+    if (!_isFeatureFlagsEnabled()) {
+      return null;
+    }
+
     final featureFlags = await _getFeatureFlagsFromCacheOrNetwork();
     final featureFlag = featureFlags?[key];
 
@@ -547,6 +592,11 @@ class SentryClient {
     if (environment != null) {
       featureFlagContext.tags['environment'] = environment;
     }
+    // set the transaction
+    final transaction = scope?.transaction;
+    if (transaction != null) {
+      featureFlagContext.tags['transaction'] = transaction;
+    }
 
     // set all the tags from the scope as well
     featureFlagContext.tags.addAll(scope?.tags ?? {});
@@ -572,7 +622,12 @@ class SentryClient {
 
   Future<Map<String, FeatureFlag>?> _getFeatureFlagsFromCacheOrNetwork() async {
     // TODO: add mechanism to reset caching
-    _featureFlags = _featureFlags ?? await fetchFeatureFlags();
+    _featureFlags =
+        _featureFlags ?? await _options.transport.fetchFeatureFlags();
     return _featureFlags;
+  }
+
+  bool _isFeatureFlagsEnabled() {
+    return _options.experimental['featureFlagsEnabled'] as bool? ?? false;
   }
 }
