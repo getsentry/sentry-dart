@@ -519,7 +519,8 @@ class Hub {
     return event;
   }
 
-  Future<bool> isFeatureEnabled(
+  @experimental
+  Future<bool> isFeatureFlagEnabled(
     String key, {
     bool defaultValue = false,
     FeatureFlagContextCallback? context,
@@ -527,7 +528,7 @@ class Hub {
     if (!_isEnabled) {
       _options.logger(
         SentryLevel.warning,
-        "Instance is disabled and this 'isFeatureEnabled' call is a no-op.",
+        "Instance is disabled and this 'isFeatureFlagEnabled' call is a no-op.",
       );
       return defaultValue;
     }
@@ -535,7 +536,7 @@ class Hub {
     try {
       final item = _peek();
 
-      return item.client.isFeatureEnabled(
+      return item.client.isFeatureFlagEnabled(
         key,
         scope: item.scope,
         defaultValue: defaultValue,
@@ -552,6 +553,7 @@ class Hub {
     return defaultValue;
   }
 
+  @experimental
   Future<FeatureFlagInfo?> getFeatureFlagInfo(
     String key, {
     FeatureFlagContextCallback? context,

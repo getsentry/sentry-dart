@@ -31,43 +31,26 @@ Future<void> main() async {
         id: '800',
       ),
     );
+    // await scope.setTag('isSentryDev', 'true');
   });
 
-  final enabled = await Sentry.isFeatureEnabled(
-    'accessToProfiling',
+  final enabled = await Sentry.isFeatureFlagEnabled(
+    'tracesSampleRate',
     defaultValue: false,
     context: (myContext) => {
-      myContext.tags['isSentryDev'] = 'true',
+      // myContext.tags['userSegment'] = 'slow',
     },
   );
   print(enabled);
 
   // TODO: does it return the active EvaluationRule? do we create a new model for that?
-  final flag = await Sentry.getFeatureFlagInfo('accessToProfiling',
+  final flag = await Sentry.getFeatureFlagInfo('tracesSampleRate',
       context: (myContext) => {
-            myContext.tags['isSentryDev'] = 'true',
+            myContext.tags['myCustomTag'] = 'true',
           });
 
-  print(flag?.result ?? 'whaat');
+  // print(flag?.payload?['internal_setting'] ?? 'whaat');
+  print(flag?.payload ?? {});
 }
 
 Future<void> runApp() async {}
-
-Future<void> loadConfig() async {
-  await parseConfig();
-}
-
-Future<void> parseConfig() async {
-  await decode();
-}
-
-Future<void> decode() async {
-  throw StateError('This is a test error');
-}
-
-class TagEventProcessor extends EventProcessor {
-  @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) {
-    return event..tags?.addAll({'page-locale': 'en-us'});
-  }
-}

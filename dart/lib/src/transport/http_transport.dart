@@ -117,52 +117,84 @@ class HttpTransport implements Transport {
 
     // final responseJson = json.decode(response.body);
 
-    final responseJson = json.decode('''{
-      "feature_flags": {
-        "accessToProfiling": {
-          "kind": "bool",
-          "evaluation": [
-            {
-              "type": "rollout",
-              "percentage": 0.5,
-              "result": true,
-              "tags": {
-                "userSegment": "slow"
-              },
-              "payload": null
-            },
-            {
-              "type": "match",
-              "result": true,
-              "tags": {
-                "isSentryDev": "true"
-              },
-              "payload": {
-                "background_image": "https://example.com/modus1.png"
-              }
-            }
-          ]
+    final responseJson = json.decode('''
+{
+  "feature_flags": {
+    "accessToProfiling": {
+      "kind": "bool",
+      "evaluation": [
+        {
+          "type": "rollout",
+          "percentage": 0.5,
+          "result": true,
+          "tags": {
+            "userSegment": "slow"
+          }
         },
-        "profilingEnabled": {
-          "kind": "bool",
-          "evaluation": [
-            {
-              "type": "rollout",
-              "percentage": 0.05,
-              "result": true,
-              "tags": {
-                "isSentryDev": "true"
-              }
-            },
-            {
-              "type": "match",
-              "result": true
-            }
-          ]
+        {
+          "type": "match",
+          "result": true,
+          "tags": {
+            "isSentryDev": "true"
+          },
+          "payload": {
+            "internal_setting": "wat"
+          }
         }
-      }
+      ]
+    },
+    "profilingEnabled": {
+      "kind": "bool",
+      "evaluation": [
+        {
+          "type": "match",
+          "result": true,
+          "tags": {
+            "isSentryDev": "true"
+          }
+        },
+        {
+          "type": "rollout",
+          "percentage": 0.05,
+          "result": true
+        }
+      ]
+    },
+    "loginBanner": {
+      "kind": "string",
+      "evaluation": [
+        {
+          "type": "match",
+          "result": "banner1",
+          "tags": {
+            "isSentryDev": "true"
+          },
+          "payload": {
+            "imageUrl": "https://mycdn.com/banner1.png"
+          }
+        },
+        {
+          "type": "match",
+          "result": "banner2",
+          "payload": {
+            "imageUrl": "https://mycdn.com/banner2.png"
+          }
+        }
+      ]
+    },
+    "tracesSampleRate": {
+      "kind": "number",
+      "evaluation": [
+        {
+          "type": "match",
+          "result": 0.25
+        }
+      ]
     }
-    ''');
+
+  }
+}
+      ''');
 
     return FeatureDump.fromJson(responseJson).featureFlags;
   }

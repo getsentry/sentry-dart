@@ -275,17 +275,19 @@ class Sentry {
   @internal
   static Hub get currentHub => _hub;
 
-  static Future<bool> isFeatureEnabled(
+  @experimental
+  static Future<bool> isFeatureFlagEnabled(
     String key, {
     bool defaultValue = false,
     FeatureFlagContextCallback? context,
   }) =>
-      _hub.isFeatureEnabled(
+      _hub.isFeatureFlagEnabled(
         key,
         defaultValue: defaultValue,
         context: context,
       );
 
+  @experimental
   static Future<FeatureFlagInfo?> getFeatureFlagInfo(
     String key, {
     FeatureFlagContextCallback? context,

@@ -411,7 +411,7 @@ class AndroidExample extends StatelessWidget {
             );
           });
 
-          final enabled = await Sentry.isFeatureEnabled(
+          final enabled = await Sentry.isFeatureFlagEnabled(
             '@@accessToProfiling',
             defaultValue: false,
             context: (myContext) => {

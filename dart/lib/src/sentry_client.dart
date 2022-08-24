@@ -409,7 +409,8 @@ class SentryClient {
   Future<Map<String, FeatureFlag>?> fetchFeatureFlags() =>
       _options.transport.fetchFeatureFlags();
 
-  Future<bool> isFeatureEnabled(
+  @experimental
+  Future<bool> isFeatureFlagEnabled(
     String key, {
     Scope? scope,
     bool defaultValue = false,
@@ -428,7 +429,26 @@ class SentryClient {
     final evaluationRule =
         _getEvaluationRuleMatch(flag, featureFlagContext, stickyId);
 
-    return evaluationRule?.result ?? defaultValue;
+    final resultType =
+        _checkResultType(evaluationRule, flag.kind, defaultValue);
+    return resultType ? true : defaultValue;
+  }
+
+  bool _checkResultType(EvaluationRule? rule, String kind, bool defaultValue) {
+    if (rule == null) {
+      return defaultValue;
+    }
+
+    switch (kind) {
+      case 'bool':
+        return rule.result is bool ? true : defaultValue;
+      case 'string':
+        return rule.result is String ? true : defaultValue;
+      case 'number':
+        return rule.result is num ? true : defaultValue;
+      default:
+        return defaultValue;
+    }
   }
 
   double _rollRandomNumber(String stickyId) {
@@ -445,6 +465,7 @@ class SentryClient {
     return true;
   }
 
+  @experimental
   Future<FeatureFlagInfo?> getFeatureFlagInfo(
     String key, {
     Scope? scope,
@@ -482,7 +503,6 @@ class SentryClient {
     FeatureFlagContext context,
     String stickyId,
   ) {
-    EvaluationRule? ruleMatch;
     for (final evalConfig in featureFlag.evaluations) {
       if (!_matchesTags(evalConfig.tags, context.tags)) {
         continue;
@@ -491,19 +511,18 @@ class SentryClient {
       switch (evalConfig.type) {
         case EvaluationType.rollout:
           final percentage = _rollRandomNumber(stickyId);
-          if (percentage >= (evalConfig.percentage ?? 0.0)) {
-            ruleMatch = evalConfig;
+          if (percentage < (evalConfig.percentage ?? 0.0)) {
+            return evalConfig;
           }
           break;
         case EvaluationType.match:
-          ruleMatch = evalConfig;
-          break;
+          return evalConfig;
         default:
           break;
       }
     }
 
-    return ruleMatch;
+    return null;
   }
 
   FeatureFlagContext _getFeatureFlagContext(
@@ -533,6 +552,9 @@ class SentryClient {
     if (environment != null) {
       featureFlagContext.tags['environment'] = environment;
     }
+
+    // set all the tags from the scope as well
+    featureFlagContext.tags.addAll(scope?.tags ?? {});
 
     // run feature flag context callback and allow user adding/removing tags
     if (context != null) {

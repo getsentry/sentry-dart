@@ -182,11 +182,6 @@ void main() {
   group('Sentry init', () {
     tearDown(() async {
       await Sentry.close();
-
-      await Sentry.isFeatureEnabled('test',
-          context: (myContext) => {
-                myContext.tags['something'] = 'true',
-              });
     });
 
     test('should install integrations', () async {
