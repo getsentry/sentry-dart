@@ -410,10 +410,10 @@ class SentryClient {
       _options.transport.fetchFeatureFlags();
 
   @experimental
-  Future<bool> isFeatureFlagEnabled(
+  Future<T?> getFeatureFlagValue<T>(
     String key, {
     Scope? scope,
-    bool defaultValue = false,
+    T? defaultValue,
     FeatureFlagContextCallback? context,
   }) async {
     final featureFlags = await _getFeatureFlagsFromCacheOrNetwork();
@@ -429,25 +429,41 @@ class SentryClient {
     final evaluationRule =
         _getEvaluationRuleMatch(flag, featureFlagContext, stickyId);
 
-    final resultType =
-        _checkResultType(evaluationRule, flag.kind, defaultValue);
-    return resultType ? true : defaultValue;
-  }
-
-  bool _checkResultType(EvaluationRule? rule, String kind, bool defaultValue) {
-    if (rule == null) {
+    if (evaluationRule == null) {
       return defaultValue;
     }
 
+    final resultType = _checkResultType<T>(evaluationRule, flag.kind);
+
+    return resultType ? evaluationRule.result as T : defaultValue;
+  }
+
+  // @experimental
+  // Future<bool> isFeatureFlagEnabled(
+  //   String key, {
+  //   Scope? scope,
+  //   bool defaultValue = false,
+  //   FeatureFlagContextCallback? context,
+  // }) async {
+  //   return await getFeatureFlagValue<bool>(
+  //         key,
+  //         scope: scope,
+  //         defaultValue: defaultValue,
+  //         context: context,
+  //       ) ??
+  //       defaultValue;
+  // }
+
+  bool _checkResultType<T>(EvaluationRule rule, String kind) {
     switch (kind) {
       case 'bool':
-        return rule.result is bool ? true : defaultValue;
+        return rule.result is bool && rule.result is T ? true : false;
       case 'string':
-        return rule.result is String ? true : defaultValue;
+        return rule.result is String && rule.result is T ? true : false;
       case 'number':
-        return rule.result is num ? true : defaultValue;
+        return rule.result is num && rule.result is T ? true : false;
       default:
-        return defaultValue;
+        return false;
     }
   }
 

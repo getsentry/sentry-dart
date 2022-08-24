@@ -67,14 +67,23 @@ class NoOpSentryClient implements SentryClient {
   @override
   Future<Map<String, FeatureFlag>?> fetchFeatureFlags() async => null;
 
+  // @override
+  // Future<bool> isFeatureFlagEnabled(
+  //   String key, {
+  //   Scope? scope,
+  //   bool defaultValue = false,
+  //   FeatureFlagContextCallback? context,
+  // }) async =>
+  //     false;
+
   @override
-  Future<bool> isFeatureFlagEnabled(
+  Future<T?> getFeatureFlagValue<T>(
     String key, {
     Scope? scope,
-    bool defaultValue = false,
+    T? defaultValue,
     FeatureFlagContextCallback? context,
   }) async =>
-      false;
+      null;
 
   @override
   Future<FeatureFlagInfo?> getFeatureFlagInfo(

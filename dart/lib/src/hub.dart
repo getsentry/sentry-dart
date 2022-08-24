@@ -519,16 +519,30 @@ class Hub {
     return event;
   }
 
+  // @experimental
+  // Future<bool> isFeatureFlagEnabled(
+  //   String key, {
+  //   bool defaultValue = false,
+  //   FeatureFlagContextCallback? context,
+  // }) async {
+  //   return await getFeatureFlagValue<bool>(
+  //         key,
+  //         defaultValue: defaultValue,
+  //         context: context,
+  //       ) ??
+  //       defaultValue;
+  // }
+
   @experimental
-  Future<bool> isFeatureFlagEnabled(
+  Future<T?> getFeatureFlagValue<T>(
     String key, {
-    bool defaultValue = false,
+    T? defaultValue,
     FeatureFlagContextCallback? context,
   }) async {
     if (!_isEnabled) {
       _options.logger(
         SentryLevel.warning,
-        "Instance is disabled and this 'isFeatureFlagEnabled' call is a no-op.",
+        "Instance is disabled and this 'getFeatureFlag' call is a no-op.",
       );
       return defaultValue;
     }
@@ -536,7 +550,7 @@ class Hub {
     try {
       final item = _peek();
 
-      return item.client.isFeatureFlagEnabled(
+      return item.client.getFeatureFlagValue<T>(
         key,
         scope: item.scope,
         defaultValue: defaultValue,

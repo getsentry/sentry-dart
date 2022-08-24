@@ -280,8 +280,21 @@ class Sentry {
     String key, {
     bool defaultValue = false,
     FeatureFlagContextCallback? context,
+  }) async {
+    return await getFeatureFlagValue<bool>(
+          key,
+          defaultValue: defaultValue,
+          context: context,
+        ) ??
+        defaultValue;
+  }
+
+  static Future<T?> getFeatureFlagValue<T>(
+    String key, {
+    T? defaultValue,
+    FeatureFlagContextCallback? context,
   }) =>
-      _hub.isFeatureFlagEnabled(
+      _hub.getFeatureFlagValue<T>(
         key,
         defaultValue: defaultValue,
         context: context,

@@ -161,13 +161,24 @@ class HubAdapter implements Hub {
   ) =>
       Sentry.currentHub.setSpanContext(throwable, span, transaction);
 
-  @override
-  Future<bool> isFeatureFlagEnabled(
+  // @override
+  // Future<bool> isFeatureFlagEnabled(
+  //   String key, {
+  //   bool defaultValue = false,
+  //   FeatureFlagContextCallback? context,
+  // }) =>
+  //     Sentry.isFeatureFlagEnabled(
+  //       key,
+  //       defaultValue: defaultValue,
+  //       context: context,
+  //     );
+
+  Future<T?> getFeatureFlagValue<T>(
     String key, {
-    bool defaultValue = false,
+    T? defaultValue,
     FeatureFlagContextCallback? context,
   }) =>
-      Sentry.isFeatureFlagEnabled(
+      Sentry.getFeatureFlagValue<T>(
         key,
         defaultValue: defaultValue,
         context: context,

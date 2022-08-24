@@ -34,23 +34,76 @@ Future<void> main() async {
     // await scope.setTag('isSentryDev', 'true');
   });
 
-  final enabled = await Sentry.isFeatureFlagEnabled(
-    'tracesSampleRate',
+  // accessToProfilingRollout
+  final accessToProfilingRollout = await Sentry.isFeatureFlagEnabled(
+    'accessToProfiling',
     defaultValue: false,
     context: (myContext) => {
-      // myContext.tags['userSegment'] = 'slow',
+      myContext.tags['userSegment'] = 'slow',
     },
   );
-  print(enabled);
+  print(
+      'accessToProfilingRollout $accessToProfilingRollout'); // false for user 800
 
-  // TODO: does it return the active EvaluationRule? do we create a new model for that?
-  final flag = await Sentry.getFeatureFlagInfo('tracesSampleRate',
-      context: (myContext) => {
-            myContext.tags['myCustomTag'] = 'true',
-          });
+  // accessToProfilingMatch
+  final accessToProfilingMatch = await Sentry.isFeatureFlagEnabled(
+    'accessToProfiling',
+    defaultValue: false,
+    context: (myContext) => {
+      myContext.tags['isSentryDev'] = 'true',
+    },
+  );
+  print('accessToProfilingMatch $accessToProfilingMatch'); // returns true
+
+  // profilingEnabledMatch
+  final profilingEnabledMatch = await Sentry.isFeatureFlagEnabled(
+    'profilingEnabled',
+    defaultValue: false,
+    context: (myContext) => {
+      myContext.tags['isSentryDev'] = 'true',
+    },
+  );
+  print('profilingEnabledMatch $profilingEnabledMatch'); // returns true
+
+  // profilingEnabledRollout
+  final profilingEnabledRollout = await Sentry.isFeatureFlagEnabled(
+    'profilingEnabled',
+    defaultValue: false,
+  );
+  print(
+      'profilingEnabledRollout $profilingEnabledRollout'); // false for user 800
+
+  // loginBannerMatch
+  final loginBannerMatch = await Sentry.getFeatureFlagValue<String>(
+    'loginBanner',
+    defaultValue: 'banner0',
+    context: (myContext) => {
+      myContext.tags['isSentryDev'] = 'true',
+    },
+  );
+  print('loginBannerMatch $loginBannerMatch'); // returns banner1
+
+  // loginBannerMatch2
+  final loginBannerMatch2 = await Sentry.getFeatureFlagValue<String>(
+    'loginBanner',
+    defaultValue: 'banner0',
+  );
+  print('loginBannerMatch2 $loginBannerMatch2'); // returns banner2
+
+  // tracesSampleRate
+  final tracesSampleRate = await Sentry.getFeatureFlagValue<double>(
+    'tracesSampleRate',
+    defaultValue: 0.0,
+  );
+  print('tracesSampleRate $tracesSampleRate'); // returns 0.25
+
+  // final flag = await Sentry.getFeatureFlagInfo('loginBanner',
+  //     context: (myContext) => {
+  //           myContext.tags['myCustomTag'] = 'true',
+  //         });
 
   // print(flag?.payload?['internal_setting'] ?? 'whaat');
-  print(flag?.payload ?? {});
+  // print(flag?.payload ?? {});
 }
 
 Future<void> runApp() async {}
