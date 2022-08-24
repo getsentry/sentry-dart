@@ -101,100 +101,100 @@ class HttpTransport implements Transport {
   Future<Map<String, FeatureFlag>?> fetchFeatureFlags() async {
     // TODO: handle rate limiting, client reports, etc...
 
-    // final response = await _options.httpClient.post(_dsn.featureFlagsUri,
-    //     headers: _credentialBuilder.configure(_headers));
+    final response = await _options.httpClient.post(_dsn.featureFlagsUri,
+        headers: _credentialBuilder.configure(_headers));
 
-    // if (response.statusCode != 200) {
-    //   if (_options.debug) {
-    //     _options.logger(
-    //       SentryLevel.error,
-    //       'API returned an error, statusCode = ${response.statusCode}, '
-    //       'body = ${response.body}',
-    //     );
-    //   }
-    //   return null;
-    // }
-
-    // final responseJson = json.decode(response.body);
-
-    final responseJson = json.decode('''
-{
-  "feature_flags": {
-    "accessToProfiling": {
-      "kind": "bool",
-      "evaluation": [
-        {
-          "type": "rollout",
-          "percentage": 0.5,
-          "result": true,
-          "tags": {
-            "userSegment": "slow"
-          }
-        },
-        {
-          "type": "match",
-          "result": true,
-          "tags": {
-            "isSentryDev": "true"
-          },
-          "payload": {
-            "internal_setting": "wat"
-          }
-        }
-      ]
-    },
-    "profilingEnabled": {
-      "kind": "bool",
-      "evaluation": [
-        {
-          "type": "match",
-          "result": true,
-          "tags": {
-            "isSentryDev": "true"
-          }
-        },
-        {
-          "type": "rollout",
-          "percentage": 0.05,
-          "result": true
-        }
-      ]
-    },
-    "loginBanner": {
-      "kind": "string",
-      "evaluation": [
-        {
-          "type": "match",
-          "result": "banner1",
-          "tags": {
-            "isSentryDev": "true"
-          },
-          "payload": {
-            "imageUrl": "https://mycdn.com/banner1.png"
-          }
-        },
-        {
-          "type": "match",
-          "result": "banner2",
-          "payload": {
-            "imageUrl": "https://mycdn.com/banner2.png"
-          }
-        }
-      ]
-    },
-    "tracesSampleRate": {
-      "kind": "number",
-      "evaluation": [
-        {
-          "type": "match",
-          "result": 0.25
-        }
-      ]
+    if (response.statusCode != 200) {
+      if (_options.debug) {
+        _options.logger(
+          SentryLevel.error,
+          'API returned an error, statusCode = ${response.statusCode}, '
+          'body = ${response.body}',
+        );
+      }
+      return null;
     }
 
-  }
-}
-      ''');
+    final responseJson = json.decode(response.body);
+
+//     final responseJson = json.decode('''
+// {
+//   "feature_flags": {
+//     "accessToProfiling": {
+//       "kind": "bool",
+//       "evaluation": [
+//         {
+//           "type": "rollout",
+//           "percentage": 0.5,
+//           "result": true,
+//           "tags": {
+//             "userSegment": "slow"
+//           }
+//         },
+//         {
+//           "type": "match",
+//           "result": true,
+//           "tags": {
+//             "isSentryDev": "true"
+//           },
+//           "payload": {
+//             "internal_setting": "wat"
+//           }
+//         }
+//       ]
+//     },
+//     "profilingEnabled": {
+//       "kind": "bool",
+//       "evaluation": [
+//         {
+//           "type": "match",
+//           "result": true,
+//           "tags": {
+//             "isSentryDev": "true"
+//           }
+//         },
+//         {
+//           "type": "rollout",
+//           "percentage": 0.05,
+//           "result": true
+//         }
+//       ]
+//     },
+//     "loginBanner": {
+//       "kind": "string",
+//       "evaluation": [
+//         {
+//           "type": "match",
+//           "result": "banner1",
+//           "tags": {
+//             "isSentryDev": "true"
+//           },
+//           "payload": {
+//             "imageUrl": "https://mycdn.com/banner1.png"
+//           }
+//         },
+//         {
+//           "type": "match",
+//           "result": "banner2",
+//           "payload": {
+//             "imageUrl": "https://mycdn.com/banner2.png"
+//           }
+//         }
+//       ]
+//     },
+//     "tracesSampleRate": {
+//       "kind": "number",
+//       "evaluation": [
+//         {
+//           "type": "match",
+//           "result": 0.25
+//         }
+//       ]
+//     }
+
+//   }
+// }
+//       ''');
 
     return FeatureDump.fromJson(responseJson).featureFlags;
   }
