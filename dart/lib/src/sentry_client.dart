@@ -438,22 +438,6 @@ class SentryClient {
     return resultType ? evaluationRule.result as T : defaultValue;
   }
 
-  // @experimental
-  // Future<bool> isFeatureFlagEnabled(
-  //   String key, {
-  //   Scope? scope,
-  //   bool defaultValue = false,
-  //   FeatureFlagContextCallback? context,
-  // }) async {
-  //   return await getFeatureFlagValue<bool>(
-  //         key,
-  //         scope: scope,
-  //         defaultValue: defaultValue,
-  //         context: context,
-  //       ) ??
-  //       defaultValue;
-  // }
-
   bool _checkResultType<T>(EvaluationRule rule, String kind) {
     switch (kind) {
       case 'bool':

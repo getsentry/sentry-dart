@@ -519,20 +519,6 @@ class Hub {
     return event;
   }
 
-  // @experimental
-  // Future<bool> isFeatureFlagEnabled(
-  //   String key, {
-  //   bool defaultValue = false,
-  //   FeatureFlagContextCallback? context,
-  // }) async {
-  //   return await getFeatureFlagValue<bool>(
-  //         key,
-  //         defaultValue: defaultValue,
-  //         context: context,
-  //       ) ??
-  //       defaultValue;
-  // }
-
   @experimental
   Future<T?> getFeatureFlagValue<T>(
     String key, {
