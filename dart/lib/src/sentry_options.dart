@@ -290,6 +290,11 @@ class SentryOptions {
     'featureFlagsEnabled': false,
   };
 
+  // experimental
+  bool isFeatureFlagsEnabled() {
+    return experimental['featureFlagsEnabled'] as bool? ?? false;
+  }
+
   SentryOptions({this.dsn, PlatformChecker? checker}) {
     if (checker != null) {
       platformChecker = checker;

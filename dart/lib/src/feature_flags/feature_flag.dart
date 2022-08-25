@@ -5,22 +5,19 @@ import 'evaluation_rule.dart';
 @immutable
 class FeatureFlag {
   final List<EvaluationRule> _evaluations;
-  // final String kind;
+  final String? group;
 
   List<EvaluationRule> get evaluations => List.unmodifiable(_evaluations);
 
-  FeatureFlag(this._evaluations);
+  FeatureFlag(this._evaluations, this.group);
 
   factory FeatureFlag.fromJson(Map<String, dynamic> json) {
-    // final kind = json['kind'];
+    final group = json['group'];
     final evaluationsList = json['evaluation'] as List<dynamic>? ?? [];
     final evaluations = evaluationsList
         .map((e) => EvaluationRule.fromJson(e))
         .toList(growable: false);
 
-    return FeatureFlag(
-      // kind,
-      evaluations,
-    );
+    return FeatureFlag(evaluations, group);
   }
 }

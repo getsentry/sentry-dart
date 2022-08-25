@@ -424,8 +424,11 @@ class SentryClient {
     }
     final featureFlagContext = _getFeatureFlagContext(scope, context);
 
-    final evaluationRule =
-        _getEvaluationRuleMatch(flag.evaluations, featureFlagContext);
+    final evaluationRule = _getEvaluationRuleMatch(
+      key,
+      flag,
+      featureFlagContext,
+    );
 
     if (evaluationRule == null) {
       return defaultValue;
@@ -443,7 +446,7 @@ class SentryClient {
     T? defaultValue,
     FeatureFlagContextCallback? context,
   }) async {
-    if (!_isFeatureFlagsEnabled()) {
+    if (!_options.isFeatureFlagsEnabled()) {
       return defaultValue;
     }
 
@@ -464,7 +467,7 @@ class SentryClient {
     T? defaultValue,
     FeatureFlagContextCallback? context,
   }) {
-    if (!_isFeatureFlagsEnabled()) {
+    if (!_options.isFeatureFlagsEnabled()) {
       return defaultValue;
     }
 
@@ -481,8 +484,9 @@ class SentryClient {
     return result is T ? true : false;
   }
 
-  double _rollRandomNumber(String stickyId) {
-    final rand = XorShiftRandom(stickyId);
+  double _rollRandomNumber(String stickyId, String group) {
+    final seed = '$group|$stickyId';
+    final rand = XorShiftRandom(seed);
     return rand.next();
   }
 
@@ -506,7 +510,7 @@ class SentryClient {
     Scope? scope,
     FeatureFlagContextCallback? context,
   }) async {
-    if (!_isFeatureFlagsEnabled()) {
+    if (!_options.isFeatureFlagsEnabled()) {
       return null;
     }
 
@@ -519,8 +523,11 @@ class SentryClient {
 
     final featureFlagContext = _getFeatureFlagContext(scope, context);
 
-    final evaluationRule =
-        _getEvaluationRuleMatch(featureFlag.evaluations, featureFlagContext);
+    final evaluationRule = _getEvaluationRuleMatch(
+      key,
+      featureFlag,
+      featureFlagContext,
+    );
 
     if (evaluationRule == null) {
       return null;
@@ -537,20 +544,22 @@ class SentryClient {
   }
 
   EvaluationRule? _getEvaluationRuleMatch(
-    List<EvaluationRule> evaluations,
+    String key,
+    FeatureFlag featureFlag,
     FeatureFlagContext context,
   ) {
     // there's always a stickyId
     final stickyId = context.tags['stickyId']!;
+    final group = featureFlag.group ?? key;
 
-    for (final evalConfig in evaluations) {
+    for (final evalConfig in featureFlag.evaluations) {
       if (!_matchesTags(evalConfig.tags, context.tags)) {
         continue;
       }
 
       switch (evalConfig.type) {
         case EvaluationType.rollout:
-          final percentage = _rollRandomNumber(stickyId);
+          final percentage = _rollRandomNumber(stickyId, group);
           if (percentage < (evalConfig.percentage ?? 0.0)) {
             return evalConfig;
           }
@@ -625,9 +634,5 @@ class SentryClient {
     _featureFlags =
         _featureFlags ?? await _options.transport.fetchFeatureFlags();
     return _featureFlags;
-  }
-
-  bool _isFeatureFlagsEnabled() {
-    return _options.experimental['featureFlagsEnabled'] as bool? ?? false;
   }
 }
