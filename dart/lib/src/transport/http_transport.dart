@@ -115,89 +115,89 @@ class HttpTransport implements Transport {
       // return null;
     }
 
-    // final responseJson = json.decode(response.body);
+    final responseJson = json.decode(response.body);
 
-    final responseJson = json.decode('''
-{
-  "feature_flags": {
-    "@@accessToProfiling": {
-      "evaluation": [
-        {
-          "type": "match",
-          "result": true,
-          "tags": {
-            "isSentryDev": "true"
-          }
-        },
-        {
-          "type": "rollout",
-          "percentage": 0.5,
-          "result": true
-        }
-      ],
-      "kind": "boolean"
-    },
-    "@@errorsSampleRate": {
-      "evaluation": [
-        {
-          "type": "match",
-          "result": 0.75
-        }
-      ],
-      "kind": "number"
-    },
-    "@@profilingEnabled": {
-      "evaluation": [
-        {
-          "type": "match",
-          "result": true,
-          "tags": {
-            "isSentryDev": "true"
-          }
-        },
-        {
-          "type": "rollout",
-          "percentage": 0.05,
-          "result": true
-        }
-      ],
-      "kind": "boolean"
-    },
-    "@@tracesSampleRate": {
-      "evaluation": [
-        {
-          "type": "match",
-          "result": 0.25
-        }
-      ],
-      "kind": "number"
-    },
-    "accessToProfiling": {
-      "evaluation": [
-        {
-          "type": "rollout",
-          "percentage": 1.0,
-          "result": true
-        }
-      ],
-      "kind": "boolean"
-    },
-    "welcomeBanner": {
-      "evaluation": [
-        {
-          "type": "rollout",
-          "percentage": 1.0,
-          "result": "dev.png",
-          "tags": {
-            "environment": "dev"
-          }
-        }
-      ],
-      "kind": "string"
-    }
-  }
-}
-      ''');
+//     final responseJson = json.decode('''
+// {
+//   "feature_flags": {
+//     "@@accessToProfiling": {
+//       "evaluation": [
+//         {
+//           "type": "match",
+//           "result": true,
+//           "tags": {
+//             "isSentryDev": "true"
+//           }
+//         },
+//         {
+//           "type": "rollout",
+//           "percentage": 0.5,
+//           "result": true
+//         }
+//       ],
+//       "kind": "boolean"
+//     },
+//     "@@errorsSampleRate": {
+//       "evaluation": [
+//         {
+//           "type": "match",
+//           "result": 0.75
+//         }
+//       ],
+//       "kind": "number"
+//     },
+//     "@@profilingEnabled": {
+//       "evaluation": [
+//         {
+//           "type": "match",
+//           "result": true,
+//           "tags": {
+//             "isSentryDev": "true"
+//           }
+//         },
+//         {
+//           "type": "rollout",
+//           "percentage": 0.05,
+//           "result": true
+//         }
+//       ],
+//       "kind": "boolean"
+//     },
+//     "@@tracesSampleRate": {
+//       "evaluation": [
+//         {
+//           "type": "match",
+//           "result": 0.25
+//         }
+//       ],
+//       "kind": "number"
+//     },
+//     "accessToProfiling": {
+//       "evaluation": [
+//         {
+//           "type": "rollout",
+//           "percentage": 1.0,
+//           "result": true
+//         }
+//       ],
+//       "kind": "boolean"
+//     },
+//     "welcomeBanner": {
+//       "evaluation": [
+//         {
+//           "type": "rollout",
+//           "percentage": 1.0,
+//           "result": "dev.png",
+//           "tags": {
+//             "environment": "dev"
+//           }
+//         }
+//       ],
+//       "kind": "string"
+//     }
+//   }
+// }
+//       ''');
 
     return FeatureDump.fromJson(responseJson).featureFlags;
   }

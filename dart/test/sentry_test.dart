@@ -18,15 +18,17 @@ void main() {
     var anException = Exception();
 
     setUp(() async {
+      final tracesSampleRate = 1.0;
       await Sentry.init(
         (options) => {
           options.dsn = fakeDsn,
-          options.tracesSampleRate = 1.0,
+          options.tracesSampleRate = tracesSampleRate,
         },
       );
       anException = Exception('anException');
 
       client = MockSentryClient();
+      client.featureFlagValue = tracesSampleRate;
       Sentry.bindClient(client);
     });
 
