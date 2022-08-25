@@ -450,9 +450,9 @@ class SentryClient {
       return defaultValue;
     }
 
-    final featureFlags = await _getFeatureFlagsFromCacheOrNetwork();
+    await requestFeatureFlags();
     return _getFeatureFlagValue(
-      featureFlags,
+      _featureFlags,
       key,
       scope: scope,
       defaultValue: defaultValue,
@@ -514,8 +514,8 @@ class SentryClient {
       return null;
     }
 
-    final featureFlags = await _getFeatureFlagsFromCacheOrNetwork();
-    final featureFlag = featureFlags?[key];
+    await requestFeatureFlags();
+    final featureFlag = _featureFlags?[key];
 
     if (featureFlag == null) {
       return null;
@@ -629,10 +629,9 @@ class SentryClient {
     return featureFlagContext;
   }
 
-  Future<Map<String, FeatureFlag>?> _getFeatureFlagsFromCacheOrNetwork() async {
+  Future<void> requestFeatureFlags() async {
     // TODO: add mechanism to reset caching
     _featureFlags =
         _featureFlags ?? await _options.transport.fetchFeatureFlags();
-    return _featureFlags;
   }
 }

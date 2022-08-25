@@ -88,4 +88,7 @@ class NoOpSentryClient implements SentryClient {
     FeatureFlagContextCallback? context,
   }) async =>
       null;
+
+  @override
+  Future<void> requestFeatureFlags() async {}
 }

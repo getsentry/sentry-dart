@@ -194,4 +194,7 @@ class HubAdapter implements Hub {
         key,
         context: context,
       );
+
+  @override
+  Future<void> requestFeatureFlags() => Sentry.currentHub.requestFeatureFlags();
 }

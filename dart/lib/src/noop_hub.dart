@@ -139,4 +139,7 @@ class NoOpHub implements Hub {
     FeatureFlagContextCallback? context,
   }) async =>
       null;
+
+  @override
+  Future<void> requestFeatureFlags() async {}
 }

@@ -627,6 +627,29 @@ class Hub {
     }
     return null;
   }
+
+  Future<void> requestFeatureFlags() async {
+    if (!_isEnabled) {
+      _options.logger(
+        SentryLevel.warning,
+        "Instance is disabled and this 'requestFeatureFlags' call is a no-op.",
+      );
+      return;
+    }
+
+    try {
+      final item = _peek();
+
+      return item.client.requestFeatureFlags();
+    } catch (exception, stacktrace) {
+      _options.logger(
+        SentryLevel.error,
+        'Error while fetching feature flags',
+        exception: exception,
+        stackTrace: stacktrace,
+      );
+    }
+  }
 }
 
 class _StackItem {

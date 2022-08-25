@@ -99,3 +99,14 @@ class RunZonedGuardedIntegration extends Integration {
     return completer.future;
   }
 }
+
+class FetchFeatureFlagsAsync extends Integration {
+  @override
+  FutureOr<void> call(Hub hub, SentryOptions options) async {
+    // request feature flags and cache it in memory
+    if (!options.isFeatureFlagsEnabled()) {
+      return;
+    }
+    await hub.requestFeatureFlags();
+  }
+}

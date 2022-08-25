@@ -116,6 +116,7 @@ class Sentry {
       final runZonedGuardedIntegration =
           RunZonedGuardedIntegration(runIntegrationsAndAppRunner);
       options.addIntegrationByIndex(0, runZonedGuardedIntegration);
+      options.addIntegration(FetchFeatureFlagsAsync());
 
       // RunZonedGuardedIntegration will run other integrations and appRunner
       // runZonedGuarded so all exception caught in the error handler are
