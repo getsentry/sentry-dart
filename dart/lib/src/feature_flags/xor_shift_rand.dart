@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:crypto/crypto.dart';
+import '../cryptography/sha1.dart';
 
 /// final rand = XorShiftRandom('wohoo');
 /// rand.next();
