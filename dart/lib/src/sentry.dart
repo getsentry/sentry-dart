@@ -159,6 +159,7 @@ class Sentry {
         withScope: withScope,
       );
 
+  /// Reports a [message] to Sentry.io.
   static Future<SentryId> captureMessage(
     String? message, {
     SentryLevel? level = SentryLevel.info,
@@ -176,6 +177,8 @@ class Sentry {
         withScope: withScope,
       );
 
+  /// This method is used to capture user feedback events. In order to work,
+  /// first capture an event and use the [SentryId] to create a [UserFeedback]
   static Future<void> captureUserFeedback(SentryUserFeedback userFeedback) =>
       _hub.captureUserFeedback(userFeedback);
 

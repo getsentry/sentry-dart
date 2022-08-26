@@ -225,6 +225,13 @@ class Hub {
       );
       return;
     }
+    if (userFeedback.name == null || (userFeedback.name?.isEmpty ?? true)) {
+      _options.logger(
+        SentryLevel.warning,
+        'Name is empty, dropping the feedback',
+      );
+      return;
+    }
     try {
       final item = _peek();
 
