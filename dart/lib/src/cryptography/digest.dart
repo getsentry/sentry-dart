@@ -3,6 +3,7 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'dart:typed_data';
+import '../utils/hash_code.dart';
 
 /// A message digest as computed by a `Hash` or `HMAC` function.
 class Digest {
@@ -34,7 +35,7 @@ class Digest {
   }
 
   @override
-  int get hashCode => Object.hashAll(bytes);
+  int get hashCode => hashAll(bytes);
 
   /// The message digest as a string of hexadecimal digits.
   @override
