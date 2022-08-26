@@ -103,6 +103,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     return true
   }
 
+  @Suppress("LongMethod")
   private fun initNativeSdk(call: MethodCall, result: Result) {
     if (!this::context.isInitialized) {
       result.error("1", "Context is null", null)
