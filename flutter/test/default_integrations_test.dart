@@ -219,7 +219,9 @@ void main() {
   });
 
   test('nativeSdkIntegration adds integration', () async {
-    _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
+    _channel.setMockMethodCallHandler((MethodCall methodCall) async {
+      return {'deviceId': 'test'};
+    });
 
     final integration = NativeSdkIntegration(_channel);
 
