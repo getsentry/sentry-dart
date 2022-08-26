@@ -259,7 +259,9 @@ void main() {
       expect(matchProfiling.tags.isEmpty, true);
       expect(matchProfiling.type, EvaluationType.match);
       expect(matchProfiling.payload, isNull);
-    });
+    }, onPlatform: {
+      'browser': Skip()
+    }); // TODO: web does not have File/readAsString
   });
 }
 

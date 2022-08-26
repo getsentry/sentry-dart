@@ -174,7 +174,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     // make Installation.id(context) public
     val item = mapOf<String, Any?>(
-        "deviceId" to Sentry.getCurrentHub().options.distinctId
+      "deviceId" to Sentry.getCurrentHub().options.distinctId
     )
     result.success(item)
   }
