@@ -4,7 +4,6 @@
 
 import 'dart:typed_data';
 
-// import '../typed_data/uint8_buffer.dart';
 import '../typed_data/typed_buffer.dart';
 import 'digest.dart';
 import 'utils.dart';
