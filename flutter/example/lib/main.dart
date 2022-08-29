@@ -34,7 +34,7 @@ Future<void> main() async {
       // We can enable Sentry debug logging during development. This is likely
       // going to log too much for your app, but can be useful when figuring out
       // configuration issues, e.g. finding out why your events are not uploaded.
-      options.debug = kDebugMode;
+      options.debug = true;
     },
     // Init your App.
     appRunner: () => runApp(
