@@ -400,27 +400,51 @@ void main() {
     var hub = Hub(SentryOptions(dsn: fakeDsn));
     var client = MockSentryClient();
 
+    SentryLevel? loggedLevel;
+    Object? loggedException;
+
+    void mockLogger(
+      SentryLevel level,
+      String message, {
+      String? logger,
+      Object? exception,
+      StackTrace? stackTrace,
+    }) {
+      loggedLevel = level;
+      loggedException = exception;
+    }
+
     setUp(() {
-      hub = Hub(SentryOptions(dsn: fakeDsn));
+      final options = SentryOptions(dsn: fakeDsn)
+        ..debug = true
+        ..logger = mockLogger; // Enable logging in DiagnosticsLogger
+
+      hub = Hub(options);
       client = MockSentryClient();
       hub.bindClient(client);
     });
 
     test('captureEvent should handle thrown error in scope callback', () async {
+      final scopeCallbackException = Exception('error in scope callback');
+
       ScopeCallback scopeCallback = (Scope scope) {
-        throw Exception('error in scope callback');
+        throw scopeCallbackException;
       };
 
       final sentryId =
           await hub.captureEvent(fakeEvent, withScope: scopeCallback);
 
       expect(sentryId, SentryId.empty());
+      expect(loggedException, scopeCallbackException);
+      expect(loggedLevel, SentryLevel.error);
     });
 
     test('captureException should handle thrown error in scope callback',
         () async {
+      final scopeCallbackException = Exception('error in scope callback');
+
       ScopeCallback scopeCallback = (Scope scope) {
-        throw Exception('error in scope callback');
+        throw scopeCallbackException;
       };
 
       final exception = Exception("captured exception");
@@ -428,18 +452,24 @@ void main() {
           await hub.captureException(exception, withScope: scopeCallback);
 
       expect(sentryId, SentryId.empty());
+      expect(loggedException, scopeCallbackException);
+      expect(loggedLevel, SentryLevel.error);
     });
 
     test('captureMessage should handle thrown error in scope callback',
         () async {
+      final scopeCallbackException = Exception('error in scope callback');
+
       ScopeCallback scopeCallback = (Scope scope) {
-        throw Exception('error in scope callback');
+        throw scopeCallbackException;
       };
 
       final sentryId = await hub.captureMessage("captured message",
           withScope: scopeCallback);
 
       expect(sentryId, SentryId.empty());
+      expect(loggedException, scopeCallbackException);
+      expect(loggedLevel, SentryLevel.error);
     });
   });
 

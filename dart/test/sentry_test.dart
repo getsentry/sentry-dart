@@ -335,12 +335,10 @@ void main() {
 
   group("Sentry init optionsConfiguration", () {
     SentryLevel? loggedLevel;
-    String? loggedMessage;
     Object? loggedException;
 
     setUp(() {
       loggedLevel = null;
-      loggedMessage = null;
       loggedException = null;
     });
 
@@ -352,14 +350,13 @@ void main() {
       StackTrace? stackTrace,
     }) {
       loggedLevel = level;
-      loggedMessage = message;
       loggedException = exception;
     }
 
     test('throw is handled and logged', () async {
-      final sentryOptions = SentryOptions(dsn: fakeDsn);
-      sentryOptions.logger = mockLogger;
-      sentryOptions.debug = true; // Enable logging in DiagnosticsLogger
+      final sentryOptions = SentryOptions(dsn: fakeDsn)
+        ..debug = true
+        ..logger = mockLogger; // Enable logging in DiagnosticsLogger
 
       final exception = Exception("Exception in options callback");
 
@@ -367,7 +364,6 @@ void main() {
 
       expect(loggedException, exception);
       expect(loggedLevel, SentryLevel.error);
-      expect(loggedMessage, "Error in options configuration.");
     });
   });
 }
