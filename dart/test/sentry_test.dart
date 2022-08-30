@@ -332,4 +332,50 @@ void main() {
 
     expect(sentryOptions.logger == dartLogger, false);
   });
+
+  group("Sentry init optionsConfiguration", () {
+    SentryLevel? loggedLevel;
+    String? loggedMessage;
+    Object? loggedException;
+
+    setUp(() {
+      loggedLevel = null;
+      loggedMessage = null;
+      loggedException = null;
+    });
+
+    void mockLogger(
+      SentryLevel level,
+      String message, {
+      String? logger,
+      Object? exception,
+      StackTrace? stackTrace,
+    }) {
+      loggedLevel = level;
+      loggedMessage = message;
+      loggedException = exception;
+    }
+
+    test('throw is handled and logged', () async {
+      final sentryOptions = SentryOptions(dsn: fakeDsn);
+      sentryOptions.logger = mockLogger;
+      sentryOptions.debug = true; // Enable logging in DiagnosticsLogger
+
+      final exception = Exception("Exception in options callback");
+
+      await Sentry.init((options) => {throw exception}, options: sentryOptions);
+
+      expect(loggedException, exception);
+      expect(loggedLevel, SentryLevel.error);
+      expect(loggedMessage, "Error in options configuration.");
+    });
+  });
 }
+
+void noOpLogger(
+  SentryLevel level,
+  String message, {
+  String? logger,
+  Object? exception,
+  StackTrace? stackTrace,
+}) {}
