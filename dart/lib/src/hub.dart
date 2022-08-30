@@ -81,7 +81,19 @@ class Hub {
       );
     } else {
       final item = _peek();
-      final scope = await _cloneAndRunWithScope(item.scope, withScope);
+      final Scope scope;
+
+      try {
+        scope = await _cloneAndRunWithScope(item.scope, withScope);
+      } catch (exception, stackTrace) {
+        _options.logger(
+          SentryLevel.error,
+          'Failed to capture event with id: ${event.eventId}',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+        return sentryId;
+      }
 
       try {
         if (_options.isTracingEnabled()) {
@@ -129,7 +141,19 @@ class Hub {
       );
     } else {
       final item = _peek();
-      final scope = await _cloneAndRunWithScope(item.scope, withScope);
+      final Scope scope;
+
+      try {
+        scope = await _cloneAndRunWithScope(item.scope, withScope);
+      } catch (exception, stackTrace) {
+        _options.logger(
+          SentryLevel.error,
+          'Failed to capture exception',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+        return sentryId;
+      }
 
       try {
         var event = SentryEvent(
@@ -185,7 +209,19 @@ class Hub {
       );
     } else {
       final item = _peek();
-      final scope = await _cloneAndRunWithScope(item.scope, withScope);
+      final Scope scope;
+
+      try {
+        scope = await _cloneAndRunWithScope(item.scope, withScope);
+      } catch (exception, stackTrace) {
+        _options.logger(
+          SentryLevel.error,
+          'Failed to capturing message with id: $message',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+        return sentryId;
+      }
 
       try {
         sentryId = await item.client.captureMessage(

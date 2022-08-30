@@ -396,6 +396,53 @@ void main() {
     });
   });
 
+  group('Hub scope callback', () {
+    var hub = Hub(SentryOptions(dsn: fakeDsn));
+    var client = MockSentryClient();
+
+    setUp(() {
+      hub = Hub(SentryOptions(dsn: fakeDsn));
+      client = MockSentryClient();
+      hub.bindClient(client);
+    });
+
+    test('captureEvent should handle thrown error in scope callback', () async {
+      ScopeCallback scopeCallback = (Scope scope) {
+        throw Exception('error in scope callback');
+      };
+
+      final sentryId =
+          await hub.captureEvent(fakeEvent, withScope: scopeCallback);
+
+      expect(sentryId, SentryId.empty());
+    });
+
+    test('captureException should handle thrown error in scope callback',
+        () async {
+      ScopeCallback scopeCallback = (Scope scope) {
+        throw Exception('error in scope callback');
+      };
+
+      final exception = Exception("captured exception");
+      final sentryId =
+          await hub.captureException(exception, withScope: scopeCallback);
+
+      expect(sentryId, SentryId.empty());
+    });
+
+    test('captureMessage should handle thrown error in scope callback',
+        () async {
+      ScopeCallback scopeCallback = (Scope scope) {
+        throw Exception('error in scope callback');
+      };
+
+      final sentryId = await hub.captureMessage("captured message",
+          withScope: scopeCallback);
+
+      expect(sentryId, SentryId.empty());
+    });
+  });
+
   group('Hub Client', () {
     late Hub hub;
     late SentryClient client;
