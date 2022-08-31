@@ -367,11 +367,3 @@ void main() {
     });
   });
 }
-
-void noOpLogger(
-  SentryLevel level,
-  String message, {
-  String? logger,
-  Object? exception,
-  StackTrace? stackTrace,
-}) {}
