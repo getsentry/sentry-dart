@@ -174,10 +174,19 @@ class Scope {
     Breadcrumb? processedBreadcrumb = breadcrumb;
     // run before breadcrumb callback if set
     if (_options.beforeBreadcrumb != null) {
-      processedBreadcrumb = _options.beforeBreadcrumb!(
-        processedBreadcrumb,
-        hint: hint,
-      );
+      try {
+        processedBreadcrumb = _options.beforeBreadcrumb!(
+          processedBreadcrumb,
+          hint: hint,
+        );
+      } catch (exception, stackTrace) {
+        _options.logger(
+          SentryLevel.error,
+          'The BeforeBreadcrumb callback threw an exception',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+      }
 
       if (processedBreadcrumb == null) {
         _options.logger(

@@ -628,6 +628,78 @@ void main() {
 
     expect(true, fixture.mockScopeObserver.calledSetUser);
   });
+
+  group("Scope exceptions", () {
+    SentryLevel? loggedLevel;
+    Object? loggedException;
+
+    void mockLogger(
+      SentryLevel level,
+      String message, {
+      String? logger,
+      Object? exception,
+      StackTrace? stackTrace,
+    }) {
+      loggedLevel = level;
+      loggedException = exception;
+    }
+
+    test("addBreadcrumb with beforeBreadcrumb error handled ", () async {
+      final exception = Exception("before breadcrumb exception");
+
+      final sut = fixture.getSut(beforeBreadcrumbCallback: (
+        Breadcrumb? breadcrumb, {
+        dynamic hint,
+      }) {
+        throw exception;
+      });
+
+      fixture.options.debug = true;
+      fixture.options.logger = mockLogger;
+
+      final breadcrumb = Breadcrumb(
+        message: 'test log',
+        timestamp: DateTime.utc(2019),
+      );
+
+      await sut.addBreadcrumb(breadcrumb);
+
+      expect(loggedException, exception);
+      expect(loggedLevel, SentryLevel.error);
+    });
+
+    test("clone with beforeBreadcrumb error handled ", () async {
+      var numberOfBeforeBreadcrumbCalls = 0;
+      final exception = Exception("before breadcrumb exception");
+
+      final sut = fixture.getSut(beforeBreadcrumbCallback: (
+        Breadcrumb? breadcrumb, {
+        dynamic hint,
+      }) {
+        if (numberOfBeforeBreadcrumbCalls > 0) {
+          throw exception;
+        }
+        numberOfBeforeBreadcrumbCalls += 1;
+        return breadcrumb;
+      });
+
+      fixture.options.debug = true;
+      fixture.options.logger = mockLogger;
+
+      final breadcrumb = Breadcrumb(
+        message: 'test log',
+        timestamp: DateTime.utc(2019),
+      );
+      await sut.addBreadcrumb(breadcrumb);
+      sut.clone();
+
+      expect(loggedException, exception);
+      expect(loggedLevel, SentryLevel.error);
+    });
+  });
+
+  // addBreadcrumb
+  // clone
 }
 
 class Fixture {
@@ -637,12 +709,13 @@ class Fixture {
   );
   final mockScopeObserver = MockScopeObserver();
 
+  final options = SentryOptions(dsn: fakeDsn);
+
   Scope getSut({
     int maxBreadcrumbs = 100,
     BeforeBreadcrumbCallback? beforeBreadcrumbCallback,
     ScopeObserver? scopeObserver,
   }) {
-    final options = SentryOptions(dsn: fakeDsn);
     options.maxBreadcrumbs = maxBreadcrumbs;
     options.beforeBreadcrumb = beforeBreadcrumbCallback;
     if (scopeObserver != null) {
