@@ -179,6 +179,13 @@ class Scope {
           processedBreadcrumb,
           hint: hint,
         );
+        if (processedBreadcrumb == null) {
+          _options.logger(
+            SentryLevel.info,
+            'Breadcrumb was dropped by beforeBreadcrumb',
+          );
+          return false;
+        }
       } catch (exception, stackTrace) {
         _options.logger(
           SentryLevel.error,
@@ -187,23 +194,15 @@ class Scope {
           stackTrace: stackTrace,
         );
       }
-
-      if (processedBreadcrumb == null) {
-        _options.logger(
-          SentryLevel.info,
-          'Breadcrumb was dropped by beforeBreadcrumb',
-        );
-        return false;
+    }
+    if (processedBreadcrumb != null) {
+      // remove first item if list is full
+      if (_breadcrumbs.length >= _options.maxBreadcrumbs &&
+          _breadcrumbs.isNotEmpty) {
+        _breadcrumbs.removeFirst();
       }
+      _breadcrumbs.add(processedBreadcrumb);
     }
-
-    // remove first item if list is full
-    if (_breadcrumbs.length >= _options.maxBreadcrumbs &&
-        _breadcrumbs.isNotEmpty) {
-      _breadcrumbs.removeFirst();
-    }
-
-    _breadcrumbs.add(processedBreadcrumb);
     return true;
   }
 
