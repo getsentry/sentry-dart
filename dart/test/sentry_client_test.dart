@@ -740,6 +740,20 @@ void main() {
   group('SentryClient before send', () {
     late Fixture fixture;
 
+    SentryLevel? loggedLevel;
+    Object? loggedException;
+
+    void mockLogger(
+      SentryLevel level,
+      String message, {
+      String? logger,
+      Object? exception,
+      StackTrace? stackTrace,
+    }) {
+      loggedLevel = level;
+      loggedException = exception;
+    }
+
     setUp(() {
       fixture = Fixture();
     });
@@ -780,6 +794,22 @@ void main() {
         true,
       );
       expect(event.fingerprint!.contains('process'), true);
+    });
+
+    test('thrown error is handled', () async {
+      final exception = Exception("before send exception");
+      final beforeSendCallback = (SentryEvent event, {dynamic hint}) {
+        throw exception;
+      };
+
+      final client = fixture.getSut(beforeSend: beforeSendCallback);
+      fixture.options.logger = mockLogger;
+      fixture.options.debug = true;
+
+      await client.captureEvent(fakeEvent);
+
+      expect(loggedException, exception);
+      expect(loggedLevel, SentryLevel.error);
     });
   });
 
