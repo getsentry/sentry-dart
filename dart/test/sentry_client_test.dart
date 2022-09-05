@@ -740,20 +740,6 @@ void main() {
   group('SentryClient before send', () {
     late Fixture fixture;
 
-    SentryLevel? loggedLevel;
-    Object? loggedException;
-
-    void mockLogger(
-      SentryLevel level,
-      String message, {
-      String? logger,
-      Object? exception,
-      StackTrace? stackTrace,
-    }) {
-      loggedLevel = level;
-      loggedException = exception;
-    }
-
     setUp(() {
       fixture = Fixture();
     });
@@ -802,14 +788,12 @@ void main() {
         throw exception;
       };
 
-      final client = fixture.getSut(beforeSend: beforeSendCallback);
-      fixture.options.logger = mockLogger;
-      fixture.options.debug = true;
+      final client = fixture.getSut(beforeSend: beforeSendCallback, debug: true);
 
       await client.captureEvent(fakeEvent);
 
-      expect(loggedException, exception);
-      expect(loggedLevel, SentryLevel.error);
+      expect(fixture.loggedException, exception);
+      expect(fixture.loggedLevel, SentryLevel.error);
     });
   });
 
@@ -1236,6 +1220,9 @@ class Fixture {
   late SentryTransactionContext _context;
   late SentryTracer tracer;
 
+  SentryLevel? loggedLevel;
+  Object? loggedException;
+
   SentryClient getSut({
     bool sendDefaultPii = false,
     bool attachStacktrace = true,
@@ -1244,6 +1231,7 @@ class Fixture {
     BeforeSendCallback? beforeSend,
     EventProcessor? eventProcessor,
     bool provideMockRecorder = true,
+    bool debug = false,
   }) {
     final hub = Hub(options);
     _context = SentryTransactionContext(
@@ -1258,6 +1246,8 @@ class Fixture {
     options.attachThreads = attachThreads;
     options.sampleRate = sampleRate;
     options.beforeSend = beforeSend;
+    options.debug = debug;
+    options.logger = mockLogger;
 
     if (eventProcessor != null) {
       options.addEventProcessor(eventProcessor);
@@ -1274,5 +1264,16 @@ class Fixture {
   FutureOr<SentryEvent?> droppingBeforeSend(SentryEvent event,
       {dynamic hint}) async {
     return null;
+  }
+
+  void mockLogger(
+      SentryLevel level,
+      String message, {
+        String? logger,
+        Object? exception,
+        StackTrace? stackTrace,
+      }) {
+    loggedLevel = level;
+    loggedException = exception;
   }
 }
