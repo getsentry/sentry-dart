@@ -6,6 +6,12 @@
 
 - Capture Callback Exceptions ([#990](https://github.com/getsentry/sentry-dart/pull/990))
 
+### Features
+
+- Bump Android SDK from v6.3.1 to v6.4.1 ([#989](https://github.com/getsentry/sentry-dart/pull/989))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#641)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.3.1...6.4.1)
+
 ## 6.9.1
 
 ### Fixes
