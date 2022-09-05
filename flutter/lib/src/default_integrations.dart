@@ -449,14 +449,13 @@ class WidgetsBindingIntegration extends Integration<SentryFlutterOptions> {
 }
 
 /// Loads the native debug image list for stack trace symbolication.
-class LoadImageListIntegration
-    extends Integration<SentryFlutterOptions> {
+class LoadImageListIntegration extends Integration<SentryFlutterOptions> {
   final MethodChannel _channel;
 
   LoadImageListIntegration(this._channel);
 
   static bool supportsPlatform(Platform platform) =>
-    platform.isAndroid || platform.isIOS || platform.isMacOS;
+      platform.isAndroid || platform.isIOS || platform.isMacOS;
 
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
@@ -473,9 +472,7 @@ extension _NeedsSymbolication on SentryEvent {
     if (this is SentryTransaction) return false;
     final frames = exceptions?.first.stackTrace?.frames;
     if (frames == null) return false;
-    return platform.isAndroid
-        ? frames.any((frame) => 'native' == frame.platform)
-        : frames.isNotEmpty;
+    return frames.any((frame) => 'native' == frame.platform);
   }
 }
 

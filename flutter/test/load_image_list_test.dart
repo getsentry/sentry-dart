@@ -5,94 +5,102 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'mocks.dart';
+import 'sentry_flutter_test.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   late Fixture fixture;
 
-  final imageList = [
-    {
-      'code_file': '/apex/com.android.art/javalib/arm64/boot.oat',
-      'code_id': '13577ce71153c228ecf0eb73fc39f45010d487f8',
-      'image_addr': '0x6f80b000',
-      'image_size': 3092480,
-      'type': 'elf',
-      'debug_id': 'e77c5713-5311-28c2-ecf0-eb73fc39f450',
-      'debug_file': 'test'
-    }
-  ];
-
-  setUp(() {
-    fixture = Fixture();
-    fixture.channel.setMockMethodCallHandler((MethodCall methodCall) async {
-      return imageList;
-    });
-  });
-
   tearDown(() {
     fixture.channel.setMockMethodCallHandler(null);
   });
 
-  test('$LoadImageListIntegration adds itself to sdk.integrations',
-      () async {
-    final sut = fixture.getSut();
+  for (var platform in [
+    MockPlatform.android(),
+    MockPlatform.iOs(),
+    MockPlatform.macOs()
+  ]) {
+    group(platform.operatingSystem, () {
+      final imageList = [
+        {
+          'code_file': '/apex/com.android.art/javalib/arm64/boot.oat',
+          'code_id': '13577ce71153c228ecf0eb73fc39f45010d487f8',
+          'image_addr': '0x6f80b000',
+          'image_size': 3092480,
+          'type': 'elf',
+          'debug_id': 'e77c5713-5311-28c2-ecf0-eb73fc39f450',
+          'debug_file': 'test'
+        }
+      ];
 
-    sut.call(fixture.hub, fixture.options);
+      setUp(() {
+        fixture = Fixture(platform);
+        fixture.channel.setMockMethodCallHandler((MethodCall methodCall) async {
+          return imageList;
+        });
+      });
 
-    expect(
-      fixture.options.sdk.integrations
-          .contains('loadImageListIntegration'),
-      true,
-    );
-  });
+      test('$LoadImageListIntegration adds itself to sdk.integrations',
+          () async {
+        final sut = fixture.getSut();
 
-  test('Native layer is not called as the event is symbolicated', () async {
-    var called = false;
+        sut.call(fixture.hub, fixture.options);
 
-    final sut = fixture.getSut();
-    fixture.channel.setMockMethodCallHandler((MethodCall methodCall) async {
-      called = true;
-      return imageList;
-    });
+        expect(
+          fixture.options.sdk.integrations.contains('loadImageListIntegration'),
+          true,
+        );
+      });
 
-    sut.call(fixture.hub, fixture.options);
+      test('Native layer is not called as the event is symbolicated', () async {
+        var called = false;
 
-    expect(fixture.options.eventProcessors.length, 1);
+        final sut = fixture.getSut();
+        fixture.channel.setMockMethodCallHandler((MethodCall methodCall) async {
+          called = true;
+          return imageList;
+        });
 
-    await fixture.hub
-        .captureException(StateError('error'), stackTrace: StackTrace.current);
+        sut.call(fixture.hub, fixture.options);
 
-    expect(called, false);
-  });
+        expect(fixture.options.eventProcessors.length, 1);
 
-  test('Native layer is not called as the event has no stack traces', () async {
-    var called = false;
+        await fixture.hub.captureException(StateError('error'),
+            stackTrace: StackTrace.current);
 
-    final sut = fixture.getSut();
-    fixture.channel.setMockMethodCallHandler((MethodCall methodCall) async {
-      called = true;
-      return imageList;
-    });
+        expect(called, false);
+      });
 
-    sut.call(fixture.hub, fixture.options);
+      test('Native layer is not called if the event has no stack traces',
+          () async {
+        var called = false;
 
-    await fixture.hub.captureException(StateError('error'));
+        final sut = fixture.getSut();
+        fixture.channel.setMockMethodCallHandler((MethodCall methodCall) async {
+          called = true;
+          return imageList;
+        });
 
-    expect(called, false);
-  });
+        sut.call(fixture.hub, fixture.options);
 
-  test('Native layer is called as stack traces are not symbolicated', () async {
-    var called = false;
+        await fixture.hub.captureException(StateError('error'));
 
-    final sut = fixture.getSut();
-    fixture.channel.setMockMethodCallHandler((MethodCall methodCall) async {
-      called = true;
-      return imageList;
-    });
+        expect(called, false);
+      });
 
-    sut.call(fixture.hub, fixture.options);
+      test('Native layer is called as stack traces are not symbolicated',
+          () async {
+        var called = false;
 
-    await fixture.hub.captureException(StateError('error'), stackTrace: '''
+        final sut = fixture.getSut();
+        fixture.channel.setMockMethodCallHandler((MethodCall methodCall) async {
+          called = true;
+          return imageList;
+        });
+
+        sut.call(fixture.hub, fixture.options);
+
+        await fixture.hub.captureException(StateError('error'), stackTrace: '''
       warning:  This VM has been configured to produce stack traces that violate the Dart standard.
       ***       *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
       unparsed  pid: 30930, tid: 30990, name 1.ui
@@ -103,39 +111,41 @@ void main() {
       unparsed      #01 abs 000000723d637527 virt 00000000001f0527 _kDartIsolateSnapshotInstructions+0x1e5527
       ''');
 
-    expect(called, true);
-  });
+        expect(called, true);
+      });
 
-  test('Event processor adds image list to the event', () async {
-    final sut = fixture.getSut();
+      test('Event processor adds image list to the event', () async {
+        final sut = fixture.getSut();
 
-    sut.call(fixture.hub, fixture.options);
+        sut.call(fixture.hub, fixture.options);
 
-    final ep = fixture.options.eventProcessors.first;
-    SentryEvent? event = _getEvent();
-    event = await ep.apply(event);
+        final ep = fixture.options.eventProcessors.first;
+        SentryEvent? event = _getEvent();
+        event = await ep.apply(event);
 
-    expect(1, event!.debugMeta!.images.length);
-  });
+        expect(1, event!.debugMeta!.images.length);
+      });
 
-  test('Event processor asserts image list', () async {
-    final sut = fixture.getSut();
+      test('Event processor asserts image list', () async {
+        final sut = fixture.getSut();
 
-    sut.call(fixture.hub, fixture.options);
-    final ep = fixture.options.eventProcessors.first;
-    SentryEvent? event = _getEvent();
-    event = await ep.apply(event);
+        sut.call(fixture.hub, fixture.options);
+        final ep = fixture.options.eventProcessors.first;
+        SentryEvent? event = _getEvent();
+        event = await ep.apply(event);
 
-    final image = event!.debugMeta!.images.first;
+        final image = event!.debugMeta!.images.first;
 
-    expect('/apex/com.android.art/javalib/arm64/boot.oat', image.codeFile);
-    expect('13577ce71153c228ecf0eb73fc39f45010d487f8', image.codeId);
-    expect('0x6f80b000', image.imageAddr);
-    expect(3092480, image.imageSize);
-    expect('elf', image.type);
-    expect('e77c5713-5311-28c2-ecf0-eb73fc39f450', image.debugId);
-    expect('test', image.debugFile);
-  });
+        expect('/apex/com.android.art/javalib/arm64/boot.oat', image.codeFile);
+        expect('13577ce71153c228ecf0eb73fc39f45010d487f8', image.codeId);
+        expect('0x6f80b000', image.imageAddr);
+        expect(3092480, image.imageSize);
+        expect('elf', image.type);
+        expect('e77c5713-5311-28c2-ecf0-eb73fc39f450', image.debugId);
+        expect('test', image.debugFile);
+      });
+    });
+  }
 }
 
 SentryEvent _getEvent() {
@@ -150,14 +160,15 @@ SentryEvent _getEvent() {
 }
 
 class Fixture {
-  Fixture() {
+  late final Hub hub;
+  late final SentryFlutterOptions options;
+  final channel = MethodChannel('sentry_flutter');
+
+  Fixture(MockPlatform platform) {
+    options = SentryFlutterOptions(
+        dsn: fakeDsn, checker: getPlatformChecker(platform: platform));
     hub = Hub(options);
   }
-
-  final channel = MethodChannel('sentry_flutter');
-  final options = SentryFlutterOptions(dsn: fakeDsn);
-
-  late Hub hub;
 
   LoadImageListIntegration getSut() {
     return LoadImageListIntegration(channel);
