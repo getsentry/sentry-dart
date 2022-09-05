@@ -1,3 +1,7 @@
+// backcompatibility for Flutter < 3.3
+// ignore: unnecessary_import
+import 'dart:typed_data';
+
 import 'package:flutter/services.dart';
 import 'package:sentry/sentry.dart';
 

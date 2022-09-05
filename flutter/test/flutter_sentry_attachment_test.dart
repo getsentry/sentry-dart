@@ -1,4 +1,7 @@
 import 'dart:convert';
+// backcompatibility for Flutter < 3.3
+// ignore: unnecessary_import
+import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';

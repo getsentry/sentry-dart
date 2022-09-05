@@ -1,4 +1,9 @@
 import 'dart:async';
+// backcompatibility for Flutter < 3.3
+// ignore: unnecessary_import
+import 'dart:typed_data';
+// ignore: unnecessary_import
+import 'dart:ui';
 
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
