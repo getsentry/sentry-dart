@@ -5,11 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
-// TODO is there a "semi-internal" export we can use instead?
-//      sentry_io.dart looks like that but doesn't have any comments.
-// ignore: implementation_imports
-import 'package:sentry/src/platform/platform.dart';
-
 import 'binding_utils.dart';
 import 'sentry_flutter_options.dart';
 import 'widgets_binding_observer.dart';
@@ -454,9 +449,6 @@ class LoadImageListIntegration extends Integration<SentryFlutterOptions> {
 
   LoadImageListIntegration(this._channel);
 
-  static bool supportsPlatform(Platform platform) =>
-      platform.isAndroid || platform.isIOS || platform.isMacOS;
-
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
     options.addEventProcessor(
@@ -468,7 +460,7 @@ class LoadImageListIntegration extends Integration<SentryFlutterOptions> {
 }
 
 extension _NeedsSymbolication on SentryEvent {
-  bool needsSymbolication(Platform platform) {
+  bool needsSymbolication() {
     if (this is SentryTransaction) return false;
     final frames = exceptions?.first.stackTrace?.frames;
     if (frames == null) return false;
@@ -484,7 +476,7 @@ class _LoadImageListIntegrationEventProcessor extends EventProcessor {
 
   @override
   FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {
-    if (event.needsSymbolication(_options.platformChecker.platform)) {
+    if (event.needsSymbolication()) {
       try {
         // we call on every event because the loaded image list is cached
         // and it could be changed on the Native side.

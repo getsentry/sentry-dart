@@ -99,6 +99,7 @@ mixin SentryFlutter {
   ) {
     final integrations = <Integration>[];
     final platformChecker = options.platformChecker;
+    final platform = platformChecker.platform;
 
     // Will call WidgetsFlutterBinding.ensureInitialized() before all other integrations.
     integrations.add(WidgetsFlutterBindingIntegration());
@@ -119,14 +120,13 @@ mixin SentryFlutter {
     // Will enrich events with device context, native packages and integrations
     if (platformChecker.hasNativeIntegration &&
         !platformChecker.isWeb &&
-        (platformChecker.platform.isIOS ||
-            platformChecker.platform.isMacOS)) {
+        (platform.isIOS || platform.isMacOS)) {
       integrations.add(LoadContextsIntegration(channel));
     }
 
     if (platformChecker.hasNativeIntegration &&
         !platformChecker.isWeb &&
-        LoadImageListIntegration.supportsPlatform(platformChecker.platform)) {
+        (platform.isAndroid || platform.isIOS || platform.isMacOS)) {
       integrations.add(LoadImageListIntegration(channel));
     }
 
