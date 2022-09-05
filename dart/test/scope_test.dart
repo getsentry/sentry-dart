@@ -630,32 +630,17 @@ void main() {
   });
 
   group("Scope exceptions", () {
-    SentryLevel? loggedLevel;
-    Object? loggedException;
-
-    void mockLogger(
-      SentryLevel level,
-      String message, {
-      String? logger,
-      Object? exception,
-      StackTrace? stackTrace,
-    }) {
-      loggedLevel = level;
-      loggedException = exception;
-    }
-
     test("addBreadcrumb with beforeBreadcrumb error handled ", () async {
       final exception = Exception("before breadcrumb exception");
 
-      final sut = fixture.getSut(beforeBreadcrumbCallback: (
-        Breadcrumb? breadcrumb, {
-        dynamic hint,
-      }) {
-        throw exception;
-      });
-
-      fixture.options.debug = true;
-      fixture.options.logger = mockLogger;
+      final sut = fixture.getSut(
+          beforeBreadcrumbCallback: (
+            Breadcrumb? breadcrumb, {
+            dynamic hint,
+          }) {
+            throw exception;
+          },
+          debug: true);
 
       final breadcrumb = Breadcrumb(
         message: 'test log',
@@ -664,27 +649,26 @@ void main() {
 
       await sut.addBreadcrumb(breadcrumb);
 
-      expect(loggedException, exception);
-      expect(loggedLevel, SentryLevel.error);
+      expect(fixture.loggedException, exception);
+      expect(fixture.loggedLevel, SentryLevel.error);
     });
 
     test("clone with beforeBreadcrumb error handled ", () async {
       var numberOfBeforeBreadcrumbCalls = 0;
       final exception = Exception("before breadcrumb exception");
 
-      final sut = fixture.getSut(beforeBreadcrumbCallback: (
-        Breadcrumb? breadcrumb, {
-        dynamic hint,
-      }) {
-        if (numberOfBeforeBreadcrumbCalls > 0) {
-          throw exception;
-        }
-        numberOfBeforeBreadcrumbCalls += 1;
-        return breadcrumb;
-      });
-
-      fixture.options.debug = true;
-      fixture.options.logger = mockLogger;
+      final sut = fixture.getSut(
+          beforeBreadcrumbCallback: (
+            Breadcrumb? breadcrumb, {
+            dynamic hint,
+          }) {
+            if (numberOfBeforeBreadcrumbCalls > 0) {
+              throw exception;
+            }
+            numberOfBeforeBreadcrumbCalls += 1;
+            return breadcrumb;
+          },
+          debug: true);
 
       final breadcrumb = Breadcrumb(
         message: 'test log',
@@ -693,8 +677,8 @@ void main() {
       await sut.addBreadcrumb(breadcrumb);
       sut.clone();
 
-      expect(loggedException, exception);
-      expect(loggedLevel, SentryLevel.error);
+      expect(fixture.loggedException, exception);
+      expect(fixture.loggedLevel, SentryLevel.error);
     });
   });
 
@@ -711,13 +695,20 @@ class Fixture {
 
   final options = SentryOptions(dsn: fakeDsn);
 
+  SentryLevel? loggedLevel;
+  Object? loggedException;
+
   Scope getSut({
     int maxBreadcrumbs = 100,
     BeforeBreadcrumbCallback? beforeBreadcrumbCallback,
     ScopeObserver? scopeObserver,
+    bool debug = false,
   }) {
     options.maxBreadcrumbs = maxBreadcrumbs;
     options.beforeBreadcrumb = beforeBreadcrumbCallback;
+    options.debug = debug;
+    options.logger = mockLogger;
+
     if (scopeObserver != null) {
       options.addScopeObserver(scopeObserver);
     }
@@ -733,6 +724,17 @@ class Fixture {
   Breadcrumb? beforeBreadcrumbMutateCallback(Breadcrumb? breadcrumb,
           {dynamic hint}) =>
       breadcrumb?.copyWith(message: 'new message');
+
+  void mockLogger(
+    SentryLevel level,
+    String message, {
+    String? logger,
+    Object? exception,
+    StackTrace? stackTrace,
+  }) {
+    loggedLevel = level;
+    loggedException = exception;
+  }
 }
 
 class AddTagsEventProcessor extends EventProcessor {
