@@ -33,7 +33,7 @@ void main() {
     fixture.channel.setMockMethodCallHandler(null);
   });
 
-  test('$LoadAndroidImageListIntegration adds itself to sdk.integrations',
+  test('$LoadImageListIntegration adds itself to sdk.integrations',
       () async {
     final sut = fixture.getSut();
 
@@ -41,7 +41,7 @@ void main() {
 
     expect(
       fixture.options.sdk.integrations
-          .contains('loadAndroidImageListIntegration'),
+          .contains('loadImageListIntegration'),
       true,
     );
   });
@@ -112,7 +112,7 @@ void main() {
     sut.call(fixture.hub, fixture.options);
 
     final ep = fixture.options.eventProcessors.first;
-    SentryEvent? event = getEvent();
+    SentryEvent? event = _getEvent();
     event = await ep.apply(event);
 
     expect(1, event!.debugMeta!.images.length);
@@ -123,7 +123,7 @@ void main() {
 
     sut.call(fixture.hub, fixture.options);
     final ep = fixture.options.eventProcessors.first;
-    SentryEvent? event = getEvent();
+    SentryEvent? event = _getEvent();
     event = await ep.apply(event);
 
     final image = event!.debugMeta!.images.first;
@@ -138,7 +138,7 @@ void main() {
   });
 }
 
-SentryEvent getEvent({bool symbolicated = false}) {
+SentryEvent _getEvent() {
   final frame = SentryStackFrame(platform: 'native');
   final st = SentryStackTrace(frames: [frame]);
   final ex = SentryException(
@@ -159,7 +159,7 @@ class Fixture {
 
   late Hub hub;
 
-  LoadAndroidImageListIntegration getSut() {
-    return LoadAndroidImageListIntegration(channel);
+  LoadImageListIntegration getSut() {
+    return LoadImageListIntegration(channel);
   }
 }

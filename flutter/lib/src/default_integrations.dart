@@ -1,11 +1,14 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
+// TODO is there a "semi-internal" export we can use instead?
+//      sentry_io.dart looks like that but doesn't have any comments.
+// ignore: implementation_imports
+import 'package:sentry/src/platform/platform.dart';
 
 import 'binding_utils.dart';
 import 'sentry_flutter_options.dart';
@@ -174,12 +177,7 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
   FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {
     try {
       final infos = Map<String, dynamic>.from(
-        await (_channel.invokeMethod('loadContexts', {
-          // The list of libraries is long (~300 in the example app), so only
-          // load it if needed for the current event.
-          'debugImages':
-              _LoadImageListIntegrationEventProcessor.needsSymbolication(event)
-        })),
+        await (_channel.invokeMethod('loadContexts')),
       );
       final contextsMap = infos['contexts'] as Map?;
       if (contextsMap != null && contextsMap.isNotEmpty) {
@@ -320,11 +318,6 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
         event = event.copyWith(sdk: sdk);
       }
 
-      if (infos['debugImages'] != null) {
-        event = _LoadImageListIntegrationEventProcessor.copyWithDebugImages(
-            event, infos['debugImages']);
-      }
-
       // on iOS, captureEnvelope does not call the beforeSend callback,
       // hence we need to add these tags here.
       if (event.sdk?.name == 'sentry.dart.flutter') {
@@ -455,12 +448,15 @@ class WidgetsBindingIntegration extends Integration<SentryFlutterOptions> {
   }
 }
 
-/// Loads the Android Image list for stack trace symbolication
-class LoadAndroidImageListIntegration
+/// Loads the native debug image list for stack trace symbolication.
+class LoadImageListIntegration
     extends Integration<SentryFlutterOptions> {
   final MethodChannel _channel;
 
-  LoadAndroidImageListIntegration(this._channel);
+  LoadImageListIntegration(this._channel);
+
+  static bool supportsPlatform(Platform platform) =>
+    platform.isAndroid || platform.isIOS || platform.isMacOS;
 
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
@@ -468,7 +464,18 @@ class LoadAndroidImageListIntegration
       _LoadImageListIntegrationEventProcessor(_channel, options),
     );
 
-    options.sdk.addIntegration('loadAndroidImageListIntegration');
+    options.sdk.addIntegration('loadImageListIntegration');
+  }
+}
+
+extension _NeedsSymbolication on SentryEvent {
+  bool needsSymbolication(Platform platform) {
+    if (this is SentryTransaction) return false;
+    final frames = exceptions?.first.stackTrace?.frames;
+    if (frames == null) return false;
+    return platform.isAndroid
+        ? frames.any((frame) => 'native' == frame.platform)
+        : frames.isNotEmpty;
   }
 }
 
@@ -480,35 +487,25 @@ class _LoadImageListIntegrationEventProcessor extends EventProcessor {
 
   @override
   FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {
-    if (event is SentryTransaction || !needsSymbolication(event)) {
-      return event;
-    }
-
-    try {
-      // we call on every event because the loaded image list is cached
-      // and it could be changed on the Native side.
-      final imageList = List<Map<dynamic, dynamic>>.from(
-        await _channel.invokeMethod('loadImageList'),
-      );
-      return copyWithDebugImages(event, imageList);
-    } catch (exception, stackTrace) {
-      _options.logger(
-        SentryLevel.error,
-        'loadImageList failed',
-        exception: exception,
-        stackTrace: stackTrace,
-      );
+    if (event.needsSymbolication(_options.platformChecker.platform)) {
+      try {
+        // we call on every event because the loaded image list is cached
+        // and it could be changed on the Native side.
+        final imageList = List<Map<dynamic, dynamic>>.from(
+          await _channel.invokeMethod('loadImageList'),
+        );
+        return copyWithDebugImages(event, imageList);
+      } catch (exception, stackTrace) {
+        _options.logger(
+          SentryLevel.error,
+          'loadImageList failed',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+      }
     }
 
     return event;
-  }
-
-  static bool needsSymbolication(SentryEvent event) {
-    final frames = event.exceptions?.first.stackTrace?.frames;
-    if (frames == null) return false;
-    return Platform.isAndroid
-        ? frames.any((frame) => 'native' == frame.platform)
-        : frames.isNotEmpty;
   }
 
   static SentryEvent copyWithDebugImages(

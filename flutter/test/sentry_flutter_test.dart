@@ -16,11 +16,12 @@ final platformAgnosticIntegrations = [
 
 // These should only be added to Android
 final androidIntegrations = [
-  LoadAndroidImageListIntegration,
+  LoadImageListIntegration,
 ];
 
 // These should be added to iOS and macOS
 final iOsAndMacOsIntegrations = [
+  LoadImageListIntegration,
   LoadContextsIntegration,
 ];
 

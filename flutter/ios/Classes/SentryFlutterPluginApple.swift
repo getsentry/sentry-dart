@@ -59,7 +59,10 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method as String {
         case "loadContexts":
-            loadContexts(call, result: result)
+            loadContexts(result: result)
+
+        case "loadImageList":
+            loadImageList(result: result)
 
         case "initNativeSdk":
             initNativeSdk(call, result: result)
@@ -126,13 +129,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
     }
 
     // swiftlint:disable:next cyclomatic_complexity
-    private func loadContexts(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let arguments = call.arguments as? [String: Any], !arguments.isEmpty else {
-            print("Arguments is null or empty")
-            result(FlutterError(code: "4", message: "Arguments is null or empty", details: nil))
-            return
-        }
-
+    private func loadContexts(result: @escaping FlutterResult) {
         SentrySDK.configureScope { scope in
             let serializedScope = scope.serialize()
             let context = serializedScope["context"]
@@ -178,13 +175,13 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
                 infos["package"] = ["version": sdkInfo.version, "sdk_name": "cocoapods:sentry-cocoa"]
             }
 
-            if arguments["debugImages"] as? Bool ?? false {
-                let debugImages = PrivateSentrySDKOnly.getDebugImages() as [DebugMeta]
-                infos["debugImages"] = debugImages.map { $0.serialize() }
-            }
-
             result(infos)
         }
+    }
+
+    private func loadImageList(result: @escaping FlutterResult) {
+      let debugImages = PrivateSentrySDKOnly.getDebugImages() as [DebugMeta]
+      result(debugImages.map { $0.serialize() })
     }
 
     private func initNativeSdk(_ call: FlutterMethodCall, result: @escaping FlutterResult) {

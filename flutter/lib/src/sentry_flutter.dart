@@ -98,6 +98,7 @@ mixin SentryFlutter {
     SentryFlutterOptions options,
   ) {
     final integrations = <Integration>[];
+    final platformChecker = options.platformChecker;
 
     // Will call WidgetsFlutterBinding.ensureInitialized() before all other integrations.
     integrations.add(WidgetsFlutterBindingIntegration());
@@ -111,22 +112,22 @@ mixin SentryFlutter {
     // The ordering here matters, as we'd like to first start the native integration.
     // That allow us to send events to the network and then the Flutter integrations.
     // Flutter Web doesn't need that, only Android and iOS.
-    if (options.platformChecker.hasNativeIntegration) {
+    if (platformChecker.hasNativeIntegration) {
       integrations.add(NativeSdkIntegration(channel));
     }
 
     // Will enrich events with device context, native packages and integrations
-    if (options.platformChecker.hasNativeIntegration &&
-        !options.platformChecker.isWeb &&
-        (options.platformChecker.platform.isIOS ||
-            options.platformChecker.platform.isMacOS)) {
+    if (platformChecker.hasNativeIntegration &&
+        !platformChecker.isWeb &&
+        (platformChecker.platform.isIOS ||
+            platformChecker.platform.isMacOS)) {
       integrations.add(LoadContextsIntegration(channel));
     }
 
-    if (options.platformChecker.hasNativeIntegration &&
-        !options.platformChecker.isWeb &&
-        options.platformChecker.platform.isAndroid) {
-      integrations.add(LoadAndroidImageListIntegration(channel));
+    if (platformChecker.hasNativeIntegration &&
+        !platformChecker.isWeb &&
+        LoadImageListIntegration.supportsPlatform(platformChecker.platform)) {
+      integrations.add(LoadImageListIntegration(channel));
     }
 
     integrations.add(DebugPrintIntegration());
@@ -136,7 +137,7 @@ mixin SentryFlutter {
     // in errors.
     integrations.add(LoadReleaseIntegration(packageLoader));
 
-    if (options.platformChecker.hasNativeIntegration) {
+    if (platformChecker.hasNativeIntegration) {
       integrations.add(NativeAppStartIntegration(
         SentryNative(),
         () {
