@@ -411,10 +411,8 @@ void main() {
         throw scopeCallbackException;
       };
 
-      final sentryId =
-          await hub.captureEvent(fakeEvent, withScope: scopeCallback);
+      await hub.captureEvent(fakeEvent, withScope: scopeCallback);
 
-      expect(sentryId, SentryId.empty());
       expect(fixture.loggedException, scopeCallbackException);
       expect(fixture.loggedLevel, SentryLevel.error);
     });
@@ -429,10 +427,8 @@ void main() {
       };
 
       final exception = Exception("captured exception");
-      final sentryId =
-          await hub.captureException(exception, withScope: scopeCallback);
+      await hub.captureException(exception, withScope: scopeCallback);
 
-      expect(sentryId, SentryId.empty());
       expect(fixture.loggedException, scopeCallbackException);
       expect(fixture.loggedLevel, SentryLevel.error);
     });
@@ -446,10 +442,8 @@ void main() {
         throw scopeCallbackException;
       };
 
-      final sentryId = await hub.captureMessage("captured message",
-          withScope: scopeCallback);
+      await hub.captureMessage("captured message", withScope: scopeCallback);
 
-      expect(sentryId, SentryId.empty());
       expect(fixture.loggedException, scopeCallbackException);
       expect(fixture.loggedLevel, SentryLevel.error);
     });

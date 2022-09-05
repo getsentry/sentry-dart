@@ -81,19 +81,7 @@ class Hub {
       );
     } else {
       final item = _peek();
-      final Scope scope;
-
-      try {
-        scope = await _cloneAndRunWithScope(item.scope, withScope);
-      } catch (exception, stackTrace) {
-        _options.logger(
-          SentryLevel.error,
-          'Failed to capture event with id: ${event.eventId}',
-          exception: exception,
-          stackTrace: stackTrace,
-        );
-        return sentryId;
-      }
+      final Scope scope = await _cloneAndRunWithScope(item.scope, withScope);
 
       try {
         if (_options.isTracingEnabled()) {
@@ -141,19 +129,7 @@ class Hub {
       );
     } else {
       final item = _peek();
-      final Scope scope;
-
-      try {
-        scope = await _cloneAndRunWithScope(item.scope, withScope);
-      } catch (exception, stackTrace) {
-        _options.logger(
-          SentryLevel.error,
-          'Failed to capture exception',
-          exception: exception,
-          stackTrace: stackTrace,
-        );
-        return sentryId;
-      }
+      final Scope scope = await _cloneAndRunWithScope(item.scope, withScope);
 
       try {
         var event = SentryEvent(
@@ -209,19 +185,7 @@ class Hub {
       );
     } else {
       final item = _peek();
-      final Scope scope;
-
-      try {
-        scope = await _cloneAndRunWithScope(item.scope, withScope);
-      } catch (exception, stackTrace) {
-        _options.logger(
-          SentryLevel.error,
-          'Failed to capturing message with id: $message',
-          exception: exception,
-          stackTrace: stackTrace,
-        );
-        return sentryId;
-      }
+      final Scope scope = await _cloneAndRunWithScope(item.scope, withScope);
 
       try {
         sentryId = await item.client.captureMessage(
@@ -278,8 +242,17 @@ class Hub {
   Future<Scope> _cloneAndRunWithScope(
       Scope scope, ScopeCallback? withScope) async {
     if (withScope != null) {
-      scope = scope.clone();
-      await withScope(scope);
+      try {
+        scope = scope.clone();
+        await withScope(scope);
+      } catch (exception, stackTrace) {
+        _options.logger(
+          SentryLevel.error,
+          'Exception in withScope callback.',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+      }
     }
     return scope;
   }

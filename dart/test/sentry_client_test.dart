@@ -788,7 +788,8 @@ void main() {
         throw exception;
       };
 
-      final client = fixture.getSut(beforeSend: beforeSendCallback, debug: true);
+      final client =
+          fixture.getSut(beforeSend: beforeSendCallback, debug: true);
 
       await client.captureEvent(fakeEvent);
 
@@ -1267,12 +1268,12 @@ class Fixture {
   }
 
   void mockLogger(
-      SentryLevel level,
-      String message, {
-        String? logger,
-        Object? exception,
-        StackTrace? stackTrace,
-      }) {
+    SentryLevel level,
+    String message, {
+    String? logger,
+    Object? exception,
+    StackTrace? stackTrace,
+  }) {
     loggedLevel = level;
     loggedException = exception;
   }
