@@ -1,7 +1,10 @@
 // ignore_for_file: invalid_use_of_internal_member
 // The lint above is okay, because we're using another Sentry package
 import 'dart:convert';
+// backcompatibility for Flutter < 3.3
+// ignore: unnecessary_import
 import 'dart:typed_data';
+// ignore: unnecessary_import
 import 'dart:ui';
 
 import 'package:flutter/services.dart';
