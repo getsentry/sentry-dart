@@ -3,6 +3,7 @@
 ## Unreleased
 
 ### Fixes
+
 - Capture Callback Exceptions ([#990](https://github.com/getsentry/sentry-dart/pull/990))
 
 ## 6.9.1
