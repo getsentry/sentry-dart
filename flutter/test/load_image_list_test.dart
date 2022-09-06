@@ -88,7 +88,7 @@ void main() {
         expect(called, false);
       });
 
-      test('Native layer is called as stack traces are not symbolicated',
+      test('Native layer is called because stack traces are not symbolicated',
           () async {
         var called = false;
 
@@ -103,12 +103,12 @@ void main() {
         await fixture.hub.captureException(StateError('error'), stackTrace: '''
       warning:  This VM has been configured to produce stack traces that violate the Dart standard.
       ***       *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
-      unparsed  pid: 30930, tid: 30990, name 1.ui
-      unparsed  build_id: '5346e01103ffeed44e97094ff7bfcc19'
-      unparsed  isolate_dso_base: 723d447000, vm_dso_base: 723d447000
-      unparsed  isolate_instructions: 723d452000, vm_instructions: 723d449000
-      unparsed      #00 abs 000000723d6346d7 virt 00000000001ed6d7 _kDartIsolateSnapshotInstructions+0x1e26d7
-      unparsed      #01 abs 000000723d637527 virt 00000000001f0527 _kDartIsolateSnapshotInstructions+0x1e5527
+      pid: 30930, tid: 30990, name 1.ui
+      build_id: '5346e01103ffeed44e97094ff7bfcc19'
+      isolate_dso_base: 723d447000, vm_dso_base: 723d447000
+      isolate_instructions: 723d452000, vm_instructions: 723d449000
+          #00 abs 000000723d6346d7 virt 00000000001ed6d7 _kDartIsolateSnapshotInstructions+0x1e26d7
+          #01 abs 000000723d637527 virt 00000000001f0527 _kDartIsolateSnapshotInstructions+0x1e5527
       ''');
 
         expect(called, true);

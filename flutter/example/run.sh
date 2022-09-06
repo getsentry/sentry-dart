@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
 # Build a release version of the app for a platform and upload debug symbols and source maps.
 
@@ -21,11 +21,11 @@ symbolsDir=build/symbols
 if [ "$1" == "ios" ]; then
     flutter build ios --split-debug-info=$symbolsDir --obfuscate
     # see https://github.com/ios-control/ios-deploy (or just install: `brew install ios-deploy`)
-    ios-deploy --justlaunch --bundle build/ios/Release-iphoneos/Runner.app
+    launchCmd='ios-deploy --justlaunch --bundle build/ios/Release-iphoneos/Runner.app'
 elif [ "$1" == "android" ]; then
     flutter build apk --split-debug-info=$symbolsDir --obfuscate
     adb install build/app/outputs/flutter-apk/app-release.apk
-    adb shell am start -n io.sentry.samples.flutter/io.sentry.samples.flutter.MainActivity
+    launchCmd='adb shell am start -n io.sentry.samples.flutter/io.sentry.samples.flutter.MainActivity'
     echo -e "[\033[92mrun\033[0m] Android app installed"
 elif [ "$1" == "web" ]; then
     # Uses dart2js
@@ -34,7 +34,7 @@ elif [ "$1" == "web" ]; then
     echo -e "[\033[92mrun\033[0m] Built: $OUTPUT_FOLDER_WEB"
 elif [ "$1" == "macos" ]; then
     flutter build macos --split-debug-info=$symbolsDir --obfuscate
-    ./build/macos/Build/Products/Release/sentry_flutter_example.app/Contents/MacOS/sentry_flutter_example &
+    launchCmd='./build/macos/Build/Products/Release/sentry_flutter_example.app/Contents/MacOS/sentry_flutter_example'
 else
     if [ "$1" == "" ]; then
         echo -e "[\033[92mrun\033[0m] Pass the platform you'd like to run: android, ios, web"
@@ -61,8 +61,10 @@ if [ "$1" == "web" ]; then
     python3 -m http.server 8132
     popd
 else
+    # 'symbols' directory contains the Dart debug info files but to include platform-specific ones, use the whole build dir instead.
     echo -e "[\033[92mrun\033[0m] Uploading debug information files"
-    # directory 'symbols' contain the Dart debug info files but to include platform ones, use current dir.
-    # TODO move actually launching the app after the symbols are uploaded and procesed on the server.
     sentry-cli upload-dif --wait --org $SENTRY_ORG --project $SENTRY_PROJECT build
+
+    echo "Starting the built app: $($launchCmd)"
+    $launchCmd
 fi
