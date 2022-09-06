@@ -220,7 +220,7 @@ isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
       final frames = Fixture()
           .getSut(considerInAppFramesByDefault: true)
           .getStackFrames('''
-#0 asyncThrows (package:example/main.dart:404)
+#0 asyncThrows (file:/foo/bar/main.dart:404)
 #1 MainScaffold.build.<anonymous closure> (package:example/main.dart:131)
 #2 PlatformDispatcher._dispatchPointerDataPacket (dart:ui/platform_dispatcher.dart:341)
             ''').map((frame) => frame.toJson());
@@ -229,7 +229,7 @@ isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
           'filename': 'platform_dispatcher.dart',
           'function': 'PlatformDispatcher._dispatchPointerDataPacket',
           'lineno': 341,
-          'abs_path': 'dart:ui/platform_dispatcher.dart',
+          'abs_path': '${eventOrigin}dart:ui/platform_dispatcher.dart',
           'in_app': false
         },
         {
@@ -237,15 +237,14 @@ isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
           'package': 'example',
           'function': 'MainScaffold.build.<fn>',
           'lineno': 131,
-          'abs_path': 'package:example/main.dart',
+          'abs_path': '${eventOrigin}package:example/main.dart',
           'in_app': true
         },
         {
           'filename': 'main.dart',
-          'package': 'example',
           'function': 'asyncThrows',
           'lineno': 404,
-          'abs_path': 'package:example/main.dart',
+          'abs_path': '${eventOrigin}main.dart',
           'in_app': true
         }
       ]);
