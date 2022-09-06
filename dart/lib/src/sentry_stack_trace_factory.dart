@@ -23,27 +23,7 @@ class SentryStackTraceFactory {
 
   /// returns the [SentryStackFrame] list from a stackTrace ([StackTrace] or [String])
   List<SentryStackFrame> getStackFrames(dynamic stackTrace) {
-    Chain? chain;
-    if (stackTrace is StackTrace) {
-      chain = Chain.forTrace(stackTrace);
-    } else if (stackTrace is String) {
-      // Remove headers (everything before the first line starting with '#').
-      // *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
-      // pid: 19226, tid: 6103134208, name io.flutter.ui
-      // os: macos arch: arm64 comp: no sim: no
-      // isolate_dso_base: 10fa20000, vm_dso_base: 10fa20000
-      // isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
-      //     #00 abs 000000723d6346d7 _kDartIsolateSnapshotInstructions+0x1e26d7
-      //     #01 abs 000000723d637527 _kDartIsolateSnapshotInstructions+0x1e5527
-
-      final match = _frameRegex.firstMatch(stackTrace);
-      if (match != null) {
-        chain = Chain.parse(
-            match.start == 0 ? stackTrace : stackTrace.substring(match.start));
-      }
-    }
-    chain ??= Chain([]);
-
+    final chain = parseStackTrace(stackTrace);
     final frames = <SentryStackFrame>[];
     for (var t = 0; t < chain.traces.length; t += 1) {
       final trace = chain.traces[t];
@@ -68,6 +48,36 @@ class SentryStackTraceFactory {
     }
 
     return frames.reversed.toList();
+  }
+
+  Chain parseStackTrace(dynamic stackTrace) {
+    if (stackTrace is Chain || stackTrace is Trace) {
+      return Chain.forTrace(stackTrace);
+    }
+
+    // We need to convert to string and split the headers manually, otherwise
+    // they end up in the final stack trace as "unparsed" lines.
+    if (stackTrace is StackTrace) {
+      stackTrace = stackTrace.toString();
+    }
+
+    if (stackTrace is String) {
+      // Remove headers (everything before the first line starting with '#').
+      // *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+      // pid: 19226, tid: 6103134208, name io.flutter.ui
+      // os: macos arch: arm64 comp: no sim: no
+      // isolate_dso_base: 10fa20000, vm_dso_base: 10fa20000
+      // isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
+      //     #00 abs 000000723d6346d7 _kDartIsolateSnapshotInstructions+0x1e26d7
+      //     #01 abs 000000723d637527 _kDartIsolateSnapshotInstructions+0x1e5527
+
+      final match = _frameRegex.firstMatch(stackTrace);
+      if (match != null) {
+        return Chain.parse(
+            match.start == 0 ? stackTrace : stackTrace.substring(match.start));
+      }
+    }
+    return Chain([]);
   }
 
   /// converts [Frame] to [SentryStackFrame]
