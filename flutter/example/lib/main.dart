@@ -35,6 +35,14 @@ Future<void> main() async {
       // going to log too much for your app, but can be useful when figuring out
       // configuration issues, e.g. finding out why your events are not uploaded.
       options.debug = true;
+      // Override the logger in release mode in this exmaple. Sentry normally
+      // uses developer.log which doesn't print anything in release mode.
+      if (kReleaseMode) {
+        options.logger = (SentryLevel level, String message,
+            {String? logger, Object? exception, StackTrace? stackTrace}) {
+          print('${DateTime.now().toUtc()} Sentry [${level.name}]: $message');
+        };
+      }
     },
     // Init your App.
     appRunner: () => runApp(
