@@ -57,6 +57,7 @@ class SentryStackTraceFactory {
 
     // We need to convert to string and split the headers manually, otherwise
     // they end up in the final stack trace as "unparsed" lines.
+    // Note: [Chain.forTrace] would call [stackTrace.toString()] too.
     if (stackTrace is StackTrace) {
       stackTrace = stackTrace.toString();
     }
@@ -71,11 +72,9 @@ class SentryStackTraceFactory {
       //     #00 abs 000000723d6346d7 _kDartIsolateSnapshotInstructions+0x1e26d7
       //     #01 abs 000000723d637527 _kDartIsolateSnapshotInstructions+0x1e5527
 
-      final match = _frameRegex.firstMatch(stackTrace);
-      if (match != null) {
-        return Chain.parse(
-            match.start == 0 ? stackTrace : stackTrace.substring(match.start));
-      }
+      final startOffset = _frameRegex.firstMatch(stackTrace)?.start ?? 0;
+      return Chain.parse(
+          startOffset == 0 ? stackTrace : stackTrace.substring(startOffset));
     }
     return Chain([]);
   }
