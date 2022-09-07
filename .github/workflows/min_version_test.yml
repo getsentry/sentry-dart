@@ -5,9 +5,7 @@ on:
       - main
       - release/**
   pull_request:
-defaults:
-  run:
-    shell: bash
+
 jobs:
   build:
     name: Build
