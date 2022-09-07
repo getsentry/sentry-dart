@@ -8,14 +8,15 @@ on:
     paths-ignore:
       - 'logging/**'
       - 'dio/**'
-defaults:
-  run:
-    shell: bash
+
 jobs:
   build:
     name: ${{ matrix.target }} | ${{ matrix.os }} | ${{ matrix.sdk }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
     strategy:
       fail-fast: false
       # max-parallel: 4
