@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:sentry/sentry.dart';
 
@@ -11,99 +12,101 @@ import 'event_example.dart';
 /// Sends a test exception report to Sentry.io using this Dart client.
 Future<void> main() async {
   // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
+  // const dsn =
+  //     'https://9934c532bf8446ef961450973c898537@o447951.ingest.sentry.io/5428562';
   const dsn =
-      'https://9934c532bf8446ef961450973c898537@o447951.ingest.sentry.io/5428562';
+      'https://fe85fc5123d44d5c99202d9e8f09d52e@395f015cf6c1.eu.ngrok.io/2';
 
   await Sentry.init(
-    (options) => options
-      ..dsn = dsn
-      ..debug = true
-      ..sendDefaultPii = true
-      ..addEventProcessor(TagEventProcessor()),
+    (options) {
+      options.dsn = dsn;
+      options.debug = true;
+      options.release = 'myapp@1.0.0+1';
+      options.environment = 'prod';
+      options.experimental['featureFlagsEnabled'] = true;
+    },
     appRunner: runApp,
-  );
-}
-
-Future<void> runApp() async {
-  print('\nReporting a complete event example: ');
-
-  Sentry.addBreadcrumb(
-    Breadcrumb(
-      message: 'Authenticated user',
-      category: 'auth',
-      type: 'debug',
-      data: {
-        'admin': true,
-        'permissions': [1, 2, 3]
-      },
-    ),
   );
 
   await Sentry.configureScope((scope) async {
-    await scope.setUser(SentryUser(
-      id: '800',
-      username: 'first-user',
-      email: 'first@user.lan',
-      // ipAddress: '127.0.0.1', sendDefaultPii feature is enabled
-      extras: <String, String>{'first-sign-in': '2020-01-01'},
-    ));
-    scope
-      // ..fingerprint = ['example-dart'], fingerprint forces events to group together
-      ..transaction = '/example/app'
-      ..level = SentryLevel.warning;
-    await scope.setTag('build', '579');
-    await scope.setExtra('company-name', 'Dart Inc');
+    await scope.setUser(
+      SentryUser(
+        id: '800',
+      ),
+    );
+    // await scope.setTag('isSentryDev', 'true');
   });
 
-  // Sends a full Sentry event payload to show the different parts of the UI.
-  final sentryId = await Sentry.captureEvent(event);
-
-  print('Capture event result : SentryId : $sentryId');
-
-  print('\nCapture message: ');
-
-  // Sends a full Sentry event payload to show the different parts of the UI.
-  final messageSentryId = await Sentry.captureMessage(
-    'Message 1',
-    level: SentryLevel.warning,
-    template: 'Message %s',
-    params: ['1'],
+  // accessToProfilingRollout
+  final accessToProfilingRollout = await Sentry.isFeatureFlagEnabled(
+    'accessToProfiling',
+    defaultValue: false,
+    context: (myContext) => {
+      myContext.tags['userSegment'] = 'slow',
+    },
   );
+  print(
+      'accessToProfilingRollout $accessToProfilingRollout'); // false for user 800
 
-  print('Capture message result : SentryId : $messageSentryId');
+  // accessToProfilingMatch
+  final accessToProfilingMatch = await Sentry.isFeatureFlagEnabled(
+    'accessToProfiling',
+    defaultValue: false,
+    context: (myContext) => {
+      myContext.tags['isSentryDev'] = 'true',
+    },
+  );
+  print('accessToProfilingMatch $accessToProfilingMatch'); // returns true
 
-  try {
-    await loadConfig();
-  } catch (error, stackTrace) {
-    print('\nReporting the following stack trace: ');
-    print(stackTrace);
-    final sentryId = await Sentry.captureException(
-      error,
-      stackTrace: stackTrace,
-    );
+  // profilingEnabledMatch
+  final profilingEnabledMatch = await Sentry.isFeatureFlagEnabled(
+    'profilingEnabled',
+    defaultValue: false,
+    context: (myContext) => {
+      myContext.tags['isSentryDev'] = 'true',
+    },
+  );
+  print('profilingEnabledMatch $profilingEnabledMatch'); // returns true
 
-    print('Capture exception result : SentryId : $sentryId');
-  }
+  // profilingEnabledRollout
+  final profilingEnabledRollout = await Sentry.isFeatureFlagEnabled(
+    'profilingEnabled',
+    defaultValue: false,
+  );
+  print(
+      'profilingEnabledRollout $profilingEnabledRollout'); // false for user 800
 
-  // capture unhandled error
-  await loadConfig();
+  // loginBannerMatch
+  final loginBannerMatch = await Sentry.getFeatureFlagValueAsync<String>(
+    'loginBanner',
+    defaultValue: 'banner0',
+    context: (myContext) => {
+      myContext.tags['isSentryDev'] = 'true',
+    },
+  );
+  print('loginBannerMatch $loginBannerMatch'); // returns banner1
+
+  // loginBannerMatch2
+  final loginBannerMatch2 = await Sentry.getFeatureFlagValueAsync<String>(
+    'loginBanner',
+    defaultValue: 'banner0',
+  );
+  print('loginBannerMatch2 $loginBannerMatch2'); // returns banner2
+
+  // tracesSampleRate
+  final tracesSampleRate = await Sentry.getFeatureFlagValueAsync<double>(
+    'tracesSampleRate',
+    defaultValue: 0.0,
+  );
+  print('tracesSampleRate $tracesSampleRate'); // returns 0.25
+
+  // final flag = await Sentry.getFeatureFlagInfo('loginBanner',
+  //     context: (myContext) => {
+  //           myContext.tags['myCustomTag'] = 'true',
+  //         });
+
+  // print(flag?.payload?['internal_setting'] ?? 'whaat');
+  // print(flag?.payload ?? {});
 }
 
-Future<void> loadConfig() async {
-  await parseConfig();
-}
-
-Future<void> parseConfig() async {
-  await decode();
-}
-
-Future<void> decode() async {
-  throw StateError('This is a test error');
-}
-
-class TagEventProcessor extends EventProcessor {
-  @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) {
-    return event..tags?.addAll({'page-locale': 'en-us'});
-  }
-}
+Future<void> runApp() async {}

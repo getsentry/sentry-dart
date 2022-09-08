@@ -10,6 +10,8 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
   List<CaptureTransactionCall> captureTransactionCalls = [];
   List<SentryUserFeedback> userFeedbackCalls = [];
   int closeCalls = 0;
+  dynamic featureFlagValue;
+  FeatureFlagInfo? featureFlagInfo;
 
   @override
   Future<SentryId> captureEvent(
@@ -87,6 +89,32 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
     captureTransactionCalls.add(CaptureTransactionCall(transaction));
     return transaction.eventId;
   }
+
+  @override
+  Future<T?> getFeatureFlagValueAsync<T>(
+    String key, {
+    Scope? scope,
+    T? defaultValue,
+    FeatureFlagContextCallback? context,
+  }) async =>
+      featureFlagValue;
+
+  @override
+  T? getFeatureFlagValue<T>(
+    String key, {
+    Scope? scope,
+    T? defaultValue,
+    FeatureFlagContextCallback? context,
+  }) =>
+      featureFlagValue;
+
+  @override
+  Future<FeatureFlagInfo?> getFeatureFlagInfo(
+    String key, {
+    Scope? scope,
+    FeatureFlagContextCallback? context,
+  }) async =>
+      featureFlagInfo;
 }
 
 class CaptureEventCall {

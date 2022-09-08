@@ -5,6 +5,8 @@ import 'package:http/http.dart';
 
 import '../client_reports/client_report_recorder.dart';
 import '../client_reports/discard_reason.dart';
+import '../feature_flags/feature_dump.dart';
+import '../feature_flags/feature_flag.dart';
 import 'data_category.dart';
 import 'noop_encode.dart' if (dart.library.io) 'encode.dart';
 import '../noop_client.dart';
@@ -95,9 +97,114 @@ class HttpTransport implements Transport {
     return SentryId.fromId(eventId);
   }
 
+  @override
+  Future<Map<String, FeatureFlag>?> fetchFeatureFlags() async {
+    // TODO: handle rate limiting, client reports, etc...
+
+    final response = await _options.httpClient.post(_dsn.featureFlagsUri,
+        headers: _credentialBuilder.configure(_headers));
+
+    if (response.statusCode != 200) {
+      if (_options.debug) {
+        _options.logger(
+          SentryLevel.error,
+          'API returned an error, statusCode = ${response.statusCode}, '
+          'body = ${response.body}',
+        );
+      }
+      // return null;
+    }
+
+    final responseJson = json.decode(response.body);
+
+//     final responseJson = json.decode('''
+// {
+//   "feature_flags": {
+//     "@@accessToProfiling": {
+//       "evaluation": [
+//         {
+//           "type": "match",
+//           "result": true,
+//           "tags": {
+//             "isSentryDev": "true"
+//           }
+//         },
+//         {
+//           "type": "rollout",
+//           "percentage": 0.5,
+//           "result": true
+//         }
+//       ],
+//       "kind": "boolean"
+//     },
+//     "@@errorsSampleRate": {
+//       "evaluation": [
+//         {
+//           "type": "match",
+//           "result": 0.75
+//         }
+//       ],
+//       "kind": "number"
+//     },
+//     "@@profilingEnabled": {
+//       "evaluation": [
+//         {
+//           "type": "match",
+//           "result": true,
+//           "tags": {
+//             "isSentryDev": "true"
+//           }
+//         },
+//         {
+//           "type": "rollout",
+//           "percentage": 0.05,
+//           "result": true
+//         }
+//       ],
+//       "kind": "boolean"
+//     },
+//     "@@tracesSampleRate": {
+//       "evaluation": [
+//         {
+//           "type": "match",
+//           "result": 0.25
+//         }
+//       ],
+//       "kind": "number"
+//     },
+//     "accessToProfiling": {
+//       "evaluation": [
+//         {
+//           "type": "rollout",
+//           "percentage": 1.0,
+//           "result": true
+//         }
+//       ],
+//       "kind": "boolean"
+//     },
+//     "welcomeBanner": {
+//       "evaluation": [
+//         {
+//           "type": "rollout",
+//           "percentage": 1.0,
+//           "result": "dev.png",
+//           "tags": {
+//             "environment": "dev"
+//           }
+//         }
+//       ],
+//       "kind": "string"
+//     }
+//   }
+// }
+//       ''');
+
+    return FeatureDump.fromJson(responseJson).featureFlags;
+  }
+
   Future<StreamedRequest> _createStreamedRequest(
       SentryEnvelope envelope) async {
-    final streamedRequest = StreamedRequest('POST', _dsn.postUri);
+    final streamedRequest = StreamedRequest('POST', _dsn.envelopeUri);
 
     if (_options.compressPayload) {
       final compressionSink = compressInSink(streamedRequest.sink, _headers);

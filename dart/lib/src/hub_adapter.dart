@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 
+import 'feature_flags/feature_flag_context.dart';
+import 'feature_flags/feature_flag_info.dart';
 import 'hub.dart';
 import 'protocol.dart';
 import 'sentry.dart';
@@ -158,4 +160,41 @@ class HubAdapter implements Hub {
     String transaction,
   ) =>
       Sentry.currentHub.setSpanContext(throwable, span, transaction);
+
+  @override
+  Future<T?> getFeatureFlagValueAsync<T>(
+    String key, {
+    T? defaultValue,
+    FeatureFlagContextCallback? context,
+  }) =>
+      Sentry.getFeatureFlagValueAsync<T>(
+        key,
+        defaultValue: defaultValue,
+        context: context,
+      );
+
+  @override
+  T? getFeatureFlagValue<T>(
+    String key, {
+    T? defaultValue,
+    FeatureFlagContextCallback? context,
+  }) =>
+      Sentry.getFeatureFlagValue<T>(
+        key,
+        defaultValue: defaultValue,
+        context: context,
+      );
+
+  @override
+  Future<FeatureFlagInfo?> getFeatureFlagInfo(
+    String key, {
+    FeatureFlagContextCallback? context,
+  }) =>
+      Sentry.getFeatureFlagInfo(
+        key,
+        context: context,
+      );
+
+  @override
+  Future<void> requestFeatureFlags() => Sentry.currentHub.requestFeatureFlags();
 }

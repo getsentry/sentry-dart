@@ -273,6 +273,9 @@ class SentryOptions {
   /// If enabled, [scopeObservers] will be called when mutating scope.
   bool enableScopeSync = true;
 
+  /// The distinct Id/device Id used for feature flags
+  String? distinctId;
+
   final List<ScopeObserver> _scopeObservers = [];
 
   List<ScopeObserver> get scopeObservers => _scopeObservers;
@@ -283,6 +286,16 @@ class SentryOptions {
 
   @internal
   late ClientReportRecorder recorder = NoOpClientReportRecorder();
+
+  /// experimental features
+  final Map<String, dynamic> experimental = {
+    'featureFlagsEnabled': false,
+  };
+
+  // experimental
+  bool isFeatureFlagsEnabled() {
+    return experimental['featureFlagsEnabled'] as bool? ?? false;
+  }
 
   SentryOptions({this.dsn, PlatformChecker? checker}) {
     if (checker != null) {

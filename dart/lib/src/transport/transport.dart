@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:meta/meta.dart';
+
+import '../feature_flags/feature_flag.dart';
 import '../sentry_envelope.dart';
 import '../protocol.dart';
 
@@ -7,4 +10,7 @@ import '../protocol.dart';
 /// or caching in the disk.
 abstract class Transport {
   Future<SentryId?> send(SentryEnvelope envelope);
+
+  @experimental
+  Future<Map<String, FeatureFlag>?> fetchFeatureFlags();
 }

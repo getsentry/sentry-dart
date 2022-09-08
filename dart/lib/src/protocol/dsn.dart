@@ -24,7 +24,10 @@ class Dsn {
   /// The DSN URI.
   final Uri? uri;
 
-  Uri get postUri {
+  @Deprecated('Use [envelopeUri] instead')
+  Uri get postUri => envelopeUri;
+
+  Uri get envelopeUri {
     final uriCopy = uri!;
     final port = uriCopy.hasPort &&
             ((uriCopy.scheme == 'http' && uriCopy.port != 80) ||
@@ -45,6 +48,13 @@ class Dsn {
     return Uri.parse(
       '${uriCopy.scheme}://${uriCopy.host}$port/$apiPath/$projectId/envelope/',
     );
+  }
+
+  Uri get featureFlagsUri {
+    // TODO: implement proper Uri
+    final uriTemp =
+        envelopeUri.toString().replaceAll('envelope', 'feature-flags');
+    return Uri.parse(uriTemp);
   }
 
   /// Parses a DSN String to a Dsn object

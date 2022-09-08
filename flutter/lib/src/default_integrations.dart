@@ -348,7 +348,8 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
       return;
     }
     try {
-      await _channel.invokeMethod<void>('initNativeSdk', <String, dynamic>{
+      final result =
+          await _channel.invokeMethod('initNativeSdk', <String, dynamic>{
         'dsn': options.dsn,
         'debug': options.debug,
         'environment': options.environment,
@@ -375,6 +376,11 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
         'enableAutoPerformanceTracking': options.enableAutoPerformanceTracking,
         'sendClientReports': options.sendClientReports,
       });
+      final infos = Map<String, dynamic>.from(result);
+
+      // set the device id
+      final deviceId = infos['deviceId'] as String?;
+      options.distinctId = deviceId;
 
       options.sdk.addIntegration('nativeSdkIntegration');
     } catch (exception, stackTrace) {

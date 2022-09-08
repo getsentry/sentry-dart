@@ -14,7 +14,7 @@ class SentryTracesSampler {
     Random? random,
   }) : _random = random ?? Random();
 
-  bool sample(SentrySamplingContext samplingContext) {
+  bool sample(SentrySamplingContext samplingContext, double? tracesSampleRate) {
     final sampled = samplingContext.transactionContext.sampled;
     if (sampled != null) {
       return sampled;
@@ -33,7 +33,6 @@ class SentryTracesSampler {
       return parentSampled;
     }
 
-    final tracesSampleRate = _options.tracesSampleRate;
     if (tracesSampleRate != null) {
       return _sample(tracesSampleRate);
     }

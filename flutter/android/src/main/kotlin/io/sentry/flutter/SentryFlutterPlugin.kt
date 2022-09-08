@@ -103,6 +103,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     return true
   }
 
+  @Suppress("LongMethod")
   private fun initNativeSdk(call: MethodCall, result: Result) {
     if (!this::context.isInitialized) {
       result.error("1", "Context is null", null)
@@ -171,7 +172,12 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
       // missing proxy, enableScopeSync
     }
-    result.success("")
+
+    // make Installation.id(context) public
+    val item = mapOf<String, Any?>(
+      "deviceId" to Sentry.getCurrentHub().options.distinctId
+    )
+    result.success(item)
   }
 
   private fun fetchNativeAppStart(result: Result) {

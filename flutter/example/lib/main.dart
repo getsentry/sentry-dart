@@ -16,7 +16,7 @@ import 'package:sentry_logging/sentry_logging.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
 const String _exampleDsn =
-    'https://9934c532bf8446ef961450973c898537@o447951.ingest.sentry.io/5428562';
+    'https://fe85fc5123d44d5c99202d9e8f09d52e@395f015cf6c1.eu.ngrok.io/2';
 
 final _channel = const MethodChannel('example.flutter.sentry.io');
 
@@ -31,6 +31,7 @@ Future<void> main() async {
       options.attachThreads = true;
       options.enableWindowMetricBreadcrumbs = true;
       options.addIntegration(LoggingIntegration());
+      options.experimental['featureFlagsEnabled'] = true;
     },
     // Init your App.
     appRunner: () => runApp(
@@ -340,6 +341,43 @@ class MainScaffold extends StatelessWidget {
                 );
               },
               child: const Text('Show UserFeedback Dialog without event'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                await Sentry.configureScope((scope) async {
+                  await scope.setUser(
+                    SentryUser(
+                      id: '800',
+                    ),
+                  );
+                });
+
+                final accessToProfiling = await Sentry.isFeatureFlagEnabled(
+                  '@@accessToProfiling',
+                  defaultValue: false,
+                  context: (myContext) => {
+                    myContext.tags['isSentryDev'] = 'true',
+                  },
+                );
+                print('accessToProfiling: $accessToProfiling');
+
+                final errorsSampleRate =
+                    Sentry.getFeatureFlagValue<double?>('@@errorsSampleRate');
+                print('errorsSampleRate: $errorsSampleRate');
+
+                final tracesSampleRate =
+                    Sentry.getFeatureFlagValue<double?>('@@tracesSampleRate');
+                print('tracesSampleRate: $tracesSampleRate');
+
+                final welcomeBannerResult = Sentry.getFeatureFlagValue<String?>(
+                  'welcomeBanner',
+                  context: (myContext) => {
+                    myContext.tags['environment'] = 'dev',
+                  },
+                );
+                print('welcomeBanner: $welcomeBannerResult');
+              },
+              child: const Text('Check feature flags'),
             ),
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
               const CocoaExample(),

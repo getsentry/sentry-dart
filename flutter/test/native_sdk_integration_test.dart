@@ -128,7 +128,9 @@ void main() {
     });
 
     test('adds integration', () async {
-      final channel = createChannelWithCallback((call) async {});
+      final channel = createChannelWithCallback((call) async {
+        return {'deviceId': 'test'};
+      });
       var sut = fixture.getSut(channel);
 
       final options = createOptions();

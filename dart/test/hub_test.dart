@@ -537,6 +537,7 @@ class Fixture {
 
     tracer = SentryTracer(_context, hub);
 
+    client.featureFlagValue = tracesSampleRate;
     hub.bindClient(client);
     options.recorder = recorder;
 

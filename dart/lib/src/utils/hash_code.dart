@@ -1,5 +1,5 @@
 // Borrowed from https://api.dart.dev/stable/2.17.6/dart-core/Object/hash.html
-// Since Object.hash(a, b) is only available from Dart 2.14
+// Since Object.hash(a, b)  and Object.hashAll are only available from Dart 2.14
 
 // A per-isolate seed for hash code computations.
 final int _hashSeed = identityHashCode(Object);
@@ -21,4 +21,12 @@ int _finish(int hash) {
   hash = 0x1fffffff & (hash + ((0x03ffffff & hash) << 3));
   hash = hash ^ (hash >> 11);
   return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
+}
+
+int hashAll(Iterable<Object?> objects) {
+  int hash = _hashSeed;
+  for (var object in objects) {
+    hash = _combine(hash, object.hashCode);
+  }
+  return _finish(hash);
 }

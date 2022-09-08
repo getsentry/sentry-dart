@@ -6,6 +6,8 @@ import 'default_integrations.dart';
 import 'enricher/enricher_event_processor.dart';
 import 'environment/environment_variables.dart';
 import 'event_processor/deduplication_event_processor.dart';
+import 'feature_flags/feature_flag_context.dart';
+import 'feature_flags/feature_flag_info.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
 import 'integration.dart';
@@ -114,6 +116,7 @@ class Sentry {
       final runZonedGuardedIntegration =
           RunZonedGuardedIntegration(runIntegrationsAndAppRunner);
       options.addIntegrationByIndex(0, runZonedGuardedIntegration);
+      options.addIntegration(FetchFeatureFlagsAsync());
 
       // RunZonedGuardedIntegration will run other integrations and appRunner
       // runZonedGuarded so all exception caught in the error handler are
@@ -272,4 +275,52 @@ class Sentry {
 
   @internal
   static Hub get currentHub => _hub;
+
+  @experimental
+  static Future<bool> isFeatureFlagEnabled(
+    String key, {
+    bool defaultValue = false,
+    FeatureFlagContextCallback? context,
+  }) async {
+    return await getFeatureFlagValueAsync<bool>(
+          key,
+          defaultValue: defaultValue,
+          context: context,
+        ) ??
+        defaultValue;
+  }
+
+  @experimental
+  static Future<T?> getFeatureFlagValueAsync<T>(
+    String key, {
+    T? defaultValue,
+    FeatureFlagContextCallback? context,
+  }) =>
+      _hub.getFeatureFlagValueAsync<T>(
+        key,
+        defaultValue: defaultValue,
+        context: context,
+      );
+
+  @experimental
+  static T? getFeatureFlagValue<T>(
+    String key, {
+    T? defaultValue,
+    FeatureFlagContextCallback? context,
+  }) =>
+      _hub.getFeatureFlagValue<T>(
+        key,
+        defaultValue: defaultValue,
+        context: context,
+      );
+
+  @experimental
+  static Future<FeatureFlagInfo?> getFeatureFlagInfo(
+    String key, {
+    FeatureFlagContextCallback? context,
+  }) =>
+      _hub.getFeatureFlagInfo(
+        key,
+        context: context,
+      );
 }

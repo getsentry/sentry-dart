@@ -91,7 +91,7 @@ Future testCaptureException(
   }
 
   final dsn = Dsn.parse(options.dsn!);
-  expect(postUri, dsn.postUri);
+  expect(postUri, dsn.envelopeUri);
 
   testHeaders(
     headers,
@@ -193,7 +193,7 @@ void runTest({Codec<List<int>, List<int>?>? gzip, bool isWeb = false}) {
 
     expect(dsn.uri, Uri.parse(testDsn));
     expect(
-      dsn.postUri,
+      dsn.envelopeUri,
       Uri.parse('https://sentry.example.com/api/1/envelope/'),
     );
     expect(dsn.publicKey, 'public');
@@ -210,7 +210,7 @@ void runTest({Codec<List<int>, List<int>?>? gzip, bool isWeb = false}) {
 
     expect(dsn.uri, Uri.parse(_testDsnWithoutSecret));
     expect(
-      dsn.postUri,
+      dsn.envelopeUri,
       Uri.parse('https://sentry.example.com/api/1/envelope/'),
     );
     expect(dsn.publicKey, 'public');
@@ -227,7 +227,7 @@ void runTest({Codec<List<int>, List<int>?>? gzip, bool isWeb = false}) {
 
     expect(dsn.uri, Uri.parse(_testDsnWithPath));
     expect(
-      dsn.postUri,
+      dsn.envelopeUri,
       Uri.parse('https://sentry.example.com/path/api/1/envelope/'),
     );
     expect(dsn.publicKey, 'public');
@@ -243,7 +243,7 @@ void runTest({Codec<List<int>, List<int>?>? gzip, bool isWeb = false}) {
 
     expect(dsn.uri, Uri.parse(_testDsnWithPort));
     expect(
-      dsn.postUri,
+      dsn.envelopeUri,
       Uri.parse('https://sentry.example.com:8888/api/1/envelope/'),
     );
     expect(dsn.publicKey, 'public');

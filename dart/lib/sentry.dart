@@ -27,6 +27,14 @@ export 'src/http_client/sentry_http_client.dart';
 export 'src/http_client/sentry_http_client_error.dart';
 export 'src/sentry_attachment/sentry_attachment.dart';
 export 'src/sentry_user_feedback.dart';
+export 'src/transport/rate_limiter.dart';
+export 'src/transport/http_transport.dart';
 // tracing
 export 'src/tracing.dart';
 export 'src/sentry_measurement.dart';
+// feature flags
+export 'src/feature_flags/feature_flag.dart';
+export 'src/feature_flags/evaluation_rule.dart';
+export 'src/feature_flags/evaluation_type.dart';
+export 'src/feature_flags/feature_flag_context.dart';
+export 'src/feature_flags/feature_flag_info.dart';

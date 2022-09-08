@@ -1,8 +1,15 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:meta/meta.dart';
+import 'package:uuid/uuid.dart';
 
 import 'event_processor.dart';
+import 'feature_flags/evaluation_rule.dart';
+import 'feature_flags/evaluation_type.dart';
+import 'feature_flags/feature_flag.dart';
+import 'feature_flags/feature_flag_context.dart';
+import 'feature_flags/feature_flag_info.dart';
+import 'feature_flags/xor_shift_rand.dart';
 import 'sentry_user_feedback.dart';
 import 'transport/rate_limiter.dart';
 import 'protocol.dart';
@@ -28,13 +35,15 @@ const _defaultIpAddress = '{{auto}}';
 class SentryClient {
   final SentryOptions _options;
 
-  final Random? _random;
+  final _random = Random();
 
   static final _sentryId = Future.value(SentryId.empty());
 
   SentryExceptionFactory get _exceptionFactory => _options.exceptionFactory;
 
   SentryStackTraceFactory get _stackTraceFactory => _options.stackTraceFactory;
+
+  Map<String, FeatureFlag>? _featureFlags;
 
   /// Instantiates a client using [SentryOptions]
   factory SentryClient(SentryOptions options) {
@@ -49,8 +58,7 @@ class SentryClient {
   }
 
   /// Instantiates a client using [SentryOptions]
-  SentryClient._(this._options)
-      : _random = _options.sampleRate == null ? null : Random();
+  SentryClient._(this._options);
 
   /// Reports an [event] to Sentry.io.
   Future<SentryId> captureEvent(
@@ -59,7 +67,7 @@ class SentryClient {
     dynamic stackTrace,
     dynamic hint,
   }) async {
-    if (_sampleRate()) {
+    if (_sampleRate(scope)) {
       _recordLostEvent(event, DiscardReason.sampleRate);
       _options.logger(
         SentryLevel.debug,
@@ -360,9 +368,14 @@ class SentryClient {
     return processedEvent;
   }
 
-  bool _sampleRate() {
-    if (_options.sampleRate != null && _random != null) {
-      return (_options.sampleRate! < _random!.nextDouble());
+  bool _sampleRate(Scope? scope) {
+    final sampleRate = getFeatureFlagValue<num?>(
+      '@@errorsSampleRate',
+      scope: scope,
+      defaultValue: _options.sampleRate,
+    );
+    if (sampleRate != null) {
+      return (sampleRate < _random.nextDouble());
     }
     return false;
   }
@@ -395,5 +408,230 @@ class SentryClient {
     final clientReport = _options.recorder.flush();
     envelope.addClientReport(clientReport);
     return _options.transport.send(envelope);
+  }
+
+  T? _getFeatureFlagValue<T>(
+    Map<String, FeatureFlag>? featureFlags,
+    String key, {
+    Scope? scope,
+    T? defaultValue,
+    FeatureFlagContextCallback? context,
+  }) {
+    final flag = featureFlags?[key];
+
+    if (flag == null) {
+      return defaultValue;
+    }
+    final featureFlagContext = _getFeatureFlagContext(scope, context);
+
+    final evaluationRule = _getEvaluationRuleMatch(
+      key,
+      flag,
+      featureFlagContext,
+    );
+
+    if (evaluationRule == null) {
+      return defaultValue;
+    }
+
+    final resultType = _checkResultType<T>(evaluationRule.result);
+
+    return resultType ? evaluationRule.result as T : defaultValue;
+  }
+
+  @experimental
+  Future<T?> getFeatureFlagValueAsync<T>(
+    String key, {
+    Scope? scope,
+    T? defaultValue,
+    FeatureFlagContextCallback? context,
+  }) async {
+    if (!_options.isFeatureFlagsEnabled()) {
+      return defaultValue;
+    }
+
+    await requestFeatureFlags();
+    return _getFeatureFlagValue(
+      _featureFlags,
+      key,
+      scope: scope,
+      defaultValue: defaultValue,
+      context: context,
+    );
+  }
+
+  @experimental
+  T? getFeatureFlagValue<T>(
+    String key, {
+    Scope? scope,
+    T? defaultValue,
+    FeatureFlagContextCallback? context,
+  }) {
+    if (!_options.isFeatureFlagsEnabled()) {
+      return defaultValue;
+    }
+
+    return _getFeatureFlagValue(
+      _featureFlags,
+      key,
+      scope: scope,
+      defaultValue: defaultValue,
+      context: context,
+    );
+  }
+
+  bool _checkResultType<T>(dynamic result) {
+    return result is T ? true : false;
+  }
+
+  double _rollRandomNumber(String stickyId, String group) {
+    final seed = '$group|$stickyId';
+    final rand = XorShiftRandom(seed);
+    return rand.next();
+  }
+
+  bool _matchesTags(
+      Map<String, dynamic> tags, Map<String, String> contextTags) {
+    for (final item in tags.entries) {
+      if (item.value is List) {
+        if (!(item.value as List).contains(contextTags[item.key])) {
+          return false;
+        }
+      } else if (item.value != contextTags[item.key]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  @experimental
+  Future<FeatureFlagInfo?> getFeatureFlagInfo(
+    String key, {
+    Scope? scope,
+    FeatureFlagContextCallback? context,
+  }) async {
+    if (!_options.isFeatureFlagsEnabled()) {
+      return null;
+    }
+
+    await requestFeatureFlags();
+    final featureFlag = _featureFlags?[key];
+
+    if (featureFlag == null) {
+      return null;
+    }
+
+    final featureFlagContext = _getFeatureFlagContext(scope, context);
+
+    final evaluationRule = _getEvaluationRuleMatch(
+      key,
+      featureFlag,
+      featureFlagContext,
+    );
+
+    if (evaluationRule == null) {
+      return null;
+    }
+    final payload = evaluationRule.payload != null
+        ? Map<String, dynamic>.from(evaluationRule.payload as Map)
+        : null;
+
+    return FeatureFlagInfo(
+      evaluationRule.result,
+      Map.from(evaluationRule.tags),
+      payload,
+    );
+  }
+
+  EvaluationRule? _getEvaluationRuleMatch(
+    String key,
+    FeatureFlag featureFlag,
+    FeatureFlagContext context,
+  ) {
+    // there's always a stickyId
+    final stickyId = context.tags['stickyId']!;
+    final group = featureFlag.group ?? key;
+
+    for (final evalConfig in featureFlag.evaluations) {
+      if (!_matchesTags(evalConfig.tags, context.tags)) {
+        continue;
+      }
+
+      switch (evalConfig.type) {
+        case EvaluationType.rollout:
+          final percentage = _rollRandomNumber(stickyId, group);
+          if (percentage < (evalConfig.percentage ?? 0.0)) {
+            return evalConfig;
+          }
+          break;
+        case EvaluationType.match:
+          return evalConfig;
+        default:
+          break;
+      }
+    }
+
+    return null;
+  }
+
+  FeatureFlagContext _getFeatureFlagContext(
+    Scope? scope,
+    FeatureFlagContextCallback? context,
+  ) {
+    final featureFlagContext = FeatureFlagContext({});
+
+    // set the device id
+    final deviceId = _options.distinctId;
+    if (deviceId != null) {
+      featureFlagContext.tags['deviceId'] = deviceId;
+    }
+
+    // set userId from Scope
+    final userId = scope?.user?.id;
+    if (userId != null) {
+      featureFlagContext.tags['userId'] = userId;
+    }
+    // set the release
+    final release = _options.release;
+    if (release != null) {
+      featureFlagContext.tags['release'] = release;
+    }
+    // set the env
+    final environment = _options.environment;
+    if (environment != null) {
+      featureFlagContext.tags['environment'] = environment;
+    }
+    // set the transaction
+    final transaction = scope?.transaction;
+    if (transaction != null) {
+      featureFlagContext.tags['transaction'] = transaction;
+    }
+
+    // set all the tags from the scope as well
+    featureFlagContext.tags.addAll(scope?.tags ?? {});
+
+    // run feature flag context callback and allow user adding/removing tags
+    if (context != null) {
+      context(featureFlagContext);
+    }
+
+    // fallback stickyId if not provided by the user
+    // fallbacks to userId if set or deviceId
+    // if none were provided, it generates an Uuid
+    var stickyId = featureFlagContext.tags['stickyId'];
+    if (stickyId == null) {
+      stickyId = featureFlagContext.tags['userId'] ??
+          featureFlagContext.tags['deviceId'] ??
+          Uuid().v4().toString();
+      featureFlagContext.tags['stickyId'] = stickyId;
+    }
+
+    return featureFlagContext;
+  }
+
+  Future<void> requestFeatureFlags() async {
+    // TODO: add mechanism to reset caching
+    _featureFlags =
+        _featureFlags ?? await _options.transport.fetchFeatureFlags();
   }
 }

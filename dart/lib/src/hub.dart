@@ -393,9 +393,18 @@ class Hub {
       final samplingContext = SentrySamplingContext(
           transactionContext, customSamplingContext ?? {});
 
+      final tracesSampleRate = item.client.getFeatureFlagValue<double?>(
+        '@@tracesSampleRate',
+        scope: item.scope,
+        defaultValue: _options.tracesSampleRate,
+      );
+
       // if transactionContext has no sampled decision, run the traces sampler
       if (transactionContext.sampled == null) {
-        final sampled = _tracesSampler.sample(samplingContext);
+        final sampled = _tracesSampler.sample(
+          samplingContext,
+          tracesSampleRate,
+        );
         transactionContext = transactionContext.copyWith(sampled: sampled);
       }
 
@@ -517,6 +526,129 @@ class Hub {
       }
     }
     return event;
+  }
+
+  @experimental
+  Future<T?> getFeatureFlagValueAsync<T>(
+    String key, {
+    T? defaultValue,
+    FeatureFlagContextCallback? context,
+  }) async {
+    if (!_isEnabled) {
+      _options.logger(
+        SentryLevel.warning,
+        "Instance is disabled and this 'getFeatureFlagValueAsync' call is a no-op.",
+      );
+      return defaultValue;
+    }
+
+    try {
+      final item = _peek();
+
+      return item.client.getFeatureFlagValueAsync<T>(
+        key,
+        scope: item.scope,
+        defaultValue: defaultValue,
+        context: context,
+      );
+    } catch (exception, stacktrace) {
+      _options.logger(
+        SentryLevel.error,
+        'Error while fetching feature flags',
+        exception: exception,
+        stackTrace: stacktrace,
+      );
+    }
+    return defaultValue;
+  }
+
+  @experimental
+  T? getFeatureFlagValue<T>(
+    String key, {
+    T? defaultValue,
+    FeatureFlagContextCallback? context,
+  }) {
+    if (!_isEnabled) {
+      _options.logger(
+        SentryLevel.warning,
+        "Instance is disabled and this 'getFeatureFlagValue' call is a no-op.",
+      );
+      return defaultValue;
+    }
+
+    try {
+      final item = _peek();
+
+      return item.client.getFeatureFlagValue<T>(
+        key,
+        scope: item.scope,
+        defaultValue: defaultValue,
+        context: context,
+      );
+    } catch (exception, stacktrace) {
+      _options.logger(
+        SentryLevel.error,
+        'Error while fetching feature flags',
+        exception: exception,
+        stackTrace: stacktrace,
+      );
+    }
+    return defaultValue;
+  }
+
+  @experimental
+  Future<FeatureFlagInfo?> getFeatureFlagInfo(
+    String key, {
+    FeatureFlagContextCallback? context,
+  }) async {
+    if (!_isEnabled) {
+      _options.logger(
+        SentryLevel.warning,
+        "Instance is disabled and this 'getFeatureFlagInfo' call is a no-op.",
+      );
+      return null;
+    }
+
+    try {
+      final item = _peek();
+
+      return item.client.getFeatureFlagInfo(
+        key,
+        scope: item.scope,
+        context: context,
+      );
+    } catch (exception, stacktrace) {
+      _options.logger(
+        SentryLevel.error,
+        'Error while fetching feature flags',
+        exception: exception,
+        stackTrace: stacktrace,
+      );
+    }
+    return null;
+  }
+
+  Future<void> requestFeatureFlags() async {
+    if (!_isEnabled) {
+      _options.logger(
+        SentryLevel.warning,
+        "Instance is disabled and this 'requestFeatureFlags' call is a no-op.",
+      );
+      return;
+    }
+
+    try {
+      final item = _peek();
+
+      return item.client.requestFeatureFlags();
+    } catch (exception, stacktrace) {
+      _options.logger(
+        SentryLevel.error,
+        'Error while fetching feature flags',
+        exception: exception,
+        stackTrace: stacktrace,
+      );
+    }
   }
 }
 
