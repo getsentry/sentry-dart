@@ -23,7 +23,7 @@ class SentryStackTraceFactory {
 
   /// returns the [SentryStackFrame] list from a stackTrace ([StackTrace] or [String])
   List<SentryStackFrame> getStackFrames(dynamic stackTrace) {
-    final chain = parseStackTrace(stackTrace);
+    final chain = _parseStackTrace(stackTrace);
     final frames = <SentryStackFrame>[];
     for (var t = 0; t < chain.traces.length; t += 1) {
       final trace = chain.traces[t];
@@ -50,7 +50,7 @@ class SentryStackTraceFactory {
     return frames.reversed.toList();
   }
 
-  Chain parseStackTrace(dynamic stackTrace) {
+  Chain _parseStackTrace(dynamic stackTrace) {
     if (stackTrace is Chain || stackTrace is Trace) {
       return Chain.forTrace(stackTrace);
     }
