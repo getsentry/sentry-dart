@@ -474,9 +474,9 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
       }
 
       SentrySDK.configureScope { scope in
-        if let dictionary = value as? Dictionary<String, Any?> {
+        if let dictionary = value as? [String: Any] {
           scope.setContext(value: dictionary, key: key)
-        } else if let string = value as? String? {
+        } else if let string = value as? String {
           scope.setContext(value: ["value": string], key: key)
         } else if let int = value as? Int {
           scope.setContext(value: ["value": int], key: key)
@@ -500,7 +500,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
       }
     }
 
-    private func setUser(user: Dictionary<String, Any?>?, result: @escaping FlutterResult) {
+    private func setUser(user: [String: Any?]?, result: @escaping FlutterResult) {
       if let user = user {
         let userInstance = User()
 
@@ -516,7 +516,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         if let ipAddress = user["ip_address"] as? String {
           userInstance.ipAddress = ipAddress
         }
-        if let extras = user["extras"] as? Dictionary<String, Any?> {
+        if let extras = user["extras"] as? [String: Any] {
           userInstance.data = extras
         }
 
@@ -528,7 +528,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
     }
 
     // swiftlint:disable:next cyclomatic_complexity
-    private func addBreadcrumb(breadcrumb: Dictionary<String, Any?>?, result: @escaping FlutterResult) {
+    private func addBreadcrumb(breadcrumb: [String: Any?]?, result: @escaping FlutterResult) {
       guard let breadcrumb = breadcrumb else {
         result("")
         return
@@ -561,7 +561,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
           breadcrumbInstance.level = SentryLevel.error
         }
       }
-      if let data = breadcrumb["data"] as? Dictionary<String, Any?> {
+      if let data = breadcrumb["data"] as? [String: Any] {
         breadcrumbInstance.data = data
       }
 
