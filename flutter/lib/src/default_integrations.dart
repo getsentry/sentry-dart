@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
-
 import 'binding_utils.dart';
 import 'sentry_flutter_options.dart';
 import 'widgets_binding_observer.dart';
@@ -444,97 +443,74 @@ class WidgetsBindingIntegration extends Integration<SentryFlutterOptions> {
   }
 }
 
-/// Loads the Android Image list for stack trace symbolication
-class LoadAndroidImageListIntegration
-    extends Integration<SentryFlutterOptions> {
+/// Loads the native debug image list for stack trace symbolication.
+class LoadImageListIntegration extends Integration<SentryFlutterOptions> {
   final MethodChannel _channel;
 
-  LoadAndroidImageListIntegration(this._channel);
+  LoadImageListIntegration(this._channel);
 
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
     options.addEventProcessor(
-      _LoadAndroidImageListIntegrationEventProcessor(_channel, options),
+      _LoadImageListIntegrationEventProcessor(_channel, options),
     );
 
-    options.sdk.addIntegration('loadAndroidImageListIntegration');
+    options.sdk.addIntegration('loadImageListIntegration');
   }
 }
 
-class _LoadAndroidImageListIntegrationEventProcessor extends EventProcessor {
-  _LoadAndroidImageListIntegrationEventProcessor(this._channel, this._options);
+extension _NeedsSymbolication on SentryEvent {
+  bool needsSymbolication() {
+    if (this is SentryTransaction) return false;
+    final frames = exceptions?.first.stackTrace?.frames;
+    if (frames == null) return false;
+    return frames.any((frame) => 'native' == frame.platform);
+  }
+}
+
+class _LoadImageListIntegrationEventProcessor extends EventProcessor {
+  _LoadImageListIntegrationEventProcessor(this._channel, this._options);
 
   final MethodChannel _channel;
   final SentryFlutterOptions _options;
 
   @override
   FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {
-    if (event is SentryTransaction) {
-      return event;
-    }
-
-    try {
-      final exceptions = event.exceptions;
-      if (exceptions != null && exceptions.first.stackTrace != null) {
-        final needsSymbolication = exceptions.first.stackTrace?.frames
-                .any((element) => 'native' == element.platform) ??
-            false;
-
-        // if there are no frames that require symbolication, we don't
-        // load the debug image list.
-        if (!needsSymbolication) {
-          return event;
-        }
-      } else {
-        return event;
-      }
-
-      // we call on every event because the loaded image list is cached
-      // and it could be changed on the Native side.
-      final imageList = List<Map<dynamic, dynamic>>.from(
-        await _channel.invokeMethod('loadImageList'),
-      );
-
-      if (imageList.isEmpty) {
-        return event;
-      }
-
-      final newDebugImages = <DebugImage>[];
-
-      for (final item in imageList) {
-        final codeFile = item['code_file'] as String?;
-        final codeId = item['code_id'] as String?;
-        final imageAddr = item['image_addr'] as String?;
-        final imageSize = item['image_size'] as int?;
-        final type = item['type'] as String;
-        final debugId = item['debug_id'] as String?;
-        final debugFile = item['debug_file'] as String?;
-
-        final image = DebugImage(
-          type: type,
-          imageAddr: imageAddr,
-          imageSize: imageSize,
-          codeFile: codeFile,
-          debugId: debugId,
-          codeId: codeId,
-          debugFile: debugFile,
+    if (event.needsSymbolication()) {
+      try {
+        // we call on every event because the loaded image list is cached
+        // and it could be changed on the Native side.
+        final imageList = List<Map<dynamic, dynamic>>.from(
+          await _channel.invokeMethod('loadImageList'),
         );
-        newDebugImages.add(image);
+        return copyWithDebugImages(event, imageList);
+      } catch (exception, stackTrace) {
+        _options.logger(
+          SentryLevel.error,
+          'loadImageList failed',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
       }
-
-      final debugMeta = DebugMeta(images: newDebugImages);
-
-      event = event.copyWith(debugMeta: debugMeta);
-    } catch (exception, stackTrace) {
-      _options.logger(
-        SentryLevel.error,
-        'loadImageList failed',
-        exception: exception,
-        stackTrace: stackTrace,
-      );
     }
 
     return event;
+  }
+
+  static SentryEvent copyWithDebugImages(
+      SentryEvent event, List<Object?> imageList) {
+    if (imageList.isEmpty) {
+      return event;
+    }
+
+    final newDebugImages = <DebugImage>[];
+    for (final obj in imageList) {
+      final jsonMap = Map<String, dynamic>.from(obj as Map<dynamic, dynamic>);
+      final image = DebugImage.fromJson(jsonMap);
+      newDebugImages.add(image);
+    }
+
+    return event.copyWith(debugMeta: DebugMeta(images: newDebugImages));
   }
 }
 

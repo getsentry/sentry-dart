@@ -4,6 +4,7 @@
 
 ### Features
 
+- Prepare future support for iOS and macOS obfuscated app symbolication using dSYM (requires Flutter `master` channel) ([#823](https://github.com/getsentry/sentry-dart/pull/823))
 - Bump Android SDK from v6.3.1 to v6.4.1 ([#989](https://github.com/getsentry/sentry-dart/pull/989))
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#641)
   - [diff](https://github.com/getsentry/sentry-java/compare/6.3.1...6.4.1)
@@ -458,7 +459,7 @@ This should not break anything since the Dart's min. version is already 2.12.0 a
 ### Breaking Changes:
 
 * Fix: Plugin Registrant class moved to barrel file (#358)
-  * This changed the import from `import 'package:sentry_flutter/src/sentry_flutter_web.dart';` 
+  * This changed the import from `import 'package:sentry_flutter/src/sentry_flutter_web.dart';`
     to `import 'package:sentry_flutter/sentry_flutter_web.dart';`
   * This could lead to breaking changes. Typically it shouldn't because the referencing file is auto-generated.
 * Fix: Prefix classes with Sentry (#357)

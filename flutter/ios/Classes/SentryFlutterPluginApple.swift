@@ -61,6 +61,9 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         case "loadContexts":
             loadContexts(result: result)
 
+        case "loadImageList":
+            loadImageList(result: result)
+
         case "initNativeSdk":
             initNativeSdk(call, result: result)
 
@@ -174,6 +177,11 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
             result(infos)
         }
+    }
+
+    private func loadImageList(result: @escaping FlutterResult) {
+      let debugImages = PrivateSentrySDKOnly.getDebugImages() as [DebugMeta]
+      result(debugImages.map { $0.serialize() })
     }
 
     private func initNativeSdk(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
