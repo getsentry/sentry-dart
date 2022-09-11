@@ -44,33 +44,6 @@ void initApp() {
 }
 ```
 
-Or, if you want to run your app in your own error zone [runZonedGuarded]:  
-
-```dart
-import 'dart:async';
-
-import 'package:sentry/sentry.dart';
-
-Future<void> main() async {
-  runZonedGuarded(() async {
-    await Sentry.init(
-      (options) {
-        options.dsn = 'https://example@sentry.io/example';
-      },
-    );
-
-    // Init your App.
-    initApp();
-  }, (exception, stackTrace) async {
-    await Sentry.captureException(exception, stackTrace: stackTrace);
-  });
-}
-
-void initApp() {
-  // your app code
-}
-```
-
 ##### Breadcrumbs for HTTP Requests
 
 The `SentryHttpClient` can be used as a standalone client like this:
