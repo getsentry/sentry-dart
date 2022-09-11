@@ -6,6 +6,7 @@ import 'package:meta/meta.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
 import 'event_processor/android_platform_exception_event_processor.dart';
+import 'native_scope_observer.dart';
 import 'sentry_native.dart';
 import 'sentry_native_channel.dart';
 
@@ -83,6 +84,7 @@ mixin SentryFlutter {
     if (options.platformChecker.platform.isAndroid) {
       options
           .addEventProcessor(AndroidPlatformExceptionEventProcessor(options));
+      options.addScopeObserver(NativeScopeObserver(SentryNative()));
     }
 
     _setSdk(options);
@@ -96,6 +98,8 @@ mixin SentryFlutter {
     SentryFlutterOptions options,
   ) {
     final integrations = <Integration>[];
+    final platformChecker = options.platformChecker;
+    final platform = platformChecker.platform;
 
     // Will call WidgetsFlutterBinding.ensureInitialized() before all other integrations.
     integrations.add(WidgetsFlutterBindingIntegration());
@@ -109,22 +113,21 @@ mixin SentryFlutter {
     // The ordering here matters, as we'd like to first start the native integration.
     // That allow us to send events to the network and then the Flutter integrations.
     // Flutter Web doesn't need that, only Android and iOS.
-    if (options.platformChecker.hasNativeIntegration) {
+    if (platformChecker.hasNativeIntegration) {
       integrations.add(NativeSdkIntegration(channel));
     }
 
     // Will enrich events with device context, native packages and integrations
-    if (options.platformChecker.hasNativeIntegration &&
-        !options.platformChecker.isWeb &&
-        (options.platformChecker.platform.isIOS ||
-            options.platformChecker.platform.isMacOS)) {
+    if (platformChecker.hasNativeIntegration &&
+        !platformChecker.isWeb &&
+        (platform.isIOS || platform.isMacOS)) {
       integrations.add(LoadContextsIntegration(channel));
     }
 
-    if (options.platformChecker.hasNativeIntegration &&
-        !options.platformChecker.isWeb &&
-        options.platformChecker.platform.isAndroid) {
-      integrations.add(LoadAndroidImageListIntegration(channel));
+    if (platformChecker.hasNativeIntegration &&
+        !platformChecker.isWeb &&
+        (platform.isAndroid || platform.isIOS || platform.isMacOS)) {
+      integrations.add(LoadImageListIntegration(channel));
     }
 
     integrations.add(DebugPrintIntegration());
@@ -134,7 +137,7 @@ mixin SentryFlutter {
     // in errors.
     integrations.add(LoadReleaseIntegration(packageLoader));
 
-    if (options.platformChecker.hasNativeIntegration) {
+    if (platformChecker.hasNativeIntegration) {
       integrations.add(NativeAppStartIntegration(
         SentryNative(),
         () {

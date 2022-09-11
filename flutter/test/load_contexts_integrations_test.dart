@@ -1,3 +1,5 @@
+@TestOn('vm')
+
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -73,12 +75,14 @@ void main() {
     expect(fixture.options.eventProcessors.length, 1);
 
     final e = SentryEvent();
+    e.contexts.operatingSystem = SentryOperatingSystem(theme: 'theme1');
     final event = await fixture.options.eventProcessors.first.apply(e);
 
     expect(fixture.called, true);
     expect(event?.contexts.device?.name, 'Device1');
     expect(event?.contexts.app?.name, 'test-app');
     expect(event?.contexts.operatingSystem?.name, 'os1');
+    expect(event?.contexts.operatingSystem?.theme, 'theme1');
     expect(event?.contexts.gpu?.name, 'gpu1');
     expect(event?.contexts.browser?.name, 'browser1');
     expect(

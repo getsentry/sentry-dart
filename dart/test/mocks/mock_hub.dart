@@ -37,7 +37,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
   }
 
   @override
-  void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) {
+  Future<void> addBreadcrumb(Breadcrumb crumb, {dynamic hint}) async {
     addBreadcrumbCalls.add(AddBreadcrumbCall(crumb, hint));
   }
 

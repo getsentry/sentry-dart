@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:logging/logging.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:feedback/feedback.dart' as feedback;
@@ -11,6 +12,7 @@ import 'package:provider/provider.dart';
 import 'user_feedback_dialog.dart';
 import 'package:dio/dio.dart';
 import 'package:sentry_dio/sentry_dio.dart';
+import 'package:sentry_logging/sentry_logging.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
 const String _exampleDsn =
@@ -26,6 +28,13 @@ Future<void> main() async {
       options.reportPackages = false;
       options.addInAppInclude('sentry_flutter_example');
       options.considerInAppFramesByDefault = false;
+      options.attachThreads = true;
+      options.enableWindowMetricBreadcrumbs = true;
+      options.addIntegration(LoggingIntegration());
+      // We can enable Sentry debug logging during development. This is likely
+      // going to log too much for your app, but can be useful when figuring out
+      // configuration issues, e.g. finding out why your events are not uploaded.
+      options.debug = true;
     },
     // Init your App.
     appRunner: () => runApp(
@@ -177,6 +186,20 @@ class MainScaffold extends StatelessWidget {
                 ));
               },
               child: const Text('Capture from FlutterError.onError'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Only usable on Flutter >= 3.3
+                // and needs the following additional setup:
+                // options.addIntegration(OnErrorIntegration());
+                (WidgetsBinding.instance.platformDispatcher as dynamic)
+                    .onError
+                    ?.call(
+                      Exception('PlatformDispatcher.onError'),
+                      StackTrace.current,
+                    );
+              },
+              child: const Text('Capture from PlatformDispatcher.onError'),
             ),
             ElevatedButton(
               onPressed: () => makeWebRequest(context),
@@ -374,6 +397,13 @@ class AndroidExample extends StatelessWidget {
           await execute('platform_exception');
         },
         child: const Text('Platform exception'),
+      ),
+      ElevatedButton(
+        onPressed: () {
+          final log = Logger('Logging');
+          log.info('My Logging test');
+        },
+        child: const Text('Logging'),
       ),
     ]);
   }

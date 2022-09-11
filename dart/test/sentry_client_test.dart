@@ -17,6 +17,8 @@ import 'mocks.dart';
 import 'mocks/mock_client_report_recorder.dart';
 import 'mocks/mock_envelope.dart';
 import 'mocks/mock_hub.dart';
+import 'mocks/mock_platform.dart';
+import 'mocks/mock_platform_checker.dart';
 import 'mocks/mock_transport.dart';
 
 void main() {
@@ -109,6 +111,50 @@ void main() {
       expect(capturedEvent.threads?.first.stacktrace, isNull);
       expect(capturedEvent.exceptions?.first.stackTrace, isNotNull);
     });
+
+    test(
+      'should attach isolate info in thread',
+      () async {
+        final client = fixture.getSut(attachThreads: true);
+
+        await client.captureException(
+          Exception(),
+          stackTrace: StackTrace.current,
+        );
+
+        final capturedEnvelope = (fixture.transport).envelopes.first;
+        final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+        expect(capturedEvent.threads?.first.current, true);
+        expect(capturedEvent.threads?.first.crashed, true);
+        expect(capturedEvent.threads?.first.name, isNotNull);
+        expect(capturedEvent.threads?.first.id, isNotNull);
+
+        expect(
+          capturedEvent.exceptions?.first.threadId,
+          capturedEvent.threads?.first.id,
+        );
+      },
+      onPlatform: {'js': Skip("Isolates don't exist on the web")},
+    );
+
+    test(
+      'should not attach isolate info in thread if disabled',
+      () async {
+        final client = fixture.getSut(attachThreads: false);
+
+        await client.captureException(
+          Exception(),
+          stackTrace: StackTrace.current,
+        );
+
+        final capturedEnvelope = (fixture.transport).envelopes.first;
+        final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+        expect(capturedEvent.threads, null);
+      },
+      onPlatform: {'js': Skip("Isolates don't exist on the web")},
+    );
 
     test('should capture message', () async {
       final client = fixture.getSut();
@@ -454,13 +500,14 @@ void main() {
       fixture = Fixture();
 
       scope = Scope(fixture.options)
-        ..user = user
         ..level = level
         ..transaction = transaction
         ..fingerprint = fingerprint
         ..addBreadcrumb(crumb)
         ..setTag(scopeTagKey, scopeTagValue)
         ..setExtra(scopeExtraKey, scopeExtraValue);
+
+      scope.setUser(user);
     });
 
     test('should apply the scope', () async {
@@ -506,12 +553,13 @@ void main() {
       breadcrumbs: eventCrumbs,
     );
 
-    Scope createScope(SentryOptions options) {
-      return Scope(options)
-        ..user = user
+    Future<Scope> createScope(SentryOptions options) async {
+      final scope = Scope(options)
         ..transaction = transaction
-        ..fingerprint = fingerprint
-        ..addBreadcrumb(crumb);
+        ..fingerprint = fingerprint;
+      await scope.addBreadcrumb(crumb);
+      await scope.setUser(user);
+      return scope;
     }
 
     setUp(() {
@@ -520,7 +568,7 @@ void main() {
 
     test('should not apply the scope to non null event fields ', () async {
       final client = fixture.getSut(sendDefaultPii: true);
-      final scope = createScope(fixture.options);
+      final scope = await createScope(fixture.options);
 
       await client.captureEvent(event, scope: scope);
 
@@ -537,9 +585,9 @@ void main() {
 
     test('should apply the scope user to null event user fields ', () async {
       final client = fixture.getSut(sendDefaultPii: true);
-      final scope = createScope(fixture.options);
+      final scope = await createScope(fixture.options);
 
-      scope.user = SentryUser(id: '987');
+      await scope.setUser(SentryUser(id: '987'));
 
       var eventWithUser = event.copyWith(
         user: SentryUser(id: '123', username: 'foo bar'),
@@ -560,14 +608,16 @@ void main() {
 
     test('merge scope user and event user extra', () async {
       final client = fixture.getSut(sendDefaultPii: true);
-      final scope = createScope(fixture.options);
+      final scope = await createScope(fixture.options);
 
-      scope.user = SentryUser(
-        id: 'id',
-        extras: {
-          'foo': 'bar',
-          'bar': 'foo',
-        },
+      await scope.setUser(
+        SentryUser(
+          id: 'id',
+          extras: {
+            'foo': 'bar',
+            'bar': 'foo',
+          },
+        ),
       );
 
       var eventWithUser = event.copyWith(
@@ -814,6 +864,150 @@ void main() {
     });
   });
 
+  group('Breadcrumbs', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('Clears breadcrumbs on Android if mechanism.handled is true',
+        () async {
+      fixture.options.enableScopeSync = true;
+      fixture.options.platformChecker =
+          MockPlatformChecker(platform: MockPlatform.android());
+
+      final client = fixture.getSut();
+      final event = SentryEvent(exceptions: [
+        SentryException(
+          type: "type",
+          value: "value",
+          mechanism: Mechanism(
+            type: 'type',
+            handled: true,
+          ),
+        )
+      ], breadcrumbs: [
+        Breadcrumb()
+      ]);
+      await client.captureEvent(event);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect((capturedEvent.breadcrumbs ?? []).isEmpty, true);
+    });
+
+    test('Clears breadcrumbs on Android if mechanism.handled is null',
+        () async {
+      fixture.options.enableScopeSync = true;
+      fixture.options.platformChecker =
+          MockPlatformChecker(platform: MockPlatform.android());
+
+      final client = fixture.getSut();
+      final event = SentryEvent(exceptions: [
+        SentryException(
+          type: "type",
+          value: "value",
+          mechanism: Mechanism(type: 'type'),
+        )
+      ], breadcrumbs: [
+        Breadcrumb()
+      ]);
+      await client.captureEvent(event);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect((capturedEvent.breadcrumbs ?? []).isEmpty, true);
+    });
+
+    test('Clears breadcrumbs on Android if theres no mechanism', () async {
+      fixture.options.enableScopeSync = true;
+      fixture.options.platformChecker =
+          MockPlatformChecker(platform: MockPlatform.android());
+
+      final client = fixture.getSut();
+      final event = SentryEvent(exceptions: [
+        SentryException(
+          type: "type",
+          value: "value",
+        )
+      ], breadcrumbs: [
+        Breadcrumb()
+      ]);
+      await client.captureEvent(event);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect((capturedEvent.breadcrumbs ?? []).isEmpty, true);
+    });
+
+    test('Does not clear breadcrumbs on Android if mechanism.handled is false',
+        () async {
+      fixture.options.enableScopeSync = true;
+      fixture.options.platformChecker =
+          MockPlatformChecker(platform: MockPlatform.android());
+
+      final client = fixture.getSut();
+      final event = SentryEvent(exceptions: [
+        SentryException(
+          type: "type",
+          value: "value",
+          mechanism: Mechanism(
+            type: 'type',
+            handled: false,
+          ),
+        )
+      ], breadcrumbs: [
+        Breadcrumb()
+      ]);
+      await client.captureEvent(event);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect((capturedEvent.breadcrumbs ?? []).isNotEmpty, true);
+    });
+
+    test(
+        'Does not clear breadcrumbs on Android if any mechanism.handled is false',
+        () async {
+      fixture.options.enableScopeSync = true;
+      fixture.options.platformChecker =
+          MockPlatformChecker(platform: MockPlatform.android());
+
+      final client = fixture.getSut();
+      final event = SentryEvent(exceptions: [
+        SentryException(
+          type: "type",
+          value: "value",
+          mechanism: Mechanism(
+            type: 'type',
+            handled: true,
+          ),
+        ),
+        SentryException(
+          type: "type",
+          value: "value",
+          mechanism: Mechanism(
+            type: 'type',
+            handled: false,
+          ),
+        )
+      ], breadcrumbs: [
+        Breadcrumb()
+      ]);
+      await client.captureEvent(event);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect((capturedEvent.breadcrumbs ?? []).isNotEmpty, true);
+    });
+  });
+
   group('ClientReportRecorder', () {
     late Fixture fixture;
 
@@ -1006,7 +1200,8 @@ class Fixture {
   final recorder = MockClientReportRecorder();
   final transport = MockTransport();
 
-  final options = SentryOptions(dsn: fakeDsn);
+  final options = SentryOptions(dsn: fakeDsn)
+    ..platformChecker = MockPlatformChecker(platform: MockPlatform.iOS());
 
   late SentryTransactionContext _context;
   late SentryTracer tracer;
@@ -1014,6 +1209,7 @@ class Fixture {
   SentryClient getSut({
     bool sendDefaultPii = false,
     bool attachStacktrace = true,
+    bool attachThreads = false,
     double? sampleRate,
     BeforeSendCallback? beforeSend,
     EventProcessor? eventProcessor,
@@ -1029,14 +1225,16 @@ class Fixture {
     options.tracesSampleRate = 1.0;
     options.sendDefaultPii = sendDefaultPii;
     options.attachStacktrace = attachStacktrace;
+    options.attachThreads = attachThreads;
     options.sampleRate = sampleRate;
     options.beforeSend = beforeSend;
+
     if (eventProcessor != null) {
       options.addEventProcessor(eventProcessor);
     }
     options.transport = transport;
     final client = SentryClient(options);
-    // hub.bindClient(client);
+
     if (provideMockRecorder) {
       options.recorder = recorder;
     }

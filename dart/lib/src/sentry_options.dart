@@ -16,7 +16,6 @@ import 'transport/noop_transport.dart';
 import 'utils.dart';
 import 'version.dart';
 
-// TODO: Scope observers, enableScopeSync
 // TODO: shutdownTimeout, flushTimeoutMillis
 // https://api.dart.dev/stable/2.10.2/dart-io/HttpClient/close.html doesn't have a timeout param, we'd need to implement manually
 
@@ -208,6 +207,8 @@ class SentryOptions {
 
   /// Enable this option if you want to record calls to `print()` as
   /// breadcrumbs.
+  /// In a Flutter environment, this setting also toggles recording of `debugPrint` calls.
+  /// `debugPrint` calls are only recorded in release builds, though.
   bool enablePrintBreadcrumbs = true;
 
   /// If [platformChecker] is provided, it is used get the environment.
@@ -218,7 +219,15 @@ class SentryOptions {
   /// variables. This is useful in tests.
   EnvironmentVariables environmentVariables = EnvironmentVariables.instance();
 
-  /// When enabled, all the threads are automatically attached to all logged events (Android).
+  /// When enabled, the current isolate will be attached to the event.
+  /// This only applies to Dart:io platforms and only the current isolate.
+  /// The Dart runtime doesn't provide information about other active isolates.
+  ///
+  /// When running on web, this option has no effect at all.
+  ///
+  /// When running in the Flutter context, this enables attaching of threads
+  /// for native events, if supported for the native platform.
+  /// Currently, this is only supported on Android.
   bool attachThreads = false;
 
   /// Whether to send personal identifiable information along with events
@@ -264,6 +273,17 @@ class SentryOptions {
   /// Send statistics to sentry when the client drops events.
   bool sendClientReports = true;
 
+  /// If enabled, [scopeObservers] will be called when mutating scope.
+  bool enableScopeSync = true;
+
+  final List<ScopeObserver> _scopeObservers = [];
+
+  List<ScopeObserver> get scopeObservers => _scopeObservers;
+
+  void addScopeObserver(ScopeObserver scopeObserver) {
+    _scopeObservers.add(scopeObserver);
+  }
+
   @internal
   late ClientReportRecorder recorder = NoOpClientReportRecorder();
 
@@ -277,7 +297,9 @@ class SentryOptions {
   }
 
   @internal
-  SentryOptions.empty();
+  SentryOptions.empty() {
+    sdk = SdkVersion(name: 'noop', version: sdkVersion);
+  }
 
   /// Adds an event processor
   void addEventProcessor(EventProcessor eventProcessor) {

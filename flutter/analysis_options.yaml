@@ -1,4 +1,4 @@
-include: package:pedantic/analysis_options.yaml
+include: package:flutter_lints/flutter.yaml
 
 analyzer:
   errors:
@@ -19,3 +19,9 @@ linter:
     prefer_relative_imports: true
     unnecessary_brace_in_string_interps: true
     implementation_imports: true
+    prefer_const_literals_to_create_immutables: false
+    prefer_const_constructors: false
+    library_private_types_in_public_api: false
+    no_leading_underscores_for_local_identifiers: false
+    prefer_function_declarations_over_variables: false
+    unawaited_futures: true

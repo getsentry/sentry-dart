@@ -9,9 +9,8 @@ import 'sentry_options.dart';
 class SentryStackTraceFactory {
   final SentryOptions _options;
 
-  final _absRegex = RegExp('abs +([A-Fa-f0-9]+)');
-  static const _stackTraceViolateDartStandard =
-      'This VM has been configured to produce stack traces that violate the Dart standard.';
+  final _absRegex = RegExp(r'^\s*#[0-9]+ +abs +([A-Fa-f0-9]+)');
+  final _frameRegex = RegExp(r'^\s*#', multiLine: true);
 
   static const _sentryPackagesIdentifier = <String>[
     'sentry',
@@ -24,39 +23,22 @@ class SentryStackTraceFactory {
 
   /// returns the [SentryStackFrame] list from a stackTrace ([StackTrace] or [String])
   List<SentryStackFrame> getStackFrames(dynamic stackTrace) {
-    final chain = (stackTrace is StackTrace)
-        ? Chain.forTrace(stackTrace)
-        : (stackTrace is String)
-            ? Chain.parse(stackTrace)
-            : Chain.parse('');
-
+    final chain = _parseStackTrace(stackTrace);
     final frames = <SentryStackFrame>[];
-    var symbolicated = true;
-
     for (var t = 0; t < chain.traces.length; t += 1) {
       final trace = chain.traces[t];
 
       for (final frame in trace.frames) {
         // we don't want to add our own frames
-        if (_sentryPackagesIdentifier.contains(frame.package)) {
+        if (frame.package != null &&
+            _sentryPackagesIdentifier.contains(frame.package)) {
           continue;
         }
 
-        final member = frame.member;
-        // ideally the language would offer us a native way of parsing it.
-        if (member != null && member.contains(_stackTraceViolateDartStandard)) {
-          symbolicated = false;
+        final stackTraceFrame = encodeStackTraceFrame(frame);
+        if (stackTraceFrame != null) {
+          frames.add(stackTraceFrame);
         }
-
-        final stackTraceFrame = encodeStackTraceFrame(
-          frame,
-          symbolicated: symbolicated,
-        );
-
-        if (stackTraceFrame == null) {
-          continue;
-        }
-        frames.add(stackTraceFrame);
       }
 
       // fill asynchronous gap
@@ -68,67 +50,84 @@ class SentryStackTraceFactory {
     return frames.reversed.toList();
   }
 
-  /// converts [Frame] to [SentryStackFrame]
-  @visibleForTesting
-  SentryStackFrame? encodeStackTraceFrame(
-    Frame frame, {
-    bool symbolicated = true,
-  }) {
-    final member = frame.member;
-
-    SentryStackFrame? sentryStackFrame;
-
-    if (symbolicated) {
-      final fileName = frame.uri.pathSegments.isNotEmpty
-          ? frame.uri.pathSegments.last
-          : null;
-
-      final abs = '$eventOrigin${_absolutePathForCrashReport(frame)}';
-
-      sentryStackFrame = SentryStackFrame(
-        absPath: abs,
-        function: member,
-        // https://docs.sentry.io/development/sdk-dev/features/#in-app-frames
-        inApp: isInApp(frame),
-        fileName: fileName,
-        package: frame.package,
-      );
-
-      if (frame.line != null && frame.line! >= 0) {
-        sentryStackFrame = sentryStackFrame.copyWith(lineNo: frame.line);
-      }
-
-      if (frame.column != null && frame.column! >= 0) {
-        sentryStackFrame = sentryStackFrame.copyWith(colNo: frame.column);
-      }
-    } else if (member != null) {
-      // if --split-debug-info is enabled, thats what we see:
-      // warning:  This VM has been configured to produce stack traces that violate the Dart standard.
-      // ***       *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
-      // unparsed  pid: 30930, tid: 30990, name 1.ui
-      // unparsed  build_id: '5346e01103ffeed44e97094ff7bfcc19'
-      // unparsed  isolate_dso_base: 723d447000, vm_dso_base: 723d447000
-      // unparsed  isolate_instructions: 723d452000, vm_instructions: 723d449000
-      // unparsed      #00 abs 000000723d6346d7 virt 00000000001ed6d7 _kDartIsolateSnapshotInstructions+0x1e26d7
-      // unparsed      #01 abs 000000723d637527 virt 00000000001f0527 _kDartIsolateSnapshotInstructions+0x1e5527
-      // unparsed      #02 abs 000000723d4a41a7 virt 000000000005d1a7 _kDartIsolateSnapshotInstructions+0x521a7
-      // unparsed      #03 abs 000000723d624663 virt 00000000001dd663 _kDartIsolateSnapshotInstructions+0x1d2663
-      // unparsed      #04 abs 000000723d4b8c3b virt 0000000000071c3b _kDartIsolateSnapshotInstructions+0x66c3b
-
-      // we are only interested on the #01, 02... items which contains the 'abs' addresses.
-      final matches = _absRegex.allMatches(member);
-
-      if (matches.isNotEmpty) {
-        final abs = matches.elementAt(0).group(1);
-        if (abs != null) {
-          sentryStackFrame = SentryStackFrame(
-            instructionAddr: '0x$abs',
-            platform: 'native', // to trigger symbolication
-          );
-        }
-      }
+  Chain _parseStackTrace(dynamic stackTrace) {
+    if (stackTrace is Chain || stackTrace is Trace) {
+      return Chain.forTrace(stackTrace);
     }
 
+    // We need to convert to string and split the headers manually, otherwise
+    // they end up in the final stack trace as "unparsed" lines.
+    // Note: [Chain.forTrace] would call [stackTrace.toString()] too.
+    if (stackTrace is StackTrace) {
+      stackTrace = stackTrace.toString();
+    }
+
+    if (stackTrace is String) {
+      // Remove headers (everything before the first line starting with '#').
+      // *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+      // pid: 19226, tid: 6103134208, name io.flutter.ui
+      // os: macos arch: arm64 comp: no sim: no
+      // isolate_dso_base: 10fa20000, vm_dso_base: 10fa20000
+      // isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
+      //     #00 abs 000000723d6346d7 _kDartIsolateSnapshotInstructions+0x1e26d7
+      //     #01 abs 000000723d637527 _kDartIsolateSnapshotInstructions+0x1e5527
+
+      final startOffset = _frameRegex.firstMatch(stackTrace)?.start ?? 0;
+      return Chain.parse(
+          startOffset == 0 ? stackTrace : stackTrace.substring(startOffset));
+    }
+    return Chain([]);
+  }
+
+  /// converts [Frame] to [SentryStackFrame]
+  @visibleForTesting
+  SentryStackFrame? encodeStackTraceFrame(Frame frame) {
+    final member = frame.member;
+
+    if (frame is UnparsedFrame && member != null) {
+      // if --split-debug-info is enabled, thats what we see:
+      // *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+      // pid: 19226, tid: 6103134208, name io.flutter.ui
+      // os: macos arch: arm64 comp: no sim: no
+      // isolate_dso_base: 10fa20000, vm_dso_base: 10fa20000
+      // isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
+      //     #00 abs 000000723d6346d7 _kDartIsolateSnapshotInstructions+0x1e26d7
+      //     #01 abs 000000723d637527 _kDartIsolateSnapshotInstructions+0x1e5527
+
+      // we are only interested on the #01, 02... items which contains the 'abs' addresses.
+      final match = _absRegex.firstMatch(member);
+      if (match != null) {
+        return SentryStackFrame(
+          instructionAddr: '0x${match.group(1)!}',
+          platform: 'native', // to trigger symbolication & native LoadImageList
+        );
+      }
+
+      // We shouldn't get here. If we do, it means there's likely an issue in
+      // the parsing so let's fall back and post a stack trace as is, so that at
+      // least we get an indication something's wrong and are able to fix it.
+    }
+
+    final fileName =
+        frame.uri.pathSegments.isNotEmpty ? frame.uri.pathSegments.last : null;
+    final abs = '$eventOrigin${_absolutePathForCrashReport(frame)}';
+
+    var sentryStackFrame = SentryStackFrame(
+      absPath: abs,
+      function: member,
+      // https://docs.sentry.io/development/sdk-dev/features/#in-app-frames
+      inApp: isInApp(frame),
+      fileName: fileName,
+      package: frame.package,
+    );
+
+    if (frame.line != null && frame.line! >= 0) {
+      sentryStackFrame = sentryStackFrame.copyWith(lineNo: frame.line);
+    }
+
+    if (frame.column != null && frame.column! >= 0) {
+      sentryStackFrame = sentryStackFrame.copyWith(colNo: frame.column);
+    }
     return sentryStackFrame;
   }
 

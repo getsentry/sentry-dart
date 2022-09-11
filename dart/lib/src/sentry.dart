@@ -105,8 +105,8 @@ class Sentry {
     // execute integrations after hub being enabled
     if (appRunner != null) {
       var runIntegrationsAndAppRunner = () async {
-        final integrations = options.integrations
-            .where((i) => !(i is RunZonedGuardedIntegration));
+        final integrations =
+            options.integrations.where((i) => i is! RunZonedGuardedIntegration);
         await _callIntegrations(integrations, options);
         await appRunner();
       };
@@ -193,12 +193,12 @@ class Sentry {
   static SentryId get lastEventId => _hub.lastEventId;
 
   /// Adds a breacrumb to the current Scope
-  static void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) =>
-      _hub.addBreadcrumb(crumb, hint: hint);
+  static Future<void> addBreadcrumb(Breadcrumb crumb, {dynamic hint}) async =>
+      await _hub.addBreadcrumb(crumb, hint: hint);
 
   /// Configures the scope through the callback.
-  static void configureScope(ScopeCallback callback) =>
-      _hub.configureScope(callback);
+  static FutureOr<void> configureScope(ScopeCallback callback) async =>
+      await _hub.configureScope(callback);
 
   /// Clones the current Hub
   static Hub clone() => _hub.clone();

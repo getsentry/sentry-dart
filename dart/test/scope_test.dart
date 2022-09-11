@@ -7,6 +7,7 @@ import 'package:test/test.dart';
 
 import 'mocks.dart';
 import 'mocks/mock_hub.dart';
+import 'mocks/mock_scope_observer.dart';
 
 void main() {
   late Fixture fixture;
@@ -56,7 +57,7 @@ void main() {
     final sut = fixture.getSut();
 
     final user = SentryUser(id: 'test');
-    sut.user = user;
+    sut.setUser(user);
 
     expect(sut.user, user);
   });
@@ -94,6 +95,20 @@ void main() {
     sut.addBreadcrumb(breadcrumb);
 
     expect(sut.breadcrumbs.length, 0);
+  });
+
+  test('Executes and mutates $Breadcrumb', () {
+    final sut = fixture.getSut(
+      beforeBreadcrumbCallback: fixture.beforeBreadcrumbMutateCallback,
+    );
+
+    final breadcrumb = Breadcrumb(
+      message: 'message',
+      timestamp: DateTime.utc(2019),
+    );
+    sut.addBreadcrumb(breadcrumb);
+
+    expect(sut.breadcrumbs.first.message, 'new message');
   });
 
   test('adds $EventProcessor', () {
@@ -183,8 +198,8 @@ void main() {
     final attachment = SentryAttachment.fromIntList([0, 0, 0, 0], 'test.txt');
     sut.addAttachment(attachment);
 
-    expect(sut.attachements.last, attachment);
-    expect(sut.attachements.length, 1);
+    expect(sut.attachments.last, attachment);
+    expect(sut.attachments.length, 1);
   });
 
   test('clear() removes all $SentryAttachment', () {
@@ -192,10 +207,10 @@ void main() {
 
     final attachment = SentryAttachment.fromIntList([0, 0, 0, 0], 'test.txt');
     sut.addAttachment(attachment);
-    expect(sut.attachements.length, 1);
+    expect(sut.attachments.length, 1);
     sut.clear();
 
-    expect(sut.attachements.length, 0);
+    expect(sut.attachments.length, 0);
   });
 
   test('clearAttachments() removes all $SentryAttachment', () {
@@ -203,10 +218,10 @@ void main() {
 
     final attachment = SentryAttachment.fromIntList([0, 0, 0, 0], 'test.txt');
     sut.addAttachment(attachment);
-    expect(sut.attachements.length, 1);
+    expect(sut.attachments.length, 1);
     sut.clearAttachments();
 
-    expect(sut.attachements.length, 0);
+    expect(sut.attachments.length, 0);
   });
 
   test('sets tag', () {
@@ -257,7 +272,7 @@ void main() {
     sut.span = null;
 
     final user = SentryUser(id: 'test');
-    sut.user = user;
+    sut.setUser(user);
 
     final fingerprints = ['test'];
     sut.fingerprint = fingerprints;
@@ -287,10 +302,10 @@ void main() {
     expect(sut.eventProcessors.length, 0);
   });
 
-  test('clones', () {
+  test('clones', () async {
     final sut = fixture.getSut();
 
-    sut.addBreadcrumb(Breadcrumb(
+    await sut.addBreadcrumb(Breadcrumb(
       message: 'test log',
       timestamp: DateTime.utc(2019),
     ));
@@ -305,7 +320,7 @@ void main() {
     expect(sut.tags, clone.tags);
     expect(sut.breadcrumbs, clone.breadcrumbs);
     expect(sut.contexts, clone.contexts);
-    expect(sut.attachements, clone.attachements);
+    expect(sut.attachments, clone.attachments);
     expect(sut.level, clone.level);
     expect(ListEquality().equals(sut.fingerprint, clone.fingerprint), true);
     expect(
@@ -313,6 +328,32 @@ void main() {
       true,
     );
     expect(sut.span, clone.span);
+  });
+
+  test('clone does not additionally call observers', () async {
+    final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
+
+    await sut.setContexts("fixture-contexts-key", "fixture-contexts-value");
+    await sut.removeContexts("fixture-contexts-key");
+    await sut.setUser(SentryUser(username: "fixture-username"));
+    await sut.addBreadcrumb(Breadcrumb());
+    await sut.clearBreadcrumbs();
+    await sut.setExtra("fixture-extra-key", "fixture-extra-value");
+    await sut.removeExtra("fixture-extra-key");
+    await sut.setTag("fixture-tag-key", "fixture-tag-value");
+    await sut.removeTag("fixture-tag-key");
+
+    sut.clone();
+
+    expect(1, fixture.mockScopeObserver.numberOfSetContextsCalls);
+    expect(1, fixture.mockScopeObserver.numberOfRemoveContextsCalls);
+    expect(1, fixture.mockScopeObserver.numberOfSetUserCalls);
+    expect(1, fixture.mockScopeObserver.numberOfAddBreadcrumbCalls);
+    expect(1, fixture.mockScopeObserver.numberOfClearBreadcrumbsCalls);
+    expect(1, fixture.mockScopeObserver.numberOfSetExtraCalls);
+    expect(1, fixture.mockScopeObserver.numberOfRemoveExtraCalls);
+    expect(1, fixture.mockScopeObserver.numberOfSetTagCalls);
+    expect(1, fixture.mockScopeObserver.numberOfRemoveTagCalls);
   });
 
   group('Scope apply', () {
@@ -332,15 +373,16 @@ void main() {
         extra: const {'e-infos': 'abc'},
       );
       final scope = Scope(SentryOptions(dsn: fakeDsn))
-        ..user = scopeUser
         ..fingerprint = ['example-dart']
-        ..addBreadcrumb(breadcrumb)
         ..transaction = '/example/app'
         ..level = SentryLevel.warning
-        ..setTag('build', '579')
-        ..setExtra('company-name', 'Dart Inc')
-        ..setContexts('theme', 'material')
         ..addEventProcessor(AddTagsEventProcessor({'page-locale': 'en-us'}));
+
+      await scope.addBreadcrumb(breadcrumb);
+      await scope.setTag('build', '579');
+      await scope.setExtra('company-name', 'Dart Inc');
+      await scope.setContexts('theme', 'material');
+      await scope.setUser(scopeUser);
 
       final updatedEvent = await scope.applyToEvent(event);
 
@@ -378,10 +420,11 @@ void main() {
         breadcrumbs: [eventBreadcrumb],
       );
       final scope = Scope(SentryOptions(dsn: fakeDsn))
-        ..user = scopeUser
         ..fingerprint = ['example-dart']
-        ..addBreadcrumb(breadcrumb)
         ..transaction = '/example/app';
+
+      await scope.addBreadcrumb(breadcrumb);
+      await scope.setUser(scopeUser);
 
       final updatedEvent = await scope.applyToEvent(event);
 
@@ -405,31 +448,31 @@ void main() {
           operatingSystem: SentryOperatingSystem(name: 'event-os'),
         ),
       );
-      final scope = Scope(SentryOptions(dsn: fakeDsn))
-        ..setContexts(
-          SentryDevice.type,
-          SentryDevice(name: 'context-device'),
-        )
-        ..setContexts(
-          SentryApp.type,
-          SentryApp(name: 'context-app'),
-        )
-        ..setContexts(
-          SentryGpu.type,
-          SentryGpu(name: 'context-gpu'),
-        )
-        ..setContexts(
-          SentryRuntime.listType,
-          [SentryRuntime(name: 'context-runtime')],
-        )
-        ..setContexts(
-          SentryBrowser.type,
-          SentryBrowser(name: 'context-browser'),
-        )
-        ..setContexts(
-          SentryOperatingSystem.type,
-          SentryOperatingSystem(name: 'context-os'),
-        );
+      final scope = Scope(SentryOptions(dsn: fakeDsn));
+      await scope.setContexts(
+        SentryDevice.type,
+        SentryDevice(name: 'context-device'),
+      );
+      await scope.setContexts(
+        SentryApp.type,
+        SentryApp(name: 'context-app'),
+      );
+      await scope.setContexts(
+        SentryGpu.type,
+        SentryGpu(name: 'context-gpu'),
+      );
+      await scope.setContexts(
+        SentryRuntime.listType,
+        [SentryRuntime(name: 'context-runtime')],
+      );
+      await scope.setContexts(
+        SentryBrowser.type,
+        SentryBrowser(name: 'context-browser'),
+      );
+      await scope.setContexts(
+        SentryOperatingSystem.type,
+        SentryOperatingSystem(name: 'context-os'),
+      );
 
       final updatedEvent = await scope.applyToEvent(event);
 
@@ -445,19 +488,21 @@ void main() {
 
     test('should apply the scope.contexts values ', () async {
       final event = SentryEvent();
-      final scope = Scope(SentryOptions(dsn: fakeDsn))
-        ..setContexts(SentryDevice.type, SentryDevice(name: 'context-device'))
-        ..setContexts(SentryApp.type, SentryApp(name: 'context-app'))
-        ..setContexts(SentryGpu.type, SentryGpu(name: 'context-gpu'))
-        ..setContexts(
-            SentryRuntime.listType, [SentryRuntime(name: 'context-runtime')])
-        ..setContexts(
-            SentryBrowser.type, SentryBrowser(name: 'context-browser'))
-        ..setContexts(SentryOperatingSystem.type,
-            SentryOperatingSystem(name: 'context-os'))
-        ..setContexts('theme', 'material')
-        ..setContexts('version', 9)
-        ..setContexts('location', {'city': 'London'});
+      final scope = Scope(SentryOptions(dsn: fakeDsn));
+      await scope.setContexts(
+          SentryDevice.type, SentryDevice(name: 'context-device'));
+      await scope.setContexts(SentryApp.type, SentryApp(name: 'context-app'));
+      await scope.setContexts(SentryGpu.type, SentryGpu(name: 'context-gpu'));
+      await scope.setContexts(
+          SentryRuntime.listType, [SentryRuntime(name: 'context-runtime')]);
+      await scope.setContexts(
+          SentryBrowser.type, SentryBrowser(name: 'context-browser'));
+      await scope.setContexts(SentryOperatingSystem.type,
+          SentryOperatingSystem(name: 'context-os'));
+      await scope.setContexts('theme', 'material');
+      await scope.setContexts('version', 9);
+      await scope.setContexts('location', {'city': 'London'});
+      await scope.setContexts('items', [1, 2, 3]);
 
       final updatedEvent = await scope.applyToEvent(event);
 
@@ -475,6 +520,8 @@ void main() {
       expect(updatedEvent?.contexts['theme']['value'], 'material');
       expect(updatedEvent?.contexts['version']['value'], 9);
       expect(updatedEvent?.contexts['location'], {'city': 'London'});
+      final items = updatedEvent?.contexts['items'];
+      expect(items['value'], [1, 2, 3]);
     });
 
     test('should apply the scope level', () async {
@@ -518,6 +565,69 @@ void main() {
 
     expect(updatedTr?.level, isNull);
   });
+
+  test('addBreadcrumb should call scope observers', () async {
+    final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
+    await sut.addBreadcrumb(Breadcrumb());
+
+    expect(true, fixture.mockScopeObserver.calledAddBreadcrumb);
+  });
+
+  test('clearBreadcrumbs should call scope observers', () async {
+    final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
+    await sut.clearBreadcrumbs();
+
+    expect(true, fixture.mockScopeObserver.calledClearBreadcrumbs);
+  });
+
+  test('removeContexts should call scope observers', () async {
+    final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
+    await sut.removeContexts('fixture-key');
+
+    expect(true, fixture.mockScopeObserver.calledRemoveContexts);
+  });
+
+  test('removeExtra should call scope observers', () async {
+    final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
+    await sut.removeExtra('fixture-key');
+
+    expect(true, fixture.mockScopeObserver.calledRemoveExtra);
+  });
+
+  test('removeTag should call scope observers', () async {
+    final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
+    await sut.removeTag('fixture-key');
+
+    expect(true, fixture.mockScopeObserver.calledRemoveTag);
+  });
+
+  test('setContexts should call scope observers', () async {
+    final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
+    await sut.setContexts('fixture-key', 'fixture-value');
+
+    expect(true, fixture.mockScopeObserver.calledSetContexts);
+  });
+
+  test('setExtra should call scope observers', () async {
+    final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
+    await sut.setExtra('fixture-key', 'fixture-value');
+
+    expect(true, fixture.mockScopeObserver.calledSetExtra);
+  });
+
+  test('setTag should call scope observers', () async {
+    final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
+    await sut.setTag('fixture-key', 'fixture-value');
+
+    expect(true, fixture.mockScopeObserver.calledSetTag);
+  });
+
+  test('setUser should call scope observers', () async {
+    final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
+    await sut.setUser(null);
+
+    expect(true, fixture.mockScopeObserver.calledSetUser);
+  });
 }
 
 class Fixture {
@@ -525,14 +635,19 @@ class Fixture {
     'name',
     'op',
   );
+  final mockScopeObserver = MockScopeObserver();
 
   Scope getSut({
     int maxBreadcrumbs = 100,
     BeforeBreadcrumbCallback? beforeBreadcrumbCallback,
+    ScopeObserver? scopeObserver,
   }) {
     final options = SentryOptions(dsn: fakeDsn);
     options.maxBreadcrumbs = maxBreadcrumbs;
     options.beforeBreadcrumb = beforeBreadcrumbCallback;
+    if (scopeObserver != null) {
+      options.addScopeObserver(scopeObserver);
+    }
     return Scope(options);
   }
 
@@ -541,6 +656,10 @@ class Fixture {
   Breadcrumb? beforeBreadcrumbCallback(Breadcrumb? breadcrumb,
           {dynamic hint}) =>
       null;
+
+  Breadcrumb? beforeBreadcrumbMutateCallback(Breadcrumb? breadcrumb,
+          {dynamic hint}) =>
+      breadcrumb?.copyWith(message: 'new message');
 }
 
 class AddTagsEventProcessor extends EventProcessor {

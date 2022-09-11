@@ -14,6 +14,5 @@ void main() {
           yaml.loadYaml(File('pubspec.yaml').readAsStringSync());
       expect(sdkVersion, pubspec['version']);
     },
-    skip: 'works locally but not on CI',
   );
 }

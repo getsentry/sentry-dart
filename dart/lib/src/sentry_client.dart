@@ -12,6 +12,7 @@ import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'transport/http_transport.dart';
 import 'transport/noop_transport.dart';
+import 'utils/isolate_utils.dart';
 import 'version.dart';
 import 'sentry_envelope.dart';
 import 'client_reports/client_report_recorder.dart';
@@ -114,10 +115,24 @@ class SentryClient {
         return _sentryId;
       }
     }
+
+    if (_options.platformChecker.platform.isAndroid &&
+        _options.enableScopeSync) {
+      /*
+      We do this to avoid duplicate breadcrumbs on Android as sentry-android applies the breadcrumbs
+      from the native scope onto every envelope sent through it. This scope will contain the breadcrumbs
+      sent through the scope sync feature. This causes duplicate breadcrumbs.
+      We then remove the breadcrumbs in all cases but if it is handled == false,
+      this is a signal that the app would crash and android would lose the breadcrumbs by the time the app is restarted to read
+      the envelope.
+      */
+      preparedEvent = _eventWithRemovedBreadcrumbsIfHandled(preparedEvent);
+    }
+
     final envelope = SentryEnvelope.fromEvent(
       preparedEvent,
       _options.sdk,
-      attachments: scope?.attachements,
+      attachments: scope?.attachments,
     );
 
     final id = await captureEnvelope(envelope);
@@ -140,18 +155,48 @@ class SentryClient {
       return event;
     }
 
-    if (event.exceptions?.isNotEmpty ?? false) return event;
+    if (event.exceptions?.isNotEmpty ?? false) {
+      return event;
+    }
+
+    final isolateName = getIsolateName();
+    // Isolates have no id, so the hashCode of the name will be used as id
+    final isolateId = isolateName?.hashCode;
 
     if (event.throwableMechanism != null) {
-      final sentryException = _exceptionFactory.getSentryException(
+      var sentryException = _exceptionFactory.getSentryException(
         event.throwableMechanism,
         stackTrace: stackTrace,
       );
 
-      return event.copyWith(exceptions: [
-        ...(event.exceptions ?? []),
-        sentryException,
-      ]);
+      if (_options.platformChecker.isWeb) {
+        return event.copyWith(
+          exceptions: [
+            ...?event.exceptions,
+            sentryException,
+          ],
+        );
+      }
+
+      SentryThread? thread;
+
+      if (isolateName != null && _options.attachThreads) {
+        sentryException = sentryException.copyWith(threadId: isolateId);
+        thread = SentryThread(
+          id: isolateId,
+          name: isolateName,
+          crashed: true,
+          current: true,
+        );
+      }
+
+      return event.copyWith(
+        exceptions: [...?event.exceptions, sentryException],
+        threads: [
+          ...?event.threads,
+          if (thread != null) thread,
+        ],
+      );
     }
 
     // The stacktrace is not part of an exception,
@@ -163,8 +208,10 @@ class SentryClient {
 
       if (frames.isNotEmpty) {
         event = event.copyWith(threads: [
-          ...(event.threads ?? []),
+          ...?event.threads,
           SentryThread(
+            name: isolateName,
+            id: isolateId,
             crashed: false,
             current: true,
             stacktrace: SentryStackTrace(frames: frames),
@@ -264,7 +311,7 @@ class SentryClient {
 
     final id = await captureEnvelope(
       SentryEnvelope.fromTransaction(preparedTransaction, _options.sdk,
-          attachments: scope?.attachements
+          attachments: scope?.attachments
               .where((element) => element.addToTransactions)
               .toList()),
     );
@@ -328,6 +375,20 @@ class SentryClient {
       category = DataCategory.error;
     }
     _options.recorder.recordLostEvent(reason, category);
+  }
+
+  SentryEvent _eventWithRemovedBreadcrumbsIfHandled(SentryEvent event) {
+    final mechanisms =
+        (event.exceptions ?? []).map((e) => e.mechanism).whereType<Mechanism>();
+    final hasNoMechanism = mechanisms.isEmpty;
+    final hasOnlyHandledMechanism =
+        mechanisms.every((e) => (e.handled ?? true));
+
+    if (hasNoMechanism || hasOnlyHandledMechanism) {
+      return event.copyWith(breadcrumbs: []);
+    } else {
+      return event;
+    }
   }
 
   Future<SentryId?> _attachClientReportsAndSend(SentryEnvelope envelope) {

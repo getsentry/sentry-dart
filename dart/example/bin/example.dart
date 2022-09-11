@@ -39,20 +39,20 @@ Future<void> runApp() async {
     ),
   );
 
-  Sentry.configureScope((scope) {
+  await Sentry.configureScope((scope) async {
+    await scope.setUser(SentryUser(
+      id: '800',
+      username: 'first-user',
+      email: 'first@user.lan',
+      // ipAddress: '127.0.0.1', sendDefaultPii feature is enabled
+      extras: <String, String>{'first-sign-in': '2020-01-01'},
+    ));
     scope
-      ..user = SentryUser(
-        id: '800',
-        username: 'first-user',
-        email: 'first@user.lan',
-        // ipAddress: '127.0.0.1', sendDefaultPii feature is enabled
-        extras: <String, String>{'first-sign-in': '2020-01-01'},
-      )
       // ..fingerprint = ['example-dart'], fingerprint forces events to group together
       ..transaction = '/example/app'
-      ..level = SentryLevel.warning
-      ..setTag('build', '579')
-      ..setExtra('company-name', 'Dart Inc');
+      ..level = SentryLevel.warning;
+    await scope.setTag('build', '579');
+    await scope.setExtra('company-name', 'Dart Inc');
   });
 
   // Sends a full Sentry event payload to show the different parts of the UI.

@@ -35,11 +35,11 @@ void testHeaders(
 
   if (withSecret) {
     expectedHeaders['X-Sentry-Auth'] =
-        expectedHeaders['X-Sentry-Auth']! + 'sentry_secret=secret, ';
+        '${expectedHeaders['X-Sentry-Auth']!}sentry_secret=secret, ';
   }
 
-  expectedHeaders['X-Sentry-Auth'] = expectedHeaders['X-Sentry-Auth']! +
-      'sentry_timestamp=${fakeClockProvider().millisecondsSinceEpoch}';
+  expectedHeaders['X-Sentry-Auth'] =
+      '${expectedHeaders['X-Sentry-Auth']!}sentry_timestamp=${fakeClockProvider().millisecondsSinceEpoch}';
 
   if (withUserAgent) {
     expectedHeaders['User-Agent'] = '$sdkName/$sdkVersion';
@@ -407,15 +407,22 @@ void runTest({Codec<List<int>, List<int>?>? gzip, bool isWeb = false}) {
         throwable: error,
         user: eventUser,
       );
+
+      final scope = Scope(options);
+      await scope.setUser(clientUser);
+
       await client.captureEvent(
         eventWithoutContext,
-        scope: Scope(options)..user = clientUser,
+        scope: scope,
       );
       expect(loggedUserId, clientUser.id);
 
+      final secondScope = Scope(options);
+      await secondScope.setUser(clientUser);
+
       await client.captureEvent(
         eventWithContext,
-        scope: Scope(options)..user = clientUser,
+        scope: secondScope,
       );
       expect(loggedUserId, eventUser.id);
     }

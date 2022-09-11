@@ -14,7 +14,7 @@ class SentryEnvelopeItem {
   /// Creates an [SentryEnvelopeItem] which sends [SentryTransaction].
   factory SentryEnvelopeItem.fromTransaction(SentryTransaction transaction) {
     final cachedItem =
-        _CachedItem(() async => _jsonToBytes(transaction.toJson()));
+        _CachedItem(() async => utf8JsonEncoder.convert(transaction.toJson()));
 
     final header = SentryEnvelopeItemHeader(
       SentryItemType.transaction,
@@ -39,7 +39,8 @@ class SentryEnvelopeItem {
 
   /// Create an [SentryEnvelopeItem] which sends [SentryUserFeedback].
   factory SentryEnvelopeItem.fromUserFeedback(SentryUserFeedback feedback) {
-    final cachedItem = _CachedItem(() async => _jsonToBytes(feedback.toJson()));
+    final cachedItem =
+        _CachedItem(() async => utf8JsonEncoder.convert(feedback.toJson()));
 
     final header = SentryEnvelopeItemHeader(
       SentryItemType.userFeedback,
@@ -51,7 +52,8 @@ class SentryEnvelopeItem {
 
   /// Create an [SentryEnvelopeItem] which holds the [SentryEvent] data.
   factory SentryEnvelopeItem.fromEvent(SentryEvent event) {
-    final cachedItem = _CachedItem(() async => _jsonToBytes(event.toJson()));
+    final cachedItem =
+        _CachedItem(() async => utf8JsonEncoder.convert(event.toJson()));
 
     return SentryEnvelopeItem(
       SentryEnvelopeItemHeader(
@@ -66,7 +68,7 @@ class SentryEnvelopeItem {
   /// Create an [SentryEnvelopeItem] which holds the [ClientReport] data.
   factory SentryEnvelopeItem.fromClientReport(ClientReport clientReport) {
     final cachedItem =
-        _CachedItem(() async => _jsonToBytes(clientReport.toJson()));
+        _CachedItem(() async => utf8JsonEncoder.convert(clientReport.toJson()));
 
     return SentryEnvelopeItem(
       SentryEnvelopeItemHeader(
@@ -90,7 +92,7 @@ class SentryEnvelopeItem {
     // Otherwise the header already got yielded if the content throws
     // an exception.
     try {
-      final itemHeader = _jsonToBytes(await header.toJson());
+      final itemHeader = utf8JsonEncoder.convert(await header.toJson());
 
       final newLine = utf8.encode('\n');
       final data = await dataFactory();
@@ -98,15 +100,6 @@ class SentryEnvelopeItem {
     } catch (e) {
       return [];
     }
-  }
-
-  static List<int> _jsonToBytes(Map<String, dynamic> json) {
-    return utf8.encode(
-      jsonEncode(
-        json,
-        toEncodable: jsonSerializationFallback,
-      ),
-    );
   }
 }
 
