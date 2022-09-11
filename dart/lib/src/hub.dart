@@ -253,9 +253,13 @@ class Hub {
     return scope;
   }
 
-  Future<Scope> _applyOptionsBeforeCaptureWithScope(Scope scope, SentryEvent? event) {
-    return _cloneAndRunWithScope(scope,
-        _options.beforeCaptureWithScope == null ? null : (scope) => _options.beforeCaptureWithScope!(scope, event));
+  Future<Scope> _applyOptionsBeforeCaptureWithScope(
+      Scope scope, SentryEvent? event) {
+    return _cloneAndRunWithScope(
+        scope,
+        _options.beforeCaptureWithScope == null
+            ? null
+            : (scope) => _options.beforeCaptureWithScope!(scope, event));
   }
 
   /// Adds a breacrumb to the current Scope
