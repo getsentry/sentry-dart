@@ -88,7 +88,7 @@ class Hub {
           event = _assignTraceContext(event);
         }
 
-        scope = _applyOptionsBeforeCaptureWithScope(scope, event);
+        scope = await _applyOptionsBeforeCaptureWithScope(scope, event);
 
         sentryId = await item.client.captureEvent(
           event,
@@ -143,7 +143,7 @@ class Hub {
           event = _assignTraceContext(event);
         }
 
-        scope = _applyOptionsBeforeCaptureWithScope(scope, event);
+        scope = await _applyOptionsBeforeCaptureWithScope(scope, event);
 
         sentryId = await item.client.captureEvent(
           event,
@@ -190,7 +190,7 @@ class Hub {
     } else {
       final item = _peek();
       var scope = await _cloneAndRunWithScope(item.scope, withScope);
-      scope = _applyOptionsBeforeCaptureWithScope(scope, null);
+      scope = await _applyOptionsBeforeCaptureWithScope(scope, null);
 
       try {
         sentryId = await item.client.captureMessage(
@@ -253,7 +253,7 @@ class Hub {
     return scope;
   }
 
-  Scope _applyOptionsBeforeCaptureWithScope(Scope scope, SentryEvent? event) {
+  Future<Scope> _applyOptionsBeforeCaptureWithScope(Scope scope, SentryEvent? event) {
     return _cloneAndRunWithScope(scope,
         _options.beforeCaptureWithScope == null ? null : (scope) => _options.beforeCaptureWithScope!(scope, event));
   }
