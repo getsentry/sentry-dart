@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Capture Callback Exceptions ([#990](https://github.com/getsentry/sentry-dart/pull/990))
+
 ### Features
 
 - Prepare future support for iOS and macOS obfuscated app symbolication using dSYM (requires Flutter `master` channel) ([#823](https://github.com/getsentry/sentry-dart/pull/823))

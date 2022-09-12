@@ -242,8 +242,17 @@ class Hub {
   Future<Scope> _cloneAndRunWithScope(
       Scope scope, ScopeCallback? withScope) async {
     if (withScope != null) {
-      scope = scope.clone();
-      await withScope(scope);
+      try {
+        scope = scope.clone();
+        await withScope(scope);
+      } catch (exception, stackTrace) {
+        _options.logger(
+          SentryLevel.error,
+          'Exception in withScope callback.',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+      }
     }
     return scope;
   }

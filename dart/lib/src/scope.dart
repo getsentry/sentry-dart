@@ -174,27 +174,35 @@ class Scope {
     Breadcrumb? processedBreadcrumb = breadcrumb;
     // run before breadcrumb callback if set
     if (_options.beforeBreadcrumb != null) {
-      processedBreadcrumb = _options.beforeBreadcrumb!(
-        processedBreadcrumb,
-        hint: hint,
-      );
-
-      if (processedBreadcrumb == null) {
-        _options.logger(
-          SentryLevel.info,
-          'Breadcrumb was dropped by beforeBreadcrumb',
+      try {
+        processedBreadcrumb = _options.beforeBreadcrumb!(
+          processedBreadcrumb,
+          hint: hint,
         );
-        return false;
+        if (processedBreadcrumb == null) {
+          _options.logger(
+            SentryLevel.info,
+            'Breadcrumb was dropped by beforeBreadcrumb',
+          );
+          return false;
+        }
+      } catch (exception, stackTrace) {
+        _options.logger(
+          SentryLevel.error,
+          'The BeforeBreadcrumb callback threw an exception',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
       }
     }
-
-    // remove first item if list is full
-    if (_breadcrumbs.length >= _options.maxBreadcrumbs &&
-        _breadcrumbs.isNotEmpty) {
-      _breadcrumbs.removeFirst();
+    if (processedBreadcrumb != null) {
+      // remove first item if list is full
+      if (_breadcrumbs.length >= _options.maxBreadcrumbs &&
+          _breadcrumbs.isNotEmpty) {
+        _breadcrumbs.removeFirst();
+      }
+      _breadcrumbs.add(processedBreadcrumb);
     }
-
-    _breadcrumbs.add(processedBreadcrumb);
     return true;
   }
 
