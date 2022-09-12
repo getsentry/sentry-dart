@@ -10,7 +10,7 @@ typedef ErrorCallback = bool Function(Object exception, StackTrace stackTrace);
 
 /// Integration which captures `PlatformDispatcher.onError`
 /// See:
-/// - https://master-api.flutter.dev/flutter/dart-ui/PlatformDispatcher/onError.html
+/// - https://api.flutter.dev/flutter/dart-ui/PlatformDispatcher/onError.html
 ///
 /// Remarks:
 /// - Only usable on Flutter >= 3.3.0.
