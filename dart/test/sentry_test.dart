@@ -334,36 +334,40 @@ void main() {
   });
 
   group("Sentry init optionsConfiguration", () {
-    SentryLevel? loggedLevel;
-    Object? loggedException;
-
-    setUp(() {
-      loggedLevel = null;
-      loggedException = null;
-    });
-
-    void mockLogger(
-      SentryLevel level,
-      String message, {
-      String? logger,
-      Object? exception,
-      StackTrace? stackTrace,
-    }) {
-      loggedLevel = level;
-      loggedException = exception;
-    }
+    final fixture = Fixture();
 
     test('throw is handled and logged', () async {
       final sentryOptions = SentryOptions(dsn: fakeDsn)
         ..debug = true
-        ..logger = mockLogger; // Enable logging in DiagnosticsLogger
+        ..logger = fixture.mockLogger;
 
       final exception = Exception("Exception in options callback");
+      await Sentry.init((options) async {
+        throw exception;
+      }, options: sentryOptions);
 
-      await Sentry.init((options) => {throw exception}, options: sentryOptions);
-
-      expect(loggedException, exception);
-      expect(loggedLevel, SentryLevel.error);
+      expect(fixture.loggedException, exception);
+      expect(fixture.loggedLevel, SentryLevel.error);
     });
   });
+}
+
+class Fixture {
+  bool logged = false;
+  SentryLevel? loggedLevel;
+  Object? loggedException;
+
+  void mockLogger(
+    SentryLevel level,
+    String message, {
+    String? logger,
+    Object? exception,
+    StackTrace? stackTrace,
+  }) {
+    if (!logged) {
+      logged = true; // Block multiple calls which override expected values.
+      loggedLevel = level;
+      loggedException = exception;
+    }
+  }
 }
