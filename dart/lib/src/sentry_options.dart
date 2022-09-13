@@ -277,11 +277,6 @@ class SentryOptions {
 
   List<ScopeObserver> get scopeObservers => _scopeObservers;
 
-  /// Returns whether the `baggage` header is attached to HTTP client integrations and the `trace`
-  /// header is attached to envelopes.
-  @experimental
-  bool traceSampling = false;
-
   void addScopeObserver(ScopeObserver scopeObserver) {
     _scopeObservers.add(scopeObserver);
   }

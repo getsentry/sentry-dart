@@ -50,7 +50,7 @@ class SentryTracer extends ISentrySpan {
       this,
       transactionContext,
       _hub,
-      sampled: transactionContext.sampled,
+      sampled: transactionContext.tracesSamplingDecision?.sampled,
       startTimestamp: startTimestamp,
     );
     _waitForChildren = waitForChildren;
@@ -280,7 +280,7 @@ class SentryTracer extends ISentrySpan {
     // TODO: freeze context after 1st envelope or outgoing HTTP request
     final context = traceContext();
 
-    if (_hub.options.traceSampling && context != null) {
+    if (context != null) {
       final baggage = context.toBaggage();
       return SentryBaggageHeader.fromBaggage(baggage);
     }
@@ -289,28 +289,25 @@ class SentryTracer extends ISentrySpan {
 
   @override
   SentryTraceContextHeader? traceContext() {
-    if (_hub.options.traceSampling) {
-      var context = traceContext();
+    var context = traceContext();
 
-      SentryUser? user;
-      _hub.configureScope((scope) => user = scope.user);
+    SentryUser? user;
+    _hub.configureScope((scope) => user = scope.user);
 
-      context ??= SentryTraceContextHeader(
-        _rootSpan.context.traceId,
-        Dsn.parse(_hub.options.dsn!).publicKey,
-        release: _hub.options.release,
-        environment: _hub.options.environment,
-        userId: null, // because of PII not sending it for now
-        userSegment: user?.segment,
-        transaction:
-            !_isHighQualityTransactionName(transactionNameSource) ? name : null,
-        sampleRate: _sampleRateToString(
-            _hub.options.sampleRate), // TODO: read from context
-      );
+    context ??= SentryTraceContextHeader(
+      _rootSpan.context.traceId,
+      Dsn.parse(_hub.options.dsn!).publicKey,
+      release: _hub.options.release,
+      environment: _hub.options.environment,
+      userId: null, // because of PII not sending it for now
+      userSegment: user?.segment,
+      transaction:
+          !_isHighQualityTransactionName(transactionNameSource) ? name : null,
+      sampleRate: _sampleRateToString(
+          _hub.options.sampleRate), // TODO: read from context
+    );
 
-      return context;
-    }
-    return null;
+    return context;
   }
 
   String? _sampleRateToString(double? sampleRate) {

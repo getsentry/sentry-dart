@@ -21,6 +21,7 @@ class SentrySpan extends ISentrySpan {
   final Map<String, String> _tags = {};
   void Function({DateTime? endTimestamp})? _finishedCallback;
 
+  /// TODO: maybe replace by SentryTracesSamplingDecision
   @override
   bool? sampled;
 

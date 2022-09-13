@@ -26,6 +26,6 @@ void main() {
   test('parent sampled is set from header', () {
     final context = getSentryTransactionContext(sampled: true);
 
-    expect(context.parentSampled, true);
+    expect(context.parentTracesSamplingDecision?.sampled, true);
   });
 }

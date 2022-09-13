@@ -2,6 +2,8 @@ import 'package:meta/meta.dart';
 
 @experimental
 class SentryBaggage {
+  static const String sampleRateKeyName = 'sentry-sample_rate';
+
   SentryBaggage(this._keyValues);
 
   final Map<String, String> _keyValues;
@@ -121,6 +123,15 @@ class SentryBaggage {
   }
 
   void setSampleRate(String value) {
-    set('sentry-sample_rate', value);
+    set(sampleRateKeyName, value);
+  }
+
+  double? getSampleRate() {
+    final sampleRate = get(sampleRateKeyName);
+    if (sampleRate == null) {
+      return null;
+    }
+
+    return double.tryParse(sampleRate);
   }
 }

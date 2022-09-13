@@ -240,7 +240,8 @@ void main() {
       final hub = fixture.getSut();
 
       final tr = hub.startTransactionWithContext(
-        SentryTransactionContext('name', 'op', sampled: false),
+        SentryTransactionContext('name', 'op',
+            tracesSamplingDecision: SentryTracesSamplingDecision(false)),
       );
 
       expect(tr.sampled, false);
@@ -532,7 +533,7 @@ class Fixture {
     _context = SentryTransactionContext(
       'name',
       'op',
-      sampled: sampled,
+      tracesSamplingDecision: SentryTracesSamplingDecision(sampled!),
     );
 
     tracer = SentryTracer(_context, hub);

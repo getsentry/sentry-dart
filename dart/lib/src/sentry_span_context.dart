@@ -51,7 +51,7 @@ class SentrySpanContext {
       spanId: spanId,
       description: description,
       parentSpanId: parentSpanId,
-      sampled: sampled,
+      sampled: sampled, // TODO: maybe remove it in favor of tracesSamplingDecision
       status: status,
     );
   }
