@@ -4,7 +4,6 @@ import '../protocol.dart';
 import '../sentry_tracer.dart';
 import '../utils.dart';
 import '../sentry_measurement.dart';
-import 'sentry_transaction_info.dart';
 
 @immutable
 class SentryTransaction extends SentryEvent {

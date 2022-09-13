@@ -2,7 +2,7 @@ import 'package:http/http.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
 import '../protocol.dart';
-import '../utils/map_utils.dart';
+import '../utils/tracing_utils.dart';
 
 /// A [http](https://pub.dev/packages/http)-package compatible HTTP client
 /// which adds support to Sentry Performance feature.
@@ -27,9 +27,11 @@ class TracingClient extends BaseClient {
     StreamedResponse? response;
     try {
       if (span != null) {
-        // TODO: tracingOrigins and/or tracePropagationTargets support
-        addSentryTraceHeader(span, request.headers);
-        addBaggageHeader(span, request.headers);
+        if (containsTracePropagationTarget(
+            _hub.options.tracePropagationTargets, request.url.toString())) {
+          addSentryTraceHeader(span, request.headers);
+          addBaggageHeader(span, request.headers);
+        }
       }
 
       response = await _client.send(request);

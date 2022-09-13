@@ -14,3 +14,17 @@ void addBaggageHeader(ISentrySpan span, Map<String, dynamic> headers) {
     headers[baggage.name] = baggage.value;
   }
 }
+
+bool containsTracePropagationTarget(
+    List<String> tracePropagationTargets, String url) {
+  if (tracePropagationTargets.isEmpty) {
+    return true;
+  }
+  for (final target in tracePropagationTargets) {
+    // TODO: validate regex
+    if (url.contains(target) || url.allMatches(target).isNotEmpty) {
+      return true;
+    }
+  }
+  return false;
+}

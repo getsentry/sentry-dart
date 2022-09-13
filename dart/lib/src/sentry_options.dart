@@ -284,6 +284,15 @@ class SentryOptions {
   @internal
   late ClientReportRecorder recorder = NoOpClientReportRecorder();
 
+  /// List of strings/regex controlling to which outgoing requests
+  /// the SDK will attach tracing headers.
+  /// 
+  /// By default the SDK will attach those headers to all outgoing
+  /// requests. If this option is provided, the SDK will match the
+  /// request URL of outgoing requests against the items in this
+  /// array, and only attach tracing headers if a match was found.
+  final List<String> tracePropagationTargets = [];
+
   SentryOptions({this.dsn, PlatformChecker? checker}) {
     if (checker != null) {
       platformChecker = checker;
