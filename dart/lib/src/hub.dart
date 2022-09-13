@@ -394,10 +394,10 @@ class Hub {
           transactionContext, customSamplingContext ?? {});
 
       // if transactionContext has no sampled decision, run the traces sampler
-      if (transactionContext.tracesSamplingDecision == null) {
-        final tracesSamplingDecision = _tracesSampler.sample(samplingContext);
-        transactionContext = transactionContext.copyWith(
-            tracesSamplingDecision: tracesSamplingDecision);
+      if (transactionContext.samplingDecision == null) {
+        final samplingDecision = _tracesSampler.sample(samplingContext);
+        transactionContext =
+            transactionContext.copyWith(samplingDecision: samplingDecision);
       }
 
       final tracer = SentryTracer(
@@ -508,7 +508,7 @@ class Hub {
         final span = pair.key;
         final spanContext = span.context;
         event.contexts.trace = spanContext.toTraceContext(
-          sampled: span.sampled,
+          sampled: span.samplingDecision?.sampled,
         );
 
         // set transaction name to event.transaction

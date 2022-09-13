@@ -13,7 +13,7 @@ void main() {
     final trContext = SentryTransactionContext(
       'name',
       'op',
-      tracesSamplingDecision: SentryTracesSamplingDecision(true),
+      samplingDecision: SentryTracesSamplingDecision(true),
     );
     final context = SentrySamplingContext(trContext, {});
 
@@ -45,7 +45,7 @@ void main() {
     final trContext = SentryTransactionContext(
       'name',
       'op',
-      parentTracesSamplingDecision: SentryTracesSamplingDecision(true),
+      parentSamplingDecision: SentryTracesSamplingDecision(true),
     );
     final context = SentrySamplingContext(trContext, {});
 

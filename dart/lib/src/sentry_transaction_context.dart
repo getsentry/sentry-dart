@@ -7,20 +7,20 @@ import 'tracing.dart';
 @immutable
 class SentryTransactionContext extends SentrySpanContext {
   final String name;
-  final SentryTracesSamplingDecision? parentTracesSamplingDecision;
+  final SentryTracesSamplingDecision? parentSamplingDecision;
   final SentryTransactionNameSource? transactionNameSource;
-  final SentryTracesSamplingDecision? tracesSamplingDecision;
+  final SentryTracesSamplingDecision? samplingDecision;
 
   SentryTransactionContext(
     this.name,
     String operation, {
     String? description,
-    this.parentTracesSamplingDecision,
+    this.parentSamplingDecision,
     SentryId? traceId,
     SpanId? spanId,
     SpanId? parentSpanId,
     this.transactionNameSource,
-    this.tracesSamplingDecision,
+    this.samplingDecision,
   }) : super(
           operation: operation,
           description: description,
@@ -42,7 +42,7 @@ class SentryTransactionContext extends SentrySpanContext {
       operation,
       traceId: traceHeader.traceId,
       parentSpanId: traceHeader.spanId,
-      parentTracesSamplingDecision: traceHeader.sampled != null
+      parentSamplingDecision: traceHeader.sampled != null
           ? SentryTracesSamplingDecision(
               traceHeader.sampled!,
               sampleRate: sampleRate,
@@ -57,25 +57,24 @@ class SentryTransactionContext extends SentrySpanContext {
     String? name,
     String? operation,
     String? description,
-    SentryTracesSamplingDecision? parentTracesSamplingDecision,
+    SentryTracesSamplingDecision? parentSamplingDecision,
     SentryId? traceId,
     SpanId? spanId,
     SpanId? parentSpanId,
     SentryTransactionNameSource? transactionNameSource,
-    SentryTracesSamplingDecision? tracesSamplingDecision,
+    SentryTracesSamplingDecision? samplingDecision,
   }) =>
       SentryTransactionContext(
         name ?? this.name,
         operation ?? this.operation,
         description: description ?? this.description,
-        parentTracesSamplingDecision:
-            parentTracesSamplingDecision ?? this.parentTracesSamplingDecision,
+        parentSamplingDecision:
+            parentSamplingDecision ?? this.parentSamplingDecision,
         traceId: traceId ?? this.traceId,
         spanId: spanId ?? this.spanId,
         parentSpanId: parentSpanId ?? this.parentSpanId,
         transactionNameSource:
             transactionNameSource ?? this.transactionNameSource,
-        tracesSamplingDecision:
-            tracesSamplingDecision ?? this.tracesSamplingDecision,
+        samplingDecision: samplingDecision ?? this.samplingDecision,
       );
 }

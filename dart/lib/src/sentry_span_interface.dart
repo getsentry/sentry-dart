@@ -52,7 +52,7 @@ abstract class ISentrySpan {
   set throwable(dynamic throwable);
 
   @internal
-  bool? get sampled;
+  SentryTracesSamplingDecision? get samplingDecision;
 
   /// Returns the trace information that could be sent as a sentry-trace header.
   SentryTraceHeader toSentryTrace();

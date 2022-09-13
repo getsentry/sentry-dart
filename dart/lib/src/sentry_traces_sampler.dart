@@ -15,10 +15,10 @@ class SentryTracesSampler {
   }) : _random = random ?? Random();
 
   SentryTracesSamplingDecision sample(SentrySamplingContext samplingContext) {
-    final tracesSamplingDecision =
-        samplingContext.transactionContext.tracesSamplingDecision;
-    if (tracesSamplingDecision != null) {
-      return tracesSamplingDecision;
+    final samplingDecision =
+        samplingContext.transactionContext.samplingDecision;
+    if (samplingDecision != null) {
+      return samplingDecision;
     }
 
     final tracesSampler = _options.tracesSampler;
@@ -32,10 +32,10 @@ class SentryTracesSampler {
       }
     }
 
-    final parentTracesSamplingDecision =
-        samplingContext.transactionContext.parentTracesSamplingDecision;
-    if (parentTracesSamplingDecision != null) {
-      return parentTracesSamplingDecision;
+    final parentSamplingDecision =
+        samplingContext.transactionContext.parentSamplingDecision;
+    if (parentSamplingDecision != null) {
+      return parentSamplingDecision;
     }
 
     final tracesSampleRate = _options.tracesSampleRate;

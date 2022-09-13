@@ -50,7 +50,7 @@ class SentryTracer extends ISentrySpan {
       this,
       transactionContext,
       _hub,
-      sampled: transactionContext.tracesSamplingDecision?.sampled,
+      samplingDecision: transactionContext.samplingDecision,
       startTimestamp: startTimestamp,
     );
     _waitForChildren = waitForChildren;
@@ -205,7 +205,8 @@ class SentryTracer extends ISentrySpan {
         description: description);
 
     final child = SentrySpan(this, context, _hub,
-        sampled: _rootSpan.sampled, startTimestamp: startTimestamp,
+        samplingDecision: _rootSpan.samplingDecision,
+        startTimestamp: startTimestamp,
         finishedCallback: ({DateTime? endTimestamp}) {
       final finishStatus = _finishStatus;
       if (finishStatus.finishing) {
@@ -247,9 +248,6 @@ class SentryTracer extends ISentrySpan {
   set status(SpanStatus? status) => _rootSpan.status = status;
 
   Map<String, String> get tags => _rootSpan.tags;
-
-  @override
-  bool? get sampled => _rootSpan.sampled;
 
   @override
   SentryTraceHeader toSentryTrace() => _rootSpan.toSentryTrace();
@@ -303,8 +301,7 @@ class SentryTracer extends ISentrySpan {
       userSegment: user?.segment,
       transaction:
           !_isHighQualityTransactionName(transactionNameSource) ? name : null,
-      sampleRate: _sampleRateToString(
-          _hub.options.sampleRate), // TODO: read from context
+      sampleRate: _sampleRateToString(_rootSpan.samplingDecision?.sampleRate),
     );
 
     return context;
@@ -329,4 +326,8 @@ class SentryTracer extends ISentrySpan {
   bool _isHighQualityTransactionName(SentryTransactionNameSource source) {
     return source == SentryTransactionNameSource.url;
   }
+
+  @override
+  SentryTracesSamplingDecision? get samplingDecision =>
+      _rootSpan.samplingDecision;
 }

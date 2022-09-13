@@ -21,16 +21,15 @@ class SentrySpan extends ISentrySpan {
   final Map<String, String> _tags = {};
   void Function({DateTime? endTimestamp})? _finishedCallback;
 
-  /// TODO: maybe replace by SentryTracesSamplingDecision
   @override
-  bool? sampled;
+  final SentryTracesSamplingDecision? samplingDecision;
 
   SentrySpan(
     this._tracer,
     this._context,
     this._hub, {
     DateTime? startTimestamp,
-    this.sampled,
+    this.samplingDecision,
     Function({DateTime? endTimestamp})? finishedCallback,
   }) {
     _startTimestamp = startTimestamp?.toUtc() ?? getUtcDateTime();
@@ -181,7 +180,7 @@ class SentrySpan extends ISentrySpan {
   SentryTraceHeader toSentryTrace() => SentryTraceHeader(
         _context.traceId,
         _context.spanId,
-        sampled: sampled,
+        sampled: samplingDecision?.sampled,
       );
 
   @override

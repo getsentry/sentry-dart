@@ -198,7 +198,7 @@ void main() {
         description: 'desc',
       );
 
-      expect(tr.sampled, true);
+      expect(tr.samplingDecision?.sampled, true);
     });
 
     test('start transaction does not sample the transaction', () async {
@@ -210,7 +210,7 @@ void main() {
         description: 'desc',
       );
 
-      expect(tr.sampled, false);
+      expect(tr.samplingDecision?.sampled, false);
     });
 
     test('start transaction runs callback with customSamplingContext',
@@ -233,7 +233,7 @@ void main() {
         customSamplingContext: map,
       );
 
-      expect(tr.sampled, false);
+      expect(tr.samplingDecision?.sampled, false);
     });
 
     test('start transaction respects given sampled', () async {
@@ -241,10 +241,10 @@ void main() {
 
       final tr = hub.startTransactionWithContext(
         SentryTransactionContext('name', 'op',
-            tracesSamplingDecision: SentryTracesSamplingDecision(false)),
+            samplingDecision: SentryTracesSamplingDecision(false)),
       );
 
-      expect(tr.sampled, false);
+      expect(tr.samplingDecision?.sampled, false);
     });
 
     test('start transaction return NoOp if performance is disabled', () async {
@@ -533,7 +533,7 @@ class Fixture {
     _context = SentryTransactionContext(
       'name',
       'op',
-      tracesSamplingDecision: SentryTracesSamplingDecision(sampled!),
+      samplingDecision: SentryTracesSamplingDecision(sampled!),
     );
 
     tracer = SentryTracer(_context, hub);

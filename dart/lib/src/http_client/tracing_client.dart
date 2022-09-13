@@ -2,6 +2,7 @@ import 'package:http/http.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
 import '../protocol.dart';
+import '../utils/map_utils.dart';
 
 /// A [http](https://pub.dev/packages/http)-package compatible HTTP client
 /// which adds support to Sentry Performance feature.
@@ -26,19 +27,10 @@ class TracingClient extends BaseClient {
     StreamedResponse? response;
     try {
       if (span != null) {
-        // DRY, dio does the same
-        final traceHeader = span.toSentryTrace();
-        request.headers[traceHeader.name] = traceHeader.value;
-
-        final baggage = span.toBaggageHeader();
-        if (baggage != null) {
-          // TODO: append if header already exist
-          // overwrite if the key already exists
-          request.headers[baggage.name] = baggage.value;
-        }
+        // TODO: tracingOrigins and/or tracePropagationTargets support
+        addSentryTraceHeader(span, request.headers);
+        addBaggageHeader(span, request.headers);
       }
-
-      // TODO: tracingOrigins and/or tracePropagationTargets support
 
       response = await _client.send(request);
       span?.status = SpanStatus.fromHttpStatusCode(response.statusCode);

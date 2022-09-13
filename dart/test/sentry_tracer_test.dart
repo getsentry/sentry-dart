@@ -21,7 +21,7 @@ void main() {
   test('tracer sets sampled', () {
     final sut = fixture.getSut(sampled: false);
 
-    expect(sut.sampled, false);
+    expect(sut.samplingDecision?.sampleRate, false);
   });
 
   test('tracer finishes with status', () async {
@@ -336,7 +336,7 @@ class Fixture {
     final context = SentryTransactionContext(
       'name',
       'op',
-      tracesSamplingDecision: SentryTracesSamplingDecision(sampled!),
+      samplingDecision: SentryTracesSamplingDecision(sampled!),
     );
     return SentryTracer(
       context,

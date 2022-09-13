@@ -265,7 +265,7 @@ class Fixture {
       context,
       hub,
       startTimestamp: startTimestamp,
-      sampled: sampled,
+      samplingDecision: SentryTracesSamplingDecision(sampled!),
       finishedCallback: finishedCallback,
     );
   }

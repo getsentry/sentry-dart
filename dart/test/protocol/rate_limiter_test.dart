@@ -251,7 +251,7 @@ class Fixture {
     final context = SentryTransactionContext(
       'name',
       'op',
-      tracesSamplingDecision: SentryTracesSamplingDecision(true),
+      samplingDecision: SentryTracesSamplingDecision(true),
     );
     final tracer = SentryTracer(context, MockHub());
     return SentryTransaction(tracer);

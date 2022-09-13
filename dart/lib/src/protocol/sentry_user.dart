@@ -56,7 +56,7 @@ class SentryUser {
   /// The IP of the user.
   final String? ipAddress;
 
-  /// TODO: docs
+  /// The user segment, for apps that divide users in user segments.
   final String? segment;
 
   /// Any other user context information that may be helpful.

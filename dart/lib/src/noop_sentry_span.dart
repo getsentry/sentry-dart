@@ -73,9 +73,6 @@ class NoOpSentrySpan extends ISentrySpan {
   set status(SpanStatus? status) {}
 
   @override
-  bool? get sampled => null;
-
-  @override
   SentryTraceHeader toSentryTrace() => _header;
 
   @override
@@ -83,4 +80,7 @@ class NoOpSentrySpan extends ISentrySpan {
 
   @override
   SentryTraceContextHeader? traceContext() => null;
+
+  @override
+  SentryTracesSamplingDecision? get samplingDecision => null;
 }
