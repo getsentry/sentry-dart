@@ -211,7 +211,8 @@ class Fixture {
     return DioEventProcessor(
       options
         ..sendDefaultPii = sendDefaultPii
-        ..maxRequestBodySize = MaxRequestBodySize.always,
+        ..maxRequestBodySize = MaxRequestBodySize.always
+        ..maxResponseBodySize = MaxResponseBodySize.always,
     );
   }
 }

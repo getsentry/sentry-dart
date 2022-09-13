@@ -173,11 +173,11 @@ class DioEventProcessor implements EventProcessor {
       return null;
     }
     if (data is String) {
-      if (_maxResponseBodySize.shouldAddBody(data.codeUnits.length)) {
+      if (_options.maxResponseBodySize.shouldAddBody(data.codeUnits.length)) {
         return data;
       }
     } else if (data is List<int>) {
-      if (_maxResponseBodySize.shouldAddBody(data.length)) {
+      if (_options.maxResponseBodySize.shouldAddBody(data.length)) {
         return data;
       }
     }
