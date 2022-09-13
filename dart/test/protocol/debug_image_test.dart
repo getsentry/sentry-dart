@@ -64,7 +64,9 @@ void main() {
 
       final copy = data.copyWith(
         type: 'type1',
+        name: 'name',
         imageAddr: 'imageAddr1',
+        imageVmAddr: 'imageVmAddr1',
         debugId: 'debugId1',
         debugFile: 'debugFile1',
         imageSize: 2,

@@ -6,7 +6,7 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_exception_factory.dart';
 
 /// This is an [EventProcessor], which improves crash reports of [DioError]s.
-/// It adds information about [DioError.response] if present and also about
+/// It adds information about [DioError.requestOptions] if present and also about
 /// the inner exceptions.
 class DioEventProcessor implements EventProcessor {
   // Because of obfuscation, we need to dynamically get the name
@@ -28,9 +28,18 @@ class DioEventProcessor implements EventProcessor {
       return event;
     }
 
+    final response = _responseFrom(dioError);
+
+    Contexts contexts = event.contexts;
+    if (event.contexts.response == null) {
+      contexts = contexts.copyWith(response: response);
+    }
     // Don't override just parts of the original request.
     // Keep the original one or if there's none create one.
-    event = event.copyWith(request: event.request ?? _requestFrom(dioError));
+    event = event.copyWith(
+      request: event.request ?? _requestFrom(dioError),
+      contexts: contexts,
+    );
 
     final innerDioStackTrace = dioError.stackTrace;
     final innerDioErrorException = dioError.error as Object?;
@@ -119,12 +128,11 @@ class DioEventProcessor implements EventProcessor {
       cookies: _options.sendDefaultPii
           ? options.headers['Cookie']?.toString()
           : null,
-      data: _getRequestData(dioError.response?.data),
+      data: _getRequestData(dioError.requestOptions.data),
     );
   }
 
   /// Returns the request data, if possible according to the users settings.
-  /// Type checks are based on DIOs [ResponseType].
   Object? _getRequestData(dynamic data) {
     if (!_options.sendDefaultPii) {
       return null;
@@ -135,6 +143,41 @@ class DioEventProcessor implements EventProcessor {
       }
     } else if (data is List<int>) {
       if (_options.maxRequestBodySize.shouldAddBody(data.length)) {
+        return data;
+      }
+    }
+    return null;
+  }
+
+  SentryResponse? _responseFrom(DioError dioError) {
+    final response = dioError.response;
+
+    final headers = response?.headers.map.map(
+      (key, value) => MapEntry(key, value.join('; ')),
+    );
+
+    return SentryResponse(
+      headers: _options.sendDefaultPii ? headers : null,
+      url: response?.realUri.toString(),
+      redirected: response?.isRedirect,
+      body: _getResponseData(dioError.response?.data),
+      statusCode: response?.statusCode,
+      status: response?.statusMessage,
+    );
+  }
+
+  /// Returns the request data, if possible according to the users settings.
+  /// Type checks are based on DIOs [ResponseType].
+  Object? _getResponseData(dynamic data) {
+    if (!_options.sendDefaultPii) {
+      return null;
+    }
+    if (data is String) {
+      if (_maxResponseBodySize.shouldAddBody(data.codeUnits.length)) {
+        return data;
+      }
+    } else if (data is List<int>) {
+      if (_maxResponseBodySize.shouldAddBody(data.length)) {
         return data;
       }
     }

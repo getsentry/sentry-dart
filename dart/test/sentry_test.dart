@@ -46,7 +46,7 @@ void main() {
       await Sentry.captureEvent(
         fakeEvent,
         withScope: (scope) {
-          scope.user = SentryUser(id: 'foo bar');
+          scope.setUser(SentryUser(id: 'foo bar'));
         },
       );
 
@@ -70,7 +70,7 @@ void main() {
 
     test('should capture exception withScope', () async {
       await Sentry.captureException(anException, withScope: (scope) {
-        scope.user = SentryUser(id: 'foo bar');
+        scope.setUser(SentryUser(id: 'foo bar'));
       });
       expect(client.captureEventCalls.length, 1);
       expect(client.captureEventCalls.first.event.throwable, anException);
@@ -92,7 +92,7 @@ void main() {
       await Sentry.captureMessage(
         fakeMessage.formatted,
         withScope: (scope) {
-          scope.user = SentryUser(id: 'foo bar');
+          scope.setUser(SentryUser(id: 'foo bar'));
         },
       );
 
@@ -332,4 +332,42 @@ void main() {
 
     expect(sentryOptions.logger == dartLogger, false);
   });
+
+  group("Sentry init optionsConfiguration", () {
+    final fixture = Fixture();
+
+    test('throw is handled and logged', () async {
+      final sentryOptions = SentryOptions(dsn: fakeDsn)
+        ..debug = true
+        ..logger = fixture.mockLogger;
+
+      final exception = Exception("Exception in options callback");
+      await Sentry.init((options) async {
+        throw exception;
+      }, options: sentryOptions);
+
+      expect(fixture.loggedException, exception);
+      expect(fixture.loggedLevel, SentryLevel.error);
+    });
+  });
+}
+
+class Fixture {
+  bool logged = false;
+  SentryLevel? loggedLevel;
+  Object? loggedException;
+
+  void mockLogger(
+    SentryLevel level,
+    String message, {
+    String? logger,
+    Object? exception,
+    StackTrace? stackTrace,
+  }) {
+    if (!logged) {
+      logged = true; // Block multiple calls which override expected values.
+      loggedLevel = level;
+      loggedException = exception;
+    }
+  }
 }

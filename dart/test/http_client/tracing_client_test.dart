@@ -109,7 +109,7 @@ void main() {
       final span = tracer.children.first;
 
       expect(response.request!.headers['sentry-trace'],
-          '${span.toSentryTrace().value}');
+          span.toSentryTrace().value);
     });
 
     test('do not throw if no span bound to the scope', () async {
@@ -154,7 +154,7 @@ class Fixture {
   MockClient getClient({int statusCode = 200, String? reason}) {
     return MockClient((request) async {
       expect(request.url, requestUri);
-      return Response('', statusCode, reasonPhrase: reason);
+      return Response('', statusCode, reasonPhrase: reason, request: request);
     });
   }
 }

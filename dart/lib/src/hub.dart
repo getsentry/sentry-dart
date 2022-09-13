@@ -2,18 +2,15 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:meta/meta.dart';
+import 'transport/data_category.dart';
 
-import 'protocol.dart';
-import 'scope.dart';
-import 'sentry_client.dart';
-import 'sentry_options.dart';
+import '../sentry.dart';
+import 'client_reports/discard_reason.dart';
 import 'sentry_tracer.dart';
 import 'sentry_traces_sampler.dart';
-import 'sentry_user_feedback.dart';
-import 'tracing.dart';
 
 /// Configures the scope through the callback.
-typedef ScopeCallback = void Function(Scope);
+typedef ScopeCallback = FutureOr<void> Function(Scope);
 
 /// Called when a transaction is finished.
 typedef OnTransactionFinish = FutureOr<void> Function(ISentrySpan transaction);
@@ -84,7 +81,7 @@ class Hub {
       );
     } else {
       final item = _peek();
-      final scope = _cloneAndRunWithScope(item.scope, withScope);
+      final scope = await _cloneAndRunWithScope(item.scope, withScope);
 
       try {
         if (_options.isTracingEnabled()) {
@@ -132,7 +129,7 @@ class Hub {
       );
     } else {
       final item = _peek();
-      final scope = _cloneAndRunWithScope(item.scope, withScope);
+      final scope = await _cloneAndRunWithScope(item.scope, withScope);
 
       try {
         var event = SentryEvent(
@@ -188,7 +185,7 @@ class Hub {
       );
     } else {
       final item = _peek();
-      final scope = _cloneAndRunWithScope(item.scope, withScope);
+      final scope = await _cloneAndRunWithScope(item.scope, withScope);
 
       try {
         sentryId = await item.client.captureMessage(
@@ -242,16 +239,26 @@ class Hub {
     }
   }
 
-  Scope _cloneAndRunWithScope(Scope scope, ScopeCallback? withScope) {
+  Future<Scope> _cloneAndRunWithScope(
+      Scope scope, ScopeCallback? withScope) async {
     if (withScope != null) {
-      scope = scope.clone();
-      withScope(scope);
+      try {
+        scope = scope.clone();
+        await withScope(scope);
+      } catch (exception, stackTrace) {
+        _options.logger(
+          SentryLevel.error,
+          'Exception in withScope callback.',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+      }
     }
     return scope;
   }
 
   /// Adds a breacrumb to the current Scope
-  void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) {
+  Future<void> addBreadcrumb(Breadcrumb crumb, {dynamic hint}) async {
     if (!_isEnabled) {
       _options.logger(
         SentryLevel.warning,
@@ -259,7 +266,7 @@ class Hub {
       );
     } else {
       final item = _peek();
-      item.scope.addBreadcrumb(crumb, hint: hint);
+      await item.scope.addBreadcrumb(crumb, hint: hint);
     }
   }
 
@@ -320,7 +327,7 @@ class Hub {
   }
 
   /// Configures the scope through the callback.
-  void configureScope(ScopeCallback callback) {
+  FutureOr<void> configureScope(ScopeCallback callback) async {
     if (!_isEnabled) {
       _options.logger(
         SentryLevel.warning,
@@ -330,7 +337,7 @@ class Hub {
       final item = _peek();
 
       try {
-        callback(item.scope);
+        await callback(item.scope);
       } catch (err) {
         _options.logger(
           SentryLevel.error,
@@ -462,14 +469,18 @@ class Hub {
         'Capturing unfinished transaction: ${transaction.eventId}',
       );
     } else {
+      final item = _peek();
+
       if (!transaction.sampled) {
+        _options.recorder.recordLostEvent(
+          DiscardReason.sampleRate,
+          DataCategory.transaction,
+        );
         _options.logger(
           SentryLevel.warning,
           'Transaction ${transaction.eventId} was dropped due to sampling decision.',
         );
       } else {
-        final item = _peek();
-
         try {
           sentryId = await item.client.captureTransaction(
             transaction,

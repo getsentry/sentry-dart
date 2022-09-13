@@ -12,6 +12,7 @@ Future<void> main() async {
       options.dsn = dsn;
       options.tracesSampleRate = 1.0; // needed for Dio `networkTracing` feature
       options.debug = true;
+      options.sendDefaultPii = true;
     },
     appRunner: runApp, // Init your App.
   );

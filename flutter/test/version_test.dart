@@ -16,6 +16,6 @@ void main() {
       final dynamic pubspec =
           yaml.loadYaml(File('pubspec.yaml').readAsStringSync());
       expect(sdkVersion, pubspec['version']);
-    }, skip: 'works locally but not on CI');
+    });
   });
 }

@@ -1,3 +1,5 @@
+@TestOn('vm')
+
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -52,6 +54,7 @@ void main() {
         'enableOutOfMemoryTracking': true,
         'enableNdkScopeSync': false,
         'enableAutoPerformanceTracking': true,
+        'sendClientReports': true
       });
     });
 
@@ -83,7 +86,8 @@ void main() {
         ..sendDefaultPii = true
         ..enableOutOfMemoryTracking = false
         ..enableNdkScopeSync = true
-        ..enableAutoPerformanceTracking = false;
+        ..enableAutoPerformanceTracking = false
+        ..sendClientReports = false;
 
       options.sdk.addIntegration('foo');
       options.sdk.addPackage('bar', '1');
@@ -119,6 +123,7 @@ void main() {
         'enableOutOfMemoryTracking': false,
         'enableNdkScopeSync': true,
         'enableAutoPerformanceTracking': false,
+        'sendClientReports': false
       });
     });
 
@@ -153,7 +158,7 @@ void main() {
 MethodChannel createChannelWithCallback(
   Future<dynamic>? Function(MethodCall call)? handler,
 ) {
-  final channel = const MethodChannel('initNativeSdk');
+  final channel = MethodChannel('initNativeSdk');
   channel.setMockMethodCallHandler(handler);
   return channel;
 }

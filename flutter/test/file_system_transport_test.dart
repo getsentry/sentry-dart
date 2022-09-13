@@ -1,4 +1,8 @@
+@TestOn('vm')
+
 import 'dart:convert';
+// backcompatibility for Flutter < 3.3
+// ignore: unnecessary_import
 import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
@@ -96,8 +100,9 @@ void main() {
 }
 
 class Fixture {
+  final options = SentryOptions(dsn: '');
+
   FileSystemTransport getSut(MethodChannel channel) {
-    final options = SentryOptions(dsn: '');
     return FileSystemTransport(channel, options);
   }
 }

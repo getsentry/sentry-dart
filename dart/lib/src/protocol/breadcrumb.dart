@@ -129,11 +129,17 @@ class Breadcrumb {
   factory Breadcrumb.fromJson(Map<String, dynamic> json) {
     final levelName = json['level'];
     final timestamp = json['timestamp'];
+
+    var data = json['data'];
+    if (data != null) {
+      data = Map<String, dynamic>.from(data as Map);
+    }
+
     return Breadcrumb(
       timestamp: timestamp != null ? DateTime.tryParse(timestamp) : null,
       message: json['message'],
       category: json['category'],
-      data: json['data'],
+      data: data,
       level: levelName != null ? SentryLevel.fromName(levelName) : null,
       type: json['type'],
     );

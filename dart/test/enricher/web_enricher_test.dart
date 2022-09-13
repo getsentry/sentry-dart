@@ -89,12 +89,18 @@ void main() {
       expect(dartContext['compile_mode'], isNotNull);
     });
 
-    test('device has timezone, screendensity', () async {
+    test('device has screendensity', () async {
       var enricher = fixture.getSut();
       final event = await enricher.apply(SentryEvent());
 
-      expect(event.contexts.device?.timezone, isNotNull);
       expect(event.contexts.device?.screenDensity, isNotNull);
+    });
+
+    test('culture has timezone', () async {
+      var enricher = fixture.getSut();
+      final event = await enricher.apply(SentryEvent());
+
+      expect(event.contexts.culture?.timezone, isNotNull);
     });
 
     test('does not override event', () async {
@@ -107,10 +113,12 @@ void main() {
             screenHeightPixels: 1080,
             screenWidthPixels: 1920,
             screenDensity: 2,
-            timezone: 'foo_timezone',
           ),
           operatingSystem: SentryOperatingSystem(
             name: 'sentry_os',
+          ),
+          culture: SentryCulture(
+            timezone: 'foo_timezone',
           ),
         ),
       );
@@ -144,9 +152,10 @@ void main() {
         event.contexts.device?.screenDensity,
         fakeEvent.contexts.device?.screenDensity,
       );
+      // contexts.culture
       expect(
-        event.contexts.device?.timezone,
-        fakeEvent.contexts.device?.timezone,
+        event.contexts.culture?.timezone,
+        fakeEvent.contexts.culture?.timezone,
       );
       // contexts.operatingSystem
       expect(
