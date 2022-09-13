@@ -77,4 +77,10 @@ class NoOpSentrySpan extends ISentrySpan {
 
   @override
   SentryTraceHeader toSentryTrace() => _header;
+
+  @override
+  SentryBaggageHeader? toBaggageHeader() => null;
+
+  @override
+  SentryTraceContextHeader? traceContext() => null;
 }

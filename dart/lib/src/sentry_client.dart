@@ -132,6 +132,7 @@ class SentryClient {
     final envelope = SentryEnvelope.fromEvent(
       preparedEvent,
       _options.sdk,
+      traceContext: scope?.span?.traceContext(),
       attachments: scope?.attachments,
     );
 
@@ -309,12 +310,17 @@ class SentryClient {
       return _sentryId;
     }
 
-    final id = await captureEnvelope(
-      SentryEnvelope.fromTransaction(preparedTransaction, _options.sdk,
-          attachments: scope?.attachments
-              .where((element) => element.addToTransactions)
-              .toList()),
+    final attachments = scope?.attachments
+        .where((element) => element.addToTransactions)
+        .toList();
+    final envelope = SentryEnvelope.fromTransaction(
+      preparedTransaction,
+      _options.sdk,
+      traceContext: scope?.span?.traceContext(),
+      attachments: attachments,
     );
+    final id = await captureEnvelope(envelope);
+
     return id ?? SentryId.empty();
   }
 

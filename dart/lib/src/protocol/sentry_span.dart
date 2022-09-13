@@ -182,4 +182,10 @@ class SentrySpan extends ISentrySpan {
         _context.spanId,
         sampled: sampled,
       );
+
+  @override
+  SentryBaggageHeader? toBaggageHeader() => _tracer.toBaggageHeader();
+
+  @override
+  SentryTraceContextHeader? traceContext() => _tracer.traceContext();
 }

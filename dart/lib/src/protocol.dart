@@ -34,3 +34,5 @@ export 'protocol/sentry_transaction.dart';
 export 'protocol/sentry_trace_context.dart';
 export 'protocol/sentry_span.dart';
 export 'protocol/sentry_trace_header.dart';
+export 'protocol/sentry_transaction_name_source.dart';
+export 'protocol/sentry_baggage_header.dart';

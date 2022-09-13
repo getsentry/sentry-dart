@@ -8,6 +8,7 @@ class SentryTransactionContext extends SentrySpanContext {
   final String name;
   final bool? parentSampled;
   final bool? sampled;
+  final SentryTransactionNameSource? transactionNameSource;
 
   SentryTransactionContext(
     this.name,
@@ -18,6 +19,7 @@ class SentryTransactionContext extends SentrySpanContext {
     SentryId? traceId,
     SpanId? spanId,
     SpanId? parentSpanId,
+    this.transactionNameSource,
   }) : super(
           operation: operation,
           description: description,
@@ -29,14 +31,17 @@ class SentryTransactionContext extends SentrySpanContext {
   factory SentryTransactionContext.fromSentryTrace(
     String name,
     String operation,
-    SentryTraceHeader traceHeader,
-  ) {
+    SentryTraceHeader traceHeader, {
+    SentryTransactionNameSource? transactionNameSource,
+  }) {
     return SentryTransactionContext(
       name,
       operation,
       traceId: traceHeader.traceId,
       parentSpanId: traceHeader.spanId,
       parentSampled: traceHeader.sampled,
+      transactionNameSource:
+          transactionNameSource ?? SentryTransactionNameSource.custom,
     );
   }
 
@@ -49,6 +54,7 @@ class SentryTransactionContext extends SentrySpanContext {
     SentryId? traceId,
     SpanId? spanId,
     SpanId? parentSpanId,
+    SentryTransactionNameSource? transactionNameSource,
   }) =>
       SentryTransactionContext(
         name ?? this.name,
@@ -59,5 +65,7 @@ class SentryTransactionContext extends SentrySpanContext {
         traceId: traceId ?? this.traceId,
         spanId: spanId ?? this.spanId,
         parentSpanId: parentSpanId ?? this.parentSpanId,
+        transactionNameSource:
+            transactionNameSource ?? this.transactionNameSource,
       );
 }

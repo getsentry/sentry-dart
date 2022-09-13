@@ -22,6 +22,8 @@ class SentryTracer extends ISentrySpan {
   var _finishStatus = SentryTracerFinishStatus.notFinishing();
   late final bool _trimEnd;
 
+  late SentryTransactionNameSource transactionNameSource;
+
   /// If [waitForChildren] is true, this transaction will not finish until all
   /// its children are finished.
   ///
@@ -58,6 +60,9 @@ class SentryTracer extends ISentrySpan {
       });
     }
     name = transactionContext.name;
+    // always default to custom if not provided
+    transactionNameSource = transactionContext.transactionNameSource ??
+        SentryTransactionNameSource.custom;
     _trimEnd = trimEnd;
     _onFinish = onFinish;
   }
@@ -269,4 +274,61 @@ class SentryTracer extends ISentrySpan {
           SentrySpan span, DateTime endTimestampCandidate) =>
       !span.startTimestamp
           .isAfter((span.endTimestamp ?? endTimestampCandidate));
+
+  @override
+  SentryBaggageHeader? toBaggageHeader() {
+    final context = traceContext();
+
+    if (_hub.options.traceSampling && context != null) {
+      final baggage = context.toBaggage();
+      return SentryBaggageHeader.fromBaggage(baggage);
+    }
+    return null;
+  }
+
+  @override
+  SentryTraceContextHeader? traceContext() {
+    if (_hub.options.traceSampling) {
+      var context = traceContext();
+
+      SentryUser? user;
+      _hub.configureScope((scope) => user = scope.user);
+
+      context ??= SentryTraceContextHeader(
+        _rootSpan.context.traceId,
+        Dsn.parse(_hub.options.dsn!).publicKey,
+        release: _hub.options.release,
+        environment: _hub.options.environment,
+        userId: null, // because of PII not sending it for now
+        userSegment: user?.segment,
+        transaction:
+            !_isHighQualityTransactionName(transactionNameSource) ? name : null,
+        sampleRate: _sampleRateToString(
+            _hub.options.sampleRate), // TODO: read from context
+      );
+
+      return context;
+    }
+    return null;
+  }
+
+  String? _sampleRateToString(double? sampleRate) {
+    if (!_isValidRate(sampleRate)) {
+      return null;
+    }
+    // TODO: check format #.################
+    return sampleRate!.toString();
+  }
+
+  bool _isValidRate(double? sampleRate) {
+    if (sampleRate == null) {
+      return false;
+    }
+    // TODO: extract to a method, options also do it
+    return !sampleRate.isNaN && sampleRate >= 0.0 && sampleRate <= 1.0;
+  }
+
+  bool _isHighQualityTransactionName(SentryTransactionNameSource source) {
+    return source == SentryTransactionNameSource.url;
+  }
 }

@@ -4,6 +4,7 @@ import '../protocol.dart';
 import '../sentry_tracer.dart';
 import '../utils.dart';
 import '../sentry_measurement.dart';
+import 'sentry_transaction_info.dart';
 
 @immutable
 class SentryTransaction extends SentryEvent {
@@ -12,6 +13,7 @@ class SentryTransaction extends SentryEvent {
   late final List<SentrySpan> spans;
   final SentryTracer _tracer;
   late final List<SentryMeasurement> measurements;
+  late final SentryTransactionInfo? transactionInfo;
 
   SentryTransaction(
     this._tracer, {
@@ -33,6 +35,7 @@ class SentryTransaction extends SentryEvent {
     SentryRequest? request,
     String? type,
     List<SentryMeasurement>? measurements,
+    SentryTransactionInfo? transactionInfo,
   }) : super(
           eventId: eventId,
           timestamp: timestamp ?? _tracer.endTimestamp,
@@ -62,6 +65,9 @@ class SentryTransaction extends SentryEvent {
       sampled: _tracer.sampled,
       status: _tracer.status,
     );
+
+    this.transactionInfo = transactionInfo ??
+        SentryTransactionInfo(_tracer.transactionNameSource.name);
   }
 
   @override
@@ -80,6 +86,11 @@ class SentryTransaction extends SentryEvent {
         map[measurement.name] = measurement.toJson();
       }
       json['measurements'] = map;
+    }
+
+    final transactionInfo = this.transactionInfo;
+    if (transactionInfo != null) {
+      json['transaction_info'] = transactionInfo.toJson();
     }
 
     return json;
@@ -118,6 +129,7 @@ class SentryTransaction extends SentryEvent {
     List<SentryThread>? threads,
     String? type,
     List<SentryMeasurement>? measurements,
+    SentryTransactionInfo? transactionInfo,
   }) =>
       SentryTransaction(
         _tracer,
@@ -143,5 +155,6 @@ class SentryTransaction extends SentryEvent {
                 ? List<SentryMeasurement>.from(measurements)
                 : null) ??
             this.measurements,
+        transactionInfo: transactionInfo ?? this.transactionInfo,
       );
 }
