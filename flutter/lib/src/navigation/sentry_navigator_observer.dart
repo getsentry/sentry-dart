@@ -86,7 +86,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPush(route, previousRoute);
 
-    _setCurrentRoute(route.settings.name);
+    final routeName =
+        (_routeNameExtractor?.call(route.settings) ?? route.settings).name;
+    _setCurrentRoute(routeName);
 
     _addBreadcrumb(
       type: 'didPush',
@@ -101,7 +103,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   @override
   void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
     super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
-    _setCurrentRoute(newRoute?.settings.name);
+
+    final routeName =
+        (_routeNameExtractor?.call(newRoute?.settings) ?? newRoute?.settings)
+            ?.name;
+    _setCurrentRoute(routeName);
     _addBreadcrumb(
       type: 'didReplace',
       from: oldRoute?.settings,
@@ -113,7 +119,10 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPop(route, previousRoute);
 
-    _setCurrentRoute(previousRoute?.settings.name);
+    final routeName = (_routeNameExtractor?.call(previousRoute?.settings) ??
+            previousRoute?.settings)
+        ?.name;
+    _setCurrentRoute(routeName);
     _addBreadcrumb(
       type: 'didPop',
       from: route.settings,
