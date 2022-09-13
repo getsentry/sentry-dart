@@ -35,9 +35,17 @@ class TracingClientAdapter extends HttpClientAdapter {
       if (span != null) {
         final traceHeader = span.toSentryTrace();
         options.headers[traceHeader.name] = traceHeader.value;
+
+        final baggage = span.toBaggageHeader();
+        if (baggage != null) {
+          // TODO: append if header already exist
+          // overwrite if the key already exists
+          // https://develop.sentry.dev/sdk/performance/dynamic-sampling-context/#baggage
+          options.headers[baggage.name] = baggage.value;
+        }
       }
 
-      // TODO: tracingOrigins support
+      // TODO: tracingOrigins and/or tracePropagationTargets support
 
       response = await _client.fetch(options, requestStream, cancelFuture);
       span?.status = SpanStatus.fromHttpStatusCode(response.statusCode ?? -1);

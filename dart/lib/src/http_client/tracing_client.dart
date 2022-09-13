@@ -26,11 +26,19 @@ class TracingClient extends BaseClient {
     StreamedResponse? response;
     try {
       if (span != null) {
+        // DRY, dio does the same
         final traceHeader = span.toSentryTrace();
         request.headers[traceHeader.name] = traceHeader.value;
+
+        final baggage = span.toBaggageHeader();
+        if (baggage != null) {
+          // TODO: append if header already exist
+          // overwrite if the key already exists
+          request.headers[baggage.name] = baggage.value;
+        }
       }
 
-      // TODO: tracingOrigins support
+      // TODO: tracingOrigins and/or tracePropagationTargets support
 
       response = await _client.send(request);
       span?.status = SpanStatus.fromHttpStatusCode(response.statusCode);

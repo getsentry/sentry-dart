@@ -12,13 +12,13 @@ class SentryTransactionInfo {
     };
   }
 
-  // SentryTransactionInfo copyWith({
-  //   String? source,
-  // }) {
-  //   return SentryTransactionInfo(
-  //     source ?? this.source,
-  //   );
-  // }
+  SentryTransactionInfo copyWith({
+    String? source,
+  }) {
+    return SentryTransactionInfo(
+      source ?? this.source,
+    );
+  }
 
   factory SentryTransactionInfo.fromJson(Map<String, dynamic> json) {
     return SentryTransactionInfo(

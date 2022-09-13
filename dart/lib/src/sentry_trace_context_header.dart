@@ -54,7 +54,29 @@ class SentryTraceContextHeader {
   }
 
   SentryBaggage toBaggage() {
-    // TODO: impl
-    return SentryBaggage();
+    final baggage = SentryBaggage({});
+    baggage.setTraceId(traceId.toString());
+    baggage.setPublicKey(publicKey);
+
+    if (release != null) {
+      baggage.setRelease(release!);
+    }
+    if (environment != null) {
+      baggage.setEnvironment(environment!);
+    }
+    if (userId != null) {
+      baggage.setUserId(userId!);
+    }
+    if (userSegment != null) {
+      baggage.setUserSegment(userSegment!);
+    }
+    if (transaction != null) {
+      baggage.setTransaction(transaction!);
+    }
+    if (sampleRate != null) {
+      baggage.setSampleRate(sampleRate!);
+    }
+
+    return baggage;
   }
 }

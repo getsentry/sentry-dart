@@ -277,6 +277,7 @@ class SentryTracer extends ISentrySpan {
 
   @override
   SentryBaggageHeader? toBaggageHeader() {
+    // TODO: freeze context after 1st envelope or outgoing HTTP request
     final context = traceContext();
 
     if (_hub.options.traceSampling && context != null) {
