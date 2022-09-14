@@ -86,9 +86,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPush(route, previousRoute);
 
-    final routeName =
-        (_routeNameExtractor?.call(route.settings) ?? route.settings).name;
-    _setCurrentRoute(routeName);
+    _setCurrentRoute(route);
 
     _addBreadcrumb(
       type: 'didPush',
@@ -97,17 +95,14 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     );
 
     _finishTransaction();
-    _startTransaction(route.settings.name, route.settings.arguments);
+    _startTransaction(route);
   }
 
   @override
   void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
     super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
 
-    final routeName =
-        (_routeNameExtractor?.call(newRoute?.settings) ?? newRoute?.settings)
-            ?.name;
-    _setCurrentRoute(routeName);
+    _setCurrentRoute(newRoute);
     _addBreadcrumb(
       type: 'didReplace',
       from: oldRoute?.settings,
@@ -119,10 +114,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPop(route, previousRoute);
 
-    final routeName = (_routeNameExtractor?.call(previousRoute?.settings) ??
-            previousRoute?.settings)
-        ?.name;
-    _setCurrentRoute(routeName);
+    _setCurrentRoute(previousRoute);
     _addBreadcrumb(
       type: 'didPop',
       from: route.settings,
@@ -130,10 +122,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     );
 
     _finishTransaction();
-    _startTransaction(
-      previousRoute?.settings.name,
-      previousRoute?.settings.arguments,
-    );
+    _startTransaction(previousRoute);
   }
 
   void _addBreadcrumb({
@@ -149,7 +138,13 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     ));
   }
 
-  Future<void> _setCurrentRoute(String? name) async {
+  String? _getRouteName(Route<dynamic>? route) {
+    return (_routeNameExtractor?.call(route?.settings) ?? route?.settings)
+        ?.name;
+  }
+
+  Future<void> _setCurrentRoute(Route<dynamic>? route) async {
+    final name = _getRouteName(route);
     if (name == null) {
       return;
     }
@@ -160,10 +155,14 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
   }
 
-  Future<void> _startTransaction(String? name, Object? arguments) async {
+  Future<void> _startTransaction(Route<dynamic>? route) async {
     if (!_enableAutoTransactions) {
       return;
     }
+
+    String? name = _getRouteName(route);
+    final arguments = route?.settings.arguments;
+
     if (name == null) {
       return;
     }
