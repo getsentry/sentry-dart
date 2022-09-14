@@ -24,6 +24,8 @@ class SentryTracer extends ISentrySpan {
 
   late SentryTransactionNameSource transactionNameSource;
 
+  SentryTraceContextHeader? _sentryTraceContextHeader;
+
   /// If [waitForChildren] is true, this transaction will not finish until all
   /// its children are finished.
   ///
@@ -275,7 +277,6 @@ class SentryTracer extends ISentrySpan {
 
   @override
   SentryBaggageHeader? toBaggageHeader() {
-    // TODO: freeze context after 1st envelope or outgoing HTTP request
     final context = traceContext();
 
     if (context != null) {
@@ -287,12 +288,12 @@ class SentryTracer extends ISentrySpan {
 
   @override
   SentryTraceContextHeader? traceContext() {
-    var context = traceContext();
+    // TODO: freeze context after 1st envelope or outgoing HTTP request
 
     SentryUser? user;
     _hub.configureScope((scope) => user = scope.user);
 
-    context ??= SentryTraceContextHeader(
+    _sentryTraceContextHeader ??= SentryTraceContextHeader(
       _rootSpan.context.traceId,
       Dsn.parse(_hub.options.dsn!).publicKey,
       release: _hub.options.release,
@@ -304,7 +305,7 @@ class SentryTracer extends ISentrySpan {
       sampleRate: _sampleRateToString(_rootSpan.samplingDecision?.sampleRate),
     );
 
-    return context;
+    return _sentryTraceContextHeader;
   }
 
   String? _sampleRateToString(double? sampleRate) {

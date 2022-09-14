@@ -8,10 +8,16 @@ void addSentryTraceHeader(ISentrySpan span, Map<String, dynamic> headers) {
 void addBaggageHeader(ISentrySpan span, Map<String, dynamic> headers) {
   final baggage = span.toBaggageHeader();
   if (baggage != null) {
-    // TODO: append if header already exist
-    // overwrite if the key already exists
+    // TODO: overwrite if the sentry key already exists
     // https://develop.sentry.dev/sdk/performance/dynamic-sampling-context/#baggage
-    headers[baggage.name] = baggage.value;
+    var currentValue = headers[baggage.name] as String? ?? '';
+
+    if (currentValue.isNotEmpty == true) {
+      currentValue = '$currentValue,';
+    }
+    currentValue = '$currentValue${baggage.value}';
+
+    headers[baggage.name] = currentValue;
   }
 }
 
@@ -21,8 +27,8 @@ bool containsTracePropagationTarget(
     return true;
   }
   for (final target in tracePropagationTargets) {
-    // TODO: validate regex
-    if (url.contains(target) || url.allMatches(target).isNotEmpty) {
+    final regExp = RegExp(target, caseSensitive: false);
+    if (url.contains(target) || regExp.hasMatch(url)) {
       return true;
     }
   }
