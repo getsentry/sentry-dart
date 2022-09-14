@@ -15,6 +15,7 @@
 - Bump Cocoa SDK from v7.23.0 to v7.25.0 ([#993](https://github.com/getsentry/sentry-dart/pull/993), [#996](https://github.com/getsentry/sentry-dart/pull/996), [#1000](https://github.com/getsentry/sentry-dart/pull/1000))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/master/CHANGELOG.md#7250)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.23.0...7.25.0)
+- Allow routeNameExtractor to set transaction names ([#1005](https://github.com/getsentry/sentry-dart/pull/1005))
 
 ## 6.9.1
 
