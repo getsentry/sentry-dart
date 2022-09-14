@@ -2,7 +2,9 @@ import 'package:meta/meta.dart';
 
 @experimental
 class SentryBaggage {
-  static const String sampleRateKeyName = 'sentry-sample_rate';
+  static const String _sampleRateKeyName = 'sentry-sample_rate';
+  static const int _maxChars = 8192;
+  static const int _maxListMember = 64;
 
   SentryBaggage(this._keyValues);
 
@@ -10,29 +12,35 @@ class SentryBaggage {
 
   String toHeaderString() {
     final buffer = StringBuffer();
-    // var listMemberCount = 0;
+    var listMemberCount = 0;
+    var separator = '';
 
     for (final entry in _keyValues.entries) {
+      if (listMemberCount >= _maxListMember) {
+        // log it max list member
+        break;
+      }
       try {
-        final key = _urlEncode(entry.key);
-        final value = _urlEncode(entry.value);
-        final keyValue = '$key=$value,';
+        final encodedKey = _urlEncode(entry.key);
+        final encodedValue = _urlEncode(entry.value);
+        final encodedKeyValue = '$separator$encodedKey=$encodedValue';
 
-        // TODO: size validation
-        // final totalLengthIfValueAdded = buffer.length + keyValue.length
-        buffer.write(keyValue);
+        final totalLengthIfValueAdded = buffer.length + encodedKeyValue.length;
+
+        if (totalLengthIfValueAdded >= _maxChars) {
+          // log it max length
+          continue;
+        }
+
+        listMemberCount++;
+        buffer.write(encodedKeyValue);
+        separator = ',';
       } catch (exception, _) {
         // encode could throw ArgumentError
       }
     }
 
-    var header = buffer.toString();
-    // remove last leading comma
-    if (header.isNotEmpty) {
-      header = header.substring(0, header.length - 1);
-    }
-
-    return header;
+    return buffer.toString();
   }
 
   factory SentryBaggage.fromHeaderList(List<String> headerValues) {
@@ -62,6 +70,8 @@ class SentryBaggage {
     final keyValueStrings = headerValue.split(',');
 
     for (final keyValueString in keyValueStrings) {
+      // TODO: Note, value MAY contain any number of the equal sign (=) characters.
+      // Parsers MUST NOT assume that the equal sign is only used to separate key and value.
       final keyAndValue = keyValueString.split('=');
       if (keyAndValue.length == 2) {
         try {
@@ -78,14 +88,12 @@ class SentryBaggage {
   }
 
   static String _urlDecode(String uri) {
-    // TODO: double check decoding
-    return Uri.decodeFull(uri);
+    // return Uri.decodeFull(uri);
+    return Uri.decodeComponent(uri);
   }
 
   String _urlEncode(String uri) {
-    // TODO: double check encoding and replacing
-    final encoded = Uri.encodeFull(uri);
-    return encoded.replaceAll('\\+', '%20');
+    return Uri.encodeComponent(uri);
   }
 
   String? get(String key) => _keyValues[key];
@@ -123,11 +131,11 @@ class SentryBaggage {
   }
 
   void setSampleRate(String value) {
-    set(sampleRateKeyName, value);
+    set(_sampleRateKeyName, value);
   }
 
   double? getSampleRate() {
-    final sampleRate = get(sampleRateKeyName);
+    final sampleRate = get(_sampleRateKeyName);
     if (sampleRate == null) {
       return null;
     }
