@@ -34,3 +34,10 @@ bool containsTracePropagationTarget(
   }
   return false;
 }
+
+bool isValidSampleRate(double? sampleRate) {
+  if (sampleRate == null) {
+    return false;
+  }
+  return !sampleRate.isNaN && sampleRate >= 0.0 && sampleRate <= 1.0;
+}

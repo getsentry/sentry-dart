@@ -286,7 +286,7 @@ class SentryOptions {
 
   /// List of strings/regex controlling to which outgoing requests
   /// the SDK will attach tracing headers.
-  /// 
+  ///
   /// By default the SDK will attach those headers to all outgoing
   /// requests. If this option is provided, the SDK will match the
   /// request URL of outgoing requests against the items in this

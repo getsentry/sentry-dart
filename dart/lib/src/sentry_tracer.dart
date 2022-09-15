@@ -301,7 +301,7 @@ class SentryTracer extends ISentrySpan {
       userId: null, // because of PII not sending it for now
       userSegment: user?.segment,
       transaction:
-          !_isHighQualityTransactionName(transactionNameSource) ? name : null,
+          _isHighQualityTransactionName(transactionNameSource) ? name : null,
       sampleRate: _sampleRateToString(_rootSpan.samplingDecision?.sampleRate),
     );
 
@@ -309,23 +309,16 @@ class SentryTracer extends ISentrySpan {
   }
 
   String? _sampleRateToString(double? sampleRate) {
-    if (!_isValidRate(sampleRate)) {
+    if (!isValidSampleRate(sampleRate)) {
       return null;
     }
-    // TODO: check format #.################
-    return sampleRate!.toString();
-  }
 
-  bool _isValidRate(double? sampleRate) {
-    if (sampleRate == null) {
-      return false;
-    }
-    // TODO: extract to a method, options also do it
-    return !sampleRate.isNaN && sampleRate >= 0.0 && sampleRate <= 1.0;
+    // TODO: requires decimal package
+    return sampleRate!.toStringAsFixed(20);
   }
 
   bool _isHighQualityTransactionName(SentryTransactionNameSource source) {
-    return source == SentryTransactionNameSource.url;
+    return source != SentryTransactionNameSource.url;
   }
 
   @override

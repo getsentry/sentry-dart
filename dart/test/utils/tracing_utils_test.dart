@@ -9,7 +9,7 @@ void main() {
   group('$containsTracePropagationTarget', () {
     final origins = ['localhost', '^(http|https)://api\\..*\$'];
 
-    test('origins contain the url when it contains one of the defined origins',
+    test('origins contains the url when it contains one of the defined origins',
         () {
       expect(
           containsTracePropagationTarget(origins, 'http://localhost:8080/foo'),
@@ -83,6 +83,32 @@ void main() {
       addBaggageHeader(sut, headers);
 
       expect(headers[baggage.name], newValue);
+    });
+  });
+
+  group('$isValidSampleRate', () {
+    test('returns false if null sampleRate', () {
+      expect(isValidSampleRate(null), false);
+    });
+
+    test('returns true if 1', () {
+      expect(isValidSampleRate(1.0), true);
+    });
+
+    test('returns true if 0', () {
+      expect(isValidSampleRate(0.0), true);
+    });
+
+    test('returns false if below the range', () {
+      expect(isValidSampleRate(-0.01), false);
+    });
+
+    test('returns false if above the range', () {
+      expect(isValidSampleRate(1.01), false);
+    });
+
+    test('returns false if NaN', () {
+      expect(isValidSampleRate(double.nan), false);
     });
   });
 }
