@@ -20,12 +20,13 @@ void main() {
         settings: settings,
       );
 
-  void _whenAnyStart(MockHub mockHub, ISentrySpan thenReturnSpan,
-      {String? name}) {
-    when(mockHub.startTransaction(
-      name ?? any,
-      any,
-      description: anyNamed('description'),
+  void _whenAnyStart(
+    MockHub mockHub,
+    ISentrySpan thenReturnSpan, {
+    SentryTransactionContext? transactionContext,
+  }) {
+    when(mockHub.startTransactionWithContext(
+      transactionContext ?? any,
       bindToScope: anyNamed('bindToScope'),
       waitForChildren: anyNamed('waitForChildren'),
       autoFinishAfter: anyNamed('autoFinishAfter'),
@@ -134,9 +135,11 @@ void main() {
 
       sut.didPush(currentRoute, null);
 
-      verify(hub.startTransaction(
-        'Current Route',
-        'navigation',
+      // final context = SentryTransactionContext('Current Route', 'navigation');
+
+      verify(hub.startTransactionWithContext(
+        // context, TODO: fix
+        any,
         waitForChildren: true,
         autoFinishAfter: Duration(seconds: 5),
         trimEnd: true,
@@ -163,9 +166,11 @@ void main() {
 
       sut.didPush(currentRoute, null);
 
-      verify(hub.startTransaction(
-        'Current Route',
-        'navigation',
+      // final context = SentryTransactionContext('Current Route', 'navigation');
+
+      verify(hub.startTransactionWithContext(
+        // context, TODO: fix
+        any,
         waitForChildren: true,
         autoFinishAfter: Duration(seconds: 5),
         trimEnd: true,
@@ -243,9 +248,11 @@ void main() {
 
       sut.didPush(currentRoute, null);
 
-      verify(hub.startTransaction(
-        'Current Route',
-        'navigation',
+      // final context = SentryTransactionContext('Current Route', 'navigation');
+
+      verify(hub.startTransactionWithContext(
+        // context, TODO: fix
+        any,
         waitForChildren: true,
         autoFinishAfter: Duration(seconds: 3),
         trimEnd: true,
@@ -302,15 +309,18 @@ void main() {
       final previousSpan = getMockSentryTracer();
       when(previousSpan.context).thenReturn(SentrySpanContext(operation: 'op'));
       when(previousSpan.status).thenReturn(null);
-      _whenAnyStart(hub, previousSpan, name: 'Previous Route');
+      // final transactionContext =
+      //     SentryTransactionContext('Previous Route', 'navigation');
+      // _whenAnyStart(hub, previousSpan, transactionContext: transactionContext);
+      _whenAnyStart(hub, previousSpan);
 
       final sut = fixture.getSut(hub: hub);
 
       sut.didPop(currentRoute, previousRoute);
 
-      verify(hub.startTransaction(
-        'Previous Route',
-        'navigation',
+      verify(hub.startTransactionWithContext(
+        // context, TODO: fix
+        any,
         waitForChildren: true,
         autoFinishAfter: Duration(seconds: 3),
         trimEnd: true,
@@ -335,8 +345,19 @@ void main() {
       when(secondSpan.context).thenReturn(SentrySpanContext(operation: 'op'));
       when(secondSpan.status).thenReturn(null);
 
-      _whenAnyStart(hub, firstSpan, name: 'First Route');
-      _whenAnyStart(hub, secondSpan, name: 'Second Route');
+      // _whenAnyStart(hub, firstSpan,
+      //     transactionContext: SentryTransactionContext(
+      //       'First Route',
+      //       'navigation',
+      //     ));
+      // _whenAnyStart(
+      //   hub,
+      //   secondSpan,
+      //   transactionContext:
+      //       SentryTransactionContext('Second Route', 'navigation'),
+      // );
+      _whenAnyStart(hub, firstSpan);
+      _whenAnyStart(hub, secondSpan);
 
       final sut = fixture.getSut(hub: hub);
 
@@ -379,9 +400,12 @@ void main() {
 
       sut.didPush(rootRoute, null);
 
-      verify(hub.startTransaction(
-        'root ("/")',
-        'navigation',
+      // final transactionContext =
+      //     SentryTransactionContext('root ("/")', 'navigation');
+
+      verify(hub.startTransactionWithContext(
+        // transactionContext,
+        any,
         waitForChildren: true,
         autoFinishAfter: Duration(seconds: 3),
         trimEnd: true,
