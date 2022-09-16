@@ -33,6 +33,7 @@ void main() {
       trimEnd: anyNamed('trimEnd'),
       onFinish: anyNamed('onFinish'),
       customSamplingContext: anyNamed('customSamplingContext'),
+      startTimestamp: anyNamed('startTimestamp'),
     )).thenReturn(thenReturnSpan);
   }
 
@@ -788,6 +789,8 @@ class _MockHub extends MockHub {
 
 ISentrySpan getMockSentryTracer() {
   final tracer = MockSentryTracer();
-  when(tracer.name).thenReturn('name');
+  // when(tracer.name).thenReturn('name');
+  // when(tracer.samplingDecision)
+  //     .thenReturn(SentryTracesSamplingDecision(true, sampleRate: 1.0));
   return tracer;
 }

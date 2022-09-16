@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:meta/meta.dart';
 
 import 'event_processor.dart';
+import 'sentry_trace_context_header.dart';
 import 'sentry_user_feedback.dart';
 import 'transport/rate_limiter.dart';
 import 'protocol.dart';
@@ -283,6 +284,7 @@ class SentryClient {
   Future<SentryId> captureTransaction(
     SentryTransaction transaction, {
     Scope? scope,
+    SentryTraceContextHeader? traceContext,
   }) async {
     SentryTransaction? preparedTransaction =
         _prepareEvent(transaction) as SentryTransaction;
@@ -316,7 +318,7 @@ class SentryClient {
     final envelope = SentryEnvelope.fromTransaction(
       preparedTransaction,
       _options.sdk,
-      traceContext: scope?.span?.traceContext(),
+      traceContext: traceContext,
       attachments: attachments,
     );
     final id = await captureEnvelope(envelope);

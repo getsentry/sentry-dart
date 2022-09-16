@@ -80,10 +80,8 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
   }
 
   @override
-  Future<SentryId> captureTransaction(
-    SentryTransaction transaction, {
-    Scope? scope,
-  }) async {
+  Future<SentryId> captureTransaction(SentryTransaction transaction,
+      {Scope? scope, SentryTraceContextHeader? traceContext}) async {
     captureTransactionCalls.add(CaptureTransactionCall(transaction));
     return transaction.eventId;
   }

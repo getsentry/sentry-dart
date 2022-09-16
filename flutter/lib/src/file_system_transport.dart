@@ -1,6 +1,6 @@
 // backcompatibility for Flutter < 3.3
 // ignore: unnecessary_import
-import 'dart:typed_data';
+import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:sentry/sentry.dart';
@@ -16,6 +16,8 @@ class FileSystemTransport implements Transport {
     final envelopeData = <int>[];
     await envelope.envelopeStream(_options).forEach(envelopeData.addAll);
     // https://flutter.dev/docs/development/platform-integration/platform-channels#codec
+    final str = utf8.decode(envelopeData);
+    print(str);
     final args = [Uint8List.fromList(envelopeData)];
     try {
       await _channel.invokeMethod<void>('captureEnvelope', args);

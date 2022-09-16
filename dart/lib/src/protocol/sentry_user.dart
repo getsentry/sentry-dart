@@ -41,7 +41,8 @@ class SentryUser {
   })  : assert(id != null ||
             username != null ||
             email != null ||
-            ipAddress != null),
+            ipAddress != null ||
+            segment != null),
         extras = extras == null ? null : Map.from(extras);
 
   /// A unique identifier of the user.

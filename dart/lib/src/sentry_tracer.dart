@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
 import 'utils.dart';
 
@@ -117,7 +118,10 @@ class SentryTracer extends ISentrySpan {
 
       final transaction = SentryTransaction(this);
       transaction.measurements.addAll(_measurements);
-      await _hub.captureTransaction(transaction);
+      await _hub.captureTransaction(
+        transaction,
+        traceContext: traceContext(),
+      );
     }
   }
 
@@ -289,11 +293,14 @@ class SentryTracer extends ISentrySpan {
   @override
   SentryTraceContextHeader? traceContext() {
     // TODO: freeze context after 1st envelope or outgoing HTTP request
+    if (_sentryTraceContextHeader != null) {
+      return _sentryTraceContextHeader;
+    }
 
     SentryUser? user;
     _hub.configureScope((scope) => user = scope.user);
 
-    _sentryTraceContextHeader ??= SentryTraceContextHeader(
+    _sentryTraceContextHeader = SentryTraceContextHeader(
       _rootSpan.context.traceId,
       Dsn.parse(_hub.options.dsn!).publicKey,
       release: _hub.options.release,
@@ -312,9 +319,9 @@ class SentryTracer extends ISentrySpan {
     if (!isValidSampleRate(sampleRate)) {
       return null;
     }
-
-    // TODO: requires decimal package
-    return sampleRate!.toStringAsFixed(20);
+    // TODO: requires intl package
+    final formatter = NumberFormat('#.################');
+    return formatter.format(sampleRate);
   }
 
   bool _isHighQualityTransactionName(SentryTransactionNameSource source) {
