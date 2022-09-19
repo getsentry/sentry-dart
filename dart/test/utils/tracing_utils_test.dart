@@ -38,8 +38,8 @@ void main() {
           false);
     });
 
-    test('when no origins are defined, returns true for every url', () {
-      expect(containsTracePropagationTarget([], 'api.foo.com'), isTrue);
+    test('when no origins are defined, returns false for every url', () {
+      expect(containsTracePropagationTarget([], 'api.foo.com'), isFalse);
     });
   });
 

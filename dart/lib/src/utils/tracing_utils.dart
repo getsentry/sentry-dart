@@ -24,7 +24,7 @@ void addBaggageHeader(ISentrySpan span, Map<String, dynamic> headers) {
 bool containsTracePropagationTarget(
     List<String> tracePropagationTargets, String url) {
   if (tracePropagationTargets.isEmpty) {
-    return true;
+    return false;
   }
   for (final target in tracePropagationTargets) {
     final regExp = RegExp(target, caseSensitive: false);
