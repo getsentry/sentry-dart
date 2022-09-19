@@ -99,7 +99,6 @@ void main() {
 
       expect(capturedEvent.event.transaction, 'test');
       expect(capturedEvent.event.contexts.trace, isNotNull);
-      // expect(capturedEvent.event.contexts.trace!.sampled, isTrue);
     });
 
     test('capture exception should assign trace context', () async {

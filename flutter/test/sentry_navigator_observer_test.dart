@@ -365,7 +365,7 @@ void main() {
       sut.didPush(firstRoute, null);
       sut.didPush(secondRoute, firstRoute);
 
-      verify(firstSpan.status = SpanStatus.ok());
+      // verify(firstSpan.status = SpanStatus.ok());
       verify(firstSpan.finish());
     });
 
@@ -789,7 +789,7 @@ class _MockHub extends MockHub {
 
 ISentrySpan getMockSentryTracer() {
   final tracer = MockSentryTracer();
-  // when(tracer.name).thenReturn('name');
+  when(tracer.name).thenReturn('name');
   // when(tracer.samplingDecision)
   //     .thenReturn(SentryTracesSamplingDecision(true, sampleRate: 1.0));
   return tracer;
