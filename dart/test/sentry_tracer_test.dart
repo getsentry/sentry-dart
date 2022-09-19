@@ -425,7 +425,7 @@ void main() {
       expect(newBaggage.get('sentry-environment'), 'environment');
       expect(newBaggage.get('sentry-user_segment'), 'segment');
       expect(newBaggage.get('sentry-transaction'), 'name');
-      expect(newBaggage.get('sentry-sample_rate'), '1.0');
+      expect(newBaggage.get('sentry-sample_rate'), '1');
     });
 
     test('skip transaction name if low cardinality', () {
