@@ -210,15 +210,21 @@ class SentryTracer extends ISentrySpan {
         operation: operation,
         description: description);
 
-    final child = SentrySpan(this, context, _hub,
-        samplingDecision: _rootSpan.samplingDecision,
-        startTimestamp: startTimestamp,
-        finishedCallback: ({DateTime? endTimestamp}) {
-      final finishStatus = _finishStatus;
-      if (finishStatus.finishing) {
-        finish(status: finishStatus.status, endTimestamp: endTimestamp);
-      }
-    });
+    final child = SentrySpan(
+      this,
+      context,
+      _hub,
+      samplingDecision: _rootSpan.samplingDecision,
+      startTimestamp: startTimestamp,
+      finishedCallback: ({
+        DateTime? endTimestamp,
+      }) {
+        final finishStatus = _finishStatus;
+        if (finishStatus.finishing) {
+          finish(status: finishStatus.status, endTimestamp: endTimestamp);
+        }
+      },
+    );
 
     _children.add(child);
 

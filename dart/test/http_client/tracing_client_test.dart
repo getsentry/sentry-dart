@@ -135,7 +135,7 @@ void main() {
       expect(response.request!.headers[sentryTrace.name], sentryTrace.value);
     });
 
-    test('captured span do not headers if origins set', () async {
+    test('captured span do not add headers if origins not set', () async {
       final sut = fixture.getSut(
         client: fixture.getClient(
           statusCode: 200,
@@ -197,6 +197,7 @@ class Fixture {
     List<String>? tracePropagationTargets,
   }) {
     if (tracePropagationTargets != null) {
+      _hub.options.tracePropagationTargets.clear();
       _hub.options.tracePropagationTargets.addAll(tracePropagationTargets);
     }
     final mc = client ?? getClient();

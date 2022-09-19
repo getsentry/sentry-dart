@@ -8,12 +8,13 @@ void main() {
   final fixture = Fixture();
 
   SentryTracer _createTracer({
-    bool? sampled,
+    bool? sampled = true,
   }) {
     final context = SentryTransactionContext(
       'name',
       'op',
       samplingDecision: SentryTracesSamplingDecision(sampled!),
+      transactionNameSource: SentryTransactionNameSource.component,
     );
     return SentryTracer(context, MockHub());
   }
@@ -30,6 +31,7 @@ void main() {
     expect(map['type'], 'transaction');
     expect(map['start_timestamp'], isNotNull);
     expect(map['spans'], isNotNull);
+    expect(map['transaction_info']['source'], 'component');
   });
 
   test('returns finished if it is', () async {
@@ -42,16 +44,6 @@ void main() {
 
     expect(sut.finished, true);
   });
-
-  // test('returns false for finished if not', () {
-  //   final tracer = _createTracer();
-  //   final child = tracer.startChild('child');
-  //   child.finish();
-
-  //   final sut = fixture.getSut(tracer);
-
-  //   expect(sut.finished, false);
-  // });
 
   test('returns sampled if theres context', () async {
     final tracer = _createTracer(sampled: true);

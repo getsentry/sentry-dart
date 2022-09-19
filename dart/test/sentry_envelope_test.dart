@@ -27,7 +27,15 @@ void main() {
 
       final item = SentryEnvelopeItem(itemHeader, dataFactory);
 
-      final header = SentryEnvelopeHeader(eventId, null);
+      final context = SentryTraceContextHeader.fromJson(<String, dynamic>{
+        'trace_id': '${SentryId.newId()}',
+        'public_key': '123',
+      });
+      final header = SentryEnvelopeHeader(
+        eventId,
+        null,
+        traceContext: context,
+      );
       final sut = SentryEnvelope(header, [item, item]);
 
       final expectedHeaderJson = header.toJson();
@@ -52,12 +60,21 @@ void main() {
       final sentryEvent = SentryEvent(eventId: eventId);
       final sdkVersion =
           SdkVersion(name: 'fixture-name', version: 'fixture-version');
-      final sut = SentryEnvelope.fromEvent(sentryEvent, sdkVersion);
+      final context = SentryTraceContextHeader.fromJson(<String, dynamic>{
+        'trace_id': '${SentryId.newId()}',
+        'public_key': '123',
+      });
+      final sut = SentryEnvelope.fromEvent(
+        sentryEvent,
+        sdkVersion,
+        traceContext: context,
+      );
 
       final expectedEnvelopeItem = SentryEnvelopeItem.fromEvent(sentryEvent);
 
       expect(sut.header.eventId, eventId);
       expect(sut.header.sdkVersion, sdkVersion);
+      expect(sut.header.traceContext, context);
       expect(sut.items[0].header.contentType,
           expectedEnvelopeItem.header.contentType);
       expect(sut.items[0].header.type, expectedEnvelopeItem.header.type);
@@ -81,12 +98,21 @@ void main() {
 
       final sdkVersion =
           SdkVersion(name: 'fixture-name', version: 'fixture-version');
-      final sut = SentryEnvelope.fromTransaction(tr, sdkVersion);
+      final traceContext = SentryTraceContextHeader.fromJson(<String, dynamic>{
+        'trace_id': '${SentryId.newId()}',
+        'public_key': '123',
+      });
+      final sut = SentryEnvelope.fromTransaction(
+        tr,
+        sdkVersion,
+        traceContext: traceContext,
+      );
 
       final expectedEnvelopeItem = SentryEnvelopeItem.fromTransaction(tr);
 
       expect(sut.header.eventId, tr.eventId);
       expect(sut.header.sdkVersion, sdkVersion);
+      expect(sut.header.traceContext, traceContext);
       expect(sut.items[0].header.contentType,
           expectedEnvelopeItem.header.contentType);
       expect(sut.items[0].header.type, expectedEnvelopeItem.header.type);

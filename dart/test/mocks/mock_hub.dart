@@ -1,6 +1,8 @@
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
+import '../mocks.dart';
+import 'mock_sentry_client.dart';
 import 'no_such_method_provider.dart';
 
 class MockHub with NoSuchMethodProvider implements Hub {
@@ -10,13 +12,13 @@ class MockHub with NoSuchMethodProvider implements Hub {
   List<AddBreadcrumbCall> addBreadcrumbCalls = [];
   List<SentryClient?> bindClientCalls = [];
   List<SentryUserFeedback> userFeedbackCalls = [];
-  List<SentryTransaction> captureTransactionCalls = [];
+  List<CaptureTransactionCall> captureTransactionCalls = [];
   int closeCalls = 0;
   bool _isEnabled = true;
   int spanContextCals = 0;
   int getSpanCalls = 0;
 
-  final _options = SentryOptions.empty();
+  final _options = SentryOptions(dsn: fakeDsn);
 
   @override
   @internal
@@ -109,7 +111,8 @@ class MockHub with NoSuchMethodProvider implements Hub {
     SentryTransaction transaction, {
     SentryTraceContextHeader? traceContext,
   }) async {
-    captureTransactionCalls.add(transaction);
+    captureTransactionCalls
+        .add(CaptureTransactionCall(transaction, traceContext));
     return transaction.eventId;
   }
 

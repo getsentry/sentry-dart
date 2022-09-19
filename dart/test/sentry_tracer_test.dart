@@ -22,10 +22,16 @@ void main() {
       expect(sut.name, 'name');
     });
 
-    test('tracer sets sampled', () {
+    test('tracer sets unsampled', () {
       final sut = fixture.getSut(sampled: false);
 
-      expect(sut.samplingDecision?.sampled, false);
+      expect(sut.samplingDecision?.sampled, isFalse);
+    });
+
+    test('tracer sets sampled', () {
+      final sut = fixture.getSut(sampled: true);
+
+      expect(sut.samplingDecision?.sampled, isTrue);
     });
 
     test('tracer finishes with status', () async {
@@ -34,9 +40,19 @@ void main() {
       await sut.finish(status: SpanStatus.aborted());
 
       final tr = fixture.hub.captureTransactionCalls.first;
-      final trace = tr.contexts.trace;
+      final trace = tr.transaction.contexts.trace;
 
       expect(trace?.status.toString(), 'aborted');
+    });
+
+    test('tracer passes the trace context on finish', () async {
+      final sut = fixture.getSut();
+
+      await sut.finish(status: SpanStatus.aborted());
+
+      final tr = fixture.hub.captureTransactionCalls.first;
+
+      expect(tr.traceContext, isNotNull);
     });
 
     test('tracer finishes with end timestamp', () async {
@@ -72,7 +88,7 @@ void main() {
       await sut.finish(status: SpanStatus.aborted());
 
       final tr = fixture.hub.captureTransactionCalls.first;
-      final child = tr.spans.first;
+      final child = tr.transaction.spans.first;
 
       expect(child.status.toString(), 'deadline_exceeded');
     });
@@ -86,7 +102,7 @@ void main() {
 
       final tr = fixture.hub.captureTransactionCalls.first;
 
-      expect(tr.extra?['test'], 'test');
+      expect(tr.transaction.extra?['test'], 'test');
     });
 
     test('tracer removes data to extra', () async {
@@ -99,7 +115,7 @@ void main() {
 
       final tr = fixture.hub.captureTransactionCalls.first;
 
-      expect(tr.extra?['test'], isNull);
+      expect(tr.transaction.extra?['test'], isNull);
     });
 
     test('tracer sets non-string data to extra', () async {
@@ -111,7 +127,7 @@ void main() {
 
       final tr = fixture.hub.captureTransactionCalls.first;
 
-      expect(tr.extra?['test'], {'key': 'value'});
+      expect(tr.transaction.extra?['test'], {'key': 'value'});
     });
 
     test('tracer starts child', () async {
@@ -123,7 +139,7 @@ void main() {
       await sut.finish(status: SpanStatus.aborted());
 
       final tr = fixture.hub.captureTransactionCalls.first;
-      final childSpan = tr.spans.first;
+      final childSpan = tr.transaction.spans.first;
 
       expect(childSpan.context.description, 'desc');
       expect(childSpan.context.operation, 'operation');
@@ -142,11 +158,41 @@ void main() {
       await sut.finish(status: SpanStatus.aborted());
 
       final tr = fixture.hub.captureTransactionCalls.first;
-      final childSpan = tr.spans.first;
+      final childSpan = tr.transaction.spans.first;
 
       expect(childSpan.context.description, 'desc');
       expect(childSpan.context.operation, 'op');
       expect(childSpan.context.parentSpanId.toString(), parentId.toString());
+    });
+
+    test('tracer passes sampled decision to child', () async {
+      final sut = fixture.getSut();
+      final parentId = SpanId.newId();
+      final child = sut.startChildWithParentSpanId(
+        parentId,
+        'op',
+        description: 'desc',
+      );
+      await child.finish();
+
+      await sut.finish(status: SpanStatus.aborted());
+
+      expect(child.samplingDecision?.sampled, isTrue);
+    });
+
+    test('tracer passes unsampled decision to child', () async {
+      final sut = fixture.getSut(sampled: false);
+      final parentId = SpanId.newId();
+      final child = sut.startChildWithParentSpanId(
+        parentId,
+        'op',
+        description: 'desc',
+      );
+      await child.finish();
+
+      await sut.finish(status: SpanStatus.aborted());
+
+      expect(child.samplingDecision?.sampled, isFalse);
     });
 
     test('toSentryTrace returns trace header', () {
@@ -391,6 +437,16 @@ void main() {
       expect(newBaggage.get('sentry-transaction'), isNull);
     });
 
+    test('sets transactionNameSource to source if not given', () {
+      final _context = SentryTransactionContext(
+        'name',
+        'op',
+      );
+
+      final tracer = SentryTracer(_context, _hub);
+      expect(tracer.transactionNameSource, SentryTransactionNameSource.custom);
+    });
+
     test('formats the sample rate correctly', () {
       final sut = getSut(
           samplingDecision: SentryTracesSamplingDecision(
@@ -401,6 +457,57 @@ void main() {
 
       final newBaggage = SentryBaggage.fromHeader(baggage!.value);
       expect(newBaggage.get('sentry-sample_rate'), '0.00000021');
+    });
+  });
+
+  group('$SentryTraceContextHeader', () {
+    final _options = SentryOptions(dsn: fakeDsn)
+      ..release = 'release'
+      ..environment = 'environment';
+
+    late Hub _hub;
+
+    final _client = MockSentryClient();
+
+    final _user = SentryUser(
+      id: 'id',
+      segment: 'segment',
+    );
+
+    setUp(() async {
+      _hub = Hub(_options);
+      _hub.configureScope((scope) => scope.setUser(_user));
+
+      _hub.bindClient(_client);
+    });
+
+    SentryTracer getSut({SentryTracesSamplingDecision? samplingDecision}) {
+      final decision = samplingDecision ??
+          SentryTracesSamplingDecision(
+            true,
+            sampleRate: 1.0,
+          );
+      final _context = SentryTransactionContext(
+        'name',
+        'op',
+        transactionNameSource: SentryTransactionNameSource.custom,
+        samplingDecision: decision,
+      );
+
+      return SentryTracer(_context, _hub);
+    }
+
+    test('returns trace context header', () {
+      final sut = getSut();
+      final context = sut.traceContext();
+
+      expect(context!.traceId, sut.context.traceId);
+      expect(context.publicKey, 'abc');
+      expect(context.release, 'release');
+      expect(context.environment, 'environment');
+      expect(context.userSegment, 'segment');
+      expect(context.transaction, 'name');
+      expect(context.sampleRate, '1');
     });
   });
 }

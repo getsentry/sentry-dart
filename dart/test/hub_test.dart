@@ -99,6 +99,7 @@ void main() {
 
       expect(capturedEvent.event.transaction, 'test');
       expect(capturedEvent.event.contexts.trace, isNotNull);
+      // expect(capturedEvent.event.contexts.trace!.sampled, isTrue);
     });
 
     test('capture exception should assign trace context', () async {
@@ -112,6 +113,24 @@ void main() {
 
       expect(capturedEvent.event.transaction, 'test');
       expect(capturedEvent.event.contexts.trace, isNotNull);
+    });
+
+    test('capture exception should assign sampled trace context', () async {
+      final hub = fixture.getSut();
+
+      final span = SentrySpan(
+        fixture.tracer,
+        fixture._context,
+        hub,
+        samplingDecision: fixture._context.samplingDecision,
+      );
+      hub.setSpanContext(fakeException, span, 'test');
+
+      await hub.captureException(fakeException);
+      final capturedEvent = fixture.client.captureEventCalls.first;
+
+      expect(capturedEvent.event.contexts.trace, isNotNull);
+      expect(capturedEvent.event.contexts.trace!.sampled, isTrue);
     });
 
     test('Expando does not throw when exception type is not supported',
@@ -322,6 +341,22 @@ void main() {
 
       expect(id, tr.eventId);
       expect(fixture.client.captureTransactionCalls.length, 1);
+    });
+
+    test('transaction is captured with traceContext', () async {
+      final hub = fixture.getSut();
+
+      var tr = SentryTransaction(fixture.tracer);
+      final context = SentryTraceContextHeader.fromJson(<String, dynamic>{
+        'trace_id': '${tr.eventId}',
+        'public_key': '123',
+      });
+      final id = await hub.captureTransaction(tr, traceContext: context);
+
+      expect(id, tr.eventId);
+      expect(fixture.client.captureTransactionCalls.length, 1);
+      expect(
+          fixture.client.captureTransactionCalls.first.traceContext, context);
     });
   });
 

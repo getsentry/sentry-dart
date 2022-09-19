@@ -16,11 +16,20 @@ void main() {
         name: 'fixture-sdkName',
         version: 'fixture-version',
       );
-      final sut = SentryEnvelopeHeader(eventId, sdkVersion);
+      final context = SentryTraceContextHeader.fromJson(<String, dynamic>{
+        'trace_id': '${SentryId.newId()}',
+        'public_key': '123',
+      });
+      final sut = SentryEnvelopeHeader(
+        eventId,
+        sdkVersion,
+        traceContext: context,
+      );
       final expextedSkd = sdkVersion.toJson();
       final expected = <String, dynamic>{
         'event_id': eventId.toString(),
-        'sdk': expextedSkd
+        'sdk': expextedSkd,
+        'trace': context.toJson(),
       };
       expect(sut.toJson(), expected);
     });
