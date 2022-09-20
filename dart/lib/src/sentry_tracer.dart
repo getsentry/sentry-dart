@@ -325,7 +325,7 @@ class SentryTracer extends ISentrySpan {
     if (!isValidSampleRate(sampleRate)) {
       return null;
     }
-    // TODO: requires intl package
+    // requires intl package
     final formatter = NumberFormat('#.################');
     return formatter.format(sampleRate);
   }
