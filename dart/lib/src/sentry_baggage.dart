@@ -55,10 +55,7 @@ class SentryBaggage {
   }
 
   factory SentryBaggage.fromHeader(String headerValue) {
-    final keyValues = <String, String>{};
-
-    final keyValuesToAdd = _extractKeyValuesFromBaggageString(headerValue);
-    keyValues.addAll(keyValuesToAdd);
+    final keyValues = _extractKeyValuesFromBaggageString(headerValue);
 
     return SentryBaggage(keyValues);
   }
@@ -141,4 +138,6 @@ class SentryBaggage {
 
     return double.tryParse(sampleRate);
   }
+
+  Map<String, String> get keyValues => Map.unmodifiable(_keyValues);
 }

@@ -84,6 +84,21 @@ void main() {
 
       expect(headers[baggage.name], newValue);
     });
+
+    test('overwrites duplicate key values', () {
+      final headers = <String, String>{};
+      final oldValue =
+          'other-vendor-value=foo,sentry-trace_id=${SentryId.newId()},sentry-public_key=oldPublicKey,sentry-release=oldRelease,sentry-environment=oldEnvironment,sentry-user_id=oldUserId,sentry-user_segment=oldUserSegment,sentry-transaction=oldTransaction,sentry-sample_rate=0.5';
+
+      headers['baggage'] = oldValue;
+
+      final sut = fixture.getSut();
+      final baggage = sut.toBaggageHeader();
+
+      addBaggageHeader(sut, headers);
+
+      expect(headers[baggage!.name], 'other-vendor-value=foo,sentry-trace_id=${sut.context.traceId},sentry-public_key=abc,sentry-release=release,sentry-environment=environment,sentry-user_segment=segment,sentry-transaction=name,sentry-sample_rate=1');
+    });
   });
 
   group('$isValidSampleRate', () {

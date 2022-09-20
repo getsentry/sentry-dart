@@ -1,4 +1,5 @@
 import '../../sentry.dart';
+import '../sentry_baggage.dart';
 
 void addSentryTraceHeader(ISentrySpan span, Map<String, dynamic> headers) {
   final traceHeader = span.toSentryTrace();
@@ -8,16 +9,24 @@ void addSentryTraceHeader(ISentrySpan span, Map<String, dynamic> headers) {
 void addBaggageHeader(ISentrySpan span, Map<String, dynamic> headers) {
   final baggage = span.toBaggageHeader();
   if (baggage != null) {
-    // TODO: overwrite if the sentry key already exists
-    // https://develop.sentry.dev/sdk/performance/dynamic-sampling-context/#baggage
-    var currentValue = headers[baggage.name] as String? ?? '';
+    final currentValue = headers[baggage.name] as String? ?? '';
 
-    if (currentValue.isNotEmpty == true) {
-      currentValue = '$currentValue,';
-    }
-    currentValue = '$currentValue${baggage.value}';
+    final currentBaggage = SentryBaggage.fromHeader(currentValue);
+    final sentryBaggage = SentryBaggage.fromHeader(baggage.value);
 
-    headers[baggage.name] = currentValue;
+    // overwrite sentry's keys https://develop.sentry.dev/sdk/performance/dynamic-sampling-context/#baggage
+    final filteredBaggageHeader = Map.from(currentBaggage.keyValues);
+    filteredBaggageHeader
+        .removeWhere((key, value) => key.startsWith('sentry-'));
+
+    final mergedBaggage = <String, String>{
+      ...filteredBaggageHeader,
+      ...sentryBaggage.keyValues,
+    };
+
+    final newBaggage = SentryBaggage(mergedBaggage);
+
+    headers[baggage.name] = newBaggage.toHeaderString();
   }
 }
 
