@@ -41,7 +41,16 @@ class Sentry {
     final sentryOptions = options ?? SentryOptions();
     await _initDefaultValues(sentryOptions, appRunner);
 
-    await optionsConfiguration(sentryOptions);
+    try {
+      await optionsConfiguration(sentryOptions);
+    } catch (exception, stackTrace) {
+      sentryOptions.logger(
+        SentryLevel.error,
+        'Error in options configuration.',
+        exception: exception,
+        stackTrace: stackTrace,
+      );
+    }
 
     if (sentryOptions.dsn == null) {
       throw ArgumentError('DSN is required.');

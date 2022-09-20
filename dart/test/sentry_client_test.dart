@@ -781,6 +781,21 @@ void main() {
       );
       expect(event.fingerprint!.contains('process'), true);
     });
+
+    test('thrown error is handled', () async {
+      final exception = Exception("before send exception");
+      final beforeSendCallback = (SentryEvent event, {dynamic hint}) {
+        throw exception;
+      };
+
+      final client =
+          fixture.getSut(beforeSend: beforeSendCallback, debug: true);
+
+      await client.captureEvent(fakeEvent);
+
+      expect(fixture.loggedException, exception);
+      expect(fixture.loggedLevel, SentryLevel.error);
+    });
   });
 
   group('EventProcessors', () {
@@ -1235,6 +1250,9 @@ class Fixture {
   late SentryTransactionContext _context;
   late SentryTracer tracer;
 
+  SentryLevel? loggedLevel;
+  Object? loggedException;
+
   SentryClient getSut({
     bool sendDefaultPii = false,
     bool attachStacktrace = true,
@@ -1243,6 +1261,7 @@ class Fixture {
     BeforeSendCallback? beforeSend,
     EventProcessor? eventProcessor,
     bool provideMockRecorder = true,
+    bool debug = false,
   }) {
     final hub = Hub(options);
     _context = SentryTransactionContext(
@@ -1257,6 +1276,8 @@ class Fixture {
     options.attachThreads = attachThreads;
     options.sampleRate = sampleRate;
     options.beforeSend = beforeSend;
+    options.debug = debug;
+    options.logger = mockLogger;
 
     if (eventProcessor != null) {
       options.addEventProcessor(eventProcessor);
@@ -1273,5 +1294,16 @@ class Fixture {
   FutureOr<SentryEvent?> droppingBeforeSend(SentryEvent event,
       {dynamic hint}) async {
     return null;
+  }
+
+  void mockLogger(
+    SentryLevel level,
+    String message, {
+    String? logger,
+    Object? exception,
+    StackTrace? stackTrace,
+  }) {
+    loggedLevel = level;
+    loggedException = exception;
   }
 }

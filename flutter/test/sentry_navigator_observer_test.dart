@@ -702,6 +702,28 @@ void main() {
         ).data,
       );
     });
+
+    test('route name as transaction with routeNameExtractor', () {
+      final hub = _MockHub();
+      _whenAnyStart(hub, NoOpSentrySpan());
+      final observer = fixture.getSut(
+          hub: hub,
+          setRouteNameAsTransaction: true,
+          routeNameExtractor: (settings) =>
+              settings?.copyWith(name: '${settings.name}_test'));
+
+      final to = routeSettings('to');
+      final previous = routeSettings('previous');
+
+      observer.didPush(route(to), route(previous));
+      expect(hub.scope.transaction, 'to_test');
+
+      observer.didPop(route(to), route(previous));
+      expect(hub.scope.transaction, 'previous_test');
+
+      observer.didReplace(newRoute: route(to), oldRoute: route(previous));
+      expect(hub.scope.transaction, 'to_test');
+    });
   });
 }
 

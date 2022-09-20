@@ -332,4 +332,42 @@ void main() {
 
     expect(sentryOptions.logger == dartLogger, false);
   });
+
+  group("Sentry init optionsConfiguration", () {
+    final fixture = Fixture();
+
+    test('throw is handled and logged', () async {
+      final sentryOptions = SentryOptions(dsn: fakeDsn)
+        ..debug = true
+        ..logger = fixture.mockLogger;
+
+      final exception = Exception("Exception in options callback");
+      await Sentry.init((options) async {
+        throw exception;
+      }, options: sentryOptions);
+
+      expect(fixture.loggedException, exception);
+      expect(fixture.loggedLevel, SentryLevel.error);
+    });
+  });
+}
+
+class Fixture {
+  bool logged = false;
+  SentryLevel? loggedLevel;
+  Object? loggedException;
+
+  void mockLogger(
+    SentryLevel level,
+    String message, {
+    String? logger,
+    Object? exception,
+    StackTrace? stackTrace,
+  }) {
+    if (!logged) {
+      logged = true; // Block multiple calls which override expected values.
+      loggedLevel = level;
+      loggedException = exception;
+    }
+  }
 }

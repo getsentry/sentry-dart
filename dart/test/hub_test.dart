@@ -431,6 +431,59 @@ void main() {
     });
   });
 
+  group('Hub scope callback', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('captureEvent should handle thrown error in scope callback', () async {
+      final hub = fixture.getSut(debug: true);
+      final scopeCallbackException = Exception('error in scope callback');
+
+      ScopeCallback scopeCallback = (Scope scope) {
+        throw scopeCallbackException;
+      };
+
+      await hub.captureEvent(fakeEvent, withScope: scopeCallback);
+
+      expect(fixture.loggedException, scopeCallbackException);
+      expect(fixture.loggedLevel, SentryLevel.error);
+    });
+
+    test('captureException should handle thrown error in scope callback',
+        () async {
+      final hub = fixture.getSut(debug: true);
+      final scopeCallbackException = Exception('error in scope callback');
+
+      ScopeCallback scopeCallback = (Scope scope) {
+        throw scopeCallbackException;
+      };
+
+      final exception = Exception("captured exception");
+      await hub.captureException(exception, withScope: scopeCallback);
+
+      expect(fixture.loggedException, scopeCallbackException);
+      expect(fixture.loggedLevel, SentryLevel.error);
+    });
+
+    test('captureMessage should handle thrown error in scope callback',
+        () async {
+      final hub = fixture.getSut(debug: true);
+      final scopeCallbackException = Exception('error in scope callback');
+
+      ScopeCallback scopeCallback = (Scope scope) {
+        throw scopeCallbackException;
+      };
+
+      await hub.captureMessage("captured message", withScope: scopeCallback);
+
+      expect(fixture.loggedException, scopeCallbackException);
+      expect(fixture.loggedLevel, SentryLevel.error);
+    });
+  });
+
   group('Hub Client', () {
     late Hub hub;
     late SentryClient client;
@@ -555,13 +608,20 @@ class Fixture {
   late SentryTransactionContext _context;
   late SentryTracer tracer;
 
+  SentryLevel? loggedLevel;
+  Object? loggedException;
+
   Hub getSut({
     double? tracesSampleRate = 1.0,
     TracesSamplerCallback? tracesSampler,
     bool? sampled = true,
+    bool debug = false,
   }) {
     options.tracesSampleRate = tracesSampleRate;
     options.tracesSampler = tracesSampler;
+    options.debug = debug;
+    options.logger = mockLogger; // Enable logging in DiagnosticsLogger
+
     final hub = Hub(options);
 
     _context = SentryTransactionContext(
@@ -576,5 +636,16 @@ class Fixture {
     options.recorder = recorder;
 
     return hub;
+  }
+
+  void mockLogger(
+    SentryLevel level,
+    String message, {
+    String? logger,
+    Object? exception,
+    StackTrace? stackTrace,
+  }) {
+    loggedLevel = level;
+    loggedException = exception;
   }
 }
