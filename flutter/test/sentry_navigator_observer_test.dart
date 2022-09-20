@@ -20,13 +20,9 @@ void main() {
         settings: settings,
       );
 
-  void _whenAnyStart(
-    MockHub mockHub,
-    ISentrySpan thenReturnSpan, {
-    SentryTransactionContext? transactionContext,
-  }) {
+  void _whenAnyStart(MockHub mockHub, ISentrySpan thenReturnSpan) {
     when(mockHub.startTransactionWithContext(
-      transactionContext ?? any,
+      any,
       bindToScope: anyNamed('bindToScope'),
       waitForChildren: anyNamed('waitForChildren'),
       autoFinishAfter: anyNamed('autoFinishAfter'),
@@ -120,13 +116,15 @@ void main() {
     });
   });
 
-  group('RouteObserverTransaction', () {
+  group('$SentryNavigatorObserver', () {
     test('didPush starts transaction', () {
-      final currentRoute = route(RouteSettings(name: 'Current Route'));
+      const name = 'Current Route';
+      final currentRoute = route(RouteSettings(name: name));
 
+      const op = 'navigation';
       final hub = _MockHub();
-      final span = getMockSentryTracer();
-      when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
+      final span = getMockSentryTracer(name: name);
+      when(span.context).thenReturn(SentrySpanContext(operation: op));
       _whenAnyStart(hub, span);
 
       final sut = fixture.getSut(
@@ -136,18 +134,18 @@ void main() {
 
       sut.didPush(currentRoute, null);
 
-      // final context = SentryTransactionContext('Current Route', 'navigation');
-
-      verify(hub.startTransactionWithContext(
-        // context, TODO: fix
-        any,
+      final context = verify(hub.startTransactionWithContext(
+        captureAny,
         waitForChildren: true,
-        autoFinishAfter: Duration(seconds: 5),
+        autoFinishAfter: anyNamed('autoFinishAfter'),
         trimEnd: true,
         onFinish: anyNamed('onFinish'),
-      ));
+      )).captured.single as SentryTransactionContext;
+
+      expect(context.name, name);
 
       hub.configureScope((scope) {
+        expect(scope.span?.context.operation, op);
         expect(scope.span, span);
       });
     });
@@ -167,10 +165,7 @@ void main() {
 
       sut.didPush(currentRoute, null);
 
-      // final context = SentryTransactionContext('Current Route', 'navigation');
-
       verify(hub.startTransactionWithContext(
-        // context, TODO: fix
         any,
         waitForChildren: true,
         autoFinishAfter: Duration(seconds: 5),
@@ -180,6 +175,7 @@ void main() {
 
       hub.configureScope((scope) {
         expect(scope.span, null);
+        expect(scope.transaction, null);
       });
     });
 
@@ -195,11 +191,10 @@ void main() {
 
       sut.didPush(currentRoute, null);
 
-      verifyNever(hub.startTransaction(
-        'Current Route',
-        'navigation',
+      verifyNever(hub.startTransactionWithContext(
+        any,
         waitForChildren: true,
-        autoFinishAfter: Duration(seconds: 3),
+        autoFinishAfter: anyNamed('autoFinishAfter'),
         trimEnd: true,
         onFinish: anyNamed('onFinish'),
       ));
@@ -221,11 +216,10 @@ void main() {
 
       sut.didPush(currentRoute, null);
 
-      verifyNever(hub.startTransaction(
-        'Current Route',
-        'navigation',
+      verifyNever(hub.startTransactionWithContext(
+        any,
         waitForChildren: true,
-        autoFinishAfter: Duration(seconds: 3),
+        autoFinishAfter: anyNamed('autoFinishAfter'),
         trimEnd: true,
         onFinish: anyNamed('onFinish'),
       ));
@@ -249,13 +243,10 @@ void main() {
 
       sut.didPush(currentRoute, null);
 
-      // final context = SentryTransactionContext('Current Route', 'navigation');
-
       verify(hub.startTransactionWithContext(
-        // context, TODO: fix
         any,
         waitForChildren: true,
-        autoFinishAfter: Duration(seconds: 3),
+        autoFinishAfter: anyNamed('autoFinishAfter'),
         trimEnd: true,
         onFinish: anyNamed('onFinish'),
       ));
@@ -310,9 +301,7 @@ void main() {
       final previousSpan = getMockSentryTracer();
       when(previousSpan.context).thenReturn(SentrySpanContext(operation: 'op'));
       when(previousSpan.status).thenReturn(null);
-      // final transactionContext =
-      //     SentryTransactionContext('Previous Route', 'navigation');
-      // _whenAnyStart(hub, previousSpan, transactionContext: transactionContext);
+
       _whenAnyStart(hub, previousSpan);
 
       final sut = fixture.getSut(hub: hub);
@@ -320,10 +309,9 @@ void main() {
       sut.didPop(currentRoute, previousRoute);
 
       verify(hub.startTransactionWithContext(
-        // context, TODO: fix
         any,
         waitForChildren: true,
-        autoFinishAfter: Duration(seconds: 3),
+        autoFinishAfter: anyNamed('autoFinishAfter'),
         trimEnd: true,
         onFinish: anyNamed('onFinish'),
       ));
@@ -331,42 +319,6 @@ void main() {
       hub.configureScope((scope) {
         expect(scope.span, previousSpan);
       });
-    });
-
-    test('didPush push multiple finishes previous', () async {
-      final firstRoute = route(RouteSettings(name: 'First Route'));
-      final secondRoute = route(RouteSettings(name: 'Second Route'));
-
-      final hub = _MockHub();
-      final firstSpan = getMockSentryTracer();
-      when(firstSpan.context).thenReturn(SentrySpanContext(operation: 'op'));
-      when(firstSpan.status).thenReturn(null);
-
-      final secondSpan = getMockSentryTracer();
-      when(secondSpan.context).thenReturn(SentrySpanContext(operation: 'op'));
-      when(secondSpan.status).thenReturn(null);
-
-      // _whenAnyStart(hub, firstSpan,
-      //     transactionContext: SentryTransactionContext(
-      //       'First Route',
-      //       'navigation',
-      //     ));
-      // _whenAnyStart(
-      //   hub,
-      //   secondSpan,
-      //   transactionContext:
-      //       SentryTransactionContext('Second Route', 'navigation'),
-      // );
-      _whenAnyStart(hub, firstSpan);
-      _whenAnyStart(hub, secondSpan);
-
-      final sut = fixture.getSut(hub: hub);
-
-      sut.didPush(firstRoute, null);
-      sut.didPush(secondRoute, firstRoute);
-
-      // verify(firstSpan.status = SpanStatus.ok());
-      verify(firstSpan.finish());
     });
 
     test('route arguments are set on transaction', () {
@@ -393,7 +345,7 @@ void main() {
       final rootRoute = route(RouteSettings(name: '/'));
 
       final hub = _MockHub();
-      final span = getMockSentryTracer();
+      final span = getMockSentryTracer(name: '/');
       when(span.context).thenReturn(SentrySpanContext(operation: 'op'));
       _whenAnyStart(hub, span);
 
@@ -401,17 +353,15 @@ void main() {
 
       sut.didPush(rootRoute, null);
 
-      // final transactionContext =
-      //     SentryTransactionContext('root ("/")', 'navigation');
-
-      verify(hub.startTransactionWithContext(
-        // transactionContext,
-        any,
+      final context = verify(hub.startTransactionWithContext(
+        captureAny,
         waitForChildren: true,
-        autoFinishAfter: Duration(seconds: 3),
+        autoFinishAfter: anyNamed('autoFinishAfter'),
         trimEnd: true,
         onFinish: anyNamed('onFinish'),
-      ));
+      )).captured.single as SentryTransactionContext;
+
+      expect(context.name, 'root ("/")');
 
       hub.configureScope((scope) {
         expect(scope.span, span);
@@ -787,10 +737,8 @@ class _MockHub extends MockHub {
   }
 }
 
-ISentrySpan getMockSentryTracer() {
+ISentrySpan getMockSentryTracer({String? name}) {
   final tracer = MockSentryTracer();
-  when(tracer.name).thenReturn('name');
-  // when(tracer.samplingDecision)
-  //     .thenReturn(SentryTracesSamplingDecision(true, sampleRate: 1.0));
+  when(tracer.name).thenReturn(name ?? 'name');
   return tracer;
 }

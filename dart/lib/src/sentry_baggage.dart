@@ -88,7 +88,6 @@ class SentryBaggage {
   }
 
   static String _urlDecode(String uri) {
-    // return Uri.decodeFull(uri);
     return Uri.decodeComponent(uri);
   }
 
