@@ -9,9 +9,9 @@
 ### Features
 
 - Prepare future support for iOS and macOS obfuscated app symbolication using dSYM (requires Flutter `master` channel) ([#823](https://github.com/getsentry/sentry-dart/pull/823))
-- Bump Android SDK from v6.3.1 to v6.4.1 ([#989](https://github.com/getsentry/sentry-dart/pull/989))
-  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#641)
-  - [diff](https://github.com/getsentry/sentry-java/compare/6.3.1...6.4.1)
+- Bump Android SDK from v6.3.1 to v6.4.2 ([#989](https://github.com/getsentry/sentry-dart/pull/989), [#1009](https://github.com/getsentry/sentry-dart/pull/1009))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#642)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.3.1...6.4.2)
 - Bump Cocoa SDK from v7.23.0 to v7.25.1 ([#993](https://github.com/getsentry/sentry-dart/pull/993), [#996](https://github.com/getsentry/sentry-dart/pull/996), [#1000](https://github.com/getsentry/sentry-dart/pull/1000), [#1007](https://github.com/getsentry/sentry-dart/pull/1007))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/master/CHANGELOG.md#7251)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.23.0...7.25.1)
