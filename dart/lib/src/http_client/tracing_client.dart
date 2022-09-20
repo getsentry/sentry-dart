@@ -30,7 +30,11 @@ class TracingClient extends BaseClient {
         if (containsTracePropagationTarget(
             _hub.options.tracePropagationTargets, request.url.toString())) {
           addSentryTraceHeader(span, request.headers);
-          addBaggageHeader(span, request.headers);
+          addBaggageHeader(
+            span,
+            request.headers,
+            logger: _hub.options.logger,
+          );
         }
       }
 

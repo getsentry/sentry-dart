@@ -6,13 +6,23 @@ void addSentryTraceHeader(ISentrySpan span, Map<String, dynamic> headers) {
   headers[traceHeader.name] = traceHeader.value;
 }
 
-void addBaggageHeader(ISentrySpan span, Map<String, dynamic> headers) {
+void addBaggageHeader(
+  ISentrySpan span,
+  Map<String, dynamic> headers, {
+  SentryLogger? logger,
+}) {
   final baggage = span.toBaggageHeader();
   if (baggage != null) {
     final currentValue = headers[baggage.name] as String? ?? '';
 
-    final currentBaggage = SentryBaggage.fromHeader(currentValue);
-    final sentryBaggage = SentryBaggage.fromHeader(baggage.value);
+    final currentBaggage = SentryBaggage.fromHeader(
+      currentValue,
+      logger: logger,
+    );
+    final sentryBaggage = SentryBaggage.fromHeader(
+      baggage.value,
+      logger: logger,
+    );
 
     // overwrite sentry's keys https://develop.sentry.dev/sdk/performance/dynamic-sampling-context/#baggage
     final filteredBaggageHeader = Map.from(currentBaggage.keyValues);
@@ -24,7 +34,7 @@ void addBaggageHeader(ISentrySpan span, Map<String, dynamic> headers) {
       ...sentryBaggage.keyValues,
     };
 
-    final newBaggage = SentryBaggage(mergedBaggage);
+    final newBaggage = SentryBaggage(mergedBaggage, logger: logger);
 
     headers[baggage.name] = newBaggage.toHeaderString();
   }

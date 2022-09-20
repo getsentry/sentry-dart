@@ -290,7 +290,7 @@ class SentryTracer extends ISentrySpan {
     final context = traceContext();
 
     if (context != null) {
-      final baggage = context.toBaggage();
+      final baggage = context.toBaggage(logger: _hub.options.logger);
       return SentryBaggageHeader.fromBaggage(baggage);
     }
     return null;

@@ -39,7 +39,12 @@ class TracingClientAdapter extends HttpClientAdapter {
           options.uri.toString(),
         )) {
           addSentryTraceHeader(span, options.headers);
-          addBaggageHeader(span, options.headers);
+          addBaggageHeader(
+            span,
+            options.headers,
+            // ignore: invalid_use_of_internal_member
+            logger: _hub.options.logger,
+          );
         }
       }
 
