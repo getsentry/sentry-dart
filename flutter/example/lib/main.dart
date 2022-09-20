@@ -59,9 +59,9 @@ class _MyAppState extends State<MyApp> {
         create: (_) => ThemeProvider(),
         child: Builder(
           builder: (context) => MaterialApp(
-            // navigatorObservers: [
-            //   SentryNavigatorObserver(),
-            // ],
+            navigatorObservers: [
+              SentryNavigatorObserver(),
+            ],
             theme: Provider.of<ThemeProvider>(context).theme,
             home: const MainScaffold(),
           ),
@@ -113,33 +113,6 @@ class MainScaffold extends StatelessWidget {
         child: Column(
           children: [
             const Center(child: Text('Trigger an action:\n')),
-            ElevatedButton(
-              onPressed: () async {
-                await Sentry.configureScope(
-                    (scope) async => await scope.setUser(
-                          SentryUser(segment: 'segment'),
-                        ));
-
-                final tr = Sentry.startTransaction(
-                  'name',
-                  'op',
-                  bindToScope: true,
-                );
-
-                final client = SentryHttpClient(
-                  networkTracing: true,
-                );
-                final response =
-                    await client.get(Uri.parse('https://flutter.dev/'));
-                print(response);
-
-                await Sentry.captureMessage('test');
-
-                await tr.finish(status: SpanStatus.ok());
-                print('done');
-              },
-              child: const Text('start tr'),
-            ),
             ElevatedButton(
               onPressed: () => SecondaryScaffold.openSecondaryScaffold(context),
               child: const Text('Open another Scaffold'),
