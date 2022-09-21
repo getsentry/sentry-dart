@@ -36,8 +36,8 @@ void main() {
       final enriched = await processor.apply(transaction) as SentryTransaction;
 
       final expected = SentryMeasurement('app_start_cold', 10);
-      expect(enriched.measurements[0].name, expected.name);
-      expect(enriched.measurements[0].value, expected.value);
+      expect(enriched.measurements['app_start_cold'], expected);
+      // expect(enriched.measurements[0].value, expected.value);
     });
 
     test('native app start measurement not added to following transactions',
@@ -69,7 +69,7 @@ void main() {
 
       final tracer = fixture.createTracer();
       final transaction = SentryTransaction(tracer).copyWith();
-      transaction.measurements.add(measurement);
+      transaction.measurements[measurement.name] = measurement;
 
       final processor = fixture.options.eventProcessors.first;
 
@@ -77,7 +77,7 @@ void main() {
       var secondEnriched = await processor.apply(enriched) as SentryTransaction;
 
       expect(secondEnriched.measurements.length, 2);
-      expect(secondEnriched.measurements.contains(measurement), true);
+      expect(secondEnriched.measurements.containsKey(measurement.name), true);
     });
 
     test('native app start measurement not added if more than 60s', () async {
