@@ -37,7 +37,6 @@ void main() {
 
       final expected = SentryMeasurement('app_start_cold', 10);
       expect(enriched.measurements['app_start_cold'], expected);
-      // expect(enriched.measurements[0].value, expected.value);
     });
 
     test('native app start measurement not added to following transactions',
