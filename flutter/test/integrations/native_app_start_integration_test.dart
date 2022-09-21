@@ -35,8 +35,9 @@ void main() {
       final processor = fixture.options.eventProcessors.first;
       final enriched = await processor.apply(transaction) as SentryTransaction;
 
-      final expected = SentryMeasurement('app_start_cold', 10);
-      expect(enriched.measurements['app_start_cold'], expected);
+      final measurement = enriched.measurements['app_start_cold']!;
+      expect(measurement.value, 10);
+      expect(measurement.unit, SentryMeasurementUnit.milliSecond);
     });
 
     test('native app start measurement not added to following transactions',
