@@ -27,6 +27,7 @@ export 'src/http_client/sentry_http_client.dart';
 export 'src/http_client/sentry_http_client_error.dart';
 export 'src/sentry_attachment/sentry_attachment.dart';
 export 'src/sentry_user_feedback.dart';
+export 'src/utils/tracing_utils.dart';
 // tracing
 export 'src/tracing.dart';
 export 'src/sentry_measurement.dart';

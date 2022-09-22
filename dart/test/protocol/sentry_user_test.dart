@@ -9,6 +9,7 @@ void main() {
     email: 'email',
     ipAddress: 'ipAddress',
     extras: {'key': 'value'},
+    segment: 'seg',
   );
 
   final sentryUserJson = <String, dynamic>{
@@ -17,6 +18,7 @@ void main() {
     'email': 'email',
     'ip_address': 'ipAddress',
     'extras': {'key': 'value'},
+    'segment': 'seg',
   };
 
   group('json', () {
@@ -50,6 +52,7 @@ void main() {
       expect(json.containsKey('email'), false);
       expect(json.containsKey('ip_address'), false);
       expect(json.containsKey('extras'), false);
+      expect(json.containsKey('segment'), false);
 
       data = SentryUser(
         ipAddress: 'ip',
@@ -62,6 +65,7 @@ void main() {
       expect(json.containsKey('email'), false);
       expect(json.containsKey('ip_address'), true);
       expect(json.containsKey('extras'), false);
+      expect(json.containsKey('segment'), false);
     });
   });
 
@@ -83,6 +87,7 @@ void main() {
         email: 'email1',
         ipAddress: 'ipAddress1',
         extras: {'key1': 'value1'},
+        segment: 'seg1',
       );
 
       expect('id1', copy.id);
@@ -90,6 +95,7 @@ void main() {
       expect('email1', copy.email);
       expect('ipAddress1', copy.ipAddress);
       expect({'key1': 'value1'}, copy.extras);
+      expect('seg1', copy.segment);
     });
   });
 }

@@ -94,8 +94,14 @@ class HubAdapter implements Hub {
   SentryId get lastEventId => Sentry.lastEventId;
 
   @override
-  Future<SentryId> captureTransaction(SentryTransaction transaction) =>
-      Sentry.currentHub.captureTransaction(transaction);
+  Future<SentryId> captureTransaction(
+    SentryTransaction transaction, {
+    SentryTraceContextHeader? traceContext,
+  }) =>
+      Sentry.currentHub.captureTransaction(
+        transaction,
+        traceContext: traceContext,
+      );
 
   @override
   ISentrySpan? getSpan() => Sentry.currentHub.getSpan();

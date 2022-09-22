@@ -85,4 +85,10 @@ void main() {
             .isNotEmpty,
         true);
   });
+
+  test('SentryOptions has all targets by default', () {
+    final options = SentryOptions.empty();
+
+    expect(options.tracePropagationTargets, ['/.*/']);
+  });
 }

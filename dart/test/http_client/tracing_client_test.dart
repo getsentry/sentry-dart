@@ -112,6 +112,55 @@ void main() {
           span.toSentryTrace().value);
     });
 
+    test('captured span adds baggage header to the request', () async {
+      final sut = fixture.getSut(
+        client: fixture.getClient(statusCode: 200, reason: 'OK'),
+      );
+      final tr = fixture._hub.startTransaction(
+        'name',
+        'op',
+        bindToScope: true,
+      );
+
+      final response = await sut.get(requestUri);
+
+      await tr.finish();
+
+      final tracer = (tr as SentryTracer);
+      final span = tracer.children.first;
+      final baggage = span.toBaggageHeader();
+      final sentryTrace = span.toSentryTrace();
+
+      expect(response.request!.headers[baggage!.name], baggage.value);
+      expect(response.request!.headers[sentryTrace.name], sentryTrace.value);
+    });
+
+    test('captured span do not add headers if origins not set', () async {
+      final sut = fixture.getSut(
+        client: fixture.getClient(
+          statusCode: 200,
+          reason: 'OK',
+        ),
+        tracePropagationTargets: ['nope'],
+      );
+      final tr = fixture._hub.startTransaction(
+        'name',
+        'op',
+        bindToScope: true,
+      );
+
+      final response = await sut.get(requestUri);
+
+      await tr.finish();
+
+      final tracer = (tr as SentryTracer);
+      final span = tracer.children.first;
+      final baggage = span.toBaggageHeader();
+
+      expect(response.request!.headers[baggage!.name], isNull);
+      expect(response.request!.headers[span.toSentryTrace().name], isNull);
+    });
+
     test('do not throw if no span bound to the scope', () async {
       final sut = fixture.getSut(
         client: fixture.getClient(statusCode: 200, reason: 'OK'),
@@ -143,7 +192,14 @@ class Fixture {
     _hub = Hub(_options);
   }
 
-  TracingClient getSut({MockClient? client}) {
+  TracingClient getSut({
+    MockClient? client,
+    List<String>? tracePropagationTargets,
+  }) {
+    if (tracePropagationTargets != null) {
+      _hub.options.tracePropagationTargets.clear();
+      _hub.options.tracePropagationTargets.addAll(tracePropagationTargets);
+    }
     final mc = client ?? getClient();
     return TracingClient(
       client: mc,
