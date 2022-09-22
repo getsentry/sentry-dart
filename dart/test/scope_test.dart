@@ -566,6 +566,16 @@ void main() {
     expect(updatedTr?.level, isNull);
   });
 
+  test('apply sampled to trace', () async {
+    final tracer = SentryTracer(fixture.context, MockHub());
+    var tr = SentryTransaction(tracer);
+    final scope = Scope(SentryOptions(dsn: fakeDsn))..level = SentryLevel.error;
+
+    final updatedTr = await scope.applyToEvent(tr);
+
+    expect(updatedTr?.contexts.trace?.sampled, isTrue);
+  });
+
   test('addBreadcrumb should call scope observers', () async {
     final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
     await sut.addBreadcrumb(Breadcrumb());
@@ -690,6 +700,7 @@ class Fixture {
   final context = SentryTransactionContext(
     'name',
     'op',
+    samplingDecision: SentryTracesSamplingDecision(true),
   );
   final mockScopeObserver = MockScopeObserver();
 

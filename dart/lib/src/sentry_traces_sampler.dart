@@ -14,31 +14,39 @@ class SentryTracesSampler {
     Random? random,
   }) : _random = random ?? Random();
 
-  bool sample(SentrySamplingContext samplingContext) {
-    final sampled = samplingContext.transactionContext.sampled;
-    if (sampled != null) {
-      return sampled;
+  SentryTracesSamplingDecision sample(SentrySamplingContext samplingContext) {
+    final samplingDecision =
+        samplingContext.transactionContext.samplingDecision;
+    if (samplingDecision != null) {
+      return samplingDecision;
     }
 
     final tracesSampler = _options.tracesSampler;
     if (tracesSampler != null) {
       final result = tracesSampler(samplingContext);
       if (result != null) {
-        return _sample(result);
+        return SentryTracesSamplingDecision(
+          _sample(result),
+          sampleRate: result,
+        );
       }
     }
 
-    final parentSampled = samplingContext.transactionContext.parentSampled;
-    if (parentSampled != null) {
-      return parentSampled;
+    final parentSamplingDecision =
+        samplingContext.transactionContext.parentSamplingDecision;
+    if (parentSamplingDecision != null) {
+      return parentSamplingDecision;
     }
 
     final tracesSampleRate = _options.tracesSampleRate;
     if (tracesSampleRate != null) {
-      return _sample(tracesSampleRate);
+      return SentryTracesSamplingDecision(
+        _sample(tracesSampleRate),
+        sampleRate: tracesSampleRate,
+      );
     }
 
-    return false;
+    return SentryTracesSamplingDecision(false);
   }
 
   bool _sample(double result) => !(result < _random.nextDouble());

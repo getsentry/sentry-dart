@@ -403,9 +403,10 @@ class Hub {
           transactionContext, customSamplingContext ?? {});
 
       // if transactionContext has no sampled decision, run the traces sampler
-      if (transactionContext.sampled == null) {
-        final sampled = _tracesSampler.sample(samplingContext);
-        transactionContext = transactionContext.copyWith(sampled: sampled);
+      if (transactionContext.samplingDecision == null) {
+        final samplingDecision = _tracesSampler.sample(samplingContext);
+        transactionContext =
+            transactionContext.copyWith(samplingDecision: samplingDecision);
       }
 
       final tracer = SentryTracer(
@@ -450,7 +451,10 @@ class Hub {
   }
 
   @internal
-  Future<SentryId> captureTransaction(SentryTransaction transaction) async {
+  Future<SentryId> captureTransaction(
+    SentryTransaction transaction, {
+    SentryTraceContextHeader? traceContext,
+  }) async {
     var sentryId = SentryId.empty();
 
     if (!_isEnabled) {
@@ -485,6 +489,7 @@ class Hub {
           sentryId = await item.client.captureTransaction(
             transaction,
             scope: item.scope,
+            traceContext: traceContext,
           );
         } catch (exception, stackTrace) {
           _options.logger(
@@ -516,7 +521,7 @@ class Hub {
         final span = pair.key;
         final spanContext = span.context;
         event.contexts.trace = spanContext.toTraceContext(
-          sampled: span.sampled,
+          sampled: span.samplingDecision?.sampled,
         );
 
         // set transaction name to event.transaction

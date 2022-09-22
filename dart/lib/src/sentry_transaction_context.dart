@@ -1,23 +1,26 @@
 import 'package:meta/meta.dart';
 
 import 'protocol.dart';
+import 'sentry_baggage.dart';
 import 'tracing.dart';
 
 @immutable
 class SentryTransactionContext extends SentrySpanContext {
   final String name;
-  final bool? parentSampled;
-  final bool? sampled;
+  final SentryTracesSamplingDecision? parentSamplingDecision;
+  final SentryTransactionNameSource? transactionNameSource;
+  final SentryTracesSamplingDecision? samplingDecision;
 
   SentryTransactionContext(
     this.name,
     String operation, {
     String? description,
-    this.sampled,
-    this.parentSampled,
+    this.parentSamplingDecision,
     SentryId? traceId,
     SpanId? spanId,
     SpanId? parentSpanId,
+    this.transactionNameSource,
+    this.samplingDecision,
   }) : super(
           operation: operation,
           description: description,
@@ -29,14 +32,24 @@ class SentryTransactionContext extends SentrySpanContext {
   factory SentryTransactionContext.fromSentryTrace(
     String name,
     String operation,
-    SentryTraceHeader traceHeader,
-  ) {
+    SentryTraceHeader traceHeader, {
+    SentryTransactionNameSource? transactionNameSource,
+    SentryBaggage? baggage,
+  }) {
+    final sampleRate = baggage?.getSampleRate();
     return SentryTransactionContext(
       name,
       operation,
       traceId: traceHeader.traceId,
       parentSpanId: traceHeader.spanId,
-      parentSampled: traceHeader.sampled,
+      parentSamplingDecision: traceHeader.sampled != null
+          ? SentryTracesSamplingDecision(
+              traceHeader.sampled!,
+              sampleRate: sampleRate,
+            )
+          : null,
+      transactionNameSource:
+          transactionNameSource ?? SentryTransactionNameSource.custom,
     );
   }
 
@@ -44,20 +57,24 @@ class SentryTransactionContext extends SentrySpanContext {
     String? name,
     String? operation,
     String? description,
-    bool? sampled,
-    bool? parentSampled,
+    SentryTracesSamplingDecision? parentSamplingDecision,
     SentryId? traceId,
     SpanId? spanId,
     SpanId? parentSpanId,
+    SentryTransactionNameSource? transactionNameSource,
+    SentryTracesSamplingDecision? samplingDecision,
   }) =>
       SentryTransactionContext(
         name ?? this.name,
         operation ?? this.operation,
         description: description ?? this.description,
-        sampled: sampled ?? this.sampled,
-        parentSampled: parentSampled ?? this.parentSampled,
+        parentSamplingDecision:
+            parentSamplingDecision ?? this.parentSamplingDecision,
         traceId: traceId ?? this.traceId,
         spanId: spanId ?? this.spanId,
         parentSpanId: parentSpanId ?? this.parentSpanId,
+        transactionNameSource:
+            transactionNameSource ?? this.transactionNameSource,
+        samplingDecision: samplingDecision ?? this.samplingDecision,
       );
 }
