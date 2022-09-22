@@ -312,6 +312,10 @@ void main() {
     sut.addAttachment(SentryAttachment.fromIntList([0, 0, 0, 0], 'test.txt'));
     sut.span = NoOpSentrySpan();
     sut.level = SentryLevel.warning;
+    await sut.setUser(SentryUser(id: 'id'));
+    await sut.setTag('key', 'vakye');
+    await sut.setExtra('key', 'vakye');
+    sut.transaction = 'transaction';
 
     final clone = sut.clone();
     expect(sut.user, clone.user);

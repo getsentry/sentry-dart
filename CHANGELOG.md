@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Scope cloning method was not setting the user ([#1013](https://github.com/getsentry/sentry-dart/pull/1013))
+
 ### Features
 
 - Dynamic sampling ([#1004](https://github.com/getsentry/sentry-dart/pull/1004))
