@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Allow users to set custom measurements ([#1011](https://github.com/getsentry/sentry-dart/pull/1011))
+
 ## 6.10.0
 
 ### Fixes
