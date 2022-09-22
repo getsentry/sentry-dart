@@ -420,7 +420,7 @@ class Scope {
       .._transaction = _transaction
       .._span = _span;
 
-    _setUserSync(user);
+    clone._setUserSync(user);
 
     final tags = List.from(_tags.keys);
     for (final tag in tags) {
