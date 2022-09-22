@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Dynamic sampling ([#1004](https://github.com/getsentry/sentry-dart/pull/1004))
+
 ## 6.10.0
 
 ### Fixes
