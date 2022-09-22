@@ -2,9 +2,6 @@
 
 ## Unreleased
 
-### Features
-
-- Allow users to set custom measurements ([#1011](https://github.com/getsentry/sentry-dart/pull/1011))
 ### Fixes
 
 - Scope cloning method was not setting the user ([#1013](https://github.com/getsentry/sentry-dart/pull/1013))
@@ -12,6 +9,7 @@
 ### Features
 
 - Dynamic sampling ([#1004](https://github.com/getsentry/sentry-dart/pull/1004))
+- Allow users to set custom measurements ([#1011](https://github.com/getsentry/sentry-dart/pull/1011))
 
 ## 6.10.0
 
@@ -29,8 +27,6 @@
 - Bump Cocoa SDK from v7.23.0 to v7.25.1 ([#993](https://github.com/getsentry/sentry-dart/pull/993), [#996](https://github.com/getsentry/sentry-dart/pull/996), [#1000](https://github.com/getsentry/sentry-dart/pull/1000), [#1007](https://github.com/getsentry/sentry-dart/pull/1007))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/master/CHANGELOG.md#7251)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.23.0...7.25.1)
-- Allow routeNameExtractor to set transaction names ([#1005](https://github.com/getsentry/sentry-dart/pull/1005))
-- Allow users to set custom measurements ([#1011](https://github.com/getsentry/sentry-dart/pull/1011))
 - Dynamic sampling ([#1004](https://github.com/getsentry/sentry-dart/pull/1004))
 
 ## 6.9.1
