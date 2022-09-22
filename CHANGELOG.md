@@ -1,11 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Scope cloning method was not setting the user ([#1013](https://github.com/getsentry/sentry-dart/pull/1013))
+
 ## 6.10.0
 
 ### Fixes
 
 - Capture Callback Exceptions ([#990](https://github.com/getsentry/sentry-dart/pull/990))
-- Scope cloning method was not setting the user ([#1013](https://github.com/getsentry/sentry-dart/pull/1013))
 
 ### Features
 
