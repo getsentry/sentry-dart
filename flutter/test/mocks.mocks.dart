@@ -164,6 +164,22 @@ class MockSentryTracer extends _i1.Mock implements _i8.SentryTracer {
         returnValueForMissingStub: null,
       );
   @override
+  _i3.SentryTransactionNameSource get transactionNameSource =>
+      (super.noSuchMethod(
+        Invocation.getter(#transactionNameSource),
+        returnValue: _i3.SentryTransactionNameSource.custom,
+      ) as _i3.SentryTransactionNameSource);
+  @override
+  set transactionNameSource(
+          _i3.SentryTransactionNameSource? _transactionNameSource) =>
+      super.noSuchMethod(
+        Invocation.setter(
+          #transactionNameSource,
+          _transactionNameSource,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
   _i2.SentrySpanContext get context => (super.noSuchMethod(
         Invocation.getter(#context),
         returnValue: _FakeSentrySpanContext_0(
@@ -907,17 +923,21 @@ class MockHub extends _i1.Mock implements _i2.Hub {
       ) as _i2.ISentrySpan);
   @override
   _i6.Future<_i3.SentryId> captureTransaction(
-          _i3.SentryTransaction? transaction) =>
+    _i3.SentryTransaction? transaction, {
+    _i2.SentryTraceContextHeader? traceContext,
+  }) =>
       (super.noSuchMethod(
         Invocation.method(
           #captureTransaction,
           [transaction],
+          {#traceContext: traceContext},
         ),
         returnValue: _i6.Future<_i3.SentryId>.value(_FakeSentryId_7(
           this,
           Invocation.method(
             #captureTransaction,
             [transaction],
+            {#traceContext: traceContext},
           ),
         )),
       ) as _i6.Future<_i3.SentryId>);

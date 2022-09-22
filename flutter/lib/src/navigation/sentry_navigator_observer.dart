@@ -170,9 +170,13 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     if (name == '/') {
       name = 'root ("/")';
     }
-    _transaction = _hub.startTransaction(
+    final transactionContext = SentryTransactionContext(
       name,
       'navigation',
+      transactionNameSource: SentryTransactionNameSource.component,
+    );
+    _transaction = _hub.startTransactionWithContext(
+      transactionContext,
       waitForChildren: true,
       autoFinishAfter: _autoFinishAfter,
       trimEnd: true,

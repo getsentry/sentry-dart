@@ -119,12 +119,12 @@ class Fixture {
 
   // ignore: invalid_use_of_internal_member
   SentryTracer createTracer({
-    bool? sampled,
+    bool? sampled = true,
   }) {
     final context = SentryTransactionContext(
       'name',
       'op',
-      sampled: sampled,
+      samplingDecision: SentryTracesSamplingDecision(sampled!),
     );
     return SentryTracer(context, MockHub());
   }

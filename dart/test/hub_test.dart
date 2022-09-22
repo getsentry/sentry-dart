@@ -114,6 +114,24 @@ void main() {
       expect(capturedEvent.event.contexts.trace, isNotNull);
     });
 
+    test('capture exception should assign sampled trace context', () async {
+      final hub = fixture.getSut();
+
+      final span = SentrySpan(
+        fixture.tracer,
+        fixture._context,
+        hub,
+        samplingDecision: fixture._context.samplingDecision,
+      );
+      hub.setSpanContext(fakeException, span, 'test');
+
+      await hub.captureException(fakeException);
+      final capturedEvent = fixture.client.captureEventCalls.first;
+
+      expect(capturedEvent.event.contexts.trace, isNotNull);
+      expect(capturedEvent.event.contexts.trace!.sampled, isTrue);
+    });
+
     test('Expando does not throw when exception type is not supported',
         () async {
       final hub = fixture.getSut();
@@ -198,7 +216,7 @@ void main() {
         description: 'desc',
       );
 
-      expect(tr.sampled, true);
+      expect(tr.samplingDecision?.sampled, true);
     });
 
     test('start transaction does not sample the transaction', () async {
@@ -210,7 +228,7 @@ void main() {
         description: 'desc',
       );
 
-      expect(tr.sampled, false);
+      expect(tr.samplingDecision?.sampled, false);
     });
 
     test('start transaction runs callback with customSamplingContext',
@@ -233,17 +251,18 @@ void main() {
         customSamplingContext: map,
       );
 
-      expect(tr.sampled, false);
+      expect(tr.samplingDecision?.sampled, false);
     });
 
     test('start transaction respects given sampled', () async {
       final hub = fixture.getSut();
 
       final tr = hub.startTransactionWithContext(
-        SentryTransactionContext('name', 'op', sampled: false),
+        SentryTransactionContext('name', 'op',
+            samplingDecision: SentryTracesSamplingDecision(false)),
       );
 
-      expect(tr.sampled, false);
+      expect(tr.samplingDecision?.sampled, false);
     });
 
     test('start transaction return NoOp if performance is disabled', () async {
@@ -321,6 +340,22 @@ void main() {
 
       expect(id, tr.eventId);
       expect(fixture.client.captureTransactionCalls.length, 1);
+    });
+
+    test('transaction is captured with traceContext', () async {
+      final hub = fixture.getSut();
+
+      var tr = SentryTransaction(fixture.tracer);
+      final context = SentryTraceContextHeader.fromJson(<String, dynamic>{
+        'trace_id': '${tr.eventId}',
+        'public_key': '123',
+      });
+      final id = await hub.captureTransaction(tr, traceContext: context);
+
+      expect(id, tr.eventId);
+      expect(fixture.client.captureTransactionCalls.length, 1);
+      expect(
+          fixture.client.captureTransactionCalls.first.traceContext, context);
     });
   });
 
@@ -592,7 +627,7 @@ class Fixture {
     _context = SentryTransactionContext(
       'name',
       'op',
-      sampled: sampled,
+      samplingDecision: SentryTracesSamplingDecision(sampled!),
     );
 
     tracer = SentryTracer(_context, hub);

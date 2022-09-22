@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
 import 'utils.dart';
 
@@ -21,6 +22,10 @@ class SentryTracer extends ISentrySpan {
   Function(SentryTracer)? _onFinish;
   var _finishStatus = SentryTracerFinishStatus.notFinishing();
   late final bool _trimEnd;
+
+  late SentryTransactionNameSource transactionNameSource;
+
+  SentryTraceContextHeader? _sentryTraceContextHeader;
 
   /// If [waitForChildren] is true, this transaction will not finish until all
   /// its children are finished.
@@ -48,7 +53,7 @@ class SentryTracer extends ISentrySpan {
       this,
       transactionContext,
       _hub,
-      sampled: transactionContext.sampled,
+      samplingDecision: transactionContext.samplingDecision,
       startTimestamp: startTimestamp,
     );
     _waitForChildren = waitForChildren;
@@ -58,6 +63,9 @@ class SentryTracer extends ISentrySpan {
       });
     }
     name = transactionContext.name;
+    // always default to custom if not provided
+    transactionNameSource = transactionContext.transactionNameSource ??
+        SentryTransactionNameSource.custom;
     _trimEnd = trimEnd;
     _onFinish = onFinish;
   }
@@ -110,7 +118,10 @@ class SentryTracer extends ISentrySpan {
 
       final transaction = SentryTransaction(this);
       transaction.measurements.addAll(_measurements);
-      await _hub.captureTransaction(transaction);
+      await _hub.captureTransaction(
+        transaction,
+        traceContext: traceContext(),
+      );
     }
   }
 
@@ -199,14 +210,21 @@ class SentryTracer extends ISentrySpan {
         operation: operation,
         description: description);
 
-    final child = SentrySpan(this, context, _hub,
-        sampled: _rootSpan.sampled, startTimestamp: startTimestamp,
-        finishedCallback: ({DateTime? endTimestamp}) {
-      final finishStatus = _finishStatus;
-      if (finishStatus.finishing) {
-        finish(status: finishStatus.status, endTimestamp: endTimestamp);
-      }
-    });
+    final child = SentrySpan(
+      this,
+      context,
+      _hub,
+      samplingDecision: _rootSpan.samplingDecision,
+      startTimestamp: startTimestamp,
+      finishedCallback: ({
+        DateTime? endTimestamp,
+      }) {
+        final finishStatus = _finishStatus;
+        if (finishStatus.finishing) {
+          finish(status: finishStatus.status, endTimestamp: endTimestamp);
+        }
+      },
+    );
 
     _children.add(child);
 
@@ -244,9 +262,6 @@ class SentryTracer extends ISentrySpan {
   Map<String, String> get tags => _rootSpan.tags;
 
   @override
-  bool? get sampled => _rootSpan.sampled;
-
-  @override
   SentryTraceHeader toSentryTrace() => _rootSpan.toSentryTrace();
 
   @visibleForTesting
@@ -272,4 +287,57 @@ class SentryTracer extends ISentrySpan {
     final measurement = SentryMeasurement(name, value, unit: unit);
     _measurements[name] = measurement;
   }
+
+  @override
+  SentryBaggageHeader? toBaggageHeader() {
+    final context = traceContext();
+
+    if (context != null) {
+      final baggage = context.toBaggage(logger: _hub.options.logger);
+      return SentryBaggageHeader.fromBaggage(baggage);
+    }
+    return null;
+  }
+
+  @override
+  SentryTraceContextHeader? traceContext() {
+    // TODO: freeze context after 1st envelope or outgoing HTTP request
+    if (_sentryTraceContextHeader != null) {
+      return _sentryTraceContextHeader;
+    }
+
+    SentryUser? user;
+    _hub.configureScope((scope) => user = scope.user);
+
+    _sentryTraceContextHeader = SentryTraceContextHeader(
+      _rootSpan.context.traceId,
+      Dsn.parse(_hub.options.dsn!).publicKey,
+      release: _hub.options.release,
+      environment: _hub.options.environment,
+      userId: null, // because of PII not sending it for now
+      userSegment: user?.segment,
+      transaction:
+          _isHighQualityTransactionName(transactionNameSource) ? name : null,
+      sampleRate: _sampleRateToString(_rootSpan.samplingDecision?.sampleRate),
+    );
+
+    return _sentryTraceContextHeader;
+  }
+
+  String? _sampleRateToString(double? sampleRate) {
+    if (!isValidSampleRate(sampleRate)) {
+      return null;
+    }
+    // requires intl package
+    final formatter = NumberFormat('#.################');
+    return formatter.format(sampleRate);
+  }
+
+  bool _isHighQualityTransactionName(SentryTransactionNameSource source) {
+    return source != SentryTransactionNameSource.url;
+  }
+
+  @override
+  SentryTracesSamplingDecision? get samplingDecision =>
+      _rootSpan.samplingDecision;
 }

@@ -330,7 +330,7 @@ class Scope {
     final span = _span;
     if (event.contexts.trace == null && span != null) {
       event.contexts.trace = span.context.toTraceContext(
-        sampled: span.sampled,
+        sampled: span.samplingDecision?.sampled,
       );
     }
 
@@ -420,7 +420,7 @@ class Scope {
       .._transaction = _transaction
       .._span = _span;
 
-    _setUserSync(user);
+    clone._setUserSync(user);
 
     final tags = List.from(_tags.keys);
     for (final tag in tags) {

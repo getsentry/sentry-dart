@@ -6,3 +6,5 @@ export 'noop_sentry_span.dart';
 export 'invalid_sentry_trace_header_exception.dart';
 export 'sentry_measurement.dart';
 export 'sentry_measurement_unit.dart';
+export 'sentry_trace_context_header.dart';
+export 'sentry_traces_sampling_decision.dart';

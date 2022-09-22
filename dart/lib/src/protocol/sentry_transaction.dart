@@ -12,6 +12,7 @@ class SentryTransaction extends SentryEvent {
   late final List<SentrySpan> spans;
   final SentryTracer _tracer;
   late final Map<String, SentryMeasurement> measurements;
+  late final SentryTransactionInfo? transactionInfo;
 
   SentryTransaction(
     this._tracer, {
@@ -33,6 +34,7 @@ class SentryTransaction extends SentryEvent {
     SentryRequest? request,
     String? type,
     Map<String, SentryMeasurement>? measurements,
+    SentryTransactionInfo? transactionInfo,
   }) : super(
           eventId: eventId,
           timestamp: timestamp ?? _tracer.endTimestamp,
@@ -59,9 +61,12 @@ class SentryTransaction extends SentryEvent {
     this.measurements = measurements ?? {};
 
     this.contexts.trace = spanContext.toTraceContext(
-      sampled: _tracer.sampled,
+      sampled: _tracer.samplingDecision?.sampled,
       status: _tracer.status,
     );
+
+    this.transactionInfo = transactionInfo ??
+        SentryTransactionInfo(_tracer.transactionNameSource.toStringValue());
   }
 
   @override
@@ -80,6 +85,11 @@ class SentryTransaction extends SentryEvent {
         map[item.key] = item.value.toJson();
       }
       json['measurements'] = map;
+    }
+
+    final transactionInfo = this.transactionInfo;
+    if (transactionInfo != null) {
+      json['transaction_info'] = transactionInfo.toJson();
     }
 
     return json;
@@ -118,6 +128,7 @@ class SentryTransaction extends SentryEvent {
     List<SentryThread>? threads,
     String? type,
     Map<String, SentryMeasurement>? measurements,
+    SentryTransactionInfo? transactionInfo,
   }) =>
       SentryTransaction(
         _tracer,
@@ -141,5 +152,6 @@ class SentryTransaction extends SentryEvent {
         type: type ?? this.type,
         measurements: (measurements != null ? Map.from(measurements) : null) ??
             this.measurements,
+        transactionInfo: transactionInfo ?? this.transactionInfo,
       );
 }

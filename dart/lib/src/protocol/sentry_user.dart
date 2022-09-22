@@ -12,7 +12,7 @@ import 'package:meta/meta.dart';
 /// only custom attributes is valid, but not as useful.
 ///
 /// Conforms to the User Interface contract for Sentry
-/// https://docs.sentry.io/clientdev/interfaces/user/.
+/// https://develop.sentry.dev/sdk/event-payloads/user/
 ///
 /// The outgoing JSON representation is:
 ///
@@ -22,7 +22,7 @@ import 'package:meta/meta.dart';
 ///   "username": "my_user",
 ///   "email": "foo@example.com",
 ///   "ip_address": "127.0.0.1",
-///   "subscription": "basic"
+///   "segment": "segment"
 /// }
 /// ```
 @immutable
@@ -36,11 +36,13 @@ class SentryUser {
     this.username,
     this.email,
     this.ipAddress,
+    this.segment,
     Map<String, dynamic>? extras,
   })  : assert(id != null ||
             username != null ||
             email != null ||
-            ipAddress != null),
+            ipAddress != null ||
+            segment != null),
         extras = extras == null ? null : Map.from(extras);
 
   /// A unique identifier of the user.
@@ -54,6 +56,9 @@ class SentryUser {
 
   /// The IP of the user.
   final String? ipAddress;
+
+  /// The user segment, for apps that divide users in user segments.
+  final String? segment;
 
   /// Any other user context information that may be helpful.
   ///
@@ -72,6 +77,7 @@ class SentryUser {
       username: json['username'],
       email: json['email'],
       ipAddress: json['ip_address'],
+      segment: json['segment'],
       extras: extras,
     );
   }
@@ -83,6 +89,7 @@ class SentryUser {
       if (username != null) 'username': username,
       if (email != null) 'email': email,
       if (ipAddress != null) 'ip_address': ipAddress,
+      if (segment != null) 'segment': segment,
       if (extras?.isNotEmpty ?? false) 'extras': extras,
     };
   }
@@ -92,6 +99,7 @@ class SentryUser {
     String? username,
     String? email,
     String? ipAddress,
+    String? segment,
     Map<String, dynamic>? extras,
   }) =>
       SentryUser(
@@ -99,6 +107,7 @@ class SentryUser {
         username: username ?? this.username,
         email: email ?? this.email,
         ipAddress: ipAddress ?? this.ipAddress,
+        segment: segment ?? this.segment,
         extras: extras ?? this.extras,
       );
 }
