@@ -16,7 +16,7 @@ class SentryTracer extends ISentrySpan {
   late final SentrySpan _rootSpan;
   final List<SentrySpan> _children = [];
   final Map<String, dynamic> _extra = {};
-  final List<SentryMeasurement> _measurements = [];
+  final Map<String, SentryMeasurement> _measurements = {};
 
   Timer? _autoFinishAfterTimer;
   Function(SentryTracer)? _onFinish;
@@ -264,12 +264,9 @@ class SentryTracer extends ISentrySpan {
   @override
   SentryTraceHeader toSentryTrace() => _rootSpan.toSentryTrace();
 
-  void addMeasurements(List<SentryMeasurement> measurements) {
-    _measurements.addAll(measurements);
-  }
-
   @visibleForTesting
-  List<SentryMeasurement> get measurements => _measurements;
+  Map<String, SentryMeasurement> get measurements =>
+      Map.unmodifiable(_measurements);
 
   bool _haveAllChildrenFinished() {
     for (final child in children) {
@@ -284,6 +281,12 @@ class SentryTracer extends ISentrySpan {
           SentrySpan span, DateTime endTimestampCandidate) =>
       !span.startTimestamp
           .isAfter((span.endTimestamp ?? endTimestampCandidate));
+
+  @override
+  void setMeasurement(String name, num value, {SentryMeasurementUnit? unit}) {
+    final measurement = SentryMeasurement(name, value, unit: unit);
+    _measurements[name] = measurement;
+  }
 
   @override
   SentryBaggageHeader? toBaggageHeader() {

@@ -184,6 +184,15 @@ class SentrySpan extends ISentrySpan {
       );
 
   @override
+  void setMeasurement(
+    String name,
+    num value, {
+    SentryMeasurementUnit? unit,
+  }) {
+    _tracer.setMeasurement(name, value, unit: unit);
+  }
+
+  @override
   SentryBaggageHeader? toBaggageHeader() => _tracer.toBaggageHeader();
 
   @override

@@ -186,7 +186,15 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
           final nativeFrames = await _native
               .endNativeFramesCollection(transaction.context.traceId);
           if (nativeFrames != null) {
-            transaction.addMeasurements(nativeFrames.toMeasurements());
+            final measurements = nativeFrames.toMeasurements();
+            for (final item in measurements.entries) {
+              final measurement = item.value;
+              transaction.setMeasurement(
+                item.key,
+                measurement.value,
+                unit: measurement.unit,
+              );
+            }
           }
         }
       },
@@ -278,11 +286,14 @@ class RouteObserverBreadcrumb extends Breadcrumb {
 }
 
 extension NativeFramesMeasurement on NativeFrames {
-  List<SentryMeasurement> toMeasurements() {
-    return [
-      SentryMeasurement.totalFrames(totalFrames),
-      SentryMeasurement.slowFrames(slowFrames),
-      SentryMeasurement.frozenFrames(frozenFrames),
-    ];
+  Map<String, SentryMeasurement> toMeasurements() {
+    final total = SentryMeasurement.totalFrames(totalFrames);
+    final slow = SentryMeasurement.slowFrames(slowFrames);
+    final frozen = SentryMeasurement.frozenFrames(frozenFrames);
+    return {
+      total.name: total,
+      slow.name: slow,
+      frozen.name: frozen,
+    };
   }
 }

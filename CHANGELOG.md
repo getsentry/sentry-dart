@@ -9,6 +9,7 @@
 ### Features
 
 - Dynamic sampling ([#1004](https://github.com/getsentry/sentry-dart/pull/1004))
+- Set custom measurements on transactions ([#1011](https://github.com/getsentry/sentry-dart/pull/1011))
 
 ## 6.10.0
 
