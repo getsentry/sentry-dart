@@ -89,6 +89,6 @@ void main() {
   test('SentryOptions has all targets by default', () {
     final options = SentryOptions.empty();
 
-    expect(options.tracePropagationTargets, ['/.*/']);
+    expect(options.tracePropagationTargets, ['.*']);
   });
 }
