@@ -96,7 +96,7 @@ void main() {
 
       expect(mockNativeChannel.numberOfEndNativeFramesCalls, 1);
 
-      final measurements = actualTransaction?.measurements ?? [];
+      final measurements = actualTransaction?.measurements ?? {};
 
       expect(measurements.length, 3);
 
@@ -104,7 +104,8 @@ void main() {
       final expectedSlow = SentryMeasurement.slowFrames(2);
       final expectedFrozen = SentryMeasurement.frozenFrames(1);
 
-      for (final measurement in measurements) {
+      for (final item in measurements.entries) {
+        final measurement = item.value;
         if (measurement.name == expectedTotal.name) {
           expect(measurement.value, expectedTotal.value);
         } else if (measurement.name == expectedSlow.name) {

@@ -28,6 +28,7 @@ import 'mocks.dart' as _i12;
 // ignore_for_file: unnecessary_parenthesis
 // ignore_for_file: camel_case_types
 // ignore_for_file: subtype_of_sealed_class
+// ignore_for_file: invalid_use_of_internal_member
 
 class _FakeSentrySpanContext_0 extends _i1.SmartFake
     implements _i2.SentrySpanContext {
@@ -144,7 +145,6 @@ class MockTransport extends _i1.Mock implements _i2.Transport {
 /// A class which mocks [SentryTracer].
 ///
 /// See the documentation for Mockito's code generation for more information.
-// ignore: invalid_use_of_internal_member
 class MockSentryTracer extends _i1.Mock implements _i8.SentryTracer {
   MockSentryTracer() {
     _i1.throwOnMissingStub(this);
@@ -232,10 +232,10 @@ class MockSentryTracer extends _i1.Mock implements _i8.SentryTracer {
         returnValue: <String, String>{},
       ) as Map<String, String>);
   @override
-  List<_i2.SentryMeasurement> get measurements => (super.noSuchMethod(
+  Map<String, _i2.SentryMeasurement> get measurements => (super.noSuchMethod(
         Invocation.getter(#measurements),
-        returnValue: <_i2.SentryMeasurement>[],
-      ) as List<_i2.SentryMeasurement>);
+        returnValue: <String, _i2.SentryMeasurement>{},
+      ) as Map<String, _i2.SentryMeasurement>);
   @override
   _i6.Future<void> finish({
     _i3.SpanStatus? status,
@@ -375,11 +375,19 @@ class MockSentryTracer extends _i1.Mock implements _i8.SentryTracer {
         ),
       ) as _i3.SentryTraceHeader);
   @override
-  void addMeasurements(List<_i2.SentryMeasurement>? measurements) =>
+  void setMeasurement(
+    String? name,
+    num? value, {
+    _i2.SentryMeasurementUnit? unit,
+  }) =>
       super.noSuchMethod(
         Invocation.method(
-          #addMeasurements,
-          [measurements],
+          #setMeasurement,
+          [
+            name,
+            value,
+          ],
+          {#unit: unit},
         ),
         returnValueForMissingStub: null,
       );
