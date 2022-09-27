@@ -8,9 +8,7 @@ on:
     paths-ignore:
       - 'logging/**'
       - 'flutter/**'
-defaults:
-  run:
-    shell: bash
+
 jobs:
   build:
     name: Build ${{matrix.sdk}} on ${{matrix.os}}
@@ -18,6 +16,7 @@ jobs:
     timeout-minutes: 30
     defaults:
       run:
+        shell: bash
         working-directory: ./dio
     strategy:
       fail-fast: false
@@ -31,23 +30,24 @@ jobs:
         - uses: dart-lang/setup-dart@v1
           with:
             sdk: ${{ matrix.sdk }}
-        - uses: actions/checkout@v2
+        - uses: actions/checkout@v3
         # coverage with 'chrome' platform hangs the build
         - name: Test (VM and browser)
           run: |
             dart pub get
             dart test -p chrome --test-randomize-ordering-seed=random --chain-stack-traces
             dart test -p vm --coverage=coverage --test-randomize-ordering-seed=random --chain-stack-traces
-            dart pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.packages --report-on=lib
+            dart pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
 
         - uses: codecov/codecov-action@v2
-          if: runner.os == 'Linux'
+          if: runner.os == 'Linux' && matrix.sdk == 'stable'
           with:
-            name: sentry
-            file: ./dio/coverage/lcov.info
+            name: sentry_dio
+            files: ./dio/coverage/lcov.info
 
-        - uses: VeryGoodOpenSource/very_good_coverage@v1.2.0
-          if: runner.os == 'Linux'
+        # 1.2.1
+        - uses: VeryGoodOpenSource/very_good_coverage@feed99cc060453828a8f12e74b404baace8e4502
+          if: runner.os == 'Linux' && matrix.sdk == 'stable'
           with:
             path: "./dio/coverage/lcov.info"
             min_coverage: 81
@@ -62,7 +62,7 @@ jobs:
       - uses: dart-lang/setup-dart@v1
         with:
           sdk: stable
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: |
           dart pub get
           dart analyze --fatal-infos
@@ -76,7 +76,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: axel-op/dart-package-analyzer@v3
         id: analysis
         with:

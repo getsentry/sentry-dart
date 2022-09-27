@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:meta/meta.dart';
 
 import 'event_processor.dart';
+import 'sentry_trace_context_header.dart';
 import 'sentry_user_feedback.dart';
 import 'transport/rate_limiter.dart';
 import 'protocol.dart';
@@ -12,8 +13,12 @@ import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'transport/http_transport.dart';
 import 'transport/noop_transport.dart';
+import 'utils/isolate_utils.dart';
 import 'version.dart';
 import 'sentry_envelope.dart';
+import 'client_reports/client_report_recorder.dart';
+import 'client_reports/discard_reason.dart';
+import 'transport/data_category.dart';
 
 /// Default value for [User.ipAddress]. It gets set when an event does not have
 /// a user and IP address. Only applies if [SentryOptions.sendDefaultPii] is set
@@ -34,10 +39,13 @@ class SentryClient {
 
   /// Instantiates a client using [SentryOptions]
   factory SentryClient(SentryOptions options) {
-    if (options.transport is NoOpTransport) {
-      options.transport = HttpTransport(options, RateLimiter(options.clock));
+    if (options.sendClientReports) {
+      options.recorder = ClientReportRecorder(options.clock);
     }
-
+    if (options.transport is NoOpTransport) {
+      final rateLimiter = RateLimiter(options);
+      options.transport = HttpTransport(options, rateLimiter);
+    }
     return SentryClient._(options);
   }
 
@@ -53,6 +61,7 @@ class SentryClient {
     dynamic hint,
   }) async {
     if (_sampleRate()) {
+      _recordLostEvent(event, DiscardReason.sampleRate);
       _options.logger(
         SentryLevel.debug,
         'Event ${event.eventId.toString()} was dropped due to sampling decision.',
@@ -87,6 +96,7 @@ class SentryClient {
 
     final beforeSend = _options.beforeSend;
     if (beforeSend != null) {
+      final beforeSendEvent = preparedEvent;
       try {
         preparedEvent = await beforeSend(preparedEvent, hint: hint);
       } catch (exception, stackTrace) {
@@ -98,6 +108,7 @@ class SentryClient {
         );
       }
       if (preparedEvent == null) {
+        _recordLostEvent(beforeSendEvent, DiscardReason.beforeSend);
         _options.logger(
           SentryLevel.debug,
           'Event was dropped by BeforeSend callback',
@@ -105,11 +116,26 @@ class SentryClient {
         return _sentryId;
       }
     }
+
+    if (_options.platformChecker.platform.isAndroid &&
+        _options.enableScopeSync) {
+      /*
+      We do this to avoid duplicate breadcrumbs on Android as sentry-android applies the breadcrumbs
+      from the native scope onto every envelope sent through it. This scope will contain the breadcrumbs
+      sent through the scope sync feature. This causes duplicate breadcrumbs.
+      We then remove the breadcrumbs in all cases but if it is handled == false,
+      this is a signal that the app would crash and android would lose the breadcrumbs by the time the app is restarted to read
+      the envelope.
+      */
+      preparedEvent = _eventWithRemovedBreadcrumbsIfHandled(preparedEvent);
+    }
+
     final envelope = SentryEnvelope.fromEvent(
       preparedEvent,
       _options.sdk,
-      _options.dsn,
-      attachments: scope?.attachements,
+      dsn: _options.dsn,
+      traceContext: scope?.span?.traceContext(),
+      attachments: scope?.attachments,
     );
 
     final id = await captureEnvelope(envelope);
@@ -132,18 +158,48 @@ class SentryClient {
       return event;
     }
 
-    if (event.exceptions?.isNotEmpty ?? false) return event;
+    if (event.exceptions?.isNotEmpty ?? false) {
+      return event;
+    }
+
+    final isolateName = getIsolateName();
+    // Isolates have no id, so the hashCode of the name will be used as id
+    final isolateId = isolateName?.hashCode;
 
     if (event.throwableMechanism != null) {
-      final sentryException = _exceptionFactory.getSentryException(
+      var sentryException = _exceptionFactory.getSentryException(
         event.throwableMechanism,
         stackTrace: stackTrace,
       );
 
-      return event.copyWith(exceptions: [
-        ...(event.exceptions ?? []),
-        sentryException,
-      ]);
+      if (_options.platformChecker.isWeb) {
+        return event.copyWith(
+          exceptions: [
+            ...?event.exceptions,
+            sentryException,
+          ],
+        );
+      }
+
+      SentryThread? thread;
+
+      if (isolateName != null && _options.attachThreads) {
+        sentryException = sentryException.copyWith(threadId: isolateId);
+        thread = SentryThread(
+          id: isolateId,
+          name: isolateName,
+          crashed: true,
+          current: true,
+        );
+      }
+
+      return event.copyWith(
+        exceptions: [...?event.exceptions, sentryException],
+        threads: [
+          ...?event.threads,
+          if (thread != null) thread,
+        ],
+      );
     }
 
     // The stacktrace is not part of an exception,
@@ -155,8 +211,10 @@ class SentryClient {
 
       if (frames.isNotEmpty) {
         event = event.copyWith(threads: [
-          ...(event.threads ?? []),
+          ...?event.threads,
           SentryThread(
+            name: isolateName,
+            id: isolateId,
             crashed: false,
             current: true,
             stacktrace: SentryStackTrace(frames: frames),
@@ -227,6 +285,7 @@ class SentryClient {
   Future<SentryId> captureTransaction(
     SentryTransaction transaction, {
     Scope? scope,
+    SentryTraceContextHeader? traceContext,
   }) async {
     SentryTransaction? preparedTransaction =
         _prepareEvent(transaction) as SentryTransaction;
@@ -254,18 +313,23 @@ class SentryClient {
       return _sentryId;
     }
 
-    final id = await captureEnvelope(
-      SentryEnvelope.fromTransaction(preparedTransaction, _options.sdk,
-          attachments: scope?.attachements
-              .where((element) => element.addToTransactions)
-              .toList()),
+    final attachments = scope?.attachments
+        .where((element) => element.addToTransactions)
+        .toList();
+    final envelope = SentryEnvelope.fromTransaction(
+      preparedTransaction,
+      _options.sdk,
+      traceContext: traceContext,
+      attachments: attachments,
     );
+    final id = await captureEnvelope(envelope);
+
     return id ?? SentryId.empty();
   }
 
   /// Reports the [envelope] to Sentry.io.
   Future<SentryId?> captureEnvelope(SentryEnvelope envelope) {
-    return _options.transport.send(envelope);
+    return _attachClientReportsAndSend(envelope);
   }
 
   /// Reports the [userFeedback] to Sentry.io.
@@ -274,7 +338,7 @@ class SentryClient {
       userFeedback,
       _options.sdk,
     );
-    return _options.transport.send(envelope);
+    return _attachClientReportsAndSend(envelope);
   }
 
   void close() => _options.httpClient.close();
@@ -297,6 +361,7 @@ class SentryClient {
         );
       }
       if (processedEvent == null) {
+        _recordLostEvent(event, DiscardReason.eventProcessor);
         _options.logger(SentryLevel.debug, 'Event was dropped by a processor');
         break;
       }
@@ -309,5 +374,35 @@ class SentryClient {
       return (_options.sampleRate! < _random!.nextDouble());
     }
     return false;
+  }
+
+  void _recordLostEvent(SentryEvent event, DiscardReason reason) {
+    DataCategory category;
+    if (event is SentryTransaction) {
+      category = DataCategory.transaction;
+    } else {
+      category = DataCategory.error;
+    }
+    _options.recorder.recordLostEvent(reason, category);
+  }
+
+  SentryEvent _eventWithRemovedBreadcrumbsIfHandled(SentryEvent event) {
+    final mechanisms =
+        (event.exceptions ?? []).map((e) => e.mechanism).whereType<Mechanism>();
+    final hasNoMechanism = mechanisms.isEmpty;
+    final hasOnlyHandledMechanism =
+        mechanisms.every((e) => (e.handled ?? true));
+
+    if (hasNoMechanism || hasOnlyHandledMechanism) {
+      return event.copyWith(breadcrumbs: []);
+    } else {
+      return event;
+    }
+  }
+
+  Future<SentryId?> _attachClientReportsAndSend(SentryEnvelope envelope) {
+    final clientReport = _options.recorder.flush();
+    envelope.addClientReport(clientReport);
+    return _options.transport.send(envelope);
   }
 }

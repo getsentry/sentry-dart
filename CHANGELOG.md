@@ -1,12 +1,204 @@
 # Changelog
 
+## 6.11.0
+
+### Fixes
+
+- Scope cloning method was not setting the user ([#1013](https://github.com/getsentry/sentry-dart/pull/1013))
+
+### Features
+
+- Dynamic sampling ([#1004](https://github.com/getsentry/sentry-dart/pull/1004))
+- Set custom measurements on transactions ([#1011](https://github.com/getsentry/sentry-dart/pull/1011))
+
+## 6.10.0
+
+### Fixes
+
+- Capture Callback Exceptions ([#990](https://github.com/getsentry/sentry-dart/pull/990))
+- Allow routeNameExtractor to set transaction names ([#1005](https://github.com/getsentry/sentry-dart/pull/1005))
+
+### Features
+
+- Prepare future support for iOS and macOS obfuscated app symbolication using dSYM (requires Flutter `master` channel) ([#823](https://github.com/getsentry/sentry-dart/pull/823))
+- Bump Android SDK from v6.3.1 to v6.4.2 ([#989](https://github.com/getsentry/sentry-dart/pull/989), [#1009](https://github.com/getsentry/sentry-dart/pull/1009))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#642)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.3.1...6.4.2)
+- Bump Cocoa SDK from v7.23.0 to v7.25.1 ([#993](https://github.com/getsentry/sentry-dart/pull/993), [#996](https://github.com/getsentry/sentry-dart/pull/996), [#1000](https://github.com/getsentry/sentry-dart/pull/1000), [#1007](https://github.com/getsentry/sentry-dart/pull/1007))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/master/CHANGELOG.md#7251)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.23.0...7.25.1)
+- Dynamic sampling ([#1004](https://github.com/getsentry/sentry-dart/pull/1004))
+
+## 6.9.1
+
+### Fixes
+
+* Scope.clone incorrectly accesses tags ([#978](https://github.com/getsentry/sentry-dart/pull/978))
+* beforeBreadcrumb was not adding the mutated breadcrumb ([#982](https://github.com/getsentry/sentry-dart/pull/982))
+
+### Features
+
+- Bump Cocoa SDK to v7.23.0 ([#968](https://github.com/getsentry/sentry-dart/pull/968))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/master/CHANGELOG.md#7230)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.22.0...7.23.0)
+- Bump Android SDK from v6.3.0 to v6.3.1 ([#976](https://github.com/getsentry/sentry-dart/pull/976))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#631)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.3.0...6.3.1)
+
+## 6.9.0
+
+### Features
+
+* Bump Flutter's min. supported version from 1.17.0 to 2.0.0 ([#966](https://github.com/getsentry/sentry-dart/pull/966))
+
+This should not break anything since the Dart's min. version is already 2.12.0 and Flutter 2.0.0 uses Dart 2.12.0
+
+### Fixes
+
+* Back compatibility of Object.hash for Dart 2.12.0 ([#966](https://github.com/getsentry/sentry-dart/pull/966))
+* Fix back compatibility for OnErrorIntegration integration ([#965](https://github.com/getsentry/sentry-dart/pull/965))
+
+## 6.8.1
+
+### Fixes
+
+* `Scope#setContexts` pasing a List value would't not work ([#932](https://github.com/getsentry/sentry-dart/pull/932))
+
+### Features
+
+* Add integration for `PlatformDispatcher.onError` ([#915](https://github.com/getsentry/sentry-dart/pull/915))
+- Bump Cocoa SDK to v7.22.0 ([#960](https://github.com/getsentry/sentry-dart/pull/960))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/master/CHANGELOG.md#7220)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.21.0...7.22.0)
+
+## 6.8.0
+
+### Fixes
+
+* Missing OS context for iOS events ([#958](https://github.com/getsentry/sentry-dart/pull/958))
+* Fix: `Scope#clone` calls the Native bridges again via the `scopeObserver` ([#959](https://github.com/getsentry/sentry-dart/pull/959))
+
+### Features
+
+* Dio Integration adds response data ([#934](https://github.com/getsentry/sentry-dart/pull/934))
+
+## 6.7.0
+
+### Fixes
+
+* Maps with Key Object, Object would fail during serialization if not String, Object ([#935](https://github.com/getsentry/sentry-dart/pull/935))
+* Breadcrumbs "Concurrent Modification" ([#948](https://github.com/getsentry/sentry-dart/pull/948))
+* Duplicative Screen size changed breadcrumbs ([#888](https://github.com/getsentry/sentry-dart/pull/888))
+* Duplicated Android Breadcrumbs with no Mechanism ([#954](https://github.com/getsentry/sentry-dart/pull/954))
+* Fix windows native method need default result ([#943](https://github.com/getsentry/sentry-dart/pull/943))
+* Add request instead of response data to `SentryRequest` in `DioEventProcessor` [#933](https://github.com/getsentry/sentry-dart/pull/933)
+
+### Features
+
+- Bump Android SDK to v6.3.0 ([#945](https://github.com/getsentry/sentry-dart/pull/945), [#950](https://github.com/getsentry/sentry-dart/pull/950))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#630)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.1.4...6.3.0)
+- Bump Cocoa SDK to v7.21.0 ([#947](https://github.com/getsentry/sentry-dart/pull/947))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/master/CHANGELOG.md#7210)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.19.0...7.21.0)
+
+## 6.6.3
+
+### Fixes
+
+* Context Escape with ScopeCallback ([#925](https://github.com/getsentry/sentry-dart/pull/925))
+
+## 6.6.2
+
+### Features
+
+- Bump Android SDK to v6.1.4 ([#900](https://github.com/getsentry/sentry-dart/pull/900))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#614)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.1.2...6.1.4)
+- Bump Cocoa SDK to v7.19.0 ([#901](https://github.com/getsentry/sentry-dart/pull/901), [#928](https://github.com/getsentry/sentry-dart/pull/928))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/master/CHANGELOG.md#7190)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.18.0...7.19.0)
+
+### Fixes
+
+* Send DidBecomeActiveNotification when OOM enabled (#905)
+* `dio.addSentry` hangs if `dsn` is empty and SDK NoOp ([#920](https://github.com/getsentry/sentry-dart/pull/920))
+* addBreadcrumb throws on Android API < 24 because of NewApi usage ([#923](https://github.com/getsentry/sentry-dart/pull/923))
+* [`sentry_dio`](https://pub.dev/packages/sentry_dio) is promoted to GA and not experimental anymore ([#914](https://github.com/getsentry/sentry-dart/pull/914))
+
+## 6.6.1
+
+### Fixes
+
+* Filter out app starts with more than 60s (#895)
+
+## 6.6.0
+
+### Fixes
+
+* Bump: Sentry-Cocoa to 7.18.0 and Sentry-Android to 6.1.2 (#892)
+* Fix: Add missing iOS contexts (#761)
+* Fix serialization of threads (#844)
+* Fix: `SentryAssetBundle` on Flutter >= 3.1 (#877)
+
+### Features
+
+* Feat: Client Reports (#829)
+* Feat: Allow manual init of the Native SDK (#765)
+* Feat: Attach Isolate name to thread context (#847)
+* Feat: Add Android thread to platform stacktraces (#853)
+* Feat: Sync Scope to Native (#858)
+
+### Sentry Self-hosted Compatibility
+
+* Starting with version `6.6.0` of `sentry`, [Sentry's version >= v21.9.0](https://github.com/getsentry/self-hosted/releases) is required or you have to manually disable sending client reports via the `sendClientReports` option. This only applies to self-hosted Sentry. If you are using [sentry.io](https://sentry.io), no action is needed.
+
+## 6.6.0-beta.4
+
+* Bump: Sentry-Cocoa to 7.17.0 and Sentry-Android to 6.1.1 (#891)
+
+## 6.6.0-beta.3
+
+* Bump: Sentry-Cocoa to 7.16.1 (#886)
+
+## 6.6.0-beta.2
+
+* Fix: Add user setter back in the scope (#883)
+* Fix: clear method sets all properties synchronously (#882)
+
+## 6.6.0-beta.1
+
+* Feat: Sync Scope to Native (#858)
+
+## 6.6.0-alpha.3
+
+* Feat: Attach Isolate name to thread context (#847)
+* Fix: `SentryAssetBundle` on Flutter >= 3.1 (#877)
+* Feat: Add Android thread to platform stacktraces (#853)
+* Fix: Rename auto initialize property (#857)
+* Bump: Sentry-Android to 6.0.0 (#879)
+
+## 6.6.0-alpha.2
+
+* Fix serialization of threads (#844)
+* Feat: Allow manual init of the Native SDK (#765)
+
+## 6.6.0-alpha.1
+
+* Feat: Client Reports (#829)
+* Fix: Add missing iOS contexts (#761)
+
+### Sentry Self-hosted Compatibility
+
+* Starting with version `6.6.0` of `sentry`, [Sentry's version >= v21.9.0](https://github.com/getsentry/self-hosted/releases) is required or you have to manually disable sending client reports via the `sendClientReports` option. This only applies to self-hosted Sentry. If you are using [sentry.io](https://sentry.io), no action is needed.
+
 ## 6.5.1
 
-- Update event contexts (#838)
+* Update event contexts (#838)
 
 ## 6.5.0
 
-- No documented changes.
+* No documented changes.
 
 ## 6.5.0-beta.2
 
@@ -14,7 +206,7 @@
 
 ## 6.5.0-beta.1
 
-- No documented changes.
+* No documented changes.
 
 ## 6.5.0-alpha.3
 
@@ -34,8 +226,8 @@
 
 ### Various fixes & improvements
 
-- Fix: Missing userId on iOS when userId is not set (#782) by @marandaneto
-- Allow to set startTimestamp & endTimestamp manually to SentrySpan (#676) by @fatihergin
+* Fix: Missing userId on iOS when userId is not set (#782) by @marandaneto
+* Allow to set startTimestamp & endTimestamp manually to SentrySpan (#676) by @fatihergin
 
 ## 6.4.0-beta.3
 
@@ -47,14 +239,14 @@
 
 ## 6.4.0-beta.2
 
-- No documented changes.
+* No documented changes.
 
 ## 6.4.0-beta.1
 
 * Fix: Disable log by default in debug mode (#753)
 * [Dio] Ref: Replace FailedRequestAdapter with FailedRequestInterceptor (#728)
 * Fix: Add missing return values - dart analyzer (#742)
-* Feature: Add `DioEventProcessor` which improves DioError crash reports (#718)
+* Feat: Add `DioEventProcessor` which improves DioError crash reports (#718)
 * Fix: Do not report duplicated packages and integrations (#760)
 * Feat: Allow manual init of the Native SDK or no Native SDK at all (#765)
 
@@ -284,7 +476,7 @@
 ### Breaking Changes:
 
 * Fix: Plugin Registrant class moved to barrel file (#358)
-  * This changed the import from `import 'package:sentry_flutter/src/sentry_flutter_web.dart';` 
+  * This changed the import from `import 'package:sentry_flutter/src/sentry_flutter_web.dart';`
     to `import 'package:sentry_flutter/sentry_flutter_web.dart';`
   * This could lead to breaking changes. Typically it shouldn't because the referencing file is auto-generated.
 * Fix: Prefix classes with Sentry (#357)

@@ -8,8 +8,8 @@ import 'package:sentry_flutter/src/sentry_flutter_options.dart';
 import 'mocks.dart';
 
 FutureOr<void> Function(SentryFlutterOptions) getConfigurationTester({
-  required List<Type> shouldHaveIntegrations,
-  required List<Type> shouldNotHaveIntegrations,
+  required Iterable<Type> shouldHaveIntegrations,
+  required Iterable<Type> shouldNotHaveIntegrations,
   required bool hasFileSystemTransport,
 }) =>
     (options) async {
@@ -21,17 +21,18 @@ FutureOr<void> Function(SentryFlutterOptions) getConfigurationTester({
         reason: '$FileSystemTransport was wrongly set',
       );
 
-      for (final type in shouldHaveIntegrations) {
-        final integrations = options.integrations
-            .where((element) => element.runtimeType == type)
-            .toList();
-        expect(integrations.length, 1);
+      final integrations = <Type, int>{};
+      for (var e in options.integrations) {
+        integrations[e.runtimeType] = integrations[e.runtimeType] ?? 0 + 1;
       }
 
+      for (final type in shouldHaveIntegrations) {
+        expect(integrations, containsPair(type, 1));
+      }
+
+      shouldNotHaveIntegrations = Set.of(shouldNotHaveIntegrations)
+          .difference(Set.of(shouldHaveIntegrations));
       for (final type in shouldNotHaveIntegrations) {
-        final integrations = options.integrations
-            .where((element) => element.runtimeType == type)
-            .toList();
-        expect(integrations.isEmpty, true);
+        expect(integrations, isNot(contains(type)));
       }
     };

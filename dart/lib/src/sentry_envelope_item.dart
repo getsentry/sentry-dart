@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'client_reports/client_report.dart';
 import 'protocol.dart';
 import 'utils.dart';
 import 'sentry_attachment/sentry_attachment.dart';
@@ -12,21 +13,12 @@ class SentryEnvelopeItem {
 
   /// Creates an [SentryEnvelopeItem] which sends [SentryTransaction].
   factory SentryEnvelopeItem.fromTransaction(SentryTransaction transaction) {
-    final cachedItem = _CachedItem(() async {
-      final jsonEncoded = jsonEncode(
-        transaction.toJson(),
-        toEncodable: jsonSerializationFallback,
-      );
-      return utf8.encode(jsonEncoded);
-    });
-
-    final getLength = () async {
-      return (await cachedItem.getData()).length;
-    };
+    final cachedItem =
+        _CachedItem(() async => utf8JsonEncoder.convert(transaction.toJson()));
 
     final header = SentryEnvelopeItemHeader(
       SentryItemType.transaction,
-      getLength,
+      cachedItem.getDataLength,
       contentType: 'application/json',
     );
     return SentryEnvelopeItem(header, cachedItem.getData);
@@ -35,17 +27,9 @@ class SentryEnvelopeItem {
   factory SentryEnvelopeItem.fromAttachment(SentryAttachment attachment) {
     final cachedItem = _CachedItem(() async => await attachment.bytes);
 
-    final getLength = () async {
-      try {
-        return (await cachedItem.getData()).length;
-      } catch (_) {
-        return -1;
-      }
-    };
-
     final header = SentryEnvelopeItemHeader(
       SentryItemType.attachment,
-      getLength,
+      cachedItem.getDataLength,
       contentType: attachment.contentType,
       fileName: attachment.filename,
       attachmentType: attachment.attachmentType,
@@ -55,27 +39,44 @@ class SentryEnvelopeItem {
 
   /// Create an [SentryEnvelopeItem] which sends [SentryUserFeedback].
   factory SentryEnvelopeItem.fromUserFeedback(SentryUserFeedback feedback) {
-    final bytes = _jsonToBytes(feedback.toJson());
+    final cachedItem =
+        _CachedItem(() async => utf8JsonEncoder.convert(feedback.toJson()));
 
     final header = SentryEnvelopeItemHeader(
       SentryItemType.userFeedback,
-      () async => bytes.length,
+      cachedItem.getDataLength,
       contentType: 'application/json',
     );
-    return SentryEnvelopeItem(header, () async => bytes);
+    return SentryEnvelopeItem(header, cachedItem.getData);
   }
 
   /// Create an [SentryEnvelopeItem] which holds the [SentryEvent] data.
   factory SentryEnvelopeItem.fromEvent(SentryEvent event) {
-    final bytes = _jsonToBytes(event.toJson());
+    final cachedItem =
+        _CachedItem(() async => utf8JsonEncoder.convert(event.toJson()));
 
     return SentryEnvelopeItem(
       SentryEnvelopeItemHeader(
         SentryItemType.event,
-        () async => bytes.length,
+        cachedItem.getDataLength,
         contentType: 'application/json',
       ),
-      () async => bytes,
+      cachedItem.getData,
+    );
+  }
+
+  /// Create an [SentryEnvelopeItem] which holds the [ClientReport] data.
+  factory SentryEnvelopeItem.fromClientReport(ClientReport clientReport) {
+    final cachedItem =
+        _CachedItem(() async => utf8JsonEncoder.convert(clientReport.toJson()));
+
+    return SentryEnvelopeItem(
+      SentryEnvelopeItemHeader(
+        SentryItemType.clientReport,
+        cachedItem.getDataLength,
+        contentType: 'application/json',
+      ),
+      cachedItem.getData,
     );
   }
 
@@ -88,28 +89,17 @@ class SentryEnvelopeItem {
   /// Stream binary data of `Envelope` item.
   Future<List<int>> envelopeItemStream() async {
     // Each item needs to be encoded as one unit.
-    // Otherwise the header alredy got yielded if the content throws
+    // Otherwise the header already got yielded if the content throws
     // an exception.
     try {
-      final itemHeader = utf8.encode(jsonEncode(
-        await header.toJson(),
-        toEncodable: jsonSerializationFallback,
-      ));
+      final itemHeader = utf8JsonEncoder.convert(await header.toJson());
+
       final newLine = utf8.encode('\n');
       final data = await dataFactory();
       return [...itemHeader, ...newLine, ...data];
     } catch (e) {
       return [];
     }
-  }
-
-  static List<int> _jsonToBytes(Map<String, dynamic> json) {
-    return utf8.encode(
-      jsonEncode(
-        json,
-        toEncodable: jsonSerializationFallback,
-      ),
-    );
   }
 }
 
@@ -122,5 +112,13 @@ class _CachedItem {
   Future<List<int>> getData() async {
     _data ??= await _dataFactory();
     return _data!;
+  }
+
+  Future<int> getDataLength() async {
+    try {
+      return (await getData()).length;
+    } catch (_) {
+      return -1;
+    }
   }
 }

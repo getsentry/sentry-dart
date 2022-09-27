@@ -2,17 +2,21 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/sentry_envelope_header.dart';
-import 'package:sentry/src/sentry_envelope_item.dart';
 import 'package:sentry/src/sentry_envelope_item_header.dart';
 import 'package:sentry/src/sentry_item_type.dart';
+import 'package:sentry/src/transport/data_category.dart';
 import 'package:sentry/src/transport/rate_limiter.dart';
 import 'package:test/test.dart';
+import 'package:sentry/src/sentry_tracer.dart';
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/transport/http_transport.dart';
 
 import '../mocks.dart';
+import '../mocks/mock_client_report_recorder.dart';
+import '../mocks/mock_hub.dart';
 
 void main() {
   SentryEnvelope givenEnvelope() {
@@ -149,6 +153,59 @@ void main() {
           'fixture-sentryRateLimitHeader');
     });
   });
+
+  group('client reports', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('does records lost event for error >= 400', () async {
+      final httpMock = MockClient((http.Request request) async {
+        return http.Response('{}', 400);
+      });
+      final sut = fixture.getSut(httpMock, MockRateLimiter());
+
+      final sentryEvent = SentryEvent();
+      final envelope =
+          SentryEnvelope.fromEvent(sentryEvent, fixture.options.sdk);
+      await sut.send(envelope);
+
+      expect(fixture.clientReportRecorder.reason, DiscardReason.networkError);
+      expect(fixture.clientReportRecorder.category, DataCategory.error);
+    });
+
+    test('does not record lost event for error 429', () async {
+      final httpMock = MockClient((http.Request request) async {
+        return http.Response('{}', 429);
+      });
+      final sut = fixture.getSut(httpMock, MockRateLimiter());
+
+      final sentryEvent = SentryEvent();
+      final envelope =
+          SentryEnvelope.fromEvent(sentryEvent, fixture.options.sdk);
+      await sut.send(envelope);
+
+      expect(fixture.clientReportRecorder.reason, null);
+      expect(fixture.clientReportRecorder.category, null);
+    });
+
+    test('does record lost event for error >= 500', () async {
+      final httpMock = MockClient((http.Request request) async {
+        return http.Response('{}', 500);
+      });
+      final sut = fixture.getSut(httpMock, MockRateLimiter());
+
+      final sentryEvent = SentryEvent();
+      final envelope =
+          SentryEnvelope.fromEvent(sentryEvent, fixture.options.sdk);
+      await sut.send(envelope);
+
+      expect(fixture.clientReportRecorder.reason, DiscardReason.networkError);
+      expect(fixture.clientReportRecorder.category, DataCategory.error);
+    });
+  });
 }
 
 class Fixture {
@@ -156,8 +213,22 @@ class Fixture {
     dsn: 'https://public:secret@sentry.example.com/1',
   );
 
+  late var clientReportRecorder = MockClientReportRecorder();
+
   HttpTransport getSut(http.Client client, RateLimiter rateLimiter) {
     options.httpClient = client;
+    options.recorder = clientReportRecorder;
     return HttpTransport(options, rateLimiter);
+  }
+
+  SentryTracer createTracer({
+    bool? sampled = true,
+  }) {
+    final context = SentryTransactionContext(
+      'name',
+      'op',
+      samplingDecision: SentryTracesSamplingDecision(sampled!),
+    );
+    return SentryTracer(context, MockHub());
   }
 }

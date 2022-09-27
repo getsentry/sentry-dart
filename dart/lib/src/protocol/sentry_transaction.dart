@@ -11,7 +11,8 @@ class SentryTransaction extends SentryEvent {
   static const String _type = 'transaction';
   late final List<SentrySpan> spans;
   final SentryTracer _tracer;
-  late final List<SentryMeasurement> measurements;
+  late final Map<String, SentryMeasurement> measurements;
+  late final SentryTransactionInfo? transactionInfo;
 
   SentryTransaction(
     this._tracer, {
@@ -32,7 +33,8 @@ class SentryTransaction extends SentryEvent {
     SdkVersion? sdk,
     SentryRequest? request,
     String? type,
-    List<SentryMeasurement>? measurements,
+    Map<String, SentryMeasurement>? measurements,
+    SentryTransactionInfo? transactionInfo,
   }) : super(
           eventId: eventId,
           timestamp: timestamp ?? _tracer.endTimestamp,
@@ -56,12 +58,15 @@ class SentryTransaction extends SentryEvent {
 
     final spanContext = _tracer.context;
     spans = _tracer.children;
-    this.measurements = measurements ?? [];
+    this.measurements = measurements ?? {};
 
     this.contexts.trace = spanContext.toTraceContext(
-      sampled: _tracer.sampled,
+      sampled: _tracer.samplingDecision?.sampled,
       status: _tracer.status,
     );
+
+    this.transactionInfo = transactionInfo ??
+        SentryTransactionInfo(_tracer.transactionNameSource.toStringValue());
   }
 
   @override
@@ -76,10 +81,15 @@ class SentryTransaction extends SentryEvent {
 
     if (measurements.isNotEmpty) {
       final map = <String, dynamic>{};
-      for (final measurement in measurements) {
-        map[measurement.name] = measurement.toJson();
+      for (final item in measurements.entries) {
+        map[item.key] = item.value.toJson();
       }
       json['measurements'] = map;
+    }
+
+    final transactionInfo = this.transactionInfo;
+    if (transactionInfo != null) {
+      json['transaction_info'] = transactionInfo.toJson();
     }
 
     return json;
@@ -117,7 +127,8 @@ class SentryTransaction extends SentryEvent {
     List<SentryException>? exceptions,
     List<SentryThread>? threads,
     String? type,
-    List<SentryMeasurement>? measurements,
+    Map<String, SentryMeasurement>? measurements,
+    SentryTransactionInfo? transactionInfo,
   }) =>
       SentryTransaction(
         _tracer,
@@ -139,9 +150,8 @@ class SentryTransaction extends SentryEvent {
         sdk: sdk ?? this.sdk,
         request: request ?? this.request,
         type: type ?? this.type,
-        measurements: (measurements != null
-                ? List<SentryMeasurement>.from(measurements)
-                : null) ??
+        measurements: (measurements != null ? Map.from(measurements) : null) ??
             this.measurements,
+        transactionInfo: transactionInfo ?? this.transactionInfo,
       );
 }

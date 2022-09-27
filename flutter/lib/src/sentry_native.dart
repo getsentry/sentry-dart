@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:meta/meta.dart';
 
 import '../sentry_flutter.dart';
@@ -48,6 +50,44 @@ class SentryNative {
 
   Future<NativeFrames?> endNativeFramesCollection(SentryId traceId) async {
     return await _nativeChannel?.endNativeFrames(traceId);
+  }
+
+  // Scope
+
+  Future<void> setContexts(String key, dynamic value) async {
+    return await _nativeChannel?.setContexts(key, value);
+  }
+
+  Future<void> removeContexts(String key) async {
+    return await _nativeChannel?.removeContexts(key);
+  }
+
+  Future<void> setUser(SentryUser? sentryUser) async {
+    return await _nativeChannel?.setUser(sentryUser);
+  }
+
+  Future<void> addBreadcrumb(Breadcrumb breadcrumb) async {
+    return await _nativeChannel?.addBreadcrumb(breadcrumb);
+  }
+
+  Future<void> clearBreadcrumbs() async {
+    return await _nativeChannel?.clearBreadcrumbs();
+  }
+
+  Future<void> setExtra(String key, dynamic value) async {
+    return await _nativeChannel?.setExtra(key, value);
+  }
+
+  Future<void> removeExtra(String key) async {
+    return await _nativeChannel?.removeExtra(key);
+  }
+
+  Future<void> setTag(String key, String value) async {
+    return await _nativeChannel?.setTag(key, value);
+  }
+
+  Future<void> removeTag(String key) async {
+    return await _nativeChannel?.removeTag(key);
   }
 
   /// Reset state

@@ -38,7 +38,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
   }
 
   @override
-  void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) {
+  Future<void> addBreadcrumb(Breadcrumb crumb, {dynamic hint}) async {
     addBreadcrumbCalls.add(AddBreadcrumbCall(crumb, hint));
   }
 
@@ -112,7 +112,10 @@ class MockHub with NoSuchMethodProvider implements Hub {
   bool get isEnabled => _isEnabled;
 
   @override
-  Future<SentryId> captureTransaction(SentryTransaction transaction) async {
+  Future<SentryId> captureTransaction(
+    SentryTransaction transaction, {
+    SentryTraceContextHeader? traceContext,
+  }) async {
     captureTransactionCalls.add(transaction);
     return transaction.eventId;
   }

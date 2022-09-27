@@ -22,18 +22,17 @@ class SentrySpan extends ISentrySpan {
   void Function({DateTime? endTimestamp})? _finishedCallback;
 
   @override
-  bool? sampled;
+  final SentryTracesSamplingDecision? samplingDecision;
 
   SentrySpan(
     this._tracer,
     this._context,
     this._hub, {
     DateTime? startTimestamp,
-    bool? sampled,
+    this.samplingDecision,
     Function({DateTime? endTimestamp})? finishedCallback,
   }) {
     _startTimestamp = startTimestamp?.toUtc() ?? getUtcDateTime();
-    this.sampled = sampled;
     _finishedCallback = finishedCallback;
   }
 
@@ -181,6 +180,21 @@ class SentrySpan extends ISentrySpan {
   SentryTraceHeader toSentryTrace() => SentryTraceHeader(
         _context.traceId,
         _context.spanId,
-        sampled: sampled,
+        sampled: samplingDecision?.sampled,
       );
+
+  @override
+  void setMeasurement(
+    String name,
+    num value, {
+    SentryMeasurementUnit? unit,
+  }) {
+    _tracer.setMeasurement(name, value, unit: unit);
+  }
+
+  @override
+  SentryBaggageHeader? toBaggageHeader() => _tracer.toBaggageHeader();
+
+  @override
+  SentryTraceContextHeader? traceContext() => _tracer.traceContext();
 }

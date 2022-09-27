@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import 'dio_event_processor.dart';
 import 'failed_request_interceptor.dart';
@@ -12,11 +11,11 @@ extension SentryDioExtension on Dio {
   /// as well as request and response transformations.
   /// This must be the last initialization step of the [Dio] setup, otherwise
   /// your configuration of Dio might overwrite the Sentry configuration.
-  @experimental
   void addSentry({
     bool recordBreadcrumbs = true,
     bool networkTracing = true,
     MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never,
+    MaxResponseBodySize maxResponseBodySize = MaxResponseBodySize.never,
     bool captureFailedRequests = false,
     Hub? hub,
   }) {
@@ -28,7 +27,13 @@ extension SentryDioExtension on Dio {
     // Add DioEventProcessor when it's not already present
     if (options.eventProcessors.whereType<DioEventProcessor>().isEmpty) {
       options.sdk.addIntegration('sentry_dio');
-      options.addEventProcessor(DioEventProcessor(options, maxRequestBodySize));
+      options.addEventProcessor(
+        DioEventProcessor(
+          options,
+          maxRequestBodySize,
+          maxResponseBodySize,
+        ),
+      );
     }
 
     if (captureFailedRequests) {

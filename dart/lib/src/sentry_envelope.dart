@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'client_reports/client_report.dart';
 import 'protocol.dart';
 import 'sentry_item_type.dart';
 import 'sentry_options.dart';
+import 'sentry_trace_context_header.dart';
 import 'utils.dart';
 import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_envelope_header.dart';
@@ -12,7 +14,7 @@ import 'sentry_user_feedback.dart';
 class SentryEnvelope {
   SentryEnvelope(this.header, this.items);
 
-  /// Header descriping envelope content.
+  /// Header describing envelope content.
   final SentryEnvelopeHeader header;
 
   /// All items contained in the envelope.
@@ -21,12 +23,18 @@ class SentryEnvelope {
   /// Create an [SentryEnvelope] with containing one [SentryEnvelopeItem] which holds the [SentryEvent] data.
   factory SentryEnvelope.fromEvent(
     SentryEvent event,
-    SdkVersion sdkVersion,
-    String? dsn, {
+    SdkVersion sdkVersion, {
+    String? dsn,
+    SentryTraceContextHeader? traceContext,
     List<SentryAttachment>? attachments,
   }) {
     return SentryEnvelope(
-      SentryEnvelopeHeader(event.eventId, sdkVersion, dsn),
+      SentryEnvelopeHeader(
+        event.eventId,
+        sdkVersion,
+        dsn: dsn,
+        traceContext: traceContext,
+      ),
       [
         SentryEnvelopeItem.fromEvent(event),
         if (attachments != null)
@@ -40,7 +48,8 @@ class SentryEnvelope {
     SdkVersion sdkVersion,
   ) {
     return SentryEnvelope(
-      SentryEnvelopeHeader(feedback.eventId, sdkVersion, null),
+      // no need for [traceContext]
+      SentryEnvelopeHeader(feedback.eventId, sdkVersion),
       [SentryEnvelopeItem.fromUserFeedback(feedback)],
     );
   }
@@ -49,10 +58,17 @@ class SentryEnvelope {
   factory SentryEnvelope.fromTransaction(
     SentryTransaction transaction,
     SdkVersion sdkVersion, {
+    String? dsn,
+    SentryTraceContextHeader? traceContext,
     List<SentryAttachment>? attachments,
   }) {
     return SentryEnvelope(
-      SentryEnvelopeHeader(transaction.eventId, sdkVersion, null),
+      SentryEnvelopeHeader(
+        transaction.eventId,
+        sdkVersion,
+        dsn: dsn,
+        traceContext: traceContext,
+      ),
       [
         SentryEnvelopeItem.fromTransaction(transaction),
         if (attachments != null)
@@ -63,10 +79,8 @@ class SentryEnvelope {
 
   /// Stream binary data representation of `Envelope` file encoded.
   Stream<List<int>> envelopeStream(SentryOptions options) async* {
-    yield utf8.encode(jsonEncode(
-      header.toJson(),
-      toEncodable: jsonSerializationFallback,
-    ));
+    yield utf8JsonEncoder.convert(header.toJson());
+
     final newLineData = utf8.encode('\n');
     for (final item in items) {
       final length = await item.header.length();
@@ -75,7 +89,7 @@ class SentryEnvelope {
       if (length < 0) {
         continue;
       }
-      // Olny attachments should be filtered according to
+      // Only attachments should be filtered according to
       // SentryOptions.maxAttachmentSize
       if (item.header.type == SentryItemType.attachment) {
         if (await item.header.length() > options.maxAttachmentSize) {
@@ -87,6 +101,14 @@ class SentryEnvelope {
         yield newLineData;
         yield itemStream;
       }
+    }
+  }
+
+  /// Add an envelope item containing client report data.
+  void addClientReport(ClientReport? clientReport) {
+    if (clientReport != null) {
+      final envelopeItem = SentryEnvelopeItem.fromClientReport(clientReport);
+      items.add(envelopeItem);
     }
   }
 }

@@ -3,12 +3,22 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/client_reports/client_report.dart';
+import 'package:sentry/src/client_reports/discard_reason.dart';
+import 'package:sentry/src/client_reports/discarded_event.dart';
+import 'package:sentry/src/client_reports/noop_client_report_recorder.dart';
 import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
+import 'mocks/mock_client_report_recorder.dart';
+import 'mocks/mock_envelope.dart';
+import 'mocks/mock_hub.dart';
+import 'mocks/mock_platform.dart';
+import 'mocks/mock_platform_checker.dart';
 import 'mocks/mock_transport.dart';
 
 void main() {
@@ -101,6 +111,50 @@ void main() {
       expect(capturedEvent.threads?.first.stacktrace, isNull);
       expect(capturedEvent.exceptions?.first.stackTrace, isNotNull);
     });
+
+    test(
+      'should attach isolate info in thread',
+      () async {
+        final client = fixture.getSut(attachThreads: true);
+
+        await client.captureException(
+          Exception(),
+          stackTrace: StackTrace.current,
+        );
+
+        final capturedEnvelope = (fixture.transport).envelopes.first;
+        final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+        expect(capturedEvent.threads?.first.current, true);
+        expect(capturedEvent.threads?.first.crashed, true);
+        expect(capturedEvent.threads?.first.name, isNotNull);
+        expect(capturedEvent.threads?.first.id, isNotNull);
+
+        expect(
+          capturedEvent.exceptions?.first.threadId,
+          capturedEvent.threads?.first.id,
+        );
+      },
+      onPlatform: {'js': Skip("Isolates don't exist on the web")},
+    );
+
+    test(
+      'should not attach isolate info in thread if disabled',
+      () async {
+        final client = fixture.getSut(attachThreads: false);
+
+        await client.captureException(
+          Exception(),
+          stackTrace: StackTrace.current,
+        );
+
+        final capturedEnvelope = (fixture.transport).envelopes.first;
+        final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+        expect(capturedEvent.threads, null);
+      },
+      onPlatform: {'js': Skip("Isolates don't exist on the web")},
+    );
 
     test('should capture message', () async {
       final client = fixture.getSut();
@@ -446,13 +500,14 @@ void main() {
       fixture = Fixture();
 
       scope = Scope(fixture.options)
-        ..user = user
         ..level = level
         ..transaction = transaction
         ..fingerprint = fingerprint
         ..addBreadcrumb(crumb)
         ..setTag(scopeTagKey, scopeTagValue)
         ..setExtra(scopeExtraKey, scopeExtraValue);
+
+      scope.setUser(user);
     });
 
     test('should apply the scope', () async {
@@ -498,12 +553,13 @@ void main() {
       breadcrumbs: eventCrumbs,
     );
 
-    Scope createScope(SentryOptions options) {
-      return Scope(options)
-        ..user = user
+    Future<Scope> createScope(SentryOptions options) async {
+      final scope = Scope(options)
         ..transaction = transaction
-        ..fingerprint = fingerprint
-        ..addBreadcrumb(crumb);
+        ..fingerprint = fingerprint;
+      await scope.addBreadcrumb(crumb);
+      await scope.setUser(user);
+      return scope;
     }
 
     setUp(() {
@@ -512,7 +568,7 @@ void main() {
 
     test('should not apply the scope to non null event fields ', () async {
       final client = fixture.getSut(sendDefaultPii: true);
-      final scope = createScope(fixture.options);
+      final scope = await createScope(fixture.options);
 
       await client.captureEvent(event, scope: scope);
 
@@ -529,9 +585,9 @@ void main() {
 
     test('should apply the scope user to null event user fields ', () async {
       final client = fixture.getSut(sendDefaultPii: true);
-      final scope = createScope(fixture.options);
+      final scope = await createScope(fixture.options);
 
-      scope.user = SentryUser(id: '987');
+      await scope.setUser(SentryUser(id: '987'));
 
       var eventWithUser = event.copyWith(
         user: SentryUser(id: '123', username: 'foo bar'),
@@ -552,14 +608,16 @@ void main() {
 
     test('merge scope user and event user extra', () async {
       final client = fixture.getSut(sendDefaultPii: true);
-      final scope = createScope(fixture.options);
+      final scope = await createScope(fixture.options);
 
-      scope.user = SentryUser(
-        id: 'id',
-        extras: {
-          'foo': 'bar',
-          'bar': 'foo',
-        },
+      await scope.setUser(
+        SentryUser(
+          id: 'id',
+          extras: {
+            'foo': 'bar',
+            'bar': 'foo',
+          },
+        ),
       );
 
       var eventWithUser = event.copyWith(
@@ -723,6 +781,21 @@ void main() {
       );
       expect(event.fingerprint!.contains('process'), true);
     });
+
+    test('thrown error is handled', () async {
+      final exception = Exception("before send exception");
+      final beforeSendCallback = (SentryEvent event, {dynamic hint}) {
+        throw exception;
+      };
+
+      final client =
+          fixture.getSut(beforeSend: beforeSendCallback, debug: true);
+
+      await client.captureEvent(fakeEvent);
+
+      expect(fixture.loggedException, exception);
+      expect(fixture.loggedLevel, SentryLevel.error);
+    });
   });
 
   group('EventProcessors', () {
@@ -805,6 +878,322 @@ void main() {
       expect(capturedEnvelope, fakeEnvelope);
     });
   });
+
+  group('Breadcrumbs', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('Clears breadcrumbs on Android if mechanism.handled is true',
+        () async {
+      fixture.options.enableScopeSync = true;
+      fixture.options.platformChecker =
+          MockPlatformChecker(platform: MockPlatform.android());
+
+      final client = fixture.getSut();
+      final event = SentryEvent(exceptions: [
+        SentryException(
+          type: "type",
+          value: "value",
+          mechanism: Mechanism(
+            type: 'type',
+            handled: true,
+          ),
+        )
+      ], breadcrumbs: [
+        Breadcrumb()
+      ]);
+      await client.captureEvent(event);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect((capturedEvent.breadcrumbs ?? []).isEmpty, true);
+    });
+
+    test('Clears breadcrumbs on Android if mechanism.handled is null',
+        () async {
+      fixture.options.enableScopeSync = true;
+      fixture.options.platformChecker =
+          MockPlatformChecker(platform: MockPlatform.android());
+
+      final client = fixture.getSut();
+      final event = SentryEvent(exceptions: [
+        SentryException(
+          type: "type",
+          value: "value",
+          mechanism: Mechanism(type: 'type'),
+        )
+      ], breadcrumbs: [
+        Breadcrumb()
+      ]);
+      await client.captureEvent(event);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect((capturedEvent.breadcrumbs ?? []).isEmpty, true);
+    });
+
+    test('Clears breadcrumbs on Android if theres no mechanism', () async {
+      fixture.options.enableScopeSync = true;
+      fixture.options.platformChecker =
+          MockPlatformChecker(platform: MockPlatform.android());
+
+      final client = fixture.getSut();
+      final event = SentryEvent(exceptions: [
+        SentryException(
+          type: "type",
+          value: "value",
+        )
+      ], breadcrumbs: [
+        Breadcrumb()
+      ]);
+      await client.captureEvent(event);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect((capturedEvent.breadcrumbs ?? []).isEmpty, true);
+    });
+
+    test('Does not clear breadcrumbs on Android if mechanism.handled is false',
+        () async {
+      fixture.options.enableScopeSync = true;
+      fixture.options.platformChecker =
+          MockPlatformChecker(platform: MockPlatform.android());
+
+      final client = fixture.getSut();
+      final event = SentryEvent(exceptions: [
+        SentryException(
+          type: "type",
+          value: "value",
+          mechanism: Mechanism(
+            type: 'type',
+            handled: false,
+          ),
+        )
+      ], breadcrumbs: [
+        Breadcrumb()
+      ]);
+      await client.captureEvent(event);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect((capturedEvent.breadcrumbs ?? []).isNotEmpty, true);
+    });
+
+    test(
+        'Does not clear breadcrumbs on Android if any mechanism.handled is false',
+        () async {
+      fixture.options.enableScopeSync = true;
+      fixture.options.platformChecker =
+          MockPlatformChecker(platform: MockPlatform.android());
+
+      final client = fixture.getSut();
+      final event = SentryEvent(exceptions: [
+        SentryException(
+          type: "type",
+          value: "value",
+          mechanism: Mechanism(
+            type: 'type',
+            handled: true,
+          ),
+        ),
+        SentryException(
+          type: "type",
+          value: "value",
+          mechanism: Mechanism(
+            type: 'type',
+            handled: false,
+          ),
+        )
+      ], breadcrumbs: [
+        Breadcrumb()
+      ]);
+      await client.captureEvent(event);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect((capturedEvent.breadcrumbs ?? []).isNotEmpty, true);
+    });
+  });
+
+  group('ClientReportRecorder', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('recorder is not noop if client reports are enabled', () async {
+      fixture.options.sendClientReports = true;
+
+      fixture.getSut(
+        eventProcessor: DropAllEventProcessor(),
+        provideMockRecorder: false,
+      );
+
+      expect(fixture.options.recorder is NoOpClientReportRecorder, false);
+      expect(fixture.options.recorder is MockClientReportRecorder, false);
+    });
+
+    test('recorder is noop if client reports are disabled', () {
+      fixture.options.sendClientReports = false;
+
+      fixture.getSut(
+        eventProcessor: DropAllEventProcessor(),
+        provideMockRecorder: false,
+      );
+
+      expect(fixture.options.recorder is NoOpClientReportRecorder, true);
+    });
+
+    test('captureEnvelope calls flush', () async {
+      final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
+
+      final envelope = MockEnvelope();
+      envelope.items = [SentryEnvelopeItem.fromEvent(SentryEvent())];
+
+      await client.captureEnvelope(envelope);
+
+      expect(fixture.recorder.flushCalled, true);
+    });
+
+    test('captureEnvelope adds client report', () async {
+      final clientReport = ClientReport(
+        DateTime(0),
+        [DiscardedEvent(DiscardReason.rateLimitBackoff, DataCategory.error, 1)],
+      );
+      fixture.recorder.clientReport = clientReport;
+
+      final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
+
+      final envelope = MockEnvelope();
+      envelope.items = [SentryEnvelopeItem.fromEvent(SentryEvent())];
+
+      await client.captureEnvelope(envelope);
+
+      expect(envelope.clientReport, clientReport);
+    });
+
+    test('captureEvent adds trace context', () async {
+      final client = fixture.getSut();
+
+      final scope = Scope(fixture.options);
+      scope.span =
+          SentrySpan(fixture.tracer, fixture.tracer.context, MockHub());
+
+      await client.captureEvent(fakeEvent, scope: scope);
+
+      final envelope = fixture.transport.envelopes.first;
+      expect(envelope.header.traceContext, isNotNull);
+    });
+
+    test('captureTransaction adds trace context', () async {
+      final client = fixture.getSut();
+
+      final tr = SentryTransaction(fixture.tracer);
+
+      final context = SentryTraceContextHeader.fromJson(<String, dynamic>{
+        'trace_id': '${tr.eventId}',
+        'public_key': '123',
+      });
+
+      await client.captureTransaction(tr, traceContext: context);
+
+      final envelope = fixture.transport.envelopes.first;
+      expect(envelope.header.traceContext, isNotNull);
+    });
+
+    test('captureUserFeedback calls flush', () async {
+      final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
+
+      final id = SentryId.newId();
+      final feedback = SentryUserFeedback(
+        eventId: id,
+        comments: 'this is awesome',
+        email: 'sentry@example.com',
+        name: 'Rockstar Developer',
+      );
+      await client.captureUserFeedback(feedback);
+
+      expect(fixture.recorder.flushCalled, true);
+    });
+
+    test('captureUserFeedback adds client report', () async {
+      final clientReport = ClientReport(
+        DateTime(0),
+        [DiscardedEvent(DiscardReason.rateLimitBackoff, DataCategory.error, 1)],
+      );
+      fixture.recorder.clientReport = clientReport;
+
+      final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
+
+      final id = SentryId.newId();
+      final feedback = SentryUserFeedback(
+        eventId: id,
+        comments: 'this is awesome',
+        email: 'sentry@example.com',
+        name: 'Rockstar Developer',
+      );
+      await client.captureUserFeedback(feedback);
+
+      final envelope = fixture.transport.envelopes.first;
+      final item = envelope.items.last;
+
+      // Only partial test, as the envelope is created internally from feedback.
+      expect(item.header.type, SentryItemType.clientReport);
+    });
+
+    test('record event processor dropping event', () async {
+      final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
+
+      await client.captureEvent(fakeEvent);
+
+      expect(fixture.recorder.reason, DiscardReason.eventProcessor);
+      expect(fixture.recorder.category, DataCategory.error);
+    });
+
+    test('record event processor dropping transaction', () async {
+      final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
+
+      final context = SentryTransactionContext('name', 'op');
+      final tracer = SentryTracer(context, MockHub());
+      final transaction = SentryTransaction(tracer);
+
+      await client.captureTransaction(transaction);
+
+      expect(fixture.recorder.reason, DiscardReason.eventProcessor);
+      expect(fixture.recorder.category, DataCategory.transaction);
+    });
+
+    test('record beforeSend dropping event', () async {
+      final client = fixture.getSut();
+
+      fixture.options.beforeSend = fixture.droppingBeforeSend;
+
+      await client.captureEvent(fakeEvent);
+
+      expect(fixture.recorder.reason, DiscardReason.beforeSend);
+      expect(fixture.recorder.category, DataCategory.error);
+    });
+
+    test('record sample rate dropping event', () async {
+      final client = fixture.getSut(sampleRate: 0.0);
+
+      fixture.options.beforeSend = fixture.droppingBeforeSend;
+
+      await client.captureEvent(fakeEvent);
+
+      expect(fixture.recorder.reason, DiscardReason.sampleRate);
+      expect(fixture.recorder.category, DataCategory.error);
+    });
+  });
 }
 
 Future<SentryEvent> eventFromEnvelope(SentryEnvelope envelope) async {
@@ -852,18 +1241,27 @@ FutureOr<SentryEvent?> beforeSendCallback(SentryEvent event, {dynamic hint}) {
 }
 
 class Fixture {
+  final recorder = MockClientReportRecorder();
   final transport = MockTransport();
 
-  final options = SentryOptions(dsn: fakeDsn);
+  final options = SentryOptions(dsn: fakeDsn)
+    ..platformChecker = MockPlatformChecker(platform: MockPlatform.iOS());
+
   late SentryTransactionContext _context;
   late SentryTracer tracer;
+
+  SentryLevel? loggedLevel;
+  Object? loggedException;
 
   SentryClient getSut({
     bool sendDefaultPii = false,
     bool attachStacktrace = true,
+    bool attachThreads = false,
     double? sampleRate,
     BeforeSendCallback? beforeSend,
     EventProcessor? eventProcessor,
+    bool provideMockRecorder = true,
+    bool debug = false,
   }) {
     final hub = Hub(options);
     _context = SentryTransactionContext(
@@ -875,15 +1273,37 @@ class Fixture {
     options.tracesSampleRate = 1.0;
     options.sendDefaultPii = sendDefaultPii;
     options.attachStacktrace = attachStacktrace;
+    options.attachThreads = attachThreads;
     options.sampleRate = sampleRate;
     options.beforeSend = beforeSend;
+    options.debug = debug;
+    options.logger = mockLogger;
+
     if (eventProcessor != null) {
       options.addEventProcessor(eventProcessor);
     }
     options.transport = transport;
     final client = SentryClient(options);
-    // hub.bindClient(client);
 
+    if (provideMockRecorder) {
+      options.recorder = recorder;
+    }
     return client;
+  }
+
+  FutureOr<SentryEvent?> droppingBeforeSend(SentryEvent event,
+      {dynamic hint}) async {
+    return null;
+  }
+
+  void mockLogger(
+    SentryLevel level,
+    String message, {
+    String? logger,
+    Object? exception,
+    StackTrace? stackTrace,
+  }) {
+    loggedLevel = level;
+    loggedException = exception;
   }
 }

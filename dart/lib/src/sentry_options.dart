@@ -4,23 +4,18 @@ import 'dart:developer';
 import 'package:meta/meta.dart';
 import 'package:http/http.dart';
 
+import '../sentry.dart';
+import 'client_reports/client_report_recorder.dart';
+import 'client_reports/noop_client_report_recorder.dart';
 import 'sentry_exception_factory.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'diagnostic_logger.dart';
 import 'environment/environment_variables.dart';
-import 'event_processor.dart';
-import 'http_client/sentry_http_client.dart';
-import 'integration.dart';
 import 'noop_client.dart';
-import 'platform_checker.dart';
-import 'protocol.dart';
-import 'tracing.dart';
 import 'transport/noop_transport.dart';
-import 'transport/transport.dart';
 import 'utils.dart';
 import 'version.dart';
 
-// TODO: Scope observers, enableScopeSync
 // TODO: shutdownTimeout, flushTimeoutMillis
 // https://api.dart.dev/stable/2.10.2/dart-io/HttpClient/close.html doesn't have a timeout param, we'd need to implement manually
 
@@ -212,17 +207,27 @@ class SentryOptions {
 
   /// Enable this option if you want to record calls to `print()` as
   /// breadcrumbs.
+  /// In a Flutter environment, this setting also toggles recording of `debugPrint` calls.
+  /// `debugPrint` calls are only recorded in release builds, though.
   bool enablePrintBreadcrumbs = true;
 
-  /// If [platformChecker] is provided, it is used get the envirnoment.
+  /// If [platformChecker] is provided, it is used get the environment.
   /// This is useful in tests. Should be an implementation of [PlatformChecker].
   PlatformChecker platformChecker = PlatformChecker();
 
-  /// If [environmentVariables] is provided, it is used get the envirnoment
+  /// If [environmentVariables] is provided, it is used get the environment
   /// variables. This is useful in tests.
   EnvironmentVariables environmentVariables = EnvironmentVariables.instance();
 
-  /// When enabled, all the threads are automatically attached to all logged events (Android).
+  /// When enabled, the current isolate will be attached to the event.
+  /// This only applies to Dart:io platforms and only the current isolate.
+  /// The Dart runtime doesn't provide information about other active isolates.
+  ///
+  /// When running on web, this option has no effect at all.
+  ///
+  /// When running in the Flutter context, this enables attaching of threads
+  /// for native events, if supported for the native platform.
+  /// Currently, this is only supported on Android.
   bool attachThreads = false;
 
   /// Whether to send personal identifiable information along with events
@@ -262,6 +267,32 @@ class SentryOptions {
   /// to be sent to Sentry.
   TracesSamplerCallback? tracesSampler;
 
+  /// Send statistics to sentry when the client drops events.
+  bool sendClientReports = true;
+
+  /// If enabled, [scopeObservers] will be called when mutating scope.
+  bool enableScopeSync = true;
+
+  final List<ScopeObserver> _scopeObservers = [];
+
+  List<ScopeObserver> get scopeObservers => _scopeObservers;
+
+  void addScopeObserver(ScopeObserver scopeObserver) {
+    _scopeObservers.add(scopeObserver);
+  }
+
+  @internal
+  late ClientReportRecorder recorder = NoOpClientReportRecorder();
+
+  /// List of strings/regex controlling to which outgoing requests
+  /// the SDK will attach tracing headers.
+  ///
+  /// By default the SDK will attach those headers to all outgoing
+  /// requests. If this option is provided, the SDK will match the
+  /// request URL of outgoing requests against the items in this
+  /// array, and only attach tracing headers if a match was found.
+  final List<String> tracePropagationTargets = ['.*'];
+
   SentryOptions({this.dsn, PlatformChecker? checker}) {
     if (checker != null) {
       platformChecker = checker;
@@ -272,7 +303,9 @@ class SentryOptions {
   }
 
   @internal
-  SentryOptions.empty();
+  SentryOptions.empty() {
+    sdk = SdkVersion(name: 'noop', version: sdkVersion);
+  }
 
   /// Adds an event processor
   void addEventProcessor(EventProcessor eventProcessor) {

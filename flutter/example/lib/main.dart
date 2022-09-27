@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:logging/logging.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:feedback/feedback.dart' as feedback;
@@ -11,10 +12,13 @@ import 'package:provider/provider.dart';
 import 'user_feedback_dialog.dart';
 import 'package:dio/dio.dart';
 import 'package:sentry_dio/sentry_dio.dart';
+import 'package:sentry_logging/sentry_logging.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
 const String _exampleDsn =
-    'https://9934c532bf8446ef961450973c898537@o447951.ingest.sentry.io/5428562';
+    'https://e85b375ffb9f43cf8bdf9787768149e0@o447951.ingest.sentry.io/5428562';
+
+final _channel = const MethodChannel('example.flutter.sentry.io');
 
 Future<void> main() async {
   await SentryFlutter.init(
@@ -24,6 +28,13 @@ Future<void> main() async {
       options.reportPackages = false;
       options.addInAppInclude('sentry_flutter_example');
       options.considerInAppFramesByDefault = false;
+      options.attachThreads = true;
+      options.enableWindowMetricBreadcrumbs = true;
+      options.addIntegration(LoggingIntegration());
+      // We can enable Sentry debug logging during development. This is likely
+      // going to log too much for your app, but can be useful when figuring out
+      // configuration issues, e.g. finding out why your events are not uploaded.
+      options.debug = true;
     },
     // Init your App.
     appRunner: () => runApp(
@@ -175,6 +186,20 @@ class MainScaffold extends StatelessWidget {
                 ));
               },
               child: const Text('Capture from FlutterError.onError'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Only usable on Flutter >= 3.3
+                // and needs the following additional setup:
+                // options.addIntegration(OnErrorIntegration());
+                (WidgetsBinding.instance.platformDispatcher as dynamic)
+                    .onError
+                    ?.call(
+                      Exception('PlatformDispatcher.onError'),
+                      StackTrace.current,
+                    );
+              },
+              child: const Text('Capture from PlatformDispatcher.onError'),
             ),
             ElevatedButton(
               onPressed: () => makeWebRequest(context),
@@ -333,9 +358,6 @@ class MainScaffold extends StatelessWidget {
 class AndroidExample extends StatelessWidget {
   const AndroidExample({Key? key}) : super(key: key);
 
-  // ignore: avoid_field_initializers_in_const_classes
-  final channel = const MethodChannel('example.flutter.sentry.io');
-
   @override
   Widget build(BuildContext context) {
     return Column(children: [
@@ -376,15 +398,14 @@ class AndroidExample extends StatelessWidget {
         },
         child: const Text('Platform exception'),
       ),
+      ElevatedButton(
+        onPressed: () {
+          final log = Logger('Logging');
+          log.info('My Logging test');
+        },
+        child: const Text('Logging'),
+      ),
     ]);
-  }
-
-  Future<void> execute(String method) async {
-    try {
-      await channel.invokeMethod<void>(method);
-    } catch (error, stackTrace) {
-      await Sentry.captureException(error, stackTrace: stackTrace);
-    }
   }
 }
 
@@ -403,39 +424,37 @@ Future<void> asyncThrows() async {
 class CocoaExample extends StatelessWidget {
   const CocoaExample({Key? key}) : super(key: key);
 
-  final channel = const MethodChannel('example.flutter.sentry.io');
-
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         ElevatedButton(
           onPressed: () async {
-            await channel.invokeMethod<void>('fatalError');
+            await execute('fatalError');
           },
           child: const Text('Swift fatalError'),
         ),
         ElevatedButton(
           onPressed: () async {
-            await channel.invokeMethod<void>('capture');
+            await execute('capture');
           },
           child: const Text('Swift Capture NSException'),
         ),
         ElevatedButton(
           onPressed: () async {
-            await channel.invokeMethod<void>('capture_message');
+            await execute('capture_message');
           },
           child: const Text('Swift Capture message'),
         ),
         ElevatedButton(
           onPressed: () async {
-            await channel.invokeMethod<void>('throw');
+            await execute('throw');
           },
           child: const Text('Objective-C Throw unhandled exception'),
         ),
         ElevatedButton(
           onPressed: () async {
-            await channel.invokeMethod<void>('crash');
+            await execute('crash');
           },
           child: const Text('Objective-C SEGFAULT'),
         ),
@@ -649,4 +668,8 @@ class ThemeProvider extends ChangeNotifier {
       theme = ThemeData(primarySwatch: color, brightness: theme.brightness);
     }
   }
+}
+
+Future<void> execute(String method) async {
+  await _channel.invokeMethod<void>(method);
 }
