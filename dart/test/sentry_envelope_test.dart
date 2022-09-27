@@ -143,14 +143,14 @@ void main() {
       final sut = SentryEnvelope.fromEvent(
         sentryEvent,
         sdkVersion,
-        fakeDsn,
+        dsn: fakeDsn,
         attachments: [attachment],
       );
 
       final expectedEnvelopeItem = SentryEnvelope.fromEvent(
         sentryEvent,
         sdkVersion,
-        fakeDsn,
+        dsn: fakeDsn,
       );
 
       final sutEnvelopeData = <int>[];
@@ -177,7 +177,7 @@ void main() {
           name: 'test',
           version: '1',
         ),
-        fakeDsn,
+        dsn: fakeDsn,
       );
 
       final _ = sut.envelopeStream(SentryOptions()).map((e) => e);

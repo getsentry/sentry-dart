@@ -5,7 +5,7 @@ import 'package:test/test.dart';
 void main() {
   group('SentryEnvelopeHeader', () {
     test('toJson empty', () {
-      final sut = SentryEnvelopeHeader(null, null, null);
+      final sut = SentryEnvelopeHeader(null, null);
       final expected = <String, dynamic>{};
       expect(sut.toJson(), expected);
     });
