@@ -34,7 +34,7 @@ void main() {
       final span = tracer.children.first;
 
       expect(span.status, SpanStatus.ok());
-      expect(span.context.operation, 'serialize');
+      expect(span.context.operation, 'serialize.http.client');
       expect(span.context.description, 'GET foo');
     });
 
@@ -56,7 +56,7 @@ void main() {
       final span = tracer.children.first;
 
       expect(span.status, SpanStatus.internalError());
-      expect(span.context.operation, 'serialize');
+      expect(span.context.operation, 'serialize.http.client');
       expect(span.context.description, 'GET foo');
       expect(span.finished, true);
     });
@@ -80,7 +80,7 @@ void main() {
       final span = tracer.children.first;
 
       expect(span.status, SpanStatus.ok());
-      expect(span.context.operation, 'serialize');
+      expect(span.context.operation, 'serialize.http.client');
       expect(span.context.description, 'GET foo');
     });
     test('transformResponse finish span if errored request', () async {
@@ -104,7 +104,7 @@ void main() {
       final span = tracer.children.first;
 
       expect(span.status, SpanStatus.internalError());
-      expect(span.context.operation, 'serialize');
+      expect(span.context.operation, 'serialize.http.client');
       expect(span.context.description, 'GET foo');
       expect(span.finished, true);
     });

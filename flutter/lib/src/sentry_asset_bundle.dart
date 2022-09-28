@@ -234,7 +234,7 @@ class SentryAssetBundle implements AssetBundle {
     ISentrySpan? outerSpan,
   ) async {
     final span = outerSpan?.startChild(
-      'serialize',
+      'serialize.file.read',
       description: 'parsing "$key" to "$T"',
     );
     T data;
