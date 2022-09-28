@@ -2,10 +2,12 @@
 
 ## Unreleased
 - Fix: Remove `SentryOptions` related parameters from classes which also take `Hub` as a parameter (#816)
+## 6.11.1
 
 ### Fixes
 
 - Align span spec for serialize ops ([#1024](https://github.com/getsentry/sentry-dart/pull/1024))
+- Pin sentry version ([#1020](https://github.com/getsentry/sentry-dart/pull/1020))
 
 ### Features
 
