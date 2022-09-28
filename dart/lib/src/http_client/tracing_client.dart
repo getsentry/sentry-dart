@@ -2,6 +2,7 @@ import 'package:http/http.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
 import '../protocol.dart';
+import '../utils/tracing_utils.dart';
 
 /// A [http](https://pub.dev/packages/http)-package compatible HTTP client
 /// which adds support to Sentry Performance feature.
@@ -26,11 +27,16 @@ class TracingClient extends BaseClient {
     StreamedResponse? response;
     try {
       if (span != null) {
-        final traceHeader = span.toSentryTrace();
-        request.headers[traceHeader.name] = traceHeader.value;
+        if (containsTracePropagationTarget(
+            _hub.options.tracePropagationTargets, request.url.toString())) {
+          addSentryTraceHeader(span, request.headers);
+          addBaggageHeader(
+            span,
+            request.headers,
+            logger: _hub.options.logger,
+          );
+        }
       }
-
-      // TODO: tracingOrigins support
 
       response = await _client.send(request);
       span?.status = SpanStatus.fromHttpStatusCode(response.statusCode);
