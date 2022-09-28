@@ -128,12 +128,10 @@ class FunctionEventProcessor extends EventProcessor {
 typedef EventProcessorFunction = FutureOr<SentryEvent?>
     Function(SentryEvent event, {dynamic hint});
 
-final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
-
 var fakeEnvelope = SentryEnvelope.fromEvent(
   fakeEvent,
   SdkVersion(name: 'sdk1', version: '1.0.0'),
-  fakeDsn,
+  dsn: fakeDsn,
 );
 
 class MockRateLimiter implements RateLimiter {
