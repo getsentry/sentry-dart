@@ -284,6 +284,9 @@ class SentryTracer extends ISentrySpan {
 
   @override
   void setMeasurement(String name, num value, {SentryMeasurementUnit? unit}) {
+    if (finished) {
+      return;
+    }
     final measurement = SentryMeasurement(name, value, unit: unit);
     _measurements[name] = measurement;
   }

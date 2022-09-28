@@ -373,6 +373,16 @@ void main() {
 
       expect(sut.startChild('child3'), isA<NoOpSentrySpan>());
     });
+
+    test('tracer does not allow setting measurement if finished', () async {
+      final sut = fixture.getSut();
+
+      await sut.finish();
+
+      sut.setMeasurement('key', 1.0);
+
+      expect(sut.measurements.isEmpty, true);
+    });
   });
 
   group('$SentryBaggageHeader', () {
