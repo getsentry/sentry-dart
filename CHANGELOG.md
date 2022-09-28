@@ -6,6 +6,7 @@
 
 - Align span spec for serialize ops ([#1024](https://github.com/getsentry/sentry-dart/pull/1024))
 - Pin sentry version ([#1020](https://github.com/getsentry/sentry-dart/pull/1020))
+- Tracer does not allow setting measurement if finished ([#1026](https://github.com/getsentry/sentry-dart/pull/1026))
 
 ### Features
 
