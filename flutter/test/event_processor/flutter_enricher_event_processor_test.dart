@@ -9,7 +9,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/event_processor/flutter_enricher_event_processor.dart';
 
-import 'mocks.dart';
+import '../mocks.dart';
 
 void main() {
   group(FlutterEnricherEventProcessor, () {
