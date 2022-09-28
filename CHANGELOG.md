@@ -6,6 +6,12 @@
 
 - Align span spec for serialize ops ([#1024](https://github.com/getsentry/sentry-dart/pull/1024))
 
+### Features
+
+- Bump Cocoa SDK from v7.25.1 to v7.26.0 ([#1023](https://github.com/getsentry/sentry-dart/pull/1023))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/master/CHANGELOG.md#7260)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.25.1...7.26.0)
+
 ## 6.11.0
 
 ### Fixes
