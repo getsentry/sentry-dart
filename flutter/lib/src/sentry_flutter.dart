@@ -11,11 +11,9 @@ import 'sentry_native.dart';
 import 'sentry_native_channel.dart';
 
 import 'flutter_enricher_event_processor.dart';
-import 'integrations/debug_print_integration.dart';
-import 'integrations/native_app_start_integration.dart';
+import 'integrations/integrations.dart';
 import 'sentry_flutter_options.dart';
 
-import 'default_integrations.dart';
 import 'file_system_transport.dart';
 
 import 'version.dart';

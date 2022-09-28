@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/integrations/debug_print_integration.dart';
+import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/version.dart';
 import 'mocks.dart';
 import 'sentry_flutter_util.dart';
