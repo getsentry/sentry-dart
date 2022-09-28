@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Align span spec for serialize ops ([#1024](https://github.com/getsentry/sentry-dart/pull/1024))
+
 ## 6.11.0
 
 ### Fixes
