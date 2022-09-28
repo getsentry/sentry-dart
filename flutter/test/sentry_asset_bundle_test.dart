@@ -283,7 +283,7 @@ void main() {
         expect(span.status, SpanStatus.internalError());
         expect(span.finished, true);
         expect(span.throwable, isA<Exception>());
-        expect(span.context.operation, 'serialize');
+        expect(span.context.operation, 'serialize.file.read');
         expect(
           span.context.description,
           'parsing "resources/test.txt" to "String"',
@@ -325,7 +325,7 @@ void main() {
 
         expect(span.status, SpanStatus.ok());
         expect(span.finished, true);
-        expect(span.context.operation, 'serialize');
+        expect(span.context.operation, 'serialize.file.read');
         expect(
           span.context.description,
           'parsing "resources/test.txt" to "String"',
