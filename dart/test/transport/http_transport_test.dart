@@ -218,12 +218,12 @@ class Fixture {
   }
 
   SentryTracer createTracer({
-    bool? sampled,
+    bool? sampled = true,
   }) {
     final context = SentryTransactionContext(
       'name',
       'op',
-      sampled: sampled,
+      samplingDecision: SentryTracesSamplingDecision(sampled!),
     );
     return SentryTracer(context, MockHub());
   }

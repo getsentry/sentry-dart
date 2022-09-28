@@ -33,11 +33,20 @@ class TracingClientAdapter extends HttpClientAdapter {
     ResponseBody? response;
     try {
       if (span != null) {
-        final traceHeader = span.toSentryTrace();
-        options.headers[traceHeader.name] = traceHeader.value;
+        if (containsTracePropagationTarget(
+          // ignore: invalid_use_of_internal_member
+          _hub.options.tracePropagationTargets,
+          options.uri.toString(),
+        )) {
+          addSentryTraceHeader(span, options.headers);
+          addBaggageHeader(
+            span,
+            options.headers,
+            // ignore: invalid_use_of_internal_member
+            logger: _hub.options.logger,
+          );
+        }
       }
-
-      // TODO: tracingOrigins support
 
       response = await _client.fetch(options, requestStream, cancelFuture);
       span?.status = SpanStatus.fromHttpStatusCode(response.statusCode ?? -1);
