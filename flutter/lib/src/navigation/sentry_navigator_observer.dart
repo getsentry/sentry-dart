@@ -1,5 +1,4 @@
 // ignore: implementation_imports
-import 'package:sentry/src/sentry_tracer.dart';
 import 'package:flutter/widgets.dart';
 
 import '../../sentry_flutter.dart';
@@ -181,20 +180,17 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       autoFinishAfter: _autoFinishAfter,
       trimEnd: true,
       onFinish: (transaction) async {
-        // ignore: invalid_use_of_internal_member
-        if (transaction is SentryTracer) {
-          final nativeFrames = await _native
-              .endNativeFramesCollection(transaction.context.traceId);
-          if (nativeFrames != null) {
-            final measurements = nativeFrames.toMeasurements();
-            for (final item in measurements.entries) {
-              final measurement = item.value;
-              transaction.setMeasurement(
-                item.key,
-                measurement.value,
-                unit: measurement.unit,
-              );
-            }
+        final nativeFrames = await _native
+            .endNativeFramesCollection(transaction.context.traceId);
+        if (nativeFrames != null) {
+          final measurements = nativeFrames.toMeasurements();
+          for (final item in measurements.entries) {
+            final measurement = item.value;
+            transaction.setMeasurement(
+              item.key,
+              measurement.value,
+              unit: measurement.unit,
+            );
           }
         }
       },

@@ -106,8 +106,10 @@ class SentryTracer extends ISentrySpan {
         }
       }
 
-      await _rootSpan.finish(endTimestamp: _rootEndTimestamp);
+      // the callback should run before because if the span is finished,
+      // we cannot attach data, its immutable after being finished.
       await _onFinish?.call(this);
+      await _rootSpan.finish(endTimestamp: _rootEndTimestamp);
 
       // remove from scope
       await _hub.configureScope((scope) {
