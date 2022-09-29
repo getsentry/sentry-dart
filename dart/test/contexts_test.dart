@@ -22,7 +22,6 @@ void main() {
       orientation: SentryOrientation.landscape,
       manufacturer: 'testOEM',
       brand: 'testBrand',
-      screenResolution: '123x345',
       screenDensity: 99.1,
       screenDpi: 100,
       online: false,
@@ -37,7 +36,6 @@ void main() {
       externalStorageSize: 98765,
       externalFreeStorage: 98765,
       bootTime: testBootTime,
-      timezone: 'Australia/Melbourne',
     );
     const testOS = SentryOperatingSystem(name: 'testOS');
     final testRuntimes = [
@@ -71,7 +69,6 @@ void main() {
         'orientation': 'landscape',
         'manufacturer': 'testOEM',
         'brand': 'testBrand',
-        'screen_resolution': '123x345',
         'screen_density': 99.1,
         'screen_dpi': 100,
         'online': false,
@@ -86,7 +83,6 @@ void main() {
         'external_storage_size': 98765,
         'external_free_storage': 98765,
         'boot_time': testBootTime.toIso8601String(),
-        'timezone': 'Australia/Melbourne',
       },
       'os': {
         'name': 'testOS',
@@ -168,7 +164,6 @@ void main() {
           'memory_size': 17179869184,
           'storage_size': 1023683072000,
           'boot_time': '2020-11-18T13:28:11.000Z',
-          'timezone': 'GMT+1',
           'usable_memory': 17114120192
         }),
         true,

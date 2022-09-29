@@ -115,9 +115,7 @@ void main() {
       final fakeEvent = SentryEvent(
         contexts: Contexts(
           device: SentryDevice(
-            language: 'foo_bar_language',
             name: 'device_name',
-            timezone: 'foo_timezone',
           ),
           operatingSystem: SentryOperatingSystem(
             name: 'sentry_os',
