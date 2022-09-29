@@ -1,7 +1,11 @@
 // ignore_for_file: invalid_use_of_internal_member
 // The lint above is okay, because we're using another Sentry package
 import 'dart:convert';
+// backcompatibility for Flutter < 3.3
+// ignore: unnecessary_import
 import 'dart:typed_data';
+// ignore: unnecessary_import
+import 'dart:ui';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -137,6 +141,53 @@ void main() {
       expect(span.context.description, 'AssetBundle.loadString: test.txt');
     });
 
+    test('loadBuffer: creates a span if transaction is bound to scope',
+        () async {
+      final sut = fixture.getSut();
+      final tr = fixture._hub.startTransaction(
+        'name',
+        'op',
+        bindToScope: true,
+      );
+
+      await sut.loadBuffer(_testFileName);
+
+      await tr.finish();
+
+      final tracer = (tr as SentryTracer);
+      final span = tracer.children.first;
+
+      expect(span.status, SpanStatus.ok());
+      expect(span.finished, true);
+      expect(span.context.operation, 'file.read');
+      expect(span.data['file.path'], 'resources/test.txt');
+      expect(span.data['file.size'], 12);
+      expect(span.context.description, 'AssetBundle.loadBuffer: test.txt');
+    });
+
+    test('loadBuffer: end span with error if exception is thrown', () async {
+      final sut = fixture.getSut(throwException: true);
+      final tr = fixture._hub.startTransaction(
+        'name',
+        'op',
+        bindToScope: true,
+      );
+
+      try {
+        await sut.loadBuffer(_testFileName);
+      } catch (_) {}
+
+      await tr.finish();
+
+      final tracer = (tr as SentryTracer);
+      final span = tracer.children.first;
+
+      expect(span.status, SpanStatus.internalError());
+      expect(span.finished, true);
+      expect(span.context.operation, 'file.read');
+      expect(span.context.description, 'AssetBundle.loadBuffer: test.txt');
+    });
+
     test(
       'loadStructuredData: does not create any spans and just forwords the call to the underlying assetbundle if disabled',
       () async {
@@ -232,7 +283,7 @@ void main() {
         expect(span.status, SpanStatus.internalError());
         expect(span.finished, true);
         expect(span.throwable, isA<Exception>());
-        expect(span.context.operation, 'serialize');
+        expect(span.context.operation, 'serialize.file.read');
         expect(
           span.context.description,
           'parsing "resources/test.txt" to "String"',
@@ -274,7 +325,7 @@ void main() {
 
         expect(span.status, SpanStatus.ok());
         expect(span.finished, true);
-        expect(span.context.operation, 'serialize');
+        expect(span.context.operation, 'serialize.file.read');
         expect(
           span.context.description,
           'parsing "resources/test.txt" to "String"',
@@ -358,5 +409,19 @@ class TestAssetBundle extends CachingAssetBundle {
   void evict(String key) {
     super.evict(key);
     evictKey = key;
+  }
+
+  @override
+  // This is an override on Flutter greater than 3.1
+  // ignore: override_on_non_overriding_member
+  Future<ImmutableBuffer> loadBuffer(String key) async {
+    if (throwException) {
+      throw Exception('exception thrown for testing purposes');
+    }
+    if (key == _testFileName) {
+      return ImmutableBuffer.fromUint8List(
+          Uint8List.fromList(utf8.encode('Hello World!')));
+    }
+    return ImmutableBuffer.fromUint8List(Uint8List.fromList([]));
   }
 }

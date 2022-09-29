@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+// backcompatibility for Flutter < 3.3
+// ignore: unnecessary_import
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -216,7 +218,9 @@ void main() {
             screenHeightPixels: 1080,
             screenWidthPixels: 1920,
             screenDensity: 2,
-            theme: 'sentry_theme',
+          ),
+          operatingSystem: SentryOperatingSystem(
+            theme: 'dark',
           ),
         ),
       );
@@ -246,8 +250,8 @@ void main() {
         fakeEvent.contexts.device?.screenDensity,
       );
       expect(
-        event.contexts.device?.theme,
-        fakeEvent.contexts.device?.theme,
+        event.contexts.operatingSystem?.theme,
+        fakeEvent.contexts.operatingSystem?.theme,
       );
     });
 

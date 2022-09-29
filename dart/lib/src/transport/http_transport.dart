@@ -3,6 +3,9 @@ import 'dart:convert';
 
 import 'package:http/http.dart';
 
+import '../client_reports/client_report_recorder.dart';
+import '../client_reports/discard_reason.dart';
+import 'data_category.dart';
 import 'noop_encode.dart' if (dart.library.io) 'encode.dart';
 import '../noop_client.dart';
 import '../protocol.dart';
@@ -19,6 +22,8 @@ class HttpTransport implements Transport {
 
   final RateLimiter _rateLimiter;
 
+  final ClientReportRecorder _recorder;
+
   late _CredentialBuilder _credentialBuilder;
 
   final Map<String, String> _headers;
@@ -33,6 +38,7 @@ class HttpTransport implements Transport {
 
   HttpTransport._(this._options, this._rateLimiter)
       : _dsn = Dsn.parse(_options.dsn!),
+        _recorder = _options.recorder,
         _headers = _buildHeaders(
           _options.platformChecker.isWeb,
           _options.sdk.identifier,
@@ -68,6 +74,12 @@ class HttpTransport implements Transport {
           'body = ${response.body}',
         );
       }
+
+      if (response.statusCode >= 400 && response.statusCode != 429) {
+        _recorder.recordLostEvent(
+            DiscardReason.networkError, DataCategory.error);
+      }
+
       return SentryId.empty();
     } else {
       _options.logger(

@@ -1,17 +1,17 @@
 import '../transport/rate_limit_parser.dart';
-
 import '../sentry_options.dart';
 import '../sentry_envelope.dart';
 import '../sentry_envelope_item.dart';
 import 'rate_limit.dart';
-import 'rate_limit_category.dart';
+import 'data_category.dart';
+import '../client_reports/discard_reason.dart';
 
 /// Controls retry limits on different category types sent to Sentry.
 class RateLimiter {
-  RateLimiter(this._clockProvider);
+  RateLimiter(this._options);
 
-  final ClockProvider _clockProvider;
-  final _rateLimitedUntil = <RateLimitCategory, DateTime>{};
+  final SentryOptions _options;
+  final _rateLimitedUntil = <DataCategory, DateTime>{};
 
   /// Filter out envelopes that are rate limited.
   SentryEnvelope? filter(SentryEnvelope envelope) {
@@ -22,6 +22,11 @@ class RateLimiter {
       if (_isRetryAfter(item.header.type)) {
         dropItems ??= [];
         dropItems.add(item);
+
+        _options.recorder.recordLostEvent(
+          DiscardReason.rateLimitBackoff,
+          _categoryFromItemType(item.header.type),
+        );
       }
     }
 
@@ -48,7 +53,7 @@ class RateLimiter {
   /// Update rate limited categories
   void updateRetryAfterLimits(
       String? sentryRateLimitHeader, String? retryAfterHeader, int errorCode) {
-    final currentDateTime = _clockProvider().millisecondsSinceEpoch;
+    final currentDateTime = _options.clock().millisecondsSinceEpoch;
     var rateLimits = <RateLimit>[];
 
     if (sentryRateLimitHeader != null) {
@@ -72,10 +77,10 @@ class RateLimiter {
   bool _isRetryAfter(String itemType) {
     final dataCategory = _categoryFromItemType(itemType);
     final currentDate = DateTime.fromMillisecondsSinceEpoch(
-        _clockProvider().millisecondsSinceEpoch);
+        _options.clock().millisecondsSinceEpoch);
 
     // check all categories
-    final dateAllCategories = _rateLimitedUntil[RateLimitCategory.all];
+    final dateAllCategories = _rateLimitedUntil[DataCategory.all];
     if (dateAllCategories != null) {
       if (!currentDate.isAfter(dateAllCategories)) {
         return true;
@@ -83,7 +88,7 @@ class RateLimiter {
     }
 
     // Unknown should not be rate limited
-    if (RateLimitCategory.unknown == dataCategory) {
+    if (DataCategory.unknown == dataCategory) {
       return false;
     }
 
@@ -96,28 +101,27 @@ class RateLimiter {
     return false;
   }
 
-  RateLimitCategory _categoryFromItemType(String itemType) {
+  DataCategory _categoryFromItemType(String itemType) {
     switch (itemType) {
       case 'event':
-        return RateLimitCategory.error;
+        return DataCategory.error;
       case 'session':
-        return RateLimitCategory.session;
+        return DataCategory.session;
       case 'attachment':
-        return RateLimitCategory.attachment;
+        return DataCategory.attachment;
       case 'transaction':
-        return RateLimitCategory.transaction;
+        return DataCategory.transaction;
       default:
-        return RateLimitCategory.unknown;
+        return DataCategory.unknown;
     }
   }
 
-  void _applyRetryAfterOnlyIfLonger(
-      RateLimitCategory rateLimitCategory, DateTime date) {
-    final oldDate = _rateLimitedUntil[rateLimitCategory];
+  void _applyRetryAfterOnlyIfLonger(DataCategory dataCategory, DateTime date) {
+    final oldDate = _rateLimitedUntil[dataCategory];
 
     // only overwrite its previous date if the limit is even longer
     if (oldDate == null || date.isAfter(oldDate)) {
-      _rateLimitedUntil[rateLimitCategory] = date;
+      _rateLimitedUntil[dataCategory] = date;
     }
   }
 }

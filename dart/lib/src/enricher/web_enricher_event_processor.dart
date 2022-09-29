@@ -28,6 +28,7 @@ class WebEnricherEventProcessor extends EventProcessor {
 
     final contexts = event.contexts.copyWith(
       device: _getDevice(event.contexts.device),
+      culture: _getSentryCulture(event.contexts.culture),
     );
 
     contexts['dart_context'] = _getDartContext();
@@ -66,6 +67,7 @@ class WebEnricherEventProcessor extends EventProcessor {
           device?.screenWidthPixels ?? _window.screen?.available.width.toInt(),
       screenDensity:
           device?.screenDensity ?? _window.devicePixelRatio.toDouble(),
+      // ignore: deprecated_member_use_from_same_package
       timezone: device?.timezone ?? DateTime.now().timeZoneName,
     );
   }
@@ -95,5 +97,11 @@ class WebEnricherEventProcessor extends EventProcessor {
     return <String, dynamic>{
       'compile_mode': _options.platformChecker.compileMode,
     };
+  }
+
+  SentryCulture _getSentryCulture(SentryCulture? culture) {
+    return (culture ?? SentryCulture()).copyWith(
+      timezone: culture?.timezone ?? DateTime.now().timeZoneName,
+    );
   }
 }

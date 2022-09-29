@@ -39,71 +39,130 @@ void main() {
     expect(event.request, processedEvent.request);
   });
 
-  test('$DioEventProcessor adds request', () {
-    final sut = fixture.getSut(sendDefaultPii: true);
+  group('request', () {
+    test('$DioEventProcessor adds request', () {
+      final sut = fixture.getSut(sendDefaultPii: true);
 
-    final event = SentryEvent(
-      throwable: DioError(
-        requestOptions: requestOptions,
-        response: Response<dynamic>(
-          requestOptions: requestOptions,
-          data: 'foobar',
-        ),
-      ),
-    );
-    final processedEvent = sut.apply(event) as SentryEvent;
-
-    expect(processedEvent.throwable, event.throwable);
-    expect(processedEvent.request?.method, 'GET');
-    expect(processedEvent.request?.queryString, 'foo=bar');
-    expect(processedEvent.request?.headers, <String, String>{
-      'foo': 'bar',
-      'content-type': 'application/json; charset=utf-8'
-    });
-    expect(processedEvent.request?.data, 'foobar');
-  });
-
-  test('$DioEventProcessor adds request without pii', () {
-    final sut = fixture.getSut(sendDefaultPii: false);
-
-    final event = SentryEvent(
-      throwable: DioError(
-        requestOptions: requestOptions,
-        response: Response<dynamic>(
-          requestOptions: requestOptions,
-          data: 'foobar',
-        ),
-      ),
-    );
-    final processedEvent = sut.apply(event) as SentryEvent;
-
-    expect(processedEvent.throwable, event.throwable);
-    expect(processedEvent.request?.method, 'GET');
-    expect(processedEvent.request?.queryString, 'foo=bar');
-    expect(processedEvent.request?.data, null);
-    expect(processedEvent.request?.headers, <String, String>{});
-  });
-
-  test('$DioEventProcessor adds request without pii', () {
-    final sut = fixture.getSut(sendDefaultPii: false);
-    final dioError = DioError(
-      error: Exception('foo bar'),
-      requestOptions: requestOptions,
-      response: Response<dynamic>(
-        requestOptions: requestOptions,
+      final request = requestOptions.copyWith(
+        method: 'POST',
         data: 'foobar',
-      ),
-    );
+      );
+      final event = SentryEvent(
+        throwable: DioError(
+          requestOptions: request,
+          response: Response<dynamic>(
+            requestOptions: request,
+          ),
+        ),
+      );
+      final processedEvent = sut.apply(event) as SentryEvent;
 
-    final event = SentryEvent(throwable: dioError);
+      expect(processedEvent.throwable, event.throwable);
+      expect(processedEvent.request?.method, 'POST');
+      expect(processedEvent.request?.queryString, 'foo=bar');
+      expect(processedEvent.request?.headers, <String, String>{
+        'foo': 'bar',
+        'content-type': 'application/json; charset=utf-8'
+      });
+      expect(processedEvent.request?.data, 'foobar');
+    });
 
-    final processedEvent = sut.apply(event) as SentryEvent;
+    test('$DioEventProcessor adds request without pii', () {
+      final sut = fixture.getSut(sendDefaultPii: false);
 
-    expect(processedEvent.throwable, event.throwable);
-    expect(processedEvent.request?.method, 'GET');
-    expect(processedEvent.request?.queryString, 'foo=bar');
-    expect(processedEvent.request?.data, null);
-    expect(processedEvent.request?.headers, <String, String>{});
+      final event = SentryEvent(
+        throwable: DioError(
+          requestOptions: requestOptions,
+          response: Response<dynamic>(
+            requestOptions: requestOptions,
+            data: 'foobar',
+          ),
+        ),
+      );
+      final processedEvent = sut.apply(event) as SentryEvent;
+
+      expect(processedEvent.throwable, event.throwable);
+      expect(processedEvent.request?.method, 'GET');
+      expect(processedEvent.request?.queryString, 'foo=bar');
+      expect(processedEvent.request?.data, null);
+      expect(processedEvent.request?.headers, <String, String>{});
+    });
+  });
+
+  group('response', () {
+    test('$DioEventProcessor adds response', () {
+      final sut = fixture.getSut(sendDefaultPii: true);
+
+      final request = requestOptions.copyWith(
+        method: 'POST',
+      );
+      final event = SentryEvent(
+        throwable: DioError(
+          requestOptions: request,
+          response: Response<dynamic>(
+            data: 'foobar',
+            headers: Headers.fromMap(<String, List<String>>{
+              'foo': ['bar']
+            }),
+            requestOptions: request,
+            isRedirect: true,
+            statusCode: 200,
+            statusMessage: 'OK',
+          ),
+        ),
+      );
+      final processedEvent = sut.apply(event) as SentryEvent;
+
+      expect(processedEvent.throwable, event.throwable);
+      expect(processedEvent.contexts.response, isNotNull);
+      expect(processedEvent.contexts.response?.body, 'foobar');
+      expect(processedEvent.contexts.response?.redirected, true);
+      expect(processedEvent.contexts.response?.status, 'OK');
+      expect(processedEvent.contexts.response?.statusCode, 200);
+      expect(
+        processedEvent.contexts.response?.url,
+        'https://example.org/foo/bar?foo=bar',
+      );
+      expect(processedEvent.contexts.response?.headers, <String, String>{
+        'foo': 'bar',
+      });
+    });
+
+    test('$DioEventProcessor adds response without PII', () {
+      final sut = fixture.getSut(sendDefaultPii: false);
+
+      final request = requestOptions.copyWith(
+        method: 'POST',
+      );
+      final event = SentryEvent(
+        throwable: DioError(
+          requestOptions: request,
+          response: Response<dynamic>(
+            data: 'foobar',
+            headers: Headers.fromMap(<String, List<String>>{
+              'foo': ['bar']
+            }),
+            requestOptions: request,
+            isRedirect: true,
+            statusCode: 200,
+            statusMessage: 'OK',
+          ),
+        ),
+      );
+      final processedEvent = sut.apply(event) as SentryEvent;
+
+      expect(processedEvent.throwable, event.throwable);
+      expect(processedEvent.contexts.response, isNotNull);
+      expect(processedEvent.contexts.response?.body, isNull);
+      expect(processedEvent.contexts.response?.redirected, true);
+      expect(processedEvent.contexts.response?.status, 'OK');
+      expect(processedEvent.contexts.response?.statusCode, 200);
+      expect(
+        processedEvent.contexts.response?.url,
+        'https://example.org/foo/bar?foo=bar',
+      );
+      expect(processedEvent.contexts.response?.headers, <String, String>{});
+    });
   });
 
   test('$DioEventProcessor adds chained stacktraces', () {
@@ -152,7 +211,8 @@ class Fixture {
     return DioEventProcessor(
       options
         ..sendDefaultPii = sendDefaultPii
-        ..maxRequestBodySize = MaxRequestBodySize.always,
+        ..maxRequestBodySize = MaxRequestBodySize.always
+        ..maxResponseBodySize = MaxResponseBodySize.always,
     );
   }
 }

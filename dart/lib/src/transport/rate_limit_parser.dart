@@ -1,4 +1,4 @@
-import 'rate_limit_category.dart';
+import 'data_category.dart';
 import 'rate_limit.dart';
 
 /// Parse rate limit categories and times from response header payloads.
@@ -29,23 +29,20 @@ class RateLimitParser {
       if (allCategories.isNotEmpty) {
         final categoryValues = allCategories.split(';');
         for (final categoryValue in categoryValues) {
-          final category =
-              RateLimitCategoryExtension.fromStringValue(categoryValue);
-          if (category != RateLimitCategory.unknown) {
+          final category = DataCategoryExtension.fromStringValue(categoryValue);
+          if (category != DataCategory.unknown) {
             rateLimits.add(RateLimit(category, duration));
           }
         }
       } else {
-        rateLimits.add(RateLimit(RateLimitCategory.all, duration));
+        rateLimits.add(RateLimit(DataCategory.all, duration));
       }
     }
     return rateLimits;
   }
 
   List<RateLimit> parseRetryAfterHeader() {
-    return [
-      RateLimit(RateLimitCategory.all, _parseRetryAfterOrDefault(_header))
-    ];
+    return [RateLimit(DataCategory.all, _parseRetryAfterOrDefault(_header))];
   }
 
   // Helper

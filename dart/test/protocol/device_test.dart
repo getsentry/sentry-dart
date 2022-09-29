@@ -46,8 +46,6 @@ void main() {
       externalStorageSize: 987654,
       externalFreeStorage: 987654,
       bootTime: bootTime,
-      timezone: 'Austria/Vienna',
-      language: 'en_US',
     );
 
     expect('name1', copy.name);
@@ -59,7 +57,6 @@ void main() {
     expect(SentryOrientation.portrait, copy.orientation);
     expect('manufacturer1', copy.manufacturer);
     expect('brand1', copy.brand);
-    expect('123x3451', copy.screenResolution);
     expect(900, copy.screenHeightPixels);
     expect(700, copy.screenWidthPixels);
     expect(99.2, copy.screenDensity);
@@ -76,8 +73,6 @@ void main() {
     expect(987654, copy.externalStorageSize);
     expect(987654, copy.externalFreeStorage);
     expect(bootTime, copy.bootTime);
-    expect('Austria/Vienna', copy.timezone);
-    expect('en_US', copy.language);
   });
 }
 
@@ -108,6 +103,4 @@ SentryDevice _generate({DateTime? testBootTime}) => SentryDevice(
       externalStorageSize: 98765,
       externalFreeStorage: 98765,
       bootTime: testBootTime ?? DateTime.now(),
-      timezone: 'Australia/Melbourne',
-      language: 'en_US',
     );

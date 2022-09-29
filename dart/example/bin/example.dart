@@ -12,7 +12,7 @@ import 'event_example.dart';
 Future<void> main() async {
   // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
   const dsn =
-      'https://9934c532bf8446ef961450973c898537@o447951.ingest.sentry.io/5428562';
+      'https://e85b375ffb9f43cf8bdf9787768149e0@o447951.ingest.sentry.io/5428562';
 
   await Sentry.init(
     (options) => options
@@ -39,20 +39,20 @@ Future<void> runApp() async {
     ),
   );
 
-  Sentry.configureScope((scope) {
+  await Sentry.configureScope((scope) async {
+    await scope.setUser(SentryUser(
+      id: '800',
+      username: 'first-user',
+      email: 'first@user.lan',
+      // ipAddress: '127.0.0.1', sendDefaultPii feature is enabled
+      extras: <String, String>{'first-sign-in': '2020-01-01'},
+    ));
     scope
-      ..user = SentryUser(
-        id: '800',
-        username: 'first-user',
-        email: 'first@user.lan',
-        // ipAddress: '127.0.0.1', sendDefaultPii feature is enabled
-        extras: <String, String>{'first-sign-in': '2020-01-01'},
-      )
       // ..fingerprint = ['example-dart'], fingerprint forces events to group together
       ..transaction = '/example/app'
-      ..level = SentryLevel.warning
-      ..setTag('build', '579')
-      ..setExtra('company-name', 'Dart Inc');
+      ..level = SentryLevel.warning;
+    await scope.setTag('build', '579');
+    await scope.setExtra('company-name', 'Dart Inc');
   });
 
   // Sends a full Sentry event payload to show the different parts of the UI.

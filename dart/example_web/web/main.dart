@@ -8,7 +8,7 @@ import 'event.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
 const dsn =
-    'https://9934c532bf8446ef961450973c898537@o447951.ingest.sentry.io/5428562';
+    'https://e85b375ffb9f43cf8bdf9787768149e0@o447951.ingest.sentry.io/5428562';
 
 Future<void> main() async {
   await Sentry.init(
@@ -21,12 +21,12 @@ Future<void> main() async {
   );
 }
 
-void runApp() {
+Future<void> runApp() async {
   print('runApp');
 
   querySelector('#output')?.text = 'Your Dart app is running.';
 
-  Sentry.addBreadcrumb(
+  await Sentry.addBreadcrumb(
     Breadcrumb(
       message: 'Authenticated user',
       category: 'auth',
@@ -38,20 +38,23 @@ void runApp() {
     ),
   );
 
-  Sentry.configureScope((scope) {
+  await Sentry.configureScope((scope) async {
     scope
-      ..user = SentryUser(
+      // ..fingerprint = ['example-dart']
+      ..transaction = '/example/app'
+      ..level = SentryLevel.warning;
+    await scope.setTag('build', '579');
+    await scope.setExtra('company-name', 'Dart Inc');
+
+    await scope.setUser(
+      SentryUser(
         id: '800',
         username: 'first-user',
         email: 'first@user.lan',
         // ipAddress: '127.0.0.1',
         extras: <String, String>{'first-sign-in': '2020-01-01'},
-      )
-      // ..fingerprint = ['example-dart']
-      ..transaction = '/example/app'
-      ..level = SentryLevel.warning
-      ..setTag('build', '579')
-      ..setExtra('company-name', 'Dart Inc');
+      ),
+    );
   });
 
   querySelector('#btEvent')

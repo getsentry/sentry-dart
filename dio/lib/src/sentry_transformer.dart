@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
-import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
 /// A transformer which wraps transforming in spans
-@experimental
 class SentryTransformer implements Transformer {
+  static const _serializeOp = 'serialize.http.client';
+
   // ignore: public_member_api_docs
   SentryTransformer({required Transformer transformer, Hub? hub})
       : _hub = hub ?? HubAdapter(),
@@ -16,7 +16,7 @@ class SentryTransformer implements Transformer {
   @override
   Future<String> transformRequest(RequestOptions options) async {
     final span = _hub.getSpan()?.startChild(
-          'serialize',
+          _serializeOp,
           description: '${options.method} ${options.uri}',
         );
     String? request;
@@ -40,7 +40,7 @@ class SentryTransformer implements Transformer {
     ResponseBody response,
   ) async {
     final span = _hub.getSpan()?.startChild(
-          'serialize',
+          _serializeOp,
           description: '${options.method} ${options.uri}',
         );
     dynamic transformedResponse;

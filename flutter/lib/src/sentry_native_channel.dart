@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 
@@ -19,12 +21,7 @@ class SentryNativeChannel {
           .invokeMapMethod<String, dynamic>('fetchNativeAppStart');
       return (json != null) ? NativeAppStart.fromJson(json) : null;
     } catch (error, stackTrace) {
-      _options.logger(
-        SentryLevel.warning,
-        'Native call `fetchNativeAppStart` failed',
-        exception: error,
-        stackTrace: stackTrace,
-      );
+      _logError('fetchNativeAppStart', error, stackTrace);
       return null;
     }
   }
@@ -33,13 +30,7 @@ class SentryNativeChannel {
     try {
       await _channel.invokeMapMethod<String, dynamic>('beginNativeFrames');
     } catch (error, stackTrace) {
-      _options.logger(
-        SentryLevel.error,
-        'Native call `beginNativeFrames` failed',
-        exception: error,
-        stackTrace: stackTrace,
-      );
-      return null;
+      _logError('beginNativeFrames', error, stackTrace);
     }
   }
 
@@ -49,14 +40,93 @@ class SentryNativeChannel {
           'endNativeFrames', {'id': id.toString()});
       return (json != null) ? NativeFrames.fromJson(json) : null;
     } catch (error, stackTrace) {
-      _options.logger(
-        SentryLevel.error,
-        'Native call `endNativeFrames` failed',
-        exception: error,
-        stackTrace: stackTrace,
-      );
+      _logError('endNativeFrames', error, stackTrace);
       return null;
     }
+  }
+
+  Future<void> setUser(SentryUser? user) async {
+    try {
+      await _channel.invokeMethod('setUser', {'user': user?.toJson()});
+    } catch (error, stackTrace) {
+      _logError('setUser', error, stackTrace);
+    }
+  }
+
+  Future<void> addBreadcrumb(Breadcrumb breadcrumb) async {
+    try {
+      await _channel
+          .invokeMethod('addBreadcrumb', {'breadcrumb': breadcrumb.toJson()});
+    } catch (error, stackTrace) {
+      _logError('addBreadcrumb', error, stackTrace);
+    }
+  }
+
+  Future<void> clearBreadcrumbs() async {
+    try {
+      await _channel.invokeMethod('clearBreadcrumbs');
+    } catch (error, stackTrace) {
+      _logError('clearBreadcrumbs', error, stackTrace);
+    }
+  }
+
+  Future<void> setContexts(String key, dynamic value) async {
+    try {
+      await _channel.invokeMethod('setContexts', {'key': key, 'value': value});
+    } catch (error, stackTrace) {
+      _logError('setContexts', error, stackTrace);
+    }
+  }
+
+  Future<void> removeContexts(String key) async {
+    try {
+      await _channel.invokeMethod('removeContexts', {'key': key});
+    } catch (error, stackTrace) {
+      _logError('removeContexts', error, stackTrace);
+    }
+  }
+
+  Future<void> setExtra(String key, dynamic value) async {
+    try {
+      await _channel.invokeMethod('setExtra', {'key': key, 'value': value});
+    } catch (error, stackTrace) {
+      _logError('setExtra', error, stackTrace);
+    }
+  }
+
+  Future<void> removeExtra(String key) async {
+    try {
+      await _channel.invokeMethod('removeExtra', {'key': key});
+    } catch (error, stackTrace) {
+      _logError('removeExtra', error, stackTrace);
+    }
+  }
+
+  Future<void> setTag(String key, dynamic value) async {
+    try {
+      await _channel.invokeMethod('setTag', {'key': key, 'value': value});
+    } catch (error, stackTrace) {
+      _logError('setTag', error, stackTrace);
+    }
+  }
+
+  Future<void> removeTag(String key) async {
+    try {
+      await _channel.invokeMethod('removeTag', {'key': key});
+    } catch (error, stackTrace) {
+      _logError('removeTag', error, stackTrace);
+    }
+  }
+
+  // Helper
+
+  void _logError(String nativeMethodName, Object error, StackTrace stackTrace) {
+    _options.logger(
+      SentryLevel.error,
+      'Native call `$nativeMethodName` failed',
+      exception: error,
+      stackTrace: stackTrace,
+    );
   }
 }
 

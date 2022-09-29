@@ -16,11 +16,12 @@ final platformAgnosticIntegrations = [
 
 // These should only be added to Android
 final androidIntegrations = [
-  LoadAndroidImageListIntegration,
+  LoadImageListIntegration,
 ];
 
 // These should be added to iOS and macOS
 final iOsAndMacOsIntegrations = [
+  LoadImageListIntegration,
   LoadContextsIntegration,
 ];
 
@@ -154,8 +155,8 @@ void main() {
       await Sentry.close();
     });
 
-    test('Web && (iOS)', () async {
-      // Tests that iOS || macOS integrations aren't added on a browswer which
+    test('Web && (iOS || macOS) ', () async {
+      // Tests that iOS || macOS integrations aren't added on a browser which
       // runs on iOS or macOS
       await SentryFlutter.init(
         getConfigurationTester(

@@ -72,10 +72,13 @@ class NoOpHub implements Hub {
   SentryId get lastEventId => SentryId.empty();
 
   @override
-  void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) {}
+  Future<void> addBreadcrumb(Breadcrumb crumb, {dynamic hint}) async {}
 
   @override
-  Future<SentryId> captureTransaction(SentryTransaction transaction) async =>
+  Future<SentryId> captureTransaction(
+    SentryTransaction transaction, {
+    SentryTraceContextHeader? traceContext,
+  }) async =>
       SentryId.empty();
 
   @override

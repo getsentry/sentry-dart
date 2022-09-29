@@ -73,4 +73,22 @@ void main() {
 
     expect(options.isTracingEnabled(), true);
   });
+
+  test('SentryOptions empty inits the late var', () {
+    final options = SentryOptions.empty();
+    options.sdk.addPackage('test', '1.2.3');
+
+    expect(
+        options.sdk.packages
+            .where((element) =>
+                element.name == 'test' && element.version == '1.2.3')
+            .isNotEmpty,
+        true);
+  });
+
+  test('SentryOptions has all targets by default', () {
+    final options = SentryOptions.empty();
+
+    expect(options.tracePropagationTargets, ['.*']);
+  });
 }

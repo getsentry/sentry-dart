@@ -169,50 +169,84 @@ void main() {
       ]);
     });
 
-    test('sets instruction_addr if stack trace violates dart standard', () {
-      final frames = Fixture()
-          .getSut(considerInAppFramesByDefault: true)
-          .getStackFrames('''
-      warning:  This VM has been configured to produce stack traces that violate the Dart standard.
-      unparsed      #00 abs 000000723d6346d7 virt 00000000001ed6d7 _kDartIsolateSnapshotInstructions+0x1e26d7
-      unparsed      #01 abs 000000723d637527 virt 00000000001f0527 _kDartIsolateSnapshotInstructions+0x1e5527
-      ''').map((frame) => frame.toJson());
+    test('parses obfuscated stack trace', () {
+      final stackTraces = [
+        // Older format up to Dart SDK v2.18 (Flutter v3.3)
+        '''
+warning:  This VM has been configured to produce stack traces that violate the Dart standard.
+*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+pid: 30930, tid: 30990, name 1.ui
+build_id: '5346e01103ffeed44e97094ff7bfcc19'
+isolate_dso_base: 723d447000, vm_dso_base: 723d447000
+isolate_instructions: 723d452000, vm_instructions: 723d449000
+    #00 abs 000000723d6346d7 virt 00000000001ed6d7 _kDartIsolateSnapshotInstructions+0x1e26d7
+    #01 abs 000000723d637527 virt 00000000001f0527 _kDartIsolateSnapshotInstructions+0x1e5527
+        ''',
+        // Newer format
+        '''
+*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+pid: 19226, tid: 6103134208, name io.flutter.ui
+os: macos arch: arm64 comp: no sim: no
+isolate_dso_base: 10fa20000, vm_dso_base: 10fa20000
+isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
+    #00 abs 000000723d6346d7 _kDartIsolateSnapshotInstructions+0x1e26d7
+    #01 abs 000000723d637527 _kDartIsolateSnapshotInstructions+0x1e5527
+        ''',
+      ];
 
-      expect(frames, [
-        {
-          'platform': 'native',
-          'instruction_addr': '0x000000723d637527',
-        },
-        {
-          'platform': 'native',
-          'instruction_addr': '0x000000723d6346d7',
-        },
-      ]);
+      for (var traceString in stackTraces) {
+        final frames = Fixture()
+            .getSut(considerInAppFramesByDefault: true)
+            .getStackFrames(traceString)
+            .map((frame) => frame.toJson());
+
+        expect(
+            frames,
+            [
+              {
+                'platform': 'native',
+                'instruction_addr': '0x000000723d637527',
+              },
+              {
+                'platform': 'native',
+                'instruction_addr': '0x000000723d6346d7',
+              },
+            ],
+            reason: "Failed to parse StackTrace:$traceString");
+      }
     });
 
-    test('sets instruction_addr and ignores noise', () {
+    test('parses normal stack trace', () {
       final frames = Fixture()
           .getSut(considerInAppFramesByDefault: true)
           .getStackFrames('''
-      warning:  This VM has been configured to produce stack traces that violate the Dart standard.
-      ***       *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
-      unparsed  pid: 30930, tid: 30990, name 1.ui
-      unparsed  build_id: '5346e01103ffeed44e97094ff7bfcc19'
-      unparsed  isolate_dso_base: 723d447000, vm_dso_base: 723d447000
-      unparsed  isolate_instructions: 723d452000, vm_instructions: 723d449000
-      unparsed      #00 abs 000000723d6346d7 virt 00000000001ed6d7 _kDartIsolateSnapshotInstructions+0x1e26d7
-      unparsed      #01 abs 000000723d637527 virt 00000000001f0527 _kDartIsolateSnapshotInstructions+0x1e5527
-      ''').map((frame) => frame.toJson());
-
+#0 asyncThrows (file:/foo/bar/main.dart:404)
+#1 MainScaffold.build.<anonymous closure> (package:example/main.dart:131)
+#2 PlatformDispatcher._dispatchPointerDataPacket (dart:ui/platform_dispatcher.dart:341)
+            ''').map((frame) => frame.toJson());
       expect(frames, [
         {
-          'platform': 'native',
-          'instruction_addr': '0x000000723d637527',
+          'filename': 'platform_dispatcher.dart',
+          'function': 'PlatformDispatcher._dispatchPointerDataPacket',
+          'lineno': 341,
+          'abs_path': '${eventOrigin}dart:ui/platform_dispatcher.dart',
+          'in_app': false
         },
         {
-          'platform': 'native',
-          'instruction_addr': '0x000000723d6346d7',
+          'filename': 'main.dart',
+          'package': 'example',
+          'function': 'MainScaffold.build.<fn>',
+          'lineno': 131,
+          'abs_path': '${eventOrigin}package:example/main.dart',
+          'in_app': true
         },
+        {
+          'filename': 'main.dart',
+          'function': 'asyncThrows',
+          'lineno': 404,
+          'abs_path': '${eventOrigin}main.dart',
+          'in_app': true
+        }
       ]);
     });
   });

@@ -1,9 +1,12 @@
 import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
+import 'mocks/mock_client_report_recorder.dart';
 import 'mocks/mock_sentry_client.dart';
 
 void main() {
@@ -111,6 +114,24 @@ void main() {
       expect(capturedEvent.event.contexts.trace, isNotNull);
     });
 
+    test('capture exception should assign sampled trace context', () async {
+      final hub = fixture.getSut();
+
+      final span = SentrySpan(
+        fixture.tracer,
+        fixture._context,
+        hub,
+        samplingDecision: fixture._context.samplingDecision,
+      );
+      hub.setSpanContext(fakeException, span, 'test');
+
+      await hub.captureException(fakeException);
+      final capturedEvent = fixture.client.captureEventCalls.first;
+
+      expect(capturedEvent.event.contexts.trace, isNotNull);
+      expect(capturedEvent.event.contexts.trace!.sampled, isTrue);
+    });
+
     test('Expando does not throw when exception type is not supported',
         () async {
       final hub = fixture.getSut();
@@ -167,7 +188,7 @@ void main() {
         bindToScope: true,
       );
 
-      hub.configureScope((Scope scope) {
+      await hub.configureScope((Scope scope) {
         expect(scope.span, tr);
       });
     });
@@ -181,7 +202,7 @@ void main() {
         description: 'desc',
       );
 
-      hub.configureScope((Scope scope) {
+      await hub.configureScope((Scope scope) {
         expect(scope.span, isNull);
       });
     });
@@ -195,7 +216,7 @@ void main() {
         description: 'desc',
       );
 
-      expect(tr.sampled, true);
+      expect(tr.samplingDecision?.sampled, true);
     });
 
     test('start transaction does not sample the transaction', () async {
@@ -207,7 +228,7 @@ void main() {
         description: 'desc',
       );
 
-      expect(tr.sampled, false);
+      expect(tr.samplingDecision?.sampled, false);
     });
 
     test('start transaction runs callback with customSamplingContext',
@@ -230,17 +251,18 @@ void main() {
         customSamplingContext: map,
       );
 
-      expect(tr.sampled, false);
+      expect(tr.samplingDecision?.sampled, false);
     });
 
     test('start transaction respects given sampled', () async {
       final hub = fixture.getSut();
 
       final tr = hub.startTransactionWithContext(
-        SentryTransactionContext('name', 'op', sampled: false),
+        SentryTransactionContext('name', 'op',
+            samplingDecision: SentryTracesSamplingDecision(false)),
       );
 
-      expect(tr.sampled, false);
+      expect(tr.samplingDecision?.sampled, false);
     });
 
     test('start transaction return NoOp if performance is disabled', () async {
@@ -319,6 +341,22 @@ void main() {
       expect(id, tr.eventId);
       expect(fixture.client.captureTransactionCalls.length, 1);
     });
+
+    test('transaction is captured with traceContext', () async {
+      final hub = fixture.getSut();
+
+      var tr = SentryTransaction(fixture.tracer);
+      final context = SentryTraceContextHeader.fromJson(<String, dynamic>{
+        'trace_id': '${tr.eventId}',
+        'public_key': '123',
+      });
+      final id = await hub.captureTransaction(tr, traceContext: context);
+
+      expect(id, tr.eventId);
+      expect(fixture.client.captureTransactionCalls.length, 1);
+      expect(
+          fixture.client.captureTransactionCalls.first.traceContext, context);
+    });
   });
 
   group('Hub scope', () {
@@ -332,11 +370,12 @@ void main() {
     });
 
     test('should configure its scope', () async {
-      hub.configureScope((Scope scope) {
+      await hub.configureScope((Scope scope) {
         scope
-          ..user = fakeUser
           ..level = SentryLevel.debug
           ..fingerprint = ['1', '2'];
+
+        scope.setUser(fakeUser);
       });
       await hub.captureEvent(fakeEvent);
 
@@ -345,27 +384,103 @@ void main() {
       expect(client.captureEventCalls.first.scope, isNotNull);
       final scope = client.captureEventCalls.first.scope;
 
+      final otherScope = Scope(SentryOptions(dsn: fakeDsn))
+        ..level = SentryLevel.debug
+        ..fingerprint = ['1', '2'];
+
+      await otherScope.setUser(fakeUser);
+
       expect(
         scopeEquals(
           scope,
-          Scope(SentryOptions(dsn: fakeDsn))
-            ..level = SentryLevel.debug
-            ..user = fakeUser
-            ..fingerprint = ['1', '2'],
+          otherScope,
         ),
         true,
       );
     });
 
-    test('should add breadcrumb to current Scope', () {
-      hub.configureScope((Scope scope) {
+    test('should configure scope async', () async {
+      await hub.configureScope((Scope scope) async {
+        await Future.delayed(Duration(milliseconds: 10));
+        return scope.setUser(fakeUser);
+      });
+
+      await hub.captureEvent(fakeEvent);
+
+      final scope = client.captureEventCalls.first.scope;
+      final otherScope = Scope(SentryOptions(dsn: fakeDsn));
+      await otherScope.setUser(fakeUser);
+
+      expect(
+          scopeEquals(
+            scope,
+            otherScope,
+          ),
+          true);
+    });
+
+    test('should add breadcrumb to current Scope', () async {
+      await hub.configureScope((Scope scope) {
         expect(0, scope.breadcrumbs.length);
       });
-      hub.addBreadcrumb(Breadcrumb(message: 'test'));
-      hub.configureScope((Scope scope) {
+      await hub.addBreadcrumb(Breadcrumb(message: 'test'));
+      await hub.configureScope((Scope scope) {
         expect(1, scope.breadcrumbs.length);
         expect('test', scope.breadcrumbs.first.message);
       });
+    });
+  });
+
+  group('Hub scope callback', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('captureEvent should handle thrown error in scope callback', () async {
+      final hub = fixture.getSut(debug: true);
+      final scopeCallbackException = Exception('error in scope callback');
+
+      ScopeCallback scopeCallback = (Scope scope) {
+        throw scopeCallbackException;
+      };
+
+      await hub.captureEvent(fakeEvent, withScope: scopeCallback);
+
+      expect(fixture.loggedException, scopeCallbackException);
+      expect(fixture.loggedLevel, SentryLevel.error);
+    });
+
+    test('captureException should handle thrown error in scope callback',
+        () async {
+      final hub = fixture.getSut(debug: true);
+      final scopeCallbackException = Exception('error in scope callback');
+
+      ScopeCallback scopeCallback = (Scope scope) {
+        throw scopeCallbackException;
+      };
+
+      final exception = Exception("captured exception");
+      await hub.captureException(exception, withScope: scopeCallback);
+
+      expect(fixture.loggedException, scopeCallbackException);
+      expect(fixture.loggedLevel, SentryLevel.error);
+    });
+
+    test('captureMessage should handle thrown error in scope callback',
+        () async {
+      final hub = fixture.getSut(debug: true);
+      final scopeCallbackException = Exception('error in scope callback');
+
+      ScopeCallback scopeCallback = (Scope scope) {
+        throw scopeCallbackException;
+      };
+
+      await hub.captureMessage("captured message", withScope: scopeCallback);
+
+      expect(fixture.loggedException, scopeCallbackException);
+      expect(fixture.loggedLevel, SentryLevel.error);
     });
   });
 
@@ -413,8 +528,8 @@ void main() {
     test('captureEvent should create a new scope', () async {
       final hub = fixture.getSut();
       await hub.captureEvent(SentryEvent());
-      await hub.captureEvent(SentryEvent(), withScope: (scope) {
-        scope.user = SentryUser(id: 'foo bar');
+      await hub.captureEvent(SentryEvent(), withScope: (scope) async {
+        await scope.setUser(SentryUser(id: 'foo bar'));
       });
       await hub.captureEvent(SentryEvent());
 
@@ -428,8 +543,8 @@ void main() {
     test('captureException should create a new scope', () async {
       final hub = fixture.getSut();
       await hub.captureException(Exception('0'));
-      await hub.captureException(Exception('1'), withScope: (scope) {
-        scope.user = SentryUser(id: 'foo bar');
+      await hub.captureException(Exception('1'), withScope: (scope) async {
+        await scope.setUser(SentryUser(id: 'foo bar'));
       });
       await hub.captureException(Exception('2'));
 
@@ -448,8 +563,8 @@ void main() {
     test('captureMessage should create a new scope', () async {
       final hub = fixture.getSut();
       await hub.captureMessage('foo bar 0');
-      await hub.captureMessage('foo bar 1', withScope: (scope) {
-        scope.user = SentryUser(id: 'foo bar');
+      await hub.captureMessage('foo bar 1', withScope: (scope) async {
+        await scope.setUser(SentryUser(id: 'foo bar'));
       });
       await hub.captureMessage('foo bar 2');
 
@@ -465,32 +580,72 @@ void main() {
       expect(calls[2].formatted, 'foo bar 2');
     });
   });
+
+  group('ClientReportRecorder', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('record sample rate dropping transaction', () async {
+      final hub = fixture.getSut(sampled: false);
+      var transaction = SentryTransaction(fixture.tracer);
+
+      await hub.captureTransaction(transaction);
+
+      expect(fixture.recorder.reason, DiscardReason.sampleRate);
+      expect(fixture.recorder.category, DataCategory.transaction);
+    });
+  });
 }
 
 class Fixture {
   final client = MockSentryClient();
+  final recorder = MockClientReportRecorder();
+
   final options = SentryOptions(dsn: fakeDsn);
   late SentryTransactionContext _context;
   late SentryTracer tracer;
+
+  SentryLevel? loggedLevel;
+  Object? loggedException;
 
   Hub getSut({
     double? tracesSampleRate = 1.0,
     TracesSamplerCallback? tracesSampler,
     bool? sampled = true,
+    bool debug = false,
   }) {
     options.tracesSampleRate = tracesSampleRate;
     options.tracesSampler = tracesSampler;
+    options.debug = debug;
+    options.logger = mockLogger; // Enable logging in DiagnosticsLogger
+
     final hub = Hub(options);
 
     _context = SentryTransactionContext(
       'name',
       'op',
-      sampled: sampled,
+      samplingDecision: SentryTracesSamplingDecision(sampled!),
     );
 
     tracer = SentryTracer(_context, hub);
 
     hub.bindClient(client);
+    options.recorder = recorder;
+
     return hub;
+  }
+
+  void mockLogger(
+    SentryLevel level,
+    String message, {
+    String? logger,
+    Object? exception,
+    StackTrace? stackTrace,
+  }) {
+    loggedLevel = level;
+    loggedException = exception;
   }
 }

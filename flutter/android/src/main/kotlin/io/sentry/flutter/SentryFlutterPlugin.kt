@@ -10,10 +10,11 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
+import io.sentry.Breadcrumb
 import io.sentry.HubAdapter
-import io.sentry.Sentry
 import io.sentry.SentryEvent
 import io.sentry.SentryLevel
+import io.sentry.Sentry
 import io.sentry.android.core.ActivityFramesTracker
 import io.sentry.android.core.AppStartState
 import io.sentry.android.core.LoadClass
@@ -22,6 +23,7 @@ import io.sentry.android.core.SentryAndroidOptions
 import io.sentry.protocol.DebugImage
 import io.sentry.protocol.SdkVersion
 import io.sentry.protocol.SentryId
+import io.sentry.protocol.User
 import java.io.File
 import java.lang.ref.WeakReference
 import java.util.Locale
@@ -51,6 +53,15 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       "fetchNativeAppStart" -> fetchNativeAppStart(result)
       "beginNativeFrames" -> beginNativeFrames(result)
       "endNativeFrames" -> endNativeFrames(call.argument("id"), result)
+      "setContexts" -> setContexts(call.argument("key"), call.argument("value"), result)
+      "removeContexts" -> removeContexts(call.argument("key"), result)
+      "setUser" -> setUser(call.argument("user"), result)
+      "addBreadcrumb" -> addBreadcrumb(call.argument("breadcrumb"), result)
+      "clearBreadcrumbs" -> clearBreadcrumbs(result)
+      "setExtra" -> setExtra(call.argument("key"), call.argument("value"), result)
+      "removeExtra" -> removeExtra(call.argument("key"), result)
+      "setTag" -> setTag(call.argument("key"), call.argument("value"), result)
+      "removeTag" -> removeTag(call.argument("key"), result)
       else -> result.notImplemented()
     }
   }
@@ -136,7 +147,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       val nativeCrashHandling = (args["enableNativeCrashHandling"] as? Boolean) ?: true
       // nativeCrashHandling has priority over anrEnabled
       if (!nativeCrashHandling) {
-        options.enableUncaughtExceptionHandler = false
+        options.setEnableUncaughtExceptionHandler(false)
         options.isAnrEnabled = false
         // if split symbols are enabled, we need Ndk integration so we can't really offer the option
         // to turn it off
@@ -149,6 +160,8 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
           framesTracker = ActivityFramesTracker(LoadClass())
         }
       }
+
+      args.getIfNotNull<Boolean>("sendClientReports") { options.setSendClientReports(it) }
 
       options.setBeforeSend { event, _ ->
         setEventOriginTag(event)
@@ -225,6 +238,135 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
   }
 
+  private fun setContexts(key: String?, value: Any?, result: Result) {
+    if (key == null || value == null) {
+      result.success("")
+      return
+    }
+    Sentry.configureScope { scope ->
+      scope.setContexts(key, value)
+
+      result.success("")
+    }
+  }
+
+  private fun removeContexts(key: String?, result: Result) {
+    if (key == null) {
+      result.success("")
+      return
+    }
+    Sentry.configureScope { scope ->
+      scope.removeContexts(key)
+
+      result.success("")
+    }
+  }
+
+  private fun setUser(user: Map<String, Any?>?, result: Result) {
+    if (user == null) {
+      Sentry.setUser(null)
+      result.success("")
+      return
+    }
+
+    val userInstance = User()
+
+    (user["email"] as? String)?.let { userInstance.email = it }
+    (user["id"] as? String)?.let { userInstance.id = it }
+    (user["username"] as? String)?.let { userInstance.username = it }
+    (user["ip_address"] as? String)?.let { userInstance.ipAddress = it }
+    (user["extras"] as? Map<String, Any?>)?.let { extras ->
+      val others = mutableMapOf<String, String>()
+      for ((key, value) in extras.entries) {
+        if (value != null) {
+          others[key] = value.toString()
+        }
+      }
+      userInstance.others = others
+    }
+
+    Sentry.setUser(userInstance)
+
+    result.success("")
+  }
+
+  private fun addBreadcrumb(breadcrumb: Map<String, Any?>?, result: Result) {
+    if (breadcrumb == null) {
+      result.success("")
+      return
+    }
+    val breadcrumbInstance = Breadcrumb()
+
+    (breadcrumb["message"] as? String)?.let { breadcrumbInstance.message = it }
+    (breadcrumb["type"] as? String)?.let { breadcrumbInstance.type = it }
+    (breadcrumb["category"] as? String)?.let { breadcrumbInstance.category = it }
+    (breadcrumb["level"] as? String)?.let {
+      breadcrumbInstance.level = when (it) {
+        "fatal" -> SentryLevel.FATAL
+        "warning" -> SentryLevel.WARNING
+        "info" -> SentryLevel.INFO
+        "debug" -> SentryLevel.DEBUG
+        "error" -> SentryLevel.ERROR
+        else -> SentryLevel.ERROR
+      }
+    }
+    (breadcrumb["data"] as? Map<String, Any?>)?.let { data ->
+      for ((key, value) in data.entries) {
+        breadcrumbInstance.data[key] = value
+      }
+    }
+
+    Sentry.addBreadcrumb(breadcrumbInstance)
+
+    result.success("")
+  }
+
+  private fun clearBreadcrumbs(result: Result) {
+    Sentry.clearBreadcrumbs()
+
+    result.success("")
+  }
+
+  private fun setExtra(key: String?, value: String?, result: Result) {
+    if (key == null || value == null) {
+      result.success("")
+      return
+    }
+    Sentry.setExtra(key, value)
+
+    result.success("")
+  }
+
+  private fun removeExtra(key: String?, result: Result) {
+    if (key == null) {
+      result.success("")
+      return
+    }
+    Sentry.removeExtra(key)
+
+    result.success("")
+  }
+
+  private fun setTag(key: String?, value: String?, result: Result) {
+    if (key == null || value == null) {
+      result.success("")
+      return
+    }
+    Sentry.setTag(key, value)
+
+    result.success("")
+  }
+
+  private fun removeTag(key: String?, result: Result) {
+    if (key == null) {
+      result.success("")
+      return
+    }
+    Sentry.removeTag(key)
+
+    result.success("")
+  }
+
   private fun captureEnvelope(call: MethodCall, result: Result) {
     val args = call.arguments() as List<Any>? ?: listOf<Any>()
     if (args.isNotEmpty()) {
@@ -268,7 +410,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   private fun closeNativeSdk(result: Result) {
-    Sentry.close()
+    HubAdapter.getInstance().close()
     framesTracker?.stop()
     framesTracker = null
 

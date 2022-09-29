@@ -24,6 +24,7 @@ Integration for the [`logging`](https://pub.dev/packages/logging) package.
 
 ```dart
 import 'package:sentry/sentry.dart';
+import 'package:sentry_logging/sentry_logging.dart';
 
 Future<void> main() async {
   await Sentry.init(
