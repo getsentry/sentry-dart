@@ -1,0 +1,14 @@
+apps:
+  - name: io.sentry.dart.perfTestAppPlain
+    path: perf-test-app-plain/build/ios/TODO.ipa
+  - name: io.sentry.dart.perfTestAppSentry
+    path: perf-test-app-sentry/build/ios/TODO.ipa
+
+startupTimeTest:
+  runs: 50
+  diffMin: 0
+  diffMax: 150
+
+binarySizeTest:
+  diffMin: 200 KiB
+  diffMax: 400 KiB
