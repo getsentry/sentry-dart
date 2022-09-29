@@ -380,7 +380,6 @@ void main() {
       sut.setMeasurement('key', 1.0);
 
       expect(sut.measurements['key']!.value, 1.0);
-      expect(sut.measurements['key']?.unit, SentryMeasurementUnit.none);
 
       await sut.finish();
     });

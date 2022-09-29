@@ -184,11 +184,7 @@ class SentrySpan extends ISentrySpan {
       );
 
   @override
-  void setMeasurement(
-    String name,
-    num value, {
-    SentryMeasurementUnit? unit = SentryMeasurementUnit.none,
-  }) {
+  void setMeasurement(String name, num value, {SentryMeasurementUnit? unit}) {
     _tracer.setMeasurement(name, value, unit: unit);
   }
 
