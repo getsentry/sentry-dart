@@ -1,4 +1,3 @@
-// ignore: implementation_imports
 import 'package:flutter/widgets.dart';
 
 import '../../sentry_flutter.dart';
