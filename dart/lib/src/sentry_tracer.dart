@@ -285,7 +285,11 @@ class SentryTracer extends ISentrySpan {
           .isAfter((span.endTimestamp ?? endTimestampCandidate));
 
   @override
-  void setMeasurement(String name, num value, {SentryMeasurementUnit? unit}) {
+  void setMeasurement(
+    String name,
+    num value, {
+    SentryMeasurementUnit? unit = SentryMeasurementUnit.none,
+  }) {
     if (finished) {
       return;
     }

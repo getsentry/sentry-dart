@@ -374,6 +374,28 @@ void main() {
       expect(sut.startChild('child3'), isA<NoOpSentrySpan>());
     });
 
+    test('tracer sets measurement', () async {
+      final sut = fixture.getSut();
+
+      sut.setMeasurement('key', 1.0);
+
+      expect(sut.measurements['key']!.value, 1.0);
+      expect(sut.measurements['key']?.unit, SentryMeasurementUnit.none);
+
+      await sut.finish();
+    });
+
+    test('tracer sets custom measurement unit', () async {
+      final sut = fixture.getSut();
+
+      sut.setMeasurement('key', 1.0, unit: SentryMeasurementUnit.hour);
+
+      expect(sut.measurements['key']!.value, 1.0);
+      expect(sut.measurements['key']?.unit, SentryMeasurementUnit.hour);
+
+      await sut.finish();
+    });
+
     test('tracer does not allow setting measurement if finished', () async {
       final sut = fixture.getSut();
 
