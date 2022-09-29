@@ -218,19 +218,21 @@ class SentryTracer extends ISentrySpan {
       _hub,
       samplingDecision: _rootSpan.samplingDecision,
       startTimestamp: startTimestamp,
-      finishedCallback: ({
-        DateTime? endTimestamp,
-      }) {
-        final finishStatus = _finishStatus;
-        if (finishStatus.finishing) {
-          finish(status: finishStatus.status, endTimestamp: endTimestamp);
-        }
-      },
+      finishedCallback: _finishedCallback,
     );
 
     _children.add(child);
 
     return child;
+  }
+
+  Future<void> _finishedCallback({
+    DateTime? endTimestamp,
+  }) async {
+    final finishStatus = _finishStatus;
+    if (finishStatus.finishing) {
+      await finish(status: finishStatus.status, endTimestamp: endTimestamp);
+    }
   }
 
   @override
