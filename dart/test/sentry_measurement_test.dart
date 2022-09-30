@@ -6,31 +6,31 @@ void main() {
   group('$SentryMeasurement', () {
     test('total frames has none unit', () {
       expect(
-          SentryMeasurement.totalFrames(10).unit, SentryMeasurementUnit.none.toStringValue());
+          SentryMeasurement.totalFrames(10).unit, SentryMeasurementUnit.none);
     });
 
     test('slow frames has none unit', () {
-      expect(SentryMeasurement.slowFrames(10).unit, SentryMeasurementUnit.none.toStringValue());
+      expect(SentryMeasurement.slowFrames(10).unit, SentryMeasurementUnit.none);
     });
 
     test('frozen frames has none unit', () {
       expect(
-          SentryMeasurement.frozenFrames(10).unit, SentryMeasurementUnit.none.toStringValue());
+          SentryMeasurement.frozenFrames(10).unit, SentryMeasurementUnit.none);
     });
 
     test('warm start has milliseconds unit', () {
       expect(SentryMeasurement.warmAppStart(Duration(seconds: 1)).unit,
-          SentryMeasurementUnit.milliSecond.toStringValue());
+          SentryMeasurementUnit.milliSecond);
     });
 
     test('cold start has milliseconds unit', () {
       expect(SentryMeasurement.coldAppStart(Duration(seconds: 1)).unit,
-          SentryMeasurementUnit.milliSecond.toStringValue());
+          SentryMeasurementUnit.milliSecond);
     });
 
     test('toJson sets unit if given', () {
       final measurement = SentryMeasurement('name', 10,
-          unit: SentryMeasurementUnit.milliSecond.toStringValue());
+          unit: SentryMeasurementUnit.milliSecond);
       final map = <String, dynamic>{
         'value': 10,
         'unit': 'millisecond',

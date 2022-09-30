@@ -291,8 +291,7 @@ class SentryTracer extends ISentrySpan {
     if (finished) {
       return;
     }
-    final measurement =
-        SentryMeasurement(name, value, unit: unit?.toStringValue());
+    final measurement = SentryMeasurement(name, value, unit: unit);
     _measurements[name] = measurement;
   }
 
