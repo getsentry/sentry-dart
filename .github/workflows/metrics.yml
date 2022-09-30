@@ -64,6 +64,6 @@ jobs:
         uses: getsentry/action-app-sdk-overhead-metrics@v1
         with:
           name: ${{ matrix.name }}
-          config: ./metrics/perf/metrics-${{ matrix.platform }}.yml
+          config: ./metrics/metrics-${{ matrix.platform }}.yml
           sauce-user: ${{ secrets.SAUCE_USERNAME }}
           sauce-key: ${{ secrets.SAUCE_ACCESS_KEY }}
