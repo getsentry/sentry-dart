@@ -34,6 +34,12 @@ jobs:
         with:
           flutter-version: ${{ matrix.flutter }}
 
+      - uses: actions/setup-java@v3
+        if: ${{ matrix.platform == 'android' }}
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+
       - run: ./metrics/prepare.sh
 
       - uses: actions/cache@v3
