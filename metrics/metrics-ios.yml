@@ -1,8 +1,8 @@
 apps:
   - name: io.sentry.dart.perfTestAppPlain
-    path: perf-test-app-plain/build/ios/TODO.ipa
+    path: test-app-plain.ipa
   - name: io.sentry.dart.perfTestAppSentry
-    path: perf-test-app-sentry/build/ios/TODO.ipa
+    path: test-app-sentry.ipa
 
 startupTimeTest:
   runs: 50

@@ -22,7 +22,7 @@ jobs:
         include:
           - platform: ios
             name: iOS
-            appPlain: perf-test-app-plain/build/ios/TODO.ipa
+            appPlain: test-app-plain.ipa
           - platform: android
             name: Android
             appPlain: metrics/perf-test-app-plain/build/app/outputs/apk/release/app-arm64-v8a-release.apk
@@ -44,6 +44,15 @@ jobs:
 
       - name: Build
         run: ./metrics/build.sh ${{ matrix.platform }}
+        env:
+          # Necessary to build an iOS .ipa (using fastlane)
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+          FASTLANE_KEYCHAIN_PASSWORD: ${{ secrets.FASTLANE_KEYCHAIN_PASSWORD }}
+          MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
 
       - name: Collect apps metrics
         uses: getsentry/action-app-sdk-overhead-metrics@v1

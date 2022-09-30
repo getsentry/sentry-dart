@@ -7,25 +7,25 @@ targetDir=$(
 )
 [[ "$targetDir" != "" ]] || exit 1
 
-platform=$1
 if [ "$#" -gt 2 ]; then
   shift
   args="$@"
+  target=$1
 else
   # Use default args if no were given
-  case "$platform" in
+  case "$1" in
   ios)
-    platform="ipa"
-    args="--release"
+    target="ipa"
+    args="--release --no-codesign"
     ;;
 
   android)
-    platform="apk"
+    target="apk"
     args="--release --target-platform android-arm64 --split-per-abi"
     ;;
 
   *)
-    echo "Unknown platform: '$platform'"
+    echo "Unknown platform: '$1'"
     exit 1
     ;;
   esac
@@ -41,6 +41,15 @@ for app in "$targetDir/perf-test-app-"*; do
       cd -
     fi
 
-    flutter build $platform $args
+    flutter build $target $args
+
+    if [[ "$1" == "ios" ]]; then
+      flJob="$(basename $app)"
+      flJob=${flJob//-/_}
+      (
+        cd $targetDir
+        fastlane "build_$flJob"
+      )
+    fi
   )
 done
