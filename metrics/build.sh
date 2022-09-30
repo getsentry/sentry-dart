@@ -32,6 +32,14 @@ else
 fi
 
 for app in "$targetDir/perf-test-app-"*; do
+  echo "Building $app"
+
+  # Support caching if this is running in CI.
+  if [[ -n ${CI+x} && $app == *-plain && -f $APP_PLAIN ]]; then
+    echo "Cached app exists: $APP_PLAIN - skipping build"
+    continue
+  fi
+
   (
     cd $app
     flutter pub get
@@ -40,16 +48,15 @@ for app in "$targetDir/perf-test-app-"*; do
       pod install --repo-update
       cd -
     fi
-
     flutter build $target $args
-
-    if [[ "$1" == "ios" ]]; then
-      flJob="$(basename $app)"
-      flJob=${flJob//-/_}
-      (
-        cd $targetDir
-        fastlane "build_$flJob"
-      )
-    fi
   )
+
+  if [[ "$1" == "ios" ]]; then
+    flJob="$(basename $app)"
+    flJob=${flJob//-/_}
+    (
+      cd $targetDir
+      fastlane "build_$flJob"
+    )
+  fi
 done

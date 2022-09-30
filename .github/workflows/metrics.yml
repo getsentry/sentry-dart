@@ -59,6 +59,7 @@ jobs:
           MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_USERNAME: ${{ secrets.MATCH_USERNAME }}
+          APP_PLAIN: ${{ matrix.appPlain }}
 
       - name: Collect apps metrics
         uses: getsentry/action-app-sdk-overhead-metrics@v1
