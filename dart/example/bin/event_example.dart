@@ -70,7 +70,6 @@ final event = SentryEvent(
       externalStorageSize: 8589934592,
       externalFreeStorage: 2863311530,
       bootTime: DateTime.now().toUtc(),
-      timezone: 'America/Toronto',
     ),
   ),
 );
