@@ -56,7 +56,6 @@ final event = SentryEvent(
       orientation: SentryOrientation.landscape,
       manufacturer: 'samsung',
       brand: 'samsung',
-      screenResolution: '2560x1600',
       screenDensity: 2.1,
       screenDpi: 320,
       online: true,
