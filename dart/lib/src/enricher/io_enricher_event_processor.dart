@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:isolate';
 
 import '../event_processor.dart';
 import '../protocol.dart';
