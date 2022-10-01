@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Tracer does not allow setting measurement if finished ([#1026](https://github.com/getsentry/sentry-dart/pull/1026))
+
+### Features
+
+- Bump Cocoa SDK from v7.26.0 to v7.27.0 ([#1030](https://github.com/getsentry/sentry-dart/pull/1030))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/master/CHANGELOG.md#7270)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.26.0...7.27.0)
+
 ## 6.11.1
 
 ### Fixes
