@@ -106,8 +106,10 @@ class SentryTracer extends ISentrySpan {
         }
       }
 
-      await _rootSpan.finish(endTimestamp: _rootEndTimestamp);
+      // the callback should run before because if the span is finished,
+      // we cannot attach data, its immutable after being finished.
       await _onFinish?.call(this);
+      await _rootSpan.finish(endTimestamp: _rootEndTimestamp);
 
       // remove from scope
       await _hub.configureScope((scope) {
@@ -216,19 +218,21 @@ class SentryTracer extends ISentrySpan {
       _hub,
       samplingDecision: _rootSpan.samplingDecision,
       startTimestamp: startTimestamp,
-      finishedCallback: ({
-        DateTime? endTimestamp,
-      }) {
-        final finishStatus = _finishStatus;
-        if (finishStatus.finishing) {
-          finish(status: finishStatus.status, endTimestamp: endTimestamp);
-        }
-      },
+      finishedCallback: _finishedCallback,
     );
 
     _children.add(child);
 
     return child;
+  }
+
+  Future<void> _finishedCallback({
+    DateTime? endTimestamp,
+  }) async {
+    final finishStatus = _finishStatus;
+    if (finishStatus.finishing) {
+      await finish(status: finishStatus.status, endTimestamp: endTimestamp);
+    }
   }
 
   @override
@@ -284,6 +288,9 @@ class SentryTracer extends ISentrySpan {
 
   @override
   void setMeasurement(String name, num value, {SentryMeasurementUnit? unit}) {
+    if (finished) {
+      return;
+    }
     final measurement = SentryMeasurement(name, value, unit: unit);
     _measurements[name] = measurement;
   }
