@@ -1,3 +1,3 @@
 import 'renderer.dart';
 
-FlutterRenderer getRenderer() => throw FlutterRenderer.unknown;
+FlutterRenderer getRenderer() => FlutterRenderer.unknown;
