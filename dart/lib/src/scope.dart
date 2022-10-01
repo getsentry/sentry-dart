@@ -389,7 +389,7 @@ class Scope {
       email: eventUser?.email,
       ipAddress: eventUser?.ipAddress,
       username: eventUser?.username,
-      extras: _mergeUserExtra(eventUser?.extras, scopeUser.extras),
+      data: _mergeUserExtra(eventUser?.data, scopeUser.data),
     );
   }
 

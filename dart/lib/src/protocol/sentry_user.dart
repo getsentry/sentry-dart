@@ -1,5 +1,7 @@
 import 'package:meta/meta.dart';
 
+import '../../sentry.dart';
+
 /// Describes the current user associated with the application, such as the
 /// currently signed in user.
 ///
@@ -37,13 +39,21 @@ class SentryUser {
     this.email,
     this.ipAddress,
     this.segment,
-    Map<String, dynamic>? extras,
-  })  : assert(id != null ||
-            username != null ||
-            email != null ||
-            ipAddress != null ||
-            segment != null),
-        extras = extras == null ? null : Map.from(extras);
+    this.subscription,
+    this.geo,
+    this.name,
+    Map<String, dynamic>? data,
+    @Deprecated('Will be removed in v7. Use data instead')
+        Map<String, dynamic>? extras,
+  })  : assert(
+          id != null ||
+              username != null ||
+              email != null ||
+              ipAddress != null ||
+              segment != null,
+        ),
+        assert(data == null || extras == null, 'Only use one of data/extra'),
+        data = (data ?? extras) == null ? null : Map.from(data ?? extras ?? {});
 
   /// A unique identifier of the user.
   final String? id;
@@ -64,13 +74,35 @@ class SentryUser {
   ///
   /// These keys are stored as extra information but not specifically processed
   /// by Sentry.
-  final Map<String, dynamic>? extras;
+  final Map<String, dynamic>? data;
+
+  @Deprecated('Will be removed in v7. Use [data] instead')
+  Map<String, dynamic>? get extras => data;
+
+  final String? subscription;
+
+  /// Approximate geographical location of the end user or device.
+  final SentryGeo? geo;
+
+  /// Human readable name of the user.
+  final String? name;
 
   /// Deserializes a [SentryUser] from JSON [Map].
   factory SentryUser.fromJson(Map<String, dynamic> json) {
-    var extras = json['extras'];
+    var extras = json['extras'] as Map<String, dynamic>?;
     if (extras != null) {
-      extras = Map<String, dynamic>.from(extras as Map);
+      extras = Map<String, dynamic>.from(extras);
+    }
+
+    var data = json['data'] as Map<String, dynamic>?;
+    if (data != null) {
+      data = Map<String, dynamic>.from(data);
+    }
+
+    SentryGeo? geo;
+    final geoJson = json['geo'] as Map<String, dynamic>?;
+    if (geoJson != null) {
+      geo = SentryGeo.fromJson(geoJson);
     }
     return SentryUser(
       id: json['id'],
@@ -78,19 +110,28 @@ class SentryUser {
       email: json['email'],
       ipAddress: json['ip_address'],
       segment: json['segment'],
+      data: data,
+      geo: geo,
+      name: json['name'],
+      subscription: json['subscription'],
+      // ignore: deprecated_member_use_from_same_package
       extras: extras,
     );
   }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
+    final geoJson = geo?.toJson();
     return <String, dynamic>{
       if (id != null) 'id': id,
       if (username != null) 'username': username,
       if (email != null) 'email': email,
       if (ipAddress != null) 'ip_address': ipAddress,
       if (segment != null) 'segment': segment,
-      if (extras?.isNotEmpty ?? false) 'extras': extras,
+      if (data?.isNotEmpty ?? false) 'data': data,
+      if (subscription != null) 'subscription': subscription,
+      if (name != null) 'name': name,
+      if (geoJson != null && geoJson.isNotEmpty) 'geo': geoJson,
     };
   }
 
@@ -100,14 +141,24 @@ class SentryUser {
     String? email,
     String? ipAddress,
     String? segment,
-    Map<String, dynamic>? extras,
-  }) =>
-      SentryUser(
-        id: id ?? this.id,
-        username: username ?? this.username,
-        email: email ?? this.email,
-        ipAddress: ipAddress ?? this.ipAddress,
-        segment: segment ?? this.segment,
-        extras: extras ?? this.extras,
-      );
+    @Deprecated('Will be removed in v7. Use [data] instead')
+        Map<String, dynamic>? extras,
+    String? name,
+    String? subscription,
+    SentryGeo? geo,
+    Map<String, dynamic>? data,
+  }) {
+    assert(data == null || extras == null, 'Only use one of data/extra');
+    return SentryUser(
+      id: id ?? this.id,
+      username: username ?? this.username,
+      email: email ?? this.email,
+      ipAddress: ipAddress ?? this.ipAddress,
+      segment: segment ?? this.segment,
+      // ignore: deprecated_member_use_from_same_package
+      data: (data ?? extras) ?? (this.data ?? this.extras),
+      geo: geo ?? this.geo,
+      name: name ?? this.name,
+    );
+  }
 }

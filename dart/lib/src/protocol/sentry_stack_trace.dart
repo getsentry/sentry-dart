@@ -8,6 +8,8 @@ class SentryStackTrace {
   SentryStackTrace({
     required List<SentryStackFrame> frames,
     Map<String, String>? registers,
+    this.lang,
+    this.snapshot,
   })  : _frames = frames,
         _registers = Map.from(registers ?? {});
 
@@ -25,6 +27,23 @@ class SentryStackTrace {
   /// thus mapping to the last frame in the list.
   Map<String, String> get registers => Map.unmodifiable(_registers ?? const {});
 
+  /// The language of the stacktrace
+  final String? lang;
+
+  /// Indicates that this stack trace is a snapshot triggered
+  /// by an external signal.
+  ///
+  /// If this field is false, then the stack trace points to the code that
+  /// caused this stack trace to be created.
+  /// This can be the location of a raised exception, as well as an exception or
+  /// signal handler.
+  ///
+  /// If this field is true, then the stack trace was captured as part
+  /// of creating an unrelated event. For example, a thread other than the
+  /// crashing thread, or a stack trace computed as a result of an external kill
+  /// signal.
+  final bool? snapshot;
+
   /// Deserializes a [SentryStackTrace] from JSON [Map].
   factory SentryStackTrace.fromJson(Map<String, dynamic> json) {
     final framesJson = json['frames'] as List<dynamic>?;
@@ -35,23 +54,21 @@ class SentryStackTrace {
               .toList()
           : [],
       registers: json['registers'],
+      lang: json['lang'],
+      snapshot: json['snapshot'],
     );
   }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{};
-
-    if (_frames?.isNotEmpty ?? false) {
-      json['frames'] =
-          _frames?.map((frame) => frame.toJson()).toList(growable: false);
-    }
-
-    if (_registers?.isNotEmpty ?? false) {
-      json['registers'] = _registers;
-    }
-
-    return json;
+    return <String, dynamic>{
+      if (_frames?.isNotEmpty ?? false)
+        'frames':
+            _frames?.map((frame) => frame.toJson()).toList(growable: false),
+      if (_registers?.isNotEmpty ?? false) 'registers': _registers,
+      if (lang != null) 'lang': lang,
+      if (snapshot != null) 'snapshot': snapshot,
+    };
   }
 
   SentryStackTrace copyWith({

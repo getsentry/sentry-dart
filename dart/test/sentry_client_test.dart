@@ -613,7 +613,7 @@ void main() {
       await scope.setUser(
         SentryUser(
           id: 'id',
-          extras: {
+          data: {
             'foo': 'bar',
             'bar': 'foo',
           },
@@ -623,7 +623,7 @@ void main() {
       var eventWithUser = event.copyWith(
         user: SentryUser(
           id: 'id',
-          extras: {
+          data: {
             'foo': 'this bar is more important',
             'event': 'Really important event'
           },
@@ -634,9 +634,9 @@ void main() {
       final capturedEnvelope = fixture.transport.envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(capturedEvent.user?.extras?['foo'], 'this bar is more important');
-      expect(capturedEvent.user?.extras?['bar'], 'foo');
-      expect(capturedEvent.user?.extras?['event'], 'Really important event');
+      expect(capturedEvent.user?.data?['foo'], 'this bar is more important');
+      expect(capturedEvent.user?.data?['bar'], 'foo');
+      expect(capturedEvent.user?.data?['event'], 'Really important event');
     });
   });
 
