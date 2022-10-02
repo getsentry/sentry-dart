@@ -10,14 +10,14 @@ class SentryRuntime {
   static const listType = 'runtimes';
   static const type = 'runtime';
 
-  const SentryRuntime(
-      {this.key,
-      this.name,
-      this.version,
-      this.compiler,
-      this.rawDescription,
-      this.build})
-      : assert(key == null || key.length >= 1);
+  const SentryRuntime({
+    this.key,
+    this.name,
+    this.version,
+    this.compiler,
+    this.rawDescription,
+    this.build,
+  }) : assert(key == null || key.length >= 1);
 
   /// Key used in the JSON and which will be displayed
   /// in the Sentry UI. Defaults to lower case version of [name].
