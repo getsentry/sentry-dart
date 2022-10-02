@@ -5,6 +5,7 @@
 ### Fixes
 
 - Tracer does not allow setting measurement if finished ([#1026](https://github.com/getsentry/sentry-dart/pull/1026))
+- Bring protocol up to date with latest Sentry protocol ([#1038](https://github.com/getsentry/sentry-dart/pull/1038))
 
 ### Features
 
