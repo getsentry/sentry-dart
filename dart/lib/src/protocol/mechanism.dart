@@ -108,7 +108,5 @@ class Mechanism {
       if (_data?.isNotEmpty ?? false) 'data': _data,
       if (synthetic != null) 'synthetic': synthetic,
     };
-
-    return json;
   }
 }
