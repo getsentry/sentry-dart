@@ -36,7 +36,7 @@ class Sentry {
   static Future<void> init(
     OptionsConfiguration optionsConfiguration, {
     AppRunner? appRunner,
-    bool callAppRunnerInRunZonedGuarded = true,
+    @internal bool callAppRunnerInRunZonedGuarded = true,
     @internal SentryOptions? options,
   }) async {
     final sentryOptions = options ?? SentryOptions();
