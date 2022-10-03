@@ -59,7 +59,7 @@ mixin SentryFlutter {
     }
 
     await _initDefaultValues(flutterOptions, channel);
-    
+
     await Sentry.init((options) async {
       await optionsConfiguration(options as SentryFlutterOptions);
     },
