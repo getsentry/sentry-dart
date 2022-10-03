@@ -1,38 +1,36 @@
-import 'dart:async';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/file_system_transport.dart';
-import 'package:sentry_flutter/src/sentry_flutter_options.dart';
 
-import 'mocks.dart';
+void testTransport({
+  required Transport transport,
+  required hasFileSystemTransport,
+}) {
+  expect(
+    transport is FileSystemTransport,
+    hasFileSystemTransport,
+    reason: '$FileSystemTransport was wrongly set',
+  );
+}
 
-FutureOr<void> Function(SentryFlutterOptions) getConfigurationTester({
+void testConfiguration({
+  required Iterable<Integration> integrations,
   required Iterable<Type> shouldHaveIntegrations,
   required Iterable<Type> shouldNotHaveIntegrations,
-  required bool hasFileSystemTransport,
-}) =>
-    (options) async {
-      options.dsn = fakeDsn;
+}) {
+  final numberOfIntegrationsByType = <Type, int>{};
+  for (var e in integrations) {
+    numberOfIntegrationsByType[e.runtimeType] =
+        numberOfIntegrationsByType[e.runtimeType] ?? 0 + 1;
+  }
 
-      expect(
-        options.transport is FileSystemTransport,
-        hasFileSystemTransport,
-        reason: '$FileSystemTransport was wrongly set',
-      );
+  for (final type in shouldHaveIntegrations) {
+    expect(numberOfIntegrationsByType, containsPair(type, 1));
+  }
 
-      final integrations = <Type, int>{};
-      for (var e in options.integrations) {
-        integrations[e.runtimeType] = integrations[e.runtimeType] ?? 0 + 1;
-      }
-
-      for (final type in shouldHaveIntegrations) {
-        expect(integrations, containsPair(type, 1));
-      }
-
-      shouldNotHaveIntegrations = Set.of(shouldNotHaveIntegrations)
-          .difference(Set.of(shouldHaveIntegrations));
-      for (final type in shouldNotHaveIntegrations) {
-        expect(integrations, isNot(contains(type)));
-      }
-    };
+  shouldNotHaveIntegrations = Set.of(shouldNotHaveIntegrations)
+      .difference(Set.of(shouldHaveIntegrations));
+  for (final type in shouldNotHaveIntegrations) {
+    expect(integrations, isNot(contains(type)));
+  }
+}

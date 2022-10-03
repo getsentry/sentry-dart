@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
+import '../sentry_flutter.dart';
 import 'event_processor/android_platform_exception_event_processor.dart';
 import 'native_scope_observer.dart';
 import 'sentry_native.dart';
@@ -45,27 +47,26 @@ mixin SentryFlutter {
     final native = SentryNative();
     native.setNativeChannel(nativeChannel);
 
+    final wrapper = PlatformDispatcherWrapper(PlatformDispatcher.instance);
+    final isOnErrorSupported = wrapper.isOnErrorSupported(flutterOptions);
+
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
     final defaultIntegrations = _createDefaultIntegrations(
-      packageLoader,
-      channel,
-      flutterOptions,
-    );
+        packageLoader, channel, flutterOptions, isOnErrorSupported);
     for (final defaultIntegration in defaultIntegrations) {
       flutterOptions.addIntegration(defaultIntegration);
     }
 
     await _initDefaultValues(flutterOptions, channel);
-
-    await Sentry.init(
-      (options) async {
-        await optionsConfiguration(options as SentryFlutterOptions);
-      },
-      appRunner: appRunner,
-      // ignore: invalid_use_of_internal_member
-      options: flutterOptions,
-    );
+    
+    await Sentry.init((options) async {
+      await optionsConfiguration(options as SentryFlutterOptions);
+    },
+        appRunner: appRunner,
+        // ignore: invalid_use_of_internal_member
+        options: flutterOptions,
+        callAppRunnerInRunZonedGuarded: !isOnErrorSupported);
   }
 
   static Future<void> _initDefaultValues(
@@ -96,10 +97,16 @@ mixin SentryFlutter {
     PackageLoader packageLoader,
     MethodChannel channel,
     SentryFlutterOptions options,
+    bool isOnErrorSupported,
   ) {
     final integrations = <Integration>[];
     final platformChecker = options.platformChecker;
     final platform = platformChecker.platform;
+
+    // Use PlatformDispatcher.onError instead of zones.
+    if (isOnErrorSupported) {
+      integrations.add(OnErrorIntegration());
+    }
 
     // Will call WidgetsFlutterBinding.ensureInitialized() before all other integrations.
     integrations.add(WidgetsFlutterBindingIntegration());
