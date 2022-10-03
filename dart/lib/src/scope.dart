@@ -389,13 +389,13 @@ class Scope {
       email: eventUser?.email,
       ipAddress: eventUser?.ipAddress,
       username: eventUser?.username,
-      data: _mergeUserExtra(eventUser?.data, scopeUser.data),
+      data: _mergeUserData(eventUser?.data, scopeUser.data),
     );
   }
 
   /// If the User on the scope and the user of an event have extra entries with
   /// the same key, the event user extra will be kept.
-  Map<String, dynamic> _mergeUserExtra(
+  Map<String, dynamic> _mergeUserData(
     Map<String, dynamic>? eventExtra,
     Map<String, dynamic>? scopeExtra,
   ) {
