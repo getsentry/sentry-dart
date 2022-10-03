@@ -6,6 +6,10 @@
 
 - Bring protocol up to date with latest Sentry protocol ([#1038](https://github.com/getsentry/sentry-dart/pull/1038))
 
+### Features
+
+- Added [Flutter renderer](https://docs.flutter.dev/development/platform-integration/web/renderers) information to events ([#1035](https://github.com/getsentry/sentry-dart/pull/1035))
+
 ## 6.11.2
 
 ### Fixes
