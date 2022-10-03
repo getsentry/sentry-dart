@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Use PlatformDispatcher.onError in Flutter 3.3 ([#1039](https://github.com/getsentry/sentry-dart/pull/1039))
+
 ## 6.11.2
 
 ### Fixes
