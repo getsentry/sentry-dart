@@ -15,6 +15,7 @@ import 'package:sentry/src/sentry_tracer.dart' as _i8;
 import 'package:sentry_flutter/src/sentry_native.dart' as _i10;
 import 'package:sentry_flutter/src/sentry_native_channel.dart' as _i11;
 
+// ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'mocks.dart' as _i12;
 
 // ignore_for_file: type=lint
@@ -26,6 +27,8 @@ import 'mocks.dart' as _i12;
 // ignore_for_file: prefer_const_constructors
 // ignore_for_file: unnecessary_parenthesis
 // ignore_for_file: camel_case_types
+// ignore_for_file: subtype_of_sealed_class
+// ignore_for_file: invalid_use_of_internal_member
 
 class _FakeSentrySpanContext_0 extends _i1.Fake
     implements _i2.SentrySpanContext {}

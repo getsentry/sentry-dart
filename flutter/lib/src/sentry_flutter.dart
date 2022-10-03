@@ -5,7 +5,6 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:sentry/sentry.dart';
 import '../sentry_flutter.dart';
 import 'event_processor/android_platform_exception_event_processor.dart';
 import 'native_scope_observer.dart';
@@ -15,9 +14,7 @@ import 'sentry_native_channel.dart';
 import 'flutter_enricher_event_processor.dart';
 import 'integrations/debug_print_integration.dart';
 import 'integrations/native_app_start_integration.dart';
-import 'sentry_flutter_options.dart';
 
-import 'default_integrations.dart';
 import 'file_system_transport.dart';
 
 import 'version.dart';
