@@ -43,7 +43,7 @@ class SentryUser {
     this.geo,
     this.name,
     Map<String, dynamic>? data,
-    @Deprecated('Will be removed in v7. Use data instead')
+    @Deprecated('Will be removed in v7. Use [data] instead')
         Map<String, dynamic>? extras,
   })  : assert(
           id != null ||
