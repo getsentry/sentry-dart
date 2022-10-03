@@ -1,11 +1,11 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../sentry_flutter.dart';
+import 'binding_utils.dart';
 import 'event_processor/android_platform_exception_event_processor.dart';
 import 'native_scope_observer.dart';
 import 'sentry_native.dart';
@@ -44,8 +44,15 @@ mixin SentryFlutter {
     final native = SentryNative();
     native.setNativeChannel(nativeChannel);
 
-    final wrapper = PlatformDispatcherWrapper(PlatformDispatcher.instance);
-    final isOnErrorSupported = wrapper.isOnErrorSupported(flutterOptions);
+    final platformDispatcher =
+        BindingUtils.getWidgetsBindingInstance()?.platformDispatcher;
+    bool isOnErrorSupported;
+    if (platformDispatcher != null) {
+      final wrapper = PlatformDispatcherWrapper(platformDispatcher);
+      isOnErrorSupported = wrapper.isOnErrorSupported(flutterOptions);
+    } else {
+      isOnErrorSupported = false;
+    }
 
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
