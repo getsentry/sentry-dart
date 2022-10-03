@@ -390,6 +390,8 @@ class Scope {
       ipAddress: eventUser?.ipAddress,
       username: eventUser?.username,
       data: _mergeUserData(eventUser?.data, scopeUser.data),
+      // ignore: deprecated_member_use_from_same_package
+      extras: _mergeUserData(eventUser?.extras, scopeUser.extras),
     );
   }
 

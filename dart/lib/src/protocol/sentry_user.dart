@@ -52,8 +52,9 @@ class SentryUser {
               ipAddress != null ||
               segment != null,
         ),
-        assert(data == null || extras == null, 'Only use one of data/extra'),
-        data = (data ?? extras) == null ? null : Map.from(data ?? extras ?? {});
+        data = data == null ? null : Map.from(data),
+        // ignore: deprecated_member_use_from_same_package
+        extras = extras == null ? null : Map.from(extras);
 
   /// A unique identifier of the user.
   final String? id;
@@ -77,7 +78,7 @@ class SentryUser {
   final Map<String, dynamic>? data;
 
   @Deprecated('Will be removed in v7. Use [data] instead')
-  Map<String, dynamic>? get extras => data;
+  final Map<String, dynamic>? extras;
 
   final String? subscription;
 
@@ -129,6 +130,8 @@ class SentryUser {
       if (ipAddress != null) 'ip_address': ipAddress,
       if (segment != null) 'segment': segment,
       if (data?.isNotEmpty ?? false) 'data': data,
+      // ignore: deprecated_member_use_from_same_package
+      if (extras?.isNotEmpty ?? false) 'extras': extras,
       if (subscription != null) 'subscription': subscription,
       if (name != null) 'name': name,
       if (geoJson != null && geoJson.isNotEmpty) 'geo': geoJson,
@@ -148,15 +151,15 @@ class SentryUser {
     SentryGeo? geo,
     Map<String, dynamic>? data,
   }) {
-    assert(data == null || extras == null, 'Only use one of data/extra');
     return SentryUser(
       id: id ?? this.id,
       username: username ?? this.username,
       email: email ?? this.email,
       ipAddress: ipAddress ?? this.ipAddress,
       segment: segment ?? this.segment,
+      data: data ?? this.data,
       // ignore: deprecated_member_use_from_same_package
-      data: (data ?? extras) ?? (this.data ?? this.extras),
+      extras: extras ?? this.extras,
       geo: geo ?? this.geo,
       name: name ?? this.name,
     );
