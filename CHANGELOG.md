@@ -1,10 +1,11 @@
 # Changelog
 
-## Unreleased
+## 6.11.2
 
 ### Fixes
 
 - Tracer does not allow setting measurement if finished ([#1026](https://github.com/getsentry/sentry-dart/pull/1026))
+- Add missing measurements units ([#1033](https://github.com/getsentry/sentry-dart/pull/1033))
 
 ### Features
 
