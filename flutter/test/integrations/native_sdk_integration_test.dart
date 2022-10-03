@@ -2,175 +2,113 @@
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/native_sdk_integration.dart';
-import 'package:sentry_flutter/src/version.dart';
 
 import '../mocks.dart';
+import '../mocks.mocks.dart';
 
 void main() {
-  group(NativeSdkIntegration, () {
-    late Fixture fixture;
-    setUp(() {
-      fixture = Fixture();
-      TestWidgetsFlutterBinding.ensureInitialized();
+  const _channel = MethodChannel('sentry_flutter');
+
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  late Fixture fixture;
+
+  setUp(() {
+    fixture = Fixture();
+  });
+
+  tearDown(() {
+    _channel.setMockMethodCallHandler(null);
+  });
+
+  test('nativeSdkIntegration adds integration', () async {
+    _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
+
+    final integration = NativeSdkIntegration(_channel);
+
+    await integration(fixture.hub, fixture.options);
+
+    expect(fixture.options.sdk.integrations.contains('nativeSdkIntegration'),
+        true);
+  });
+
+  test('nativeSdkIntegration do not throw', () async {
+    _channel.setMockMethodCallHandler((MethodCall methodCall) async {
+      throw Exception();
     });
 
-    test('test default values', () async {
-      String? methodName;
-      dynamic arguments;
-      final channel = createChannelWithCallback((call) async {
-        methodName = call.method;
-        arguments = call.arguments;
-      });
-      var sut = fixture.getSut(channel);
+    final integration = NativeSdkIntegration(_channel);
 
-      await sut.call(HubAdapter(), createOptions());
+    await integration(fixture.hub, fixture.options);
 
-      channel.setMethodCallHandler(null);
+    expect(fixture.options.sdk.integrations.contains('nativeSdkIntegration'),
+        false);
+  });
 
-      expect(methodName, 'initNativeSdk');
-      expect(arguments, <String, dynamic>{
-        'dsn': fakeDsn,
-        'debug': false,
-        'environment': null,
-        'release': null,
-        'enableAutoSessionTracking': true,
-        'enableNativeCrashHandling': true,
-        'attachStacktrace': true,
-        'attachThreads': false,
-        'autoSessionTrackingIntervalMillis': 30000,
-        'dist': null,
-        'integrations': [],
-        'packages': [
-          {'name': 'pub:sentry', 'version': sdkVersion}
-        ],
-        'diagnosticLevel': 'debug',
-        'maxBreadcrumbs': 100,
-        'anrEnabled': false,
-        'anrTimeoutIntervalMillis': 5000,
-        'enableAutoNativeBreadcrumbs': true,
-        'maxCacheItems': 30,
-        'sendDefaultPii': false,
-        'enableOutOfMemoryTracking': true,
-        'enableNdkScopeSync': false,
-        'enableAutoPerformanceTracking': true,
-        'sendClientReports': true
-      });
+  test('nativeSdkIntegration closes native SDK', () async {
+    var closeCalled = false;
+    _channel.setMockMethodCallHandler((MethodCall methodCall) async {
+      expect(methodCall.method, 'closeNativeSdk');
+      closeCalled = true;
     });
 
-    test('test custom values', () async {
-      String? methodName;
-      dynamic arguments;
-      final channel = createChannelWithCallback((call) async {
-        methodName = call.method;
-        arguments = call.arguments;
-      });
-      var sut = fixture.getSut(channel);
+    final integration = NativeSdkIntegration(_channel);
 
-      final options = createOptions()
-        ..debug = false
-        ..environment = 'foo'
-        ..release = 'foo@bar+1'
-        ..enableAutoSessionTracking = false
-        ..enableNativeCrashHandling = false
-        ..attachStacktrace = false
-        ..attachThreads = true
-        ..autoSessionTrackingInterval = Duration(milliseconds: 240000)
-        ..dist = 'distfoo'
-        ..diagnosticLevel = SentryLevel.error
-        ..maxBreadcrumbs = 0
-        ..anrEnabled = false
-        ..anrTimeoutInterval = Duration(seconds: 1)
-        ..enableAutoNativeBreadcrumbs = false
-        ..maxCacheItems = 0
-        ..sendDefaultPii = true
-        ..enableOutOfMemoryTracking = false
-        ..enableNdkScopeSync = true
-        ..enableAutoPerformanceTracking = false
-        ..sendClientReports = false;
+    await integration.close();
 
-      options.sdk.addIntegration('foo');
-      options.sdk.addPackage('bar', '1');
+    expect(closeCalled, true);
+  });
 
-      await sut.call(HubAdapter(), options);
-
-      channel.setMethodCallHandler(null);
-
-      expect(methodName, 'initNativeSdk');
-      expect(arguments, <String, dynamic>{
-        'dsn': fakeDsn,
-        'debug': false,
-        'environment': 'foo',
-        'release': 'foo@bar+1',
-        'enableAutoSessionTracking': false,
-        'enableNativeCrashHandling': false,
-        'attachStacktrace': false,
-        'attachThreads': true,
-        'autoSessionTrackingIntervalMillis': 240000,
-        'dist': 'distfoo',
-        'integrations': ['foo'],
-        'packages': [
-          {'name': 'pub:sentry', 'version': sdkVersion},
-          {'name': 'bar', 'version': '1'},
-        ],
-        'diagnosticLevel': 'error',
-        'maxBreadcrumbs': 0,
-        'anrEnabled': false,
-        'anrTimeoutIntervalMillis': 1000,
-        'enableAutoNativeBreadcrumbs': false,
-        'maxCacheItems': 0,
-        'sendDefaultPii': true,
-        'enableOutOfMemoryTracking': false,
-        'enableNdkScopeSync': true,
-        'enableAutoPerformanceTracking': false,
-        'sendClientReports': false
-      });
+  test('nativeSdkIntegration does not call native sdk when auto init disabled',
+      () async {
+    var methodChannelCalled = false;
+    _channel.setMockMethodCallHandler((MethodCall methodCall) async {
+      methodChannelCalled = true;
     });
+    fixture.options.autoInitializeNativeSdk = false;
 
-    test('adds integration', () async {
-      final channel = createChannelWithCallback((call) async {});
-      var sut = fixture.getSut(channel);
+    final integration = NativeSdkIntegration(_channel);
 
-      final options = createOptions();
-      await sut.call(HubAdapter(), options);
+    await integration.call(fixture.hub, fixture.options);
 
-      expect(options.sdk.integrations, ['nativeSdkIntegration']);
+    expect(methodChannelCalled, false);
+  });
 
-      channel.setMethodCallHandler(null);
+  test('nativeSdkIntegration does not close native when auto init disabled',
+      () async {
+    var methodChannelCalled = false;
+    _channel.setMockMethodCallHandler((MethodCall methodCall) async {
+      methodChannelCalled = true;
     });
+    fixture.options.autoInitializeNativeSdk = false;
 
-    test('integration is not added in case of an exception', () async {
-      final channel = createChannelWithCallback((call) async {
-        throw Exception('foo');
-      });
-      var sut = fixture.getSut(channel);
+    final integration = NativeSdkIntegration(_channel);
 
-      final options = createOptions();
-      await sut.call(NoOpHub(), options);
+    await integration(fixture.hub, fixture.options);
+    await integration.close();
 
-      expect(options.sdk.integrations, []);
-
-      channel.setMethodCallHandler(null);
-    });
+    expect(methodChannelCalled, false);
   });
 }
 
-MethodChannel createChannelWithCallback(
-  Future<dynamic>? Function(MethodCall call)? handler,
-) {
-  final channel = MethodChannel('initNativeSdk');
-  channel.setMockMethodCallHandler(handler);
-  return channel;
-}
-
-SentryFlutterOptions createOptions() {
-  final mockPlatformChecker = MockPlatformChecker(hasNativeIntegration: true);
-  return SentryFlutterOptions(dsn: fakeDsn, checker: mockPlatformChecker);
-}
-
 class Fixture {
-  NativeSdkIntegration getSut(MethodChannel channel) {
-    return NativeSdkIntegration(channel);
+  final hub = MockHub();
+  final options = SentryFlutterOptions(dsn: fakeDsn);
+
+  LoadReleaseIntegration getIntegration({PackageLoader? loader}) {
+    return LoadReleaseIntegration(loader ?? loadRelease);
+  }
+
+  Future<PackageInfo> loadRelease() {
+    return Future.value(PackageInfo(
+      appName: 'sentry_flutter',
+      packageName: 'foo.bar',
+      version: '1.2.3',
+      buildNumber: '789',
+      buildSignature: '',
+    ));
   }
 }
