@@ -13,7 +13,7 @@ String getRendererAsString() {
     case FlutterRenderer.html:
       return 'HTML';
     case FlutterRenderer.unknown:
-      return 'unknown';
+      return 'Unknown';
   }
 }
 
