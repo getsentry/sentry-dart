@@ -13,7 +13,7 @@ jobs:
         working-directory: ./flutter/example/android
     strategy:
       matrix:
-        api-level: [16]
+        api-level: [21]
     steps:
       - name: checkout
         uses: actions/checkout@v3
