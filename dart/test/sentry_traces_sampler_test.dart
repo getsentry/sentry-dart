@@ -75,17 +75,55 @@ void main() {
 
     expect(sut.sample(context).sampled, false);
   });
+
+  test('tracesSampler exception is handled', () {
+    final sut = fixture.getSut(debug: true);
+
+    final exception = Exception("tracesSampler exception");
+    double? sampler(SentrySamplingContext samplingContext) {
+      throw exception;
+    }
+
+    fixture.options.tracesSampler = sampler;
+
+    final trContext = SentryTransactionContext(
+      'name',
+      'op',
+    );
+    final context = SentrySamplingContext(trContext, {});
+    sut.sample(context);
+
+    expect(fixture.loggedException, exception);
+    expect(fixture.loggedLevel, SentryLevel.error);
+  });
 }
 
 class Fixture {
   final options = SentryOptions(dsn: fakeDsn);
 
+  SentryLevel? loggedLevel;
+  Object? loggedException;
+
   SentryTracesSampler getSut({
     double? tracesSampleRate = 1.0,
     TracesSamplerCallback? tracesSampler,
+    bool debug = false,
   }) {
     options.tracesSampleRate = tracesSampleRate;
     options.tracesSampler = tracesSampler;
+    options.debug = debug;
+    options.logger = mockLogger;
     return SentryTracesSampler(options);
+  }
+
+  void mockLogger(
+    SentryLevel level,
+    String message, {
+    String? logger,
+    Object? exception,
+    StackTrace? stackTrace,
+  }) {
+    loggedLevel = level;
+    loggedException = exception;
   }
 }
