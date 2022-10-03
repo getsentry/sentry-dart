@@ -23,6 +23,9 @@ jobs:
           adb kill-server
           adb start-server
 
+      - name: verify dir content
+        run: ls -a
+
       - name: run tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
