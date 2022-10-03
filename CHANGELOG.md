@@ -5,6 +5,7 @@
 ### Fixes
 
 - Handle traces sampler exception ([#1040](https://github.com/getsentry/sentry-dart/pull/1040))
+
 ### Features
 
 - Added [Flutter renderer](https://docs.flutter.dev/development/platform-integration/web/renderers) information to events ([#1035](https://github.com/getsentry/sentry-dart/pull/1035))
