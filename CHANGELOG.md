@@ -2,9 +2,16 @@
 
 ## Unreleased
 
+### Features
+
+- Added [Flutter renderer](https://docs.flutter.dev/development/platform-integration/web/renderers) information to events ([#1035](https://github.com/getsentry/sentry-dart/pull/1035))
+
+## 6.11.2
+
 ### Fixes
 
 - Tracer does not allow setting measurement if finished ([#1026](https://github.com/getsentry/sentry-dart/pull/1026))
+- Add missing measurements units ([#1033](https://github.com/getsentry/sentry-dart/pull/1033))
 
 ### Features
 

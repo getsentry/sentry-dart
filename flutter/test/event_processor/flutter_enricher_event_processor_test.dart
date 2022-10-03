@@ -7,12 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/flutter_enricher_event_processor.dart';
+import 'package:sentry_flutter/src/event_processor/flutter_enricher_event_processor.dart';
 
-import 'mocks.dart';
+import '../mocks.dart';
 
 void main() {
-  group('FlutterEnricher', () {
+  group(FlutterEnricherEventProcessor, () {
     late Fixture fixture;
 
     setUp(() async {
@@ -40,6 +40,7 @@ void main() {
       final flutterContext = event.contexts['flutter_context'];
       expect(flutterContext, isNotNull);
       expect(flutterContext, isA<Map<String, String>>());
+      expect(flutterContext['renderer'], isNotNull);
     });
 
     testWidgets('accessibility context', (WidgetTester tester) async {
