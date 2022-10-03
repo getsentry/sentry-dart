@@ -39,7 +39,6 @@ class SentryUser {
     this.email,
     this.ipAddress,
     this.segment,
-    this.subscription,
     this.geo,
     this.name,
     Map<String, dynamic>? data,
@@ -80,8 +79,6 @@ class SentryUser {
   @Deprecated('Will be removed in v7. Use [data] instead')
   final Map<String, dynamic>? extras;
 
-  final String? subscription;
-
   /// Approximate geographical location of the end user or device.
   final SentryGeo? geo;
 
@@ -114,7 +111,6 @@ class SentryUser {
       data: data,
       geo: geo,
       name: json['name'],
-      subscription: json['subscription'],
       // ignore: deprecated_member_use_from_same_package
       extras: extras,
     );
@@ -132,7 +128,6 @@ class SentryUser {
       if (data?.isNotEmpty ?? false) 'data': data,
       // ignore: deprecated_member_use_from_same_package
       if (extras?.isNotEmpty ?? false) 'extras': extras,
-      if (subscription != null) 'subscription': subscription,
       if (name != null) 'name': name,
       if (geoJson != null && geoJson.isNotEmpty) 'geo': geoJson,
     };
@@ -147,7 +142,6 @@ class SentryUser {
     @Deprecated('Will be removed in v7. Use [data] instead')
         Map<String, dynamic>? extras,
     String? name,
-    String? subscription,
     SentryGeo? geo,
     Map<String, dynamic>? data,
   }) {
