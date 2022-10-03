@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Enhancements
+
+- Handle traces sampler exception ([#1040](https://github.com/getsentry/sentry-dart/pull/1040))
+
 ## 6.11.2
 
 ### Fixes
