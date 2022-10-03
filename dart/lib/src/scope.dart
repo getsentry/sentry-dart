@@ -398,17 +398,17 @@ class Scope {
   /// If the User on the scope and the user of an event have extra entries with
   /// the same key, the event user extra will be kept.
   Map<String, dynamic> _mergeUserData(
-    Map<String, dynamic>? eventExtra,
-    Map<String, dynamic>? scopeExtra,
+    Map<String, dynamic>? eventData,
+    Map<String, dynamic>? scopeData,
   ) {
     final map = <String, dynamic>{};
-    if (eventExtra != null) {
-      map.addAll(eventExtra);
+    if (eventData != null) {
+      map.addAll(eventData);
     }
-    if (scopeExtra == null) {
+    if (scopeData == null) {
       return map;
     }
-    for (var value in scopeExtra.entries) {
+    for (var value in scopeData.entries) {
       map.putIfAbsent(value.key, () => value.value);
     }
     return map;
