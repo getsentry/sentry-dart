@@ -51,7 +51,7 @@ bool containsTracePropagationTarget(
     }
     try {
       final regExp = RegExp(target, caseSensitive: false);
-      if (url.contains(target) || regExp.hasMatch(url)) {
+      if (regExp.hasMatch(url)) {
         return true;
       }
     } on FormatException {
