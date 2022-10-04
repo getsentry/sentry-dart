@@ -10,7 +10,7 @@ jobs:
     runs-on: macos-latest
     defaults:
       run:
-        working-directory: ./flutter/example/android
+        working-directory: ./flutter/example
     strategy:
       matrix:
         api-level: [21]
@@ -18,15 +18,36 @@ jobs:
       - name: checkout
         uses: actions/checkout@v3
 
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'adopt'
+          java-version: '8'
+
+      - uses: subosito/flutter-action@v2
+          with:
+            channel: ${{ matrix.sdk }}
+
+      - name: flutter upgrade
+        run: flutter upgrade
+
+      - name: Pub Get
+        run: flutter pub get
+
       - name: kill adb
         run: |
           adb kill-server
           adb start-server
 
+      - name: dir content
+        working-directory: ./flutter/example/android
+        run: ls -a
+
       - name: setup gradle wrapper
+        working-directory: ./flutter/example/android
         run: gradle wrapper
 
       - name: run tests
+        working-directory: ./flutter/example/android
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
