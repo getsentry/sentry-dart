@@ -3,7 +3,8 @@
 ## Unreleased
 - Fix: Remove `SentryOptions` related parameters from classes which also take `Hub` as a parameter (#816)
 
-## Breaking
+### Breaking Changes
+
 - Removed various deprecated fields ([#1036](https://github.com/getsentry/sentry-dart/pull/1036)):
   - Removed the following fields from the `device` context
     - language
