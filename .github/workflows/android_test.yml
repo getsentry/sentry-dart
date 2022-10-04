@@ -25,8 +25,8 @@ jobs:
           java-version: '8'
 
       - uses: subosito/flutter-action@v2
-          with:
-            channel: ${{ matrix.sdk }}
+        with:
+          channel: ${{ matrix.sdk }}
 
       - name: flutter upgrade
         run: flutter upgrade
