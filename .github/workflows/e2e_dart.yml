@@ -26,15 +26,15 @@ jobs:
       matrix:
         sdk: [stable, beta]
     steps:
-        - uses: dart-lang/setup-dart@v1
-          with:
-            sdk: ${{ matrix.sdk }}
-        - uses: actions/checkout@v3
-        - name: Run
-          if: env.SENTRY_AUTH_TOKEN != null
-          run: |
-            dart pub get
-            dart run --define=SENTRY_ENVIRONMENT=e2e
+      - uses: dart-lang/setup-dart@6a218f2413a3e78e9087f638a238f6b40893203d # pin@v1
+        with:
+          sdk: ${{ matrix.sdk }}
+      - uses: actions/checkout@v3
+      - name: Run
+        if: env.SENTRY_AUTH_TOKEN != null
+        run: |
+          dart pub get
+          dart run --define=SENTRY_ENVIRONMENT=e2e
 
   analyze:
     runs-on: ubuntu-latest
@@ -43,7 +43,7 @@ jobs:
       run:
         working-directory: ./e2e_test
     steps:
-      - uses: dart-lang/setup-dart@v1
+      - uses: dart-lang/setup-dart@6a218f2413a3e78e9087f638a238f6b40893203d # pin@v1
         with:
           sdk: stable
       - uses: actions/checkout@v3
