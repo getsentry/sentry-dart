@@ -51,93 +51,92 @@ jobs:
             sdk: beta
 
     steps:
-        - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-        - uses: actions/setup-java@v3
-          with:
-            distribution: 'adopt'
-            java-version: '8'
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'adopt'
+          java-version: '8'
 
-        # Install required dependencies for Flutter on Linux on Ubuntu
-        - name: 'Setup Linux'
-          run: |
-            sudo apt update
-            sudo apt install -y cmake dbus libblkid-dev libgtk-3-dev liblzma-dev ninja-build pkg-config xvfb
-            sudo apt install -y network-manager upower
-          if: matrix.os == 'ubuntu-latest'
+      # Install required dependencies for Flutter on Linux on Ubuntu
+      - name: 'Setup Linux'
+        run: |
+          sudo apt update
+          sudo apt install -y cmake dbus libblkid-dev libgtk-3-dev liblzma-dev ninja-build pkg-config xvfb
+          sudo apt install -y network-manager upower
+        if: matrix.os == 'ubuntu-latest'
 
-        - uses: subosito/flutter-action@v2
-          with:
-            channel: ${{ matrix.sdk }}
+      - uses: subosito/flutter-action@1e6ee87cb840500837bcd50a667fb28815d8e310 # pin@v2
+        with:
+          channel: ${{ matrix.sdk }}
 
-        - run: flutter upgrade
+      - run: flutter upgrade
 
-        - name: Pub Get
-          run: |
-            cd flutter
-            flutter pub get
+      - name: Pub Get
+        run: |
+          cd flutter
+          flutter pub get
 
-        - name: Test chrome
-          if: runner.os == 'Linux'
-          run: |
-            cd flutter
-            flutter test --platform chrome --test-randomize-ordering-seed=random
+      - name: Test chrome
+        if: runner.os == 'Linux'
+        run: |
+          cd flutter
+          flutter test --platform chrome --test-randomize-ordering-seed=random
 
-        - name: Test VM with coverage
-          if: runner.os != 'macOS'
-          run: |
-            cd flutter
-            flutter test --coverage --test-randomize-ordering-seed=random
+      - name: Test VM with coverage
+        if: runner.os != 'macOS'
+        run: |
+          cd flutter
+          flutter test --coverage --test-randomize-ordering-seed=random
 
-        #   remove comment after https://github.com/codecov/codecov-action/issues/600
-        # - uses: codecov/codecov-action@v2
-        #   if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
-        #   with:
-        #     name: sentry_flutter
-        #     file: ./flutter/coverage/lcov.info
+      #   remove comment after https://github.com/codecov/codecov-action/issues/600
+      # - uses: codecov/codecov-action@v2
+      #   if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
+      #   with:
+      #     name: sentry_flutter
+      #     file: ./flutter/coverage/lcov.info
 
-        # 1.2.1
-        - uses: VeryGoodOpenSource/very_good_coverage@feed99cc060453828a8f12e74b404baace8e4502
-          if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
-          with:
-            path: "./flutter/coverage/lcov.info"
-            min_coverage: 90
+      - uses: VeryGoodOpenSource/very_good_coverage@feed99cc060453828a8f12e74b404baace8e4502 # pin@v1.2.1
+        if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
+        with:
+          path: './flutter/coverage/lcov.info'
+          min_coverage: 90
 
-        - name: Build ${{ matrix.target }}
-          run: |
-            flutter config --enable-windows-desktop
-            flutter config --enable-macos-desktop
-            flutter config --enable-linux-desktop
-            cd flutter/example
-            TARGET=${{ matrix.target }}
-            flutter pub get
-            case $TARGET in
-            ios)
-            flutter build ios --no-codesign
-            ;;
-            macos)
-            flutter build macos
-            ;;
-            android)
-            flutter build appbundle
-            ;;
-            web)
-            flutter build web
-            ;;
-            linux)
-            flutter build linux
-            ;;
-            windows)
-            flutter build windows
-            ;;
-            esac
+      - name: Build ${{ matrix.target }}
+        run: |
+          flutter config --enable-windows-desktop
+          flutter config --enable-macos-desktop
+          flutter config --enable-linux-desktop
+          cd flutter/example
+          TARGET=${{ matrix.target }}
+          flutter pub get
+          case $TARGET in
+          ios)
+          flutter build ios --no-codesign
+          ;;
+          macos)
+          flutter build macos
+          ;;
+          android)
+          flutter build appbundle
+          ;;
+          web)
+          flutter build web
+          ;;
+          linux)
+          flutter build linux
+          ;;
+          windows)
+          flutter build windows
+          ;;
+          esac
 
   analyze:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@1e6ee87cb840500837bcd50a667fb28815d8e310 # pin@v2
       - run: |
           cd flutter
           flutter pub get
@@ -153,7 +152,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v3
-      - uses: axel-op/dart-package-analyzer@v3
+      - uses: axel-op/dart-package-analyzer@7a6c3c66bce78d82b729a1ffef2d9458fde6c8d2 # pin@v3
         id: analysis
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
@@ -187,7 +186,7 @@ jobs:
         working-directory: ./flutter
     steps:
       - uses: actions/checkout@v3
-      - uses: norio-nomura/action-swiftlint@3.2.1
+      - uses: norio-nomura/action-swiftlint@9f4dcd7fd46b4e75d7935cf2f4df406d5cae3684 # pin@3.2.1
 
   ktlint:
     runs-on: ubuntu-latest
@@ -198,7 +197,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: ktlint
-        uses: ScaCap/action-ktlint@master
+        uses: ScaCap/action-ktlint@f22fa77f33cbfaf0a1a332aae1f176c8712c8a3c # pin@1.4
         with:
           github_token: ${{ secrets.github_token }}
           reporter: github-pr-review
@@ -208,8 +207,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      # 1.20.0
       # To recreate baseline run: detekt -i flutter/android,flutter/example/android -b flutter/config/detekt-bl.xml -cb
-      - uses: natiginfo/action-detekt-all@74990bda6bfc47977e1e06aae9f47f320e7587ce
+      - uses: natiginfo/action-detekt-all@e01de6ff0eef7c24131e8a133bf598cfac6ceeab # pin@1.21.0
         with:
           args: -i flutter/android,flutter/example/android --baseline flutter/config/detekt-bl.xml
