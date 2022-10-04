@@ -46,9 +46,17 @@ bool containsTracePropagationTarget(
     return false;
   }
   for (final target in tracePropagationTargets) {
-    final regExp = RegExp(target, caseSensitive: false);
-    if (url.contains(target) || regExp.hasMatch(url)) {
+    if (url.contains(target)) {
       return true;
+    }
+    try {
+      final regExp = RegExp(target, caseSensitive: false);
+      if (url.contains(target) || regExp.hasMatch(url)) {
+        return true;
+      }
+    } on FormatException {
+      // ignore invalid regex
+      continue;
     }
   }
   return false;
