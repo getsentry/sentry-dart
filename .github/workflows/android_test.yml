@@ -48,9 +48,9 @@ jobs:
         run: gradle wrapper
 
       - name: run tests
-        working-directory: ./flutter/example/android
         uses: reactivecircus/android-emulator-runner@v2
         with:
+          working-directory: ./flutter/example/android
           api-level: ${{ matrix.api-level }}
           arch: x86_64
           profile: Nexus 6
