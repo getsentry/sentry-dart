@@ -1,7 +1,19 @@
 # Changelog
 
-## Unreleased
+## 7.0.0
+
 - Fix: Remove `SentryOptions` related parameters from classes which also take `Hub` as a parameter (#816)
+
+### Breaking Changes
+
+- Removed various deprecated fields ([#1036](https://github.com/getsentry/sentry-dart/pull/1036)):
+  - Removed the following fields from the `device` context
+    - language
+    - timezone
+    - screenResolution
+    - theme
+  - Removed isolate name from Dart context. It's now reported via the threads interface. It can be enabled via `options.attachThreads`
+
 ## 6.11.1
 
 ### Fixes

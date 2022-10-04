@@ -189,8 +189,6 @@ class FlutterEnricherEventProcessor extends EventProcessor {
       screenWidthPixels:
           device?.screenWidthPixels ?? window.physicalSize.width.toInt(),
       screenDensity: device?.screenDensity ?? window.devicePixelRatio,
-      // ignore: deprecated_member_use
-      theme: device?.theme ?? describeEnum(window.platformBrightness),
     );
   }
 
@@ -221,7 +219,6 @@ class FlutterEnricherEventProcessor extends EventProcessor {
     }
 
     final flutterRuntime = SentryRuntime(
-      key: 'sentry_flutter_runtime',
       name: 'Flutter',
       compiler: compiler,
     );

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:isolate';
 
 import '../event_processor.dart';
 import '../protocol.dart';
@@ -55,7 +54,6 @@ class IoEnricherEventProcessor extends EventProcessor {
     // Pure Dart doesn't have specific runtimes per build mode
     // like Flutter: https://flutter.dev/docs/testing/build-modes
     final dartRuntime = SentryRuntime(
-      key: 'sentry_dart_runtime',
       name: 'Dart',
       rawDescription: Platform.version,
     );
@@ -71,7 +69,6 @@ class IoEnricherEventProcessor extends EventProcessor {
   Map<String, dynamic> _getDartContext() {
     final args = Platform.executableArguments;
     final packageConfig = Platform.packageConfig;
-    final isolate = Isolate.current.debugName;
 
     String? executable;
     if (_options.sendDefaultPii) {
@@ -92,8 +89,6 @@ class IoEnricherEventProcessor extends EventProcessor {
     return <String, dynamic>{
       'compile_mode': _options.platformChecker.compileMode,
       if (packageConfig != null) 'package_config': packageConfig,
-      // should be moved to event.thread.name
-      if (isolate != null) 'isolate': isolate,
       // The following information could potentially contain PII
       if (_options.sendDefaultPii) ...{
         'executable': executable,
@@ -109,10 +104,6 @@ class IoEnricherEventProcessor extends EventProcessor {
     return (device ?? SentryDevice()).copyWith(
       name: device?.name ?? Platform.localHostname,
       processorCount: device?.processorCount ?? Platform.numberOfProcessors,
-      // ignore: deprecated_member_use_from_same_package
-      language: device?.language ?? Platform.localeName,
-      // ignore: deprecated_member_use_from_same_package
-      timezone: device?.timezone ?? DateTime.now().timeZoneName,
     );
   }
 
