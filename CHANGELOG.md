@@ -1,6 +1,7 @@
 # Changelog
 
-## Unreleased
+## 7.0.0
+
 - Fix: Remove `SentryOptions` related parameters from classes which also take `Hub` as a parameter (#816)
 
 ### Breaking Changes
