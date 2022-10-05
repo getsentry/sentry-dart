@@ -16,9 +16,7 @@ jobs:
       path: flutter/scripts/update-android.sh
       name: Android SDK
     secrets:
-      # If a custom token is used instead, a CI would be triggered on a created PR.
-      api_token: ${{ secrets.CI_DEPLOY_KEY }}
-      # api_token: ${{ github.token }}
+      api-token: ${{ secrets.CI_DEPLOY_KEY }}
 
   cocoa:
     uses: getsentry/github-workflows/.github/workflows/updater.yml@v2
@@ -26,6 +24,4 @@ jobs:
       path: flutter/scripts/update-cocoa.sh
       name: Cocoa SDK
     secrets:
-      # If a custom token is used instead, a CI would be triggered on a created PR.
-      api_token: ${{ secrets.CI_DEPLOY_KEY }}
-      # api_token: ${{ github.token }}
+      api-token: ${{ secrets.CI_DEPLOY_KEY }}
