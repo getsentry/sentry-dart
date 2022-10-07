@@ -83,6 +83,7 @@ void main() {
         SentryItemType.userFeedback,
       );
       expect(envelope.header.eventId.toString(), feedback.eventId.toString());
+      expect(envelope.header.dsn, fakeDsn);
     });
   });
 

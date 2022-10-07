@@ -65,7 +65,6 @@ void main() {
         'trace_id': '${SentryId.newId()}',
         'public_key': '123',
       });
-      final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
       final sut = SentryEnvelope.fromEvent(
         sentryEvent,
         sdkVersion,
@@ -78,6 +77,7 @@ void main() {
       expect(sut.header.eventId, eventId);
       expect(sut.header.sdkVersion, sdkVersion);
       expect(sut.header.traceContext, context);
+      expect(sut.header.dsn, fakeDsn);
       expect(sut.items[0].header.contentType,
           expectedEnvelopeItem.header.contentType);
       expect(sut.items[0].header.type, expectedEnvelopeItem.header.type);
@@ -117,6 +117,7 @@ void main() {
       expect(sut.header.eventId, tr.eventId);
       expect(sut.header.sdkVersion, sdkVersion);
       expect(sut.header.traceContext, traceContext);
+      expect(sut.header.dsn, fakeDsn);
       expect(sut.items[0].header.contentType,
           expectedEnvelopeItem.header.contentType);
       expect(sut.items[0].header.type, expectedEnvelopeItem.header.type);
@@ -140,7 +141,6 @@ void main() {
       final sentryEvent = SentryEvent(eventId: eventId);
       final sdkVersion =
           SdkVersion(name: 'fixture-name', version: 'fixture-version');
-      final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
       final sut = SentryEnvelope.fromEvent(
         sentryEvent,
@@ -172,7 +172,6 @@ void main() {
     // This is a test for https://github.com/getsentry/sentry-dart/issues/523
     test('serialize with non-serializable class', () async {
       final event = SentryEvent(extra: {'non-ecodable': NonEncodable()});
-      final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
       final sut = SentryEnvelope.fromEvent(
         event,
         SdkVersion(

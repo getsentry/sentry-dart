@@ -10,8 +10,6 @@ import 'package:sentry/src/sentry_tracer.dart';
 import '../mocks.dart';
 import '../mocks.mocks.dart';
 
-const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
-
 void main() {
   group('$NativeAppStartIntegration', () {
     late Fixture fixture;
