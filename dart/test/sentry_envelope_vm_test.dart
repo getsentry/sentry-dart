@@ -1,4 +1,5 @@
 @TestOn('vm')
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:sentry/sentry_io.dart';
@@ -63,9 +64,10 @@ void main() {
           .reduce((a, b) => a + b);
 
       final file = File('test_resources/envelope-no-attachment.envelope');
-      final bytes = await file.readAsBytes();
+      final jsonStr = await file.readAsString();
+      final dataStr = utf8.decode(data);
 
-      expect(data, bytes);
+      expect(dataStr, jsonStr);
     });
   });
 }
