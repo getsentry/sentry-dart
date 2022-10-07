@@ -10,7 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/src/file_system_transport.dart';
 
-import 'integrations/native_app_start_integration_test.dart';
+import 'mocks.dart';
 
 void main() {
   const _channel = MethodChannel('sentry_flutter');
