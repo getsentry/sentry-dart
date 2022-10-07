@@ -187,7 +187,7 @@ class Sentry {
       );
 
   /// Reports a [userFeedback] to to Sentry.io.
-  /// 
+  ///
   /// First capture an event and use the [SentryId] to create a [SentryUserFeedback]
   static Future<void> captureUserFeedback(SentryUserFeedback userFeedback) =>
       _hub.captureUserFeedback(userFeedback);
