@@ -49,7 +49,7 @@ void main() {
     final event = SentryEvent();
     final sdkVersion =
         SdkVersion(name: 'fixture-sdkName', version: 'fixture-sdkVersion');
-    final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
+    const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
     final envelope = SentryEnvelope.fromEvent(event, sdkVersion, dsn: fakeDsn);
     final sentryId = await transport.send(envelope);
@@ -69,7 +69,7 @@ void main() {
         SentryEvent(message: SentryMessage('hi I am a special char ◤'));
     final sdkVersion =
         SdkVersion(name: 'fixture-sdkName', version: 'fixture-sdkVersion');
-    final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
+    const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
     final envelope = SentryEnvelope.fromEvent(event, sdkVersion, dsn: fakeDsn);
     await transport.send(envelope);
 

@@ -10,6 +10,7 @@
 ### Features
 
 - Added [Flutter renderer](https://docs.flutter.dev/development/platform-integration/web/renderers) information to events ([#1035](https://github.com/getsentry/sentry-dart/pull/1035))
+- Added missing DSN field into the SentryEnvelopeHeader ([#873](https://github.com/getsentry/sentry-dart/pull/873))
 
 ## 6.11.2
 
