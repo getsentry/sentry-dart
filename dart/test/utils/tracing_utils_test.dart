@@ -35,7 +35,15 @@ void main() {
           isTrue);
       expect(
           containsTracePropagationTarget(origins, 'ftp://api.foo.bar:8080/foo'),
-          false);
+          isFalse);
+    });
+
+    test('invalid regex do not throw', () {
+      expect(
+          containsTracePropagationTarget(
+              ['AABB???', '^(http|https)://api\\..*\$'],
+              'http://api.foo.bar:8080/foo'),
+          isTrue);
     });
 
     test('when no origins are defined, returns false for every url', () {

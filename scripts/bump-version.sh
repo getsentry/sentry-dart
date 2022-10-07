@@ -14,7 +14,7 @@ for pkg in {dart,flutter,logging,dio}; do
   # Bump version in pubspec.yaml
   perl -pi -e "s/^version: .*/version: $NEW_VERSION/" $pkg/pubspec.yaml
   # Bump sentry dependency version in pubspec.yaml
-  perl -pi -e "s/sentry: \^.*/sentry: \^$NEW_VERSION/" $pkg/pubspec.yaml
+  perl -pi -e "s/sentry: .*/sentry: $NEW_VERSION/" $pkg/pubspec.yaml
 done
 
 # Bump version in version.dart
