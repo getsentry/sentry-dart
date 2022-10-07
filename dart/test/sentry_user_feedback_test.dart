@@ -74,6 +74,7 @@ void main() {
       final envelope = SentryEnvelope.fromUserFeedback(
         feedback,
         SdkVersion(name: 'a', version: 'b'),
+        dsn: fakeDsn,
       );
 
       expect(envelope.items.length, 1);

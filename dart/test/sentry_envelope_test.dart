@@ -9,6 +9,7 @@ import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/utils.dart';
 import 'package:test/test.dart';
 
+import 'mocks.dart';
 import 'mocks/mock_hub.dart';
 
 void main() {
@@ -107,6 +108,7 @@ void main() {
       final sut = SentryEnvelope.fromTransaction(
         tr,
         sdkVersion,
+        dsn: fakeDsn,
         traceContext: traceContext,
       );
 

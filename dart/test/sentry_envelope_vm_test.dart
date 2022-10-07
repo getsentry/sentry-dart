@@ -6,6 +6,8 @@ import 'package:sentry/src/sentry_envelope_header.dart';
 import 'package:sentry/src/sentry_envelope_item_header.dart';
 import 'package:test/test.dart';
 
+import 'mocks.dart';
+
 void main() {
   group('SentryEnvelopeItem', () {
     test('item with binary payload', () async {
@@ -53,6 +55,7 @@ void main() {
       final envelope = SentryEnvelope.fromEvent(
         event,
         sdkVersion,
+        dsn: fakeDsn,
         attachments: [attachment],
       );
 
@@ -142,6 +145,55 @@ final envelopeBinaryData = [
   34,
   34,
   125,
+  44,
+  34,
+  100,
+  115,
+  110,
+  34,
+  58,
+  34,
+  104,
+  116,
+  116,
+  112,
+  115,
+  58,
+  47,
+  47,
+  97,
+  98,
+  99,
+  64,
+  100,
+  101,
+  102,
+  46,
+  105,
+  110,
+  103,
+  101,
+  115,
+  116,
+  46,
+  115,
+  101,
+  110,
+  116,
+  114,
+  121,
+  46,
+  105,
+  111,
+  47,
+  49,
+  50,
+  51,
+  52,
+  53,
+  54,
+  55,
+  34,
   125,
   10,
   123,

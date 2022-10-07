@@ -69,10 +69,11 @@ void main() {
       final sut = fixture.getSut(httpMock, mockRateLimiter);
 
       final sentryEvent = SentryEvent();
-      final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
       final envelope = SentryEnvelope.fromEvent(
-          sentryEvent, fixture.options.sdk,
-          dsn: fakeDsn);
+        sentryEvent,
+        fixture.options.sdk,
+        dsn: fixture.options.dsn,
+      );
       await sut.send(envelope);
 
       final envelopeData = <int>[];
@@ -95,10 +96,11 @@ void main() {
       final sut = fixture.getSut(httpMock, mockRateLimiter);
 
       final sentryEvent = SentryEvent();
-      final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
       final envelope = SentryEnvelope.fromEvent(
-          sentryEvent, fixture.options.sdk,
-          dsn: fakeDsn);
+        sentryEvent,
+        fixture.options.sdk,
+        dsn: fixture.options.dsn,
+      );
       final eventId = await sut.send(envelope);
 
       expect(eventId, SentryId.empty());
@@ -121,10 +123,11 @@ void main() {
       final sut = fixture.getSut(httpMock, mockRateLimiter);
 
       final sentryEvent = SentryEvent();
-      final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
       final envelope = SentryEnvelope.fromEvent(
-          sentryEvent, fixture.options.sdk,
-          dsn: fakeDsn);
+        sentryEvent,
+        fixture.options.sdk,
+        dsn: fixture.options.dsn,
+      );
       await sut.send(envelope);
 
       expect(mockRateLimiter.envelopeToFilter?.header.eventId,
@@ -144,10 +147,11 @@ void main() {
       final sut = fixture.getSut(httpMock, mockRateLimiter);
 
       final sentryEvent = SentryEvent();
-      final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
       final envelope = SentryEnvelope.fromEvent(
-          sentryEvent, fixture.options.sdk,
-          dsn: fakeDsn);
+        sentryEvent,
+        fixture.options.sdk,
+        dsn: fixture.options.dsn,
+      );
       await sut.send(envelope);
 
       expect(mockRateLimiter.errorCode, 200);
@@ -171,8 +175,11 @@ void main() {
       final sut = fixture.getSut(httpMock, MockRateLimiter());
 
       final sentryEvent = SentryEvent();
-      final envelope =
-          SentryEnvelope.fromEvent(sentryEvent, fixture.options.sdk);
+      final envelope = SentryEnvelope.fromEvent(
+        sentryEvent,
+        fixture.options.sdk,
+        dsn: fixture.options.dsn,
+      );
       await sut.send(envelope);
 
       expect(fixture.clientReportRecorder.reason, DiscardReason.networkError);
@@ -186,8 +193,11 @@ void main() {
       final sut = fixture.getSut(httpMock, MockRateLimiter());
 
       final sentryEvent = SentryEvent();
-      final envelope =
-          SentryEnvelope.fromEvent(sentryEvent, fixture.options.sdk);
+      final envelope = SentryEnvelope.fromEvent(
+        sentryEvent,
+        fixture.options.sdk,
+        dsn: fixture.options.dsn,
+      );
       await sut.send(envelope);
 
       expect(fixture.clientReportRecorder.reason, null);
@@ -201,8 +211,11 @@ void main() {
       final sut = fixture.getSut(httpMock, MockRateLimiter());
 
       final sentryEvent = SentryEvent();
-      final envelope =
-          SentryEnvelope.fromEvent(sentryEvent, fixture.options.sdk);
+      final envelope = SentryEnvelope.fromEvent(
+        sentryEvent,
+        fixture.options.sdk,
+        dsn: fixture.options.dsn,
+      );
       await sut.send(envelope);
 
       expect(fixture.clientReportRecorder.reason, DiscardReason.networkError);

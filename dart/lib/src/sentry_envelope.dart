@@ -45,11 +45,16 @@ class SentryEnvelope {
 
   factory SentryEnvelope.fromUserFeedback(
     SentryUserFeedback feedback,
-    SdkVersion sdkVersion,
-  ) {
+    SdkVersion sdkVersion, {
+    String? dsn,
+  }) {
     return SentryEnvelope(
       // no need for [traceContext]
-      SentryEnvelopeHeader(feedback.eventId, sdkVersion),
+      SentryEnvelopeHeader(
+        feedback.eventId,
+        sdkVersion,
+        dsn: dsn,
+      ),
       [SentryEnvelopeItem.fromUserFeedback(feedback)],
     );
   }
