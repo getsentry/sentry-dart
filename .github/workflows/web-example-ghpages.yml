@@ -13,8 +13,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2
-      - uses: erickzanardo/flutter-gh-pages@66e3e7b317d4fef824b2cfd3c9a4a112d321f33d
+      - uses: subosito/flutter-action@1e6ee87cb840500837bcd50a667fb28815d8e310 # pin@v2
+      - uses: bluefireteam/flutter-gh-pages@57815b17b371455ec1a98f075b71b4c6ba0a938c # pin@v8
         with:
           workingDir: flutter/example
           customArgs: --source-maps

@@ -70,7 +70,10 @@ void main() {
 
   group('$SentryUserFeedback to envelops', () {
     test('to envelope', () {
-      final feedback = SentryUserFeedback(eventId: SentryId.newId());
+      final feedback = SentryUserFeedback(
+        eventId: SentryId.newId(),
+        name: 'test',
+      );
       final envelope = SentryEnvelope.fromUserFeedback(
         feedback,
         SdkVersion(name: 'a', version: 'b'),
@@ -88,8 +91,10 @@ void main() {
   test('sending $SentryUserFeedback', () async {
     final fixture = Fixture();
     final sut = fixture.getSut();
-    await sut
-        .captureUserFeedback(SentryUserFeedback(eventId: SentryId.newId()));
+    await sut.captureUserFeedback(SentryUserFeedback(
+      eventId: SentryId.newId(),
+      name: 'test',
+    ));
 
     expect(fixture.transport.envelopes.length, 1);
   });
@@ -106,7 +111,10 @@ void main() {
     final sut = fixture.getSut();
     await sut.close();
     await sut.captureUserFeedback(
-      SentryUserFeedback(eventId: SentryId.newId()),
+      SentryUserFeedback(
+        eventId: SentryId.newId(),
+        name: 'test',
+      ),
     );
 
     expect(fixture.transport.envelopes.length, 0);
@@ -133,7 +141,7 @@ void main() {
 
     await expectLater(() async {
       await sut.captureUserFeedback(
-        SentryUserFeedback(eventId: SentryId.newId()),
+        SentryUserFeedback(eventId: SentryId.newId(), name: 'name'),
       );
     }, returnsNormally);
   });
