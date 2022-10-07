@@ -141,7 +141,7 @@ void main() {
 
     await expectLater(() async {
       await sut.captureUserFeedback(
-        SentryUserFeedback(eventId: SentryId.newId()),
+        SentryUserFeedback(eventId: SentryId.newId(), name: 'name'),
       );
     }, returnsNormally);
   });
