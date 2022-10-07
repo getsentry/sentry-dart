@@ -5,7 +5,7 @@
 ### Fixes
 
 - Handle traces sampler exception ([#1040](https://github.com/getsentry/sentry-dart/pull/1040))
-- tracePropagationTargets ignores invalid Regex ([#1043](https://github.com/getsentry/sentry-dart/pull/1043))
+- tracePropagationTargets ignores invalid Regex ([#1050](https://github.com/getsentry/sentry-dart/pull/1050))
 
 ### Features
 
