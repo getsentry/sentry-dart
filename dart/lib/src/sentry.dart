@@ -168,6 +168,7 @@ class Sentry {
         withScope: withScope,
       );
 
+  /// Reports a [message] to Sentry.io.
   static Future<SentryId> captureMessage(
     String? message, {
     SentryLevel? level = SentryLevel.info,
@@ -185,6 +186,9 @@ class Sentry {
         withScope: withScope,
       );
 
+  /// Reports a [userFeedback] to to Sentry.io.
+  /// 
+  /// First capture an event and use the [SentryId] to create a [SentryUserFeedback]
   static Future<void> captureUserFeedback(SentryUserFeedback userFeedback) =>
       _hub.captureUserFeedback(userFeedback);
 
@@ -276,7 +280,7 @@ class Sentry {
         onFinish: onFinish,
       );
 
-  /// Gets the current active transaction or span.
+  /// Gets the current active transaction or span bound to the scope.
   static ISentrySpan? getSpan() => _hub.getSpan();
 
   @internal
