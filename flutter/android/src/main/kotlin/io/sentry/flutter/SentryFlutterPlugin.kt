@@ -284,6 +284,15 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       }
       userInstance.others = others
     }
+    (user["data"] as? Map<String, Any?>)?.let { data ->
+      val others = mutableMapOf<String, String>()
+      for ((key, value) in data.entries) {
+        if (value != null) {
+          others[key] = value.toString()
+        }
+      }
+      userInstance.data = others
+    }
 
     Sentry.setUser(userInstance)
 
