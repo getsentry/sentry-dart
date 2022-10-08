@@ -59,16 +59,12 @@ class SentryRequest {
   /// The fragment of the request URL.
   final String? fragment;
 
-  /// The inferred content type of the request payload.
-  final String? inferredContentType;
-
   SentryRequest({
     this.url,
     this.method,
     this.queryString,
     this.cookies,
     this.fragment,
-    this.inferredContentType,
     dynamic data,
     Map<String, String>? headers,
     Map<String, String>? env,
@@ -91,7 +87,6 @@ class SentryRequest {
       // ignore: deprecated_member_use_from_same_package
       other: json['other'],
       fragment: json['fragment'],
-      inferredContentType: json['inferred_content_type'],
     );
   }
 
@@ -108,8 +103,6 @@ class SentryRequest {
       // ignore: deprecated_member_use_from_same_package
       if (other.isNotEmpty) 'other': other,
       if (fragment != null) 'fragment': fragment,
-      if (inferredContentType != null)
-        'inferred_content_type': inferredContentType,
     };
   }
 
@@ -119,7 +112,6 @@ class SentryRequest {
     String? queryString,
     String? cookies,
     String? fragment,
-    String? inferredContentType,
     dynamic data,
     Map<String, String>? headers,
     Map<String, String>? env,
@@ -136,6 +128,5 @@ class SentryRequest {
         // ignore: deprecated_member_use_from_same_package
         other: other ?? _other,
         fragment: fragment,
-        inferredContentType: inferredContentType,
       );
 }
