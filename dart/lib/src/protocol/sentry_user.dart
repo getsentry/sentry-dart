@@ -80,7 +80,7 @@ class SentryUser {
   final Map<String, dynamic>? extras;
 
   /// Approximate geographical location of the end user or device.
-  /// 
+  ///
   /// The geolocation is automatically inferred by Sentry.io if the [ipAddress] is set.
   /// Sentry however doesn't collect the [ipAddress] automatically because it is PII.
   final SentryGeo? geo;
