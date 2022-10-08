@@ -195,6 +195,16 @@ void main() {
 
       expect(capturedEvent.threads?.first.stacktrace, isNull);
     });
+
+    test('event envelope contains dsn', () async {
+      final client = fixture.getSut();
+      final event = SentryEvent();
+      await client.captureEvent(event);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+
+      expect(capturedEnvelope.header.dsn, fixture.options.dsn);
+    });
   });
 
   group('SentryClient captures exception', () {
@@ -467,6 +477,16 @@ void main() {
       final id = await client.captureTransaction(tr);
 
       expect(id, SentryId.empty());
+    });
+
+    test('transaction envelope contains dsn', () async {
+      final client = fixture.getSut();
+      final tr = SentryTransaction(fixture.tracer);
+      await client.captureTransaction(tr);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+
+      expect(capturedEnvelope.header.dsn, fixture.options.dsn);
     });
   });
 
@@ -1192,6 +1212,20 @@ void main() {
 
       expect(fixture.recorder.reason, DiscardReason.sampleRate);
       expect(fixture.recorder.category, DataCategory.error);
+    });
+
+    test('user feedback envelope contains dsn', () async {
+      final client = fixture.getSut();
+      final event = SentryEvent();
+      final feedback = SentryUserFeedback(
+        eventId: event.eventId,
+        name: 'test',
+      );
+      await client.captureUserFeedback(feedback);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+
+      expect(capturedEnvelope.header.dsn, fixture.options.dsn);
     });
   });
 }

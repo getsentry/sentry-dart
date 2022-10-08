@@ -9,6 +9,7 @@ import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/utils.dart';
 import 'package:test/test.dart';
 
+import 'mocks.dart';
 import 'mocks/mock_hub.dart';
 
 void main() {
@@ -67,6 +68,7 @@ void main() {
       final sut = SentryEnvelope.fromEvent(
         sentryEvent,
         sdkVersion,
+        dsn: fakeDsn,
         traceContext: context,
       );
 
@@ -75,6 +77,7 @@ void main() {
       expect(sut.header.eventId, eventId);
       expect(sut.header.sdkVersion, sdkVersion);
       expect(sut.header.traceContext, context);
+      expect(sut.header.dsn, fakeDsn);
       expect(sut.items[0].header.contentType,
           expectedEnvelopeItem.header.contentType);
       expect(sut.items[0].header.type, expectedEnvelopeItem.header.type);
@@ -105,6 +108,7 @@ void main() {
       final sut = SentryEnvelope.fromTransaction(
         tr,
         sdkVersion,
+        dsn: fakeDsn,
         traceContext: traceContext,
       );
 
@@ -113,6 +117,7 @@ void main() {
       expect(sut.header.eventId, tr.eventId);
       expect(sut.header.sdkVersion, sdkVersion);
       expect(sut.header.traceContext, traceContext);
+      expect(sut.header.dsn, fakeDsn);
       expect(sut.items[0].header.contentType,
           expectedEnvelopeItem.header.contentType);
       expect(sut.items[0].header.type, expectedEnvelopeItem.header.type);
@@ -140,12 +145,14 @@ void main() {
       final sut = SentryEnvelope.fromEvent(
         sentryEvent,
         sdkVersion,
+        dsn: fakeDsn,
         attachments: [attachment],
       );
 
       final expectedEnvelopeItem = SentryEnvelope.fromEvent(
         sentryEvent,
         sdkVersion,
+        dsn: fakeDsn,
       );
 
       final sutEnvelopeData = <int>[];
@@ -171,6 +178,7 @@ void main() {
           name: 'test',
           version: '1',
         ),
+        dsn: fakeDsn,
       );
 
       final _ = sut.envelopeStream(SentryOptions()).map((e) => e);

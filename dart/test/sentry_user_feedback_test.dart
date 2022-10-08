@@ -77,6 +77,7 @@ void main() {
       final envelope = SentryEnvelope.fromUserFeedback(
         feedback,
         SdkVersion(name: 'a', version: 'b'),
+        dsn: fakeDsn,
       );
 
       expect(envelope.items.length, 1);
@@ -85,6 +86,7 @@ void main() {
         SentryItemType.userFeedback,
       );
       expect(envelope.header.eventId.toString(), feedback.eventId.toString());
+      expect(envelope.header.dsn, fakeDsn);
     });
   });
 

@@ -131,6 +131,7 @@ typedef EventProcessorFunction = FutureOr<SentryEvent?>
 var fakeEnvelope = SentryEnvelope.fromEvent(
   fakeEvent,
   SdkVersion(name: 'sdk1', version: '1.0.0'),
+  dsn: fakeDsn,
 );
 
 class MockRateLimiter implements RateLimiter {
