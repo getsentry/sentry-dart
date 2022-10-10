@@ -7,7 +7,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/event_processor/android_platform_exception_event_processor.dart';
 
-import 'integrations/native_app_start_integration_test.dart';
+import 'mocks.dart';
 
 void main() {
   late Fixture fixture;

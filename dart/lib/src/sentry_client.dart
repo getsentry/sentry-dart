@@ -133,6 +133,7 @@ class SentryClient {
     final envelope = SentryEnvelope.fromEvent(
       preparedEvent,
       _options.sdk,
+      dsn: _options.dsn,
       traceContext: scope?.span?.traceContext(),
       attachments: scope?.attachments,
     );
@@ -318,6 +319,7 @@ class SentryClient {
     final envelope = SentryEnvelope.fromTransaction(
       preparedTransaction,
       _options.sdk,
+      dsn: _options.dsn,
       traceContext: traceContext,
       attachments: attachments,
     );
@@ -336,6 +338,7 @@ class SentryClient {
     final envelope = SentryEnvelope.fromUserFeedback(
       userFeedback,
       _options.sdk,
+      dsn: _options.dsn,
     );
     return _attachClientReportsAndSend(envelope);
   }
