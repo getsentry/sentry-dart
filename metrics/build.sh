@@ -31,7 +31,8 @@ else
   esac
 fi
 
-for app in "$targetDir/perf-test-app-"*; do
+for dir in "$targetDir/perf-test-app-"*; do
+  app="$(basename "$dir")"
   echo "Building $app"
 
   # Support caching if this is running in CI.
@@ -42,7 +43,7 @@ for app in "$targetDir/perf-test-app-"*; do
 
   (
     echo "::group::Flutter build $app"
-    cd $app
+    cd $dir
     flutter pub get
     if [[ "$1" == "ios" && -f "ios/Podfile" ]]; then
       cd ios
@@ -54,8 +55,7 @@ for app in "$targetDir/perf-test-app-"*; do
   )
 
   if [[ "$1" == "ios" ]]; then
-    flJob="$(basename $app)"
-    flJob=${flJob//-/_}
+    flJob=${app//-/_}
     (
       echo "::group::Fastlane build $app"
       cd $targetDir
