@@ -24,6 +24,10 @@ dependencies:
 dev_dependencies:
   pedantic: ^1.11.1
   sentry_dart_plugin: ^1.0.0-alpha.4
+  integration_test:
+    sdk: flutter
+  flutter_test:
+    sdk: flutter
 
 dependency_overrides:
   sentry:
