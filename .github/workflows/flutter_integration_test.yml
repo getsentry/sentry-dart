@@ -34,11 +34,11 @@ jobs:
       - name: flutter pub get
         run: flutter pub get
 
-      - name: flutter build apk
-        run: flutter build apk --debug
-
       - name: verify we are in the correct folder
-        run: s -a
+        run: ls -a
+
+      # - name: flutter build apk
+      #   run: flutter build apk --debug
 
       - name: run integration test
         uses: reactivecircus/android-emulator-runner@v2
