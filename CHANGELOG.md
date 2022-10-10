@@ -1,11 +1,12 @@
 # Changelog
 
-## Unreleased
+## 6.12.0
 
 ### Fixes
 
 - Handle traces sampler exception ([#1040](https://github.com/getsentry/sentry-dart/pull/1040))
 - tracePropagationTargets ignores invalid Regex ([#1043](https://github.com/getsentry/sentry-dart/pull/1043))
+- SentryDevice cast error ([#1059](https://github.com/getsentry/sentry-dart/pull/1059))
 
 ### Features
 
