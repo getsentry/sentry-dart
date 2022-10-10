@@ -8,7 +8,7 @@
 
 ### Dependencies
 
-- Bump Android SDK from v6.4.3 to v6.5.0-beta3 ([#1038](https://github.com/getsentry/sentry-dart/pull/1038))
+- Bump Android SDK from v6.4.4 to v6.5.0-beta3 ([#1038](https://github.com/getsentry/sentry-dart/pull/1038))
 
 ## 6.12.0
 
