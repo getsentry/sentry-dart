@@ -34,9 +34,6 @@ jobs:
       - name: flutter pub get
         run: flutter pub get
 
-      - name: flutter build apk
-        run: flutter build apk --debug
-
       - name: run integration test
         uses: reactivecircus/android-emulator-runner@v2
         with:
