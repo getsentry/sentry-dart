@@ -523,7 +523,13 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
           userInstance.data = extras
         }
         if let data = user["data"] as? [String: Any] {
-          userInstance.data = data
+          if(userInstance.data == nil) {
+            userInstance.data = data
+          } else {
+            userInstance.data = userInstance.data!.reduce(into: data) {
+              (r, e) in r[e.0] = e.1
+            }
+          }
         }
 
         SentrySDK.setUser(userInstance)
