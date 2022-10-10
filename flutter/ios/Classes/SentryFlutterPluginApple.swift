@@ -526,9 +526,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
           if(userInstance.data == nil) {
             userInstance.data = data
           } else {
-            userInstance.data = userInstance.data!.reduce(into: data) {
-              (r, e) in r[e.0] = e.1
-            }
+            userInstance.data = userInstance.data!.reduce(into: data) { (first, second) in first[second.0] = second.1 }
           }
         }
 
