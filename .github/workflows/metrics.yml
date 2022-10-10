@@ -1,3 +1,5 @@
+name: SDK metrics
+
 on:
   push:
     branches: [main]
@@ -10,6 +12,7 @@ on:
 
 jobs:
   metrics:
+    name: ${{ matrix.name }}
     runs-on: ${{ matrix.host }}
     strategy:
       # We want that the matrix keeps running, default is to cancel all jobs if a single fails.
@@ -31,13 +34,13 @@ jobs:
       # Let's stick to an explicit version and update manually because a version change may affect results.
       # If it updated implicitly, it could confuse people to think the change is actually caused by the PR.
       # Instead, we use updater (update-deps.yml) to create PRs for explicit Flutter SDK update.
-      - name: Read Flutter version from file
+      - name: Read configured Flutter SDK version
         id: conf
         run: |
           version=$(grep "version" metrics/flutter.properties | cut -d'=' -f2 | xargs)
           echo "::set-output name=flutter::$version"
 
-      - name: Install Flutter ${{ steps.conf.outputs.flutter }}
+      - name: Install Flutter v${{ steps.conf.outputs.flutter }}
         uses: subosito/flutter-action@1e6ee87cb840500837bcd50a667fb28815d8e310 # pin@v2
         with:
           flutter-version: ${{ steps.conf.outputs.flutter }}
