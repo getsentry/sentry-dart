@@ -28,16 +28,11 @@ jobs:
         with:
           channel: ${{ matrix.sdk }}
 
-      - name: build apk
-        run: |
-          flutter upgrade
-          flutter pub get
-          flutter build apk --debug
+      - name: flutter upgrade
+        run: flutter upgrade
 
-      - name: kill adb
-        run: |
-          adb kill-server
-          adb start-server
+      - name: flutter upgrade
+        run: flutter pub get
 
       - name: setup gradle wrapper
         working-directory: ./flutter/example/android
