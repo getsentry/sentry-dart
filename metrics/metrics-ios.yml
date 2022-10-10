@@ -1,0 +1,14 @@
+apps:
+  - name: io.sentry.dart.perfTestAppPlain
+    path: test-app-plain.ipa
+  - name: io.sentry.dart.perfTestAppWithSentry
+    path: test-app-sentry.ipa
+
+startupTimeTest:
+  runs: 50
+  diffMin: 0
+  diffMax: 150
+
+binarySizeTest:
+  diffMin: 900 KiB
+  diffMax: 1100 KiB
