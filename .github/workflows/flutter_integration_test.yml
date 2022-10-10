@@ -13,7 +13,6 @@ jobs:
         working-directory: ./flutter/example
     strategy:
       matrix:
-        api-level: [21]
         sdk: ['stable']
     steps:
       - name: checkout
@@ -34,11 +33,20 @@ jobs:
       - name: flutter pub get
         run: flutter pub get
 
-      - name: run integration test
-        uses: reactivecircus/android-emulator-runner@v2
+      # - name: launch android emulator & run android integration test
+      #   uses: reactivecircus/android-emulator-runner@v2
+      #   with:
+      #     working-directory: ./flutter/example
+      #     api-level: 21
+      #     arch: x86_64
+      #     profile: Nexus 6
+      #     script: flutter test integration_test/launch_test.dart
+
+      - name: launch ios emulator
+        uses: futureware-tech/simulator-action@v1
         with:
-          working-directory: ./flutter/example
-          api-level: ${{ matrix.api-level }}
-          arch: x86_64
-          profile: Nexus 6
-          script: flutter test integration_test/launch_test.dart
+          model: 'iPhone 8'
+          os_version: '14.0.0'
+
+      - name: run ios integration test
+        run: flutter test integration_test/launch_test.dart
