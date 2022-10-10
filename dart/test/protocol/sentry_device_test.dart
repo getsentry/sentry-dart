@@ -102,6 +102,19 @@ void main() {
         true,
       );
     });
+
+    test('fromJson double screen_height_pixels and screen_width_pixels', () {
+      sentryDeviceJson['screen_height_pixels'] = 100.0;
+      sentryDeviceJson['screen_width_pixels'] = 100.0;
+
+      final sentryDevice = SentryDevice.fromJson(sentryDeviceJson);
+      final json = sentryDevice.toJson();
+
+      expect(
+        MapEquality().equals(sentryDeviceJson, json),
+        true,
+      );
+    });
   });
 
   group('copyWith', () {
