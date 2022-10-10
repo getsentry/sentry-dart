@@ -31,7 +31,7 @@ jobs:
       - name: flutter upgrade
         run: flutter upgrade
 
-      - name: flutter upgrade
+      - name: flutter pub get
         run: flutter pub get
 
       - name: setup gradle wrapper
