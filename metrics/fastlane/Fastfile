@@ -19,7 +19,7 @@ platform :ios do
       export_method: "development",
       output_name: "test-app-plain.ipa",
       skip_build_archive: true,
-      archive_path: "perf-test-app-sentry/build/ios/archive/Runner.xcarchive",
+      archive_path: "perf-test-app-plain/build/ios/archive/Runner.xcarchive",
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci

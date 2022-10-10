@@ -15,7 +15,7 @@ else
   # Use default args if no were given
   case "$1" in
   ios)
-    target="ios"
+    target="ipa"
     args="--release --no-codesign"
     ;;
 
