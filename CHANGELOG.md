@@ -2,9 +2,12 @@
 
 ## Unreleased
 
-### Fixes
+### Features
 
 - Use PlatformDispatcher.onError in Flutter 3.3 ([#1039](https://github.com/getsentry/sentry-dart/pull/1039))
+
+### Fixes
+
 - Handle traces sampler exception ([#1040](https://github.com/getsentry/sentry-dart/pull/1040))
 - tracePropagationTargets ignores invalid Regex ([#1043](https://github.com/getsentry/sentry-dart/pull/1043))
 
