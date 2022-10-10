@@ -17,6 +17,7 @@ platform :ios do
       include_bitcode: false,
       include_symbols: false,
       export_method: "development",
+      export_team_id: CredentialsManager::AppfileConfig.try_fetch_value(:team_id),
       output_name: "test-app-plain.ipa",
       skip_build_archive: true,
       archive_path: "perf-test-app-plain/build/ios/archive/Runner.xcarchive",
@@ -36,14 +37,15 @@ platform :ios do
     )
 
     build_app(
-      workspace: "perf-test-app-sentry/ios/Runner.xcworkspace",
+      workspace: "perf-test-app-with-sentry/ios/Runner.xcworkspace",
       scheme: "Runner",
       include_bitcode: false,
       include_symbols: false,
       export_method: "development",
+      export_team_id: CredentialsManager::AppfileConfig.try_fetch_value(:team_id),
       output_name: "test-app-sentry.ipa",
       skip_build_archive: true,
-      archive_path: "perf-test-app-sentry/build/ios/archive/Runner.xcarchive",
+      archive_path: "perf-test-app-with-sentry/build/ios/archive/Runner.xcarchive",
     )
 
     delete_keychain(name: "fastlane_tmp_keychain") unless is_ci
