@@ -56,7 +56,7 @@ for app in "$targetDir/perf-test-app-"*; do
     flJob=${flJob//-/_}
     (
       cd $targetDir
-      fastlane "build_$flJob"
+      fastlane "build_$flJob" --verbose
     )
   fi
 done
