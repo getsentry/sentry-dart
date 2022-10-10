@@ -15,9 +15,9 @@ flutterCreate() {
 }
 
 flutterCreate 'perf-test-app-plain'
-flutterCreate 'perf-test-app-sentry'
+flutterCreate 'perf-test-app-with-sentry'
 
-pubspec="$targetDir/perf-test-app-sentry/pubspec.yaml"
+pubspec="$targetDir/perf-test-app-with-sentry/pubspec.yaml"
 echo "Adding dependencies to $pubspec"
 cat <<EOF >>"$pubspec"
 
@@ -29,7 +29,7 @@ dependency_overrides:
 
 EOF
 
-patch -p0 "$targetDir/perf-test-app-sentry/lib/main.dart" <<'EOF'
+patch -p0 "$targetDir/perf-test-app-with-sentry/lib/main.dart" <<'EOF'
 @@ -1,7 +1,12 @@
  import 'package:flutter/material.dart';
 +import 'package:sentry_flutter/sentry_flutter.dart';

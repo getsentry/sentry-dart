@@ -1,7 +1,7 @@
 apps:
   - name: io.sentry.dart.perfTestAppPlain
     path: test-app-plain.ipa
-  - name: io.sentry.dart.perfTestAppSentry
+  - name: io.sentry.dart.perfTestAppWithSentry
     path: test-app-sentry.ipa
 
 startupTimeTest:
