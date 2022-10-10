@@ -34,15 +34,13 @@ jobs:
       - name: flutter pub get
         run: flutter pub get
 
-      - name: setup gradle wrapper
-        working-directory: ./flutter/example/android
-        run: gradle wrapper
+      - name: flutter build apk
+        run: flutter build apk --debug
 
-      - name: run apk on android emulator & run integration test
+      - name: run integration test
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          working-directory: ./flutter/example/android
           api-level: ${{ matrix.api-level }}
           arch: x86_64
           profile: Nexus 6
-          script: ./gradlew installDebug & flutter test ../integration_test/launch_test.dart
+          script: flutter test integration_test/launch_test.dart
