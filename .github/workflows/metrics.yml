@@ -15,10 +15,6 @@ jobs:
       # We want that the matrix keeps running, default is to cancel them if it fails.
       fail-fast: false
       matrix:
-        platform: ['ios', 'android']
-        # Let's stick to an explicit version and update manually because a version change may affect results.
-        # If it updated automatically, it could confuse people to think the change is actually caused by the PR.
-        flutter: ['3.3.3']
         include:
           - platform: ios
             name: iOS
@@ -30,9 +26,19 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: subosito/flutter-action@1e6ee87cb840500837bcd50a667fb28815d8e310 # v2.7.1
+      # Let's stick to an explicit version and update manually because a version change may affect results.
+      # If it updated implicitly, it could confuse people to think the change is actually caused by the PR.
+      # Instead, we use updater (update-deps.yml) to create PRs for explicit Flutter SDK update.
+      - name: Read Flutter version from file
+        id: conf
+        run: |
+          version=$(grep "version" metrics/flutter.properties | cut -d'=' -f2 | xargs)
+          echo "::set-output name=flutter::$version"
+
+      - name: Install Flutter ${{ steps.conf.outputs.flutter }}
+        uses: subosito/flutter-action@1e6ee87cb840500837bcd50a667fb28815d8e310 # pin@v2
         with:
-          flutter-version: ${{ matrix.flutter }}
+          flutter-version: ${{ steps.conf.outputs.flutter }}
 
       - uses: actions/setup-java@v3
         if: ${{ matrix.platform == 'android' }}
