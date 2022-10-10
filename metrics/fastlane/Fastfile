@@ -33,7 +33,7 @@ platform :ios do
     sync_code_signing(
       type: "development",
       readonly: true,
-      app_identifier: ["io.sentry.dart.perfTestAppSentry"]
+      app_identifier: ["io.sentry.dart.perfTestAppWithSentry"]
     )
 
     build_app(
