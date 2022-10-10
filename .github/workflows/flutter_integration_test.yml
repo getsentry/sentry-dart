@@ -32,7 +32,7 @@ jobs:
         run: |
           flutter upgrade
           flutter pub get
-          flutter build apk
+          flutter build apk --debug
 
       - name: kill adb
         run: |
