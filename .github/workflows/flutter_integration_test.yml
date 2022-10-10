@@ -1,0 +1,56 @@
+name: flutter integration tests
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test:
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: ./flutter/example
+    strategy:
+      matrix:
+        api-level: [21]
+        sdk: ['stable']
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'adopt'
+          java-version: '8'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: ${{ matrix.sdk }}
+
+      - name: build apk
+        run: |
+          flutter upgrade
+          flutter pub get
+          flutter build apk
+
+      - name: kill adb
+        run: |
+          adb kill-server
+          adb start-server
+
+      - name: setup gradle wrapper
+        working-directory: ./flutter/example/android
+        run: gradle wrapper
+
+      - name: run apk on android emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          working-directory: ./flutter/example/android
+          api-level: ${{ matrix.api-level }}
+          arch: x86_64
+          profile: Nexus 6
+          script: ./gradlew installDebug
+
+      - name: run flutter integration test
+        run: flutter test integration_test/launch_test.dart
