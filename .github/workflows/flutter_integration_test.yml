@@ -37,10 +37,13 @@ jobs:
       - name: flutter build apk
         run: flutter build apk --debug
 
+      - name: verify we are in the correct folder
+        run: s -a
+
       - name: run integration test
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: ${{ matrix.api-level }}
           arch: x86_64
           profile: Nexus 6
-          script: flutter test integration_test/launch_test.dart
+          script: ls -a & flutter test integration_test/launch_test.dart
