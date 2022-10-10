@@ -11,12 +11,15 @@ flutterCreate() {
   name=${1//-/_}
   dir=$targetDir/$1
   rm -rf $dir
+  echo "::group::Flutter create $1"
   flutter create --template=app --no-pub --org 'io.sentry.dart' --project-name $name "$dir"
+  echo '::endgroup::'
 }
 
 flutterCreate 'perf-test-app-plain'
 flutterCreate 'perf-test-app-with-sentry'
 
+echo '::group::Patch perf-test-app-with-sentry'
 pubspec="$targetDir/perf-test-app-with-sentry/pubspec.yaml"
 echo "Adding dependencies to $pubspec"
 cat <<EOF >>"$pubspec"
@@ -46,3 +49,4 @@ patch -p0 "$targetDir/perf-test-app-with-sentry/lib/main.dart" <<'EOF'
 
  class MyApp extends StatelessWidget {
 EOF
+echo '::endgroup::'

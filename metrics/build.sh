@@ -41,6 +41,7 @@ for app in "$targetDir/perf-test-app-"*; do
   fi
 
   (
+    echo "::group::Flutter build $app"
     cd $app
     flutter pub get
     if [[ "$1" == "ios" && -f "ios/Podfile" ]]; then
@@ -49,14 +50,17 @@ for app in "$targetDir/perf-test-app-"*; do
       cd -
     fi
     flutter build $target $args
+    echo '::endgroup::'
   )
 
   if [[ "$1" == "ios" ]]; then
     flJob="$(basename $app)"
     flJob=${flJob//-/_}
     (
+      echo "::group::Fastlane build $app"
       cd $targetDir
       fastlane "build_$flJob" --verbose
+      echo '::endgroup::'
     )
   fi
 done
