@@ -47,7 +47,7 @@ mixin SentryFlutter {
 
     final platformDispatcher = PlatformDispatcher.instance;
     final wrapper = PlatformDispatcherWrapper(platformDispatcher);
-    bool isOnErrorSupported = wrapper.isOnErrorSupported(flutterOptions);
+    final isOnErrorSupported = wrapper.isOnErrorSupported(flutterOptions);
 
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
