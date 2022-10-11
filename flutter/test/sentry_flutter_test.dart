@@ -10,6 +10,7 @@ import 'sentry_flutter_util.dart';
 /// These are the integrations which should be added on every platform.
 /// They don't depend on the underlying platform.
 final platformAgnosticIntegrations = [
+  WidgetsFlutterBindingIntegration,
   OnErrorIntegration,
   FlutterErrorIntegration,
   LoadReleaseIntegration,
@@ -69,6 +70,14 @@ void main() {
           ],
           shouldNotHaveIntegrations: iOsAndMacOsIntegrations);
 
+      integrations
+          .indexWhere((element) => element is WidgetsFlutterBindingIntegration);
+
+      testBefore(
+          integrations: integrations,
+          beforeIntegration: WidgetsFlutterBindingIntegration,
+          afterIntegration: OnErrorIntegration);
+
       await Sentry.close();
     }, testOn: 'vm');
 
@@ -101,6 +110,11 @@ void main() {
         ],
         shouldNotHaveIntegrations: androidIntegrations,
       );
+
+      testBefore(
+          integrations: integrations,
+          beforeIntegration: WidgetsFlutterBindingIntegration,
+          afterIntegration: OnErrorIntegration);
 
       await Sentry.close();
     }, testOn: 'vm');
@@ -135,6 +149,11 @@ void main() {
         shouldNotHaveIntegrations: androidIntegrations,
       );
 
+      testBefore(
+          integrations: integrations,
+          beforeIntegration: WidgetsFlutterBindingIntegration,
+          afterIntegration: OnErrorIntegration);
+
       await Sentry.close();
     }, testOn: 'vm');
 
@@ -168,6 +187,11 @@ void main() {
         ],
       );
 
+      testBefore(
+          integrations: integrations,
+          beforeIntegration: WidgetsFlutterBindingIntegration,
+          afterIntegration: OnErrorIntegration);
+
       await Sentry.close();
     }, testOn: 'vm');
 
@@ -200,6 +224,11 @@ void main() {
           ...nativeIntegrations,
         ],
       );
+
+      testBefore(
+          integrations: integrations,
+          beforeIntegration: WidgetsFlutterBindingIntegration,
+          afterIntegration: OnErrorIntegration);
 
       await Sentry.close();
     }, testOn: 'vm');
@@ -236,6 +265,11 @@ void main() {
           ...nativeIntegrations,
         ],
       );
+
+      testBefore(
+          integrations: integrations,
+          beforeIntegration: WidgetsFlutterBindingIntegration,
+          afterIntegration: OnErrorIntegration);
 
       await Sentry.close();
     });
@@ -275,6 +309,11 @@ void main() {
         ],
       );
 
+      testBefore(
+          integrations: integrations,
+          beforeIntegration: WidgetsFlutterBindingIntegration,
+          afterIntegration: OnErrorIntegration);
+
       await Sentry.close();
     });
 
@@ -313,6 +352,11 @@ void main() {
         ],
       );
 
+      testBefore(
+          integrations: integrations,
+          beforeIntegration: WidgetsFlutterBindingIntegration,
+          afterIntegration: OnErrorIntegration);
+
       await Sentry.close();
     });
 
@@ -349,6 +393,11 @@ void main() {
           ...nativeIntegrations,
         ],
       );
+
+      testBefore(
+          integrations: integrations,
+          beforeIntegration: WidgetsFlutterBindingIntegration,
+          afterIntegration: OnErrorIntegration);
 
       await Sentry.close();
     });

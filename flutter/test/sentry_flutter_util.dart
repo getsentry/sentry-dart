@@ -34,3 +34,15 @@ void testConfiguration({
     expect(integrations, isNot(contains(type)));
   }
 }
+
+void testBefore({
+  required List<Integration> integrations,
+  required Type beforeIntegration,
+  required Type afterIntegration,
+}) {
+  final beforeIndex = integrations
+      .indexWhere((element) => element.runtimeType == beforeIntegration);
+  final afterIndex = integrations
+      .indexWhere((element) => element.runtimeType == afterIntegration);
+  expect(beforeIndex < afterIndex, true);
+}
