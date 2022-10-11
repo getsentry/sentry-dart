@@ -33,15 +33,6 @@ jobs:
       - name: flutter pub get
         run: flutter pub get
 
-      - name: launch ios emulator
-        uses: futureware-tech/simulator-action@v1
-        with:
-          model: 'iPhone 8'
-          os_version: '15.2'
-
-      - name: run ios integration test
-        run: flutter test integration_test/launch_test.dart
-
       - name: launch android emulator & run android integration test
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -51,4 +42,11 @@ jobs:
           profile: Nexus 6
           script: flutter test integration_test/launch_test.dart
 
+      - name: launch ios emulator
+        uses: futureware-tech/simulator-action@v1
+        with:
+          model: 'iPhone 8'
+          os_version: '15.2'
 
+      - name: run ios integration test
+        run: flutter test integration_test/launch_test.dart
