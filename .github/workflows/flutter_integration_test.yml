@@ -36,7 +36,7 @@ jobs:
       - name: launch ios emulator
         uses: futureware-tech/simulator-action@v1
         with:
-          os_version: '14.0'
+          os_version: '14.4'
 
       - name: run ios integration test
         run: flutter test integration_test/launch_test.dart
