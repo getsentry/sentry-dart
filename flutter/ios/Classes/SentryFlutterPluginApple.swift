@@ -128,7 +128,6 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         }
     }
 
-    // swiftlint:disable:next cyclomatic_complexity
     private func loadContexts(result: @escaping FlutterResult) {
         SentrySDK.configureScope { scope in
             let serializedScope = scope.serialize()
@@ -171,9 +170,10 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
                 infos["integrations"] = integrations
             }
 
-            if let sdkInfo = self.sentryOptions?.sdkInfo {
-                infos["package"] = ["version": sdkInfo.version, "sdk_name": "cocoapods:sentry-cocoa"]
-            }
+            // Not reading the name from PrivateSentrySDKOnly.getSdkName because
+            // this is added as a package and packages should follow the sentry-release-registry format
+            infos["package"] = ["version": PrivateSentrySDKOnly.getSdkVersionString(),
+                "sdk_name": "cocoapods:sentry-cocoa"]
 
             result(infos)
         }

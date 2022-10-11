@@ -187,6 +187,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: norio-nomura/action-swiftlint@9f4dcd7fd46b4e75d7935cf2f4df406d5cae3684 # pin@3.2.1
+        with:
+          args: --strict
 
   ktlint:
     runs-on: ubuntu-latest
@@ -202,6 +204,7 @@ jobs:
           github_token: ${{ secrets.github_token }}
           reporter: github-pr-review
           android: true
+          fail_on_error: true
 
   detekt:
     runs-on: ubuntu-latest
@@ -210,4 +213,4 @@ jobs:
       # To recreate baseline run: detekt -i flutter/android,flutter/example/android -b flutter/config/detekt-bl.xml -cb
       - uses: natiginfo/action-detekt-all@e01de6ff0eef7c24131e8a133bf598cfac6ceeab # pin@1.21.0
         with:
-          args: -i flutter/android,flutter/example/android --baseline flutter/config/detekt-bl.xml
+          args: -i flutter/android,flutter/example/android --baseline flutter/config/detekt-bl.xml --jvm-target 1.8 --build-upon-default-config --all-rules
