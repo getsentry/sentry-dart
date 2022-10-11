@@ -523,10 +523,10 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
           userInstance.data = extras
         }
         if let data = user["data"] as? [String: Any] {
-          if(userInstance.data == nil) {
-            userInstance.data = data
+          if let oldData = userInstance.data {
+            userInstance.data = oldData.reduce(into: data) { (first, second) in first[second.0] = second.1 }
           } else {
-            userInstance.data = userInstance.data!.reduce(into: data) { (first, second) in first[second.0] = second.1 }
+            userInstance.data = data
           }
         }
 
