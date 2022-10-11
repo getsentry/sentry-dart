@@ -1,6 +1,14 @@
 # Changelog
 
-## Unreleased
+## 6.12.1
+
+### Dependencies
+
+- Bump Android SDK from v6.4.3 to v6.5.0 ([#1062](https://github.com/getsentry/sentry-dart/pull/1062), [#1064](https://github.com/getsentry/sentry-dart/pull/1064))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#650)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.4.3...6.5.0)
+
+## 6.12.0
 
 ### Features
 
@@ -10,6 +18,7 @@
 
 - Handle traces sampler exception ([#1040](https://github.com/getsentry/sentry-dart/pull/1040))
 - tracePropagationTargets ignores invalid Regex ([#1043](https://github.com/getsentry/sentry-dart/pull/1043))
+- SentryDevice cast error ([#1059](https://github.com/getsentry/sentry-dart/pull/1059))
 
 ### Features
 
