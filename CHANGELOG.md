@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Avoid dependency conflict with package_info_plus v2 ([#1040](https://github.com/getsentry/sentry-dart/pull/1040))
+
 ## 6.12.1
 
 ### Dependencies
