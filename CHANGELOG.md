@@ -1,10 +1,12 @@
 # Changelog
 
-## 6.12.1
+## Unreleased
 
 ### Fixes
 
 - Bring protocol up to date with latest Sentry protocol ([#1038](https://github.com/getsentry/sentry-dart/pull/1038))
+
+## 6.12.1
 
 ### Dependencies
 
