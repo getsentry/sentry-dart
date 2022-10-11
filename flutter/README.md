@@ -17,7 +17,7 @@ It will capture errors in the native layer, including (Java/Kotlin/C/C++ for And
 
 #### Usage
 
-- Sign up for a Sentry.io account and get a DSN at http://sentry.io.
+- Sign up for a Sentry.io account and get a DSN at https://sentry.io.
 
 - Follow the installing instructions on [pub.dev](https://pub.dev/packages/sentry_flutter/install).
 
