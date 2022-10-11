@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Use PlatformDispatcher.onError in Flutter 3.3 ([#1039](https://github.com/getsentry/sentry-dart/pull/1039))
+
 ## 6.12.1
 
 ### Dependencies
@@ -9,10 +15,6 @@
   - [diff](https://github.com/getsentry/sentry-java/compare/6.4.3...6.5.0)
 
 ## 6.12.0
-
-### Features
-
-- Use PlatformDispatcher.onError in Flutter 3.3 ([#1039](https://github.com/getsentry/sentry-dart/pull/1039))
 
 ### Fixes
 
