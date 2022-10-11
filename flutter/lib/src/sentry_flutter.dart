@@ -65,6 +65,7 @@ mixin SentryFlutter {
         appRunner: appRunner,
         // ignore: invalid_use_of_internal_member
         options: flutterOptions,
+        // ignore: invalid_use_of_internal_member
         callAppRunnerInRunZonedGuarded: !isOnErrorSupported);
   }
 
