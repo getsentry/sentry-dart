@@ -83,6 +83,8 @@ class SentryUser {
   ///
   /// The geolocation is automatically inferred by Sentry.io if the [ipAddress] is set.
   /// Sentry however doesn't collect the [ipAddress] automatically because it is PII.
+  /// The geo location will currently not be synced to the native layer, if available.
+  // See https://github.com/getsentry/sentry-dart/issues/1065
   final SentryGeo? geo;
 
   /// Human readable name of the user.
