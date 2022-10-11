@@ -5,6 +5,9 @@
 ### Features
 
 - Use PlatformDispatcher.onError in Flutter 3.3 ([#1039](https://github.com/getsentry/sentry-dart/pull/1039))
+### Fixes
+
+- Avoid dependency conflict with package_info_plus v2 ([#1068](https://github.com/getsentry/sentry-dart/pull/1068))
 
 ## 6.12.1
 
