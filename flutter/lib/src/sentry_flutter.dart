@@ -102,13 +102,13 @@ mixin SentryFlutter {
     final platformChecker = options.platformChecker;
     final platform = platformChecker.platform;
 
+    // Will call WidgetsFlutterBinding.ensureInitialized() before all other integrations.
+    integrations.add(WidgetsFlutterBindingIntegration());
+
     // Use PlatformDispatcher.onError instead of zones.
     if (isOnErrorSupported) {
       integrations.add(OnErrorIntegration());
     }
-
-    // Will call WidgetsFlutterBinding.ensureInitialized() before all other integrations.
-    integrations.add(WidgetsFlutterBindingIntegration());
 
     // Will catch any errors that may occur in the Flutter framework itself.
     integrations.add(FlutterErrorIntegration());
