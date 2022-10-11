@@ -31,5 +31,6 @@ jobs:
     with:
       path: metrics/flutter.properties
       name: Flutter SDK (metrics)
+      changelog-entry: false
     secrets:
       api-token: ${{ secrets.CI_DEPLOY_KEY }}
