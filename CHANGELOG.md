@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Dependencies
+
+- Bump Flutter SDK (metrics) from v3.3.3 to v3.3.4 ([#1063](https://github.com/getsentry/sentry-dart/pull/1063))
+  - [changelog](https://github.com/flutter/flutter/blob/main master/CHANGELOG.md#334)
+  - [diff](https://github.com/flutter/flutter/compare/3.3.3...3.3.4)
+
 ## 6.12.1
 
 ### Dependencies
