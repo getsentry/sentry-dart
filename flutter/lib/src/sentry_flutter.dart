@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../sentry_flutter.dart';
-import 'binding_utils.dart';
 import 'event_processor/android_platform_exception_event_processor.dart';
 import 'native_scope_observer.dart';
 import 'sentry_native.dart';
