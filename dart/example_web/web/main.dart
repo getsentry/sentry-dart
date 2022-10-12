@@ -52,7 +52,7 @@ Future<void> runApp() async {
         username: 'first-user',
         email: 'first@user.lan',
         // ipAddress: '127.0.0.1',
-        extras: <String, String>{'first-sign-in': '2020-01-01'},
+        data: <String, String>{'first-sign-in': '2020-01-01'},
       ),
     );
   });

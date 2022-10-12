@@ -53,17 +53,22 @@ class SentryRequest {
 
   final Map<String, String>? _other;
 
+  @Deprecated('Will be removed in v7')
   Map<String, String> get other => Map.unmodifiable(_other ?? const {});
+
+  /// The fragment of the request URL.
+  final String? fragment;
 
   SentryRequest({
     this.url,
     this.method,
     this.queryString,
     this.cookies,
+    this.fragment,
     dynamic data,
     Map<String, String>? headers,
     Map<String, String>? env,
-    Map<String, String>? other,
+    @Deprecated('Will be removed in v7.') Map<String, String>? other,
   })  : _data = data,
         _headers = headers != null ? Map.from(headers) : null,
         _env = env != null ? Map.from(env) : null,
@@ -79,47 +84,26 @@ class SentryRequest {
       data: json['data'],
       headers: json['headers'],
       env: json['env'],
+      // ignore: deprecated_member_use_from_same_package
       other: json['other'],
+      fragment: json['fragment'],
     );
   }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{};
-
-    if (url != null) {
-      json['url'] = url;
-    }
-
-    if (method != null) {
-      json['method'] = method;
-    }
-
-    if (queryString != null) {
-      json['query_string'] = queryString;
-    }
-
-    if (_data != null) {
-      json['data'] = _data;
-    }
-
-    if (cookies != null) {
-      json['cookies'] = cookies;
-    }
-
-    if (headers.isNotEmpty) {
-      json['headers'] = headers;
-    }
-
-    if (env.isNotEmpty) {
-      json['env'] = env;
-    }
-
-    if (other.isNotEmpty) {
-      json['other'] = other;
-    }
-
-    return json;
+    return <String, dynamic>{
+      if (url != null) 'url': url,
+      if (method != null) 'method': method,
+      if (queryString != null) 'query_string': queryString,
+      if (_data != null) 'data': _data,
+      if (cookies != null) 'cookies': cookies,
+      if (headers.isNotEmpty) 'headers': headers,
+      if (env.isNotEmpty) 'env': env,
+      // ignore: deprecated_member_use_from_same_package
+      if (other.isNotEmpty) 'other': other,
+      if (fragment != null) 'fragment': fragment,
+    };
   }
 
   SentryRequest copyWith({
@@ -127,10 +111,11 @@ class SentryRequest {
     String? method,
     String? queryString,
     String? cookies,
+    String? fragment,
     dynamic data,
     Map<String, String>? headers,
     Map<String, String>? env,
-    Map<String, String>? other,
+    @Deprecated('Will be removed in v7.') Map<String, String>? other,
   }) =>
       SentryRequest(
         url: url ?? this.url,
@@ -140,6 +125,8 @@ class SentryRequest {
         data: data ?? _data,
         headers: headers ?? _headers,
         env: env ?? _env,
+        // ignore: deprecated_member_use_from_same_package
         other: other ?? _other,
+        fragment: fragment,
       );
 }

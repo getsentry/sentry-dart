@@ -389,24 +389,26 @@ class Scope {
       email: eventUser?.email,
       ipAddress: eventUser?.ipAddress,
       username: eventUser?.username,
-      extras: _mergeUserExtra(eventUser?.extras, scopeUser.extras),
+      data: _mergeUserData(eventUser?.data, scopeUser.data),
+      // ignore: deprecated_member_use_from_same_package
+      extras: _mergeUserData(eventUser?.extras, scopeUser.extras),
     );
   }
 
   /// If the User on the scope and the user of an event have extra entries with
   /// the same key, the event user extra will be kept.
-  Map<String, dynamic> _mergeUserExtra(
-    Map<String, dynamic>? eventExtra,
-    Map<String, dynamic>? scopeExtra,
+  Map<String, dynamic> _mergeUserData(
+    Map<String, dynamic>? eventData,
+    Map<String, dynamic>? scopeData,
   ) {
     final map = <String, dynamic>{};
-    if (eventExtra != null) {
-      map.addAll(eventExtra);
+    if (eventData != null) {
+      map.addAll(eventData);
     }
-    if (scopeExtra == null) {
+    if (scopeData == null) {
       return map;
     }
-    for (var value in scopeExtra.entries) {
+    for (var value in scopeData.entries) {
       map.putIfAbsent(value.key, () => value.value);
     }
     return map;

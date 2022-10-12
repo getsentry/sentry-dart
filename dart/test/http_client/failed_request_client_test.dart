@@ -57,7 +57,9 @@ void main() {
       expect(request?.queryString, 'foo=bar');
       expect(request?.cookies, 'foo=bar');
       expect(request?.headers, {'Cookie': 'foo=bar'});
+      // ignore: deprecated_member_use_from_same_package
       expect(request?.other.keys.contains('duration'), true);
+      // ignore: deprecated_member_use_from_same_package
       expect(request?.other.keys.contains('content_length'), true);
     });
 
@@ -108,7 +110,9 @@ void main() {
       expect(request?.queryString, 'foo=bar');
       expect(request?.cookies, 'foo=bar');
       expect(request?.headers, {'Cookie': 'foo=bar'});
+      // ignore: deprecated_member_use_from_same_package
       expect(request?.other.keys.contains('duration'), true);
+      // ignore: deprecated_member_use_from_same_package
       expect(request?.other.keys.contains('content_length'), true);
     });
 
