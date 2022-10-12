@@ -2,9 +2,45 @@
 
 ## Unreleased
 
+### Fixes
+
+- Bring protocol up to date with latest Sentry protocol ([#1038](https://github.com/getsentry/sentry-dart/pull/1038))
+
+## 6.12.2
+
+### Fixes
+
+- Avoid dependency conflict with package_info_plus v2 ([#1068](https://github.com/getsentry/sentry-dart/pull/1068))
+
+## 6.12.1
+
+### Dependencies
+
+- Bump Android SDK from v6.4.3 to v6.5.0 ([#1062](https://github.com/getsentry/sentry-dart/pull/1062), [#1064](https://github.com/getsentry/sentry-dart/pull/1064))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#650)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.4.3...6.5.0)
+
+## 6.12.0
+
+### Fixes
+
+- Handle traces sampler exception ([#1040](https://github.com/getsentry/sentry-dart/pull/1040))
+- tracePropagationTargets ignores invalid Regex ([#1043](https://github.com/getsentry/sentry-dart/pull/1043))
+- SentryDevice cast error ([#1059](https://github.com/getsentry/sentry-dart/pull/1059))
+
 ### Features
 
 - Added [Flutter renderer](https://docs.flutter.dev/development/platform-integration/web/renderers) information to events ([#1035](https://github.com/getsentry/sentry-dart/pull/1035))
+- Added missing DSN field into the SentryEnvelopeHeader ([#1050](https://github.com/getsentry/sentry-dart/pull/1050))
+
+### Dependencies
+
+- Bump Android SDK from v6.4.2 to v6.4.3 ([#1048](https://github.com/getsentry/sentry-dart/pull/1048))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#643)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.4.2...6.4.3)
+- Bump Cocoa SDK from v7.27.0 to v7.27.1 ([#1049](https://github.com/getsentry/sentry-dart/pull/1049))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/master/CHANGELOG.md#7271)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.27.0...7.27.1)
 
 ## 6.11.2
 

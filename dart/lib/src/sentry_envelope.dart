@@ -24,6 +24,7 @@ class SentryEnvelope {
   factory SentryEnvelope.fromEvent(
     SentryEvent event,
     SdkVersion sdkVersion, {
+    String? dsn,
     SentryTraceContextHeader? traceContext,
     List<SentryAttachment>? attachments,
   }) {
@@ -31,6 +32,7 @@ class SentryEnvelope {
       SentryEnvelopeHeader(
         event.eventId,
         sdkVersion,
+        dsn: dsn,
         traceContext: traceContext,
       ),
       [
@@ -43,11 +45,16 @@ class SentryEnvelope {
 
   factory SentryEnvelope.fromUserFeedback(
     SentryUserFeedback feedback,
-    SdkVersion sdkVersion,
-  ) {
+    SdkVersion sdkVersion, {
+    String? dsn,
+  }) {
     return SentryEnvelope(
       // no need for [traceContext]
-      SentryEnvelopeHeader(feedback.eventId, sdkVersion),
+      SentryEnvelopeHeader(
+        feedback.eventId,
+        sdkVersion,
+        dsn: dsn,
+      ),
       [SentryEnvelopeItem.fromUserFeedback(feedback)],
     );
   }
@@ -56,6 +63,7 @@ class SentryEnvelope {
   factory SentryEnvelope.fromTransaction(
     SentryTransaction transaction,
     SdkVersion sdkVersion, {
+    String? dsn,
     SentryTraceContextHeader? traceContext,
     List<SentryAttachment>? attachments,
   }) {
@@ -63,6 +71,7 @@ class SentryEnvelope {
       SentryEnvelopeHeader(
         transaction.eventId,
         sdkVersion,
+        dsn: dsn,
         traceContext: traceContext,
       ),
       [

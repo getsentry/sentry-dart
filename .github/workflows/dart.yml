@@ -27,48 +27,47 @@ jobs:
           - os: macos-latest
             sdk: beta
     steps:
-        - uses: dart-lang/setup-dart@v1
-          with:
-            sdk: ${{ matrix.sdk }}
-        - uses: actions/checkout@v3
-        # coverage with 'chrome' platform hangs the build
-        - name: Test (VM and browser)
-          if: runner.os != 'macOS'
-          run: |
-            dart pub get
-            dart test -p chrome --test-randomize-ordering-seed=random --chain-stack-traces
-            dart test -p vm --coverage=coverage --test-randomize-ordering-seed=random --chain-stack-traces
-            dart pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
+      - uses: dart-lang/setup-dart@6a218f2413a3e78e9087f638a238f6b40893203d # pin@v1
+        with:
+          sdk: ${{ matrix.sdk }}
+      - uses: actions/checkout@v3
+      # coverage with 'chrome' platform hangs the build
+      - name: Test (VM and browser)
+        if: runner.os != 'macOS'
+        run: |
+          dart pub get
+          dart test -p chrome --test-randomize-ordering-seed=random --chain-stack-traces
+          dart test -p vm --coverage=coverage --test-randomize-ordering-seed=random --chain-stack-traces
+          dart pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
 
-        - name: Install webdev
-          run: dart pub global activate webdev
+      - name: Install webdev
+        run: dart pub global activate webdev
 
-        - name: Build example
-          run: |
-            cd example
-            dart pub get
-            dart compile exe bin/example.dart
+      - name: Build example
+        run: |
+          cd example
+          dart pub get
+          dart compile exe bin/example.dart
 
-        # if condition because of: The pubspec.lock file has changed since the .dart_tool/package_config.json file was generated, please run "pub get" again.
-        - name: Build Web example
-          if: runner.os != 'Windows'
-          run: |
-            cd example_web
-            dart pub get
-            webdev build
+      # if condition because of: The pubspec.lock file has changed since the .dart_tool/package_config.json file was generated, please run "pub get" again.
+      - name: Build Web example
+        if: runner.os != 'Windows'
+        run: |
+          cd example_web
+          dart pub get
+          webdev build
 
-        - uses: codecov/codecov-action@v2
-          if: runner.os == 'Linux' && matrix.sdk == 'stable'
-          with:
-            name: sentry
-            files: ./dart/coverage/lcov.info
+      - uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70 # pin@v3
+        if: runner.os == 'Linux' && matrix.sdk == 'stable'
+        with:
+          name: sentry
+          files: ./dart/coverage/lcov.info
 
-        # 1.2.1
-        - uses: VeryGoodOpenSource/very_good_coverage@feed99cc060453828a8f12e74b404baace8e4502
-          if: runner.os == 'Linux' && matrix.sdk == 'stable'
-          with:
-            path: "./dart/coverage/lcov.info"
-            min_coverage: 85
+      - uses: VeryGoodOpenSource/very_good_coverage@feed99cc060453828a8f12e74b404baace8e4502 # pin@v1.2.1
+        if: runner.os == 'Linux' && matrix.sdk == 'stable'
+        with:
+          path: './dart/coverage/lcov.info'
+          min_coverage: 85
 
   analyze:
     runs-on: ubuntu-latest
@@ -77,7 +76,7 @@ jobs:
       run:
         working-directory: ./dart
     steps:
-      - uses: dart-lang/setup-dart@v1
+      - uses: dart-lang/setup-dart@6a218f2413a3e78e9087f638a238f6b40893203d # pin@v1
         with:
           sdk: stable
       - uses: actions/checkout@v3
@@ -91,7 +90,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v3
-      - uses: axel-op/dart-package-analyzer@v3
+      - uses: axel-op/dart-package-analyzer@7a6c3c66bce78d82b729a1ffef2d9458fde6c8d2 # pin@v3
         id: analysis
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}

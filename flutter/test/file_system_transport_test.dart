@@ -10,6 +10,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/src/file_system_transport.dart';
 
+import 'mocks.dart';
+
 void main() {
   const _channel = MethodChannel('sentry_flutter');
 
@@ -33,7 +35,11 @@ void main() {
     final sdkVersion =
         SdkVersion(name: 'fixture-sdkName', version: 'fixture-sdkVersion');
 
-    final envelope = SentryEnvelope.fromEvent(event, sdkVersion);
+    final envelope = SentryEnvelope.fromEvent(
+      event,
+      sdkVersion,
+      dsn: fixture.options.dsn,
+    );
     final sentryId = await transport.send(envelope);
 
     expect(sentryId, sentryId);
@@ -49,7 +55,11 @@ void main() {
     final sdkVersion =
         SdkVersion(name: 'fixture-sdkName', version: 'fixture-sdkVersion');
 
-    final envelope = SentryEnvelope.fromEvent(event, sdkVersion);
+    final envelope = SentryEnvelope.fromEvent(
+      event,
+      sdkVersion,
+      dsn: fixture.options.dsn,
+    );
     final sentryId = await transport.send(envelope);
 
     expect(SentryId.empty(), sentryId);
@@ -67,7 +77,11 @@ void main() {
         SentryEvent(message: SentryMessage('hi I am a special char ◤'));
     final sdkVersion =
         SdkVersion(name: 'fixture-sdkName', version: 'fixture-sdkVersion');
-    final envelope = SentryEnvelope.fromEvent(event, sdkVersion);
+    final envelope = SentryEnvelope.fromEvent(
+      event,
+      sdkVersion,
+      dsn: fixture.options.dsn,
+    );
     await transport.send(envelope);
 
     final envelopeList = arguments as List;
@@ -100,7 +114,7 @@ void main() {
 }
 
 class Fixture {
-  final options = SentryOptions(dsn: '');
+  final options = SentryOptions(dsn: fakeDsn);
 
   FileSystemTransport getSut(MethodChannel channel) {
     return FileSystemTransport(channel, options);

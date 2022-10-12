@@ -117,7 +117,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     SentryAndroid.init(context) { options ->
       args.getIfNotNull<String>("dsn") { options.dsn = it }
-      args.getIfNotNull<Boolean>("debug") { options.setDebug(it) }
+      args.getIfNotNull<Boolean>("debug") { options.isDebug = it }
       args.getIfNotNull<String>("environment") { options.environment = it }
       args.getIfNotNull<String>("release") { options.release = it }
       args.getIfNotNull<String>("dist") { options.dist = it }
@@ -147,7 +147,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       val nativeCrashHandling = (args["enableNativeCrashHandling"] as? Boolean) ?: true
       // nativeCrashHandling has priority over anrEnabled
       if (!nativeCrashHandling) {
-        options.setEnableUncaughtExceptionHandler(false)
+        options.isEnableUncaughtExceptionHandler = false
         options.isAnrEnabled = false
         // if split symbols are enabled, we need Ndk integration so we can't really offer the option
         // to turn it off
@@ -161,7 +161,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         }
       }
 
-      args.getIfNotNull<Boolean>("sendClientReports") { options.setSendClientReports(it) }
+      args.getIfNotNull<Boolean>("sendClientReports") { options.isSendClientReports = it }
 
       options.setBeforeSend { event, _ ->
         setEventOriginTag(event)
@@ -179,8 +179,8 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       result.success(null)
       return
     }
-    val appStartTime = AppStartState.getInstance().getAppStartTime()
-    val isColdStart = AppStartState.getInstance().isColdStart()
+    val appStartTime = AppStartState.getInstance().appStartTime
+    val isColdStart = AppStartState.getInstance().isColdStart
 
     if (appStartTime == null) {
       Log.w("Sentry", "App start won't be sent due to missing appStartTime")
@@ -190,7 +190,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       result.success(null)
     } else {
       val item = mapOf<String, Any?>(
-        "appStartTime" to appStartTime.getTime().toDouble(),
+        "appStartTime" to appStartTime.time.toDouble(),
         "isColdStart" to isColdStart
       )
       result.success(item)
@@ -222,9 +222,9 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     val sentryId = SentryId(id)
     framesTracker?.setMetrics(activity, sentryId)
     val metrics = framesTracker?.takeMetrics(sentryId)
-    val total = metrics?.get("frames_total")?.getValue()?.toInt() ?: 0
-    val slow = metrics?.get("frames_slow")?.getValue()?.toInt() ?: 0
-    val frozen = metrics?.get("frames_frozen")?.getValue()?.toInt() ?: 0
+    val total = metrics?.get("frames_total")?.value?.toInt() ?: 0
+    val slow = metrics?.get("frames_slow")?.value?.toInt() ?: 0
+    val frozen = metrics?.get("frames_frozen")?.value?.toInt() ?: 0
 
     if (total == 0 && slow == 0 && frozen == 0) {
       result.success(null)
@@ -275,6 +275,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     (user["id"] as? String)?.let { userInstance.id = it }
     (user["username"] as? String)?.let { userInstance.username = it }
     (user["ip_address"] as? String)?.let { userInstance.ipAddress = it }
+    (user["segment"] as? String)?.let { userInstance.segment = it }
     (user["extras"] as? Map<String, Any?>)?.let { extras ->
       val others = mutableMapOf<String, String>()
       for ((key, value) in extras.entries) {
@@ -283,6 +284,14 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         }
       }
       userInstance.others = others
+    }
+    (user["data"] as? Map<String, Any?>)?.let { data ->
+      val others = mutableMapOf<String, String>()
+      for ((key, value) in data.entries) {
+        if (value != null) {
+          others[key] = value.toString()
+        }
+      }
     }
 
     Sentry.setUser(userInstance)
@@ -307,7 +316,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         "info" -> SentryLevel.INFO
         "debug" -> SentryLevel.DEBUG
         "error" -> SentryLevel.ERROR
-        else -> SentryLevel.ERROR
+        else -> SentryLevel.INFO
       }
     }
     (breadcrumb["data"] as? Map<String, Any?>)?.let { data ->
@@ -372,7 +381,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     if (args.isNotEmpty()) {
       val event = args.first() as ByteArray?
 
-      if (event != null && event.size > 0) {
+      if (event != null && event.isNotEmpty()) {
         if (!writeEnvelope(event)) {
           result.error("3", "SentryOptions or outboxPath are null or empty", null)
         }

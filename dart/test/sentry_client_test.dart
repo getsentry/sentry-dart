@@ -195,6 +195,16 @@ void main() {
 
       expect(capturedEvent.threads?.first.stacktrace, isNull);
     });
+
+    test('event envelope contains dsn', () async {
+      final client = fixture.getSut();
+      final event = SentryEvent();
+      await client.captureEvent(event);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+
+      expect(capturedEnvelope.header.dsn, fixture.options.dsn);
+    });
   });
 
   group('SentryClient captures exception', () {
@@ -468,6 +478,16 @@ void main() {
 
       expect(id, SentryId.empty());
     });
+
+    test('transaction envelope contains dsn', () async {
+      final client = fixture.getSut();
+      final tr = SentryTransaction(fixture.tracer);
+      await client.captureTransaction(tr);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+
+      expect(capturedEnvelope.header.dsn, fixture.options.dsn);
+    });
   });
 
   group('SentryClient : apply scope to the captured event', () {
@@ -613,7 +633,7 @@ void main() {
       await scope.setUser(
         SentryUser(
           id: 'id',
-          extras: {
+          data: {
             'foo': 'bar',
             'bar': 'foo',
           },
@@ -623,7 +643,7 @@ void main() {
       var eventWithUser = event.copyWith(
         user: SentryUser(
           id: 'id',
-          extras: {
+          data: {
             'foo': 'this bar is more important',
             'event': 'Really important event'
           },
@@ -634,9 +654,9 @@ void main() {
       final capturedEnvelope = fixture.transport.envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(capturedEvent.user?.extras?['foo'], 'this bar is more important');
-      expect(capturedEvent.user?.extras?['bar'], 'foo');
-      expect(capturedEvent.user?.extras?['event'], 'Really important event');
+      expect(capturedEvent.user?.data?['foo'], 'this bar is more important');
+      expect(capturedEvent.user?.data?['bar'], 'foo');
+      expect(capturedEvent.user?.data?['event'], 'Really important event');
     });
   });
 
@@ -1192,6 +1212,20 @@ void main() {
 
       expect(fixture.recorder.reason, DiscardReason.sampleRate);
       expect(fixture.recorder.category, DataCategory.error);
+    });
+
+    test('user feedback envelope contains dsn', () async {
+      final client = fixture.getSut();
+      final event = SentryEvent();
+      final feedback = SentryUserFeedback(
+        eventId: event.eventId,
+        name: 'test',
+      );
+      await client.captureUserFeedback(feedback);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+
+      expect(capturedEnvelope.header.dsn, fixture.options.dsn);
     });
   });
 }
