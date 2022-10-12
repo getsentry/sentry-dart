@@ -40,7 +40,7 @@ jobs:
         id: conf
         run: |
           version=$(grep "version" metrics/flutter.properties | cut -d'=' -f2 | xargs)
-          echo "::set-output name=flutter::$version"
+          echo "flutter=$version" >> "$GITHUB_OUTPUT"
 
       - name: Install Flutter v${{ steps.conf.outputs.flutter }}
         uses: subosito/flutter-action@1e6ee87cb840500837bcd50a667fb28815d8e310 # pin@v2
