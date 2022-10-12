@@ -21,7 +21,7 @@ That will give you native crash support (for Android and iOS), [release health](
 
 #### Usage
 
-- Sign up for a Sentry.io account and get a DSN at http://sentry.io.
+- Sign up for a Sentry.io account and get a DSN at https://sentry.io.
 
 - Follow the installing instructions on [pub.dev](https://pub.dev/packages/sentry/install).
 
