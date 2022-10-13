@@ -8,7 +8,7 @@ void main() {
     username: 'username',
     email: 'email',
     ipAddress: 'ipAddress',
-    extras: {'key': 'value'},
+    data: {'key': 'value'},
     segment: 'seg',
   );
 
@@ -17,7 +17,7 @@ void main() {
     'username': 'username',
     'email': 'email',
     'ip_address': 'ipAddress',
-    'extras': {'key': 'value'},
+    'data': {'key': 'value'},
     'segment': 'seg',
   };
 
@@ -41,9 +41,7 @@ void main() {
     });
 
     test('toJson only serialises non-null values', () {
-      var data = SentryUser(
-        id: 'id',
-      );
+      var data = SentryUser(id: 'id');
 
       var json = data.toJson();
 
@@ -54,9 +52,7 @@ void main() {
       expect(json.containsKey('extras'), false);
       expect(json.containsKey('segment'), false);
 
-      data = SentryUser(
-        ipAddress: 'ip',
-      );
+      data = SentryUser(ipAddress: 'ip');
 
       json = data.toJson();
 
@@ -86,7 +82,7 @@ void main() {
         username: 'username1',
         email: 'email1',
         ipAddress: 'ipAddress1',
-        extras: {'key1': 'value1'},
+        data: {'key1': 'value1'},
         segment: 'seg1',
       );
 
@@ -94,7 +90,7 @@ void main() {
       expect('username1', copy.username);
       expect('email1', copy.email);
       expect('ipAddress1', copy.ipAddress);
-      expect({'key1': 'value1'}, copy.extras);
+      expect({'key1': 'value1'}, copy.data);
       expect('seg1', copy.segment);
     });
   });
