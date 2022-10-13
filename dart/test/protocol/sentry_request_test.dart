@@ -11,6 +11,7 @@ void main() {
     data: {'key': 'value'},
     headers: {'header_key': 'header_value'},
     env: {'env_key': 'env_value'},
+    // ignore: deprecated_member_use_from_same_package
     other: {'other_key': 'other_value'},
   );
 

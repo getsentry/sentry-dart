@@ -45,6 +45,12 @@ class DebugImage {
   /// Optional. Identifier of the dynamic library or executable. It is the value of the LC_UUID load command in the Mach header, formatted as UUID. Can be empty for Mach images, as it is equivalent to the debug identifier.
   final String? codeId;
 
+  /// MachO CPU subtype identifier.
+  final int? cpuSubtype;
+
+  /// MachO CPU type identifier.
+  final int? cpuType;
+
   const DebugImage({
     required this.type,
     this.name,
@@ -57,6 +63,8 @@ class DebugImage {
     this.codeFile,
     this.arch,
     this.codeId,
+    this.cpuType,
+    this.cpuSubtype,
   });
 
   /// Deserializes a [DebugImage] from JSON [Map].
@@ -73,56 +81,28 @@ class DebugImage {
       codeFile: json['code_file'],
       arch: json['arch'],
       codeId: json['code_id'],
+      cpuType: json['cpu_type'],
+      cpuSubtype: json['cpu_subtype'],
     );
   }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{};
-
-    if (uuid != null) {
-      json['uuid'] = uuid;
-    }
-
-    json['type'] = type;
-
-    if (debugId != null) {
-      json['debug_id'] = debugId;
-    }
-
-    if (name != null) {
-      json['name'] = name;
-    }
-
-    if (debugFile != null) {
-      json['debug_file'] = debugFile;
-    }
-
-    if (codeFile != null) {
-      json['code_file'] = codeFile;
-    }
-
-    if (imageAddr != null) {
-      json['image_addr'] = imageAddr;
-    }
-
-    if (imageVmAddr != null) {
-      json['image_vmaddr'] = imageVmAddr;
-    }
-
-    if (imageSize != null) {
-      json['image_size'] = imageSize;
-    }
-
-    if (arch != null) {
-      json['arch'] = arch;
-    }
-
-    if (codeId != null) {
-      json['code_id'] = codeId;
-    }
-
-    return json;
+    return {
+      'type': type,
+      if (uuid != null) 'uuid': uuid,
+      if (debugId != null) 'debug_id': debugId,
+      if (name != null) 'name': name,
+      if (debugFile != null) 'debug_file': debugFile,
+      if (codeFile != null) 'code_file': codeFile,
+      if (imageAddr != null) 'image_addr': imageAddr,
+      if (imageVmAddr != null) 'image_vmaddr': imageVmAddr,
+      if (imageSize != null) 'image_size': imageSize,
+      if (arch != null) 'arch': arch,
+      if (codeId != null) 'code_id': codeId,
+      if (cpuType != null) 'cpu_type': cpuType,
+      if (cpuSubtype != null) 'cpu_subtype': cpuSubtype,
+    };
   }
 
   DebugImage copyWith({
@@ -137,6 +117,8 @@ class DebugImage {
     int? imageSize,
     String? arch,
     String? codeId,
+    int? cpuType,
+    int? cpuSubtype,
   }) =>
       DebugImage(
         uuid: uuid ?? this.uuid,
@@ -150,5 +132,7 @@ class DebugImage {
         imageSize: imageSize ?? this.imageSize,
         arch: arch ?? this.arch,
         codeId: codeId ?? this.codeId,
+        cpuType: cpuType ?? this.cpuType,
+        cpuSubtype: cpuSubtype ?? this.cpuSubtype,
       );
 }

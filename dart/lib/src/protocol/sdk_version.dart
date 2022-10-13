@@ -79,21 +79,13 @@ class SdkVersion {
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{};
-
-    json['name'] = name;
-
-    json['version'] = version;
-
-    if (packages.isNotEmpty) {
-      json['packages'] =
-          packages.map((p) => p.toJson()).toList(growable: false);
-    }
-
-    if (integrations.isNotEmpty) {
-      json['integrations'] = integrations;
-    }
-    return json;
+    return {
+      'name': name,
+      'version': version,
+      if (packages.isNotEmpty)
+        'packages': packages.map((p) => p.toJson()).toList(growable: false),
+      if (integrations.isNotEmpty) 'integrations': integrations,
+    };
   }
 
   /// Adds a package
