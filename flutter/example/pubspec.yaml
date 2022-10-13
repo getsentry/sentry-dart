@@ -24,7 +24,7 @@ dependencies:
 
 dev_dependencies:
   pedantic: ^1.11.1
-  sentry_dart_plugin: ^1.0.0-alpha.4
+  sentry_dart_plugin: ^1.0.0-beta.1
 
 dependency_overrides:
   sentry:
