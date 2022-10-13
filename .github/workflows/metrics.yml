@@ -2,13 +2,15 @@ name: SDK metrics
 
 on:
   push:
-    branches: [main]
-  pull_request:
     paths:
       - .github/workflows/metrics.yml
       - dart/**
       - flutter/**
       - metrics/**
+    branches-ignore:
+      - deps/**
+      - dependabot/**
+    tags-ignore: [ '**' ]
 
 jobs:
   metrics:
