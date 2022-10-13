@@ -51,21 +51,27 @@ mixin SentryFlutter {
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
     final defaultIntegrations = _createDefaultIntegrations(
-        packageLoader, channel, flutterOptions, isOnErrorSupported);
+      packageLoader,
+      channel,
+      flutterOptions,
+      isOnErrorSupported,
+    );
     for (final defaultIntegration in defaultIntegrations) {
       flutterOptions.addIntegration(defaultIntegration);
     }
 
     await _initDefaultValues(flutterOptions, channel);
 
-    await Sentry.init((options) async {
-      await optionsConfiguration(options as SentryFlutterOptions);
-    },
-        appRunner: appRunner,
-        // ignore: invalid_use_of_internal_member
-        options: flutterOptions,
-        // ignore: invalid_use_of_internal_member
-        callAppRunnerInRunZonedGuarded: !isOnErrorSupported);
+    await Sentry.init(
+      (options) async {
+        await optionsConfiguration(options as SentryFlutterOptions);
+      },
+      appRunner: appRunner,
+      // ignore: invalid_use_of_internal_member
+      options: flutterOptions,
+      // ignore: invalid_use_of_internal_member
+      callAppRunnerInRunZonedGuarded: !isOnErrorSupported,
+    );
   }
 
   static Future<void> _initDefaultValues(

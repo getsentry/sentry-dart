@@ -97,8 +97,11 @@ class Sentry {
   }
 
   /// Initializes the SDK
-  static Future<void> _init(SentryOptions options, AppRunner? appRunner,
-      bool callAppRunnerInRunZonedGuarded) async {
+  static Future<void> _init(
+    SentryOptions options,
+    AppRunner? appRunner,
+    bool callAppRunnerInRunZonedGuarded,
+  ) async {
     if (isEnabled) {
       options.logger(
         SentryLevel.warning,
