@@ -284,6 +284,31 @@ void main() {
     });
   });
 
+  test('should complete when appRunner is not called in runZonedGuarded',
+      () async {
+    final completer = Completer();
+    var completed = false;
+
+    final init = Sentry.init(
+      (options) {
+        options.dsn = fakeDsn;
+      },
+      appRunner: () => completer.future,
+      callAppRunnerInRunZonedGuarded: false,
+    ).whenComplete(() => completed = true);
+
+    await Future(() {
+      // We make the expectation only after all microtasks have completed,
+      // that Sentry.init might have scheduled.
+      expect(completed, false);
+    });
+
+    completer.complete();
+    await init;
+
+    expect(completed, true);
+  });
+
   test('options.environment debug', () async {
     final sentryOptions = SentryOptions(dsn: fakeDsn)
       ..platformChecker = FakePlatformChecker.debugMode();
