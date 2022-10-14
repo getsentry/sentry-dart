@@ -3,8 +3,9 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/integrations/load_contexts_integration.dart';
 
-import 'mocks.mocks.dart';
+import '../mocks.mocks.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

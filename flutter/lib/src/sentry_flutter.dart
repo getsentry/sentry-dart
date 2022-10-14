@@ -11,9 +11,8 @@ import 'native_scope_observer.dart';
 import 'sentry_native.dart';
 import 'sentry_native_channel.dart';
 
+import 'integrations/integrations.dart';
 import 'event_processor/flutter_enricher_event_processor.dart';
-import 'integrations/debug_print_integration.dart';
-import 'integrations/native_app_start_integration.dart';
 
 import 'file_system_transport.dart';
 
