@@ -1,21 +1,19 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:sentry/sentry.dart';
+import '../sentry_flutter.dart';
 import 'event_processor/android_platform_exception_event_processor.dart';
 import 'native_scope_observer.dart';
 import 'sentry_native.dart';
 import 'sentry_native_channel.dart';
 
+import 'integrations/integrations.dart';
 import 'event_processor/flutter_enricher_event_processor.dart';
-import 'integrations/debug_print_integration.dart';
-import 'integrations/native_app_start_integration.dart';
-import 'sentry_flutter_options.dart';
 
-import 'default_integrations.dart';
 import 'file_system_transport.dart';
 
 import 'version.dart';
@@ -45,12 +43,17 @@ mixin SentryFlutter {
     final native = SentryNative();
     native.setNativeChannel(nativeChannel);
 
+    final platformDispatcher = PlatformDispatcher.instance;
+    final wrapper = PlatformDispatcherWrapper(platformDispatcher);
+    final isOnErrorSupported = wrapper.isOnErrorSupported(flutterOptions);
+
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
     final defaultIntegrations = _createDefaultIntegrations(
       packageLoader,
       channel,
       flutterOptions,
+      isOnErrorSupported,
     );
     for (final defaultIntegration in defaultIntegrations) {
       flutterOptions.addIntegration(defaultIntegration);
@@ -65,6 +68,8 @@ mixin SentryFlutter {
       appRunner: appRunner,
       // ignore: invalid_use_of_internal_member
       options: flutterOptions,
+      // ignore: invalid_use_of_internal_member
+      callAppRunnerInRunZonedGuarded: !isOnErrorSupported,
     );
   }
 
@@ -96,6 +101,7 @@ mixin SentryFlutter {
     PackageLoader packageLoader,
     MethodChannel channel,
     SentryFlutterOptions options,
+    bool isOnErrorSupported,
   ) {
     final integrations = <Integration>[];
     final platformChecker = options.platformChecker;
@@ -103,6 +109,11 @@ mixin SentryFlutter {
 
     // Will call WidgetsFlutterBinding.ensureInitialized() before all other integrations.
     integrations.add(WidgetsFlutterBindingIntegration());
+
+    // Use PlatformDispatcher.onError instead of zones.
+    if (isOnErrorSupported) {
+      integrations.add(OnErrorIntegration());
+    }
 
     // Will catch any errors that may occur in the Flutter framework itself.
     integrations.add(FlutterErrorIntegration());

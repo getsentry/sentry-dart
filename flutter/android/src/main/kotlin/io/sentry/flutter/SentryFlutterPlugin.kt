@@ -275,6 +275,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     (user["id"] as? String)?.let { userInstance.id = it }
     (user["username"] as? String)?.let { userInstance.username = it }
     (user["ip_address"] as? String)?.let { userInstance.ipAddress = it }
+    (user["segment"] as? String)?.let { userInstance.segment = it }
     (user["extras"] as? Map<String, Any?>)?.let { extras ->
       val others = mutableMapOf<String, String>()
       for ((key, value) in extras.entries) {
@@ -283,6 +284,14 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         }
       }
       userInstance.others = others
+    }
+    (user["data"] as? Map<String, Any?>)?.let { data ->
+      val others = mutableMapOf<String, String>()
+      for ((key, value) in data.entries) {
+        if (value != null) {
+          others[key] = value.toString()
+        }
+      }
     }
 
     Sentry.setUser(userInstance)

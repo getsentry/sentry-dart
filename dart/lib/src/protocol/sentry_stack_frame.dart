@@ -23,10 +23,12 @@ class SentryStackFrame {
     this.symbolAddr,
     this.instructionAddr,
     this.rawFunction,
+    this.stackStart,
+    this.symbol,
     List<int>? framesOmitted,
     List<String>? preContext,
     List<String>? postContext,
-    Map<String, String>? vars,
+    Map<String, dynamic>? vars,
   })  : _framesOmitted =
             framesOmitted != null ? List.from(framesOmitted) : null,
         _preContext = preContext != null ? List.from(preContext) : null,
@@ -46,10 +48,10 @@ class SentryStackFrame {
   /// An immutable list of source code lines after context_line (in order) – usually [lineno + 1:lineno + 5].
   List<String> get postContext => List.unmodifiable(_postContext ?? const []);
 
-  final Map<String, String>? _vars;
+  final Map<String, dynamic>? _vars;
 
   /// An immutable mapping of variables which were available within this frame (usually context-locals).
-  Map<String, String> get vars => Map.unmodifiable(_vars ?? const {});
+  Map<String, dynamic> get vars => Map.unmodifiable(_vars ?? const {});
 
   final List<int>? _framesOmitted;
 
@@ -108,6 +110,23 @@ class SentryStackFrame {
   /// The original function name, if the function name is shortened or demangled. Sentry shows the raw function when clicking on the shortened one in the UI.
   final String? rawFunction;
 
+  /// Marks this frame as the bottom of a chained stack trace.
+  ///
+  /// Stack traces from asynchronous code consist of several sub traces that
+  /// are chained together into one large list. This flag indicates the root
+  /// function of a chained stack trace. Depending on the runtime and thread,
+  /// this is either the main function or a thread base stub.
+  ///
+  /// This field should only be specified when true.
+  final bool? stackStart;
+
+  /// Potentially mangled name of the symbol as it appears in an executable.
+  ///
+  /// This is different from a function name by generally being the mangled name
+  /// that appears natively in the binary.
+  /// This is relevant for languages like Swift, C++ or Rust.
+  final String? symbol;
+
   /// Deserializes a [SentryStackFrame] from JSON [Map].
   factory SentryStackFrame.fromJson(Map<String, dynamic> json) {
     return SentryStackFrame(
@@ -130,90 +149,36 @@ class SentryStackFrame {
       preContext: json['pre_context'],
       postContext: json['post_context'],
       vars: json['vars'],
+      symbol: json['symbol'],
+      stackStart: json['stack_start'],
     );
   }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{};
-
-    if (_preContext?.isNotEmpty ?? false) {
-      json['pre_context'] = _preContext;
-    }
-
-    if (_postContext?.isNotEmpty ?? false) {
-      json['post_context'] = _postContext;
-    }
-
-    if (_vars?.isNotEmpty ?? false) {
-      json['vars'] = _vars;
-    }
-
-    if (_framesOmitted?.isNotEmpty ?? false) {
-      json['frames_omitted'] = _framesOmitted;
-    }
-
-    if (fileName != null) {
-      json['filename'] = fileName;
-    }
-
-    if (package != null) {
-      json['package'] = package;
-    }
-
-    if (function != null) {
-      json['function'] = function;
-    }
-
-    if (module != null) {
-      json['module'] = module;
-    }
-
-    if (lineNo != null) {
-      json['lineno'] = lineNo;
-    }
-
-    if (colNo != null) {
-      json['colno'] = colNo;
-    }
-
-    if (absPath != null) {
-      json['abs_path'] = absPath;
-    }
-
-    if (contextLine != null) {
-      json['context_line'] = contextLine;
-    }
-
-    if (inApp != null) {
-      json['in_app'] = inApp;
-    }
-
-    if (native != null) {
-      json['native'] = native;
-    }
-
-    if (platform != null) {
-      json['platform'] = platform;
-    }
-
-    if (imageAddr != null) {
-      json['image_addr'] = imageAddr;
-    }
-
-    if (symbolAddr != null) {
-      json['symbol_addr'] = symbolAddr;
-    }
-
-    if (instructionAddr != null) {
-      json['instruction_addr'] = instructionAddr;
-    }
-
-    if (rawFunction != null) {
-      json['raw_function'] = rawFunction;
-    }
-
-    return json;
+    return <String, dynamic>{
+      if (_preContext?.isNotEmpty ?? false) 'pre_context': _preContext,
+      if (_postContext?.isNotEmpty ?? false) 'post_context': _postContext,
+      if (_vars?.isNotEmpty ?? false) 'vars': _vars,
+      if (_framesOmitted?.isNotEmpty ?? false) 'frames_omitted': _framesOmitted,
+      if (fileName != null) 'filename': fileName,
+      if (package != null) 'package': package,
+      if (function != null) 'function': function,
+      if (module != null) 'module': module,
+      if (lineNo != null) 'lineno': lineNo,
+      if (colNo != null) 'colno': colNo,
+      if (absPath != null) 'abs_path': absPath,
+      if (contextLine != null) 'context_line': contextLine,
+      if (inApp != null) 'in_app': inApp,
+      if (native != null) 'native': native,
+      if (platform != null) 'platform': platform,
+      if (imageAddr != null) 'image_addr': imageAddr,
+      if (symbolAddr != null) 'symbol_addr': symbolAddr,
+      if (instructionAddr != null) 'instruction_addr': instructionAddr,
+      if (rawFunction != null) 'raw_function': rawFunction,
+      if (symbol != null) 'symbol': symbol,
+      if (stackStart != null) 'stack_start': stackStart,
+    };
   }
 
   SentryStackFrame copyWith({
@@ -236,6 +201,8 @@ class SentryStackFrame {
     List<String>? preContext,
     List<String>? postContext,
     Map<String, String>? vars,
+    bool? stackStart,
+    String? symbol,
   }) =>
       SentryStackFrame(
         absPath: absPath ?? this.absPath,
@@ -257,5 +224,7 @@ class SentryStackFrame {
         preContext: preContext ?? _preContext,
         postContext: postContext ?? _postContext,
         vars: vars ?? _vars,
+        symbol: symbol ?? symbol,
+        stackStart: stackStart ?? stackStart,
       );
 }

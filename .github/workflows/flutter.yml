@@ -96,7 +96,7 @@ jobs:
       #     name: sentry_flutter
       #     file: ./flutter/coverage/lcov.info
 
-      - uses: VeryGoodOpenSource/very_good_coverage@feed99cc060453828a8f12e74b404baace8e4502 # pin@v1.2.1
+      - uses: VeryGoodOpenSource/very_good_coverage@84e5b54ab888644554e5573dca87d7f76dec9fb3 # pin@v2.0.0
         if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
         with:
           path: './flutter/coverage/lcov.info'

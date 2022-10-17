@@ -3,8 +3,9 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/integrations/load_contexts_integration.dart';
 
-import 'mocks.mocks.dart';
+import '../mocks.mocks.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -321,7 +322,7 @@ void main() {
     expect(event?.user?.username, 'fixture-username');
     expect(event?.user?.email, 'fixture-email');
     expect(event?.user?.ipAddress, 'fixture-ip_address');
-    expect(event?.user?.extras?['key'], 'value');
+    expect(event?.user?.data?['key'], 'value');
   });
 
   test('should not override user with native', () async {
@@ -448,7 +449,7 @@ class Fixture {
           'username': 'fixture-username',
           'email': 'fixture-email',
           'ip_address': 'fixture-ip_address',
-          'extras': {'key': 'value'},
+          'data': {'key': 'value'},
         },
         'tags': {'key-a': 'native', 'key-b': 'native'},
         'extra': {'key-a': 'native', 'key-b': 'native'},
