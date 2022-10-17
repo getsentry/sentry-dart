@@ -6,8 +6,8 @@ on:
   pull_request:
 
 jobs:
-  test:
-    runs-on: macos-latest
+  test-android:
+    runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./flutter/example
@@ -41,6 +41,27 @@ jobs:
           arch: x86_64
           profile: Nexus 6
           script: flutter test integration_test/launch_test.dart
+  test-ios:
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: ./flutter/example
+    strategy:
+      matrix:
+        sdk: ['stable', 'beta']
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - uses: subosito/flutter-action@1e6ee87cb840500837bcd50a667fb28815d8e310 # pin@v2
+        with:
+          channel: ${{ matrix.sdk }}
+
+      - name: flutter upgrade
+        run: flutter upgrade
+
+      - name: flutter pub get
+        run: flutter pub get
 
       - name: launch ios emulator
         uses: futureware-tech/simulator-action@ee05c113b79f056b47f354d7b313555f5491e158 #pin@v2
