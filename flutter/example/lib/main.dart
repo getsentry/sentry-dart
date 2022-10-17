@@ -31,7 +31,7 @@ Future<void> main() async {
 
 Future<void> setupSentry(AppRunner appRunner) async {
   await SentryFlutter.init(
-    (options) async {
+    (options) {
       options.dsn = _exampleDsn;
       options.tracesSampleRate = 1.0;
       options.reportPackages = false;
