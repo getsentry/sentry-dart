@@ -51,7 +51,7 @@ class IoEnricherEventProcessor extends EventProcessor {
     );
   }
 
-  List<SentryRuntime> _getRuntimes(List<SentryRuntime>? runtimes) {
+  List<SentryRuntime> _getRuntimes(List<SentryRuntime> runtimes) {
     // Pure Dart doesn't have specific runtimes per build mode
     // like Flutter: https://flutter.dev/docs/testing/build-modes
     final dartRuntime = SentryRuntime(
@@ -59,9 +59,7 @@ class IoEnricherEventProcessor extends EventProcessor {
       name: 'Dart',
       rawDescription: Platform.version,
     );
-    if (runtimes == null) {
-      return [dartRuntime];
-    }
+
     return [
       ...runtimes,
       dartRuntime,

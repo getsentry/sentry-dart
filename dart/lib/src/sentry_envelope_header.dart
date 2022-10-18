@@ -4,6 +4,7 @@ import 'sentry_trace_context_header.dart';
 
 /// Header containing `SentryId` and `SdkVersion`.
 class SentryEnvelopeHeader {
+  // ignore: unnecessary-nullable
   SentryEnvelopeHeader(
     this.eventId,
     this.sdkVersion, {

@@ -64,6 +64,7 @@ import 'sentry_http_client.dart';
 /// }
 /// ```
 class FailedRequestClient extends BaseClient {
+  // ignore: unnecessary-nullable
   FailedRequestClient({
     this.maxRequestBodySize = MaxRequestBodySize.never,
     this.failedRequestStatusCodes = const [],
@@ -147,7 +148,7 @@ class FailedRequestClient extends BaseClient {
 
   // See https://develop.sentry.dev/sdk/event-payloads/request/
   Future<void> _captureEvent({
-    required Object? exception,
+    required Object exception,
     StackTrace? stackTrace,
     String? reason,
     required Duration requestDuration,

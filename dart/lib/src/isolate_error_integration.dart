@@ -9,6 +9,7 @@ import 'protocol.dart';
 import 'sentry_options.dart';
 import 'throwable_mechanism.dart';
 
+// ignore: unused-code
 class IsolateErrorIntegration extends Integration {
   RawReceivePort? _receivePort;
 

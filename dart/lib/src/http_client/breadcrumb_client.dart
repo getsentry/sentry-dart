@@ -42,6 +42,7 @@ import '../hub_adapter.dart';
 /// }
 /// ```
 class BreadcrumbClient extends BaseClient {
+  // ignore: unnecessary-nullable
   BreadcrumbClient({Client? client, Hub? hub})
       : _hub = hub ?? HubAdapter(),
         _client = client ?? Client();

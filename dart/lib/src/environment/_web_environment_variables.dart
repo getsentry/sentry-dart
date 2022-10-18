@@ -1,8 +1,6 @@
 import 'environment_variables.dart';
 import 'keys.dart';
 
-final EnvironmentVariables envs = WebEnvironmentVariables();
-
 class WebEnvironmentVariables extends EnvironmentVariables {
   @override
   String? get environment => const bool.hasEnvironment(sentryEnvironment)

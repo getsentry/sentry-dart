@@ -8,6 +8,7 @@ import '../utils/tracing_utils.dart';
 /// which adds support to Sentry Performance feature.
 /// https://develop.sentry.dev/sdk/performance
 class TracingClient extends BaseClient {
+  // ignore: unnecessary-nullable
   TracingClient({Client? client, Hub? hub})
       : _hub = hub ?? HubAdapter(),
         _client = client ?? Client();
