@@ -2,13 +2,15 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/sentry_envelope.dart';
 import 'package:sentry/src/sentry_envelope_header.dart';
 import 'package:sentry/src/sentry_envelope_item_header.dart';
-import 'package:sentry/src/sentry_envelope_item.dart';
 import 'package:sentry/src/sentry_item_type.dart';
-import 'package:sentry/src/protocol/sentry_id.dart';
+import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sentry/src/utils.dart';
 import 'package:test/test.dart';
+
+import 'mocks.dart';
+import 'mocks/mock_hub.dart';
 
 void main() {
   group('SentryEnvelope', () {
@@ -26,11 +28,22 @@ void main() {
 
       final item = SentryEnvelopeItem(itemHeader, dataFactory);
 
-      final header = SentryEnvelopeHeader(eventId, null);
+      final context = SentryTraceContextHeader.fromJson(<String, dynamic>{
+        'trace_id': '${SentryId.newId()}',
+        'public_key': '123',
+      });
+      final header = SentryEnvelopeHeader(
+        eventId,
+        null,
+        traceContext: context,
+      );
       final sut = SentryEnvelope(header, [item, item]);
 
       final expectedHeaderJson = header.toJson();
-      final expectedHeaderJsonSerialized = jsonEncode(expectedHeaderJson);
+      final expectedHeaderJsonSerialized = jsonEncode(
+        expectedHeaderJson,
+        toEncodable: jsonSerializationFallback,
+      );
 
       final expectedItem = await item.envelopeItemStream();
       final expectedItemSerialized = utf8.decode(expectedItem);
@@ -48,12 +61,63 @@ void main() {
       final sentryEvent = SentryEvent(eventId: eventId);
       final sdkVersion =
           SdkVersion(name: 'fixture-name', version: 'fixture-version');
-      final sut = SentryEnvelope.fromEvent(sentryEvent, sdkVersion);
+      final context = SentryTraceContextHeader.fromJson(<String, dynamic>{
+        'trace_id': '${SentryId.newId()}',
+        'public_key': '123',
+      });
+      final sut = SentryEnvelope.fromEvent(
+        sentryEvent,
+        sdkVersion,
+        dsn: fakeDsn,
+        traceContext: context,
+      );
 
       final expectedEnvelopeItem = SentryEnvelopeItem.fromEvent(sentryEvent);
 
       expect(sut.header.eventId, eventId);
       expect(sut.header.sdkVersion, sdkVersion);
+      expect(sut.header.traceContext, context);
+      expect(sut.header.dsn, fakeDsn);
+      expect(sut.items[0].header.contentType,
+          expectedEnvelopeItem.header.contentType);
+      expect(sut.items[0].header.type, expectedEnvelopeItem.header.type);
+      expect(await sut.items[0].header.length(),
+          await expectedEnvelopeItem.header.length());
+
+      final actualItem = await sut.items[0].envelopeItemStream();
+
+      final expectedItem = await expectedEnvelopeItem.envelopeItemStream();
+
+      expect(actualItem, expectedItem);
+    });
+
+    test('fromTransaction', () async {
+      final context = SentryTransactionContext(
+        'name',
+        'op',
+      );
+      final tracer = SentryTracer(context, MockHub());
+      final tr = SentryTransaction(tracer);
+
+      final sdkVersion =
+          SdkVersion(name: 'fixture-name', version: 'fixture-version');
+      final traceContext = SentryTraceContextHeader.fromJson(<String, dynamic>{
+        'trace_id': '${SentryId.newId()}',
+        'public_key': '123',
+      });
+      final sut = SentryEnvelope.fromTransaction(
+        tr,
+        sdkVersion,
+        dsn: fakeDsn,
+        traceContext: traceContext,
+      );
+
+      final expectedEnvelopeItem = SentryEnvelopeItem.fromTransaction(tr);
+
+      expect(sut.header.eventId, tr.eventId);
+      expect(sut.header.sdkVersion, sdkVersion);
+      expect(sut.header.traceContext, traceContext);
+      expect(sut.header.dsn, fakeDsn);
       expect(sut.items[0].header.contentType,
           expectedEnvelopeItem.header.contentType);
       expect(sut.items[0].header.type, expectedEnvelopeItem.header.type);
@@ -81,12 +145,14 @@ void main() {
       final sut = SentryEnvelope.fromEvent(
         sentryEvent,
         sdkVersion,
+        dsn: fakeDsn,
         attachments: [attachment],
       );
 
       final expectedEnvelopeItem = SentryEnvelope.fromEvent(
         sentryEvent,
         sdkVersion,
+        dsn: fakeDsn,
       );
 
       final sutEnvelopeData = <int>[];
@@ -112,6 +178,7 @@ void main() {
           name: 'test',
           version: '1',
         ),
+        dsn: fakeDsn,
       );
 
       final _ = sut.envelopeStream(SentryOptions()).map((e) => e);

@@ -22,11 +22,25 @@ class RunZonedGuardedIntegration extends Integration {
 
   @override
   FutureOr<void> call(Hub hub, SentryOptions options) {
+    final completer = Completer<void>();
+
     runZonedGuarded(
       () async {
-        await _runner();
+        try {
+          await _runner();
+        } finally {
+          completer.complete();
+        }
       },
       (exception, stackTrace) async {
+        options.logger(
+          SentryLevel.error,
+          'Uncaught zone error',
+          logger: 'sentry.runZonedGuarded',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+
         // runZonedGuarded doesn't crash the App.
         final mechanism = Mechanism(type: 'runZonedGuarded', handled: true);
         final throwableMechanism = ThrowableMechanism(mechanism, exception);
@@ -67,11 +81,9 @@ class RunZonedGuardedIntegration extends Integration {
           _isPrinting = true;
 
           try {
-            hub.addBreadcrumb(Breadcrumb(
+            hub.addBreadcrumb(Breadcrumb.console(
               message: line,
               level: SentryLevel.debug,
-              category: 'console',
-              type: 'debug',
             ));
 
             parent.print(zone, line);
@@ -83,5 +95,7 @@ class RunZonedGuardedIntegration extends Integration {
     );
 
     options.sdk.addIntegration('runZonedGuardedIntegration');
+
+    return completer.future;
   }
 }

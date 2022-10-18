@@ -13,8 +13,11 @@ import 'package:meta/meta.dart';
 class DebugImage {
   final String? uuid;
 
-  /// Required. Type of the debug image. Must be "macho".
+  /// Required. Type of the debug image.
   final String type;
+
+  // Name of the image. Sentry-cocoa only.
+  final String? name;
 
   /// Required. Identifier of the dynamic library or executable. It is the value of the LC_UUID load command in the Mach header, formatted as UUID.
   final String? debugId;
@@ -22,6 +25,10 @@ class DebugImage {
   /// Required. Memory address, at which the image is mounted in the virtual address space of the process.
   /// Should be a string in hex representation prefixed with "0x".
   final String? imageAddr;
+
+  /// Optional. Preferred load address of the image in virtual memory, as declared in the headers of the image.
+  /// When loading an image, the operating system may still choose to place it at a different address.
+  final String? imageVmAddr;
 
   /// Required. The size of the image in virtual memory. If missing, Sentry will assume that the image spans up to the next image, which might lead to invalid stack traces.
   final int? imageSize;
@@ -38,9 +45,17 @@ class DebugImage {
   /// Optional. Identifier of the dynamic library or executable. It is the value of the LC_UUID load command in the Mach header, formatted as UUID. Can be empty for Mach images, as it is equivalent to the debug identifier.
   final String? codeId;
 
+  /// MachO CPU subtype identifier.
+  final int? cpuSubtype;
+
+  /// MachO CPU type identifier.
+  final int? cpuType;
+
   const DebugImage({
     required this.type,
+    this.name,
     this.imageAddr,
+    this.imageVmAddr,
     this.debugId,
     this.debugFile,
     this.imageSize,
@@ -48,13 +63,17 @@ class DebugImage {
     this.codeFile,
     this.arch,
     this.codeId,
+    this.cpuType,
+    this.cpuSubtype,
   });
 
   /// Deserializes a [DebugImage] from JSON [Map].
   factory DebugImage.fromJson(Map<String, dynamic> json) {
     return DebugImage(
       type: json['type'],
+      name: json['name'],
       imageAddr: json['image_addr'],
+      imageVmAddr: json['image_vmaddr'],
       debugId: json['debug_id'],
       debugFile: json['debug_file'],
       imageSize: json['image_size'],
@@ -62,70 +81,58 @@ class DebugImage {
       codeFile: json['code_file'],
       arch: json['arch'],
       codeId: json['code_id'],
+      cpuType: json['cpu_type'],
+      cpuSubtype: json['cpu_subtype'],
     );
   }
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{};
-
-    if (uuid != null) {
-      json['uuid'] = uuid;
-    }
-
-    json['type'] = type;
-
-    if (debugId != null) {
-      json['debug_id'] = debugId;
-    }
-
-    if (debugFile != null) {
-      json['debug_file'] = debugFile;
-    }
-
-    if (codeFile != null) {
-      json['code_file'] = codeFile;
-    }
-
-    if (imageAddr != null) {
-      json['image_addr'] = imageAddr;
-    }
-
-    if (imageSize != null) {
-      json['image_size'] = imageSize;
-    }
-
-    if (arch != null) {
-      json['arch'] = arch;
-    }
-
-    if (codeId != null) {
-      json['code_id'] = codeId;
-    }
-
-    return json;
+    return {
+      'type': type,
+      if (uuid != null) 'uuid': uuid,
+      if (debugId != null) 'debug_id': debugId,
+      if (name != null) 'name': name,
+      if (debugFile != null) 'debug_file': debugFile,
+      if (codeFile != null) 'code_file': codeFile,
+      if (imageAddr != null) 'image_addr': imageAddr,
+      if (imageVmAddr != null) 'image_vmaddr': imageVmAddr,
+      if (imageSize != null) 'image_size': imageSize,
+      if (arch != null) 'arch': arch,
+      if (codeId != null) 'code_id': codeId,
+      if (cpuType != null) 'cpu_type': cpuType,
+      if (cpuSubtype != null) 'cpu_subtype': cpuSubtype,
+    };
   }
 
   DebugImage copyWith({
     String? uuid,
+    String? name,
     String? type,
     String? debugId,
     String? debugFile,
     String? codeFile,
     String? imageAddr,
+    String? imageVmAddr,
     int? imageSize,
     String? arch,
     String? codeId,
+    int? cpuType,
+    int? cpuSubtype,
   }) =>
       DebugImage(
         uuid: uuid ?? this.uuid,
+        name: name ?? this.name,
         type: type ?? this.type,
         debugId: debugId ?? this.debugId,
         debugFile: debugFile ?? this.debugFile,
         codeFile: codeFile ?? this.codeFile,
         imageAddr: imageAddr ?? this.imageAddr,
+        imageVmAddr: imageVmAddr ?? this.imageVmAddr,
         imageSize: imageSize ?? this.imageSize,
         arch: arch ?? this.arch,
         codeId: codeId ?? this.codeId,
+        cpuType: cpuType ?? this.cpuType,
+        cpuSubtype: cpuSubtype ?? this.cpuSubtype,
       );
 }

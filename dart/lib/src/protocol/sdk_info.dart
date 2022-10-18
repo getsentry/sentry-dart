@@ -27,24 +27,12 @@ class SdkInfo {
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{};
-    if (sdkName != null) {
-      json['sdk_name'] = sdkName;
-    }
-
-    if (versionMajor != null) {
-      json['version_major'] = versionMajor;
-    }
-
-    if (versionMinor != null) {
-      json['version_minor'] = versionMinor;
-    }
-
-    if (versionPatchlevel != null) {
-      json['version_patchlevel'] = versionPatchlevel;
-    }
-
-    return json;
+    return {
+      if (sdkName != null) 'sdk_name': sdkName,
+      if (versionMajor != null) 'version_major': versionMajor,
+      if (versionMinor != null) 'version_minor': versionMinor,
+      if (versionPatchlevel != null) 'version_patchlevel': versionPatchlevel,
+    };
   }
 
   SdkInfo copyWith({

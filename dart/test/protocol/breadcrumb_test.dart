@@ -128,4 +128,37 @@ void main() {
       'type': 'http',
     });
   });
+
+  test('Breadcrumb console ctor', () {
+    final breadcrumb = Breadcrumb.console(
+      message: 'Foo Bar',
+    );
+    final json = breadcrumb.toJson();
+
+    expect(json, {
+      'message': 'Foo Bar',
+      'timestamp': formatDateAsIso8601WithMillisPrecision(breadcrumb.timestamp),
+      'category': 'console',
+      'type': 'debug',
+      'level': 'info',
+    });
+  });
+
+  test('extensive Breadcrumb console ctor', () {
+    final breadcrumb = Breadcrumb.console(
+      message: 'Foo Bar',
+      level: SentryLevel.error,
+      data: {'foo': 'bar'},
+    );
+    final json = breadcrumb.toJson();
+
+    expect(json, {
+      'message': 'Foo Bar',
+      'timestamp': formatDateAsIso8601WithMillisPrecision(breadcrumb.timestamp),
+      'category': 'console',
+      'type': 'debug',
+      'level': 'error',
+      'data': {'foo': 'bar'},
+    });
+  });
 }

@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
 # Build a release version of the app for a platform and upload debug symbols and source maps.
 
@@ -15,21 +15,26 @@ export SENTRY_RELEASE=$(date +%Y-%m-%d_%H-%M-%S)
 
 echo -e "[\033[92mrun\033[0m] $1"
 
+# using 'build' as the base dir because `flutter clean` will delete it, so we don't end up with leftover symbols from a previous build
+symbolsDir=build/symbols
+
 if [ "$1" == "ios" ]; then
-    # iOS does not support split-debug-info and obfuscate yet
-    flutter build ios
-    # TODO: Install the iOS app via CLI
-    #.. install build/ios/Release-iphoneos/Runner.app
+    flutter build ios --split-debug-info=$symbolsDir --obfuscate
+    # see https://github.com/ios-control/ios-deploy (or just install: `brew install ios-deploy`)
+    launchCmd='ios-deploy --justlaunch --bundle build/ios/Release-iphoneos/Runner.app'
 elif [ "$1" == "android" ]; then
-    flutter build apk --split-debug-info=symbols --obfuscate
-    adb install build/app/outputs/flutter-apk/app-release.apk 
-    adb shell am start -n io.sentry.samples.flutter/io.sentry.samples.flutter.MainActivity
+    flutter build apk --split-debug-info=$symbolsDir --obfuscate
+    adb install build/app/outputs/flutter-apk/app-release.apk
+    launchCmd='adb shell am start -n io.sentry.samples.flutter/io.sentry.samples.flutter.MainActivity'
     echo -e "[\033[92mrun\033[0m] Android app installed"
 elif [ "$1" == "web" ]; then
     # Uses dart2js
     flutter build web --dart-define=SENTRY_RELEASE=$SENTRY_RELEASE --source-maps
     ls -lah $OUTPUT_FOLDER_WEB
     echo -e "[\033[92mrun\033[0m] Built: $OUTPUT_FOLDER_WEB"
+elif [ "$1" == "macos" ]; then
+    flutter build macos --split-debug-info=$symbolsDir --obfuscate
+    launchCmd='./build/macos/Build/Products/Release/sentry_flutter_example.app/Contents/MacOS/sentry_flutter_example'
 else
     if [ "$1" == "" ]; then
         echo -e "[\033[92mrun\033[0m] Pass the platform you'd like to run: android, ios, web"
@@ -56,8 +61,10 @@ if [ "$1" == "web" ]; then
     python3 -m http.server 8132
     popd
 else
+    # 'symbols' directory contains the Dart debug info files but to include platform-specific ones, use the whole build dir instead.
     echo -e "[\033[92mrun\033[0m] Uploading debug information files"
-    # directory 'symbols' contain the Dart debug info files but to include platform ones, use current dir.
-    sentry-cli upload-dif --org $SENTRY_ORG --project $SENTRY_PROJECT .
-fi
+    sentry-cli upload-dif --wait --org $SENTRY_ORG --project $SENTRY_PROJECT build
 
+    echo "Starting the built app: $($launchCmd)"
+    $launchCmd
+fi

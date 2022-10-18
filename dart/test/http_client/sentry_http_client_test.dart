@@ -3,7 +3,6 @@ import 'package:http/testing.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/http_client/failed_request_client.dart';
-import 'package:sentry/src/http_client/sentry_http_client.dart';
 import 'package:test/test.dart';
 
 import '../mocks/mock_hub.dart';
@@ -73,6 +72,32 @@ void main() {
       expect(mockHub.captureExceptionCalls.length, 0);
       verify(mockClient.close());
     });
+
+    test('no captured span if tracing disabled', () async {
+      final sut = fixture.getSut(
+        client: fixture.getClient(statusCode: 200, reason: 'OK'),
+        recordBreadcrumbs: false,
+        networkTracing: false,
+      );
+
+      final response = await sut.get(requestUri);
+      expect(response.statusCode, 200);
+
+      expect(fixture.hub.getSpanCalls, 0);
+    });
+
+    test('captured span if tracing enabled', () async {
+      final sut = fixture.getSut(
+        client: fixture.getClient(statusCode: 200, reason: 'OK'),
+        recordBreadcrumbs: false,
+        networkTracing: true,
+      );
+
+      final response = await sut.get(requestUri);
+      expect(response.statusCode, 200);
+
+      expect(fixture.hub.getSpanCalls, 1);
+    });
   });
 }
 
@@ -94,6 +119,7 @@ class Fixture {
     MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never,
     List<SentryStatusCode> badStatusCodes = const [],
     bool recordBreadcrumbs = true,
+    bool networkTracing = false,
   }) {
     final mc = client ?? getClient();
     return SentryHttpClient(
@@ -103,6 +129,7 @@ class Fixture {
       failedRequestStatusCodes: badStatusCodes,
       maxRequestBodySize: maxRequestBodySize,
       recordBreadcrumbs: recordBreadcrumbs,
+      networkTracing: networkTracing,
     );
   }
 

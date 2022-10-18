@@ -10,8 +10,6 @@ pubspec.lock
 .idea/libraries
 .idea/workspace.xml
 *.iml
-android/
-ios/
 build/
 .cxx/
 .vscode/
@@ -19,6 +17,8 @@ build/
 
 .test_coverage.dart
 dart/coverage/*
+logging/coverage/*
+dio/coverage/*
 pubspec.lock
 Podfile.lock
 flutter/coverage/*

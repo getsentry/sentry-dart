@@ -1,13 +1,19 @@
 import 'dart:async';
+import 'dart:ui';
 
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:meta/meta.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:sentry/sentry.dart';
+import '../sentry_flutter.dart';
+import 'event_processor/android_platform_exception_event_processor.dart';
+import 'native_scope_observer.dart';
+import 'sentry_native.dart';
+import 'sentry_native_channel.dart';
 
-import 'flutter_enricher_event_processor.dart';
-import 'sentry_flutter_options.dart';
+import 'integrations/integrations.dart';
+import 'event_processor/flutter_enricher_event_processor.dart';
 
-import 'default_integrations.dart';
 import 'file_system_transport.dart';
 
 import 'version.dart';
@@ -23,14 +29,23 @@ mixin SentryFlutter {
   static Future<void> init(
     FlutterOptionsConfiguration optionsConfiguration, {
     AppRunner? appRunner,
-    PackageLoader packageLoader = _loadPackageInfo,
-    MethodChannel channel = _channel,
-    PlatformChecker? platformChecker,
+    @internal PackageLoader packageLoader = _loadPackageInfo,
+    @internal MethodChannel channel = _channel,
+    @internal PlatformChecker? platformChecker,
   }) async {
     final flutterOptions = SentryFlutterOptions();
+
     if (platformChecker != null) {
       flutterOptions.platformChecker = platformChecker;
     }
+
+    final nativeChannel = SentryNativeChannel(channel, flutterOptions);
+    final native = SentryNative();
+    native.setNativeChannel(nativeChannel);
+
+    final platformDispatcher = PlatformDispatcher.instance;
+    final wrapper = PlatformDispatcherWrapper(platformDispatcher);
+    final isOnErrorSupported = wrapper.isOnErrorSupported(flutterOptions);
 
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
@@ -38,6 +53,7 @@ mixin SentryFlutter {
       packageLoader,
       channel,
       flutterOptions,
+      isOnErrorSupported,
     );
     for (final defaultIntegration in defaultIntegrations) {
       flutterOptions.addIntegration(defaultIntegration);
@@ -50,7 +66,10 @@ mixin SentryFlutter {
         await optionsConfiguration(options as SentryFlutterOptions);
       },
       appRunner: appRunner,
+      // ignore: invalid_use_of_internal_member
       options: flutterOptions,
+      // ignore: invalid_use_of_internal_member
+      callAppRunnerInRunZonedGuarded: !isOnErrorSupported,
     );
   }
 
@@ -67,6 +86,12 @@ mixin SentryFlutter {
         FlutterEnricherEventProcessor.simple(options: options);
     options.addEventProcessor(flutterEventProcessor);
 
+    if (options.platformChecker.platform.isAndroid) {
+      options
+          .addEventProcessor(AndroidPlatformExceptionEventProcessor(options));
+      options.addScopeObserver(NativeScopeObserver(SentryNative()));
+    }
+
     _setSdk(options);
   }
 
@@ -76,11 +101,19 @@ mixin SentryFlutter {
     PackageLoader packageLoader,
     MethodChannel channel,
     SentryFlutterOptions options,
+    bool isOnErrorSupported,
   ) {
     final integrations = <Integration>[];
+    final platformChecker = options.platformChecker;
+    final platform = platformChecker.platform;
 
     // Will call WidgetsFlutterBinding.ensureInitialized() before all other integrations.
     integrations.add(WidgetsFlutterBindingIntegration());
+
+    // Use PlatformDispatcher.onError instead of zones.
+    if (isOnErrorSupported) {
+      integrations.add(OnErrorIntegration());
+    }
 
     // Will catch any errors that may occur in the Flutter framework itself.
     integrations.add(FlutterErrorIntegration());
@@ -91,28 +124,49 @@ mixin SentryFlutter {
     // The ordering here matters, as we'd like to first start the native integration.
     // That allow us to send events to the network and then the Flutter integrations.
     // Flutter Web doesn't need that, only Android and iOS.
-    if (options.platformChecker.hasNativeIntegration) {
+    if (platformChecker.hasNativeIntegration) {
       integrations.add(NativeSdkIntegration(channel));
     }
 
     // Will enrich events with device context, native packages and integrations
-    if (!options.platformChecker.isWeb &&
-        (options.platformChecker.platform.isIOS ||
-            options.platformChecker.platform.isMacOS)) {
+    if (platformChecker.hasNativeIntegration &&
+        !platformChecker.isWeb &&
+        (platform.isIOS || platform.isMacOS)) {
       integrations.add(LoadContextsIntegration(channel));
     }
 
-    if (!options.platformChecker.isWeb &&
-        options.platformChecker.platform.isAndroid) {
-      integrations.add(LoadAndroidImageListIntegration(channel));
+    if (platformChecker.hasNativeIntegration &&
+        !platformChecker.isWeb &&
+        (platform.isAndroid || platform.isIOS || platform.isMacOS)) {
+      integrations.add(LoadImageListIntegration(channel));
     }
+
+    integrations.add(DebugPrintIntegration());
 
     // This is an Integration because we want to execute it after all the
     // error handlers are in place. Calling a MethodChannel might result
     // in errors.
     integrations.add(LoadReleaseIntegration(packageLoader));
 
+    if (platformChecker.hasNativeIntegration) {
+      integrations.add(NativeAppStartIntegration(
+        SentryNative(),
+        () {
+          try {
+            /// Flutter >= 2.12 throws if SchedulerBinding.instance isn't initialized.
+            return SchedulerBinding.instance;
+          } catch (_) {}
+          return null;
+        },
+      ));
+    }
     return integrations;
+  }
+
+  /// Manually set when your app finished startup. Make sure to set
+  /// [SentryFlutterOptions.autoAppStart] to false on init.
+  static void setAppStartEnd(DateTime appStartEnd) {
+    SentryNative().appStartEnd = appStartEnd;
   }
 
   static void _setSdk(SentryFlutterOptions options) {

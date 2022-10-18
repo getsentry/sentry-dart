@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
@@ -13,9 +15,9 @@ void main() {
 
   test(
     'Isolate error adds integration',
-    () async {
+    () {
       final integration = IsolateErrorIntegration();
-      await integration(
+      integration(
         fixture.hub,
         fixture.options,
       );
@@ -33,8 +35,8 @@ void main() {
   test(
     'Isolate error capture errors',
     () async {
-      final throwable = StateError('error');
-      final stackTrace = StackTrace.current;
+      final throwable = StateError('error').toString();
+      final stackTrace = StackTrace.current.toString();
       final error = [throwable, stackTrace];
 
       // we could not find a way to trigger an error to the current Isolate
@@ -86,6 +88,51 @@ void main() {
     await integration(fixture.hub, fixture.options);
 
     expect(true, called);
+  }, onPlatform: {'browser': Skip()});
+
+  test('Run zoned guarded completes when callback returns normally', () async {
+    var completed = false;
+    final completer = Completer();
+    Future<void> callback() async {
+      await completer.future;
+    }
+
+    final integration = RunZonedGuardedIntegration(callback);
+
+    final integrationResult = Future.sync(() async {
+      await integration(fixture.hub, fixture.options);
+      completed = true;
+    });
+
+    expect(completed, false);
+
+    completer.complete();
+    await integrationResult;
+
+    expect(completed, true);
+  }, onPlatform: {'browser': Skip()});
+
+  test('Run zoned guarded completes when callback throws', () async {
+    var completed = false;
+    final completer = Completer();
+    Future<void> callback() async {
+      await completer.future;
+      throw Exception('error');
+    }
+
+    final integration = RunZonedGuardedIntegration(callback);
+
+    final integrationResult = Future.sync(() async {
+      await integration(fixture.hub, fixture.options);
+      completed = true;
+    });
+
+    expect(completed, false);
+
+    completer.complete();
+    await integrationResult;
+
+    expect(completed, true);
   }, onPlatform: {'browser': Skip()});
 
   test('Run zoned guarded calls catches integrations errors', () async {
@@ -178,8 +225,22 @@ class PrintRecursionMockHub extends MockHub {
   bool get isEnabled => true;
 
   @override
-  void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) {
+  Future<void> addBreadcrumb(Breadcrumb crumb, {dynamic hint}) async {
     print('recursion');
-    super.addBreadcrumb(crumb, hint: hint);
+    await super.addBreadcrumb(crumb, hint: hint);
+  }
+
+  @override
+  ISentrySpan startTransactionWithContext(
+    SentryTransactionContext transactionContext, {
+    Map<String, dynamic>? customSamplingContext,
+    DateTime? startTimestamp,
+    bool? bindToScope,
+    bool? waitForChildren,
+    Duration? autoFinishAfter,
+    bool? trimEnd,
+    OnTransactionFinish? onFinish,
+  }) {
+    return NoOpSentrySpan();
   }
 }

@@ -6,7 +6,6 @@ import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/protocol/sentry_gpu.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -127,14 +126,14 @@ void main() {
           clone.operatingSystem!.toJson(), contexts.operatingSystem!.toJson());
       expect(clone.gpu!.toJson(), contexts.gpu!.toJson());
 
-      contexts.runtimes.forEach((element) {
+      for (final element in contexts.runtimes) {
         expect(
           clone.runtimes.where(
             (clone) => MapEquality().equals(element.toJson(), clone.toJson()),
           ),
           isNotEmpty,
         );
-      });
+      }
 
       expect(clone['theme'], {'value': 'material'});
       expect(clone['version'], {'value': 9});

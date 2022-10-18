@@ -1,15 +1,48 @@
+import 'dart:async';
+
+import 'package:flutter/services.dart';
 import 'package:mockito/annotations.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/platform/platform.dart';
-import 'package:sentry/src/platform_checker.dart';
-import 'package:sentry/src/sentry_user_feedback.dart';
+import 'package:sentry/src/sentry_tracer.dart';
+
+import 'package:meta/meta.dart';
+import 'package:sentry_flutter/src/sentry_native.dart';
+import 'package:sentry_flutter/src/sentry_native_channel.dart';
+
+import 'mocks.mocks.dart';
+import 'no_such_method_provider.dart';
 
 const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
-@GenerateMocks([Hub, Transport])
+// https://github.com/dart-lang/mockito/blob/master/NULL_SAFETY_README.md#fallback-generators
+ISentrySpan startTransactionShim(
+  String? name,
+  String? operation, {
+  String? description,
+  DateTime? startTimestamp,
+  bool? bindToScope,
+  bool? waitForChildren,
+  Duration? autoFinishAfter,
+  bool? trimEnd,
+  Function(ISentrySpan)? onFinish,
+  Map<String, dynamic>? customSamplingContext,
+}) {
+  return MockSentryTracer();
+}
+
+@GenerateMocks([
+  Transport,
+  // ignore: invalid_use_of_internal_member
+  SentryTracer,
+  MethodChannel,
+  SentryNative,
+], customMocks: [
+  MockSpec<Hub>(fallbackGenerators: {#startTransaction: startTransactionShim})
+])
 void main() {}
 
-class MockPlatform implements Platform {
+class MockPlatform with NoSuchMethodProvider implements Platform {
   MockPlatform({
     String? os,
     String? osVersion,
@@ -66,7 +99,7 @@ class MockPlatform implements Platform {
   bool get isFuchsia => (operatingSystem == 'fuchsia');
 }
 
-class MockPlatformChecker implements PlatformChecker {
+class MockPlatformChecker with NoSuchMethodProvider implements PlatformChecker {
   MockPlatformChecker({
     this.isDebug = false,
     this.isProfile = false,
@@ -80,7 +113,7 @@ class MockPlatformChecker implements PlatformChecker {
   final bool isProfile;
   final bool isRelease;
   final bool isWebValue;
-  late final Platform _mockPlatform;
+  final Platform _mockPlatform;
 
   @override
   bool hasNativeIntegration = false;
@@ -102,63 +135,92 @@ class MockPlatformChecker implements PlatformChecker {
 }
 
 // Does nothing or returns default values.
-// Usefull for when a Hub needs to be passed but is not used.
-class NoOpHub implements Hub {
-  @override
-  void addBreadcrumb(Breadcrumb crumb, {hint}) {}
+// Useful for when a Hub needs to be passed but is not used.
+class NoOpHub with NoSuchMethodProvider implements Hub {
+  final _options = SentryOptions(dsn: 'fixture-dsn');
 
   @override
-  void bindClient(SentryClient client) {}
-
-  @override
-  Future<SentryId> captureEvent(
-    SentryEvent event, {
-    stackTrace,
-    hint,
-    ScopeCallback? withScope,
-  }) async {
-    return SentryId.empty();
-  }
-
-  @override
-  Future<SentryId> captureException(
-    throwable, {
-    stackTrace,
-    hint,
-    ScopeCallback? withScope,
-  }) async {
-    return SentryId.empty();
-  }
-
-  @override
-  Future<SentryId> captureMessage(
-    String? message, {
-    SentryLevel? level,
-    String? template,
-    List? params,
-    hint,
-    ScopeCallback? withScope,
-  }) async {
-    return SentryId.empty();
-  }
-
-  @override
-  Hub clone() {
-    return NoOpHub();
-  }
-
-  @override
-  Future<void> close() async {}
-
-  @override
-  void configureScope(ScopeCallback callback) {}
+  @internal
+  SentryOptions get options => _options;
 
   @override
   bool get isEnabled => false;
+}
+
+class MockNativeChannel implements SentryNativeChannel {
+  NativeAppStart? nativeAppStart;
+  NativeFrames? nativeFrames;
+  SentryId? id;
+
+  int numberOfBeginNativeFramesCalls = 0;
+  int numberOfEndNativeFramesCalls = 0;
+  int numberOfSetUserCalls = 0;
+  int numberOfAddBreadcrumbCalls = 0;
+  int numberOfClearBreadcrumbCalls = 0;
+  int numberOfRemoveContextsCalls = 0;
+  int numberOfRemoveExtraCalls = 0;
+  int numberOfRemoveTagCalls = 0;
+  int numberOfSetContextsCalls = 0;
+  int numberOfSetExtraCalls = 0;
+  int numberOfSetTagCalls = 0;
 
   @override
-  SentryId get lastEventId => SentryId.empty();
+  Future<NativeAppStart?> fetchNativeAppStart() async => nativeAppStart;
 
   @override
-  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {}
+  Future<void> beginNativeFrames() async {
+    numberOfBeginNativeFramesCalls += 1;
+  }
+
+  @override
+  Future<NativeFrames?> endNativeFrames(SentryId id) async {
+    this.id = id;
+    numberOfEndNativeFramesCalls += 1;
+    return nativeFrames;
+  }
+
+  @override
+  Future<void> setUser(SentryUser? user) async {
+    numberOfSetUserCalls += 1;
+  }
+
+  @override
+  Future<void> addBreadcrumb(Breadcrumb breadcrumb) async {
+    numberOfAddBreadcrumbCalls += 1;
+  }
+
+  @override
+  Future<void> clearBreadcrumbs() async {
+    numberOfClearBreadcrumbCalls += 1;
+  }
+
+  @override
+  Future<void> removeContexts(String key) async {
+    numberOfRemoveContextsCalls += 1;
+  }
+
+  @override
+  Future<void> removeExtra(String key) async {
+    numberOfRemoveExtraCalls += 1;
+  }
+
+  @override
+  Future<void> removeTag(String key) async {
+    numberOfRemoveTagCalls += 1;
+  }
+
+  @override
+  Future<void> setContexts(String key, value) async {
+    numberOfSetContextsCalls += 1;
+  }
+
+  @override
+  Future<void> setExtra(String key, value) async {
+    numberOfSetExtraCalls += 1;
+  }
+
+  @override
+  Future<void> setTag(String key, value) async {
+    numberOfSetTagCalls += 1;
+  }
 }

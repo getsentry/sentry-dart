@@ -3,7 +3,6 @@ import 'package:sentry/sentry.dart';
 import 'package:sentry/src/noop_client.dart';
 import 'package:test/test.dart';
 
-import 'fake_platform_checker.dart';
 import 'mocks.dart';
 
 void main() {
@@ -33,31 +32,63 @@ void main() {
     expect(200, options.maxBreadcrumbs);
   });
 
-  test('SentryLogger is NoOp by default in release mode', () {
-    final options =
-        SentryOptions(dsn: fakeDsn, checker: FakePlatformChecker.releaseMode());
-
-    expect(noOpLogger, options.logger);
-  });
-
-  test('SentryLogger is NoOp by default in profile mode', () {
-    final options =
-        SentryOptions(dsn: fakeDsn, checker: FakePlatformChecker.profileMode());
-
-    expect(noOpLogger, options.logger);
-  });
-
-  test('SentryLogger is dartLogger by default in debug mode', () {
-    final options =
-        SentryOptions(dsn: fakeDsn, checker: FakePlatformChecker.debugMode());
-
-    expect(dartLogger, options.logger);
-  });
-
   test('SentryLogger sets a diagnostic logger', () {
     final options = SentryOptions(dsn: fakeDsn);
     options.logger = dartLogger;
 
     expect(false, options.logger == noOpLogger);
+  });
+
+  test('tracesSampler is null by default', () {
+    final options = SentryOptions(dsn: fakeDsn);
+
+    expect(options.tracesSampler, isNull);
+  });
+
+  test('tracesSampleRate is null by default', () {
+    final options = SentryOptions(dsn: fakeDsn);
+
+    expect(options.tracesSampleRate, isNull);
+  });
+
+  test('isTracingEnabled is disabled', () {
+    final options = SentryOptions(dsn: fakeDsn);
+
+    expect(options.isTracingEnabled(), false);
+  });
+
+  test('isTracingEnabled is enabled by theres rate', () {
+    final options = SentryOptions(dsn: fakeDsn);
+    options.tracesSampleRate = 1.0;
+
+    expect(options.isTracingEnabled(), true);
+  });
+
+  test('isTracingEnabled is enabled by theres sampler', () {
+    final options = SentryOptions(dsn: fakeDsn);
+
+    double? sampler(SentrySamplingContext samplingContext) => 0.0;
+
+    options.tracesSampler = sampler;
+
+    expect(options.isTracingEnabled(), true);
+  });
+
+  test('SentryOptions empty inits the late var', () {
+    final options = SentryOptions.empty();
+    options.sdk.addPackage('test', '1.2.3');
+
+    expect(
+        options.sdk.packages
+            .where((element) =>
+                element.name == 'test' && element.version == '1.2.3')
+            .isNotEmpty,
+        true);
+  });
+
+  test('SentryOptions has all targets by default', () {
+    final options = SentryOptions.empty();
+
+    expect(options.tracePropagationTargets, ['.*']);
   });
 }

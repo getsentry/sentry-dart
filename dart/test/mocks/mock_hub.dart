@@ -1,15 +1,28 @@
+import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/sentry_user_feedback.dart';
 
-class MockHub implements Hub {
+import '../mocks.dart';
+import 'mock_sentry_client.dart';
+import 'no_such_method_provider.dart';
+
+class MockHub with NoSuchMethodProvider implements Hub {
   List<CaptureEventCall> captureEventCalls = [];
   List<CaptureExceptionCall> captureExceptionCalls = [];
   List<CaptureMessageCall> captureMessageCalls = [];
   List<AddBreadcrumbCall> addBreadcrumbCalls = [];
   List<SentryClient?> bindClientCalls = [];
   List<SentryUserFeedback> userFeedbackCalls = [];
+  List<CaptureTransactionCall> captureTransactionCalls = [];
   int closeCalls = 0;
   bool _isEnabled = true;
+  int spanContextCals = 0;
+  int getSpanCalls = 0;
+
+  final _options = SentryOptions(dsn: fakeDsn);
+
+  @override
+  @internal
+  SentryOptions get options => _options;
 
   /// Useful for tests.
   void reset() {
@@ -20,10 +33,13 @@ class MockHub implements Hub {
     bindClientCalls = [];
     closeCalls = 0;
     _isEnabled = true;
+    spanContextCals = 0;
+    captureTransactionCalls = [];
+    getSpanCalls = 0;
   }
 
   @override
-  void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) {
+  Future<void> addBreadcrumb(Breadcrumb crumb, {dynamic hint}) async {
     addBreadcrumbCalls.add(AddBreadcrumbCall(crumb, hint));
   }
 
@@ -82,33 +98,38 @@ class MockHub implements Hub {
   }
 
   @override
-  Hub clone() {
-    // TODO: implement clone
-    throw UnimplementedError();
-  }
-
-  @override
   Future<void> close() async {
     closeCalls = closeCalls + 1;
     _isEnabled = false;
   }
 
   @override
-  void configureScope(callback) {
-    // TODO: implement configureScope
-  }
-
-  @override
   bool get isEnabled => _isEnabled;
 
   @override
-  // TODO: implement lastEventId
-  SentryId get lastEventId => throw UnimplementedError();
+  Future<SentryId> captureTransaction(
+    SentryTransaction transaction, {
+    SentryTraceContextHeader? traceContext,
+  }) async {
+    captureTransactionCalls
+        .add(CaptureTransactionCall(transaction, traceContext));
+    return transaction.eventId;
+  }
 
   @override
-  Future<SentryId> captureUserFeedback(SentryUserFeedback userFeedback) async {
+  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {
     userFeedbackCalls.add(userFeedback);
-    return SentryId.empty();
+  }
+
+  @override
+  ISentrySpan? getSpan() {
+    getSpanCalls++;
+    return null;
+  }
+
+  @override
+  void setSpanContext(throwable, ISentrySpan span, String transaction) {
+    spanContextCals++;
   }
 }
 

@@ -15,7 +15,6 @@ void main() {
     orientation: SentryOrientation.landscape,
     manufacturer: 'testOEM',
     brand: 'testBrand',
-    screenResolution: '123x345',
     screenDensity: 99.1,
     screenDpi: 100,
     online: false,
@@ -30,7 +29,19 @@ void main() {
     externalStorageSize: 98765,
     externalFreeStorage: 98765,
     bootTime: testBootTime,
-    timezone: 'Australia/Melbourne',
+    batteryStatus: 'Unknown',
+    cpuDescription: 'M1 Pro Max Ultra',
+    deviceType: 'Flutter Device',
+    deviceUniqueIdentifier: 'uuid',
+    processorCount: 4,
+    processorFrequency: 1.2,
+    supportsAccelerometer: true,
+    supportsGyroscope: true,
+    supportsAudio: true,
+    supportsLocationService: true,
+    supportsVibration: true,
+    screenHeightPixels: 100,
+    screenWidthPixels: 100,
   );
 
   final sentryDeviceJson = <String, dynamic>{
@@ -43,7 +54,6 @@ void main() {
     'orientation': 'landscape',
     'manufacturer': 'testOEM',
     'brand': 'testBrand',
-    'screen_resolution': '123x345',
     'screen_density': 99.1,
     'screen_dpi': 100,
     'online': false,
@@ -58,7 +68,19 @@ void main() {
     'external_storage_size': 98765,
     'external_free_storage': 98765,
     'boot_time': testBootTime.toIso8601String(),
-    'timezone': 'Australia/Melbourne',
+    'battery_status': 'Unknown',
+    'cpu_description': 'M1 Pro Max Ultra',
+    'device_type': 'Flutter Device',
+    'device_unique_identifier': 'uuid',
+    'processor_count': 4,
+    'processor_frequency': 1.2,
+    'supports_accelerometer': true,
+    'supports_gyroscope': true,
+    'supports_audio': true,
+    'supports_location_service': true,
+    'supports_vibration': true,
+    'screen_height_pixels': 100,
+    'screen_width_pixels': 100,
   };
 
   group('json', () {
@@ -70,7 +92,21 @@ void main() {
         true,
       );
     });
+
     test('fromJson', () {
+      final sentryDevice = SentryDevice.fromJson(sentryDeviceJson);
+      final json = sentryDevice.toJson();
+
+      expect(
+        MapEquality().equals(sentryDeviceJson, json),
+        true,
+      );
+    });
+
+    test('fromJson double screen_height_pixels and screen_width_pixels', () {
+      sentryDeviceJson['screen_height_pixels'] = 100.0;
+      sentryDeviceJson['screen_width_pixels'] = 100.0;
+
       final sentryDevice = SentryDevice.fromJson(sentryDeviceJson);
       final json = sentryDevice.toJson();
 
@@ -108,7 +144,6 @@ void main() {
         orientation: SentryOrientation.portrait,
         manufacturer: 'manufacturer1',
         brand: 'brand1',
-        screenResolution: '123x3451',
         screenDensity: 99.2,
         screenDpi: 99,
         online: true,
@@ -123,7 +158,19 @@ void main() {
         externalStorageSize: 987654,
         externalFreeStorage: 987654,
         bootTime: bootTime,
-        timezone: 'Austria/Vienna',
+        batteryStatus: 'Charging',
+        cpuDescription: 'Intel i9',
+        deviceType: 'Tablet',
+        deviceUniqueIdentifier: 'foo_bar_baz',
+        processorCount: 8,
+        processorFrequency: 3.4,
+        supportsAccelerometer: false,
+        supportsGyroscope: false,
+        supportsAudio: false,
+        supportsLocationService: false,
+        supportsVibration: false,
+        screenHeightPixels: 2,
+        screenWidthPixels: 2,
       );
 
       expect('name1', copy.name);
@@ -135,7 +182,6 @@ void main() {
       expect(SentryOrientation.portrait, copy.orientation);
       expect('manufacturer1', copy.manufacturer);
       expect('brand1', copy.brand);
-      expect('123x3451', copy.screenResolution);
       expect(99.2, copy.screenDensity);
       expect(99, copy.screenDpi);
       expect(true, copy.online);
@@ -150,7 +196,19 @@ void main() {
       expect(987654, copy.externalStorageSize);
       expect(987654, copy.externalFreeStorage);
       expect(bootTime, copy.bootTime);
-      expect('Austria/Vienna', copy.timezone);
+      expect('Charging', copy.batteryStatus);
+      expect('Intel i9', copy.cpuDescription);
+      expect('Tablet', copy.deviceType);
+      expect('foo_bar_baz', copy.deviceUniqueIdentifier);
+      expect(8, copy.processorCount);
+      expect(3.4, copy.processorFrequency);
+      expect(false, copy.supportsAccelerometer);
+      expect(false, copy.supportsGyroscope);
+      expect(false, copy.supportsAudio);
+      expect(false, copy.supportsLocationService);
+      expect(false, copy.supportsVibration);
+      expect(2, copy.screenHeightPixels);
+      expect(2, copy.screenWidthPixels);
     });
   });
 }

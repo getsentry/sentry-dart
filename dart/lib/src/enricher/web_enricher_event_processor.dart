@@ -2,43 +2,51 @@ import 'dart:async';
 import 'dart:html' as html show window, Window;
 
 import '../event_processor.dart';
-import '../sentry_options.dart';
 import '../protocol.dart';
+import '../sentry_options.dart';
 
 EventProcessor enricherEventProcessor(SentryOptions options) {
   return WebEnricherEventProcessor(
     html.window,
+    options,
   );
 }
 
 class WebEnricherEventProcessor extends EventProcessor {
   WebEnricherEventProcessor(
     this._window,
+    this._options,
   );
 
   final html.Window _window;
 
+  final SentryOptions _options;
+
   @override
-  FutureOr<SentryEvent> apply(SentryEvent event, {dynamic hint}) async {
+  FutureOr<SentryEvent> apply(SentryEvent event, {dynamic hint}) {
     // Web has no native integration, so no need to check for it
 
     final contexts = event.contexts.copyWith(
-      device: await _getDevice(event.contexts.device),
+      device: _getDevice(event.contexts.device),
+      culture: _getSentryCulture(event.contexts.culture),
     );
+
+    contexts['dart_context'] = _getDartContext();
 
     return event.copyWith(
       contexts: contexts,
       request: _getRequest(event.request),
+      transaction: event.transaction ?? _window.location.pathname,
     );
   }
 
   // As seen in
   // https://github.com/getsentry/sentry-javascript/blob/a6f8dc26a4c7ae2146ae64995a2018c8578896a6/packages/browser/src/integrations/useragent.ts
   SentryRequest _getRequest(SentryRequest? request) {
-    final reqestHeader = request?.headers;
-    final header = reqestHeader == null
+    final requestHeader = request?.headers;
+    final header = requestHeader == null
         ? <String, String>{}
-        : Map<String, String>.from(reqestHeader);
+        : Map<String, String>.from(requestHeader);
 
     header.putIfAbsent('User-Agent', () => _window.navigator.userAgent);
 
@@ -48,7 +56,7 @@ class WebEnricherEventProcessor extends EventProcessor {
     );
   }
 
-  Future<SentryDevice> _getDevice(SentryDevice? device) async {
+  SentryDevice _getDevice(SentryDevice? device) {
     return (device ?? SentryDevice()).copyWith(
       online: device?.online ?? _window.navigator.onLine,
       memorySize: device?.memorySize ?? _getMemorySize(),
@@ -59,6 +67,7 @@ class WebEnricherEventProcessor extends EventProcessor {
           device?.screenWidthPixels ?? _window.screen?.available.width.toInt(),
       screenDensity:
           device?.screenDensity ?? _window.devicePixelRatio.toDouble(),
+      // ignore: deprecated_member_use_from_same_package
       timezone: device?.timezone ?? DateTime.now().timeZoneName,
     );
   }
@@ -82,5 +91,17 @@ class WebEnricherEventProcessor extends EventProcessor {
       }
     }
     return null;
+  }
+
+  Map<String, dynamic> _getDartContext() {
+    return <String, dynamic>{
+      'compile_mode': _options.platformChecker.compileMode,
+    };
+  }
+
+  SentryCulture _getSentryCulture(SentryCulture? culture) {
+    return (culture ?? SentryCulture()).copyWith(
+      timezone: culture?.timezone ?? DateTime.now().timeZoneName,
+    );
   }
 }

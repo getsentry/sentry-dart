@@ -1,4 +1,5 @@
 import 'package:http/http.dart';
+import 'sentry_http_client_error.dart';
 import '../protocol.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
@@ -64,7 +65,7 @@ import 'sentry_http_client.dart';
 /// ```
 class FailedRequestClient extends BaseClient {
   FailedRequestClient({
-    this.maxRequestBodySize = MaxRequestBodySize.small,
+    this.maxRequestBodySize = MaxRequestBodySize.never,
     this.failedRequestStatusCodes = const [],
     this.captureFailedRequests = true,
     this.sendDefaultPii = false,
@@ -126,10 +127,15 @@ class FailedRequestClient extends BaseClient {
           requestDuration: stopwatch.elapsed,
         );
       } else if (failedRequestStatusCodes.containsStatusCode(statusCode)) {
+        final message =
+            'Event was captured because the request status code was $statusCode';
+        final httpException = SentryHttpClientError(message);
+
         // Capture an exception if the status code is considered bad
         await _captureEvent(
+          exception: exception ?? httpException,
           request: request,
-          reason: failedRequestStatusCodes.toDescription(),
+          reason: message,
           requestDuration: stopwatch.elapsed,
         );
       }
@@ -137,19 +143,16 @@ class FailedRequestClient extends BaseClient {
   }
 
   @override
-  void close() {
-    // See https://github.com/getsentry/sentry-dart/pull/226#discussion_r536984785
-    _client.close();
-  }
+  void close() => _client.close();
 
   // See https://develop.sentry.dev/sdk/event-payloads/request/
   Future<void> _captureEvent({
-    Object? exception,
+    required Object? exception,
     StackTrace? stackTrace,
     String? reason,
     required Duration requestDuration,
     required BaseRequest request,
-  }) {
+  }) async {
     // As far as I can tell there's no way to get the uri without the query part
     // so we replace it with an empty string.
     final urlWithoutQuery = request.url.replace(query: '').toString();
@@ -163,6 +166,7 @@ class FailedRequestClient extends BaseClient {
       queryString: query,
       cookies: sendDefaultPii ? request.headers['Cookie'] : null,
       data: _getDataFromRequest(request),
+      // ignore: deprecated_member_use_from_same_package
       other: {
         'content_length': request.contentLength.toString(),
         'duration': requestDuration.toString(),
@@ -179,7 +183,7 @@ class FailedRequestClient extends BaseClient {
       throwable: throwableMechanism,
       request: sentryRequest,
     );
-    return _hub.captureEvent(event, stackTrace: stackTrace);
+    await _hub.captureEvent(event, stackTrace: stackTrace);
   }
 
   // Types of Request can be found here:
@@ -212,30 +216,5 @@ extension _ListX on List<SentryStatusCode> {
       return false;
     }
     return any((element) => element.isInRange(statusCode));
-  }
-
-  String toDescription() {
-    final ranges = join(', ');
-    return 'This event was captured because the '
-        'request status code was in [$ranges]';
-  }
-}
-
-extension _MaxRequestBodySizeX on MaxRequestBodySize {
-  bool shouldAddBody(int contentLength) {
-    if (this == MaxRequestBodySize.never) {
-      return false;
-    }
-    if (this == MaxRequestBodySize.always) {
-      return true;
-    }
-    if (this == MaxRequestBodySize.medium && contentLength <= 10000) {
-      return true;
-    }
-
-    if (this == MaxRequestBodySize.small && contentLength <= 4000) {
-      return true;
-    }
-    return false;
   }
 }

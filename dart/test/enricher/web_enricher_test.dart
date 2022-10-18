@@ -1,10 +1,12 @@
 @TestOn('browser')
+import 'dart:html' as html;
+
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/enricher/web_enricher_event_processor.dart';
 import 'package:test/test.dart';
-import 'dart:html' as html show window;
 
 import '../mocks.dart';
+import '../mocks/mock_platform_checker.dart';
 
 // can be tested on command line with
 // `dart test -p chrome --name web_enricher`
@@ -14,6 +16,20 @@ void main() {
 
     setUp(() {
       fixture = Fixture();
+    });
+
+    test('add path as transaction if transaction is null', () async {
+      var enricher = fixture.getSut();
+      final event = await enricher.apply(SentryEvent());
+
+      expect(event.transaction, isNotNull);
+    });
+
+    test("don't overwrite transaction", () async {
+      var enricher = fixture.getSut();
+      final event = await enricher.apply(SentryEvent(transaction: 'foobar'));
+
+      expect(event.transaction, 'foobar');
     });
 
     test('add request with user-agent header', () async {
@@ -64,12 +80,27 @@ void main() {
       expect(event.contexts.device, isNotNull);
     });
 
-    test('device has timezone, screendensity', () async {
+    test('adds Dart context', () async {
+      final enricher = fixture.getSut();
+      final event = await enricher.apply(SentryEvent());
+
+      final dartContext = event.contexts['dart_context'];
+      expect(dartContext, isNotNull);
+      expect(dartContext['compile_mode'], isNotNull);
+    });
+
+    test('device has screendensity', () async {
       var enricher = fixture.getSut();
       final event = await enricher.apply(SentryEvent());
 
-      expect(event.contexts.device?.timezone, isNotNull);
       expect(event.contexts.device?.screenDensity, isNotNull);
+    });
+
+    test('culture has timezone', () async {
+      var enricher = fixture.getSut();
+      final event = await enricher.apply(SentryEvent());
+
+      expect(event.contexts.culture?.timezone, isNotNull);
     });
 
     test('does not override event', () async {
@@ -82,10 +113,12 @@ void main() {
             screenHeightPixels: 1080,
             screenWidthPixels: 1920,
             screenDensity: 2,
-            timezone: 'foo_timezone',
           ),
           operatingSystem: SentryOperatingSystem(
             name: 'sentry_os',
+          ),
+          culture: SentryCulture(
+            timezone: 'foo_timezone',
           ),
         ),
       );
@@ -119,9 +152,10 @@ void main() {
         event.contexts.device?.screenDensity,
         fakeEvent.contexts.device?.screenDensity,
       );
+      // contexts.culture
       expect(
-        event.contexts.device?.timezone,
-        fakeEvent.contexts.device?.timezone,
+        event.contexts.culture?.timezone,
+        fakeEvent.contexts.culture?.timezone,
       );
       // contexts.operatingSystem
       expect(
@@ -150,8 +184,13 @@ void main() {
 
 class Fixture {
   WebEnricherEventProcessor getSut() {
+    final options = SentryOptions(
+        dsn: fakeDsn,
+        checker: MockPlatformChecker(hasNativeIntegration: false));
+
     return WebEnricherEventProcessor(
       html.window,
+      options,
     );
   }
 }

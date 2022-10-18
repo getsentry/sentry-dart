@@ -3,10 +3,11 @@ import 'package:http/testing.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/http_client/failed_request_client.dart';
-import 'package:sentry/src/http_client/sentry_http_client.dart';
 import 'package:test/test.dart';
 
+import '../mocks.dart';
 import '../mocks/mock_hub.dart';
+import '../mocks/mock_transport.dart';
 
 final requestUri = Uri.parse('https://example.com?foo=bar');
 
@@ -26,7 +27,7 @@ void main() {
       final response = await sut.get(requestUri);
       expect(response.statusCode, 200);
 
-      expect(fixture.hub.captureEventCalls.length, 0);
+      expect(fixture.transport.calls, 0);
     });
 
     test('exception gets reported if client throws', () async {
@@ -40,24 +41,25 @@ void main() {
         throwsException,
       );
 
-      expect(fixture.hub.captureEventCalls.length, 1);
+      expect(fixture.transport.calls, 1);
 
-      final eventCall = fixture.hub.captureEventCalls.first;
-      final throwableMechanism =
-          eventCall.event.throwableMechanism as ThrowableMechanism;
+      final eventCall = fixture.transport.events.first;
+      final exception = eventCall.exceptions?.first;
+      final mechanism = exception?.mechanism;
 
-      expect(eventCall.stackTrace, isNotNull);
-      expect(throwableMechanism.mechanism.type, 'SentryHttpClient');
-      expect(throwableMechanism.throwable, isA<TestException>());
+      expect(exception?.stackTrace, isNotNull);
+      expect(mechanism?.type, 'SentryHttpClient');
 
-      final request = eventCall.event.request;
+      final request = eventCall.request;
       expect(request, isNotNull);
       expect(request?.method, 'GET');
       expect(request?.url, 'https://example.com?');
       expect(request?.queryString, 'foo=bar');
       expect(request?.cookies, 'foo=bar');
       expect(request?.headers, {'Cookie': 'foo=bar'});
+      // ignore: deprecated_member_use_from_same_package
       expect(request?.other.keys.contains('duration'), true);
+      // ignore: deprecated_member_use_from_same_package
       expect(request?.other.keys.contains('content_length'), true);
     });
 
@@ -72,7 +74,7 @@ void main() {
         throwsException,
       );
 
-      expect(fixture.hub.captureEventCalls.length, 0);
+      expect(fixture.transport.calls, 0);
     });
 
     test('exception gets reported if bad status code occurs', () async {
@@ -83,29 +85,34 @@ void main() {
 
       await sut.get(requestUri, headers: {'Cookie': 'foo=bar'});
 
-      expect(fixture.hub.captureEventCalls.length, 1);
+      expect(fixture.transport.calls, 1);
 
-      final eventCall = fixture.hub.captureEventCalls.first;
-      final throwableMechanism = fixture.hub.captureEventCalls.first.event
-          .throwableMechanism as ThrowableMechanism;
+      final eventCall = fixture.transport.events.first;
+      final exception = eventCall.exceptions?.first;
+      final mechanism = exception?.mechanism;
 
-      expect(eventCall.stackTrace, isNull);
-      expect(throwableMechanism, isNotNull);
-      expect(throwableMechanism.mechanism.type, 'SentryHttpClient');
+      expect(mechanism?.type, 'SentryHttpClient');
       expect(
-        throwableMechanism.mechanism.description,
-        'This event was captured because the '
-        'request status code was in [404]',
+        mechanism?.description,
+        'Event was captured because the request status code was 404',
       );
 
-      final request = eventCall.event.request;
+      expect(exception?.type, 'SentryHttpClientError');
+      expect(
+        exception?.value,
+        'Exception: Event was captured because the request status code was 404',
+      );
+
+      final request = eventCall.request;
       expect(request, isNotNull);
       expect(request?.method, 'GET');
       expect(request?.url, 'https://example.com?');
       expect(request?.queryString, 'foo=bar');
       expect(request?.cookies, 'foo=bar');
       expect(request?.headers, {'Cookie': 'foo=bar'});
+      // ignore: deprecated_member_use_from_same_package
       expect(request?.other.keys.contains('duration'), true);
+      // ignore: deprecated_member_use_from_same_package
       expect(request?.other.keys.contains('content_length'), true);
     });
 
@@ -120,7 +127,7 @@ void main() {
 
       await sut.get(requestUri, headers: {'Cookie': 'foo=bar'});
 
-      expect(fixture.hub.captureEventCalls.length, 1);
+      expect(fixture.transport.calls, 1);
     });
 
     test('close does get called for user defined client', () async {
@@ -148,8 +155,8 @@ void main() {
         throwsException,
       );
 
-      final event = fixture.hub.captureEventCalls.first.event;
-      expect(fixture.hub.captureEventCalls.length, 1);
+      final event = fixture.transport.events.first;
+      expect(fixture.transport.calls, 1);
       expect(event.request?.headers.isEmpty, true);
       expect(event.request?.cookies, isNull);
     });
@@ -164,8 +171,8 @@ void main() {
 
       await sut.get(requestUri, headers: {'Cookie': 'foo=bar'});
 
-      final event = fixture.hub.captureEventCalls.first.event;
-      expect(fixture.hub.captureEventCalls.length, 1);
+      final event = fixture.transport.events.first;
+      expect(fixture.transport.calls, 1);
       expect(event.request?.headers.isEmpty, true);
       expect(event.request?.cookies, isNull);
     });
@@ -192,7 +199,7 @@ void main() {
       ];
 
       for (final scenario in scenarios) {
-        fixture.hub.reset();
+        fixture.transport.reset();
 
         final sut = fixture.getSut(
           client: createThrowingClient(),
@@ -209,10 +216,10 @@ void main() {
           throwsException,
         );
 
-        expect(fixture.hub.captureEventCalls.length, 1);
+        expect(fixture.transport.calls, 1);
 
-        final eventCall = fixture.hub.captureEventCalls.first;
-        final capturedRequest = eventCall.event.request;
+        final eventCall = fixture.transport.events.first;
+        final capturedRequest = eventCall.request;
         expect(
           capturedRequest?.data,
           scenario.shouldBeIncluded ? isNotNull : isNull,
@@ -234,6 +241,14 @@ MockClient createThrowingClient() {
 class CloseableMockClient extends Mock implements BaseClient {}
 
 class Fixture {
+  final _options = SentryOptions(dsn: fakeDsn);
+  late Hub _hub;
+  final transport = MockTransport();
+  Fixture() {
+    _options.transport = transport;
+    _hub = Hub(_options);
+  }
+
   FailedRequestClient getSut({
     MockClient? client,
     bool captureFailedRequests = false,
@@ -244,15 +259,13 @@ class Fixture {
     final mc = client ?? getClient();
     return FailedRequestClient(
       client: mc,
-      hub: hub,
+      hub: _hub,
       captureFailedRequests: captureFailedRequests,
       failedRequestStatusCodes: badStatusCodes,
       maxRequestBodySize: maxRequestBodySize,
       sendDefaultPii: sendDefaultPii,
     );
   }
-
-  final MockHub hub = MockHub();
 
   MockClient getClient({int statusCode = 200, String? reason}) {
     return MockClient((request) async {

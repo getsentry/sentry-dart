@@ -1,0 +1,94 @@
+name: sentry-dio
+on:
+  push:
+    branches:
+      - main
+      - release/**
+  pull_request:
+    paths-ignore:
+      - 'logging/**'
+      - 'flutter/**'
+
+jobs:
+  build:
+    name: Build ${{matrix.sdk}} on ${{matrix.os}}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./dio
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        sdk: [stable, beta]
+        exclude:
+          - os: macos-latest
+            sdk: beta
+    steps:
+      - uses: dart-lang/setup-dart@6a218f2413a3e78e9087f638a238f6b40893203d # pin@v1
+        with:
+          sdk: ${{ matrix.sdk }}
+      - uses: actions/checkout@v3
+      # coverage with 'chrome' platform hangs the build
+      - name: Test (VM and browser)
+        run: |
+          dart pub get
+          dart test -p chrome --test-randomize-ordering-seed=random --chain-stack-traces
+          dart test -p vm --coverage=coverage --test-randomize-ordering-seed=random --chain-stack-traces
+          dart pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
+
+      - uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70 # pin@v3
+        if: runner.os == 'Linux' && matrix.sdk == 'stable'
+        with:
+          name: sentry_dio
+          files: ./dio/coverage/lcov.info
+
+      - uses: VeryGoodOpenSource/very_good_coverage@84e5b54ab888644554e5573dca87d7f76dec9fb3 # pin@v2.0.0
+        if: runner.os == 'Linux' && matrix.sdk == 'stable'
+        with:
+          path: './dio/coverage/lcov.info'
+          min_coverage: 81
+
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: ./dio
+    steps:
+      - uses: dart-lang/setup-dart@6a218f2413a3e78e9087f638a238f6b40893203d # pin@v1
+        with:
+          sdk: stable
+      - uses: actions/checkout@v3
+      - run: |
+          dart pub get
+          dart analyze --fatal-infos
+          dart format --set-exit-if-changed ./
+
+  package-analysis:
+    # `axel-op/dart-package-analyzer` is using `flutter pub upgrade` instead of `get`,
+    # which ignores pubspec.yaml `dependency_overrides`. Because of that, all `release/*` branches are failing,
+    # because the package cannot find the "about to be released" version of our sentry-dart package that it depends on.
+    if: ${{ !startsWith(github.ref, 'refs/heads/release/') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v3
+      - uses: axel-op/dart-package-analyzer@7a6c3c66bce78d82b729a1ffef2d9458fde6c8d2 # pin@v3
+        id: analysis
+        with:
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          relativePath: dio/
+      - name: Check scores
+        env:
+          TOTAL: ${{ steps.analysis.outputs.total }}
+          TOTAL_MAX: ${{ steps.analysis.outputs.total_max }}
+        run: |
+          PERCENTAGE=$(( $TOTAL * 100 / $TOTAL_MAX ))
+          if (( $PERCENTAGE < 75 ))
+          then
+            echo Score too low!
+            exit 1
+          fi

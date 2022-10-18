@@ -2,6 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:convert';
+
+import 'package:meta/meta.dart';
+
 /// Sentry does not take a timezone and instead expects the date-time to be
 /// submitted in UTC timezone.
 DateTime getUtcDateTime() => DateTime.now().toUtc();
@@ -18,6 +22,9 @@ String formatDateAsIso8601WithMillisPrecision(DateTime date) {
   return '${iso}Z';
 }
 
+final utf8JsonEncoder = JsonUtf8Encoder(null, jsonSerializationFallback, null);
+
+@visibleForTesting
 Object? jsonSerializationFallback(Object? nonEncodable) {
   if (nonEncodable == null) {
     return null;

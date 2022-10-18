@@ -1,7 +1,6 @@
 import 'package:meta/meta.dart';
 
 import '../utils.dart';
-import 'sentry_level.dart';
 import '../protocol.dart';
 
 /// Structed data to describe more information pior to the event captured.
@@ -66,6 +65,22 @@ class Breadcrumb {
     );
   }
 
+  factory Breadcrumb.console({
+    String? message,
+    SentryLevel? level,
+    DateTime? timestamp,
+    Map<String, dynamic>? data,
+  }) {
+    return Breadcrumb(
+      message: message,
+      level: level,
+      category: 'console',
+      type: 'debug',
+      timestamp: timestamp,
+      data: data,
+    );
+  }
+
   /// Describes the breadcrumb.
   ///
   /// This field is optional and may be set to null.
@@ -114,11 +129,17 @@ class Breadcrumb {
   factory Breadcrumb.fromJson(Map<String, dynamic> json) {
     final levelName = json['level'];
     final timestamp = json['timestamp'];
+
+    var data = json['data'];
+    if (data != null) {
+      data = Map<String, dynamic>.from(data as Map);
+    }
+
     return Breadcrumb(
       timestamp: timestamp != null ? DateTime.tryParse(timestamp) : null,
       message: json['message'],
       category: json['category'],
-      data: json['data'],
+      data: data,
       level: levelName != null ? SentryLevel.fromName(levelName) : null,
       type: json['type'],
     );
@@ -127,27 +148,14 @@ class Breadcrumb {
   /// Converts this breadcrumb to a map that can be serialized to JSON according
   /// to the Sentry protocol.
   Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{
+    return {
       'timestamp': formatDateAsIso8601WithMillisPrecision(timestamp),
+      if (message != null) 'message': message,
+      if (category != null) 'category': category,
+      if (data?.isNotEmpty ?? false) 'data': data,
+      if (level != null) 'level': level!.name,
+      if (type != null) 'type': type,
     };
-
-    if (message != null) {
-      json['message'] = message;
-    }
-    if (category != null) {
-      json['category'] = category;
-    }
-    if (data?.isNotEmpty ?? false) {
-      json['data'] = data;
-    }
-    if (level != null) {
-      json['level'] = level!.name;
-    }
-
-    if (type != null) {
-      json['type'] = type;
-    }
-    return json;
   }
 
   Breadcrumb copyWith({

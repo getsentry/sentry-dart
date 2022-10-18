@@ -1,27 +1,30 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry/src/platform_checker.dart';
+import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/version.dart';
 import 'mocks.dart';
+import 'mocks.mocks.dart';
 import 'sentry_flutter_util.dart';
 
 /// These are the integrations which should be added on every platform.
 /// They don't depend on the underlying platform.
 final platformAgnosticIntegrations = [
+  WidgetsFlutterBindingIntegration,
+  OnErrorIntegration,
   FlutterErrorIntegration,
   LoadReleaseIntegration,
+  DebugPrintIntegration,
 ];
 
 // These should only be added to Android
 final androidIntegrations = [
-  LoadAndroidImageListIntegration,
+  LoadImageListIntegration,
 ];
 
 // These should be added to iOS and macOS
 final iOsAndMacOsIntegrations = [
+  LoadImageListIntegration,
   LoadContextsIntegration,
 ];
 
@@ -34,106 +37,212 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('Test platform integrations', () {
-    tearDown(() async {
+    setUp(() async {
       await Sentry.close();
     });
 
     test('Android', () async {
+      List<Integration> integrations = [];
+      Transport transport = MockTransport();
+
       await SentryFlutter.init(
-        getConfigurationTester(
-          hasFileSystemTransport: true,
-          shouldHaveIntegrations: [
-            ...androidIntegrations,
-            ...nativeIntegrations,
-            ...platformAgnosticIntegrations,
-          ],
-          shouldNotHaveIntegrations: iOsAndMacOsIntegrations,
-        ),
+        (options) async {
+          options.dsn = fakeDsn;
+          integrations = options.integrations;
+          transport = options.transport;
+        },
         appRunner: appRunner,
         packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.android()),
       );
-    }, testOn: 'vm');
 
-    test('iOS', () async {
-      await SentryFlutter.init(
-        getConfigurationTester(
-          hasFileSystemTransport: true,
+      testTransport(
+        transport: transport,
+        hasFileSystemTransport: true,
+      );
+
+      testConfiguration(
+          integrations: integrations,
           shouldHaveIntegrations: [
-            ...iOsAndMacOsIntegrations,
+            ...androidIntegrations,
             ...nativeIntegrations,
             ...platformAgnosticIntegrations,
           ],
-          shouldNotHaveIntegrations: androidIntegrations,
-        ),
+          shouldNotHaveIntegrations: iOsAndMacOsIntegrations);
+
+      integrations
+          .indexWhere((element) => element is WidgetsFlutterBindingIntegration);
+
+      testBefore(
+          integrations: integrations,
+          beforeIntegration: WidgetsFlutterBindingIntegration,
+          afterIntegration: OnErrorIntegration);
+
+      await Sentry.close();
+    }, testOn: 'vm');
+
+    test('iOS', () async {
+      List<Integration> integrations = [];
+      Transport transport = MockTransport();
+
+      await SentryFlutter.init(
+        (options) async {
+          options.dsn = fakeDsn;
+          integrations = options.integrations;
+          transport = options.transport;
+        },
         appRunner: appRunner,
         packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
       );
+
+      testTransport(
+        transport: transport,
+        hasFileSystemTransport: true,
+      );
+
+      testConfiguration(
+        integrations: integrations,
+        shouldHaveIntegrations: [
+          ...iOsAndMacOsIntegrations,
+          ...nativeIntegrations,
+          ...platformAgnosticIntegrations,
+        ],
+        shouldNotHaveIntegrations: androidIntegrations,
+      );
+
+      testBefore(
+          integrations: integrations,
+          beforeIntegration: WidgetsFlutterBindingIntegration,
+          afterIntegration: OnErrorIntegration);
+
+      await Sentry.close();
     }, testOn: 'vm');
 
     test('macOS', () async {
+      List<Integration> integrations = [];
+      Transport transport = MockTransport();
+
       await SentryFlutter.init(
-        getConfigurationTester(
-          hasFileSystemTransport: true,
-          shouldHaveIntegrations: [
-            ...iOsAndMacOsIntegrations,
-            ...nativeIntegrations,
-            ...platformAgnosticIntegrations,
-          ],
-          shouldNotHaveIntegrations: androidIntegrations,
-        ),
+        (options) async {
+          options.dsn = fakeDsn;
+          integrations = options.integrations;
+          transport = options.transport;
+        },
         appRunner: appRunner,
         packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.macOs()),
       );
+
+      testTransport(
+        transport: transport,
+        hasFileSystemTransport: true,
+      );
+
+      testConfiguration(
+        integrations: integrations,
+        shouldHaveIntegrations: [
+          ...iOsAndMacOsIntegrations,
+          ...nativeIntegrations,
+          ...platformAgnosticIntegrations,
+        ],
+        shouldNotHaveIntegrations: androidIntegrations,
+      );
+
+      testBefore(
+          integrations: integrations,
+          beforeIntegration: WidgetsFlutterBindingIntegration,
+          afterIntegration: OnErrorIntegration);
+
+      await Sentry.close();
     }, testOn: 'vm');
 
     test('Windows', () async {
+      List<Integration> integrations = [];
+      Transport transport = MockTransport();
+
       await SentryFlutter.init(
-        getConfigurationTester(
-          hasFileSystemTransport: false,
-          shouldHaveIntegrations: platformAgnosticIntegrations,
-          shouldNotHaveIntegrations: [
-            ...androidIntegrations,
-            ...iOsAndMacOsIntegrations,
-            ...nativeIntegrations,
-          ],
-        ),
+        (options) async {
+          options.dsn = fakeDsn;
+          integrations = options.integrations;
+          transport = options.transport;
+        },
         appRunner: appRunner,
         packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.windows()),
       );
+
+      testTransport(
+        transport: transport,
+        hasFileSystemTransport: false,
+      );
+
+      testConfiguration(
+        integrations: integrations,
+        shouldHaveIntegrations: platformAgnosticIntegrations,
+        shouldNotHaveIntegrations: [
+          ...androidIntegrations,
+          ...iOsAndMacOsIntegrations,
+          ...nativeIntegrations,
+        ],
+      );
+
+      testBefore(
+          integrations: integrations,
+          beforeIntegration: WidgetsFlutterBindingIntegration,
+          afterIntegration: OnErrorIntegration);
+
+      await Sentry.close();
     }, testOn: 'vm');
 
     test('Linux', () async {
+      List<Integration> integrations = [];
+      Transport transport = MockTransport();
+
       await SentryFlutter.init(
-        getConfigurationTester(
-          hasFileSystemTransport: false,
-          shouldHaveIntegrations: platformAgnosticIntegrations,
-          shouldNotHaveIntegrations: [
-            ...androidIntegrations,
-            ...iOsAndMacOsIntegrations,
-            ...nativeIntegrations,
-          ],
-        ),
+        (options) async {
+          options.dsn = fakeDsn;
+          integrations = options.integrations;
+          transport = options.transport;
+        },
         appRunner: appRunner,
         packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.linux()),
       );
+
+      testTransport(
+        transport: transport,
+        hasFileSystemTransport: false,
+      );
+
+      testConfiguration(
+        integrations: integrations,
+        shouldHaveIntegrations: platformAgnosticIntegrations,
+        shouldNotHaveIntegrations: [
+          ...androidIntegrations,
+          ...iOsAndMacOsIntegrations,
+          ...nativeIntegrations,
+        ],
+      );
+
+      testBefore(
+          integrations: integrations,
+          beforeIntegration: WidgetsFlutterBindingIntegration,
+          afterIntegration: OnErrorIntegration);
+
+      await Sentry.close();
     }, testOn: 'vm');
 
     test('Web', () async {
+      List<Integration> integrations = [];
+      Transport transport = MockTransport();
+
       await SentryFlutter.init(
-        getConfigurationTester(
-          hasFileSystemTransport: false,
-          shouldHaveIntegrations: platformAgnosticIntegrations,
-          shouldNotHaveIntegrations: [
-            ...androidIntegrations,
-            ...iOsAndMacOsIntegrations,
-            ...nativeIntegrations,
-          ],
-        ),
+        (options) async {
+          options.dsn = fakeDsn;
+          integrations = options.integrations;
+          transport = options.transport;
+        },
         appRunner: appRunner,
         packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(
@@ -141,21 +250,42 @@ void main() {
           platform: MockPlatform.linux(),
         ),
       );
+
+      testTransport(
+        transport: transport,
+        hasFileSystemTransport: false,
+      );
+
+      testConfiguration(
+        integrations: integrations,
+        shouldHaveIntegrations: platformAgnosticIntegrations,
+        shouldNotHaveIntegrations: [
+          ...androidIntegrations,
+          ...iOsAndMacOsIntegrations,
+          ...nativeIntegrations,
+        ],
+      );
+
+      testBefore(
+          integrations: integrations,
+          beforeIntegration: WidgetsFlutterBindingIntegration,
+          afterIntegration: OnErrorIntegration);
+
+      await Sentry.close();
     });
 
     test('Web && (iOS || macOS) ', () async {
-      // Tests that iOS || macOS integrations aren't added on a browswer which
+      List<Integration> integrations = [];
+      Transport transport = MockTransport();
+
+      // Tests that iOS || macOS integrations aren't added on a browser which
       // runs on iOS or macOS
       await SentryFlutter.init(
-        getConfigurationTester(
-          hasFileSystemTransport: false,
-          shouldHaveIntegrations: platformAgnosticIntegrations,
-          shouldNotHaveIntegrations: [
-            ...androidIntegrations,
-            ...iOsAndMacOsIntegrations,
-            ...nativeIntegrations,
-          ],
-        ),
+        (options) async {
+          options.dsn = fakeDsn;
+          integrations = options.integrations;
+          transport = options.transport;
+        },
         appRunner: appRunner,
         packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(
@@ -164,16 +294,41 @@ void main() {
         ),
       );
 
+      testTransport(
+        transport: transport,
+        hasFileSystemTransport: false,
+      );
+
+      testConfiguration(
+        integrations: integrations,
+        shouldHaveIntegrations: platformAgnosticIntegrations,
+        shouldNotHaveIntegrations: [
+          ...androidIntegrations,
+          ...iOsAndMacOsIntegrations,
+          ...nativeIntegrations,
+        ],
+      );
+
+      testBefore(
+          integrations: integrations,
+          beforeIntegration: WidgetsFlutterBindingIntegration,
+          afterIntegration: OnErrorIntegration);
+
+      await Sentry.close();
+    });
+
+    test('Web && (macOS)', () async {
+      List<Integration> integrations = [];
+      Transport transport = MockTransport();
+
+      // Tests that iOS || macOS integrations aren't added on a browswer which
+      // runs on iOS or macOS
       await SentryFlutter.init(
-        getConfigurationTester(
-          hasFileSystemTransport: false,
-          shouldHaveIntegrations: platformAgnosticIntegrations,
-          shouldNotHaveIntegrations: [
-            ...androidIntegrations,
-            ...iOsAndMacOsIntegrations,
-            ...nativeIntegrations,
-          ],
-        ),
+        (options) async {
+          options.dsn = fakeDsn;
+          integrations = options.integrations;
+          transport = options.transport;
+        },
         appRunner: appRunner,
         packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(
@@ -181,20 +336,41 @@ void main() {
           platform: MockPlatform.macOs(),
         ),
       );
+
+      testTransport(
+        transport: transport,
+        hasFileSystemTransport: false,
+      );
+
+      testConfiguration(
+        integrations: integrations,
+        shouldHaveIntegrations: platformAgnosticIntegrations,
+        shouldNotHaveIntegrations: [
+          ...androidIntegrations,
+          ...iOsAndMacOsIntegrations,
+          ...nativeIntegrations,
+        ],
+      );
+
+      testBefore(
+          integrations: integrations,
+          beforeIntegration: WidgetsFlutterBindingIntegration,
+          afterIntegration: OnErrorIntegration);
+
+      await Sentry.close();
     });
 
     test('Web && Android', () async {
+      List<Integration> integrations = [];
+      Transport transport = MockTransport();
+
       // Tests that Android integrations aren't added on an Android browswer
       await SentryFlutter.init(
-        getConfigurationTester(
-          hasFileSystemTransport: false,
-          shouldHaveIntegrations: platformAgnosticIntegrations,
-          shouldNotHaveIntegrations: [
-            ...androidIntegrations,
-            ...iOsAndMacOsIntegrations,
-            ...nativeIntegrations,
-          ],
-        ),
+        (options) async {
+          options.dsn = fakeDsn;
+          integrations = options.integrations;
+          transport = options.transport;
+        },
         appRunner: appRunner,
         packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(
@@ -202,11 +378,33 @@ void main() {
           platform: MockPlatform.android(),
         ),
       );
+
+      testTransport(
+        transport: transport,
+        hasFileSystemTransport: false,
+      );
+
+      testConfiguration(
+        integrations: integrations,
+        shouldHaveIntegrations: platformAgnosticIntegrations,
+        shouldNotHaveIntegrations: [
+          ...androidIntegrations,
+          ...iOsAndMacOsIntegrations,
+          ...nativeIntegrations,
+        ],
+      );
+
+      testBefore(
+          integrations: integrations,
+          beforeIntegration: WidgetsFlutterBindingIntegration,
+          afterIntegration: OnErrorIntegration);
+
+      await Sentry.close();
     });
   });
 
   group('initial values', () {
-    tearDown(() async {
+    setUp(() async {
       await Sentry.close();
     });
 
@@ -215,7 +413,7 @@ void main() {
         (options) {
           options.dsn = fakeDsn;
 
-          expect(kDebugMode, options.debug);
+          expect(false, options.debug);
           expect('debug', options.environment);
           expect(sdkName, options.sdk.name);
           expect(sdkVersion, options.sdk.version);
@@ -229,6 +427,8 @@ void main() {
           isWeb: true,
         ),
       );
+
+      await Sentry.close();
     });
   });
 }

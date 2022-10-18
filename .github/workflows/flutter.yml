@@ -3,30 +3,33 @@ on:
   push:
     branches:
       - main
+      - release/**
   pull_request:
-defaults:
-  run:
-    shell: bash
+    paths-ignore:
+      - 'logging/**'
+      - 'dio/**'
+
 jobs:
   build:
-    name: ${{ matrix.target }} | ${{ matrix.os }} | ${{ matrix.channel }}
+    name: ${{ matrix.target }} | ${{ matrix.os }} | ${{ matrix.sdk }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 15
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
     strategy:
       fail-fast: false
       # max-parallel: 4
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         target: ['ios', 'android', 'web', 'macos', 'linux', 'windows']
-        channel: ['stable', 'beta']
+        sdk: ['stable', 'beta']
         exclude:
           - os: ubuntu-latest
             target: ios
           - os: ubuntu-latest
             target: macos
           - os: ubuntu-latest
-            target: windows
-          - os: macos-latest
             target: windows
           - os: windows-latest
             target: ios
@@ -41,84 +44,99 @@ jobs:
             target: web
           - os: macos-latest
             target: linux
+          - os: macos-latest
+            target: windows
+          # Bad CPU type in executable
+          - os: macos-latest
+            sdk: beta
 
     steps:
-        - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-        - uses: actions/setup-java@v2
-          with:
-            distribution: 'adopt'
-            java-version: '8'
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'adopt'
+          java-version: '8'
 
-        # Install required dependencies for Flutter on Linux on Ubuntu
-        - name: 'Setup Linux'
-          run: |
-            sudo apt update
-            sudo apt install -y cmake dbus libblkid-dev libgtk-3-dev liblzma-dev ninja-build pkg-config xvfb
-            sudo apt install -y network-manager upower
-          if: matrix.os == 'ubuntu-latest'
+      # Install required dependencies for Flutter on Linux on Ubuntu
+      - name: 'Setup Linux'
+        run: |
+          sudo apt update
+          sudo apt install -y cmake dbus libblkid-dev libgtk-3-dev liblzma-dev ninja-build pkg-config xvfb
+          sudo apt install -y network-manager upower
+        if: matrix.os == 'ubuntu-latest'
 
-        - uses: subosito/flutter-action@v1
-          with:
-            channel: ${{ matrix.channel }}
+      - uses: subosito/flutter-action@1e6ee87cb840500837bcd50a667fb28815d8e310 # pin@v2
+        with:
+          channel: ${{ matrix.sdk }}
 
-        - run: flutter upgrade
+      - run: flutter upgrade
 
-        - name: Test
-          run: |
-            cd flutter
-            flutter pub get
-            flutter test --platform chrome
-            flutter test --coverage
+      - name: Pub Get
+        run: |
+          cd flutter
+          flutter pub get
 
-        - uses: codecov/codecov-action@v1
-          if: runner.os == 'Linux'
-          with:
-            name: sentry_flutter
-            file: ./flutter/coverage/lcov.info
-        
-        - uses: VeryGoodOpenSource/very_good_coverage@v1.1.1
-          with:
-            path: "./flutter/coverage/lcov.info"
-            min_coverage: 90
+      - name: Test chrome
+        if: runner.os == 'Linux'
+        run: |
+          cd flutter
+          flutter test --platform chrome --test-randomize-ordering-seed=random
 
-        - name: Build ${{ matrix.target }}
-          env:
-            SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          run: |
-            flutter config --enable-windows-desktop
-            flutter config --enable-macos-desktop
-            flutter config --enable-linux-desktop
-            cd flutter/example
-            TARGET=${{ matrix.target }}
-            flutter pub get
-            case $TARGET in
-            ios)
-            flutter build ios --no-codesign
-            ;;
-            macos)
-            flutter build macos
-            ;;
-            android)
-            flutter build appbundle
-            ;;
-            web)
-            flutter build web
-            ;;
-            linux)
-            flutter build linux
-            ;;
-            windows)
-            flutter build windows
-            ;;
-            esac
+      - name: Test VM with coverage
+        if: runner.os != 'macOS'
+        run: |
+          cd flutter
+          flutter test --coverage --test-randomize-ordering-seed=random
+
+      #   remove comment after https://github.com/codecov/codecov-action/issues/600
+      # - uses: codecov/codecov-action@v2
+      #   if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
+      #   with:
+      #     name: sentry_flutter
+      #     file: ./flutter/coverage/lcov.info
+
+      - uses: VeryGoodOpenSource/very_good_coverage@84e5b54ab888644554e5573dca87d7f76dec9fb3 # pin@v2.0.0
+        if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
+        with:
+          path: './flutter/coverage/lcov.info'
+          min_coverage: 90
+
+      - name: Build ${{ matrix.target }}
+        run: |
+          flutter config --enable-windows-desktop
+          flutter config --enable-macos-desktop
+          flutter config --enable-linux-desktop
+          cd flutter/example
+          TARGET=${{ matrix.target }}
+          flutter pub get
+          case $TARGET in
+          ios)
+          flutter build ios --no-codesign
+          ;;
+          macos)
+          flutter build macos
+          ;;
+          android)
+          flutter build appbundle
+          ;;
+          web)
+          flutter build web
+          ;;
+          linux)
+          flutter build linux
+          ;;
+          windows)
+          flutter build windows
+          ;;
+          esac
 
   analyze:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v2
-      - uses: subosito/flutter-action@v1
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@1e6ee87cb840500837bcd50a667fb28815d8e310 # pin@v2
       - run: |
           cd flutter
           flutter pub get
@@ -126,11 +144,15 @@ jobs:
           flutter analyze
 
   package-analysis:
+    # `axel-op/dart-package-analyzer` is using `flutter pub upgrade` instead of `get`,
+    # which ignores pubspec.yaml `dependency_overrides`. Because of that, all `release/*` branches are failing,
+    # because the package cannot find the "about to be released" version of our sentry-dart package that it depends on.
+    if: ${{ !startsWith(github.ref, 'refs/heads/release/') }}
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v2
-      - uses: axel-op/dart-package-analyzer@d56ba070e9dcacc6d8ba48a41938b1e2b973de41
+      - uses: actions/checkout@v3
+      - uses: axel-op/dart-package-analyzer@7a6c3c66bce78d82b729a1ffef2d9458fde6c8d2 # pin@v3
         id: analysis
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
@@ -141,8 +163,7 @@ jobs:
           TOTAL_MAX: ${{ steps.analysis.outputs.total_max }}
         run: |
           PERCENTAGE=$(( $TOTAL * 100 / $TOTAL_MAX ))
-          # 70 because pana does not understand null-safety yet
-          if (( $PERCENTAGE < 70 ))
+          if (( $PERCENTAGE < 90 ))
           then
             echo Score too low!
             exit 1
@@ -150,38 +171,46 @@ jobs:
 
   pod-lint:
     runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: ./flutter
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       # https://github.com/CocoaPods/CocoaPods/issues/5275#issuecomment-315461879
-      - run: pod lib lint flutter/ios/sentry_flutter.podspec --configuration=Debug --skip-import-validation --allow-warnings
-      - run: pod lib lint flutter/macos/sentry_flutter.podspec --configuration=Debug --skip-import-validation --allow-warnings
+      - run: pod lib lint ios/sentry_flutter.podspec --configuration=Debug --skip-import-validation --allow-warnings
 
   swift-lint:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./flutter
     steps:
-      - uses: actions/checkout@v2
-      - uses: norio-nomura/action-swiftlint@3.2.1
+      - uses: actions/checkout@v3
+      - uses: norio-nomura/action-swiftlint@9f4dcd7fd46b4e75d7935cf2f4df406d5cae3684 # pin@3.2.1
+        with:
+          args: --strict
 
   ktlint:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./flutter
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-java@v2
+      - uses: actions/checkout@v3
+
+      - name: ktlint
+        uses: ScaCap/action-ktlint@f22fa77f33cbfaf0a1a332aae1f176c8712c8a3c # pin@1.4
         with:
-          distribution: 'adopt'
-          java-version: '8'
-      - run: |
-          curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.40.0/ktlint
-          chmod a+x ktlint
-          ./ktlint --reporter=checkstyle,output=build/ktlint-report.xml || true
-      - uses: yutailang0119/action-ktlint@v1
-        with:
-          xml_path: build/ktlint-report.xml
+          github_token: ${{ secrets.github_token }}
+          reporter: github-pr-review
+          android: true
+          fail_on_error: true
 
   detekt:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: natiginfo/action-detekt-all@1.15.0-RC1
+      - uses: actions/checkout@v3
+      # To recreate baseline run: detekt -i flutter/android,flutter/example/android -b flutter/config/detekt-bl.xml -cb
+      - uses: natiginfo/action-detekt-all@e01de6ff0eef7c24131e8a133bf598cfac6ceeab # pin@1.21.0
         with:
-          args: -i flutter --baseline flutter/config/detekt-bl.xml
+          args: -i flutter/android,flutter/example/android --baseline flutter/config/detekt-bl.xml --jvm-target 1.8 --build-upon-default-config --all-rules

@@ -1,11 +1,13 @@
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/sentry_envelope.dart';
 
-class MockSentryClient implements SentryClient {
+import 'no_such_method_provider.dart';
+
+class MockSentryClient with NoSuchMethodProvider implements SentryClient {
   List<CaptureEventCall> captureEventCalls = [];
   List<CaptureExceptionCall> captureExceptionCalls = [];
   List<CaptureMessageCall> captureMessageCalls = [];
   List<CaptureEnvelopeCall> captureEnvelopeCalls = [];
+  List<CaptureTransactionCall> captureTransactionCalls = [];
   List<SentryUserFeedback> userFeedbackCalls = [];
   int closeCalls = 0;
 
@@ -64,18 +66,28 @@ class MockSentryClient implements SentryClient {
   @override
   Future<SentryId> captureEnvelope(SentryEnvelope envelope) async {
     captureEnvelopeCalls.add(CaptureEnvelopeCall(envelope));
-    return SentryId.newId();
+    return envelope.header.eventId ?? SentryId.newId();
   }
 
   @override
-  Future<SentryId> captureUserFeedback(SentryUserFeedback userFeedback) async {
+  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) async {
     userFeedbackCalls.add(userFeedback);
-    return SentryId.newId();
   }
 
   @override
   void close() {
     closeCalls = closeCalls + 1;
+  }
+
+  @override
+  Future<SentryId> captureTransaction(
+    SentryTransaction transaction, {
+    Scope? scope,
+    SentryTraceContextHeader? traceContext,
+  }) async {
+    captureTransactionCalls
+        .add(CaptureTransactionCall(transaction, traceContext));
+    return transaction.eventId;
   }
 }
 
@@ -129,4 +141,11 @@ class CaptureEnvelopeCall {
   final SentryEnvelope envelope;
 
   CaptureEnvelopeCall(this.envelope);
+}
+
+class CaptureTransactionCall {
+  final SentryTransaction transaction;
+  final SentryTraceContextHeader? traceContext;
+
+  CaptureTransactionCall(this.transaction, this.traceContext);
 }

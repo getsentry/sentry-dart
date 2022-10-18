@@ -17,7 +17,7 @@ It will capture errors in the native layer, including (Java/Kotlin/C/C++ for And
 
 #### Usage
 
-- Sign up for a Sentry.io account and get a DSN at http://sentry.io.
+- Sign up for a Sentry.io account and get a DSN at https://sentry.io.
 
 - Follow the installing instructions on [pub.dev](https://pub.dev/packages/sentry_flutter/install).
 
@@ -66,6 +66,9 @@ Future<void> main() async {
 In order to track navigation events you have to add the 
 `SentryNavigatorObserver` to your `MaterialApp`, `WidgetsApp` or `CupertinoApp`.
 
+You should provide a name to route settings: `RouteSettings(name: 'Your Route Name')`. The root 
+route name `/` will be replaced by `root "/"` for clarity's sake.
+
 ```dart
 import 'package:flutter/material.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -79,7 +82,25 @@ MaterialApp(
 )
 // ...
 ```
-For a more throughout example see the [example](example/lib/main.dart).
+For a more throughout example see the [example](https://github.com/getsentry/sentry-dart/blob/main/flutter/example/lib/main.dart).
+
+##### Performance tracing for `AssetBundle`s
+
+Sentry has support for tracing [`AssetBundle`](https://api.flutter.dev/flutter/services/AssetBundle-class.html)s. It can be added with the following code:
+
+```dart
+runApp(
+  DefaultAssetBundle(
+    bundle: SentryAssetBundle(),
+    child: MyApp(),
+  ),
+);
+```
+
+This adds performance tracing for all `AssetBundle` usages, where the `AssetBundle` is accessed with `DefaultAssetBunlde.of(context)`.
+This includes all of Flutters internal access of `AssetBundle`s, like `Image.asset` for example.
+Tracing for `AssetBundle.loadStructuredData()` is currently disabled.
+It's hidden by the `enableStructureDataTracing` flag and considered experimental. Using it could lead to bugs. We recognize the irony.
 
 ##### Tracking HTTP events
 

@@ -1,7 +1,6 @@
 @TestOn('vm')
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'mocks.dart';
@@ -10,7 +9,7 @@ import 'mocks.dart';
 // https://github.com/getsentry/sentry-dart/issues/508
 // There are no asserts, test are succesfull if no exceptions are thrown.
 void main() {
-  tearDown(() async {
+  setUp(() async {
     await Sentry.close();
   });
 
@@ -24,19 +23,23 @@ void main() {
     await SentryFlutter.init((options) {
       options.dsn = fakeDsn;
     });
+
+    await Sentry.close();
   });
 
   // This is the failure from
   // https://github.com/getsentry/sentry-dart/issues/508
-  test('re-initilization', () {
-    SentryFlutter.init((options) {
+  test('re-initilization', () async {
+    await SentryFlutter.init((options) {
       options.dsn = fakeDsn;
     });
 
-    Sentry.close();
+    await Sentry.close();
 
-    SentryFlutter.init((options) {
+    await SentryFlutter.init((options) {
       options.dsn = fakeDsn;
     });
+
+    await Sentry.close();
   });
 }

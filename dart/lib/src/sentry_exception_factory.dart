@@ -7,16 +7,16 @@ import 'throwable_mechanism.dart';
 class SentryExceptionFactory {
   final SentryOptions _options;
 
-  final SentryStackTraceFactory _stacktraceFactory;
+  SentryStackTraceFactory get _stacktraceFactory => _options.stackTraceFactory;
 
-  SentryExceptionFactory(this._options, this._stacktraceFactory);
+  SentryExceptionFactory(this._options);
 
   SentryException getSentryException(
     dynamic exception, {
     dynamic stackTrace,
   }) {
     var throwable = exception;
-    var mechanism;
+    Mechanism? mechanism;
     if (exception is ThrowableMechanism) {
       throwable = exception.throwable;
       mechanism = exception.mechanism;
@@ -24,7 +24,11 @@ class SentryExceptionFactory {
 
     if (throwable is Error) {
       stackTrace ??= throwable.stackTrace;
-    } else if (_options.attachStacktrace) {
+    }
+    // throwable.stackTrace is null if its an exception that was never thrown
+    // hence we check again if stackTrace is null and if not, read the current stack trace
+    // but only if attachStacktrace is enabled
+    if (_options.attachStacktrace) {
       stackTrace ??= StackTrace.current;
     }
 
@@ -41,13 +45,11 @@ class SentryExceptionFactory {
 
     // if --obfuscate feature is enabled, 'type' won't be human readable.
     // https://flutter.dev/docs/deployment/obfuscate#caveat
-    final sentryException = SentryException(
-      type: '${throwable.runtimeType}',
-      value: '$throwable',
+    return SentryException(
+      type: (throwable.runtimeType).toString(),
+      value: throwable.toString(),
       mechanism: mechanism,
       stackTrace: sentryStackTrace,
     );
-
-    return sentryException;
   }
 }

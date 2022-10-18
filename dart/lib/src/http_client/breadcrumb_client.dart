@@ -86,13 +86,10 @@ class BreadcrumbClient extends BaseClient {
         responseBodySize: responseBodySize,
       );
 
-      _hub.addBreadcrumb(breadcrumb);
+      await _hub.addBreadcrumb(breadcrumb);
     }
   }
 
   @override
-  void close() {
-    // See https://github.com/getsentry/sentry-dart/pull/226#discussion_r536984785
-    _client.close();
-  }
+  void close() => _client.close();
 }

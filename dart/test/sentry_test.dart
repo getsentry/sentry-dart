@@ -1,9 +1,11 @@
+import 'dart:async';
+
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/event_processor/deduplication_event_processor.dart';
 import 'package:test/test.dart';
 
-import 'mocks.dart';
 import 'fake_platform_checker.dart';
+import 'mocks.dart';
 import 'mocks/mock_integration.dart';
 import 'mocks/mock_sentry_client.dart';
 
@@ -16,7 +18,12 @@ void main() {
     var anException = Exception();
 
     setUp(() async {
-      await Sentry.init((options) => options.dsn = fakeDsn);
+      await Sentry.init(
+        (options) => {
+          options.dsn = fakeDsn,
+          options.tracesSampleRate = 1.0,
+        },
+      );
       anException = Exception('anException');
 
       client = MockSentryClient();
@@ -39,7 +46,7 @@ void main() {
       await Sentry.captureEvent(
         fakeEvent,
         withScope: (scope) {
-          scope.user = SentryUser(id: 'foo bar');
+          scope.setUser(SentryUser(id: 'foo bar'));
         },
       );
 
@@ -50,24 +57,24 @@ void main() {
 
     test('should not capture a null exception', () async {
       await Sentry.captureException(null);
-      expect(client.captureExceptionCalls.length, 0);
+      expect(client.captureEventCalls.length, 0);
     });
 
     test('should capture the exception', () async {
       await Sentry.captureException(anException);
-      expect(client.captureExceptionCalls.length, 1);
-      expect(client.captureExceptionCalls.first.throwable, anException);
-      expect(client.captureExceptionCalls.first.stackTrace, isNull);
-      expect(client.captureExceptionCalls.first.scope, isNotNull);
+      expect(client.captureEventCalls.length, 1);
+      expect(client.captureEventCalls.first.event.throwable, anException);
+      expect(client.captureEventCalls.first.stackTrace, isNull);
+      expect(client.captureEventCalls.first.scope, isNotNull);
     });
 
     test('should capture exception withScope', () async {
       await Sentry.captureException(anException, withScope: (scope) {
-        scope.user = SentryUser(id: 'foo bar');
+        scope.setUser(SentryUser(id: 'foo bar'));
       });
-      expect(client.captureExceptionCalls.length, 1);
-      expect(client.captureExceptionCalls.first.throwable, anException);
-      expect(client.captureExceptionCalls.first.scope?.user?.id, 'foo bar');
+      expect(client.captureEventCalls.length, 1);
+      expect(client.captureEventCalls.first.event.throwable, anException);
+      expect(client.captureEventCalls.first.scope?.user?.id, 'foo bar');
     });
 
     test('should capture message', () async {
@@ -85,7 +92,7 @@ void main() {
       await Sentry.captureMessage(
         fakeMessage.formatted,
         withScope: (scope) {
-          scope.user = SentryUser(id: 'foo bar');
+          scope.setUser(SentryUser(id: 'foo bar'));
         },
       );
 
@@ -93,14 +100,41 @@ void main() {
       expect(client.captureMessageCalls.first.formatted, fakeMessage.formatted);
       expect(client.captureMessageCalls.first.scope?.user?.id, 'foo bar');
     });
+
+    test('should start transaction with given values', () async {
+      final tr = Sentry.startTransaction('name', 'op');
+      await tr.finish();
+
+      expect(client.captureTransactionCalls.length, 1);
+    });
+
+    test('should start transaction with context', () async {
+      final tr = Sentry.startTransactionWithContext(
+          SentryTransactionContext('name', 'operation'));
+      await tr.finish();
+
+      expect(client.captureTransactionCalls.length, 1);
+    });
+
+    test('should return span if bound to the scope', () async {
+      final tr = Sentry.startTransaction('name', 'op', bindToScope: true);
+
+      expect(Sentry.getSpan(), tr);
+    });
+
+    test('should not return span if not bound to the scope', () async {
+      Sentry.startTransaction('name', 'op');
+
+      expect(Sentry.getSpan(), isNull);
+    });
   });
 
   group('Sentry is enabled or disabled', () {
-    tearDown(() async {
+    setUp(() async {
       await Sentry.close();
     });
 
-    test('null DSN', () {
+    test('null DSN', () async {
       expect(
         () async => await Sentry.init((options) => options.dsn = null),
         throwsArgumentError,
@@ -225,6 +259,54 @@ void main() {
         },
       );
     });
+
+    test('should complete when appRunner completes', () async {
+      final completer = Completer();
+      var completed = false;
+
+      final init = Sentry.init(
+        (options) {
+          options.dsn = fakeDsn;
+        },
+        appRunner: () => completer.future,
+      ).whenComplete(() => completed = true);
+
+      await Future(() {
+        // We make the expectation only after all microtasks have completed,
+        // that Sentry.init might have scheduled.
+        expect(completed, false);
+      });
+
+      completer.complete();
+      await init;
+
+      expect(completed, true);
+    });
+  });
+
+  test('should complete when appRunner is not called in runZonedGuarded',
+      () async {
+    final completer = Completer();
+    var completed = false;
+
+    final init = Sentry.init(
+      (options) {
+        options.dsn = fakeDsn;
+      },
+      appRunner: () => completer.future,
+      callAppRunnerInRunZonedGuarded: false,
+    ).whenComplete(() => completed = true);
+
+    await Future(() {
+      // We make the expectation only after all microtasks have completed,
+      // that Sentry.init might have scheduled.
+      expect(completed, false);
+    });
+
+    completer.complete();
+    await init;
+
+    expect(completed, true);
   });
 
   test('options.environment debug', () async {
@@ -234,7 +316,7 @@ void main() {
     await Sentry.init((options) {
       options.dsn = fakeDsn;
       expect(options.environment, 'debug');
-      expect(options.debug, true);
+      expect(options.debug, false);
     }, options: sentryOptions);
   });
 
@@ -266,10 +348,51 @@ void main() {
 
     await Sentry.init((options) {
       options.dsn = fakeDsn;
+      options.debug = true;
       expect(options.logger, dartLogger);
+
       options.debug = false;
+      expect(options.logger, noOpLogger);
     }, options: sentryOptions);
 
     expect(sentryOptions.logger == dartLogger, false);
   });
+
+  group("Sentry init optionsConfiguration", () {
+    final fixture = Fixture();
+
+    test('throw is handled and logged', () async {
+      final sentryOptions = SentryOptions(dsn: fakeDsn)
+        ..debug = true
+        ..logger = fixture.mockLogger;
+
+      final exception = Exception("Exception in options callback");
+      await Sentry.init((options) async {
+        throw exception;
+      }, options: sentryOptions);
+
+      expect(fixture.loggedException, exception);
+      expect(fixture.loggedLevel, SentryLevel.error);
+    });
+  });
+}
+
+class Fixture {
+  bool logged = false;
+  SentryLevel? loggedLevel;
+  Object? loggedException;
+
+  void mockLogger(
+    SentryLevel level,
+    String message, {
+    String? logger,
+    Object? exception,
+    StackTrace? stackTrace,
+  }) {
+    if (!logged) {
+      logged = true; // Block multiple calls which override expected values.
+      loggedLevel = level;
+      loggedException = exception;
+    }
+  }
 }

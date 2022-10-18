@@ -1,5 +1,7 @@
 import 'dart:collection';
 
+import 'package:meta/meta.dart';
+
 import '../protocol.dart';
 
 /// The context interfaces provide additional context data.
@@ -17,6 +19,8 @@ class Contexts extends MapView<String, dynamic> {
     SentryBrowser? browser,
     SentryGpu? gpu,
     SentryCulture? culture,
+    SentryTraceContext? trace,
+    SentryResponse? response,
   }) : super({
           SentryDevice.type: device,
           SentryOperatingSystem.type: operatingSystem,
@@ -25,6 +29,8 @@ class Contexts extends MapView<String, dynamic> {
           SentryBrowser.type: browser,
           SentryGpu.type: gpu,
           SentryCulture.type: culture,
+          SentryTraceContext.type: trace,
+          SentryResponse.type: response,
         });
 
   /// Deserializes [Contexts] from JSON [Map].
@@ -49,8 +55,14 @@ class Contexts extends MapView<String, dynamic> {
       gpu: data[SentryGpu.type] != null
           ? SentryGpu.fromJson(Map.from(data[SentryGpu.type]))
           : null,
+      trace: data[SentryTraceContext.type] != null
+          ? SentryTraceContext.fromJson(Map.from(data[SentryTraceContext.type]))
+          : null,
       runtimes: data[SentryRuntime.type] != null
           ? [SentryRuntime.fromJson(Map.from(data[SentryRuntime.type]))]
+          : null,
+      response: data[SentryResponse.type] != null
+          ? SentryResponse.fromJson(Map.from(data[SentryResponse.type]))
           : null,
     );
 
@@ -116,6 +128,17 @@ class Contexts extends MapView<String, dynamic> {
 
   set gpu(SentryGpu? gpu) => this[SentryGpu.type] = gpu;
 
+  /// The tracing context of the transaction
+  SentryTraceContext? get trace => this[SentryTraceContext.type];
+
+  set trace(SentryTraceContext? trace) => this[SentryTraceContext.type] = trace;
+
+  /// Response context for a HTTP response.
+  @experimental
+  SentryResponse? get response => this[SentryResponse.type];
+
+  set response(SentryResponse? value) => this[SentryResponse.type] = value;
+
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
@@ -161,6 +184,20 @@ class Contexts extends MapView<String, dynamic> {
           final gpuMap = gpu?.toJson();
           if (gpuMap?.isNotEmpty ?? false) {
             json[SentryGpu.type] = gpuMap;
+          }
+          break;
+
+        case SentryResponse.type:
+          final responseMap = response?.toJson();
+          if (responseMap?.isNotEmpty ?? false) {
+            json[SentryResponse.type] = responseMap;
+          }
+          break;
+
+        case SentryTraceContext.type:
+          final traceMap = trace?.toJson();
+          if (traceMap?.isNotEmpty ?? false) {
+            json[SentryTraceContext.type] = traceMap;
           }
           break;
 
@@ -212,6 +249,8 @@ class Contexts extends MapView<String, dynamic> {
       browser: browser?.clone(),
       culture: culture?.clone(),
       gpu: gpu?.clone(),
+      trace: trace?.clone(),
+      response: response?.clone(),
       runtimes: runtimes.map((runtime) => runtime.clone()).toList(),
     )..addEntries(
         entries.where((element) => !_defaultFields.contains(element.key)),
@@ -228,6 +267,8 @@ class Contexts extends MapView<String, dynamic> {
     SentryBrowser? browser,
     SentryCulture? culture,
     SentryGpu? gpu,
+    SentryTraceContext? trace,
+    SentryResponse? response,
   }) =>
       Contexts(
         device: device ?? this.device,
@@ -237,6 +278,8 @@ class Contexts extends MapView<String, dynamic> {
         browser: browser ?? this.browser,
         gpu: gpu ?? this.gpu,
         culture: culture ?? this.culture,
+        trace: trace ?? this.trace,
+        response: response ?? this.response,
       )..addEntries(
           entries.where((element) => !_defaultFields.contains(element.key)),
         );
@@ -250,5 +293,7 @@ class Contexts extends MapView<String, dynamic> {
     SentryGpu.type,
     SentryBrowser.type,
     SentryCulture.type,
+    SentryTraceContext.type,
+    SentryResponse.type,
   ];
 }

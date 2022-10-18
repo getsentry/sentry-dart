@@ -1,20 +1,78 @@
+import 'dart:async';
 import 'dart:collection';
-import 'sentry_attachment/sentry_attachment.dart';
+
 import 'event_processor.dart';
 import 'protocol.dart';
+import 'scope_observer.dart';
+import 'sentry_attachment/sentry_attachment.dart';
 import 'sentry_options.dart';
+import 'sentry_span_interface.dart';
+import 'sentry_tracer.dart';
 
 /// Scope data to be sent with the event
 class Scope {
   /// How important this event is.
   SentryLevel? level;
 
+  String? _transaction;
+
   /// The name of the transaction which generated this event,
   /// for example, the route name: `"/users/<username>/"`.
-  String? transaction;
+  String? get transaction {
+    return ((_span is SentryTracer) ? (_span as SentryTracer?)?.name : null) ??
+        _transaction;
+  }
 
-  /// Information about the current user.
-  SentryUser? user;
+  set transaction(String? transaction) {
+    _transaction = transaction;
+
+    if (_transaction != null && _span != null) {
+      final currentTransaction =
+          (_span is SentryTracer) ? (_span as SentryTracer?) : null;
+      currentTransaction?.name = _transaction!;
+    }
+  }
+
+  ISentrySpan? _span;
+
+  /// Returns active transaction or null if there is no active transaction.
+  ISentrySpan? get span => _span;
+
+  set span(ISentrySpan? span) {
+    _span = span;
+
+    if (_span != null) {
+      final currentTransaction =
+          (_span is SentryTracer) ? (_span as SentryTracer?) : null;
+      _transaction = currentTransaction?.name ?? _transaction;
+    }
+  }
+
+  SentryUser? _user;
+
+  /// Get the current user.
+  SentryUser? get user => _user;
+
+  /// Sets the current user
+  /// This method is deprecated, use the [setUser(user)] instead.
+  /// This method will be removed in the future.
+  /// The breaking change is due to the [enableScopeSync] feature that
+  /// requires returning a [Future].
+  @Deprecated('Use [setUser(user)] instead')
+  set user(SentryUser? user) {
+    _user = user;
+  }
+
+  void _setUserSync(SentryUser? user) {
+    _user = user;
+  }
+
+  /// Set the current user.
+  Future<void> setUser(SentryUser? user) async {
+    _setUserSync(user);
+    await _callScopeObservers(
+        (scopeObserver) async => await scopeObserver.setUser(user));
+  }
 
   List<String> _fingerprint = [];
 
@@ -59,16 +117,33 @@ class Scope {
   /// * https://docs.sentry.io/platforms/java/enriching-events/context/
   Map<String, dynamic> get contexts => Map.unmodifiable(_contexts);
 
-  /// add an entry to the Scope's contexts
-  void setContexts(String key, dynamic value) {
-    _contexts[key] = (value is num || value is bool || value is String)
+  void _setContextsSync(String key, dynamic value) {
+    // if it's a List, it should not be a List<SentryRuntime> because it can't
+    // be wrapped by the value object since it's a special property for having
+    // multiple runtimes and it has a dedicated property within the Contexts class.
+    _contexts[key] = (value is num ||
+            value is bool ||
+            value is String ||
+            (value is List &&
+                (value is! List<SentryRuntime> &&
+                    key != SentryRuntime.listType)))
         ? {'value': value}
         : value;
   }
 
+  /// add an entry to the Scope's contexts
+  Future<void> setContexts(String key, dynamic value) async {
+    _setContextsSync(key, value);
+    await _callScopeObservers(
+        (scopeObserver) async => await scopeObserver.setContexts(key, value));
+  }
+
   /// Removes a value from the Scope's contexts
-  void removeContexts(String key) {
+  Future<void> removeContexts(String key) async {
     _contexts.remove(key);
+
+    await _callScopeObservers(
+        (scopeObserver) async => await scopeObserver.removeContexts(key));
   }
 
   /// Scope's event processor list
@@ -81,56 +156,81 @@ class Scope {
 
   final SentryOptions _options;
 
-  final List<SentryAttachment> _attachements = [];
+  final List<SentryAttachment> _attachments = [];
 
-  List<SentryAttachment> get attachements => List.unmodifiable(_attachements);
+  List<SentryAttachment> get attachments => List.unmodifiable(_attachments);
+
+  @Deprecated('Use [attachments] instead')
+  List<SentryAttachment> get attachements => attachments;
 
   Scope(this._options);
 
-  /// Adds a breadcrumb to the breadcrumbs queue
-  void addBreadcrumb(Breadcrumb breadcrumb, {dynamic hint}) {
+  bool _addBreadCrumbSync(Breadcrumb breadcrumb, {dynamic hint}) {
     // bail out if maxBreadcrumbs is zero
     if (_options.maxBreadcrumbs == 0) {
-      return;
+      return false;
     }
 
     Breadcrumb? processedBreadcrumb = breadcrumb;
     // run before breadcrumb callback if set
     if (_options.beforeBreadcrumb != null) {
-      processedBreadcrumb = _options.beforeBreadcrumb!(
-        processedBreadcrumb,
-        hint: hint,
-      );
-
-      if (processedBreadcrumb == null) {
-        _options.logger(
-          SentryLevel.info,
-          'Breadcrumb was dropped by beforeBreadcrumb',
+      try {
+        processedBreadcrumb = _options.beforeBreadcrumb!(
+          processedBreadcrumb,
+          hint: hint,
         );
-        return;
+        if (processedBreadcrumb == null) {
+          _options.logger(
+            SentryLevel.info,
+            'Breadcrumb was dropped by beforeBreadcrumb',
+          );
+          return false;
+        }
+      } catch (exception, stackTrace) {
+        _options.logger(
+          SentryLevel.error,
+          'The BeforeBreadcrumb callback threw an exception',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
       }
     }
-
-    // remove first item if list is full
-    if (_breadcrumbs.length >= _options.maxBreadcrumbs &&
-        _breadcrumbs.isNotEmpty) {
-      _breadcrumbs.removeFirst();
+    if (processedBreadcrumb != null) {
+      // remove first item if list is full
+      if (_breadcrumbs.length >= _options.maxBreadcrumbs &&
+          _breadcrumbs.isNotEmpty) {
+        _breadcrumbs.removeFirst();
+      }
+      _breadcrumbs.add(processedBreadcrumb);
     }
+    return true;
+  }
 
-    _breadcrumbs.add(breadcrumb);
+  /// Adds a breadcrumb to the breadcrumbs queue
+  Future<void> addBreadcrumb(Breadcrumb breadcrumb, {dynamic hint}) async {
+    if (_addBreadCrumbSync(breadcrumb, hint: hint)) {
+      await _callScopeObservers((scopeObserver) async =>
+          await scopeObserver.addBreadcrumb(breadcrumb));
+    }
   }
 
   void addAttachment(SentryAttachment attachment) {
-    _attachements.add(attachment);
+    _attachments.add(attachment);
   }
 
   void clearAttachments() {
-    _attachements.clear();
+    _attachments.clear();
+  }
+
+  void _clearBreadcrumbsSync() {
+    _breadcrumbs.clear();
   }
 
   /// Clear all the breadcrumbs
-  void clearBreadcrumbs() {
-    _breadcrumbs.clear();
+  Future<void> clearBreadcrumbs() async {
+    _clearBreadcrumbsSync();
+    await _callScopeObservers(
+        (scopeObserver) async => await scopeObserver.clearBreadcrumbs());
   }
 
   /// Adds an event processor
@@ -139,54 +239,86 @@ class Scope {
   }
 
   /// Resets the Scope to its default state
-  void clear() {
-    clearBreadcrumbs();
+  Future<void> clear() async {
     clearAttachments();
     level = null;
-    transaction = null;
-    user = null;
+    _span = null;
+    _transaction = null;
     _fingerprint = [];
     _tags.clear();
     _extra.clear();
     _eventProcessors.clear();
+
+    _clearBreadcrumbsSync();
+    _setUserSync(null);
+
+    await clearBreadcrumbs();
+    await setUser(null);
   }
 
-  /// Sets a tag to the Scope
-  void setTag(String key, String value) {
+  void _setTagSync(String key, String value) {
     _tags[key] = value;
   }
 
-  /// Removes a tag from the Scope
-  void removeTag(String key) {
-    _tags.remove(key);
+  /// Sets a tag to the Scope
+  Future<void> setTag(String key, String value) async {
+    _setTagSync(key, value);
+    await _callScopeObservers(
+        (scopeObserver) async => await scopeObserver.setTag(key, value));
   }
 
-  /// Sets an extra to the Scope
-  void setExtra(String key, dynamic value) {
+  /// Removes a tag from the Scope
+  Future<void> removeTag(String key) async {
+    _tags.remove(key);
+    await _callScopeObservers(
+        (scopeObserver) async => await scopeObserver.removeTag(key));
+  }
+
+  void _setExtraSync(String key, dynamic value) {
     _extra[key] = value;
   }
 
-  /// Removes an extra from the Scope
-  void removeExtra(String key) => _extra.remove(key);
+  /// Sets an extra to the Scope
+  Future<void> setExtra(String key, dynamic value) async {
+    _setExtraSync(key, value);
+    await _callScopeObservers(
+        (scopeObserver) async => await scopeObserver.setExtra(key, value));
+  }
 
-  Future<SentryEvent?> applyToEvent(SentryEvent event, dynamic hint) async {
+  /// Removes an extra from the Scope
+  Future<void> removeExtra(String key) async {
+    _extra.remove(key);
+    await _callScopeObservers(
+        (scopeObserver) async => await scopeObserver.removeExtra(key));
+  }
+
+  Future<SentryEvent?> applyToEvent(
+    SentryEvent event, {
+    dynamic hint,
+  }) async {
     event = event.copyWith(
-      transaction: event.transaction ?? transaction,
+      transaction: event.transaction ?? _transaction,
       user: _mergeUsers(user, event.user),
-      fingerprint: (event.fingerprint?.isNotEmpty ?? false)
-          ? event.fingerprint
-          : _fingerprint,
       breadcrumbs: (event.breadcrumbs?.isNotEmpty ?? false)
           ? event.breadcrumbs
           : List.from(_breadcrumbs),
       tags: tags.isNotEmpty ? _mergeEventTags(event) : event.tags,
       extra: extra.isNotEmpty ? _mergeEventExtra(event) : event.extra,
-      level: level ?? event.level,
     );
+
+    if (event is! SentryTransaction) {
+      event = event.copyWith(
+          fingerprint: (event.fingerprint?.isNotEmpty ?? false)
+              ? event.fingerprint
+              : _fingerprint,
+          level: level ?? event.level);
+    }
 
     _contexts.clone().forEach((key, value) {
       // add the contexts runtime list to the event.contexts.runtimes
-      if (key == SentryRuntime.listType && value is List && value.isNotEmpty) {
+      if (key == SentryRuntime.listType &&
+          value is List<SentryRuntime> &&
+          value.isNotEmpty) {
         _mergeEventContextsRuntimes(value, event);
       } else if (key != SentryRuntime.listType &&
           (!event.contexts.containsKey(key) || event.contexts[key] == null) &&
@@ -194,6 +326,13 @@ class Scope {
         event.contexts[key] = value;
       }
     });
+
+    final span = _span;
+    if (event.contexts.trace == null && span != null) {
+      event.contexts.trace = span.context.toTraceContext(
+        sampled: span.samplingDecision?.sampled,
+      );
+    }
 
     SentryEvent? processedEvent = event;
     for (final processor in _eventProcessors) {
@@ -217,8 +356,12 @@ class Scope {
   }
 
   /// Merge the scope contexts runtimes and the event contexts runtimes.
-  void _mergeEventContextsRuntimes(List value, SentryEvent event) =>
-      value.forEach((runtime) => event.contexts.addRuntime(runtime));
+  void _mergeEventContextsRuntimes(
+      List<SentryRuntime> values, SentryEvent event) {
+    for (final runtime in values) {
+      event.contexts.addRuntime(runtime);
+    }
+  }
 
   /// If the scope and the event have tag entries with the same key,
   /// the event tags will be kept.
@@ -246,24 +389,26 @@ class Scope {
       email: eventUser?.email,
       ipAddress: eventUser?.ipAddress,
       username: eventUser?.username,
-      extras: _mergeUserExtra(eventUser?.extras, scopeUser.extras),
+      data: _mergeUserData(eventUser?.data, scopeUser.data),
+      // ignore: deprecated_member_use_from_same_package
+      extras: _mergeUserData(eventUser?.extras, scopeUser.extras),
     );
   }
 
   /// If the User on the scope and the user of an event have extra entries with
   /// the same key, the event user extra will be kept.
-  Map<String, dynamic> _mergeUserExtra(
-    Map<String, dynamic>? eventExtra,
-    Map<String, dynamic>? scopeExtra,
+  Map<String, dynamic> _mergeUserData(
+    Map<String, dynamic>? eventData,
+    Map<String, dynamic>? scopeData,
   ) {
     final map = <String, dynamic>{};
-    if (eventExtra != null) {
-      map.addAll(eventExtra);
+    if (eventData != null) {
+      map.addAll(eventData);
     }
-    if (scopeExtra == null) {
+    if (scopeData == null) {
       return map;
     }
-    for (var value in scopeExtra.entries) {
+    for (var value in scopeData.entries) {
       map.putIfAbsent(value.key, () => value.value);
     }
     return map;
@@ -272,36 +417,52 @@ class Scope {
   /// Clones the current Scope
   Scope clone() {
     final clone = Scope(_options)
-      ..user = user
+      ..level = level
       ..fingerprint = List.from(fingerprint)
-      ..transaction = transaction;
+      .._transaction = _transaction
+      .._span = _span;
 
-    for (final tag in _tags.keys) {
-      clone.setTag(tag, _tags[tag]!);
+    clone._setUserSync(user);
+
+    final tags = List.from(_tags.keys);
+    for (final tag in tags) {
+      final value = _tags[tag];
+      if (value != null) {
+        clone._setTagSync(tag, value);
+      }
     }
 
-    for (final extraKey in _extra.keys) {
-      clone.setExtra(extraKey, _extra[extraKey]);
+    for (final extraKey in List.from(_extra.keys)) {
+      clone._setExtraSync(extraKey, _extra[extraKey]);
     }
 
-    for (final breadcrumb in _breadcrumbs) {
-      clone.addBreadcrumb(breadcrumb);
+    for (final breadcrumb in List.from(_breadcrumbs)) {
+      clone._addBreadCrumbSync(breadcrumb);
     }
 
-    for (final eventProcessor in _eventProcessors) {
+    for (final eventProcessor in List.from(_eventProcessors)) {
       clone.addEventProcessor(eventProcessor);
     }
 
-    contexts.forEach((key, value) {
-      if (value != null) {
-        clone.setContexts(key, value);
+    for (final entry in Map.from(contexts).entries) {
+      if (entry.value != null) {
+        clone._setContextsSync(entry.key, entry.value);
       }
-    });
+    }
 
-    for (final attachment in _attachements) {
+    for (final attachment in List.from(_attachments)) {
       clone.addAttachment(attachment);
     }
 
     return clone;
+  }
+
+  Future<void> _callScopeObservers(
+      Future<void> Function(ScopeObserver) action) async {
+    if (_options.enableScopeSync) {
+      for (final scopeObserver in _options.scopeObservers) {
+        await action(scopeObserver);
+      }
+    }
   }
 }

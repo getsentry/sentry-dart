@@ -1,9 +1,14 @@
 import 'dart:async';
+
+import 'package:meta/meta.dart';
+
 import 'hub.dart';
 import 'protocol.dart';
 import 'sentry.dart';
 import 'sentry_client.dart';
 import 'sentry_user_feedback.dart';
+import 'sentry_options.dart';
+import 'tracing.dart';
 
 /// Hub adapter to make Integrations testable
 class HubAdapter implements Hub {
@@ -11,13 +16,17 @@ class HubAdapter implements Hub {
 
   static final HubAdapter _instance = HubAdapter._();
 
+  @override
+  @internal
+  SentryOptions get options => Sentry.currentHub.options;
+
   factory HubAdapter() {
     return _instance;
   }
 
   @override
-  void addBreadcrumb(Breadcrumb crumb, {dynamic hint}) =>
-      Sentry.addBreadcrumb(crumb, hint: hint);
+  Future<void> addBreadcrumb(Breadcrumb crumb, {dynamic hint}) async =>
+      await Sentry.addBreadcrumb(crumb, hint: hint);
 
   @override
   void bindClient(SentryClient client) => Sentry.bindClient(client);
@@ -65,6 +74,7 @@ class HubAdapter implements Hub {
         template: template,
         params: params,
         hint: hint,
+        withScope: withScope,
       );
 
   @override
@@ -74,8 +84,8 @@ class HubAdapter implements Hub {
   Future<void> close() => Sentry.close();
 
   @override
-  void configureScope(ScopeCallback callback) =>
-      Sentry.configureScope(callback);
+  FutureOr<void> configureScope(ScopeCallback callback) async =>
+      await Sentry.configureScope(callback);
 
   @override
   bool get isEnabled => Sentry.isEnabled;
@@ -84,6 +94,74 @@ class HubAdapter implements Hub {
   SentryId get lastEventId => Sentry.lastEventId;
 
   @override
-  Future captureUserFeedback(SentryUserFeedback userFeedback) =>
+  Future<SentryId> captureTransaction(
+    SentryTransaction transaction, {
+    SentryTraceContextHeader? traceContext,
+  }) =>
+      Sentry.currentHub.captureTransaction(
+        transaction,
+        traceContext: traceContext,
+      );
+
+  @override
+  ISentrySpan? getSpan() => Sentry.currentHub.getSpan();
+
+  @override
+  Future<void> captureUserFeedback(SentryUserFeedback userFeedback) =>
       Sentry.captureUserFeedback(userFeedback);
+
+  @override
+  ISentrySpan startTransactionWithContext(
+    SentryTransactionContext transactionContext, {
+    Map<String, dynamic>? customSamplingContext,
+    DateTime? startTimestamp,
+    bool? bindToScope,
+    bool? waitForChildren,
+    Duration? autoFinishAfter,
+    bool? trimEnd,
+    OnTransactionFinish? onFinish,
+  }) =>
+      Sentry.startTransactionWithContext(
+        transactionContext,
+        customSamplingContext: customSamplingContext,
+        startTimestamp: startTimestamp,
+        bindToScope: bindToScope,
+        waitForChildren: waitForChildren,
+        autoFinishAfter: autoFinishAfter,
+        trimEnd: trimEnd,
+      );
+
+  @override
+  ISentrySpan startTransaction(
+    String name,
+    String operation, {
+    String? description,
+    DateTime? startTimestamp,
+    bool? bindToScope,
+    bool? waitForChildren,
+    Duration? autoFinishAfter,
+    bool? trimEnd,
+    OnTransactionFinish? onFinish,
+    Map<String, dynamic>? customSamplingContext,
+  }) =>
+      Sentry.startTransaction(
+        name,
+        operation,
+        description: description,
+        startTimestamp: startTimestamp,
+        bindToScope: bindToScope,
+        waitForChildren: waitForChildren,
+        autoFinishAfter: autoFinishAfter,
+        trimEnd: trimEnd,
+        onFinish: onFinish,
+        customSamplingContext: customSamplingContext,
+      );
+
+  @override
+  void setSpanContext(
+    dynamic throwable,
+    ISentrySpan span,
+    String transaction,
+  ) =>
+      Sentry.currentHub.setSpanContext(throwable, span, transaction);
 }

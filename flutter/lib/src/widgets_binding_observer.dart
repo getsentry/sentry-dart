@@ -1,8 +1,10 @@
+import 'dart:async';
+import 'dart:ui';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
-import 'sentry_flutter_options.dart';
 import '../sentry_flutter.dart';
+import 'binding_utils.dart';
 
 /// This is a `WidgetsBindingObserver` which can observe some events of a
 /// Flutter application.
@@ -22,10 +24,30 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     Hub? hub,
     required SentryFlutterOptions options,
   })  : _hub = hub ?? HubAdapter(),
-        _options = options;
+        _options = options,
+        _screenSizeStreamController = StreamController(sync: true) {
+    if (_options.enableWindowMetricBreadcrumbs) {
+      _screenSizeStreamController.stream
+          .map(
+            (window) => {
+              'new_pixel_ratio': window?.devicePixelRatio,
+              'new_height': window?.physicalSize.height,
+              'new_width': window?.physicalSize.width,
+            },
+          )
+          .distinct(mapEquals)
+          .skip(1) // Skip initial event added below in constructor
+          .listen(_onScreenSizeChanged);
+
+      final window = BindingUtils.getWidgetsBindingInstance()?.window;
+      _screenSizeStreamController.add(window);
+    }
+  }
 
   final Hub _hub;
   final SentryFlutterOptions _options;
+
+  final StreamController<SingletonFlutterWindow?> _screenSizeStreamController;
 
   /// This method records lifecycle events.
   /// It tries to mimic the behavior of ActivityBreadcrumbsIntegration of Sentry
@@ -57,22 +79,22 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   /// when a phone is rotated or an application window is resized.
   ///
   /// See also:
-  ///   - [Window.onMetricsChanged](https://api.flutter.dev/flutter/dart-ui/Window/onMetricsChanged.html)
+  ///   - [SingletonFlutterWindow.onMetricsChanged](https://api.flutter.dev/flutter/dart-ui/SingletonFlutterWindow/onMetricsChanged.html)
   @override
   void didChangeMetrics() {
     if (!_options.enableWindowMetricBreadcrumbs) {
       return;
     }
-    final window = WidgetsBinding.instance?.window;
+    final window = BindingUtils.getWidgetsBindingInstance()?.window;
+    _screenSizeStreamController.add(window);
+  }
+
+  void _onScreenSizeChanged(Map<String, dynamic> data) {
     _hub.addBreadcrumb(Breadcrumb(
       message: 'Screen size changed',
       category: 'device.screen',
       type: 'navigation',
-      data: <String, dynamic>{
-        'new_pixel_ratio': window?.devicePixelRatio,
-        'new_height': window?.physicalSize.height,
-        'new_width': window?.physicalSize.width,
-      },
+      data: data,
     ));
   }
 
@@ -83,7 +105,8 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     if (!_options.enableBrightnessChangeBreadcrumbs) {
       return;
     }
-    final brightness = WidgetsBinding.instance?.window.platformBrightness;
+    final brightness =
+        BindingUtils.getWidgetsBindingInstance()?.window.platformBrightness;
     final brightnessDescription =
         brightness == Brightness.dark ? 'dark' : 'light';
 
@@ -104,7 +127,8 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     if (!_options.enableTextScaleChangeBreadcrumbs) {
       return;
     }
-    final newTextScaleFactor = WidgetsBinding.instance?.window.textScaleFactor;
+    final newTextScaleFactor =
+        BindingUtils.getWidgetsBindingInstance()?.window.textScaleFactor;
     _hub.addBreadcrumb(Breadcrumb(
       message: 'Text scale factor changed to $newTextScaleFactor.',
       type: 'system',
