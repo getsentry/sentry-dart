@@ -78,6 +78,9 @@ class ScreenshotAttachment implements SentryAttachment {
   String filename = 'screenshot.png';
 
   @override
+  bool addToTransactions = true;
+
+  @override
   FutureOr<Uint8List> get bytes async {
     //return await createScreenshot() ?? Uint8List.fromList([]);
     final instance = SchedulerBinding.instance;
@@ -110,4 +113,6 @@ class ScreenshotAttachment implements SentryAttachment {
     } catch (_) {}
     return null;
   }
+
+
 }
