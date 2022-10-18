@@ -202,9 +202,8 @@ void main() {
 class CloseableMockClient extends Mock implements BaseClient {}
 
 class Fixture {
-  BreadcrumbClient getSut([MockClient? client]) {
-    final mc = client ?? getClient();
-    return BreadcrumbClient(client: mc, hub: hub);
+  BreadcrumbClient getSut(MockClient client) {
+    return BreadcrumbClient(client: client, hub: hub);
   }
 
   late MockHub hub = MockHub();

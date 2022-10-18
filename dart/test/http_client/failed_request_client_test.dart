@@ -250,15 +250,14 @@ class Fixture {
   }
 
   FailedRequestClient getSut({
-    MockClient? client,
+    required MockClient client,
     bool captureFailedRequests = false,
     MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.small,
     List<SentryStatusCode> badStatusCodes = const [],
     bool sendDefaultPii = true,
   }) {
-    final mc = client ?? getClient();
     return FailedRequestClient(
-      client: mc,
+      client: client,
       hub: _hub,
       captureFailedRequests: captureFailedRequests,
       failedRequestStatusCodes: badStatusCodes,
@@ -267,7 +266,7 @@ class Fixture {
     );
   }
 
-  MockClient getClient({int statusCode = 200, String? reason}) {
+  MockClient getClient({int statusCode = 200, required String reason}) {
     return MockClient((request) async {
       expect(request.url, requestUri);
       return Response('', statusCode, reasonPhrase: reason);

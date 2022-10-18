@@ -1,6 +1,5 @@
 import 'package:http/http.dart';
 import 'package:http/testing.dart';
-import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/http_client/tracing_client.dart';
 import 'package:sentry/src/sentry_tracer.dart';
@@ -180,8 +179,6 @@ MockClient createThrowingClient() {
   );
 }
 
-class CloseableMockClient extends Mock implements BaseClient {}
-
 class Fixture {
   final _options = SentryOptions(dsn: fakeDsn);
   late Hub _hub;
@@ -193,21 +190,20 @@ class Fixture {
   }
 
   TracingClient getSut({
-    MockClient? client,
+    required MockClient client,
     List<String>? tracePropagationTargets,
   }) {
     if (tracePropagationTargets != null) {
       _hub.options.tracePropagationTargets.clear();
       _hub.options.tracePropagationTargets.addAll(tracePropagationTargets);
     }
-    final mc = client ?? getClient();
     return TracingClient(
-      client: mc,
+      client: client,
       hub: _hub,
     );
   }
 
-  MockClient getClient({int statusCode = 200, String? reason}) {
+  MockClient getClient({int statusCode = 200, required String reason}) {
     return MockClient((request) async {
       expect(request.url, requestUri);
       return Response('', statusCode, reasonPhrase: reason, request: request);

@@ -21,7 +21,7 @@ const String _testDsnWithPort =
 void testHeaders(
   Map<String, String>? headers,
   ClockProvider fakeClockProvider, {
-  String? sdkName,
+  required String sdkName,
   bool withUserAgent = true,
   bool compressPayload = true,
   bool withSecret = true,

@@ -98,14 +98,6 @@ final fakeEvent = SentryEvent(
   ),
 );
 
-/// Doesn't do anything with the events
-class NoOpEventProcessor extends EventProcessor {
-  @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) {
-    return event;
-  }
-}
-
 /// Always returns null and thus drops all events
 class DropAllEventProcessor extends EventProcessor {
   @override

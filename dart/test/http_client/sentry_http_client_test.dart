@@ -114,16 +114,15 @@ class CloseableMockClient extends Mock implements BaseClient {}
 
 class Fixture {
   SentryHttpClient getSut({
-    MockClient? client,
+    required MockClient client,
     bool captureFailedRequests = false,
     MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never,
     List<SentryStatusCode> badStatusCodes = const [],
     bool recordBreadcrumbs = true,
     bool networkTracing = false,
   }) {
-    final mc = client ?? getClient();
     return SentryHttpClient(
-      client: mc,
+      client: client,
       hub: hub,
       captureFailedRequests: captureFailedRequests,
       failedRequestStatusCodes: badStatusCodes,
@@ -135,7 +134,7 @@ class Fixture {
 
   final MockHub hub = MockHub();
 
-  MockClient getClient({int statusCode = 200, String? reason}) {
+  MockClient getClient({int statusCode = 200, required String reason}) {
     return MockClient((request) async {
       expect(request.url, requestUri);
       return Response('', statusCode, reasonPhrase: reason);
