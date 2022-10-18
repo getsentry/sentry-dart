@@ -33,6 +33,8 @@ class Sentry {
   /// Initializes the SDK
   /// passing a [AppRunner] callback allows to run the app within its own error
   /// zone ([`runZonedGuarded`](https://api.dart.dev/stable/2.10.4/dart-async/runZonedGuarded.html))
+  /// Starting with Flutter 3.3, this is not needed anymore, as the SDK will record errors using 
+  /// the [`onError`](https://api.flutter.dev/flutter/dart-ui/PlatformDispatcher/onError.html) callback.
   static Future<void> init(
     OptionsConfiguration optionsConfiguration, {
     AppRunner? appRunner,
