@@ -20,7 +20,7 @@ dependencies:
   provider: ^6.0.0
   dio: ^4.0.0
   logging: ^1.0.2
-  package_info_plus: ^2.0.0
+  package_info_plus: ^3.0.0
 
 dev_dependencies:
   pedantic: ^1.11.1
