@@ -30,3 +30,5 @@ export 'src/sentry_user_feedback.dart';
 export 'src/utils/tracing_utils.dart';
 // tracing
 export 'src/tracing.dart';
+// attachments
+export 'src/sentry_client_attachment_processor.dart';

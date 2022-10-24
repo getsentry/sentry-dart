@@ -354,6 +354,10 @@ class SentryOptions {
   @internal
   late SentryStackTraceFactory stackTraceFactory =
       SentryStackTraceFactory(this);
+
+  @internal
+  late SentryClientAttachmentProcessor clientAttachmentProcessor =
+      SentryClientAttachmentProcessor();
 }
 
 /// This function is called with an SDK specific event object and can return a modified event
