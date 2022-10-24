@@ -157,7 +157,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       args.getIfNotNull<Boolean>("enableAutoPerformanceTracking") { enableAutoPerformanceTracking ->
         if (enableAutoPerformanceTracking) {
           autoPerformanceTrackingEnabled = true
-          framesTracker = ActivityFramesTracker(LoadClass())
+          framesTracker = ActivityFramesTracker(LoadClass(), options)
         }
       }
 
