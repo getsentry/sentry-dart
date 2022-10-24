@@ -7,7 +7,7 @@ final sentryWidgetGlobalKey = GlobalKey(debugLabel: 'sentry_widget');
 /// Ideally you are adding it around your app widget like in the following
 /// example.
 /// ```dart
-/// runApp(SentryScreenshot(child: App()));
+/// runApp(SentryWidget(child: App()));
 /// ```
 ///
 /// Remarks:
