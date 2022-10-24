@@ -37,6 +37,8 @@ class SentryClient {
 
   SentryStackTraceFactory get _stackTraceFactory => _options.stackTraceFactory;
 
+  SentryClientAttachmentProcessor get _clientAttachmentProcessor => _options.clientAttachmentProcessor;
+
   /// Instantiates a client using [SentryOptions]
   factory SentryClient(SentryOptions options) {
     if (options.sendClientReports) {
@@ -130,12 +132,20 @@ class SentryClient {
       preparedEvent = _eventWithRemovedBreadcrumbsIfHandled(preparedEvent);
     }
 
+    var attachments = scope?.attachments;
+    if (attachments != null) {
+      attachments = await _clientAttachmentProcessor.processAttachments(
+          attachments,
+          preparedEvent
+      );
+    }
+
     final envelope = SentryEnvelope.fromEvent(
       preparedEvent,
       _options.sdk,
       dsn: _options.dsn,
       traceContext: scope?.span?.traceContext(),
-      attachments: scope?.attachments,
+      attachments: attachments,
     );
 
     final id = await captureEnvelope(envelope);
