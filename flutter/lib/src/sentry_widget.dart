@@ -19,8 +19,7 @@ final sentryWidgetGlobalKey = GlobalKey(debugLabel: 'sentry_widget');
 /// - You can only have one [SentryWidget] widget in your widget tree at all
 ///   times.
 class SentryWidget extends StatefulWidget {
-  const SentryWidget({Key? key, required this.child})
-      : super(key: key);
+  const SentryWidget({Key? key, required this.child}) : super(key: key);
 
   final Widget child;
 
@@ -29,7 +28,6 @@ class SentryWidget extends StatefulWidget {
 }
 
 class _SentryWidgetState extends State<SentryWidget> {
-
   @override
   Widget build(BuildContext context) {
     return RepaintBoundary(

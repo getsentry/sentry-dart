@@ -9,7 +9,6 @@ import 'package:sentry/sentry.dart';
 import '../sentry_widget.dart';
 
 class ScreenshotAttachment implements SentryAttachment {
-
   final SchedulerBinding _schedulerBinding;
   final SentryOptions _options;
 
@@ -41,7 +40,8 @@ class ScreenshotAttachment implements SentryAttachment {
 
   Future<Uint8List?> _createScreenshot() async {
     try {
-      final renderObject = sentryWidgetGlobalKey.currentContext?.findRenderObject();
+      final renderObject =
+          sentryWidgetGlobalKey.currentContext?.findRenderObject();
 
       if (renderObject is RenderRepaintBoundary) {
         final image = await renderObject.toImage(pixelRatio: 1);

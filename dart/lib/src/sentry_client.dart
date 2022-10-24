@@ -38,7 +38,8 @@ class SentryClient {
 
   SentryStackTraceFactory get _stackTraceFactory => _options.stackTraceFactory;
 
-  SentryClientAttachmentProcessor get _clientAttachmentProcessor => _options.clientAttachmentProcessor;
+  SentryClientAttachmentProcessor get _clientAttachmentProcessor =>
+      _options.clientAttachmentProcessor;
 
   /// Instantiates a client using [SentryOptions]
   factory SentryClient(SentryOptions options) {
@@ -136,9 +137,7 @@ class SentryClient {
     var attachments = scope?.attachments;
     if (attachments != null) {
       attachments = await _clientAttachmentProcessor.processAttachments(
-          attachments,
-          preparedEvent
-      );
+          attachments, preparedEvent);
     }
 
     final envelope = SentryEnvelope.fromEvent(
