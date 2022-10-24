@@ -21,15 +21,6 @@ void main() {
     });
   }
 
-  Future<void> executeNative(Future<void> Function(MethodChannel) execute) async {
-    try {
-      final channel = MethodChannel('sentry_flutter');
-      await execute(channel);
-    } catch (error, stackTrace) {
-      fail('error: $error stacktrace: $stackTrace');
-    }
-  }
-
   // Tests
 
   testWidgets('setup sentry and render app', (tester) async {
@@ -39,183 +30,80 @@ void main() {
     expect(find.text('Open another Scaffold'), findsOneWidget);
   });
 
-  if (Platform.isIOS) {
-    testWidgets('setup sentry and execute loadContexts', (tester) async {
-      await setupSentryAndApp(tester);
-
-      await executeNative((channel) async {
-        Map<String, dynamic>.from(
-          await (channel.invokeMethod('loadContexts')),
-        );
-      });
-    });
-  }
-
-  testWidgets('setup sentry and execute loadImageList', (tester) async {
+  testWidgets('setup sentry and capture event', (tester) async {
     await setupSentryAndApp(tester);
 
-    await executeNative((channel) async {
-      List<Map<dynamic, dynamic>>.from(
-        await channel.invokeMethod('loadImageList'),
-      );
-    });
+    final event = SentryEvent();
+    final sentryId = await Sentry.captureEvent(event);
+
+    expect(sentryId != SentryId.empty(), true);
   });
 
-  testWidgets('setup sentry and execute captureEnvelope', (tester) async {
+  testWidgets('setup sentry and capture exception', (tester) async {
     await setupSentryAndApp(tester);
 
-    await executeNative((channel) async {
-      final eventId = SentryId.newId();
-      final event = SentryEvent(eventId: eventId);
-      final sdkVersion = SdkVersion(name: 'fixture-sdkName', version: 'fixture-sdkVersion');
-      final envelope = SentryEnvelope.fromEvent(event, sdkVersion);
-      final envelopeData = <int>[];
-      await envelope
-          .envelopeStream(SentryOptions())
-          .forEach(envelopeData.addAll);
-      // https://flutter.dev/docs/development/platform-integration/platform-channels#codec
-      final args = [Uint8List.fromList(envelopeData)];
+    final exception = SentryException(
+        type: 'StarError',
+        value: 'I have a bad feeling about this...'
+    );
+    final sentryId = await Sentry.captureException(exception);
 
-      final result = await channel.invokeMethod(
-          'captureEnvelope', args
-      );
-      expect(result, ''); // Empty string is returned on success
-    });
+    expect(sentryId != SentryId.empty(), true);
   });
 
-  testWidgets('setup sentry and execute fetchNativeAppStart', (tester) async {
+  testWidgets('setup sentry and capture message', (tester) async {
     await setupSentryAndApp(tester);
 
-    await executeNative((channel) async {
-      final result = await channel.invokeMapMethod<String, dynamic>(
-          'fetchNativeAppStart'
-      );
-      expect(result != null, true);
-    });
+    final sentryId = await Sentry.captureMessage('hello world!');
+
+    expect(sentryId != SentryId.empty(), true);
   });
 
-  testWidgets('setup sentry and execute beginNativeFrames & endNativeFrames', (tester) async {
+  testWidgets('setup sentry and capture user feedback', (tester) async {
     await setupSentryAndApp(tester);
 
-    await executeNative((channel) async {
-      await channel.invokeMethod<void>('beginNativeFrames');
-
-      final sentryId = SentryId.empty();
-
-      await channel.invokeMapMethod<String, dynamic>(
-          'endNativeFrames', {'id': sentryId.toString()}
-      );
-    });
+    final feedback = SentryUserFeedback(
+      eventId: SentryId.newId(),
+      name: 'fixture-name',
+      email: 'fixture@email.com',
+      comments: 'fixture-comments'
+    );
+    await Sentry.captureUserFeedback(feedback);
   });
 
-  testWidgets('setup sentry and execute setContexts', (tester) async {
+  testWidgets('setup sentry and close', (tester) async {
     await setupSentryAndApp(tester);
 
-    await executeNative((channel) async {
-      final result = await channel.invokeMethod(
-          'setContexts',
-          {'key': 'fixture-key', 'value': 'fixture-value'}
-      );
-      expect(result, ''); // Empty string is returned on success
-    });
+    await Sentry.close();
   });
 
-  testWidgets('setup sentry and execute setUser', (tester) async {
+  testWidgets('setup sentry and add breadcrumb', (tester) async {
     await setupSentryAndApp(tester);
 
-    await executeNative((channel) async {
-      final result = await channel.invokeMethod(
-          'setUser',
-          {'user': null}
-      );
-      expect(result, ''); // Empty string is returned on success
-    });
+    final breadcrumb = Breadcrumb(message: 'fixture-message');
+    await Sentry.addBreadcrumb(breadcrumb);
   });
 
-  testWidgets('setup sentry and execute addBreadcrumb', (tester) async {
+  testWidgets('setup sentry and configure scope', (tester) async {
     await setupSentryAndApp(tester);
 
-    await executeNative((channel) async {
-      final breadcrumb = Breadcrumb();
-      final result = await channel.invokeMethod(
-          'addBreadcrumb',
-          {'breadcrumb': breadcrumb.toJson()}
-      );
-      expect(result, ''); // Empty string is returned on success
-    });
-  });
+    await Sentry.configureScope((scope) async {
 
-  testWidgets('setup sentry and execute clearBreadcrumbs', (tester) async {
-    await setupSentryAndApp(tester);
+      await scope.setContexts('contexts-key', 'contexts-value');
+      await scope.removeContexts('contexts-key');
 
-    await executeNative((channel) async {
-      final result = await channel.invokeMethod(
-          'clearBreadcrumbs'
-      );
-      expect(result, ''); // Empty string is returned on success
-    });
-  });
+      final user = SentryUser(id: 'fixture-id');
+      await scope.setUser(user);
 
-  testWidgets('setup sentry and execute setExtra', (tester) async {
-    await setupSentryAndApp(tester);
+      final breadcrumb = Breadcrumb(message: 'fixture-message');
+      await scope.addBreadcrumb(breadcrumb);
+      await scope.clearBreadcrumbs();
 
-    await executeNative((channel) async {
-      final result = await channel.invokeMethod(
-          'setExtra',
-          {'key': 'fixture-key', 'value': 'fixture-value'}
-      );
-      expect(result, ''); // Empty string is returned on success
-    });
-  });
+      await scope.setExtra('extra-key', 'extra-value');
+      await scope.removeExtra('extra-key');
 
-  testWidgets('setup sentry and execute removeExtra', (tester) async {
-    await setupSentryAndApp(tester);
-
-    await executeNative((channel) async {
-      await channel.invokeMethod(
-          'setExtra',
-          {'key': 'fixture-key', 'value': 'fixture-value'}
-      );
-      final result = await channel.invokeMethod(
-          'removeExtra', {'key': 'fixture-key'}
-      );
-      expect(result, ''); // Empty string is returned on success
-    });
-  });
-
-  testWidgets('setup sentry and execute setTag', (tester) async {
-    await setupSentryAndApp(tester);
-
-    await executeNative((channel) async {
-      final result = await channel.invokeMethod(
-          'setTag',
-          {'key': 'fixture-key', 'value': 'fixture-value'}
-      );
-      expect(result, ''); // Empty string is returned on success
-    });
-  });
-
-  testWidgets('setup sentry and execute removeTag', (tester) async {
-    await setupSentryAndApp(tester);
-
-    await executeNative((channel) async {
-      await channel.invokeMethod(
-          'setTag',
-          {'key': 'fixture-key', 'value': 'fixture-value'}
-      );
-      final result = await channel.invokeMethod(
-          'removeTag', {'key': 'fixture-key'}
-      );
-      expect(result, ''); // Empty string is returned on success
-    });
-  });
-
-  testWidgets('setup sentry and execute closeNativeSdk', (tester) async {
-    await setupSentryAndApp(tester);
-
-    await executeNative((channel) async {
-      final result = await channel.invokeMethod('closeNativeSdk');
-      expect(result, ''); // Empty string is returned on success
+      await scope.setTag('tag-key', 'tag-value');
+      await scope.removeTag('tag-key');
     });
   });
 }
