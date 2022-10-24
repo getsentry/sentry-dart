@@ -7,6 +7,7 @@ import 'package:meta/meta.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../sentry_flutter.dart';
 import 'event_processor/android_platform_exception_event_processor.dart';
+import 'integrations/screenshot_integration.dart';
 import 'native_scope_observer.dart';
 import 'sentry_native.dart';
 import 'sentry_native_channel.dart';
@@ -139,6 +140,7 @@ mixin SentryFlutter {
         !platformChecker.isWeb &&
         (platform.isAndroid || platform.isIOS || platform.isMacOS)) {
       integrations.add(LoadImageListIntegration(channel));
+      integrations.add(ScreenshotIntegration());
     }
 
     integrations.add(DebugPrintIntegration());
