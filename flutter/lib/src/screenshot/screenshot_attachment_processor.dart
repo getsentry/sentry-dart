@@ -5,7 +5,7 @@ import 'dart:ui' as ui show ImageByteFormat;
 import 'package:flutter/rendering.dart';
 import 'package:sentry/sentry.dart';
 import '../integrations/native_app_start_integration.dart';
-import '../sentry_widget.dart';
+import 'sentry_screenshot_widget.dart';
 
 class ScreenshotAttachmentProcessor implements SentryClientAttachmentProcessor {
   final SchedulerBindingProvider _schedulerBindingProvider;
