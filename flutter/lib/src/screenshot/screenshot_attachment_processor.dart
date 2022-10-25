@@ -17,7 +17,9 @@ class ScreenshotAttachmentProcessor implements SentryClientAttachmentProcessor {
   @override
   Future<List<SentryAttachment>> processAttachments(
       List<SentryAttachment> attachments, SentryEvent event) async {
-    if (event.exceptions == null && event.throwable == null && _attachScreenshot) {
+    if (event.exceptions == null &&
+        event.throwable == null &&
+        _attachScreenshot) {
       return attachments;
     }
     final schedulerBinding = _schedulerBindingProvider();

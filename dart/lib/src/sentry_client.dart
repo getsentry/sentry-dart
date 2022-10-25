@@ -134,18 +134,15 @@ class SentryClient {
       preparedEvent = _eventWithRemovedBreadcrumbsIfHandled(preparedEvent);
     }
 
-    var attachments = scope?.attachments;
-    if (attachments != null) {
-      attachments = await _clientAttachmentProcessor.processAttachments(
-          attachments, preparedEvent);
-    }
+    final attachments = await _clientAttachmentProcessor.processAttachments(
+        scope?.attachments ?? [], preparedEvent);
 
     final envelope = SentryEnvelope.fromEvent(
       preparedEvent,
       _options.sdk,
       dsn: _options.dsn,
       traceContext: scope?.span?.traceContext(),
-      attachments: attachments,
+      attachments: attachments.isNotEmpty ? attachments : null,
     );
 
     final id = await captureEnvelope(envelope);

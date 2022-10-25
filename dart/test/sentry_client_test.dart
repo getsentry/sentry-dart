@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/client_report.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
@@ -1043,6 +1044,45 @@ void main() {
     });
   });
 
+  group('SentryClientAttachmentProcessor', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('processor filtering out attachments', () async {
+      fixture.options.clientAttachmentProcessor =
+          MockAttachmentProcessor(MockAttachmentProcessorMode.filter);
+      final scope = Scope(fixture.options);
+      scope.addAttachment(SentryAttachment.fromIntList([], "scope-attachment"));
+      final sut = fixture.getSut();
+
+      final event = SentryEvent();
+      await sut.captureEvent(event, scope: scope);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
+          (element) => element.header.type == SentryItemType.attachment);
+      expect(attachmentItem, null);
+    });
+
+    test('processor adding attachments', () async {
+      fixture.options.clientAttachmentProcessor =
+          MockAttachmentProcessor(MockAttachmentProcessorMode.add);
+      final scope = Scope(fixture.options);
+      final sut = fixture.getSut();
+
+      final event = SentryEvent();
+      await sut.captureEvent(event, scope: scope);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
+          (element) => element.header.type == SentryItemType.attachment);
+      expect(attachmentItem != null, true);
+    });
+  });
+
   group('ClientReportRecorder', () {
     late Fixture fixture;
 
@@ -1339,5 +1379,25 @@ class Fixture {
   }) {
     loggedLevel = level;
     loggedException = exception;
+  }
+}
+
+enum MockAttachmentProcessorMode { filter, add }
+
+/// Filtering out all attachments.
+class MockAttachmentProcessor implements SentryClientAttachmentProcessor {
+  MockAttachmentProcessorMode mode;
+
+  MockAttachmentProcessor(this.mode);
+
+  @override
+  Future<List<SentryAttachment>> processAttachments(
+      List<SentryAttachment> attachments, SentryEvent event) async {
+    switch (mode) {
+      case MockAttachmentProcessorMode.filter:
+        return <SentryAttachment>[];
+      case MockAttachmentProcessorMode.add:
+        return <SentryAttachment>[SentryAttachment.fromIntList([], "added")];
+    }
   }
 }
