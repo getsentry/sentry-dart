@@ -140,6 +140,9 @@ mixin SentryFlutter {
         !platformChecker.isWeb &&
         (platform.isAndroid || platform.isIOS || platform.isMacOS)) {
       integrations.add(LoadImageListIntegration(channel));
+    }
+
+    if (platform.isAndroid || platform.isIOS || platform.isMacOS) {
       integrations.add(ScreenshotIntegration());
     }
 

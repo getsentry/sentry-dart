@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
+import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
 import 'package:sentry_flutter/src/version.dart';
 import 'mocks.dart';
 import 'mocks.mocks.dart';
@@ -20,12 +21,14 @@ final platformAgnosticIntegrations = [
 // These should only be added to Android
 final androidIntegrations = [
   LoadImageListIntegration,
+  ScreenshotIntegration,
 ];
 
 // These should be added to iOS and macOS
 final iOsAndMacOsIntegrations = [
   LoadImageListIntegration,
   LoadContextsIntegration,
+  ScreenshotIntegration,
 ];
 
 // These should be added to every platform which has a native integration.
@@ -48,6 +51,7 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
+          options.attachScreenshot = true;
           integrations = options.integrations;
           transport = options.transport;
         },
@@ -88,6 +92,7 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
+          options.attachScreenshot = true;
           integrations = options.integrations;
           transport = options.transport;
         },
@@ -126,6 +131,7 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
+          options.attachScreenshot = true;
           integrations = options.integrations;
           transport = options.transport;
         },
@@ -364,7 +370,7 @@ void main() {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
 
-      // Tests that Android integrations aren't added on an Android browswer
+      // Tests that Android integrations aren't added on an Android browser
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;

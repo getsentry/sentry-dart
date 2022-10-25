@@ -355,6 +355,9 @@ class SentryOptions {
   late SentryStackTraceFactory stackTraceFactory =
       SentryStackTraceFactory(this);
 
+  /// Automatically attaches a screenshot when capturing an error or exception.
+  bool attachScreenshot = false;
+
   @internal
   late SentryClientAttachmentProcessor clientAttachmentProcessor =
       SentryClientAttachmentProcessor();

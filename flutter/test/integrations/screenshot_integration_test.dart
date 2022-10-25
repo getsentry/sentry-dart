@@ -15,7 +15,7 @@ void main() {
   });
 
   test('screenshotIntegration creates screenshot processor', () async {
-    final integration = ScreenshotIntegration();
+    final integration = fixture.getSut();
 
     await integration(fixture.hub, fixture.options);
 
@@ -26,8 +26,23 @@ void main() {
         true);
   });
 
+  test(
+      'screenshotIntegration does not creates screenshot processor if opt out in options',
+      () async {
+    final integration = fixture.getSut();
+    fixture.options.attachScreenshot = false;
+
+    await integration(fixture.hub, fixture.options);
+
+    expect(
+        // ignore: invalid_use_of_internal_member
+        fixture.options.clientAttachmentProcessor
+            is ScreenshotAttachmentProcessor,
+        false);
+  });
+
   test('screenshotIntegration close resets processor', () async {
-    final integration = ScreenshotIntegration();
+    final integration = fixture.getSut();
 
     await integration(fixture.hub, fixture.options);
     await integration.close();
@@ -43,4 +58,9 @@ void main() {
 class Fixture {
   final hub = MockHub();
   final options = SentryFlutterOptions();
+
+  ScreenshotIntegration getSut() {
+    options.attachScreenshot = true;
+    return ScreenshotIntegration();
+  }
 }
