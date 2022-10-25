@@ -2,7 +2,10 @@
 
 ## Unreleased
 
+### Features
+
 - Feat: Screenshot Attachment ([#1088](https://github.com/getsentry/sentry-dart/pull/1088))
+
 ### Dependencies
 
 - Bump Android SDK from v6.5.0 to v6.6.0 ([#1090](https://github.com/getsentry/sentry-dart/pull/1090))
