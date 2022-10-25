@@ -177,6 +177,9 @@ class SentryFlutterOptions extends SentryOptions {
   /// [SentryFlutter.setAppStartEnd].
   bool autoAppStart = true;
 
+  /// Automatically attaches a screenshot when capturing an error or exception.
+  bool attachScreenshot = false;
+
   /// By using this, you are disabling native [Breadcrumb] tracking and instead
   /// you are just tracking [Breadcrumb]s which result from events available
   /// in the current Flutter environment.
