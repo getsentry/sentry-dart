@@ -7,6 +7,7 @@ import 'package:sentry/sentry.dart';
 import '../integrations/native_app_start_integration.dart';
 import 'sentry_screenshot_widget.dart';
 
+// ignore: invalid_use_of_internal_member
 class ScreenshotAttachmentProcessor implements SentryClientAttachmentProcessor {
   final SchedulerBindingProvider _schedulerBindingProvider;
   final SentryOptions _options;
