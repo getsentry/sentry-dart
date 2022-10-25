@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Feat: Screenshot Attachment ([#1088](https://github.com/getsentry/sentry-dart/pull/1088))
+
 ## 6.13.1
 
 ### Fixes
