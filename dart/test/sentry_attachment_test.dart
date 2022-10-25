@@ -159,6 +159,15 @@ void main() {
 
       expect(attachment.addToTransactions, true);
     });
+
+    test('fromScreenshotData', () async {
+      final attachment =
+          SentryAttachment.fromScreenshotData(Uint8List.fromList([0, 0, 0, 0]));
+      expect(attachment.attachmentType, SentryAttachment.typeAttachmentDefault);
+      expect(attachment.contentType, 'image/png');
+      expect(attachment.filename, 'screenshot.png');
+      expect(attachment.addToTransactions, true);
+    });
   });
 }
 
