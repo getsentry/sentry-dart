@@ -3,6 +3,14 @@
 ## Unreleased
 
 - Feat: Screenshot Attachment ([#1088](https://github.com/getsentry/sentry-dart/pull/1088))
+### Dependencies
+
+- Bump Android SDK from v6.5.0 to v6.6.0 ([#1090](https://github.com/getsentry/sentry-dart/pull/1090))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#660)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.5.0...6.6.0)
+- Bump Cocoa SDK from v7.28.0 to v7.29.0 ([#1089](https://github.com/getsentry/sentry-dart/pull/1089))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/master/CHANGELOG.md#7290)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.28.0...7.29.0)
 
 ## 6.13.1
 
