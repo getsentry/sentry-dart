@@ -159,6 +159,7 @@ void main() {
       expect(fixture.transport.calls, 1);
       expect(event.request?.headers.isEmpty, true);
       expect(event.request?.cookies, isNull);
+      expect(event.request?.data, isNull);
     });
 
     test('pii is not send on invalid status code', () async {
@@ -180,22 +181,22 @@ void main() {
     test('request body is included according to $MaxRequestBodySize', () async {
       final scenarios = [
         // never
-        MaxRequestBodySizeTestConfig(MaxRequestBodySize.never, 0, false),
-        MaxRequestBodySizeTestConfig(MaxRequestBodySize.never, 4001, false),
-        MaxRequestBodySizeTestConfig(MaxRequestBodySize.never, 10001, false),
+        MaxBodySizeTestConfig(MaxRequestBodySize.never, 0, false),
+        MaxBodySizeTestConfig(MaxRequestBodySize.never, 4001, false),
+        MaxBodySizeTestConfig(MaxRequestBodySize.never, 10001, false),
         // always
-        MaxRequestBodySizeTestConfig(MaxRequestBodySize.always, 0, true),
-        MaxRequestBodySizeTestConfig(MaxRequestBodySize.always, 4001, true),
-        MaxRequestBodySizeTestConfig(MaxRequestBodySize.always, 10001, true),
+        MaxBodySizeTestConfig(MaxRequestBodySize.always, 0, true),
+        MaxBodySizeTestConfig(MaxRequestBodySize.always, 4001, true),
+        MaxBodySizeTestConfig(MaxRequestBodySize.always, 10001, true),
         // small
-        MaxRequestBodySizeTestConfig(MaxRequestBodySize.small, 0, true),
-        MaxRequestBodySizeTestConfig(MaxRequestBodySize.small, 4000, true),
-        MaxRequestBodySizeTestConfig(MaxRequestBodySize.small, 4001, false),
+        MaxBodySizeTestConfig(MaxRequestBodySize.small, 0, true),
+        MaxBodySizeTestConfig(MaxRequestBodySize.small, 4000, true),
+        MaxBodySizeTestConfig(MaxRequestBodySize.small, 4001, false),
         // medium
-        MaxRequestBodySizeTestConfig(MaxRequestBodySize.medium, 0, true),
-        MaxRequestBodySizeTestConfig(MaxRequestBodySize.medium, 4001, true),
-        MaxRequestBodySizeTestConfig(MaxRequestBodySize.medium, 10000, true),
-        MaxRequestBodySizeTestConfig(MaxRequestBodySize.medium, 10001, false),
+        MaxBodySizeTestConfig(MaxRequestBodySize.medium, 0, true),
+        MaxBodySizeTestConfig(MaxRequestBodySize.medium, 4001, true),
+        MaxBodySizeTestConfig(MaxRequestBodySize.medium, 10000, true),
+        MaxBodySizeTestConfig(MaxRequestBodySize.medium, 10001, false),
       ];
 
       for (final scenario in scenarios) {
@@ -204,7 +205,7 @@ void main() {
         final sut = fixture.getSut(
           client: createThrowingClient(),
           captureFailedRequests: true,
-          maxRequestBodySize: scenario.maxRequestBodySize,
+          maxRequestBodySize: scenario.maxBodySize,
         );
 
         final request = Request('GET', requestUri)
@@ -220,10 +221,58 @@ void main() {
 
         final eventCall = fixture.transport.events.first;
         final capturedRequest = eventCall.request;
-        expect(
-          capturedRequest?.data,
-          scenario.shouldBeIncluded ? isNotNull : isNull,
+        expect(capturedRequest, isNotNull);
+        expect(capturedRequest?.data, scenario.matcher);
+      }
+    });
+
+    test('response body is included according to $MaxResponseBodySize',
+        () async {
+      final scenarios = [
+        // never
+        MaxBodySizeTestConfig(MaxResponseBodySize.never, 0, false),
+        MaxBodySizeTestConfig(MaxResponseBodySize.never, 4001, false),
+        MaxBodySizeTestConfig(MaxResponseBodySize.never, 10001, false),
+        // always
+        MaxBodySizeTestConfig(MaxResponseBodySize.always, 0, true),
+        MaxBodySizeTestConfig(MaxResponseBodySize.always, 4001, true),
+        MaxBodySizeTestConfig(MaxResponseBodySize.always, 10001, true),
+        // small
+        MaxBodySizeTestConfig(MaxResponseBodySize.small, 0, true),
+        MaxBodySizeTestConfig(MaxResponseBodySize.small, 4000, true),
+        MaxBodySizeTestConfig(MaxResponseBodySize.small, 4001, false),
+        // medium
+        MaxBodySizeTestConfig(MaxResponseBodySize.medium, 0, true),
+        MaxBodySizeTestConfig(MaxResponseBodySize.medium, 4001, true),
+        MaxBodySizeTestConfig(MaxResponseBodySize.medium, 10000, true),
+        MaxBodySizeTestConfig(MaxResponseBodySize.medium, 10001, false),
+      ];
+
+      const errCode = 500;
+      const errReason = 'Internal Server Error';
+
+      for (final scenario in scenarios) {
+        fixture.transport.reset();
+
+        final sut = fixture.getSut(
+          client: MockClient((request) => Future.value(Response(
+              ' ' * scenario.contentLength, errCode,
+              reasonPhrase: errReason))),
+          badStatusCodes: [SentryStatusCode(errCode)],
+          captureFailedRequests: true,
+          maxResponseBodySize: scenario.maxBodySize,
         );
+
+        final response = await sut.send(Request('GET', requestUri));
+        expect(response.statusCode, errCode);
+        expect(response.reasonPhrase, errReason);
+
+        expect(fixture.transport.calls, 1);
+
+        final eventCall = fixture.transport.events.first;
+        final capturedResponse = eventCall.contexts.response;
+        expect(capturedResponse, isNotNull);
+        expect(capturedResponse?.body, scenario.matcher);
       }
     });
   });
@@ -253,6 +302,7 @@ class Fixture {
     MockClient? client,
     bool captureFailedRequests = false,
     MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.small,
+    MaxResponseBodySize maxResponseBodySize = MaxResponseBodySize.small,
     List<SentryStatusCode> badStatusCodes = const [],
     bool sendDefaultPii = true,
   }) {
@@ -263,6 +313,7 @@ class Fixture {
       captureFailedRequests: captureFailedRequests,
       failedRequestStatusCodes: badStatusCodes,
       maxRequestBodySize: maxRequestBodySize,
+      maxResponseBodySize: maxResponseBodySize,
       sendDefaultPii: sendDefaultPii,
     );
   }
@@ -277,14 +328,16 @@ class Fixture {
 
 class TestException implements Exception {}
 
-class MaxRequestBodySizeTestConfig {
-  MaxRequestBodySizeTestConfig(
-    this.maxRequestBodySize,
+class MaxBodySizeTestConfig<T> {
+  MaxBodySizeTestConfig(
+    this.maxBodySize,
     this.contentLength,
     this.shouldBeIncluded,
   );
 
-  final MaxRequestBodySize maxRequestBodySize;
+  final T maxBodySize;
   final int contentLength;
   final bool shouldBeIncluded;
+
+  Matcher get matcher => shouldBeIncluded ? isNotNull : isNull;
 }
