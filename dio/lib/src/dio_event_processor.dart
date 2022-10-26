@@ -34,11 +34,9 @@ class DioEventProcessor implements EventProcessor {
       return event;
     }
 
-    final response = _responseFrom(dioError);
-
     Contexts contexts = event.contexts;
     if (event.contexts.response == null) {
-      contexts = contexts.copyWith(response: response);
+      contexts = contexts.copyWith(response: _responseFrom(dioError));
     }
     // Don't override just parts of the original request.
     // Keep the original one or if there's none create one.
@@ -155,7 +153,7 @@ class DioEventProcessor implements EventProcessor {
     return null;
   }
 
-  SentryResponse? _responseFrom(DioError dioError) {
+  SentryResponse _responseFrom(DioError dioError) {
     final response = dioError.response;
 
     final headers = response?.headers.map.map(
