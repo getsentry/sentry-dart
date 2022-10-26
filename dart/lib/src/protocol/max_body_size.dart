@@ -23,18 +23,16 @@ enum MaxRequestBodySize {
 
 extension MaxRequestBodySizeX on MaxRequestBodySize {
   bool shouldAddBody(int contentLength) {
-    if (this == MaxRequestBodySize.never) {
-      return false;
-    }
-    if (this == MaxRequestBodySize.always) {
-      return true;
-    }
-    if (this == MaxRequestBodySize.medium && contentLength <= _mediumSize) {
-      return true;
-    }
-
-    if (this == MaxRequestBodySize.small && contentLength <= _smallSize) {
-      return true;
+    switch (this) {
+      case MaxRequestBodySize.never:
+        break;
+      case MaxRequestBodySize.small:
+        return contentLength <= _smallSize;
+      case MaxRequestBodySize.medium:
+        return contentLength <= _mediumSize;
+      case MaxRequestBodySize.always:
+        return true;
+      // No default here to get a warning when new enum value is added.
     }
     return false;
   }
@@ -61,18 +59,16 @@ enum MaxResponseBodySize {
 
 extension MaxResponseBodySizeX on MaxResponseBodySize {
   bool shouldAddBody(int contentLength) {
-    if (this == MaxResponseBodySize.never) {
-      return false;
-    }
-    if (this == MaxResponseBodySize.always) {
-      return true;
-    }
-    if (this == MaxResponseBodySize.medium && contentLength <= _mediumSize) {
-      return true;
-    }
-
-    if (this == MaxResponseBodySize.small && contentLength <= _smallSize) {
-      return true;
+    switch (this) {
+      case MaxResponseBodySize.never:
+        break;
+      case MaxResponseBodySize.small:
+        return contentLength <= _smallSize;
+      case MaxResponseBodySize.medium:
+        return contentLength <= _mediumSize;
+      case MaxResponseBodySize.always:
+        return true;
+      // No default here to get a warning when new enum value is added.
     }
     return false;
   }
