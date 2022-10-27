@@ -66,7 +66,6 @@ import 'sentry_http_client.dart';
 class FailedRequestClient extends BaseClient {
   FailedRequestClient({
     this.maxRequestBodySize = MaxRequestBodySize.never,
-    this.maxResponseBodySize = MaxResponseBodySize.never,
     this.failedRequestStatusCodes = const [],
     this.captureFailedRequests = true,
     this.sendDefaultPii = false,
@@ -88,10 +87,6 @@ class FailedRequestClient extends BaseClient {
   /// Configures up to which size request bodies should be included in events.
   /// This does not change whether an event is captured.
   final MaxRequestBodySize maxRequestBodySize;
-
-  /// Configures up to which size response bodies should be included in events.
-  /// This does not change whether an event is captured.
-  final MaxResponseBodySize maxResponseBodySize;
 
   /// Describes which HTTP status codes should be considered as a failed
   /// requests.
@@ -196,7 +191,9 @@ class FailedRequestClient extends BaseClient {
       event.contexts.response = SentryResponse(
         headers: sendDefaultPii ? response.headers : null,
         redirected: response.isRedirect,
-        body: sendDefaultPii ? null : null, // TODO response.stream
+        // Body not captured yet.
+        // See https://github.com/getsentry/sentry-dart/pull/1093#issuecomment-1293056244
+        body: null,
         statusCode: response.statusCode,
         status: response.reasonPhrase,
       );

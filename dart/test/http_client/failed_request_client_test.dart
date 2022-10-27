@@ -30,7 +30,7 @@ void main() {
       expect(fixture.transport.calls, 0);
     });
 
-    test('exception gets reported if client throws', () async {
+    test('event reported if client throws', () async {
       final sut = fixture.getSut(
         client: createThrowingClient(),
         captureFailedRequests: true,
@@ -61,9 +61,12 @@ void main() {
       expect(request?.other.keys.contains('duration'), true);
       // ignore: deprecated_member_use_from_same_package
       expect(request?.other.keys.contains('content_length'), true);
+
+      // Response is not captured in case of exception
+      expect(eventCall.contexts.response, isNull);
     });
 
-    test('exception gets not reported if disabled', () async {
+    test('event not reported if disabled', () async {
       final sut = fixture.getSut(
         client: createThrowingClient(),
         captureFailedRequests: false,
@@ -77,9 +80,10 @@ void main() {
       expect(fixture.transport.calls, 0);
     });
 
-    test('exception gets reported if bad status code occurs', () async {
+    test('event reported if bad status code occurs', () async {
       final sut = fixture.getSut(
-        client: fixture.getClient(statusCode: 404, reason: 'Not Found'),
+        client: fixture.getClient(
+            statusCode: 404, reason: 'Not Found', headers: {'lorem': 'ipsum'}),
         badStatusCodes: [SentryStatusCode(404)],
       );
 
@@ -114,6 +118,15 @@ void main() {
       expect(request?.other.keys.contains('duration'), true);
       // ignore: deprecated_member_use_from_same_package
       expect(request?.other.keys.contains('content_length'), true);
+
+      final response = eventCall.contexts.response!;
+      expect(response.body, isNull);
+      expect(response.statusCode, 404);
+      expect(response.status, 'Not Found');
+      expect(response.headers, equals({'lorem': 'ipsum'}));
+      expect(response.other, isEmpty);
+      expect(response.redirected, false);
+      expect(response.url, isNull);
     });
 
     test(
@@ -160,6 +173,7 @@ void main() {
       expect(event.request?.headers.isEmpty, true);
       expect(event.request?.cookies, isNull);
       expect(event.request?.data, isNull);
+      expect(event.contexts.response?.headers.isEmpty, true);
     });
 
     test('pii is not send on invalid status code', () async {
@@ -176,6 +190,8 @@ void main() {
       expect(fixture.transport.calls, 1);
       expect(event.request?.headers.isEmpty, true);
       expect(event.request?.cookies, isNull);
+      expect(event.request?.data, isNull);
+      expect(event.contexts.response?.headers.isEmpty, true);
     });
 
     test('request body is included according to $MaxRequestBodySize', () async {
@@ -225,56 +241,6 @@ void main() {
         expect(capturedRequest?.data, scenario.matcher);
       }
     });
-
-    test('response body is included according to $MaxResponseBodySize',
-        () async {
-      final scenarios = [
-        // never
-        MaxBodySizeTestConfig(MaxResponseBodySize.never, 0, false),
-        MaxBodySizeTestConfig(MaxResponseBodySize.never, 4001, false),
-        MaxBodySizeTestConfig(MaxResponseBodySize.never, 10001, false),
-        // always
-        MaxBodySizeTestConfig(MaxResponseBodySize.always, 0, true),
-        MaxBodySizeTestConfig(MaxResponseBodySize.always, 4001, true),
-        MaxBodySizeTestConfig(MaxResponseBodySize.always, 10001, true),
-        // small
-        MaxBodySizeTestConfig(MaxResponseBodySize.small, 0, true),
-        MaxBodySizeTestConfig(MaxResponseBodySize.small, 4000, true),
-        MaxBodySizeTestConfig(MaxResponseBodySize.small, 4001, false),
-        // medium
-        MaxBodySizeTestConfig(MaxResponseBodySize.medium, 0, true),
-        MaxBodySizeTestConfig(MaxResponseBodySize.medium, 4001, true),
-        MaxBodySizeTestConfig(MaxResponseBodySize.medium, 10000, true),
-        MaxBodySizeTestConfig(MaxResponseBodySize.medium, 10001, false),
-      ];
-
-      const errCode = 500;
-      const errReason = 'Internal Server Error';
-
-      for (final scenario in scenarios) {
-        fixture.transport.reset();
-
-        final sut = fixture.getSut(
-          client: MockClient((request) => Future.value(Response(
-              ' ' * scenario.contentLength, errCode,
-              reasonPhrase: errReason))),
-          badStatusCodes: [SentryStatusCode(errCode)],
-          captureFailedRequests: true,
-          maxResponseBodySize: scenario.maxBodySize,
-        );
-
-        final response = await sut.send(Request('GET', requestUri));
-        expect(response.statusCode, errCode);
-        expect(response.reasonPhrase, errReason);
-
-        expect(fixture.transport.calls, 1);
-
-        final eventCall = fixture.transport.events.first;
-        final capturedResponse = eventCall.contexts.response;
-        expect(capturedResponse, isNotNull);
-        expect(capturedResponse?.body, scenario.matcher);
-      }
-    });
   });
 }
 
@@ -302,7 +268,6 @@ class Fixture {
     MockClient? client,
     bool captureFailedRequests = false,
     MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.small,
-    MaxResponseBodySize maxResponseBodySize = MaxResponseBodySize.small,
     List<SentryStatusCode> badStatusCodes = const [],
     bool sendDefaultPii = true,
   }) {
@@ -313,15 +278,17 @@ class Fixture {
       captureFailedRequests: captureFailedRequests,
       failedRequestStatusCodes: badStatusCodes,
       maxRequestBodySize: maxRequestBodySize,
-      maxResponseBodySize: maxResponseBodySize,
       sendDefaultPii: sendDefaultPii,
     );
   }
 
-  MockClient getClient({int statusCode = 200, String? reason}) {
+  MockClient getClient(
+      {int statusCode = 200,
+      String? reason,
+      Map<String, String> headers = const {}}) {
     return MockClient((request) async {
       expect(request.url, requestUri);
-      return Response('', statusCode, reasonPhrase: reason);
+      return Response('', statusCode, reasonPhrase: reason, headers: headers);
     });
   }
 }

@@ -54,7 +54,10 @@ class SentryResponse {
   factory SentryResponse.fromJson(Map<String, dynamic> json) {
     return SentryResponse(
       url: json['url'],
-      headers: json['headers'],
+      headers: json.containsKey('headers')
+          ? (json['headers'] as Map<String, dynamic>)
+              .map((key, value) => MapEntry(key, value as String))
+          : null,
       other: json['other'],
       body: json['body'],
       statusCode: json['status_code'],

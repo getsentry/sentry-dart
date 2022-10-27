@@ -1,11 +1,19 @@
 import 'dart:convert';
 
 import 'package:sentry/sentry.dart';
+import 'package:test/expect.dart';
 
 class MockTransport implements Transport {
   List<SentryEnvelope> envelopes = [];
   List<SentryEvent> events = [];
-  int calls = 0;
+
+  int _calls = 0;
+  String _exceptions = '';
+
+  int get calls {
+    expect(_exceptions, isEmpty);
+    return _calls;
+  }
 
   bool called(int calls) {
     return calls == calls;
@@ -13,11 +21,18 @@ class MockTransport implements Transport {
 
   @override
   Future<SentryId> send(SentryEnvelope envelope) async {
-    calls++;
+    _calls++;
 
-    envelopes.add(envelope);
-    final event = await _eventFromEnvelope(envelope);
-    events.add(event);
+    // Exception here would be swallowed by Sentry, making it hard to find test
+    // failure causes. Instead, we log them and check on access to [calls].
+    try {
+      envelopes.add(envelope);
+      final event = await _eventFromEnvelope(envelope);
+      events.add(event);
+    } catch (e, stack) {
+      _exceptions += "$e\n$stack\n\n";
+      rethrow;
+    }
 
     return envelope.header.eventId ?? SentryId.empty();
   }
@@ -30,6 +45,10 @@ class MockTransport implements Transport {
     final envelopeItemJson = jsonDecode(envelopeItem.split('\n').last);
     final envelopeMap = envelopeItemJson as Map<String, dynamic>;
     final requestJson = envelopeMap['request'] as Map<String, dynamic>?;
+
+    // TODO the following code should really be part of fromJson() that handle those keys.
+    // JSON being Map<String, dynamic> is nothing out of ordinary.
+    // See [SentryResponse.fromJson()] as an example.
 
     // '_InternalLinkedHashMap<dynamic, dynamic>' is not a subtype of type 'Map<String, String>'
     final headersMap = requestJson?['headers'] as Map<String, dynamic>?;
@@ -56,7 +75,7 @@ class MockTransport implements Transport {
   void reset() {
     envelopes.clear();
     events.clear();
-    calls = 0;
+    _calls = 0;
   }
 }
 
