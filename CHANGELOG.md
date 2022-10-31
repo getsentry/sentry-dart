@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Features
+
+- Capture response information in `SentryHttpClient` ([#1095](https://github.com/getsentry/sentry-dart/pull/1095))
+
+### Changes
+
+- Remove experimental `SentryResponse` fields: `url`, `body`, `redirected`, `status` ([#1095](https://github.com/getsentry/sentry-dart/pull/1095))
+
 ### Dependencies
 
 - Bump Android SDK from v6.5.0 to v6.6.0 ([#1090](https://github.com/getsentry/sentry-dart/pull/1090))
