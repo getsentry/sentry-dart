@@ -190,12 +190,8 @@ class FailedRequestClient extends BaseClient {
     if (response != null) {
       event.contexts.response = SentryResponse(
         headers: sendDefaultPii ? response.headers : null,
-        redirected: response.isRedirect,
-        // Body not captured yet.
-        // See https://github.com/getsentry/sentry-dart/pull/1093#issuecomment-1293056244
-        body: null,
+        bodySize: response.contentLength,
         statusCode: response.statusCode,
-        status: response.reasonPhrase,
       );
     }
 

@@ -21,6 +21,8 @@ class DioEventProcessor implements EventProcessor {
 
   final SentryOptions _options;
   final MaxRequestBodySize _maxRequestBodySize;
+  // Will be used again, see https://github.com/getsentry/sentry-dart/issues/624
+  // ignore: unused_field
   final MaxResponseBodySize _maxResponseBodySize;
 
   SentryExceptionFactory get _sentryExceptionFactory =>
@@ -162,29 +164,8 @@ class DioEventProcessor implements EventProcessor {
 
     return SentryResponse(
       headers: _options.sendDefaultPii ? headers : null,
-      url: response?.realUri.toString(),
-      redirected: response?.isRedirect,
-      body: _getResponseData(dioError.response?.data),
+      bodySize: dioError.response?.data?.length as int?,
       statusCode: response?.statusCode,
-      status: response?.statusMessage,
     );
-  }
-
-  /// Returns the request data, if possible according to the users settings.
-  /// Type checks are based on DIOs [ResponseType].
-  Object? _getResponseData(dynamic data) {
-    if (!_options.sendDefaultPii) {
-      return null;
-    }
-    if (data is String) {
-      if (_maxResponseBodySize.shouldAddBody(data.codeUnits.length)) {
-        return data;
-      }
-    } else if (data is List<int>) {
-      if (_maxResponseBodySize.shouldAddBody(data.length)) {
-        return data;
-      }
-    }
-    return null;
   }
 }

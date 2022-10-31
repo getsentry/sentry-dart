@@ -21,7 +21,7 @@ void main() {
 
     test('no captured events when everything goes well', () async {
       final sut = fixture.getSut(
-        client: fixture.getClient(statusCode: 200, reason: 'OK'),
+        client: fixture.getClient(statusCode: 200),
       );
 
       final response = await sut.get(requestUri);
@@ -83,7 +83,7 @@ void main() {
     test('event reported if bad status code occurs', () async {
       final sut = fixture.getSut(
         client: fixture.getClient(
-            statusCode: 404, reason: 'Not Found', headers: {'lorem': 'ipsum'}),
+            statusCode: 404, body: 'foo', headers: {'lorem': 'ipsum'}),
         badStatusCodes: [SentryStatusCode(404)],
       );
 
@@ -120,20 +120,16 @@ void main() {
       expect(request?.other.keys.contains('content_length'), true);
 
       final response = eventCall.contexts.response!;
-      expect(response.body, isNull);
+      expect(response.bodySize, 3);
       expect(response.statusCode, 404);
-      expect(response.status, 'Not Found');
       expect(response.headers, equals({'lorem': 'ipsum'}));
-      expect(response.other, isEmpty);
-      expect(response.redirected, false);
-      expect(response.url, isNull);
     });
 
     test(
         'just one report on status code reporting with failing requests enabled',
         () async {
       final sut = fixture.getSut(
-        client: fixture.getClient(statusCode: 404, reason: 'Not Found'),
+        client: fixture.getClient(statusCode: 404),
         badStatusCodes: [SentryStatusCode(404)],
         captureFailedRequests: true,
       );
@@ -172,13 +168,12 @@ void main() {
       expect(fixture.transport.calls, 1);
       expect(event.request?.headers.isEmpty, true);
       expect(event.request?.cookies, isNull);
-      expect(event.request?.data, isNull);
-      expect(event.contexts.response?.headers.isEmpty, true);
+      expect(event.contexts.response, isNull);
     });
 
     test('pii is not send on invalid status code', () async {
       final sut = fixture.getSut(
-        client: fixture.getClient(statusCode: 404, reason: 'Not Found'),
+        client: fixture.getClient(statusCode: 404),
         badStatusCodes: [SentryStatusCode(404)],
         captureFailedRequests: false,
         sendDefaultPii: false,
@@ -190,7 +185,7 @@ void main() {
       expect(fixture.transport.calls, 1);
       expect(event.request?.headers.isEmpty, true);
       expect(event.request?.cookies, isNull);
-      expect(event.request?.data, isNull);
+      expect(event.contexts.response, isNotNull);
       expect(event.contexts.response?.headers.isEmpty, true);
     });
 
@@ -284,11 +279,11 @@ class Fixture {
 
   MockClient getClient(
       {int statusCode = 200,
-      String? reason,
+      String body = '',
       Map<String, String> headers = const {}}) {
     return MockClient((request) async {
       expect(request.url, requestUri);
-      return Response('', statusCode, reasonPhrase: reason, headers: headers);
+      return Response(body, statusCode, headers: headers);
     });
   }
 }

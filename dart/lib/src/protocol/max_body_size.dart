@@ -32,7 +32,7 @@ extension MaxRequestBodySizeX on MaxRequestBodySize {
         return contentLength <= _mediumSize;
       case MaxRequestBodySize.always:
         return true;
-      // No default here to get a warning when new enum value is added.
+      // No default here to get a warning when a new enum value is added.
     }
     return false;
   }
@@ -68,7 +68,7 @@ extension MaxResponseBodySizeX on MaxResponseBodySize {
         return contentLength <= _mediumSize;
       case MaxResponseBodySize.always:
         return true;
-      // No default here to get a warning when new enum value is added.
+      // No default here to get a warning when a new enum value is added.
     }
     return false;
   }
