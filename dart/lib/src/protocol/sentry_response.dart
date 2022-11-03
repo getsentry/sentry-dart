@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
-import 'package:collection/collection.dart';
 import 'contexts.dart';
+import '../utils/iterable_extension.dart';
 
 /// The response interface contains information on a HTTP request related to the event.
 /// This is an experimental feature. It might be removed at any time.
