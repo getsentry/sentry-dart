@@ -167,8 +167,7 @@ class FailedRequestClient extends BaseClient {
       url: urlWithoutQuery,
       queryString: query,
       cookies: sendDefaultPii ? request.headers['Cookie'] : null,
-      // TODO FIXME - this should check [sendDefaultPii], same as DIO integration.
-      data: _getDataFromRequest(request),
+      data: sendDefaultPii ? _getDataFromRequest(request) : null,
       // ignore: deprecated_member_use_from_same_package
       other: {
         'content_length': request.contentLength.toString(),

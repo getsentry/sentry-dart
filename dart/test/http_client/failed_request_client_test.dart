@@ -170,8 +170,10 @@ void main() {
 
       final event = fixture.transport.events.first;
       expect(fixture.transport.calls, 1);
+      expect(event.request, isNotNull);
       expect(event.request?.headers.isEmpty, true);
       expect(event.request?.cookies, isNull);
+      expect(event.request?.data, isNull);
       expect(event.contexts.response, isNull);
     });
 
@@ -187,8 +189,10 @@ void main() {
 
       final event = fixture.transport.events.first;
       expect(fixture.transport.calls, 1);
+      expect(event.request, isNotNull);
       expect(event.request?.headers.isEmpty, true);
       expect(event.request?.cookies, isNull);
+      expect(event.request?.data, isNull);
       expect(event.contexts.response, isNotNull);
       expect(event.contexts.response?.headers.isEmpty, true);
     });

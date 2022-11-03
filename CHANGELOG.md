@@ -9,6 +9,7 @@
 ### Changes
 
 - Remove experimental `SentryResponse` fields: `url`, `body`, `redirected`, `status` ([#1095](https://github.com/getsentry/sentry-dart/pull/1095))
+- `SentryHttpClient` request body capture checks default PII capture setting, same as the DIO integration ([#1095](https://github.com/getsentry/sentry-dart/pull/1095))
 
 ### Dependencies
 
