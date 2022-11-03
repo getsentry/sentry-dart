@@ -131,9 +131,6 @@ class DioEventProcessor implements EventProcessor {
       headers: _options.sendDefaultPii ? headers : null,
       url: urlWithoutQuery,
       queryString: query,
-      cookies: _options.sendDefaultPii
-          ? options.headers['Cookie']?.toString()
-          : null,
       data: _getRequestData(dioError.requestOptions.data),
     );
   }

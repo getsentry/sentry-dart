@@ -1,5 +1,7 @@
 import 'package:meta/meta.dart';
 
+import '../utils/iterable_extension.dart';
+
 /// The Request interface contains information on a HTTP request related to the event.
 /// In client SDKs, this can be an outgoing request, or the request that rendered the current web page.
 /// On server SDKs, this could be the incoming web request that is being handled.
@@ -63,7 +65,7 @@ class SentryRequest {
     this.url,
     this.method,
     this.queryString,
-    this.cookies,
+    String? cookies,
     this.fragment,
     dynamic data,
     Map<String, String>? headers,
@@ -71,6 +73,11 @@ class SentryRequest {
     @Deprecated('Will be removed in v7.') Map<String, String>? other,
   })  : _data = data,
         _headers = headers != null ? Map.from(headers) : null,
+        // Look for a 'Set-Cookie' header (case insensitive) if not given.
+        cookies = cookies ??
+            headers?.entries
+                .firstWhereOrNull((e) => e.key.toLowerCase() == 'cookie')
+                ?.value,
         _env = env != null ? Map.from(env) : null,
         _other = other != null ? Map.from(other) : null;
 

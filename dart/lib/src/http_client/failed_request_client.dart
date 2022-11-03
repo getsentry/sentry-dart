@@ -166,7 +166,6 @@ class FailedRequestClient extends BaseClient {
       headers: sendDefaultPii ? request.headers : null,
       url: urlWithoutQuery,
       queryString: query,
-      cookies: sendDefaultPii ? request.headers['Cookie'] : null,
       data: sendDefaultPii ? _getDataFromRequest(request) : null,
       // ignore: deprecated_member_use_from_same_package
       other: {
