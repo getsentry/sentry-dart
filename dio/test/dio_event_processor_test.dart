@@ -121,7 +121,7 @@ void main() {
       expect(processedEvent.contexts.response?.headers, {
         'foo': 'bar',
         'set-cookie': 'foo=bar',
-       });
+      });
       expect(processedEvent.contexts.response?.cookies, 'foo=bar');
     });
 
