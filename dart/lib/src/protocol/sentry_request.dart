@@ -89,10 +89,10 @@ class SentryRequest {
       queryString: json['query_string'],
       cookies: json['cookies'],
       data: json['data'],
-      headers: json['headers'],
-      env: json['env'],
+      headers: json.containsKey('headers') ? Map.from(json['headers']) : null,
+      env: json.containsKey('env') ? Map.from(json['env']) : null,
       // ignore: deprecated_member_use_from_same_package
-      other: json['other'],
+      other: json.containsKey('other') ? Map.from(json['other']) : null,
       fragment: json['fragment'],
     );
   }
