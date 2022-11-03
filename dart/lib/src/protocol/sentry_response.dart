@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+import 'package:collection/collection.dart';
 import 'contexts.dart';
 
 /// The response interface contains information on a HTTP request related to the event.
@@ -24,16 +25,26 @@ class SentryResponse {
 
   final Map<String, String>? _headers;
 
-  SentryResponse({
-    this.bodySize,
-    this.statusCode,
-    Map<String, String>? headers,
-  }) : _headers = headers != null ? Map.from(headers) : null;
+  /// Cookie key-value pairs as string.
+  final String? cookies;
+
+  SentryResponse(
+      {this.bodySize,
+      this.statusCode,
+      Map<String, String>? headers,
+      String? cookies})
+      : _headers = headers != null ? Map.from(headers) : null,
+        // Look for a 'Set-Cookie' header (case insensitive) if not given.
+        cookies = cookies ??
+            headers?.entries
+                .firstWhereOrNull((e) => e.key.toLowerCase() == 'set-cookie')
+                ?.value;
 
   /// Deserializes a [SentryResponse] from JSON [Map].
   factory SentryResponse.fromJson(Map<String, dynamic> json) {
     return SentryResponse(
         headers: json.containsKey('headers') ? Map.from(json['headers']) : null,
+        cookies: json['cookies'],
         bodySize: json['body_size'],
         statusCode: json['status_code']);
   }
@@ -42,6 +53,7 @@ class SentryResponse {
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
       if (headers.isNotEmpty) 'headers': headers,
+      if (cookies != null) 'cookies': cookies,
       if (bodySize != null) 'body_size': bodySize,
       if (statusCode != null) 'status_code': statusCode,
     };
@@ -51,9 +63,11 @@ class SentryResponse {
     int? statusCode,
     int? bodySize,
     Map<String, String>? headers,
+    String? cookies,
   }) =>
       SentryResponse(
         headers: headers ?? _headers,
+        cookies: cookies ?? this.cookies,
         bodySize: bodySize ?? this.bodySize,
         statusCode: statusCode ?? this.statusCode,
       );
@@ -61,6 +75,7 @@ class SentryResponse {
   SentryResponse clone() => SentryResponse(
         bodySize: bodySize,
         headers: headers,
+        cookies: cookies,
         statusCode: statusCode,
       );
 }

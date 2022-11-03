@@ -83,7 +83,9 @@ void main() {
     test('event reported if bad status code occurs', () async {
       final sut = fixture.getSut(
         client: fixture.getClient(
-            statusCode: 404, body: 'foo', headers: {'lorem': 'ipsum'}),
+            statusCode: 404,
+            body: 'foo',
+            headers: {'lorem': 'ipsum', 'set-cookie': 'foo=bar'}),
         badStatusCodes: [SentryStatusCode(404)],
       );
 
@@ -122,7 +124,9 @@ void main() {
       final response = eventCall.contexts.response!;
       expect(response.bodySize, 3);
       expect(response.statusCode, 404);
-      expect(response.headers, equals({'lorem': 'ipsum'}));
+      expect(response.headers,
+          equals({'lorem': 'ipsum', 'set-cookie': 'foo=bar'}));
+      expect(response.cookies, equals('foo=bar'));
     });
 
     test(

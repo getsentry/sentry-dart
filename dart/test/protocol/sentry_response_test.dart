@@ -7,12 +7,14 @@ void main() {
     bodySize: 42,
     statusCode: 200,
     headers: {'header_key': 'header_value'},
+    cookies: 'foo=bar, another=cookie',
   );
 
   final sentryResponseJson = <String, dynamic>{
     'body_size': 42,
     'status_code': 200,
     'headers': {'header_key': 'header_value'},
+    'cookies': 'foo=bar, another=cookie',
   };
 
   group('json', () {
@@ -41,10 +43,7 @@ void main() {
 
       final copy = data.copyWith();
 
-      expect(
-        DeepCollectionEquality().equals(data.toJson(), copy.toJson()),
-        true,
-      );
+      expect(data.toJson(), copy.toJson());
     });
 
     test('copyWith takes new values', () {
