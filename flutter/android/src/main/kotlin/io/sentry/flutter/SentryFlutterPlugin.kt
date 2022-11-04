@@ -262,6 +262,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
   }
 
+  @Suppress("ComplexMethod")
   private fun setUser(user: Map<String, Any?>?, result: Result) {
     if (user == null) {
       Sentry.setUser(null)
