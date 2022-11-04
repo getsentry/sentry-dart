@@ -102,7 +102,8 @@ void main() {
           response: Response<dynamic>(
             data: 'foobar',
             headers: Headers.fromMap(<String, List<String>>{
-              'foo': ['bar']
+              'foo': ['bar'],
+              'set-cookie': ['foo=bar']
             }),
             requestOptions: request,
             isRedirect: true,
@@ -115,17 +116,13 @@ void main() {
 
       expect(processedEvent.throwable, event.throwable);
       expect(processedEvent.contexts.response, isNotNull);
-      expect(processedEvent.contexts.response?.body, 'foobar');
-      expect(processedEvent.contexts.response?.redirected, true);
-      expect(processedEvent.contexts.response?.status, 'OK');
+      expect(processedEvent.contexts.response?.bodySize, 6);
       expect(processedEvent.contexts.response?.statusCode, 200);
-      expect(
-        processedEvent.contexts.response?.url,
-        'https://example.org/foo/bar?foo=bar',
-      );
-      expect(processedEvent.contexts.response?.headers, <String, String>{
+      expect(processedEvent.contexts.response?.headers, {
         'foo': 'bar',
+        'set-cookie': 'foo=bar',
       });
+      expect(processedEvent.contexts.response?.cookies, 'foo=bar');
     });
 
     test('$DioEventProcessor adds response without PII', () {
@@ -153,14 +150,8 @@ void main() {
 
       expect(processedEvent.throwable, event.throwable);
       expect(processedEvent.contexts.response, isNotNull);
-      expect(processedEvent.contexts.response?.body, isNull);
-      expect(processedEvent.contexts.response?.redirected, true);
-      expect(processedEvent.contexts.response?.status, 'OK');
+      expect(processedEvent.contexts.response?.bodySize, 6);
       expect(processedEvent.contexts.response?.statusCode, 200);
-      expect(
-        processedEvent.contexts.response?.url,
-        'https://example.org/foo/bar?foo=bar',
-      );
       expect(processedEvent.contexts.response?.headers, <String, String>{});
     });
   });
