@@ -527,6 +527,10 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
           }
         }
 
+        // TODO: missing name and geo
+        // Should be solved by https://github.com/getsentry/team-mobile/issues/59
+        // or https://github.com/getsentry/team-mobile/issues/56
+
         SentrySDK.setUser(userInstance)
       } else {
         SentrySDK.setUser(nil)

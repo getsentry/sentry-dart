@@ -270,28 +270,42 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 
     val userInstance = User()
+    val userData = mutableMapOf<String, String>()
+    val unknown = mutableMapOf<String, Any>()
 
     (user["email"] as? String)?.let { userInstance.email = it }
     (user["id"] as? String)?.let { userInstance.id = it }
     (user["username"] as? String)?.let { userInstance.username = it }
     (user["ip_address"] as? String)?.let { userInstance.ipAddress = it }
     (user["segment"] as? String)?.let { userInstance.segment = it }
+
+    // Not mapped on Android yet, added to the unknown databag that gets serialized correctly anyway
+    // Should be solved by https://github.com/getsentry/team-mobile/issues/59
+    // or https://github.com/getsentry/team-mobile/issues/56
+    (user["name"] as? String)?.let { unknown["name"] = it }
+    (user["geo"] as? Map<String, Any?>)?.let { unknown["geo"] = it }
+
     (user["extras"] as? Map<String, Any?>)?.let { extras ->
-      val others = mutableMapOf<String, String>()
       for ((key, value) in extras.entries) {
         if (value != null) {
-          others[key] = value.toString()
+          userData[key] = value.toString()
         }
       }
-      userInstance.others = others
     }
     (user["data"] as? Map<String, Any?>)?.let { data ->
-      val others = mutableMapOf<String, String>()
       for ((key, value) in data.entries) {
         if (value != null) {
-          others[key] = value.toString()
+          // data has precedence over extras
+          userData[key] = value.toString()
         }
       }
+    }
+
+    if (userData.isNotEmpty()) {
+      userInstance.data = userData
+    }
+    if (unknown.isNotEmpty()) {
+      userInstance.unknown = unknown
     }
 
     Sentry.setUser(userInstance)
