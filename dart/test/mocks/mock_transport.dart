@@ -30,7 +30,7 @@ class MockTransport implements Transport {
       final event = await _eventFromEnvelope(envelope);
       events.add(event);
     } catch (e, stack) {
-      _exceptions += "$e\n$stack\n\n";
+      _exceptions += '$e\n$stack\n\n';
       rethrow;
     }
 
@@ -41,8 +41,8 @@ class MockTransport implements Transport {
     final envelopeItemData = <int>[];
     envelopeItemData.addAll(await envelope.items.first.envelopeItemStream());
 
-    final envelopeItem = utf8.decode(envelopeItemData);
-    final envelopeItemJson = jsonDecode(envelopeItem.split('\n').last);
+    final envelopeItem = utf8.decode(envelopeItemData).split('\n').last;
+    final envelopeItemJson = jsonDecode(envelopeItem) as Map<String, dynamic>;
     return SentryEvent.fromJson(envelopeItemJson);
   }
 
