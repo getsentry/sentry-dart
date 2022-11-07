@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Merging of integrations and packages ([#1095](https://github.com/getsentry/sentry-dart/pull/1095))
+- Merging of integrations and packages ([#1111](https://github.com/getsentry/sentry-dart/pull/1111))
 
 ### Dependencies
 
