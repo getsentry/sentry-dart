@@ -8,6 +8,11 @@ on:
         required: false
         type: string
         default: dart
+      panaThreshold:
+        description: Minumum percentage of Dart Package Analyzer score that must be achieved.
+        required: false
+        type: number
+        default: 100
 
 jobs:
   analyze:
@@ -54,7 +59,7 @@ jobs:
           TOTAL_MAX: ${{ steps.analysis.outputs.total_max }}
         run: |
           PERCENTAGE=$(( $TOTAL * 100 / $TOTAL_MAX ))
-          if (( $PERCENTAGE < 90 ))
+          if (( $PERCENTAGE < ${{ inputs.panaThreshold }} ))
           then
             echo Score too low!
             exit 1
