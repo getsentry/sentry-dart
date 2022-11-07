@@ -37,12 +37,7 @@ class ScreenshotAttachmentProcessor implements SentryClientAttachmentProcessor {
       if (bytes == null) {
         return attachments;
       }
-      final screenshotAttachment = SentryAttachment.fromScreenshotData(bytes);
-
-      final attachmentsWithScreenshot = <SentryAttachment>[];
-      attachmentsWithScreenshot.addAll(attachmentsWithScreenshot);
-      attachmentsWithScreenshot.add(screenshotAttachment);
-      return attachmentsWithScreenshot;
+      return attachments + [SentryAttachment.fromScreenshotData(bytes)];
     } else {
       return attachments;
     }
