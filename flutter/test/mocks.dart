@@ -71,6 +71,10 @@ class MockPlatform with NoSuchMethodProvider implements Platform {
     return MockPlatform(os: 'linux');
   }
 
+  factory MockPlatform.fuchsia() {
+    return MockPlatform(os: 'fuchsia');
+  }
+
   @override
   String operatingSystem;
 

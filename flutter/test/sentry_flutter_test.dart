@@ -31,6 +31,18 @@ final iOsAndMacOsIntegrations = [
   ScreenshotIntegration,
 ];
 
+final windowsIntegrations = [
+  ScreenshotIntegration,
+];
+
+final linuxIntegrations = [
+  ScreenshotIntegration,
+];
+
+final fuchsiaIntegrations = [
+  ScreenshotIntegration,
+];
+
 // These should be added to every platform which has a native integration.
 final nativeIntegrations = [
   NativeSdkIntegration,
@@ -185,7 +197,10 @@ void main() {
 
       testConfiguration(
         integrations: integrations,
-        shouldHaveIntegrations: platformAgnosticIntegrations,
+        shouldHaveIntegrations: [
+          ...platformAgnosticIntegrations,
+          ...windowsIntegrations
+        ],
         shouldNotHaveIntegrations: [
           ...androidIntegrations,
           ...iOsAndMacOsIntegrations,
@@ -223,7 +238,51 @@ void main() {
 
       testConfiguration(
         integrations: integrations,
-        shouldHaveIntegrations: platformAgnosticIntegrations,
+        shouldHaveIntegrations: [
+          ...platformAgnosticIntegrations,
+          ...linuxIntegrations
+        ],
+        shouldNotHaveIntegrations: [
+          ...androidIntegrations,
+          ...iOsAndMacOsIntegrations,
+          ...nativeIntegrations,
+        ],
+      );
+
+      testBefore(
+          integrations: integrations,
+          beforeIntegration: WidgetsFlutterBindingIntegration,
+          afterIntegration: OnErrorIntegration);
+
+      await Sentry.close();
+    }, testOn: 'vm');
+
+    test('Fuchsia', () async {
+      List<Integration> integrations = [];
+      Transport transport = MockTransport();
+
+      await SentryFlutter.init(
+        (options) async {
+          options.dsn = fakeDsn;
+          integrations = options.integrations;
+          transport = options.transport;
+        },
+        appRunner: appRunner,
+        packageLoader: loadTestPackage,
+        platformChecker: getPlatformChecker(platform: MockPlatform.fuchsia()),
+      );
+
+      testTransport(
+        transport: transport,
+        hasFileSystemTransport: false,
+      );
+
+      testConfiguration(
+        integrations: integrations,
+        shouldHaveIntegrations: [
+          ...platformAgnosticIntegrations,
+          ...fuchsiaIntegrations
+        ],
         shouldNotHaveIntegrations: [
           ...androidIntegrations,
           ...iOsAndMacOsIntegrations,
