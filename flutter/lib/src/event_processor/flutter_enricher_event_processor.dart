@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:sentry/sentry.dart';
 
 import '../binding_utils.dart';
-import '../renderer/renderer.dart';
 import '../sentry_flutter_options.dart';
 
 typedef WidgetBindingGetter = WidgetsBinding? Function();
