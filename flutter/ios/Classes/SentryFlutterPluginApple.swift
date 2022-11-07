@@ -12,8 +12,6 @@ import AppKit
 // swiftlint:disable:next type_body_length
 public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
-    private var sentryOptions: Options?
-
     // The Cocoa SDK is init. after the notification didBecomeActiveNotification is registered.
     // We need to be able to receive this notification and start a session when the SDK is fully operational.
     private var didReceiveDidBecomeActiveNotification = false
@@ -166,7 +164,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
                 infos["user"] = ["id": PrivateSentrySDKOnly.installationID]
             }
 
-            if let integrations = self.sentryOptions?.integrations {
+            if let integrations = PrivateSentrySDKOnly.options.integrations {
                 infos["integrations"] = integrations
             }
 
@@ -201,8 +199,6 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
                 #endif
             }
 
-            self.sentryOptions = options
-
             // note : for now, in sentry-cocoa, beforeSend is not called before captureEnvelope
             options.beforeSend = { event in
                 self.setEventOriginTag(event: event)
@@ -231,7 +227,8 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         }
 
        if didReceiveDidBecomeActiveNotification &&
-          (sentryOptions?.enableAutoSessionTracking == true || sentryOptions?.enableOutOfMemoryTracking == true) {
+            (PrivateSentrySDKOnly.options.enableAutoSessionTracking ||
+             PrivateSentrySDKOnly.options.enableOutOfMemoryTracking) {
             // We send a SentryHybridSdkDidBecomeActive to the Sentry Cocoa SDK, so the SDK will mimics
             // the didBecomeActiveNotification notification. This is needed for session and OOM tracking.
            NotificationCenter.default.post(name: Notification.Name("SentryHybridSdkDidBecomeActive"), object: nil)

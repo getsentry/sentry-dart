@@ -21,7 +21,7 @@ void main() {
 
     test('no captured events when everything goes well', () async {
       final sut = fixture.getSut(
-        client: fixture.getClient(statusCode: 200, reason: 'OK'),
+        client: fixture.getClient(statusCode: 200),
       );
 
       final response = await sut.get(requestUri);
@@ -30,7 +30,7 @@ void main() {
       expect(fixture.transport.calls, 0);
     });
 
-    test('exception gets reported if client throws', () async {
+    test('event reported if client throws', () async {
       final sut = fixture.getSut(
         client: createThrowingClient(),
         captureFailedRequests: true,
@@ -61,9 +61,12 @@ void main() {
       expect(request?.other.keys.contains('duration'), true);
       // ignore: deprecated_member_use_from_same_package
       expect(request?.other.keys.contains('content_length'), true);
+
+      // Response is not captured in case of exception
+      expect(eventCall.contexts.response, isNull);
     });
 
-    test('exception gets not reported if disabled', () async {
+    test('event not reported if disabled', () async {
       final sut = fixture.getSut(
         client: createThrowingClient(),
         captureFailedRequests: false,
@@ -77,9 +80,12 @@ void main() {
       expect(fixture.transport.calls, 0);
     });
 
-    test('exception gets reported if bad status code occurs', () async {
+    test('event reported if bad status code occurs', () async {
       final sut = fixture.getSut(
-        client: fixture.getClient(statusCode: 404, reason: 'Not Found'),
+        client: fixture.getClient(
+            statusCode: 404,
+            body: 'foo',
+            headers: {'lorem': 'ipsum', 'set-cookie': 'foo=bar'}),
         badStatusCodes: [SentryStatusCode(404)],
       );
 
@@ -114,13 +120,20 @@ void main() {
       expect(request?.other.keys.contains('duration'), true);
       // ignore: deprecated_member_use_from_same_package
       expect(request?.other.keys.contains('content_length'), true);
+
+      final response = eventCall.contexts.response!;
+      expect(response.bodySize, 3);
+      expect(response.statusCode, 404);
+      expect(response.headers,
+          equals({'lorem': 'ipsum', 'set-cookie': 'foo=bar'}));
+      expect(response.cookies, equals('foo=bar'));
     });
 
     test(
         'just one report on status code reporting with failing requests enabled',
         () async {
       final sut = fixture.getSut(
-        client: fixture.getClient(statusCode: 404, reason: 'Not Found'),
+        client: fixture.getClient(statusCode: 404),
         badStatusCodes: [SentryStatusCode(404)],
         captureFailedRequests: true,
       );
@@ -157,13 +170,16 @@ void main() {
 
       final event = fixture.transport.events.first;
       expect(fixture.transport.calls, 1);
+      expect(event.request, isNotNull);
       expect(event.request?.headers.isEmpty, true);
       expect(event.request?.cookies, isNull);
+      expect(event.request?.data, isNull);
+      expect(event.contexts.response, isNull);
     });
 
     test('pii is not send on invalid status code', () async {
       final sut = fixture.getSut(
-        client: fixture.getClient(statusCode: 404, reason: 'Not Found'),
+        client: fixture.getClient(statusCode: 404),
         badStatusCodes: [SentryStatusCode(404)],
         captureFailedRequests: false,
         sendDefaultPii: false,
@@ -173,29 +189,33 @@ void main() {
 
       final event = fixture.transport.events.first;
       expect(fixture.transport.calls, 1);
+      expect(event.request, isNotNull);
       expect(event.request?.headers.isEmpty, true);
       expect(event.request?.cookies, isNull);
+      expect(event.request?.data, isNull);
+      expect(event.contexts.response, isNotNull);
+      expect(event.contexts.response?.headers.isEmpty, true);
     });
 
     test('request body is included according to $MaxRequestBodySize', () async {
       final scenarios = [
         // never
-        MaxRequestBodySizeTestConfig(MaxRequestBodySize.never, 0, false),
-        MaxRequestBodySizeTestConfig(MaxRequestBodySize.never, 4001, false),
-        MaxRequestBodySizeTestConfig(MaxRequestBodySize.never, 10001, false),
+        MaxBodySizeTestConfig(MaxRequestBodySize.never, 0, false),
+        MaxBodySizeTestConfig(MaxRequestBodySize.never, 4001, false),
+        MaxBodySizeTestConfig(MaxRequestBodySize.never, 10001, false),
         // always
-        MaxRequestBodySizeTestConfig(MaxRequestBodySize.always, 0, true),
-        MaxRequestBodySizeTestConfig(MaxRequestBodySize.always, 4001, true),
-        MaxRequestBodySizeTestConfig(MaxRequestBodySize.always, 10001, true),
+        MaxBodySizeTestConfig(MaxRequestBodySize.always, 0, true),
+        MaxBodySizeTestConfig(MaxRequestBodySize.always, 4001, true),
+        MaxBodySizeTestConfig(MaxRequestBodySize.always, 10001, true),
         // small
-        MaxRequestBodySizeTestConfig(MaxRequestBodySize.small, 0, true),
-        MaxRequestBodySizeTestConfig(MaxRequestBodySize.small, 4000, true),
-        MaxRequestBodySizeTestConfig(MaxRequestBodySize.small, 4001, false),
+        MaxBodySizeTestConfig(MaxRequestBodySize.small, 0, true),
+        MaxBodySizeTestConfig(MaxRequestBodySize.small, 4000, true),
+        MaxBodySizeTestConfig(MaxRequestBodySize.small, 4001, false),
         // medium
-        MaxRequestBodySizeTestConfig(MaxRequestBodySize.medium, 0, true),
-        MaxRequestBodySizeTestConfig(MaxRequestBodySize.medium, 4001, true),
-        MaxRequestBodySizeTestConfig(MaxRequestBodySize.medium, 10000, true),
-        MaxRequestBodySizeTestConfig(MaxRequestBodySize.medium, 10001, false),
+        MaxBodySizeTestConfig(MaxRequestBodySize.medium, 0, true),
+        MaxBodySizeTestConfig(MaxRequestBodySize.medium, 4001, true),
+        MaxBodySizeTestConfig(MaxRequestBodySize.medium, 10000, true),
+        MaxBodySizeTestConfig(MaxRequestBodySize.medium, 10001, false),
       ];
 
       for (final scenario in scenarios) {
@@ -204,7 +224,7 @@ void main() {
         final sut = fixture.getSut(
           client: createThrowingClient(),
           captureFailedRequests: true,
-          maxRequestBodySize: scenario.maxRequestBodySize,
+          maxRequestBodySize: scenario.maxBodySize,
         );
 
         final request = Request('GET', requestUri)
@@ -220,10 +240,8 @@ void main() {
 
         final eventCall = fixture.transport.events.first;
         final capturedRequest = eventCall.request;
-        expect(
-          capturedRequest?.data,
-          scenario.shouldBeIncluded ? isNotNull : isNull,
-        );
+        expect(capturedRequest, isNotNull);
+        expect(capturedRequest?.data, scenario.matcher);
       }
     });
   });
@@ -267,24 +285,29 @@ class Fixture {
     );
   }
 
-  MockClient getClient({int statusCode = 200, String? reason}) {
+  MockClient getClient(
+      {int statusCode = 200,
+      String body = '',
+      Map<String, String> headers = const {}}) {
     return MockClient((request) async {
       expect(request.url, requestUri);
-      return Response('', statusCode, reasonPhrase: reason);
+      return Response(body, statusCode, headers: headers);
     });
   }
 }
 
 class TestException implements Exception {}
 
-class MaxRequestBodySizeTestConfig {
-  MaxRequestBodySizeTestConfig(
-    this.maxRequestBodySize,
+class MaxBodySizeTestConfig<T> {
+  MaxBodySizeTestConfig(
+    this.maxBodySize,
     this.contentLength,
     this.shouldBeIncluded,
   );
 
-  final MaxRequestBodySize maxRequestBodySize;
+  final T maxBodySize;
   final int contentLength;
   final bool shouldBeIncluded;
+
+  Matcher get matcher => shouldBeIncluded ? isNotNull : isNull;
 }
