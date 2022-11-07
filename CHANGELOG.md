@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- VendorId should be a String ([#1095](https://github.com/getsentry/sentry-dart/pull/1095))
+- VendorId should be a String ([#1112](https://github.com/getsentry/sentry-dart/pull/1112))
 
 ### Dependencies
 
