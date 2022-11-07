@@ -10,7 +10,7 @@ Sentry integration for `dio` package
 
 | package | build | pub | likes | popularity | pub points |
 | ------- | ------- | ------- | ------- | ------- | ------- |
-| sentry_dio | [![build](https://github.com/getsentry/sentry-dart/workflows/sentry-dio/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=workflow%3Asentry-dio) | [![pub package](https://img.shields.io/pub/v/sentry_dio.svg)](https://pub.dev/packages/sentry_dio) | [![likes](https://badges.bar/sentry_dio/likes)](https://pub.dev/packages/sentry_dio/score) | [![popularity](https://badges.bar/sentry_dio/popularity)](https://pub.dev/packages/sentry_dio/score) | [![pub points](https://badges.bar/sentry_dio/pub%20points)](https://pub.dev/packages/sentry_dio/score)
+| sentry_dio | [![build](https://github.com/getsentry/sentry-dart/workflows/sentry-dio/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=workflow%3Asentry-dio) | [![pub package](https://img.shields.io/pub/v/sentry_dio.svg)](https://pub.dev/packages/sentry_dio) | [![likes](https://img.shields.io/pub/likes/sentry_dio)](https://pub.dev/packages/sentry_dio/score) | [![popularity](https://img.shields.io/pub/popularity/sentry_dio)](https://pub.dev/packages/sentry_dio/score) | [![pub points](https://img.shields.io/pub/points/sentry_dio)](https://pub.dev/packages/sentry_dio/score)
 
 Integration for the [`dio`](https://pub.dev/packages/dio) package.
 

@@ -48,7 +48,7 @@ void main() {
     test('skips attachment if path is invalid', () async {
       final event = SentryEvent(
         eventId: SentryId.empty(),
-        timestamp: DateTime(1970, 1, 1),
+        timestamp: DateTime.utc(1970, 1, 1),
       );
       final sdkVersion = SdkVersion(name: '', version: '');
       final attachment =
