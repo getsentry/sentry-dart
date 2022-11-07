@@ -32,18 +32,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  sentry:
-  sentry_flutter:
-  sentry_dio:
-  sentry_logging:
-  dio: ^4.0.0
-  logging: ^1.0.2
-
-dependency_overrides:
   sentry:
     path: ../dart
   sentry_flutter:
@@ -52,6 +40,12 @@ dependency_overrides:
     path: ../dio
   sentry_logging:
     path: ../logging
+  dio: ^4.0.0
+  logging: ^1.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
