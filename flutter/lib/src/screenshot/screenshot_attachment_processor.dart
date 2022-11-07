@@ -6,12 +6,14 @@ import 'package:flutter/rendering.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/sentry_private.dart';
 import '../integrations/native_app_start_integration.dart';
+import '../renderer/renderer.dart';
+import '../sentry_flutter_options.dart';
 import 'sentry_screenshot_widget.dart';
 
 // ignore: invalid_use_of_internal_member
 class ScreenshotAttachmentProcessor implements SentryClientAttachmentProcessor {
   final SchedulerBindingProvider _schedulerBindingProvider;
-  final SentryOptions _options;
+  final SentryFlutterOptions _options;
 
   ScreenshotAttachmentProcessor(this._schedulerBindingProvider, this._options);
 
@@ -27,6 +29,11 @@ class ScreenshotAttachmentProcessor implements SentryClientAttachmentProcessor {
         _attachScreenshot) {
       return attachments;
     }
+    if (_options.rendererWrapper.getRenderer() != FlutterRenderer.skia &&
+        _options.rendererWrapper.getRenderer() != FlutterRenderer.canvasKit) {
+      return attachments;
+    }
+
     final schedulerBinding = _schedulerBindingProvider();
     if (schedulerBinding != null) {
       final completer = Completer<Uint8List?>();
