@@ -23,8 +23,16 @@ jobs:
       - uses: subosito/flutter-action@dbf1fa04f4d2e52c33185153d06cdb5443aa189d # pin@v2
         if: ${{ inputs.sdk == 'flutter' }}
       - run: ${{ inputs.sdk }} pub get
-      - run: ${{ inputs.sdk }} analyze --fatal-infos
       - run: ${{ inputs.sdk }} format --set-exit-if-changed ./
+
+      - name: dart analyze
+        uses: invertase/github-action-dart-analyzer@cdd8652b05bf7ed08ffce30f425436780f869f13 # pin@v1
+        with:
+          annotate: true
+          fatal-infos: true
+          fatal-warnings: true
+          annotate-only: false
+          working-directory: ${{ inputs.package }}
 
   package-analysis:
     # `axel-op/dart-package-analyzer` is using `flutter pub upgrade` instead of `get`,
