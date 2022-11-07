@@ -6,7 +6,7 @@ void main() {
   final sentryGpu = SentryGpu(
       name: 'fixture-name',
       id: 1,
-      vendorId: 2,
+      vendorId: '2',
       vendorName: 'fixture-vendorName',
       memorySize: 3,
       apiType: 'fixture-apiType',
@@ -63,7 +63,7 @@ void main() {
       final copy = data.copyWith(
         name: 'name1',
         id: 11,
-        vendorId: 22,
+        vendorId: '22',
         vendorName: 'vendorName1',
         memorySize: 33,
         apiType: 'apiType1',
