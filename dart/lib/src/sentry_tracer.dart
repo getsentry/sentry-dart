@@ -72,7 +72,7 @@ class SentryTracer extends ISentrySpan {
 
   @override
   Future<void> finish({SpanStatus? status, DateTime? endTimestamp}) async {
-    final commonEndTimestamp = endTimestamp ?? getUtcDateTime();
+    final commonEndTimestamp = endTimestamp ?? _hub.options.clock();
     _autoFinishAfterTimer?.cancel();
     _finishStatus = SentryTracerFinishStatus.finishing(status);
     if (!_rootSpan.finished &&

@@ -70,9 +70,9 @@ Future<void> handleIsolateError(
     final mechanism = Mechanism(type: 'isolateError', handled: true);
     final throwableMechanism = ThrowableMechanism(mechanism, throwable);
     final event = SentryEvent(
-      throwable: throwableMechanism,
-      level: SentryLevel.fatal,
-    );
+        throwable: throwableMechanism,
+        level: SentryLevel.fatal,
+        timestamp: hub.options.clock());
 
     await hub.captureEvent(event, stackTrace: stackTrace);
   }

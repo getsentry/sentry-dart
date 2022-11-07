@@ -74,6 +74,7 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
           contexts: flutterErrorDetails.isNotEmpty
               ? (Contexts()..['flutter_error_details'] = flutterErrorDetails)
               : null,
+          timestamp: options.clock(),
         );
 
         await hub.captureEvent(event, stackTrace: errorDetails.stack);

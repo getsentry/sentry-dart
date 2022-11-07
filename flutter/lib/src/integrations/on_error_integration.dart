@@ -56,6 +56,7 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
       var event = SentryEvent(
         throwable: throwableMechanism,
         level: SentryLevel.fatal,
+        timestamp: options.clock(),
       );
 
       // unawaited future
