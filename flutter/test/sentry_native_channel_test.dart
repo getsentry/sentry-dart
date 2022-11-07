@@ -38,7 +38,7 @@ void main() {
       await sut.beginNativeFrames();
 
       verify(fixture.methodChannel
-          .invokeMapMethod<String, dynamic>('beginNativeFrames'));
+          .invokeMethod('beginNativeFrames'));
     });
 
     test('endNativeFrames', () async {
