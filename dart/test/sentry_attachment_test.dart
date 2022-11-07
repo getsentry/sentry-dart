@@ -166,7 +166,7 @@ void main() {
       expect(attachment.attachmentType, SentryAttachment.typeAttachmentDefault);
       expect(attachment.contentType, 'image/png');
       expect(attachment.filename, 'screenshot.png');
-      expect(attachment.addToTransactions, true);
+      expect(attachment.addToTransactions, false);
     });
   });
 }
