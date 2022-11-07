@@ -20,7 +20,7 @@ jobs:
           distribution: 'adopt'
           java-version: '11'
 
-      - uses: subosito/flutter-action@1e6ee87cb840500837bcd50a667fb28815d8e310 # pin@v2
+      - uses: subosito/flutter-action@dbf1fa04f4d2e52c33185153d06cdb5443aa189d # pin@v2
         with:
           flutter-version: '2.0.0'
 
