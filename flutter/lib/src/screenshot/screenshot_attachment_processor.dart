@@ -15,7 +15,8 @@ class ScreenshotAttachmentProcessor implements SentryClientAttachmentProcessor {
   ScreenshotAttachmentProcessor(this._schedulerBindingProvider, this._options);
 
   /// This is true when the SentryWidget is in the view hierarchy
-  bool get _attachScreenshot => sentryWidgetGlobalKey.currentContext != null;
+  bool get _attachScreenshot =>
+      sentryScreenshotWidgetGlobalKey.currentContext != null;
 
   @override
   Future<List<SentryAttachment>> processAttachments(
@@ -47,7 +48,7 @@ class ScreenshotAttachmentProcessor implements SentryClientAttachmentProcessor {
   Future<Uint8List?> _createScreenshot() async {
     try {
       final renderObject =
-          sentryWidgetGlobalKey.currentContext?.findRenderObject();
+          sentryScreenshotWidgetGlobalKey.currentContext?.findRenderObject();
 
       if (renderObject is RenderRepaintBoundary) {
         final image = await renderObject.toImage(pixelRatio: 1);
