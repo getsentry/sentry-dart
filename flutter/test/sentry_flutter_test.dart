@@ -3,6 +3,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
+import 'package:sentry_flutter/src/renderer/renderer.dart';
 import 'package:sentry_flutter/src/version.dart';
 import 'mocks.dart';
 import 'mocks.mocks.dart';
@@ -28,18 +29,6 @@ final androidIntegrations = [
 final iOsAndMacOsIntegrations = [
   LoadImageListIntegration,
   LoadContextsIntegration,
-  ScreenshotIntegration,
-];
-
-final windowsIntegrations = [
-  ScreenshotIntegration,
-];
-
-final linuxIntegrations = [
-  ScreenshotIntegration,
-];
-
-final fuchsiaIntegrations = [
   ScreenshotIntegration,
 ];
 
@@ -197,10 +186,7 @@ void main() {
 
       testConfiguration(
         integrations: integrations,
-        shouldHaveIntegrations: [
-          ...platformAgnosticIntegrations,
-          ...windowsIntegrations
-        ],
+        shouldHaveIntegrations: platformAgnosticIntegrations,
         shouldNotHaveIntegrations: [
           ...androidIntegrations,
           ...iOsAndMacOsIntegrations,
@@ -238,10 +224,7 @@ void main() {
 
       testConfiguration(
         integrations: integrations,
-        shouldHaveIntegrations: [
-          ...platformAgnosticIntegrations,
-          ...linuxIntegrations
-        ],
+        shouldHaveIntegrations: platformAgnosticIntegrations,
         shouldNotHaveIntegrations: [
           ...androidIntegrations,
           ...iOsAndMacOsIntegrations,
@@ -257,46 +240,65 @@ void main() {
       await Sentry.close();
     }, testOn: 'vm');
 
-    test('Fuchsia', () async {
+    test('ScreenshotIntegration installed skia renderer', () async {
       List<Integration> integrations = [];
-      Transport transport = MockTransport();
 
-      await SentryFlutter.init(
-        (options) async {
-          options.dsn = fakeDsn;
-          integrations = options.integrations;
-          transport = options.transport;
-        },
-        appRunner: appRunner,
-        packageLoader: loadTestPackage,
-        platformChecker: getPlatformChecker(platform: MockPlatform.fuchsia()),
-      );
+      await SentryFlutter.init((options) async {
+        options.dsn = fakeDsn;
+        integrations = options.integrations;
+      }, rendererWrapper: MockRendererWrapper(FlutterRenderer.skia));
 
-      testTransport(
-        transport: transport,
-        hasFileSystemTransport: false,
-      );
+      expect(
+          integrations
+              .map((e) => e.runtimeType)
+              .contains(ScreenshotIntegration),
+          true);
+    });
 
-      testConfiguration(
-        integrations: integrations,
-        shouldHaveIntegrations: [
-          ...platformAgnosticIntegrations,
-          ...fuchsiaIntegrations
-        ],
-        shouldNotHaveIntegrations: [
-          ...androidIntegrations,
-          ...iOsAndMacOsIntegrations,
-          ...nativeIntegrations,
-        ],
-      );
+    test('ScreenshotIntegration installed canvasKit renderer', () async {
+      List<Integration> integrations = [];
 
-      testBefore(
-          integrations: integrations,
-          beforeIntegration: WidgetsFlutterBindingIntegration,
-          afterIntegration: OnErrorIntegration);
+      await SentryFlutter.init((options) async {
+        options.dsn = fakeDsn;
+        integrations = options.integrations;
+      }, rendererWrapper: MockRendererWrapper(FlutterRenderer.canvasKit));
 
-      await Sentry.close();
-    }, testOn: 'vm');
+      expect(
+          integrations
+              .map((e) => e.runtimeType)
+              .contains(ScreenshotIntegration),
+          true);
+    });
+
+    test('ScreenshotIntegration not installed htm renderer', () async {
+      List<Integration> integrations = [];
+
+      await SentryFlutter.init((options) async {
+        options.dsn = fakeDsn;
+        integrations = options.integrations;
+      }, rendererWrapper: MockRendererWrapper(FlutterRenderer.html));
+
+      expect(
+          integrations
+              .map((e) => e.runtimeType)
+              .contains(ScreenshotIntegration),
+          false);
+    });
+
+    test('ScreenshotIntegration not installed unknown renderer', () async {
+      List<Integration> integrations = [];
+
+      await SentryFlutter.init((options) async {
+        options.dsn = fakeDsn;
+        integrations = options.integrations;
+      }, rendererWrapper: MockRendererWrapper(FlutterRenderer.unknown));
+
+      expect(
+          integrations
+              .map((e) => e.runtimeType)
+              .contains(ScreenshotIntegration),
+          false);
+    });
 
     test('Web', () async {
       List<Integration> integrations = [];

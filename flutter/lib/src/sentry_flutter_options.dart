@@ -1,4 +1,7 @@
+import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
+
+import 'renderer/renderer.dart';
 
 /// This class adds options which are only availble in a Flutter environment.
 /// Note that some of these options require native Sentry integration, which is
@@ -179,6 +182,9 @@ class SentryFlutterOptions extends SentryOptions {
 
   /// Automatically attaches a screenshot when capturing an error or exception.
   bool attachScreenshot = false;
+
+  @internal
+  late RendererWrapper rendererWrapper = RendererWrapper();
 
   /// By using this, you are disabling native [Breadcrumb] tracking and instead
   /// you are just tracking [Breadcrumb]s which result from events available

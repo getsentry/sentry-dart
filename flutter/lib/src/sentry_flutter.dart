@@ -9,6 +9,7 @@ import '../sentry_flutter.dart';
 import 'event_processor/android_platform_exception_event_processor.dart';
 import 'integrations/screenshot_integration.dart';
 import 'native_scope_observer.dart';
+import 'renderer/renderer.dart';
 import 'sentry_native.dart';
 import 'sentry_native_channel.dart';
 
@@ -33,11 +34,15 @@ mixin SentryFlutter {
     @internal PackageLoader packageLoader = _loadPackageInfo,
     @internal MethodChannel channel = _channel,
     @internal PlatformChecker? platformChecker,
+    @internal RendererWrapper? rendererWrapper,
   }) async {
     final flutterOptions = SentryFlutterOptions();
 
     if (platformChecker != null) {
       flutterOptions.platformChecker = platformChecker;
+    }
+    if (rendererWrapper != null) {
+      flutterOptions.rendererWrapper = rendererWrapper;
     }
 
     final nativeChannel = SentryNativeChannel(channel, flutterOptions);
@@ -142,13 +147,8 @@ mixin SentryFlutter {
       integrations.add(LoadImageListIntegration(channel));
     }
 
-    if (!platformChecker.isWeb &&
-        (platform.isAndroid ||
-            platform.isIOS ||
-            platform.isMacOS ||
-            platform.isWindows ||
-            platform.isLinux ||
-            platform.isFuchsia)) {
+    if (options.rendererWrapper.getRenderer() == FlutterRenderer.skia ||
+        options.rendererWrapper.getRenderer() == FlutterRenderer.canvasKit) {
       integrations.add(ScreenshotIntegration());
     }
 
