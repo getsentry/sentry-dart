@@ -33,13 +33,16 @@ class ScreenshotAttachmentProcessor implements SentryClientAttachmentProcessor {
         final screenshot = await _createScreenshot();
         completer.complete(screenshot);
       });
-      final bytes = await completer.future ?? Uint8List.fromList([]);
+      final bytes = await completer.future;
+      if (bytes == null) {
+        return attachments;
+      }
       final screenshotAttachment = SentryAttachment.fromScreenshotData(bytes);
 
-      final attachments = <SentryAttachment>[];
-      attachments.addAll(attachments);
-      attachments.add(screenshotAttachment);
-      return attachments;
+      final attachmentsWithScreenshot = <SentryAttachment>[];
+      attachmentsWithScreenshot.addAll(attachmentsWithScreenshot);
+      attachmentsWithScreenshot.add(screenshotAttachment);
+      return attachmentsWithScreenshot;
     } else {
       return attachments;
     }
