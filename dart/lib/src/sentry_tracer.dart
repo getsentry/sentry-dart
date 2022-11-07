@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
-import 'utils.dart';
 
 import '../sentry.dart';
 import 'sentry_tracer_finish_status.dart';

@@ -72,6 +72,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
       data: <String, String>{
         'state': _lifecycleToString(state),
       },
+      timestamp: _options.clock(),
     ));
   }
 
@@ -95,6 +96,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
       category: 'device.screen',
       type: 'navigation',
       data: data,
+      timestamp: _options.clock(),
     ));
   }
 
@@ -117,6 +119,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
       data: <String, String>{
         'action': 'BRIGHTNESS_CHANGED_TO_${brightnessDescription.toUpperCase()}'
       },
+      timestamp: _options.clock(),
     ));
   }
 
@@ -136,6 +139,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
       data: <String, String>{
         'action': 'TEXT_SCALE_CHANGED_TO_$newTextScaleFactor'
       },
+      timestamp: _options.clock(),
     ));
   }
 
@@ -162,6 +166,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
       },
       // This is kinda bad. Therefore this gets added as a warning.
       level: SentryLevel.warning,
+      timestamp: _options.clock(),
     ));
   }
 
