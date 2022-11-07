@@ -26,16 +26,6 @@ dev_dependencies:
   pedantic: ^1.11.1
   sentry_dart_plugin: ^1.0.0-beta.1
 
-dependency_overrides:
-  sentry:
-    path: ../../dart
-  sentry_flutter:
-    path: ../
-  sentry_dio:
-    path: ../../dio
-  sentry_logging:
-    path: ../../logging
-
 flutter:
   uses-material-design: true
   assets:
