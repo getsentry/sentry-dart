@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Merging of integrations and packages ([#1095](https://github.com/getsentry/sentry-dart/pull/1095))
+
 ### Dependencies
 
 - Bump Android SDK from v6.6.0 to v6.7.0 ([#1105](https://github.com/getsentry/sentry-dart/pull/1105))
