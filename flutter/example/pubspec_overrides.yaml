@@ -1,0 +1,9 @@
+dependency_overrides:
+  sentry:
+    path: ../../dart
+  sentry_flutter:
+    path: ../
+  sentry_dio:
+    path: ../../dio
+  sentry_logging:
+    path: ../../logging
