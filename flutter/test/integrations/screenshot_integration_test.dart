@@ -29,8 +29,7 @@ void main() {
   test(
       'screenshotIntegration does not creates screenshot processor if opt out in options',
       () async {
-    final integration = fixture.getSut();
-    fixture.options.attachScreenshot = false;
+    final integration = fixture.getSut(attachScreenshot: false);
 
     await integration(fixture.hub, fixture.options);
 
@@ -59,8 +58,8 @@ class Fixture {
   final hub = MockHub();
   final options = SentryFlutterOptions();
 
-  ScreenshotIntegration getSut() {
-    options.attachScreenshot = true;
+  ScreenshotIntegration getSut({bool attachScreenshot = true}) {
+    options.attachScreenshot = attachScreenshot;
     return ScreenshotIntegration();
   }
 }
