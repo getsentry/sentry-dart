@@ -240,82 +240,6 @@ void main() {
       await Sentry.close();
     }, testOn: 'vm');
 
-    test('ScreenshotIntegration installed skia renderer', () async {
-      List<Integration> integrations = [];
-
-      await SentryFlutter.init((options) async {
-        options.dsn = fakeDsn;
-        integrations = options.integrations;
-      },
-          appRunner: appRunner,
-          packageLoader: loadTestPackage,
-          platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
-          rendererWrapper: MockRendererWrapper(FlutterRenderer.skia));
-
-      expect(
-          integrations
-              .map((e) => e.runtimeType)
-              .contains(ScreenshotIntegration),
-          true);
-    });
-
-    test('ScreenshotIntegration installed canvasKit renderer', () async {
-      List<Integration> integrations = [];
-
-      await SentryFlutter.init((options) async {
-        options.dsn = fakeDsn;
-        integrations = options.integrations;
-      },
-          appRunner: appRunner,
-          packageLoader: loadTestPackage,
-          platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
-          rendererWrapper: MockRendererWrapper(FlutterRenderer.canvasKit));
-
-      expect(
-          integrations
-              .map((e) => e.runtimeType)
-              .contains(ScreenshotIntegration),
-          true);
-    });
-
-    test('ScreenshotIntegration not installed htm renderer', () async {
-      List<Integration> integrations = [];
-
-      await SentryFlutter.init((options) async {
-        options.dsn = fakeDsn;
-        integrations = options.integrations;
-      },
-          appRunner: appRunner,
-          packageLoader: loadTestPackage,
-          platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
-          rendererWrapper: MockRendererWrapper(FlutterRenderer.html));
-
-      expect(
-          integrations
-              .map((e) => e.runtimeType)
-              .contains(ScreenshotIntegration),
-          false);
-    });
-
-    test('ScreenshotIntegration not installed unknown renderer', () async {
-      List<Integration> integrations = [];
-
-      await SentryFlutter.init((options) async {
-        options.dsn = fakeDsn;
-        integrations = options.integrations;
-      },
-          appRunner: appRunner,
-          packageLoader: loadTestPackage,
-          platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
-          rendererWrapper: MockRendererWrapper(FlutterRenderer.unknown));
-
-      expect(
-          integrations
-              .map((e) => e.runtimeType)
-              .contains(ScreenshotIntegration),
-          false);
-    });
-
     test('Web', () async {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
@@ -481,6 +405,96 @@ void main() {
           integrations: integrations,
           beforeIntegration: WidgetsFlutterBindingIntegration,
           afterIntegration: OnErrorIntegration);
+
+      await Sentry.close();
+    });
+  });
+
+  group('Test ScreenshotIntegration', () {
+    setUp(() async {
+      await Sentry.close();
+    });
+
+    test('installed with skia renderer', () async {
+      List<Integration> integrations = [];
+
+      await SentryFlutter.init((options) async {
+        options.dsn = fakeDsn;
+        integrations = options.integrations;
+      },
+          appRunner: appRunner,
+          packageLoader: loadTestPackage,
+          platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
+          rendererWrapper: MockRendererWrapper(FlutterRenderer.skia));
+
+      expect(
+          integrations
+              .map((e) => e.runtimeType)
+              .contains(ScreenshotIntegration),
+          true);
+
+      await Sentry.close();
+    });
+
+    test('installed with canvasKit renderer', () async {
+      List<Integration> integrations = [];
+
+      await SentryFlutter.init((options) async {
+        options.dsn = fakeDsn;
+        integrations = options.integrations;
+      },
+          appRunner: appRunner,
+          packageLoader: loadTestPackage,
+          platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
+          rendererWrapper: MockRendererWrapper(FlutterRenderer.canvasKit));
+
+      expect(
+          integrations
+              .map((e) => e.runtimeType)
+              .contains(ScreenshotIntegration),
+          true);
+
+      await Sentry.close();
+    });
+
+    test('not installed with html renderer', () async {
+      List<Integration> integrations = [];
+
+      await SentryFlutter.init((options) async {
+        options.dsn = fakeDsn;
+        integrations = options.integrations;
+      },
+          appRunner: appRunner,
+          packageLoader: loadTestPackage,
+          platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
+          rendererWrapper: MockRendererWrapper(FlutterRenderer.html));
+
+      expect(
+          integrations
+              .map((e) => e.runtimeType)
+              .contains(ScreenshotIntegration),
+          false);
+
+      await Sentry.close();
+    });
+
+    test('not installed with unknown renderer', () async {
+      List<Integration> integrations = [];
+
+      await SentryFlutter.init((options) async {
+        options.dsn = fakeDsn;
+        integrations = options.integrations;
+      },
+          appRunner: appRunner,
+          packageLoader: loadTestPackage,
+          platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
+          rendererWrapper: MockRendererWrapper(FlutterRenderer.unknown));
+
+      expect(
+          integrations
+              .map((e) => e.runtimeType)
+              .contains(ScreenshotIntegration),
+          false);
 
       await Sentry.close();
     });
