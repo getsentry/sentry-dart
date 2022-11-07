@@ -246,7 +246,11 @@ void main() {
       await SentryFlutter.init((options) async {
         options.dsn = fakeDsn;
         integrations = options.integrations;
-      }, rendererWrapper: MockRendererWrapper(FlutterRenderer.skia));
+      },
+          appRunner: appRunner,
+          packageLoader: loadTestPackage,
+          platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
+          rendererWrapper: MockRendererWrapper(FlutterRenderer.skia));
 
       expect(
           integrations
@@ -261,7 +265,11 @@ void main() {
       await SentryFlutter.init((options) async {
         options.dsn = fakeDsn;
         integrations = options.integrations;
-      }, rendererWrapper: MockRendererWrapper(FlutterRenderer.canvasKit));
+      },
+          appRunner: appRunner,
+          packageLoader: loadTestPackage,
+          platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
+          rendererWrapper: MockRendererWrapper(FlutterRenderer.canvasKit));
 
       expect(
           integrations
@@ -276,7 +284,11 @@ void main() {
       await SentryFlutter.init((options) async {
         options.dsn = fakeDsn;
         integrations = options.integrations;
-      }, rendererWrapper: MockRendererWrapper(FlutterRenderer.html));
+      },
+          appRunner: appRunner,
+          packageLoader: loadTestPackage,
+          platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
+          rendererWrapper: MockRendererWrapper(FlutterRenderer.html));
 
       expect(
           integrations
@@ -291,7 +303,11 @@ void main() {
       await SentryFlutter.init((options) async {
         options.dsn = fakeDsn;
         integrations = options.integrations;
-      }, rendererWrapper: MockRendererWrapper(FlutterRenderer.unknown));
+      },
+          appRunner: appRunner,
+          packageLoader: loadTestPackage,
+          platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
+          rendererWrapper: MockRendererWrapper(FlutterRenderer.unknown));
 
       expect(
           integrations
