@@ -29,8 +29,9 @@ class ScreenshotAttachmentProcessor implements SentryClientAttachmentProcessor {
         _attachScreenshot) {
       return attachments;
     }
-    if (_options.rendererWrapper.getRenderer() != FlutterRenderer.skia &&
-        _options.rendererWrapper.getRenderer() != FlutterRenderer.canvasKit) {
+    final renderer = _options.rendererWrapper.getRenderer();
+    if (renderer != FlutterRenderer.skia &&
+        renderer != FlutterRenderer.canvasKit) {
       return attachments;
     }
 
