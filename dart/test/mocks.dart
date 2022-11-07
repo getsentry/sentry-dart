@@ -160,3 +160,23 @@ class MockRateLimiter implements RateLimiter {
     this.errorCode = errorCode;
   }
 }
+
+enum MockAttachmentProcessorMode { filter, add }
+
+/// Filtering out all attachments.
+class MockAttachmentProcessor implements SentryClientAttachmentProcessor {
+  MockAttachmentProcessorMode mode;
+
+  MockAttachmentProcessor(this.mode);
+
+  @override
+  Future<List<SentryAttachment>> processAttachments(
+      List<SentryAttachment> attachments, SentryEvent event) async {
+    switch (mode) {
+      case MockAttachmentProcessorMode.filter:
+        return <SentryAttachment>[];
+      case MockAttachmentProcessorMode.add:
+        return <SentryAttachment>[SentryAttachment.fromIntList([], "added")];
+    }
+  }
+}
