@@ -40,30 +40,6 @@ Future<void> main() async {
 }
 ```
 
-Starting with Flutter version 3.3, if you want to use the `PlatformDispatcher.onError` callback on your own:
-
-```dart
-import 'dart:async';
-
-import 'package:flutter/widgets.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
-
-Future<void> main() async {
-  await SentryFlutter.init(
-    (options) {
-      options.dsn = 'https://example@sentry.io/add-your-dsn-here';
-    },
-  );
-
-  PlatformDispatcher.instance.onError = (Object exception, StackTrace stackTrace) async {
-    // Your code here...
-    await Sentry.captureException(exception, stackTrace: stackTrace);
-  };
-
-  runApp(MyApp());
-}
-```
-
 Prior to Flutter 3.3, if you want to run your app in your own error zone [runZonedGuarded](https://api.flutter.dev/flutter/dart-async/runZonedGuarded.html):
 
 ```dart
