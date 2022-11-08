@@ -83,6 +83,22 @@ void main() {
 
     // skip on browser because [StackTrace.current] still returns null
   }, onPlatform: {'browser': Skip()});
+
+  test('reads the snapshot from the mechanism', () {
+    final error = StateError('test-error');
+    final mechanism = Mechanism(type: 'Mechanism');
+    final throwableMechanism = ThrowableMechanism(
+      mechanism,
+      error,
+      snapshot: true,
+    );
+
+    SentryException sentryException = fixture.getSut().getSentryException(
+          throwableMechanism,
+        );
+
+    expect(sentryException.stackTrace!.snapshot, true);
+  });
 }
 
 class CustomError extends Error {}

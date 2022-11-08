@@ -126,8 +126,7 @@ class FailedRequestClient extends BaseClient {
       } else if (failedRequestStatusCodes.containsStatusCode(statusCode)) {
         // Capture an exception if the status code is considered bad
         capture = true;
-        reason =
-            'Event was captured because the request status code was $statusCode';
+        reason = 'HTTP Client Error with status code: $statusCode';
         exception ??= SentryHttpClientError(reason);
       }
       if (capture) {
@@ -178,7 +177,17 @@ class FailedRequestClient extends BaseClient {
       type: 'SentryHttpClient',
       description: reason,
     );
-    final throwableMechanism = ThrowableMechanism(mechanism, exception);
+
+    bool? snapshot;
+    if (exception is SentryHttpClientError) {
+      snapshot = true;
+    }
+
+    final throwableMechanism = ThrowableMechanism(
+      mechanism,
+      exception,
+      snapshot: snapshot,
+    );
 
     final event = SentryEvent(
       throwable: throwableMechanism,
