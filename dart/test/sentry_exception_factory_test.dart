@@ -93,9 +93,15 @@ void main() {
       snapshot: true,
     );
 
-    SentryException sentryException = fixture.getSut().getSentryException(
-          throwableMechanism,
-        );
+    SentryException sentryException;
+    try {
+      throw throwableMechanism;
+    } catch (err, stackTrace) {
+      sentryException = fixture.getSut().getSentryException(
+            throwableMechanism,
+            stackTrace: stackTrace,
+          );
+    }
 
     expect(sentryException.stackTrace!.snapshot, true);
   });
