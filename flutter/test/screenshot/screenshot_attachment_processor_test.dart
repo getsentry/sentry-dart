@@ -1,4 +1,4 @@
-@TestOn('vm')
+@Tags(['canvasKit']) // Web renderer where this test can run
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -27,7 +27,11 @@ void main() {
 
       Future.delayed(Duration(milliseconds: 10), () {
         // Schedule a frame later so that the addPostFrameCallback for the screenshot is called.
-        tester.binding.scheduleWarmUpFrame();
+        try {
+          tester.binding.scheduleWarmUpFrame();
+        } catch (_) {
+          // Might throw after test ran successfully and the next one should run. Ignore.
+        }
       });
 
       final throwable = Exception();
