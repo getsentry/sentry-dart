@@ -5,6 +5,8 @@
 ### Fixes
 
 - VendorId should be a String ([#1112](https://github.com/getsentry/sentry-dart/pull/1112))
+- Add missing `fragment` for HTTP Client Errors ([#1102](https://github.com/getsentry/sentry-dart/pull/1102))
+- Sync user name and geo for Android ([#1102](https://github.com/getsentry/sentry-dart/pull/1102))
 
 ### Dependencies
 
