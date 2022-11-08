@@ -38,6 +38,7 @@ class ScreenshotAttachmentProcessor implements SentryClientAttachmentProcessor {
     final schedulerBinding = _schedulerBindingProvider();
     if (schedulerBinding != null) {
       final completer = Completer<Uint8List?>();
+
       schedulerBinding.addPostFrameCallback((timeStamp) async {
         final screenshot = await _createScreenshot();
         completer.complete(screenshot);
@@ -61,13 +62,27 @@ class ScreenshotAttachmentProcessor implements SentryClientAttachmentProcessor {
         final image = await renderObject.toImage(pixelRatio: 1);
         // At the time of writing there's no other image format available which
         // Sentry understands.
-        final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-        return bytes?.buffer.asUint8List();
+
+        if (image.width == 0 || image.height == 0) {
+          _options.logger(SentryLevel.debug,
+              'View\'s width and height is zeroed, not taking screenshot.');
+          return null;
+        }
+
+        final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+        final bytes = byteData?.buffer.asUint8List() ?? Uint8List(0);
+        if (bytes.isNotEmpty) {
+          return bytes;
+        } else {
+          _options.logger(SentryLevel.debug,
+              'Screenshot is 0 bytes, not attaching the image.');
+          return null;
+        }
       }
     } catch (exception, stackTrace) {
       _options.logger(
         SentryLevel.error,
-        'Could not create screenshot.',
+        'Taking screenshot failed.',
         exception: exception,
         stackTrace: stackTrace,
       );
