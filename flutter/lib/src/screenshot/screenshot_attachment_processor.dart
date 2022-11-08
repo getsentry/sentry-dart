@@ -32,6 +32,8 @@ class ScreenshotAttachmentProcessor implements SentryClientAttachmentProcessor {
     final renderer = _options.rendererWrapper.getRenderer();
     if (renderer != FlutterRenderer.skia &&
         renderer != FlutterRenderer.canvasKit) {
+      _options.logger(SentryLevel.debug,
+          'Cannot take screenshot with ${_options.rendererWrapper.getRendererAsString()} renderer.');
       return attachments;
     }
 
