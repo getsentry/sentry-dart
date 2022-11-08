@@ -15,8 +15,8 @@ final sentryScreenshotWidgetGlobalKey =
 /// - Depending on the place where it's used, you might have a transparent
 ///   background.
 /// - Platform Views currently can't be captured.
-/// - It only works on Flutters Canvas Kit Web renderer. For more information
-///   see https://flutter.dev/docs/development/tools/web-renderers
+/// - Works with skia renderer & canvas kit renderer if running on web. For more
+///   information see https://flutter.dev/docs/development/tools/web-renderers
 /// - You can only have one [SentryScreenshotWidget] widget in your widget tree at all
 ///   times.
 class SentryScreenshotWidget extends StatefulWidget {
