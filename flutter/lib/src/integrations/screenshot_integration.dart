@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/scheduler.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/sentry_private.dart';
 import '../screenshot/screenshot_attachment_processor.dart';

@@ -5,7 +5,6 @@ import 'dart:ui' as ui show ImageByteFormat;
 import 'package:flutter/rendering.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/sentry_private.dart';
-import '../integrations/native_app_start_integration.dart';
 import '../renderer/renderer.dart';
 import '../sentry_flutter_options.dart';
 import 'sentry_screenshot_widget.dart';
