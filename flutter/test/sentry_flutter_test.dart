@@ -434,7 +434,7 @@ void main() {
           true);
 
       await Sentry.close();
-    });
+    }, testOn: 'vm');
 
     test('installed with canvasKit renderer', () async {
       List<Integration> integrations = [];
@@ -455,7 +455,7 @@ void main() {
           true);
 
       await Sentry.close();
-    });
+    }, testOn: 'vm');
 
     test('not installed with html renderer', () async {
       List<Integration> integrations = [];
@@ -476,7 +476,7 @@ void main() {
           false);
 
       await Sentry.close();
-    });
+    }, testOn: 'vm');
 
     test('not installed with unknown renderer', () async {
       List<Integration> integrations = [];
@@ -497,7 +497,7 @@ void main() {
           false);
 
       await Sentry.close();
-    });
+    }, testOn: 'vm');
   });
 
   group('initial values', () {
