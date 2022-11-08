@@ -17,7 +17,7 @@ void main() {
   final sentryGpuJson = <String, dynamic>{
     'name': 'fixture-name',
     'id': 1,
-    'vendor_id': 2,
+    'vendor_id': '2',
     'vendor_name': 'fixture-vendorName',
     'memory_size': 3,
     'api_type': 'fixture-apiType',
@@ -74,7 +74,7 @@ void main() {
 
       expect('name1', copy.name);
       expect(11, copy.id);
-      expect(22, copy.vendorId);
+      expect('22', copy.vendorId);
       expect('vendorName1', copy.vendorName);
       expect(33, copy.memorySize);
       expect('apiType1', copy.apiType);
