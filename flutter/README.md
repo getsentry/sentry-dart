@@ -58,7 +58,6 @@ Future<void> main() async {
 
     runApp(MyApp());
   }, (exception, stackTrace) async {
-    // Your code here...
     await Sentry.captureException(exception, stackTrace: stackTrace);
   });
 }
