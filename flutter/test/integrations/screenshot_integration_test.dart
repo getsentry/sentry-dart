@@ -5,8 +5,6 @@ import 'package:sentry_flutter/src/screenshot/screenshot_attachment_processor.da
 
 import '../mocks.mocks.dart';
 
-/// Tests that require `WidgetsFlutterBinding.ensureInitialized();` not
-/// being called at all.
 void main() {
   late Fixture fixture;
 
