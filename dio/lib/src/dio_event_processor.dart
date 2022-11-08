@@ -119,9 +119,17 @@ class DioEventProcessor implements EventProcessor {
     final options = dioError.requestOptions;
     // As far as I can tell there's no way to get the uri without the query part
     // so we replace it with an empty string.
-    final urlWithoutQuery = options.uri.replace(query: '').toString();
+    final urlWithoutQuery = options.uri
+        .replace(query: '', fragment: '')
+        .toString()
+        .replaceAll('?', '')
+        .replaceAll('#', '');
 
     final query = options.uri.query.isEmpty ? null : options.uri.query;
+
+    // future proof, Dio does not support it yet and even if passing in the path,
+    // the parsing of the uri returns empty.
+    final fragment = options.uri.fragment.isEmpty ? null : options.uri.fragment;
 
     final headers = options.headers
         .map((key, dynamic value) => MapEntry(key, value?.toString() ?? ''));
@@ -132,6 +140,7 @@ class DioEventProcessor implements EventProcessor {
       url: urlWithoutQuery,
       queryString: query,
       data: _getRequestData(dioError.requestOptions.data),
+      fragment: fragment,
     );
   }
 

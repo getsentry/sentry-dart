@@ -5,6 +5,11 @@
 ### Features
 
 - Feat: Screenshot Attachment ([#1088](https://github.com/getsentry/sentry-dart/pull/1088))
+### Fixes
+
+- Merging of integrations and packages ([#1111](https://github.com/getsentry/sentry-dart/pull/1111))
+- Add missing `fragment` for HTTP Client Errors ([#1102](https://github.com/getsentry/sentry-dart/pull/1102))
+- Sync user name and geo for Android ([#1102](https://github.com/getsentry/sentry-dart/pull/1102))
 
 ### Dependencies
 
