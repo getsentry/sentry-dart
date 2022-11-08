@@ -37,18 +37,8 @@ class ScreenshotAttachmentProcessor implements SentryClientAttachmentProcessor {
       return attachments;
     }
 
-    final schedulerBinding = _schedulerBindingProvider();
-    if (schedulerBinding != null) {
-      final completer = Completer<Uint8List?>();
-
-      schedulerBinding.addPostFrameCallback((timeStamp) async {
-        final screenshot = await _createScreenshot();
-        completer.complete(screenshot);
-      });
-      final bytes = await completer.future;
-      if (bytes == null) {
-        return attachments;
-      }
+    final bytes = await _createScreenshot();
+    if (bytes != null) {
       return attachments + [SentryAttachment.fromScreenshotData(bytes)];
     } else {
       return attachments;

@@ -25,15 +25,6 @@ void main() {
           child: Text('Catching Pokémon is a snap!',
               textDirection: TextDirection.ltr)));
 
-      Future.delayed(Duration(milliseconds: 10), () {
-        // Schedule a frame later so that the addPostFrameCallback for the screenshot is called.
-        try {
-          tester.binding.scheduleWarmUpFrame();
-        } catch (_) {
-          // Might throw after test ran successfully and the next one should run. Ignore.
-        }
-      });
-
       final throwable = Exception();
       final event = SentryEvent(throwable: throwable);
       final attachments = await sut.processAttachments([], event);
