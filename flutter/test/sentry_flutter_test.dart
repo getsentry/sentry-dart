@@ -50,7 +50,6 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.attachScreenshot = true;
           integrations = options.integrations;
           transport = options.transport;
         },
@@ -91,7 +90,6 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.attachScreenshot = true;
           integrations = options.integrations;
           transport = options.transport;
         },
@@ -130,7 +128,6 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
-          options.attachScreenshot = true;
           integrations = options.integrations;
           transport = options.transport;
         },
