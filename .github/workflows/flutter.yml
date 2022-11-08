@@ -132,42 +132,10 @@ jobs:
           esac
 
   analyze:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@dbf1fa04f4d2e52c33185153d06cdb5443aa189d # pin@v2
-      - run: |
-          cd flutter
-          flutter pub get
-          flutter format -n --set-exit-if-changed ./
-          flutter analyze
-
-  package-analysis:
-    # `axel-op/dart-package-analyzer` is using `flutter pub upgrade` instead of `get`,
-    # which ignores pubspec.yaml `dependency_overrides`. Because of that, all `release/*` branches are failing,
-    # because the package cannot find the "about to be released" version of our sentry-dart package that it depends on.
-    if: ${{ !startsWith(github.ref, 'refs/heads/release/') }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v3
-      - uses: axel-op/dart-package-analyzer@7a6c3c66bce78d82b729a1ffef2d9458fde6c8d2 # pin@v3
-        id: analysis
-        with:
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
-          relativePath: flutter/
-      - name: Check scores
-        env:
-          TOTAL: ${{ steps.analysis.outputs.total }}
-          TOTAL_MAX: ${{ steps.analysis.outputs.total_max }}
-        run: |
-          PERCENTAGE=$(( $TOTAL * 100 / $TOTAL_MAX ))
-          if (( $PERCENTAGE < 90 ))
-          then
-            echo Score too low!
-            exit 1
-          fi
+    uses: ./.github/workflows/analyze.yml
+    with:
+      package: flutter
+      sdk: flutter
 
   pod-lint:
     runs-on: macos-latest
