@@ -6,7 +6,6 @@ import 'package:sentry_flutter/src/renderer/renderer.dart';
 import 'package:sentry_flutter/src/screenshot/screenshot_attachment_processor.dart';
 import '../mocks.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:flutter/scheduler.dart';
 
 void main() {
   late Fixture fixture;
@@ -58,8 +57,6 @@ class Fixture {
 
   ScreenshotAttachmentProcessor getSut(FlutterRenderer flutterRenderer) {
     options.rendererWrapper = MockRendererWrapper(flutterRenderer);
-    return ScreenshotAttachmentProcessor(() {
-      return SchedulerBinding.instance;
-    }, options);
+    return ScreenshotAttachmentProcessor(options);
   }
 }

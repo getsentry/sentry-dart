@@ -14,13 +14,8 @@ class ScreenshotIntegration implements Integration<SentryFlutterOptions> {
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
     if (options.attachScreenshot) {
       // ignore: invalid_use_of_internal_member
-      options.clientAttachmentProcessor = ScreenshotAttachmentProcessor(() {
-        try {
-          /// Flutter >= 2.12 throws if SchedulerBinding.instance isn't initialized.
-          return SchedulerBinding.instance;
-        } catch (_) {}
-        return null;
-      }, options);
+      options.clientAttachmentProcessor =
+          ScreenshotAttachmentProcessor(options);
       _options = options;
     }
     options.sdk.addIntegration('screenshotIntegration');
