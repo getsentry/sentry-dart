@@ -22,14 +22,12 @@ final platformAgnosticIntegrations = [
 // These should only be added to Android
 final androidIntegrations = [
   LoadImageListIntegration,
-  ScreenshotIntegration,
 ];
 
 // These should be added to iOS and macOS
 final iOsAndMacOsIntegrations = [
   LoadImageListIntegration,
   LoadContextsIntegration,
-  ScreenshotIntegration,
 ];
 
 // These should be added to every platform which has a native integration.
