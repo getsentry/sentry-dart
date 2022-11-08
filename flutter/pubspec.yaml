@@ -26,10 +26,6 @@ dev_dependencies:
   yaml: ^3.1.0 # needed for version match (code and pubspec)
   flutter_lints: ^2.0.0
 
-dependency_overrides:
-  sentry:
-    path: ../dart
-
 flutter:
   plugin:
     platforms:

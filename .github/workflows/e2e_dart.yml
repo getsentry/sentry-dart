@@ -37,17 +37,7 @@ jobs:
           dart run --define=SENTRY_ENVIRONMENT=e2e
 
   analyze:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    defaults:
-      run:
-        working-directory: ./e2e_test
-    steps:
-      - uses: dart-lang/setup-dart@6a218f2413a3e78e9087f638a238f6b40893203d # pin@v1
-        with:
-          sdk: stable
-      - uses: actions/checkout@v3
-      - run: |
-          dart pub get
-          dart analyze --fatal-infos
-          dart format --set-exit-if-changed ./
+    uses: ./.github/workflows/analyze.yml
+    with:
+      package: e2e_test
+      panaThreshold: 0 
