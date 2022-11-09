@@ -1,9 +1,14 @@
 # Changelog
 
-## 6.15.0
+## Unreleased
+
+### Features
 
 - Add request context to `HttpException` and `SocketException` ([#1118](https://github.com/getsentry/sentry-dart/pull/1118))
 - `SocketException` and `FileSystemException` with `OSError`s report the `OSError` as root exception ([#1118](https://github.com/getsentry/sentry-dart/pull/1118))
+
+## 6.15.0
+
 ### Features
 
 - Feat: Screenshot Attachment ([#1088](https://github.com/getsentry/sentry-dart/pull/1088))
