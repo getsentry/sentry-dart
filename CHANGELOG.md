@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Add request context to `HttpException` and `SocketException`
+- `SocketException` and `FileSystemException` with `OSError`s report the `OSError` as root exception
+
 ### Fixes
 
 - Merging of integrations and packages ([#1111](https://github.com/getsentry/sentry-dart/pull/1111))

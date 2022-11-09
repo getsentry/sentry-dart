@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 
 import '../../protocol.dart';
@@ -9,13 +8,16 @@ ExceptionEventProcessor exceptionEventProcessor() =>
 
 class IoExceptionEventProcessor implements ExceptionEventProcessor {
   @override
-  FutureOr<SentryEvent> apply(SentryEvent event, {dynamic hint}) {
+  SentryEvent apply(SentryEvent event, {dynamic hint}) {
     final throwable = event.throwable;
     if (throwable is HttpException) {
       return applyHttpException(throwable, event);
     }
     if (throwable is SocketException) {
       return applySocketException(throwable, event);
+    }
+    if (throwable is FileSystemException) {
+      return applyFileSystemException(throwable, event);
     }
 
     return event;
@@ -42,22 +44,39 @@ class IoExceptionEventProcessor implements ExceptionEventProcessor {
       return event;
     }
     final osError = exception.osError;
+    SentryRequest? request;
     try {
-      final uri = Uri.parse(address.host);
+      var uri = Uri.parse(address.host);
+      request = SentryRequest.fromUri(uri: uri);
+    } catch (_) {}
 
-      return event.copyWith(
-        request: event.request ?? SentryRequest.fromUri(uri: uri),
-        exceptions: [
-          ...?event.exceptions,
-          // OSError is the underlying error
-          // https://api.dart.dev/stable/dart-io/SocketException/osError.html
-          // https://api.dart.dev/stable/dart-io/OSError-class.html
-          if (osError != null) _sentryExceptionfromOsError(osError),
-        ],
-      );
-    } catch (_) {
-      return event;
-    }
+    return event.copyWith(
+      request: event.request ?? request,
+      exceptions: [
+        ...?event.exceptions,
+        // OSError is the underlying error
+        // https://api.dart.dev/stable/dart-io/SocketException/osError.html
+        // https://api.dart.dev/stable/dart-io/OSError-class.html
+        if (osError != null) _sentryExceptionfromOsError(osError),
+      ],
+    );
+  }
+
+  // https://api.dart.dev/stable/dart-io/FileSystemException-class.html
+  SentryEvent applyFileSystemException(
+    FileSystemException exception,
+    SentryEvent event,
+  ) {
+    final osError = exception.osError;
+    return event.copyWith(
+      exceptions: [
+        ...?event.exceptions,
+        // OSError is the underlying error
+        // https://api.dart.dev/stable/dart-io/FileSystemException/osError.html
+        // https://api.dart.dev/stable/dart-io/OSError-class.html
+        if (osError != null) _sentryExceptionfromOsError(osError),
+      ],
+    );
   }
 }
 
