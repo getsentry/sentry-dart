@@ -183,6 +183,9 @@ class SentryFlutterOptions extends SentryOptions {
   /// Automatically attaches a screenshot when capturing an error or exception.
   ///
   /// Requires adding the [SentryScreenshotWidget] to the widget tree.
+  /// Example:
+  /// runApp(SentryScreenshotWidget(child: App()));
+  /// The [SentryScreenshotWidget] has to be the root widget of the app.
   bool attachScreenshot = false;
 
   @internal
