@@ -23,6 +23,8 @@ It will capture errors in the native layer, including (Java/Kotlin/C/C++ for And
 
 - Initialize the Sentry SDK using the DSN issued by Sentry.io:
 
+- The SDK already runs your init `callback` on an error handler, such as [`runZonedGuarded`](https://api.flutter.dev/flutter/dart-async/runZonedGuarded.html) on Flutter versions prior to `3.3`, or [`PlatformDispatcher.onError`](https://api.flutter.dev/flutter/dart-ui/PlatformDispatcher/onError.html) on Flutter versions 3.3 and higher, so that errors are automatically captured.
+
 ```dart
 import 'package:flutter/widgets.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -38,7 +40,7 @@ Future<void> main() async {
 }
 ```
 
-Or, if you want to run your app in your own error zone [runZonedGuarded](https://api.flutter.dev/flutter/dart-async/runZonedGuarded.html):
+Prior to Flutter 3.3, if you want to run your app in your own error zone [runZonedGuarded](https://api.flutter.dev/flutter/dart-async/runZonedGuarded.html):
 
 ```dart
 import 'dart:async';
@@ -122,7 +124,6 @@ Or [try out the Alpha version of the Sentry Dart Plugin](https://github.com/gets
 
 - Use a `try/catch` block.
 - Use a `catchError` block for `Futures`, examples on [dart.dev](https://dart.dev/guides/libraries/futures-error-handling).
-- The SDK already runs your `callback` on an error handler, e.g. using [runZonedGuarded](https://api.flutter.dev/flutter/dart-async/runZonedGuarded.html), events caught by the `runZonedGuarded` are captured automatically.
 - [Flutter-specific errors](https://api.flutter.dev/flutter/foundation/FlutterError/onError.html) are captured automatically.
 - [Current Isolate errors](https://api.flutter.dev/flutter/dart-isolate/Isolate/addErrorListener.html) which is the equivalent of a main or UI thread, are captured automatically (Only for non-Web Apps).
 - For your own `Isolates`, add an [Error Listener](https://api.flutter.dev/flutter/dart-isolate/Isolate/addErrorListener.html) and call `Sentry.captureException`.
