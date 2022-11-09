@@ -156,9 +156,14 @@ class FailedRequestClient extends BaseClient {
   }) async {
     // As far as I can tell there's no way to get the uri without the query part
     // so we replace it with an empty string.
-    final urlWithoutQuery = request.url.replace(query: '').toString();
+    final urlWithoutQuery = request.url
+        .replace(query: '', fragment: '')
+        .toString()
+        .replaceAll('?', '')
+        .replaceAll('#', '');
 
     final query = request.url.query.isEmpty ? null : request.url.query;
+    final fragment = request.url.fragment.isEmpty ? null : request.url.fragment;
 
     final sentryRequest = SentryRequest(
       method: request.method,
@@ -171,6 +176,7 @@ class FailedRequestClient extends BaseClient {
         'content_length': request.contentLength.toString(),
         'duration': requestDuration.toString(),
       },
+      fragment: fragment,
     );
 
     final mechanism = Mechanism(

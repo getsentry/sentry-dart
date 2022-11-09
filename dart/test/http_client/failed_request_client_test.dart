@@ -9,7 +9,7 @@ import '../mocks.dart';
 import '../mocks/mock_hub.dart';
 import '../mocks/mock_transport.dart';
 
-final requestUri = Uri.parse('https://example.com?foo=bar');
+final requestUri = Uri.parse('https://example.com?foo=bar#myFragment');
 
 void main() {
   group(FailedRequestClient, () {
@@ -54,8 +54,9 @@ void main() {
       final request = eventCall.request;
       expect(request, isNotNull);
       expect(request?.method, 'GET');
-      expect(request?.url, 'https://example.com?');
+      expect(request?.url, 'https://example.com');
       expect(request?.queryString, 'foo=bar');
+      expect(request?.fragment, 'myFragment');
       expect(request?.cookies, 'foo=bar');
       expect(request?.headers, {'Cookie': 'foo=bar'});
       // ignore: deprecated_member_use_from_same_package
@@ -114,8 +115,9 @@ void main() {
       final request = eventCall.request;
       expect(request, isNotNull);
       expect(request?.method, 'GET');
-      expect(request?.url, 'https://example.com?');
+      expect(request?.url, 'https://example.com');
       expect(request?.queryString, 'foo=bar');
+      expect(request?.fragment, 'myFragment');
       expect(request?.cookies, 'foo=bar');
       expect(request?.headers, {'Cookie': 'foo=bar'});
       // ignore: deprecated_member_use_from_same_package
