@@ -17,9 +17,11 @@ class SentryExceptionFactory {
   }) {
     var throwable = exception;
     Mechanism? mechanism;
+    bool? snapshot;
     if (exception is ThrowableMechanism) {
       throwable = exception.throwable;
       mechanism = exception.mechanism;
+      snapshot = exception.snapshot;
     }
 
     if (throwable is Error) {
@@ -29,6 +31,8 @@ class SentryExceptionFactory {
     // hence we check again if stackTrace is null and if not, read the current stack trace
     // but only if attachStacktrace is enabled
     if (_options.attachStacktrace) {
+      // TODO: snapshot=true if stackTrace is null
+      // Requires a major breaking change because of grouping
       stackTrace ??= StackTrace.current;
     }
 
@@ -39,6 +43,7 @@ class SentryExceptionFactory {
       if (frames.isNotEmpty) {
         sentryStackTrace = SentryStackTrace(
           frames: frames,
+          snapshot: snapshot,
         );
       }
     }

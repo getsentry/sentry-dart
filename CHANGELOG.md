@@ -11,6 +11,7 @@
 - Merging of integrations and packages ([#1111](https://github.com/getsentry/sentry-dart/pull/1111))
 - Add missing `fragment` for HTTP Client Errors ([#1102](https://github.com/getsentry/sentry-dart/pull/1102))
 - Sync user name and geo for Android ([#1102](https://github.com/getsentry/sentry-dart/pull/1102))
+- Add mechanism to Dio Http Client error ([#1114](https://github.com/getsentry/sentry-dart/pull/1114))
 
 ### Dependencies
 
