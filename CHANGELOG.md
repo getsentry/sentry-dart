@@ -2,14 +2,40 @@
 
 ## Unreleased
 
+### Fixes
+
+- Merging of integrations and packages ([#1111](https://github.com/getsentry/sentry-dart/pull/1111))
+- Add missing `fragment` for HTTP Client Errors ([#1102](https://github.com/getsentry/sentry-dart/pull/1102))
+- Sync user name and geo for Android ([#1102](https://github.com/getsentry/sentry-dart/pull/1102))
+
+### Dependencies
+
+- Bump Android SDK from v6.6.0 to v6.7.0 ([#1105](https://github.com/getsentry/sentry-dart/pull/1105))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#670)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.6.0...6.7.0)
+- Bump Cocoa SDK from v7.30.0 to v7.31.0 ([#1104](https://github.com/getsentry/sentry-dart/pull/1113))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/master/CHANGELOG.md#7310)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.30.0...7.31.0)
+
+## 6.14.0
+
+### Features
+
+- Capture response information in `SentryHttpClient` ([#1095](https://github.com/getsentry/sentry-dart/pull/1095))
+
+### Changes
+
+- Remove experimental `SentryResponse` fields: `url`, `body`, `redirected`, `status` ([#1095](https://github.com/getsentry/sentry-dart/pull/1095))
+- `SentryHttpClient` request body capture checks default PII capture setting, same as the DIO integration ([#1095](https://github.com/getsentry/sentry-dart/pull/1095))
+
 ### Dependencies
 
 - Bump Android SDK from v6.5.0 to v6.6.0 ([#1090](https://github.com/getsentry/sentry-dart/pull/1090))
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#660)
   - [diff](https://github.com/getsentry/sentry-java/compare/6.5.0...6.6.0)
-- Bump Cocoa SDK from v7.28.0 to v7.29.0 ([#1089](https://github.com/getsentry/sentry-dart/pull/1089))
-  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/master/CHANGELOG.md#7290)
-  - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.28.0...7.29.0)
+- Bump Cocoa SDK from v7.28.0 to v7.30.0 ([#1089](https://github.com/getsentry/sentry-dart/pull/1089), [#1101](https://github.com/getsentry/sentry-dart/pull/1101))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/master/CHANGELOG.md#7300)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.28.0...7.30.0)
 
 ## 6.13.1
 

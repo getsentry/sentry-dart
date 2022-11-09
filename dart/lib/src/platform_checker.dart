@@ -33,7 +33,7 @@ class PlatformChecker {
             : 'profile';
   }
 
-  /// Indicates wether a native integration is available.
+  /// Indicates whether a native integration is available.
   bool get hasNativeIntegration {
     if (isWeb) {
       return false;

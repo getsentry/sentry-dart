@@ -20,7 +20,7 @@ flutterCreate 'perf-test-app-plain'
 flutterCreate 'perf-test-app-with-sentry'
 
 echo '::group::Patch perf-test-app-with-sentry'
-pubspec="$targetDir/perf-test-app-with-sentry/pubspec.yaml"
+pubspec="$targetDir/perf-test-app-with-sentry/pubspec_overrides.yaml"
 echo "Adding dependencies to $pubspec"
 cat <<EOF >>"$pubspec"
 
