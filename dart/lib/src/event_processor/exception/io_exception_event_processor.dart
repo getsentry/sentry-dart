@@ -44,11 +44,11 @@ class IoExceptionEventProcessor implements ExceptionEventProcessor {
     if (address == null) {
       return event.copyWith(
         exceptions: [
-          ...?event.exceptions,
           // OSError is the underlying error
           // https://api.dart.dev/stable/dart-io/SocketException/osError.html
           // https://api.dart.dev/stable/dart-io/OSError-class.html
           if (osError != null) _sentryExceptionfromOsError(osError),
+          ...?event.exceptions,
         ],
       );
     }
@@ -61,11 +61,11 @@ class IoExceptionEventProcessor implements ExceptionEventProcessor {
     return event.copyWith(
       request: event.request ?? request,
       exceptions: [
-        ...?event.exceptions,
         // OSError is the underlying error
         // https://api.dart.dev/stable/dart-io/SocketException/osError.html
         // https://api.dart.dev/stable/dart-io/OSError-class.html
         if (osError != null) _sentryExceptionfromOsError(osError),
+        ...?event.exceptions,
       ],
     );
   }
@@ -78,11 +78,11 @@ class IoExceptionEventProcessor implements ExceptionEventProcessor {
     final osError = exception.osError;
     return event.copyWith(
       exceptions: [
-        ...?event.exceptions,
         // OSError is the underlying error
         // https://api.dart.dev/stable/dart-io/FileSystemException/osError.html
         // https://api.dart.dev/stable/dart-io/OSError-class.html
         if (osError != null) _sentryExceptionfromOsError(osError),
+        ...?event.exceptions,
       ],
     );
   }
