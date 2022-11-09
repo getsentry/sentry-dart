@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:meta/meta.dart';
 
 /// Key which is used to identify the [RepaintBoundary]
+@internal
 final sentryScreenshotWidgetGlobalKey =
     GlobalKey(debugLabel: 'sentry_screenshot_widget');
 

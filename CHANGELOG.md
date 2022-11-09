@@ -5,6 +5,7 @@
 ### Features
 
 - Feat: Screenshot Attachment ([#1088](https://github.com/getsentry/sentry-dart/pull/1088))
+
 ### Fixes
 
 - Merging of integrations and packages ([#1111](https://github.com/getsentry/sentry-dart/pull/1111))

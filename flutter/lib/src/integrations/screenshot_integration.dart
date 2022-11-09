@@ -16,8 +16,9 @@ class ScreenshotIntegration implements Integration<SentryFlutterOptions> {
       options.clientAttachmentProcessor =
           ScreenshotAttachmentProcessor(options);
       _options = options;
+
+      options.sdk.addIntegration('screenshotIntegration');
     }
-    options.sdk.addIntegration('screenshotIntegration');
   }
 
   @override

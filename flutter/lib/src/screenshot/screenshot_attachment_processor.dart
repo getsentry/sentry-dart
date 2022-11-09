@@ -16,7 +16,7 @@ class ScreenshotAttachmentProcessor implements SentryClientAttachmentProcessor {
   ScreenshotAttachmentProcessor(this._options);
 
   /// This is true when the SentryWidget is in the view hierarchy
-  bool get _attachScreenshot =>
+  bool get _hasSentryScreenshotWidget =>
       sentryScreenshotWidgetGlobalKey.currentContext != null;
 
   @override
@@ -24,7 +24,7 @@ class ScreenshotAttachmentProcessor implements SentryClientAttachmentProcessor {
       List<SentryAttachment> attachments, SentryEvent event) async {
     if (event.exceptions == null &&
         event.throwable == null &&
-        _attachScreenshot) {
+        _hasSentryScreenshotWidget) {
       return attachments;
     }
     final renderer = _options.rendererWrapper.getRenderer();
@@ -60,8 +60,8 @@ class ScreenshotAttachmentProcessor implements SentryClientAttachmentProcessor {
         }
 
         final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-        final bytes = byteData?.buffer.asUint8List() ?? Uint8List(0);
-        if (bytes.isNotEmpty) {
+        final bytes = byteData?.buffer.asUint8List();
+        if (bytes?.isNotEmpty == true) {
           return bytes;
         } else {
           _options.logger(SentryLevel.debug,

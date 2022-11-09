@@ -181,6 +181,8 @@ class SentryFlutterOptions extends SentryOptions {
   bool autoAppStart = true;
 
   /// Automatically attaches a screenshot when capturing an error or exception.
+  ///
+  /// Requires adding the [SentryScreenshotWidget] to the widget tree.
   bool attachScreenshot = false;
 
   @internal

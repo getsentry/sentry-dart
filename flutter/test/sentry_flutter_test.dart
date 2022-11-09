@@ -323,7 +323,7 @@ void main() {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
 
-      // Tests that iOS || macOS integrations aren't added on a browswer which
+      // Tests that iOS || macOS integrations aren't added on a browser which
       // runs on iOS or macOS
       await SentryFlutter.init(
         (options) async {
