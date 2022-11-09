@@ -40,10 +40,18 @@ class IoExceptionEventProcessor implements ExceptionEventProcessor {
     SentryEvent event,
   ) {
     final address = exception.address;
-    if (address == null) {
-      return event;
-    }
     final osError = exception.osError;
+    if (address == null) {
+      return event.copyWith(
+        exceptions: [
+          ...?event.exceptions,
+          // OSError is the underlying error
+          // https://api.dart.dev/stable/dart-io/SocketException/osError.html
+          // https://api.dart.dev/stable/dart-io/OSError-class.html
+          if (osError != null) _sentryExceptionfromOsError(osError),
+        ],
+      );
+    }
     SentryRequest? request;
     try {
       var uri = Uri.parse(address.host);
@@ -84,10 +92,14 @@ SentryException _sentryExceptionfromOsError(OSError osError) {
   return SentryException(
     type: osError.runtimeType.toString(),
     value: osError.toString(),
+    // osError.errorCode is likely a posix signal
+    // https://develop.sentry.dev/sdk/event-payloads/types/#mechanismmeta
     mechanism: Mechanism(
       type: 'OSError',
       meta: {
-        'code': osError.errorCode,
+        'signal': {
+          'number': osError.errorCode,
+        },
       },
     ),
   );
