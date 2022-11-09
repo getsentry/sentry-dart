@@ -2,6 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
+import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
+import 'package:sentry_flutter/src/renderer/renderer.dart';
 import 'package:sentry_flutter/src/version.dart';
 import 'mocks.dart';
 import 'mocks.mocks.dart';
@@ -321,7 +323,7 @@ void main() {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
 
-      // Tests that iOS || macOS integrations aren't added on a browswer which
+      // Tests that iOS || macOS integrations aren't added on a browser which
       // runs on iOS or macOS
       await SentryFlutter.init(
         (options) async {
@@ -364,7 +366,7 @@ void main() {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
 
-      // Tests that Android integrations aren't added on an Android browswer
+      // Tests that Android integrations aren't added on an Android browser
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
@@ -401,6 +403,96 @@ void main() {
 
       await Sentry.close();
     });
+  });
+
+  group('Test ScreenshotIntegration', () {
+    setUp(() async {
+      await Sentry.close();
+    });
+
+    test('installed with skia renderer', () async {
+      List<Integration> integrations = [];
+
+      await SentryFlutter.init((options) async {
+        options.dsn = fakeDsn;
+        integrations = options.integrations;
+      },
+          appRunner: appRunner,
+          packageLoader: loadTestPackage,
+          platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
+          rendererWrapper: MockRendererWrapper(FlutterRenderer.skia));
+
+      expect(
+          integrations
+              .map((e) => e.runtimeType)
+              .contains(ScreenshotIntegration),
+          true);
+
+      await Sentry.close();
+    }, testOn: 'vm');
+
+    test('installed with canvasKit renderer', () async {
+      List<Integration> integrations = [];
+
+      await SentryFlutter.init((options) async {
+        options.dsn = fakeDsn;
+        integrations = options.integrations;
+      },
+          appRunner: appRunner,
+          packageLoader: loadTestPackage,
+          platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
+          rendererWrapper: MockRendererWrapper(FlutterRenderer.canvasKit));
+
+      expect(
+          integrations
+              .map((e) => e.runtimeType)
+              .contains(ScreenshotIntegration),
+          true);
+
+      await Sentry.close();
+    }, testOn: 'vm');
+
+    test('not installed with html renderer', () async {
+      List<Integration> integrations = [];
+
+      await SentryFlutter.init((options) async {
+        options.dsn = fakeDsn;
+        integrations = options.integrations;
+      },
+          appRunner: appRunner,
+          packageLoader: loadTestPackage,
+          platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
+          rendererWrapper: MockRendererWrapper(FlutterRenderer.html));
+
+      expect(
+          integrations
+              .map((e) => e.runtimeType)
+              .contains(ScreenshotIntegration),
+          false);
+
+      await Sentry.close();
+    }, testOn: 'vm');
+
+    test('not installed with unknown renderer', () async {
+      List<Integration> integrations = [];
+
+      await SentryFlutter.init((options) async {
+        options.dsn = fakeDsn;
+        integrations = options.integrations;
+      },
+          appRunner: appRunner,
+          packageLoader: loadTestPackage,
+          platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
+          rendererWrapper: MockRendererWrapper(FlutterRenderer.unknown));
+
+      expect(
+          integrations
+              .map((e) => e.runtimeType)
+              .contains(ScreenshotIntegration),
+          false);
+
+      await Sentry.close();
+    }, testOn: 'vm');
   });
 
   group('initial values', () {

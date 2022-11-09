@@ -81,7 +81,8 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           cd flutter
-          flutter test --platform chrome --test-randomize-ordering-seed=random
+          flutter test --platform chrome --test-randomize-ordering-seed=random --exclude-tags canvasKit
+          flutter test --platform chrome --test-randomize-ordering-seed=random --tags canvasKit --web-renderer canvaskit
 
       - name: Test VM with coverage
         if: runner.os != 'macOS'

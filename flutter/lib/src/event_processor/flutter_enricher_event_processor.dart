@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:sentry/sentry.dart';
 
 import '../binding_utils.dart';
-import '../renderer/renderer.dart';
 import '../sentry_flutter_options.dart';
 
 typedef WidgetBindingGetter = WidgetsBinding? Function();
@@ -155,7 +154,7 @@ class FlutterEnricherEventProcessor extends EventProcessor {
       // Also always fails in tests.
       // See https://github.com/flutter/flutter/issues/83919
       // 'window_is_visible': _window.viewConfiguration.visible,
-      'renderer': getRendererAsString()
+      'renderer': _options.rendererWrapper.getRendererAsString()
     };
   }
 
