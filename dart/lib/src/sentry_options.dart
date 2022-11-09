@@ -41,6 +41,8 @@ class SentryOptions {
 
   /// If [clock] is provided, it is used to get time instead of the system
   /// clock. This is useful in tests. Should be an implementation of [ClockProvider].
+  /// The ClockProvider is expected to return UTC time.
+  @internal
   ClockProvider clock = getUtcDateTime;
 
   int _maxBreadcrumbs = 100;

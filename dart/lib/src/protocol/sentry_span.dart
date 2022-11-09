@@ -32,7 +32,7 @@ class SentrySpan extends ISentrySpan {
     this.samplingDecision,
     Function({DateTime? endTimestamp})? finishedCallback,
   }) {
-    _startTimestamp = (startTimestamp ?? _hub.options.clock()).toUtc();
+    _startTimestamp = startTimestamp?.toUtc() ?? _hub.options.clock();
     _finishedCallback = finishedCallback;
   }
 
@@ -47,13 +47,13 @@ class SentrySpan extends ISentrySpan {
     }
 
     if (endTimestamp == null) {
-      _endTimestamp = _hub.options.clock().toUtc();
+      _endTimestamp = _hub.options.clock();
     } else if (endTimestamp.isBefore(_startTimestamp)) {
       _hub.options.logger(
         SentryLevel.warning,
         'End timestamp ($endTimestamp) cannot be before start timestamp ($_startTimestamp)',
       );
-      _endTimestamp = _hub.options.clock().toUtc();
+      _endTimestamp = _hub.options.clock();
     } else {
       _endTimestamp = endTimestamp.toUtc();
     }
