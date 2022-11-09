@@ -120,9 +120,9 @@ class SentryOptions {
   set debug(bool newValue) {
     _debug = newValue;
     if (_debug == true && logger == noOpLogger) {
-      _logger = dartLogger;
+      _logger = _debugLogger;
     }
-    if (_debug == false && logger == dartLogger) {
+    if (_debug == false && logger == _debugLogger) {
       _logger = noOpLogger;
     }
   }
@@ -361,6 +361,23 @@ class SentryOptions {
   @internal
   late SentryClientAttachmentProcessor clientAttachmentProcessor =
       SentryClientAttachmentProcessor();
+
+  void _debugLogger(
+    SentryLevel level,
+    String message, {
+    String? logger,
+    Object? exception,
+    StackTrace? stackTrace,
+  }) {
+    log(
+      '[${level.name}] $message',
+      level: level.toDartLogLevel(),
+      name: logger ?? 'sentry',
+      time: clock(),
+      error: exception,
+      stackTrace: stackTrace,
+    );
+  }
 }
 
 /// This function is called with an SDK specific event object and can return a modified event

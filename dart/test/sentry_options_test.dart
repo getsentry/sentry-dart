@@ -34,9 +34,10 @@ void main() {
 
   test('SentryLogger sets a diagnostic logger', () {
     final options = SentryOptions(dsn: fakeDsn);
+    expect(options.logger, noOpLogger);
     options.logger = dartLogger;
 
-    expect(false, options.logger == noOpLogger);
+    expect(options.logger, isNot(noOpLogger));
   });
 
   test('tracesSampler is null by default', () {
