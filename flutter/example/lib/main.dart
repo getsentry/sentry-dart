@@ -31,6 +31,7 @@ Future<void> main() async {
       options.attachThreads = true;
       options.enableWindowMetricBreadcrumbs = true;
       options.addIntegration(LoggingIntegration());
+      options.attachScreenshot = true;
       // We can enable Sentry debug logging during development. This is likely
       // going to log too much for your app, but can be useful when figuring out
       // configuration issues, e.g. finding out why your events are not uploaded.
@@ -38,9 +39,11 @@ Future<void> main() async {
     },
     // Init your App.
     appRunner: () => runApp(
-      DefaultAssetBundle(
-        bundle: SentryAssetBundle(enableStructuredDataTracing: true),
-        child: MyApp(),
+      SentryScreenshotWidget(
+        child: DefaultAssetBundle(
+          bundle: SentryAssetBundle(enableStructuredDataTracing: true),
+          child: MyApp(),
+        ),
       ),
     ),
   );
