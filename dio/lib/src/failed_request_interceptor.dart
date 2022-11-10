@@ -13,8 +13,12 @@ class FailedRequestInterceptor extends Interceptor {
     DioError err,
     ErrorInterceptorHandler handler,
   ) async {
+    final mechanism = Mechanism(type: 'SentryDioClientAdapter');
+    final throwableMechanism = ThrowableMechanism(mechanism, err);
+
     _hub.getSpan()?.throwable = err;
-    await _hub.captureException(err);
+
+    await _hub.captureException(throwableMechanism);
 
     handler.next(err);
   }

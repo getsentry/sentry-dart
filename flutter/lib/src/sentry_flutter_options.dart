@@ -1,4 +1,7 @@
+import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
+
+import 'renderer/renderer.dart';
 
 /// This class adds options which are only availble in a Flutter environment.
 /// Note that some of these options require native Sentry integration, which is
@@ -176,6 +179,17 @@ class SentryFlutterOptions extends SentryOptions {
   /// you want to set the end time of app startup manually using
   /// [SentryFlutter.setAppStartEnd].
   bool autoAppStart = true;
+
+  /// Automatically attaches a screenshot when capturing an error or exception.
+  ///
+  /// Requires adding the [SentryScreenshotWidget] to the widget tree.
+  /// Example:
+  /// runApp(SentryScreenshotWidget(child: App()));
+  /// The [SentryScreenshotWidget] has to be the root widget of the app.
+  bool attachScreenshot = false;
+
+  @internal
+  late RendererWrapper rendererWrapper = RendererWrapper();
 
   /// By using this, you are disabling native [Breadcrumb] tracking and instead
   /// you are just tracking [Breadcrumb]s which result from events available
