@@ -40,12 +40,6 @@ class Scope {
 
   set span(ISentrySpan? span) {
     _span = span;
-
-    if (_span != null) {
-      final currentTransaction =
-          (_span is SentryTracer) ? (_span as SentryTracer?) : null;
-      _transaction = currentTransaction?.name ?? _transaction;
-    }
   }
 
   SentryUser? _user;
@@ -297,7 +291,7 @@ class Scope {
     dynamic hint,
   }) async {
     event = event.copyWith(
-      transaction: event.transaction ?? _transaction,
+      transaction: event.transaction ?? transaction,
       user: _mergeUsers(user, event.user),
       breadcrumbs: (event.breadcrumbs?.isNotEmpty ?? false)
           ? event.breadcrumbs
