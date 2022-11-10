@@ -74,6 +74,8 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
           contexts: flutterErrorDetails.isNotEmpty
               ? (Contexts()..['flutter_error_details'] = flutterErrorDetails)
               : null,
+          // ignore: invalid_use_of_internal_member
+          timestamp: options.clock(),
         );
 
         await hub.captureEvent(event, stackTrace: errorDetails.stack);

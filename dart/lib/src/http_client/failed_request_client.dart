@@ -198,6 +198,7 @@ class FailedRequestClient extends BaseClient {
     final event = SentryEvent(
       throwable: throwableMechanism,
       request: sentryRequest,
+      timestamp: _hub.options.clock(),
     );
 
     if (response != null) {
