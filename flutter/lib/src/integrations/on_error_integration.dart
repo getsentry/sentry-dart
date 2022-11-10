@@ -56,6 +56,7 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
       var event = SentryEvent(
         throwable: throwableMechanism,
         level: SentryLevel.fatal,
+        // ignore: invalid_use_of_internal_member
         timestamp: options.clock(),
       );
 

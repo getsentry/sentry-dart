@@ -24,7 +24,8 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
             'Scheduler binding is null. Can\'t auto detect app start time.');
       } else {
         schedulerBinding.addPostFrameCallback((timeStamp) {
-          _native.appStartEnd = options.clock().toUtc();
+          // ignore: invalid_use_of_internal_member
+          _native.appStartEnd = options.clock();
         });
       }
     }

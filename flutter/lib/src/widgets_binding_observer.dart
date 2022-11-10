@@ -72,6 +72,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
       data: <String, String>{
         'state': _lifecycleToString(state),
       },
+      // ignore: invalid_use_of_internal_member
       timestamp: _options.clock(),
     ));
   }
@@ -96,6 +97,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
       category: 'device.screen',
       type: 'navigation',
       data: data,
+      // ignore: invalid_use_of_internal_member
       timestamp: _options.clock(),
     ));
   }
@@ -119,6 +121,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
       data: <String, String>{
         'action': 'BRIGHTNESS_CHANGED_TO_${brightnessDescription.toUpperCase()}'
       },
+      // ignore: invalid_use_of_internal_member
       timestamp: _options.clock(),
     ));
   }
@@ -139,6 +142,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
       data: <String, String>{
         'action': 'TEXT_SCALE_CHANGED_TO_$newTextScaleFactor'
       },
+      // ignore: invalid_use_of_internal_member
       timestamp: _options.clock(),
     ));
   }
@@ -166,6 +170,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
       },
       // This is kinda bad. Therefore this gets added as a warning.
       level: SentryLevel.warning,
+      // ignore: invalid_use_of_internal_member
       timestamp: _options.clock(),
     ));
   }
