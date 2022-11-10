@@ -342,20 +342,23 @@ void main() {
     }, options: sentryOptions);
   });
 
-  test('options.logger is not dartLogger after debug = false', () async {
+  test('options.logger is set by setting the debug flag', () async {
     final sentryOptions =
         SentryOptions(dsn: fakeDsn, checker: FakePlatformChecker.debugMode());
 
     await Sentry.init((options) {
       options.dsn = fakeDsn;
       options.debug = true;
-      expect(options.logger, dartLogger);
+      // ignore: deprecated_member_use_from_same_package
+      expect(options.logger, isNot(noOpLogger));
 
       options.debug = false;
+      // ignore: deprecated_member_use_from_same_package
       expect(options.logger, noOpLogger);
     }, options: sentryOptions);
 
-    expect(sentryOptions.logger == dartLogger, false);
+    // ignore: deprecated_member_use_from_same_package
+    expect(sentryOptions.logger, isNot(dartLogger));
   });
 
   group("Sentry init optionsConfiguration", () {
