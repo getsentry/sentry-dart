@@ -1,5 +1,11 @@
 # Changelog
 
+## 6.15.1
+
+### Various fixes & improvements
+
+- chore(deps): update Flutter SDK (metrics) to v3.3.8 (#1121) by @github-actions
+
 ## 6.15.0
 
 ### Features
