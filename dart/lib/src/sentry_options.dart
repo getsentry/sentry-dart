@@ -89,6 +89,7 @@ class SentryOptions {
     _maxSpans = maxSpans;
   }
 
+  // ignore: deprecated_member_use_from_same_package
   SentryLogger _logger = noOpLogger;
 
   /// Logger interface to log useful debugging information if debug is enabled
@@ -119,10 +120,12 @@ class SentryOptions {
 
   set debug(bool newValue) {
     _debug = newValue;
+    // ignore: deprecated_member_use_from_same_package
     if (_debug == true && logger == noOpLogger) {
       _logger = _debugLogger;
     }
     if (_debug == false && logger == _debugLogger) {
+      // ignore: deprecated_member_use_from_same_package
       _logger = noOpLogger;
     }
   }
@@ -410,6 +413,7 @@ typedef TracesSamplerCallback = double? Function(
     SentrySamplingContext samplingContext);
 
 /// A NoOp logger that does nothing
+@Deprecated('This will be made private or removed in the future')
 void noOpLogger(
   SentryLevel level,
   String message, {
@@ -419,6 +423,7 @@ void noOpLogger(
 }) {}
 
 /// A Logger that prints out the level and message
+@Deprecated('This will be made private or removed in the future')
 void dartLogger(
   SentryLevel level,
   String message, {
