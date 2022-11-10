@@ -1,6 +1,7 @@
 @TestOn('vm')
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/native_app_start_integration.dart';
 import 'package:sentry_flutter/src/sentry_native.dart';
@@ -25,7 +26,7 @@ void main() {
       fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
       fixture.wrapper.nativeAppStart = NativeAppStart(0, true);
 
-      fixture.getNativeAppStartIntegration().call(MockHub(), fixture.options);
+      fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
 
       final tracer = fixture.createTracer();
       final transaction = SentryTransaction(tracer);
@@ -44,7 +45,7 @@ void main() {
       fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(10);
       fixture.wrapper.nativeAppStart = NativeAppStart(0, true);
 
-      fixture.getNativeAppStartIntegration().call(MockHub(), fixture.options);
+      fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
 
       final tracer = fixture.createTracer();
       final transaction = SentryTransaction(tracer);
@@ -63,7 +64,7 @@ void main() {
       fixture.wrapper.nativeAppStart = NativeAppStart(0, true);
       final measurement = SentryMeasurement.warmAppStart(Duration(seconds: 1));
 
-      fixture.getNativeAppStartIntegration().call(MockHub(), fixture.options);
+      fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
 
       final tracer = fixture.createTracer();
       final transaction = SentryTransaction(tracer).copyWith();
@@ -83,7 +84,7 @@ void main() {
       fixture.native.appStartEnd = DateTime.fromMillisecondsSinceEpoch(60001);
       fixture.wrapper.nativeAppStart = NativeAppStart(0, true);
 
-      fixture.getNativeAppStartIntegration().call(MockHub(), fixture.options);
+      fixture.getNativeAppStartIntegration().call(fixture.hub, fixture.options);
 
       final tracer = fixture.createTracer();
       final transaction = SentryTransaction(tracer);
@@ -97,6 +98,7 @@ void main() {
 }
 
 class Fixture {
+  final hub = MockHub();
   final options = SentryFlutterOptions(dsn: fakeDsn);
   final wrapper = MockNativeChannel();
   late final native = SentryNative();
@@ -104,6 +106,7 @@ class Fixture {
   Fixture() {
     native.setNativeChannel(wrapper);
     native.reset();
+    when(hub.options).thenReturn(options);
   }
 
   NativeAppStartIntegration getNativeAppStartIntegration() {
@@ -124,6 +127,6 @@ class Fixture {
       'op',
       samplingDecision: SentryTracesSamplingDecision(sampled!),
     );
-    return SentryTracer(context, MockHub());
+    return SentryTracer(context, hub);
   }
 }

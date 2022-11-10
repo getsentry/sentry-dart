@@ -132,6 +132,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       navigationType: type,
       from: _routeNameExtractor?.call(from) ?? from,
       to: _routeNameExtractor?.call(to) ?? to,
+      // ignore: invalid_use_of_internal_member
+      timestamp: _hub.options.clock(),
       data: _additionalInfoProvider?.call(from, to),
     ));
   }
@@ -232,6 +234,7 @@ class RouteObserverBreadcrumb extends Breadcrumb {
     RouteSettings? from,
     RouteSettings? to,
     SentryLevel? level,
+    DateTime? timestamp,
     Map<String, dynamic>? data,
   }) {
     final dynamic fromArgs = _formatArgs(from?.arguments);
@@ -243,6 +246,7 @@ class RouteObserverBreadcrumb extends Breadcrumb {
       toArgs: toArgs,
       navigationType: navigationType,
       level: level,
+      timestamp: timestamp,
       data: data,
     );
   }
@@ -254,11 +258,13 @@ class RouteObserverBreadcrumb extends Breadcrumb {
     String? to,
     dynamic toArgs,
     SentryLevel? level,
+    DateTime? timestamp,
     Map<String, dynamic>? data,
   }) : super(
             category: _navigationKey,
             type: _navigationKey,
             level: level,
+            timestamp: timestamp,
             data: <String, dynamic>{
               'state': navigationType,
               if (from != null) 'from': from,
