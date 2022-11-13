@@ -3,7 +3,6 @@ import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
 import 'package:sentry/sentry.dart';
-import '../binding_utils.dart';
 import '../sentry_flutter_options.dart';
 
 typedef ErrorCallback = bool Function(Object exception, StackTrace stackTrace);
@@ -29,11 +28,7 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
   @override
   void call(Hub hub, SentryFlutterOptions options) {
     _options = options;
-    final binding = BindingUtils.getWidgetsBindingInstance();
-
-    if (binding == null) {
-      return;
-    }
+    final binding = options.bindingUtils.getWidgetsBindingInstance();
 
     // WidgetsBinding works with WidgetsFlutterBinding and other custom bindings
     final wrapper = dispatchWrapper ??

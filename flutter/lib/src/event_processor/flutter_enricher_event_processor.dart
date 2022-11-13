@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sentry/sentry.dart';
 
-import '../binding_utils.dart';
 import '../sentry_flutter_options.dart';
 
 typedef WidgetBindingGetter = WidgetsBinding? Function();
@@ -14,19 +13,7 @@ typedef WidgetBindingGetter = WidgetsBinding? Function();
 /// FlutterEnricher only needs to add information which aren't exposed by
 /// the Dart runtime.
 class FlutterEnricherEventProcessor extends EventProcessor {
-  FlutterEnricherEventProcessor(
-    this._options,
-    this._getWidgetsBinding,
-  );
-
-  factory FlutterEnricherEventProcessor.simple({
-    required SentryFlutterOptions options,
-  }) {
-    return FlutterEnricherEventProcessor(
-      options,
-      BindingUtils.getWidgetsBindingInstance,
-    );
-  }
+  FlutterEnricherEventProcessor(this._options);
 
   final SentryFlutterOptions _options;
 
@@ -36,9 +23,10 @@ class FlutterEnricherEventProcessor extends EventProcessor {
   // We can't use `WidgetsBinding` as a direct parameter
   // because it must be called inside the `runZoneGuarded`-Integration.
   // Thus we call it on demand after all the initialization happened.
-  final WidgetBindingGetter _getWidgetsBinding;
-  WidgetsBinding? get _widgetsBinding => _getWidgetsBinding();
-  SingletonFlutterWindow? get _window => _widgetsBinding?.window;
+  WidgetsBinding get _widgetsBinding =>
+      _options.bindingUtils.getWidgetsBindingInstance();
+
+  SingletonFlutterWindow? get _window => _widgetsBinding.window;
   Map<String, String> _packages = {};
 
   @override
@@ -128,14 +116,14 @@ class FlutterEnricherEventProcessor extends EventProcessor {
   }
 
   Map<String, String> _getFlutterContext() {
-    final currentLifecycle = _widgetsBinding?.lifecycleState;
+    final currentLifecycle = _widgetsBinding.lifecycleState;
     final debugPlatformOverride = debugDefaultTargetPlatformOverride;
     final tempDebugBrightnessOverride = debugBrightnessOverride;
     final initialLifecycleState = _window?.initialLifecycleState;
     final defaultRouteName = _window?.defaultRouteName;
     // A FlutterEngine has no renderViewElement if it was started or is
     // accessed from an isolate different to the main isolate.
-    final hasRenderView = _widgetsBinding?.renderViewElement != null;
+    final hasRenderView = _widgetsBinding.renderViewElement != null;
 
     return <String, String>{
       'has_render_view': hasRenderView.toString(),

@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
+import 'binding_utils.dart';
 import 'renderer/renderer.dart';
 
 /// This class adds options which are only availble in a Flutter environment.
@@ -251,4 +252,7 @@ class SentryFlutterOptions extends SentryOptions {
       useFlutterBreadcrumbTracking();
     }
   }
+
+  @internal
+  BindingUtils bindingUtils = BindingUtils();
 }

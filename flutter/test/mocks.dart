@@ -3,12 +3,15 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+import 'package:flutter/src/widgets/binding.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 
 import 'package:meta/meta.dart';
+import 'package:sentry_flutter/src/binding_utils.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
 import 'package:sentry_flutter/src/sentry_native.dart';
 import 'package:sentry_flutter/src/sentry_native_channel.dart';
@@ -254,5 +257,22 @@ class MockRendererWrapper implements RendererWrapper {
       case FlutterRenderer.unknown:
         return 'Unknown';
     }
+  }
+}
+
+class TestBindingUtils implements BindingUtils {
+  bool ensureBindingInitializedCalled = false;
+  bool getWidgetsBindingInstanceCalled = false;
+
+  @override
+  void ensureBindingInitialized() {
+    ensureBindingInitializedCalled = true;
+    TestWidgetsFlutterBinding.ensureInitialized();
+  }
+
+  @override
+  WidgetsBinding getWidgetsBindingInstance() {
+    getWidgetsBindingInstanceCalled = true;
+    return TestWidgetsFlutterBinding.instance;
   }
 }
