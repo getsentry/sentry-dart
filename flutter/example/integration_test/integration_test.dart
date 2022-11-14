@@ -43,9 +43,7 @@ void main() {
     await setupSentryAndApp(tester);
 
     final exception = SentryException(
-        type: 'StarError',
-        value: 'I have a bad feeling about this...'
-    );
+        type: 'StarError', value: 'I have a bad feeling about this...');
     final sentryId = await Sentry.captureException(exception);
 
     expect(sentryId != SentryId.empty(), true);
@@ -63,11 +61,10 @@ void main() {
     await setupSentryAndApp(tester);
 
     final feedback = SentryUserFeedback(
-      eventId: SentryId.newId(),
-      name: 'fixture-name',
-      email: 'fixture@email.com',
-      comments: 'fixture-comments'
-    );
+        eventId: SentryId.newId(),
+        name: 'fixture-name',
+        email: 'fixture@email.com',
+        comments: 'fixture-comments');
     await Sentry.captureUserFeedback(feedback);
   });
 
@@ -88,7 +85,6 @@ void main() {
     await setupSentryAndApp(tester);
 
     await Sentry.configureScope((scope) async {
-
       await scope.setContexts('contexts-key', 'contexts-value');
       await scope.removeContexts('contexts-key');
 

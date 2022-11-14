@@ -37,8 +37,7 @@ void main() {
       final sut = fixture.getSut();
       await sut.beginNativeFrames();
 
-      verify(fixture.methodChannel
-          .invokeMethod('beginNativeFrames'));
+      verify(fixture.methodChannel.invokeMethod('beginNativeFrames'));
     });
 
     test('endNativeFrames', () async {
