@@ -7,7 +7,7 @@ on:
 
 jobs:
   test-android:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     defaults:
       run:
         working-directory: ./flutter/example
@@ -42,7 +42,7 @@ jobs:
           profile: Nexus 6
           script: flutter test integration_test/integration_test.dart
   test-ios:
-    runs-on: macos-latest
+    runs-on: macos-11
     defaults:
       run:
         working-directory: ./flutter/example
