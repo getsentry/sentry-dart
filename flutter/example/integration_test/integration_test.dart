@@ -39,11 +39,15 @@ void main() {
   testWidgets('setup sentry and capture exception', (tester) async {
     await setupSentryAndApp(tester);
 
-    final exception = SentryException(
-        type: 'StarError', value: 'I have a bad feeling about this...');
-    final sentryId = await Sentry.captureException(exception);
+    try {
+      throw SentryException(
+          type: 'StarError', value: 'I have a bad feeling about this...');
+    } catch (exception, stacktrace) {
+      final sentryId =
+          await Sentry.captureException(exception, stackTrace: stacktrace);
 
-    expect(sentryId != SentryId.empty(), true);
+      expect(sentryId != SentryId.empty(), true);
+    }
   });
 
   testWidgets('setup sentry and capture message', (tester) async {
