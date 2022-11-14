@@ -1,6 +1,6 @@
 name: sentry_flutter_example
 description: Demonstrates how to use the sentry_flutter plugin.
-version: 6.14.0
+version: 6.15.1
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
@@ -29,16 +29,6 @@ dev_dependencies:
     sdk: flutter
   flutter_test:
     sdk: flutter
-
-dependency_overrides:
-  sentry:
-    path: ../../dart
-  sentry_flutter:
-    path: ../
-  sentry_dio:
-    path: ../../dio
-  sentry_logging:
-    path: ../../logging
 
 flutter:
   uses-material-design: true

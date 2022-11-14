@@ -1,15 +1,32 @@
 # Changelog
 
-## Unreleased
+## 6.15.1
+
+### Various fixes & improvements
+
+- chore(deps): update Flutter SDK (metrics) to v3.3.8 (#1121) by @github-actions
+
+## 6.15.0
+
+### Features
+
+- Feat: Screenshot Attachment ([#1088](https://github.com/getsentry/sentry-dart/pull/1088))
+
+### Fixes
+
+- Merging of integrations and packages ([#1111](https://github.com/getsentry/sentry-dart/pull/1111))
+- Add missing `fragment` for HTTP Client Errors ([#1102](https://github.com/getsentry/sentry-dart/pull/1102))
+- Sync user name and geo for Android ([#1102](https://github.com/getsentry/sentry-dart/pull/1102))
+- Add mechanism to Dio Http Client error ([#1114](https://github.com/getsentry/sentry-dart/pull/1114))
 
 ### Dependencies
 
 - Bump Android SDK from v6.6.0 to v6.7.0 ([#1105](https://github.com/getsentry/sentry-dart/pull/1105))
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#670)
   - [diff](https://github.com/getsentry/sentry-java/compare/6.6.0...6.7.0)
-- Bump Cocoa SDK from v7.30.0 to v7.30.1 ([#1104](https://github.com/getsentry/sentry-dart/pull/1104))
-  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/master/CHANGELOG.md#7301)
-  - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.30.0...7.30.1)
+- Bump Cocoa SDK from v7.30.0 to v7.30.2 ([#1113](https://github.com/getsentry/sentry-dart/pull/1113))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/master/CHANGELOG.md#7302)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.30.0...7.30.2)
 
 ## 6.14.0
 

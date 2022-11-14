@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:sentry/sentry.dart';
 import 'package:sentry_dio/src/failed_request_interceptor.dart';
 import 'package:test/test.dart';
 
@@ -14,13 +15,19 @@ void main() {
 
   test('interceptor send error', () async {
     final interceptor = fixture.getSut();
+    final error = DioError(requestOptions: RequestOptions(path: ''));
     await interceptor.onError(
-      DioError(requestOptions: RequestOptions(path: '')),
+      error,
       fixture.errorInterceptorHandler,
     );
 
     expect(fixture.errorInterceptorHandler.nextWasCalled, true);
     expect(fixture.hub.captureExceptionCalls.length, 1);
+
+    final throwable =
+        fixture.hub.captureExceptionCalls.first.throwable as ThrowableMechanism;
+    expect(throwable.mechanism.type, 'SentryDioClientAdapter');
+    expect(throwable.throwable, error);
   });
 }
 

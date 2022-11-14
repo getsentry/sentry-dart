@@ -22,11 +22,13 @@ final _channel = const MethodChannel('example.flutter.sentry.io');
 
 Future<void> main() async {
   await setupSentry(() => runApp(
-        DefaultAssetBundle(
-          bundle: SentryAssetBundle(enableStructuredDataTracing: true),
-          child: MyApp(),
-        ),
-      ));
+    SentryScreenshotWidget(
+      child: DefaultAssetBundle(
+        bundle: SentryAssetBundle(enableStructuredDataTracing: true),
+        child: MyApp(),
+      ),
+    ),
+  ));
 }
 
 Future<void> setupSentry(AppRunner appRunner) async {
@@ -40,13 +42,14 @@ Future<void> setupSentry(AppRunner appRunner) async {
       options.attachThreads = true;
       options.enableWindowMetricBreadcrumbs = true;
       options.addIntegration(LoggingIntegration());
+      options.attachScreenshot = true;
       // We can enable Sentry debug logging during development. This is likely
       // going to log too much for your app, but can be useful when figuring out
       // configuration issues, e.g. finding out why your events are not uploaded.
       options.debug = true;
     },
     // Init your App.
-    appRunner: appRunner,
+    appRunner: appRunner
   );
 }
 

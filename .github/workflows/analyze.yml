@@ -1,0 +1,74 @@
+on:
+  workflow_call:
+    inputs:
+      package:
+        required: true
+        type: string
+      sdk:
+        required: false
+        type: string
+        default: dart
+      panaThreshold:
+        description: Minumum percentage of Dart Package Analyzer score that must be achieved.
+        required: false
+        type: number
+        default: 100
+
+jobs:
+  cancel-previous-workflow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@b173b6ec0100793626c2d9e6b90435061f4fc3e5 # pin@0.11.0
+        with:
+          access_token: ${{ github.token }}
+
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: ${{ inputs.package }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dart-lang/setup-dart@6a218f2413a3e78e9087f638a238f6b40893203d # pin@v1
+        if: ${{ inputs.sdk == 'dart' }}
+      - uses: subosito/flutter-action@dbf1fa04f4d2e52c33185153d06cdb5443aa189d # pin@v2
+        if: ${{ inputs.sdk == 'flutter' }}
+      - run: ${{ inputs.sdk }} pub get
+      - run: ${{ inputs.sdk }} format --set-exit-if-changed ./
+
+      - name: dart analyze
+        uses: invertase/github-action-dart-analyzer@cdd8652b05bf7ed08ffce30f425436780f869f13 # pin@v1
+        with:
+          annotate: true
+          fatal-infos: true
+          fatal-warnings: true
+          annotate-only: false
+          working-directory: ${{ inputs.package }}
+
+  package-analysis:
+    # `axel-op/dart-package-analyzer` is using `flutter pub upgrade` instead of `get`,
+    # which ignores pubspec.yaml `dependency_overrides`. Because of that, all `release/*` branches are failing,
+    # because the package cannot find the "about to be released" version of our sentry-dart package that it depends on.
+    if: ${{ !startsWith(github.ref, 'refs/heads/release/') && inputs.panaThreshold > 0 }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v3
+      - uses: axel-op/dart-package-analyzer@7a6c3c66bce78d82b729a1ffef2d9458fde6c8d2 # pin@v3
+        id: analysis
+        with:
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          relativePath: ${{ inputs.package }}
+      - name: Check scores
+        env:
+          TOTAL: ${{ steps.analysis.outputs.total }}
+          TOTAL_MAX: ${{ steps.analysis.outputs.total_max }}
+        run: |
+          PERCENTAGE=$(( $TOTAL * 100 / $TOTAL_MAX ))
+          if (( $PERCENTAGE < ${{ inputs.panaThreshold }} ))
+          then
+            echo Score too low!
+            exit 1
+          fi

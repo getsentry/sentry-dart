@@ -126,8 +126,7 @@ class FailedRequestClient extends BaseClient {
       } else if (failedRequestStatusCodes.containsStatusCode(statusCode)) {
         // Capture an exception if the status code is considered bad
         capture = true;
-        reason =
-            'Event was captured because the request status code was $statusCode';
+        reason = 'HTTP Client Error with status code: $statusCode';
         exception ??= SentryHttpClientError(reason);
       }
       if (capture) {
@@ -157,9 +156,14 @@ class FailedRequestClient extends BaseClient {
   }) async {
     // As far as I can tell there's no way to get the uri without the query part
     // so we replace it with an empty string.
-    final urlWithoutQuery = request.url.replace(query: '').toString();
+    final urlWithoutQuery = request.url
+        .replace(query: '', fragment: '')
+        .toString()
+        .replaceAll('?', '')
+        .replaceAll('#', '');
 
     final query = request.url.query.isEmpty ? null : request.url.query;
+    final fragment = request.url.fragment.isEmpty ? null : request.url.fragment;
 
     final sentryRequest = SentryRequest(
       method: request.method,
@@ -172,17 +176,29 @@ class FailedRequestClient extends BaseClient {
         'content_length': request.contentLength.toString(),
         'duration': requestDuration.toString(),
       },
+      fragment: fragment,
     );
 
     final mechanism = Mechanism(
       type: 'SentryHttpClient',
       description: reason,
     );
-    final throwableMechanism = ThrowableMechanism(mechanism, exception);
+
+    bool? snapshot;
+    if (exception is SentryHttpClientError) {
+      snapshot = true;
+    }
+
+    final throwableMechanism = ThrowableMechanism(
+      mechanism,
+      exception,
+      snapshot: snapshot,
+    );
 
     final event = SentryEvent(
       throwable: throwableMechanism,
       request: sentryRequest,
+      timestamp: _hub.options.clock(),
     );
 
     if (response != null) {

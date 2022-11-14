@@ -9,7 +9,7 @@ import '../mocks.dart';
 import '../mocks/mock_hub.dart';
 import '../mocks/mock_transport.dart';
 
-final requestUri = Uri.parse('https://example.com?foo=bar');
+final requestUri = Uri.parse('https://example.com?foo=bar#myFragment');
 
 void main() {
   group(FailedRequestClient, () {
@@ -48,13 +48,15 @@ void main() {
       final mechanism = exception?.mechanism;
 
       expect(exception?.stackTrace, isNotNull);
+      expect(exception?.stackTrace!.snapshot, isNull);
       expect(mechanism?.type, 'SentryHttpClient');
 
       final request = eventCall.request;
       expect(request, isNotNull);
       expect(request?.method, 'GET');
-      expect(request?.url, 'https://example.com?');
+      expect(request?.url, 'https://example.com');
       expect(request?.queryString, 'foo=bar');
+      expect(request?.fragment, 'myFragment');
       expect(request?.cookies, 'foo=bar');
       expect(request?.headers, {'Cookie': 'foo=bar'});
       // ignore: deprecated_member_use_from_same_package
@@ -100,20 +102,22 @@ void main() {
       expect(mechanism?.type, 'SentryHttpClient');
       expect(
         mechanism?.description,
-        'Event was captured because the request status code was 404',
+        'HTTP Client Error with status code: 404',
       );
 
       expect(exception?.type, 'SentryHttpClientError');
       expect(
         exception?.value,
-        'Exception: Event was captured because the request status code was 404',
+        'Exception: HTTP Client Error with status code: 404',
       );
+      expect(exception?.stackTrace?.snapshot, true);
 
       final request = eventCall.request;
       expect(request, isNotNull);
       expect(request?.method, 'GET');
-      expect(request?.url, 'https://example.com?');
+      expect(request?.url, 'https://example.com');
       expect(request?.queryString, 'foo=bar');
+      expect(request?.fragment, 'myFragment');
       expect(request?.cookies, 'foo=bar');
       expect(request?.headers, {'Cookie': 'foo=bar'});
       // ignore: deprecated_member_use_from_same_package

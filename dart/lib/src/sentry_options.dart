@@ -5,6 +5,7 @@ import 'package:meta/meta.dart';
 import 'package:http/http.dart';
 
 import '../sentry.dart';
+import '../sentry_private.dart';
 import 'client_reports/client_report_recorder.dart';
 import 'client_reports/noop_client_report_recorder.dart';
 import 'sentry_exception_factory.dart';
@@ -40,6 +41,8 @@ class SentryOptions {
 
   /// If [clock] is provided, it is used to get time instead of the system
   /// clock. This is useful in tests. Should be an implementation of [ClockProvider].
+  /// The ClockProvider is expected to return UTC time.
+  @internal
   ClockProvider clock = getUtcDateTime;
 
   int _maxBreadcrumbs = 100;
@@ -86,6 +89,7 @@ class SentryOptions {
     _maxSpans = maxSpans;
   }
 
+  // ignore: deprecated_member_use_from_same_package
   SentryLogger _logger = noOpLogger;
 
   /// Logger interface to log useful debugging information if debug is enabled
@@ -116,10 +120,12 @@ class SentryOptions {
 
   set debug(bool newValue) {
     _debug = newValue;
+    // ignore: deprecated_member_use_from_same_package
     if (_debug == true && logger == noOpLogger) {
-      _logger = dartLogger;
+      _logger = _debugLogger;
     }
-    if (_debug == false && logger == dartLogger) {
+    if (_debug == false && logger == _debugLogger) {
+      // ignore: deprecated_member_use_from_same_package
       _logger = noOpLogger;
     }
   }
@@ -354,6 +360,27 @@ class SentryOptions {
   @internal
   late SentryStackTraceFactory stackTraceFactory =
       SentryStackTraceFactory(this);
+
+  @internal
+  late SentryClientAttachmentProcessor clientAttachmentProcessor =
+      SentryClientAttachmentProcessor();
+
+  void _debugLogger(
+    SentryLevel level,
+    String message, {
+    String? logger,
+    Object? exception,
+    StackTrace? stackTrace,
+  }) {
+    log(
+      '[${level.name}] $message',
+      level: level.toDartLogLevel(),
+      name: logger ?? 'sentry',
+      time: clock(),
+      error: exception,
+      stackTrace: stackTrace,
+    );
+  }
 }
 
 /// This function is called with an SDK specific event object and can return a modified event
@@ -386,6 +413,7 @@ typedef TracesSamplerCallback = double? Function(
     SentrySamplingContext samplingContext);
 
 /// A NoOp logger that does nothing
+@Deprecated('This will be made private or removed in the future')
 void noOpLogger(
   SentryLevel level,
   String message, {
@@ -395,6 +423,7 @@ void noOpLogger(
 }) {}
 
 /// A Logger that prints out the level and message
+@Deprecated('This will be made private or removed in the future')
 void dartLogger(
   SentryLevel level,
   String message, {

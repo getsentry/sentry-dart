@@ -10,9 +10,17 @@ on:
     branches-ignore:
       - deps/**
       - dependabot/**
-    tags-ignore: [ '**' ]
+    tags-ignore: ['**']
 
 jobs:
+  cancel-previous-workflow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@b173b6ec0100793626c2d9e6b90435061f4fc3e5 # pin@0.11.0
+        with:
+          access_token: ${{ github.token }}
+
   metrics:
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.host }}
@@ -43,7 +51,7 @@ jobs:
           echo "flutter=$version" >> "$GITHUB_OUTPUT"
 
       - name: Install Flutter v${{ steps.conf.outputs.flutter }}
-        uses: subosito/flutter-action@1e6ee87cb840500837bcd50a667fb28815d8e310 # pin@v2
+        uses: subosito/flutter-action@dbf1fa04f4d2e52c33185153d06cdb5443aa189d # pin@v2
         with:
           flutter-version: ${{ steps.conf.outputs.flutter }}
 

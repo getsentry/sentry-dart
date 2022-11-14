@@ -204,9 +204,9 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
                 self.setEventOriginTag(event: event)
 
                 if var sdk = event.sdk, self.isValidSdk(sdk: sdk) {
-                    if let packages = arguments["packages"] as? [String] {
-                        if var sdkPackages = sdk["packages"] as? [String] {
-                            sdk["packages"] = sdkPackages.append(contentsOf: packages)
+                    if let packages = arguments["packages"] as? [[String: String]] {
+                        if var sdkPackages = sdk["packages"] as? [[String: String]] {
+                            sdk["packages"] = sdkPackages + packages
                         } else {
                             sdk["packages"] = packages
                         }
@@ -214,7 +214,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
                     if let integrations = arguments["integrations"] as? [String] {
                         if var sdkIntegrations = sdk["integrations"] as? [String] {
-                            sdk["integrations"] = sdkIntegrations.append(contentsOf: integrations)
+                            sdk["integrations"] = sdkIntegrations + integrations
                         } else {
                             sdk["integrations"] = integrations
                         }
@@ -526,6 +526,10 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             userInstance.data = data
           }
         }
+
+        // missing name and geo
+        // Should be solved by https://github.com/getsentry/team-mobile/issues/59
+        // or https://github.com/getsentry/team-mobile/issues/56
 
         SentrySDK.setUser(userInstance)
       } else {
