@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Disable `enableUserInteractionBreadcrumbs` on Android when `enableAutoNativeBreadcrumbs` is disabled ([#1088](https://github.com/getsentry/sentry-dart/pull/1088))
+- Disable `enableUserInteractionBreadcrumbs` on Android when `enableAutoNativeBreadcrumbs` is disabled ([#1131](https://github.com/getsentry/sentry-dart/pull/1131))
 
 ## 6.15.1
 
