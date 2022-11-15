@@ -6,6 +6,12 @@
 
 - Disable `enableUserInteractionBreadcrumbs` on Android when `enableAutoNativeBreadcrumbs` is disabled ([#1131](https://github.com/getsentry/sentry-dart/pull/1131))
 
+### Dependencies
+
+- Bump Cocoa SDK from v7.30.2 to v7.31.0 ([#1132](https://github.com/getsentry/sentry-dart/pull/1132))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/master/CHANGELOG.md#7310)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.30.2...7.31.0)
+
 ## 6.15.1
 
 ### Dependencies
