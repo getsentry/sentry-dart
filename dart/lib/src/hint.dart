@@ -1,5 +1,5 @@
 class Hint {
-  Map<String, Object> _internalStorage = {};
+  final Map<String, Object> _internalStorage = {};
 
   // Objects
 
