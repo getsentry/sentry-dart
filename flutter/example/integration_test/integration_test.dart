@@ -91,6 +91,7 @@ void main() {
 
       final user = SentryUser(id: 'fixture-id');
       await scope.setUser(user);
+      await scope.setUser(null);
 
       final breadcrumb = Breadcrumb(message: 'fixture-message');
       await scope.addBreadcrumb(breadcrumb);
