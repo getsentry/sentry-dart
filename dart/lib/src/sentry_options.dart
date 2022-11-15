@@ -139,7 +139,7 @@ class SentryOptions {
 
   /// Sentry client name used for the HTTP authHeader and userAgent eg
   /// sentry.{language}.{platform}/{version} eg sentry.java.android/2.0.0 would be a valid case
-  String? sentryClientName;
+  late String sentryClientName;
 
   /// This function is called with an SDK specific event object and can return a modified event
   /// object or nothing to skip reporting the event
@@ -318,13 +318,17 @@ class SentryOptions {
       platformChecker = checker;
     }
 
+    final name = sdkName(platformChecker.isWeb);
     sdk = SdkVersion(name: sdkName(platformChecker.isWeb), version: sdkVersion);
     sdk.addPackage('pub:sentry', sdkVersion);
+    sentryClientName = '$name/$sdkVersion';
   }
 
   @internal
   SentryOptions.empty() {
-    sdk = SdkVersion(name: 'noop', version: sdkVersion);
+    final name = 'noop';
+    sdk = SdkVersion(name: name, version: sdkVersion);
+    sentryClientName = '$name/$sdkVersion';
   }
 
   /// Adds an event processor
