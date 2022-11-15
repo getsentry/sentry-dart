@@ -18,7 +18,7 @@ get-repo)
     echo "https://github.com/getsentry/sentry-cocoa.git"
     ;;
 set-version)
-    newValue="${BASH_REMATCH[1]}$2'"
+    newValue="${BASH_REMATCH[1]}'$2'"
     echo "${content/${BASH_REMATCH[0]}/$newValue}" >$file
     ;;
 *)
