@@ -1,21 +1,23 @@
 import 'sentry_attachment/sentry_attachment.dart';
 
 class Hint {
+  Map<String, Object> internalStorage = {};
+
   // Objects
 
-  void set(String key, Object? value) {}
+  void set(String key, Object value) {
+    internalStorage[key] = value;
+  }
 
   Object? get(String key) {
-    return null;
+    return internalStorage[key];
   }
 
   Object? remove(String key) {
-    return null;
+    return internalStorage.remove(key);
   }
 
-  bool contains(String key) {
-    return false;
+  void clear() {
+    internalStorage.clear();
   }
-
-  void clear() {}
 }
