@@ -39,4 +39,4 @@ sentry:
   project: sentry-flutter
   org: sentry-sdks
   wait_for_processing: true
-  commits: false
+  commits: true
