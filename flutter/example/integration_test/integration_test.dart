@@ -10,14 +10,11 @@ void main() {
 
   Future<void> setupSentryAndApp(WidgetTester tester) async {
     await setupSentry(() async {
-      await tester.pumpWidget(
-        SentryScreenshotWidget(
+      await tester.pumpWidget(SentryScreenshotWidget(
           child: DefaultAssetBundle(
-            bundle: SentryAssetBundle(enableStructuredDataTracing: true),
-            child: MyApp(),
-          )
-        )
-      );
+        bundle: SentryAssetBundle(enableStructuredDataTracing: true),
+        child: MyApp(),
+      )));
       await tester.pumpAndSettle();
     });
   }
@@ -116,7 +113,8 @@ void main() {
     await transaction.finish();
   });
 
-  testWidgets('setup sentry and start transaction with context', (tester) async {
+  testWidgets('setup sentry and start transaction with context',
+      (tester) async {
     await setupSentryAndApp(tester);
 
     final context = SentryTransactionContext('transaction', 'test');
