@@ -1,21 +1,21 @@
 class Hint {
-  Map<String, Object> internalStorage = {};
+  Map<String, Object> _internalStorage = {};
 
   // Objects
 
   void set(String key, Object value) {
-    internalStorage[key] = value;
+    _internalStorage[key] = value;
   }
 
   Object? get(String key) {
-    return internalStorage[key];
+    return _internalStorage[key];
   }
 
   Object? remove(String key) {
-    return internalStorage.remove(key);
+    return _internalStorage.remove(key);
   }
 
   void clear() {
-    internalStorage.clear();
+    _internalStorage.clear();
   }
 }
