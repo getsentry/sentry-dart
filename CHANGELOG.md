@@ -1,10 +1,24 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Disable `enableUserInteractionBreadcrumbs` on Android when `enableAutoNativeBreadcrumbs` is disabled ([#1131](https://github.com/getsentry/sentry-dart/pull/1131))
+
+### Dependencies
+
+- Bump Cocoa SDK from v7.30.2 to v7.31.0 ([#1132](https://github.com/getsentry/sentry-dart/pull/1132))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/master/CHANGELOG.md#7310)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.30.2...7.31.0)
+
 ## 6.15.1
 
-### Various fixes & improvements
+### Dependencies
 
-- chore(deps): update Flutter SDK (metrics) to v3.3.8 (#1121) by @github-actions
+- Bump Cocoa SDK from v7.30.1 to v7.30.2 ([#1113](https://github.com/getsentry/sentry-dart/pull/1113))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/master/CHANGELOG.md#7302)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.30.1...7.30.2)
 
 ## 6.15.0
 
@@ -24,9 +38,9 @@
 - Bump Android SDK from v6.6.0 to v6.7.0 ([#1105](https://github.com/getsentry/sentry-dart/pull/1105))
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#670)
   - [diff](https://github.com/getsentry/sentry-java/compare/6.6.0...6.7.0)
-- Bump Cocoa SDK from v7.30.0 to v7.30.2 ([#1113](https://github.com/getsentry/sentry-dart/pull/1113))
-  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/master/CHANGELOG.md#7302)
-  - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.30.0...7.30.2)
+- Bump Cocoa SDK from v7.30.0 to v7.30.1 ([#1104](https://github.com/getsentry/sentry-dart/pull/1104))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/master/CHANGELOG.md#7301)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.30.0...7.30.1)
 
 ## 6.14.0
 

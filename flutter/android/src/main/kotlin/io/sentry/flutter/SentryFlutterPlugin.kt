@@ -131,6 +131,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         options.isEnableAppLifecycleBreadcrumbs = it
         options.isEnableSystemEventBreadcrumbs = it
         options.isEnableAppComponentBreadcrumbs = it
+        options.isEnableUserInteractionBreadcrumbs = it
       }
       args.getIfNotNull<Int>("maxBreadcrumbs") { options.maxBreadcrumbs = it }
       args.getIfNotNull<Int>("maxCacheItems") { options.maxCacheItems = it }
