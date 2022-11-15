@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 
+import 'hint.dart';
 import 'hub.dart';
 import 'protocol.dart';
 import 'sentry_client.dart';
@@ -31,7 +32,7 @@ class NoOpHub implements Hub {
   Future<SentryId> captureEvent(
     SentryEvent event, {
     dynamic stackTrace,
-    dynamic hint,
+    Hint? hint,
     ScopeCallback? withScope,
   }) async =>
       SentryId.empty();
@@ -40,7 +41,7 @@ class NoOpHub implements Hub {
   Future<SentryId> captureException(
     dynamic throwable, {
     dynamic stackTrace,
-    dynamic hint,
+    Hint? hint,
     ScopeCallback? withScope,
   }) async =>
       SentryId.empty();
@@ -51,7 +52,7 @@ class NoOpHub implements Hub {
     SentryLevel? level,
     String? template,
     List? params,
-    dynamic hint,
+    Hint? hint,
     ScopeCallback? withScope,
   }) async =>
       SentryId.empty();
@@ -72,7 +73,7 @@ class NoOpHub implements Hub {
   SentryId get lastEventId => SentryId.empty();
 
   @override
-  Future<void> addBreadcrumb(Breadcrumb crumb, {dynamic hint}) async {}
+  Future<void> addBreadcrumb(Breadcrumb crumb, {Hint? hint}) async {}
 
   @override
   Future<SentryId> captureTransaction(

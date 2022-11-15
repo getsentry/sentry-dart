@@ -22,7 +22,7 @@ class DioEventProcessor implements EventProcessor {
       _options.exceptionFactory;
 
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {dynamic hint}) {
+  FutureOr<SentryEvent?> apply(SentryEvent event, {Hint? hint}) {
     final dynamic dioError = event.throwable;
     if (dioError is! DioError) {
       return event;

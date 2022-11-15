@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'hint.dart';
 import 'protocol.dart';
 
 /// [EventProcessor]s are callbacks that run for every event. They can either
@@ -8,6 +9,6 @@ import 'protocol.dart';
 abstract class EventProcessor {
   FutureOr<SentryEvent?> apply(
     SentryEvent event, {
-    dynamic hint,
+    Hint? hint,
   });
 }

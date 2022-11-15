@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/hint.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
@@ -225,7 +226,7 @@ class PrintRecursionMockHub extends MockHub {
   bool get isEnabled => true;
 
   @override
-  Future<void> addBreadcrumb(Breadcrumb crumb, {dynamic hint}) async {
+  Future<void> addBreadcrumb(Breadcrumb crumb, {Hint? hint}) async {
     print('recursion');
     await super.addBreadcrumb(crumb, hint: hint);
   }

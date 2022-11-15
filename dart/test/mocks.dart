@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/hint.dart';
 import 'package:sentry/src/transport/rate_limiter.dart';
 
 final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
@@ -124,7 +125,7 @@ class FunctionEventProcessor extends EventProcessor {
 }
 
 typedef EventProcessorFunction = FutureOr<SentryEvent?>
-    Function(SentryEvent event, {dynamic hint});
+    Function(SentryEvent event, {Hint? hint});
 
 var fakeEnvelope = SentryEnvelope.fromEvent(
     fakeEvent, SdkVersion(name: 'sdk1', version: '1.0.0'));

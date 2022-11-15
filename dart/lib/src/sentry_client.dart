@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:meta/meta.dart';
 
 import 'event_processor.dart';
+import 'hint.dart';
 import 'sentry_trace_context_header.dart';
 import 'sentry_user_feedback.dart';
 import 'transport/rate_limiter.dart';
@@ -58,7 +59,7 @@ class SentryClient {
     SentryEvent event, {
     Scope? scope,
     dynamic stackTrace,
-    dynamic hint,
+    Hint? hint,
   }) async {
     if (_sampleRate()) {
       _recordLostEvent(event, DiscardReason.sampleRate);
@@ -247,7 +248,7 @@ class SentryClient {
     dynamic throwable, {
     dynamic stackTrace,
     Scope? scope,
-    dynamic hint,
+    Hint? hint,
   }) {
     final event = SentryEvent(
       throwable: throwable,
@@ -269,7 +270,7 @@ class SentryClient {
     String? template,
     List<dynamic>? params,
     Scope? scope,
-    dynamic hint,
+    Hint? hint,
   }) {
     final event = SentryEvent(
       message: SentryMessage(formatted, template: template, params: params),
@@ -344,7 +345,7 @@ class SentryClient {
 
   Future<SentryEvent?> _processEvent(
     SentryEvent event, {
-    dynamic hint,
+    Hint? hint,
     required List<EventProcessor> eventProcessors,
   }) async {
     SentryEvent? processedEvent = event;

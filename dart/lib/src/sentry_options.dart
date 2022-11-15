@@ -7,6 +7,7 @@ import 'package:http/http.dart';
 import '../sentry.dart';
 import 'client_reports/client_report_recorder.dart';
 import 'client_reports/noop_client_report_recorder.dart';
+import 'hint.dart';
 import 'sentry_exception_factory.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'diagnostic_logger.dart';
@@ -380,14 +381,14 @@ class SentryOptions {
 /// object or nothing to skip reporting the event
 typedef BeforeSendCallback = FutureOr<SentryEvent?> Function(
   SentryEvent event, {
-  dynamic hint,
+  Hint? hint,
 });
 
 /// This function is called with an SDK specific breadcrumb object before the breadcrumb is added
 /// to the scope. When nothing is returned from the function, the breadcrumb is dropped
 typedef BeforeBreadcrumbCallback = Breadcrumb? Function(
   Breadcrumb? breadcrumb, {
-  dynamic hint,
+  Hint? hint,
 });
 
 /// Used to provide timestamp for logging.

@@ -16,7 +16,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
   SentryOptions get options => _options;
 
   @override
-  Future<void> addBreadcrumb(Breadcrumb crumb, {dynamic hint}) async {
+  Future<void> addBreadcrumb(Breadcrumb crumb, {Hint? hint}) async {
     breadcrumbs.add(crumb);
   }
 
@@ -24,7 +24,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
   Future<SentryId> captureEvent(
     SentryEvent event, {
     dynamic stackTrace,
-    dynamic hint,
+    Hint? hint,
     ScopeCallback? withScope,
   }) async {
     events.add(CapturedEvents(event, stackTrace));

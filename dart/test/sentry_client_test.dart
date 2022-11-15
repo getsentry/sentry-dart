@@ -7,6 +7,7 @@ import 'package:sentry/src/client_reports/client_report.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/client_reports/discarded_event.dart';
 import 'package:sentry/src/client_reports/noop_client_report_recorder.dart';
+import 'package:sentry/src/hint.dart';
 import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:sentry/src/sentry_tracer.dart';
@@ -784,7 +785,7 @@ void main() {
 
     test('thrown error is handled', () async {
       final exception = Exception("before send exception");
-      final beforeSendCallback = (SentryEvent event, {dynamic hint}) {
+      final beforeSendCallback = (SentryEvent event, {Hint? hint}) {
         throw exception;
       };
 
@@ -839,7 +840,9 @@ void main() {
     });
 
     test('should pass hint to eventProcessors', () async {
-      final myHint = 'hint';
+      final myHint = Hint();
+      myHint.set('string', 'hint');
+
       var executed = false;
 
       final client = fixture.getSut(
@@ -1217,19 +1220,19 @@ Future<Map<String, dynamic>> transactionFromEnvelope(
 
 FutureOr<SentryEvent?> beforeSendCallbackDropEvent(
   SentryEvent event, {
-  dynamic hint,
+  Hint? hint,
 }) =>
     null;
 
 FutureOr<SentryEvent?> asyncBeforeSendCallbackDropEvent(
   SentryEvent event, {
-  dynamic hint,
+  Hint? hint,
 }) async {
   await Future.delayed(Duration(milliseconds: 200));
   return null;
 }
 
-FutureOr<SentryEvent?> beforeSendCallback(SentryEvent event, {dynamic hint}) {
+FutureOr<SentryEvent?> beforeSendCallback(SentryEvent event, {Hint? hint}) {
   return event
     ..tags!.addAll({'theme': 'material'})
     ..extra!['host'] = '0.0.0.1'
@@ -1292,7 +1295,7 @@ class Fixture {
   }
 
   FutureOr<SentryEvent?> droppingBeforeSend(SentryEvent event,
-      {dynamic hint}) async {
+      {Hint? hint}) async {
     return null;
   }
 

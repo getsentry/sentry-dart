@@ -99,7 +99,7 @@ final fakeEvent = SentryEvent(
 /// Doesn't do anything with the events
 class NoOpEventProcessor extends EventProcessor {
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {dynamic hint}) {
+  FutureOr<SentryEvent?> apply(SentryEvent event, {Hint? hint}) {
     return event;
   }
 }
@@ -107,7 +107,7 @@ class NoOpEventProcessor extends EventProcessor {
 /// Always returns null and thus drops all events
 class DropAllEventProcessor extends EventProcessor {
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {dynamic hint}) {
+  FutureOr<SentryEvent?> apply(SentryEvent event, {Hint? hint}) {
     return null;
   }
 }
@@ -118,13 +118,13 @@ class FunctionEventProcessor extends EventProcessor {
   final EventProcessorFunction applyFunction;
 
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {dynamic hint}) {
+  FutureOr<SentryEvent?> apply(SentryEvent event, {Hint? hint}) {
     return applyFunction(event, hint: hint);
   }
 }
 
 typedef EventProcessorFunction = FutureOr<SentryEvent?>
-    Function(SentryEvent event, {dynamic hint});
+    Function(SentryEvent event, {Hint? hint});
 
 var fakeEnvelope = SentryEnvelope.fromEvent(
   fakeEvent,

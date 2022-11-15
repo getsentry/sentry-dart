@@ -44,7 +44,7 @@ class FlutterEnricherEventProcessor extends EventProcessor {
   @override
   FutureOr<SentryEvent> apply(
     SentryEvent event, {
-    dynamic hint,
+    Hint? hint,
   }) async {
     // If there's a native integration available, it probably has better
     // information available than Flutter.
