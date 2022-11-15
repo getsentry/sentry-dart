@@ -108,4 +108,19 @@ void main() {
       await scope.removeTag('tag-key');
     });
   });
+
+  testWidgets('setup sentry and start transaction', (tester) async {
+    await setupSentryAndApp(tester);
+
+    final transaction = Sentry.startTransaction('transaction', 'test');
+    await transaction.finish();
+  });
+
+  testWidgets('setup sentry and start transaction with context', (tester) async {
+    await setupSentryAndApp(tester);
+
+    final context = SentryTransactionContext('transaction', 'test');
+    final transaction = Sentry.startTransactionWithContext(context);
+    await transaction.finish();
+  });
 }
