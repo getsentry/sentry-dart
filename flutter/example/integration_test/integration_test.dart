@@ -10,10 +10,14 @@ void main() {
 
   Future<void> setupSentryAndApp(WidgetTester tester) async {
     await setupSentry(() async {
-      await tester.pumpWidget(DefaultAssetBundle(
-        bundle: SentryAssetBundle(enableStructuredDataTracing: true),
-        child: MyApp(),
-      ));
+      await tester.pumpWidget(
+        SentryScreenshotWidget(
+          child: DefaultAssetBundle(
+            bundle: SentryAssetBundle(enableStructuredDataTracing: true),
+            child: MyApp(),
+          )
+        )
+      );
       await tester.pumpAndSettle();
     });
   }
