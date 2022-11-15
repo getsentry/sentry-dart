@@ -1,5 +1,3 @@
-import 'sentry_attachment/sentry_attachment.dart';
-
 class Hint {
   Map<String, Object> internalStorage = {};
 

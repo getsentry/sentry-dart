@@ -1,6 +1,5 @@
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/hint.dart';
 
 import '../mocks.dart';
 import 'mock_sentry_client.dart';

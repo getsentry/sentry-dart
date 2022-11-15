@@ -1,5 +1,4 @@
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/hint.dart';
 
 import 'no_such_method_provider.dart';
 

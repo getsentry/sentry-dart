@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:meta/meta.dart';
-import 'hint.dart';
 import 'transport/data_category.dart';
 
 import '../sentry.dart';
