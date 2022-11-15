@@ -35,6 +35,7 @@ void main() {
 
   group('Test platform integrations', () {
     setUp(() async {
+      loadTestPackage();
       await Sentry.close();
     });
 
@@ -50,7 +51,6 @@ void main() {
           shouldNotHaveIntegrations: iOsAndMacOsIntegrations,
         ),
         appRunner: appRunner,
-        packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.android()),
       );
 
@@ -69,7 +69,6 @@ void main() {
           shouldNotHaveIntegrations: androidIntegrations,
         ),
         appRunner: appRunner,
-        packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
       );
 
@@ -88,7 +87,6 @@ void main() {
           shouldNotHaveIntegrations: androidIntegrations,
         ),
         appRunner: appRunner,
-        packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.macOs()),
       );
 
@@ -107,7 +105,6 @@ void main() {
           ],
         ),
         appRunner: appRunner,
-        packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.windows()),
       );
 
@@ -126,7 +123,6 @@ void main() {
           ],
         ),
         appRunner: appRunner,
-        packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.linux()),
       );
 
@@ -145,7 +141,6 @@ void main() {
           ],
         ),
         appRunner: appRunner,
-        packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(
           isWeb: true,
           platform: MockPlatform.linux(),
@@ -169,7 +164,6 @@ void main() {
           ],
         ),
         appRunner: appRunner,
-        packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(
           isWeb: true,
           platform: MockPlatform.iOs(),
@@ -193,7 +187,6 @@ void main() {
           ],
         ),
         appRunner: appRunner,
-        packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(
           isWeb: true,
           platform: MockPlatform.macOs(),
@@ -204,7 +197,7 @@ void main() {
     });
 
     test('Web && Android', () async {
-      // Tests that Android integrations aren't added on an Android browswer
+      // Tests that Android integrations aren't added on an Android browser
       await SentryFlutter.init(
         getConfigurationTester(
           hasFileSystemTransport: false,
@@ -216,7 +209,6 @@ void main() {
           ],
         ),
         appRunner: appRunner,
-        packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(
           isWeb: true,
           platform: MockPlatform.android(),
@@ -229,6 +221,7 @@ void main() {
 
   group('initial values', () {
     setUp(() async {
+      loadTestPackage();
       await Sentry.close();
     });
 
@@ -245,7 +238,6 @@ void main() {
           expect(sdkVersion, options.sdk.packages.last.version);
         },
         appRunner: appRunner,
-        packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(
           platform: MockPlatform.android(),
           isWeb: true,
@@ -259,14 +251,13 @@ void main() {
 
 void appRunner() {}
 
-Future<PackageInfo> loadTestPackage() async {
-  return PackageInfo(
-    appName: 'appName',
-    packageName: 'packageName',
-    version: 'version',
-    buildNumber: 'buildNumber',
-    buildSignature: '',
-  );
+void loadTestPackage() {
+  PackageInfo.setMockInitialValues(
+      appName: 'appName',
+      packageName: 'packageName',
+      version: 'version',
+      buildNumber: 'buildNumber',
+      buildSignature: '');
 }
 
 PlatformChecker getPlatformChecker({

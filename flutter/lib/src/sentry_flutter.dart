@@ -31,7 +31,6 @@ mixin SentryFlutter {
   static Future<void> init(
     FlutterOptionsConfiguration optionsConfiguration, {
     AppRunner? appRunner,
-    @internal PackageLoader packageLoader = _loadPackageInfo,
     @internal MethodChannel channel = _channel,
     @internal PlatformChecker? platformChecker,
   }) async {
@@ -48,7 +47,6 @@ mixin SentryFlutter {
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
     final defaultIntegrations = _createDefaultIntegrations(
-      packageLoader,
       channel,
       flutterOptions,
     );
@@ -93,7 +91,6 @@ mixin SentryFlutter {
   /// Install default integrations
   /// https://medium.com/flutter-community/error-handling-in-flutter-98fce88a34f0
   static List<Integration> _createDefaultIntegrations(
-    PackageLoader packageLoader,
     MethodChannel channel,
     SentryFlutterOptions options,
   ) {
@@ -135,7 +132,7 @@ mixin SentryFlutter {
     // This is an Integration because we want to execute it after all the
     // error handlers are in place. Calling a MethodChannel might result
     // in errors.
-    integrations.add(LoadReleaseIntegration(packageLoader));
+    integrations.add(LoadReleaseIntegration());
 
     if (platformChecker.hasNativeIntegration) {
       integrations.add(NativeAppStartIntegration(
@@ -169,9 +166,4 @@ mixin SentryFlutter {
     sdk.addPackage('pub:sentry_flutter', sdkVersion);
     options.sdk = sdk;
   }
-}
-
-/// Package info loader.
-Future<PackageInfo> _loadPackageInfo() async {
-  return await PackageInfo.fromPlatform();
 }
