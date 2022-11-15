@@ -346,13 +346,13 @@ void main() {
 
     test('sets app name as in release if packagename is empty', () async {
       final loader = () {
-        return Future.value(PackageInfo(
+        PackageInfo.setMockInitialValues(
           appName: 'sentry_flutter',
           packageName: '',
           version: '1.2.3',
           buildNumber: '789',
           buildSignature: '',
-        ));
+        );
       };
       await fixture
           .getIntegration(loader: loader)
@@ -365,13 +365,13 @@ void main() {
     test('release name does not contain invalid chars defined by Sentry',
         () async {
       final loader = () {
-        return Future.value(PackageInfo(
+        PackageInfo.setMockInitialValues(
           appName: '\\/sentry\tflutter \r\nfoo\nbar\r',
           packageName: '',
           version: '1.2.3',
           buildNumber: '789',
           buildSignature: '',
-        ));
+        );
       };
       await fixture
           .getIntegration(loader: loader)
@@ -387,7 +387,7 @@ void main() {
     test('does not send Unicode NULL \\u0000 character in app name or version',
         () async {
       final loader = () {
-        return Future.value(PackageInfo(
+        PackageInfo.setMockInitialValues(
           // As per
           // https://api.dart.dev/stable/2.12.4/dart-core/String-class.html
           // this is how \u0000 is added to a string in dart
@@ -396,7 +396,7 @@ void main() {
           version: '1.0.0\u{0000}',
           buildNumber: '',
           buildSignature: '',
-        ));
+        );
       };
       await fixture
           .getIntegration(loader: loader)
@@ -412,7 +412,7 @@ void main() {
         'does not send Unicode NULL \\u0000 character in package name or build number',
         () async {
       final loader = () {
-        return Future.value(PackageInfo(
+        PackageInfo.setMockInitialValues(
           // As per
           // https://api.dart.dev/stable/2.12.4/dart-core/String-class.html
           // this is how \u0000 is added to a string in dart
@@ -421,7 +421,7 @@ void main() {
           version: '',
           buildNumber: '123\u{0000}',
           buildSignature: '',
-        ));
+        );
       };
       await fixture
           .getIntegration(loader: loader)
@@ -432,13 +432,13 @@ void main() {
 
     test('dist is null if build number is an empty string', () async {
       final loader = () {
-        return Future.value(PackageInfo(
+        PackageInfo.setMockInitialValues(
           appName: 'sentry_flutter_example',
           packageName: 'a.b.c',
           version: '1.0.0',
           buildNumber: '',
           buildSignature: '',
-        ));
+        );
       };
       await fixture
           .getIntegration(loader: loader)
@@ -453,17 +453,22 @@ class Fixture {
   final hub = MockHub();
   final options = SentryFlutterOptions(dsn: fakeDsn);
 
-  LoadReleaseIntegration getIntegration({PackageLoader? loader}) {
-    return LoadReleaseIntegration(loader ?? loadRelease);
+  LoadReleaseIntegration getIntegration({Function? loader}) {
+    if (loader != null) {
+      loader();
+    } else {
+      loadRelease();
+    }
+    return LoadReleaseIntegration();
   }
 
-  Future<PackageInfo> loadRelease() {
-    return Future.value(PackageInfo(
+  void loadRelease() {
+    PackageInfo.setMockInitialValues(
       appName: 'sentry_flutter',
       packageName: 'foo.bar',
       version: '1.2.3',
       buildNumber: '789',
       buildSignature: '',
-    ));
+    );
   }
 }
