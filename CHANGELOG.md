@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Use `sentryClientName` instead of `sdk.identifier` ([#1133](https://github.com/getsentry/sentry-dart/pull/1133))
+
 ### Fixes
 
 - Disable `enableUserInteractionBreadcrumbs` on Android when `enableAutoNativeBreadcrumbs` is disabled ([#1131](https://github.com/getsentry/sentry-dart/pull/1131))
