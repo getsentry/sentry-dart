@@ -18,6 +18,7 @@ class SentryTracer extends ISentrySpan {
   final Map<String, SentryMeasurement> _measurements = {};
 
   Timer? _autoFinishAfterTimer;
+  Duration? _autoFinishAfter;
   Function(SentryTracer)? _onFinish;
   var _finishStatus = SentryTracerFinishStatus.notFinishing();
   late final bool _trimEnd;
@@ -56,11 +57,9 @@ class SentryTracer extends ISentrySpan {
       startTimestamp: startTimestamp,
     );
     _waitForChildren = waitForChildren;
-    if (autoFinishAfter != null) {
-      _autoFinishAfterTimer = Timer(autoFinishAfter, () async {
-        await finish(status: status ?? SpanStatus.ok());
-      });
-    }
+    _autoFinishAfter = autoFinishAfter;
+
+    _scheduleTimer();
     name = transactionContext.name;
     // always default to custom if not provided
     transactionNameSource = transactionContext.transactionNameSource ??
@@ -116,6 +115,11 @@ class SentryTracer extends ISentrySpan {
           scope.span = null;
         }
       });
+
+      // if it's an idle transaction which has no children, we drop it to save user's quota
+      if (children.isEmpty && _autoFinishAfter != null) {
+        return;
+      }
 
       final transaction = SentryTransaction(this);
       transaction.measurements.addAll(_measurements);
@@ -346,4 +350,24 @@ class SentryTracer extends ISentrySpan {
   @override
   SentryTracesSamplingDecision? get samplingDecision =>
       _rootSpan.samplingDecision;
+
+  @override
+  void scheduleFinish() {
+    if (finished) {
+      return;
+    }
+    if (_autoFinishAfterTimer != null) {
+      _autoFinishAfterTimer?.cancel();
+      _scheduleTimer();
+    }
+  }
+
+  void _scheduleTimer() {
+    final autoFinishAfter = _autoFinishAfter;
+    if (autoFinishAfter != null) {
+      _autoFinishAfterTimer = Timer(autoFinishAfter, () async {
+        await finish(status: status ?? SpanStatus.ok());
+      });
+    }
+  }
 }

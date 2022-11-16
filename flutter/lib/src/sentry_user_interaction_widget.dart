@@ -30,13 +30,17 @@ class SentryUserInteractionWidget extends StatefulWidget {
 
   @override
   // ignore: no_logic_in_create_state
-  _SentryUserInteractionWidgetState createState() => _SentryUserInteractionWidgetState(_hub);
+  _SentryUserInteractionWidgetState createState() =>
+      _SentryUserInteractionWidgetState(_hub);
 }
 
-class _SentryUserInteractionWidgetState extends State<SentryUserInteractionWidget> {
+class _SentryUserInteractionWidgetState
+    extends State<SentryUserInteractionWidget> {
   int? _lastPointerId;
   Offset? _lastPointerDownLocation;
   final Hub _hub;
+  Widget? _lastWidget;
+  ISentrySpan? _activeTransaction;
 
   _SentryUserInteractionWidgetState(this._hub);
 
@@ -55,7 +59,7 @@ class _SentryUserInteractionWidgetState extends State<SentryUserInteractionWidge
     _lastPointerDownLocation = event.localPosition;
   }
 
-  Future<void> _onPointerUp(PointerUpEvent event) async {
+  void _onPointerUp(PointerUpEvent event) {
     // Figure out if something was tapped
     final location = _lastPointerDownLocation;
     if (location == null || event.pointer != _lastPointerId) {
@@ -68,22 +72,85 @@ class _SentryUserInteractionWidgetState extends State<SentryUserInteractionWidge
 
     if (delta.distanceSquared < _tapDeltaArea) {
       // Widget was tapped
-      await _onTappedAt(event.localPosition);
+      _onTappedAt(event.localPosition);
     }
   }
 
-  Future<void> _onTappedAt(Offset position) async {
+  void _onTappedAt(Offset position) {
     final tappedWidget = _getElementAt(position);
-    if (tappedWidget == null) {
+    if (tappedWidget == null || tappedWidget.keyValue == null) {
       return;
     }
 
+    Map<String, dynamic>? data;
+    // ignore: invalid_use_of_internal_member
+    if (_hub.options.sendDefaultPii && tappedWidget.description.isNotEmpty) {
+      data = {};
+      data['label'] = tappedWidget.description;
+    }
+
+    const category = 'click';
+    // TODO: check if crumbs are enabled
     final crumb = Breadcrumb.userInteraction(
-      subCategory: 'click',
+      subCategory: category,
       viewId: tappedWidget.keyValue,
-      viewClass: tappedWidget.element.widget.runtimeType.toString(),
+      // viewClass: tappedWidget.element.widget.runtimeType.toString(),
+      viewClass: tappedWidget.type, // to avoid minification
+      data: data,
     );
-    await _hub.addBreadcrumb(crumb);
+    _hub.addBreadcrumb(crumb, hint: tappedWidget.element.widget);
+
+    // TODO: options
+    // ignore: invalid_use_of_internal_member
+    if (!_hub.options.isTracingEnabled()) {
+      return;
+    }
+
+    // TODO: name should be screenName.widgetName, maybe get from router?
+    final transactionContext = SentryTransactionContext(
+      tappedWidget.keyValue!,
+      'ui.action.$category',
+      transactionNameSource: SentryTransactionNameSource.component,
+    );
+
+    final activeTransaction = _activeTransaction;
+    if (activeTransaction != null) {
+      if (_lastWidget == tappedWidget.element.widget &&
+          !activeTransaction.finished) {
+        // ignore: invalid_use_of_internal_member
+        activeTransaction.scheduleFinish();
+        return;
+      } else {
+        // TODO: status?
+        activeTransaction.finish();
+        _hub.configureScope((scope) {
+          if (scope.span == activeTransaction) {
+            scope.span = null;
+          }
+        });
+        _activeTransaction = null;
+        _lastWidget = null;
+      }
+    }
+
+    _lastWidget = tappedWidget.element.widget;
+
+    // TODO: mobile vitals
+    _activeTransaction = _hub.startTransactionWithContext(
+      transactionContext,
+      waitForChildren: true,
+      autoFinishAfter: Duration(seconds: 3), // TODO: options
+      trimEnd: true,
+    );
+
+    // if _enableAutoTransactions is enabled but there's no traces sample rate
+    if (_activeTransaction is NoOpSentrySpan) {
+      return;
+    }
+
+    _hub.configureScope((scope) {
+      scope.span ??= _activeTransaction;
+    });
   }
 
   String _findDescriptionOf(Element element, bool allowText) {

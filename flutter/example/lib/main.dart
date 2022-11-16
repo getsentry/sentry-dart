@@ -31,6 +31,10 @@ Future<void> main() async {
       options.attachThreads = true;
       options.enableWindowMetricBreadcrumbs = true;
       options.addIntegration(LoggingIntegration());
+      options.sendDefaultPii = true;
+      options.reportSilentFlutterErrors = true;
+      options.enableNdkScopeSync = true;
+
       // options.attachScreenshot = true;
       // We can enable Sentry debug logging during development. This is likely
       // going to log too much for your app, but can be useful when figuring out
@@ -200,10 +204,17 @@ class MainScaffold extends StatelessWidget {
               child: const Text('Flutter: Load assets'),
             ),
             ElevatedButton(
-              onPressed: () => makeWebRequestWithDio(context),
+              key: Key('dio_web_request'),
+              onPressed: () async => await makeWebRequestWithDio(context),
               child: const Text('Dio: Web request'),
             ),
             ElevatedButton(
+              key: Key('dio_web_request_2'),
+              onPressed: () async => await makeWebRequestWithDio(context),
+              child: const Text('Dio: Web request 2'),
+            ),
+            ElevatedButton(
+              key: Key('print_breadcrumb'),
               onPressed: () {
                 print('A print breadcrumb');
                 Sentry.captureMessage('A message with a print() Breadcrumb');
@@ -559,6 +570,7 @@ Future<void> makeWebRequestWithDio(BuildContext context) async {
   dio.addSentry(
     captureFailedRequests: true,
     maxRequestBodySize: MaxRequestBodySize.always,
+    maxResponseBodySize: MaxResponseBodySize.always,
   );
 
   final transaction = Sentry.getSpan() ??
@@ -567,16 +579,20 @@ Future<void> makeWebRequestWithDio(BuildContext context) async {
         'request',
         bindToScope: true,
       );
+  final span = transaction.startChild(
+    'dio',
+    description: 'desc',
+  );
   Response<String>? response;
   try {
     response = await dio.get<String>('https://flutter.dev/');
-    transaction.status = SpanStatus.ok();
+    span.status = SpanStatus.ok();
   } catch (exception, stackTrace) {
-    transaction.throwable = exception;
-    transaction.status = SpanStatus.internalError();
+    span.throwable = exception;
+    span.status = SpanStatus.internalError();
     await Sentry.captureException(exception, stackTrace: stackTrace);
   } finally {
-    await transaction.finish();
+    await span.finish();
   }
 
   await showDialog<void>(

@@ -19,11 +19,10 @@ class TappedWidget {
     if (key is ValueKey<String>) {
       return key.value;
     } else if (key is ValueKey) {
-      return 'ValueKey with value "${key.value}"';
-    } else if (key is LabeledGlobalKey) {
-      return 'LabeledGlobalKey: "${key.toString()}"';
-    }
-
-    return 'Key: $key';
+      return key.value?.toString();
+    } // else if (key is LabeledGlobalKey) {
+    //   return key.toString();
+    // }
+    return key.toString();
   }
 }
