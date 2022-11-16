@@ -155,7 +155,7 @@ class _SentryUserInteractionWidgetState
   }
 
   String _findDescriptionOf(Element element, bool allowText) {
-    var description = 'unknown';
+    var description = '';
 
     // traverse tree to find a suiting element
     void descriptionFinder(Element element) {
@@ -191,9 +191,9 @@ class _SentryUserInteractionWidgetState
   }
 
   TappedWidget? _getElementAt(Offset position) {
-    // WidgetsBinding.instance.renderViewElement does not work, using
+    // WidgetsBinding.instance.renderViewElement does not work, so using
     // the element from createElement
-    var rootElement = _clickTrackerElement;
+    final rootElement = _clickTrackerElement;
     if (rootElement == null || rootElement.widget != widget) {
       return null;
     }
