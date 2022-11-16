@@ -19,6 +19,7 @@ import 'sentry_envelope.dart';
 import 'client_reports/client_report_recorder.dart';
 import 'client_reports/discard_reason.dart';
 import 'transport/data_category.dart';
+import 'sentry_client_attachment_processor.dart';
 
 /// Default value for [User.ipAddress]. It gets set when an event does not have
 /// a user and IP address. Only applies if [SentryOptions.sendDefaultPii] is set
@@ -36,6 +37,9 @@ class SentryClient {
   SentryExceptionFactory get _exceptionFactory => _options.exceptionFactory;
 
   SentryStackTraceFactory get _stackTraceFactory => _options.stackTraceFactory;
+
+  SentryClientAttachmentProcessor get _clientAttachmentProcessor =>
+      _options.clientAttachmentProcessor;
 
   /// Instantiates a client using [SentryOptions]
   factory SentryClient(SentryOptions options) {
@@ -130,12 +134,15 @@ class SentryClient {
       preparedEvent = _eventWithRemovedBreadcrumbsIfHandled(preparedEvent);
     }
 
+    final attachments = await _clientAttachmentProcessor.processAttachments(
+        scope?.attachments ?? [], preparedEvent);
+
     final envelope = SentryEnvelope.fromEvent(
       preparedEvent,
       _options.sdk,
       dsn: _options.dsn,
       traceContext: scope?.span?.traceContext(),
-      attachments: scope?.attachments,
+      attachments: attachments.isNotEmpty ? attachments : null,
     );
 
     final id = await captureEnvelope(envelope);

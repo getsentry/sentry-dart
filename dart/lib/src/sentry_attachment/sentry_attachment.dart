@@ -83,6 +83,11 @@ class SentryAttachment {
           addToTransactions: addToTransactions,
         );
 
+  SentryAttachment.fromScreenshotData(Uint8List bytes)
+      : this.fromUint8List(bytes, 'screenshot.png',
+            contentType: 'image/png',
+            attachmentType: SentryAttachment.typeAttachmentDefault);
+
   /// Attachment type.
   /// Should be one of types given in [AttachmentType].
   final String attachmentType;

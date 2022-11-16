@@ -5,9 +5,34 @@
 ### Fixes
 
 - VendorId should be a String ([#1112](https://github.com/getsentry/sentry-dart/pull/1112))
+- Disable `enableUserInteractionBreadcrumbs` on Android when `enableAutoNativeBreadcrumbs` is disabled ([#1131](https://github.com/getsentry/sentry-dart/pull/1131))
+
+### Dependencies
+
+- Bump Cocoa SDK from v7.30.2 to v7.31.0 ([#1132](https://github.com/getsentry/sentry-dart/pull/1132))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/master/CHANGELOG.md#7310)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.30.2...7.31.0)
+
+## 6.15.1
+
+### Dependencies
+
+- Bump Cocoa SDK from v7.30.1 to v7.30.2 ([#1113](https://github.com/getsentry/sentry-dart/pull/1113))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/master/CHANGELOG.md#7302)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.30.1...7.30.2)
+
+## 6.15.0
+
+### Features
+
+- Feat: Screenshot Attachment ([#1088](https://github.com/getsentry/sentry-dart/pull/1088))
+
+### Fixes
+
 - Merging of integrations and packages ([#1111](https://github.com/getsentry/sentry-dart/pull/1111))
 - Add missing `fragment` for HTTP Client Errors ([#1102](https://github.com/getsentry/sentry-dart/pull/1102))
 - Sync user name and geo for Android ([#1102](https://github.com/getsentry/sentry-dart/pull/1102))
+- Add mechanism to Dio Http Client error ([#1114](https://github.com/getsentry/sentry-dart/pull/1114))
 
 ### Dependencies
 
