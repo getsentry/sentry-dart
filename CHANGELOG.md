@@ -4,6 +4,7 @@
 
 ### Fixes
 
+- VendorId should be a String ([#1112](https://github.com/getsentry/sentry-dart/pull/1112))
 - Disable `enableUserInteractionBreadcrumbs` on Android when `enableAutoNativeBreadcrumbs` is disabled ([#1131](https://github.com/getsentry/sentry-dart/pull/1131))
 - Transaction name is reset after the transaction finishes ([#1125](https://github.com/getsentry/sentry-dart/pull/1125))
 
@@ -12,6 +13,9 @@
 - Bump Cocoa SDK from v7.30.2 to v7.31.0 ([#1132](https://github.com/getsentry/sentry-dart/pull/1132))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/master/CHANGELOG.md#7310)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.30.2...7.31.0)
+- Bump Android SDK from v6.7.0 to v6.7.1 ([#1112](https://github.com/getsentry/sentry-dart/pull/1112))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#671)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.7.0...6.7.1)
 
 ## 6.15.1
 
