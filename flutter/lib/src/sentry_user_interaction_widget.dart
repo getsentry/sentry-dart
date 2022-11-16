@@ -5,6 +5,8 @@ import 'package:sentry/sentry.dart';
 
 import 'widget_click/tapped_widget.dart';
 
+// Adapted from https://github.com/ueman/sentry-dart-tools/blob/8e41418c0f2c62dc88292cf32a4f22e79112b744/sentry_flutter_plus/lib/src/widgets/click_tracker.dart
+
 const _tapDeltaArea = 20 * 20;
 Element? _clickTrackerElement;
 
@@ -121,7 +123,6 @@ class _SentryUserInteractionWidgetState
         activeTransaction.scheduleFinish();
         return;
       } else {
-        // TODO: status?
         activeTransaction.finish();
         _hub.configureScope((scope) {
           if (scope.span == activeTransaction) {
@@ -190,8 +191,8 @@ class _SentryUserInteractionWidgetState
   }
 
   TappedWidget? _getElementAt(Offset position) {
-    // ignore: todo
-    // TODO: figure out why it doesn't work with WidgetsBinding.instance.renderViewElement;
+    // WidgetsBinding.instance.renderViewElement does not work, using
+    // the element from createElement
     var rootElement = _clickTrackerElement;
     if (rootElement == null || rootElement.widget != widget) {
       return null;

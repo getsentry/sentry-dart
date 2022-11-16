@@ -20,9 +20,7 @@ class TappedWidget {
       return key.value;
     } else if (key is ValueKey) {
       return key.value?.toString();
-    } // else if (key is LabeledGlobalKey) {
-    //   return key.toString();
-    // }
+    }
     return key.toString();
   }
 }
