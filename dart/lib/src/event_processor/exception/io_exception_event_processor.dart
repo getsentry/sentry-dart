@@ -97,9 +97,7 @@ SentryException _sentryExceptionfromOsError(OSError osError) {
     mechanism: Mechanism(
       type: 'OSError',
       meta: {
-        'signal': {
-          'number': osError.errorCode,
-        },
+        'errno': osError.errorCode,
       },
     ),
   );
