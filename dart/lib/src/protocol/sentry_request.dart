@@ -98,6 +98,8 @@ class SentryRequest {
         .replaceAll('?', '')
         .replaceAll('#', '');
 
+    // Future proof, Dio does not support it yet and even if passing in the path,
+    // the parsing of the uri returns empty.
     final query = uri.query.isEmpty ? null : uri.query;
     final fragment = uri.fragment.isEmpty ? null : uri.fragment;
 

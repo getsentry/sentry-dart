@@ -75,7 +75,7 @@ class Sentry {
     }
 
     options.addEventProcessor(EnricherEventProcessor(options));
-    options.addEventProcessor(ExceptionEventProcessor());
+    options.addEventProcessor(ExceptionEventProcessor(options));
     options.addEventProcessor(DeduplicationEventProcessor(options));
   }
 

@@ -1,30 +1,35 @@
 import 'dart:io';
 
 import '../../protocol.dart';
+import '../../sentry_options.dart';
 import 'exception_event_processor.dart';
 
-ExceptionEventProcessor exceptionEventProcessor() =>
-    IoExceptionEventProcessor();
+ExceptionEventProcessor exceptionEventProcessor(SentryOptions options) =>
+    IoExceptionEventProcessor(options);
 
 class IoExceptionEventProcessor implements ExceptionEventProcessor {
+  IoExceptionEventProcessor(this._options);
+
+  final SentryOptions _options;
+
   @override
   SentryEvent apply(SentryEvent event, {dynamic hint}) {
     final throwable = event.throwable;
     if (throwable is HttpException) {
-      return applyHttpException(throwable, event);
+      return _applyHttpException(throwable, event);
     }
     if (throwable is SocketException) {
-      return applySocketException(throwable, event);
+      return _applySocketException(throwable, event);
     }
     if (throwable is FileSystemException) {
-      return applyFileSystemException(throwable, event);
+      return _applyFileSystemException(throwable, event);
     }
 
     return event;
   }
 
   // https://api.dart.dev/stable/dart-io/HttpException-class.html
-  SentryEvent applyHttpException(HttpException exception, SentryEvent event) {
+  SentryEvent _applyHttpException(HttpException exception, SentryEvent event) {
     final uri = exception.uri;
     if (uri == null) {
       return event;
@@ -35,7 +40,7 @@ class IoExceptionEventProcessor implements ExceptionEventProcessor {
   }
 
   // https://api.dart.dev/stable/dart-io/SocketException-class.html
-  SentryEvent applySocketException(
+  SentryEvent _applySocketException(
     SocketException exception,
     SentryEvent event,
   ) {
@@ -56,7 +61,14 @@ class IoExceptionEventProcessor implements ExceptionEventProcessor {
     try {
       var uri = Uri.parse(address.host);
       request = SentryRequest.fromUri(uri: uri);
-    } catch (_) {}
+    } catch (exception, stackTrace) {
+      _options.logger(
+        SentryLevel.error,
+        'Could not parse ${address.host} to Uri',
+        exception: exception,
+        stackTrace: stackTrace,
+      );
+    }
 
     return event.copyWith(
       request: event.request ?? request,
@@ -71,7 +83,7 @@ class IoExceptionEventProcessor implements ExceptionEventProcessor {
   }
 
   // https://api.dart.dev/stable/dart-io/FileSystemException-class.html
-  SentryEvent applyFileSystemException(
+  SentryEvent _applyFileSystemException(
     FileSystemException exception,
     SentryEvent event,
   ) {
@@ -97,7 +109,7 @@ SentryException _sentryExceptionfromOsError(OSError osError) {
     mechanism: Mechanism(
       type: 'OSError',
       meta: {
-        'errno': osError.errorCode,
+        'errno': {'number': osError.errorCode},
       },
     ),
   );

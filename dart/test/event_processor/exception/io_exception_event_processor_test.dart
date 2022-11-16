@@ -68,7 +68,7 @@ void main() {
         'OS Error: Connection reset by peer, errno = 54',
       );
       expect(event.exceptions?.first.mechanism?.type, 'OSError');
-      expect(event.exceptions?.first.mechanism?.meta['errno'], 54);
+      expect(event.exceptions?.first.mechanism?.meta['errno']['number'], 54);
     });
 
     test('adds OSError SentryException for $FileSystemException', () async {
@@ -91,13 +91,13 @@ void main() {
         'OS Error: Oh no :(, errno = 42',
       );
       expect(event.exceptions?.first.mechanism?.type, 'OSError');
-      expect(event.exceptions?.first.mechanism?.meta['errno'], 42);
+      expect(event.exceptions?.first.mechanism?.meta['errno']['number'], 42);
     });
   });
 }
 
 class Fixture {
   IoExceptionEventProcessor getSut() {
-    return IoExceptionEventProcessor();
+    return IoExceptionEventProcessor(SentryOptions.empty());
   }
 }

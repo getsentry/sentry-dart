@@ -11,6 +11,7 @@ class FlutterExceptionEventProcessor implements EventProcessor {
     return event;
   }
 
+  /// https://api.flutter.dev/flutter/painting/NetworkImageLoadException-class.html
   SentryEvent _applyNetworkImageLoadException(
     SentryEvent event,
     NetworkImageLoadException exception,
