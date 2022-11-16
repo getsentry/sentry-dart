@@ -1,17 +1,12 @@
-import 'dart:ui';
-
 import 'package:flutter/rendering.dart';
 import 'package:sentry/sentry.dart';
 
 class FlutterExceptionEventProcessor implements EventProcessor {
   @override
-  SentryEvent? apply(SentryEvent event, {dynamic hint}) {
+  SentryEvent apply(SentryEvent event, {dynamic hint}) {
     final exception = event.throwable;
     if (exception is NetworkImageLoadException) {
       return _applyNetworkImageLoadException(event, exception);
-    }
-    if (exception is PictureRasterizationException) {
-      return _applyPictureRasterizationException(event, exception);
     }
     return event;
   }
@@ -27,12 +22,5 @@ class FlutterExceptionEventProcessor implements EventProcessor {
             SentryResponse(statusCode: exception.statusCode),
       ),
     );
-  }
-
-  SentryEvent _applyPictureRasterizationException(
-    SentryEvent event,
-    PictureRasterizationException exception,
-  ) {
-    return event;
   }
 }
