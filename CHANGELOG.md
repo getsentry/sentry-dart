@@ -4,7 +4,7 @@
 
 ### Features
 
-- Add request context to `HttpException` and `SocketException` ([#1118](https://github.com/getsentry/sentry-dart/pull/1118))
+- Add request context to `HttpException`, `SocketException` and `NetworkImageLoadException` ([#1118](https://github.com/getsentry/sentry-dart/pull/1118))
 - `SocketException` and `FileSystemException` with `OSError`s report the `OSError` as root exception ([#1118](https://github.com/getsentry/sentry-dart/pull/1118))
 
 ### Fixes
