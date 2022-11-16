@@ -19,28 +19,22 @@ class Scope {
   /// The name of the transaction which generated this event,
   /// for example, the route name: `"/users/<username>/"`.
   String? get transaction {
-    return ((_span is SentryTracer) ? (_span as SentryTracer?)?.name : null) ??
+    return ((span is SentryTracer) ? (span as SentryTracer?)?.name : null) ??
         _transaction;
   }
 
   set transaction(String? transaction) {
     _transaction = transaction;
 
-    if (_transaction != null && _span != null) {
+    if (_transaction != null && span != null) {
       final currentTransaction =
-          (_span is SentryTracer) ? (_span as SentryTracer?) : null;
+          (span is SentryTracer) ? (span as SentryTracer?) : null;
       currentTransaction?.name = _transaction!;
     }
   }
 
-  ISentrySpan? _span;
-
   /// Returns active transaction or null if there is no active transaction.
-  ISentrySpan? get span => _span;
-
-  set span(ISentrySpan? span) {
-    _span = span;
-  }
+  ISentrySpan? span;
 
   SentryUser? _user;
 
@@ -236,7 +230,7 @@ class Scope {
   Future<void> clear() async {
     clearAttachments();
     level = null;
-    _span = null;
+    span = null;
     _transaction = null;
     _fingerprint = [];
     _tags.clear();
@@ -321,10 +315,10 @@ class Scope {
       }
     });
 
-    final span = _span;
-    if (event.contexts.trace == null && span != null) {
-      event.contexts.trace = span.context.toTraceContext(
-        sampled: span.samplingDecision?.sampled,
+    final newSpan = span;
+    if (event.contexts.trace == null && newSpan != null) {
+      event.contexts.trace = newSpan.context.toTraceContext(
+        sampled: newSpan.samplingDecision?.sampled,
       );
     }
 
@@ -414,7 +408,7 @@ class Scope {
       ..level = level
       ..fingerprint = List.from(fingerprint)
       .._transaction = _transaction
-      .._span = _span;
+      ..span = span;
 
     clone._setUserSync(user);
 
