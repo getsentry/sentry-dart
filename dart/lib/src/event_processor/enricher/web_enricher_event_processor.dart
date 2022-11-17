@@ -1,18 +1,18 @@
 import 'dart:async';
 import 'dart:html' as html show window, Window;
 
-import '../event_processor.dart';
-import '../protocol.dart';
-import '../sentry_options.dart';
+import '../../protocol.dart';
+import '../../sentry_options.dart';
+import 'enricher_event_processor.dart';
 
-EventProcessor enricherEventProcessor(SentryOptions options) {
+EnricherEventProcessor enricherEventProcessor(SentryOptions options) {
   return WebEnricherEventProcessor(
     html.window,
     options,
   );
 }
 
-class WebEnricherEventProcessor extends EventProcessor {
+class WebEnricherEventProcessor implements EnricherEventProcessor {
   WebEnricherEventProcessor(
     this._window,
     this._options,
