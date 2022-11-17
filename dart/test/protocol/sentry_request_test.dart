@@ -76,4 +76,14 @@ void main() {
       expect({'key1': 'value1'}, copy.data);
     });
   });
+
+  test('SentryRequest.fromUri', () {
+    final request = SentryRequest.fromUri(
+      uri: Uri.parse('https://example.org/foo/bar?key=value#fragment'),
+    );
+
+    expect(request.url, 'https://example.org/foo/bar');
+    expect(request.fragment, 'fragment');
+    expect(request.queryString, 'key=value');
+  });
 }

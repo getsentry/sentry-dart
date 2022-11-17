@@ -1,11 +1,11 @@
 @TestOn('vm')
 
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/enricher/io_enricher_event_processor.dart';
+import 'package:sentry/src/event_processor/enricher/io_enricher_event_processor.dart';
 import 'package:test/test.dart';
 
-import '../mocks.dart';
-import '../mocks/mock_platform_checker.dart';
+import '../../mocks.dart';
+import '../../mocks/mock_platform_checker.dart';
 
 void main() {
   group('io_enricher', () {

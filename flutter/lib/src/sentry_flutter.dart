@@ -7,6 +7,7 @@ import 'package:meta/meta.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../sentry_flutter.dart';
 import 'event_processor/android_platform_exception_event_processor.dart';
+import 'event_processor/flutter_exception_event_processor.dart';
 import 'integrations/screenshot_integration.dart';
 import 'native_scope_observer.dart';
 import 'renderer/renderer.dart';
@@ -83,6 +84,8 @@ mixin SentryFlutter {
     SentryFlutterOptions options,
     MethodChannel channel,
   ) async {
+    options.addEventProcessor(FlutterExceptionEventProcessor());
+
     // Not all platforms have a native integration.
     if (options.platformChecker.hasNativeIntegration) {
       options.transport = FileSystemTransport(channel, options);
