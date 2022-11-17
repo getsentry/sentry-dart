@@ -31,6 +31,9 @@ target 'Runner' do
   use_frameworks!
   use_modular_headers!
 
+  pod 'SentryPrivate', :git => 'https://github.com/getsentry/sentry-cocoa/', :branch => 'feat/swift'
+  pod 'Sentry/HybridSDK', :git => 'https://github.com/getsentry/sentry-cocoa/', :branch => 'feat/swift'
+  
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end
 
