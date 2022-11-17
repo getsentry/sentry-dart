@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Features
+
+- Add request context to `HttpException`, `SocketException` and `NetworkImageLoadException` ([#1118](https://github.com/getsentry/sentry-dart/pull/1118))
+- `SocketException` and `FileSystemException` with `OSError`s report the `OSError` as root exception ([#1118](https://github.com/getsentry/sentry-dart/pull/1118))
+
 ### Fixes
 
 - VendorId should be a String ([#1112](https://github.com/getsentry/sentry-dart/pull/1112))

@@ -81,6 +81,42 @@ class SentryRequest {
         _env = env != null ? Map.from(env) : null,
         _other = other != null ? Map.from(other) : null;
 
+  factory SentryRequest.fromUri({
+    required Uri uri,
+    String? method,
+    String? cookies,
+    dynamic data,
+    Map<String, String>? headers,
+    Map<String, String>? env,
+    @Deprecated('Will be removed in v7.') Map<String, String>? other,
+  }) {
+    // As far as I can tell there's no way to get the uri without the query part
+    // so we replace it with an empty string.
+    final urlWithoutQuery = uri
+        .replace(query: '', fragment: '')
+        .toString()
+        .replaceAll('?', '')
+        .replaceAll('#', '');
+
+    // Future proof, Dio does not support it yet and even if passing in the path,
+    // the parsing of the uri returns empty.
+    final query = uri.query.isEmpty ? null : uri.query;
+    final fragment = uri.fragment.isEmpty ? null : uri.fragment;
+
+    return SentryRequest(
+      url: urlWithoutQuery,
+      fragment: fragment,
+      queryString: query,
+      method: method,
+      cookies: cookies,
+      data: data,
+      headers: headers,
+      env: env,
+      // ignore: deprecated_member_use_from_same_package
+      other: other,
+    );
+  }
+
   /// Deserializes a [SentryRequest] from JSON [Map].
   factory SentryRequest.fromJson(Map<String, dynamic> json) {
     return SentryRequest(
