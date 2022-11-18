@@ -3,9 +3,10 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import 'default_integrations.dart';
-import 'enricher/enricher_event_processor.dart';
+import 'event_processor/enricher/enricher_event_processor.dart';
 import 'environment/environment_variables.dart';
 import 'event_processor/deduplication_event_processor.dart';
+import 'event_processor/exception/exception_event_processor.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
 import 'integration.dart';
@@ -73,7 +74,8 @@ class Sentry {
       options.addIntegrationByIndex(0, IsolateErrorIntegration());
     }
 
-    options.addEventProcessor(getEnricherEventProcessor(options));
+    options.addEventProcessor(EnricherEventProcessor(options));
+    options.addEventProcessor(ExceptionEventProcessor(options));
     options.addEventProcessor(DeduplicationEventProcessor(options));
   }
 

@@ -2,18 +2,18 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
 
-import '../event_processor.dart';
-import '../protocol.dart';
-import '../sentry_options.dart';
+import '../../protocol.dart';
+import '../../sentry_options.dart';
+import 'enricher_event_processor.dart';
 
-EventProcessor enricherEventProcessor(SentryOptions options) {
+EnricherEventProcessor enricherEventProcessor(SentryOptions options) {
   return IoEnricherEventProcessor(options);
 }
 
 /// Enriches [SentryEvents] with various kinds of information.
 /// Uses Darts [Platform](https://api.dart.dev/stable/dart-io/Platform-class.html)
 /// class to read information.
-class IoEnricherEventProcessor extends EventProcessor {
+class IoEnricherEventProcessor implements EnricherEventProcessor {
   IoEnricherEventProcessor(
     this._options,
   );
