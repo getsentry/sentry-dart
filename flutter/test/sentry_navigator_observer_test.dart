@@ -769,3 +769,18 @@ ISentrySpan getMockSentryTracer({String? name}) {
   when(tracer.name).thenReturn(name ?? 'name');
   return tracer;
 }
+
+extension RouteSettingsExtensions on RouteSettings {
+  /// Creates a copy of this route settings object with the given fields
+  /// replaced with the new values.
+  /// Flutter 3.6 beta removed copyWith but we use it for testing
+  RouteSettings copyWith({
+    String? name,
+    Object? arguments,
+  }) {
+    return RouteSettings(
+      name: name ?? this.name,
+      arguments: arguments ?? this.arguments,
+    );
+  }
+}
