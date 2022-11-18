@@ -121,6 +121,19 @@ void main() {
       );
     });
 
+    test('captured span do not add headers if NoOp', () async {
+      final sut = fixture.getSut(
+        client: fixture.getClient(statusCode: 200, reason: 'OK'),
+      );
+      await fixture._hub
+          .configureScope((scope) => scope.span = NoOpSentrySpan());
+
+      final response = await sut.get<dynamic>(requestOptions);
+
+      expect(response.headers['baggage'], null);
+      expect(response.headers['sentry-trace'], null);
+    });
+
     test('do not throw if no span bound to the scope', () async {
       final sut = fixture.getSut(
         client: fixture.getClient(statusCode: 200, reason: 'OK'),
