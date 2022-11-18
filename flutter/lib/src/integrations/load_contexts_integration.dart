@@ -159,9 +159,7 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
         final sdk = event.sdk ?? _options.sdk;
 
         for (final integration in integrations) {
-          if (!sdk.integrations.contains(integration)) {
-            sdk.addIntegration(integration);
-          }
+          sdk.addIntegration(integration);
         }
 
         event = event.copyWith(sdk: sdk);
