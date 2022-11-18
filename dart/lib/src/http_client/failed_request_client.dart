@@ -72,7 +72,11 @@ class FailedRequestClient extends BaseClient {
     Client? client,
     Hub? hub,
   })  : _hub = hub ?? HubAdapter(),
-        _client = client ?? Client();
+        _client = client ?? Client() {
+    if (captureFailedRequests) {
+      _hub.options.sdk.addIntegration('HTTPClientError');
+    }
+  }
 
   final Client _client;
   final Hub _hub;
