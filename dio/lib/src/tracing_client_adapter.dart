@@ -25,10 +25,15 @@ class TracingClientAdapter extends HttpClientAdapter {
   ) async {
     // see https://develop.sentry.dev/sdk/performance/#header-sentry-trace
     final currentSpan = _hub.getSpan();
-    final span = currentSpan?.startChild(
+    var span = currentSpan?.startChild(
       'http.client',
       description: '${options.method} ${options.uri}',
     );
+
+    // if the span is NoOp, we dont want to attach headers
+    if (span is NoOpSentrySpan) {
+      span = null;
+    }
 
     ResponseBody? response;
     try {

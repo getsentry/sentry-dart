@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Do not attach headers if Span is NoOp ([#1143](https://github.com/getsentry/sentry-dart/pull/1143))
+
 ## 6.16.0
 
 ### Features
