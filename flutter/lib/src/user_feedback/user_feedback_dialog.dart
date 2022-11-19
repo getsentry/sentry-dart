@@ -28,6 +28,8 @@ class _UserFeedbackDialogState extends State<UserFeedbackDialog> {
 
   Hub get _hub => widget.hub ?? HubAdapter();
 
+  final GlobalKey<FormFieldState> _formStateKey = GlobalKey<FormFieldState>();
+
   @override
   void initState() {
     super.initState();
@@ -39,65 +41,92 @@ class _UserFeedbackDialogState extends State<UserFeedbackDialog> {
   }
 
   @override
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    commentController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AlertDialog(
       content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              widget.configuration.title,
-              textAlign: TextAlign.center,
-              // ignore: deprecated_member_use
-              style: Theme.of(context).textTheme.headline6,
-            ),
-            SizedBox(height: 4),
-            Text(
-              widget.configuration.subtitle,
-              textAlign: TextAlign.center,
-              style: Theme.of(context)
-                  .textTheme
-                  // ignore: deprecated_member_use
-                  .subtitle1
-                  ?.copyWith(color: Colors.grey),
-            ),
-            const Divider(),
-            TextField(
-              key: ValueKey('sentry_name_textfield'),
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: widget.configuration.labelName,
+        child: Form(
+          key: _formStateKey,
+          autovalidateMode: AutovalidateMode.always,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                widget.configuration.title,
+                textAlign: TextAlign.center,
+                // ignore: deprecated_member_use
+                style: Theme.of(context).textTheme.headline6,
               ),
-              controller: nameController,
-              keyboardType: TextInputType.text,
-            ),
-            SizedBox(height: 8),
-            TextField(
-              key: ValueKey('sentry_email_textfield'),
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: widget.configuration.labelEmail,
+              SizedBox(height: 4),
+              Text(
+                widget.configuration.subtitle,
+                textAlign: TextAlign.center,
+                style: Theme.of(context)
+                    .textTheme
+                    // ignore: deprecated_member_use
+                    .subtitle1
+                    ?.copyWith(color: Colors.grey),
               ),
-              controller: emailController,
-              keyboardType: TextInputType.emailAddress,
-            ),
-            SizedBox(height: 8),
-            TextField(
-              key: ValueKey('sentry_comment_textfield'),
-              minLines: 5,
-              maxLines: null,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: widget.configuration.labelComments,
+              const Divider(),
+              TextField(
+                key: ValueKey('sentry_name_textfield'),
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: widget.configuration.labelName,
+                ),
+                controller: nameController,
+                keyboardType: TextInputType.text,
               ),
-              controller: commentController,
-              keyboardType: TextInputType.multiline,
-            ),
-            if (widget.configuration.showPoweredBy) ...[
               SizedBox(height: 8),
-              const PoweredBySentryMessage(),
-            ]
-          ],
+              TextFormField(
+                key: ValueKey('sentry_email_textfield'),
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: widget.configuration.labelEmail,
+                ),
+                controller: emailController,
+                keyboardType: TextInputType.emailAddress,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return null;
+                  }
+                  if (!value.contains('@')) {
+                    return widget.configuration.labelFieldMustBeAValidEmail;
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 8),
+              TextFormField(
+                key: ValueKey('sentry_comment_textfield'),
+                minLines: 5,
+                maxLines: null,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: widget.configuration.labelComments,
+                ),
+                controller: commentController,
+                keyboardType: TextInputType.multiline,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return widget.configuration.labelFieldMustNotBeEmpty;
+                  }
+                  return null;
+                },
+              ),
+              if (widget.configuration.showPoweredBy) ...[
+                SizedBox(height: 8),
+                const PoweredBySentryMessage(),
+              ]
+            ],
+          ),
         ),
       ),
       actions: [
@@ -116,6 +145,10 @@ class _UserFeedbackDialogState extends State<UserFeedbackDialog> {
   }
 
   Future<void> _submitUserFeedback() async {
+    //if (!_formStateKey.currentState!.validate()) {
+    // input is not valid
+    //  return;
+    //}
     final navigator = Navigator.of(context);
     final feedback = SentryUserFeedback(
       eventId: widget.eventId,

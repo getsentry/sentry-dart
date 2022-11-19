@@ -1,3 +1,6 @@
+// coverage:ignore-file
+// Data class without logic
+
 class UserFeedbackConfiguration {
   const UserFeedbackConfiguration({
     this.title = "It looks like we're having issues.",
@@ -8,6 +11,8 @@ class UserFeedbackConfiguration {
     this.labelComments = 'What happened?',
     this.labelClose = 'Close',
     this.labelSubmit = 'Submit',
+    this.labelFieldMustNotBeEmpty = 'This field must not be empty.',
+    this.labelFieldMustBeAValidEmail = 'This field must contain a valid email.',
     this.showPoweredBy = true,
   });
 
@@ -34,4 +39,10 @@ class UserFeedbackConfiguration {
 
   /// Whether the Sentry logo should be shown.
   final bool showPoweredBy;
+
+  /// "This field must not be empty."
+  final String labelFieldMustNotBeEmpty;
+
+  /// "This field must contain a valid email."
+  final String labelFieldMustBeAValidEmail;
 }
