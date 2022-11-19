@@ -279,6 +279,10 @@ class SentryFlutterOptions extends SentryOptions {
 
   /// This builder should be used if custom translations or a custom dialog is
   /// needed. If not set, it defaults to [UserFeedbackDialog] with english translation.
+  /// When this is used, you have to write the logic to submit the user feedback
+  /// yourself.
+  /// Learn how to submit user feedback at
+  /// https://docs.sentry.io/platforms/flutter/enriching-events/user-feedback/
   UserFeedbackBuilder userFeedbackBuilder = (context, id) {
     return UserFeedbackDialog(eventId: id);
   };
