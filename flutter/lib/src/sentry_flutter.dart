@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
+import 'binding_utils.dart';
 import 'event_processor/android_platform_exception_event_processor.dart';
 import 'event_processor/flutter_exception_event_processor.dart';
 import 'integrations/screenshot_integration.dart';
@@ -17,6 +17,7 @@ import 'sentry_native_channel.dart';
 import 'integrations/integrations.dart';
 import 'event_processor/flutter_enricher_event_processor.dart';
 import 'file_system_transport.dart';
+import 'user_feedback/user_feedback_hook.dart';
 import 'version.dart';
 
 /// Configuration options callback
@@ -163,13 +164,7 @@ mixin SentryFlutter {
     if (platformChecker.hasNativeIntegration) {
       integrations.add(NativeAppStartIntegration(
         SentryNative(),
-        () {
-          try {
-            /// Flutter >= 2.12 throws if SchedulerBinding.instance isn't initialized.
-            return SchedulerBinding.instance;
-          } catch (_) {}
-          return null;
-        },
+        BindingUtils.getWidgetsBindingInstance,
       ));
     }
     return integrations;
@@ -191,6 +186,19 @@ mixin SentryFlutter {
     );
     sdk.addPackage('pub:sentry_flutter', sdkVersion);
     options.sdk = sdk;
+  }
+
+  /// Shows a user feedback dialog for [SentryEvent.eventId].
+  /// If [builder] is not used, it defaults to
+  /// [SentryFlutterOptions.userFeedbackBuilder].
+  void showReportDialog(
+    SentryId eventId, {
+    UserFeedbackBuilder? builder,
+  }) {
+    // ignore: invalid_use_of_internal_member
+    final flutterOptions = (HubAdapter().options as SentryFlutterOptions);
+    final feedbackBuilder = builder ?? flutterOptions.userFeedbackBuilder;
+    tryShowUserFeedback(eventId, feedbackBuilder);
   }
 }
 

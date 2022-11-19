@@ -5,9 +5,13 @@ import 'package:sentry/sentry.dart';
 import 'renderer/renderer.dart';
 import 'user_feedback/user_feedback_dialog.dart';
 import 'user_feedback/user_feedback_hook.dart';
+import 'screenshot/sentry_screenshot_widget.dart';
+import 'sentry_flutter.dart';
 
 typedef UserFeedbackBuilder = Widget Function(
-    BuildContext context, SentryId id);
+  BuildContext context,
+  SentryId id,
+);
 
 /// This class adds options which are only availble in a Flutter environment.
 /// Note that some of these options require native Sentry integration, which is
@@ -254,6 +258,7 @@ class SentryFlutterOptions extends SentryOptions {
     }
     return event;
   };
+
   late BeforeSendCallback? _beforeSend = _defaultBeforeSend;
 
   @override
