@@ -248,28 +248,33 @@ class SentryFlutterOptions extends SentryOptions {
     }
   }
 
-  late BeforeSendCallback? _beforeSend = (event, {hint}) {
+  late final BeforeSendCallback _defaultBeforeSend = (event, {hint}) {
     if (showUserFeedbackDialog) {
       tryShowUserFeedback(event.eventId, userFeedbackBuilder);
     }
     return event;
   };
+  late BeforeSendCallback? _beforeSend = _defaultBeforeSend;
 
   @override
   BeforeSendCallback? get beforeSend => _beforeSend;
 
   @override
   set beforeSend(BeforeSendCallback? callback) {
-    _beforeSend = (event, {hint}) async {
-      final maybeEvent = await callback?.call(event, hint: hint);
-      if (maybeEvent == null) {
-        return null;
-      }
-      if (showUserFeedbackDialog) {
-        tryShowUserFeedback(event.eventId, userFeedbackBuilder);
-      }
-      return maybeEvent;
-    };
+    if (callback == null) {
+      _beforeSend = _defaultBeforeSend;
+    } else {
+      _beforeSend = (event, {hint}) async {
+        final maybeEvent = await callback(event, hint: hint);
+        if (maybeEvent == null) {
+          return null;
+        }
+        if (showUserFeedbackDialog) {
+          tryShowUserFeedback(event.eventId, userFeedbackBuilder);
+        }
+        return maybeEvent;
+      };
+    }
   }
 
   /// This builder should be used if custom translations or a custom dialog is
