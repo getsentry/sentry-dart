@@ -114,6 +114,7 @@ class _UserFeedbackDialogState extends State<UserFeedbackDialog> {
   }
 
   Future<void> _submitUserFeedback() async {
+    final navigator = Navigator.of(context);
     final feedback = SentryUserFeedback(
       eventId: widget.eventId,
       comments: commentController.text,
@@ -122,5 +123,6 @@ class _UserFeedbackDialogState extends State<UserFeedbackDialog> {
     );
 
     await _hub.captureUserFeedback(feedback);
+    navigator.pop();
   }
 }
