@@ -48,7 +48,8 @@ class _UserFeedbackDialogState extends State<UserFeedbackDialog> {
             Text(
               widget.configuration.title,
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleLarge,
+              // ignore: deprecated_member_use
+              style: Theme.of(context).textTheme.headline6,
             ),
             SizedBox(height: 4),
             Text(
@@ -56,7 +57,8 @@ class _UserFeedbackDialogState extends State<UserFeedbackDialog> {
               textAlign: TextAlign.center,
               style: Theme.of(context)
                   .textTheme
-                  .titleMedium
+                  // ignore: deprecated_member_use
+                  .subtitle1
                   ?.copyWith(color: Colors.grey),
             ),
             const Divider(),

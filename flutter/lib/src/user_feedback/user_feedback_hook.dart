@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sentry/sentry.dart';
 
+import '../binding_utils.dart';
 import '../sentry_flutter_options.dart';
 
 /// Only works if there's a [Navigator] in the widget tree
@@ -19,7 +20,8 @@ void tryShowUserFeedback(SentryId id, UserFeedbackBuilder builder) {
     element.visitChildElements(navigationFinder);
   }
 
-  WidgetsBinding.instance.renderViewElement
+  BindingUtils.getWidgetsBindingInstance()
+      ?.renderViewElement
       ?.visitChildElements(navigationFinder);
   if (navigator != null) {
     showDialog(
