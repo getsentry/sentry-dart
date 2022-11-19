@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:sentry/sentry.dart';
 
-import 'user_feedback_dialog.dart';
+import '../sentry_flutter_options.dart';
 
 /// Only works if there's a [Navigator] in the widget tree
-void tryShowUserFeedback(SentryId id) {
+void tryShowUserFeedback(SentryId id, UserFeedbackBuilder builder) {
   NavigatorState? navigator;
 
   void navigationFinder(Element element) {
@@ -27,7 +27,7 @@ void tryShowUserFeedback(SentryId id) {
       routeSettings: RouteSettings(name: 'SentryUserFeedbackDialog'),
       context: navigator!.context,
       builder: (context) {
-        return UserFeedbackDialog(eventId: id);
+        return builder(context, id);
       },
     );
   }
