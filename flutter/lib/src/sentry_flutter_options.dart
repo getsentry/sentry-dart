@@ -3,7 +3,6 @@ import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
 import 'renderer/renderer.dart';
-import 'user_feedback/user_feedback_configuration.dart';
 import 'user_feedback/user_feedback_dialog.dart';
 import 'user_feedback/user_feedback_hook.dart';
 
@@ -33,10 +32,9 @@ class SentryFlutterOptions extends SentryOptions {
   /// Enable or disable the Auto session tracking on the Native SDKs (Android/iOS)
   bool enableAutoSessionTracking = true;
 
-  /// If set, the user feedback dialog will be automatically shown for each
-  /// captured and send event.
-  /// Texts in the dialog can be configured by setting the individual properties.
-  UserFeedbackConfiguration? userFeedbackConfiguration;
+  /// Toggles whether the user feedback dialog will be automatically shown
+  /// for each captured and send event.
+  bool showUserFeedbackDialog = false;
 
   /// Enable or disable the Crash handling on the Native SDKs, e.g.,
   /// UncaughtExceptionHandler and [anrEnabled] for Android.
@@ -251,7 +249,7 @@ class SentryFlutterOptions extends SentryOptions {
   }
 
   late BeforeSendCallback? _beforeSend = (event, {hint}) {
-    if (userFeedbackConfiguration != null) {
+    if (showUserFeedbackDialog) {
       tryShowUserFeedback(event.eventId, userFeedbackBuilder);
     }
     return event;
@@ -267,7 +265,7 @@ class SentryFlutterOptions extends SentryOptions {
       if (maybeEvent == null) {
         return null;
       }
-      if (userFeedbackConfiguration != null) {
+      if (showUserFeedbackDialog) {
         tryShowUserFeedback(event.eventId, userFeedbackBuilder);
       }
       return maybeEvent;
