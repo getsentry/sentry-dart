@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sentry/sentry.dart';
 
-import 'feedback_configuration.dart';
+import 'user_feedback_configuration.dart';
 import 'sentry_logo.dart';
 
 class UserFeedbackDialog extends StatefulWidget {
@@ -41,28 +41,25 @@ class _UserFeedbackDialogState extends State<UserFeedbackDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Column(
-        children: [
-          Text(
-            widget.configuration.title,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          SizedBox(height: 4),
-          Text(
-            widget.configuration.subtitle,
-            textAlign: TextAlign.center,
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(color: Colors.grey),
-          ),
-        ],
-      ),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            Text(
+              widget.configuration.title,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            SizedBox(height: 4),
+            Text(
+              widget.configuration.subtitle,
+              textAlign: TextAlign.center,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(color: Colors.grey),
+            ),
+            const Divider(),
             TextField(
               key: ValueKey('sentry_name_textfield'),
               decoration: InputDecoration(
@@ -94,8 +91,10 @@ class _UserFeedbackDialogState extends State<UserFeedbackDialog> {
               controller: commentController,
               keyboardType: TextInputType.multiline,
             ),
-            SizedBox(height: 8),
-            const PoweredBySentryMessage(),
+            if (widget.configuration.showPoweredBy) ...[
+              SizedBox(height: 8),
+              const PoweredBySentryMessage(),
+            ]
           ],
         ),
       ),

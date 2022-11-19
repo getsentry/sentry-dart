@@ -8,6 +8,7 @@ class UserFeedbackConfiguration {
     this.labelComments = 'What happened?',
     this.labelClose = 'Close',
     this.labelSubmit = 'Submit',
+    this.showPoweredBy = true,
   });
 
   /// "It looks like we're having issues."
@@ -30,4 +31,7 @@ class UserFeedbackConfiguration {
 
   /// "Submit"
   final String labelSubmit;
+
+  /// Whether the Sentry logo should be shown.
+  final bool showPoweredBy;
 }

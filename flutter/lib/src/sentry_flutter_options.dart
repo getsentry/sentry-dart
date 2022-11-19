@@ -2,7 +2,7 @@ import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
 import 'renderer/renderer.dart';
-import 'user_feedback/feedback_configuration.dart';
+import 'user_feedback/user_feedback_configuration.dart';
 import 'user_feedback/user_feedback_hook.dart';
 
 /// This class adds options which are only availble in a Flutter environment.
@@ -249,6 +249,7 @@ class SentryFlutterOptions extends SentryOptions {
     if (userFeedbackConfiguration != null) {
       tryShowUserFeedback(event.eventId);
     }
+    return event;
   };
 
   @override
