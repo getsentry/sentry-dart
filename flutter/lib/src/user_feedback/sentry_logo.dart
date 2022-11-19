@@ -1,141 +1,27 @@
 import 'package:flutter/material.dart';
 
-import 'package:sentry_flutter/sentry_flutter.dart';
-
-class UserFeedbackDialog extends StatefulWidget {
-  const UserFeedbackDialog({
-    Key? key,
-    required this.eventId,
-    this.hub,
-  })  : assert(eventId != const SentryId.empty()),
-        super(key: key);
-
-  final SentryId eventId;
-  final Hub? hub;
-
-  @override
-  _UserFeedbackDialogState createState() => _UserFeedbackDialogState();
-}
-
-class _UserFeedbackDialogState extends State<UserFeedbackDialog> {
-  TextEditingController nameController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
-  TextEditingController commentController = TextEditingController();
+class PoweredBySentryMessage extends StatelessWidget {
+  const PoweredBySentryMessage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              "It looks like we're having some internal issues.",
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headline6,
-            ),
-            SizedBox(height: 4),
-            Text(
-              'Our team has been notified. '
-              "If you'd like to help, tell us what happened below.",
-              textAlign: TextAlign.center,
-              style: Theme.of(context)
-                  .textTheme
-                  .subtitle1
-                  ?.copyWith(color: Colors.grey),
-            ),
-            Divider(height: 24),
-            TextField(
-              key: ValueKey('sentry_name_textfield'),
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'Name',
-              ),
-              controller: nameController,
-              keyboardType: TextInputType.text,
-            ),
-            SizedBox(height: 8),
-            TextField(
-              key: ValueKey('sentry_email_textfield'),
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'E-Mail',
-              ),
-              controller: emailController,
-              keyboardType: TextInputType.emailAddress,
-            ),
-            SizedBox(height: 8),
-            TextField(
-              key: ValueKey('sentry_comment_textfield'),
-              minLines: 5,
-              maxLines: null,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'What happened?',
-              ),
-              controller: commentController,
-              keyboardType: TextInputType.multiline,
-            ),
-            SizedBox(height: 8),
-            const _PoweredBySentryMessage(),
-          ],
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.start,
+      children: [
+        Text('Crash reports powered by'),
+        SizedBox(width: 8),
+        SizedBox(
+          height: 30,
+          child: _SentryLogo(),
         ),
-      ),
-      actions: [
-        ElevatedButton(
-            key: ValueKey('sentry_submit_feedback_button'),
-            onPressed: () async {
-              final feedback = SentryUserFeedback(
-                eventId: widget.eventId,
-                comments: commentController.text,
-                email: emailController.text,
-                name: nameController.text,
-              );
-              await _submitUserFeedback(feedback);
-              Navigator.pop(context);
-            },
-            child: Text('Submit Crash Report')),
-        TextButton(
-          key: ValueKey('sentry_close_button'),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: Text('Close'),
-        )
       ],
-    );
-  }
-
-  Future<void> _submitUserFeedback(SentryUserFeedback feedback) {
-    return (widget.hub ?? HubAdapter()).captureUserFeedback(feedback);
-  }
-}
-
-class _PoweredBySentryMessage extends StatelessWidget {
-  const _PoweredBySentryMessage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.end,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text('Crash reports powered by'),
-          SizedBox(width: 8),
-          SizedBox(
-            height: 30,
-            child: _SentryLogo(),
-          ),
-        ],
-      ),
     );
   }
 }
 
 class _SentryLogo extends StatelessWidget {
+  const _SentryLogo({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     var color = Colors.white;
@@ -448,9 +334,9 @@ class _SentryLogoCustomPainter extends CustomPainter {
         size.height * 0.3378788);
     path_0.close();
 
-    final paint_0_fill = Paint()..style = PaintingStyle.fill;
-    paint_0_fill.color = color;
-    canvas.drawPath(path_0, paint_0_fill);
+    final paint0Fill = Paint()..style = PaintingStyle.fill;
+    paint0Fill.color = color;
+    canvas.drawPath(path_0, paint0Fill);
   }
 
   @override

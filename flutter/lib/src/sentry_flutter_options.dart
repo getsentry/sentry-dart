@@ -2,6 +2,8 @@ import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
 import 'renderer/renderer.dart';
+import 'user_feedback/feedback_configuration.dart';
+import 'user_feedback/user_feedback_hook.dart';
 
 /// This class adds options which are only availble in a Flutter environment.
 /// Note that some of these options require native Sentry integration, which is
@@ -25,6 +27,11 @@ class SentryFlutterOptions extends SentryOptions {
 
   /// Enable or disable the Auto session tracking on the Native SDKs (Android/iOS)
   bool enableAutoSessionTracking = true;
+
+  /// If set, the user feedback dialog will be automatically shown for each
+  /// captured and send event.
+  /// Texts in the dialog can be configured by setting the individual properties.
+  UserFeedbackConfiguration? userFeedbackConfiguration;
 
   /// Enable or disable the Crash handling on the Native SDKs, e.g.,
   /// UncaughtExceptionHandler and [anrEnabled] for Android.
@@ -236,5 +243,28 @@ class SentryFlutterOptions extends SentryOptions {
     } else {
       useFlutterBreadcrumbTracking();
     }
+  }
+
+  late BeforeSendCallback? _beforeSend = (event, {hint}) {
+    if (userFeedbackConfiguration != null) {
+      tryShowUserFeedback(event.eventId);
+    }
+  };
+
+  @override
+  BeforeSendCallback? get beforeSend => _beforeSend;
+
+  @override
+  set beforeSend(BeforeSendCallback? callback) {
+    _beforeSend = (event, {hint}) async {
+      final maybeEvent = await callback?.call(event, hint: hint);
+      if (maybeEvent == null) {
+        return null;
+      }
+      if (userFeedbackConfiguration != null) {
+        tryShowUserFeedback(event.eventId);
+      }
+      return maybeEvent;
+    };
   }
 }
