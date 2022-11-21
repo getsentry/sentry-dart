@@ -11,8 +11,8 @@ class Hint {
     return _internalStorage[key];
   }
 
-  Object? remove(String key) {
-    return _internalStorage.remove(key);
+  void remove(String key) {
+    _internalStorage.remove(key);
   }
 
   void clear() {
