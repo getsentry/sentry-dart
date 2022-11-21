@@ -856,6 +856,21 @@ void main() {
       expect(executed, true);
     });
 
+    test('should create hint when none was provided', () async {
+      var executed = false;
+
+      final client = fixture.getSut(
+          eventProcessor: FunctionEventProcessor((event, {hint}) {
+        expect(hint, isNotNull);
+        executed = true;
+        return event;
+      }));
+
+      await client.captureEvent(fakeEvent);
+
+      expect(executed, true);
+    });
+
     test('event processor drops the event', () async {
       final client = fixture.getSut(eventProcessor: DropAllEventProcessor());
       await client.captureEvent(fakeEvent);
