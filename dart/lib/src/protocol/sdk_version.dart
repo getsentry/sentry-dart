@@ -94,8 +94,11 @@ class SdkVersion {
     _packages.add(package);
   }
 
-  // Adds an integration
+  // Adds an integration if not already added
   void addIntegration(String integration) {
+    if (_integrations.contains(integration)) {
+      return;
+    }
     _integrations.add(integration);
   }
 

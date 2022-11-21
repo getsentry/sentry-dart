@@ -31,20 +31,19 @@ class SentryUserInteractionWidget extends StatefulWidget {
   }
 
   @override
-  // ignore: no_logic_in_create_state
   _SentryUserInteractionWidgetState createState() =>
-      _SentryUserInteractionWidgetState(_hub);
+      _SentryUserInteractionWidgetState();
 }
 
 class _SentryUserInteractionWidgetState
     extends State<SentryUserInteractionWidget> {
   int? _lastPointerId;
   Offset? _lastPointerDownLocation;
-  final Hub _hub;
+  // final Hub _hub;
   Widget? _lastWidget;
   ISentrySpan? _activeTransaction;
 
-  _SentryUserInteractionWidgetState(this._hub);
+  // _SentryUserInteractionWidgetState(this._hub);
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +85,7 @@ class _SentryUserInteractionWidgetState
 
     Map<String, dynamic>? data;
     // ignore: invalid_use_of_internal_member
-    if (_hub.options.sendDefaultPii && tappedWidget.description.isNotEmpty) {
+    if (widget._hub.options.sendDefaultPii && tappedWidget.description.isNotEmpty) {
       data = {};
       data['label'] = tappedWidget.description;
     }
@@ -100,11 +99,11 @@ class _SentryUserInteractionWidgetState
       viewClass: tappedWidget.type, // to avoid minification
       data: data,
     );
-    _hub.addBreadcrumb(crumb, hint: tappedWidget.element.widget);
+    widget._hub.addBreadcrumb(crumb, hint: tappedWidget.element.widget);
 
     // TODO: options
     // ignore: invalid_use_of_internal_member
-    if (!_hub.options.isTracingEnabled()) {
+    if (!widget._hub.options.isTracingEnabled()) {
       return;
     }
 
@@ -124,7 +123,7 @@ class _SentryUserInteractionWidgetState
         return;
       } else {
         activeTransaction.finish();
-        _hub.configureScope((scope) {
+        widget._hub.configureScope((scope) {
           if (scope.span == activeTransaction) {
             scope.span = null;
           }
@@ -137,7 +136,7 @@ class _SentryUserInteractionWidgetState
     _lastWidget = tappedWidget.element.widget;
 
     // TODO: mobile vitals
-    _activeTransaction = _hub.startTransactionWithContext(
+    _activeTransaction = widget._hub.startTransactionWithContext(
       transactionContext,
       waitForChildren: true,
       autoFinishAfter: Duration(seconds: 3), // TODO: options
@@ -149,7 +148,7 @@ class _SentryUserInteractionWidgetState
       return;
     }
 
-    _hub.configureScope((scope) {
+    widget._hub.configureScope((scope) {
       scope.span ??= _activeTransaction;
     });
   }

@@ -6,11 +6,6 @@ set -euo pipefail
 # Or try out the Alpha version of the Sentry Dart Plugin that does it automatically for you, feedback is welcomed.
 # https://github.com/getsentry/sentry-dart-plugin
 
-export SENTRY_PROJECT=sentry-flutter
-export SENTRY_ORG=sentry-sdks
-export SENTRY_LOG_LEVEL=info
-export OUTPUT_FOLDER_WEB=./build/web/
-
 export SENTRY_RELEASE=$(date +%Y-%m-%d_%H-%M-%S)
 
 echo -e "[\033[92mrun\033[0m] $1"
@@ -28,10 +23,12 @@ elif [ "$1" == "android" ]; then
     launchCmd='adb shell am start -n io.sentry.samples.flutter/io.sentry.samples.flutter.MainActivity'
     echo -e "[\033[92mrun\033[0m] Android app installed"
 elif [ "$1" == "web" ]; then
-    # Uses dart2js
     flutter build web --dart-define=SENTRY_RELEASE=$SENTRY_RELEASE --source-maps
-    ls -lah $OUTPUT_FOLDER_WEB
-    echo -e "[\033[92mrun\033[0m] Built: $OUTPUT_FOLDER_WEB"
+    buildDir='./build/web/'
+    port='8132'
+    ls -lah $buildDir
+    echo -e "[\033[92mrun\033[0m] Built: $buildDir"
+    launchCmd="bash -c '( sleep 3 ; open http://127.0.0.1:$port ) & python3 -m http.server --directory $buildDir $port'"
 elif [ "$1" == "macos" ]; then
     flutter build macos --split-debug-info=$symbolsDir --obfuscate
     launchCmd='./build/macos/Build/Products/Release/sentry_flutter_example.app/Contents/MacOS/sentry_flutter_example'
@@ -41,30 +38,10 @@ else
     else
         echo -e "[\033[92mrun\033[0m] $1 isn't supported"
     fi
-    exit
+    exit 1
 fi
 
-if [ "$1" == "web" ]; then
-    echo -e "[\033[92mrun\033[0m] Uploading sourcemaps for $SENTRY_RELEASE"
-    sentry-cli releases new $SENTRY_RELEASE
+dart run sentry_dart_plugin
 
-    sentry-cli releases files $SENTRY_RELEASE upload-sourcemaps . \
-        --ext dart
-
-    pushd $OUTPUT_FOLDER_WEB
-    sentry-cli releases files $SENTRY_RELEASE upload-sourcemaps . \
-        --ext map \
-        --ext js
-
-    sentry-cli releases finalize $SENTRY_RELEASE
-
-    python3 -m http.server 8132
-    popd
-else
-    # 'symbols' directory contains the Dart debug info files but to include platform-specific ones, use the whole build dir instead.
-    echo -e "[\033[92mrun\033[0m] Uploading debug information files"
-    sentry-cli upload-dif --wait --org $SENTRY_ORG --project $SENTRY_PROJECT build
-
-    echo "Starting the built app: $($launchCmd)"
-    $launchCmd
-fi
+echo "Starting the built app: $launchCmd"
+eval $launchCmd

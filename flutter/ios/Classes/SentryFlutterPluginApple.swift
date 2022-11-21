@@ -7,7 +7,7 @@ import FlutterMacOS
 import AppKit
 #endif
 
-// swiftlint:disable file_length
+// swiftlint:disable file_length function_body_length
 
 // swiftlint:disable:next type_body_length
 public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
@@ -53,7 +53,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
     }
 
-    // swiftlint:disable:next cyclomatic_complexity function_body_length
+    // swiftlint:disable:next cyclomatic_complexity
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method as String {
         case "loadContexts":

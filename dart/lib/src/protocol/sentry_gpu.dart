@@ -24,7 +24,7 @@ class SentryGpu {
   final int? id;
 
   /// The PCI vendor identifier of the graphics device.
-  final int? vendorId;
+  final String? vendorId;
 
   /// The vendor name as reported by the graphics device.
   final String? vendorName;
@@ -150,7 +150,7 @@ class SentryGpu {
   SentryGpu copyWith({
     String? name,
     int? id,
-    int? vendorId,
+    String? vendorId,
     String? vendorName,
     int? memorySize,
     String? apiType,

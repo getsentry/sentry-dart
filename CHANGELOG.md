@@ -1,10 +1,41 @@
 # Changelog
 
-## Unreleased
+## 6.16.1
 
 ### Fixes
 
+- Do not attach headers if Span is NoOp ([#1143](https://github.com/getsentry/sentry-dart/pull/1143))
+
+### Dependencies
+
+- Bump Cocoa SDK from v7.31.1 to v7.31.2 ([#1146](https://github.com/getsentry/sentry-dart/pull/1146))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/master/CHANGELOG.md#7312)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.31.1...7.31.2)
+- Bump Android SDK from v6.7.1 to v6.8.0 ([#1147](https://github.com/getsentry/sentry-dart/pull/1147))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#680)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.7.1...6.8.0)
+
+## 6.16.0
+
+### Features
+
+- Add request context to `HttpException`, `SocketException` and `NetworkImageLoadException` ([#1118](https://github.com/getsentry/sentry-dart/pull/1118))
+- `SocketException` and `FileSystemException` with `OSError`s report the `OSError` as root exception ([#1118](https://github.com/getsentry/sentry-dart/pull/1118))
+
+### Fixes
+
+- VendorId should be a String ([#1112](https://github.com/getsentry/sentry-dart/pull/1112))
 - Disable `enableUserInteractionBreadcrumbs` on Android when `enableAutoNativeBreadcrumbs` is disabled ([#1131](https://github.com/getsentry/sentry-dart/pull/1131))
+- Transaction name is reset after the transaction finishes ([#1125](https://github.com/getsentry/sentry-dart/pull/1125))
+
+### Dependencies
+
+- Bump Cocoa SDK from v7.30.2 to v7.31.1 ([#1132](https://github.com/getsentry/sentry-dart/pull/1132), [#1139](https://github.com/getsentry/sentry-dart/pull/1139))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/master/CHANGELOG.md#7311)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.30.2...7.31.1)
+- Bump Android SDK from v6.7.0 to v6.7.1 ([#1112](https://github.com/getsentry/sentry-dart/pull/1112))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#671)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.7.0...6.7.1)
 
 ## 6.15.1
 

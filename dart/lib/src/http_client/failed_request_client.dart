@@ -72,7 +72,11 @@ class FailedRequestClient extends BaseClient {
     Client? client,
     Hub? hub,
   })  : _hub = hub ?? HubAdapter(),
-        _client = client ?? Client();
+        _client = client ?? Client() {
+    if (captureFailedRequests) {
+      _hub.options.sdk.addIntegration('HTTPClientError');
+    }
+  }
 
   final Client _client;
   final Hub _hub;
@@ -154,29 +158,16 @@ class FailedRequestClient extends BaseClient {
     required BaseRequest request,
     required StreamedResponse? response,
   }) async {
-    // As far as I can tell there's no way to get the uri without the query part
-    // so we replace it with an empty string.
-    final urlWithoutQuery = request.url
-        .replace(query: '', fragment: '')
-        .toString()
-        .replaceAll('?', '')
-        .replaceAll('#', '');
-
-    final query = request.url.query.isEmpty ? null : request.url.query;
-    final fragment = request.url.fragment.isEmpty ? null : request.url.fragment;
-
-    final sentryRequest = SentryRequest(
+    final sentryRequest = SentryRequest.fromUri(
       method: request.method,
       headers: sendDefaultPii ? request.headers : null,
-      url: urlWithoutQuery,
-      queryString: query,
+      uri: request.url,
       data: sendDefaultPii ? _getDataFromRequest(request) : null,
       // ignore: deprecated_member_use_from_same_package
       other: {
         'content_length': request.contentLength.toString(),
         'duration': requestDuration.toString(),
       },
-      fragment: fragment,
     );
 
     final mechanism = Mechanism(

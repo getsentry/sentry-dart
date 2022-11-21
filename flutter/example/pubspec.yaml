@@ -1,6 +1,6 @@
 name: sentry_flutter_example
 description: Demonstrates how to use the sentry_flutter plugin.
-version: 6.15.1
+version: 6.16.1
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
@@ -25,6 +25,10 @@ dependencies:
 dev_dependencies:
   pedantic: ^1.11.1
   sentry_dart_plugin: ^1.0.0-beta.1
+  integration_test:
+    sdk: flutter
+  flutter_test:
+    sdk: flutter
 
 flutter:
   uses-material-design: true
@@ -33,9 +37,10 @@ flutter:
     - assets/sentry-wordmark.png
 
 sentry:
-  upload_native_symbols: false
+  upload_native_symbols: true
   upload_source_maps: true
+  include_native_sources: true
   project: sentry-flutter
   org: sentry-sdks
-  log_level: error
   wait_for_processing: true
+  commits: true

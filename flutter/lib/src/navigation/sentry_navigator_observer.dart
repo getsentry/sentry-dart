@@ -68,7 +68,12 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         _setRouteNameAsTransaction = setRouteNameAsTransaction,
         _routeNameExtractor = routeNameExtractor,
         _additionalInfoProvider = additionalInfoProvider,
-        _native = SentryNative();
+        _native = SentryNative() {
+    if (enableAutoTransactions) {
+      // ignore: invalid_use_of_internal_member
+      _hub.options.sdk.addIntegration('UINavigationTracing');
+    }
+  }
 
   final Hub _hub;
   final bool _enableAutoTransactions;
