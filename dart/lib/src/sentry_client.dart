@@ -72,9 +72,7 @@ class SentryClient {
 
     SentryEvent? preparedEvent = _prepareEvent(event, stackTrace: stackTrace);
 
-    if (hint == null) {
-      hint = Hint();
-    }
+    hint ??= Hint();
 
     if (scope != null) {
       preparedEvent = await scope.applyToEvent(preparedEvent, hint: hint);
