@@ -58,6 +58,7 @@ class LoggingIntegration extends Integration<SentryOptions> {
       await _hub.captureEvent(
         record.toEvent(),
         stackTrace: record.stackTrace,
+        hint: Hint.fromMap({'record': record}),
       );
     }
 

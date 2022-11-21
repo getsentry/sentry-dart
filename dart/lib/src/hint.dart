@@ -1,6 +1,12 @@
 class Hint {
   final Map<String, Object> _internalStorage = {};
 
+  Hint();
+
+  Hint.fromMap(Map<String, Object> map) {
+    _internalStorage.addAll(map);
+  }
+
   // Objects
 
   void set(String key, Object value) {

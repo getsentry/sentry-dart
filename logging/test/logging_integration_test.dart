@@ -6,6 +6,7 @@ import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
 import 'mock_hub.dart';
+import 'dart:async';
 
 void main() {
   late Fixture fixture;
@@ -64,6 +65,29 @@ void main() {
 
     expect(fixture.hub.events.length, 0);
     expect(fixture.hub.breadcrumbs.length, 1);
+  });
+
+  test('passes log record as hint', () async {
+    final sut = fixture.createSut(minEventLevel: Level.WARNING);
+    await sut.call(fixture.hub, fixture.options);
+
+    final exception = Exception('foo bar');
+    final stackTrace = StackTrace.current;
+
+    final log = Logger('FooBarLogger');
+    log.warning(
+      'A log message',
+      exception,
+      stackTrace,
+    );
+
+    expect(fixture.hub.hints.length, 1);
+    final recordedHint = fixture.hub.hints.first.get('record') as LogRecord;
+
+    expect(recordedHint.level, Level.WARNING);
+    expect(recordedHint.message, 'A log message');
+    expect(recordedHint.error, exception);
+    expect(recordedHint.stackTrace, stackTrace);
   });
 
   test('logger gets not recorded if level under minlevel', () async {
