@@ -61,8 +61,6 @@ class SdkVersion {
   /// An immutable list of packages that compose this SDK.
   List<SentryPackage> get packages => List.unmodifiable(_packages);
 
-  String get identifier => '$name/$version';
-
   /// Deserializes a [SdkVersion] from JSON [Map].
   factory SdkVersion.fromJson(Map<String, dynamic> json) {
     final packagesJson = json['packages'] as List<dynamic>?;

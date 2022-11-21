@@ -41,11 +41,11 @@ class HttpTransport implements Transport {
         _recorder = _options.recorder,
         _headers = _buildHeaders(
           _options.platformChecker.isWeb,
-          _options.sdk.identifier,
+          _options.sentryClientName,
         ) {
     _credentialBuilder = _CredentialBuilder(
       _dsn,
-      _options.sdk.identifier,
+      _options.sentryClientName,
       _options.clock,
     );
   }
