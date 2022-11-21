@@ -1,4 +1,5 @@
 import 'package:http/http.dart';
+import '../hint.dart';
 import 'sentry_http_client_error.dart';
 import '../protocol.dart';
 import '../hub.dart';
@@ -166,7 +167,12 @@ class FailedRequestClient extends BaseClient {
       throwable: throwableMechanism,
       request: sentryRequest,
     );
-    await _hub.captureEvent(event, stackTrace: stackTrace);
+    await _hub.captureEvent(
+      event,
+      stackTrace: stackTrace,
+      hint: Hint.fromMap(
+          {'request': request, 'requestDuration': requestDuration}),
+    );
   }
 
   // Types of Request can be found here:
