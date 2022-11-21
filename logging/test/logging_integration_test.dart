@@ -6,7 +6,6 @@ import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
 import 'mock_hub.dart';
-import 'dart:async';
 
 void main() {
   late Fixture fixture;
