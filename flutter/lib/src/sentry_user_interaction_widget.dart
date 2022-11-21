@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
-import 'package:sentry/sentry.dart';
 
+import '../sentry_flutter.dart';
 import 'widget_click/tapped_widget.dart';
 
 // Adapted from https://github.com/ueman/sentry-dart-tools/blob/8e41418c0f2c62dc88292cf32a4f22e79112b744/sentry_flutter_plus/lib/src/widgets/click_tracker.dart
@@ -39,11 +39,14 @@ class _SentryUserInteractionWidgetState
     extends State<SentryUserInteractionWidget> {
   int? _lastPointerId;
   Offset? _lastPointerDownLocation;
-  // final Hub _hub;
   Widget? _lastWidget;
   ISentrySpan? _activeTransaction;
 
-  // _SentryUserInteractionWidgetState(this._hub);
+  Hub get _hub => widget._hub;
+
+  SentryFlutterOptions? get _options =>
+      // ignore: invalid_use_of_internal_member
+      _hub.options as SentryFlutterOptions?;
 
   @override
   Widget build(BuildContext context) {
@@ -85,25 +88,28 @@ class _SentryUserInteractionWidgetState
 
     Map<String, dynamic>? data;
     // ignore: invalid_use_of_internal_member
-    if (widget._hub.options.sendDefaultPii && tappedWidget.description.isNotEmpty) {
+    if ((_options?.sendDefaultPii ?? false) &&
+        tappedWidget.description.isNotEmpty) {
       data = {};
       data['label'] = tappedWidget.description;
     }
 
     const category = 'click';
-    // TODO: check if crumbs are enabled
-    final crumb = Breadcrumb.userInteraction(
-      subCategory: category,
-      viewId: tappedWidget.keyValue,
-      // viewClass: tappedWidget.element.widget.runtimeType.toString(),
-      viewClass: tappedWidget.type, // to avoid minification
-      data: data,
-    );
-    widget._hub.addBreadcrumb(crumb, hint: tappedWidget.element.widget);
-
-    // TODO: options
     // ignore: invalid_use_of_internal_member
-    if (!widget._hub.options.isTracingEnabled()) {
+    if (_options?.enableUserInteractionBreadcrumbs ?? false) {
+      final crumb = Breadcrumb.userInteraction(
+        subCategory: category,
+        viewId: tappedWidget.keyValue,
+        // viewClass: tappedWidget.element.widget.runtimeType.toString(),
+        viewClass: tappedWidget.type, // to avoid minification
+        data: data,
+      );
+      _hub.addBreadcrumb(crumb, hint: tappedWidget.element.widget);
+    }
+
+    // ignore: invalid_use_of_internal_member
+    if (!(_options?.isTracingEnabled() ?? false) ||
+        !(_options?.enableUserInteractionTracing ?? false)) {
       return;
     }
 
@@ -114,6 +120,8 @@ class _SentryUserInteractionWidgetState
       transactionNameSource: SentryTransactionNameSource.component,
     );
 
+    // TODO: check if when starting a new child, the timer is reset
+    // TODO: check the type of the event in the widget
     final activeTransaction = _activeTransaction;
     if (activeTransaction != null) {
       if (_lastWidget == tappedWidget.element.widget &&
@@ -123,7 +131,7 @@ class _SentryUserInteractionWidgetState
         return;
       } else {
         activeTransaction.finish();
-        widget._hub.configureScope((scope) {
+        _hub.configureScope((scope) {
           if (scope.span == activeTransaction) {
             scope.span = null;
           }
@@ -135,11 +143,24 @@ class _SentryUserInteractionWidgetState
 
     _lastWidget = tappedWidget.element.widget;
 
+    bool hasRunningTransaction = false;
+    _hub.configureScope((scope) {
+      if (scope.span != null) {
+        hasRunningTransaction = true;
+      }
+    });
+
+    if (hasRunningTransaction) {
+      return;
+    }
+
     // TODO: mobile vitals
-    _activeTransaction = widget._hub.startTransactionWithContext(
+    _activeTransaction = _hub.startTransactionWithContext(
       transactionContext,
       waitForChildren: true,
-      autoFinishAfter: Duration(seconds: 3), // TODO: options
+      autoFinishAfter:
+          // ignore: invalid_use_of_internal_member
+          _options?.idleTimeout,
       trimEnd: true,
     );
 
@@ -148,7 +169,7 @@ class _SentryUserInteractionWidgetState
       return;
     }
 
-    widget._hub.configureScope((scope) {
+    _hub.configureScope((scope) {
       scope.span ??= _activeTransaction;
     });
   }

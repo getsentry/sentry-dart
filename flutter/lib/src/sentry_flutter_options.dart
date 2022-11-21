@@ -188,6 +188,12 @@ class SentryFlutterOptions extends SentryOptions {
   /// The [SentryScreenshotWidget] has to be the root widget of the app.
   bool attachScreenshot = false;
 
+  /// Enable or disable automatic breadcrumbs for User interactions Using Window.Callback
+  bool enableUserInteractionBreadcrumbs = true;
+
+  /// Enables the Auto instrumentation for user interaction tracing.
+  bool enableUserInteractionTracing = false;
+
   @internal
   late RendererWrapper rendererWrapper = RendererWrapper();
 

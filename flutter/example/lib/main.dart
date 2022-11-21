@@ -45,6 +45,7 @@ Future<void> setupSentry(AppRunner appRunner) async {
     options.sendDefaultPii = true;
     options.reportSilentFlutterErrors = true;
     options.enableNdkScopeSync = true;
+    options.enableUserInteractionTracing = true;
     // options.attachScreenshot = true;
 
     // We can enable Sentry debug logging during development. This is likely

@@ -201,6 +201,9 @@ class SentryTracer extends ISentrySpan {
       return NoOpSentrySpan();
     }
 
+    // reset the timer if a new child is added
+    _scheduleTimer();
+
     if (children.length >= _hub.options.maxSpans) {
       _hub.options.logger(
         SentryLevel.warning,
@@ -357,7 +360,6 @@ class SentryTracer extends ISentrySpan {
       return;
     }
     if (_autoFinishAfterTimer != null) {
-      _autoFinishAfterTimer?.cancel();
       _scheduleTimer();
     }
   }
@@ -365,6 +367,7 @@ class SentryTracer extends ISentrySpan {
   void _scheduleTimer() {
     final autoFinishAfter = _autoFinishAfter;
     if (autoFinishAfter != null) {
+      _autoFinishAfterTimer?.cancel();
       _autoFinishAfterTimer = Timer(autoFinishAfter, () async {
         await finish(status: status ?? SpanStatus.ok());
       });
