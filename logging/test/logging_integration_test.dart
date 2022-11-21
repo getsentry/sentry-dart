@@ -67,27 +67,38 @@ void main() {
     expect(fixture.hub.breadcrumbs.length, 1);
   });
 
-  test('passes log record as hint', () async {
-    final sut = fixture.createSut(minEventLevel: Level.WARNING);
+  test('passes log records as hints', () async {
+    final sut = fixture.createSut(
+        minBreadcrumbLevel: Level.INFO, minEventLevel: Level.WARNING);
     await sut.call(fixture.hub, fixture.options);
+    final logger = Logger('FooBarLogger');
+
+    logger.info(
+      'An info message',
+    );
+
+    expect(fixture.hub.breadcrumbHints.length, 1);
+    final breadcrumbHint =
+        fixture.hub.breadcrumbHints.first.get('record') as LogRecord;
+
+    expect(breadcrumbHint.level, Level.INFO);
+    expect(breadcrumbHint.message, 'An info message');
 
     final exception = Exception('foo bar');
     final stackTrace = StackTrace.current;
-
-    final log = Logger('FooBarLogger');
-    log.warning(
+    logger.warning(
       'A log message',
       exception,
       stackTrace,
     );
 
-    expect(fixture.hub.hints.length, 1);
-    final recordedHint = fixture.hub.hints.first.get('record') as LogRecord;
+    expect(fixture.hub.eventHints.length, 1);
+    final errorHint = fixture.hub.eventHints.first.get('record') as LogRecord;
 
-    expect(recordedHint.level, Level.WARNING);
-    expect(recordedHint.message, 'A log message');
-    expect(recordedHint.error, exception);
-    expect(recordedHint.stackTrace, stackTrace);
+    expect(errorHint.level, Level.WARNING);
+    expect(errorHint.message, 'A log message');
+    expect(errorHint.error, exception);
+    expect(errorHint.stackTrace, stackTrace);
   });
 
   test('logger gets not recorded if level under minlevel', () async {
