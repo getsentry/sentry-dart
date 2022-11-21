@@ -219,6 +219,35 @@ void main() {
         );
       }
     });
+
+    test('request and requestDuration are passed to hint', () async {
+      fixture._hub.options.captureFailedHttpRequests = true;
+
+      Request? failedRequest;
+      final client = MockClient(
+        (request) async {
+          failedRequest = request;
+          throw TestException();
+        },
+      );
+
+      final sut = fixture.getSut(client: client);
+
+      Hint? eventHint;
+      fixture.options
+          .addEventProcessor(FunctionEventProcessor((event, {hint}) async {
+        eventHint = hint;
+        return event;
+      }));
+
+      await expectLater(
+        () async => await sut.get(requestUri),
+        throwsException,
+      );
+
+      expect((eventHint?.get('request') as Request?)?.url, failedRequest?.url);
+      expect(eventHint?.get('requestDuration'), isNotNull);
+    });
   });
 }
 
@@ -234,12 +263,12 @@ MockClient createThrowingClient() {
 class CloseableMockClient extends Mock implements BaseClient {}
 
 class Fixture {
-  final _options = SentryOptions(dsn: fakeDsn);
+  final options = SentryOptions(dsn: fakeDsn);
   late Hub _hub;
   final transport = MockTransport();
   Fixture() {
-    _options.transport = transport;
-    _hub = Hub(_options);
+    options.transport = transport;
+    _hub = Hub(options);
   }
 
   FailedRequestClient getSut({
