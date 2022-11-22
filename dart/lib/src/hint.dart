@@ -1,6 +1,8 @@
 class Hint {
   final Map<String, Object> _internalStorage = {};
 
+  static const syntheticExceptionKey = 'syntheticException';
+
   Hint();
 
   factory Hint.withMap(Map<String, Object> map) {
