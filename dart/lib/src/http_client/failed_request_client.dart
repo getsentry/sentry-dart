@@ -177,19 +177,22 @@ class FailedRequestClient extends BaseClient {
       timestamp: _hub.options.clock(),
     );
 
+    final hint =
+        Hint.withMap({'request': request, 'requestDuration': requestDuration});
+
     if (response != null) {
       event.contexts.response = SentryResponse(
         headers: _hub.options.sendDefaultPii ? response.headers : null,
         bodySize: response.contentLength,
         statusCode: response.statusCode,
       );
+      hint.set('response', response);
     }
 
     await _hub.captureEvent(
       event,
       stackTrace: stackTrace,
-      hint: Hint.withMap(
-          {'request': request, 'requestDuration': requestDuration}),
+      hint: hint,
     );
   }
 
