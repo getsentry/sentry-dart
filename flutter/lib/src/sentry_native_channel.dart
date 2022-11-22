@@ -28,7 +28,7 @@ class SentryNativeChannel {
 
   Future<void> beginNativeFrames() async {
     try {
-      await _channel.invokeMapMethod<String, dynamic>('beginNativeFrames');
+      await _channel.invokeMethod('beginNativeFrames');
     } catch (error, stackTrace) {
       _logError('beginNativeFrames', error, stackTrace);
     }

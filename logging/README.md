@@ -10,13 +10,13 @@ Sentry integration for `logging` package
 
 | package | build | pub | likes | popularity | pub points |
 | ------- | ------- | ------- | ------- | ------- | ------- |
-| sentry_logging | [![build](https://github.com/getsentry/sentry-dart/workflows/sentry-logging/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=workflow%3Alogging) | [![pub package](https://img.shields.io/pub/v/sentry_logging.svg)](https://pub.dev/packages/sentry_logging) | [![likes](https://badges.bar/sentry_logging/likes)](https://pub.dev/packages/sentry_logging/score) | [![popularity](https://badges.bar/sentry_logging/popularity)](https://pub.dev/packages/sentry_logging/score) | [![pub points](https://badges.bar/sentry_logging/pub%20points)](https://pub.dev/packages/sentry_logging/score)
+| sentry_logging | [![build](https://github.com/getsentry/sentry-dart/workflows/sentry-logging/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=workflow%3Alogging) | [![pub package](https://img.shields.io/pub/v/sentry_logging.svg)](https://pub.dev/packages/sentry_logging) | [![likes](https://img.shields.io/pub/likes/sentry_logging)](https://pub.dev/packages/sentry_logging/score) | [![popularity](https://img.shields.io/pub/popularity/sentry_logging)](https://pub.dev/packages/sentry_logging/score) | [![pub points](https://img.shields.io/pub/points/sentry_logging)](https://pub.dev/packages/sentry_logging/score)
 
 Integration for the [`logging`](https://pub.dev/packages/logging) package.
 
 #### Usage
 
-- Sign up for a Sentry.io account and get a DSN at http://sentry.io.
+- Sign up for a Sentry.io account and get a DSN at https://sentry.io.
 
 - Follow the installing instructions on [pub.dev](https://pub.dev/packages/sentry/install).
 

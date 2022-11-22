@@ -33,7 +33,7 @@ final fakeEvent = SentryEvent(
     username: 'first-user',
     email: 'first@user.lan',
     ipAddress: '127.0.0.1',
-    extras: <String, String>{'first-sign-in': '2020-01-01'},
+    data: <String, String>{'first-sign-in': '2020-01-01'},
   ),
   breadcrumbs: [
     Breadcrumb(
@@ -129,6 +129,7 @@ typedef EventProcessorFunction = FutureOr<SentryEvent?>
 var fakeEnvelope = SentryEnvelope.fromEvent(
   fakeEvent,
   SdkVersion(name: 'sdk1', version: '1.0.0'),
+  dsn: fakeDsn,
 );
 
 class MockRateLimiter implements RateLimiter {

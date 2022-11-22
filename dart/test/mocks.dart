@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:sentry/sentry.dart';
+import 'package:sentry/sentry_private.dart';
 import 'package:sentry/src/transport/rate_limiter.dart';
 
 final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
@@ -33,7 +34,7 @@ final fakeEvent = SentryEvent(
     username: 'first-user',
     email: 'first@user.lan',
     ipAddress: '127.0.0.1',
-    extras: <String, String>{'first-sign-in': '2020-01-01'},
+    data: <String, String>{'first-sign-in': '2020-01-01'},
   ),
   breadcrumbs: [
     Breadcrumb(
@@ -127,7 +128,10 @@ typedef EventProcessorFunction = FutureOr<SentryEvent?>
     Function(SentryEvent event, {dynamic hint});
 
 var fakeEnvelope = SentryEnvelope.fromEvent(
-    fakeEvent, SdkVersion(name: 'sdk1', version: '1.0.0'));
+  fakeEvent,
+  SdkVersion(name: 'sdk1', version: '1.0.0'),
+  dsn: fakeDsn,
+);
 
 class MockRateLimiter implements RateLimiter {
   bool filterReturnsNull = false;
@@ -153,5 +157,25 @@ class MockRateLimiter implements RateLimiter {
     this.sentryRateLimitHeader = sentryRateLimitHeader;
     this.retryAfterHeader = retryAfterHeader;
     this.errorCode = errorCode;
+  }
+}
+
+enum MockAttachmentProcessorMode { filter, add }
+
+/// Filtering out all attachments.
+class MockAttachmentProcessor implements SentryClientAttachmentProcessor {
+  MockAttachmentProcessorMode mode;
+
+  MockAttachmentProcessor(this.mode);
+
+  @override
+  Future<List<SentryAttachment>> processAttachments(
+      List<SentryAttachment> attachments, SentryEvent event) async {
+    switch (mode) {
+      case MockAttachmentProcessorMode.filter:
+        return <SentryAttachment>[];
+      case MockAttachmentProcessorMode.add:
+        return <SentryAttachment>[SentryAttachment.fromIntList([], "added")];
+    }
   }
 }

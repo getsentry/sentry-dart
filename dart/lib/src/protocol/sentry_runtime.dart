@@ -16,6 +16,7 @@ class SentryRuntime {
     this.version,
     this.compiler,
     this.rawDescription,
+    this.build,
   }) : assert(key == null || key.length >= 1);
 
   /// Key used in the JSON and which will be displayed
@@ -40,12 +41,16 @@ class SentryRuntime {
   /// and version from this string, if they are not explicitly given.
   final String? rawDescription;
 
+  /// Application build string, if it is separate from the version.
+  final String? build;
+
   /// Deserializes a [SentryRuntime] from JSON [Map].
   factory SentryRuntime.fromJson(Map<String, dynamic> data) => SentryRuntime(
         name: data['name'],
         version: data['version'],
         compiler: data['compiler'],
         rawDescription: data['raw_description'],
+        build: data['build'],
       );
 
   /// Produces a [Map] that can be serialized to JSON.
@@ -55,6 +60,7 @@ class SentryRuntime {
       if (compiler != null) 'compiler': compiler,
       if (version != null) 'version': version,
       if (rawDescription != null) 'raw_description': rawDescription,
+      if (build != null) 'build': build,
     };
   }
 
@@ -64,6 +70,7 @@ class SentryRuntime {
         version: version,
         compiler: compiler,
         rawDescription: rawDescription,
+        build: build,
       );
 
   SentryRuntime copyWith({
@@ -72,6 +79,7 @@ class SentryRuntime {
     String? version,
     String? compiler,
     String? rawDescription,
+    String? build,
   }) =>
       SentryRuntime(
         key: key ?? this.key,
@@ -79,5 +87,6 @@ class SentryRuntime {
         version: version ?? this.version,
         compiler: compiler ?? this.compiler,
         rawDescription: rawDescription ?? this.rawDescription,
+        build: build ?? this.build,
       );
 }

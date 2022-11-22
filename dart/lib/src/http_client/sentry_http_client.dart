@@ -79,6 +79,7 @@ class SentryHttpClient extends BaseClient {
 
     if (_hub.options.isTracingEnabled()) {
       innerClient = TracingClient(client: innerClient, hub: _hub);
+      _hub.options.sdk.addIntegration('HTTPNetworkTracing');
     }
 
     // The ordering here matters.

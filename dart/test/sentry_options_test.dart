@@ -35,9 +35,13 @@ void main() {
 
   test('SentryLogger sets a diagnostic logger', () {
     final options = SentryOptions(dsn: fakeDsn);
+    // ignore: deprecated_member_use_from_same_package
+    expect(options.logger, noOpLogger);
+    // ignore: deprecated_member_use_from_same_package
     options.logger = dartLogger;
 
-    expect(false, options.logger == noOpLogger);
+    // ignore: deprecated_member_use_from_same_package
+    expect(options.logger, isNot(noOpLogger));
   });
 
   test('tracesSampler is null by default', () {

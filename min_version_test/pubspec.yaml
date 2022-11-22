@@ -30,12 +30,6 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
-  flutter:
-    sdk: flutter
-
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
   sentry:
   sentry_flutter:
   sentry_dio:
@@ -43,7 +37,13 @@ dev_dependencies:
   dio: ^4.0.0
   logging: ^1.0.2
 
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
 dependency_overrides:
+  flutter:
+    sdk: flutter
   sentry:
     path: ../dart
   sentry_flutter:
@@ -58,7 +58,6 @@ dependency_overrides:
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

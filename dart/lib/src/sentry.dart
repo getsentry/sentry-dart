@@ -3,9 +3,10 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import 'default_integrations.dart';
-import 'enricher/enricher_event_processor.dart';
+import 'event_processor/enricher/enricher_event_processor.dart';
 import 'environment/environment_variables.dart';
 import 'event_processor/deduplication_event_processor.dart';
+import 'event_processor/exception/exception_event_processor.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
 import 'integration.dart';
@@ -36,6 +37,7 @@ class Sentry {
   static Future<void> init(
     OptionsConfiguration optionsConfiguration, {
     AppRunner? appRunner,
+    @internal bool callAppRunnerInRunZonedGuarded = true,
     @internal SentryOptions? options,
   }) async {
     final sentryOptions = options ?? SentryOptions();
@@ -56,7 +58,7 @@ class Sentry {
       throw ArgumentError('DSN is required.');
     }
 
-    await _init(sentryOptions, appRunner);
+    await _init(sentryOptions, appRunner, callAppRunnerInRunZonedGuarded);
   }
 
   static Future<void> _initDefaultValues(
@@ -72,7 +74,8 @@ class Sentry {
       options.addIntegrationByIndex(0, IsolateErrorIntegration());
     }
 
-    options.addEventProcessor(getEnricherEventProcessor(options));
+    options.addEventProcessor(EnricherEventProcessor(options));
+    options.addEventProcessor(ExceptionEventProcessor(options));
     options.addEventProcessor(DeduplicationEventProcessor(options));
   }
 
@@ -96,7 +99,11 @@ class Sentry {
   }
 
   /// Initializes the SDK
-  static Future<void> _init(SentryOptions options, AppRunner? appRunner) async {
+  static Future<void> _init(
+    SentryOptions options,
+    AppRunner? appRunner,
+    bool callAppRunnerInRunZonedGuarded,
+  ) async {
     if (isEnabled) {
       options.logger(
         SentryLevel.warning,
@@ -113,21 +120,26 @@ class Sentry {
 
     // execute integrations after hub being enabled
     if (appRunner != null) {
-      var runIntegrationsAndAppRunner = () async {
-        final integrations =
-            options.integrations.where((i) => i is! RunZonedGuardedIntegration);
-        await _callIntegrations(integrations, options);
+      if (callAppRunnerInRunZonedGuarded) {
+        var runIntegrationsAndAppRunner = () async {
+          final integrations = options.integrations
+              .where((i) => i is! RunZonedGuardedIntegration);
+          await _callIntegrations(integrations, options);
+          await appRunner();
+        };
+
+        final runZonedGuardedIntegration =
+            RunZonedGuardedIntegration(runIntegrationsAndAppRunner);
+        options.addIntegrationByIndex(0, runZonedGuardedIntegration);
+
+        // RunZonedGuardedIntegration will run other integrations and appRunner
+        // runZonedGuarded so all exception caught in the error handler are
+        // handled
+        await runZonedGuardedIntegration(HubAdapter(), options);
+      } else {
+        await _callIntegrations(options.integrations, options);
         await appRunner();
-      };
-
-      final runZonedGuardedIntegration =
-          RunZonedGuardedIntegration(runIntegrationsAndAppRunner);
-      options.addIntegrationByIndex(0, runZonedGuardedIntegration);
-
-      // RunZonedGuardedIntegration will run other integrations and appRunner
-      // runZonedGuarded so all exception caught in the error handler are
-      // handled
-      await runZonedGuardedIntegration(HubAdapter(), options);
+      }
     } else {
       await _callIntegrations(options.integrations, options);
     }
@@ -168,6 +180,7 @@ class Sentry {
         withScope: withScope,
       );
 
+  /// Reports a [message] to Sentry.io.
   static Future<SentryId> captureMessage(
     String? message, {
     SentryLevel? level = SentryLevel.info,
@@ -185,6 +198,9 @@ class Sentry {
         withScope: withScope,
       );
 
+  /// Reports a [userFeedback] to Sentry.io.
+  ///
+  /// First capture an event and use the [SentryId] to create a [SentryUserFeedback]
   static Future<void> captureUserFeedback(SentryUserFeedback userFeedback) =>
       _hub.captureUserFeedback(userFeedback);
 
@@ -276,7 +292,7 @@ class Sentry {
         onFinish: onFinish,
       );
 
-  /// Gets the current active transaction or span.
+  /// Gets the current active transaction or span bound to the scope.
   static ISentrySpan? getSpan() => _hub.getSpan();
 
   @internal

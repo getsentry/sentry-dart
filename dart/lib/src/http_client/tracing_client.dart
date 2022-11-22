@@ -2,6 +2,7 @@ import 'package:http/http.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
 import '../protocol.dart';
+import '../tracing.dart';
 import '../utils/tracing_utils.dart';
 
 /// A [http](https://pub.dev/packages/http)-package compatible HTTP client
@@ -19,10 +20,15 @@ class TracingClient extends BaseClient {
   Future<StreamedResponse> send(BaseRequest request) async {
     // see https://develop.sentry.dev/sdk/performance/#header-sentry-trace
     final currentSpan = _hub.getSpan();
-    final span = currentSpan?.startChild(
+    var span = currentSpan?.startChild(
       'http.client',
       description: '${request.method} ${request.url}',
     );
+
+    // if the span is NoOp, we dont want to attach headers
+    if (span is NoOpSentrySpan) {
+      span = null;
+    }
 
     StreamedResponse? response;
     try {

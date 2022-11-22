@@ -379,7 +379,7 @@ void runTest({Codec<List<int>, List<int>?>? gzip, bool isWeb = false}) {
       username: 'username',
       email: 'email@email.com',
       ipAddress: '127.0.0.1',
-      extras: <String, String>{'foo': 'bar'},
+      data: <String, String>{'foo': 'bar'},
     );
 
     final options = SentryOptions(

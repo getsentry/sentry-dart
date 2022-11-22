@@ -7,12 +7,10 @@ import FlutterMacOS
 import AppKit
 #endif
 
-// swiftlint:disable file_length
+// swiftlint:disable file_length function_body_length
 
 // swiftlint:disable:next type_body_length
 public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
-
-    private var sentryOptions: Options?
 
     // The Cocoa SDK is init. after the notification didBecomeActiveNotification is registered.
     // We need to be able to receive this notification and start a session when the SDK is fully operational.
@@ -55,7 +53,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
     }
 
-    // swiftlint:disable:next cyclomatic_complexity function_body_length
+    // swiftlint:disable:next cyclomatic_complexity
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method as String {
         case "loadContexts":
@@ -167,13 +165,14 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
                 infos["user"] = ["id": PrivateSentrySDKOnly.installationID]
             }
 
-            if let integrations = self.sentryOptions?.integrations {
+            if let integrations = PrivateSentrySDKOnly.options.integrations {
                 infos["integrations"] = integrations
             }
 
-            if let sdkInfo = self.sentryOptions?.sdkInfo {
-                infos["package"] = ["version": sdkInfo.version, "sdk_name": "cocoapods:sentry-cocoa"]
-            }
+            // Not reading the name from PrivateSentrySDKOnly.getSdkName because
+            // this is added as a package and packages should follow the sentry-release-registry format
+            infos["package"] = ["version": PrivateSentrySDKOnly.getSdkVersionString(),
+                "sdk_name": "cocoapods:sentry-cocoa"]
 
             result(infos)
         }
@@ -201,24 +200,22 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
                 #endif
             }
 
-            self.sentryOptions = options
-
             // note : for now, in sentry-cocoa, beforeSend is not called before captureEnvelope
             options.beforeSend = { event in
                 self.setEventOriginTag(event: event)
 
                 if var sdk = event.sdk, self.isValidSdk(sdk: sdk) {
-                    if let packages = arguments["packages"] as? [String] {
-                        if var sdkPackages = sdk["packages"] as? [String] {
-                            sdk["packages"] = sdkPackages.append(contentsOf: packages)
+                    if let packages = arguments["packages"] as? [[String: String]] {
+                        if let sdkPackages = sdk["packages"] as? [[String: String]] {
+                            sdk["packages"] = sdkPackages + packages
                         } else {
                             sdk["packages"] = packages
                         }
                     }
 
                     if let integrations = arguments["integrations"] as? [String] {
-                        if var sdkIntegrations = sdk["integrations"] as? [String] {
-                            sdk["integrations"] = sdkIntegrations.append(contentsOf: integrations)
+                        if let sdkIntegrations = sdk["integrations"] as? [String] {
+                            sdk["integrations"] = sdkIntegrations + integrations
                         } else {
                             sdk["integrations"] = integrations
                         }
@@ -231,7 +228,8 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         }
 
        if didReceiveDidBecomeActiveNotification &&
-          (sentryOptions?.enableAutoSessionTracking == true || sentryOptions?.enableOutOfMemoryTracking == true) {
+            (PrivateSentrySDKOnly.options.enableAutoSessionTracking ||
+             PrivateSentrySDKOnly.options.enableOutOfMemoryTracking) {
             // We send a SentryHybridSdkDidBecomeActive to the Sentry Cocoa SDK, so the SDK will mimics
             // the didBecomeActiveNotification notification. This is needed for session and OOM tracking.
            NotificationCenter.default.post(name: Notification.Name("SentryHybridSdkDidBecomeActive"), object: nil)
@@ -516,9 +514,23 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         if let ipAddress = user["ip_address"] as? String {
           userInstance.ipAddress = ipAddress
         }
+        if let segment = user["segment"] as? String {
+          userInstance.segment = segment
+        }
         if let extras = user["extras"] as? [String: Any] {
           userInstance.data = extras
         }
+        if let data = user["data"] as? [String: Any] {
+          if let oldData = userInstance.data {
+            userInstance.data = oldData.reduce(into: data) { (first, second) in first[second.0] = second.1 }
+          } else {
+            userInstance.data = data
+          }
+        }
+
+        // missing name and geo
+        // Should be solved by https://github.com/getsentry/team-mobile/issues/59
+        // or https://github.com/getsentry/team-mobile/issues/56
 
         SentrySDK.setUser(userInstance)
       } else {

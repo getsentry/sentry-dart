@@ -33,6 +33,8 @@ class SentryDioClientAdapter extends HttpClientAdapter {
     // ignore: invalid_use_of_internal_member
     if (_hub.options.isTracingEnabled()) {
       innerClient = TracingClientAdapter(client: innerClient, hub: _hub);
+      // ignore: invalid_use_of_internal_member
+      _hub.options.sdk.addIntegration('DioNetworkTracing');
     }
 
     // The ordering here matters.

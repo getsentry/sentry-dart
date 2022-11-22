@@ -7,6 +7,7 @@ import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 
 import 'package:meta/meta.dart';
+import 'package:sentry_flutter/src/renderer/renderer.dart';
 import 'package:sentry_flutter/src/sentry_native.dart';
 import 'package:sentry_flutter/src/sentry_native_channel.dart';
 
@@ -69,6 +70,10 @@ class MockPlatform with NoSuchMethodProvider implements Platform {
 
   factory MockPlatform.linux() {
     return MockPlatform(os: 'linux');
+  }
+
+  factory MockPlatform.fuchsia() {
+    return MockPlatform(os: 'fuchsia');
   }
 
   @override
@@ -222,5 +227,30 @@ class MockNativeChannel implements SentryNativeChannel {
   @override
   Future<void> setTag(String key, value) async {
     numberOfSetTagCalls += 1;
+  }
+}
+
+class MockRendererWrapper implements RendererWrapper {
+  MockRendererWrapper(this._renderer);
+
+  final FlutterRenderer _renderer;
+
+  @override
+  FlutterRenderer getRenderer() {
+    return _renderer;
+  }
+
+  @override
+  String getRendererAsString() {
+    switch (getRenderer()) {
+      case FlutterRenderer.skia:
+        return 'Skia';
+      case FlutterRenderer.canvasKit:
+        return 'CanvasKit';
+      case FlutterRenderer.html:
+        return 'HTML';
+      case FlutterRenderer.unknown:
+        return 'Unknown';
+    }
   }
 }

@@ -35,8 +35,7 @@ void main() {
   test('sets transaction overwrites span name', () {
     final sut = fixture.getSut();
 
-    final tracer = SentryTracer(fixture.context, MockHub());
-    sut.span = tracer;
+    sut.span = fixture.sentryTracer;
     sut.transaction = 'test';
 
     expect(sut.transaction, 'test');
@@ -46,11 +45,29 @@ void main() {
   test('sets span overwrites transaction name', () {
     final sut = fixture.getSut();
 
-    final tracer = SentryTracer(fixture.context, MockHub());
-    sut.span = tracer;
+    sut.span = fixture.sentryTracer;
 
     expect(sut.transaction, 'name');
     expect((sut.span as SentryTracer).name, 'name');
+  });
+
+  test('removing span resets transaction if not set separately', () {
+    final sut = fixture.getSut();
+
+    sut.span = fixture.sentryTracer;
+    sut.span = null;
+
+    expect(sut.transaction, isNull);
+  });
+
+  test('removing span does not reset transaction if set separately', () {
+    final sut = fixture.getSut();
+
+    sut.transaction = 'test';
+    sut.span = fixture.sentryTracer;
+    sut.span = null;
+
+    expect(sut.transaction, 'test');
   });
 
   test('sets $SentryUser', () {
@@ -366,7 +383,7 @@ void main() {
       username: 'first-user',
       email: 'first@user.lan',
       ipAddress: '127.0.0.1',
-      extras: const <String, String>{'first-sign-in': '2020-01-01'},
+      data: const <String, String>{'first-sign-in': '2020-01-01'},
     );
 
     final breadcrumb = Breadcrumb(message: 'Authenticated');
@@ -403,9 +420,9 @@ void main() {
     });
 
     test('apply trace context to event', () async {
-      final tracer = SentryTracer(fixture.context, MockHub());
       final event = SentryEvent();
-      final scope = Scope(SentryOptions(dsn: fakeDsn))..span = tracer;
+      final scope = Scope(SentryOptions(dsn: fakeDsn))
+        ..span = fixture.sentryTracer;
 
       final updatedEvent = await scope.applyToEvent(event);
 
@@ -537,6 +554,16 @@ void main() {
 
       expect(updatedEvent?.level, SentryLevel.error);
     });
+
+    test('should apply the scope transaction from the span', () async {
+      final event = SentryEvent();
+      final scope = Scope(SentryOptions(dsn: fakeDsn))
+        ..span = fixture.sentryTracer;
+
+      final updatedEvent = await scope.applyToEvent(event);
+
+      expect(updatedEvent?.transaction, 'name');
+    });
   });
 
   test('event processor drops the event', () async {
@@ -551,8 +578,7 @@ void main() {
   });
 
   test('should not apply fingerprint if transaction', () async {
-    final tracer = SentryTracer(fixture.context, MockHub());
-    var tr = SentryTransaction(tracer);
+    var tr = SentryTransaction(fixture.sentryTracer);
     final scope = Scope(SentryOptions(dsn: fakeDsn))..fingerprint = ['test'];
 
     final updatedTr = await scope.applyToEvent(tr);
@@ -561,8 +587,7 @@ void main() {
   });
 
   test('should not apply level if transaction', () async {
-    final tracer = SentryTracer(fixture.context, MockHub());
-    var tr = SentryTransaction(tracer);
+    var tr = SentryTransaction(fixture.sentryTracer);
     final scope = Scope(SentryOptions(dsn: fakeDsn))..level = SentryLevel.error;
 
     final updatedTr = await scope.applyToEvent(tr);
@@ -571,8 +596,7 @@ void main() {
   });
 
   test('apply sampled to trace', () async {
-    final tracer = SentryTracer(fixture.context, MockHub());
-    var tr = SentryTransaction(tracer);
+    var tr = SentryTransaction(fixture.sentryTracer);
     final scope = Scope(SentryOptions(dsn: fakeDsn))..level = SentryLevel.error;
 
     final updatedTr = await scope.applyToEvent(tr);
@@ -701,14 +725,18 @@ void main() {
 }
 
 class Fixture {
-  final context = SentryTransactionContext(
-    'name',
-    'op',
-    samplingDecision: SentryTracesSamplingDecision(true),
-  );
   final mockScopeObserver = MockScopeObserver();
 
   final options = SentryOptions(dsn: fakeDsn);
+
+  final sentryTracer = SentryTracer(
+    SentryTransactionContext(
+      'name',
+      'op',
+      samplingDecision: SentryTracesSamplingDecision(true),
+    ),
+    MockHub(),
+  );
 
   SentryLevel? loggedLevel;
   Object? loggedException;

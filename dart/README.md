@@ -10,7 +10,7 @@ Sentry SDK for Dart
 
 | package | build | pub | likes | popularity | pub points |
 | ------- | ------- | ------- | ------- | ------- | ------- |
-| sentry | [![build](https://github.com/getsentry/sentry-dart/workflows/sentry-dart/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=workflow%3Asentry-dart) | [![pub package](https://img.shields.io/pub/v/sentry.svg)](https://pub.dev/packages/sentry) | [![likes](https://badges.bar/sentry/likes)](https://pub.dev/packages/sentry/score) | [![popularity](https://badges.bar/sentry/popularity)](https://pub.dev/packages/sentry/score) | [![pub points](https://badges.bar/sentry/pub%20points)](https://pub.dev/packages/sentry/score)
+| sentry | [![build](https://github.com/getsentry/sentry-dart/workflows/sentry-dart/badge.svg?branch=main)](https://github.com/getsentry/sentry-dart/actions?query=workflow%3Asentry-dart) | [![pub package](https://img.shields.io/pub/v/sentry.svg)](https://pub.dev/packages/sentry) | [![likes](https://img.shields.io/pub/likes/sentry)](https://pub.dev/packages/sentry/score) | [![popularity](https://img.shields.io/pub/popularity/sentry)](https://img.shields.io/pub/sentry) | [![pub points](https://img.shields.io/pub/points/sentry)](https://pub.dev/packages/sentry/score)
 
 Pure Dart SDK used by any Dart application like AngularDart, CLI and Server.
 
@@ -21,7 +21,7 @@ That will give you native crash support (for Android and iOS), [release health](
 
 #### Usage
 
-- Sign up for a Sentry.io account and get a DSN at http://sentry.io.
+- Sign up for a Sentry.io account and get a DSN at https://sentry.io.
 
 - Follow the installing instructions on [pub.dev](https://pub.dev/packages/sentry/install).
 
