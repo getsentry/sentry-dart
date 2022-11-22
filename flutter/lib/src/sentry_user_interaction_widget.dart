@@ -39,7 +39,7 @@ class _SentryUserInteractionWidgetState
     extends State<SentryUserInteractionWidget> {
   int? _lastPointerId;
   Offset? _lastPointerDownLocation;
-  Widget? _lastWidget;
+  TappedWidget? _lastTappedWidget;
   ISentrySpan? _activeTransaction;
 
   Hub get _hub => widget._hub;
@@ -82,9 +82,18 @@ class _SentryUserInteractionWidgetState
 
   void _onTappedAt(Offset position) {
     final tappedWidget = _getElementAt(position);
-    if (tappedWidget == null || tappedWidget.keyValue == null) {
+    final keyValue = tappedWidget?.keyValue;
+    if (tappedWidget == null || keyValue == null) {
       return;
     }
+    final element = tappedWidget.element;
+
+    // String? currentRouteName;
+    // if (element is StatefulElement) {
+    //   currentRouteName = ModalRoute.of(element.state.context)?.settings.name;
+    // } else if (element is StatelessElement) {
+
+    // }
 
     Map<String, dynamic>? data;
     // ignore: invalid_use_of_internal_member
@@ -99,12 +108,12 @@ class _SentryUserInteractionWidgetState
     if (_options?.enableUserInteractionBreadcrumbs ?? false) {
       final crumb = Breadcrumb.userInteraction(
         subCategory: category,
-        viewId: tappedWidget.keyValue,
+        viewId: keyValue,
         // viewClass: tappedWidget.element.widget.runtimeType.toString(),
         viewClass: tappedWidget.type, // to avoid minification
         data: data,
       );
-      _hub.addBreadcrumb(crumb, hint: tappedWidget.element.widget);
+      _hub.addBreadcrumb(crumb, hint: element.widget);
     }
 
     // ignore: invalid_use_of_internal_member
@@ -115,16 +124,15 @@ class _SentryUserInteractionWidgetState
 
     // TODO: name should be screenName.widgetName, maybe get from router?
     final transactionContext = SentryTransactionContext(
-      tappedWidget.keyValue!,
+      keyValue,
       'ui.action.$category',
       transactionNameSource: SentryTransactionNameSource.component,
     );
 
-    // TODO: check if when starting a new child, the timer is reset
-    // TODO: check the type of the event in the widget
     final activeTransaction = _activeTransaction;
     if (activeTransaction != null) {
-      if (_lastWidget == tappedWidget.element.widget &&
+      if (_lastTappedWidget?.element.widget == element.widget &&
+          _lastTappedWidget?.eventType == tappedWidget.eventType &&
           !activeTransaction.finished) {
         // ignore: invalid_use_of_internal_member
         activeTransaction.scheduleFinish();
@@ -137,11 +145,11 @@ class _SentryUserInteractionWidgetState
           }
         });
         _activeTransaction = null;
-        _lastWidget = null;
+        _lastTappedWidget = null;
       }
     }
 
-    _lastWidget = tappedWidget.element.widget;
+    _lastTappedWidget = tappedWidget;
 
     bool hasRunningTransaction = false;
     _hub.configureScope((scope) {
@@ -259,6 +267,7 @@ class _SentryUserInteractionWidgetState
           element: element,
           description: _findDescriptionOf(element, true),
           type: 'ButtonStyleButton',
+          eventType: 'onClick',
         );
       }
     } else if (widget is MaterialButton) {
@@ -267,6 +276,7 @@ class _SentryUserInteractionWidgetState
           element: element,
           description: _findDescriptionOf(element, true),
           type: 'MaterialButton',
+          eventType: 'onClick',
         );
       }
     } else if (widget is CupertinoButton) {
@@ -275,6 +285,7 @@ class _SentryUserInteractionWidgetState
           element: element,
           description: _findDescriptionOf(element, true),
           type: 'CupertinoButton',
+          eventType: 'onPressed',
         );
       }
     } else if (widget is InkWell) {
@@ -283,6 +294,7 @@ class _SentryUserInteractionWidgetState
           element: element,
           description: _findDescriptionOf(element, false),
           type: 'InkWell',
+          eventType: 'onTap',
         );
       }
     } else if (widget is IconButton) {
@@ -291,6 +303,7 @@ class _SentryUserInteractionWidgetState
           element: element,
           description: _findDescriptionOf(element, false),
           type: 'IconButton',
+          eventType: 'onPressed',
         );
       }
     } else if (widget is GestureDetector) {
@@ -299,6 +312,7 @@ class _SentryUserInteractionWidgetState
           element: element,
           description: '',
           type: 'GestureDetector',
+          eventType: 'onTap',
         );
       }
     }

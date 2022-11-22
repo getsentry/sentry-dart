@@ -4,11 +4,13 @@ class TappedWidget {
   final Element element;
   final String description;
   final String type;
+  final String eventType;
 
   const TappedWidget({
     required this.element,
     required this.description,
     required this.type,
+    required this.eventType,
   });
 
   String? get keyValue {
