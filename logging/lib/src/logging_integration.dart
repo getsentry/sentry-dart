@@ -58,14 +58,14 @@ class LoggingIntegration extends Integration<SentryOptions> {
       await _hub.captureEvent(
         record.toEvent(),
         stackTrace: record.stackTrace,
-        hint: Hint.fromMap({'record': record}),
+        hint: Hint.withMap({'record': record}),
       );
     }
 
     if (_isLoggable(record.level, _minBreadcrumbLevel)) {
       await _hub.addBreadcrumb(
         record.toBreadcrumb(),
-        hint: Hint.fromMap({'record': record}),
+        hint: Hint.withMap({'record': record}),
       );
     }
   }

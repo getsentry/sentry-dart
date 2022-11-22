@@ -2,8 +2,8 @@ import 'package:sentry/src/hint.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('Hint init from map', () {
-    final hint = Hint.fromMap({'fixture-key': 'fixture-value'});
+  test('Hint init with map', () {
+    final hint = Hint.withMap({'fixture-key': 'fixture-value'});
     expect("fixture-value", hint.get("fixture-key"));
   });
 

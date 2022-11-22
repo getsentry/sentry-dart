@@ -188,7 +188,7 @@ class FailedRequestClient extends BaseClient {
     await _hub.captureEvent(
       event,
       stackTrace: stackTrace,
-      hint: Hint.fromMap(
+      hint: Hint.withMap(
           {'request': request, 'requestDuration': requestDuration}),
     );
   }
