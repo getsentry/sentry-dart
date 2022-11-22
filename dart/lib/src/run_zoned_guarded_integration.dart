@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'hint.dart';
 import 'hub.dart';
 import 'integration.dart';
 import 'protocol.dart';
@@ -87,14 +86,6 @@ class RunZonedGuardedIntegration extends Integration {
               Breadcrumb.console(
                 message: line,
                 level: SentryLevel.debug,
-              ),
-              hint: Hint.fromMap(
-                {
-                  'self': self,
-                  'parent': parent,
-                  'zone': zone,
-                  'line': line,
-                },
               ),
             );
 
