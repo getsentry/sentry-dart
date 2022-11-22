@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 
-import 'default_integrations.dart';
+import 'run_zoned_guarded_integration.dart';
 import 'event_processor/enricher/enricher_event_processor.dart';
 import 'environment/environment_variables.dart';
 import 'event_processor/deduplication_event_processor.dart';
