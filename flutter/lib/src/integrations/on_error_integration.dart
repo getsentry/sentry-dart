@@ -39,9 +39,6 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
     final wrapper = dispatchWrapper ??
         PlatformDispatcherWrapper(binding.platformDispatcher);
 
-    if (!wrapper.isOnErrorSupported(options)) {
-      return;
-    }
     _defaultOnError = wrapper.onError;
 
     _integrationOnError = (Object exception, StackTrace stackTrace) {
@@ -60,6 +57,8 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
       var event = SentryEvent(
         throwable: throwableMechanism,
         level: SentryLevel.fatal,
+        // ignore: invalid_use_of_internal_member
+        timestamp: options.clock(),
       );
 
       // unawaited future

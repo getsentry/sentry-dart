@@ -160,11 +160,12 @@ void main() {
 
       final timestamp = DateTime.utc(2019);
       final user = SentryUser(
-          id: 'user_id',
-          username: 'username',
-          email: 'email@email.com',
-          ipAddress: '127.0.0.1',
-          extras: const <String, String>{'foo': 'bar'});
+        id: 'user_id',
+        username: 'username',
+        email: 'email@email.com',
+        ipAddress: '127.0.0.1',
+        data: const <String, String>{'foo': 'bar'},
+      );
 
       final breadcrumbs = [
         Breadcrumb(
@@ -248,7 +249,7 @@ void main() {
             'username': 'username',
             'email': 'email@email.com',
             'ip_address': '127.0.0.1',
-            'extras': {'foo': 'bar'}
+            'data': {'foo': 'bar'}
           },
           'breadcrumbs': {
             {

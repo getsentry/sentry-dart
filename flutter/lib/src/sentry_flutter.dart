@@ -1,20 +1,21 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
-import 'package:sentry/sentry.dart';
+import '../sentry_flutter.dart';
 import 'event_processor/android_platform_exception_event_processor.dart';
+import 'event_processor/flutter_exception_event_processor.dart';
+import 'integrations/screenshot_integration.dart';
 import 'native_scope_observer.dart';
+import 'renderer/renderer.dart';
 import 'sentry_native.dart';
 import 'sentry_native_channel.dart';
 
-import 'flutter_enricher_event_processor.dart';
-import 'integrations/debug_print_integration.dart';
-import 'integrations/native_app_start_integration.dart';
-import 'sentry_flutter_options.dart';
+import 'integrations/integrations.dart';
+import 'event_processor/flutter_enricher_event_processor.dart';
 
-import 'default_integrations.dart';
 import 'file_system_transport.dart';
 
 import 'version.dart';
@@ -32,22 +33,31 @@ mixin SentryFlutter {
     AppRunner? appRunner,
     @internal MethodChannel channel = _channel,
     @internal PlatformChecker? platformChecker,
+    @internal RendererWrapper? rendererWrapper,
   }) async {
     final flutterOptions = SentryFlutterOptions();
 
     if (platformChecker != null) {
       flutterOptions.platformChecker = platformChecker;
     }
+    if (rendererWrapper != null) {
+      flutterOptions.rendererWrapper = rendererWrapper;
+    }
 
     final nativeChannel = SentryNativeChannel(channel, flutterOptions);
     final native = SentryNative();
     native.setNativeChannel(nativeChannel);
+
+    final platformDispatcher = PlatformDispatcher.instance;
+    final wrapper = PlatformDispatcherWrapper(platformDispatcher);
+    final isOnErrorSupported = wrapper.isOnErrorSupported(flutterOptions);
 
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
     final defaultIntegrations = _createDefaultIntegrations(
       channel,
       flutterOptions,
+      isOnErrorSupported,
     );
     for (final defaultIntegration in defaultIntegrations) {
       flutterOptions.addIntegration(defaultIntegration);
@@ -62,6 +72,8 @@ mixin SentryFlutter {
       appRunner: appRunner,
       // ignore: invalid_use_of_internal_member
       options: flutterOptions,
+      // ignore: invalid_use_of_internal_member
+      callAppRunnerInRunZonedGuarded: !isOnErrorSupported,
     );
   }
 
@@ -69,6 +81,8 @@ mixin SentryFlutter {
     SentryFlutterOptions options,
     MethodChannel channel,
   ) async {
+    options.addEventProcessor(FlutterExceptionEventProcessor());
+
     // Not all platforms have a native integration.
     if (options.platformChecker.hasNativeIntegration) {
       options.transport = FileSystemTransport(channel, options);
@@ -92,6 +106,7 @@ mixin SentryFlutter {
   static List<Integration> _createDefaultIntegrations(
     MethodChannel channel,
     SentryFlutterOptions options,
+    bool isOnErrorSupported,
   ) {
     final integrations = <Integration>[];
     final platformChecker = options.platformChecker;
@@ -99,6 +114,11 @@ mixin SentryFlutter {
 
     // Will call WidgetsFlutterBinding.ensureInitialized() before all other integrations.
     integrations.add(WidgetsFlutterBindingIntegration());
+
+    // Use PlatformDispatcher.onError instead of zones.
+    if (isOnErrorSupported) {
+      integrations.add(OnErrorIntegration());
+    }
 
     // Will catch any errors that may occur in the Flutter framework itself.
     integrations.add(FlutterErrorIntegration());
@@ -124,6 +144,11 @@ mixin SentryFlutter {
         !platformChecker.isWeb &&
         (platform.isAndroid || platform.isIOS || platform.isMacOS)) {
       integrations.add(LoadImageListIntegration(channel));
+    }
+    final renderer = options.rendererWrapper.getRenderer();
+    if (renderer == FlutterRenderer.skia ||
+        renderer == FlutterRenderer.canvasKit) {
+      integrations.add(ScreenshotIntegration());
     }
 
     integrations.add(DebugPrintIntegration());

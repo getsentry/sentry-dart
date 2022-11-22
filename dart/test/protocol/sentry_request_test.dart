@@ -11,6 +11,7 @@ void main() {
     data: {'key': 'value'},
     headers: {'header_key': 'header_value'},
     env: {'env_key': 'env_value'},
+    // ignore: deprecated_member_use_from_same_package
     other: {'other_key': 'other_value'},
   );
 
@@ -74,5 +75,15 @@ void main() {
       expect('cookies1', copy.cookies);
       expect({'key1': 'value1'}, copy.data);
     });
+  });
+
+  test('SentryRequest.fromUri', () {
+    final request = SentryRequest.fromUri(
+      uri: Uri.parse('https://example.org/foo/bar?key=value#fragment'),
+    );
+
+    expect(request.url, 'https://example.org/foo/bar');
+    expect(request.fragment, 'fragment');
+    expect(request.queryString, 'key=value');
   });
 }

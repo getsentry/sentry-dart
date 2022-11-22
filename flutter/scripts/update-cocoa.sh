@@ -4,7 +4,7 @@ set -euo pipefail
 cd $(dirname "$0")/../ios
 file='sentry_flutter.podspec'
 content=$(cat $file)
-regex="('Sentry', *'~> *)([0-9\.]+)'"
+regex="('Sentry/HybridSDK', *)'([0-9\.]+)'"
 if ! [[ $content =~ $regex ]]; then
     echo "Failed to find the plugin version in $file"
     exit 1
@@ -18,7 +18,7 @@ get-repo)
     echo "https://github.com/getsentry/sentry-cocoa.git"
     ;;
 set-version)
-    newValue="${BASH_REMATCH[1]}$2'"
+    newValue="${BASH_REMATCH[1]}'$2'"
     echo "${content/${BASH_REMATCH[0]}/$newValue}" >$file
     ;;
 *)

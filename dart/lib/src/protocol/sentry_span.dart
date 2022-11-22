@@ -19,7 +19,7 @@ class SentrySpan extends ISentrySpan {
 
   SpanStatus? _status;
   final Map<String, String> _tags = {};
-  void Function({DateTime? endTimestamp})? _finishedCallback;
+  Function({DateTime? endTimestamp})? _finishedCallback;
 
   @override
   final SentryTracesSamplingDecision? samplingDecision;
@@ -32,7 +32,7 @@ class SentrySpan extends ISentrySpan {
     this.samplingDecision,
     Function({DateTime? endTimestamp})? finishedCallback,
   }) {
-    _startTimestamp = startTimestamp?.toUtc() ?? getUtcDateTime();
+    _startTimestamp = startTimestamp?.toUtc() ?? _hub.options.clock();
     _finishedCallback = finishedCallback;
   }
 
@@ -42,27 +42,27 @@ class SentrySpan extends ISentrySpan {
       return;
     }
 
-    final utcDateTime = getUtcDateTime();
-
     if (status != null) {
       _status = status;
     }
 
-    if (endTimestamp?.isBefore(_startTimestamp) ?? false) {
+    if (endTimestamp == null) {
+      _endTimestamp = _hub.options.clock();
+    } else if (endTimestamp.isBefore(_startTimestamp)) {
       _hub.options.logger(
         SentryLevel.warning,
         'End timestamp ($endTimestamp) cannot be before start timestamp ($_startTimestamp)',
       );
-      _endTimestamp = utcDateTime;
+      _endTimestamp = _hub.options.clock();
     } else {
-      _endTimestamp = endTimestamp?.toUtc() ?? utcDateTime;
+      _endTimestamp = endTimestamp.toUtc();
     }
 
     // associate error
     if (_throwable != null) {
       _hub.setSpanContext(_throwable, this, _tracer.name);
     }
-    _finishedCallback?.call(endTimestamp: _endTimestamp);
+    await _finishedCallback?.call(endTimestamp: _endTimestamp);
     return super.finish(status: status, endTimestamp: _endTimestamp);
   }
 

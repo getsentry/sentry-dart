@@ -111,23 +111,13 @@ class DioEventProcessor implements EventProcessor {
 
   SentryRequest? _requestFrom(DioError dioError) {
     final options = dioError.requestOptions;
-    // As far as I can tell there's no way to get the uri without the query part
-    // so we replace it with an empty string.
-    final urlWithoutQuery = options.uri.replace(query: '').toString();
-
-    final query = options.uri.query.isEmpty ? null : options.uri.query;
-
     final headers = options.headers
         .map((key, dynamic value) => MapEntry(key, value?.toString() ?? ''));
 
-    return SentryRequest(
+    return SentryRequest.fromUri(
+      uri: options.uri,
       method: options.method,
       headers: _options.sendDefaultPii ? headers : null,
-      url: urlWithoutQuery,
-      queryString: query,
-      cookies: _options.sendDefaultPii
-          ? options.headers['Cookie']?.toString()
-          : null,
       data: _getRequestData(dioError.requestOptions.data),
     );
   }
@@ -182,5 +172,19 @@ class DioEventProcessor implements EventProcessor {
       }
     }
     return null;
+  }
+
+  SentryResponse _responseFrom(DioError dioError) {
+    final response = dioError.response;
+
+    final headers = response?.headers.map.map(
+      (key, value) => MapEntry(key, value.join('; ')),
+    );
+
+    return SentryResponse(
+      headers: _options.sendDefaultPii ? headers : null,
+      bodySize: dioError.response?.data?.length as int?,
+      statusCode: response?.statusCode,
+    );
   }
 }

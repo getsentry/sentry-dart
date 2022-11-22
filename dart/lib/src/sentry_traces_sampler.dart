@@ -23,11 +23,20 @@ class SentryTracesSampler {
 
     final tracesSampler = _options.tracesSampler;
     if (tracesSampler != null) {
-      final result = tracesSampler(samplingContext);
-      if (result != null) {
-        return SentryTracesSamplingDecision(
-          _sample(result),
-          sampleRate: result,
+      try {
+        final result = tracesSampler(samplingContext);
+        if (result != null) {
+          return SentryTracesSamplingDecision(
+            _sample(result),
+            sampleRate: result,
+          );
+        }
+      } catch (exception, stackTrace) {
+        _options.logger(
+          SentryLevel.error,
+          'The tracesSampler callback threw an exception',
+          exception: exception,
+          stackTrace: stackTrace,
         );
       }
     }

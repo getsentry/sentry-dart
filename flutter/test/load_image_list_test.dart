@@ -3,6 +3,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/integrations/load_image_list_integration.dart';
 
 import 'mocks.dart';
 import 'sentry_flutter_test.dart';

@@ -33,21 +33,15 @@ class DebugMeta {
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{};
-
     final sdkInfo = sdk?.toJson();
-    if (sdkInfo?.isNotEmpty ?? false) {
-      json['sdk_info'] = sdkInfo;
-    }
-
-    if (_images?.isNotEmpty ?? false) {
-      json['images'] = _images!
-          .map((e) => e.toJson())
-          .where((element) => element.isNotEmpty)
-          .toList(growable: false);
-    }
-
-    return json;
+    return {
+      if (sdkInfo?.isNotEmpty ?? false) 'sdk_info': sdkInfo,
+      if (_images?.isNotEmpty ?? false)
+        'images': _images!
+            .map((e) => e.toJson())
+            .where((element) => element.isNotEmpty)
+            .toList(growable: false)
+    };
   }
 
   DebugMeta copyWith({

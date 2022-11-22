@@ -505,7 +505,7 @@ void main() {
         RouteSettings(name: name, arguments: arguments);
 
     test('Test recording of Breadcrumbs', () {
-      final hub = MockHub();
+      final hub = _MockHub();
       _whenAnyStart(hub, NoOpSentrySpan());
       final observer = fixture.getSut(hub: hub);
 
@@ -527,7 +527,7 @@ void main() {
     });
 
     test('No arguments', () {
-      final hub = MockHub();
+      final hub = _MockHub();
       _whenAnyStart(hub, NoOpSentrySpan());
       final observer = fixture.getSut(hub: hub);
 
@@ -549,7 +549,7 @@ void main() {
     });
 
     test('No arguments & no name', () {
-      final hub = MockHub();
+      final hub = _MockHub();
       _whenAnyStart(hub, NoOpSentrySpan());
       final observer = fixture.getSut(hub: hub);
 
@@ -573,7 +573,7 @@ void main() {
             pageBuilder: (_, __, ___) => Container(),
           );
 
-      final hub = MockHub();
+      final hub = _MockHub();
       final observer = fixture.getSut(hub: hub);
 
       final to = route();
@@ -649,7 +649,7 @@ void main() {
     });
 
     test('modifying route settings', () {
-      final hub = MockHub();
+      final hub = _MockHub();
       _whenAnyStart(hub, NoOpSentrySpan());
       final observer = fixture.getSut(
           hub: hub,
@@ -678,7 +678,7 @@ void main() {
     });
 
     test('add additional data', () {
-      final hub = MockHub();
+      final hub = _MockHub();
       _whenAnyStart(hub, NoOpSentrySpan());
       final observer = fixture.getSut(
           hub: hub,
@@ -753,7 +753,11 @@ class Fixture {
 }
 
 class _MockHub extends MockHub {
-  final Scope scope = Scope(SentryOptions(dsn: fakeDsn));
+  @override
+  final options = SentryOptions(dsn: fakeDsn);
+
+  late final scope = Scope(options);
+
   @override
   FutureOr<void> configureScope(ScopeCallback? callback) async {
     await callback?.call(scope);
@@ -764,4 +768,19 @@ ISentrySpan getMockSentryTracer({String? name}) {
   final tracer = MockSentryTracer();
   when(tracer.name).thenReturn(name ?? 'name');
   return tracer;
+}
+
+extension RouteSettingsExtensions on RouteSettings {
+  /// Creates a copy of this route settings object with the given fields
+  /// replaced with the new values.
+  /// Flutter 3.6 beta removed copyWith but we use it for testing
+  RouteSettings copyWith({
+    String? name,
+    Object? arguments,
+  }) {
+    return RouteSettings(
+      name: name ?? this.name,
+      arguments: arguments ?? this.arguments,
+    );
+  }
 }

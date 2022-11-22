@@ -15,6 +15,14 @@ env:
   SENTRY_DIST: 1
 
 jobs:
+  cancel-previous-workflow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@b173b6ec0100793626c2d9e6b90435061f4fc3e5 # pin@0.11.0
+        with:
+          access_token: ${{ github.token }}
+
   build:
     name: E2E
     runs-on: 'ubuntu-latest'
@@ -26,28 +34,18 @@ jobs:
       matrix:
         sdk: [stable, beta]
     steps:
-        - uses: dart-lang/setup-dart@v1
-          with:
-            sdk: ${{ matrix.sdk }}
-        - uses: actions/checkout@v3
-        - name: Run
-          if: env.SENTRY_AUTH_TOKEN != null
-          run: |
-            dart pub get
-            dart run --define=SENTRY_ENVIRONMENT=e2e
+      - uses: dart-lang/setup-dart@6a218f2413a3e78e9087f638a238f6b40893203d # pin@v1
+        with:
+          sdk: ${{ matrix.sdk }}
+      - uses: actions/checkout@v3
+      - name: Run
+        if: env.SENTRY_AUTH_TOKEN != null
+        run: |
+          dart pub get
+          dart run --define=SENTRY_ENVIRONMENT=e2e
 
   analyze:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    defaults:
-      run:
-        working-directory: ./e2e_test
-    steps:
-      - uses: dart-lang/setup-dart@v1
-        with:
-          sdk: stable
-      - uses: actions/checkout@v3
-      - run: |
-          dart pub get
-          dart analyze --fatal-infos
-          dart format --set-exit-if-changed ./
+    uses: ./.github/workflows/analyze.yml
+    with:
+      package: e2e_test
+      panaThreshold: 0

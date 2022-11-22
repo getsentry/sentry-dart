@@ -49,6 +49,7 @@ class RunZonedGuardedIntegration extends Integration {
         final event = SentryEvent(
           throwable: throwableMechanism,
           level: SentryLevel.fatal,
+          timestamp: hub.options.clock(),
         );
 
         await hub.captureEvent(event, stackTrace: stackTrace);

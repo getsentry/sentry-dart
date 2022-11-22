@@ -10,6 +10,14 @@ on:
       - 'dio/**'
 
 jobs:
+  cancel-previous-workflow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@b173b6ec0100793626c2d9e6b90435061f4fc3e5 # pin@0.11.0
+        with:
+          access_token: ${{ github.token }}
+
   build:
     name: Build ${{matrix.sdk}} on ${{matrix.os}}
     runs-on: ${{ matrix.os }}
@@ -27,83 +35,49 @@ jobs:
           - os: macos-latest
             sdk: beta
     steps:
-        - uses: dart-lang/setup-dart@v1
-          with:
-            sdk: ${{ matrix.sdk }}
-        - uses: actions/checkout@v3
-        # coverage with 'chrome' platform hangs the build
-        - name: Test (VM and browser)
-          if: runner.os != 'macOS'
-          run: |
-            dart pub get
-            dart test -p chrome --test-randomize-ordering-seed=random --chain-stack-traces
-            dart test -p vm --coverage=coverage --test-randomize-ordering-seed=random --chain-stack-traces
-            dart pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
+      - uses: dart-lang/setup-dart@6a218f2413a3e78e9087f638a238f6b40893203d # pin@v1
+        with:
+          sdk: ${{ matrix.sdk }}
+      - uses: actions/checkout@v3
+      # coverage with 'chrome' platform hangs the build
+      - name: Test (VM and browser)
+        if: runner.os != 'macOS'
+        run: |
+          dart pub get
+          dart test -p chrome --test-randomize-ordering-seed=random --chain-stack-traces
+          dart test -p vm --coverage=coverage --test-randomize-ordering-seed=random --chain-stack-traces
+          dart pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
 
-        - name: Install webdev
-          run: dart pub global activate webdev
+      - name: Install webdev
+        run: dart pub global activate webdev
 
-        - name: Build example
-          run: |
-            cd example
-            dart pub get
-            dart compile exe bin/example.dart
+      - name: Build example
+        run: |
+          cd example
+          dart pub get
+          dart compile exe bin/example.dart
 
-        # if condition because of: The pubspec.lock file has changed since the .dart_tool/package_config.json file was generated, please run "pub get" again.
-        - name: Build Web example
-          if: runner.os != 'Windows'
-          run: |
-            cd example_web
-            dart pub get
-            webdev build
+      # if condition because of: The pubspec.lock file has changed since the .dart_tool/package_config.json file was generated, please run "pub get" again.
+      - name: Build Web example
+        if: runner.os != 'Windows'
+        run: |
+          cd example_web
+          dart pub get
+          webdev build
 
-        - uses: codecov/codecov-action@v2
-          if: runner.os == 'Linux' && matrix.sdk == 'stable'
-          with:
-            name: sentry
-            files: ./dart/coverage/lcov.info
+      - uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70 # pin@v3
+        if: runner.os == 'Linux' && matrix.sdk == 'stable'
+        with:
+          name: sentry
+          files: ./dart/coverage/lcov.info
 
-        # 1.2.1
-        - uses: VeryGoodOpenSource/very_good_coverage@feed99cc060453828a8f12e74b404baace8e4502
-          if: runner.os == 'Linux' && matrix.sdk == 'stable'
-          with:
-            path: "./dart/coverage/lcov.info"
-            min_coverage: 85
+      - uses: VeryGoodOpenSource/very_good_coverage@84e5b54ab888644554e5573dca87d7f76dec9fb3 # pin@v2.0.0
+        if: runner.os == 'Linux' && matrix.sdk == 'stable'
+        with:
+          path: './dart/coverage/lcov.info'
+          min_coverage: 85
 
   analyze:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    defaults:
-      run:
-        working-directory: ./dart
-    steps:
-      - uses: dart-lang/setup-dart@v1
-        with:
-          sdk: stable
-      - uses: actions/checkout@v3
-      - run: |
-          dart pub get
-          dart analyze --fatal-infos
-          dart format --set-exit-if-changed ./
-
-  package-analysis:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - uses: actions/checkout@v3
-      - uses: axel-op/dart-package-analyzer@v3
-        id: analysis
-        with:
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
-          relativePath: dart/
-      - name: Check scores
-        env:
-          TOTAL: ${{ steps.analysis.outputs.total }}
-          TOTAL_MAX: ${{ steps.analysis.outputs.total_max }}
-        run: |
-          PERCENTAGE=$(( $TOTAL * 100 / $TOTAL_MAX ))
-          if (( $PERCENTAGE < 90 ))
-          then
-            echo Score too low!
-            exit 1
-          fi
+    uses: ./.github/workflows/analyze.yml
+    with:
+      package: dart

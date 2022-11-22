@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/client_report.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
@@ -194,6 +195,16 @@ void main() {
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
       expect(capturedEvent.threads?.first.stacktrace, isNull);
+    });
+
+    test('event envelope contains dsn', () async {
+      final client = fixture.getSut();
+      final event = SentryEvent();
+      await client.captureEvent(event);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+
+      expect(capturedEnvelope.header.dsn, fixture.options.dsn);
     });
   });
 
@@ -468,6 +479,16 @@ void main() {
 
       expect(id, SentryId.empty());
     });
+
+    test('transaction envelope contains dsn', () async {
+      final client = fixture.getSut();
+      final tr = SentryTransaction(fixture.tracer);
+      await client.captureTransaction(tr);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+
+      expect(capturedEnvelope.header.dsn, fixture.options.dsn);
+    });
   });
 
   group('SentryClient : apply scope to the captured event', () {
@@ -613,7 +634,7 @@ void main() {
       await scope.setUser(
         SentryUser(
           id: 'id',
-          extras: {
+          data: {
             'foo': 'bar',
             'bar': 'foo',
           },
@@ -623,7 +644,7 @@ void main() {
       var eventWithUser = event.copyWith(
         user: SentryUser(
           id: 'id',
-          extras: {
+          data: {
             'foo': 'this bar is more important',
             'event': 'Really important event'
           },
@@ -634,9 +655,9 @@ void main() {
       final capturedEnvelope = fixture.transport.envelopes.first;
       final capturedEvent = await eventFromEnvelope(capturedEnvelope);
 
-      expect(capturedEvent.user?.extras?['foo'], 'this bar is more important');
-      expect(capturedEvent.user?.extras?['bar'], 'foo');
-      expect(capturedEvent.user?.extras?['event'], 'Really important event');
+      expect(capturedEvent.user?.data?['foo'], 'this bar is more important');
+      expect(capturedEvent.user?.data?['bar'], 'foo');
+      expect(capturedEvent.user?.data?['event'], 'Really important event');
     });
   });
 
@@ -1040,6 +1061,45 @@ void main() {
     });
   });
 
+  group('SentryClientAttachmentProcessor', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('processor filtering out attachments', () async {
+      fixture.options.clientAttachmentProcessor =
+          MockAttachmentProcessor(MockAttachmentProcessorMode.filter);
+      final scope = Scope(fixture.options);
+      scope.addAttachment(SentryAttachment.fromIntList([], "scope-attachment"));
+      final sut = fixture.getSut();
+
+      final event = SentryEvent();
+      await sut.captureEvent(event, scope: scope);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
+          (element) => element.header.type == SentryItemType.attachment);
+      expect(attachmentItem, null);
+    });
+
+    test('processor adding attachments', () async {
+      fixture.options.clientAttachmentProcessor =
+          MockAttachmentProcessor(MockAttachmentProcessorMode.add);
+      final scope = Scope(fixture.options);
+      final sut = fixture.getSut();
+
+      final event = SentryEvent();
+      await sut.captureEvent(event, scope: scope);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
+          (element) => element.header.type == SentryItemType.attachment);
+      expect(attachmentItem != null, true);
+    });
+  });
+
   group('ClientReportRecorder', () {
     late Fixture fixture;
 
@@ -1209,6 +1269,20 @@ void main() {
 
       expect(fixture.recorder.reason, DiscardReason.sampleRate);
       expect(fixture.recorder.category, DataCategory.error);
+    });
+
+    test('user feedback envelope contains dsn', () async {
+      final client = fixture.getSut();
+      final event = SentryEvent();
+      final feedback = SentryUserFeedback(
+        eventId: event.eventId,
+        name: 'test',
+      );
+      await client.captureUserFeedback(feedback);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+
+      expect(capturedEnvelope.header.dsn, fixture.options.dsn);
     });
   });
 }

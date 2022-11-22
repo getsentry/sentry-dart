@@ -7,26 +7,34 @@ on:
   pull_request:
 
 jobs:
+  cancel-previous-workflow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@b173b6ec0100793626c2d9e6b90435061f4fc3e5 # pin@0.11.0
+        with:
+          access_token: ${{ github.token }}
+
   build:
     name: Build
     runs-on: macos-latest
     timeout-minutes: 30
 
     steps:
-        - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-        - uses: actions/setup-java@v3
-          with:
-            distribution: 'adopt'
-            java-version: '11'
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'adopt'
+          java-version: '11'
 
-        - uses: subosito/flutter-action@v2
-          with:
-            flutter-version: '2.0.0'
+      - uses: subosito/flutter-action@dbf1fa04f4d2e52c33185153d06cdb5443aa189d # pin@v2
+        with:
+          flutter-version: '2.0.0'
 
-        - name: Build
-          run: |
-            cd min_version_test
-            flutter pub get
-            flutter build ios --no-codesign
-            flutter build appbundle
+      - name: Build
+        run: |
+          cd min_version_test
+          flutter pub get
+          flutter build ios --no-codesign
+          flutter build appbundle

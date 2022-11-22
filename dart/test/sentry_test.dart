@@ -284,6 +284,31 @@ void main() {
     });
   });
 
+  test('should complete when appRunner is not called in runZonedGuarded',
+      () async {
+    final completer = Completer();
+    var completed = false;
+
+    final init = Sentry.init(
+      (options) {
+        options.dsn = fakeDsn;
+      },
+      appRunner: () => completer.future,
+      callAppRunnerInRunZonedGuarded: false,
+    ).whenComplete(() => completed = true);
+
+    await Future(() {
+      // We make the expectation only after all microtasks have completed,
+      // that Sentry.init might have scheduled.
+      expect(completed, false);
+    });
+
+    completer.complete();
+    await init;
+
+    expect(completed, true);
+  });
+
   test('options.environment debug', () async {
     final sentryOptions = SentryOptions(dsn: fakeDsn)
       ..platformChecker = FakePlatformChecker.debugMode();
@@ -317,20 +342,41 @@ void main() {
     }, options: sentryOptions);
   });
 
-  test('options.logger is not dartLogger after debug = false', () async {
+  test('options.logger is set by setting the debug flag', () async {
     final sentryOptions =
         SentryOptions(dsn: fakeDsn, checker: FakePlatformChecker.debugMode());
 
     await Sentry.init((options) {
       options.dsn = fakeDsn;
       options.debug = true;
-      expect(options.logger, dartLogger);
+      // ignore: deprecated_member_use_from_same_package
+      expect(options.logger, isNot(noOpLogger));
 
       options.debug = false;
+      // ignore: deprecated_member_use_from_same_package
       expect(options.logger, noOpLogger);
     }, options: sentryOptions);
 
-    expect(sentryOptions.logger == dartLogger, false);
+    // ignore: deprecated_member_use_from_same_package
+    expect(sentryOptions.logger, isNot(dartLogger));
+  });
+
+  group("Sentry init optionsConfiguration", () {
+    final fixture = Fixture();
+
+    test('throw is handled and logged', () async {
+      final sentryOptions = SentryOptions(dsn: fakeDsn)
+        ..debug = true
+        ..logger = fixture.mockLogger;
+
+      final exception = Exception("Exception in options callback");
+      await Sentry.init((options) async {
+        throw exception;
+      }, options: sentryOptions);
+
+      expect(fixture.loggedException, exception);
+      expect(fixture.loggedLevel, SentryLevel.error);
+    });
   });
 
   group("Sentry init optionsConfiguration", () {
