@@ -22,11 +22,12 @@ final _channel = const MethodChannel('example.flutter.sentry.io');
 
 Future<void> main() async {
   await setupSentry(() => runApp(
-        // SentryScreenshotWidget(
-        SentryUserInteractionWidget(
-          child: DefaultAssetBundle(
-            bundle: SentryAssetBundle(enableStructuredDataTracing: true),
-            child: MyApp(),
+        SentryScreenshotWidget(
+          child: SentryUserInteractionWidget(
+            child: DefaultAssetBundle(
+              bundle: SentryAssetBundle(enableStructuredDataTracing: true),
+              child: MyApp(),
+            ),
           ),
         ),
       ));
@@ -46,7 +47,7 @@ Future<void> setupSentry(AppRunner appRunner) async {
     options.reportSilentFlutterErrors = true;
     options.enableNdkScopeSync = true;
     options.enableUserInteractionTracing = true;
-    // options.attachScreenshot = true;
+    options.attachScreenshot = true;
 
     // We can enable Sentry debug logging during development. This is likely
     // going to log too much for your app, but can be useful when figuring out
@@ -211,11 +212,6 @@ class MainScaffold extends StatelessWidget {
               key: Key('dio_web_request'),
               onPressed: () async => await makeWebRequestWithDio(context),
               child: const Text('Dio: Web request'),
-            ),
-            ElevatedButton(
-              key: Key('dio_web_request_2'),
-              onPressed: () async => await makeWebRequestWithDio(context),
-              child: const Text('Dio: Web request 2'),
             ),
             ElevatedButton(
               key: Key('print_breadcrumb'),
