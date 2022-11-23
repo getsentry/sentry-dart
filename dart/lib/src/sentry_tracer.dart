@@ -19,6 +19,10 @@ class SentryTracer extends ISentrySpan {
 
   Timer? _autoFinishAfterTimer;
   Duration? _autoFinishAfter;
+
+  @visibleForTesting
+  Timer? get autoFinishAfterTimer => _autoFinishAfterTimer;
+
   Function(SentryTracer)? _onFinish;
   var _finishStatus = SentryTracerFinishStatus.notFinishing();
   late final bool _trimEnd;

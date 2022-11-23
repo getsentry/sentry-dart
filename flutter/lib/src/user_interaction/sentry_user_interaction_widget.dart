@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
-import '../sentry_flutter.dart';
-import 'widget_click/tapped_widget.dart';
+import '../../sentry_flutter.dart';
+import 'user_interaction_widget.dart';
 
 // Adapted from https://github.com/ueman/sentry-dart-tools/blob/8e41418c0f2c62dc88292cf32a4f22e79112b744/sentry_flutter_plus/lib/src/widgets/click_tracker.dart
 
@@ -39,7 +39,7 @@ class _SentryUserInteractionWidgetState
     extends State<SentryUserInteractionWidget> {
   int? _lastPointerId;
   Offset? _lastPointerDownLocation;
-  TappedWidget? _lastTappedWidget;
+  UserInteractionWidget? _lastTappedWidget;
   ISentrySpan? _activeTransaction;
 
   Hub get _hub => widget._hub;
@@ -218,7 +218,7 @@ class _SentryUserInteractionWidgetState
     return description;
   }
 
-  TappedWidget? _getElementAt(Offset position) {
+  UserInteractionWidget? _getElementAt(Offset position) {
     // WidgetsBinding.instance.renderViewElement does not work, so using
     // the element from createElement
     final rootElement = _clickTrackerElement;
@@ -226,7 +226,7 @@ class _SentryUserInteractionWidgetState
       return null;
     }
 
-    TappedWidget? tappedWidget;
+    UserInteractionWidget? tappedWidget;
 
     void elementFinder(Element element) {
       if (tappedWidget != null) {
@@ -258,12 +258,12 @@ class _SentryUserInteractionWidgetState
     return tappedWidget;
   }
 
-  TappedWidget? _getDescriptionFrom(Element element) {
+  UserInteractionWidget? _getDescriptionFrom(Element element) {
     final widget = element.widget;
     // Used by ElevatedButton, TextButton, OutlinedButton.
     if (widget is ButtonStyleButton) {
       if (widget.enabled) {
-        return TappedWidget(
+        return UserInteractionWidget(
           element: element,
           description: _findDescriptionOf(element, true),
           type: 'ButtonStyleButton',
@@ -272,7 +272,7 @@ class _SentryUserInteractionWidgetState
       }
     } else if (widget is MaterialButton) {
       if (widget.enabled) {
-        return TappedWidget(
+        return UserInteractionWidget(
           element: element,
           description: _findDescriptionOf(element, true),
           type: 'MaterialButton',
@@ -281,7 +281,7 @@ class _SentryUserInteractionWidgetState
       }
     } else if (widget is CupertinoButton) {
       if (widget.enabled) {
-        return TappedWidget(
+        return UserInteractionWidget(
           element: element,
           description: _findDescriptionOf(element, true),
           type: 'CupertinoButton',
@@ -290,7 +290,7 @@ class _SentryUserInteractionWidgetState
       }
     } else if (widget is InkWell) {
       if (widget.onTap != null) {
-        return TappedWidget(
+        return UserInteractionWidget(
           element: element,
           description: _findDescriptionOf(element, false),
           type: 'InkWell',
@@ -299,7 +299,7 @@ class _SentryUserInteractionWidgetState
       }
     } else if (widget is IconButton) {
       if (widget.onPressed != null) {
-        return TappedWidget(
+        return UserInteractionWidget(
           element: element,
           description: _findDescriptionOf(element, false),
           type: 'IconButton',
@@ -308,7 +308,7 @@ class _SentryUserInteractionWidgetState
       }
     } else if (widget is GestureDetector) {
       if (widget.onTap != null) {
-        return TappedWidget(
+        return UserInteractionWidget(
           element: element,
           description: '',
           type: 'GestureDetector',

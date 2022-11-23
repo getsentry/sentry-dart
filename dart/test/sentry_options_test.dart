@@ -95,4 +95,10 @@ void main() {
 
     expect(options.tracePropagationTargets, ['.*']);
   });
+
+  test('SentryOptions has default idleTimeout', () {
+    final options = SentryOptions.empty();
+
+    expect(options.idleTimeout?.inSeconds, Duration(seconds: 3).inSeconds);
+  });
 }
