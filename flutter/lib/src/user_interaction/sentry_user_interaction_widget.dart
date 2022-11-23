@@ -88,13 +88,6 @@ class _SentryUserInteractionWidgetState
     }
     final element = tappedWidget.element;
 
-    // String? currentRouteName;
-    // if (element is StatefulElement) {
-    //   currentRouteName = ModalRoute.of(element.state.context)?.settings.name;
-    // } else if (element is StatelessElement) {
-
-    // }
-
     Map<String, dynamic>? data;
     // ignore: invalid_use_of_internal_member
     if ((_options?.sendDefaultPii ?? false) &&
@@ -109,7 +102,6 @@ class _SentryUserInteractionWidgetState
       final crumb = Breadcrumb.userInteraction(
         subCategory: category,
         viewId: keyValue,
-        // viewClass: tappedWidget.element.widget.runtimeType.toString(),
         viewClass: tappedWidget.type, // to avoid minification
         data: data,
       );
@@ -122,7 +114,8 @@ class _SentryUserInteractionWidgetState
       return;
     }
 
-    // TODO: name should be screenName.widgetName, maybe get from router?
+    // getting the name of the screen using ModalRoute.of(context).settings.name
+    // is expensive, so we expect that the keys are unique across the app
     final transactionContext = SentryTransactionContext(
       keyValue,
       'ui.action.$category',
