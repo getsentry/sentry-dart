@@ -10,6 +10,26 @@ import 'user_interaction_widget.dart';
 const _tapDeltaArea = 20 * 20;
 Element? _clickTrackerElement;
 
+/// Enables the Auto instrumentation for user interaction tracing.
+/// It starts a transaction and finishes after the timeout.
+/// It adds a breadcrumb as well.
+///
+/// It's supported by the most common [Widget], for example:
+/// [ButtonStyleButton], [MaterialButton], [CupertinoButton], [InkWell],
+/// [IconButton] and [GestureDetector].
+/// Mostly for onPressed, onTap, and onLongPress events
+///
+/// Example on how to set up:
+/// runApp(SentryUserInteractionWidget(child: App()));
+///
+/// For transactions, enable it in the [SentryFlutterOptions.enableUserInteractionTracing].
+/// The idle timeout can be configured in the [SentryOptions.idleTimeout].
+///
+/// For breadcrumbs, disable it in the [SentryFlutterOptions.enableUserInteractionBreadcrumbs].
+///
+/// If you are using the [SentryScreenshotWidget] as well, make sure to add
+/// [SentryUserInteractionWidget] as a child of [SentryScreenshotWidget].
+@experimental
 class SentryUserInteractionWidget extends StatefulWidget {
   SentryUserInteractionWidget({
     Key? key,
