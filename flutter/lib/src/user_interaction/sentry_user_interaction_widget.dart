@@ -16,7 +16,7 @@ Element? _clickTrackerElement;
 ///
 /// It's supported by the most common [Widget], for example:
 /// [ButtonStyleButton], [MaterialButton], [CupertinoButton], [InkWell],
-/// [IconButton] and [GestureDetector].
+/// and [IconButton].
 /// Mostly for onPressed, onTap, and onLongPress events
 ///
 /// Example on how to set up:
@@ -37,11 +37,19 @@ class SentryUserInteractionWidget extends StatefulWidget {
     @internal Hub? hub,
   }) : super(key: key) {
     _hub = hub ?? HubAdapter();
+
+    if (_options?.enableUserInteractionTracing ?? false) {
+      _options?.sdk.addIntegration('UserInteractionTracing');
+    }
   }
 
   final Widget child;
 
   late final Hub _hub;
+
+  SentryFlutterOptions? get _options =>
+      // ignore: invalid_use_of_internal_member
+      _hub.options as SentryFlutterOptions?;
 
   @override
   StatefulElement createElement() {
@@ -64,14 +72,11 @@ class _SentryUserInteractionWidgetState
 
   Hub get _hub => widget._hub;
 
-  SentryFlutterOptions? get _options =>
-      // ignore: invalid_use_of_internal_member
-      _hub.options as SentryFlutterOptions?;
+  SentryFlutterOptions? get _options => widget._options;
 
   @override
   Widget build(BuildContext context) {
     return Listener(
-      behavior: HitTestBehavior.translucent,
       onPointerDown: _onPointerDown,
       onPointerUp: _onPointerUp,
       child: widget.child,
@@ -259,6 +264,7 @@ class _SentryUserInteractionWidgetState
       if (!paintBounds.contains(position)) {
         return;
       }
+
       tappedWidget = _getDescriptionFrom(element);
 
       if (tappedWidget == null) {
@@ -317,15 +323,6 @@ class _SentryUserInteractionWidgetState
           description: _findDescriptionOf(element, false),
           type: 'IconButton',
           eventType: 'onPressed',
-        );
-      }
-    } else if (widget is GestureDetector) {
-      if (widget.onTap != null) {
-        return UserInteractionWidget(
-          element: element,
-          description: '',
-          type: 'GestureDetector',
-          eventType: 'onTap',
         );
       }
     }

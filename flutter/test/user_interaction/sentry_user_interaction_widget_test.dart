@@ -92,6 +92,22 @@ void main() {
         expect(crumbs?.isEmpty, true);
       });
     });
+
+    testWidgets(
+        'Add crumb for ElevatedButton within a GestureDetector with label',
+        (tester) async {
+      await tester.runAsync(() async {
+        final sut = fixture.getSut(sendDefaultPii: true);
+
+        await tapMe(tester, sut, 'btn_5');
+
+        Breadcrumb? crumb;
+        fixture.hub.configureScope((scope) {
+          crumb = scope.breadcrumbs.last;
+        });
+        expect(crumb?.data?['label'], 'Button 5');
+      });
+    });
   });
 
   group('$SentryUserInteractionWidget performance', () {
@@ -99,6 +115,34 @@ void main() {
     setUp(() async {
       fixture = Fixture();
       TestWidgetsFlutterBinding.ensureInitialized();
+    });
+
+    testWidgets('Adds integration if enabled', (tester) async {
+      await tester.runAsync(() async {
+        final sut = fixture.getSut(
+            enableUserInteractionTracing: true,
+            enableUserInteractionBreadcrumbs: false);
+
+        await tester.pumpWidget(sut);
+
+        expect(
+            fixture._options.sdk.integrations
+                .contains('UserInteractionTracing'),
+            true);
+      });
+    });
+
+    testWidgets('Do not add integration if disabled', (tester) async {
+      await tester.runAsync(() async {
+        final sut = fixture.getSut(enableUserInteractionBreadcrumbs: false);
+
+        await tester.pumpWidget(sut);
+
+        expect(
+            fixture._options.sdk.integrations
+                .contains('UserInteractionTracing'),
+            false);
+      });
     });
 
     testWidgets('Start transaction and set in the scope', (tester) async {
@@ -265,6 +309,26 @@ class MyApp extends StatelessWidget {
                   semanticLabel: 'My Icon',
                 ),
               ),
+              Card(
+                child: GestureDetector(
+                  key: Key('btn_4'),
+                  onTap: () => {
+                    // print('button pressed 4'),
+                  },
+                  child: Stack(
+                    children: [
+                      //fancy card layout
+                      ElevatedButton(
+                        key: Key('btn_5'),
+                        onPressed: () => {
+                          // print('button pressed 5'),
+                        },
+                        child: const Text('Button 5'),
+                      ),
+                    ],
+                  ),
+                ),
+              )
             ],
           ),
         ),
