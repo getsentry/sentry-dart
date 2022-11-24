@@ -77,6 +77,7 @@ class _SentryUserInteractionWidgetState
   @override
   Widget build(BuildContext context) {
     return Listener(
+      behavior: HitTestBehavior.translucent,
       onPointerDown: _onPointerDown,
       onPointerUp: _onPointerUp,
       child: widget.child,
