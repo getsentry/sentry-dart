@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Capture Future errors for Flutter Web automatically ([#1143](https://github.com/getsentry/sentry-dart/pull/1143))
+- Capture Future errors for Flutter Web automatically ([#1152](https://github.com/getsentry/sentry-dart/pull/1152))
 
 ## 6.16.1
 
