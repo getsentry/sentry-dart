@@ -71,4 +71,7 @@ abstract class ISentrySpan {
   /// Returns the trace context.
   @experimental
   SentryTraceContextHeader? traceContext();
+
+  @internal
+  void scheduleFinish();
 }

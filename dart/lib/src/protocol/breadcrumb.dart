@@ -81,6 +81,33 @@ class Breadcrumb {
     );
   }
 
+  factory Breadcrumb.userInteraction({
+    String? message,
+    SentryLevel? level,
+    DateTime? timestamp,
+    Map<String, dynamic>? data,
+    required String subCategory,
+    String? viewId,
+    String? viewClass,
+  }) {
+    final newData = data ?? {};
+    if (viewId != null) {
+      newData['view.id'] = viewId;
+    }
+    if (viewClass != null) {
+      newData['view.class'] = viewClass;
+    }
+
+    return Breadcrumb(
+      message: message,
+      level: level,
+      category: 'ui.$subCategory',
+      type: 'user',
+      timestamp: timestamp,
+      data: newData,
+    );
+  }
+
   /// Describes the breadcrumb.
   ///
   /// This field is optional and may be set to null.

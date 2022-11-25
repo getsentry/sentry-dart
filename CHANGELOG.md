@@ -6,6 +6,10 @@
 
 - Capture Future errors for Flutter Web automatically ([#1152](https://github.com/getsentry/sentry-dart/pull/1152))
 
+### Features
+
+- User Interaction transactions and breadcrumbs ([#1137](https://github.com/getsentry/sentry-dart/pull/1137))
+
 ## 6.16.1
 
 ### Fixes
