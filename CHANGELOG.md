@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Capture Future errors for Flutter Web automatically ([#1143](https://github.com/getsentry/sentry-dart/pull/1143))
+
 ## 6.16.1
 
 ### Fixes
