@@ -124,26 +124,6 @@ class MainScaffold extends StatelessWidget {
         child: Column(
           children: [
             const Center(child: Text('Trigger an action:\n')),
-            Card(
-              child: GestureDetector(
-                key: Key('btn_4'),
-                onTap: () => {
-                  print('Button 4'),
-                },
-                child: Stack(
-                  children: [
-                    //fancy card layout
-                    ElevatedButton(
-                      key: Key('btn_5'),
-                      onPressed: () => {
-                        print('button pressed 5'),
-                      },
-                      child: const Text('Button 5'),
-                    ),
-                  ],
-                ),
-              ),
-            ),
             ElevatedButton(
               onPressed: () => SecondaryScaffold.openSecondaryScaffold(context),
               child: const Text('Open another Scaffold'),
