@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- User Interaction transactions and breadcrumbs ([#1137](https://github.com/getsentry/sentry-dart/pull/1137))
+
 ## 6.16.1
 
 ### Fixes

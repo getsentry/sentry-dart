@@ -86,4 +86,7 @@ class NoOpSentrySpan extends ISentrySpan {
 
   @override
   SentryTracesSamplingDecision? get samplingDecision => null;
+
+  @override
+  void scheduleFinish() {}
 }
