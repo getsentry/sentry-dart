@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -13,10 +15,13 @@ import 'sentry_flutter_util.dart';
 /// They don't depend on the underlying platform.
 final platformAgnosticIntegrations = [
   WidgetsFlutterBindingIntegration,
-  OnErrorIntegration,
   FlutterErrorIntegration,
   LoadReleaseIntegration,
   DebugPrintIntegration,
+];
+
+final nonWebIntegrations = [
+  OnErrorIntegration,
 ];
 
 // These should only be added to Android
@@ -69,6 +74,7 @@ void main() {
             ...androidIntegrations,
             ...nativeIntegrations,
             ...platformAgnosticIntegrations,
+            ...nonWebIntegrations,
           ],
           shouldNotHaveIntegrations: iOsAndMacOsIntegrations);
 
@@ -109,6 +115,7 @@ void main() {
           ...iOsAndMacOsIntegrations,
           ...nativeIntegrations,
           ...platformAgnosticIntegrations,
+          ...nonWebIntegrations,
         ],
         shouldNotHaveIntegrations: androidIntegrations,
       );
@@ -147,6 +154,7 @@ void main() {
           ...iOsAndMacOsIntegrations,
           ...nativeIntegrations,
           ...platformAgnosticIntegrations,
+          ...nonWebIntegrations,
         ],
         shouldNotHaveIntegrations: androidIntegrations,
       );
@@ -181,7 +189,10 @@ void main() {
 
       testConfiguration(
         integrations: integrations,
-        shouldHaveIntegrations: platformAgnosticIntegrations,
+        shouldHaveIntegrations: [
+          ...platformAgnosticIntegrations,
+          ...nonWebIntegrations,
+        ],
         shouldNotHaveIntegrations: [
           ...androidIntegrations,
           ...iOsAndMacOsIntegrations,
@@ -219,7 +230,10 @@ void main() {
 
       testConfiguration(
         integrations: integrations,
-        shouldHaveIntegrations: platformAgnosticIntegrations,
+        shouldHaveIntegrations: [
+          ...platformAgnosticIntegrations,
+          ...nonWebIntegrations,
+        ],
         shouldNotHaveIntegrations: [
           ...androidIntegrations,
           ...iOsAndMacOsIntegrations,
@@ -265,13 +279,14 @@ void main() {
           ...androidIntegrations,
           ...iOsAndMacOsIntegrations,
           ...nativeIntegrations,
+          ...nonWebIntegrations,
         ],
       );
 
       testBefore(
-          integrations: integrations,
-          beforeIntegration: WidgetsFlutterBindingIntegration,
-          afterIntegration: OnErrorIntegration);
+          integrations: Sentry.currentHub.options.integrations,
+          beforeIntegration: RunZonedGuardedIntegration,
+          afterIntegration: WidgetsFlutterBindingIntegration);
 
       await Sentry.close();
     });
@@ -308,13 +323,14 @@ void main() {
           ...androidIntegrations,
           ...iOsAndMacOsIntegrations,
           ...nativeIntegrations,
+          ...nonWebIntegrations,
         ],
       );
 
       testBefore(
-          integrations: integrations,
-          beforeIntegration: WidgetsFlutterBindingIntegration,
-          afterIntegration: OnErrorIntegration);
+          integrations: Sentry.currentHub.options.integrations,
+          beforeIntegration: RunZonedGuardedIntegration,
+          afterIntegration: WidgetsFlutterBindingIntegration);
 
       await Sentry.close();
     });
@@ -351,13 +367,14 @@ void main() {
           ...androidIntegrations,
           ...iOsAndMacOsIntegrations,
           ...nativeIntegrations,
+          ...nonWebIntegrations,
         ],
       );
 
       testBefore(
-          integrations: integrations,
-          beforeIntegration: WidgetsFlutterBindingIntegration,
-          afterIntegration: OnErrorIntegration);
+          integrations: Sentry.currentHub.options.integrations,
+          beforeIntegration: RunZonedGuardedIntegration,
+          afterIntegration: WidgetsFlutterBindingIntegration);
 
       await Sentry.close();
     });
@@ -393,13 +410,14 @@ void main() {
           ...androidIntegrations,
           ...iOsAndMacOsIntegrations,
           ...nativeIntegrations,
+          ...nonWebIntegrations,
         ],
       );
 
       testBefore(
-          integrations: integrations,
-          beforeIntegration: WidgetsFlutterBindingIntegration,
-          afterIntegration: OnErrorIntegration);
+          integrations: Sentry.currentHub.options.integrations,
+          beforeIntegration: RunZonedGuardedIntegration,
+          afterIntegration: WidgetsFlutterBindingIntegration);
 
       await Sentry.close();
     });
