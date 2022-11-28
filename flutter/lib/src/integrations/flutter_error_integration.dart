@@ -60,11 +60,6 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
         final mechanism = Mechanism(
           type: 'FlutterError',
           handled: true,
-          data: {
-            if (flutterErrorDetails.isNotEmpty)
-              'hint':
-                  'See "flutter_error_details" down below for more information'
-          },
         );
         final throwableMechanism = ThrowableMechanism(mechanism, exception);
 
