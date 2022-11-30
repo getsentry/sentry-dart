@@ -9,6 +9,9 @@ on:
       - 'logging/**'
       - 'dio/**'
 
+env:
+  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
 jobs:
   cancel-previous-workflow:
     runs-on: ubuntu-latest
@@ -102,9 +105,9 @@ jobs:
       - name: Upload coverage to Codecov
         if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
         run: |
-          curl --remote-name https://uploader.codecov.io/linux/latest/codecov
+          curl -Os https://uploader.codecov.io/linux/latest/codecov
           chmod +x codecov
-          ./codecov --file ./flutter/coverage/lcov.info
+          ./codecov -t ${CODECOV_TOKEN} -n sentry_flutter -f ./flutter/coverage/lcov.info
 
       - uses: VeryGoodOpenSource/very_good_coverage@84e5b54ab888644554e5573dca87d7f76dec9fb3 # pin@v2.0.0
         if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
