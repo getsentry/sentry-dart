@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'dart:async';
 import 'dart:convert';
 
@@ -18,7 +20,7 @@ import 'package:sentry_logging/sentry_logging.dart';
 const String _exampleDsn =
     'https://e85b375ffb9f43cf8bdf9787768149e0@o447951.ingest.sentry.io/5428562';
 
-final _channel = const MethodChannel('example.flutter.sentry.io');
+const _channel = MethodChannel('example.flutter.sentry.io');
 
 Future<void> main() async {
   await setupSentry(() => runApp(
@@ -26,7 +28,7 @@ Future<void> main() async {
           child: SentryUserInteractionWidget(
             child: DefaultAssetBundle(
               bundle: SentryAssetBundle(enableStructuredDataTracing: true),
-              child: MyApp(),
+              child: const MyApp(),
             ),
           ),
         ),
@@ -58,6 +60,8 @@ Future<void> setupSentry(AppRunner appRunner) async {
 }
 
 class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   _MyAppState createState() => _MyAppState();
 }
@@ -110,13 +114,13 @@ class MainScaffold extends StatelessWidget {
             onPressed: () {
               themeProvider.updatePrimatryColor(Colors.orange);
             },
-            icon: Icon(Icons.circle, color: Colors.orange),
+            icon: const Icon(Icons.circle, color: Colors.orange),
           ),
           IconButton(
             onPressed: () {
               themeProvider.updatePrimatryColor(Colors.green);
             },
-            icon: Icon(Icons.circle, color: Colors.lime),
+            icon: const Icon(Icons.circle, color: Colors.lime),
           ),
         ],
       ),
@@ -130,7 +134,7 @@ class MainScaffold extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () => tryCatch(),
-              key: Key('dart_try_catch'),
+              key: const Key('dart_try_catch'),
               child: const Text('Dart: try catch'),
             ),
             ElevatedButton(
@@ -174,7 +178,7 @@ class MainScaffold extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () => Future.delayed(
-                Duration(milliseconds: 100),
+                const Duration(milliseconds: 100),
                 () => throw Exception('Throws in Future.delayed'),
               ),
               child: const Text('Throws in Future.delayed'),
@@ -208,12 +212,13 @@ class MainScaffold extends StatelessWidget {
               child: const Text('Flutter: Load assets'),
             ),
             ElevatedButton(
-              key: Key('dio_web_request'),
+              key: const Key('dio_web_request'),
               onPressed: () async => await makeWebRequestWithDio(context),
               child: const Text('Dio: Web request'),
             ),
             ElevatedButton(
               onPressed: () {
+                // ignore: avoid_print
                 print('A print breadcrumb');
                 Sentry.captureMessage('A message with a print() Breadcrumb');
               },
@@ -242,7 +247,7 @@ class MainScaffold extends StatelessWidget {
                 transaction.setTag('myTag', 'myValue');
                 transaction.setData('myExtra', 'myExtraValue');
 
-                await Future.delayed(Duration(milliseconds: 50));
+                await Future.delayed(const Duration(milliseconds: 50));
 
                 final span = transaction.startChild(
                   'childOfMyOp',
@@ -251,29 +256,29 @@ class MainScaffold extends StatelessWidget {
                 span.setTag('myNewTag', 'myNewValue');
                 span.setData('myNewData', 'myNewDataValue');
 
-                await Future.delayed(Duration(milliseconds: 70));
+                await Future.delayed(const Duration(milliseconds: 70));
 
-                await span.finish(status: SpanStatus.resourceExhausted());
+                await span.finish(status: const SpanStatus.resourceExhausted());
 
-                await Future.delayed(Duration(milliseconds: 90));
+                await Future.delayed(const Duration(milliseconds: 90));
 
                 final spanChild = span.startChild(
                   'childOfChildOfMyOp',
                   description: 'childOfChildOfMyOp span',
                 );
 
-                await Future.delayed(Duration(milliseconds: 110));
+                await Future.delayed(const Duration(milliseconds: 110));
 
                 spanChild.startChild(
                   'unfinishedChild',
                   description: 'I wont finish',
                 );
 
-                await spanChild.finish(status: SpanStatus.internalError());
+                await spanChild.finish(status: const SpanStatus.internalError());
 
-                await Future.delayed(Duration(milliseconds: 50));
+                await Future.delayed(const Duration(milliseconds: 50));
 
-                await transaction.finish(status: SpanStatus.ok());
+                await transaction.finish(status: const SpanStatus.ok());
               },
               child: const Text('Capture transaction'),
             ),
@@ -282,7 +287,7 @@ class MainScaffold extends StatelessWidget {
                 Sentry.captureMessage(
                   'This message has an attachment',
                   withScope: (scope) {
-                    final txt = 'Lorem Ipsum dolar sit amet';
+                    const txt = 'Lorem Ipsum dolar sit amet';
                     scope.addAttachment(
                       SentryAttachment.fromIntList(
                         utf8.encode(txt),
@@ -474,6 +479,8 @@ int loop(int val) {
 }
 
 class SecondaryScaffold extends StatelessWidget {
+  const SecondaryScaffold({Key? key}) : super(key: key);
+
   static Future<void> openSecondaryScaffold(BuildContext context) {
     return Navigator.push(
       context,
@@ -481,7 +488,7 @@ class SecondaryScaffold extends StatelessWidget {
         settings:
             const RouteSettings(name: 'SecondaryScaffold', arguments: 'foobar'),
         builder: (context) {
-          return SecondaryScaffold();
+          return const SecondaryScaffold();
         },
       ),
     );
@@ -537,12 +544,12 @@ Future<void> makeWebRequest(BuildContext context) async {
   // In case of an exception, let it get caught and reported to Sentry
   final response = await client.get(Uri.parse('https://flutter.dev/'));
 
-  await transaction.finish(status: SpanStatus.ok());
+  await transaction.finish(status: const SpanStatus.ok());
 
   await showDialog<void>(
     context: context,
     // gets tracked if using SentryNavigatorObserver
-    routeSettings: RouteSettings(
+    routeSettings: const RouteSettings(
       name: 'flutter.dev dialog',
     ),
     builder: (context) {
@@ -584,10 +591,10 @@ Future<void> makeWebRequestWithDio(BuildContext context) async {
   Response<String>? response;
   try {
     response = await dio.get<String>('https://flutter.dev/');
-    span.status = SpanStatus.ok();
+    span.status = const SpanStatus.ok();
   } catch (exception, stackTrace) {
     span.throwable = exception;
-    span.status = SpanStatus.internalError();
+    span.status = const SpanStatus.internalError();
     await Sentry.captureException(exception, stackTrace: stackTrace);
   } finally {
     await span.finish();
@@ -596,7 +603,7 @@ Future<void> makeWebRequestWithDio(BuildContext context) async {
   await showDialog<void>(
     context: context,
     // gets tracked if using SentryNavigatorObserver
-    routeSettings: RouteSettings(
+    routeSettings: const RouteSettings(
       name: 'flutter.dev dialog',
     ),
     builder: (context) {
@@ -628,12 +635,12 @@ Future<void> showDialogWithTextAndImage(BuildContext context) async {
   await showDialog<void>(
     context: context,
     // gets tracked if using SentryNavigatorObserver
-    routeSettings: RouteSettings(
+    routeSettings: const RouteSettings(
       name: 'AssetBundle dialog',
     ),
     builder: (context) {
       return AlertDialog(
-        title: Text('Asset Example'),
+        title: const Text('Asset Example'),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -646,13 +653,13 @@ Future<void> showDialogWithTextAndImage(BuildContext context) async {
         actions: [
           MaterialButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Close'),
+            child: const Text('Close'),
           )
         ],
       );
     },
   );
-  await transaction.finish(status: SpanStatus.ok());
+  await transaction.finish(status: const SpanStatus.ok());
 }
 
 class ThemeProvider extends ChangeNotifier {

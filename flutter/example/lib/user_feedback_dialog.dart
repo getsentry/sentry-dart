@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -34,7 +36,7 @@ class _UserFeedbackDialogState extends State<UserFeedbackDialog> {
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.headline6,
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               'Our team has been notified. '
               "If you'd like to help, tell us what happened below.",
@@ -44,46 +46,46 @@ class _UserFeedbackDialogState extends State<UserFeedbackDialog> {
                   .subtitle1
                   ?.copyWith(color: Colors.grey),
             ),
-            Divider(height: 24),
+            const Divider(height: 24),
             TextField(
-              key: ValueKey('sentry_name_textfield'),
-              decoration: InputDecoration(
+              key: const ValueKey('sentry_name_textfield'),
+              decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 hintText: 'Name',
               ),
               controller: nameController,
               keyboardType: TextInputType.text,
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             TextField(
-              key: ValueKey('sentry_email_textfield'),
-              decoration: InputDecoration(
+              key: const ValueKey('sentry_email_textfield'),
+              decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 hintText: 'E-Mail',
               ),
               controller: emailController,
               keyboardType: TextInputType.emailAddress,
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             TextField(
-              key: ValueKey('sentry_comment_textfield'),
+              key: const ValueKey('sentry_comment_textfield'),
               minLines: 5,
               maxLines: null,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 hintText: 'What happened?',
               ),
               controller: commentController,
               keyboardType: TextInputType.multiline,
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             const _PoweredBySentryMessage(),
           ],
         ),
       ),
       actions: [
         ElevatedButton(
-            key: ValueKey('sentry_submit_feedback_button'),
+            key: const ValueKey('sentry_submit_feedback_button'),
             onPressed: () async {
               final feedback = SentryUserFeedback(
                 eventId: widget.eventId,
@@ -92,15 +94,16 @@ class _UserFeedbackDialogState extends State<UserFeedbackDialog> {
                 name: nameController.text,
               );
               await _submitUserFeedback(feedback);
+              // ignore: use_build_context_synchronously
               Navigator.pop(context);
             },
-            child: Text('Submit Crash Report')),
+            child: const Text('Submit Crash Report')),
         TextButton(
-          key: ValueKey('sentry_close_button'),
+          key: const ValueKey('sentry_close_button'),
           onPressed: () {
             Navigator.pop(context);
           },
-          child: Text('Close'),
+          child: const Text('Close'),
         )
       ],
     );
@@ -123,8 +126,8 @@ class _PoweredBySentryMessage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.end,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('Crash reports powered by'),
-          SizedBox(width: 8),
+          const Text('Crash reports powered by'),
+          const SizedBox(width: 8),
           SizedBox(
             height: 30,
             child: _SentryLogo(),
@@ -141,13 +144,13 @@ class _SentryLogo extends StatelessWidget {
     var color = Colors.white;
     final brightenss = Theme.of(context).brightness;
     if (brightenss == Brightness.light) {
-      color = Color(0xff362d59).withOpacity(1.0);
+      color = const Color(0xff362d59).withOpacity(1.0);
     }
 
     return FittedBox(
       fit: BoxFit.contain,
       child: CustomPaint(
-        size: Size(222, 66),
+        size: const Size(222, 66),
         painter: _SentryLogoCustomPainter(color),
       ),
     );
@@ -448,9 +451,9 @@ class _SentryLogoCustomPainter extends CustomPainter {
         size.height * 0.3378788);
     path_0.close();
 
-    final paint_0_fill = Paint()..style = PaintingStyle.fill;
-    paint_0_fill.color = color;
-    canvas.drawPath(path_0, paint_0_fill);
+    final paint0Fill = Paint()..style = PaintingStyle.fill;
+    paint0Fill.color = color;
+    canvas.drawPath(path_0, paint0Fill);
   }
 
   @override
