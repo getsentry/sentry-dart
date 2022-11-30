@@ -274,7 +274,8 @@ class MainScaffold extends StatelessWidget {
                   description: 'I wont finish',
                 );
 
-                await spanChild.finish(status: const SpanStatus.internalError());
+                await spanChild.finish(
+                    status: const SpanStatus.internalError());
 
                 await Future.delayed(const Duration(milliseconds: 50));
 
