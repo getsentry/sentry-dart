@@ -10,11 +10,14 @@ typedef MockFetchMethod = Future<ResponseBody> Function(
   Future<dynamic>? cancelFuture,
 );
 
+typedef MockCloseMethod = void Function({bool force});
+
 class MockHttpClientAdapter extends HttpClientAdapter
     with NoSuchMethodProvider {
-  MockHttpClientAdapter(this.mockFetchMethod);
+  MockHttpClientAdapter(this.mockFetchMethod, {this.mockCloseMethod});
 
   final MockFetchMethod mockFetchMethod;
+  final MockCloseMethod? mockCloseMethod;
 
   @override
   Future<ResponseBody> fetch(
@@ -23,5 +26,10 @@ class MockHttpClientAdapter extends HttpClientAdapter
     Future<dynamic>? cancelFuture,
   ) {
     return mockFetchMethod(options, requestStream, cancelFuture);
+  }
+
+  @override
+  void close({bool force = false}) {
+    return mockCloseMethod?.call(force: force);
   }
 }
