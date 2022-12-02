@@ -2,13 +2,14 @@
 
 // ignore_for_file: invalid_use_of_internal_member
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
-typedef Callback<T> = T Function();
+typedef Callback<T> = FutureOr<T> Function();
 
 class SentryFile implements File {
   SentryFile(
@@ -21,7 +22,7 @@ class SentryFile implements File {
 
   @override
   Future<File> copy(String newPath) {
-    return _wrap(_file.copy(newPath), 'file.copy');
+    return _wrap(() async => _file.copy(newPath), 'file.copy');
   }
 
   @override
@@ -32,7 +33,7 @@ class SentryFile implements File {
   @override
   Future<File> create({bool recursive = false}) {
     return _wrap(
-      _file.create(recursive: recursive),
+      () async => _file.create(recursive: recursive),
       'file.write',
     );
   }
@@ -47,7 +48,7 @@ class SentryFile implements File {
 
   @override
   Future<FileSystemEntity> delete({bool recursive = false}) {
-    return _wrap(_file.delete(recursive: recursive), 'file.delete');
+    return _wrap(() async => _file.delete(recursive: recursive), 'file.delete');
   }
 
   @override
@@ -57,7 +58,7 @@ class SentryFile implements File {
 
   @override
   Future<RandomAccessFile> open({FileMode mode = FileMode.read}) {
-    return _wrap(_file.open(mode: mode), 'file.open');
+    return _wrap(() async => _file.open(mode: mode), 'file.open');
   }
 
   // coverage:ignore-start
@@ -81,7 +82,7 @@ class SentryFile implements File {
 
   @override
   Future<Uint8List> readAsBytes() {
-    return _wrap(_file.readAsBytes(), 'file.read');
+    return _wrap(() async => _file.readAsBytes(), 'file.read');
   }
 
   @override
@@ -91,7 +92,8 @@ class SentryFile implements File {
 
   @override
   Future<List<String>> readAsLines({Encoding encoding = utf8}) {
-    return _wrap(_file.readAsLines(encoding: encoding), 'file.read');
+    return _wrap(
+        () async => _file.readAsLines(encoding: encoding), 'file.read');
   }
 
   @override
@@ -104,7 +106,8 @@ class SentryFile implements File {
 
   @override
   Future<String> readAsString({Encoding encoding = utf8}) {
-    return _wrap(_file.readAsString(encoding: encoding), 'file.read');
+    return _wrap(
+        () async => _file.readAsString(encoding: encoding), 'file.read');
   }
 
   @override
@@ -117,7 +120,7 @@ class SentryFile implements File {
 
   @override
   Future<File> rename(String newPath) {
-    return _wrap(_file.rename(newPath), 'file.rename');
+    return _wrap(() async => _file.rename(newPath), 'file.rename');
   }
 
   @override
@@ -132,7 +135,7 @@ class SentryFile implements File {
     bool flush = false,
   }) {
     return _wrap(
-      _file.writeAsBytes(bytes, mode: mode, flush: flush),
+      () async => _file.writeAsBytes(bytes, mode: mode, flush: flush),
       'file.write',
     );
   }
@@ -157,7 +160,7 @@ class SentryFile implements File {
     bool flush = false,
   }) {
     return _wrap(
-      _file.writeAsString(
+      () async => _file.writeAsString(
         contents,
         mode: mode,
         encoding: encoding,
@@ -185,25 +188,11 @@ class SentryFile implements File {
     );
   }
 
-  void _setSize(ISentrySpan? span, dynamic data) {
-    // method that returns null dont have a size
-    if (data == null) {
-      return;
-    }
-    if (data is List<int>) {
-      span?.setData('file.size', data.length);
-    } else if (data is File) {
-      span?.setData('file.size', data.lengthSync());
-      // TODO: if its a copy, we need the new path here too or not?
-      // TODO: append size in bytes or human readable size
-    }
-  }
-
   String _getDesc() {
     return uri.pathSegments.isNotEmpty ? uri.pathSegments.last : path;
   }
 
-  Future<T> _wrap<T>(Future<T> future, String operation) async {
+  Future<T> _wrap<T>(Callback<T> callback, String operation) async {
     final desc = _getDesc();
 
     final currentSpan = _hub.getSpan();
@@ -215,8 +204,30 @@ class SentryFile implements File {
     }
     T data;
     try {
-      data = await future;
-      _setSize(span, data);
+      // workaround for having the length when the file does not exist
+      // exists or its being deleted.
+      int? length;
+      var hasLength = false;
+      try {
+        length = await _file.length();
+        hasLength = true;
+      } catch (_) {
+        // ignore in case something goes wrong
+      }
+
+      data = await callback();
+
+      if (!hasLength) {
+        try {
+          length = await _file.length();
+        } catch (_) {
+          // ignore in case something goes wrong
+        }
+      }
+
+      if (length != null) {
+        span?.setData('file.size', length);
+      }
 
       span?.status = SpanStatus.ok();
     } catch (exception) {
@@ -239,10 +250,33 @@ class SentryFile implements File {
     if (_hub.options.sendDefaultPii) {
       span?.setData('file.path', absolute.path);
     }
+
     T data;
     try {
-      data = callback();
-      _setSize(span, data);
+      // workaround for having the length when the file does not exist
+      // exists or its being deleted.
+      int? length;
+      var hasLength = false;
+      try {
+        length = _file.lengthSync();
+        hasLength = true;
+      } catch (_) {
+        // ignore in case something goes wrong
+      }
+
+      data = callback() as T;
+
+      if (!hasLength) {
+        try {
+          length = _file.lengthSync();
+        } catch (_) {
+          // ignore in case something goes wrong
+        }
+      }
+
+      if (length != null) {
+        span?.setData('file.size', length);
+      }
 
       span?.status = SpanStatus.ok();
     } catch (exception) {

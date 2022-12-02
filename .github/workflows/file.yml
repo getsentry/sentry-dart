@@ -31,7 +31,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        sdk: [stable, beta]
+        # removing beta because of Dart 2.19.0
+        sdk: [stable]
         exclude:
           - os: macos-latest
             sdk: beta
