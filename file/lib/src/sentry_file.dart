@@ -185,6 +185,20 @@ class SentryFile implements File {
     );
   }
 
+  void _setSize(ISentrySpan? span, dynamic data) {
+    // method that returns null dont have a size
+    if (data == null) {
+      return;
+    }
+    if (data is List<int>) {
+      span?.setData('file.size', data.length);
+    } else if (data is File) {
+      span?.setData('file.size', data.lengthSync());
+      // TODO: if its a copy, we need the new path here too or not?
+      // TODO: append size in bytes or human readable size
+    }
+  }
+
   String _getDesc() {
     return uri.pathSegments.isNotEmpty ? uri.pathSegments.last : path;
   }
@@ -202,13 +216,8 @@ class SentryFile implements File {
     T data;
     try {
       data = await future;
-      if (data is List<int>) {
-        span?.setData('file.size', data.length);
-      } else if (data is File) {
-        span?.setData('file.size', await data.length());
-        // TODO: if its a copy, we need the new path here too or not?
-        // TODO: append size in bytes or human readable size
-      }
+      _setSize(span, data);
+
       span?.status = SpanStatus.ok();
     } catch (exception) {
       span?.throwable = exception;
@@ -233,11 +242,8 @@ class SentryFile implements File {
     T data;
     try {
       data = callback();
-      if (data is List<int>) {
-        span?.setData('file.size', data.length);
-      } else if (data is File) {
-        span?.setData('file.size', data.lengthSync());
-      }
+      _setSize(span, data);
+
       span?.status = SpanStatus.ok();
     } catch (exception) {
       span?.throwable = exception;
