@@ -33,7 +33,7 @@ class SentryFile implements File {
   Future<File> create({bool recursive = false}) {
     return _wrap(
       _file.create(recursive: recursive),
-      'file.create',
+      'file.write',
     );
   }
 
@@ -41,7 +41,7 @@ class SentryFile implements File {
   void createSync({bool recursive = false, bool exclusive = false}) {
     return _wrapSync(
       () => _file.createSync(recursive: recursive),
-      'file.create',
+      'file.write',
     );
   }
 
@@ -60,6 +60,8 @@ class SentryFile implements File {
     return _wrap(_file.open(mode: mode), 'file.open');
   }
 
+  // coverage:ignore-start
+
   @override
   Stream<List<int>> openRead([int? start, int? end]) {
     return _file.openRead(start, end);
@@ -74,6 +76,8 @@ class SentryFile implements File {
   IOSink openWrite({FileMode mode = FileMode.write, Encoding encoding = utf8}) {
     return _file.openWrite(mode: mode, encoding: encoding);
   }
+
+  // coverage:ignore-end
 
   @override
   Future<Uint8List> readAsBytes() {
@@ -181,18 +185,29 @@ class SentryFile implements File {
     );
   }
 
+  String _getDesc() {
+    return uri.pathSegments.isNotEmpty ? uri.pathSegments.last : path;
+  }
+
   Future<T> _wrap<T>(Future<T> future, String operation) async {
-    final span = _hub.getSpan()?.startChild(operation, description: _file.path);
-    span?.setData('async-io', true);
+    final desc = _getDesc();
+
+    final currentSpan = _hub.getSpan();
+    final span = currentSpan?.startChild(operation, description: desc);
+
+    span?.setData('file.async', true);
     if (_hub.options.sendDefaultPii) {
-      // if (_hub.options.sendDefaultPii || _hub.options.platformChecker.isMobile) {
-      span?.setData('file.path', path);
+      span?.setData('file.path', absolute.path);
     }
     T data;
     try {
       data = await future;
       if (data is List<int>) {
         span?.setData('file.size', data.length);
+      } else if (data is File) {
+        span?.setData('file.size', await data.length());
+        // TODO: if its a copy, we need the new path here too or not?
+        // TODO: append size in bytes or human readable size
       }
       span?.status = SpanStatus.ok();
     } catch (exception) {
@@ -206,18 +221,22 @@ class SentryFile implements File {
   }
 
   T _wrapSync<T>(Callback<T> callback, String operation) {
-    final span = _hub.getSpan()?.startChild(operation, description: _file.path);
-    span?.setData('async-io', false);
+    final desc = _getDesc();
+
+    final currentSpan = _hub.getSpan();
+    final span = currentSpan?.startChild(operation, description: desc);
+    span?.setData('file.async', false);
 
     if (_hub.options.sendDefaultPii) {
-      // if (_hub.options.sendDefaultPii || _hub.options.platformChecker.isMobile) {
-      span?.setData('file.path', path);
+      span?.setData('file.path', absolute.path);
     }
     T data;
     try {
       data = callback();
       if (data is List<int>) {
         span?.setData('file.size', data.length);
+      } else if (data is File) {
+        span?.setData('file.size', data.lengthSync());
       }
       span?.status = SpanStatus.ok();
     } catch (exception) {
@@ -304,9 +323,3 @@ class SentryFile implements File {
 
   // coverage:ignore-end
 }
-
-// extension on PlatformChecker {
-//   bool get isMobile {
-//     return platform.isIOS || platform.isAndroid;
-//   }
-// }

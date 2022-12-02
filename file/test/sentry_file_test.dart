@@ -11,45 +11,82 @@ import 'mock_sentry_client.dart';
 typedef Callback<T> = T Function();
 
 void main() {
-  late Fixture fixture;
+  group('$SentryFile copy', () {
+    late Fixture fixture;
 
-  setUp(() {
-    fixture = Fixture();
-  });
+    setUp(() {
+      fixture = Fixture();
+    });
 
-  test('uri returns test', () {
-    final file = File('test.txt');
-    final sut = fixture.getSut(file, tracesSampleRate: 1.0);
+    test('copy async', () async {
+      final file = File('test_resources/testfile.txt');
 
-    expect(sut.uri.toFilePath(), 'test.txt');
-  });
+      final sut = fixture.getSut(
+        file,
+        sendDefaultPii: true,
+        tracesSampleRate: 1.0,
+      );
 
-  test('copy wraps with a trace', () async {
-    final file = File('test.txt');
-    await file.create(recursive: true);
-    expect(await file.exists(), true);
+      final tr = fixture.hub.startTransaction('name', 'op', bindToScope: true);
 
-    final sut = fixture.getSut(
-      file,
-      sendDefaultPii: true,
-      tracesSampleRate: 1.0,
-    );
+      final newFile = await sut.copy('test_resources/testfile_copy.txt');
 
-    final tr = fixture.hub.startTransaction('name', 'op', bindToScope: true);
+      await tr.finish();
 
-    var newFile = await sut.copy('new.txt');
+      final exists = await newFile.exists();
+      expect(exists, true);
 
-    await tr.finish();
+      expect(sut.uri.toFilePath(), isNot(newFile.uri.toFilePath()));
 
-    final exists = await newFile.exists();
-    expect(exists, true);
+      final call = fixture.client.captureTransactionCalls.first;
+      final span = call.transaction.spans.first;
 
-    expect(file.uri.toFilePath(), isNot(newFile.uri.toFilePath()));
+      expect(span.context.operation, 'file.copy');
+      expect(span.data['file.size'], 7);
+      expect(span.data['file.async'], true);
+      expect(span.context.description, 'testfile.txt');
+      expect(
+          (span.data['file.path'] as String)
+              .endsWith('test_resources/testfile.txt'),
+          true);
 
-    final call = fixture.client.captureTransactionCalls.first;
-    final span = call.transaction.spans.first;
+      await newFile.delete();
+    });
 
-    expect(span.context.operation, 'file.copy');
+    test('copy sync', () async {
+      final file = File('test_resources/testfile.txt');
+
+      final sut = fixture.getSut(
+        file,
+        sendDefaultPii: true,
+        tracesSampleRate: 1.0,
+      );
+
+      final tr = fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+      final newFile = sut.copySync('test_resources/testfile_copy.txt');
+
+      await tr.finish();
+
+      final exists = newFile.existsSync();
+      expect(exists, true);
+
+      expect(sut.uri.toFilePath(), isNot(newFile.uri.toFilePath()));
+
+      final call = fixture.client.captureTransactionCalls.first;
+      final span = call.transaction.spans.first;
+
+      expect(span.context.operation, 'file.copy');
+      expect(span.data['file.size'], 7);
+      expect(span.data['file.async'], false);
+      expect(span.context.description, 'testfile.txt');
+      expect(
+          (span.data['file.path'] as String)
+              .endsWith('test_resources/testfile.txt'),
+          true);
+
+      await newFile.delete();
+    });
   });
 }
 
