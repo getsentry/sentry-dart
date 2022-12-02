@@ -4,7 +4,7 @@
 
 ### Features
 
-- Tracing for File IO integration ([#1152](https://github.com/getsentry/sentry-dart/pull/1152))
+- Tracing for File IO integration ([#1160](https://github.com/getsentry/sentry-dart/pull/1160))
 
 ### Dependencies
 
