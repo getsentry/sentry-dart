@@ -11,12 +11,16 @@ import 'package:sentry/sentry.dart';
 
 typedef Callback<T> = FutureOr<T> Function();
 
-/// The Sentry wrapper for the File implementation that starts a span
+/// The Sentry wrapper for the File IO implementation that creates a span
 /// out of the active transaction in the scope.
 /// The span is started before the operation is executed and finished after.
+/// The File tracing isn't available for Web.
+///
 /// Example:
 ///
 /// ```dart
+/// import 'dart:io';
+///
 /// final file = File('test.txt');
 /// final sentryFile = SentryFile(file);
 /// // span starts
