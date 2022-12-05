@@ -31,3 +31,4 @@ export 'src/utils/tracing_utils.dart';
 // tracing
 export 'src/tracing.dart';
 export 'src/hint.dart';
+export 'src/type_check_hint.dart';

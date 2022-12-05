@@ -80,7 +80,8 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
 
         await hub.captureEvent(event,
             stackTrace: errorDetails.stack,
-            hint: Hint.withMap({Hint.syntheticExceptionKey: errorDetails}));
+            hint:
+                Hint.withMap({TypeCheckHint.syntheticException: errorDetails}));
         // we don't call Zone.current.handleUncaughtError because we'd like
         // to set a specific mechanism for FlutterError.onError.
       } else {
