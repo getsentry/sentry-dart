@@ -11,9 +11,9 @@ Future<void> main() async {
   await Sentry.init(
     (options) {
       options.dsn = dsn;
-      // to capture the absolute path of the file
+      // To capture the absolute path of the file
       options.sendDefaultPii = true;
-      // to enable Performance Monitoring
+      // To set a uniform sample rate
       options.tracesSampleRate = 1.0;
     },
     appRunner: runApp, // Init your App.
@@ -22,7 +22,7 @@ Future<void> main() async {
 
 Future<void> runApp() async {
   final file = File('my_file.txt');
-  // call the Sentry extension method to wrap the File
+  // Call the Sentry extension method to wrap up the File
   final sentryFile = file.sentryTrace();
 
   // Start a transaction if there's no active transaction
@@ -32,19 +32,19 @@ Future<void> runApp() async {
     bindToScope: true,
   );
 
-  // create the File
+  // Create the File
   await sentryFile.create();
-  // write some content
+  // Write some content
   await sentryFile.writeAsString('Hello World');
-  // read the content
+  // Read the content
   final text = await sentryFile.readAsString();
 
   print(text);
 
-  // delete the file
+  // Delete the file
   await sentryFile.delete();
 
-  // finish the transaction
+  // Finish the transaction
   await transaction.finish(status: SpanStatus.ok());
 
   await Sentry.close();
