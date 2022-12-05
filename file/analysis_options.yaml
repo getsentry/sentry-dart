@@ -8,11 +8,10 @@ analyzer:
     missing_required_param: error
     # treat missing returns as a warning (not a hint)
     missing_return: error
-    # allow having TODOs in the code
-    todo: ignore
-    # allow self-reference to deprecated members (we do this because otherwise we have
-    # to annotate every member in every test, assert, etc, when we deprecate something)
-    deprecated_member_use_from_same_package: warning
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
 
 linter:
   rules:
