@@ -30,6 +30,7 @@ typedef Callback<T> = FutureOr<T> Function();
 ///
 /// All the copy, create, delete, open, rename, read, and write operations are
 /// supported.
+@experimental
 class SentryFile implements File {
   SentryFile(
     this._file, {

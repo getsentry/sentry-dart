@@ -27,6 +27,7 @@ extension SentryFileExtension on File {
   ///
   /// All the copy, create, delete, open, rename, read, and write operations are
   /// supported.
+  @experimental
   File sentryTrace({
     @internal Hub? hub,
   }) {
