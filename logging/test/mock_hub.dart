@@ -7,10 +7,9 @@ import 'no_such_method_provider.dart';
 final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
 class MockHub with NoSuchMethodProvider implements Hub {
-  final List<Breadcrumb> breadcrumbs = [];
+  final List<CapturedBreadcrumb> breadcrumbs = [];
   final List<CapturedEvents> events = [];
   final _options = SentryOptions(dsn: 'fixture-dsn');
-  final List<Hint> breadcrumbHints = [];
 
   @override
   @internal
@@ -18,10 +17,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
 
   @override
   Future<void> addBreadcrumb(Breadcrumb crumb, {Hint? hint}) async {
-    breadcrumbs.add(crumb);
-    if (hint != null) {
-      breadcrumbHints.add(hint);
-    }
+    breadcrumbs.add(CapturedBreadcrumb(crumb, hint));
   }
 
   @override
@@ -41,5 +37,12 @@ class CapturedEvents {
 
   final SentryEvent event;
   final dynamic stackTrace;
+  final Hint? hint;
+}
+
+class CapturedBreadcrumb {
+  CapturedBreadcrumb(this.breadcrumb, this.hint);
+
+  final Breadcrumb breadcrumb;
   final Hint? hint;
 }

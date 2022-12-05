@@ -43,7 +43,7 @@ void main() {
 
     expect(fixture.hub.events.length, 0);
     expect(fixture.hub.breadcrumbs.length, 1);
-    final crumb = fixture.hub.breadcrumbs.first;
+    final crumb = fixture.hub.breadcrumbs.first.breadcrumb;
     expect(crumb.level, SentryLevel.warning);
     expect(crumb.message, 'A log message');
     expect(crumb.data, <String, dynamic>{
@@ -76,9 +76,9 @@ void main() {
       'An info message',
     );
 
-    expect(fixture.hub.breadcrumbHints.length, 1);
+    expect(fixture.hub.breadcrumbs.length, 1);
     final breadcrumbHint =
-        fixture.hub.breadcrumbHints.first.get('record') as LogRecord;
+        fixture.hub.breadcrumbs.first.hint?.get('record') as LogRecord;
 
     expect(breadcrumbHint.level, Level.INFO);
     expect(breadcrumbHint.message, 'An info message');
