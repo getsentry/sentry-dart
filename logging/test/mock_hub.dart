@@ -11,7 +11,6 @@ class MockHub with NoSuchMethodProvider implements Hub {
   final List<CapturedEvents> events = [];
   final _options = SentryOptions(dsn: 'fixture-dsn');
   final List<Hint> breadcrumbHints = [];
-  final List<Hint> eventHints = [];
 
   @override
   @internal
@@ -32,17 +31,15 @@ class MockHub with NoSuchMethodProvider implements Hub {
     Hint? hint,
     ScopeCallback? withScope,
   }) async {
-    events.add(CapturedEvents(event, stackTrace));
-    if (hint != null) {
-      eventHints.add(hint);
-    }
+    events.add(CapturedEvents(event, stackTrace, hint));
     return SentryId.newId();
   }
 }
 
 class CapturedEvents {
-  CapturedEvents(this.event, this.stackTrace);
+  CapturedEvents(this.event, this.stackTrace, this.hint);
 
   final SentryEvent event;
   final dynamic stackTrace;
+  final Hint? hint;
 }

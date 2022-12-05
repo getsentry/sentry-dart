@@ -91,8 +91,8 @@ void main() {
       stackTrace,
     );
 
-    expect(fixture.hub.eventHints.length, 1);
-    final errorHint = fixture.hub.eventHints.first.get('record') as LogRecord;
+    expect(fixture.hub.events.length, 1);
+    final errorHint = fixture.hub.events.first.hint?.get('record') as LogRecord;
 
     expect(errorHint.level, Level.WARNING);
     expect(errorHint.message, 'A log message');
