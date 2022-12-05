@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 @TestOn('vm')
 
 import 'dart:io';
@@ -460,7 +462,7 @@ void main() {
     });
   });
 
-  group('$SentryOptions sendDefaultPii', () {
+  group('$SentryOptions config', () {
     late Fixture fixture;
 
     setUp(() {
@@ -475,7 +477,8 @@ void main() {
       expect(span.data['file.path'], null);
     }
 
-    test('does not add file path async', () async {
+    test('does not add file path if sendDefaultPii is disabled async',
+        () async {
       final file = File('test_resources/testfile.txt');
 
       final sut = fixture.getSut(
@@ -492,7 +495,7 @@ void main() {
       _assertSpan(true);
     });
 
-    test('sync', () async {
+    test('does not add file path if sendDefaultPii is disabled sync', () async {
       final file = File('test_resources/testfile.txt');
 
       final sut = fixture.getSut(
@@ -507,6 +510,18 @@ void main() {
       await tr.finish();
 
       _assertSpan(false);
+    });
+
+    test('add SentryFileTracing integration', () async {
+      final file = File('test_resources/testfile.txt');
+
+      fixture.getSut(
+        file,
+        tracesSampleRate: 1.0,
+      );
+
+      expect(fixture.hub.options.sdk.integrations.contains('SentryFileTracing'),
+          true);
     });
   });
 }

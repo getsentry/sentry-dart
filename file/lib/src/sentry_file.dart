@@ -34,7 +34,9 @@ class SentryFile implements File {
   SentryFile(
     this._file, {
     @internal Hub? hub,
-  }) : _hub = hub ?? HubAdapter();
+  }) : _hub = hub ?? HubAdapter() {
+    _hub.options.sdk.addIntegration('SentryFileTracing');
+  }
 
   final File _file;
   final Hub _hub;
