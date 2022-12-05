@@ -205,7 +205,7 @@ class SentryFile implements File {
     T data;
     try {
       // workaround for having the length when the file does not exist
-      // exists or its being deleted.
+      // or its being deleted.
       int? length;
       var hasLength = false;
       try {
@@ -254,7 +254,7 @@ class SentryFile implements File {
     T data;
     try {
       // workaround for having the length when the file does not exist
-      // exists or its being deleted.
+      // or its being deleted.
       int? length;
       var hasLength = false;
       try {

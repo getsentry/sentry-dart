@@ -386,6 +386,129 @@ void main() {
       _assertSpan('testfile.txt', false, size: 7);
     });
   });
+
+  group('$SentryFile rename', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    void _assertSpan(bool async, String name) {
+      final call = fixture.client.captureTransactionCalls.first;
+      final span = call.transaction.spans.first;
+
+      expect(span.context.operation, 'file.rename');
+      expect(span.data['file.size'], 0);
+      expect(span.data['file.async'], async);
+      expect(span.context.description, name);
+      expect(
+          (span.data['file.path'] as String).endsWith('test_resources/$name'),
+          true);
+    }
+
+    test('async', () async {
+      final file = File('test_resources/old_name.txt');
+      await file.create();
+
+      final sut = fixture.getSut(
+        file,
+        sendDefaultPii: true,
+        tracesSampleRate: 1.0,
+      );
+
+      final tr = fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+      final newFile = await sut.rename('test_resources/new_name.txt');
+
+      await tr.finish();
+
+      expect(await file.exists(), false);
+      expect(await newFile.exists(), true);
+
+      expect(sut.uri.toFilePath(), isNot(newFile.uri.toFilePath()));
+
+      _assertSpan(true, 'old_name.txt');
+
+      await newFile.delete();
+    });
+
+    test('sync', () async {
+      final file = File('test_resources/old_name.txt');
+      file.createSync();
+
+      final sut = fixture.getSut(
+        file,
+        sendDefaultPii: true,
+        tracesSampleRate: 1.0,
+      );
+
+      final tr = fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+      final newFile = sut.renameSync('test_resources/testfile_copy.txt');
+
+      await tr.finish();
+
+      expect(file.existsSync(), false);
+      expect(newFile.existsSync(), true);
+
+      expect(sut.uri.toFilePath(), isNot(newFile.uri.toFilePath()));
+
+      _assertSpan(false, 'old_name.txt');
+
+      newFile.deleteSync();
+    });
+  });
+
+  group('$SentryOptions sendDefaultPii', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    void _assertSpan(bool async) {
+      final call = fixture.client.captureTransactionCalls.first;
+      final span = call.transaction.spans.first;
+
+      expect(span.data['file.async'], async);
+      expect(span.data['file.path'], null);
+    }
+
+    test('does not add file path async', () async {
+      final file = File('test_resources/testfile.txt');
+
+      final sut = fixture.getSut(
+        file,
+        tracesSampleRate: 1.0,
+      );
+
+      final tr = fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+      await sut.readAsBytes();
+
+      await tr.finish();
+
+      _assertSpan(true);
+    });
+
+    test('sync', () async {
+      final file = File('test_resources/testfile.txt');
+
+      final sut = fixture.getSut(
+        file,
+        tracesSampleRate: 1.0,
+      );
+
+      final tr = fixture.hub.startTransaction('name', 'op', bindToScope: true);
+
+      sut.readAsBytesSync();
+
+      await tr.finish();
+
+      _assertSpan(false);
+    });
+  });
 }
 
 class Fixture {
