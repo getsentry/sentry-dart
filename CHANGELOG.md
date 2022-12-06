@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Tracing for File IO integration ([#1160](https://github.com/getsentry/sentry-dart/pull/1160))
+
 ### Dependencies
 
 - Bump Cocoa SDK from v7.31.2 to v7.31.3 ([#1157](https://github.com/getsentry/sentry-dart/pull/1157))
