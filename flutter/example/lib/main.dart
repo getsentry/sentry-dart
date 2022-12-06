@@ -3,9 +3,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'dart:io' if (dart.library.html) 'dart:html';
-import 'package:path_provider/path_provider.dart';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,7 +15,6 @@ import 'user_feedback_dialog.dart';
 import 'package:dio/dio.dart';
 import 'package:sentry_dio/sentry_dio.dart';
 import 'package:sentry_logging/sentry_logging.dart';
-import 'package:sentry_file/sentry_file.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
 const String _exampleDsn =
@@ -345,12 +341,6 @@ class MainScaffold extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () async {
-                await _manipulateFile();
-              },
-              child: const Text('Manipulate file'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
                 await showDialog(
                   context: context,
                   builder: (context) {
@@ -671,43 +661,6 @@ Future<void> showDialogWithTextAndImage(BuildContext context) async {
     },
   );
   await transaction.finish(status: const SpanStatus.ok());
-}
-
-Future<String> get _localPath async {
-  final directory = await getApplicationDocumentsDirectory();
-
-  return directory.path;
-}
-
-Future<File> get _localFile async {
-  final path = await _localPath;
-  return File('$path/response.txt');
-}
-
-Future<void> _manipulateFile() async {
-  final transaction = Sentry.getSpan() ??
-      Sentry.startTransaction(
-        'MyFileExample',
-        'file',
-        bindToScope: true,
-      );
-
-  final dio = Dio();
-  dio.addSentry(captureFailedRequests: true);
-
-  try {
-    final file = await _localFile;
-    final sentryFile = file.sentryTrace();
-    if (!await sentryFile.exists()) {
-      await sentryFile.create();
-    }
-    final response = await dio.get<String>('https://flutter.dev/');
-    await sentryFile.writeAsString(response.data ?? 'no response');
-
-    await transaction.finish(status: const SpanStatus.ok());
-  } catch (exception, _) {
-    await transaction.finish(status: const SpanStatus.internalError());
-  }
 }
 
 class ThemeProvider extends ChangeNotifier {
