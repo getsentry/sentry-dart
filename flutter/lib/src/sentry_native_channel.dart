@@ -138,8 +138,8 @@ class NativeAppStart {
 
   factory NativeAppStart.fromJson(Map<String, dynamic> json) {
     return NativeAppStart(
-      json['appStartTime'],
-      json['isColdStart'],
+      json['appStartTime'] as double,
+      json['isColdStart'] as bool,
     );
   }
 }
@@ -153,9 +153,9 @@ class NativeFrames {
 
   factory NativeFrames.fromJson(Map<String, dynamic> json) {
     return NativeFrames(
-      json['totalFrames'],
-      json['slowFrames'],
-      json['frozenFrames'],
+      json['totalFrames'] as int,
+      json['slowFrames'] as int,
+      json['frozenFrames'] as int,
     );
   }
 }

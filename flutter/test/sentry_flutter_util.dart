@@ -4,7 +4,7 @@ import 'package:sentry_flutter/src/file_system_transport.dart';
 
 void testTransport({
   required Transport transport,
-  required hasFileSystemTransport,
+  required bool hasFileSystemTransport,
 }) {
   expect(
     transport is FileSystemTransport,
