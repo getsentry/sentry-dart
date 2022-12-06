@@ -16,6 +16,31 @@
     - theme
   - Removed isolate name from Dart context. It's now reported via the threads interface. It can be enabled via `options.attachThreads`
 - Use `sentryClientName` instead of `sdk.identifier` ([#1135](https://github.com/getsentry/sentry-dart/pull/1135))
+## Unreleased
+
+### Features
+
+- Tracing for File IO integration ([#1160](https://github.com/getsentry/sentry-dart/pull/1160))
+
+### Dependencies
+
+- Bump Cocoa SDK from v7.31.2 to v7.31.3 ([#1157](https://github.com/getsentry/sentry-dart/pull/1157))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/master/CHANGELOG.md#7313)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.31.2...7.31.3)
+- Bump Android SDK from v6.8.0 to v6.9.1 ([#1159](https://github.com/getsentry/sentry-dart/pull/1159))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#691)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.8.0...6.9.1)
+
+## 6.17.0
+
+### Fixes
+
+- Capture Future errors for Flutter Web automatically ([#1152](https://github.com/getsentry/sentry-dart/pull/1152))
+
+### Features
+
+- User Interaction transactions and breadcrumbs ([#1137](https://github.com/getsentry/sentry-dart/pull/1137))
+
 ## 6.16.1
 
 ### Fixes

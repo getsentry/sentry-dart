@@ -103,4 +103,10 @@ void main() {
     expect(options.sentryClientName,
         '${sdkName(options.platformChecker.isWeb)}/$sdkVersion');
   });
+
+  test('SentryOptions has default idleTimeout', () {
+    final options = SentryOptions.empty();
+
+    expect(options.idleTimeout?.inSeconds, Duration(seconds: 3).inSeconds);
+  });
 }

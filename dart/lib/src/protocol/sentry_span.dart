@@ -197,4 +197,7 @@ class SentrySpan extends ISentrySpan {
 
   @override
   SentryTraceContextHeader? traceContext() => _tracer.traceContext();
+
+  @override
+  void scheduleFinish() => _tracer.scheduleFinish();
 }

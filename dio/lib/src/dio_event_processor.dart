@@ -139,41 +139,6 @@ class DioEventProcessor implements EventProcessor {
     return null;
   }
 
-  SentryResponse? _responseFrom(DioError dioError) {
-    final response = dioError.response;
-
-    final headers = response?.headers.map.map(
-      (key, value) => MapEntry(key, value.join('; ')),
-    );
-
-    return SentryResponse(
-      headers: _options.sendDefaultPii ? headers : null,
-      url: response?.realUri.toString(),
-      redirected: response?.isRedirect,
-      body: _getResponseData(dioError.response?.data),
-      statusCode: response?.statusCode,
-      status: response?.statusMessage,
-    );
-  }
-
-  /// Returns the request data, if possible according to the users settings.
-  /// Type checks are based on DIOs [ResponseType].
-  Object? _getResponseData(dynamic data) {
-    if (!_options.sendDefaultPii) {
-      return null;
-    }
-    if (data is String) {
-      if (_options.maxResponseBodySize.shouldAddBody(data.codeUnits.length)) {
-        return data;
-      }
-    } else if (data is List<int>) {
-      if (_options.maxResponseBodySize.shouldAddBody(data.length)) {
-        return data;
-      }
-    }
-    return null;
-  }
-
   SentryResponse _responseFrom(DioError dioError) {
     final response = dioError.response;
 

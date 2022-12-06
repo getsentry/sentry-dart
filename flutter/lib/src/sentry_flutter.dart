@@ -50,7 +50,13 @@ mixin SentryFlutter {
 
     final platformDispatcher = PlatformDispatcher.instance;
     final wrapper = PlatformDispatcherWrapper(platformDispatcher);
-    final isOnErrorSupported = wrapper.isOnErrorSupported(flutterOptions);
+
+    // Flutter Web don't capture [Future] errors if using [PlatformDispatcher.onError] and not
+    // the [runZonedGuarded].
+    // likely due to https://github.com/flutter/flutter/issues/100277
+    final isOnErrorSupported = flutterOptions.platformChecker.isWeb
+        ? false
+        : wrapper.isOnErrorSupported(flutterOptions);
 
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
