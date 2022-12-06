@@ -1,11 +1,21 @@
+import 'sentry_attachment/sentry_attachment.dart';
+
 class Hint {
   final Map<String, Object> _internalStorage = {};
+
+  SentryAttachment? screenshot;
 
   Hint();
 
   factory Hint.withMap(Map<String, Object> map) {
     final hint = Hint();
     hint.addAll(map);
+    return hint;
+  }
+
+  factory Hint.withScreenshot(SentryAttachment screenshot) {
+    final hint = Hint();
+    hint.screenshot = screenshot;
     return hint;
   }
 
