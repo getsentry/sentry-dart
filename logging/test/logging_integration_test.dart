@@ -68,7 +68,9 @@ void main() {
 
   test('passes log records as hints', () async {
     final sut = fixture.createSut(
-        minBreadcrumbLevel: Level.INFO, minEventLevel: Level.WARNING);
+      minBreadcrumbLevel: Level.INFO,
+      minEventLevel: Level.WARNING,
+    );
     await sut.call(fixture.hub, fixture.options);
     final logger = Logger('FooBarLogger');
 
