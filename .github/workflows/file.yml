@@ -33,15 +33,12 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         # removing beta because of Dart 2.19.0
         sdk: [stable]
-        exclude:
-          - os: macos-latest
-            sdk: beta
     steps:
       - uses: dart-lang/setup-dart@6a218f2413a3e78e9087f638a238f6b40893203d # pin@v1
         with:
           sdk: ${{ matrix.sdk }}
       - uses: actions/checkout@v3
-      # coverage with 'chrome' platform hangs the build
+
       - name: Test VM
         run: |
           dart pub get
