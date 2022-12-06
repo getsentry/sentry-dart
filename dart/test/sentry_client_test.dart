@@ -1061,45 +1061,6 @@ void main() {
     });
   });
 
-  group('SentryClientAttachmentProcessor', () {
-    late Fixture fixture;
-
-    setUp(() {
-      fixture = Fixture();
-    });
-
-    test('processor filtering out attachments', () async {
-      fixture.options.clientAttachmentProcessor =
-          MockAttachmentProcessor(MockAttachmentProcessorMode.filter);
-      final scope = Scope(fixture.options);
-      scope.addAttachment(SentryAttachment.fromIntList([], "scope-attachment"));
-      final sut = fixture.getSut();
-
-      final event = SentryEvent();
-      await sut.captureEvent(event, scope: scope);
-
-      final capturedEnvelope = (fixture.transport).envelopes.first;
-      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
-          (element) => element.header.type == SentryItemType.attachment);
-      expect(attachmentItem, null);
-    });
-
-    test('processor adding attachments', () async {
-      fixture.options.clientAttachmentProcessor =
-          MockAttachmentProcessor(MockAttachmentProcessorMode.add);
-      final scope = Scope(fixture.options);
-      final sut = fixture.getSut();
-
-      final event = SentryEvent();
-      await sut.captureEvent(event, scope: scope);
-
-      final capturedEnvelope = (fixture.transport).envelopes.first;
-      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
-          (element) => element.header.type == SentryItemType.attachment);
-      expect(attachmentItem != null, true);
-    });
-  });
-
   group('ClientReportRecorder', () {
     late Fixture fixture;
 
@@ -1169,6 +1130,20 @@ void main() {
 
       final envelope = fixture.transport.envelopes.first;
       expect(envelope.header.traceContext, isNotNull);
+    });
+
+    test('captureEvent adds screenshot from hint', () async {
+      final client = fixture.getSut();
+      final screenshot =
+          SentryAttachment.fromScreenshotData(Uint8List.fromList([0, 0, 0, 0]));
+      final hint = Hint.withScreenshot(screenshot);
+
+      await client.captureEvent(fakeEvent, hint: hint);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
+          (element) => element.header.type == SentryItemType.attachment);
+      expect(attachmentItem != null, true);
     });
 
     test('captureTransaction adds trace context', () async {

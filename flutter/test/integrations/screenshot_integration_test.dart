@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/event_processor/screenshot_event_processor.dart';
 import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
-import 'package:sentry_flutter/src/screenshot/screenshot_attachment_processor.dart';
 
 import '../mocks.mocks.dart';
 
@@ -17,25 +17,23 @@ void main() {
 
     await integration(fixture.hub, fixture.options);
 
-    expect(
-        // ignore: invalid_use_of_internal_member
-        fixture.options.clientAttachmentProcessor
-            is ScreenshotAttachmentProcessor,
-        true);
+    final processors = fixture.options.eventProcessors
+        .where((e) => e.runtimeType == ScreenshotEventProcessor);
+
+    expect(processors.isNotEmpty, true);
   });
 
   test(
-      'screenshotIntegration does not creates screenshot processor if opt out in options',
+      'screenshotIntegration does not add screenshot processor if opt out in options',
       () async {
     final integration = fixture.getSut(attachScreenshot: false);
 
     await integration(fixture.hub, fixture.options);
 
-    expect(
-        // ignore: invalid_use_of_internal_member
-        fixture.options.clientAttachmentProcessor
-            is ScreenshotAttachmentProcessor,
-        false);
+    final processors = fixture.options.eventProcessors
+        .where((e) => e.runtimeType == ScreenshotEventProcessor);
+
+    expect(processors.isEmpty, true);
   });
 
   test('screenshotIntegration close resets processor', () async {
@@ -44,11 +42,10 @@ void main() {
     await integration(fixture.hub, fixture.options);
     await integration.close();
 
-    expect(
-        // ignore: invalid_use_of_internal_member
-        fixture.options.clientAttachmentProcessor
-            is ScreenshotAttachmentProcessor,
-        false);
+    final processors = fixture.options.eventProcessors
+        .where((e) => e.runtimeType == ScreenshotEventProcessor);
+
+    expect(processors.isEmpty, true);
   });
 }
 

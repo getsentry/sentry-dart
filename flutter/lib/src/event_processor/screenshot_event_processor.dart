@@ -2,45 +2,42 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui' as ui show ImageByteFormat;
 
-import 'package:flutter/rendering.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/sentry_private.dart';
-import '../renderer/renderer.dart';
+import '../screenshot/sentry_screenshot_widget.dart';
 import '../sentry_flutter_options.dart';
-import 'sentry_screenshot_widget.dart';
+import 'package:flutter/rendering.dart';
+import '../renderer/renderer.dart';
 
-// ignore: invalid_use_of_internal_member
-class ScreenshotAttachmentProcessor implements SentryClientAttachmentProcessor {
+class ScreenshotEventProcessor extends EventProcessor {
   final SentryFlutterOptions _options;
 
-  ScreenshotAttachmentProcessor(this._options);
+  ScreenshotEventProcessor(this._options);
 
   /// This is true when the SentryWidget is in the view hierarchy
   bool get _hasSentryScreenshotWidget =>
       sentryScreenshotWidgetGlobalKey.currentContext != null;
 
   @override
-  Future<List<SentryAttachment>> processAttachments(
-      List<SentryAttachment> attachments, SentryEvent event) async {
+  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {
     if (event.exceptions == null &&
         event.throwable == null &&
         _hasSentryScreenshotWidget) {
-      return attachments;
+      return event;
     }
+
     final renderer = _options.rendererWrapper.getRenderer();
     if (renderer != FlutterRenderer.skia &&
         renderer != FlutterRenderer.canvasKit) {
       _options.logger(SentryLevel.debug,
           'Cannot take screenshot with ${_options.rendererWrapper.getRendererAsString()} renderer.');
-      return attachments;
+      return event;
     }
 
     final bytes = await _createScreenshot();
     if (bytes != null) {
-      return attachments + [SentryAttachment.fromScreenshotData(bytes)];
-    } else {
-      return attachments;
+      hint?.screenshot = SentryAttachment.fromScreenshotData(bytes);
     }
+    return event;
   }
 
   Future<Uint8List?> _createScreenshot() async {

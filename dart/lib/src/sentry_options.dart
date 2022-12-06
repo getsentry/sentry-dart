@@ -5,7 +5,6 @@ import 'package:meta/meta.dart';
 import 'package:http/http.dart';
 
 import '../sentry.dart';
-import '../sentry_private.dart';
 import 'client_reports/client_report_recorder.dart';
 import 'client_reports/noop_client_report_recorder.dart';
 import 'sentry_exception_factory.dart';
@@ -379,10 +378,6 @@ class SentryOptions {
   @internal
   late SentryStackTraceFactory stackTraceFactory =
       SentryStackTraceFactory(this);
-
-  @internal
-  late SentryClientAttachmentProcessor clientAttachmentProcessor =
-      SentryClientAttachmentProcessor();
 
   void _debugLogger(
     SentryLevel level,

@@ -2,8 +2,8 @@
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sentry_flutter/src/event_processor/screenshot_event_processor.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
-import 'package:sentry_flutter/src/screenshot/screenshot_attachment_processor.dart';
 import '../mocks.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -26,9 +26,10 @@ void main() {
 
       final throwable = Exception();
       final event = SentryEvent(throwable: throwable);
-      final attachments = await sut.processAttachments([], event);
+      final hint = Hint();
+      await sut.apply(event, hint: hint);
 
-      expect(attachments.isNotEmpty, added);
+      expect(hint.screenshot != null, added);
     });
   }
 
@@ -55,8 +56,8 @@ void main() {
 class Fixture {
   SentryFlutterOptions options = SentryFlutterOptions(dsn: fakeDsn);
 
-  ScreenshotAttachmentProcessor getSut(FlutterRenderer flutterRenderer) {
+  ScreenshotEventProcessor getSut(FlutterRenderer flutterRenderer) {
     options.rendererWrapper = MockRendererWrapper(flutterRenderer);
-    return ScreenshotAttachmentProcessor(options);
+    return ScreenshotEventProcessor(options);
   }
 }
