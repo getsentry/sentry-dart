@@ -319,6 +319,15 @@ class SentryOptions {
   /// array, and only attach tracing headers if a match was found.
   final List<String> tracePropagationTargets = ['.*'];
 
+  /// The idle time to wait until the transaction will be finished.
+  /// The transaction will use the end timestamp of the last finished span as
+  /// the endtime for the transaction.
+  ///
+  /// When set to null the transaction must be finished manually.
+  ///
+  /// The default is 3 seconds.
+  Duration? idleTimeout = Duration(seconds: 3);
+
   SentryOptions({this.dsn, PlatformChecker? checker}) {
     if (checker != null) {
       platformChecker = checker;

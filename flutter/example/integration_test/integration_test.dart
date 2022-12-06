@@ -13,7 +13,7 @@ void main() {
       await tester.pumpWidget(SentryScreenshotWidget(
           child: DefaultAssetBundle(
         bundle: SentryAssetBundle(enableStructuredDataTracing: true),
-        child: MyApp(),
+        child: const MyApp(),
       )));
       await tester.pumpAndSettle();
     });
@@ -34,20 +34,20 @@ void main() {
     final event = SentryEvent();
     final sentryId = await Sentry.captureEvent(event);
 
-    expect(sentryId != SentryId.empty(), true);
+    expect(sentryId != const SentryId.empty(), true);
   });
 
   testWidgets('setup sentry and capture exception', (tester) async {
     await setupSentryAndApp(tester);
 
     try {
-      throw SentryException(
+      throw const SentryException(
           type: 'StarError', value: 'I have a bad feeling about this...');
     } catch (exception, stacktrace) {
       final sentryId =
           await Sentry.captureException(exception, stackTrace: stacktrace);
 
-      expect(sentryId != SentryId.empty(), true);
+      expect(sentryId != const SentryId.empty(), true);
     }
   });
 
@@ -56,7 +56,7 @@ void main() {
 
     final sentryId = await Sentry.captureMessage('hello world!');
 
-    expect(sentryId != SentryId.empty(), true);
+    expect(sentryId != const SentryId.empty(), true);
   });
 
   testWidgets('setup sentry and capture user feedback', (tester) async {

@@ -2,8 +2,6 @@
 // The lint above is okay, because we're using another Sentry package
 
 import 'package:dio/dio.dart';
-import 'package:http/http.dart';
-import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry_dio/src/tracing_client_adapter.dart';
@@ -152,8 +150,6 @@ MockHttpClientAdapter createThrowingClient() {
     },
   );
 }
-
-class CloseableMockClient extends Mock implements BaseClient {}
 
 class Fixture {
   final _options = SentryOptions(dsn: fakeDsn);

@@ -54,6 +54,6 @@ android {
 }
 
 dependencies {
-    api 'io.sentry:sentry-android:6.8.0'
+    api 'io.sentry:sentry-android:6.9.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }
