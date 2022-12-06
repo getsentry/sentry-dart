@@ -1,6 +1,6 @@
 import 'package:http/http.dart';
-import '../../sentry.dart';
 import '../hint.dart';
+import '../type_check_hint.dart';
 import 'sentry_http_client_error.dart';
 import '../protocol.dart';
 import '../hub.dart';
