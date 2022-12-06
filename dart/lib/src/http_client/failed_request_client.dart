@@ -178,10 +178,7 @@ class FailedRequestClient extends BaseClient {
       timestamp: _hub.options.clock(),
     );
 
-    final hint = Hint.withMap({
-      TypeCheckHint.httpRequest: request,
-      TypeCheckHint.httpRequestDuration: requestDuration,
-    });
+    final hint = Hint.withMap({TypeCheckHint.httpRequest: request});
 
     if (response != null) {
       event.contexts.response = SentryResponse(
