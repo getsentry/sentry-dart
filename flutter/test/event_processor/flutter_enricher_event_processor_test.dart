@@ -304,9 +304,11 @@ class Fixture {
 
 void loadTestPackage() {
   PackageInfo.setMockInitialValues(
-      appName: 'appName',
-      packageName: 'packageName',
-      version: 'version',
-      buildNumber: 'buildNumber',
-      buildSignature: '');
+    appName: 'appName',
+    packageName: 'packageName',
+    version: 'version',
+    buildNumber: 'buildNumber',
+    buildSignature: '',
+    installerStore: null,
+  );
 }
