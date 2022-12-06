@@ -7,3 +7,5 @@ dependency_overrides:
     path: ../../dio
   sentry_logging:
     path: ../../logging
+  sentry_file:
+    path: ../../file
