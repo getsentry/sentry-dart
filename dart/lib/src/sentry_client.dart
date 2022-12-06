@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:meta/meta.dart';
+import 'sentry_attachment/sentry_attachment.dart';
 
-import '../sentry.dart';
 import 'event_processor.dart';
 import 'hint.dart';
 import 'sentry_trace_context_header.dart';
