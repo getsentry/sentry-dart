@@ -4,7 +4,8 @@
 
 ### Features
 
-- Feat: Introduce Hint data bag ([#1136](https://github.com/getsentry/sentry-dart/pull/1136))
+- Feat: Introduce `Hint` data bag ([#1136](https://github.com/getsentry/sentry-dart/pull/1136))
+- Feat: Use `Hint` for screenshots ([#1165](https://github.com/getsentry/sentry-dart/pull/1165))
 
 ### Fixes
 
