@@ -1,4 +1,5 @@
 import 'package:http/http.dart';
+import '../../sentry.dart';
 import '../hint.dart';
 import 'sentry_http_client_error.dart';
 import '../protocol.dart';
@@ -177,8 +178,10 @@ class FailedRequestClient extends BaseClient {
       timestamp: _hub.options.clock(),
     );
 
-    final hint =
-        Hint.withMap({'request': request, 'requestDuration': requestDuration});
+    final hint = Hint.withMap({
+      TypeCheckHint.httpRequest: request,
+      TypeCheckHint.httpRequestDuration: requestDuration,
+    });
 
     if (response != null) {
       event.contexts.response = SentryResponse(
@@ -186,7 +189,7 @@ class FailedRequestClient extends BaseClient {
         bodySize: response.contentLength,
         statusCode: response.statusCode,
       );
-      hint.set('response', response);
+      hint.set(TypeCheckHint.httpResponse, response);
     }
 
     await _hub.captureEvent(
