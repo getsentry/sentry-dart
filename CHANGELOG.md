@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Missing slow and frozen frames for Auto transactions ([#1152](https://github.com/getsentry/sentry-dart/pull/1152))
+- Missing slow and frozen frames for Auto transactions ([#1172](https://github.com/getsentry/sentry-dart/pull/1172))
 
 ### Dependencies
 
