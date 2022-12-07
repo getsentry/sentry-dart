@@ -41,7 +41,7 @@ class Sentry {
     @internal SentryOptions? options,
   }) async {
     final sentryOptions = options ?? SentryOptions();
-    await _initDefaultValues(sentryOptions, appRunner);
+    await _initDefaultValues(sentryOptions);
 
     try {
       await optionsConfiguration(sentryOptions);
