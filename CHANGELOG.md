@@ -1,6 +1,10 @@
 # Changelog
 
-## Unreleased
+## 6.18.0
+
+### Features
+
+- Tracing for File IO integration ([#1160](https://github.com/getsentry/sentry-dart/pull/1160))
 
 ### Dependencies
 

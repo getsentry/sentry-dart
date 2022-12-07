@@ -19,6 +19,7 @@ build/
 dart/coverage/*
 logging/coverage/*
 dio/coverage/*
+file/coverage/*
 pubspec.lock
 Podfile.lock
 flutter/coverage/*
