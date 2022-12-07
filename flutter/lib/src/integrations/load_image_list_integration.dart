@@ -43,7 +43,7 @@ class _LoadImageListIntegrationEventProcessor extends EventProcessor {
         // and it could be changed on the Native side.
         final loadImageList = await _channel.invokeMethod('loadImageList');
         final imageList = List<Map<dynamic, dynamic>>.from(
-          loadImageList is List<Map<dynamic, dynamic>> ? loadImageList : [],
+          loadImageList is List ? loadImageList : [],
         );
         return copyWithDebugImages(event, imageList);
       } catch (exception, stackTrace) {

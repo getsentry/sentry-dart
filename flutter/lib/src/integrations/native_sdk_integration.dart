@@ -18,7 +18,7 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
       return;
     }
     try {
-      await _channel.invokeMethod<void>('initNativeSdk', <String, dynamic>{
+      await _channel.invokeMethod('initNativeSdk', <String, dynamic>{
         'dsn': options.dsn,
         'debug': options.debug,
         'environment': options.environment,
@@ -64,7 +64,7 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
       return;
     }
     try {
-      await _channel.invokeMethod<void>('closeNativeSdk');
+      await _channel.invokeMethod('closeNativeSdk');
     } catch (exception, stackTrace) {
       _options?.logger(
         SentryLevel.fatal,

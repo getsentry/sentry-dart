@@ -43,8 +43,9 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
   FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {
     try {
       final loadContexts = await _channel.invokeMethod('loadContexts');
-      final infos = Map<String, dynamic>.from(
-          loadContexts is Map<String, dynamic> ? loadContexts : {});
+
+      final infos =
+          Map<String, dynamic>.from(loadContexts is Map ? loadContexts : {});
       final contextsMap = infos['contexts'] as Map?;
       if (contextsMap != null && contextsMap.isNotEmpty) {
         final contexts = Contexts.fromJson(
@@ -138,7 +139,8 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
       final breadcrumbsList = infos['breadcrumbs'] as List?;
       if (breadcrumbsList != null && breadcrumbsList.isNotEmpty) {
         final breadcrumbs = event.breadcrumbs ?? [];
-        final newBreadcrumbs = List<Map<String, dynamic>>.from(breadcrumbsList);
+        final newBreadcrumbs =
+            List<Map<dynamic, dynamic>>.from(breadcrumbsList);
 
         for (final breadcrumb in newBreadcrumbs) {
           final newBreadcrumb = Map<String, dynamic>.from(breadcrumb);
