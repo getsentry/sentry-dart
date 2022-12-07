@@ -61,10 +61,7 @@ class Sentry {
     await _init(sentryOptions, appRunner, callAppRunnerInRunZonedGuarded);
   }
 
-  static Future<void> _initDefaultValues(
-    SentryOptions options,
-    AppRunner? appRunner,
-  ) async {
+  static Future<void> _initDefaultValues(SentryOptions options) async {
     _setEnvironmentVariables(options);
 
     // Throws when running on the browser
