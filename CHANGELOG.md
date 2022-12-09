@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Missing slow and frozen frames for Auto transactions ([#1172](https://github.com/getsentry/sentry-dart/pull/1172))
+
 ### Dependencies
 
 - Bump Android SDK from v6.9.1 to v6.9.2 ([#1167](https://github.com/getsentry/sentry-dart/pull/1167))
