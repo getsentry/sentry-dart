@@ -226,7 +226,8 @@ void main() {
 
   test('callback called on finish', () async {
     var numberOfCallbackCalls = 0;
-    final sut = fixture.getSut(finishedCallback: ({DateTime? endTimestamp}) {
+    final sut =
+        fixture.getSut(finishedCallback: ({DateTime? endTimestamp}) async {
       numberOfCallbackCalls += 1;
     });
 
@@ -269,7 +270,7 @@ class Fixture {
   SentrySpan getSut({
     DateTime? startTimestamp,
     bool? sampled = true,
-    Function({DateTime? endTimestamp})? finishedCallback,
+    OnFinishedCallback? finishedCallback,
     Duration? autoFinishAfter,
   }) {
     tracer = SentryTracer(context, hub, autoFinishAfter: autoFinishAfter);
