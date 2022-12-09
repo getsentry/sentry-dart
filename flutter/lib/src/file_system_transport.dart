@@ -18,7 +18,7 @@ class FileSystemTransport implements Transport {
     // https://flutter.dev/docs/development/platform-integration/platform-channels#codec
     final args = [Uint8List.fromList(envelopeData)];
     try {
-      await _channel.invokeMethod<void>('captureEnvelope', args);
+      await _channel.invokeMethod('captureEnvelope', args);
     } catch (exception, stackTrace) {
       _options.logger(
         SentryLevel.error,

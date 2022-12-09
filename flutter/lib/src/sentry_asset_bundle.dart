@@ -219,6 +219,7 @@ class SentryAssetBundle implements AssetBundle {
 
   Future<ImmutableBuffer> _loadBuffer(String key) async {
     try {
+      // ignore: return_of_invalid_type
       return (_bundle as dynamic).loadBuffer(key);
     } on NoSuchMethodError catch (_) {
       // The loadBuffer method exists as of Flutter greater than 3.1
