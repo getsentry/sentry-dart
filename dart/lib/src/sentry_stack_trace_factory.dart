@@ -17,6 +17,7 @@ class SentryStackTraceFactory {
     'sentry_flutter',
     'sentry_logging',
     'sentry_dio',
+    'sentry_file',
   ];
 
   SentryStackTraceFactory(this._options);
