@@ -1,3 +1,10 @@
+/// Hints are used in [BeforeSendCallback], [BeforeBreadcrumbCallback] and
+/// event processors.
+///
+/// Event and breadcrumb hints are objects containing various information used
+/// to put together an event or a breadcrumb. Typically hints hold the original
+/// exception so that additional data can be extracted or grouping can be
+/// affected.
 class Hint {
   final Map<String, Object> _internalStorage = {};
 
