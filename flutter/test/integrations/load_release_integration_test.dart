@@ -40,6 +40,7 @@ void main() {
           version: '1.2.3',
           buildNumber: '789',
           buildSignature: '',
+          installerStore: null,
         );
       };
       await fixture
@@ -59,6 +60,7 @@ void main() {
           version: '1.2.3',
           buildNumber: '789',
           buildSignature: '',
+          installerStore: null,
         );
       };
       await fixture
@@ -84,6 +86,7 @@ void main() {
           version: '1.0.0\u{0000}',
           buildNumber: '',
           buildSignature: '',
+          installerStore: null,
         );
       };
       await fixture
@@ -109,6 +112,7 @@ void main() {
           version: '',
           buildNumber: '123\u{0000}',
           buildSignature: '',
+          installerStore: null,
         );
       };
       await fixture
@@ -126,6 +130,7 @@ void main() {
           version: '1.0.0',
           buildNumber: '',
           buildSignature: '',
+          installerStore: null,
         );
       };
       await fixture
@@ -157,6 +162,7 @@ class Fixture {
       version: '1.2.3',
       buildNumber: '789',
       buildSignature: '',
+      installerStore: null,
     );
   }
 }
