@@ -23,7 +23,7 @@ class WidgetsBindingIntegration extends Integration<SentryFlutterOptions> {
     // We don't need to call `WidgetsFlutterBinding.ensureInitialized()`
     // because `WidgetsFlutterBindingIntegration` already calls it.
     // If the instance is not created, we skip it to keep going.
-    final instance = _options.bindingUtils.getWidgetsBindingInstance();
+    final instance = _options.bindingUtils.instance;
 
     instance.addObserver(_observer);
     options.sdk.addIntegration('widgetsBindingIntegration');
@@ -31,7 +31,7 @@ class WidgetsBindingIntegration extends Integration<SentryFlutterOptions> {
 
   @override
   FutureOr<void> close() {
-    final instance = _options.bindingUtils.getWidgetsBindingInstance();
+    final instance = _options.bindingUtils.instance;
     instance.removeObserver(_observer);
   }
 }

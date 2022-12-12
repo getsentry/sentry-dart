@@ -38,7 +38,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
           .skip(1) // Skip initial event added below in constructor
           .listen(_onScreenSizeChanged);
 
-      final window = _options.bindingUtils.getWidgetsBindingInstance().window;
+      final window = _options.bindingUtils.instance.window;
       _screenSizeStreamController.add(window);
     }
   }
@@ -86,7 +86,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     if (!_options.enableWindowMetricBreadcrumbs) {
       return;
     }
-    final window = _options.bindingUtils.getWidgetsBindingInstance().window;
+    final window = _options.bindingUtils.instance.window;
     _screenSizeStreamController.add(window);
   }
 
@@ -108,10 +108,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     if (!_options.enableBrightnessChangeBreadcrumbs) {
       return;
     }
-    final brightness = _options.bindingUtils
-        .getWidgetsBindingInstance()
-        .window
-        .platformBrightness;
+    final brightness = _options.bindingUtils.instance.window.platformBrightness;
     final brightnessDescription =
         brightness == Brightness.dark ? 'dark' : 'light';
 
@@ -134,10 +131,9 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     if (!_options.enableTextScaleChangeBreadcrumbs) {
       return;
     }
-    final newTextScaleFactor = _options.bindingUtils
-        .getWidgetsBindingInstance()
-        .window
-        .textScaleFactor;
+    final newTextScaleFactor =
+        _options.bindingUtils.instance.window.textScaleFactor;
+
     _hub.addBreadcrumb(Breadcrumb(
       message: 'Text scale factor changed to $newTextScaleFactor.',
       type: 'system',

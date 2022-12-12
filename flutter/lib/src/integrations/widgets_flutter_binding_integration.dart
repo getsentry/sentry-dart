@@ -12,7 +12,7 @@ class WidgetsFlutterBindingIntegration
     extends Integration<SentryFlutterOptions> {
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
-    options.bindingUtils.ensureBindingInitialized();
+    options.bindingUtils.ensureInitialized();
     options.sdk.addIntegration('widgetsFlutterBindingIntegration');
   }
 }

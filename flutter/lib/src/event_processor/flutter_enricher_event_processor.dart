@@ -23,8 +23,7 @@ class FlutterEnricherEventProcessor extends EventProcessor {
   // We can't use `WidgetsBinding` as a direct parameter
   // because it must be called inside the `runZoneGuarded`-Integration.
   // Thus we call it on demand after all the initialization happened.
-  WidgetsBinding get _widgetsBinding =>
-      _options.bindingUtils.getWidgetsBindingInstance();
+  WidgetsBinding get _widgetsBinding => _options.bindingUtils.instance;
 
   SingletonFlutterWindow? get _window => _widgetsBinding.window;
   Map<String, String> _packages = {};

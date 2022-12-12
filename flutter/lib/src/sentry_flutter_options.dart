@@ -254,5 +254,5 @@ class SentryFlutterOptions extends SentryOptions {
   }
 
   @internal
-  BindingUtils bindingUtils = BindingUtils();
+  BindingWrapper bindingUtils = BindingWrapper();
 }

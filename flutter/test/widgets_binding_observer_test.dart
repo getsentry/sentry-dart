@@ -18,11 +18,11 @@ void main() {
       TestWidgetsFlutterBinding.ensureInitialized();
 
       flutterTrackingEnabledOptions = SentryFlutterOptions()
-        ..bindingUtils = TestBindingUtils();
+        ..bindingUtils = TestBindingWrapper();
       flutterTrackingEnabledOptions.useFlutterBreadcrumbTracking();
 
       flutterTrackingDisabledOptions = SentryFlutterOptions()
-        ..bindingUtils = TestBindingUtils();
+        ..bindingUtils = TestBindingWrapper();
       flutterTrackingDisabledOptions.useNativeBreadcrumbTracking();
     });
 
@@ -33,8 +33,7 @@ void main() {
         hub: hub,
         options: flutterTrackingEnabledOptions,
       );
-      final instance = flutterTrackingEnabledOptions.bindingUtils
-          .getWidgetsBindingInstance();
+      final instance = flutterTrackingEnabledOptions.bindingUtils.instance;
       instance.addObserver(observer);
 
       final message = const JSONMessageCodec()
@@ -67,8 +66,7 @@ void main() {
         hub: hub,
         options: flutterTrackingDisabledOptions,
       );
-      final instance = flutterTrackingDisabledOptions.bindingUtils
-          .getWidgetsBindingInstance();
+      final instance = flutterTrackingDisabledOptions.bindingUtils.instance;
       instance.addObserver(observer);
 
       final message = const JSONMessageCodec()
@@ -102,8 +100,7 @@ void main() {
         hub: hub,
         options: flutterTrackingEnabledOptions,
       );
-      final instance = flutterTrackingEnabledOptions.bindingUtils
-          .getWidgetsBindingInstance();
+      final instance = flutterTrackingEnabledOptions.bindingUtils.instance;
       instance.addObserver(observer);
 
       // paused lifecycle event
@@ -165,8 +162,7 @@ void main() {
         hub: hub,
         options: flutterTrackingDisabledOptions,
       );
-      final instance = flutterTrackingDisabledOptions.bindingUtils
-          .getWidgetsBindingInstance();
+      final instance = flutterTrackingDisabledOptions.bindingUtils.instance;
       instance.addObserver(observer);
 
       await sendLifecycle('paused');
@@ -269,8 +265,7 @@ void main() {
         hub: hub,
         options: flutterTrackingDisabledOptions,
       );
-      final instance = flutterTrackingDisabledOptions.bindingUtils
-          .getWidgetsBindingInstance();
+      final instance = flutterTrackingDisabledOptions.bindingUtils.instance;
       instance.addObserver(observer);
 
       final window = instance.window;
@@ -289,8 +284,7 @@ void main() {
         hub: hub,
         options: flutterTrackingEnabledOptions,
       );
-      final instance = flutterTrackingEnabledOptions.bindingUtils
-          .getWidgetsBindingInstance();
+      final instance = flutterTrackingEnabledOptions.bindingUtils.instance;
       instance.addObserver(observer);
 
       final window = instance.window;
@@ -325,8 +319,7 @@ void main() {
         hub: hub,
         options: flutterTrackingDisabledOptions,
       );
-      final instance = flutterTrackingDisabledOptions.bindingUtils
-          .getWidgetsBindingInstance();
+      final instance = flutterTrackingDisabledOptions.bindingUtils.instance;
       instance.addObserver(observer);
 
       final window = instance.window;
@@ -346,8 +339,7 @@ void main() {
         hub: hub,
         options: flutterTrackingEnabledOptions,
       );
-      final instance = flutterTrackingEnabledOptions.bindingUtils
-          .getWidgetsBindingInstance();
+      final instance = flutterTrackingEnabledOptions.bindingUtils.instance;
       instance.addObserver(observer);
 
       final window = instance.window;
@@ -377,8 +369,7 @@ void main() {
 
       final observer = SentryWidgetsBindingObserver(
           hub: hub, options: flutterTrackingDisabledOptions);
-      final instance = flutterTrackingDisabledOptions.bindingUtils
-          .getWidgetsBindingInstance();
+      final instance = flutterTrackingDisabledOptions.bindingUtils.instance;
       instance.addObserver(observer);
 
       final window = instance.window;

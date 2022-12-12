@@ -28,7 +28,7 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
   @override
   void call(Hub hub, SentryFlutterOptions options) {
     _options = options;
-    final binding = options.bindingUtils.getWidgetsBindingInstance();
+    final binding = options.bindingUtils.instance;
 
     // WidgetsBinding works with WidgetsFlutterBinding and other custom bindings
     final wrapper = dispatchWrapper ??

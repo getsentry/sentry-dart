@@ -260,18 +260,18 @@ class MockRendererWrapper implements RendererWrapper {
   }
 }
 
-class TestBindingUtils implements BindingUtils {
+class TestBindingWrapper implements BindingWrapper {
   bool ensureBindingInitializedCalled = false;
   bool getWidgetsBindingInstanceCalled = false;
 
   @override
-  void ensureBindingInitialized() {
+  void ensureInitialized() {
     ensureBindingInitializedCalled = true;
     TestWidgetsFlutterBinding.ensureInitialized();
   }
 
   @override
-  WidgetsBinding getWidgetsBindingInstance() {
+  WidgetsBinding get instance {
     getWidgetsBindingInstanceCalled = true;
     return TestWidgetsFlutterBinding.instance;
   }

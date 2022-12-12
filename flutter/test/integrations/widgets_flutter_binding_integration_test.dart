@@ -43,8 +43,8 @@ class Fixture {
   final hub = MockHub();
 
   final options = SentryFlutterOptions(dsn: fakeDsn)
-    ..bindingUtils = TestBindingUtils();
+    ..bindingUtils = TestBindingWrapper();
 
-  TestBindingUtils get testBindingUtils =>
-      options.bindingUtils as TestBindingUtils;
+  TestBindingWrapper get testBindingUtils =>
+      options.bindingUtils as TestBindingWrapper;
 }
