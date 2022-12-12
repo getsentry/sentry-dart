@@ -11,4 +11,7 @@ class TypeCheckHint {
 
   /// Used for [LoggingIntegration] for [LogRecord] hint
   static const record = 'record';
+
+  /// Widget that was tapped in [SentryUserInteractionWidget]
+  static const widget = 'widget';
 }
