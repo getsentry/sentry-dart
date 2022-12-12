@@ -7,6 +7,8 @@ import '../sentry_tracer.dart';
 import '../tracing.dart';
 import '../utils.dart';
 
+typedef OnFinishedCallback = Future<void> Function({DateTime? endTimestamp});
+
 class SentrySpan extends ISentrySpan {
   final SentrySpanContext _context;
   DateTime? _endTimestamp;
@@ -19,7 +21,7 @@ class SentrySpan extends ISentrySpan {
 
   SpanStatus? _status;
   final Map<String, String> _tags = {};
-  Function({DateTime? endTimestamp})? _finishedCallback;
+  OnFinishedCallback? _finishedCallback;
 
   @override
   final SentryTracesSamplingDecision? samplingDecision;
@@ -30,7 +32,7 @@ class SentrySpan extends ISentrySpan {
     this._hub, {
     DateTime? startTimestamp,
     this.samplingDecision,
-    Function({DateTime? endTimestamp})? finishedCallback,
+    OnFinishedCallback? finishedCallback,
   }) {
     _startTimestamp = startTimestamp?.toUtc() ?? _hub.options.clock();
     _finishedCallback = finishedCallback;
@@ -197,4 +199,7 @@ class SentrySpan extends ISentrySpan {
 
   @override
   SentryTraceContextHeader? traceContext() => _tracer.traceContext();
+
+  @override
+  void scheduleFinish() => _tracer.scheduleFinish();
 }

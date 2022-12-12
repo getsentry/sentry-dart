@@ -6,12 +6,12 @@ class TypeCheckHint {
   /// Used for [FailedRequestClient] for request hint
   static const httpRequest = 'request';
 
-  /// Used for [FailedRequestClient] for request duration hint
-  static const httpRequestDuration = 'requestDuration';
-
   /// Used for [FailedRequestClient] for response hint
   static const httpResponse = 'response';
 
   /// Used for [LoggingIntegration] for [LogRecord] hint
   static const record = 'record';
+
+  /// Widget that was tapped in [SentryUserInteractionWidget]
+  static const widget = 'widget';
 }

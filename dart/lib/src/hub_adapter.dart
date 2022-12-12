@@ -130,6 +130,7 @@ class HubAdapter implements Hub {
         waitForChildren: waitForChildren,
         autoFinishAfter: autoFinishAfter,
         trimEnd: trimEnd,
+        onFinish: onFinish,
       );
 
   @override

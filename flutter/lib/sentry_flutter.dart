@@ -9,3 +9,4 @@ export 'src/flutter_sentry_attachment.dart';
 export 'src/sentry_asset_bundle.dart';
 export 'src/integrations/on_error_integration.dart';
 export 'src/screenshot/sentry_screenshot_widget.dart';
+export 'src/user_interaction/sentry_user_interaction_widget.dart';

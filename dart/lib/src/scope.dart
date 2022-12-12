@@ -10,6 +10,8 @@ import 'sentry_options.dart';
 import 'sentry_span_interface.dart';
 import 'sentry_tracer.dart';
 
+typedef _OnScopeObserver = Future<void> Function(ScopeObserver observer);
+
 /// Scope data to be sent with the event
 class Scope {
   /// How important this event is.
@@ -446,8 +448,7 @@ class Scope {
     return clone;
   }
 
-  Future<void> _callScopeObservers(
-      Future<void> Function(ScopeObserver) action) async {
+  Future<void> _callScopeObservers(_OnScopeObserver action) async {
     if (_options.enableScopeSync) {
       for (final scopeObserver in _options.scopeObservers) {
         await action(scopeObserver);

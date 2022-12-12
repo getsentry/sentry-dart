@@ -79,86 +79,119 @@ void main() {
     });
   });
 
-  test('Breadcrumb http ctor', () {
-    final breadcrumb = Breadcrumb.http(
-      url: Uri.parse('https://example.org'),
-      method: 'GET',
-      level: SentryLevel.fatal,
-      reason: 'OK',
-      statusCode: 200,
-      requestDuration: Duration.zero,
-      timestamp: DateTime.now(),
-      requestBodySize: 2,
-      responseBodySize: 3,
-    );
-    final json = breadcrumb.toJson();
+  group('ctor', () {
+    test('Breadcrumb http', () {
+      final breadcrumb = Breadcrumb.http(
+        url: Uri.parse('https://example.org'),
+        method: 'GET',
+        level: SentryLevel.fatal,
+        reason: 'OK',
+        statusCode: 200,
+        requestDuration: Duration.zero,
+        timestamp: DateTime.now(),
+        requestBodySize: 2,
+        responseBodySize: 3,
+      );
+      final json = breadcrumb.toJson();
 
-    expect(json, {
-      'timestamp': formatDateAsIso8601WithMillisPrecision(breadcrumb.timestamp),
-      'category': 'http',
-      'data': {
-        'url': 'https://example.org',
-        'method': 'GET',
-        'status_code': 200,
-        'reason': 'OK',
-        'duration': '0:00:00.000000',
-        'request_body_size': 2,
-        'response_body_size': 3,
-      },
-      'level': 'fatal',
-      'type': 'http',
+      expect(json, {
+        'timestamp':
+            formatDateAsIso8601WithMillisPrecision(breadcrumb.timestamp),
+        'category': 'http',
+        'data': {
+          'url': 'https://example.org',
+          'method': 'GET',
+          'status_code': 200,
+          'reason': 'OK',
+          'duration': '0:00:00.000000',
+          'request_body_size': 2,
+          'response_body_size': 3,
+        },
+        'level': 'fatal',
+        'type': 'http',
+      });
     });
-  });
 
-  test('Minimal Breadcrumb http ctor', () {
-    final breadcrumb = Breadcrumb.http(
-      url: Uri.parse('https://example.org'),
-      method: 'GET',
-    );
-    final json = breadcrumb.toJson();
+    test('Minimal Breadcrumb http', () {
+      final breadcrumb = Breadcrumb.http(
+        url: Uri.parse('https://example.org'),
+        method: 'GET',
+      );
+      final json = breadcrumb.toJson();
 
-    expect(json, {
-      'timestamp': formatDateAsIso8601WithMillisPrecision(breadcrumb.timestamp),
-      'category': 'http',
-      'data': {
-        'url': 'https://example.org',
-        'method': 'GET',
-      },
-      'level': 'info',
-      'type': 'http',
+      expect(json, {
+        'timestamp':
+            formatDateAsIso8601WithMillisPrecision(breadcrumb.timestamp),
+        'category': 'http',
+        'data': {
+          'url': 'https://example.org',
+          'method': 'GET',
+        },
+        'level': 'info',
+        'type': 'http',
+      });
     });
-  });
 
-  test('Breadcrumb console ctor', () {
-    final breadcrumb = Breadcrumb.console(
-      message: 'Foo Bar',
-    );
-    final json = breadcrumb.toJson();
+    test('Breadcrumb console', () {
+      final breadcrumb = Breadcrumb.console(
+        message: 'Foo Bar',
+      );
+      final json = breadcrumb.toJson();
 
-    expect(json, {
-      'message': 'Foo Bar',
-      'timestamp': formatDateAsIso8601WithMillisPrecision(breadcrumb.timestamp),
-      'category': 'console',
-      'type': 'debug',
-      'level': 'info',
+      expect(json, {
+        'message': 'Foo Bar',
+        'timestamp':
+            formatDateAsIso8601WithMillisPrecision(breadcrumb.timestamp),
+        'category': 'console',
+        'type': 'debug',
+        'level': 'info',
+      });
     });
-  });
 
-  test('extensive Breadcrumb console ctor', () {
-    final breadcrumb = Breadcrumb.console(
-      message: 'Foo Bar',
-      level: SentryLevel.error,
-      data: {'foo': 'bar'},
-    );
-    final json = breadcrumb.toJson();
+    test('extensive Breadcrumb console', () {
+      final breadcrumb = Breadcrumb.console(
+        message: 'Foo Bar',
+        level: SentryLevel.error,
+        data: {'foo': 'bar'},
+      );
+      final json = breadcrumb.toJson();
 
-    expect(json, {
-      'message': 'Foo Bar',
-      'timestamp': formatDateAsIso8601WithMillisPrecision(breadcrumb.timestamp),
-      'category': 'console',
-      'type': 'debug',
-      'level': 'error',
-      'data': {'foo': 'bar'},
+      expect(json, {
+        'message': 'Foo Bar',
+        'timestamp':
+            formatDateAsIso8601WithMillisPrecision(breadcrumb.timestamp),
+        'category': 'console',
+        'type': 'debug',
+        'level': 'error',
+        'data': {'foo': 'bar'},
+      });
+    });
+
+    test('extensive Breadcrumb user interaction', () {
+      final time = DateTime.now().toUtc();
+      final breadcrumb = Breadcrumb.userInteraction(
+        message: 'Foo Bar',
+        level: SentryLevel.error,
+        timestamp: time,
+        data: {'foo': 'bar'},
+        subCategory: 'click',
+        viewId: 'foo',
+        viewClass: 'bar',
+      );
+      final json = breadcrumb.toJson();
+
+      expect(json, {
+        'message': 'Foo Bar',
+        'timestamp': formatDateAsIso8601WithMillisPrecision(time),
+        'category': 'ui.click',
+        'type': 'user',
+        'level': 'error',
+        'data': {
+          'foo': 'bar',
+          'view.id': 'foo',
+          'view.class': 'bar',
+        },
+      });
     });
   });
 }

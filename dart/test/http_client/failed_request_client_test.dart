@@ -250,7 +250,7 @@ void main() {
       }
     });
 
-    test('request and requestDuration are passed to hint', () async {
+    test('request passed to hint', () async {
       fixture._hub.options.captureFailedHttpRequests = true;
 
       Request? failedRequest;
@@ -276,7 +276,6 @@ void main() {
       );
 
       expect((eventHint?.get('request') as Request?)?.url, failedRequest?.url);
-      expect(eventHint?.get('requestDuration'), isNotNull);
     });
   });
 }

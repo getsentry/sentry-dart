@@ -1,6 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:http/http.dart';
-import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_dio/src/sentry_dio_client_adapter.dart';
 import 'package:test/test.dart';
@@ -47,16 +45,10 @@ void main() {
     });
 
     test('close does get called for user defined client', () async {
-      final mockHub = MockHub();
+      final client = createCloseClient();
+      final sut = fixture.getSut(client: client);
 
-      final mockClient = CloseableMockClient();
-
-      final client = SentryHttpClient(client: mockClient, hub: mockHub);
-      client.close();
-
-      expect(mockHub.addBreadcrumbCalls.length, 0);
-      expect(mockHub.captureExceptionCalls.length, 0);
-      verify(mockClient.close());
+      sut.close(force: true);
     });
 
     test('no captured span if tracing disabled', () async {
@@ -95,7 +87,18 @@ MockHttpClientAdapter createThrowingClient() {
   );
 }
 
-class CloseableMockClient extends Mock implements BaseClient {}
+void _close({bool force = false}) {
+  expect(force, true);
+}
+
+MockHttpClientAdapter createCloseClient() {
+  return MockHttpClientAdapter(
+    (_, __, ___) async {
+      return ResponseBody.fromString('', 200);
+    },
+    mockCloseMethod: _close,
+  );
+}
 
 class Fixture {
   Dio getSut({
@@ -115,10 +118,12 @@ class Fixture {
   final MockHub hub = MockHub();
 
   MockHttpClientAdapter getClient({int statusCode = 200, String? reason}) {
-    return MockHttpClientAdapter((options, _, __) async {
-      expect(options.uri, requestUri);
-      return ResponseBody.fromString('', statusCode);
-    });
+    return MockHttpClientAdapter(
+      (options, _, __) async {
+        expect(options.uri, requestUri);
+        return ResponseBody.fromString('', statusCode);
+      },
+    );
   }
 }
 

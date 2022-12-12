@@ -35,7 +35,7 @@ void main() {
 
       final throwable = exception ?? StateError('error');
       final details = FlutterErrorDetails(
-        exception: throwable,
+        exception: throwable as Object,
         silent: silent,
         context: DiagnosticsNode.message('while handling a gesture'),
         library: 'sentry',
@@ -58,8 +58,6 @@ void main() {
       final throwableMechanism = event.throwableMechanism as ThrowableMechanism;
       expect(throwableMechanism.mechanism.type, 'FlutterError');
       expect(throwableMechanism.mechanism.handled, true);
-      expect(throwableMechanism.mechanism.data['hint'],
-          'See "flutter_error_details" down below for more information');
       expect(throwableMechanism.throwable, exception);
 
       expect(event.contexts['flutter_error_details']['library'], 'sentry');
@@ -94,8 +92,6 @@ void main() {
       final throwableMechanism = event.throwableMechanism as ThrowableMechanism;
       expect(throwableMechanism.mechanism.type, 'FlutterError');
       expect(throwableMechanism.mechanism.handled, true);
-      expect(throwableMechanism.mechanism.data['hint'],
-          'See "flutter_error_details" down below for more information');
 
       expect(event.contexts['flutter_error_details']['library'], 'sentry');
       expect(event.contexts['flutter_error_details']['context'],

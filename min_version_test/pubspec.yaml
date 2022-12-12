@@ -34,8 +34,9 @@ dependencies:
   sentry_flutter:
   sentry_dio:
   sentry_logging:
+  sentry_file:
   dio: ^4.0.0
-  logging: ^1.0.2
+  logging: ^1.0.0
 
 dev_dependencies:
   flutter_test:
@@ -52,6 +53,8 @@ dependency_overrides:
     path: ../dio
   sentry_logging:
     path: ../logging
+  sentry_file:
+    path: ../file
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

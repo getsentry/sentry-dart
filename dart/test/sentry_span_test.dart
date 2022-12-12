@@ -226,7 +226,8 @@ void main() {
 
   test('callback called on finish', () async {
     var numberOfCallbackCalls = 0;
-    final sut = fixture.getSut(finishedCallback: ({DateTime? endTimestamp}) {
+    final sut =
+        fixture.getSut(finishedCallback: ({DateTime? endTimestamp}) async {
       numberOfCallbackCalls += 1;
     });
 
@@ -244,6 +245,18 @@ void main() {
 
     expect(sut.endTimestamp, endTimestamp);
   });
+
+  test('child span reschedule finish timer', () async {
+    final sut = fixture.getSut(autoFinishAfter: Duration(seconds: 5));
+
+    final currentTimer = fixture.tracer.autoFinishAfterTimer!;
+
+    sut.scheduleFinish();
+
+    final newTimer = fixture.tracer.autoFinishAfterTimer!;
+
+    expect(currentTimer, isNot(equals(newTimer)));
+  });
 }
 
 class Fixture {
@@ -254,11 +267,13 @@ class Fixture {
   late SentryTracer tracer;
   final hub = MockHub();
 
-  SentrySpan getSut(
-      {DateTime? startTimestamp,
-      bool? sampled = true,
-      Function({DateTime? endTimestamp})? finishedCallback}) {
-    tracer = SentryTracer(context, hub);
+  SentrySpan getSut({
+    DateTime? startTimestamp,
+    bool? sampled = true,
+    OnFinishedCallback? finishedCallback,
+    Duration? autoFinishAfter,
+  }) {
+    tracer = SentryTracer(context, hub, autoFinishAfter: autoFinishAfter);
 
     return SentrySpan(
       tracer,

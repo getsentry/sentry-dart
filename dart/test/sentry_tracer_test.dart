@@ -269,6 +269,32 @@ void main() {
       expect(sut.finished, true);
     });
 
+    test('tracer reschedule finish timer', () async {
+      final sut = fixture.getSut(autoFinishAfter: Duration(milliseconds: 200));
+
+      final currentTimer = sut.autoFinishAfterTimer!;
+
+      sut.scheduleFinish();
+
+      final newTimer = sut.autoFinishAfterTimer!;
+
+      expect(currentTimer, isNot(equals(newTimer)));
+    });
+
+    test('tracer do not reschedule if finished', () async {
+      final sut = fixture.getSut(autoFinishAfter: Duration(milliseconds: 200));
+
+      final currentTimer = sut.autoFinishAfterTimer!;
+
+      await sut.finish();
+
+      sut.scheduleFinish();
+
+      final newTimer = sut.autoFinishAfterTimer!;
+
+      expect(currentTimer, newTimer);
+    });
+
     test('tracer finish needs child to finish', () async {
       final sut = fixture.getSut(waitForChildren: true);
 
@@ -374,6 +400,14 @@ void main() {
       expect(sut.startChild('child3'), isA<NoOpSentrySpan>());
     });
 
+    test('do not capture idle transaction without children', () async {
+      final sut = fixture.getSut(autoFinishAfter: Duration(milliseconds: 200));
+
+      await sut.finish();
+
+      expect(fixture.hub.captureTransactionCalls.isEmpty, true);
+    });
+
     test('tracer sets measurement', () async {
       final sut = fixture.getSut();
 
@@ -407,24 +441,15 @@ void main() {
   });
 
   group('$SentryBaggageHeader', () {
-    final _options = SentryOptions(dsn: fakeDsn)
-      ..release = 'release'
-      ..environment = 'environment';
-
+    late Fixture _fixture;
     late Hub _hub;
 
-    final _client = MockSentryClient();
-
-    final _user = SentryUser(
-      id: 'id',
-      segment: 'segment',
-    );
-
     setUp(() async {
-      _hub = Hub(_options);
-      _hub.configureScope((scope) => scope.setUser(_user));
+      _fixture = Fixture();
+      _hub = Hub(_fixture.options);
+      _hub.configureScope((scope) => scope.setUser(_fixture.user));
 
-      _hub.bindClient(_client);
+      _hub.bindClient(_fixture.client);
     });
 
     SentryTracer getSut({SentryTracesSamplingDecision? samplingDecision}) {
@@ -492,24 +517,15 @@ void main() {
   });
 
   group('$SentryTraceContextHeader', () {
-    final _options = SentryOptions(dsn: fakeDsn)
-      ..release = 'release'
-      ..environment = 'environment';
-
+    late Fixture _fixture;
     late Hub _hub;
 
-    final _client = MockSentryClient();
-
-    final _user = SentryUser(
-      id: 'id',
-      segment: 'segment',
-    );
-
     setUp(() async {
-      _hub = Hub(_options);
-      _hub.configureScope((scope) => scope.setUser(_user));
+      _fixture = Fixture();
+      _hub = Hub(_fixture.options);
+      _hub.configureScope((scope) => scope.setUser(_fixture.user));
 
-      _hub.bindClient(_client);
+      _hub.bindClient(_fixture.client);
     });
 
     SentryTracer getSut({SentryTracesSamplingDecision? samplingDecision}) {
@@ -544,6 +560,17 @@ void main() {
 }
 
 class Fixture {
+  final options = SentryOptions(dsn: fakeDsn)
+    ..release = 'release'
+    ..environment = 'environment';
+
+  final client = MockSentryClient();
+
+  final user = SentryUser(
+    id: 'id',
+    segment: 'segment',
+  );
+
   final hub = MockHub();
 
   SentryTracer getSut({
