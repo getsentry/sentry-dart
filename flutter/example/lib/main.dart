@@ -59,7 +59,6 @@ Future<void> setupSentry(AppRunner appRunner) async {
     options.maxRequestBodySize = MaxRequestBodySize.always;
     options.maxResponseBodySize = MaxResponseBodySize.always;
     options.captureFailedHttpRequests = true;
-    options.recordHttpBreadcrumbs = true;
   },
       // Init your App.
       appRunner: appRunner);
