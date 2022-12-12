@@ -253,6 +253,8 @@ class SentryFlutterOptions extends SentryOptions {
     }
   }
 
+  /// Setting this to a custom [BindingWrapper] allows you to use a custom [WidgetsBinding].
+  @experimental
   @internal
   BindingWrapper bindingUtils = BindingWrapper();
 }
