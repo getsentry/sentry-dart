@@ -17,6 +17,19 @@
   - Removed isolate name from Dart context. It's now reported via the threads interface. It can be enabled via `options.attachThreads`
 - Use `sentryClientName` instead of `sdk.identifier` ([#1135](https://github.com/getsentry/sentry-dart/pull/1135))
 ## Unreleased
+## 6.18.1
+
+### Fixes
+
+- Missing slow and frozen frames for Auto transactions ([#1172](https://github.com/getsentry/sentry-dart/pull/1172))
+
+### Dependencies
+
+- Bump Android SDK from v6.9.1 to v6.9.2 ([#1167](https://github.com/getsentry/sentry-dart/pull/1167))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#692)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.9.1...6.9.2)
+
+## 6.18.0
 
 ### Features
 

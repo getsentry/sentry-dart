@@ -32,7 +32,7 @@ void main() {
 
       final throwable = exception ?? StateError('error');
       final details = FlutterErrorDetails(
-        exception: throwable,
+        exception: throwable as Object,
         silent: silent,
         context: DiagnosticsNode.message('while handling a gesture'),
         library: 'sentry',

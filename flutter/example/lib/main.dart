@@ -694,5 +694,5 @@ class ThemeProvider extends ChangeNotifier {
 }
 
 Future<void> execute(String method) async {
-  await _channel.invokeMethod<void>(method);
+  await _channel.invokeMethod(method);
 }

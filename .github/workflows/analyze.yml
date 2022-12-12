@@ -24,10 +24,7 @@ jobs:
           access_token: ${{ github.token }}
 
   analyze:
-    # `invertase/github-action-dart-analyzer` is using `flutter pub upgrade` instead of `get`,
-    # which ignores pubspec.yaml `dependency_overrides`. Because of that, all `release/*` branches are failing,
-    # because the package cannot find the "about to be released" version of our sentry-dart package that it depends on.
-    if: ${{ !startsWith(github.ref, 'refs/heads/release/') && inputs.panaThreshold > 0 }}  
+    if: ${{ !startsWith(github.ref, 'refs/heads/release/') }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     defaults:
