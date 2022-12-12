@@ -23,7 +23,7 @@ class SentryTracer extends ISentrySpan {
   @visibleForTesting
   Timer? get autoFinishAfterTimer => _autoFinishAfterTimer;
 
-  Function(SentryTracer)? _onFinish;
+  OnTransactionFinish? _onFinish;
   var _finishStatus = SentryTracerFinishStatus.notFinishing();
   late final bool _trimEnd;
 
@@ -51,7 +51,7 @@ class SentryTracer extends ISentrySpan {
     bool waitForChildren = false,
     Duration? autoFinishAfter,
     bool trimEnd = false,
-    Function(SentryTracer)? onFinish,
+    OnTransactionFinish? onFinish,
   }) {
     _rootSpan = SentrySpan(
       this,

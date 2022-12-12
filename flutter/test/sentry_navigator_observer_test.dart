@@ -15,7 +15,7 @@ import 'mocks.mocks.dart';
 void main() {
   late Fixture fixture;
 
-  PageRoute route(RouteSettings? settings) => PageRouteBuilder<void>(
+  PageRoute<dynamic> route(RouteSettings? settings) => PageRouteBuilder<void>(
         pageBuilder: (_, __, ___) => Container(),
         settings: settings,
       );
@@ -92,7 +92,7 @@ void main() {
         actualTransaction = scope.span as SentryTracer;
       });
 
-      await Future.delayed(Duration(milliseconds: 500));
+      await Future<void>.delayed(Duration(milliseconds: 500));
 
       expect(mockNativeChannel.numberOfEndNativeFramesCalls, 1);
 
@@ -569,7 +569,7 @@ void main() {
     });
 
     test('No RouteSettings', () {
-      PageRoute route() => PageRouteBuilder<void>(
+      PageRoute<dynamic> route() => PageRouteBuilder<void>(
             pageBuilder: (_, __, ___) => Container(),
           );
 

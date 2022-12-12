@@ -41,8 +41,9 @@ class _LoadImageListIntegrationEventProcessor extends EventProcessor {
       try {
         // we call on every event because the loaded image list is cached
         // and it could be changed on the Native side.
+        final loadImageList = await _channel.invokeMethod('loadImageList');
         final imageList = List<Map<dynamic, dynamic>>.from(
-          await _channel.invokeMethod('loadImageList'),
+          loadImageList is List ? loadImageList : [],
         );
         return copyWithDebugImages(event, imageList);
       } catch (exception, stackTrace) {
