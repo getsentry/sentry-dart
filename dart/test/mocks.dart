@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:sentry/sentry.dart';
-import 'package:sentry/sentry_private.dart';
 import 'package:sentry/src/transport/rate_limiter.dart';
 
 final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
@@ -157,25 +156,5 @@ class MockRateLimiter implements RateLimiter {
     this.sentryRateLimitHeader = sentryRateLimitHeader;
     this.retryAfterHeader = retryAfterHeader;
     this.errorCode = errorCode;
-  }
-}
-
-enum MockAttachmentProcessorMode { filter, add }
-
-/// Filtering out all attachments.
-class MockAttachmentProcessor implements SentryClientAttachmentProcessor {
-  MockAttachmentProcessorMode mode;
-
-  MockAttachmentProcessor(this.mode);
-
-  @override
-  Future<List<SentryAttachment>> processAttachments(
-      List<SentryAttachment> attachments, SentryEvent event) async {
-    switch (mode) {
-      case MockAttachmentProcessorMode.filter:
-        return <SentryAttachment>[];
-      case MockAttachmentProcessorMode.add:
-        return <SentryAttachment>[SentryAttachment.fromIntList([], "added")];
-    }
   }
 }
