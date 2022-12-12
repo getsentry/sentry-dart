@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'event_processor.dart';
+import 'hint.dart';
 import 'protocol.dart';
 import 'scope_observer.dart';
 import 'sentry_attachment/sentry_attachment.dart';
@@ -155,7 +156,7 @@ class Scope {
 
   Scope(this._options);
 
-  bool _addBreadCrumbSync(Breadcrumb breadcrumb, {dynamic hint}) {
+  bool _addBreadCrumbSync(Breadcrumb breadcrumb, {Hint? hint}) {
     // bail out if maxBreadcrumbs is zero
     if (_options.maxBreadcrumbs == 0) {
       return false;
@@ -197,7 +198,7 @@ class Scope {
   }
 
   /// Adds a breadcrumb to the breadcrumbs queue
-  Future<void> addBreadcrumb(Breadcrumb breadcrumb, {dynamic hint}) async {
+  Future<void> addBreadcrumb(Breadcrumb breadcrumb, {Hint? hint}) async {
     if (_addBreadCrumbSync(breadcrumb, hint: hint)) {
       await _callScopeObservers((scopeObserver) async =>
           await scopeObserver.addBreadcrumb(breadcrumb));
@@ -284,7 +285,7 @@ class Scope {
 
   Future<SentryEvent?> applyToEvent(
     SentryEvent event, {
-    dynamic hint,
+    Hint? hint,
   }) async {
     event = event.copyWith(
       transaction: event.transaction ?? transaction,

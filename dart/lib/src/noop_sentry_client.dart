@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'hint.dart';
 import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_client.dart';
@@ -21,7 +22,7 @@ class NoOpSentryClient implements SentryClient {
     SentryEvent event, {
     dynamic stackTrace,
     Scope? scope,
-    dynamic hint,
+    Hint? hint,
   }) async =>
       SentryId.empty();
 
@@ -30,7 +31,7 @@ class NoOpSentryClient implements SentryClient {
     dynamic exception, {
     dynamic stackTrace,
     Scope? scope,
-    dynamic hint,
+    Hint? hint,
   }) async =>
       SentryId.empty();
 
@@ -41,7 +42,7 @@ class NoOpSentryClient implements SentryClient {
     String? template,
     List<dynamic>? params,
     Scope? scope,
-    dynamic hint,
+    Hint? hint,
   }) async =>
       SentryId.empty();
 

@@ -1,29 +1,31 @@
 import 'dart:async';
 
 import 'package:sentry/sentry.dart';
-import 'package:sentry/sentry_private.dart';
-import '../screenshot/screenshot_attachment_processor.dart';
+import '../event_processor/screenshot_event_processor.dart';
 import '../sentry_flutter_options.dart';
 
-/// Adds [ScreenshotAttachmentProcessor] to options if [attachScreenshot] is true
+/// Adds [ScreenshotEventProcessor] to options event processors if [attachScreenshot] is true
 class ScreenshotIntegration implements Integration<SentryFlutterOptions> {
   SentryFlutterOptions? _options;
+  ScreenshotEventProcessor? screenshotEventProcessor;
 
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
     if (options.attachScreenshot) {
-      // ignore: invalid_use_of_internal_member
-      options.clientAttachmentProcessor =
-          ScreenshotAttachmentProcessor(options);
       _options = options;
-
+      final screenshotEventProcessor = ScreenshotEventProcessor(options);
+      options.addEventProcessor(screenshotEventProcessor);
+      this.screenshotEventProcessor = screenshotEventProcessor;
       options.sdk.addIntegration('screenshotIntegration');
     }
   }
 
   @override
   FutureOr<void> close() {
-    // ignore: invalid_use_of_internal_member
-    _options?.clientAttachmentProcessor = SentryClientAttachmentProcessor();
+    final screenshotEventProcessor = this.screenshotEventProcessor;
+    if (screenshotEventProcessor != null) {
+      _options?.removeEventProcessor(screenshotEventProcessor);
+      this.screenshotEventProcessor = null;
+    }
   }
 }

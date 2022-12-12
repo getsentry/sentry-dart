@@ -82,10 +82,12 @@ class RunZonedGuardedIntegration extends Integration {
           _isPrinting = true;
 
           try {
-            hub.addBreadcrumb(Breadcrumb.console(
-              message: line,
-              level: SentryLevel.debug,
-            ));
+            hub.addBreadcrumb(
+              Breadcrumb.console(
+                message: line,
+                level: SentryLevel.debug,
+              ),
+            );
 
             parent.print(zone, line);
           } finally {

@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:meta/meta.dart';
+import 'sentry_attachment/sentry_attachment.dart';
 
 import 'event_processor.dart';
+import 'hint.dart';
 import 'sentry_trace_context_header.dart';
 import 'sentry_user_feedback.dart';
 import 'transport/rate_limiter.dart';
@@ -19,7 +21,6 @@ import 'sentry_envelope.dart';
 import 'client_reports/client_report_recorder.dart';
 import 'client_reports/discard_reason.dart';
 import 'transport/data_category.dart';
-import 'sentry_client_attachment_processor.dart';
 
 /// Default value for [User.ipAddress]. It gets set when an event does not have
 /// a user and IP address. Only applies if [SentryOptions.sendDefaultPii] is set
@@ -37,9 +38,6 @@ class SentryClient {
   SentryExceptionFactory get _exceptionFactory => _options.exceptionFactory;
 
   SentryStackTraceFactory get _stackTraceFactory => _options.stackTraceFactory;
-
-  SentryClientAttachmentProcessor get _clientAttachmentProcessor =>
-      _options.clientAttachmentProcessor;
 
   /// Instantiates a client using [SentryOptions]
   factory SentryClient(SentryOptions options) {
@@ -62,7 +60,7 @@ class SentryClient {
     SentryEvent event, {
     Scope? scope,
     dynamic stackTrace,
-    dynamic hint,
+    Hint? hint,
   }) async {
     if (_sampleRate()) {
       _recordLostEvent(event, DiscardReason.sampleRate);
@@ -74,6 +72,8 @@ class SentryClient {
     }
 
     SentryEvent? preparedEvent = _prepareEvent(event, stackTrace: stackTrace);
+
+    hint ??= Hint();
 
     if (scope != null) {
       preparedEvent = await scope.applyToEvent(preparedEvent, hint: hint);
@@ -134,8 +134,11 @@ class SentryClient {
       preparedEvent = _eventWithRemovedBreadcrumbsIfHandled(preparedEvent);
     }
 
-    final attachments = await _clientAttachmentProcessor.processAttachments(
-        scope?.attachments ?? [], preparedEvent);
+    var attachments = List<SentryAttachment>.from(scope?.attachments ?? []);
+    var screenshot = hint.screenshot;
+    if (screenshot != null) {
+      attachments.add(screenshot);
+    }
 
     final envelope = SentryEnvelope.fromEvent(
       preparedEvent,
@@ -255,7 +258,7 @@ class SentryClient {
     dynamic throwable, {
     dynamic stackTrace,
     Scope? scope,
-    dynamic hint,
+    Hint? hint,
   }) {
     final event = SentryEvent(
       throwable: throwable,
@@ -277,7 +280,7 @@ class SentryClient {
     String? template,
     List<dynamic>? params,
     Scope? scope,
-    dynamic hint,
+    Hint? hint,
   }) {
     final event = SentryEvent(
       message: SentryMessage(formatted, template: template, params: params),
@@ -354,7 +357,7 @@ class SentryClient {
 
   Future<SentryEvent?> _processEvent(
     SentryEvent event, {
-    dynamic hint,
+    Hint? hint,
     required List<EventProcessor> eventProcessors,
   }) async {
     SentryEvent? processedEvent = event;

@@ -805,7 +805,7 @@ void main() {
 
     test('thrown error is handled', () async {
       final exception = Exception("before send exception");
-      final beforeSendCallback = (SentryEvent event, {dynamic hint}) {
+      final beforeSendCallback = (SentryEvent event, {Hint? hint}) {
         throw exception;
       };
 
@@ -860,7 +860,9 @@ void main() {
     });
 
     test('should pass hint to eventProcessors', () async {
-      final myHint = 'hint';
+      final myHint = Hint();
+      myHint.set('string', 'hint');
+
       var executed = false;
 
       final client = fixture.getSut(
@@ -871,6 +873,21 @@ void main() {
       }));
 
       await client.captureEvent(fakeEvent, hint: myHint);
+
+      expect(executed, true);
+    });
+
+    test('should create hint when none was provided', () async {
+      var executed = false;
+
+      final client = fixture.getSut(
+          eventProcessor: FunctionEventProcessor((event, {hint}) {
+        expect(hint, isNotNull);
+        executed = true;
+        return event;
+      }));
+
+      await client.captureEvent(fakeEvent);
 
       expect(executed, true);
     });
@@ -1044,45 +1061,6 @@ void main() {
     });
   });
 
-  group('SentryClientAttachmentProcessor', () {
-    late Fixture fixture;
-
-    setUp(() {
-      fixture = Fixture();
-    });
-
-    test('processor filtering out attachments', () async {
-      fixture.options.clientAttachmentProcessor =
-          MockAttachmentProcessor(MockAttachmentProcessorMode.filter);
-      final scope = Scope(fixture.options);
-      scope.addAttachment(SentryAttachment.fromIntList([], "scope-attachment"));
-      final sut = fixture.getSut();
-
-      final event = SentryEvent();
-      await sut.captureEvent(event, scope: scope);
-
-      final capturedEnvelope = (fixture.transport).envelopes.first;
-      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
-          (element) => element.header.type == SentryItemType.attachment);
-      expect(attachmentItem, null);
-    });
-
-    test('processor adding attachments', () async {
-      fixture.options.clientAttachmentProcessor =
-          MockAttachmentProcessor(MockAttachmentProcessorMode.add);
-      final scope = Scope(fixture.options);
-      final sut = fixture.getSut();
-
-      final event = SentryEvent();
-      await sut.captureEvent(event, scope: scope);
-
-      final capturedEnvelope = (fixture.transport).envelopes.first;
-      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
-          (element) => element.header.type == SentryItemType.attachment);
-      expect(attachmentItem != null, true);
-    });
-  });
-
   group('ClientReportRecorder', () {
     late Fixture fixture;
 
@@ -1152,6 +1130,20 @@ void main() {
 
       final envelope = fixture.transport.envelopes.first;
       expect(envelope.header.traceContext, isNotNull);
+    });
+
+    test('captureEvent adds screenshot from hint', () async {
+      final client = fixture.getSut();
+      final screenshot =
+          SentryAttachment.fromScreenshotData(Uint8List.fromList([0, 0, 0, 0]));
+      final hint = Hint.withScreenshot(screenshot);
+
+      await client.captureEvent(fakeEvent, hint: hint);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
+          (element) => element.header.type == SentryItemType.attachment);
+      expect(attachmentItem != null, true);
     });
 
     test('captureTransaction adds trace context', () async {
@@ -1291,19 +1283,19 @@ Future<Map<String, dynamic>> transactionFromEnvelope(
 
 FutureOr<SentryEvent?> beforeSendCallbackDropEvent(
   SentryEvent event, {
-  dynamic hint,
+  Hint? hint,
 }) =>
     null;
 
 FutureOr<SentryEvent?> asyncBeforeSendCallbackDropEvent(
   SentryEvent event, {
-  dynamic hint,
+  Hint? hint,
 }) async {
   await Future.delayed(Duration(milliseconds: 200));
   return null;
 }
 
-FutureOr<SentryEvent?> beforeSendCallback(SentryEvent event, {dynamic hint}) {
+FutureOr<SentryEvent?> beforeSendCallback(SentryEvent event, {Hint? hint}) {
   return event
     ..tags!.addAll({'theme': 'material'})
     ..extra!['host'] = '0.0.0.1'
@@ -1366,7 +1358,7 @@ class Fixture {
   }
 
   FutureOr<SentryEvent?> droppingBeforeSend(SentryEvent event,
-      {dynamic hint}) async {
+      {Hint? hint}) async {
     return null;
   }
 

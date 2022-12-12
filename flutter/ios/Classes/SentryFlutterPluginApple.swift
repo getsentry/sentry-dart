@@ -126,7 +126,6 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         }
     }
 
-    // swiftlint:disable:next cyclomatic_complexity
     private func loadContexts(result: @escaping FlutterResult) {
         SentrySDK.configureScope { scope in
             let serializedScope = scope.serialize()

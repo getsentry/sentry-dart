@@ -43,7 +43,7 @@ void main() {
 
     expect(fixture.hub.events.length, 0);
     expect(fixture.hub.breadcrumbs.length, 1);
-    final crumb = fixture.hub.breadcrumbs.first;
+    final crumb = fixture.hub.breadcrumbs.first.breadcrumb;
     expect(crumb.level, SentryLevel.warning);
     expect(crumb.message, 'A log message');
     expect(crumb.data, <String, dynamic>{
@@ -64,6 +64,42 @@ void main() {
 
     expect(fixture.hub.events.length, 0);
     expect(fixture.hub.breadcrumbs.length, 1);
+  });
+
+  test('passes log records as hints', () async {
+    final sut = fixture.createSut(
+      minBreadcrumbLevel: Level.INFO,
+      minEventLevel: Level.WARNING,
+    );
+    await sut.call(fixture.hub, fixture.options);
+    final logger = Logger('FooBarLogger');
+
+    logger.info(
+      'An info message',
+    );
+
+    expect(fixture.hub.breadcrumbs.length, 1);
+    final breadcrumbHint =
+        fixture.hub.breadcrumbs.first.hint?.get('record') as LogRecord;
+
+    expect(breadcrumbHint.level, Level.INFO);
+    expect(breadcrumbHint.message, 'An info message');
+
+    final exception = Exception('foo bar');
+    final stackTrace = StackTrace.current;
+    logger.warning(
+      'A log message',
+      exception,
+      stackTrace,
+    );
+
+    expect(fixture.hub.events.length, 1);
+    final errorHint = fixture.hub.events.first.hint?.get('record') as LogRecord;
+
+    expect(errorHint.level, Level.WARNING);
+    expect(errorHint.message, 'A log message');
+    expect(errorHint.error, exception);
+    expect(errorHint.stackTrace, stackTrace);
   });
 
   test('logger gets not recorded if level under minlevel', () async {

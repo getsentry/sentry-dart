@@ -38,7 +38,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
   }
 
   @override
-  Future<void> addBreadcrumb(Breadcrumb crumb, {dynamic hint}) async {
+  Future<void> addBreadcrumb(Breadcrumb crumb, {Hint? hint}) async {
     addBreadcrumbCalls.add(AddBreadcrumbCall(crumb, hint));
   }
 
@@ -51,7 +51,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
   Future<SentryId> captureEvent(
     SentryEvent event, {
     dynamic stackTrace,
-    dynamic hint,
+    Hint? hint,
     ScopeCallback? withScope,
   }) async {
     captureEventCalls.add(
@@ -68,7 +68,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
   Future<SentryId> captureException(
     dynamic throwable, {
     dynamic stackTrace,
-    dynamic hint,
+    Hint? hint,
     ScopeCallback? withScope,
   }) async {
     captureExceptionCalls.add(
@@ -87,7 +87,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
     SentryLevel? level = SentryLevel.info,
     String? template,
     List<dynamic>? params,
-    dynamic hint,
+    Hint? hint,
     ScopeCallback? withScope,
   }) async {
     captureMessageCalls.add(
@@ -140,7 +140,7 @@ class MockHub with NoSuchMethodProvider implements Hub {
 class CaptureEventCall {
   final SentryEvent event;
   final dynamic stackTrace;
-  final dynamic hint;
+  final Hint? hint;
 
   CaptureEventCall(this.event, this.stackTrace, this.hint);
 }
@@ -148,7 +148,7 @@ class CaptureEventCall {
 class CaptureExceptionCall {
   final dynamic throwable;
   final dynamic stackTrace;
-  final dynamic hint;
+  final Hint? hint;
 
   CaptureExceptionCall(
     this.throwable,
@@ -162,7 +162,7 @@ class CaptureMessageCall {
   final SentryLevel? level;
   final String? template;
   final List<dynamic>? params;
-  final dynamic hint;
+  final Hint? hint;
 
   CaptureMessageCall(
     this.message,
@@ -175,7 +175,7 @@ class CaptureMessageCall {
 
 class AddBreadcrumbCall {
   final Breadcrumb crumb;
-  final dynamic hint;
+  final Hint? hint;
 
   AddBreadcrumbCall(this.crumb, this.hint);
 }
