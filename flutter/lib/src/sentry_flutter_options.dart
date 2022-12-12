@@ -1,7 +1,7 @@
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
-import 'binding_utils.dart';
+import 'binding_wrapper.dart';
 import 'renderer/renderer.dart';
 
 /// This class adds options which are only availble in a Flutter environment.
