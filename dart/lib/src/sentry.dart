@@ -6,6 +6,7 @@ import 'run_zoned_guarded_integration.dart';
 import 'event_processor/enricher/enricher_event_processor.dart';
 import 'environment/environment_variables.dart';
 import 'event_processor/deduplication_event_processor.dart';
+import 'hint.dart';
 import 'event_processor/exception/exception_event_processor.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
@@ -153,7 +154,7 @@ class Sentry {
   static Future<SentryId> captureEvent(
     SentryEvent event, {
     dynamic stackTrace,
-    dynamic hint,
+    Hint? hint,
     ScopeCallback? withScope,
   }) =>
       _hub.captureEvent(
@@ -167,7 +168,7 @@ class Sentry {
   static Future<SentryId> captureException(
     dynamic throwable, {
     dynamic stackTrace,
-    dynamic hint,
+    Hint? hint,
     ScopeCallback? withScope,
   }) =>
       _hub.captureException(
@@ -183,7 +184,7 @@ class Sentry {
     SentryLevel? level = SentryLevel.info,
     String? template,
     List<dynamic>? params,
-    dynamic hint,
+    Hint? hint,
     ScopeCallback? withScope,
   }) =>
       _hub.captureMessage(
@@ -215,7 +216,7 @@ class Sentry {
   static SentryId get lastEventId => _hub.lastEventId;
 
   /// Adds a breacrumb to the current Scope
-  static Future<void> addBreadcrumb(Breadcrumb crumb, {dynamic hint}) async =>
+  static Future<void> addBreadcrumb(Breadcrumb crumb, {Hint? hint}) async =>
       await _hub.addBreadcrumb(crumb, hint: hint);
 
   /// Configures the scope through the callback.

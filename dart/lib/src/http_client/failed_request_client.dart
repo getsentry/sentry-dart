@@ -1,4 +1,6 @@
 import 'package:http/http.dart';
+import '../hint.dart';
+import '../type_check_hint.dart';
 import 'sentry_http_client_error.dart';
 import '../protocol.dart';
 import '../hub.dart';
@@ -176,15 +178,22 @@ class FailedRequestClient extends BaseClient {
       timestamp: _hub.options.clock(),
     );
 
+    final hint = Hint.withMap({TypeCheckHint.httpRequest: request});
+
     if (response != null) {
       event.contexts.response = SentryResponse(
         headers: _hub.options.sendDefaultPii ? response.headers : null,
         bodySize: response.contentLength,
         statusCode: response.statusCode,
       );
+      hint.set(TypeCheckHint.httpResponse, response);
     }
 
-    await _hub.captureEvent(event, stackTrace: stackTrace);
+    await _hub.captureEvent(
+      event,
+      stackTrace: stackTrace,
+      hint: hint,
+    );
   }
 
   // Types of Request can be found here:

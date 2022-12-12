@@ -16,7 +16,7 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
     SentryEvent event, {
     Scope? scope,
     dynamic stackTrace,
-    dynamic hint,
+    Hint? hint,
   }) async {
     captureEventCalls.add(CaptureEventCall(
       event,
@@ -32,7 +32,7 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
     dynamic throwable, {
     dynamic stackTrace,
     Scope? scope,
-    dynamic hint,
+    Hint? hint,
   }) async {
     captureExceptionCalls.add(CaptureExceptionCall(
       throwable,
@@ -50,7 +50,7 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
     String? template,
     List? params,
     Scope? scope,
-    dynamic hint,
+    Hint? hint,
   }) async {
     captureMessageCalls.add(CaptureMessageCall(
       formatted,
@@ -95,7 +95,7 @@ class CaptureEventCall {
   final SentryEvent event;
   final Scope? scope;
   final dynamic stackTrace;
-  final dynamic hint;
+  final Hint? hint;
 
   CaptureEventCall(
     this.event,
@@ -109,7 +109,7 @@ class CaptureExceptionCall {
   final dynamic throwable;
   final dynamic stackTrace;
   final Scope? scope;
-  final dynamic hint;
+  final Hint? hint;
 
   CaptureExceptionCall(
     this.throwable,
@@ -125,7 +125,7 @@ class CaptureMessageCall {
   final String? template;
   final List? params;
   final Scope? scope;
-  final dynamic hint;
+  final Hint? hint;
 
   CaptureMessageCall(
     this.formatted,

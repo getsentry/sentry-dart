@@ -69,7 +69,7 @@ class Hub {
   Future<SentryId> captureEvent(
     SentryEvent event, {
     dynamic stackTrace,
-    dynamic hint,
+    Hint? hint,
     ScopeCallback? withScope,
   }) async {
     var sentryId = SentryId.empty();
@@ -112,7 +112,7 @@ class Hub {
   Future<SentryId> captureException(
     dynamic throwable, {
     dynamic stackTrace,
-    dynamic hint,
+    Hint? hint,
     ScopeCallback? withScope,
   }) async {
     var sentryId = SentryId.empty();
@@ -168,7 +168,7 @@ class Hub {
     SentryLevel? level,
     String? template,
     List<dynamic>? params,
-    dynamic hint,
+    Hint? hint,
     ScopeCallback? withScope,
   }) async {
     var sentryId = SentryId.empty();
@@ -258,7 +258,7 @@ class Hub {
   }
 
   /// Adds a breacrumb to the current Scope
-  Future<void> addBreadcrumb(Breadcrumb crumb, {dynamic hint}) async {
+  Future<void> addBreadcrumb(Breadcrumb crumb, {Hint? hint}) async {
     if (!_isEnabled) {
       _options.logger(
         SentryLevel.warning,

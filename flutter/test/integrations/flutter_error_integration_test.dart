@@ -28,6 +28,9 @@ void main() {
       when(fixture.hub.captureEvent(captureAny))
           .thenAnswer((_) => Future.value(SentryId.empty()));
 
+      when(fixture.hub.captureEvent(captureAny, hint: anyNamed('hint')))
+          .thenAnswer((_) => Future.value(SentryId.empty()));
+
       FlutterErrorIntegration()(fixture.hub, fixture.options);
 
       final throwable = exception ?? StateError('error');
@@ -47,7 +50,7 @@ void main() {
       _reportError(exception: exception);
 
       final event = verify(
-        await fixture.hub.captureEvent(captureAny),
+        await fixture.hub.captureEvent(captureAny, hint: anyNamed('hint')),
       ).captured.first as SentryEvent;
 
       expect(event.level, SentryLevel.fatal);
@@ -81,7 +84,7 @@ void main() {
       _reportError(exception: StateError('error'), optionalDetails: details);
 
       final event = verify(
-        await fixture.hub.captureEvent(captureAny),
+        await fixture.hub.captureEvent(captureAny, hint: anyNamed('hint')),
       ).captured.first as SentryEvent;
 
       expect(event.level, SentryLevel.fatal);
@@ -105,7 +108,7 @@ void main() {
       _reportError(exception: StateError('error'), optionalDetails: details);
 
       final event = verify(
-        await fixture.hub.captureEvent(captureAny),
+        await fixture.hub.captureEvent(captureAny, hint: anyNamed('hint')),
       ).captured.first as SentryEvent;
 
       expect(event.level, SentryLevel.fatal);
@@ -126,7 +129,8 @@ void main() {
 
       _reportError(handler: defaultError);
 
-      verify(await fixture.hub.captureEvent(captureAny));
+      verify(
+          await fixture.hub.captureEvent(captureAny, hint: anyNamed('hint')));
 
       expect(called, true);
     });
@@ -138,7 +142,7 @@ void main() {
       };
       FlutterError.onError = defaultError;
 
-      when(fixture.hub.captureEvent(captureAny))
+      when(fixture.hub.captureEvent(captureAny, hint: anyNamed('hint')))
           .thenAnswer((_) => Future.value(SentryId.empty()));
 
       final details = FlutterErrorDetails(exception: StateError('error'));
@@ -152,7 +156,8 @@ void main() {
 
       FlutterError.reportError(details);
 
-      verify(await fixture.hub.captureEvent(captureAny)).called(1);
+      verify(await fixture.hub.captureEvent(captureAny, hint: anyNamed('hint')))
+          .called(1);
 
       expect(numberOfDefaultCalls, 1);
     });
@@ -198,7 +203,8 @@ void main() {
       fixture.options.reportSilentFlutterErrors = true;
       _reportError(silent: true);
 
-      verify(await fixture.hub.captureEvent(captureAny));
+      verify(
+          await fixture.hub.captureEvent(captureAny, hint: anyNamed('hint')));
     });
 
     test('FlutterError adds integration', () {

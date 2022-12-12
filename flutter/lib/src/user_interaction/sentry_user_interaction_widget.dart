@@ -131,7 +131,8 @@ class _SentryUserInteractionWidgetState
         viewClass: tappedWidget.type, // to avoid minification
         data: data,
       );
-      _hub.addBreadcrumb(crumb, hint: element.widget);
+      final hint = Hint.withMap({TypeCheckHint.widget: element.widget});
+      _hub.addBreadcrumb(crumb, hint: hint);
     }
 
     // ignore: invalid_use_of_internal_member
