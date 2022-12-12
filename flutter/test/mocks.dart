@@ -1,7 +1,5 @@
 // ignore_for_file: inference_failure_on_function_return_type
 
-import 'dart:async';
-
 import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/binding.dart';
 import 'package:flutter_test/flutter_test.dart';
