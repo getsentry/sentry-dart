@@ -1,7 +1,6 @@
 import 'package:flutter/widgets.dart';
 
 // The methods and properties are modelled after the the real binding class.
-/// Mixins do not allow extension methods.
 class BindingWrapper {
   /// Flutter >= 2.12 throws if WidgetsBinding.instance isn't initialized.
   // When this method is called, it is guaranteed that a binding was already
