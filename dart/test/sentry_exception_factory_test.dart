@@ -85,10 +85,9 @@ void main() {
   }, onPlatform: {'browser': Skip()});
 
   test('getSentryException with not thrown Error and empty frames', () {
-    final sentryException = fixture.getSut().getSentryException(
-      CustomError(),
-      stackTrace: StackTrace.empty
-    );
+    final sentryException = fixture
+        .getSut()
+        .getSentryException(CustomError(), stackTrace: StackTrace.empty);
 
     expect(sentryException.type, 'CustomError');
     expect(sentryException.stackTrace?.frames, isNotEmpty);
