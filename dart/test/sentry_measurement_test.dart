@@ -20,17 +20,17 @@ void main() {
 
     test('warm start has milliseconds unit', () {
       expect(SentryMeasurement.warmAppStart(Duration(seconds: 1)).unit,
-          SentryMeasurementUnit.milliSecond);
+          DurationSentryMeasurementUnit.milliSecond);
     });
 
     test('cold start has milliseconds unit', () {
       expect(SentryMeasurement.coldAppStart(Duration(seconds: 1)).unit,
-          SentryMeasurementUnit.milliSecond);
+          DurationSentryMeasurementUnit.milliSecond);
     });
 
     test('toJson sets unit if given', () {
       final measurement = SentryMeasurement('name', 10,
-          unit: SentryMeasurementUnit.milliSecond);
+          unit: DurationSentryMeasurementUnit.milliSecond);
       final map = <String, dynamic>{
         'value': 10,
         'unit': 'millisecond',

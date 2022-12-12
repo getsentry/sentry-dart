@@ -36,7 +36,7 @@ void main() {
 
       final measurement = enriched.measurements['app_start_cold']!;
       expect(measurement.value, 10);
-      expect(measurement.unit, SentryMeasurementUnit.milliSecond);
+      expect(measurement.unit, DurationSentryMeasurementUnit.milliSecond);
     });
 
     test('native app start measurement not added to following transactions',
