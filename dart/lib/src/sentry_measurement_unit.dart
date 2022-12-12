@@ -105,6 +105,9 @@ enum FractionSentryMeasurementUnit implements SentryMeasurementUnit {
   final String name;
 }
 
+/// Custom units without builtin conversion. No formatting will be applied to
+/// the measurement value in the Sentry product, and the value with the unit
+/// will be shown as is.
 class CustomSentryMeasurementUnit implements SentryMeasurementUnit {
   final String _name;
 
