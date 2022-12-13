@@ -18,16 +18,12 @@ void main() {
     void _reportError({
       bool silent = false,
       FlutterExceptionHandler? handler,
-      bool useFallbackHandler = true,
       dynamic exception,
       FlutterErrorDetails? optionalDetails,
     }) {
       // replace default error otherwise it fails on testing
-      if (handler != null) {
-        FlutterError.onError = handler;
-      } else if (useFallbackHandler) {
-        FlutterError.onError = (FlutterErrorDetails errorDetails) async {};
-      }
+      FlutterError.onError =
+          handler ??= (FlutterErrorDetails errorDetails) async {};
 
       when(fixture.hub.captureEvent(captureAny))
           .thenAnswer((_) => Future.value(SentryId.empty()));
@@ -61,51 +57,13 @@ void main() {
 
       final throwableMechanism = event.throwableMechanism as ThrowableMechanism;
       expect(throwableMechanism.mechanism.type, 'FlutterError');
-      expect(throwableMechanism.mechanism.handled, true);
+      expect(throwableMechanism.mechanism.handled, false);
       expect(throwableMechanism.throwable, exception);
 
       expect(event.contexts['flutter_error_details']['library'], 'sentry');
       expect(event.contexts['flutter_error_details']['context'],
           'thrown while handling a gesture');
       expect(event.contexts['flutter_error_details']['information'], 'foo bar');
-    });
-
-    test('FlutterError handled FlutterError.onError is null', () async {
-      final exception = StateError('error');
-      FlutterError.onError = null;
-
-      _reportError(exception: exception, useFallbackHandler: false);
-
-      final event = verify(
-        await fixture.hub.captureEvent(captureAny, hint: anyNamed('hint')),
-      ).captured.first as SentryEvent;
-
-      expect(event.level, SentryLevel.fatal);
-
-      final throwableMechanism = event.throwableMechanism as ThrowableMechanism;
-      expect(throwableMechanism.mechanism.handled, isNotNull);
-      expect(throwableMechanism.mechanism.handled, false);
-    });
-
-    test(
-        'FlutterError handled false if FlutterError.onError is default FlutterError.presentError',
-        () async {
-      final exception = StateError('error');
-
-      // Default has to be assigned again, otherwise running multiple tests fails.
-      FlutterError.onError = FlutterError.presentError;
-
-      _reportError(exception: exception, useFallbackHandler: false);
-
-      final event = verify(
-        await fixture.hub.captureEvent(captureAny, hint: anyNamed('hint')),
-      ).captured.first as SentryEvent;
-
-      expect(event.level, SentryLevel.fatal);
-
-      final throwableMechanism = event.throwableMechanism as ThrowableMechanism;
-      expect(throwableMechanism.mechanism.handled, isNotNull);
-      expect(throwableMechanism.mechanism.handled, false);
     });
 
     test(
@@ -133,7 +91,7 @@ void main() {
 
       final throwableMechanism = event.throwableMechanism as ThrowableMechanism;
       expect(throwableMechanism.mechanism.type, 'FlutterError');
-      expect(throwableMechanism.mechanism.handled, true);
+      expect(throwableMechanism.mechanism.handled, false);
 
       expect(event.contexts['flutter_error_details']['library'], 'sentry');
       expect(event.contexts['flutter_error_details']['context'],
@@ -157,7 +115,7 @@ void main() {
 
       final throwableMechanism = event.throwableMechanism as ThrowableMechanism;
       expect(throwableMechanism.mechanism.type, 'FlutterError');
-      expect(throwableMechanism.mechanism.handled, true);
+      expect(throwableMechanism.mechanism.handled, false);
       expect(throwableMechanism.mechanism.data['hint'], isNull);
 
       expect(event.contexts['flutter_error_details'], isNull);
