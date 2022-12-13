@@ -50,6 +50,7 @@ void main() {
       await Sentry.close();
       final sentryNative = SentryNative();
       sentryNative.nativeChannel = null;
+      sentryNative.reset();
     });
 
     test('Android', () async {
