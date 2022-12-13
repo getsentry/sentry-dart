@@ -41,8 +41,9 @@ class RunZonedGuardedIntegration extends Integration {
           stackTrace: stackTrace,
         );
 
-        // runZonedGuarded doesn't crash the App.
-        final mechanism = Mechanism(type: 'runZonedGuarded', handled: true);
+        // runZonedGuarded doesn't crash the App, but since it is not handled by
+        // users manually, it is marked as not handled
+        final mechanism = Mechanism(type: 'runZonedGuarded', handled: false);
         final throwableMechanism = ThrowableMechanism(mechanism, exception);
 
         final event = SentryEvent(
