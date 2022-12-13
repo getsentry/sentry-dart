@@ -23,7 +23,7 @@ void main() {
     ErrorCallback? handler,
     bool useFallbackHandler = true,
   }) {
-    if (handler  != null) {
+    if (handler != null) {
       fixture.platformDispatcherWrapper.onError = handler;
     } else if (useFallbackHandler) {
       fixture.platformDispatcherWrapper.onError = (_, __) {
@@ -64,7 +64,10 @@ void main() {
   test('onError: no handler marks event as not handled', () async {
     final exception = StateError('error');
 
-    _reportError(exception: exception, stackTrace: StackTrace.current, useFallbackHandler: false);
+    _reportError(
+        exception: exception,
+        stackTrace: StackTrace.current,
+        useFallbackHandler: false);
 
     final event = verify(
       await fixture.hub

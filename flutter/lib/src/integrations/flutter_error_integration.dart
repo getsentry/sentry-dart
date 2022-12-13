@@ -59,7 +59,8 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
         // FlutterError doesn't crash the App.
         final mechanism = Mechanism(
           type: 'FlutterError',
-          handled: true,
+          handled: _defaultOnError != null &&
+              _defaultOnError != FlutterError.presentError,
         );
         final throwableMechanism = ThrowableMechanism(mechanism, exception);
 
