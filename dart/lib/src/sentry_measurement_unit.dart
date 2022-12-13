@@ -14,30 +14,30 @@ extension SentryMeasurementUnitExtension on SentryMeasurementUnit {
 
 enum DurationSentryMeasurementUnit implements SentryMeasurementUnit {
   /// Nanosecond (`"nanosecond"`), 10^-9 seconds.
-  nanoSecond(name: 'nanosecond'),
+  nanoSecond('nanosecond'),
 
   /// Microsecond (`"microsecond"`), 10^-6 seconds.
-  microSecond(name: 'microsecond'),
+  microSecond('microsecond'),
 
   /// Millisecond (`"millisecond"`), 10^-3 seconds.
-  milliSecond(name: 'millisecond'),
+  milliSecond('millisecond'),
 
   /// Full second (`"second"`).
-  second(name: 'second'),
+  second('second'),
 
   /// Minute (`"minute"`), 60 seconds.
-  minute(name: 'minute'),
+  minute('minute'),
 
   /// Hour (`"hour"`), 3600 seconds.
-  hour(name: 'hour'),
+  hour('hour'),
 
   /// Day (`"day"`), 86,400 seconds.
-  day(name: 'day'),
+  day('day'),
 
   /// Week (`"week"`), 604,800 seconds.
-  week(name: 'week');
+  week('week');
 
-  const DurationSentryMeasurementUnit({required this.name});
+  const DurationSentryMeasurementUnit(this.name);
 
   @override
   final String name;
@@ -45,48 +45,48 @@ enum DurationSentryMeasurementUnit implements SentryMeasurementUnit {
 
 enum InformationSentryMeasurementUnit implements SentryMeasurementUnit {
   /// Bit (`"bit"`), corresponding to 1/8 of a byte.
-  bit(name: "bit"),
+  bit("bit"),
 
   /// Byte (`"byte"`).
-  byte(name: 'byte'),
+  byte('byte'),
 
   /// Kilobyte (`"kilobyte"`), 10^3 bytes.
-  kiloByte(name: 'kilobyte'),
+  kiloByte('kilobyte'),
 
   /// Kibibyte (`"kibibyte"`), 2^10 bytes.
-  kibiByte(name: 'kibibyte'),
+  kibiByte('kibibyte'),
 
   /// Megabyte (`"megabyte"`), 10^6 bytes.
-  megaByte(name: 'megabyte'),
+  megaByte('megabyte'),
 
   /// Mebibyte (`"mebibyte"`), 2^20 bytes.
-  mebiByte(name: 'mebibyte'),
+  mebiByte('mebibyte'),
 
   /// Gigabyte (`"gigabyte"`), 10^9 bytes.
-  gigaByte(name: 'gigabyte'),
+  gigaByte('gigabyte'),
 
   /// Gibibyte (`"gibibyte"`), 2^30 bytes.
-  gibiByte(name: 'gibibyte'),
+  gibiByte('gibibyte'),
 
   /// Terabyte (`"terabyte"`), 10^12 bytes.
-  teraByte(name: 'terabyte'),
+  teraByte('terabyte'),
 
   /// Tebibyte (`"tebibyte"`), 2^40 bytes.
-  tebiByte(name: 'tebibyte'),
+  tebiByte('tebibyte'),
 
   /// Petabyte (`"petabyte"`), 10^15 bytes.
-  petaByte(name: 'petabyte'),
+  petaByte('petabyte'),
 
   /// Pebibyte (`"pebibyte"`), 2^50 bytes.
-  pebiByte(name: 'pebibyte'),
+  pebiByte('pebibyte'),
 
   /// Exabyte (`"exabyte"`), 10^18 bytes.
-  exaByte(name: 'exabyte'),
+  exaByte('exabyte'),
 
   /// Exbibyte (`"exbibyte"`), 2^60 bytes.
-  exbiByte(name: 'exbibyte');
+  exbiByte('exbibyte');
 
-  const InformationSentryMeasurementUnit({required this.name});
+  const InformationSentryMeasurementUnit(this.name);
 
   @override
   final String name;
@@ -94,12 +94,12 @@ enum InformationSentryMeasurementUnit implements SentryMeasurementUnit {
 
 enum FractionSentryMeasurementUnit implements SentryMeasurementUnit {
   /// Floating point fraction of `1`.
-  ratio(name: 'ratio'),
+  ratio('ratio'),
 
   /// Ratio expressed as a fraction of `100`. `100%` equals a ratio of `1.0`.
-  percent(name: 'percent');
+  percent('percent');
 
-  const FractionSentryMeasurementUnit({required this.name});
+  const FractionSentryMeasurementUnit(this.name);
 
   @override
   final String name;
@@ -109,12 +109,10 @@ enum FractionSentryMeasurementUnit implements SentryMeasurementUnit {
 /// the measurement value in the Sentry product, and the value with the unit
 /// will be shown as is.
 class CustomSentryMeasurementUnit implements SentryMeasurementUnit {
-  final String _name;
-
-  CustomSentryMeasurementUnit(this._name);
+  CustomSentryMeasurementUnit(this.name);
 
   @override
-  String get name => _name;
+  final String name;
 }
 
 /// Untyped value.
