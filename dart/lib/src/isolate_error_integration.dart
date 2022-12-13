@@ -66,8 +66,8 @@ Future<void> handleIsolateError(
       stackTrace: stackTrace == null ? null : StackTrace.fromString(stackTrace),
     );
 
-    //  Isolate errors don't crash the app, but are set to handled false, as
-    // as users did not handle them manually
+    // Isolate errors don't crash the app, but are set to handled false, as
+    // users did not handle them manually
     final mechanism = Mechanism(type: 'isolateError', handled: false);
     final throwableMechanism = ThrowableMechanism(mechanism, throwable);
     final event = SentryEvent(
