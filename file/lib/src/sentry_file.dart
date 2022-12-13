@@ -53,7 +53,7 @@ class SentryFile implements File {
   }
 
   @override
-  Future<File> create({bool recursive = false, bool exclusive = false}) {
+  Future<File> create({bool recursive = false}) {
     return _wrap(
       () async => _file.create(recursive: recursive),
       'file.write',
