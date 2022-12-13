@@ -27,6 +27,7 @@ void main() {
     final throwable =
         fixture.hub.captureExceptionCalls.first.throwable as ThrowableMechanism;
     expect(throwable.mechanism.type, 'SentryDioClientAdapter');
+    expect(throwable.mechanism.handled, isNull);
     expect(throwable.throwable, error);
   });
 }

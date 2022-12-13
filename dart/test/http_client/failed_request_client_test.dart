@@ -52,6 +52,7 @@ void main() {
       expect(exception?.stackTrace, isNotNull);
       expect(exception?.stackTrace!.snapshot, isNull);
       expect(mechanism?.type, 'SentryHttpClient');
+      expect(mechanism?.handled, isNull);
 
       final request = eventCall.request;
       expect(request, isNotNull);
@@ -107,6 +108,7 @@ void main() {
         mechanism?.description,
         'HTTP Client Error with status code: 404',
       );
+      expect(mechanism?.handled, isNull);
 
       expect(exception?.type, 'SentryHttpClientError');
       expect(
