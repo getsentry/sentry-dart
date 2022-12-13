@@ -10,6 +10,7 @@
 ### Fixes
 
 - Fix: Remove `SentryOptions` related parameters from classes which also take `Hub` as a parameter (#816)
+- Fix: MethodChannel is called for platforms that don't have some implementations such as endNativeFrames ([#1188](https://github.com/getsentry/sentry-dart/pull/1188))
 
 # Enhancements
 
