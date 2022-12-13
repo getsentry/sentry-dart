@@ -57,6 +57,7 @@ void main() {
 
     final throwableMechanism = event.throwableMechanism as ThrowableMechanism;
     expect(throwableMechanism.mechanism.type, 'PlatformDispatcher.onError');
+    expect(throwableMechanism.mechanism.handled, isNotNull);
     expect(throwableMechanism.mechanism.handled, false);
     expect(throwableMechanism.throwable, exception);
   });
@@ -90,6 +91,7 @@ void main() {
     ).captured.first as SentryEvent;
 
     final throwableMechanism = event.throwableMechanism as ThrowableMechanism;
+    expect(throwableMechanism.mechanism.handled, isNotNull);
     expect(throwableMechanism.mechanism.handled, false);
   });
 
