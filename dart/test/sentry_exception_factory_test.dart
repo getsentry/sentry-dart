@@ -84,6 +84,17 @@ void main() {
     // skip on browser because [StackTrace.current] still returns null
   }, onPlatform: {'browser': Skip()});
 
+  test('getSentryException with not thrown Error and empty frames', () {
+    final sentryException = fixture
+        .getSut()
+        .getSentryException(CustomError(), stackTrace: StackTrace.empty);
+
+    expect(sentryException.type, 'CustomError');
+    expect(sentryException.stackTrace?.frames, isNotEmpty);
+
+    // skip on browser because [StackTrace.current] still returns null
+  }, onPlatform: {'browser': Skip()});
+
   test('reads the snapshot from the mechanism', () {
     final error = StateError('test-error');
     final mechanism = Mechanism(type: 'Mechanism');

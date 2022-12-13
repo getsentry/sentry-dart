@@ -11,6 +11,10 @@
 
 - Fix: Remove `SentryOptions` related parameters from classes which also take `Hub` as a parameter (#816)
 
+# Enhancements
+
+- Enha: Replace `StackTrace.empty` with `StackTrace.current` ([#1183](https://github.com/getsentry/sentry-dart/pull/1183))
+
 ### Breaking Changes
 
 - Removed various deprecated fields ([#1036](https://github.com/getsentry/sentry-dart/pull/1036)):
