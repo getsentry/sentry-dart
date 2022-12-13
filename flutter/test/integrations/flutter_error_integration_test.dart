@@ -23,7 +23,7 @@ void main() {
     }) {
       // replace default error otherwise it fails on testing
       FlutterError.onError =
-          handler ??= (FlutterErrorDetails errorDetails) async {};
+          handler ?? (FlutterErrorDetails errorDetails) async {};
 
       when(fixture.hub.captureEvent(captureAny))
           .thenAnswer((_) => Future.value(SentryId.empty()));
