@@ -21,11 +21,15 @@ void main() {
     required Object exception,
     required StackTrace stackTrace,
     ErrorCallback? handler,
+    bool useFallbackHandler = true,
   }) {
-    fixture.platformDispatcherWrapper.onError = handler ??
-        (_, __) {
-          return fixture.onErrorReturnValue;
-        };
+    if (handler  != null) {
+      fixture.platformDispatcherWrapper.onError = handler;
+    } else if (useFallbackHandler) {
+      fixture.platformDispatcherWrapper.onError = (_, __) {
+        return fixture.onErrorReturnValue;
+      };
+    }
 
     when(fixture.hub.captureEvent(captureAny,
             stackTrace: captureAnyNamed('stackTrace')))
@@ -57,6 +61,21 @@ void main() {
     expect(throwableMechanism.throwable, exception);
   });
 
+  test('onError: no handler marks event as not handled', () async {
+    final exception = StateError('error');
+
+    _reportError(exception: exception, stackTrace: StackTrace.current, useFallbackHandler: false);
+
+    final event = verify(
+      await fixture.hub
+          .captureEvent(captureAny, stackTrace: captureAnyNamed('stackTrace')),
+    ).captured.first as SentryEvent;
+
+    final throwableMechanism = event.throwableMechanism as ThrowableMechanism;
+    expect(throwableMechanism.mechanism.handled, isNotNull);
+    expect(throwableMechanism.mechanism.handled, false);
+  });
+
   test('onError: handled is true if onError returns true', () async {
     fixture.onErrorReturnValue = true;
     final exception = StateError('error');
@@ -82,6 +101,7 @@ void main() {
     ).captured.first as SentryEvent;
 
     final throwableMechanism = event.throwableMechanism as ThrowableMechanism;
+    expect(throwableMechanism.mechanism.handled, isNotNull);
     expect(throwableMechanism.mechanism.handled, false);
   });
 
