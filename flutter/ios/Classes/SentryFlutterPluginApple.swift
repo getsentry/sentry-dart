@@ -86,6 +86,11 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             let value = arguments?["value"] as? Any
             setContexts(key: key, value: value, result: result)
 
+        case "removeContexts":
+            let arguments = call.arguments as? [String: Any?]
+            let key = arguments?["key"] as? String
+            removeContexts(key: key, result: result)
+
         case "setUser":
             let arguments = call.arguments as? [String: Any?]
             let user = arguments?["user"] as? [String: Any?]
