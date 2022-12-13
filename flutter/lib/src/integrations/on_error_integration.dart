@@ -42,7 +42,7 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
     _defaultOnError = wrapper.onError;
 
     _integrationOnError = (Object exception, StackTrace stackTrace) {
-      final handled = _defaultOnError?.call(exception, stackTrace) ?? false;
+      final defaultOnErrorHandled = _defaultOnError?.call(exception, stackTrace) ?? true;
 
       // As per docs, the app might crash on some platforms
       // after this is called.
@@ -50,7 +50,7 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
       // https://master-api.flutter.dev/flutter/dart-ui/ErrorCallback.html
       final mechanism = Mechanism(
         type: 'PlatformDispatcher.onError',
-        handled: handled,
+        handled: false,
       );
       final throwableMechanism = ThrowableMechanism(mechanism, exception);
 
@@ -64,7 +64,7 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
       // unawaited future
       hub.captureEvent(event, stackTrace: stackTrace);
 
-      return handled;
+      return defaultOnErrorHandled;
     };
 
     wrapper.onError = _integrationOnError;

@@ -57,7 +57,7 @@ void main() {
 
     final throwableMechanism = event.throwableMechanism as ThrowableMechanism;
     expect(throwableMechanism.mechanism.type, 'PlatformDispatcher.onError');
-    expect(throwableMechanism.mechanism.handled, true);
+    expect(throwableMechanism.mechanism.handled, false);
     expect(throwableMechanism.throwable, exception);
   });
 
@@ -79,7 +79,7 @@ void main() {
     expect(throwableMechanism.mechanism.handled, false);
   });
 
-  test('onError: handled is true if onError returns true', () async {
+  test('onError: handled is false if onError returns true', () async {
     fixture.onErrorReturnValue = true;
     final exception = StateError('error');
     _reportError(exception: exception, stackTrace: StackTrace.current);
@@ -90,7 +90,7 @@ void main() {
     ).captured.first as SentryEvent;
 
     final throwableMechanism = event.throwableMechanism as ThrowableMechanism;
-    expect(throwableMechanism.mechanism.handled, true);
+    expect(throwableMechanism.mechanism.handled, false);
   });
 
   test('onError: handled is false if onError returns false', () async {
