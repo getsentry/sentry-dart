@@ -44,7 +44,7 @@ class _QuantityKey {
   final DataCategory category;
 
   @override
-  int get hashCode => hash2(reason.hashCode, category.hashCode);
+  int get hashCode => Object.hash(reason.hashCode, category.hashCode);
 
   @override
   bool operator ==(dynamic other) {
