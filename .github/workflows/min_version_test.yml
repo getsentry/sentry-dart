@@ -30,7 +30,7 @@ jobs:
 
       - uses: subosito/flutter-action@dbf1fa04f4d2e52c33185153d06cdb5443aa189d # pin@v2
         with:
-          flutter-version: '2.0.0'
+          flutter-version: '3.0.0'
       # Add flutter build web (missing index)
       - name: Build
         run: |
