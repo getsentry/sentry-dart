@@ -6,6 +6,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
+import 'package:sentry_flutter/src/sentry_native.dart';
 import 'package:sentry_flutter/src/version.dart';
 import 'mocks.dart';
 import 'mocks.mocks.dart';
@@ -47,6 +48,8 @@ void main() {
     setUp(() async {
       loadTestPackage();
       await Sentry.close();
+      final sentryNative = SentryNative();
+      sentryNative.nativeChannel = null;
     });
 
     test('Android', () async {
@@ -86,6 +89,8 @@ void main() {
           beforeIntegration: WidgetsFlutterBindingIntegration,
           afterIntegration: OnErrorIntegration);
 
+      expect(SentryNative().nativeChannel, isNotNull);
+
       await Sentry.close();
     }, testOn: 'vm');
 
@@ -124,6 +129,8 @@ void main() {
           beforeIntegration: WidgetsFlutterBindingIntegration,
           afterIntegration: OnErrorIntegration);
 
+      expect(SentryNative().nativeChannel, isNotNull);
+
       await Sentry.close();
     }, testOn: 'vm');
 
@@ -161,6 +168,8 @@ void main() {
           integrations: integrations,
           beforeIntegration: WidgetsFlutterBindingIntegration,
           afterIntegration: OnErrorIntegration);
+
+      expect(SentryNative().nativeChannel, isNotNull);
 
       await Sentry.close();
     }, testOn: 'vm');
@@ -202,6 +211,8 @@ void main() {
           beforeIntegration: WidgetsFlutterBindingIntegration,
           afterIntegration: OnErrorIntegration);
 
+      expect(SentryNative().nativeChannel, isNull);
+
       await Sentry.close();
     }, testOn: 'vm');
 
@@ -241,6 +252,8 @@ void main() {
           integrations: integrations,
           beforeIntegration: WidgetsFlutterBindingIntegration,
           afterIntegration: OnErrorIntegration);
+
+      expect(SentryNative().nativeChannel, isNull);
 
       await Sentry.close();
     }, testOn: 'vm');
@@ -282,6 +295,8 @@ void main() {
           integrations: Sentry.currentHub.options.integrations,
           beforeIntegration: RunZonedGuardedIntegration,
           afterIntegration: WidgetsFlutterBindingIntegration);
+
+      expect(SentryNative().nativeChannel, isNull);
 
       await Sentry.close();
     });
