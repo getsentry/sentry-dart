@@ -5,7 +5,6 @@ import 'dart:io' if (dart.library.html) 'dart:html';
 import 'package:logging/logging.dart';
 import 'package:dio/dio.dart';
 
-import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_dio/sentry_dio.dart';
 import 'package:sentry_logging/sentry_logging.dart';

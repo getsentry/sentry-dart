@@ -421,10 +421,10 @@ void main() {
     test('tracer sets custom measurement unit', () async {
       final sut = fixture.getSut();
 
-      sut.setMeasurement('key', 1.0, unit: SentryMeasurementUnit.hour);
+      sut.setMeasurement('key', 1.0, unit: DurationSentryMeasurementUnit.hour);
 
       expect(sut.measurements['key']!.value, 1.0);
-      expect(sut.measurements['key']?.unit, SentryMeasurementUnit.hour);
+      expect(sut.measurements['key']?.unit, DurationSentryMeasurementUnit.hour);
 
       await sut.finish();
     });
