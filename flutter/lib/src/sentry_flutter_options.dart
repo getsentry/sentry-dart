@@ -205,6 +205,8 @@ class SentryFlutterOptions extends SentryOptions {
   @internal
   late RendererWrapper rendererWrapper = RendererWrapper();
 
+  bool attachViewHierarchy = true;
+
   /// By using this, you are disabling native [Breadcrumb] tracking and instead
   /// you are just tracking [Breadcrumb]s which result from events available
   /// in the current Flutter environment.

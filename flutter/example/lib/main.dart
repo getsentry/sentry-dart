@@ -223,6 +223,17 @@ class MainScaffold extends StatelessWidget {
               child: const Text('Capture from PlatformDispatcher.onError'),
             ),
             ElevatedButton(
+              key: const Key('view hierarchy'),
+              onPressed: () => {},
+              child: const Visibility(
+                visible: false,
+                child: Opacity(
+                  opacity: 0.5,
+                  child: Text('view hierarchy'),
+                ),
+              ),
+            ),
+            ElevatedButton(
               onPressed: () => makeWebRequest(context),
               child: const Text('Dart: Web request'),
             ),

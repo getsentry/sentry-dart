@@ -28,6 +28,8 @@ class SentryAttachment {
   /// breadcrumbs.
   static const String typeUnrealLogs = 'unreal.logs';
 
+  static const String typeViewHierarchy = 'event.view_hierarchy';
+
   SentryAttachment.fromLoader({
     required ContentLoader loader,
     required this.filename,
@@ -87,6 +89,11 @@ class SentryAttachment {
       : this.fromUint8List(bytes, 'screenshot.png',
             contentType: 'image/png',
             attachmentType: SentryAttachment.typeAttachmentDefault);
+
+  SentryAttachment.fromViewHierrchy(Uint8List bytes)
+      : this.fromUint8List(bytes, 'view-hierarchy.json',
+            contentType: 'application/json',
+            attachmentType: SentryAttachment.typeViewHierarchy);
 
   /// Attachment type.
   /// Should be one of types given in [AttachmentType].
