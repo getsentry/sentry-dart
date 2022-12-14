@@ -6,6 +6,7 @@
 
 - Feat: Introduce `Hint` data bag ([#1136](https://github.com/getsentry/sentry-dart/pull/1136))
 - Feat: Use `Hint` for screenshots ([#1165](https://github.com/getsentry/sentry-dart/pull/1165))
+- Feat: Support custom units for custom measurements ([#1181](https://github.com/getsentry/sentry-dart/pull/1181))
 
 ### Fixes
 
@@ -25,6 +26,8 @@
     - theme
   - Removed isolate name from Dart context. It's now reported via the threads interface. It can be enabled via `options.attachThreads`
 - Use `sentryClientName` instead of `sdk.identifier` ([#1135](https://github.com/getsentry/sentry-dart/pull/1135))
+- Bump Flutter min to 3.0.0 and Dart to 2.17.0 ([#1180](https://github.com/getsentry/sentry-dart/pull/1180))
+
 ## Unreleased
 ## 6.18.1
 
