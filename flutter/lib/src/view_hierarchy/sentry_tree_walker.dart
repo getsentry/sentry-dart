@@ -18,7 +18,8 @@ class _TreeWalker {
       final sentryElement = _toSentryViewHierarchyElement(element);
 
       var privateElement = false;
-      // TODO: check if that works with obfuscation enabled
+      // when obfuscation is enabled, this won't work because all the types
+      // are renamed
       if (sentryElement.type.startsWith(_privateDelimiter) ||
           (sentryElement.identifier?.startsWith(_privateDelimiter) ?? false)) {
         privateElement = true;
