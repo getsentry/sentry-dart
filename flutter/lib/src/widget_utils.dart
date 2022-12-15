@@ -7,7 +7,11 @@ extension WidgetExtension on Key {
       return key.value;
     } else if (key is ValueKey) {
       return key.value?.toString();
-    } // global object key
+    } else if (key is GlobalObjectKey) {
+      return key.value.toString();
+    } else if (key is ObjectKey) {
+      return key.value?.toString();
+    }
     return key.toString();
   }
 }

@@ -38,3 +38,6 @@ export 'protocol/sentry_trace_header.dart';
 export 'protocol/sentry_transaction_name_source.dart';
 export 'protocol/sentry_baggage_header.dart';
 export 'protocol/sentry_transaction_info.dart';
+// view hierarchy
+export 'protocol/sentry_view_hierarchy.dart';
+export 'protocol/sentry_view_hierarchy_element.dart';

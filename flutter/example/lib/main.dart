@@ -226,7 +226,7 @@ class MainScaffold extends StatelessWidget {
               key: const Key('view hierarchy'),
               onPressed: () => {},
               child: const Visibility(
-                visible: false,
+                visible: true,
                 child: Opacity(
                   opacity: 0.5,
                   child: Text('view hierarchy'),

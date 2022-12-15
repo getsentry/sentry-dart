@@ -15,13 +15,14 @@ class SentryViewHierarchyEventProcessor implements EventProcessor {
     if (instance == null) {
       return event;
     }
-    final bytes = widgetTree(instance);
+    final sentryViewHierarchy = walkWidgetTree(instance);
 
-    if (bytes == null) {
+    if (sentryViewHierarchy == null) {
       return event;
     }
 
-    final viewHierarchy = SentryAttachment.fromViewHierrchy(bytes);
+    final viewHierarchy =
+        SentryAttachment.fromViewHierrchy(sentryViewHierarchy);
     hint?.viewHierarchy = viewHierarchy;
     return event;
   }

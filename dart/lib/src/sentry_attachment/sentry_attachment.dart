@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import '../protocol/sentry_view_hierarchy.dart';
+import '../utils.dart';
+
 // https://develop.sentry.dev/sdk/features/#attachments
 // https://develop.sentry.dev/sdk/envelopes/#attachment
 
@@ -90,8 +93,11 @@ class SentryAttachment {
             contentType: 'image/png',
             attachmentType: SentryAttachment.typeAttachmentDefault);
 
-  SentryAttachment.fromViewHierrchy(Uint8List bytes)
-      : this.fromUint8List(bytes, 'view-hierarchy.json',
+  SentryAttachment.fromViewHierrchy(SentryViewHierarchy sentryViewHierarchy)
+      : this.fromLoader(
+            loader: () => Uint8List.fromList(
+                utf8JsonEncoder.convert(sentryViewHierarchy.toJson())),
+            filename: 'view-hierarchy.json',
             contentType: 'application/json',
             attachmentType: SentryAttachment.typeViewHierarchy);
 
