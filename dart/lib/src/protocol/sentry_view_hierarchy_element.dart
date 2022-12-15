@@ -31,44 +31,25 @@ class SentryViewHierarchyElement {
 
   /// Header encoded as JSON
   Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{};
-    json['type'] = type;
-    json['depth'] = depth;
-    if (identifier != null) {
-      json['identifier'] = identifier;
-    }
-    if (children.isNotEmpty) {
-      json['children'] =
-          children.map((e) => e.toJson()).toList(growable: false);
-    }
-    if (width != null) {
-      json['width'] = width;
-    }
-    if (height != null) {
-      json['height'] = height;
-    }
-    if (x != null) {
-      json['x'] = x;
-    }
-    if (y != null) {
-      json['y'] = y;
-    }
-    if (z != null) {
-      json['z'] = z;
-    }
-    if (visible != null) {
-      json['visible'] = visible;
-    }
-    if (alpha != null) {
-      json['alpha'] = alpha;
-    }
-    final tempExtra = extra;
-    if (tempExtra != null) {
-      for (final key in tempExtra.keys) {
-        json[key] = tempExtra[key];
-      }
+    final jsonMap = {
+      'type': type,
+      if (depth != null) 'depth': depth,
+      if (identifier != null) 'identifier': identifier,
+      if (width != null) 'width': width,
+      if (height != null) 'height': height,
+      if (x != null) 'x': x,
+      if (y != null) 'y': y,
+      if (z != null) 'z': z,
+      if (visible != null) 'visible': visible,
+      if (alpha != null) 'alpha': alpha,
+      if (children.isNotEmpty)
+        'children': children.map((e) => e.toJson()).toList(growable: false),
+    };
+
+    if (extra?.isNotEmpty ?? false) {
+      jsonMap.addAll(extra!);
     }
 
-    return json;
+    return jsonMap;
   }
 }

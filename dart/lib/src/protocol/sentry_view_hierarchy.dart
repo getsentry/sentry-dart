@@ -11,12 +11,10 @@ class SentryViewHierarchy {
 
   /// Header encoded as JSON
   Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{};
-    json['rendering_system'] = renderingSystem;
-    if (windows.isNotEmpty) {
-      json['windows'] = windows.map((e) => e.toJson()).toList(growable: false);
-    }
-
-    return json;
+    return {
+      'rendering_system': renderingSystem,
+      if (windows.isNotEmpty)
+        'windows': windows.map((e) => e.toJson()).toList(growable: false),
+    };
   }
 }
