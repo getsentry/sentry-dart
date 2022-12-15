@@ -158,7 +158,7 @@ mixin SentryFlutter {
       integrations.add(ScreenshotIntegration());
     }
 
-    // TODO: check if it works with all renderers
+    // works with Skia, CanvasKit and HTML renderer
     integrations.add(SentryViewHierarchyIntegration());
 
     integrations.add(DebugPrintIntegration());
