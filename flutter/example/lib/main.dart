@@ -23,19 +23,21 @@ const String _exampleDsn =
 const _channel = MethodChannel('example.flutter.sentry.io');
 
 Future<void> main() async {
-  await setupSentry(() => runApp(
-        SentryScreenshotWidget(
-          child: SentryUserInteractionWidget(
-            child: DefaultAssetBundle(
-              bundle: SentryAssetBundle(enableStructuredDataTracing: true),
-              child: const MyApp(),
+  await setupSentry(
+      () => runApp(
+            SentryScreenshotWidget(
+              child: SentryUserInteractionWidget(
+                child: DefaultAssetBundle(
+                  bundle: SentryAssetBundle(enableStructuredDataTracing: true),
+                  child: const MyApp(),
+                ),
+              ),
             ),
           ),
-        ),
-      ));
+      _exampleDsn);
 }
 
-Future<void> setupSentry(AppRunner appRunner) async {
+Future<void> setupSentry(AppRunner appRunner, String dsn) async {
   await SentryFlutter.init((options) {
     options.dsn = _exampleDsn;
     options.tracesSampleRate = 1.0;
