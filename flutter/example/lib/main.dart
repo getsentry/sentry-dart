@@ -52,6 +52,7 @@ Future<void> setupSentry(AppRunner appRunner, String dsn) async {
     options.enableNdkScopeSync = true;
     options.enableUserInteractionTracing = true;
     options.attachScreenshot = true;
+    options.attachViewHierarchy = true;
     // We can enable Sentry debug logging during development. This is likely
     // going to log too much for your app, but can be useful when figuring out
     // configuration issues, e.g. finding out why your events are not uploaded.
@@ -60,7 +61,6 @@ Future<void> setupSentry(AppRunner appRunner, String dsn) async {
     options.captureFailedHttpRequests = true;
     options.maxRequestBodySize = MaxRequestBodySize.always;
     options.maxResponseBodySize = MaxResponseBodySize.always;
-    options.captureFailedHttpRequests = true;
   },
       // Init your App.
       appRunner: appRunner);
