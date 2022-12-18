@@ -263,9 +263,9 @@ class TestBindingWrapper implements BindingWrapper {
   bool getWidgetsBindingInstanceCalled = false;
 
   @override
-  void ensureInitialized() {
+  WidgetsBinding ensureInitialized() {
     ensureBindingInitializedCalled = true;
-    TestWidgetsFlutterBinding.ensureInitialized();
+    return TestWidgetsFlutterBinding.ensureInitialized();
   }
 
   @override

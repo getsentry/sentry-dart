@@ -23,9 +23,9 @@ class FlutterEnricherEventProcessor extends EventProcessor {
   // We can't use `WidgetsBinding` as a direct parameter
   // because it must be called inside the `runZoneGuarded`-Integration.
   // Thus we call it on demand after all the initialization happened.
-  WidgetsBinding get _widgetsBinding => _options.bindingUtils.instance;
+  WidgetsBinding? get _widgetsBinding => _options.bindingUtils.instance;
 
-  SingletonFlutterWindow? get _window => _widgetsBinding.window;
+  SingletonFlutterWindow? get _window => _widgetsBinding?.window;
   Map<String, String> _packages = {};
 
   @override
@@ -115,14 +115,14 @@ class FlutterEnricherEventProcessor extends EventProcessor {
   }
 
   Map<String, String> _getFlutterContext() {
-    final currentLifecycle = _widgetsBinding.lifecycleState;
+    final currentLifecycle = _widgetsBinding?.lifecycleState;
     final debugPlatformOverride = debugDefaultTargetPlatformOverride;
     final tempDebugBrightnessOverride = debugBrightnessOverride;
     final initialLifecycleState = _window?.initialLifecycleState;
     final defaultRouteName = _window?.defaultRouteName;
     // A FlutterEngine has no renderViewElement if it was started or is
     // accessed from an isolate different to the main isolate.
-    final hasRenderView = _widgetsBinding.renderViewElement != null;
+    final hasRenderView = _widgetsBinding?.renderViewElement != null;
 
     return <String, String>{
       'has_render_view': hasRenderView.toString(),

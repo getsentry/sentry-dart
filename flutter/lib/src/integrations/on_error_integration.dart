@@ -32,7 +32,7 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
 
     // WidgetsBinding works with WidgetsFlutterBinding and other custom bindings
     final wrapper = dispatchWrapper ??
-        PlatformDispatcherWrapper(binding.platformDispatcher);
+        PlatformDispatcherWrapper(binding?.platformDispatcher);
 
     _defaultOnError = wrapper.onError;
 
@@ -92,15 +92,15 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
 class PlatformDispatcherWrapper {
   PlatformDispatcherWrapper(this._dispatcher);
 
-  final PlatformDispatcher _dispatcher;
+  final PlatformDispatcher? _dispatcher;
 
   /// Should not be accessed if [isOnErrorSupported] == false
   ErrorCallback? get onError =>
-      (_dispatcher as dynamic).onError as ErrorCallback?;
+      (_dispatcher as dynamic)?.onError as ErrorCallback?;
 
   /// Should not be accessed if [isOnErrorSupported] == false
   set onError(ErrorCallback? callback) {
-    (_dispatcher as dynamic).onError = callback;
+    (_dispatcher as dynamic)?.onError = callback;
   }
 
   bool isOnErrorSupported(SentryFlutterOptions options) {
