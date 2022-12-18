@@ -30,14 +30,14 @@ class SentryMeasurement {
       : assert(!duration.isNegative),
         name = 'app_start_cold',
         value = duration.inMilliseconds,
-        unit = SentryMeasurementUnit.milliSecond;
+        unit = DurationSentryMeasurementUnit.milliSecond;
 
   /// Duration of the Warm App start in milliseconds
   SentryMeasurement.warmAppStart(Duration duration)
       : assert(!duration.isNegative),
         name = 'app_start_warm',
         value = duration.inMilliseconds,
-        unit = SentryMeasurementUnit.milliSecond;
+        unit = DurationSentryMeasurementUnit.milliSecond;
 
   final String name;
   final num value;

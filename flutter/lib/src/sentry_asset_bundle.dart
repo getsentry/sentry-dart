@@ -175,20 +175,8 @@ class SentryAssetBundle implements AssetBundle {
   void evict(String key) => _bundle.evict(key);
 
   @override
-  // This is an override on Flutter 2.8 and later
-  // ignore: override_on_non_overriding_member
   void clear() {
-    try {
-      (_bundle as dynamic).clear();
-    } on NoSuchMethodError catch (_) {
-      // The clear method exists as of Flutter 2.8
-      // Previous versions don't have it, but later versions do.
-      // We can't use `extends` in order to provide this method because this is
-      // a wrapper and thus the method call must be forwarded.
-      // On Flutter version before 2.8 we can't forward this call and
-      // just catch the error which is thrown. On later version the call gets
-      // correctly forwarded.
-    }
+    _bundle.clear();
   }
 
   @override
