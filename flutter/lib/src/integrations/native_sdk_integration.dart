@@ -42,7 +42,7 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
         'sendDefaultPii': options.sendDefaultPii,
         'enableOutOfMemoryTracking': options.enableOutOfMemoryTracking,
         'enableNdkScopeSync': options.enableNdkScopeSync,
-        'enableAutoPerformanceTracking': options.enableAutoPerformanceTracking,
+        'enableAutoPerformanceTracing': options.enableAutoPerformanceTracing,
         'sendClientReports': options.sendClientReports,
       });
 
