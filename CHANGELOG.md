@@ -27,8 +27,9 @@
   - Removed isolate name from Dart context. It's now reported via the threads interface. It can be enabled via `options.attachThreads`
 - Use `sentryClientName` instead of `sdk.identifier` ([#1135](https://github.com/getsentry/sentry-dart/pull/1135))
 - Bump Flutter min to 3.0.0 and Dart to 2.17.0 ([#1180](https://github.com/getsentry/sentry-dart/pull/1180))
+- Migrate to sentry cocoa v8 ([#1197](https://github.com/getsentry/sentry-dart/pull/1197))
+  - Rename `options.enableAutoPerformanceTracking` to `options.enableAutoPerformanceTracing`
 
-## Unreleased
 ## 6.18.1
 
 ### Fixes
