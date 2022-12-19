@@ -55,7 +55,11 @@ void main() {
         'enableOutOfMemoryTracking': true,
         'enableNdkScopeSync': false,
         'enableAutoPerformanceTracing': true,
-        'sendClientReports': true
+        'sendClientReports': true,
+        'sdk': {
+          'name': 'sentry.dart',
+          'version': sdkVersion,
+        },
       });
     });
 
@@ -124,7 +128,11 @@ void main() {
         'enableOutOfMemoryTracking': false,
         'enableNdkScopeSync': true,
         'enableAutoPerformanceTracing': false,
-        'sendClientReports': false
+        'sendClientReports': false,
+        'sdk': {
+          'name': 'sentry.dart',
+          'version': sdkVersion,
+        },
       });
     });
 

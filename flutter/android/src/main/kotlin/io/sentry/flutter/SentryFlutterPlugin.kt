@@ -164,6 +164,15 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
       args.getIfNotNull<Boolean>("sendClientReports") { options.isSendClientReports = it }
 
+      args.getIfNotNull<Map<String, Any>>("sdk") { sdk ->
+        val name = sdk["name"] as? String
+        val version = sdk["version"] as? String
+        if (name != null && version != null) {
+          options.setSentryClientName(name)
+          options.setSdkVersion(version)
+        }
+      }
+
       options.setBeforeSend { event, _ ->
         setEventOriginTag(event)
         addPackages(event, options.sdkVersion)

@@ -199,6 +199,12 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
                 #endif
             }
 
+            if let sdk = arguments["sdk"] as? [String: Any?],
+               let sdkName = sdk["name"] as? String,
+               let sdkVersion = sdk["version"] as? String {
+                PrivateSentrySDKOnly.setSdkName(sdkName, andVersionString: sdkVersion)
+            }
+
             // note : for now, in sentry-cocoa, beforeSend is not called before captureEnvelope
             options.beforeSend = { event in
                 self.setEventOriginTag(event: event)
