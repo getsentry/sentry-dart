@@ -43,7 +43,7 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
 
     _integrationOnError = (Object exception, StackTrace stackTrace) {
       final handledToReturn =
-          _defaultOnError?.call(exception, stackTrace) ?? true;
+          _defaultOnError?.call(exception, stackTrace) ?? false;
 
       // As per docs, the app might crash on some platforms
       // after this is called.
