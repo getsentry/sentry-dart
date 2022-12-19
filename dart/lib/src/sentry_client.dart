@@ -399,13 +399,24 @@ class SentryClient {
   }
 
   SentryEvent _eventWithRemovedBreadcrumbsIfHandled(SentryEvent event) {
-    final mechanisms =
-        (event.exceptions ?? []).map((e) => e.mechanism).whereType<Mechanism>();
+    final mechanisms = (event.exceptions ?? [])
+        .map((e) => e.mechanism)
+        .whereType<Mechanism>();
     final hasNoMechanism = mechanisms.isEmpty;
-    final hasOnlyHandledMechanism =
-        mechanisms.every((e) => (e.handled ?? true));
 
-    if (hasNoMechanism || hasOnlyHandledMechanism) {
+    final hasOnlyHandledMechanism = mechanisms
+        .every((e) => (e.handled ?? true));
+
+    final unhandledButNotCrashingMechanisms = <String>[
+      'PlatformDispatcher.onError',
+      'isolateError',
+      'runZonedGuarded',
+    ];
+
+    final unhandledButNotCrashing = mechanisms
+        .every((e) => unhandledButNotCrashingMechanisms.contains(e.type));
+
+    if (hasNoMechanism || hasOnlyHandledMechanism || unhandledButNotCrashing) {
       return event.copyWith(breadcrumbs: []);
     } else {
       return event;
