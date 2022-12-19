@@ -56,11 +56,14 @@ void main() {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
 
+      SentryFlutterOptions? sentryFlutterOptions;
+
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
           integrations = options.integrations;
           transport = options.transport;
+          sentryFlutterOptions = options;
         },
         appRunner: appRunner,
         packageLoader: loadTestPackage,
@@ -71,6 +74,9 @@ void main() {
         transport: transport,
         hasFileSystemTransport: true,
       );
+
+      testScopeObserver(
+          options: sentryFlutterOptions!, hasNativeScopeObserver: true);
 
       testConfiguration(
           integrations: integrations,
@@ -98,12 +104,14 @@ void main() {
     test('iOS', () async {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
+      SentryFlutterOptions? sentryFlutterOptions;
 
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
           integrations = options.integrations;
           transport = options.transport;
+          sentryFlutterOptions = options;
         },
         appRunner: appRunner,
         packageLoader: loadTestPackage,
@@ -114,6 +122,9 @@ void main() {
         transport: transport,
         hasFileSystemTransport: true,
       );
+
+      testScopeObserver(
+          options: sentryFlutterOptions!, hasNativeScopeObserver: true);
 
       testConfiguration(
         integrations: integrations,
@@ -139,12 +150,14 @@ void main() {
     test('macOS', () async {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
+      SentryFlutterOptions? sentryFlutterOptions;
 
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
           integrations = options.integrations;
           transport = options.transport;
+          sentryFlutterOptions = options;
         },
         appRunner: appRunner,
         packageLoader: loadTestPackage,
@@ -155,6 +168,9 @@ void main() {
         transport: transport,
         hasFileSystemTransport: true,
       );
+
+      testScopeObserver(
+          options: sentryFlutterOptions!, hasNativeScopeObserver: true);
 
       testConfiguration(
         integrations: integrations,
@@ -180,12 +196,14 @@ void main() {
     test('Windows', () async {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
+      SentryFlutterOptions? sentryFlutterOptions;
 
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
           integrations = options.integrations;
           transport = options.transport;
+          sentryFlutterOptions = options;
         },
         appRunner: appRunner,
         packageLoader: loadTestPackage,
@@ -196,6 +214,9 @@ void main() {
         transport: transport,
         hasFileSystemTransport: false,
       );
+
+      testScopeObserver(
+          options: sentryFlutterOptions!, hasNativeScopeObserver: false);
 
       testConfiguration(
         integrations: integrations,
@@ -223,12 +244,14 @@ void main() {
     test('Linux', () async {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
+      SentryFlutterOptions? sentryFlutterOptions;
 
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
           integrations = options.integrations;
           transport = options.transport;
+          sentryFlutterOptions = options;
         },
         appRunner: appRunner,
         packageLoader: loadTestPackage,
@@ -239,6 +262,9 @@ void main() {
         transport: transport,
         hasFileSystemTransport: false,
       );
+
+      testScopeObserver(
+          options: sentryFlutterOptions!, hasNativeScopeObserver: false);
 
       testConfiguration(
         integrations: integrations,
@@ -266,12 +292,14 @@ void main() {
     test('Web', () async {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
+      SentryFlutterOptions? sentryFlutterOptions;
 
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
           integrations = options.integrations;
           transport = options.transport;
+          sentryFlutterOptions = options;
         },
         appRunner: appRunner,
         packageLoader: loadTestPackage,
@@ -285,6 +313,9 @@ void main() {
         transport: transport,
         hasFileSystemTransport: false,
       );
+
+      testScopeObserver(
+          options: sentryFlutterOptions!, hasNativeScopeObserver: false);
 
       testConfiguration(
         integrations: integrations,
