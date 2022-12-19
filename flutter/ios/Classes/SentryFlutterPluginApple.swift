@@ -576,7 +576,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         breadcrumbInstance.data = data
       }
 
-      SentrySDK.addBreadcrumb(crumb: breadcrumbInstance)
+      SentrySDK.addBreadcrumb(breadcrumbInstance)
 
       result("")
     }
