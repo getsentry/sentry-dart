@@ -5,47 +5,49 @@ void main() {
   group('$SentryMeasurementUnit', () {
     group('DurationUnit', () {
       test('nanosecond', () {
-        expect(SentryMeasurementUnit.nanoSecond.toStringValue(), 'nanosecond');
+        expect(DurationSentryMeasurementUnit.nanoSecond.toStringValue(),
+            'nanosecond');
       });
 
       test('microsecond', () {
-        expect(
-            SentryMeasurementUnit.microSecond.toStringValue(), 'microsecond');
+        expect(DurationSentryMeasurementUnit.microSecond.toStringValue(),
+            'microsecond');
       });
 
       test('millisecond', () {
-        expect(
-            SentryMeasurementUnit.milliSecond.toStringValue(), 'millisecond');
+        expect(DurationSentryMeasurementUnit.milliSecond.toStringValue(),
+            'millisecond');
       });
 
       test('second', () {
-        expect(SentryMeasurementUnit.second.toStringValue(), 'second');
+        expect(DurationSentryMeasurementUnit.second.toStringValue(), 'second');
       });
 
       test('minute', () {
-        expect(SentryMeasurementUnit.minute.toStringValue(), 'minute');
+        expect(DurationSentryMeasurementUnit.minute.toStringValue(), 'minute');
       });
 
       test('hour', () {
-        expect(SentryMeasurementUnit.hour.toStringValue(), 'hour');
+        expect(DurationSentryMeasurementUnit.hour.toStringValue(), 'hour');
       });
 
       test('day', () {
-        expect(SentryMeasurementUnit.day.toStringValue(), 'day');
+        expect(DurationSentryMeasurementUnit.day.toStringValue(), 'day');
       });
 
       test('week', () {
-        expect(SentryMeasurementUnit.week.toStringValue(), 'week');
+        expect(DurationSentryMeasurementUnit.week.toStringValue(), 'week');
       });
     });
 
     group('FractionUnit', () {
       test('ratio', () {
-        expect(SentryMeasurementUnit.ratio.toStringValue(), 'ratio');
+        expect(FractionSentryMeasurementUnit.ratio.toStringValue(), 'ratio');
       });
 
       test('percent', () {
-        expect(SentryMeasurementUnit.percent.toStringValue(), 'percent');
+        expect(
+            FractionSentryMeasurementUnit.percent.toStringValue(), 'percent');
       });
     });
 
@@ -57,53 +59,71 @@ void main() {
 
     group('InformationUnit', () {
       test('bit', () {
-        expect(SentryMeasurementUnit.bit.toStringValue(), 'bit');
+        expect(InformationSentryMeasurementUnit.bit.toStringValue(), 'bit');
       });
 
       test('byte', () {
-        expect(SentryMeasurementUnit.byte.toStringValue(), 'byte');
+        expect(InformationSentryMeasurementUnit.byte.toStringValue(), 'byte');
       });
 
       test('kilobyte', () {
-        expect(SentryMeasurementUnit.kiloByte.toStringValue(), 'kilobyte');
+        expect(InformationSentryMeasurementUnit.kiloByte.toStringValue(),
+            'kilobyte');
       });
 
       test('kibibyte', () {
-        expect(SentryMeasurementUnit.kibiByte.toStringValue(), 'kibibyte');
+        expect(InformationSentryMeasurementUnit.kibiByte.toStringValue(),
+            'kibibyte');
       });
 
       test('megabyte', () {
-        expect(SentryMeasurementUnit.megaByte.toStringValue(), 'megabyte');
+        expect(InformationSentryMeasurementUnit.megaByte.toStringValue(),
+            'megabyte');
       });
 
       test('mebibyte', () {
-        expect(SentryMeasurementUnit.mebiByte.toStringValue(), 'mebibyte');
+        expect(InformationSentryMeasurementUnit.mebiByte.toStringValue(),
+            'mebibyte');
       });
 
       test('gigabyte', () {
-        expect(SentryMeasurementUnit.gigaByte.toStringValue(), 'gigabyte');
+        expect(InformationSentryMeasurementUnit.gigaByte.toStringValue(),
+            'gigabyte');
       });
 
       test('gibibyte', () {
-        expect(SentryMeasurementUnit.gibiByte.toStringValue(), 'gibibyte');
+        expect(InformationSentryMeasurementUnit.gibiByte.toStringValue(),
+            'gibibyte');
       });
       test('terabyte', () {
-        expect(SentryMeasurementUnit.teraByte.toStringValue(), 'terabyte');
+        expect(InformationSentryMeasurementUnit.teraByte.toStringValue(),
+            'terabyte');
       });
       test('tebibyte', () {
-        expect(SentryMeasurementUnit.tebiByte.toStringValue(), 'tebibyte');
+        expect(InformationSentryMeasurementUnit.tebiByte.toStringValue(),
+            'tebibyte');
       });
       test('petabyte', () {
-        expect(SentryMeasurementUnit.petaByte.toStringValue(), 'petabyte');
+        expect(InformationSentryMeasurementUnit.petaByte.toStringValue(),
+            'petabyte');
       });
       test('pebibyte', () {
-        expect(SentryMeasurementUnit.pebiByte.toStringValue(), 'pebibyte');
+        expect(InformationSentryMeasurementUnit.pebiByte.toStringValue(),
+            'pebibyte');
       });
       test('exabyte', () {
-        expect(SentryMeasurementUnit.exaByte.toStringValue(), 'exabyte');
+        expect(InformationSentryMeasurementUnit.exaByte.toStringValue(),
+            'exabyte');
       });
       test('exbibyte', () {
-        expect(SentryMeasurementUnit.exbiByte.toStringValue(), 'exbibyte');
+        expect(InformationSentryMeasurementUnit.exbiByte.toStringValue(),
+            'exbibyte');
+      });
+    });
+
+    group('Custom', () {
+      test('custom', () {
+        expect(CustomSentryMeasurementUnit('custom').toStringValue(), 'custom');
       });
     });
   });

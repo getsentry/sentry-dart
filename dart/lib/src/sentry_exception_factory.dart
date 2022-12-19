@@ -33,7 +33,9 @@ class SentryExceptionFactory {
     if (_options.attachStacktrace) {
       // TODO: snapshot=true if stackTrace is null
       // Requires a major breaking change because of grouping
-      stackTrace ??= StackTrace.current;
+      if (stackTrace == null || stackTrace == StackTrace.empty) {
+        stackTrace = StackTrace.current;
+      }
     }
 
     SentryStackTrace? sentryStackTrace;
