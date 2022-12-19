@@ -47,8 +47,10 @@ mixin SentryFlutter {
     }
 
     final nativeChannel = SentryNativeChannel(channel, flutterOptions);
-    final native = SentryNative();
-    native.setNativeChannel(nativeChannel);
+    if (flutterOptions.platformChecker.hasNativeIntegration) {
+      final native = SentryNative();
+      native.nativeChannel = nativeChannel;
+    }
 
     final platformDispatcher = PlatformDispatcher.instance;
     final wrapper = PlatformDispatcherWrapper(platformDispatcher);
