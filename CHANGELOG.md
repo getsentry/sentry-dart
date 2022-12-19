@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix: Only call method channels on native platforms ([#1196](https://github.com/getsentry/sentry-dart/pull/1196))
+
 ## 6.18.1
 
 ### Fixes
