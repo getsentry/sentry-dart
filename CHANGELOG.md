@@ -5,6 +5,14 @@
 ### Fixes
 
 - Fix: Only call method channels on native platforms ([#1196](https://github.com/getsentry/sentry-dart/pull/1196))
+### Dependencies
+
+- Bump Android SDK from v6.9.2 to v6.10.0 ([#1194](https://github.com/getsentry/sentry-dart/pull/1194))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6100)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.9.2...6.10.0)
+- Bump Cocoa SDK from v7.31.3 to v7.31.4 ([#1190](https://github.com/getsentry/sentry-dart/pull/1190))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/8.0.0/CHANGELOG.md#7314)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.31.3...7.31.4)
 
 ## 6.18.1
 
