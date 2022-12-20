@@ -36,7 +36,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
   private var activity: WeakReference<Activity>? = null
   private var framesTracker: ActivityFramesTracker? = null
-  private var autoPerformanceTracingEnabled = false
+  private var autoPerformanceTrackingEnabled = false
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     context = flutterPluginBinding.applicationContext
@@ -155,9 +155,9 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         // options.isEnableNdk = false
       }
 
-      args.getIfNotNull<Boolean>("enableAutoPerformanceTracing") { enableAutoPerformanceTracing ->
-        if (enableAutoPerformanceTracing) {
-          autoPerformanceTracingEnabled = true
+      args.getIfNotNull<Boolean>("enableAutoPerformanceTracking") { enableAutoPerformanceTracking ->
+        if (enableAutoPerformanceTracking) {
+          autoPerformanceTrackingEnabled = true
           framesTracker = ActivityFramesTracker(LoadClass(), options)
         }
       }
@@ -185,7 +185,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   private fun fetchNativeAppStart(result: Result) {
-    if (!autoPerformanceTracingEnabled) {
+    if (!autoPerformanceTrackingEnabled) {
       result.success(null)
       return
     }
@@ -208,7 +208,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   private fun beginNativeFrames(result: Result) {
-    if (!autoPerformanceTracingEnabled) {
+    if (!autoPerformanceTrackingEnabled) {
       result.success(null)
       return
     }
@@ -221,7 +221,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
   private fun endNativeFrames(id: String?, result: Result) {
     val activity = activity?.get()
-    if (!autoPerformanceTracingEnabled || activity == null || id == null) {
+    if (!autoPerformanceTrackingEnabled || activity == null || id == null) {
       if (id == null) {
         Log.w("Sentry", "Parameter id cannot be null when calling endNativeFrames.")
       }

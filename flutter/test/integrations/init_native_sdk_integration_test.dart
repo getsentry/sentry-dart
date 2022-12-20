@@ -54,7 +54,7 @@ void main() {
         'sendDefaultPii': false,
         'enableOutOfMemoryTracking': true,
         'enableNdkScopeSync': false,
-        'enableAutoPerformanceTracing': true,
+        'enableAutoPerformanceTracking': true,
         'sendClientReports': true,
         'sdk': {
           'name': 'sentry.dart.flutter',
@@ -91,7 +91,7 @@ void main() {
         ..sendDefaultPii = true
         ..enableOutOfMemoryTracking = false
         ..enableNdkScopeSync = true
-        ..enableAutoPerformanceTracing = false
+        ..enableAutoPerformanceTracking = false
         ..sendClientReports = false;
 
       options.sdk.addIntegration('foo');
@@ -127,7 +127,7 @@ void main() {
         'sendDefaultPii': true,
         'enableOutOfMemoryTracking': false,
         'enableNdkScopeSync': true,
-        'enableAutoPerformanceTracing': false,
+        'enableAutoPerformanceTracking': false,
         'sendClientReports': false,
         'sdk': {
           'name': 'sentry.dart.flutter',
@@ -175,8 +175,8 @@ MethodChannel createChannelWithCallback(
 SentryFlutterOptions createOptions() {
   final mockPlatformChecker = MockPlatformChecker(hasNativeIntegration: true);
   final options = SentryFlutterOptions(
-      dsn: fakeDsn,
-      checker: mockPlatformChecker,
+    dsn: fakeDsn,
+    checker: mockPlatformChecker,
   );
   options.sdk = SdkVersion(
     name: sdkName,

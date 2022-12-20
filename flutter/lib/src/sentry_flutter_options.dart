@@ -171,8 +171,8 @@ class SentryFlutterOptions extends SentryOptions {
   /// Only available on Android.
   bool enableNdkScopeSync = false;
 
-  /// Enable auto performance tracing by default.
-  bool enableAutoPerformanceTracing = true;
+  /// Enable auto performance tracking by default.
+  bool enableAutoPerformanceTracking = true;
 
   /// Automatically track app start measurement and send it with the
   /// first transaction. Set to false when configuring option to disable or if
