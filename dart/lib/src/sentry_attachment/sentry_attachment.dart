@@ -93,7 +93,7 @@ class SentryAttachment {
             contentType: 'image/png',
             attachmentType: SentryAttachment.typeAttachmentDefault);
 
-  SentryAttachment.fromViewHierrchy(SentryViewHierarchy sentryViewHierarchy)
+  SentryAttachment.fromViewHierarchy(SentryViewHierarchy sentryViewHierarchy)
       : this.fromLoader(
           loader: () => Uint8List.fromList(
               utf8JsonEncoder.convert(sentryViewHierarchy.toJson())),
