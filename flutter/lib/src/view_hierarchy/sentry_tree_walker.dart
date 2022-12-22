@@ -68,6 +68,7 @@ class _TreeWalker {
       if (offset.dy > 0) {
         y = offset.dy;
       }
+      // no z axes in 2d
     }
 
     if (widget is Visibility) {

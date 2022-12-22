@@ -66,8 +66,7 @@ void main() {
       await tester.runAsync(() async {
         final sut = fixture.getSut();
 
-        // does not add widget
-        // await tester.pumpWidget(MyApp());
+        // does not pumpWidget
 
         final event = SentryEvent();
         final hint = Hint();

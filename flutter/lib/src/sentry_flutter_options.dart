@@ -206,7 +206,7 @@ class SentryFlutterOptions extends SentryOptions {
   late RendererWrapper rendererWrapper = RendererWrapper();
 
   /// Enables the View Hierarchy feature.
-  /// 
+  ///
   /// Renders an ASCII represention of the entire view hierarchy of the
   /// application when an error happens and includes it as an attachment.
   @experimental
