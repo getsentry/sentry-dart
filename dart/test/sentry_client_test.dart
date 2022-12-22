@@ -1143,7 +1143,23 @@ void main() {
       final capturedEnvelope = (fixture.transport).envelopes.first;
       final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
           (element) => element.header.type == SentryItemType.attachment);
-      expect(attachmentItem != null, true);
+      expect(attachmentItem?.header.fileName, 'screenshot.png');
+    });
+
+    test('captureEvent adds viewHierarchy from hint', () async {
+      final client = fixture.getSut();
+      final view = SentryViewHierarchy('flutter');
+      final attachment = SentryAttachment.fromViewHierarchy(view);
+      final hint = Hint.withViewHierarchy(attachment);
+
+      await client.captureEvent(fakeEvent, hint: hint);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
+          (element) => element.header.type == SentryItemType.attachment);
+      // TODO: change to SentryAttachment.typeViewHierarchy
+      expect(attachmentItem?.header.attachmentType,
+          SentryAttachment.typeAttachmentDefault);
     });
 
     test('captureTransaction adds trace context', () async {

@@ -4,6 +4,9 @@ import '../../sentry_flutter.dart';
 import '../binding_utils.dart';
 import 'sentry_tree_walker.dart';
 
+/// A [EventProcessor] that renders an ASCII represention of the entire view
+/// hierarchy of the application when an error happens and includes it as an
+/// attachment to the [Hint].
 class SentryViewHierarchyEventProcessor implements EventProcessor {
   @override
   FutureOr<SentryEvent?> apply(SentryEvent event, {Hint? hint}) async {
