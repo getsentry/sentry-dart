@@ -4,9 +4,9 @@
 
 ### Dependencies
 
-- Bump Android SDK from v6.9.2 to v6.10.0 ([#1194](https://github.com/getsentry/sentry-dart/pull/1194))
-  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6100)
-  - [diff](https://github.com/getsentry/sentry-java/compare/6.9.2...6.10.0)
+- Bump Android SDK from v6.9.2 to v6.11.0 ([#1194](https://github.com/getsentry/sentry-dart/pull/1194), [#1209](https://github.com/getsentry/sentry-dart/pull/1209))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6110)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.9.2...6.11.0)
 - Bump Cocoa SDK from v7.31.3 to v7.31.5 ([#1190](https://github.com/getsentry/sentry-dart/pull/1190), [#1207](https://github.com/getsentry/sentry-dart/pull/1207))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/8.0.0/CHANGELOG.md#7315)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.31.3...7.31.5)
