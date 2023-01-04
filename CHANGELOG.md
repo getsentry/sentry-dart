@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- enableUserInteractionTracing sometimes finds the wrong widget ([#1172](https://github.com/getsentry/sentry-dart/pull/1172))
+
 ### Dependencies
 
 - Bump Android SDK from v6.9.2 to v6.11.0 ([#1194](https://github.com/getsentry/sentry-dart/pull/1194), [#1209](https://github.com/getsentry/sentry-dart/pull/1209))

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
@@ -256,6 +257,14 @@ class _SentryUserInteractionWidgetState
       final renderObject = element.renderObject;
       if (renderObject == null) {
         return;
+      }
+      if (renderObject is RenderPointerListener) {
+        final hitResult = BoxHitTestResult();
+
+        // Returns false if the hit can continue to other objects below this one.
+        if (!renderObject.hitTest(hitResult, position: position)) {
+          return;
+        }
       }
 
       final transform = renderObject.getTransformTo(rootElement.renderObject);
