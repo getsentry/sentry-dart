@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- enableUserInteractionTracing sometimes finds the wrong widget ([#1172](https://github.com/getsentry/sentry-dart/pull/1172))
+- enableUserInteractionTracing sometimes finds the wrong widget ([#1212](https://github.com/getsentry/sentry-dart/pull/1212))
 
 ### Dependencies
 
