@@ -4,7 +4,8 @@ import 'package:flutter/widgets.dart';
 
 import '../sentry_flutter.dart';
 
-// The methods and properties are modelled after the the real binding class.
+/// The methods and properties are modelled after the the real binding class.
+@internal
 class BindingWrapper {
   /// The current [WidgetsBinding], if one has been created.
   /// Provides access to the features exposed by this mixin.
