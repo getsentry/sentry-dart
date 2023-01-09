@@ -76,7 +76,7 @@ void main() {
       );
 
       testScopeObserver(
-          options: sentryFlutterOptions!, hasNativeScopeObserver: true);
+          options: sentryFlutterOptions!, expectedHasNativeScopeObserver: true);
 
       testConfiguration(
           integrations: integrations,
@@ -124,7 +124,7 @@ void main() {
       );
 
       testScopeObserver(
-          options: sentryFlutterOptions!, hasNativeScopeObserver: true);
+          options: sentryFlutterOptions!, expectedHasNativeScopeObserver: true);
 
       testConfiguration(
         integrations: integrations,
@@ -170,7 +170,7 @@ void main() {
       );
 
       testScopeObserver(
-          options: sentryFlutterOptions!, hasNativeScopeObserver: true);
+          options: sentryFlutterOptions!, expectedHasNativeScopeObserver: true);
 
       testConfiguration(
         integrations: integrations,
@@ -216,7 +216,8 @@ void main() {
       );
 
       testScopeObserver(
-          options: sentryFlutterOptions!, hasNativeScopeObserver: false);
+          options: sentryFlutterOptions!,
+          expectedHasNativeScopeObserver: false);
 
       testConfiguration(
         integrations: integrations,
@@ -264,7 +265,8 @@ void main() {
       );
 
       testScopeObserver(
-          options: sentryFlutterOptions!, hasNativeScopeObserver: false);
+          options: sentryFlutterOptions!,
+          expectedHasNativeScopeObserver: false);
 
       testConfiguration(
         integrations: integrations,
@@ -315,7 +317,8 @@ void main() {
       );
 
       testScopeObserver(
-          options: sentryFlutterOptions!, hasNativeScopeObserver: false);
+          options: sentryFlutterOptions!,
+          expectedHasNativeScopeObserver: false);
 
       testConfiguration(
         integrations: integrations,

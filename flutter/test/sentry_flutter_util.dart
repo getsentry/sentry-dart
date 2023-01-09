@@ -16,14 +16,15 @@ void testTransport({
 
 void testScopeObserver(
     {required SentryFlutterOptions options,
-    required bool hasNativeScopeObserver}) {
-  try {
-    options.scopeObservers
-        .firstWhere((element) => element.runtimeType == NativeScopeObserver);
-    expect(true, hasNativeScopeObserver);
-  } catch (_) {
-    expect(false, hasNativeScopeObserver);
+    required bool expectedHasNativeScopeObserver}) {
+  var actualHasNativeScopeObserver = false;
+  for (final scopeObserver in options.scopeObservers) {
+    if (scopeObserver.runtimeType == NativeScopeObserver) {
+      actualHasNativeScopeObserver = true;
+      break;
+    }
   }
+  expect(actualHasNativeScopeObserver, expectedHasNativeScopeObserver);
 }
 
 void testConfiguration({
