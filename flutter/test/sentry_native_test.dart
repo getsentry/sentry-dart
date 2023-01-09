@@ -136,7 +136,7 @@ class Fixture {
 
   SentryNative getSut() {
     final sut = SentryNative();
-    sut.setNativeChannel(channel);
+    sut.nativeChannel = channel;
     return sut;
   }
 }
