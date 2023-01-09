@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
@@ -257,6 +258,13 @@ class _SentryUserInteractionWidgetState
       if (renderObject == null) {
         return;
       }
+      var hitFound = true;
+      if (renderObject is RenderPointerListener) {
+        final hitResult = BoxHitTestResult();
+
+        // Returns false if the hit can continue to other objects below this one.
+        hitFound = renderObject.hitTest(hitResult, position: position);
+      }
 
       final transform = renderObject.getTransformTo(rootElement.renderObject);
       final paintBounds =
@@ -268,7 +276,7 @@ class _SentryUserInteractionWidgetState
 
       tappedWidget = _getDescriptionFrom(element);
 
-      if (tappedWidget == null) {
+      if (tappedWidget == null || !hitFound) {
         element.visitChildElements(elementFinder);
       }
     }
