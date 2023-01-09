@@ -1,12 +1,19 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'dart:developer';
 
 import 'package:flutter/widgets.dart';
+import 'package:meta/meta.dart';
 
 import '../sentry_flutter.dart';
 
 /// The methods and properties are modelled after the the real binding class.
 @internal
 class BindingWrapper {
+  final Hub _hub;
+
+  BindingWrapper({Hub? hub}) : _hub = hub ?? HubAdapter();
+
   /// The current [WidgetsBinding], if one has been created.
   /// Provides access to the features exposed by this mixin.
   /// The binding must be initialized before using this getter;
@@ -15,12 +22,12 @@ class BindingWrapper {
     try {
       return _ambiguate(WidgetsBinding.instance);
     } catch (e, s) {
-      log(
+      _hub.options.logger(
+        SentryLevel.error,
         'WidgetsBinding.instance was not yet initialized',
-        level: SentryLevel.error.toDartLogLevel(),
-        error: e,
+        exception: e,
         stackTrace: s,
-        name: 'Sentry',
+        logger: 'BindingWrapper',
       );
       return null;
     }
