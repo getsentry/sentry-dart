@@ -48,7 +48,7 @@ void main() {
       final mockHub = _MockHub();
       final native = SentryNative();
       final mockNativeChannel = MockNativeChannel();
-      native.setNativeChannel(mockNativeChannel);
+      native.nativeChannel = mockNativeChannel;
 
       final tracer = getMockSentryTracer();
       _whenAnyStart(mockHub, tracer);
@@ -75,7 +75,7 @@ void main() {
       mockNativeChannel.nativeFrames = nativeFrames;
 
       final mockNative = SentryNative();
-      mockNative.setNativeChannel(mockNativeChannel);
+      mockNative.nativeChannel = mockNativeChannel;
 
       final sut = fixture.getSut(
         hub: hub,
