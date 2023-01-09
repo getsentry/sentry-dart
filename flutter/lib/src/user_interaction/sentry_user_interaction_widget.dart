@@ -258,13 +258,12 @@ class _SentryUserInteractionWidgetState
       if (renderObject == null) {
         return;
       }
+      var hitFound = true;
       if (renderObject is RenderPointerListener) {
         final hitResult = BoxHitTestResult();
 
         // Returns false if the hit can continue to other objects below this one.
-        if (!renderObject.hitTest(hitResult, position: position)) {
-          return;
-        }
+        hitFound = renderObject.hitTest(hitResult, position: position);
       }
 
       final transform = renderObject.getTransformTo(rootElement.renderObject);
@@ -277,7 +276,7 @@ class _SentryUserInteractionWidgetState
 
       tappedWidget = _getDescriptionFrom(element);
 
-      if (tappedWidget == null) {
+      if (tappedWidget == null || !hitFound) {
         element.visitChildElements(elementFinder);
       }
     }
