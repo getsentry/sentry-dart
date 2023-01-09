@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/file_system_transport.dart';
+import 'package:sentry_flutter/src/native_scope_observer.dart';
 
 void testTransport({
   required Transport transport,
@@ -11,6 +12,19 @@ void testTransport({
     hasFileSystemTransport,
     reason: '$FileSystemTransport was wrongly set',
   );
+}
+
+void testScopeObserver(
+    {required SentryFlutterOptions options,
+    required bool expectedHasNativeScopeObserver}) {
+  var actualHasNativeScopeObserver = false;
+  for (final scopeObserver in options.scopeObservers) {
+    if (scopeObserver.runtimeType == NativeScopeObserver) {
+      actualHasNativeScopeObserver = true;
+      break;
+    }
+  }
+  expect(actualHasNativeScopeObserver, expectedHasNativeScopeObserver);
 }
 
 void testConfiguration({

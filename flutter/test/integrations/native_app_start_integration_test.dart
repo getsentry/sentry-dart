@@ -104,7 +104,7 @@ class Fixture {
   late final native = SentryNative();
 
   Fixture() {
-    native.setNativeChannel(wrapper);
+    native.nativeChannel = wrapper;
     native.reset();
     when(hub.options).thenReturn(options);
   }

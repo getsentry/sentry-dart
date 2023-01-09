@@ -5,6 +5,7 @@
 ### Fixes
 
 - enableUserInteractionTracing sometimes finds the wrong widget ([#1212](https://github.com/getsentry/sentry-dart/pull/1212))
+- Only call method channels on native platforms ([#1196](https://github.com/getsentry/sentry-dart/pull/1196))
 
 ### Dependencies
 
