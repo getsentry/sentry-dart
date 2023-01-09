@@ -173,6 +173,7 @@ class FailedRequestClient extends BaseClient {
     final mechanism = Mechanism(
       type: 'SentryHttpClient',
       description: reason,
+      handled: true,
     );
 
     bool? snapshot;

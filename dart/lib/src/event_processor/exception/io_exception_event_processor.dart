@@ -111,6 +111,7 @@ SentryException _sentryExceptionfromOsError(OSError osError) {
       meta: {
         'errno': {'number': osError.errorCode},
       },
+      handled: true,
     ),
   );
 }

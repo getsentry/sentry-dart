@@ -100,6 +100,7 @@ void main() {
       final mechanism = exception?.mechanism;
 
       expect(mechanism?.type, 'SentryHttpClient');
+      expect(mechanism?.handled, true);
       expect(
         mechanism?.description,
         'HTTP Client Error with status code: 404',
