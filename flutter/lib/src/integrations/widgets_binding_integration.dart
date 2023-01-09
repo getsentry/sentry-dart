@@ -9,30 +9,34 @@ import '../widgets_binding_observer.dart';
 ///   - [SentryWidgetsBindingObserver]
 ///   - [WidgetsBindingObserver](https://api.flutter.dev/flutter/widgets/WidgetsBindingObserver-class.html)
 class WidgetsBindingIntegration extends Integration<SentryFlutterOptions> {
-  late SentryWidgetsBindingObserver _observer;
-  late SentryFlutterOptions _options;
+  SentryWidgetsBindingObserver? _observer;
+  SentryFlutterOptions? _options;
 
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
     _options = options;
-    _observer = SentryWidgetsBindingObserver(
+    final observer = SentryWidgetsBindingObserver(
       hub: hub,
       options: options,
     );
+    _observer = observer;
 
     // We don't need to call `WidgetsFlutterBinding.ensureInitialized()`
     // because `WidgetsFlutterBindingIntegration` already calls it.
     // If the instance is not created, we skip it to keep going.
-    final instance = _options.bindingUtils.instance;
+    final instance = options.bindingUtils.instance;
     if (instance == null) {
-      instance?.addObserver(_observer);
+      instance?.addObserver(observer);
       options.sdk.addIntegration('widgetsBindingIntegration');
     }
   }
 
   @override
   FutureOr<void> close() {
-    final instance = _options.bindingUtils.instance;
-    instance?.removeObserver(_observer);
+    final instance = _options?.bindingUtils.instance;
+    final observer = _observer;
+    if (instance != null && observer != null) {
+      instance.removeObserver(observer);
+    }
   }
 }
