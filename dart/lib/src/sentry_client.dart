@@ -407,16 +407,7 @@ class SentryClient {
     final hasOnlyHandledMechanism = mechanisms
         .every((e) => (e.handled ?? true));
 
-    final unhandledButNotCrashingMechanisms = <String>[
-      'PlatformDispatcher.onError',
-      'isolateError',
-      'runZonedGuarded',
-    ];
-
-    final unhandledButNotCrashing = mechanisms
-        .every((e) => unhandledButNotCrashingMechanisms.contains(e.type));
-
-    if (hasNoMechanism || hasOnlyHandledMechanism || unhandledButNotCrashing) {
+    if (hasNoMechanism || hasOnlyHandledMechanism) {
       return event.copyWith(breadcrumbs: []);
     } else {
       return event;
