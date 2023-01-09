@@ -25,8 +25,8 @@ class WidgetsBindingIntegration extends Integration<SentryFlutterOptions> {
     // because `WidgetsFlutterBindingIntegration` already calls it.
     // If the instance is not created, we skip it to keep going.
     final instance = options.bindingUtils.instance;
-    if (instance == null) {
-      instance?.addObserver(observer);
+    if (instance != null) {
+      instance.addObserver(observer);
       options.sdk.addIntegration('widgetsBindingIntegration');
     }
   }
