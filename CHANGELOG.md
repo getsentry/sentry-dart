@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 6.18.2
 
 ### Fixes
 
