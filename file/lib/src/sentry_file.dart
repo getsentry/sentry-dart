@@ -61,7 +61,7 @@ class SentryFile implements File {
   }
 
   @override
-  void createSync({bool recursive = false, bool exclusive = false}) {
+  void createSync({bool recursive = false}) {
     return _wrapSync(
       () => _file.createSync(recursive: recursive),
       'file.write',
