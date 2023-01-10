@@ -94,8 +94,7 @@ mixin SentryFlutter {
       options.transport = FileSystemTransport(channel, options);
     }
 
-    var flutterEventProcessor =
-        FlutterEnricherEventProcessor.simple(options: options);
+    var flutterEventProcessor = FlutterEnricherEventProcessor(options);
     options.addEventProcessor(flutterEventProcessor);
 
     if (options.platformChecker.platform.isAndroid) {
