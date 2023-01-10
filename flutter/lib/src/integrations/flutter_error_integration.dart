@@ -73,6 +73,12 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
           timestamp: options.clock(),
         );
 
+        // mark the span if any to `internal_error` status in case there's an
+        // unhandled error
+        hub.configureScope((scope) => {
+              scope.span?.status = const SpanStatus.internalError(),
+            });
+
         await hub.captureEvent(event,
             stackTrace: errorDetails.stack,
             hint:

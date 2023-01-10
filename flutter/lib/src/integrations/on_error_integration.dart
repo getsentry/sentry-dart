@@ -60,6 +60,12 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
         timestamp: options.clock(),
       );
 
+      // mark the span if any to `internal_error` status in case there's an
+      // unhandled error
+      hub.configureScope((scope) => {
+            scope.span?.status = const SpanStatus.internalError(),
+          });
+
       // unawaited future
       hub.captureEvent(event, stackTrace: stackTrace);
 
