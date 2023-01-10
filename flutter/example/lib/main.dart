@@ -55,10 +55,9 @@ Future<void> setupSentry(AppRunner appRunner) async {
     // configuration issues, e.g. finding out why your events are not uploaded.
     options.debug = true;
 
-    options.captureFailedHttpRequests = true;
+    options.captureFailedRequests = true;
     options.maxRequestBodySize = MaxRequestBodySize.always;
     options.maxResponseBodySize = MaxResponseBodySize.always;
-    options.captureFailedHttpRequests = true;
   },
       // Init your App.
       appRunner: appRunner);

@@ -43,7 +43,7 @@ Future<void> setupSentry(AppRunner appRunner) async {
     // going to log too much for your app, but can be useful when figuring out
     // configuration issues, e.g. finding out why your events are not uploaded.
     options.debug = true;
-    options.captureFailedHttpRequests = true;
+    options.captureFailedRequests = true;
   },
       // Init your App.
       appRunner: appRunner);

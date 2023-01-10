@@ -72,7 +72,7 @@ class FailedRequestClient extends BaseClient {
     Hub? hub,
   })  : _hub = hub ?? HubAdapter(),
         _client = client ?? Client() {
-    if (_hub.options.captureFailedHttpRequests) {
+    if (_hub.options.captureFailedRequests) {
       _hub.options.sdk.addIntegration('HTTPClientError');
     }
   }
@@ -111,7 +111,7 @@ class FailedRequestClient extends BaseClient {
       // So just one of these blocks can be called.
       var capture = false;
       String? reason;
-      if (_hub.options.captureFailedHttpRequests && exception != null) {
+      if (_hub.options.captureFailedRequests && exception != null) {
         capture = true;
       } else if (failedRequestStatusCodes.containsStatusCode(statusCode)) {
         // Capture an exception if the status code is considered bad
