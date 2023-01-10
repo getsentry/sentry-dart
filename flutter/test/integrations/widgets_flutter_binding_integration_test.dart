@@ -1,7 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/binding_utils.dart';
 import 'package:sentry_flutter/src/integrations/widgets_flutter_binding_integration.dart';
 
 import '../mocks.dart';
@@ -33,19 +32,19 @@ void main() {
   });
 
   test('WidgetsFlutterBindingIntegration calls ensureInitialized', () async {
-    var called = false;
-    var ensureInitialized = () {
-      called = true;
-      return BindingUtils.getWidgetsBindingInstance()!;
-    };
-    final integration = WidgetsFlutterBindingIntegration(ensureInitialized);
+    final integration = WidgetsFlutterBindingIntegration();
     await integration(fixture.hub, fixture.options);
 
-    expect(called, true);
+    expect(fixture.testBindingUtils.ensureBindingInitializedCalled, true);
   });
 }
 
 class Fixture {
   final hub = MockHub();
-  final options = SentryFlutterOptions(dsn: fakeDsn);
+
+  final options = SentryFlutterOptions(dsn: fakeDsn)
+    ..bindingUtils = TestBindingWrapper();
+
+  TestBindingWrapper get testBindingUtils =>
+      options.bindingUtils as TestBindingWrapper;
 }

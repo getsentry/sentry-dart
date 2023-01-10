@@ -3,7 +3,6 @@ import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
 import 'package:sentry/sentry.dart';
-import '../binding_utils.dart';
 import '../sentry_flutter_options.dart';
 
 typedef ErrorCallback = bool Function(Object exception, StackTrace stackTrace);
@@ -29,7 +28,7 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
   @override
   void call(Hub hub, SentryFlutterOptions options) {
     _options = options;
-    final binding = BindingUtils.getWidgetsBindingInstance();
+    final binding = options.bindingUtils.instance;
 
     if (binding == null) {
       return;
@@ -98,15 +97,15 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
 class PlatformDispatcherWrapper {
   PlatformDispatcherWrapper(this._dispatcher);
 
-  final PlatformDispatcher _dispatcher;
+  final PlatformDispatcher? _dispatcher;
 
   /// Should not be accessed if [isOnErrorSupported] == false
   ErrorCallback? get onError =>
-      (_dispatcher as dynamic).onError as ErrorCallback?;
+      (_dispatcher as dynamic)?.onError as ErrorCallback?;
 
   /// Should not be accessed if [isOnErrorSupported] == false
   set onError(ErrorCallback? callback) {
-    (_dispatcher as dynamic).onError = callback;
+    (_dispatcher as dynamic)?.onError = callback;
   }
 
   bool isOnErrorSupported(SentryFlutterOptions options) {

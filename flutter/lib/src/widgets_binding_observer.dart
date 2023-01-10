@@ -4,7 +4,6 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../sentry_flutter.dart';
-import 'binding_utils.dart';
 
 /// This is a `WidgetsBindingObserver` which can observe some events of a
 /// Flutter application.
@@ -39,7 +38,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
           .skip(1) // Skip initial event added below in constructor
           .listen(_onScreenSizeChanged);
 
-      final window = BindingUtils.getWidgetsBindingInstance()?.window;
+      final window = _options.bindingUtils.instance?.window;
       _screenSizeStreamController.add(window);
     }
   }
@@ -87,7 +86,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     if (!_options.enableWindowMetricBreadcrumbs) {
       return;
     }
-    final window = BindingUtils.getWidgetsBindingInstance()?.window;
+    final window = _options.bindingUtils.instance?.window;
     _screenSizeStreamController.add(window);
   }
 
@@ -110,7 +109,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
       return;
     }
     final brightness =
-        BindingUtils.getWidgetsBindingInstance()?.window.platformBrightness;
+        _options.bindingUtils.instance?.window.platformBrightness;
     final brightnessDescription =
         brightness == Brightness.dark ? 'dark' : 'light';
 
@@ -134,7 +133,8 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
       return;
     }
     final newTextScaleFactor =
-        BindingUtils.getWidgetsBindingInstance()?.window.textScaleFactor;
+        _options.bindingUtils.instance?.window.textScaleFactor;
+
     _hub.addBreadcrumb(Breadcrumb(
       message: 'Text scale factor changed to $newTextScaleFactor.',
       type: 'system',
