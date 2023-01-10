@@ -177,40 +177,48 @@ class SentryClient {
     final isolateId = isolateName?.hashCode;
 
     if (event.throwableMechanism != null) {
-      var sentryException = _exceptionFactory.getSentryException(
-        event.throwableMechanism,
-        stackTrace: stackTrace,
-      );
+      final throwable = event.throwable;
+      final extractedExceptions = _options.extractor.flatten(throwable, stackTrace);
 
-      if (_options.platformChecker.isWeb) {
-        return event.copyWith(
-          exceptions: [
-            ...?event.exceptions,
-            sentryException,
-          ],
+      var sentryExceptions = <SentryException>[];
+      var sentryThreads = <SentryThread>[];
+
+      for (final extractedException in extractedExceptions) {
+        var sentryException = _exceptionFactory.getSentryException(
+          extractedException.exception,
+          stackTrace: extractedException.stackTrace,
         );
-      }
 
-      SentryThread? thread;
+        SentryThread? sentryThread;
 
-      if (isolateName != null && _options.attachThreads) {
-        sentryException = sentryException.copyWith(threadId: isolateId);
-        thread = SentryThread(
-          id: isolateId,
-          name: isolateName,
-          crashed: true,
-          current: true,
-        );
+        if (!_options.platformChecker.isWeb &&
+            isolateName != null &&
+            _options.attachThreads) {
+          sentryException = sentryException.copyWith(threadId: isolateId);
+          sentryThread = SentryThread(
+            id: isolateId,
+            name: isolateName,
+            crashed: true,
+            current: true,
+          );
+        }
+
+        sentryExceptions.add(sentryException);
+        if (sentryThread != null) {
+          sentryThreads.add(sentryThread);
+        }
       }
 
       return event.copyWith(
-        exceptions: [...?event.exceptions, sentryException],
+        exceptions: [...?event.exceptions, ...sentryExceptions],
         threads: [
           ...?event.threads,
-          if (thread != null) thread,
+          ...sentryThreads,
         ],
       );
     }
+
+    // TODO How to handle boxed cause with stacktrace only?
 
     // The stacktrace is not part of an exception,
     // therefore add it to the threads.

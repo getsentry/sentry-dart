@@ -8,6 +8,8 @@ import 'package:sentry/src/client_reports/client_report.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/client_reports/discarded_event.dart';
 import 'package:sentry/src/client_reports/noop_client_report_recorder.dart';
+import 'package:sentry/src/exception_cause.dart';
+import 'package:sentry/src/exception_cause_extractor.dart';
 import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:sentry/src/sentry_tracer.dart';
@@ -234,6 +236,36 @@ void main() {
 
       expect(capturedEvent.exceptions?.first is SentryException, true);
       expect(capturedEvent.exceptions?.first.stackTrace, isNotNull);
+    });
+  });
+
+  group('SentryClient captures exception cause', () {
+    dynamic exception;
+    dynamic stackTrace;
+
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('should capture exception cause', () async {
+      fixture.options.addTypedExceptionCauseExtractor(
+        ExceptionWithCause,
+        ExceptionWithCauseExtractor(),
+      );
+
+      final cause = Object();
+      exception = ExceptionWithCause(cause);
+
+      final client = fixture.getSut();
+      await client.captureException(exception, stackTrace: stackTrace);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect(capturedEvent.exceptions?[0] is SentryException, true);
+      expect(capturedEvent.exceptions?[1] is SentryException, true);
     });
   });
 
@@ -1371,5 +1403,18 @@ class Fixture {
   }) {
     loggedLevel = level;
     loggedException = exception;
+  }
+}
+
+class ExceptionWithCause {
+  ExceptionWithCause(this.cause);
+  final dynamic cause;
+}
+
+class ExceptionWithCauseExtractor
+    implements ExceptionCauseExtractor<ExceptionWithCause> {
+  @override
+  ExceptionCause? cause(ExceptionWithCause error) {
+    return ExceptionCause(error.cause, null);
   }
 }
