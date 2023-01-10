@@ -46,8 +46,10 @@ mixin SentryFlutter {
     }
 
     final nativeChannel = SentryNativeChannel(channel, flutterOptions);
-    final native = SentryNative();
-    native.setNativeChannel(nativeChannel);
+    if (flutterOptions.platformChecker.hasNativeIntegration) {
+      final native = SentryNative();
+      native.nativeChannel = nativeChannel;
+    }
 
     final platformDispatcher = PlatformDispatcher.instance;
     final wrapper = PlatformDispatcherWrapper(platformDispatcher);
@@ -93,16 +95,15 @@ mixin SentryFlutter {
     // Not all platforms have a native integration.
     if (options.platformChecker.hasNativeIntegration) {
       options.transport = FileSystemTransport(channel, options);
+      options.addScopeObserver(NativeScopeObserver(SentryNative()));
     }
 
-    var flutterEventProcessor =
-        FlutterEnricherEventProcessor.simple(options: options);
+    var flutterEventProcessor = FlutterEnricherEventProcessor(options);
     options.addEventProcessor(flutterEventProcessor);
 
     if (options.platformChecker.platform.isAndroid) {
       options
           .addEventProcessor(AndroidPlatformExceptionEventProcessor(options));
-      options.addScopeObserver(NativeScopeObserver(SentryNative()));
     }
 
     _setSdk(options);

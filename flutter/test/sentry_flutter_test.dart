@@ -6,6 +6,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
+import 'package:sentry_flutter/src/sentry_native.dart';
 import 'package:sentry_flutter/src/version.dart';
 import 'package:sentry_flutter/src/view_hierarchy/view_hierarchy_integration.dart';
 import 'mocks.dart';
@@ -49,17 +50,23 @@ void main() {
     setUp(() async {
       loadTestPackage();
       await Sentry.close();
+      final sentryNative = SentryNative();
+      sentryNative.nativeChannel = null;
+      sentryNative.reset();
     });
 
     test('Android', () async {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
 
+      SentryFlutterOptions? sentryFlutterOptions;
+
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
           integrations = options.integrations;
           transport = options.transport;
+          sentryFlutterOptions = options;
         },
         appRunner: appRunner,
         platformChecker: getPlatformChecker(platform: MockPlatform.android()),
@@ -69,6 +76,9 @@ void main() {
         transport: transport,
         hasFileSystemTransport: true,
       );
+
+      testScopeObserver(
+          options: sentryFlutterOptions!, expectedHasNativeScopeObserver: true);
 
       testConfiguration(
           integrations: integrations,
@@ -88,18 +98,22 @@ void main() {
           beforeIntegration: WidgetsFlutterBindingIntegration,
           afterIntegration: OnErrorIntegration);
 
+      expect(SentryNative().nativeChannel, isNotNull);
+
       await Sentry.close();
     }, testOn: 'vm');
 
     test('iOS', () async {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
+      SentryFlutterOptions? sentryFlutterOptions;
 
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
           integrations = options.integrations;
           transport = options.transport;
+          sentryFlutterOptions = options;
         },
         appRunner: appRunner,
         platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
@@ -110,6 +124,9 @@ void main() {
         hasFileSystemTransport: true,
       );
 
+      testScopeObserver(
+          options: sentryFlutterOptions!, expectedHasNativeScopeObserver: true);
+
       testConfiguration(
         integrations: integrations,
         shouldHaveIntegrations: [
@@ -126,18 +143,22 @@ void main() {
           beforeIntegration: WidgetsFlutterBindingIntegration,
           afterIntegration: OnErrorIntegration);
 
+      expect(SentryNative().nativeChannel, isNotNull);
+
       await Sentry.close();
     }, testOn: 'vm');
 
     test('macOS', () async {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
+      SentryFlutterOptions? sentryFlutterOptions;
 
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
           integrations = options.integrations;
           transport = options.transport;
+          sentryFlutterOptions = options;
         },
         appRunner: appRunner,
         platformChecker: getPlatformChecker(platform: MockPlatform.macOs()),
@@ -148,6 +169,9 @@ void main() {
         hasFileSystemTransport: true,
       );
 
+      testScopeObserver(
+          options: sentryFlutterOptions!, expectedHasNativeScopeObserver: true);
+
       testConfiguration(
         integrations: integrations,
         shouldHaveIntegrations: [
@@ -164,18 +188,22 @@ void main() {
           beforeIntegration: WidgetsFlutterBindingIntegration,
           afterIntegration: OnErrorIntegration);
 
+      expect(SentryNative().nativeChannel, isNotNull);
+
       await Sentry.close();
     }, testOn: 'vm');
 
     test('Windows', () async {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
+      SentryFlutterOptions? sentryFlutterOptions;
 
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
           integrations = options.integrations;
           transport = options.transport;
+          sentryFlutterOptions = options;
         },
         appRunner: appRunner,
         platformChecker: getPlatformChecker(platform: MockPlatform.windows()),
@@ -186,6 +214,10 @@ void main() {
         hasFileSystemTransport: false,
       );
 
+      testScopeObserver(
+          options: sentryFlutterOptions!,
+          expectedHasNativeScopeObserver: false);
+
       testConfiguration(
         integrations: integrations,
         shouldHaveIntegrations: [
@@ -204,18 +236,22 @@ void main() {
           beforeIntegration: WidgetsFlutterBindingIntegration,
           afterIntegration: OnErrorIntegration);
 
+      expect(SentryNative().nativeChannel, isNull);
+
       await Sentry.close();
     }, testOn: 'vm');
 
     test('Linux', () async {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
+      SentryFlutterOptions? sentryFlutterOptions;
 
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
           integrations = options.integrations;
           transport = options.transport;
+          sentryFlutterOptions = options;
         },
         appRunner: appRunner,
         platformChecker: getPlatformChecker(platform: MockPlatform.linux()),
@@ -226,6 +262,10 @@ void main() {
         hasFileSystemTransport: false,
       );
 
+      testScopeObserver(
+          options: sentryFlutterOptions!,
+          expectedHasNativeScopeObserver: false);
+
       testConfiguration(
         integrations: integrations,
         shouldHaveIntegrations: [
@@ -244,18 +284,22 @@ void main() {
           beforeIntegration: WidgetsFlutterBindingIntegration,
           afterIntegration: OnErrorIntegration);
 
+      expect(SentryNative().nativeChannel, isNull);
+
       await Sentry.close();
     }, testOn: 'vm');
 
     test('Web', () async {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
+      SentryFlutterOptions? sentryFlutterOptions;
 
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
           integrations = options.integrations;
           transport = options.transport;
+          sentryFlutterOptions = options;
         },
         appRunner: appRunner,
         platformChecker: getPlatformChecker(
@@ -268,6 +312,10 @@ void main() {
         transport: transport,
         hasFileSystemTransport: false,
       );
+
+      testScopeObserver(
+          options: sentryFlutterOptions!,
+          expectedHasNativeScopeObserver: false);
 
       testConfiguration(
         integrations: integrations,
@@ -284,6 +332,8 @@ void main() {
           integrations: Sentry.currentHub.options.integrations,
           beforeIntegration: RunZonedGuardedIntegration,
           afterIntegration: WidgetsFlutterBindingIntegration);
+
+      expect(SentryNative().nativeChannel, isNull);
 
       await Sentry.close();
     });
