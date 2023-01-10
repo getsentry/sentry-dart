@@ -295,10 +295,7 @@ class Fixture {
       dsn: fakeDsn,
       checker: platformChecker,
     )..reportPackages = reportPackages;
-    return FlutterEnricherEventProcessor(
-      options,
-      binding,
-    );
+    return FlutterEnricherEventProcessor(options);
   }
 }
 
