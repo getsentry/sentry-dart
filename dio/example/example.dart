@@ -17,7 +17,6 @@ Future<void> main() async {
 
       options.maxRequestBodySize = MaxRequestBodySize.small;
       options.maxResponseBodySize = MaxResponseBodySize.small;
-      options.captureFailedRequests = true;
     },
     appRunner: runApp, // Init your App.
   );
