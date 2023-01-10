@@ -139,6 +139,11 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
       final breadcrumbsList = infos['breadcrumbs'] as List?;
       if (breadcrumbsList != null && breadcrumbsList.isNotEmpty) {
         final breadcrumbs = event.breadcrumbs ?? [];
+        if ((_options.platformChecker.platform.isIOS ||
+                _options.platformChecker.platform.isMacOS) &&
+            _options.enableScopeSync) {
+          breadcrumbs.clear();
+        }
         final newBreadcrumbs =
             List<Map<dynamic, dynamic>>.from(breadcrumbsList);
 

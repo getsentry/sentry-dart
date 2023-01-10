@@ -399,19 +399,19 @@ class SentryClient {
   }
 
   SentryEvent _eventWithRemovedBreadcrumbsIfHandled(SentryEvent event) {
-    final mechanisms = (event.exceptions ?? [])
-        .map((e) => e.mechanism)
-        .whereType<Mechanism>();
-    final hasNoMechanism = mechanisms.isEmpty;
+    // final mechanisms = (event.exceptions ?? [])
+    //     .map((e) => e.mechanism)
+    //     .whereType<Mechanism>();
+    // final hasNoMechanism = mechanisms.isEmpty;
 
-    final hasOnlyHandledMechanism = mechanisms
-        .every((e) => (e.handled ?? true));
+    // final hasOnlyHandledMechanism = mechanisms
+    //     .every((e) => (e.handled ?? true));
 
-    if (hasNoMechanism || hasOnlyHandledMechanism) {
-      return event.copyWith(breadcrumbs: []);
-    } else {
-      return event;
-    }
+    // if (hasNoMechanism || hasOnlyHandledMechanism) {
+    return event.copyWith(breadcrumbs: []);
+    // } else {
+    //   return event;
+    // }
   }
 
   Future<SentryId?> _attachClientReportsAndSend(SentryEnvelope envelope) {
