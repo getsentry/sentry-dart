@@ -1,5 +1,23 @@
 # Changelog
 
+## 7.0.0-alpha.1
+
+### Various fixes & improvements
+
+- add merge target (f2919b9a) by @marandaneto
+- Feat View hierarchy (#1189) by @marandaneto
+- remove unreleased (#1186) by @denrase
+- Refactor `BindingUtils` to enable the use of custom bindings (#1184) by @ueman
+- Support custom units for custom measurements (#1181) by @denrase
+- Bump Flutter min to 3.0.0 and Dart to 2.17.0 (#1180) by @denrase
+- Enha: Replace `StackTrace.empty` with `StackTrace.current` (#1183) by @denrase
+- Feat: Introduce `Hint` data bag (#1136) by @denrase
+- add missing parameters (#1186) by @denrase
+- remove unused file & rename file to match class (#1186) by @denrase
+- Use `sentryClientName` instead of `sdk.identifier` (#1135) by @denrase
+- Remove deprecated fields for v7 (#1036) by @ueman
+- Feat/remove parameter from manual setup classes (#816) by @AliAkberAakash
+
 ## 7.0.0
 
 ### Features
