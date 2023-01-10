@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/sentry.dart';
+import 'package:sentry_flutter/src/binding_wrapper.dart';
+import 'package:sentry_flutter/src/sentry_flutter_options.dart';
 import 'package:sentry_flutter/src/view_hierarchy/view_hierarchy_event_processor.dart';
 
 void main() {
   group(SentryViewHierarchyEventProcessor, () {
     late Fixture fixture;
+    late WidgetsBinding instance;
 
     setUp(() {
       fixture = Fixture();
-      TestWidgetsFlutterBinding.ensureInitialized();
+      instance = TestWidgetsFlutterBinding.ensureInitialized();
     });
 
     testWidgets('adds view hierarchy to hint only for event with exception',
         (tester) async {
       await tester.runAsync(() async {
-        final sut = fixture.getSut();
+        final sut = fixture.getSut(instance);
 
         await tester.pumpWidget(MyApp());
 
@@ -32,7 +35,7 @@ void main() {
     testWidgets('adds view hierarchy to hint only for event with throwable',
         (tester) async {
       await tester.runAsync(() async {
-        final sut = fixture.getSut();
+        final sut = fixture.getSut(instance);
 
         await tester.pumpWidget(MyApp());
 
@@ -48,7 +51,7 @@ void main() {
     testWidgets('does not add view hierarchy to hint if not an error',
         (tester) async {
       await tester.runAsync(() async {
-        final sut = fixture.getSut();
+        final sut = fixture.getSut(instance);
 
         await tester.pumpWidget(MyApp());
 
@@ -64,7 +67,7 @@ void main() {
     testWidgets('does not add view hierarchy if widget returns null',
         (tester) async {
       await tester.runAsync(() async {
-        final sut = fixture.getSut();
+        final sut = fixture.getSut(instance);
 
         // does not pumpWidget
 
@@ -79,9 +82,27 @@ void main() {
   });
 }
 
+class TestBindingWrapper implements BindingWrapper {
+  TestBindingWrapper(this._binding);
+
+  final WidgetsBinding _binding;
+
+  @override
+  WidgetsBinding ensureInitialized() {
+    return TestWidgetsFlutterBinding.ensureInitialized();
+  }
+
+  @override
+  WidgetsBinding get instance {
+    return _binding;
+  }
+}
+
 class Fixture {
-  SentryViewHierarchyEventProcessor getSut() {
-    return SentryViewHierarchyEventProcessor();
+  SentryViewHierarchyEventProcessor getSut(WidgetsBinding instance) {
+    final options = SentryFlutterOptions()
+      ..bindingUtils = TestBindingWrapper(instance);
+    return SentryViewHierarchyEventProcessor(options);
   }
 }
 

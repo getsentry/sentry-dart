@@ -16,7 +16,7 @@ class SentryViewHierarchyIntegration extends Integration<SentryFlutterOptions> {
       return Future.value();
     }
     _options = options;
-    final eventProcessor = SentryViewHierarchyEventProcessor();
+    final eventProcessor = SentryViewHierarchyEventProcessor(options);
     options.addEventProcessor(eventProcessor);
     _eventProcessor = eventProcessor;
     options.sdk.addIntegration('viewHierarchyIntegration');

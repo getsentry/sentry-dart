@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry_flutter/src/binding_utils.dart';
 import 'package:sentry_flutter/src/view_hierarchy/sentry_tree_walker.dart';
 
 void main() {
   group('TreeWalker', () {
+    late WidgetsBinding instance;
+
     setUp(() {
-      TestWidgetsFlutterBinding.ensureInitialized();
+      instance = TestWidgetsFlutterBinding.ensureInitialized();
     });
 
     testWidgets('returns a SentryViewHierarchy with flutter render',
@@ -15,8 +16,7 @@ void main() {
       await tester.runAsync(() async {
         await tester.pumpWidget(MyApp());
 
-        final instance = BindingUtils.getWidgetsBindingInstance();
-        final sentryViewHierarchy = walkWidgetTree(instance!);
+        final sentryViewHierarchy = walkWidgetTree(instance);
 
         expect(sentryViewHierarchy!.renderingSystem, 'flutter');
       });
@@ -27,7 +27,7 @@ void main() {
       await tester.runAsync(() async {
         await tester.pumpWidget(MyApp());
 
-        final first = _getFirstsentryViewHierarchy();
+        final first = _getFirstsentryViewHierarchy(instance);
 
         expect(
             true,
@@ -42,7 +42,7 @@ void main() {
       await tester.runAsync(() async {
         await tester.pumpWidget(MyApp());
 
-        final first = _getFirstsentryViewHierarchy();
+        final first = _getFirstsentryViewHierarchy(instance);
 
         expect(
             true,
@@ -57,7 +57,7 @@ void main() {
       await tester.runAsync(() async {
         await tester.pumpWidget(MyApp());
 
-        final first = _getFirstsentryViewHierarchy();
+        final first = _getFirstsentryViewHierarchy(instance);
 
         expect(
             true,
@@ -72,7 +72,7 @@ void main() {
       await tester.runAsync(() async {
         await tester.pumpWidget(MyApp());
 
-        final first = _getFirstsentryViewHierarchy();
+        final first = _getFirstsentryViewHierarchy(instance);
 
         expect(
             true,
@@ -87,7 +87,7 @@ void main() {
       await tester.runAsync(() async {
         await tester.pumpWidget(MyApp());
 
-        final first = _getFirstsentryViewHierarchy();
+        final first = _getFirstsentryViewHierarchy(instance);
 
         expect(
             true,
@@ -103,7 +103,7 @@ void main() {
       await tester.runAsync(() async {
         await tester.pumpWidget(MyApp());
 
-        final first = _getFirstsentryViewHierarchy();
+        final first = _getFirstsentryViewHierarchy(instance);
 
         expect(
             false,
@@ -118,7 +118,7 @@ void main() {
       await tester.runAsync(() async {
         await tester.pumpWidget(MyApp());
 
-        final first = _getFirstsentryViewHierarchy();
+        final first = _getFirstsentryViewHierarchy(instance);
 
         expect(
             true,
@@ -133,7 +133,7 @@ void main() {
       await tester.runAsync(() async {
         await tester.pumpWidget(MyApp());
 
-        final first = _getFirstsentryViewHierarchy();
+        final first = _getFirstsentryViewHierarchy(instance);
 
         expect(
             false,
@@ -145,9 +145,8 @@ void main() {
   });
 }
 
-SentryViewHierarchyElement _getFirstsentryViewHierarchy() {
-  final instance = BindingUtils.getWidgetsBindingInstance();
-  final sentryViewHierarchy = walkWidgetTree(instance!);
+SentryViewHierarchyElement _getFirstsentryViewHierarchy(WidgetsBinding instance) {
+  final sentryViewHierarchy = walkWidgetTree(instance);
 
   return sentryViewHierarchy!.windows.first;
 }
