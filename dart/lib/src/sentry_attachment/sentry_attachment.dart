@@ -99,10 +99,8 @@ class SentryAttachment {
               utf8JsonEncoder.convert(sentryViewHierarchy.toJson())),
           filename: 'view-hierarchy.json',
           contentType: 'application/json',
+          attachmentType: SentryAttachment.typeViewHierarchy,
         );
-  // TODO: rollback this change, relay is not accepting this type
-  // if sentt with a single item in the envelope
-  // attachmentType: SentryAttachment.typeViewHierarchy);
 
   /// Attachment type.
   /// Should be one of types given in [AttachmentType].

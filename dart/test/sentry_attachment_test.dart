@@ -172,8 +172,8 @@ void main() {
     test('fromViewHierarchy', () async {
       final view = SentryViewHierarchy('flutter');
       final attachment = SentryAttachment.fromViewHierarchy(view);
-      // TODO: change to typeViewHierarchy when the server supports it
-      expect(attachment.attachmentType, SentryAttachment.typeAttachmentDefault);
+
+      expect(attachment.attachmentType, SentryAttachment.typeViewHierarchy);
       expect(attachment.contentType, 'application/json');
       expect(attachment.filename, 'view-hierarchy.json');
       expect(attachment.addToTransactions, false);

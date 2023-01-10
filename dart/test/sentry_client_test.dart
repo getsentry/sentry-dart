@@ -1157,9 +1157,9 @@ void main() {
       final capturedEnvelope = (fixture.transport).envelopes.first;
       final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
           (element) => element.header.type == SentryItemType.attachment);
-      // TODO: change to SentryAttachment.typeViewHierarchy
+
       expect(attachmentItem?.header.attachmentType,
-          SentryAttachment.typeAttachmentDefault);
+          SentryAttachment.typeViewHierarchy);
     });
 
     test('captureTransaction adds trace context', () async {
