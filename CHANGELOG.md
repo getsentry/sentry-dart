@@ -10,7 +10,7 @@
 
 ### Enhancements
 
-- Enha: Exceptions not handled by user code should be `unhandled: true` #1186 ([#1186](https://github.com/getsentry/sentry-dart/pull/1186))
+- Exceptions not handled by user code should be `unhandled: true` #1186 ([#1186](https://github.com/getsentry/sentry-dart/pull/1186))
 
 ### Fixes
 
