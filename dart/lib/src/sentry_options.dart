@@ -7,6 +7,7 @@ import 'package:http/http.dart';
 import '../sentry.dart';
 import 'client_reports/client_report_recorder.dart';
 import 'client_reports/noop_client_report_recorder.dart';
+import 'exception_cause_extractor.dart';
 import 'sentry_exception_factory.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'diagnostic_logger.dart';
@@ -326,6 +327,19 @@ class SentryOptions {
   ///
   /// The default is 3 seconds.
   Duration? idleTimeout = Duration(seconds: 3);
+
+  final _causeExtractorsByType = <Type, ExceptionCauseExtractor>{};
+
+  Map<Type, ExceptionCauseExtractor> get causeExtractorsByType =>
+      _causeExtractorsByType;
+
+  void addTypedExceptionCauseExtractor(
+      Type type, ExceptionCauseExtractor extractor) {
+    _causeExtractorsByType[type] = extractor;
+  }
+
+  @internal
+  late final extractor = RecursiveExceptionCauseExtractor(this);
 
   SentryOptions({this.dsn, PlatformChecker? checker}) {
     if (checker != null) {

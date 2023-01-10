@@ -1,3 +1,4 @@
+import '../sentry.dart';
 import 'exception_cause.dart';
 
 class ExceptionCauseExtractor<T> {
@@ -7,9 +8,9 @@ class ExceptionCauseExtractor<T> {
 }
 
 class RecursiveExceptionCauseExtractor {
-  RecursiveExceptionCauseExtractor(this.causeExtractorsByType);
+  RecursiveExceptionCauseExtractor(this.options);
 
-  final Map<Type, ExceptionCauseExtractor> causeExtractorsByType;
+  SentryOptions options;
 
   List<ExceptionCause> flatten(exception, stackTrace) {
     var allExceptionCauses = <ExceptionCause>[];
@@ -21,7 +22,8 @@ class RecursiveExceptionCauseExtractor {
     while (currentException != null && currentExceptionCause != null) {
       allExceptionCauses.add(currentExceptionCause);
 
-      final extractor = causeExtractorsByType[currentException.runtimeType];
+      final extractor =
+          options.causeExtractorsByType[currentException.runtimeType];
       currentExceptionCause = extractor?.cause(currentException);
       currentException = currentExceptionCause?.exception;
     }

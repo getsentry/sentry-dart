@@ -2,21 +2,46 @@ import 'package:sentry/src/exception_cause.dart';
 import 'package:sentry/src/exception_cause_extractor.dart';
 import 'package:test/test.dart';
 
+import 'package:sentry/sentry.dart';
+
+import 'mocks.dart';
+
 void main() {
+  late Fixture fixture;
+
+  setUp(() {
+    fixture = Fixture();
+  });
+
   test('flatten', () {
     final errorC = ExceptionC();
     final errorB = ExceptionB(errorC);
     final errorA = ExceptionA(errorB);
 
-    final sut = RecursiveExceptionCauseExtractor({
-      ExceptionA: ExceptionACauseExtractor(),
-      ExceptionB: ExceptionBCauseExtractor()
-    });
+    fixture.options.addTypedExceptionCauseExtractor(
+      ExceptionA,
+      ExceptionACauseExtractor(),
+    );
+
+    fixture.options.addTypedExceptionCauseExtractor(
+      ExceptionB,
+      ExceptionBCauseExtractor(),
+    );
+
+    final sut = fixture.getSut();
 
     final flattened = sut.flatten(errorA, null);
     final actual = flattened.map((exceptionCause) => exceptionCause.exception);
     expect(actual, [errorA, errorB, errorC]);
   });
+}
+
+class Fixture {
+  final options = SentryOptions(dsn: fakeDsn);
+
+  RecursiveExceptionCauseExtractor getSut() {
+    return RecursiveExceptionCauseExtractor(options);
+  }
 }
 
 class ExceptionA {
