@@ -8,6 +8,7 @@ import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
 import 'package:sentry_flutter/src/sentry_native.dart';
 import 'package:sentry_flutter/src/version.dart';
+import 'package:sentry_flutter/src/view_hierarchy/view_hierarchy_integration.dart';
 import 'mocks.dart';
 import 'mocks.mocks.dart';
 import 'sentry_flutter_util.dart';
@@ -19,6 +20,7 @@ final platformAgnosticIntegrations = [
   FlutterErrorIntegration,
   LoadReleaseIntegration,
   DebugPrintIntegration,
+  SentryViewHierarchyIntegration,
 ];
 
 final nonWebIntegrations = [

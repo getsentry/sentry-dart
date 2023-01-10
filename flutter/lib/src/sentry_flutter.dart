@@ -19,6 +19,7 @@ import 'event_processor/flutter_enricher_event_processor.dart';
 import 'file_system_transport.dart';
 
 import 'version.dart';
+import 'view_hierarchy/view_hierarchy_integration.dart';
 
 /// Configuration options callback
 typedef FlutterOptionsConfiguration = FutureOr<void> Function(
@@ -157,6 +158,9 @@ mixin SentryFlutter {
         renderer == FlutterRenderer.canvasKit) {
       integrations.add(ScreenshotIntegration());
     }
+
+    // works with Skia, CanvasKit and HTML renderer
+    integrations.add(SentryViewHierarchyIntegration());
 
     integrations.add(DebugPrintIntegration());
 

@@ -207,6 +207,13 @@ class SentryFlutterOptions extends SentryOptions {
   @internal
   late RendererWrapper rendererWrapper = RendererWrapper();
 
+  /// Enables the View Hierarchy feature.
+  ///
+  /// Renders an ASCII represention of the entire view hierarchy of the
+  /// application when an error happens and includes it as an attachment.
+  @experimental
+  bool attachViewHierarchy = false;
+
   /// By using this, you are disabling native [Breadcrumb] tracking and instead
   /// you are just tracking [Breadcrumb]s which result from events available
   /// in the current Flutter environment.
