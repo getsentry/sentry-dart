@@ -145,7 +145,8 @@ void main() {
   });
 }
 
-SentryViewHierarchyElement _getFirstSentryViewHierarchy(WidgetsBinding instance) {
+SentryViewHierarchyElement _getFirstSentryViewHierarchy(
+    WidgetsBinding instance) {
   final sentryViewHierarchy = walkWidgetTree(instance);
 
   return sentryViewHierarchy!.windows.first;
