@@ -10,15 +10,9 @@ typedef OnWidgetsBinding = WidgetsBinding Function();
 /// call into the native code.
 class WidgetsFlutterBindingIntegration
     extends Integration<SentryFlutterOptions> {
-  WidgetsFlutterBindingIntegration([OnWidgetsBinding? ensureInitialized])
-      : _ensureInitialized =
-            ensureInitialized ?? WidgetsFlutterBinding.ensureInitialized;
-
-  final OnWidgetsBinding _ensureInitialized;
-
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
-    _ensureInitialized();
+    options.bindingUtils.ensureInitialized();
     options.sdk.addIntegration('widgetsFlutterBindingIntegration');
   }
 }

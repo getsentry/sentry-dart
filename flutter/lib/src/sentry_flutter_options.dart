@@ -1,6 +1,8 @@
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
+import 'package:flutter/widgets.dart';
 
+import 'binding_wrapper.dart';
 import 'renderer/renderer.dart';
 
 /// This class adds options which are only availble in a Flutter environment.
@@ -251,4 +253,8 @@ class SentryFlutterOptions extends SentryOptions {
       useFlutterBreadcrumbTracking();
     }
   }
+
+  /// Setting this to a custom [BindingWrapper] allows you to use a custom [WidgetsBinding].
+  @experimental
+  BindingWrapper bindingUtils = BindingWrapper();
 }

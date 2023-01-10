@@ -391,6 +391,14 @@ class MockSentryTracer extends _i1.Mock implements _i8.SentryTracer {
         ),
         returnValueForMissingStub: null,
       );
+  @override
+  void scheduleFinish() => super.noSuchMethod(
+        Invocation.method(
+          #scheduleFinish,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
 }
 
 /// A class which mocks [MethodChannel].
@@ -496,19 +504,19 @@ class MockSentryNative extends _i1.Mock implements _i10.SentryNative {
         returnValueForMissingStub: null,
       );
   @override
+  set nativeChannel(_i11.SentryNativeChannel? nativeChannel) =>
+      super.noSuchMethod(
+        Invocation.setter(
+          #nativeChannel,
+          nativeChannel,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
   bool get didFetchAppStart => (super.noSuchMethod(
         Invocation.getter(#didFetchAppStart),
         returnValue: false,
       ) as bool);
-  @override
-  void setNativeChannel(_i11.SentryNativeChannel? nativeChannel) =>
-      super.noSuchMethod(
-        Invocation.method(
-          #setNativeChannel,
-          [nativeChannel],
-        ),
-        returnValueForMissingStub: null,
-      );
   @override
   _i6.Future<_i11.NativeAppStart?> fetchNativeAppStart() => (super.noSuchMethod(
         Invocation.method(

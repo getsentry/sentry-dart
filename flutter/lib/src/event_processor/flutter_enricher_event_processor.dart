@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sentry/sentry.dart';
 
-import '../binding_utils.dart';
 import '../sentry_flutter_options.dart';
 
 typedef WidgetBindingGetter = WidgetsBinding? Function();
@@ -14,19 +13,7 @@ typedef WidgetBindingGetter = WidgetsBinding? Function();
 /// FlutterEnricher only needs to add information which aren't exposed by
 /// the Dart runtime.
 class FlutterEnricherEventProcessor extends EventProcessor {
-  FlutterEnricherEventProcessor(
-    this._options,
-    this._getWidgetsBinding,
-  );
-
-  factory FlutterEnricherEventProcessor.simple({
-    required SentryFlutterOptions options,
-  }) {
-    return FlutterEnricherEventProcessor(
-      options,
-      BindingUtils.getWidgetsBindingInstance,
-    );
-  }
+  FlutterEnricherEventProcessor(this._options);
 
   final SentryFlutterOptions _options;
 
@@ -36,8 +23,8 @@ class FlutterEnricherEventProcessor extends EventProcessor {
   // We can't use `WidgetsBinding` as a direct parameter
   // because it must be called inside the `runZoneGuarded`-Integration.
   // Thus we call it on demand after all the initialization happened.
-  final WidgetBindingGetter _getWidgetsBinding;
-  WidgetsBinding? get _widgetsBinding => _getWidgetsBinding();
+  WidgetsBinding? get _widgetsBinding => _options.bindingUtils.instance;
+
   SingletonFlutterWindow? get _window => _widgetsBinding?.window;
   Map<String, String> _packages = {};
 

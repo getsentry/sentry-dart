@@ -201,7 +201,7 @@ void main() {
           currentTimer = tracer.autoFinishAfterTimer;
         });
 
-        await tapMe(tester, sut, 'btn_1');
+        await tapMe(tester, sut, 'btn_1', pumpWidget: false);
 
         Timer? autoFinishAfterTimer;
         fixture.hub.configureScope((scope) {
@@ -226,7 +226,7 @@ void main() {
           currentTracer = (scope.span as SentryTracer);
         });
 
-        await tapMe(tester, sut, 'btn_2');
+        await tapMe(tester, sut, 'btn_2', pumpWidget: false);
 
         SentryTracer? tracer;
         fixture.hub.configureScope((scope) {
@@ -238,8 +238,15 @@ void main() {
   });
 }
 
-Future<void> tapMe(WidgetTester tester, Widget widget, String key) async {
-  await tester.pumpWidget(widget);
+Future<void> tapMe(
+  WidgetTester tester,
+  Widget widget,
+  String key, {
+  bool pumpWidget = true,
+}) async {
+  if (pumpWidget) {
+    await tester.pumpWidget(widget);
+  }
 
   await tester.tap(find.byKey(Key(key)));
 }
@@ -278,59 +285,96 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Welcome to Flutter',
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Welcome to Flutter'),
+      home: Page1(),
+      routes: {'page2': (context) => const Page2()},
+    );
+  }
+}
+
+class Page1 extends StatelessWidget {
+  const Page1({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          children: [
+            MaterialButton(
+              key: Key('btn_1'),
+              onPressed: () {
+                // print('button pressed');
+              },
+              child: const Text('Button 1'),
+            ),
+            CupertinoButton(
+              key: Key('btn_2'),
+              onPressed: () {
+                // print('button pressed 2');
+              },
+              child: const Text('Button 2'),
+            ),
+            IconButton(
+              key: Key('btn_3'),
+              onPressed: () {
+                // print('button pressed 3');
+              },
+              icon: Icon(
+                Icons.dark_mode,
+                semanticLabel: 'My Icon',
+              ),
+            ),
+            Card(
+              child: GestureDetector(
+                key: Key('btn_4'),
+                onTap: () => {
+                  // print('button pressed 4'),
+                },
+                child: Stack(
+                  children: [
+                    //fancy card layout
+                    ElevatedButton(
+                      key: Key('btn_5'),
+                      onPressed: () => {
+                        // print('button pressed 5'),
+                      },
+                      child: const Text('Button 5'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            MaterialButton(
+              key: Key('btn_go_to_page2'),
+              onPressed: () {
+                Navigator.of(context).pushNamed('page2');
+              },
+              child: const Text('Go to page 2'),
+            ),
+          ],
         ),
-        body: Center(
-          child: Column(
-            children: [
-              MaterialButton(
-                key: Key('btn_1'),
-                onPressed: () {
-                  // print('button pressed');
-                },
-                child: const Text('Button 1'),
-              ),
-              CupertinoButton(
-                key: Key('btn_2'),
-                onPressed: () {
-                  // print('button pressed 2');
-                },
-                child: const Text('Button 2'),
-              ),
-              IconButton(
-                key: Key('btn_3'),
-                onPressed: () {
-                  // print('button pressed 3');
-                },
-                icon: Icon(
-                  Icons.dark_mode,
-                  semanticLabel: 'My Icon',
-                ),
-              ),
-              Card(
-                child: GestureDetector(
-                  key: Key('btn_4'),
-                  onTap: () => {
-                    // print('button pressed 4'),
-                  },
-                  child: Stack(
-                    children: [
-                      //fancy card layout
-                      ElevatedButton(
-                        key: Key('btn_5'),
-                        onPressed: () => {
-                          // print('button pressed 5'),
-                        },
-                        child: const Text('Button 5'),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-            ],
-          ),
+      ),
+    );
+  }
+}
+
+class Page2 extends StatelessWidget {
+  const Page2({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          children: [
+            MaterialButton(
+              key: Key('btn_page_2'),
+              onPressed: () {
+                // print('button page 2 pressed');
+              },
+              child: const Text('Button Page 2'),
+            ),
+          ],
         ),
       ),
     );
