@@ -23,19 +23,21 @@ const String _exampleDsn =
 const _channel = MethodChannel('example.flutter.sentry.io');
 
 Future<void> main() async {
-  await setupSentry(() => runApp(
-        SentryScreenshotWidget(
-          child: SentryUserInteractionWidget(
-            child: DefaultAssetBundle(
-              bundle: SentryAssetBundle(enableStructuredDataTracing: true),
-              child: const MyApp(),
+  await setupSentry(
+      () => runApp(
+            SentryScreenshotWidget(
+              child: SentryUserInteractionWidget(
+                child: DefaultAssetBundle(
+                  bundle: SentryAssetBundle(),
+                  child: const MyApp(),
+                ),
+              ),
             ),
           ),
-        ),
-      ));
+      _exampleDsn);
 }
 
-Future<void> setupSentry(AppRunner appRunner) async {
+Future<void> setupSentry(AppRunner appRunner, String dsn) async {
   await SentryFlutter.init((options) {
     options.dsn = _exampleDsn;
     options.tracesSampleRate = 1.0;
@@ -48,17 +50,15 @@ Future<void> setupSentry(AppRunner appRunner) async {
     options.sendDefaultPii = true;
     options.reportSilentFlutterErrors = true;
     options.enableNdkScopeSync = true;
-    options.enableUserInteractionTracing = true;
     options.attachScreenshot = true;
+    options.attachViewHierarchy = true;
     // We can enable Sentry debug logging during development. This is likely
     // going to log too much for your app, but can be useful when figuring out
     // configuration issues, e.g. finding out why your events are not uploaded.
     options.debug = true;
 
-    options.captureFailedHttpRequests = true;
     options.maxRequestBodySize = MaxRequestBodySize.always;
     options.maxResponseBodySize = MaxResponseBodySize.always;
-    options.captureFailedHttpRequests = true;
   },
       // Init your App.
       appRunner: appRunner);
@@ -221,6 +221,17 @@ class MainScaffold extends StatelessWidget {
                     );
               },
               child: const Text('Capture from PlatformDispatcher.onError'),
+            ),
+            ElevatedButton(
+              key: const Key('view hierarchy'),
+              onPressed: () => {},
+              child: const Visibility(
+                visible: true,
+                child: Opacity(
+                  opacity: 0.5,
+                  child: Text('view hierarchy'),
+                ),
+              ),
             ),
             ElevatedButton(
               onPressed: () => makeWebRequest(context),
