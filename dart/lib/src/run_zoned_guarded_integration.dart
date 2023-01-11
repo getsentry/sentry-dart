@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:meta/meta.dart';
+
 import 'hub.dart';
 import 'integration.dart';
 import 'protocol.dart';
@@ -20,6 +22,40 @@ class RunZonedGuardedIntegration extends Integration {
   /// Needed to check if we somehow caused a `print()` recursion
   bool _isPrinting = false;
 
+  @visibleForTesting
+  Future<void> captureError(
+    Hub hub,
+    SentryOptions options,
+    Object exception,
+    StackTrace stackTrace,
+  ) async {
+    options.logger(
+      SentryLevel.error,
+      'Uncaught zone error',
+      logger: 'sentry.runZonedGuarded',
+      exception: exception,
+      stackTrace: stackTrace,
+    );
+
+    // runZonedGuarded doesn't crash the App.
+    final mechanism = Mechanism(type: 'runZonedGuarded', handled: true);
+    final throwableMechanism = ThrowableMechanism(mechanism, exception);
+
+    final event = SentryEvent(
+      throwable: throwableMechanism,
+      level: SentryLevel.fatal,
+      timestamp: hub.options.clock(),
+    );
+
+    // marks the span status if none to `internal_error` in case there's an
+    // unhandled error
+    hub.configureScope((scope) => {
+          scope.span?.status ??= const SpanStatus.internalError(),
+        });
+
+    await hub.captureEvent(event, stackTrace: stackTrace);
+  }
+
   @override
   FutureOr<void> call(Hub hub, SentryOptions options) {
     final completer = Completer<void>();
@@ -33,31 +69,7 @@ class RunZonedGuardedIntegration extends Integration {
         }
       },
       (exception, stackTrace) async {
-        options.logger(
-          SentryLevel.error,
-          'Uncaught zone error',
-          logger: 'sentry.runZonedGuarded',
-          exception: exception,
-          stackTrace: stackTrace,
-        );
-
-        // runZonedGuarded doesn't crash the App.
-        final mechanism = Mechanism(type: 'runZonedGuarded', handled: true);
-        final throwableMechanism = ThrowableMechanism(mechanism, exception);
-
-        final event = SentryEvent(
-          throwable: throwableMechanism,
-          level: SentryLevel.fatal,
-          timestamp: hub.options.clock(),
-        );
-
-        // mark the span if any to `internal_error` status in case there's an
-        // unhandled error
-        hub.configureScope((scope) => {
-              scope.span?.status = const SpanStatus.internalError(),
-            });
-
-        await hub.captureEvent(event, stackTrace: stackTrace);
+        await captureError(hub, options, exception, stackTrace);
       },
       zoneSpecification: ZoneSpecification(
         print: (self, parent, zone, line) {

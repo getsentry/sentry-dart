@@ -13,8 +13,9 @@ typedef ErrorCallback = bool Function(Object exception, StackTrace stackTrace);
 ///
 /// Remarks:
 /// - Only usable on Flutter >= 3.3.0.
+/// - Does not work on Flutter Web
 ///
-/// This can be used instead of the [RunZonedGuardedIntegration]. Removing the
+/// This is used instead of [RunZonedGuardedIntegration]. Not using the
 /// [RunZonedGuardedIntegration] results in a minimal improved startup time,
 /// since creating [Zone]s is not cheap.
 class OnErrorIntegration implements Integration<SentryFlutterOptions> {
@@ -60,10 +61,10 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
         timestamp: options.clock(),
       );
 
-      // mark the span if any to `internal_error` status in case there's an
+      // marks the span status if none to `internal_error` in case there's an
       // unhandled error
       hub.configureScope((scope) => {
-            scope.span?.status = const SpanStatus.internalError(),
+            scope.span?.status ??= const SpanStatus.internalError(),
           });
 
       // unawaited future
