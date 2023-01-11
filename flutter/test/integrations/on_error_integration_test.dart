@@ -116,7 +116,7 @@ void main() {
       expect(called, true);
     });
 
-    test('onError close restored default onError', () async {
+    test('closes restored default onError', () async {
       ErrorCallback defaultOnError = (_, __) {
         return true;
       };
