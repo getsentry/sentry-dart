@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+### Breaking Changes
+
+- Enable APM features by default ([#1217](https://github.com/getsentry/sentry-dart/pull/1217))
+  - captureFailedRequests
+  - enableStructuredDataTracing
+  - enableUserInteractionTracing
+
 ## 7.0.0-alpha.1
 
 ### Various fixes & improvements

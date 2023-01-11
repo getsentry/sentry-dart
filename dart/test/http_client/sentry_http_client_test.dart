@@ -34,6 +34,7 @@ void main() {
     test('no captured event with default config', () async {
       final sut = fixture.getSut(
         client: createThrowingClient(),
+        captureFailedRequests: false,
       );
 
       await expectLater(() async => await sut.get(requestUri), throwsException);
@@ -44,7 +45,7 @@ void main() {
 
     test('one captured event with when enabling $FailedRequestClient',
         () async {
-      fixture.hub.options.captureFailedHttpRequests = true;
+      fixture.hub.options.captureFailedRequests = true;
       fixture.hub.options.recordHttpBreadcrumbs = true;
       final sut = fixture.getSut(
         client: createThrowingClient(),
@@ -115,8 +116,10 @@ class Fixture {
   SentryHttpClient getSut({
     MockClient? client,
     List<SentryStatusCode> badStatusCodes = const [],
+    bool captureFailedRequests = true,
   }) {
     final mc = client ?? getClient();
+    hub.options.captureFailedRequests = captureFailedRequests;
     return SentryHttpClient(
       client: mc,
       hub: hub,
