@@ -168,6 +168,16 @@ void main() {
       expect(attachment.filename, 'screenshot.png');
       expect(attachment.addToTransactions, false);
     });
+
+    test('fromViewHierarchy', () async {
+      final view = SentryViewHierarchy('flutter');
+      final attachment = SentryAttachment.fromViewHierarchy(view);
+
+      expect(attachment.attachmentType, SentryAttachment.typeViewHierarchy);
+      expect(attachment.contentType, 'application/json');
+      expect(attachment.filename, 'view-hierarchy.json');
+      expect(attachment.addToTransactions, false);
+    });
   });
 }
 

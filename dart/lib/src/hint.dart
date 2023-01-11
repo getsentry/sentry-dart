@@ -25,6 +25,8 @@ class Hint {
 
   SentryAttachment? screenshot;
 
+  SentryAttachment? viewHierarchy;
+
   Hint();
 
   factory Hint.withMap(Map<String, Object> map) {
@@ -36,6 +38,12 @@ class Hint {
   factory Hint.withScreenshot(SentryAttachment screenshot) {
     final hint = Hint();
     hint.screenshot = screenshot;
+    return hint;
+  }
+
+  factory Hint.withViewHierarchy(SentryAttachment viewHierarchy) {
+    final hint = Hint();
+    hint.viewHierarchy = viewHierarchy;
     return hint;
   }
 
