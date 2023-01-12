@@ -15,23 +15,35 @@ void main() {
       fixture = Fixture();
     });
 
+    void _mockValues() {
+      when(fixture.hub.configureScope(captureAny)).thenAnswer((_) {});
+
+      when(fixture.hub.captureEvent(captureAny, hint: anyNamed('hint')))
+          .thenAnswer((_) => Future.value(SentryId.empty()));
+
+      when(fixture.hub.options).thenReturn(fixture.options);
+
+      final tracer = MockSentryTracer();
+      final span =
+          SentrySpan(tracer, SentrySpanContext(operation: 'op'), fixture.hub);
+
+      when(fixture.hub.getSpan()).thenReturn(span);
+    }
+
     void _reportError({
       bool silent = false,
       FlutterExceptionHandler? handler,
       dynamic exception,
       FlutterErrorDetails? optionalDetails,
     }) {
+      _mockValues();
+
       // replace default error otherwise it fails on testing
       FlutterError.onError =
           handler ?? (FlutterErrorDetails errorDetails) async {};
 
-      when(fixture.hub.captureEvent(captureAny))
-          .thenAnswer((_) => Future.value(SentryId.empty()));
-
-      when(fixture.hub.captureEvent(captureAny, hint: anyNamed('hint')))
-          .thenAnswer((_) => Future.value(SentryId.empty()));
-
-      FlutterErrorIntegration()(fixture.hub, fixture.options);
+      final sut = fixture.getSut();
+      sut(fixture.hub, fixture.options);
 
       final throwable = exception ?? StateError('error');
       final details = FlutterErrorDetails(
@@ -41,10 +53,11 @@ void main() {
         library: 'sentry',
         informationCollector: () => [DiagnosticsNode.message('foo bar')],
       );
+
       FlutterError.reportError(optionalDetails ?? details);
     }
 
-    test('FlutterError capture errors', () async {
+    test('captures error', () async {
       final exception = StateError('error');
 
       _reportError(exception: exception);
@@ -66,9 +79,7 @@ void main() {
       expect(event.contexts['flutter_error_details']['information'], 'foo bar');
     });
 
-    test(
-        'FlutterError capture errors with long FlutterErrorDetails.information',
-        () async {
+    test('captures error with long FlutterErrorDetails.information', () async {
       final details = FlutterErrorDetails(
         exception: StateError('error'),
         silent: false,
@@ -100,7 +111,7 @@ void main() {
           'foo bar\nHello World!');
     });
 
-    test('FlutterError capture errors with no FlutterErrorDetails', () async {
+    test('captures error with no FlutterErrorDetails', () async {
       final details = FlutterErrorDetails(
           exception: StateError('error'), silent: false, library: null);
 
@@ -121,7 +132,7 @@ void main() {
       expect(event.contexts['flutter_error_details'], isNull);
     });
 
-    test('FlutterError calls default error', () async {
+    test('calls default error', () async {
       var called = false;
       final defaultError = (FlutterErrorDetails errorDetails) async {
         called = true;
@@ -135,23 +146,22 @@ void main() {
       expect(called, true);
     });
 
-    test('FlutterErrorIntegration captureEvent only called once', () async {
+    test('calls captureEvent only called once', () async {
+      _mockValues();
+
       var numberOfDefaultCalls = 0;
       final defaultError = (FlutterErrorDetails errorDetails) async {
         numberOfDefaultCalls++;
       };
       FlutterError.onError = defaultError;
 
-      when(fixture.hub.captureEvent(captureAny, hint: anyNamed('hint')))
-          .thenAnswer((_) => Future.value(SentryId.empty()));
-
       final details = FlutterErrorDetails(exception: StateError('error'));
 
-      final integrationA = FlutterErrorIntegration();
+      final integrationA = fixture.getSut();
       integrationA.call(fixture.hub, fixture.options);
       await integrationA.close();
 
-      final integrationB = FlutterErrorIntegration();
+      final integrationB = fixture.getSut();
       integrationB.call(fixture.hub, fixture.options);
 
       FlutterError.reportError(details);
@@ -162,11 +172,11 @@ void main() {
       expect(numberOfDefaultCalls, 1);
     });
 
-    test('FlutterErrorIntegration close restored default onError', () async {
+    test('closes restored default onError', () async {
       final defaultOnError = (FlutterErrorDetails errorDetails) async {};
       FlutterError.onError = defaultOnError;
 
-      final integration = FlutterErrorIntegration();
+      final integration = fixture.getSut();
       integration.call(fixture.hub, fixture.options);
       expect(false, defaultOnError == FlutterError.onError);
 
@@ -174,13 +184,11 @@ void main() {
       expect(FlutterError.onError, defaultOnError);
     });
 
-    test(
-        'FlutterErrorIntegration default not restored if set after integration',
-        () async {
+    test('default is not restored if set after integration', () async {
       final defaultOnError = (FlutterErrorDetails errorDetails) async {};
       FlutterError.onError = defaultOnError;
 
-      final integration = FlutterErrorIntegration();
+      final integration = fixture.getSut();
       integration.call(fixture.hub, fixture.options);
       expect(defaultOnError == FlutterError.onError, false);
 
@@ -192,14 +200,13 @@ void main() {
       expect(FlutterError.onError, afterIntegrationOnError);
     });
 
-    test('FlutterError do not capture if silent error', () async {
+    test('do not capture if silent error', () async {
       _reportError(silent: true);
 
       verifyNever(await fixture.hub.captureEvent(captureAny));
     });
 
-    test('FlutterError captures if silent error but reportSilentFlutterErrors',
-        () async {
+    test('captures if silent error but reportSilentFlutterErrors', () async {
       fixture.options.reportSilentFlutterErrors = true;
       _reportError(silent: true);
 
@@ -207,17 +214,46 @@ void main() {
           await fixture.hub.captureEvent(captureAny, hint: anyNamed('hint')));
     });
 
-    test('FlutterError adds integration', () {
-      FlutterErrorIntegration()(fixture.hub, fixture.options);
+    test('adds integration', () {
+      final sut = fixture.getSut();
+      sut(fixture.hub, fixture.options);
 
       expect(
           fixture.options.sdk.integrations.contains('flutterErrorIntegration'),
           true);
+    });
+
+    test('marks transaction as internal error if no status', () async {
+      final exception = StateError('error');
+
+      final hub = Hub(fixture.options);
+      final client = MockSentryClient();
+      hub.bindClient(client);
+
+      final sut = fixture.getSut();
+
+      // replace default error otherwise it fails on testing
+      FlutterError.onError = (FlutterErrorDetails errorDetails) async {};
+      sut(hub, fixture.options);
+
+      hub.startTransaction('name', 'operation', bindToScope: true);
+
+      FlutterError.reportError(FlutterErrorDetails(exception: exception));
+
+      final span = hub.getSpan();
+
+      expect(span?.status, const SpanStatus.internalError());
+
+      await span?.finish();
     });
   });
 }
 
 class Fixture {
   final hub = MockHub();
-  final options = SentryFlutterOptions(dsn: fakeDsn);
+  final options = SentryFlutterOptions(dsn: fakeDsn)..tracesSampleRate = 1.0;
+
+  FlutterErrorIntegration getSut() {
+    return FlutterErrorIntegration();
+  }
 }
