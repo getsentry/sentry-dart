@@ -29,7 +29,6 @@ import java.lang.ref.WeakReference
 import java.util.Locale
 import java.util.UUID
 
-@Suppress("TooManyFunctions")
 class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   private lateinit var channel: MethodChannel
   private lateinit var context: Context
@@ -272,7 +271,6 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
   }
 
-  @Suppress("ComplexMethod")
   private fun setUser(user: Map<String, Any?>?, result: Result) {
     if (user == null) {
       Sentry.setUser(null)
