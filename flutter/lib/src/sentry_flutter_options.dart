@@ -167,14 +167,14 @@ class SentryFlutterOptions extends SentryOptions {
   /// Enables Out of Memory Tracking for iOS and macCatalyst.
   /// See the following link for more information and possible restrictions:
   /// https://docs.sentry.io/platforms/apple/guides/ios/configuration/out-of-memory/
-  bool enableOutOfMemoryTracking = true;
+  bool enableWatchdogTerminationsTracking = true;
 
   /// Enable scope sync from Java to NDK.
   /// Only available on Android.
   bool enableNdkScopeSync = false;
 
   /// Enable auto performance tracking by default.
-  bool enableAutoPerformanceTracking = true;
+  bool enableAutoPerformanceTracing = true;
 
   /// Automatically track app start measurement and send it with the
   /// first transaction. Set to false when configuring option to disable or if
