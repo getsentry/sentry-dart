@@ -52,7 +52,7 @@ void main() {
         'enableAutoNativeBreadcrumbs': true,
         'maxCacheItems': 30,
         'sendDefaultPii': false,
-        'enableWatchdogTerminationsTracking': true,
+        'enableWatchdogTerminationTracking': true,
         'enableNdkScopeSync': false,
         'enableAutoPerformanceTracing': true,
         'sendClientReports': true,
@@ -89,7 +89,7 @@ void main() {
         ..enableAutoNativeBreadcrumbs = false
         ..maxCacheItems = 0
         ..sendDefaultPii = true
-        ..enableWatchdogTerminationsTracking = false
+        ..enableWatchdogTerminationTracking = false
         ..enableNdkScopeSync = true
         ..enableAutoPerformanceTracing = false
         ..sendClientReports = false;
@@ -125,7 +125,7 @@ void main() {
         'enableAutoNativeBreadcrumbs': false,
         'maxCacheItems': 0,
         'sendDefaultPii': true,
-        'enableWatchdogTerminationsTracking': false,
+        'enableWatchdogTerminationTracking': false,
         'enableNdkScopeSync': true,
         'enableAutoPerformanceTracing': false,
         'sendClientReports': false,

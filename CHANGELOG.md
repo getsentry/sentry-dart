@@ -11,7 +11,7 @@
     - enableUserInteractionTracing
   - Rename
     - enableAutoPerformanceTracking to enableAutoPerformanceTracing
-    - enableOutOfMemoryTracking to enableWatchdogTerminationsTracking
+    - enableOutOfMemoryTracking to enableWatchdogTerminationTracking
 - Mark transaction as internal_error in case of unhandled errors ([#1218](https://github.com/getsentry/sentry-dart/pull/1218))
 
 ## 7.0.0-alpha.1
