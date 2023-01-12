@@ -4,7 +4,7 @@
 
 ### Features
 
-- Dart 3 Support ([#1217](https://github.com/getsentry/sentry-dart/pull/1217))
+- Dart 3 Support ([#1220](https://github.com/getsentry/sentry-dart/pull/1220))
 
 ### Breaking Changes
 
