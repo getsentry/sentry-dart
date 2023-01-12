@@ -1,6 +1,16 @@
 # Changelog
 
-## 7.0.0
+## Unreleased
+
+### Breaking Changes
+
+- Enable APM features by default ([#1217](https://github.com/getsentry/sentry-dart/pull/1217))
+  - captureFailedRequests
+  - enableStructuredDataTracing
+  - enableUserInteractionTracing
+- Mark transaction as internal_error in case of unhandled errors ([#1218](https://github.com/getsentry/sentry-dart/pull/1218))
+
+## 7.0.0-alpha.1
 
 ### Features
 
@@ -12,7 +22,7 @@
 
 - Fix: Remove `SentryOptions` related parameters from classes which also take `Hub` as a parameter (#816)
 
-# Enhancements
+### Enhancements
 
 - Enha: Replace `StackTrace.empty` with `StackTrace.current` ([#1183](https://github.com/getsentry/sentry-dart/pull/1183))
 - Migrate to sentry cocoa v8 ([#1197](https://github.com/getsentry/sentry-dart/pull/1197))

@@ -31,7 +31,7 @@ void main() {
     });
 
     test('exception gets reported if client throws', () async {
-      fixture._hub.options.captureFailedHttpRequests = true;
+      fixture._hub.options.captureFailedRequests = true;
       fixture._hub.options.sendDefaultPii = true;
 
       final sut = fixture.getSut(
@@ -73,6 +73,7 @@ void main() {
     test('event not reported if disabled', () async {
       final sut = fixture.getSut(
         client: createThrowingClient(),
+        captureFailedRequests: false,
       );
 
       await expectLater(
@@ -163,7 +164,7 @@ void main() {
     });
 
     test('pii is not send on exception', () async {
-      fixture._hub.options.captureFailedHttpRequests = true;
+      fixture._hub.options.captureFailedRequests = true;
       final sut = fixture.getSut(
         client: createThrowingClient(),
       );
@@ -221,7 +222,7 @@ void main() {
         MaxBodySizeTestConfig(MaxRequestBodySize.medium, 10001, false),
       ];
 
-      fixture._hub.options.captureFailedHttpRequests = true;
+      fixture._hub.options.captureFailedRequests = true;
       fixture._hub.options.sendDefaultPii = true;
       for (final scenario in scenarios) {
         fixture._hub.options.maxRequestBodySize = scenario.maxBodySize;
@@ -251,7 +252,7 @@ void main() {
     });
 
     test('request passed to hint', () async {
-      fixture._hub.options.captureFailedHttpRequests = true;
+      fixture._hub.options.captureFailedRequests = true;
 
       Request? failedRequest;
       final client = MockClient(
@@ -303,8 +304,10 @@ class Fixture {
   FailedRequestClient getSut({
     MockClient? client,
     List<SentryStatusCode> badStatusCodes = const [],
+    bool captureFailedRequests = true,
   }) {
     final mc = client ?? getClient();
+    _hub.options.captureFailedRequests = captureFailedRequests;
     return FailedRequestClient(
       client: mc,
       hub: _hub,

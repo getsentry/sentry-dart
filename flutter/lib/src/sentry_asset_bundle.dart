@@ -31,14 +31,11 @@ typedef _Parser<T> = Future<T> Function(String value);
 /// );
 /// ```
 /// [Image.asset], for example, will then use [SentryAssetBundle].
-///
-/// The `enableStructureDataTracing` setting is an experimental feature.
-/// Use at your own risk.
 class SentryAssetBundle implements AssetBundle {
   SentryAssetBundle({
     Hub? hub,
     AssetBundle? bundle,
-    bool enableStructuredDataTracing = false,
+    bool enableStructuredDataTracing = true,
   })  : _hub = hub ?? HubAdapter(),
         _bundle = bundle ?? rootBundle,
         _enableStructuredDataTracing = enableStructuredDataTracing {

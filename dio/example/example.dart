@@ -10,13 +10,13 @@ Future<void> main() async {
   await Sentry.init(
     (options) {
       options.dsn = dsn;
-      options.tracesSampleRate = 1.0; // needed for Dio `networkTracing` feature
+      options.tracesSampleRate =
+          1.0; // needed for Dio `captureFailedRequests` feature
       options.debug = true;
       options.sendDefaultPii = true;
 
       options.maxRequestBodySize = MaxRequestBodySize.small;
       options.maxResponseBodySize = MaxResponseBodySize.small;
-      options.captureFailedRequests = true;
     },
     appRunner: runApp, // Init your App.
   );
