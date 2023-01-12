@@ -40,7 +40,8 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
         'enableAutoNativeBreadcrumbs': options.enableAutoNativeBreadcrumbs,
         'maxCacheItems': options.maxCacheItems,
         'sendDefaultPii': options.sendDefaultPii,
-        'enableWatchdogTerminationsTracking': options.enableWatchdogTerminationsTracking,
+        'enableWatchdogTerminationsTracking':
+            options.enableWatchdogTerminationsTracking,
         'enableNdkScopeSync': options.enableNdkScopeSync,
         'enableAutoPerformanceTracing': options.enableAutoPerformanceTracing,
         'sendClientReports': options.sendClientReports,
