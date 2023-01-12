@@ -8,6 +8,7 @@ void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   binding.framePolicy = LiveTestWidgetsFlutterBindingFramePolicy.fullyLive;
 
+  // Using fake DSN for testing purposes.
   Future<void> setupSentryAndApp(WidgetTester tester) async {
     await setupSentry(() async {
       await tester.pumpWidget(SentryScreenshotWidget(
@@ -16,7 +17,7 @@ void main() {
         child: const MyApp(),
       )));
       await tester.pumpAndSettle();
-    });
+    }, 'https://abc@def.ingest.sentry.io/1234567');
   }
 
   // Tests

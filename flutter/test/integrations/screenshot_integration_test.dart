@@ -36,6 +36,25 @@ void main() {
     expect(processors.isEmpty, true);
   });
 
+  test('screenshotIntegration adds integration to the sdk list', () async {
+    final integration = fixture.getSut();
+
+    await integration(fixture.hub, fixture.options);
+
+    expect(fixture.options.sdk.integrations.contains('screenshotIntegration'),
+        true);
+  });
+
+  test('screenshotIntegration does not add integration to the sdk list',
+      () async {
+    final integration = fixture.getSut(attachScreenshot: false);
+
+    await integration(fixture.hub, fixture.options);
+
+    expect(fixture.options.sdk.integrations.contains('screenshotIntegration'),
+        false);
+  });
+
   test('screenshotIntegration close resets processor', () async {
     final integration = fixture.getSut();
 
