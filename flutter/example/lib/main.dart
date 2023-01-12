@@ -360,6 +360,11 @@ class MainScaffold extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 final id = await Sentry.captureMessage('UserFeedback');
+
+                // ignore: use_build_context_synchronously
+                if (!context.mounted) {
+                  return;
+                }
                 await showDialog(
                   context: context,
                   builder: (context) {
@@ -574,6 +579,11 @@ Future<void> makeWebRequest(BuildContext context) async {
 
   await transaction.finish(status: const SpanStatus.ok());
 
+  // ignore: use_build_context_synchronously
+  if (!context.mounted) {
+    return;
+  }
+
   await showDialog<void>(
     context: context,
     // gets tracked if using SentryNavigatorObserver
@@ -623,6 +633,11 @@ Future<void> makeWebRequestWithDio(BuildContext context) async {
     await span.finish();
   }
 
+  // ignore: use_build_context_synchronously
+  if (!context.mounted) {
+    return;
+  }
+
   await showDialog<void>(
     context: context,
     // gets tracked if using SentryNavigatorObserver
@@ -655,6 +670,12 @@ Future<void> showDialogWithTextAndImage(BuildContext context) async {
       );
   final text =
       await DefaultAssetBundle.of(context).loadString('assets/lorem-ipsum.txt');
+
+  // ignore: use_build_context_synchronously
+  if (!context.mounted) {
+    return;
+  }
+
   await showDialog<void>(
     context: context,
     // gets tracked if using SentryNavigatorObserver
