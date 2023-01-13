@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Dependencies
+
+- Bump dependency `intl` to ^0.18.0 ([#1202](https://github.com/getsentry/sentry-dart/pull/1202))
+
 ## 6.18.2
 
 ### Fixes
@@ -15,7 +21,6 @@
 - Bump Cocoa SDK from v7.31.3 to v7.31.5 ([#1190](https://github.com/getsentry/sentry-dart/pull/1190), [#1207](https://github.com/getsentry/sentry-dart/pull/1207))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/8.0.0/CHANGELOG.md#7315)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.31.3...7.31.5)
-- Bump dependency `intl` to ^0.18.0 ([#1202](https://github.com/getsentry/sentry-dart/pull/1202))
 
 ## 6.18.1
 
