@@ -10,6 +10,7 @@
 - Bump Cocoa SDK from v7.31.3 to v7.31.4 ([#1190](https://github.com/getsentry/sentry-dart/pull/1190))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/8.0.0/CHANGELOG.md#7314)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.31.3...7.31.4)
+- Bump dependency `intl` to ^0.18.0 ([#1202](https://github.com/getsentry/sentry-dart/pull/1202))
 
 ## 6.18.1
 
