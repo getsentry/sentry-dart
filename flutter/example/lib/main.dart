@@ -360,6 +360,12 @@ class MainScaffold extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 final id = await Sentry.captureMessage('UserFeedback');
+
+                // ignore: use_build_context_synchronously
+                if (!context.isMounted) {
+                  return;
+                }
+                // ignore: use_build_context_synchronously
                 await showDialog(
                   context: context,
                   builder: (context) {
@@ -387,6 +393,17 @@ class MainScaffold extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+extension BuildContextExtension on BuildContext {
+  bool get isMounted {
+    try {
+      return (this as dynamic).mounted;
+    } on NoSuchMethodError catch (_) {
+      // ignore, only available in newer Flutter versions
+    }
+    return true;
   }
 }
 
@@ -574,6 +591,12 @@ Future<void> makeWebRequest(BuildContext context) async {
 
   await transaction.finish(status: const SpanStatus.ok());
 
+  // ignore: use_build_context_synchronously
+  if (!context.isMounted) {
+    return;
+  }
+
+  // ignore: use_build_context_synchronously
   await showDialog<void>(
     context: context,
     // gets tracked if using SentryNavigatorObserver
@@ -623,6 +646,12 @@ Future<void> makeWebRequestWithDio(BuildContext context) async {
     await span.finish();
   }
 
+  // ignore: use_build_context_synchronously
+  if (!context.isMounted) {
+    return;
+  }
+
+  // ignore: use_build_context_synchronously
   await showDialog<void>(
     context: context,
     // gets tracked if using SentryNavigatorObserver
@@ -655,6 +684,13 @@ Future<void> showDialogWithTextAndImage(BuildContext context) async {
       );
   final text =
       await DefaultAssetBundle.of(context).loadString('assets/lorem-ipsum.txt');
+
+  // ignore: use_build_context_synchronously
+  if (!context.isMounted) {
+    return;
+  }
+
+  // ignore: use_build_context_synchronously
   await showDialog<void>(
     context: context,
     // gets tracked if using SentryNavigatorObserver
