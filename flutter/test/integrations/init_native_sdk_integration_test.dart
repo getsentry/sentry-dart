@@ -52,9 +52,9 @@ void main() {
         'enableAutoNativeBreadcrumbs': true,
         'maxCacheItems': 30,
         'sendDefaultPii': false,
-        'enableOutOfMemoryTracking': true,
+        'enableWatchdogTerminationTracking': true,
         'enableNdkScopeSync': false,
-        'enableAutoPerformanceTracking': true,
+        'enableAutoPerformanceTracing': true,
         'sendClientReports': true,
         'sdk': {
           'name': 'sentry.dart.flutter',
@@ -89,9 +89,9 @@ void main() {
         ..enableAutoNativeBreadcrumbs = false
         ..maxCacheItems = 0
         ..sendDefaultPii = true
-        ..enableOutOfMemoryTracking = false
+        ..enableWatchdogTerminationTracking = false
         ..enableNdkScopeSync = true
-        ..enableAutoPerformanceTracking = false
+        ..enableAutoPerformanceTracing = false
         ..sendClientReports = false;
 
       options.sdk.addIntegration('foo');
@@ -125,9 +125,9 @@ void main() {
         'enableAutoNativeBreadcrumbs': false,
         'maxCacheItems': 0,
         'sendDefaultPii': true,
-        'enableOutOfMemoryTracking': false,
+        'enableWatchdogTerminationTracking': false,
         'enableNdkScopeSync': true,
-        'enableAutoPerformanceTracking': false,
+        'enableAutoPerformanceTracing': false,
         'sendClientReports': false,
         'sdk': {
           'name': 'sentry.dart.flutter',

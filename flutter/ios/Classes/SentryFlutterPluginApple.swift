@@ -197,7 +197,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         SentrySDK.start { options in
             self.updateOptions(arguments: arguments, options: options)
 
-            if arguments["enableAutoPerformanceTracking"] as? Bool ?? false {
+            if arguments["enableAutoPerformanceTracing"] as? Bool ?? false {
                 PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
                 #if os(iOS) || targetEnvironment(macCatalyst)
                 PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode = true
@@ -319,8 +319,8 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             options.maxCacheItems = maxCacheItems
         }
 
-        if let enableOutOfMemoryTracking = arguments["enableOutOfMemoryTracking"] as? Bool {
-            options.enableWatchdogTerminationTracking = enableOutOfMemoryTracking
+        if let enableWatchdogTerminationTracking = arguments["enableWatchdogTerminationTracking"] as? Bool {
+            options.enableWatchdogTerminationTracking = enableWatchdogTerminationTracking
         }
 
         if let sendClientReports = arguments["sendClientReports"] as? Bool {

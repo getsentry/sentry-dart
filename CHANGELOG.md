@@ -8,10 +8,14 @@
 
 ### Breaking Changes
 
-- Enable APM features by default ([#1217](https://github.com/getsentry/sentry-dart/pull/1217))
-  - captureFailedRequests
-  - enableStructuredDataTracing
-  - enableUserInteractionTracing
+- Enable and rename APM features by default ([#1217](https://github.com/getsentry/sentry-dart/pull/1217)) and ([#1222](https://github.com/getsentry/sentry-dart/pull/1222))
+  - Enable by default
+    - captureFailedRequests
+    - enableStructuredDataTracing
+    - enableUserInteractionTracing
+  - Rename
+    - enableAutoPerformanceTracking to enableAutoPerformanceTracing
+    - enableOutOfMemoryTracking to enableWatchdogTerminationTracking
 - Mark transaction as internal_error in case of unhandled errors ([#1218](https://github.com/getsentry/sentry-dart/pull/1218))
 
 ## 7.0.0-alpha.1
