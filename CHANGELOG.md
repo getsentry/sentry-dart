@@ -1,10 +1,6 @@
 # Changelog
 
-## 7.0.0-alpha.2
-
-### Features
-
-- Dart 3 Support ([#1220](https://github.com/getsentry/sentry-dart/pull/1220))
+## Unreleased
 
 ### Breaking Changes
 
@@ -16,6 +12,19 @@
   - Rename
     - enableAutoPerformanceTracking to enableAutoPerformanceTracing
     - enableOutOfMemoryTracking to enableWatchdogTerminationTracking
+
+### Enhancements
+
+- Migrate to sentry cocoa v8 ([#1197](https://github.com/getsentry/sentry-dart/pull/1197))
+
+## 7.0.0-alpha.2
+
+### Features
+
+- Dart 3 Support ([#1220](https://github.com/getsentry/sentry-dart/pull/1220))
+
+### Breaking Changes
+
 - Mark transaction as internal_error in case of unhandled errors ([#1218](https://github.com/getsentry/sentry-dart/pull/1218))
 
 ## 7.0.0-alpha.1
@@ -33,7 +42,6 @@
 ### Enhancements
 
 - Enha: Replace `StackTrace.empty` with `StackTrace.current` ([#1183](https://github.com/getsentry/sentry-dart/pull/1183))
-- Migrate to sentry cocoa v8 ([#1197](https://github.com/getsentry/sentry-dart/pull/1197))
 
 ### Breaking Changes
 
