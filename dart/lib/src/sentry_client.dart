@@ -185,8 +185,8 @@ class SentryClient {
       final throwable = event.throwable;
       final extractedExceptions = _options.extractor.flatten(throwable, stackTrace);
 
-      var sentryExceptions = <SentryException>[];
-      var sentryThreads = <SentryThread>[];
+      final sentryExceptions = <SentryException>[];
+      final sentryThreads = <SentryThread>[];
 
       for (final extractedException in extractedExceptions) {
         var sentryException = _exceptionFactory.getSentryException(
