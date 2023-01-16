@@ -168,8 +168,9 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         val name = sdk["name"] as? String
         val version = sdk["version"] as? String
         if (name != null && version != null) {
+          val sdkVersion = SdkVersion(name, version)
           options.setSentryClientName(name)
-          options.setSdkVersion(version)
+          options.setSdkVersion(sdkVersion)
         }
       }
 
@@ -179,7 +180,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         event
       }
 
-      // missing proxy, enableScopeSync
+      // missing proxy
     }
     result.success("")
   }
