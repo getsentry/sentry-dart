@@ -8,9 +8,9 @@ class ExceptionCauseExtractor<T> {
 }
 
 class RecursiveExceptionCauseExtractor {
-  RecursiveExceptionCauseExtractor(this.options);
+  RecursiveExceptionCauseExtractor(this._options);
 
-  SentryOptions options;
+  final SentryOptions _options;
 
   List<ExceptionCause> flatten(exception, stackTrace) {
     var allExceptionCauses = <ExceptionCause>[];
@@ -23,7 +23,7 @@ class RecursiveExceptionCauseExtractor {
       allExceptionCauses.add(currentExceptionCause);
 
       final extractor =
-          options.causeExtractorsByType[currentException.runtimeType];
+          _options.causeExtractorsByType[currentException.runtimeType];
       currentExceptionCause = extractor?.cause(currentException);
       currentException = currentExceptionCause?.exception;
     }
