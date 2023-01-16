@@ -1,11 +1,11 @@
 name: sentry_flutter_example
 description: Demonstrates how to use the sentry_flutter plugin.
-version: 6.18.2
+version: 7.0.0-alpha.2
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 environment:
-  sdk: '>=2.17.0 <3.0.0'
+  sdk: '>=2.17.0 <4.0.0'
   flutter: '>=3.0.0'
 
 dependencies:

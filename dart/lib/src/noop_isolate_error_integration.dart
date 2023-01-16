@@ -8,10 +8,10 @@ import 'sentry_options.dart';
 class IsolateErrorIntegration extends Integration {
   @override
   FutureOr<void> call(Hub hub, SentryOptions options) async {}
-}
 
-Future<void> handleIsolateError(
-  Hub hub,
-  SentryOptions options,
-  dynamic error,
-) async {}
+  Future<void> handleIsolateError(
+    Hub hub,
+    SentryOptions options,
+    dynamic error,
+  ) async {}
+}

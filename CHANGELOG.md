@@ -1,6 +1,20 @@
 # Changelog
 
-## 7.0.0
+## 7.0.0-alpha.2
+
+### Features
+
+- Dart 3 Support ([#1220](https://github.com/getsentry/sentry-dart/pull/1220))
+
+### Breaking Changes
+
+- Enable APM features by default ([#1217](https://github.com/getsentry/sentry-dart/pull/1217))
+  - captureFailedRequests
+  - enableStructuredDataTracing
+  - enableUserInteractionTracing
+- Mark transaction as internal_error in case of unhandled errors ([#1218](https://github.com/getsentry/sentry-dart/pull/1218))
+
+## 7.0.0-alpha.1
 
 ### Features
 
@@ -12,7 +26,7 @@
 
 - Fix: Remove `SentryOptions` related parameters from classes which also take `Hub` as a parameter (#816)
 
-# Enhancements
+### Enhancements
 
 - Enha: Replace `StackTrace.empty` with `StackTrace.current` ([#1183](https://github.com/getsentry/sentry-dart/pull/1183))
 

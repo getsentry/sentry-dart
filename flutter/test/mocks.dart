@@ -274,3 +274,5 @@ class TestBindingWrapper implements BindingWrapper {
     return TestWidgetsFlutterBinding.instance;
   }
 }
+
+class MockSentryClient with NoSuchMethodProvider implements SentryClient {}

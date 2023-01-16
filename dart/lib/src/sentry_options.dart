@@ -253,7 +253,7 @@ class SentryOptions {
   /// - In an mobile or desktop application this can be requests which failed
   ///   because the connection was interrupted.
   /// Use with [SentryHttpClient] or [Dio] integration for this to work
-  bool captureFailedHttpRequests = false;
+  bool captureFailedRequests = true;
 
   /// Whether to records requests as breadcrumbs. This is on by default.
   /// It only has an effect when the SentryHttpClient or dio integration is in use

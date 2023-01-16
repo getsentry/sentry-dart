@@ -140,6 +140,11 @@ class SentryClient {
       attachments.add(screenshot);
     }
 
+    var viewHierarchy = hint.viewHierarchy;
+    if (viewHierarchy != null) {
+      attachments.add(viewHierarchy);
+    }
+
     final envelope = SentryEnvelope.fromEvent(
       preparedEvent,
       _options.sdk,

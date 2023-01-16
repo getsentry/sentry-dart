@@ -52,7 +52,7 @@ void main() {
     });
 
     test('no captured span if tracing disabled', () async {
-      fixture.hub.options.captureFailedHttpRequests = false;
+      fixture.hub.options.captureFailedRequests = false;
       fixture.hub.options.recordHttpBreadcrumbs = false;
       final sut = fixture.getSut(
         client: fixture.getClient(statusCode: 200, reason: 'OK'),
@@ -105,9 +105,11 @@ class Fixture {
     MockHttpClientAdapter? client,
     MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never,
     List<SentryStatusCode> badStatusCodes = const [],
+    bool captureFailedRequests = true,
   }) {
     final mc = client ?? getClient();
     final dio = Dio(BaseOptions(baseUrl: requestUri.toString()));
+    hub.options.captureFailedRequests = captureFailedRequests;
     dio.httpClientAdapter = SentryDioClientAdapter(
       client: mc,
       hub: hub,
