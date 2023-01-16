@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Error Cause Extractor ([#1198](https://github.com/getsentry/sentry-dart/pull/1198))
+
 ## 7.0.0-alpha.2
 
 ### Features
