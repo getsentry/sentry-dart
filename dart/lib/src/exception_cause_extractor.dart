@@ -14,12 +14,15 @@ class RecursiveExceptionCauseExtractor {
 
   List<ExceptionCause> flatten(exception, stackTrace) {
     final allExceptionCauses = <ExceptionCause>[];
+    final circularityDetector = <dynamic>{};
 
     var currentException = exception;
     ExceptionCause? currentExceptionCause =
         ExceptionCause(exception, stackTrace);
 
-    while (currentException != null && currentExceptionCause != null) {
+    while (currentException != null &&
+        currentExceptionCause != null &&
+        circularityDetector.add(currentException)) {
       allExceptionCauses.add(currentExceptionCause);
 
       final extractor =

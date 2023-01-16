@@ -34,6 +34,30 @@ void main() {
     final actual = flattened.map((exceptionCause) => exceptionCause.exception);
     expect(actual, [errorA, errorB, errorC]);
   });
+
+  test('flatten breaks circularity', () {
+    final a = ExceptionCircularA();
+    final b = ExceptionCircularB();
+    a.other = b;
+    b.other = a;
+
+    fixture.options.addTypedExceptionCauseExtractor(
+      ExceptionCircularA,
+      ExceptionCircularAExtractor(),
+    );
+
+    fixture.options.addTypedExceptionCauseExtractor(
+      ExceptionCircularB,
+      ExceptionCircularBExtractor(),
+    );
+
+    final sut = fixture.getSut();
+
+    final flattened = sut.flatten(a, null);
+    final actual = flattened.map((exceptionCause) => exceptionCause.exception);
+
+    expect(actual, [a, b]);
+  });
 }
 
 class Fixture {
@@ -69,5 +93,29 @@ class ExceptionBCauseExtractor implements ExceptionCauseExtractor<ExceptionB> {
   @override
   ExceptionCause? cause(ExceptionB error) {
     return ExceptionCause(error.anotherOther, null);
+  }
+}
+
+class ExceptionCircularA {
+  ExceptionCircularB? other;
+}
+
+class ExceptionCircularB {
+  ExceptionCircularA? other;
+}
+
+class ExceptionCircularAExtractor
+    implements ExceptionCauseExtractor<ExceptionCircularA> {
+  @override
+  ExceptionCause? cause(ExceptionCircularA error) {
+    return ExceptionCause(error.other, null);
+  }
+}
+
+class ExceptionCircularBExtractor
+    implements ExceptionCauseExtractor<ExceptionCircularB> {
+  @override
+  ExceptionCause? cause(ExceptionCircularB error) {
+    return ExceptionCause(error.other, null);
   }
 }
