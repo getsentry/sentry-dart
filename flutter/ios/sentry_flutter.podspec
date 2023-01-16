@@ -13,7 +13,6 @@ Sentry SDK for Flutter with support to native through sentry-cocoa.
   s.source_files     = 'Classes/**/*'
   s.public_header_files = 'Classes/**/*.h'
   s.dependency 'Sentry/HybridSDK', '8.0.0-rc.1'
-  s.dependency 'Sentry/HybridSDK', '7.31.5'
   s.ios.dependency 'Flutter'
   s.osx.dependency 'FlutterMacOS'
   s.ios.deployment_target = '9.0'
