@@ -207,9 +207,6 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             if let sdk = arguments["sdk"] as? [String: Any?],
                let name = sdk["name"] as? String,
                let version = sdk["version"] as? String {
-//                let sdkVersion = SdkVersion(name, version)
-//                options.setSentryClientName(name)
-//                options.setSdkVersion(sdkVersion)
                PrivateSentrySDKOnly.setSdkName(name, andVersionString: version)
             }
 
