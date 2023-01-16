@@ -197,11 +197,17 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         SentrySDK.start { options in
             self.updateOptions(arguments: arguments, options: options)
 
-            if arguments["enableAutoPerformanceTracking"] as? Bool ?? false {
+            if arguments["enableAutoPerformanceTracing"] as? Bool ?? false {
                 PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
                 #if os(iOS) || targetEnvironment(macCatalyst)
                 PrivateSentrySDKOnly.framesTrackingMeasurementHybridSDKMode = true
                 #endif
+            }
+
+            if let sdk = arguments["sdk"] as? [String: Any?],
+               let name = sdk["name"] as? String,
+               let version = sdk["version"] as? String {
+               PrivateSentrySDKOnly.setSdkName(name, andVersionString: version)
             }
 
             // note : for now, in sentry-cocoa, beforeSend is not called before captureEnvelope
@@ -233,7 +239,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
        if didReceiveDidBecomeActiveNotification &&
             (PrivateSentrySDKOnly.options.enableAutoSessionTracking ||
-             PrivateSentrySDKOnly.options.enableOutOfMemoryTracking) {
+             PrivateSentrySDKOnly.options.enableWatchdogTerminationTracking) {
             // We send a SentryHybridSdkDidBecomeActive to the Sentry Cocoa SDK, so the SDK will mimics
             // the didBecomeActiveNotification notification. This is needed for session and OOM tracking.
            NotificationCenter.default.post(name: Notification.Name("SentryHybridSdkDidBecomeActive"), object: nil)
@@ -313,8 +319,8 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             options.maxCacheItems = maxCacheItems
         }
 
-        if let enableOutOfMemoryTracking = arguments["enableOutOfMemoryTracking"] as? Bool {
-            options.enableOutOfMemoryTracking = enableOutOfMemoryTracking
+        if let enableWatchdogTerminationTracking = arguments["enableWatchdogTerminationTracking"] as? Bool {
+            options.enableWatchdogTerminationTracking = enableWatchdogTerminationTracking
         }
 
         if let sendClientReports = arguments["sendClientReports"] as? Bool {
@@ -581,7 +587,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         breadcrumbInstance.data = data
       }
 
-      SentrySDK.addBreadcrumb(crumb: breadcrumbInstance)
+      SentrySDK.addBreadcrumb(breadcrumbInstance)
 
       result("")
     }

@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+### Breaking Changes
+
+- Rename APM tracking feature flags to tracing ([#1222](https://github.com/getsentry/sentry-dart/pull/1222))
+  - Rename
+    - enableAutoPerformanceTracking to enableAutoPerformanceTracing
+    - enableOutOfMemoryTracking to enableWatchdogTerminationTracking
+
+### Enhancements
+
+- Migrate to sentry cocoa v8 ([#1197](https://github.com/getsentry/sentry-dart/pull/1197))
+
 ## 7.0.0-alpha.2
 
 ### Features
@@ -9,9 +22,10 @@
 ### Breaking Changes
 
 - Enable APM features by default ([#1217](https://github.com/getsentry/sentry-dart/pull/1217))
-  - captureFailedRequests
-  - enableStructuredDataTracing
-  - enableUserInteractionTracing
+  - Enable by default
+    - captureFailedRequests
+    - enableStructuredDataTracing
+    - enableUserInteractionTracing
 - Mark transaction as internal_error in case of unhandled errors ([#1218](https://github.com/getsentry/sentry-dart/pull/1218))
 
 ## 7.0.0-alpha.1

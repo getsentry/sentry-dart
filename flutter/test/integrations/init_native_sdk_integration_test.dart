@@ -43,7 +43,7 @@ void main() {
         'dist': null,
         'integrations': <String>[],
         'packages': [
-          {'name': 'pub:sentry', 'version': sdkVersion}
+          {'name': 'pub:sentry_flutter', 'version': sdkVersion}
         ],
         'diagnosticLevel': 'debug',
         'maxBreadcrumbs': 100,
@@ -52,10 +52,14 @@ void main() {
         'enableAutoNativeBreadcrumbs': true,
         'maxCacheItems': 30,
         'sendDefaultPii': false,
-        'enableOutOfMemoryTracking': true,
+        'enableWatchdogTerminationTracking': true,
         'enableNdkScopeSync': false,
-        'enableAutoPerformanceTracking': true,
-        'sendClientReports': true
+        'enableAutoPerformanceTracing': true,
+        'sendClientReports': true,
+        'sdk': {
+          'name': 'sentry.dart.flutter',
+          'version': sdkVersion,
+        },
       });
     });
 
@@ -85,9 +89,9 @@ void main() {
         ..enableAutoNativeBreadcrumbs = false
         ..maxCacheItems = 0
         ..sendDefaultPii = true
-        ..enableOutOfMemoryTracking = false
+        ..enableWatchdogTerminationTracking = false
         ..enableNdkScopeSync = true
-        ..enableAutoPerformanceTracking = false
+        ..enableAutoPerformanceTracing = false
         ..sendClientReports = false;
 
       options.sdk.addIntegration('foo');
@@ -111,7 +115,7 @@ void main() {
         'dist': 'distfoo',
         'integrations': ['foo'],
         'packages': [
-          {'name': 'pub:sentry', 'version': sdkVersion},
+          {'name': 'pub:sentry_flutter', 'version': sdkVersion},
           {'name': 'bar', 'version': '1'},
         ],
         'diagnosticLevel': 'error',
@@ -121,10 +125,14 @@ void main() {
         'enableAutoNativeBreadcrumbs': false,
         'maxCacheItems': 0,
         'sendDefaultPii': true,
-        'enableOutOfMemoryTracking': false,
+        'enableWatchdogTerminationTracking': false,
         'enableNdkScopeSync': true,
-        'enableAutoPerformanceTracking': false,
-        'sendClientReports': false
+        'enableAutoPerformanceTracing': false,
+        'sendClientReports': false,
+        'sdk': {
+          'name': 'sentry.dart.flutter',
+          'version': sdkVersion,
+        },
       });
     });
 
@@ -166,7 +174,16 @@ MethodChannel createChannelWithCallback(
 
 SentryFlutterOptions createOptions() {
   final mockPlatformChecker = MockPlatformChecker(hasNativeIntegration: true);
-  return SentryFlutterOptions(dsn: fakeDsn, checker: mockPlatformChecker);
+  final options = SentryFlutterOptions(
+    dsn: fakeDsn,
+    checker: mockPlatformChecker,
+  );
+  options.sdk = SdkVersion(
+    name: sdkName,
+    version: sdkVersion,
+  );
+  options.sdk.addPackage('pub:sentry_flutter', sdkVersion);
+  return options;
 }
 
 class Fixture {
