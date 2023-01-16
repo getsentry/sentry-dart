@@ -13,7 +13,7 @@ class RecursiveExceptionCauseExtractor {
   final SentryOptions _options;
 
   List<ExceptionCause> flatten(exception, stackTrace) {
-    var allExceptionCauses = <ExceptionCause>[];
+    final allExceptionCauses = <ExceptionCause>[];
 
     var currentException = exception;
     ExceptionCause? currentExceptionCause =
