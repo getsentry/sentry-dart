@@ -4,7 +4,7 @@
 
 ### Breaking Changes
 
-- Rename APM tracking feature flags to tracing and enable features by default ([#1222](https://github.com/getsentry/sentry-dart/pull/1222))
+- Rename APM tracking feature flags to tracing ([#1222](https://github.com/getsentry/sentry-dart/pull/1222))
   - Rename
     - enableAutoPerformanceTracking to enableAutoPerformanceTracing
     - enableOutOfMemoryTracking to enableWatchdogTerminationTracking
