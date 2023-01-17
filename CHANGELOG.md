@@ -10,6 +10,7 @@
     - `attachements`, using the `attachments` instead.
   - Remove deprecated field from the `SentryFlutterOptions` class.
     - `anrTimeoutIntervalMillis`, using the `anrTimeoutInterval` instead.
+    - `autoSessionTrackingIntervalMillis`, using the `autoSessionTrackingInterval` instead.
 
 ## 7.0.0-alpha.3
 
