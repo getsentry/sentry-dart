@@ -224,8 +224,6 @@ class SentryClient {
       );
     }
 
-    // TODO How to handle boxed cause with stacktrace only?
-
     // The stacktrace is not part of an exception,
     // therefore add it to the threads.
     // https://develop.sentry.dev/sdk/event-payloads/stacktrace/
