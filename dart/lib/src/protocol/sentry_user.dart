@@ -42,7 +42,7 @@ class SentryUser {
     this.geo,
     this.name,
     Map<String, dynamic>? data,
-    @Deprecated('Will be removed in v7. Use [data] instead')
+    @Deprecated('Will be removed in v8. Use [data] instead')
         Map<String, dynamic>? extras,
   })  : assert(
           id != null ||
@@ -76,7 +76,7 @@ class SentryUser {
   /// by Sentry.
   final Map<String, dynamic>? data;
 
-  @Deprecated('Will be removed in v7. Use [data] instead')
+  @Deprecated('Will be removed in v8. Use [data] instead')
   final Map<String, dynamic>? extras;
 
   /// Approximate geographical location of the end user or device.
@@ -144,7 +144,7 @@ class SentryUser {
     String? email,
     String? ipAddress,
     String? segment,
-    @Deprecated('Will be removed in v7. Use [data] instead')
+    @Deprecated('Will be removed in v8. Use [data] instead')
         Map<String, dynamic>? extras,
     String? name,
     SentryGeo? geo,
