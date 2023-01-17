@@ -56,6 +56,13 @@
 - Use `sentryClientName` instead of `sdk.identifier` ([#1135](https://github.com/getsentry/sentry-dart/pull/1135))
 - Refactor `BindingUtils` to `BindingWrapper` to enable the use of custom bindings ([#1184](https://github.com/getsentry/sentry-dart/pull/1184))
 - Bump Flutter min to 3.0.0 and Dart to 2.17.0 ([#1180](https://github.com/getsentry/sentry-dart/pull/1180))
+## Unreleased
+
+### Dependencies
+
+- Bump Android SDK from v6.11.0 to v6.12.0 ([#1225](https://github.com/getsentry/sentry-dart/pull/1225))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6120)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.11.0...6.12.0)
 
 ## 6.18.2
 
