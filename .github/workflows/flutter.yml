@@ -99,11 +99,14 @@ jobs:
           flutter test --coverage --test-randomize-ordering-seed=random
 
       #   remove comment after https://github.com/codecov/codecov-action/issues/600
-      - uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70 # pin@v3
+      # - uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70 # pin@v3
+      - uses: codecov/codecov-action@v3
         if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
         with:
           name: sentry_flutter
           file: ./flutter/coverage/lcov.info
+          verbose: true
+          fail_ci_if_error: true
 
       - uses: VeryGoodOpenSource/very_good_coverage@84e5b54ab888644554e5573dca87d7f76dec9fb3 # pin@v2.0.0
         if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
