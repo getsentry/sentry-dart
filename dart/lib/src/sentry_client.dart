@@ -182,9 +182,8 @@ class SentryClient {
     final isolateId = isolateName?.hashCode;
 
     if (event.throwableMechanism != null) {
-      final throwable = event.throwable;
-      final extractedExceptions =
-          _exceptionFactory.extractor.flatten(throwable, stackTrace);
+      final extractedExceptions = _exceptionFactory.extractor
+          .flatten(event.throwableMechanism, stackTrace);
 
       final sentryExceptions = <SentryException>[];
       final sentryThreads = <SentryThread>[];

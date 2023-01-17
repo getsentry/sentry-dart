@@ -8,8 +8,6 @@ import 'package:sentry/src/client_reports/client_report.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/client_reports/discarded_event.dart';
 import 'package:sentry/src/client_reports/noop_client_report_recorder.dart';
-import 'package:sentry/src/exception_cause.dart';
-import 'package:sentry/src/exception_cause_extractor.dart';
 import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:sentry/src/sentry_tracer.dart';

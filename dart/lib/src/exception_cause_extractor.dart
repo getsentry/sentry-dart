@@ -1,5 +1,6 @@
-import '../sentry.dart';
 import 'exception_cause.dart';
+import 'sentry_options.dart';
+import 'throwable_mechanism.dart';
 
 abstract class ExceptionCauseExtractor<T> {
   ExceptionCause? cause(T error);
@@ -24,9 +25,14 @@ class RecursiveExceptionCauseExtractor {
         circularityDetector.add(currentException)) {
       allExceptionCauses.add(currentExceptionCause);
 
+      final extractionSourceSource = currentException is ThrowableMechanism
+          ? currentException.throwable
+          : currentException;
+
       final extractor =
-          _options.exceptionCauseExtractor(currentException.runtimeType);
-      currentExceptionCause = extractor?.cause(currentException);
+          _options.exceptionCauseExtractor(extractionSourceSource.runtimeType);
+
+      currentExceptionCause = extractor?.cause(extractionSourceSource);
       currentException = currentExceptionCause?.exception;
     }
     return allExceptionCauses;

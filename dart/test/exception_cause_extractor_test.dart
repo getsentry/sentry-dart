@@ -1,6 +1,8 @@
 import 'package:sentry/src/exception_cause.dart';
 import 'package:sentry/src/exception_cause_extractor.dart';
+import 'package:sentry/src/protocol/mechanism.dart';
 import 'package:sentry/src/sentry_options.dart';
+import 'package:sentry/src/throwable_mechanism.dart';
 import 'package:test/test.dart';
 import 'mocks.dart';
 
@@ -51,6 +53,29 @@ void main() {
     final actual = flattened.map((exceptionCause) => exceptionCause.exception);
 
     expect(actual, [a, b]);
+  });
+
+  test('flatten preserves throwable mechanism', () {
+    final errorC = ExceptionC();
+    final errorB = ExceptionB(errorC);
+    final errorA = ExceptionA(errorB);
+
+    fixture.options.addExceptionCauseExtractor(
+      ExceptionACauseExtractor(),
+    );
+
+    fixture.options.addExceptionCauseExtractor(
+      ExceptionBCauseExtractor(),
+    );
+
+    final mechanism = Mechanism(type: "foo");
+    final throwableMechanism = ThrowableMechanism(mechanism, errorA);
+
+    final sut = fixture.getSut();
+    final flattened = sut.flatten(throwableMechanism, null);
+
+    final actual = flattened.map((exceptionCause) => exceptionCause.exception);
+    expect(actual, [throwableMechanism, errorB, errorC]);
   });
 }
 
