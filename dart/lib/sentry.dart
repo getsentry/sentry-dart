@@ -32,3 +32,6 @@ export 'src/utils/tracing_utils.dart';
 export 'src/tracing.dart';
 export 'src/hint.dart';
 export 'src/type_check_hint.dart';
+// exception extraction
+export 'src/exception_cause_extractor.dart';
+export 'src/exception_cause.dart';
