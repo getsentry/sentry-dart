@@ -184,7 +184,7 @@ class SentryClient {
     if (event.throwableMechanism != null) {
       final throwable = event.throwable;
       final extractedExceptions =
-      _exceptionFactory.extractor.flatten(throwable, stackTrace);
+          _exceptionFactory.extractor.flatten(throwable, stackTrace);
 
       final sentryExceptions = <SentryException>[];
       final sentryThreads = <SentryThread>[];
