@@ -338,9 +338,6 @@ class SentryOptions {
     _extractorsByType[extractor.exceptionType] = extractor;
   }
 
-  @internal
-  late final extractor = RecursiveExceptionCauseExtractor(this);
-
   SentryOptions({this.dsn, PlatformChecker? checker}) {
     if (checker != null) {
       platformChecker = checker;

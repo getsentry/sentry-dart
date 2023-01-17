@@ -1,9 +1,7 @@
 import 'package:sentry/src/exception_cause.dart';
 import 'package:sentry/src/exception_cause_extractor.dart';
+import 'package:sentry/src/sentry_options.dart';
 import 'package:test/test.dart';
-
-import 'package:sentry/sentry.dart';
-
 import 'mocks.dart';
 
 void main() {

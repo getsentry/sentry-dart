@@ -1,3 +1,4 @@
+import 'exception_cause_extractor.dart';
 import 'protocol.dart';
 import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
@@ -8,6 +9,8 @@ class SentryExceptionFactory {
   final SentryOptions _options;
 
   SentryStackTraceFactory get _stacktraceFactory => _options.stackTraceFactory;
+
+  late final extractor = RecursiveExceptionCauseExtractor(_options);
 
   SentryExceptionFactory(this._options);
 
