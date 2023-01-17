@@ -70,6 +70,7 @@ class RunZonedGuardedIntegration extends Integration {
       },
       (exception, stackTrace) async {
         await captureError(hub, options, exception, stackTrace);
+        Zone.current.handleUncaughtError(exception, stackTrace);
       },
       zoneSpecification: ZoneSpecification(
         print: (self, parent, zone, line) {
