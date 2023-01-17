@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_dio/sentry_dio.dart';
+import 'package:sentry_dio/src/dio_error_extractor.dart';
 import 'package:test/test.dart';
 import 'package:sentry/src/sentry_exception_factory.dart';
 
@@ -157,6 +158,8 @@ void main() {
   });
 
   test('$DioEventProcessor adds chained stacktraces', () {
+    fixture.options.addExceptionCauseExtractor(DioErrorExtractor());
+
     final sut = fixture.getSut(sendDefaultPii: false);
     final exception = Exception('foo bar');
     final dioError = DioError(
@@ -164,9 +167,16 @@ void main() {
       requestOptions: requestOptions,
     )..stackTrace = StackTrace.current;
 
+    final extracted =
+        fixture.exceptionFactory.extractor.flatten(dioError, null);
+    final exceptions = extracted.map((element) {
+      return fixture.exceptionFactory.getSentryException(element.exception,
+          stackTrace: element.stackTrace);
+    }).toList();
+
     final event = SentryEvent(
       throwable: dioError,
-      exceptions: [fixture.exceptionFactory.getSentryException(dioError)],
+      exceptions: exceptions,
     );
 
     final processedEvent = sut.apply(event) as SentryEvent;
