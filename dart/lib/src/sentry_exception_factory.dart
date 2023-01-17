@@ -60,6 +60,7 @@ class SentryExceptionFactory {
       value: throwable.toString(),
       mechanism: mechanism,
       stackTrace: sentryStackTrace,
+      throwable: throwable,
     );
   }
 }

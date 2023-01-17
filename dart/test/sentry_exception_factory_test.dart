@@ -116,6 +116,22 @@ void main() {
 
     expect(sentryException.stackTrace!.snapshot, true);
   });
+
+  test('getSentryException adds throwable', () {
+    SentryException sentryException;
+    dynamic throwable;
+    try {
+      throw StateError('a state error');
+    } catch (err, stacktrace) {
+      throwable = err;
+      sentryException = fixture.getSut().getSentryException(
+            err,
+            stackTrace: stacktrace,
+          );
+    }
+
+    expect(sentryException.throwable, throwable);
+  });
 }
 
 class CustomError extends Error {}
