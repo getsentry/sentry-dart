@@ -18,13 +18,11 @@ void main() {
     final errorB = ExceptionB(errorC);
     final errorA = ExceptionA(errorB);
 
-    fixture.options.addTypedExceptionCauseExtractor(
-      ExceptionA,
+    fixture.options.addExceptionCauseExtractor(
       ExceptionACauseExtractor(),
     );
 
-    fixture.options.addTypedExceptionCauseExtractor(
-      ExceptionB,
+    fixture.options.addExceptionCauseExtractor(
       ExceptionBCauseExtractor(),
     );
 
@@ -41,13 +39,11 @@ void main() {
     a.other = b;
     b.other = a;
 
-    fixture.options.addTypedExceptionCauseExtractor(
-      ExceptionCircularA,
+    fixture.options.addExceptionCauseExtractor(
       ExceptionCircularAExtractor(),
     );
 
-    fixture.options.addTypedExceptionCauseExtractor(
-      ExceptionCircularB,
+    fixture.options.addExceptionCauseExtractor(
       ExceptionCircularBExtractor(),
     );
 
@@ -82,14 +78,14 @@ class ExceptionC {
   // I am empty inside
 }
 
-class ExceptionACauseExtractor implements ExceptionCauseExtractor<ExceptionA> {
+class ExceptionACauseExtractor extends ExceptionCauseExtractor<ExceptionA> {
   @override
   ExceptionCause? cause(ExceptionA error) {
     return ExceptionCause(error.other, null);
   }
 }
 
-class ExceptionBCauseExtractor implements ExceptionCauseExtractor<ExceptionB> {
+class ExceptionBCauseExtractor extends ExceptionCauseExtractor<ExceptionB> {
   @override
   ExceptionCause? cause(ExceptionB error) {
     return ExceptionCause(error.anotherOther, null);
@@ -105,7 +101,7 @@ class ExceptionCircularB {
 }
 
 class ExceptionCircularAExtractor
-    implements ExceptionCauseExtractor<ExceptionCircularA> {
+    extends ExceptionCauseExtractor<ExceptionCircularA> {
   @override
   ExceptionCause? cause(ExceptionCircularA error) {
     return ExceptionCause(error.other, null);
@@ -113,7 +109,7 @@ class ExceptionCircularAExtractor
 }
 
 class ExceptionCircularBExtractor
-    implements ExceptionCauseExtractor<ExceptionCircularB> {
+    extends ExceptionCauseExtractor<ExceptionCircularB> {
   @override
   ExceptionCause? cause(ExceptionCircularB error) {
     return ExceptionCause(error.other, null);

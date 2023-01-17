@@ -249,8 +249,7 @@ void main() {
     });
 
     test('should capture exception cause', () async {
-      fixture.options.addTypedExceptionCauseExtractor(
-        ExceptionWithCause,
+      fixture.options.addExceptionCauseExtractor(
         ExceptionWithCauseExtractor(),
       );
 
@@ -268,8 +267,7 @@ void main() {
     });
 
     test('should capture cause stacktrace', () async {
-      fixture.options.addTypedExceptionCauseExtractor(
-        ExceptionWithCause,
+      fixture.options.addExceptionCauseExtractor(
         ExceptionWithCauseExtractor(),
       );
 
@@ -297,8 +295,7 @@ void main() {
 
     test('should not capture cause stacktrace when attachStacktrace is false',
         () async {
-      fixture.options.addTypedExceptionCauseExtractor(
-        ExceptionWithCause,
+      fixture.options.addExceptionCauseExtractor(
         ExceptionWithCauseExtractor(),
       );
 
@@ -317,8 +314,7 @@ void main() {
     test(
         'should not capture cause stacktrace when attachStacktrace is false and StackTrace.empty',
         () async {
-      fixture.options.addTypedExceptionCauseExtractor(
-        ExceptionWithCause,
+      fixture.options.addExceptionCauseExtractor(
         ExceptionWithCauseExtractor(),
       );
 
@@ -335,8 +331,7 @@ void main() {
     });
 
     test('should capture cause exception with Stackframe.current', () async {
-      fixture.options.addTypedExceptionCauseExtractor(
-        ExceptionWithCause,
+      fixture.options.addExceptionCauseExtractor(
         ExceptionWithCauseExtractor(),
       );
 
@@ -353,8 +348,7 @@ void main() {
     });
 
     test('should not capture sentry frames exception', () async {
-      fixture.options.addTypedExceptionCauseExtractor(
-        ExceptionWithCause,
+      fixture.options.addExceptionCauseExtractor(
         ExceptionWithCauseExtractor(),
       );
 
@@ -1541,7 +1535,7 @@ class ExceptionWithCause {
 }
 
 class ExceptionWithCauseExtractor
-    implements ExceptionCauseExtractor<ExceptionWithCause> {
+    extends ExceptionCauseExtractor<ExceptionWithCause> {
   @override
   ExceptionCause? cause(ExceptionWithCause error) {
     return ExceptionCause(error.cause, error.stackTrace);

@@ -328,14 +328,14 @@ class SentryOptions {
   /// The default is 3 seconds.
   Duration? idleTimeout = Duration(seconds: 3);
 
-  final _causeExtractorsByType = <Type, ExceptionCauseExtractor>{};
+  final _extractorsByType = <Type, ExceptionCauseExtractor>{};
 
-  Map<Type, ExceptionCauseExtractor> get causeExtractorsByType =>
-      _causeExtractorsByType;
+  ExceptionCauseExtractor? exceptionCauseExtractor(Type type) {
+    return _extractorsByType[type];
+  }
 
-  void addTypedExceptionCauseExtractor(
-      Type type, ExceptionCauseExtractor extractor) {
-    _causeExtractorsByType[type] = extractor;
+  void addExceptionCauseExtractor(ExceptionCauseExtractor extractor) {
+    _extractorsByType[extractor.exceptionType] = extractor;
   }
 
   @internal
