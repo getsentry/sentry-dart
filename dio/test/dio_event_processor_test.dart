@@ -182,12 +182,11 @@ void main() {
     final processedEvent = sut.apply(event) as SentryEvent;
 
     expect(processedEvent.exceptions?.length, 2);
-    expect(processedEvent.exceptions?[0].value, exception.toString());
+
+    expect(processedEvent.exceptions?[0].value, dioError.toString());
     expect(processedEvent.exceptions?[0].stackTrace, isNotNull);
-    expect(
-      processedEvent.exceptions?[1].value,
-      (dioError..stackTrace = null).toString(),
-    );
+
+    expect(processedEvent.exceptions?[1].value, exception.toString());
     expect(processedEvent.exceptions?[1].stackTrace, isNotNull);
   });
 }

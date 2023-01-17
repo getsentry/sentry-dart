@@ -14,7 +14,7 @@ class DioEventProcessor implements EventProcessor {
 
   @override
   FutureOr<SentryEvent?> apply(SentryEvent event, {Hint? hint}) {
-    final dynamic dioError = event.throwable;
+    final dynamic dioError = event.exceptions;
     if (dioError is! DioError) {
       return event;
     }
@@ -32,51 +32,7 @@ class DioEventProcessor implements EventProcessor {
       contexts: contexts,
     );
 
-    // If the inner errors stacktrace is null,
-    // there is no chained exception
-    if (dioError.stackTrace == null) {
-      return event;
-    }
-
-    final exceptions = _removeDioErrorStackTraceFromValue(
-      List<SentryException>.from(event.exceptions ?? <SentryException>[]),
-      dioError,
-    );
-
-    return event.copyWith(
-      exceptions: exceptions.reversed.toList(), // Inner before DioError
-    );
-  }
-
-  /// Remove the StackTrace from [dioError] so the message on Sentry looks
-  /// much better.
-  List<SentryException> _removeDioErrorStackTraceFromValue(
-    List<SentryException> exceptions,
-    DioError dioError,
-  ) {
-    final dioSentryExceptions =
-        exceptions.where((element) => element.throwable is DioError);
-
-    if (dioSentryExceptions.isEmpty) {
-      return exceptions;
-    }
-    var dioSentryException = dioSentryExceptions.first;
-
-    final exceptionIndex = exceptions.indexOf(dioSentryException);
-    exceptions.remove(dioSentryException);
-
-    // Remove error and stacktrace, so that the DioError value doesn't
-    // include the chained exception.
-    dioError.stackTrace = null;
-    dioError.error = null;
-
-    dioSentryException = dioSentryException.copyWith(
-      value: dioError.toString(),
-    );
-
-    exceptions.insert(exceptionIndex, dioSentryException);
-
-    return exceptions;
+    return event;
   }
 
   SentryRequest? _requestFrom(DioError dioError) {
