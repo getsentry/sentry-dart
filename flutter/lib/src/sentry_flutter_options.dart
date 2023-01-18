@@ -39,20 +39,6 @@ class SentryFlutterOptions extends SentryOptions {
   /// feature, as this is required to mark Sessions as Crashed.
   bool enableNativeCrashHandling = true;
 
-  /// The session tracking interval in millis. This is the interval to end a
-  /// session if the App goes to the background.
-  /// See: [enableAutoSessionTracking]
-  @Deprecated('Use autoSessionTrackingInterval instead')
-  int get autoSessionTrackingIntervalMillis =>
-      autoSessionTrackingInterval.inMilliseconds;
-
-  @Deprecated('Use autoSessionTrackingInterval instead')
-  set autoSessionTrackingIntervalMillis(int value) {
-    autoSessionTrackingInterval = value >= 0
-        ? Duration(milliseconds: value)
-        : autoSessionTrackingInterval;
-  }
-
   Duration _autoSessionTrackingInterval = Duration(milliseconds: 30000);
 
   /// The session tracking interval. This is the interval to end a
@@ -73,19 +59,6 @@ class SentryFlutterOptions extends SentryOptions {
   /// the MessageChannel from Flutter, but you can enable it if you have
   /// Java/Kotlin code as well.
   bool anrEnabled = false;
-
-  /// ANR Timeout internal in Millis Default is 5000 = 5s Used by AnrIntegration.
-  /// Available only for Android.
-  /// See: [anrEnabled]
-  @Deprecated('Use anrTimeoutInterval instead')
-  int get anrTimeoutIntervalMillis => anrTimeoutInterval.inMilliseconds;
-
-  @Deprecated('Use anrTimeoutInterval instead')
-  set anrTimeoutIntervalMillis(int value) {
-    assert(value > 0);
-    anrTimeoutInterval =
-        value > 0 ? Duration(milliseconds: value) : anrTimeoutInterval;
-  }
 
   Duration _anrTimeoutInterval = Duration(milliseconds: 5000);
 

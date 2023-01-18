@@ -55,7 +55,7 @@ class SentryRequest {
 
   final Map<String, String>? _other;
 
-  @Deprecated('Will be removed in v7')
+  @Deprecated('Will be removed in v8. Use [data] instead')
   Map<String, String> get other => Map.unmodifiable(_other ?? const {});
 
   /// The fragment of the request URL.
@@ -70,7 +70,8 @@ class SentryRequest {
     dynamic data,
     Map<String, String>? headers,
     Map<String, String>? env,
-    @Deprecated('Will be removed in v7.') Map<String, String>? other,
+    @Deprecated('Will be removed in v8. Use [data] instead')
+        Map<String, String>? other,
   })  : _data = data,
         _headers = headers != null ? Map.from(headers) : null,
         // Look for a 'Set-Cookie' header (case insensitive) if not given.
@@ -88,7 +89,8 @@ class SentryRequest {
     dynamic data,
     Map<String, String>? headers,
     Map<String, String>? env,
-    @Deprecated('Will be removed in v7.') Map<String, String>? other,
+    @Deprecated('Will be removed in v8. Use [data] instead')
+        Map<String, String>? other,
   }) {
     // As far as I can tell there's no way to get the uri without the query part
     // so we replace it with an empty string.
@@ -158,7 +160,8 @@ class SentryRequest {
     dynamic data,
     Map<String, String>? headers,
     Map<String, String>? env,
-    @Deprecated('Will be removed in v7.') Map<String, String>? other,
+    @Deprecated('Will be removed in v8. Use [data] instead')
+        Map<String, String>? other,
   }) =>
       SentryRequest(
         url: url ?? this.url,

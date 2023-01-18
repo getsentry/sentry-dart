@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+### Breaking Changes
+
+- Remove deprecated fields ([#1227](https://github.com/getsentry/sentry-dart/pull/1227))
+  - Remove deprecated fields from the `Scope` class.
+    - `user(SentryUser? user)`, using the `setUser(SentryUser? user)` instead.
+    - `attachements`, using the `attachments` instead.
+  - Remove deprecated field from the `SentryFlutterOptions` class.
+    - `anrTimeoutIntervalMillis`, using the `anrTimeoutInterval` instead.
+    - `autoSessionTrackingIntervalMillis`, using the `autoSessionTrackingInterval` instead.
+
 ## 7.0.0-alpha.3
 
 ### Breaking Changes
