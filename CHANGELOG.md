@@ -12,6 +12,12 @@
     - `anrTimeoutIntervalMillis`, using the `anrTimeoutInterval` instead.
     - `autoSessionTrackingIntervalMillis`, using the `autoSessionTrackingInterval` instead.
 
+### Dependencies
+
+- Bump Cocoa SDK from 8.0.0-rc.1 to 8.0.0
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#800)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.0.0-rc.1...8.0.0)
+
 ## 7.0.0-alpha.3
 
 ### Breaking Changes
