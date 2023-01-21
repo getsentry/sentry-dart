@@ -6,7 +6,7 @@ import 'package:meta/meta.dart';
 import '../sentry_flutter.dart';
 
 /// The methods and properties are modelled after the the real binding class.
-@internal
+@experimental
 class BindingWrapper {
   final Hub _hub;
 
