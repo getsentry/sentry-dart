@@ -6,6 +6,7 @@
 
 - Error Cause Extractor ([#1198](https://github.com/getsentry/sentry-dart/pull/1198))
   - Add `throwable` to `SentryException`
+
 ### Breaking Changes
 
 - Remove deprecated fields ([#1227](https://github.com/getsentry/sentry-dart/pull/1227))
