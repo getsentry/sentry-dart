@@ -63,13 +63,7 @@ mixin SentryFlutter {
         : wrapper.isOnErrorSupported(flutterOptions);
 
     final runZonedGuardedOnError = flutterOptions.platformChecker.isWeb
-        ? (Object error, StackTrace stackTrace) async {
-            final errorDetails = FlutterErrorDetails(
-              exception: error,
-              stack: stackTrace,
-            );
-            FlutterError.dumpErrorToConsole(errorDetails, forceReport: true);
-          }
+        ? _createRunZonedGuardedOnError()
         : null;
 
     // first step is to install the native integration and set default values,
@@ -195,6 +189,16 @@ mixin SentryFlutter {
       ));
     }
     return integrations;
+  }
+
+  static RunZonedGuardedOnError _createRunZonedGuardedOnError() {
+    return (Object error, StackTrace stackTrace) async {
+      final errorDetails = FlutterErrorDetails(
+        exception: error,
+        stack: stackTrace,
+      );
+      FlutterError.dumpErrorToConsole(errorDetails, forceReport: true);
+    };
   }
 
   /// Manually set when your app finished startup. Make sure to set
