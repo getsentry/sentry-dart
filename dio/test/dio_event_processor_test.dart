@@ -19,7 +19,7 @@ void main() {
 
     final throwable = Exception();
     final event = SentryEvent(
-        throwable: Exception(),
+      throwable: Exception(),
       exceptions: [fixture.sentryError(throwable)],
     );
     final processedEvent = sut.apply(event) as SentryEvent;
@@ -63,7 +63,10 @@ void main() {
       );
       final event = SentryEvent(
         throwable: throwable,
-        exceptions: [fixture.sentryError(throwable), fixture.sentryError(dioError)],
+        exceptions: [
+          fixture.sentryError(throwable),
+          fixture.sentryError(dioError)
+        ],
       );
       final processedEvent = sut.apply(event) as SentryEvent;
 
@@ -90,7 +93,10 @@ void main() {
       );
       final event = SentryEvent(
         throwable: throwable,
-        exceptions: [fixture.sentryError(throwable), fixture.sentryError(dioError)],
+        exceptions: [
+          fixture.sentryError(throwable),
+          fixture.sentryError(dioError)
+        ],
       );
       final processedEvent = sut.apply(event) as SentryEvent;
 
@@ -126,7 +132,10 @@ void main() {
       );
       final event = SentryEvent(
         throwable: throwable,
-        exceptions: [fixture.sentryError(throwable), fixture.sentryError(dioError)],
+        exceptions: [
+          fixture.sentryError(throwable),
+          fixture.sentryError(dioError)
+        ],
       );
       final processedEvent = sut.apply(event) as SentryEvent;
 
@@ -163,7 +172,10 @@ void main() {
       );
       final event = SentryEvent(
         throwable: throwable,
-        exceptions: [fixture.sentryError(throwable), fixture.sentryError(dioError)],
+        exceptions: [
+          fixture.sentryError(throwable),
+          fixture.sentryError(dioError)
+        ],
       );
       final processedEvent = sut.apply(event) as SentryEvent;
 
@@ -188,8 +200,10 @@ void main() {
     final extracted =
         fixture.exceptionFactory.extractor.flatten(dioError, null);
     final exceptions = extracted.map((element) {
-      return fixture.exceptionFactory.getSentryException(element.exception,
-          stackTrace: element.stackTrace,);
+      return fixture.exceptionFactory.getSentryException(
+        element.exception,
+        stackTrace: element.stackTrace,
+      );
     }).toList();
 
     final event = SentryEvent(
