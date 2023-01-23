@@ -11,6 +11,7 @@
   - Remove deprecated field from the `SentryFlutterOptions` class.
     - `anrTimeoutIntervalMillis`, using the `anrTimeoutInterval` instead.
     - `autoSessionTrackingIntervalMillis`, using the `autoSessionTrackingInterval` instead.
+- Fix export for `BindingWrapper` ([#1234](https://github.com/getsentry/sentry-dart/pull/1234))
 
 ### Dependencies
 
