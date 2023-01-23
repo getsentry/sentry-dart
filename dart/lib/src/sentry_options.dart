@@ -446,7 +446,7 @@ typedef TracesSamplerCallback = double? Function(
     SentrySamplingContext samplingContext);
 
 /// A NoOp logger that does nothing
-@Deprecated('This will be made private or removed in the future')
+@Deprecated('Will be removed in v8. Disable [debug] instead')
 void noOpLogger(
   SentryLevel level,
   String message, {
@@ -456,7 +456,7 @@ void noOpLogger(
 }) {}
 
 /// A Logger that prints out the level and message
-@Deprecated('This will be made private or removed in the future')
+@Deprecated('Will be removed in v8. Enable [debug] instead')
 void dartLogger(
   SentryLevel level,
   String message, {
