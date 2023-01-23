@@ -8,6 +8,12 @@ import 'protocol.dart';
 import 'sentry_options.dart';
 import 'throwable_mechanism.dart';
 
+/// Called inside of `runZonedGuarded`
+typedef RunZonedGuardedRunner = Future<void> Function();
+
+/// Caught exception and stacktrace in `runZonedGuarded`
+typedef RunZonedGuardedOnError = FutureOr<void> Function(Object, StackTrace);
+
 /// Integration that runs runner function within `runZonedGuarded` and capture
 /// errors on the `runZonedGuarded` error handler.
 /// See https://api.dart.dev/stable/dart-async/runZonedGuarded.html
@@ -15,9 +21,10 @@ import 'throwable_mechanism.dart';
 /// This integration also records calls to `print()` as Breadcrumbs.
 /// This can be configured with [SentryOptions.enablePrintBreadcrumbs]
 class RunZonedGuardedIntegration extends Integration {
-  RunZonedGuardedIntegration(this._runner);
+  RunZonedGuardedIntegration(this._runner, this._onError);
 
-  final Future<void> Function() _runner;
+  final RunZonedGuardedRunner _runner;
+  final RunZonedGuardedOnError? _onError;
 
   /// Needed to check if we somehow caused a `print()` recursion
   bool _isPrinting = false;
@@ -70,6 +77,10 @@ class RunZonedGuardedIntegration extends Integration {
       },
       (exception, stackTrace) async {
         await captureError(hub, options, exception, stackTrace);
+        final onError = _onError;
+        if (onError != null) {
+          await onError(exception, stackTrace);
+        }
       },
       zoneSpecification: ZoneSpecification(
         print: (self, parent, zone, line) {

@@ -25,7 +25,7 @@ void main() {
       final client = MockSentryClient();
       hub.bindClient(client);
 
-      final sut = fixture.getSut();
+      final sut = fixture.getSut(runner: () async {});
 
       hub.startTransaction('name', 'operation', bindToScope: true);
 
@@ -37,6 +37,23 @@ void main() {
 
       await span?.finish();
     });
+
+    test('calls onError', () async {
+      final error = StateError("StateError");
+      var onErrorCalled = false;
+      RunZonedGuardedRunner runner = () async {
+        throw error;
+      };
+      RunZonedGuardedOnError onError = (error, stackTrace) async {
+        onErrorCalled = true;
+      };
+      final sut = fixture.getSut(runner: runner, onError: onError);
+
+      sut.call(fixture.hub, fixture.options);
+      await Future.delayed(Duration(milliseconds: 10));
+
+      expect(onErrorCalled, true);
+    });
   });
 }
 
@@ -44,7 +61,9 @@ class Fixture {
   final hub = MockHub();
   final options = SentryOptions(dsn: fakeDsn)..tracesSampleRate = 1.0;
 
-  RunZonedGuardedIntegration getSut() {
-    return RunZonedGuardedIntegration(() async {});
+  RunZonedGuardedIntegration getSut(
+      {required RunZonedGuardedRunner runner,
+      RunZonedGuardedOnError? onError}) {
+    return RunZonedGuardedIntegration(runner, onError);
   }
 }
