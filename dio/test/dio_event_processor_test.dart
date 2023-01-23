@@ -20,13 +20,7 @@ void main() {
     final throwable = Exception();
     final event = SentryEvent(
         throwable: Exception(),
-        exceptions: [
-          SentryException(
-            type: throwable.runtimeType.toString(),
-            value: throwable.toString(),
-            throwable: throwable,
-          )
-        ],
+      exceptions: [fixture.sentryError(throwable)],
     );
     final processedEvent = sut.apply(event) as SentryEvent;
 
@@ -44,13 +38,7 @@ void main() {
     final event = SentryEvent(
       throwable: dioError,
       request: SentryRequest(),
-      exceptions: [
-        SentryException(
-          type: dioError.runtimeType.toString(),
-          value: dioError.toString(),
-          throwable: dioError,
-        )
-      ],
+      exceptions: [fixture.sentryError(dioError)],
     );
     final processedEvent = sut.apply(event) as SentryEvent;
 
@@ -66,6 +54,7 @@ void main() {
         method: 'POST',
         data: 'foobar',
       );
+      final throwable = Exception();
       final dioError = DioError(
         requestOptions: request,
         response: Response<dynamic>(
@@ -73,14 +62,8 @@ void main() {
         ),
       );
       final event = SentryEvent(
-        throwable: dioError,
-        exceptions: [
-          SentryException(
-              type: dioError.runtimeType.toString(),
-              value: dioError.toString(),
-              throwable: dioError,
-          )
-        ],
+        throwable: throwable,
+        exceptions: [fixture.sentryError(throwable), fixture.sentryError(dioError)],
       );
       final processedEvent = sut.apply(event) as SentryEvent;
 
@@ -97,6 +80,7 @@ void main() {
     test('$DioEventProcessor adds request without pii', () {
       final sut = fixture.getSut(sendDefaultPii: false);
 
+      final throwable = Exception();
       final dioError = DioError(
         requestOptions: requestOptions,
         response: Response<dynamic>(
@@ -105,14 +89,8 @@ void main() {
         ),
       );
       final event = SentryEvent(
-        throwable: dioError,
-        exceptions: [
-          SentryException(
-            type: dioError.runtimeType.toString(),
-            value: dioError.toString(),
-            throwable: dioError,
-          )
-        ],
+        throwable: throwable,
+        exceptions: [fixture.sentryError(throwable), fixture.sentryError(dioError)],
       );
       final processedEvent = sut.apply(event) as SentryEvent;
 
@@ -131,6 +109,7 @@ void main() {
       final request = requestOptions.copyWith(
         method: 'POST',
       );
+      final throwable = Exception();
       final dioError = DioError(
         requestOptions: request,
         response: Response<dynamic>(
@@ -146,14 +125,8 @@ void main() {
         ),
       );
       final event = SentryEvent(
-        throwable: dioError,
-        exceptions: [
-          SentryException(
-            type: dioError.runtimeType.toString(),
-            value: dioError.toString(),
-            throwable: dioError,
-          )
-        ],
+        throwable: throwable,
+        exceptions: [fixture.sentryError(throwable), fixture.sentryError(dioError)],
       );
       final processedEvent = sut.apply(event) as SentryEvent;
 
@@ -174,6 +147,7 @@ void main() {
       final request = requestOptions.copyWith(
         method: 'POST',
       );
+      final throwable = Exception();
       final dioError = DioError(
         requestOptions: request,
         response: Response<dynamic>(
@@ -188,14 +162,8 @@ void main() {
         ),
       );
       final event = SentryEvent(
-        throwable: dioError,
-        exceptions: [
-          SentryException(
-            type: dioError.runtimeType.toString(),
-            value: dioError.toString(),
-            throwable: dioError,
-          )
-        ],
+        throwable: throwable,
+        exceptions: [fixture.sentryError(throwable), fixture.sentryError(dioError)],
       );
       final processedEvent = sut.apply(event) as SentryEvent;
 
@@ -221,7 +189,7 @@ void main() {
         fixture.exceptionFactory.extractor.flatten(dioError, null);
     final exceptions = extracted.map((element) {
       return fixture.exceptionFactory.getSentryException(element.exception,
-          stackTrace: element.stackTrace);
+          stackTrace: element.stackTrace,);
     }).toList();
 
     final event = SentryEvent(
@@ -263,6 +231,14 @@ class Fixture {
         ..sendDefaultPii = sendDefaultPii
         ..maxRequestBodySize = MaxRequestBodySize.always
         ..maxResponseBodySize = MaxResponseBodySize.always,
+    );
+  }
+
+  SentryException sentryError(dynamic throwable) {
+    return SentryException(
+      type: throwable.runtimeType.toString(),
+      value: throwable.toString(),
+      throwable: throwable,
     );
   }
 }
