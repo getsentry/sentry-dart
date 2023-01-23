@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 import '../sentry_flutter.dart';
 import 'event_processor/android_platform_exception_event_processor.dart';
@@ -61,6 +62,16 @@ mixin SentryFlutter {
         ? false
         : wrapper.isOnErrorSupported(flutterOptions);
 
+    final runZonedGuardedOnError = flutterOptions.platformChecker.isWeb
+        ? (Object error, StackTrace stackTrace) async {
+            final errorDetails = FlutterErrorDetails(
+              exception: error,
+              stack: stackTrace,
+            );
+            FlutterError.dumpErrorToConsole(errorDetails, forceReport: true);
+          }
+        : null;
+
     // first step is to install the native integration and set default values,
     // so we are able to capture future errors.
     final defaultIntegrations = _createDefaultIntegrations(
@@ -83,6 +94,8 @@ mixin SentryFlutter {
       options: flutterOptions,
       // ignore: invalid_use_of_internal_member
       callAppRunnerInRunZonedGuarded: !isOnErrorSupported,
+      // ignore: invalid_use_of_internal_member
+      runZonedGuardedOnError: runZonedGuardedOnError,
     );
   }
 

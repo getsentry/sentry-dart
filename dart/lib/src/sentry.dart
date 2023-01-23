@@ -39,6 +39,7 @@ class Sentry {
     OptionsConfiguration optionsConfiguration, {
     AppRunner? appRunner,
     @internal bool callAppRunnerInRunZonedGuarded = true,
+    @internal RunZonedGuardedOnError? runZonedGuardedOnError,
     @internal SentryOptions? options,
   }) async {
     final sentryOptions = options ?? SentryOptions();
@@ -59,7 +60,8 @@ class Sentry {
       throw ArgumentError('DSN is required.');
     }
 
-    await _init(sentryOptions, appRunner, callAppRunnerInRunZonedGuarded);
+    await _init(sentryOptions, appRunner, callAppRunnerInRunZonedGuarded,
+        runZonedGuardedOnError);
   }
 
   static Future<void> _initDefaultValues(SentryOptions options) async {
@@ -101,6 +103,7 @@ class Sentry {
     SentryOptions options,
     AppRunner? appRunner,
     bool callAppRunnerInRunZonedGuarded,
+    RunZonedGuardedOnError? runZonedGuardedOnError,
   ) async {
     if (isEnabled) {
       options.logger(
@@ -126,8 +129,8 @@ class Sentry {
           await appRunner();
         };
 
-        final runZonedGuardedIntegration =
-            RunZonedGuardedIntegration(runIntegrationsAndAppRunner);
+        final runZonedGuardedIntegration = RunZonedGuardedIntegration(
+            runIntegrationsAndAppRunner, runZonedGuardedOnError);
         options.addIntegrationByIndex(0, runZonedGuardedIntegration);
 
         // RunZonedGuardedIntegration will run other integrations and appRunner
