@@ -5,6 +5,7 @@
 ### Fixes
 
 - Don't suppress error logs ([#1228](https://github.com/getsentry/sentry-dart/pull/1228))
+
 ### Breaking Changes
 
 - Remove deprecated fields ([#1227](https://github.com/getsentry/sentry-dart/pull/1227))
