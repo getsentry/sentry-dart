@@ -5,6 +5,24 @@
 ### Fixes
 
 - Don't suppress error logs ([#1228](https://github.com/getsentry/sentry-dart/pull/1228))
+### Breaking Changes
+
+- Remove deprecated fields ([#1227](https://github.com/getsentry/sentry-dart/pull/1227))
+  - Remove deprecated fields from the `Scope` class.
+    - `user(SentryUser? user)`, using the `setUser(SentryUser? user)` instead.
+    - `attachements`, using the `attachments` instead.
+  - Remove deprecated field from the `SentryFlutterOptions` class.
+    - `anrTimeoutIntervalMillis`, using the `anrTimeoutInterval` instead.
+    - `autoSessionTrackingIntervalMillis`, using the `autoSessionTrackingInterval` instead.
+
+### Dependencies
+
+- Bump Cocoa SDK from 8.0.0-rc.1 to 8.0.0
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#800)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.0.0-rc.1...8.0.0)
+- Bump Android SDK from v6.11.0 to v6.12.1 ([#1225](https://github.com/getsentry/sentry-dart/pull/1225), [#1230](https://github.com/getsentry/sentry-dart/pull/1230))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6121)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.11.0...6.12.1)
 
 ## 7.0.0-alpha.3
 
