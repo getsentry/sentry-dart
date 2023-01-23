@@ -14,7 +14,11 @@ class DioEventProcessor implements EventProcessor {
 
   @override
   FutureOr<SentryEvent?> apply(SentryEvent event, {Hint? hint}) {
-    final dynamic dioError = event.exceptions;
+    final exceptions = event.exceptions;
+    if (exceptions == null || exceptions.isEmpty) {
+      return event;
+    }
+    final dynamic dioError = exceptions.first.throwable;
     if (dioError is! DioError) {
       return event;
     }

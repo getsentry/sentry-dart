@@ -17,7 +17,17 @@ void main() {
   test('$DioEventProcessor only processes ${DioError}s', () {
     final sut = fixture.getSut();
 
-    final event = SentryEvent(throwable: Exception());
+    final throwable = Exception();
+    final event = SentryEvent(
+        throwable: Exception(),
+        exceptions: [
+          SentryException(
+            type: throwable.runtimeType.toString(),
+            value: throwable.toString(),
+            throwable: throwable,
+          )
+        ],
+    );
     final processedEvent = sut.apply(event) as SentryEvent;
 
     expect(event, processedEvent);
@@ -28,11 +38,19 @@ void main() {
       'if stacktrace is null and a request is present', () {
     final sut = fixture.getSut();
 
+    final dioError = DioError(
+      requestOptions: RequestOptions(path: '/foo/bar'),
+    );
     final event = SentryEvent(
-      throwable: DioError(
-        requestOptions: RequestOptions(path: '/foo/bar'),
-      ),
+      throwable: dioError,
       request: SentryRequest(),
+      exceptions: [
+        SentryException(
+          type: dioError.runtimeType.toString(),
+          value: dioError.toString(),
+          throwable: dioError,
+        )
+      ],
     );
     final processedEvent = sut.apply(event) as SentryEvent;
 
@@ -48,13 +66,21 @@ void main() {
         method: 'POST',
         data: 'foobar',
       );
-      final event = SentryEvent(
-        throwable: DioError(
+      final dioError = DioError(
+        requestOptions: request,
+        response: Response<dynamic>(
           requestOptions: request,
-          response: Response<dynamic>(
-            requestOptions: request,
-          ),
         ),
+      );
+      final event = SentryEvent(
+        throwable: dioError,
+        exceptions: [
+          SentryException(
+              type: dioError.runtimeType.toString(),
+              value: dioError.toString(),
+              throwable: dioError,
+          )
+        ],
       );
       final processedEvent = sut.apply(event) as SentryEvent;
 
@@ -71,14 +97,22 @@ void main() {
     test('$DioEventProcessor adds request without pii', () {
       final sut = fixture.getSut(sendDefaultPii: false);
 
-      final event = SentryEvent(
-        throwable: DioError(
+      final dioError = DioError(
+        requestOptions: requestOptions,
+        response: Response<dynamic>(
           requestOptions: requestOptions,
-          response: Response<dynamic>(
-            requestOptions: requestOptions,
-            data: 'foobar',
-          ),
+          data: 'foobar',
         ),
+      );
+      final event = SentryEvent(
+        throwable: dioError,
+        exceptions: [
+          SentryException(
+            type: dioError.runtimeType.toString(),
+            value: dioError.toString(),
+            throwable: dioError,
+          )
+        ],
       );
       final processedEvent = sut.apply(event) as SentryEvent;
 
@@ -97,21 +131,29 @@ void main() {
       final request = requestOptions.copyWith(
         method: 'POST',
       );
-      final event = SentryEvent(
-        throwable: DioError(
+      final dioError = DioError(
+        requestOptions: request,
+        response: Response<dynamic>(
+          data: 'foobar',
+          headers: Headers.fromMap(<String, List<String>>{
+            'foo': ['bar'],
+            'set-cookie': ['foo=bar']
+          }),
           requestOptions: request,
-          response: Response<dynamic>(
-            data: 'foobar',
-            headers: Headers.fromMap(<String, List<String>>{
-              'foo': ['bar'],
-              'set-cookie': ['foo=bar']
-            }),
-            requestOptions: request,
-            isRedirect: true,
-            statusCode: 200,
-            statusMessage: 'OK',
-          ),
+          isRedirect: true,
+          statusCode: 200,
+          statusMessage: 'OK',
         ),
+      );
+      final event = SentryEvent(
+        throwable: dioError,
+        exceptions: [
+          SentryException(
+            type: dioError.runtimeType.toString(),
+            value: dioError.toString(),
+            throwable: dioError,
+          )
+        ],
       );
       final processedEvent = sut.apply(event) as SentryEvent;
 
@@ -132,20 +174,28 @@ void main() {
       final request = requestOptions.copyWith(
         method: 'POST',
       );
-      final event = SentryEvent(
-        throwable: DioError(
+      final dioError = DioError(
+        requestOptions: request,
+        response: Response<dynamic>(
+          data: 'foobar',
+          headers: Headers.fromMap(<String, List<String>>{
+            'foo': ['bar']
+          }),
           requestOptions: request,
-          response: Response<dynamic>(
-            data: 'foobar',
-            headers: Headers.fromMap(<String, List<String>>{
-              'foo': ['bar']
-            }),
-            requestOptions: request,
-            isRedirect: true,
-            statusCode: 200,
-            statusMessage: 'OK',
-          ),
+          isRedirect: true,
+          statusCode: 200,
+          statusMessage: 'OK',
         ),
+      );
+      final event = SentryEvent(
+        throwable: dioError,
+        exceptions: [
+          SentryException(
+            type: dioError.runtimeType.toString(),
+            value: dioError.toString(),
+            throwable: dioError,
+          )
+        ],
       );
       final processedEvent = sut.apply(event) as SentryEvent;
 
