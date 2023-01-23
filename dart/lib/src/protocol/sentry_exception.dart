@@ -23,6 +23,8 @@ class SentryException {
   /// Represents a [SentryThread.id].
   final int? threadId;
 
+  final dynamic throwable;
+
   const SentryException({
     required this.type,
     required this.value,
@@ -30,6 +32,7 @@ class SentryException {
     this.stackTrace,
     this.mechanism,
     this.threadId,
+    this.throwable,
   });
 
   /// Deserializes a [SentryException] from JSON [Map].
@@ -68,6 +71,7 @@ class SentryException {
     SentryStackTrace? stackTrace,
     Mechanism? mechanism,
     int? threadId,
+    dynamic throwable,
   }) =>
       SentryException(
         type: type ?? this.type,
@@ -76,5 +80,6 @@ class SentryException {
         stackTrace: stackTrace ?? this.stackTrace,
         mechanism: mechanism ?? this.mechanism,
         threadId: threadId ?? this.threadId,
+        throwable: throwable ?? this.throwable,
       );
 }

@@ -237,6 +237,142 @@ void main() {
     });
   });
 
+  group('SentryClient captures exception cause', () {
+    dynamic exception;
+
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('should capture exception cause', () async {
+      fixture.options.addExceptionCauseExtractor(
+        ExceptionWithCauseExtractor(),
+      );
+
+      final cause = Object();
+      exception = ExceptionWithCause(cause, null);
+
+      final client = fixture.getSut();
+      await client.captureException(exception, stackTrace: null);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect(capturedEvent.exceptions?[0] is SentryException, true);
+      expect(capturedEvent.exceptions?[1] is SentryException, true);
+    });
+
+    test('should capture cause stacktrace', () async {
+      fixture.options.addExceptionCauseExtractor(
+        ExceptionWithCauseExtractor(),
+      );
+
+      final cause = Object();
+      final stackTrace = '''
+#0      baz (file:///pathto/test.dart:50:3)
+<asynchronous suspension>
+#1      bar (file:///pathto/test.dart:46:9)
+      ''';
+
+      exception = ExceptionWithCause(cause, stackTrace);
+
+      final client = fixture.getSut(attachStacktrace: true);
+      await client.captureException(exception, stackTrace: null);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect(capturedEvent.exceptions?[1].stackTrace, isNotNull);
+      expect(capturedEvent.exceptions?[1].stackTrace!.frames.first.fileName,
+          'test.dart');
+      expect(capturedEvent.exceptions?[1].stackTrace!.frames.first.lineNo, 46);
+      expect(capturedEvent.exceptions?[1].stackTrace!.frames.first.colNo, 9);
+    });
+
+    test('should not capture cause stacktrace when attachStacktrace is false',
+        () async {
+      fixture.options.addExceptionCauseExtractor(
+        ExceptionWithCauseExtractor(),
+      );
+
+      final cause = Object();
+      exception = ExceptionWithCause(cause, null);
+
+      final client = fixture.getSut(attachStacktrace: false);
+      await client.captureException(exception, stackTrace: null);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect(capturedEvent.exceptions?[1].stackTrace, isNull);
+    });
+
+    test(
+        'should not capture cause stacktrace when attachStacktrace is false and StackTrace.empty',
+        () async {
+      fixture.options.addExceptionCauseExtractor(
+        ExceptionWithCauseExtractor(),
+      );
+
+      final cause = Object();
+      exception = ExceptionWithCause(cause, StackTrace.empty);
+
+      final client = fixture.getSut(attachStacktrace: false);
+      await client.captureException(exception, stackTrace: null);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect(capturedEvent.exceptions?[1].stackTrace, isNull);
+    });
+
+    test('should capture cause exception with Stackframe.current', () async {
+      fixture.options.addExceptionCauseExtractor(
+        ExceptionWithCauseExtractor(),
+      );
+
+      final cause = Object();
+      exception = ExceptionWithCause(cause, null);
+
+      final client = fixture.getSut(attachStacktrace: true);
+      await client.captureException(exception, stackTrace: null);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect(capturedEvent.exceptions?[1].stackTrace, isNotNull);
+    });
+
+    test('should not capture sentry frames exception', () async {
+      fixture.options.addExceptionCauseExtractor(
+        ExceptionWithCauseExtractor(),
+      );
+
+      final cause = Object();
+      final stackTrace = '''
+#0      init (package:sentry/sentry.dart:46:9)
+#1      bar (file:///pathto/test.dart:46:9)
+<asynchronous suspension>
+#2      capture (package:sentry/sentry.dart:46:9)
+      ''';
+      exception = ExceptionWithCause(cause, stackTrace);
+
+      final client = fixture.getSut(attachStacktrace: true);
+      await client.captureException(exception, stackTrace: null);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect(
+        capturedEvent.exceptions?[1].stackTrace!.frames
+            .every((frame) => frame.package != 'sentry'),
+        true,
+      );
+    });
+  });
+
   group('SentryClient captures exception and stacktrace', () {
     late Fixture fixture;
 
@@ -1387,5 +1523,19 @@ class Fixture {
   }) {
     loggedLevel = level;
     loggedException = exception;
+  }
+}
+
+class ExceptionWithCause {
+  ExceptionWithCause(this.cause, this.stackTrace);
+  final dynamic cause;
+  final dynamic stackTrace;
+}
+
+class ExceptionWithCauseExtractor
+    extends ExceptionCauseExtractor<ExceptionWithCause> {
+  @override
+  ExceptionCause? cause(ExceptionWithCause error) {
+    return ExceptionCause(error.cause, error.stackTrace);
   }
 }

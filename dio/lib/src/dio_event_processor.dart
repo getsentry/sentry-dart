@@ -2,29 +2,29 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
-// ignore: implementation_imports
-import 'package:sentry/src/sentry_exception_factory.dart';
 
 /// This is an [EventProcessor], which improves crash reports of [DioError]s.
 /// It adds information about [DioError.requestOptions] if present and also about
 /// the inner exceptions.
 class DioEventProcessor implements EventProcessor {
-  // Because of obfuscation, we need to dynamically get the name
-  static final _dioErrorType = (DioError).toString();
-
   /// This is an [EventProcessor], which improves crash reports of [DioError]s.
   DioEventProcessor(this._options);
 
   final SentryOptions _options;
 
-  SentryExceptionFactory get _sentryExceptionFactory =>
-      // ignore: invalid_use_of_internal_member
-      _options.exceptionFactory;
-
   @override
   FutureOr<SentryEvent?> apply(SentryEvent event, {Hint? hint}) {
-    final dynamic dioError = event.throwable;
-    if (dioError is! DioError) {
+    DioError? dioError;
+
+    for (final exception in event.exceptions ?? []) {
+      final throwable = exception.throwable;
+      if (throwable is DioError) {
+        dioError = throwable;
+        break;
+      }
+    }
+
+    if (dioError == null) {
       return event;
     }
 
@@ -41,72 +41,7 @@ class DioEventProcessor implements EventProcessor {
       contexts: contexts,
     );
 
-    final innerDioStackTrace = dioError.stackTrace;
-    final innerDioErrorException = dioError.error as Object?;
-
-    // If the inner errors stacktrace is null,
-    // there's nothing to create chained exception
-    if (innerDioStackTrace == null) {
-      return event;
-    }
-
-    try {
-      final innerException = _sentryExceptionFactory.getSentryException(
-        innerDioErrorException ?? 'DioError inner stacktrace',
-        stackTrace: innerDioStackTrace,
-      );
-
-      final exceptions = _removeDioErrorStackTraceFromValue(
-        List<SentryException>.from(event.exceptions ?? <SentryException>[]),
-        dioError,
-      );
-
-      return event.copyWith(
-        exceptions: [
-          innerException,
-          ...exceptions,
-        ],
-      );
-    } catch (e, stackTrace) {
-      _options.logger(
-        SentryLevel.debug,
-        'Could not convert DioError to SentryException',
-        exception: e,
-        stackTrace: stackTrace,
-      );
-    }
     return event;
-  }
-
-  /// Remove the StackTrace from [dioError] so the message on Sentry looks
-  /// much better.
-  List<SentryException> _removeDioErrorStackTraceFromValue(
-    List<SentryException> exceptions,
-    DioError dioError,
-  ) {
-    final dioSentryExceptions =
-        exceptions.where((element) => element.type == _dioErrorType);
-
-    if (dioSentryExceptions.isEmpty) {
-      return exceptions;
-    }
-    var dioSentryException = dioSentryExceptions.first;
-
-    final exceptionIndex = exceptions.indexOf(dioSentryException);
-    exceptions.remove(dioSentryException);
-
-    // Remove error and stacktrace, so that the DioError value doesn't
-    // include the chained exception.
-    dioError.stackTrace = null;
-    dioError.error = null;
-
-    dioSentryException = dioSentryException.copyWith(
-      value: dioError.toString(),
-    );
-
-    exceptions.insert(exceptionIndex, dioSentryException);
-
-    return exceptions;
   }
 
   SentryRequest? _requestFrom(DioError dioError) {

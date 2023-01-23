@@ -327,6 +327,16 @@ class SentryOptions {
   /// The default is 3 seconds.
   Duration? idleTimeout = Duration(seconds: 3);
 
+  final _extractorsByType = <Type, ExceptionCauseExtractor>{};
+
+  ExceptionCauseExtractor? exceptionCauseExtractor(Type type) {
+    return _extractorsByType[type];
+  }
+
+  void addExceptionCauseExtractor(ExceptionCauseExtractor extractor) {
+    _extractorsByType[extractor.exceptionType] = extractor;
+  }
+
   SentryOptions({this.dsn, PlatformChecker? checker}) {
     if (checker != null) {
       platformChecker = checker;

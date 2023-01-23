@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Features
+
+- Error Cause Extractor ([#1198](https://github.com/getsentry/sentry-dart/pull/1198))
+  - Add `throwable` to `SentryException`
+
 ### Fixes
 
 - Don't suppress error logs ([#1228](https://github.com/getsentry/sentry-dart/pull/1228))

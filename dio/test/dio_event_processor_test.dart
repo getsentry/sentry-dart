@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry_dio/sentry_dio.dart';
+import 'package:sentry_dio/src/dio_error_extractor.dart';
 import 'package:test/test.dart';
 import 'package:sentry/src/sentry_exception_factory.dart';
 
@@ -16,7 +17,11 @@ void main() {
   test('$DioEventProcessor only processes ${DioError}s', () {
     final sut = fixture.getSut();
 
-    final event = SentryEvent(throwable: Exception());
+    final throwable = Exception();
+    final event = SentryEvent(
+      throwable: Exception(),
+      exceptions: [fixture.sentryError(throwable)],
+    );
     final processedEvent = sut.apply(event) as SentryEvent;
 
     expect(event, processedEvent);
@@ -27,11 +32,13 @@ void main() {
       'if stacktrace is null and a request is present', () {
     final sut = fixture.getSut();
 
+    final dioError = DioError(
+      requestOptions: RequestOptions(path: '/foo/bar'),
+    );
     final event = SentryEvent(
-      throwable: DioError(
-        requestOptions: RequestOptions(path: '/foo/bar'),
-      ),
+      throwable: dioError,
       request: SentryRequest(),
+      exceptions: [fixture.sentryError(dioError)],
     );
     final processedEvent = sut.apply(event) as SentryEvent;
 
@@ -47,13 +54,19 @@ void main() {
         method: 'POST',
         data: 'foobar',
       );
-      final event = SentryEvent(
-        throwable: DioError(
+      final throwable = Exception();
+      final dioError = DioError(
+        requestOptions: request,
+        response: Response<dynamic>(
           requestOptions: request,
-          response: Response<dynamic>(
-            requestOptions: request,
-          ),
         ),
+      );
+      final event = SentryEvent(
+        throwable: throwable,
+        exceptions: [
+          fixture.sentryError(throwable),
+          fixture.sentryError(dioError)
+        ],
       );
       final processedEvent = sut.apply(event) as SentryEvent;
 
@@ -70,14 +83,20 @@ void main() {
     test('$DioEventProcessor adds request without pii', () {
       final sut = fixture.getSut(sendDefaultPii: false);
 
-      final event = SentryEvent(
-        throwable: DioError(
+      final throwable = Exception();
+      final dioError = DioError(
+        requestOptions: requestOptions,
+        response: Response<dynamic>(
           requestOptions: requestOptions,
-          response: Response<dynamic>(
-            requestOptions: requestOptions,
-            data: 'foobar',
-          ),
+          data: 'foobar',
         ),
+      );
+      final event = SentryEvent(
+        throwable: throwable,
+        exceptions: [
+          fixture.sentryError(throwable),
+          fixture.sentryError(dioError)
+        ],
       );
       final processedEvent = sut.apply(event) as SentryEvent;
 
@@ -96,21 +115,27 @@ void main() {
       final request = requestOptions.copyWith(
         method: 'POST',
       );
-      final event = SentryEvent(
-        throwable: DioError(
+      final throwable = Exception();
+      final dioError = DioError(
+        requestOptions: request,
+        response: Response<dynamic>(
+          data: 'foobar',
+          headers: Headers.fromMap(<String, List<String>>{
+            'foo': ['bar'],
+            'set-cookie': ['foo=bar']
+          }),
           requestOptions: request,
-          response: Response<dynamic>(
-            data: 'foobar',
-            headers: Headers.fromMap(<String, List<String>>{
-              'foo': ['bar'],
-              'set-cookie': ['foo=bar']
-            }),
-            requestOptions: request,
-            isRedirect: true,
-            statusCode: 200,
-            statusMessage: 'OK',
-          ),
+          isRedirect: true,
+          statusCode: 200,
+          statusMessage: 'OK',
         ),
+      );
+      final event = SentryEvent(
+        throwable: throwable,
+        exceptions: [
+          fixture.sentryError(throwable),
+          fixture.sentryError(dioError)
+        ],
       );
       final processedEvent = sut.apply(event) as SentryEvent;
 
@@ -131,20 +156,26 @@ void main() {
       final request = requestOptions.copyWith(
         method: 'POST',
       );
-      final event = SentryEvent(
-        throwable: DioError(
+      final throwable = Exception();
+      final dioError = DioError(
+        requestOptions: request,
+        response: Response<dynamic>(
+          data: 'foobar',
+          headers: Headers.fromMap(<String, List<String>>{
+            'foo': ['bar']
+          }),
           requestOptions: request,
-          response: Response<dynamic>(
-            data: 'foobar',
-            headers: Headers.fromMap(<String, List<String>>{
-              'foo': ['bar']
-            }),
-            requestOptions: request,
-            isRedirect: true,
-            statusCode: 200,
-            statusMessage: 'OK',
-          ),
+          isRedirect: true,
+          statusCode: 200,
+          statusMessage: 'OK',
         ),
+      );
+      final event = SentryEvent(
+        throwable: throwable,
+        exceptions: [
+          fixture.sentryError(throwable),
+          fixture.sentryError(dioError)
+        ],
       );
       final processedEvent = sut.apply(event) as SentryEvent;
 
@@ -157,6 +188,8 @@ void main() {
   });
 
   test('$DioEventProcessor adds chained stacktraces', () {
+    fixture.options.addExceptionCauseExtractor(DioErrorExtractor());
+
     final sut = fixture.getSut(sendDefaultPii: false);
     final exception = Exception('foo bar');
     final dioError = DioError(
@@ -164,20 +197,28 @@ void main() {
       requestOptions: requestOptions,
     )..stackTrace = StackTrace.current;
 
+    final extracted =
+        fixture.exceptionFactory.extractor.flatten(dioError, null);
+    final exceptions = extracted.map((element) {
+      return fixture.exceptionFactory.getSentryException(
+        element.exception,
+        stackTrace: element.stackTrace,
+      );
+    }).toList();
+
     final event = SentryEvent(
       throwable: dioError,
-      exceptions: [fixture.exceptionFactory.getSentryException(dioError)],
+      exceptions: exceptions,
     );
 
     final processedEvent = sut.apply(event) as SentryEvent;
 
     expect(processedEvent.exceptions?.length, 2);
-    expect(processedEvent.exceptions?[0].value, exception.toString());
+
+    expect(processedEvent.exceptions?[0].value, dioError.toString());
     expect(processedEvent.exceptions?[0].stackTrace, isNotNull);
-    expect(
-      processedEvent.exceptions?[1].value,
-      (dioError..stackTrace = null).toString(),
-    );
+
+    expect(processedEvent.exceptions?[1].value, exception.toString());
     expect(processedEvent.exceptions?[1].stackTrace, isNotNull);
   });
 }
@@ -204,6 +245,14 @@ class Fixture {
         ..sendDefaultPii = sendDefaultPii
         ..maxRequestBodySize = MaxRequestBodySize.always
         ..maxResponseBodySize = MaxResponseBodySize.always,
+    );
+  }
+
+  SentryException sentryError(dynamic throwable) {
+    return SentryException(
+      type: throwable.runtimeType.toString(),
+      value: throwable.toString(),
+      throwable: throwable,
     );
   }
 }
