@@ -1,10 +1,13 @@
 # Changelog
 
-## 7.0.0-alpha.4
+## Unreleased
 
 ### Fixes
 
 - Don't suppress error logs ([#1228](https://github.com/getsentry/sentry-dart/pull/1228))
+- Fix export for `BindingWrapper` ([#1234](https://github.com/getsentry/sentry-dart/pull/1234))
+
+## 7.0.0-alpha.4
 
 ### Breaking Changes
 
@@ -15,7 +18,6 @@
   - Remove deprecated field from the `SentryFlutterOptions` class.
     - `anrTimeoutIntervalMillis`, using the `anrTimeoutInterval` instead.
     - `autoSessionTrackingIntervalMillis`, using the `autoSessionTrackingInterval` instead.
-- Fix export for `BindingWrapper` ([#1234](https://github.com/getsentry/sentry-dart/pull/1234))
 
 ### Dependencies
 
