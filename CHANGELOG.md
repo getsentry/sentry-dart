@@ -6,6 +6,7 @@
 
 - Error Cause Extractor ([#1198](https://github.com/getsentry/sentry-dart/pull/1198))
   - Add `throwable` to `SentryException`
+- Support beforeSendTransaction ([#1238](https://github.com/getsentry/sentry-dart/pull/1238))
 
 ### Fixes
 
