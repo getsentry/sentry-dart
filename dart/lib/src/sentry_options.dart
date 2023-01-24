@@ -150,6 +150,10 @@ class SentryOptions {
   /// object or nothing to skip reporting the event
   BeforeSendCallback? beforeSend;
 
+  /// This function is called with an SDK specific transaction object and can return a modified
+  /// transaction object or nothing to skip reporting the transaction
+  BeforeSendTransactionCallback? beforeSendTransaction;
+
   /// This function is called with an SDK specific breadcrumb object before the breadcrumb is added
   /// to the scope. When nothing is returned from the function, the breadcrumb is dropped
   BeforeBreadcrumbCallback? beforeBreadcrumb;
@@ -422,6 +426,12 @@ typedef BeforeSendCallback = FutureOr<SentryEvent?> Function(
   SentryEvent event, {
   Hint? hint,
 });
+
+/// This function is called with an SDK specific transaction object and can return a modified transaction
+/// object or nothing to skip reporting the transaction
+typedef BeforeSendTransactionCallback = FutureOr<SentryTransaction?> Function(
+  SentryTransaction transaction,
+);
 
 /// This function is called with an SDK specific breadcrumb object before the breadcrumb is added
 /// to the scope. When nothing is returned from the function, the breadcrumb is dropped

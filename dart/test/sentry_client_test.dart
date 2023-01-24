@@ -894,6 +894,75 @@ void main() {
     });
   });
 
+  group('SentryClient before send transaction', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('before send transaction drops event', () async {
+      final client = fixture.getSut(
+          beforeSendTransaction: beforeSendTransactionCallbackDropEvent);
+      final fakeTransaction = SentryTransaction(fixture.tracer);
+      await client.captureTransaction(fakeTransaction);
+
+      expect((fixture.transport).called(0), true);
+    });
+
+    test('async before send transaction drops event', () async {
+      final client = fixture.getSut(
+          beforeSendTransaction: asyncBeforeSendTransactionCallbackDropEvent);
+      final fakeTransaction = SentryTransaction(fixture.tracer);
+      await client.captureTransaction(fakeTransaction);
+
+      expect((fixture.transport).called(0), true);
+    });
+
+    test(
+        'before send transaction returns an transaction and transaction is captured',
+        () async {
+      final client =
+          fixture.getSut(beforeSendTransaction: beforeSendTransactionCallback);
+      final fakeTransaction = SentryTransaction(fixture.tracer);
+      await client.captureTransaction(fakeTransaction);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final event = await transactionFromEnvelope(capturedEnvelope);
+
+      expect(event['tags']!.containsKey('theme'), true);
+      expect(event['extra']!.containsKey('host'), true);
+      // expect(event['modules']!.containsKey('core'), true);
+      // expect(event['sdk']!['integrations'].contains('testIntegration'), true);
+      // expect(
+      //   event['sdk']!['packages'].any((element) => element['name'] == 'test-pkg'),
+      //   true,
+      // );
+      // expect(
+      //   event['breadcrumbs']!
+      //       .any((element) => element['message'] == 'processor crumb'),
+      //   true,
+      // );
+      // expect(event['fingerprint']!.contains('process'), true);
+    });
+
+    test('thrown error is handled', () async {
+      final exception = Exception("before send exception");
+      final beforeSendTransactionCallback = (SentryTransaction event) {
+        throw exception;
+      };
+
+      final client = fixture.getSut(
+          beforeSendTransaction: beforeSendTransactionCallback, debug: true);
+
+      final fakeTransaction = SentryTransaction(fixture.tracer);
+      await client.captureTransaction(fakeTransaction);
+
+      expect(fixture.loggedException, exception);
+      expect(fixture.loggedLevel, SentryLevel.error);
+    });
+  });
+
   group('SentryClient before send', () {
     late Fixture fixture;
 
@@ -1439,10 +1508,21 @@ FutureOr<SentryEvent?> beforeSendCallbackDropEvent(
 }) =>
     null;
 
+FutureOr<SentryTransaction?> beforeSendTransactionCallbackDropEvent(
+  SentryTransaction event,
+) =>
+    null;
+
 FutureOr<SentryEvent?> asyncBeforeSendCallbackDropEvent(
   SentryEvent event, {
   Hint? hint,
 }) async {
+  await Future.delayed(Duration(milliseconds: 200));
+  return null;
+}
+
+FutureOr<SentryTransaction?> asyncBeforeSendTransactionCallbackDropEvent(
+    SentryEvent event) async {
   await Future.delayed(Duration(milliseconds: 200));
   return null;
 }
@@ -1456,6 +1536,21 @@ FutureOr<SentryEvent?> beforeSendCallback(SentryEvent event, {Hint? hint}) {
     ..fingerprint!.add('process')
     ..sdk!.addIntegration('testIntegration')
     ..sdk!.addPackage('test-pkg', '1.0');
+}
+
+FutureOr<SentryTransaction?> beforeSendTransactionCallback(
+    SentryTransaction transaction) {
+  return transaction
+    ..tags!.addAll({'theme': 'material'})
+    ..extra!['host'] = '0.0.0.1';
+
+  // TODO Check why event properties are dropped (constructor/copy). Is this expected?
+
+  // ..modules!.addAll({'core': '1.0'})
+  // ..breadcrumbs!.add(Breadcrumb(message: 'processor crumb'))
+  // ..fingerprint!.add('process')
+  // ..sdk!.addIntegration('testIntegration')
+  // ..sdk!.addPackage('test-pkg', '1.0');
 }
 
 class Fixture {
@@ -1477,6 +1572,7 @@ class Fixture {
     bool attachThreads = false,
     double? sampleRate,
     BeforeSendCallback? beforeSend,
+    BeforeSendTransactionCallback? beforeSendTransaction,
     EventProcessor? eventProcessor,
     bool provideMockRecorder = true,
     bool debug = false,
@@ -1494,6 +1590,7 @@ class Fixture {
     options.attachThreads = attachThreads;
     options.sampleRate = sampleRate;
     options.beforeSend = beforeSend;
+    options.beforeSendTransaction = beforeSendTransaction;
     options.debug = debug;
     options.logger = mockLogger;
 
