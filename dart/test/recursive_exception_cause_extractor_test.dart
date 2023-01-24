@@ -1,5 +1,6 @@
 import 'package:sentry/src/exception_cause.dart';
 import 'package:sentry/src/exception_cause_extractor.dart';
+import 'package:sentry/src/recursive_exception_cause_extractor.dart';
 import 'package:sentry/src/protocol/mechanism.dart';
 import 'package:sentry/src/sentry_options.dart';
 import 'package:sentry/src/throwable_mechanism.dart';
