@@ -107,6 +107,7 @@ jobs:
           file: ./flutter/coverage/lcov.info
           verbose: true
           fail_ci_if_error: true
+          functionalities: 'search'
 
       - uses: VeryGoodOpenSource/very_good_coverage@84e5b54ab888644554e5573dca87d7f76dec9fb3 # pin@v2.0.0
         if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
