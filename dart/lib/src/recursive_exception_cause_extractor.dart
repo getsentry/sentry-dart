@@ -2,8 +2,10 @@ import 'sentry_options.dart';
 import 'throwable_mechanism.dart';
 import 'exception_cause.dart';
 import 'protocol.dart';
+import 'package:meta/meta.dart';
 
 /// Extracts inner exceptions recursively
+@internal
 class RecursiveExceptionCauseExtractor {
   RecursiveExceptionCauseExtractor(this._options);
 
