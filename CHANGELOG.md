@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Fix Pod target for iOS ([#1212](https://github.com/getsentry/sentry-dart/pull/1212))
+- Fix Pod target for iOS ([#1237](https://github.com/getsentry/sentry-dart/pull/1237))
 
 ### Dependencies
 
