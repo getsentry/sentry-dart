@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Fix Pod target for iOS ([#1237](https://github.com/getsentry/sentry-dart/pull/1237))
+
 ### Dependencies
 
 - Bump Android SDK from v6.11.0 to v6.12.1 ([#1225](https://github.com/getsentry/sentry-dart/pull/1225), [#1230](https://github.com/getsentry/sentry-dart/pull/1230))
