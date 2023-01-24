@@ -4,7 +4,7 @@
 
 ### Features
 
-- Error Cause Extractor ([#1198](https://github.com/getsentry/sentry-dart/pull/1198))
+- Error Cause Extractor ([#1198](https://github.com/getsentry/sentry-dart/pull/1198), [#1236](https://github.com/getsentry/sentry-dart/pull/1236))
   - Add `throwable` to `SentryException`
 
 ### Fixes

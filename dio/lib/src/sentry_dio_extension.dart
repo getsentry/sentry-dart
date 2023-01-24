@@ -21,7 +21,9 @@ extension SentryDioExtension on Dio {
     final options = hub.options;
 
     // Add to get inner exception & stacktrace
-    options.addExceptionCauseExtractor(DioErrorExtractor());
+    if (options.exceptionCauseExtractor(DioError) == null) {
+      options.addExceptionCauseExtractor(DioErrorExtractor());
+    }
 
     // Add DioEventProcessor when it's not already present
     if (options.eventProcessors.whereType<DioEventProcessor>().isEmpty) {

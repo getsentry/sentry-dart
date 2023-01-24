@@ -1,5 +1,6 @@
 import 'package:sentry/src/exception_cause.dart';
 import 'package:sentry/src/exception_cause_extractor.dart';
+import 'package:sentry/src/recursive_exception_cause_extractor.dart';
 import 'package:sentry/src/protocol/mechanism.dart';
 import 'package:sentry/src/sentry_options.dart';
 import 'package:sentry/src/throwable_mechanism.dart';
@@ -19,7 +20,7 @@ void main() {
     final errorA = ExceptionA(errorB);
 
     fixture.options.addExceptionCauseExtractor(
-      ExceptionACauseExtractor(),
+      ExceptionACauseExtractor(false),
     );
 
     fixture.options.addExceptionCauseExtractor(
@@ -61,7 +62,7 @@ void main() {
     final errorA = ExceptionA(errorB);
 
     fixture.options.addExceptionCauseExtractor(
-      ExceptionACauseExtractor(),
+      ExceptionACauseExtractor(false),
     );
 
     fixture.options.addExceptionCauseExtractor(
@@ -76,6 +77,26 @@ void main() {
 
     final actual = flattened.map((exceptionCause) => exceptionCause.exception);
     expect(actual, [throwableMechanism, errorB, errorC]);
+  });
+
+  test('throw during extractions is handled', () {
+    final errorB = ExceptionB(null);
+    final errorA = ExceptionA(errorB);
+
+    fixture.options.addExceptionCauseExtractor(
+      ExceptionACauseExtractor(true),
+    );
+
+    fixture.options.addExceptionCauseExtractor(
+      ExceptionBCauseExtractor(),
+    );
+
+    final sut = fixture.getSut();
+
+    final flattened = sut.flatten(errorA, null);
+    final actual = flattened.map((exceptionCause) => exceptionCause.exception);
+
+    expect(actual, [errorA]);
   });
 }
 
@@ -102,8 +123,15 @@ class ExceptionC {
 }
 
 class ExceptionACauseExtractor extends ExceptionCauseExtractor<ExceptionA> {
+  ExceptionACauseExtractor(this.throwing);
+
+  final bool throwing;
+
   @override
   ExceptionCause? cause(ExceptionA error) {
+    if (throwing) {
+      throw StateError("Unexpected exception");
+    }
     return ExceptionCause(error.other, null);
   }
 }
