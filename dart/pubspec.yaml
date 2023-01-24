@@ -1,5 +1,5 @@
 name: sentry
-version: 7.0.0-alpha.4
+version: 7.0.0-alpha.5
 description: >
   A crash reporting library for Dart that sends crash reports to Sentry.io.
   This library supports Dart VM and Web. For Flutter consider sentry_flutter instead.
