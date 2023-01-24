@@ -18,8 +18,8 @@ Sentry SDK for Flutter with support to native through sentry-cocoa.
   s.ios.deployment_target = '9.0'
   s.osx.deployment_target = '10.11'
 
-  # Flutter.framework does not contain a i386 slice. Only x86_64 simulators are supported.
-  s.ios.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'VALID_ARCHS[sdk=iphonesimulator*]' => 'x86_64' }
+  # Flutter.framework does not contain a i386 slice.
+  s.ios.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }
   s.osx.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES' }
   s.swift_version = '5.0'
 end
