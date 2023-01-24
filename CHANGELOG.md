@@ -12,6 +12,10 @@
 - Don't suppress error logs ([#1228](https://github.com/getsentry/sentry-dart/pull/1228))
 - Fix export for `BindingWrapper` ([#1234](https://github.com/getsentry/sentry-dart/pull/1234))
 
+### Refactoring
+
+- Error Cause Extractor Updates ([#1236](https://github.com/getsentry/sentry-dart/pull/1236))
+
 ## 7.0.0-alpha.4
 
 ### Breaking Changes
