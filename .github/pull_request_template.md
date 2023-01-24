@@ -14,6 +14,7 @@
 <!--- Put an `x` in the boxes that apply -->
 - [ ] I reviewed submitted code
 - [ ] I added tests to verify changes
+- [ ] No new PII added or SDK only sends newly added PII if `sendDefaultPII` is enabled
 - [ ] I updated the docs if needed
 - [ ] All tests passing
 - [ ] No breaking changes
