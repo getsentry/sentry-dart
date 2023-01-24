@@ -4,17 +4,13 @@
 
 ### Features
 
-- Error Cause Extractor ([#1198](https://github.com/getsentry/sentry-dart/pull/1198))
+- Error Cause Extractor ([#1198](https://github.com/getsentry/sentry-dart/pull/1198), [#1236](https://github.com/getsentry/sentry-dart/pull/1236))
   - Add `throwable` to `SentryException`
 
 ### Fixes
 
 - Don't suppress error logs ([#1228](https://github.com/getsentry/sentry-dart/pull/1228))
 - Fix export for `BindingWrapper` ([#1234](https://github.com/getsentry/sentry-dart/pull/1234))
-
-### Refactoring
-
-- Error Cause Extractor Updates ([#1236](https://github.com/getsentry/sentry-dart/pull/1236))
 
 ## 7.0.0-alpha.4
 
