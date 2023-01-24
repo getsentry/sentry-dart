@@ -10,7 +10,8 @@ import 'sentry_options.dart';
 /// extract the inner exceptions and add them as [SentryException] to
 /// [SentryEvent.exceptions].
 ///
-/// Example:
+/// For an example on how to use the API refer to dio/DioErrorExtractor or the
+/// code below:
 ///
 /// ```dart
 /// class ExceptionWithInner {
