@@ -4,7 +4,7 @@
 
 ### Breaking Changes:
 
-- sentry_file now requires Dart >= 2.19 ([#1237](https://github.com/getsentry/sentry-dart/pull/1237))
+- sentry_file now requires Dart >= 2.19 ([#1240](https://github.com/getsentry/sentry-dart/pull/1240))
 
 ## 6.18.3
 
