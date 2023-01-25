@@ -5,11 +5,9 @@ import 'dart:io' if (dart.library.html) 'dart:html';
 import 'package:logging/logging.dart';
 import 'package:dio/dio.dart';
 
-import 'package:sentry/sentry.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_dio/sentry_dio.dart';
 import 'package:sentry_logging/sentry_logging.dart';
-import 'package:sentry_file/sentry_file.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
 const String _exampleDsn =
@@ -116,9 +114,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
       try {
         final file = File('response.txt');
-        final sentryFile = file.sentryTrace();
         final response = await dio.get<String>('https://flutter.dev/');
-        await sentryFile.writeAsString(response.data ?? 'no response');
+        await file.writeAsString(response.data ?? 'no response');
 
         await transaction.finish(status: SpanStatus.ok());
       } catch (exception, stackTrace) {

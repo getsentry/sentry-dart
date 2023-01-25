@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Breaking Changes:
+
+- sentry_file now requires Dart >= 2.19 ([#1237](https://github.com/getsentry/sentry-dart/pull/1237))
+
 ## 6.18.3
 
 ### Fixes

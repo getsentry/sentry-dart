@@ -31,8 +31,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        # removing stable and beta because of Dart 2.19.0
-        sdk: [2.18.6]
+        sdk: [stable, beta]
     steps:
       - uses: dart-lang/setup-dart@6a218f2413a3e78e9087f638a238f6b40893203d # pin@v1
         with:
