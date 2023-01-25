@@ -34,6 +34,7 @@ class _UserFeedbackDialogState extends State<UserFeedbackDialog> {
             Text(
               "It looks like we're having some internal issues.",
               textAlign: TextAlign.center,
+              // ignore: deprecated_member_use
               style: Theme.of(context).textTheme.headline6,
             ),
             const SizedBox(height: 4),
@@ -43,6 +44,7 @@ class _UserFeedbackDialogState extends State<UserFeedbackDialog> {
               textAlign: TextAlign.center,
               style: Theme.of(context)
                   .textTheme
+                  // ignore: deprecated_member_use
                   .subtitle1
                   ?.copyWith(color: Colors.grey),
             ),
