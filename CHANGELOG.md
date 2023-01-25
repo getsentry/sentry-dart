@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- intl is now more version permissive (>=0.17.0 <1.0.0) ([#1202](https://github.com/getsentry/sentry-dart/pull/1202))
+- intl is now more version permissive (>=0.17.0 <1.0.0) ([#1247](https://github.com/getsentry/sentry-dart/pull/1247))
 
 ### Breaking Changes:
 
