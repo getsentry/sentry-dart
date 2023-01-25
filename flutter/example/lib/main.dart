@@ -360,11 +360,11 @@ class MainScaffold extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 final id = await Sentry.captureMessage('UserFeedback');
-
                 // ignore: use_build_context_synchronously
                 if (!context.isMounted) {
                   return;
                 }
+
                 // ignore: use_build_context_synchronously
                 await showDialog(
                   context: context,

@@ -86,6 +86,15 @@
 - Use `sentryClientName` instead of `sdk.identifier` ([#1135](https://github.com/getsentry/sentry-dart/pull/1135))
 - Refactor `BindingUtils` to `BindingWrapper` to enable the use of custom bindings ([#1184](https://github.com/getsentry/sentry-dart/pull/1184))
 - Bump Flutter min to 3.0.0 and Dart to 2.17.0 ([#1180](https://github.com/getsentry/sentry-dart/pull/1180))
+## 6.19.0
+
+### Fixes
+
+- intl is now more version permissive (>=0.17.0 <1.0.0) ([#1247](https://github.com/getsentry/sentry-dart/pull/1247))
+
+### Breaking Changes:
+
+- sentry_file now requires Dart >= 2.19 ([#1240](https://github.com/getsentry/sentry-dart/pull/1240))
 
 ## 6.18.3
 
