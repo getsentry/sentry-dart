@@ -3,7 +3,7 @@ import 'platform/platform.dart';
 /// Helper to check in which enviroment the library is running.
 /// The envirment checks (release/debug/profile) are mutually exclusive.
 class PlatformChecker {
-  static final _jsUtil = 'dart.library.js_util';
+  static const _jsUtil = 'dart.library.js_util';
 
   PlatformChecker({
     this.platform = instance,
@@ -51,8 +51,8 @@ class PlatformChecker {
   }
 
   static bool _isWebWithWasmSupport() {
-    if (bool.hasEnvironment(_jsUtil)) {
-      return bool.fromEnvironment(_jsUtil);
+    if (const bool.hasEnvironment(_jsUtil)) {
+      return const bool.fromEnvironment(_jsUtil);
     }
     return identical(0, 0.0);
   }
