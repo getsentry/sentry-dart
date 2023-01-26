@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- isWeb check for WASM ([#1249](https://github.com/getsentry/sentry-dart/pull/1249))
+
 ## 7.0.0-alpha.5
 
 ### Features
