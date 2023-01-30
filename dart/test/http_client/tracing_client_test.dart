@@ -1,6 +1,5 @@
 import 'package:http/http.dart';
 import 'package:http/testing.dart';
-import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/http_client/tracing_client.dart';
 import 'package:sentry/src/sentry_tracer.dart';
