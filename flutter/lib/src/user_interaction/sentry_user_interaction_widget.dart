@@ -31,7 +31,6 @@ Element? _clickTrackerElement;
 ///
 /// If you are using the [SentryScreenshotWidget] as well, make sure to add
 /// [SentryUserInteractionWidget] as a child of [SentryScreenshotWidget].
-@experimental
 class SentryUserInteractionWidget extends StatefulWidget {
   SentryUserInteractionWidget({
     Key? key,

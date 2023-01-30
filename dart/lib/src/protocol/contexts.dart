@@ -134,7 +134,6 @@ class Contexts extends MapView<String, dynamic> {
   set trace(SentryTraceContext? trace) => this[SentryTraceContext.type] = trace;
 
   /// Response context for a HTTP response.
-  @experimental
   SentryResponse? get response => this[SentryResponse.type];
 
   set response(SentryResponse? value) => this[SentryResponse.type] = value;
