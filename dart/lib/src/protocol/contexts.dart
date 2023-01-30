@@ -1,7 +1,5 @@
 import 'dart:collection';
 
-import 'package:meta/meta.dart';
-
 import '../protocol.dart';
 
 /// The context interfaces provide additional context data.

@@ -1,5 +1,4 @@
 // See https://docs.sentry.io/platforms/dotnet/guides/aspnetcore/configuration/options/#max-request-body-size
-import 'package:meta/meta.dart';
 
 const _mediumSize = 10000;
 const _smallSize = 4000;
