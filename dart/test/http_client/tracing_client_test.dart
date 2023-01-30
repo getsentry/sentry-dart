@@ -194,8 +194,6 @@ MockClient createThrowingClient() {
   );
 }
 
-class CloseableMockClient extends Mock implements BaseClient {}
-
 class Fixture {
   final _options = SentryOptions(dsn: fakeDsn);
   late Hub _hub;
