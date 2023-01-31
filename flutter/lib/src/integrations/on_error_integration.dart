@@ -43,7 +43,8 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
     _integrationOnError = (Object exception, StackTrace stackTrace) {
       _options!.logger(
         SentryLevel.error,
-        "Uncaught Exception",
+
+        "Uncaught Platform Error",
         logger: 'sentry.platformError',
         exception: exception,
         stackTrace: stackTrace,
