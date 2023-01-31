@@ -1,5 +1,4 @@
 // See https://docs.sentry.io/platforms/dotnet/guides/aspnetcore/configuration/options/#max-request-body-size
-import 'package:meta/meta.dart';
 
 const _mediumSize = 10000;
 const _smallSize = 4000;
@@ -40,7 +39,6 @@ extension MaxRequestBodySizeX on MaxRequestBodySize {
 
 /// Describes the size of http response bodies which should be added to an event
 /// This enum might be removed at any time.
-@experimental
 enum MaxResponseBodySize {
   /// Response bodies are never sent
   never,
