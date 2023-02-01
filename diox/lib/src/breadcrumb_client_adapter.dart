@@ -1,0 +1,75 @@
+// ignore_for_file: strict_raw_type
+
+import 'dart:typed_data';
+
+import 'package:diox/diox.dart';
+import 'package:diox/io.dart';
+import 'package:sentry/sentry.dart';
+
+/// A [Diox](https://pub.dev/packages/diox)-package compatible HTTP client adapter
+/// which records requests as breadcrumbs.
+///
+/// Remarks:
+/// If this client is used as a wrapper, a call to close also closes the
+/// given client.
+class BreadcrumbClientAdapter extends IOHttpClientAdapter {
+  // ignore: public_member_api_docs
+  BreadcrumbClientAdapter({required HttpClientAdapter client, Hub? hub})
+      : _hub = hub ?? HubAdapter(),
+        _client = client;
+
+  final HttpClientAdapter _client;
+  final Hub _hub;
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future? cancelFuture,
+  ) async {
+    // See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
+
+    var requestHadException = false;
+    int? statusCode;
+    String? reason;
+    int? responseBodySize;
+
+    final stopwatch = Stopwatch();
+    stopwatch.start();
+
+    try {
+      final response =
+          await _client.fetch(options, requestStream, cancelFuture);
+
+      statusCode = response.statusCode;
+      reason = response.statusMessage;
+      final contentLengthHeader = response.headers['content-length'];
+      if (contentLengthHeader != null && contentLengthHeader.isNotEmpty) {
+        final headerValue = contentLengthHeader.first;
+        responseBodySize = int.tryParse(headerValue);
+      }
+
+      return response;
+    } catch (_) {
+      requestHadException = true;
+      rethrow;
+    } finally {
+      stopwatch.stop();
+
+      final breadcrumb = Breadcrumb.http(
+        level: requestHadException ? SentryLevel.error : SentryLevel.info,
+        url: options.uri,
+        method: options.method,
+        statusCode: statusCode,
+        reason: reason,
+        requestDuration: stopwatch.elapsed,
+        responseBodySize: responseBodySize,
+      );
+
+      await _hub.addBreadcrumb(breadcrumb);
+    }
+  }
+
+  @override
+  void close({bool force = false}) => _client.close(force: force);
+}
