@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add In Foreground to App context ([#1258](https://github.com/getsentry/sentry-dart/pull/1258))
+
 ### Fixes
 
 - View hierarchy reads size from RenderBox only ([#1258](https://github.com/getsentry/sentry-dart/pull/1258))
