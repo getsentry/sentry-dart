@@ -52,13 +52,6 @@ class _TreeWalker {
     bool? visible;
     double? alpha;
 
-    // Widget has to be RenderBox to have a size
-    if (widget is RenderBox) {
-      final size = element.size;
-      width = size?.width;
-      height = size?.height;
-    }
-
     final renderObject = element.renderObject;
     if (renderObject is RenderBox) {
       final offset = renderObject.localToGlobal(Offset.zero);
@@ -69,6 +62,12 @@ class _TreeWalker {
         y = offset.dy;
       }
       // no z axes in 2d
+
+      final size = element.size;
+      if (size != null) {
+        width = size.width;
+        height = size.height;
+      }
     }
 
     if (widget is Visibility) {

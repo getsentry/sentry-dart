@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- View hierarchy reads size from RenderBox only ([#1249](https://github.com/getsentry/sentry-dart/pull/1249))
+
 ## 7.0.0-beta.1
 
 ### Fixes
