@@ -38,14 +38,12 @@ class FlutterEnricherEventProcessor extends EventProcessor {
     final device =
         _hasNativeIntegration ? null : _getDevice(event.contexts.device);
 
-    final app = _getApp(event.contexts.app);
-
     final contexts = event.contexts.copyWith(
       device: device,
       runtimes: _getRuntimes(event.contexts.runtimes),
       culture: _getCulture(event.contexts.culture),
       operatingSystem: _getOperatingSystem(event.contexts.operatingSystem),
-      app: app,
+      app: _getApp(event.contexts.app),
     );
 
     // Flutter has a lot of Accessibility Settings available and exposes them

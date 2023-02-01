@@ -4,7 +4,7 @@
 
 ### Features
 
-- Add In Foreground to App context ([#1258](https://github.com/getsentry/sentry-dart/pull/1258))
+- Add In Foreground to App context ([#1260](https://github.com/getsentry/sentry-dart/pull/1260))
 
 ### Fixes
 
