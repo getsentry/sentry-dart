@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Try to avoid ConcurrentModificationError by not using a Future.forEach ([#1247](https://github.com/getsentry/sentry-dart/pull/1247))
+- Try to avoid ConcurrentModificationError by not using a Future.forEach ([#1259](https://github.com/getsentry/sentry-dart/pull/1259))
 
 ### Dependencies
 
