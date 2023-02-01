@@ -42,7 +42,7 @@ jobs:
         run: flutter pub get
 
       - name: launch android emulator & run android integration test
-        uses: reactivecircus/android-emulator-runner@d7b53ddc6e44254e1f4cf4a6ad67345837027a66 #pin@v2.26.0
+        uses: reactivecircus/android-emulator-runner@50986b1464923454c95e261820bc626f38490ec0 #pin@v2.27.0
         with:
           working-directory: ./flutter/example
           api-level: 21
