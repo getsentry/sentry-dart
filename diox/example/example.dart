@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry_dio/sentry_dio.dart';
+import 'package:sentry_dio/sentry_diox.dart';
 
 Future<void> main() async {
   // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io

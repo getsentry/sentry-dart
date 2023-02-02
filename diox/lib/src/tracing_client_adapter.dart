@@ -1,15 +1,12 @@
-// ignore_for_file: strict_raw_type
-
 import 'dart:typed_data';
 
 import 'package:diox/diox.dart';
-import 'package:diox/io.dart';
 import 'package:sentry/sentry.dart';
 
 /// A [Diox](https://pub.dev/packages/diox)-package compatible HTTP client adapter
 /// which adds support to Sentry Performance feature.
 /// https://develop.sentry.dev/sdk/performance
-class TracingClientAdapter extends IOHttpClientAdapter {
+class TracingClientAdapter implements HttpClientAdapter {
   // ignore: public_member_api_docs
   TracingClientAdapter({required HttpClientAdapter client, Hub? hub})
       : _hub = hub ?? HubAdapter(),
@@ -22,7 +19,7 @@ class TracingClientAdapter extends IOHttpClientAdapter {
   Future<ResponseBody> fetch(
     RequestOptions options,
     Stream<Uint8List>? requestStream,
-    Future? cancelFuture,
+    Future<void>? cancelFuture,
   ) async {
     // see https://develop.sentry.dev/sdk/performance/#header-sentry-trace
     final currentSpan = _hub.getSpan();
@@ -55,7 +52,7 @@ class TracingClientAdapter extends IOHttpClientAdapter {
       }
 
       response = await _client.fetch(options, requestStream, cancelFuture);
-      span?.status = SpanStatus.fromHttpStatusCode(response.statusCode ?? -1);
+      span?.status = SpanStatus.fromHttpStatusCode(response.statusCode);
     } catch (exception) {
       span?.throwable = exception;
       span?.status = const SpanStatus.internalError();

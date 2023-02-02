@@ -1,6 +1,6 @@
 import 'package:diox/diox.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry_diox/sentry_dio.dart';
+import 'package:sentry_diox/sentry_diox.dart';
 import 'package:test/test.dart';
 import 'package:sentry/src/sentry_exception_factory.dart';
 

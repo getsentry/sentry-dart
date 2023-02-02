@@ -1,9 +1,6 @@
-// ignore_for_file: strict_raw_type
-
 import 'dart:typed_data';
 
 import 'package:diox/diox.dart';
-import 'package:diox/io.dart';
 import 'package:sentry/sentry.dart';
 
 /// A [Diox](https://pub.dev/packages/diox)-package compatible HTTP client adapter
@@ -12,7 +9,7 @@ import 'package:sentry/sentry.dart';
 /// Remarks:
 /// If this client is used as a wrapper, a call to close also closes the
 /// given client.
-class BreadcrumbClientAdapter extends IOHttpClientAdapter {
+class BreadcrumbClientAdapter implements HttpClientAdapter {
   // ignore: public_member_api_docs
   BreadcrumbClientAdapter({required HttpClientAdapter client, Hub? hub})
       : _hub = hub ?? HubAdapter(),
@@ -25,7 +22,7 @@ class BreadcrumbClientAdapter extends IOHttpClientAdapter {
   Future<ResponseBody> fetch(
     RequestOptions options,
     Stream<Uint8List>? requestStream,
-    Future? cancelFuture,
+    Future<void>? cancelFuture,
   ) async {
     // See https://develop.sentry.dev/sdk/event-payloads/breadcrumbs/
 

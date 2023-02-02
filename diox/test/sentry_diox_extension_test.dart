@@ -1,5 +1,5 @@
 import 'package:diox/diox.dart';
-import 'package:sentry_diox/sentry_dio.dart';
+import 'package:sentry_diox/sentry_diox.dart';
 import 'package:sentry_diox/src/sentry_diox_client_adapter.dart';
 import 'package:sentry_diox/src/sentry_diox_extension.dart';
 import 'package:sentry_diox/src/sentry_transformer.dart';

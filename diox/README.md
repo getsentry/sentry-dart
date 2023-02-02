@@ -26,7 +26,7 @@ Integration for the [`diox`](https://pub.dev/packages/diox) package.
 
 ```dart
 import 'package:sentry/sentry.dart';
-import 'package:sentry_dio/sentry_dio.dart';
+import 'package:sentry_diox/sentry_diox.dart';
 
 Future<void> main() async {
   await Sentry.init(

@@ -1,9 +1,6 @@
-// ignore_for_file: strict_raw_type
-
 import 'dart:typed_data';
 
 import 'package:diox/diox.dart';
-import 'package:diox/io.dart';
 import 'package:sentry/sentry.dart';
 import 'tracing_client_adapter.dart';
 import 'breadcrumb_client_adapter.dart';
@@ -21,7 +18,7 @@ import 'breadcrumb_client_adapter.dart';
 /// Remarks:
 /// HTTP traffic can contain PII (personal identifiable information).
 /// Read more on data scrubbing [here](https://docs.sentry.io/product/data-management-settings/advanced-datascrubbing/).
-class SentryDioxClientAdapter extends IOHttpClientAdapter {
+class SentryDioxClientAdapter implements HttpClientAdapter {
   // ignore: public_member_api_docs
   SentryDioxClientAdapter({
     required HttpClientAdapter client,
@@ -57,7 +54,7 @@ class SentryDioxClientAdapter extends IOHttpClientAdapter {
   Future<ResponseBody> fetch(
     RequestOptions options,
     Stream<Uint8List>? requestStream,
-    Future? cancelFuture,
+    Future<void>? cancelFuture,
   ) =>
       _client.fetch(options, requestStream, cancelFuture);
 
