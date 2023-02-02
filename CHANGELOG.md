@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Try to avoid ConcurrentModificationError by not using a Future.forEach ([#1259](https://github.com/getsentry/sentry-dart/pull/1259))
+
 ### Dependencies
 
 - Bump Android SDK from v6.12.1 to v6.13.0 ([#1250](https://github.com/getsentry/sentry-dart/pull/1250))
