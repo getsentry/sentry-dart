@@ -61,13 +61,10 @@ extension SentryIsolate on Isolate {
       /// To convert this back to a [StackTrace] object, use [StackTrace.fromString].
       final String throwable = error.first;
       final String? stackTrace = error.last;
-      final String? isolateName = debugName;
 
       options.logger(
         SentryLevel.error,
-        isolateName == null
-            ? 'Uncaught isolate error'
-            : 'Uncaught isolate error in $isolateName',
+        'Uncaught isolate error',
         logger: 'sentry.isolateError',
         exception: throwable,
         stackTrace:
