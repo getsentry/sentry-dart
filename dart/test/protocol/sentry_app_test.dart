@@ -82,7 +82,7 @@ void main() {
       expect('buildType1', copy.buildType);
       expect(startTime, copy.startTime);
       expect('hash1', copy.deviceAppHash);
-      expect(true, copy.deviceAppHash);
+      expect(true, copy.inForeground);
     });
   });
 }
