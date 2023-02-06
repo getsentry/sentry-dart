@@ -18,11 +18,11 @@ extension SentryIsolateExtension on Isolate {
   /// Since isolates run concurrently, it's possible for it to exit before the
   /// error listener is established. To avoid this, start the isolate paused,
   /// add the listener and then resume the isolate.
-  RawReceivePort addSentryErrorListener() {
-    final hub = HubAdapter();
-    final options = hub.options;
+  RawReceivePort addSentryErrorListener({Hub? hub}) {
+    final hubToUse = hub ?? HubAdapter();
+    final options = hubToUse.options;
 
-    final port = _createPort(hub, options);
+    final port = _createPort(hubToUse, options);
     addErrorListener(port.sendPort);
     return port;
   }

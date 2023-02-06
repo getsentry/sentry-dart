@@ -22,6 +22,37 @@ void main() {
 
     // increase coverage of handleIsolateError
 
+    test('add error listener', () async {
+      final throwingClosure = (String message) async {
+        throw StateError(message);
+      };
+
+      final isolate =
+          await Isolate.spawn(throwingClosure, "message", paused: true);
+      isolate.addSentryErrorListener(hub: fixture.hub);
+      isolate.resume(isolate.pauseCapability!);
+
+      await Future.delayed(Duration(milliseconds: 10));
+
+      expect(fixture.hub.captureEventCalls.first, isNotNull);
+    });
+
+    test('remove error listener', () async {
+      final throwingClosure = (String message) async {
+        throw StateError(message);
+      };
+
+      final isolate =
+          await Isolate.spawn(throwingClosure, "message", paused: true);
+      final port = isolate.addSentryErrorListener(hub: fixture.hub);
+      isolate.removeSentryErrorListenerAndClosePort(port);
+      isolate.resume(isolate.pauseCapability!);
+
+      await Future.delayed(Duration(milliseconds: 10));
+
+      expect(fixture.hub.captureEventCalls.isEmpty, true);
+    });
+
     test('marks transaction as internal error if no status', () async {
       final exception = StateError('error');
       final stackTrace = StackTrace.current.toString();
