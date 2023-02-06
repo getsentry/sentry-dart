@@ -59,7 +59,12 @@ class _TreeWalker {
       y = offset.dy;
       // no z axes in 2d
 
-      final size = element.size;
+      Size? size;
+      try {
+        size = element.size;
+      } catch (_) {
+        // ignore, can throw FlutterError
+      }
       if (size != null) {
         width = size.width;
         height = size.height;
@@ -73,9 +78,16 @@ class _TreeWalker {
       alpha = widget.opacity;
     }
 
+    int? depth;
+    try {
+      depth = element.depth;
+    } catch (_) {
+      // ignore, can throw FlutterError
+    }
+
     return SentryViewHierarchyElement(
       element.widget.runtimeType.toString(),
-      depth: element.depth,
+      depth: depth,
       identifier: element.widget.key?.toStringValue(),
       width: width,
       height: height,
