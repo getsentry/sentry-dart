@@ -7,7 +7,6 @@ import '../sentry.dart';
 
 /// Record isolate errors with the Sentry SDK.
 extension SentryIsolate on Isolate {
-
   /// Calls [addErrorListener] with an error listener from the Sentry SDK. Store
   /// the returned [RawReceivePort] if you want to remove the Sentry listener
   /// again.
