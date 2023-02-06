@@ -17,9 +17,10 @@ class IsolateErrorIntegration extends Integration {
 
   @override
   void close() {
-    final safeReceivePort = _receivePort;
-    if (safeReceivePort != null) {
-      Isolate.current.removeSentryErrorListenerAndClosePort(safeReceivePort);
+    final receivePort = _receivePort;
+    if (receivePort != null) {
+      receivePort.close();
+      Isolate.current.removeSentryErrorListener(receivePort);
     }
   }
 }

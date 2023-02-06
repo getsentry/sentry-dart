@@ -45,7 +45,7 @@ void main() {
       final isolate =
           await Isolate.spawn(throwingClosure, "message", paused: true);
       final port = isolate.addSentryErrorListener(hub: fixture.hub);
-      isolate.removeSentryErrorListenerAndClosePort(port);
+      isolate.removeSentryErrorListener(port);
       isolate.resume(isolate.pauseCapability!);
 
       await Future.delayed(Duration(milliseconds: 10));
