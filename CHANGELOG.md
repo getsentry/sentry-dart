@@ -6,6 +6,7 @@
 
 - Error Cause Extractor ([#1198](https://github.com/getsentry/sentry-dart/pull/1198))
   - Add `throwable` to `SentryException`
+- Sentry Isolate Extension ([#1266](https://github.com/getsentry/sentry-dart/pull/1266))
 
 ### Fixes
 
