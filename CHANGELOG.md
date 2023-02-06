@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Enhancements
+
+- Replace `toImage` with `toImageSync` for Flutter >= 3.7 ([1268](https://github.com/getsentry/sentry-dart/pull/1268))
+
 ### Fixes
 
 - View hierarchy reads size from RenderBox only ([#1258](https://github.com/getsentry/sentry-dart/pull/1258))
