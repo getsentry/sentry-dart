@@ -171,15 +171,6 @@ class SentryUserFeedbackWithoutAssert implements SentryUserFeedback {
     this.comments,
   });
 
-  factory SentryUserFeedbackWithoutAssert.fromJson(Map<String, dynamic> json) {
-    return SentryUserFeedbackWithoutAssert(
-      eventId: SentryId.fromId(json['event_id']),
-      name: json['name'],
-      email: json['email'],
-      comments: json['comments'],
-    );
-  }
-
   @override
   final SentryId eventId;
 
