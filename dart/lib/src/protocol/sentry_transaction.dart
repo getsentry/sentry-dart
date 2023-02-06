@@ -23,6 +23,7 @@ class SentryTransaction extends SentryEvent {
     String? release,
     String? dist,
     String? environment,
+    Map<String, String>? modules,
     String? transaction,
     dynamic throwable,
     Map<String, String>? tags,
@@ -38,6 +39,7 @@ class SentryTransaction extends SentryEvent {
   }) : super(
           eventId: eventId,
           timestamp: timestamp ?? _tracer.endTimestamp,
+          modules: modules,
           platform: platform,
           serverName: serverName,
           release: release,
@@ -134,6 +136,7 @@ class SentryTransaction extends SentryEvent {
         _tracer,
         eventId: eventId ?? this.eventId,
         timestamp: timestamp ?? this.timestamp,
+        modules: modules ?? this.modules,
         platform: platform ?? this.platform,
         serverName: serverName ?? this.serverName,
         release: release ?? this.release,

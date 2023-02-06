@@ -924,15 +924,18 @@ void main() {
         () async {
       final client =
           fixture.getSut(beforeSendTransaction: beforeSendTransactionCallback);
-      final fakeTransaction = SentryTransaction(fixture.tracer);
+      final fakeTransaction = SentryTransaction(
+        fixture.tracer,
+        modules: const {'module1': 'factory'},
+      );
       await client.captureTransaction(fakeTransaction);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
-      final event = await transactionFromEnvelope(capturedEnvelope);
+      final transaction = await transactionFromEnvelope(capturedEnvelope);
 
-      expect(event['tags']!.containsKey('theme'), true);
-      expect(event['extra']!.containsKey('host'), true);
-      // expect(event['modules']!.containsKey('core'), true);
+      expect(transaction['tags']!.containsKey('theme'), true);
+      expect(transaction['extra']!.containsKey('host'), true);
+      expect(transaction['modules']!.containsKey('core'), true);
       // expect(event['sdk']!['integrations'].contains('testIntegration'), true);
       // expect(
       //   event['sdk']!['packages'].any((element) => element['name'] == 'test-pkg'),
@@ -1542,11 +1545,11 @@ FutureOr<SentryTransaction?> beforeSendTransactionCallback(
     SentryTransaction transaction) {
   return transaction
     ..tags!.addAll({'theme': 'material'})
-    ..extra!['host'] = '0.0.0.1';
+    ..extra!['host'] = '0.0.0.1'
+    ..modules!.addAll({'core': '1.0'});
 
   // TODO Check why event properties are dropped (constructor/copy). Is this expected?
 
-  // ..modules!.addAll({'core': '1.0'})
   // ..breadcrumbs!.add(Breadcrumb(message: 'processor crumb'))
   // ..fingerprint!.add('process')
   // ..sdk!.addIntegration('testIntegration')
