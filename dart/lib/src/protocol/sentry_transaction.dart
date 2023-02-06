@@ -28,6 +28,7 @@ class SentryTransaction extends SentryEvent {
     dynamic throwable,
     Map<String, String>? tags,
     Map<String, dynamic>? extra,
+    List<String>? fingerprint,
     SentryUser? user,
     Contexts? contexts,
     List<Breadcrumb>? breadcrumbs,
@@ -49,6 +50,7 @@ class SentryTransaction extends SentryEvent {
           throwable: throwable ?? _tracer.throwable,
           tags: tags ?? _tracer.tags,
           extra: extra ?? _tracer.data,
+          fingerprint: fingerprint,
           user: user,
           contexts: contexts,
           breadcrumbs: breadcrumbs,
@@ -146,6 +148,8 @@ class SentryTransaction extends SentryEvent {
         throwable: throwable ?? this.throwable,
         tags: (tags != null ? Map.from(tags) : null) ?? this.tags,
         extra: (extra != null ? Map.from(extra) : null) ?? this.extra,
+        fingerprint: (fingerprint != null ? List.from(fingerprint) : null) ??
+            this.fingerprint,
         user: user ?? this.user,
         contexts: contexts ?? this.contexts,
         breadcrumbs: (breadcrumbs != null ? List.from(breadcrumbs) : null) ??

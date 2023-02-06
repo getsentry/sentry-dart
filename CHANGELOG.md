@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Features
+
+- Support beforeSendTransaction ([#1238](https://github.com/getsentry/sentry-dart/pull/1238))
+  - Add `fingerprint` parameter to `SentryTransaction` constructor
+  - Add `modules` parameter to `SentryTransaction` constructor
+
 ### Fixes
 
 - View hierarchy reads size from RenderBox only ([#1258](https://github.com/getsentry/sentry-dart/pull/1258))
@@ -18,7 +24,6 @@
 
 - Error Cause Extractor ([#1198](https://github.com/getsentry/sentry-dart/pull/1198), [#1236](https://github.com/getsentry/sentry-dart/pull/1236))
   - Add `throwable` to `SentryException`
-- Support beforeSendTransaction ([#1238](https://github.com/getsentry/sentry-dart/pull/1238))
 
 ### Fixes
 

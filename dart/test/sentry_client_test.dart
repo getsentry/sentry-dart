@@ -904,7 +904,7 @@ void main() {
     test('before send transaction drops event', () async {
       final client = fixture.getSut(
           beforeSendTransaction: beforeSendTransactionCallbackDropEvent);
-      final fakeTransaction = SentryTransaction(fixture.tracer);
+      final fakeTransaction = fixture.fakeTransaction();
       await client.captureTransaction(fakeTransaction);
 
       expect((fixture.transport).called(0), true);
@@ -913,7 +913,7 @@ void main() {
     test('async before send transaction drops event', () async {
       final client = fixture.getSut(
           beforeSendTransaction: asyncBeforeSendTransactionCallbackDropEvent);
-      final fakeTransaction = SentryTransaction(fixture.tracer);
+      final fakeTransaction = fixture.fakeTransaction();
       await client.captureTransaction(fakeTransaction);
 
       expect((fixture.transport).called(0), true);
@@ -924,10 +924,7 @@ void main() {
         () async {
       final client =
           fixture.getSut(beforeSendTransaction: beforeSendTransactionCallback);
-      final fakeTransaction = SentryTransaction(
-        fixture.tracer,
-        modules: const {'module1': 'factory'},
-      );
+      final fakeTransaction = fixture.fakeTransaction();
       await client.captureTransaction(fakeTransaction);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
@@ -936,17 +933,19 @@ void main() {
       expect(transaction['tags']!.containsKey('theme'), true);
       expect(transaction['extra']!.containsKey('host'), true);
       expect(transaction['modules']!.containsKey('core'), true);
-      // expect(event['sdk']!['integrations'].contains('testIntegration'), true);
-      // expect(
-      //   event['sdk']!['packages'].any((element) => element['name'] == 'test-pkg'),
-      //   true,
-      // );
-      // expect(
-      //   event['breadcrumbs']!
-      //       .any((element) => element['message'] == 'processor crumb'),
-      //   true,
-      // );
-      // expect(event['fingerprint']!.contains('process'), true);
+      expect(transaction['sdk']!['integrations'].contains('testIntegration'),
+          true);
+      expect(
+        transaction['sdk']!['packages']
+            .any((element) => element['name'] == 'test-pkg'),
+        true,
+      );
+      expect(
+        transaction['breadcrumbs']!
+            .any((element) => element['message'] == 'processor crumb'),
+        true,
+      );
+      expect(transaction['fingerprint']!.contains('process'), true);
     });
 
     test('thrown error is handled', () async {
@@ -957,8 +956,7 @@ void main() {
 
       final client = fixture.getSut(
           beforeSendTransaction: beforeSendTransactionCallback, debug: true);
-
-      final fakeTransaction = SentryTransaction(fixture.tracer);
+      final fakeTransaction = fixture.fakeTransaction();
       await client.captureTransaction(fakeTransaction);
 
       expect(fixture.loggedException, exception);
@@ -1546,14 +1544,11 @@ FutureOr<SentryTransaction?> beforeSendTransactionCallback(
   return transaction
     ..tags!.addAll({'theme': 'material'})
     ..extra!['host'] = '0.0.0.1'
-    ..modules!.addAll({'core': '1.0'});
-
-  // TODO Check why event properties are dropped (constructor/copy). Is this expected?
-
-  // ..breadcrumbs!.add(Breadcrumb(message: 'processor crumb'))
-  // ..fingerprint!.add('process')
-  // ..sdk!.addIntegration('testIntegration')
-  // ..sdk!.addPackage('test-pkg', '1.0');
+    ..modules!.addAll({'core': '1.0'})
+    ..sdk!.addIntegration('testIntegration')
+    ..sdk!.addPackage('test-pkg', '1.0')
+    ..breadcrumbs!.add(Breadcrumb(message: 'processor crumb'))
+    ..fingerprint!.add('process');
 }
 
 class Fixture {
@@ -1612,6 +1607,16 @@ class Fixture {
   FutureOr<SentryEvent?> droppingBeforeSend(SentryEvent event,
       {Hint? hint}) async {
     return null;
+  }
+
+  SentryTransaction fakeTransaction() {
+    return SentryTransaction(
+      tracer,
+      modules: const {'module1': 'factory'},
+      sdk: SdkVersion(name: 'sdk1', version: '1.0.0'),
+      fingerprint: const <String>['example-dart'],
+      breadcrumbs: [],
+    );
   }
 
   void mockLogger(
