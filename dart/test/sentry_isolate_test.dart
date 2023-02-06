@@ -1,6 +1,9 @@
 @TestOn('vm')
 
+import 'dart:isolate';
+
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/sentry_isolate.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
@@ -8,7 +11,7 @@ import 'mocks/mock_hub.dart';
 import 'mocks/mock_sentry_client.dart';
 
 void main() {
-  group(IsolateErrorIntegration, () {
+  group("SentryIsolate", () {
     late Fixture fixture;
 
     setUp(() {
@@ -45,7 +48,7 @@ class Fixture {
   final hub = MockHub();
   final options = SentryOptions(dsn: fakeDsn)..tracesSampleRate = 1.0;
 
-  IsolateErrorIntegration getSut() {
-    return IsolateErrorIntegration();
+  Isolate getSut() {
+    return Isolate.current;
   }
 }
