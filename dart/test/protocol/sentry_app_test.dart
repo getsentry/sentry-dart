@@ -6,13 +6,15 @@ void main() {
   final testStartTime = DateTime.fromMicrosecondsSinceEpoch(0);
 
   final sentryApp = SentryApp(
-      name: 'fixture-name',
-      version: 'fixture-version',
-      identifier: 'fixture-identifier',
-      build: 'fixture-build',
-      buildType: 'fixture-buildType',
-      startTime: testStartTime,
-      deviceAppHash: 'fixture-deviceAppHash');
+    name: 'fixture-name',
+    version: 'fixture-version',
+    identifier: 'fixture-identifier',
+    build: 'fixture-build',
+    buildType: 'fixture-buildType',
+    startTime: testStartTime,
+    deviceAppHash: 'fixture-deviceAppHash',
+    inForeground: true,
+  );
 
   final sentryAppJson = <String, dynamic>{
     'app_name': 'fixture-name',
@@ -21,7 +23,8 @@ void main() {
     'app_build': 'fixture-build',
     'build_type': 'fixture-buildType',
     'app_start_time': testStartTime.toIso8601String(),
-    'device_app_hash': 'fixture-deviceAppHash'
+    'device_app_hash': 'fixture-deviceAppHash',
+    'in_foreground': true,
   };
 
   group('json', () {
@@ -69,6 +72,7 @@ void main() {
         buildType: 'buildType1',
         startTime: startTime,
         deviceAppHash: 'hash1',
+        inForeground: true,
       );
 
       expect('name1', copy.name);
@@ -78,6 +82,7 @@ void main() {
       expect('buildType1', copy.buildType);
       expect(startTime, copy.startTime);
       expect('hash1', copy.deviceAppHash);
+      expect(true, copy.deviceAppHash);
     });
   });
 }
