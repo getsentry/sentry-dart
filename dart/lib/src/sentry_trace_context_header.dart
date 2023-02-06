@@ -1,10 +1,7 @@
-import 'package:meta/meta.dart';
-
 import 'protocol/sentry_id.dart';
 import 'sentry_baggage.dart';
 import 'sentry_options.dart';
 
-@experimental
 class SentryTraceContextHeader {
   SentryTraceContextHeader(
     this.traceId,

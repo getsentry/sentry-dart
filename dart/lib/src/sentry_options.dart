@@ -333,10 +333,12 @@ class SentryOptions {
 
   final _extractorsByType = <Type, ExceptionCauseExtractor>{};
 
+  /// Returns a previously added [ExceptionCauseExtractor] by type
   ExceptionCauseExtractor? exceptionCauseExtractor(Type type) {
     return _extractorsByType[type];
   }
 
+  /// Adds [ExceptionCauseExtractor] in order to extract inner exceptions
   void addExceptionCauseExtractor(ExceptionCauseExtractor extractor) {
     _extractorsByType[extractor.exceptionType] = extractor;
   }

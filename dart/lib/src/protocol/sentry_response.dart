@@ -3,8 +3,6 @@ import 'contexts.dart';
 import '../utils/iterable_extension.dart';
 
 /// The response interface contains information on a HTTP request related to the event.
-/// This is an experimental feature. It might be removed at any time.
-@experimental
 @immutable
 class SentryResponse {
   /// The tpye of this class in the [Contexts] field
