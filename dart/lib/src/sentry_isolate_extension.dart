@@ -29,7 +29,7 @@ extension SentryIsolateExtension on Isolate {
 
   /// Pass the [receivePort] returned from [addSentryErrorListener] to remove
   /// the sentry error listener.
-  void removeSentryErrorListener(RawReceivePort receivePort) {
+  void removeSentryErrorListenerAndClosePort(RawReceivePort receivePort) {
     receivePort.close();
     removeErrorListener(receivePort.sendPort);
   }
