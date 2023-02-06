@@ -36,4 +36,4 @@ export 'src/type_check_hint.dart';
 export 'src/exception_cause_extractor.dart';
 export 'src/exception_cause.dart';
 // Isolates
-export 'src/sentry_isolate.dart';
+export 'src/sentry_isolate_extension.dart';

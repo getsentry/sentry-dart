@@ -10,7 +10,7 @@ import 'sentry_options.dart';
 import 'throwable_mechanism.dart';
 
 /// Record isolate errors with the Sentry SDK.
-extension SentryIsolate on Isolate {
+extension SentryIsolateExtension on Isolate {
   /// Calls [addErrorListener] with an error listener from the Sentry SDK. Store
   /// the returned [RawReceivePort] if you want to remove the Sentry listener
   /// again.

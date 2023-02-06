@@ -4,7 +4,7 @@ import 'dart:isolate';
 
 import 'package:sentry/src/hub.dart';
 import 'package:sentry/src/protocol/span_status.dart';
-import 'package:sentry/src/sentry_isolate.dart';
+import 'package:sentry/src/sentry_isolate_extension.dart';
 import 'package:sentry/src/sentry_options.dart';
 import 'package:test/test.dart';
 

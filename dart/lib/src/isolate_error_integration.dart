@@ -3,7 +3,7 @@ import 'dart:isolate';
 
 import 'hub.dart';
 import 'integration.dart';
-import 'sentry_isolate.dart';
+import 'sentry_isolate_extension.dart';
 import 'sentry_options.dart';
 
 class IsolateErrorIntegration extends Integration {
