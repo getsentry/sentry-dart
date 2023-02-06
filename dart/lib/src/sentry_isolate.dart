@@ -3,7 +3,11 @@ import 'dart:isolate';
 
 import 'package:meta/meta.dart';
 
-import '../sentry.dart';
+import 'hub.dart';
+import 'hub_adapter.dart';
+import 'protocol.dart';
+import 'sentry_options.dart';
+import 'throwable_mechanism.dart';
 
 /// Record isolate errors with the Sentry SDK.
 extension SentryIsolate on Isolate {
@@ -15,7 +19,7 @@ extension SentryIsolate on Isolate {
   /// error listener is established. To avoid this, start the isolate paused,
   /// add the listener and then resume the isolate.
   RawReceivePort addSentryErrorListener() {
-    final hub = Sentry.currentHub;
+    final hub = HubAdapter();
     final options = hub.options;
 
     final port = _createPort(hub, options);
