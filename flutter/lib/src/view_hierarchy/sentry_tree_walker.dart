@@ -54,13 +54,9 @@ class _TreeWalker {
 
     final renderObject = element.renderObject;
     if (renderObject is RenderBox) {
-      final offset = renderObject.localToGlobal(Offset.zero);
-      if (offset.dx > 0) {
-        x = offset.dx;
-      }
-      if (offset.dy > 0) {
-        y = offset.dy;
-      }
+      final offset = renderObject.globalToLocal(Offset.zero);
+      x = offset.dx;
+      y = offset.dy;
       // no z axes in 2d
 
       final size = element.size;

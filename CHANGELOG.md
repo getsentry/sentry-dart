@@ -5,6 +5,7 @@
 ### Fixes
 
 - View hierarchy reads size from RenderBox only ([#1258](https://github.com/getsentry/sentry-dart/pull/1258))
+- View hierarchy sets to local instead of global position ([#1258](https://github.com/getsentry/sentry-dart/pull/1258))
 
 ## 7.0.0-beta.1
 
