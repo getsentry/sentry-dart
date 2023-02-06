@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
-import 'dart:ui' as ui show ImageByteFormat;
+import 'dart:ui' as ui show ImageByteFormat, Image;
 
 import 'package:sentry/sentry.dart';
 import '../screenshot/sentry_screenshot_widget.dart';
@@ -46,7 +46,13 @@ class ScreenshotEventProcessor extends EventProcessor {
           sentryScreenshotWidgetGlobalKey.currentContext?.findRenderObject();
 
       if (renderObject is RenderRepaintBoundary) {
-        final image = await renderObject.toImage(pixelRatio: 1);
+        final result = _getImage(renderObject, 1);
+        ui.Image image;
+        if (result is Future) {
+          image = await result;
+        } else {
+          image = result;
+        }
         // At the time of writing there's no other image format available which
         // Sentry understands.
 
@@ -75,5 +81,14 @@ class ScreenshotEventProcessor extends EventProcessor {
       );
     }
     return null;
+  }
+
+  FutureOr<ui.Image> _getImage(RenderRepaintBoundary repaintBoundary, double pixelRation) {
+    // This one is a hack to use https://api.flutter.dev/flutter/rendering/RenderRepaintBoundary/toImage.html on versions older than 3.7 and https://api.flutter.dev/flutter/rendering/RenderRepaintBoundary/toImageSync.html on versions equal or newer than 3.7
+    try {
+      return (repaintBoundary as dynamic).toImageSync(pixelRatio: pixelRation);
+    } on NoSuchMethodError catch (_) {
+      return repaintBoundary.toImage(pixelRatio: pixelRation);
+    }
   }
 }
