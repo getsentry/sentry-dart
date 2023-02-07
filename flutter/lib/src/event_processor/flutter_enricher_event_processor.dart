@@ -43,6 +43,7 @@ class FlutterEnricherEventProcessor extends EventProcessor {
       runtimes: _getRuntimes(event.contexts.runtimes),
       culture: _getCulture(event.contexts.culture),
       operatingSystem: _getOperatingSystem(event.contexts.operatingSystem),
+      app: _getApp(event.contexts.app),
     );
 
     // Flutter has a lot of Accessibility Settings available and exposes them
@@ -216,5 +217,19 @@ class FlutterEnricherEventProcessor extends EventProcessor {
       ...runtimes,
       flutterRuntime,
     ];
+  }
+
+  SentryApp? _getApp(SentryApp? app) {
+    final currentLifecycle = _widgetsBinding?.lifecycleState;
+    if (currentLifecycle == null) {
+      return app;
+    }
+
+    // See 'flutter_context' for more detailed app state.
+    final inForeground = currentLifecycle == AppLifecycleState.resumed;
+
+    return (app ?? SentryApp()).copyWith(
+      inForeground: inForeground,
+    );
   }
 }

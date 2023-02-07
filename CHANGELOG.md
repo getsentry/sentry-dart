@@ -5,6 +5,9 @@
 ### Enhancements
 
 - FrameTrackingIntegration ([#1271](https://github.com/getsentry/sentry-dart/pull/1271))
+### Features
+
+- Add In Foreground to App context ([#1260](https://github.com/getsentry/sentry-dart/pull/1260))
 
 ### Fixes
 
