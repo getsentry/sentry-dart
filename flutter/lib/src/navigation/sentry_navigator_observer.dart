@@ -251,9 +251,9 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   FrameTrackingIntegration? _frameTrackingIntegration() {
     FrameTrackingIntegration? frameTrackingIntegration;
     // ignore: invalid_use_of_internal_member
-    for (var element in _hub.options.integrations) {
-      if (element is FrameTrackingIntegration) {
-        frameTrackingIntegration = element;
+    for (final integration in _hub.options.integrations) {
+      if (integration is FrameTrackingIntegration) {
+        frameTrackingIntegration = integration;
         break;
       }
     }
