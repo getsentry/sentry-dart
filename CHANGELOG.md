@@ -5,8 +5,6 @@
 ### Features
 
 - Support beforeSendTransaction ([#1238](https://github.com/getsentry/sentry-dart/pull/1238))
-  - Add `fingerprint` parameter to `SentryTransaction` constructor
-  - Add `modules` parameter to `SentryTransaction` constructor
 
 ### Fixes
 
