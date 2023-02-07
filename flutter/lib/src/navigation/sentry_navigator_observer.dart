@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import '../../sentry_flutter.dart';
+import '../integrations/frame_tracking_integration.dart';
 import '../sentry_native.dart';
 import '../sentry_native_channel.dart';
 
@@ -186,19 +187,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       autoFinishAfter: _autoFinishAfter,
       trimEnd: true,
       onFinish: (transaction) async {
-        final nativeFrames = await _native
-            .endNativeFramesCollection(transaction.context.traceId);
-        if (nativeFrames != null) {
-          final measurements = nativeFrames.toMeasurements();
-          for (final item in measurements.entries) {
-            final measurement = item.value;
-            transaction.setMeasurement(
-              item.key,
-              measurement.value,
-              unit: measurement.unit,
-            );
-          }
-        }
+        await _endFramesCollection(transaction);
       },
     );
 
@@ -216,12 +205,59 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       scope.span ??= _transaction;
     });
 
-    await _native.beginNativeFramesCollection();
+    await _beginFramesCollection();
   }
 
   Future<void> _finishTransaction() async {
     _transaction?.status ??= SpanStatus.ok();
     await _transaction?.finish();
+  }
+
+  // Frames
+
+  Future<void> _beginFramesCollection() async {
+    final frameTrackingIntegration = _frameTrackingIntegration();
+    if (frameTrackingIntegration != null) {
+      frameTrackingIntegration.beginFramesCollection();
+    } else {
+      await _native.beginNativeFramesCollection();
+    }
+  }
+
+  Future<void> _endFramesCollection(ISentrySpan transaction) async {
+    Map<String, SentryMeasurement>? measurements;
+
+    final frameTrackingIntegration = _frameTrackingIntegration();
+    if (frameTrackingIntegration != null) {
+      measurements = frameTrackingIntegration.endFramesCollection();
+    } else {
+      final nativeFrames = await _native
+          .endNativeFramesCollection(transaction.context.traceId);
+      measurements = nativeFrames?.toMeasurements();
+    }
+
+    if (measurements != null) {
+      for (final item in measurements.entries) {
+        final measurement = item.value;
+        transaction.setMeasurement(
+          item.key,
+          measurement.value,
+          unit: measurement.unit,
+        );
+      }
+    }
+  }
+
+  FrameTrackingIntegration? _frameTrackingIntegration() {
+    FrameTrackingIntegration? frameTrackingIntegration;
+    // ignore: invalid_use_of_internal_member
+    for (var element in _hub.options.integrations) {
+      if (element is FrameTrackingIntegration) {
+        frameTrackingIntegration = element;
+        break;
+      }
+    }
+    return frameTrackingIntegration;
   }
 }
 

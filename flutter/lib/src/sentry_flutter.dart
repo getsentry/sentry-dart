@@ -8,6 +8,7 @@ import 'package:meta/meta.dart';
 import '../sentry_flutter.dart';
 import 'event_processor/android_platform_exception_event_processor.dart';
 import 'event_processor/flutter_exception_event_processor.dart';
+import 'integrations/frame_tracking_integration.dart';
 import 'integrations/screenshot_integration.dart';
 import 'native_scope_observer.dart';
 import 'renderer/renderer.dart';
@@ -179,15 +180,13 @@ mixin SentryFlutter {
     if (platformChecker.hasNativeIntegration) {
       integrations.add(NativeAppStartIntegration(
         SentryNative(),
-        () {
-          try {
-            /// Flutter >= 2.12 throws if SchedulerBinding.instance isn't initialized.
-            return SchedulerBinding.instance;
-          } catch (_) {}
-          return null;
-        },
+        _schedulerBindingProvider,
       ));
     }
+
+    integrations.add(
+        FrameTrackingIntegration(_schedulerBindingProvider),
+    );
     return integrations;
   }
 
@@ -217,5 +216,13 @@ mixin SentryFlutter {
     );
     sdk.addPackage('pub:sentry_flutter', sdkVersion);
     options.sdk = sdk;
+  }
+
+  static SchedulerBinding? _schedulerBindingProvider() {
+    try {
+      /// Flutter >= 2.12 throws if SchedulerBinding.instance isn't initialized.
+      return SchedulerBinding.instance;
+    } catch (_) {}
+    return null;
   }
 }
