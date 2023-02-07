@@ -3,6 +3,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/integrations/frame_tracking_integration.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
@@ -21,6 +22,7 @@ final platformAgnosticIntegrations = [
   LoadReleaseIntegration,
   DebugPrintIntegration,
   SentryViewHierarchyIntegration,
+  FrameTrackingIntegration,
 ];
 
 final nonWebIntegrations = [
