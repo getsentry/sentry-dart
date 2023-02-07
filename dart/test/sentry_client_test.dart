@@ -932,7 +932,6 @@ void main() {
 
       expect(transaction['tags']!.containsKey('theme'), true);
       expect(transaction['extra']!.containsKey('host'), true);
-      expect(transaction['modules']!.containsKey('core'), true);
       expect(transaction['sdk']!['integrations'].contains('testIntegration'),
           true);
       expect(
@@ -945,7 +944,6 @@ void main() {
             .any((element) => element['message'] == 'processor crumb'),
         true,
       );
-      expect(transaction['fingerprint']!.contains('process'), true);
     });
 
     test('thrown error is handled', () async {
@@ -1544,11 +1542,9 @@ FutureOr<SentryTransaction?> beforeSendTransactionCallback(
   return transaction
     ..tags!.addAll({'theme': 'material'})
     ..extra!['host'] = '0.0.0.1'
-    ..modules!.addAll({'core': '1.0'})
     ..sdk!.addIntegration('testIntegration')
     ..sdk!.addPackage('test-pkg', '1.0')
-    ..breadcrumbs!.add(Breadcrumb(message: 'processor crumb'))
-    ..fingerprint!.add('process');
+    ..breadcrumbs!.add(Breadcrumb(message: 'processor crumb'));
 }
 
 class Fixture {
@@ -1612,9 +1608,7 @@ class Fixture {
   SentryTransaction fakeTransaction() {
     return SentryTransaction(
       tracer,
-      modules: const {'module1': 'factory'},
       sdk: SdkVersion(name: 'sdk1', version: '1.0.0'),
-      fingerprint: const <String>['example-dart'],
       breadcrumbs: [],
     );
   }
