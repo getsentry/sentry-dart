@@ -18,6 +18,8 @@ class FrameTrackingIntegration extends Integration<SentryFlutterOptions> {
   var _slowFrames = 0;
   var _frozenFrames = 0;
 
+  bool get isActive => _timingsCallback != null;
+
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
     final schedulerBinding = _schedulerBindingProvider();
