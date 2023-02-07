@@ -6,10 +6,6 @@
 
 - View hierarchy reads size from RenderBox only ([#1258](https://github.com/getsentry/sentry-dart/pull/1258))
 
-### Chores
-
-- Replace intl NumberFormat ([#1269](https://github.com/getsentry/sentry-dart/pull/1269))
-
 ## 7.0.0-beta.1
 
 ### Fixes
