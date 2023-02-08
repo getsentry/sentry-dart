@@ -9,6 +9,7 @@
 ### Fixes
 
 - View hierarchy reads size from RenderBox only ([#1258](https://github.com/getsentry/sentry-dart/pull/1258))
+- Set client name with version in Android SDK ([#1274](https://github.com/getsentry/sentry-dart/pull/1274))
 
 ## 7.0.0-beta.1
 
