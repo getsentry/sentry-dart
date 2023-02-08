@@ -10,6 +10,13 @@
 ### Fixes
 
 - View hierarchy reads size from RenderBox only ([#1258](https://github.com/getsentry/sentry-dart/pull/1258))
+- Try to avoid ConcurrentModificationError by not using a Future.forEach ([#1259](https://github.com/getsentry/sentry-dart/pull/1259))
+
+### Dependencies
+
+- Bump Android SDK from v6.12.1 to v6.13.0 ([#1250](https://github.com/getsentry/sentry-dart/pull/1250))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6130)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.12.1...6.13.0)
 
 ## 7.0.0-beta.1
 
@@ -103,16 +110,6 @@
 - Use `sentryClientName` instead of `sdk.identifier` ([#1135](https://github.com/getsentry/sentry-dart/pull/1135))
 - Refactor `BindingUtils` to `BindingWrapper` to enable the use of custom bindings ([#1184](https://github.com/getsentry/sentry-dart/pull/1184))
 - Bump Flutter min to 3.0.0 and Dart to 2.17.0 ([#1180](https://github.com/getsentry/sentry-dart/pull/1180))
-## Unreleased
-### Fixes
-
-- Try to avoid ConcurrentModificationError by not using a Future.forEach ([#1259](https://github.com/getsentry/sentry-dart/pull/1259))
-
-### Dependencies
-
-- Bump Android SDK from v6.12.1 to v6.13.0 ([#1250](https://github.com/getsentry/sentry-dart/pull/1250))
-  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6130)
-  - [diff](https://github.com/getsentry/sentry-java/compare/6.12.1...6.13.0)
 
 ## 6.19.0
 
