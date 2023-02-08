@@ -8,7 +8,7 @@
 
 ### Breaking Changes
 
-- Enable enableNdkScopeSync by default ([#1274](https://github.com/getsentry/sentry-dart/pull/1274))
+- Enable enableNdkScopeSync by default ([#1276](https://github.com/getsentry/sentry-dart/pull/1276))
 
 ## 7.0.0-beta.4
 
