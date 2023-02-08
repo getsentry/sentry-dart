@@ -169,7 +169,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         val version = sdk["version"] as? String
         if (name != null && version != null) {
           val sdkVersion = SdkVersion(name, version)
-          options.setSentryClientName(name)
+          options.setSentryClientName(name + "/" + version)
           options.setSdkVersion(sdkVersion)
         }
       }
