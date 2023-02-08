@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Set client name with version in Android SDK ([#1274](https://github.com/getsentry/sentry-dart/pull/1274))
+
 ## 7.0.0-beta.4
 
 ### Features
