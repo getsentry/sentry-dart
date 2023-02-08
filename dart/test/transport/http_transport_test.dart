@@ -7,7 +7,6 @@ import 'package:sentry/src/client_reports/discard_reason.dart';
 import 'package:sentry/src/sentry_envelope_header.dart';
 import 'package:sentry/src/sentry_envelope_item_header.dart';
 import 'package:sentry/src/sentry_item_type.dart';
-import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/transport/data_category.dart';
 import 'package:sentry/src/transport/http_transport.dart';
 import 'package:sentry/src/transport/rate_limiter.dart';
@@ -15,7 +14,6 @@ import 'package:test/test.dart';
 
 import '../mocks.dart';
 import '../mocks/mock_client_report_recorder.dart';
-import '../mocks/mock_hub.dart';
 
 void main() {
   SentryEnvelope givenEnvelope() {
@@ -235,16 +233,5 @@ class Fixture {
     options.httpClient = client;
     options.recorder = clientReportRecorder;
     return HttpTransport(options, rateLimiter);
-  }
-
-  SentryTracer createTracer({
-    bool? sampled = true,
-  }) {
-    final context = SentryTransactionContext(
-      'name',
-      'op',
-      samplingDecision: SentryTracesSamplingDecision(sampled!),
-    );
-    return SentryTracer(context, MockHub());
   }
 }

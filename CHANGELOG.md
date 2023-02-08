@@ -104,6 +104,9 @@
 - Refactor `BindingUtils` to `BindingWrapper` to enable the use of custom bindings ([#1184](https://github.com/getsentry/sentry-dart/pull/1184))
 - Bump Flutter min to 3.0.0 and Dart to 2.17.0 ([#1180](https://github.com/getsentry/sentry-dart/pull/1180))
 ## Unreleased
+### Fixes
+
+- Try to avoid ConcurrentModificationError by not using a Future.forEach ([#1259](https://github.com/getsentry/sentry-dart/pull/1259))
 
 ### Dependencies
 
