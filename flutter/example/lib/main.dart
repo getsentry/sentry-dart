@@ -117,13 +117,13 @@ class MainScaffold extends StatelessWidget {
           ),
           IconButton(
             onPressed: () {
-              themeProvider.updatePrimatryColor(Colors.orange);
+              themeProvider.updatePrimaryColor(Colors.orange);
             },
             icon: const Icon(Icons.circle, color: Colors.orange),
           ),
           IconButton(
             onPressed: () {
-              themeProvider.updatePrimatryColor(Colors.green);
+              themeProvider.updatePrimaryColor(Colors.green);
             },
             icon: const Icon(Icons.circle, color: Colors.lime),
           ),
@@ -731,7 +731,7 @@ class ThemeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updatePrimatryColor(MaterialColor color) {
+  void updatePrimaryColor(MaterialColor color) {
     if (theme.brightness == Brightness.light) {
       theme = ThemeData(primarySwatch: color, brightness: theme.brightness);
     } else {
