@@ -4,6 +4,7 @@
 
 ### Features
 
+- Support beforeSendTransaction ([#1238](https://github.com/getsentry/sentry-dart/pull/1238))
 - Add In Foreground to App context ([#1260](https://github.com/getsentry/sentry-dart/pull/1260))
 
 ### Fixes
