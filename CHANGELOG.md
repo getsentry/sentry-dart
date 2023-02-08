@@ -4,7 +4,11 @@
 
 ### Fixes
 
-- Set client name with version in Android SDK ([#1274](https://github.com/getsentry/sentry-dart/pull/1274))
+- Enable enableNdkScopeSync by default ([#1274](https://github.com/getsentry/sentry-dart/pull/1274))
+
+### Breaking Changes
+
+- Rename APM tracking feature flags to tracing ([#1222](https://github.com/getsentry/sentry-dart/pull/1222))
 
 ## 7.0.0-beta.4
 

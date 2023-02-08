@@ -90,7 +90,6 @@ void main() {
         ..maxCacheItems = 0
         ..sendDefaultPii = true
         ..enableWatchdogTerminationTracking = false
-        ..enableNdkScopeSync = true
         ..enableAutoPerformanceTracing = false
         ..sendClientReports = false;
 
