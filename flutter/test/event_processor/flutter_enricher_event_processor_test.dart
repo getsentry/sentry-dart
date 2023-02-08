@@ -73,6 +73,51 @@ void main() {
       expect(culture?.timezone, isNotNull);
     });
 
+    testWidgets('app context in foreground', (WidgetTester tester) async {
+      final enricher = fixture.getSut(
+        binding: () => tester.binding,
+      );
+
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      final event = await enricher.apply(SentryEvent());
+
+      final app = event.contexts.app;
+
+      expect(app?.inForeground, true);
+    });
+
+    testWidgets('app context not in foreground', (WidgetTester tester) async {
+      final enricher = fixture.getSut(
+        binding: () => tester.binding,
+      );
+
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      final event = await enricher.apply(SentryEvent());
+
+      final app = event.contexts.app;
+
+      expect(app?.inForeground, false);
+    });
+
+    testWidgets('merge app context in foreground', (WidgetTester tester) async {
+      final enricher = fixture.getSut(
+        binding: () => tester.binding,
+      );
+
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+
+      const appName = 'My App';
+      final event = SentryEvent();
+      event.contexts.app = SentryApp(name: appName);
+
+      final mutatedEvent = await enricher.apply(event);
+
+      final app = mutatedEvent.contexts.app;
+
+      expect(app?.inForeground, true);
+      expect(app?.name, appName);
+    });
+
     testWidgets('no device when native integration is available',
         (WidgetTester tester) async {
       final enricher = fixture.getSut(
