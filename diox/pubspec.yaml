@@ -9,7 +9,7 @@ environment:
   sdk: '>=2.13.0 <3.0.0'
 
 dependencies:
-  diox: ^5.0.0-0
+  diox: ^5.0.0
   sentry: 6.20.1
 
 dev_dependencies:
