@@ -1,6 +1,6 @@
 name: sentry_diox
 description: An integration which adds support for performance tracing for the Diox package.
-version: 6.19.0
+version: 6.20.1
 homepage: https://docs.sentry.io/platforms/dart/
 repository: https://github.com/getsentry/sentry-dart
 issue_tracker: https://github.com/getsentry/sentry-dart/issues
