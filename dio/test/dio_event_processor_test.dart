@@ -195,7 +195,8 @@ void main() {
     final dioError = DioError(
       error: exception,
       requestOptions: requestOptions,
-    )..stackTrace = StackTrace.current;
+      stackTrace: StackTrace.current,
+    );
 
     final extracted =
         fixture.exceptionFactory.extractor.flatten(dioError, null);
