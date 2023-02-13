@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:collection/collection.dart';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:sentry/sentry.dart';
 import '../sentry_flutter_options.dart';
@@ -149,12 +149,15 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
         for (final breadcrumb in newBreadcrumbs) {
           final newBreadcrumbJson = Map<String, dynamic>.from(breadcrumb);
 
-          final containsBreadcrumb = breadcrumbsJson.firstWhereOrNull(
-                  (breadcrumbJson) => DeepCollectionEquality()
-                      .equals(newBreadcrumbJson, breadcrumbJson)) !=
-              null;
+          var containsDuplicate = false;
+          for (final breadcrumbJson in breadcrumbsJson) {
+            if (mapEquals(newBreadcrumbJson, breadcrumbJson)) {
+              containsDuplicate = true;
+              break;
+            }
+          }
 
-          if (!containsBreadcrumb) {
+          if (!containsDuplicate) {
             final newBreadcrumb = Breadcrumb.fromJson(newBreadcrumbJson);
             breadcrumbs.add(newBreadcrumb);
           }
