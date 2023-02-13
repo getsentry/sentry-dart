@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:collection/collection.dart';
 
 import 'package:flutter/services.dart';
 import 'package:sentry/sentry.dart';
@@ -139,13 +140,24 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
       final breadcrumbsList = infos['breadcrumbs'] as List?;
       if (breadcrumbsList != null && breadcrumbsList.isNotEmpty) {
         final breadcrumbs = event.breadcrumbs ?? [];
+        final breadcrumbsJson =
+            breadcrumbs.map((breadcrumb) => breadcrumb.toJson());
+
         final newBreadcrumbs =
             List<Map<dynamic, dynamic>>.from(breadcrumbsList);
 
         for (final breadcrumb in newBreadcrumbs) {
-          final newBreadcrumb = Map<String, dynamic>.from(breadcrumb);
-          final crumb = Breadcrumb.fromJson(newBreadcrumb);
-          breadcrumbs.add(crumb);
+          final newBreadcrumbJson = Map<String, dynamic>.from(breadcrumb);
+
+          final containsBreadcrumb = breadcrumbsJson.firstWhereOrNull(
+                  (breadcrumbJson) => DeepCollectionEquality()
+                      .equals(newBreadcrumbJson, breadcrumbJson)) !=
+              null;
+
+          if (!containsBreadcrumb) {
+            final newBreadcrumb = Breadcrumb.fromJson(newBreadcrumbJson);
+            breadcrumbs.add(newBreadcrumb);
+          }
         }
 
         breadcrumbs.sort((a, b) {

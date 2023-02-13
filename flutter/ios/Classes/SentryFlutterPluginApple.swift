@@ -53,6 +53,14 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
     }
 
+    private lazy var dateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(abbreviation: "UTC")
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX"
+        return formatter
+    }()
+
     // swiftlint:disable:next cyclomatic_complexity
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method as String {
@@ -579,6 +587,11 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
       }
       if let data = breadcrumb["data"] as? [String: Any] {
         breadcrumbInstance.data = data
+      }
+
+      if let timestampValue = breadcrumb["timestamp"] as? String,
+         let timestamp = dateFormatter.date(from: timestampValue)  {
+        breadcrumbInstance.timestamp = timestamp
       }
 
       SentrySDK.addBreadcrumb(crumb: breadcrumbInstance)
