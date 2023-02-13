@@ -53,7 +53,7 @@ void main() {
         'breadcrumbs': [breadcrumb.toJson(), otherBreadcrumb.toJson()]
       };
       final future = Future.value(loadContexts);
-      when(fixture.methodChannel.invokeMethod('loadContexts'))
+      when(fixture.methodChannel.invokeMethod<dynamic>('loadContexts'))
           .thenAnswer((_) => future);
 
       _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
