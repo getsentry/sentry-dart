@@ -12,8 +12,21 @@ extension SentryDioExtension on Dio {
   /// as well as request and response transformations.
   /// This must be the last initialization step of the [Dio] setup, otherwise
   /// your configuration of Dio might overwrite the Sentry configuration.
+  ///
+  /// You can also configure specific HTTP response codes to be considered
+  /// as a failed request. In the following example, the status codes 404 and 500
+  /// are considered a failed request.
+  ///
+  /// ```dart
+  /// dio.addSentry(
+  ///   failedRequestStatusCodes: [SentryStatusCode.range(400, 404), SentryStatusCode(500)]
+  /// );
+  /// ```
+  ///
+  /// If not failed request status codes are provided, all failure requests will be captured.
   void addSentry({
     Hub? hub,
+    List<SentryStatusCode> failedRequestStatusCodes = const [],
   }) {
     hub = hub ?? HubAdapter();
 
@@ -34,7 +47,10 @@ extension SentryDioExtension on Dio {
     if (options.captureFailedRequests) {
       // Add FailedRequestInterceptor at index 0, so it's the first interceptor.
       // This ensures that it is called and not skipped by any previous interceptor.
-      interceptors.insert(0, FailedRequestInterceptor());
+      interceptors.insert(
+          0,
+          FailedRequestInterceptor(
+              failedRequestStatusCodes: failedRequestStatusCodes));
       // ignore: invalid_use_of_internal_member
       hub.options.sdk.addIntegration('DioHTTPClientError');
     }

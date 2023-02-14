@@ -29,6 +29,45 @@ void main() {
     expect(throwable.mechanism.type, 'SentryDioClientAdapter');
     expect(throwable.throwable, error);
   });
+
+  test('capture in range failedRequestStatusCodes', () async {
+    final error = DioError(requestOptions: RequestOptions(path: ''));
+    error.response = Response(
+      requestOptions: RequestOptions(path: '/'),
+      statusCode: 404,
+    );
+
+    final interceptor = fixture.getSut(
+      failedRequestStatusCodes: [SentryStatusCode(404)],
+    );
+
+    await interceptor.onError(
+      error,
+      fixture.errorInterceptorHandler,
+    );
+
+    final throwable = fixture.hub.captureExceptionCalls.first.throwable;
+    expect(throwable, isNotNull);
+  });
+
+  test('don\'t capture out of range failedRequestStatusCodes', () async {
+    final error = DioError(requestOptions: RequestOptions(path: ''));
+    error.response = Response(
+      requestOptions: RequestOptions(path: '/'),
+      statusCode: 502,
+    );
+
+    final interceptor = fixture.getSut(
+      failedRequestStatusCodes: [SentryStatusCode(404)],
+    );
+
+    await interceptor.onError(
+      error,
+      fixture.errorInterceptorHandler,
+    );
+
+    expect(fixture.hub.captureExceptionCalls.length, 0);
+  });
 }
 
 class Fixture {
@@ -36,8 +75,13 @@ class Fixture {
   MockedErrorInterceptorHandler errorInterceptorHandler =
       MockedErrorInterceptorHandler();
 
-  FailedRequestInterceptor getSut() {
-    return FailedRequestInterceptor(hub: hub);
+  FailedRequestInterceptor getSut({
+    List<SentryStatusCode> failedRequestStatusCodes = const [],
+  }) {
+    return FailedRequestInterceptor(
+      hub: hub,
+      failedRequestStatusCodes: failedRequestStatusCodes,
+    );
   }
 }
 
