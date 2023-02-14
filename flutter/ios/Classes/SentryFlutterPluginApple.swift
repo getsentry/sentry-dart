@@ -590,7 +590,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
       }
 
       if let timestampValue = breadcrumb["timestamp"] as? String,
-         let timestamp = dateFormatter.date(from: timestampValue)  {
+         let timestamp = dateFormatter.date(from: timestampValue) {
         breadcrumbInstance.timestamp = timestamp
       }
 
