@@ -87,11 +87,12 @@ class SentryTracer extends ISentrySpan {
 
       // finish unfinished spans otherwise transaction gets dropped
       final spansToBeFinished = _children.where((span) => !span.finished);
-      await Future.forEach(
-          spansToBeFinished,
-          (SentrySpan span) async => await span.finish(
-              status: SpanStatus.deadlineExceeded(),
-              endTimestamp: commonEndTimestamp));
+      for (final span in spansToBeFinished) {
+        await span.finish(
+          status: SpanStatus.deadlineExceeded(),
+          endTimestamp: commonEndTimestamp,
+        );
+      }
 
       var _rootEndTimestamp = commonEndTimestamp;
       if (_trimEnd && children.isNotEmpty) {

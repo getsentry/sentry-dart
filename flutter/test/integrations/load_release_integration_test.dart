@@ -143,7 +143,6 @@ void main() {
 }
 
 class Fixture {
-  final hub = MockHub();
   final options = SentryFlutterOptions(dsn: fakeDsn);
 
   LoadReleaseIntegration getIntegration({Function? loader}) {

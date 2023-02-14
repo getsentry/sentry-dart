@@ -19,14 +19,6 @@ class JvmException {
     return _parse(exception);
   }
 
-  static JvmException? tryParse(String exception) {
-    try {
-      return JvmException.parse(exception);
-    } catch (_) {
-      return null;
-    }
-  }
-
   final String? thread;
   final String? type;
   final String? description;
