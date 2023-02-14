@@ -48,9 +48,11 @@ extension SentryDioExtension on Dio {
       // Add FailedRequestInterceptor at index 0, so it's the first interceptor.
       // This ensures that it is called and not skipped by any previous interceptor.
       interceptors.insert(
-          0,
-          FailedRequestInterceptor(
-              failedRequestStatusCodes: failedRequestStatusCodes));
+        0,
+        FailedRequestInterceptor(
+          failedRequestStatusCodes: failedRequestStatusCodes,
+        ),
+      );
       // ignore: invalid_use_of_internal_member
       hub.options.sdk.addIntegration('DioHTTPClientError');
     }

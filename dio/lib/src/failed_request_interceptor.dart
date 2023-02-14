@@ -4,9 +4,10 @@ import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
 
 class FailedRequestInterceptor extends Interceptor {
-  FailedRequestInterceptor(
-      {Hub? hub, List<SentryStatusCode> failedRequestStatusCodes = const []})
-      : _hub = hub ?? HubAdapter(),
+  FailedRequestInterceptor({
+    Hub? hub,
+    List<SentryStatusCode> failedRequestStatusCodes = const [],
+  })  : _hub = hub ?? HubAdapter(),
         _failedRequestStatusCodes = failedRequestStatusCodes;
 
   final Hub _hub;
