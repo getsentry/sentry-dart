@@ -87,7 +87,7 @@ class SentryClient {
       return _sentryId;
     }
 
-    preparedEvent = await _processEvent(
+    preparedEvent = await _runEventProcessors(
       preparedEvent,
       eventProcessors: _options.eventProcessors,
       hint: hint,
@@ -98,27 +98,14 @@ class SentryClient {
       return _sentryId;
     }
 
-    final beforeSend = _options.beforeSend;
-    if (beforeSend != null) {
-      final beforeSendEvent = preparedEvent;
-      try {
-        preparedEvent = await beforeSend(preparedEvent, hint: hint);
-      } catch (exception, stackTrace) {
-        _options.logger(
-          SentryLevel.error,
-          'The BeforeSend callback threw an exception',
-          exception: exception,
-          stackTrace: stackTrace,
-        );
-      }
-      if (preparedEvent == null) {
-        _recordLostEvent(beforeSendEvent, DiscardReason.beforeSend);
-        _options.logger(
-          SentryLevel.debug,
-          'Event was dropped by BeforeSend callback',
-        );
-        return _sentryId;
-      }
+    preparedEvent = await _runBeforeSend(
+      preparedEvent,
+      hint: hint,
+    );
+
+    // dropped by beforeSend
+    if (preparedEvent == null) {
+      return _sentryId;
     }
 
     if (_options.platformChecker.platform.isAndroid &&
@@ -324,12 +311,20 @@ class SentryClient {
       return _sentryId;
     }
 
-    preparedTransaction = await _processEvent(
+    preparedTransaction = await _runEventProcessors(
       preparedTransaction,
       eventProcessors: _options.eventProcessors,
     ) as SentryTransaction?;
 
     // dropped by event processors
+    if (preparedTransaction == null) {
+      return _sentryId;
+    }
+
+    preparedTransaction =
+        await _runBeforeSend(preparedTransaction) as SentryTransaction?;
+
+    // dropped by beforeSendTransaction
     if (preparedTransaction == null) {
       return _sentryId;
     }
@@ -366,7 +361,44 @@ class SentryClient {
 
   void close() => _options.httpClient.close();
 
-  Future<SentryEvent?> _processEvent(
+  Future<SentryEvent?> _runBeforeSend(
+    SentryEvent event, {
+    Hint? hint,
+  }) async {
+    SentryEvent? eventOrTransaction = event;
+
+    final beforeSend = _options.beforeSend;
+    final beforeSendTransaction = _options.beforeSendTransaction;
+    String beforeSendName = 'beforeSend';
+
+    try {
+      if (event is SentryTransaction && beforeSendTransaction != null) {
+        beforeSendName = 'beforeSendTransaction';
+        eventOrTransaction = await beforeSendTransaction(event);
+      } else if (beforeSend != null) {
+        eventOrTransaction = await beforeSend(event, hint: hint);
+      }
+    } catch (exception, stackTrace) {
+      _options.logger(
+        SentryLevel.error,
+        'The $beforeSendName callback threw an exception',
+        exception: exception,
+        stackTrace: stackTrace,
+      );
+    }
+
+    if (eventOrTransaction == null) {
+      _recordLostEvent(event, DiscardReason.beforeSend);
+      _options.logger(
+        SentryLevel.debug,
+        '${event.runtimeType} was dropped by $beforeSendName callback',
+      );
+    }
+
+    return eventOrTransaction;
+  }
+
+  Future<SentryEvent?> _runEventProcessors(
     SentryEvent event, {
     Hint? hint,
     required List<EventProcessor> eventProcessors,

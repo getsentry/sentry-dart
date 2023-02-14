@@ -186,6 +186,4 @@ void main() {
   });
 }
 
-class NonEncodable {
-  final String message = 'Hello World';
-}
+class NonEncodable {}
