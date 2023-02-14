@@ -1,4 +1,4 @@
-import 'package:sentry/src/utils/sample_rate_format.dart';
+import 'package:sentry/src/vendor/intl/number_format.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -27,7 +27,7 @@ void main() {
     ];
 
     for (var inputAndOutput in inputsAndOutputs) {
-      expect(SampleRateFormat.format(inputAndOutput.i), inputAndOutput.o);
+      expect(NumberFormat('#.################').format(inputAndOutput.i), inputAndOutput.o);
     }
   });
 }

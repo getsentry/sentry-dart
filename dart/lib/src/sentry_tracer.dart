@@ -4,7 +4,7 @@ import 'package:meta/meta.dart';
 
 import '../sentry.dart';
 import 'sentry_tracer_finish_status.dart';
-import 'utils/sample_rate_format.dart';
+import 'vendor/intl/number_format.dart';
 
 @internal
 class SentryTracer extends ISentrySpan {
@@ -346,7 +346,7 @@ class SentryTracer extends ISentrySpan {
     if (!isValidSampleRate(sampleRate)) {
       return null;
     }
-    return sampleRate != null ? SampleRateFormat.format(sampleRate) : null;
+    return sampleRate != null ? NumberFormat("#.################").format(sampleRate) : null;
   }
 
   bool _isHighQualityTransactionName(SentryTransactionNameSource source) {
