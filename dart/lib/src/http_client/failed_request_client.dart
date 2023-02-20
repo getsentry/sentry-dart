@@ -31,6 +31,8 @@ import 'sentry_http_client.dart';
 /// );
 /// ```
 ///
+///
+///
 /// Remarks:
 /// If this client is used as a wrapper, a call to close also closes the
 /// given client.
@@ -69,7 +71,7 @@ import 'sentry_http_client.dart';
 class FailedRequestClient extends BaseClient {
   FailedRequestClient({
     this.failedRequestStatusCodes = const [SentryStatusCode.defaultRange()],
-    this.failedRequestTargets = const [".*"],
+    this.failedRequestTargets = const ['.*'],
     Client? client,
     Hub? hub,
   })  : _hub = hub ?? HubAdapter(),

@@ -23,6 +23,19 @@ import 'failed_request_client.dart';
 /// );
 /// ```
 ///
+/// If empty request status codes are provided, all failure requests will be
+/// captured. Per default, codes in the range 500-599 are recorded.
+///
+/// If you provide failed request targets, rhe SDK will only capture HTTP
+/// Client errors if the HTTP Request URL is a match for any of the provided
+/// targets.
+///
+/// ```dart
+/// var client = SentryHttpClient(
+///   failedRequestTargets: ['my-api.com'],
+/// );
+/// ```
+///
 /// Remarks: If this client is used as a wrapper, a call to close also closes
 /// the given client.
 ///

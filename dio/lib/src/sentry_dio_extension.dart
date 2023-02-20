@@ -19,14 +19,31 @@ extension SentryDioExtension on Dio {
   ///
   /// ```dart
   /// dio.addSentry(
-  ///   failedRequestStatusCodes: [SentryStatusCode.range(400, 404), SentryStatusCode(500)]
+  ///   failedRequestStatusCodes: [
+  ///     SentryStatusCode.range(400, 404),
+  ///     SentryStatusCode(500),
+  ///   ]
   /// );
   /// ```
   ///
-  /// If not failed request status codes are provided, all failure requests will be captured.
+  /// If empty request status codes are provided, all failure requests will be
+  /// captured. Per default, codes in the range 500-599 are recorded.
+  ///
+  /// If you provide failed request targets, rhe SDK will only capture HTTP
+  /// Client errors if the HTTP Request URL is a match for any of the provided
+  /// targets.
+  ///
+  /// ```dart
+  /// dio.addSentry(
+  ///   failedRequestTargets: ['my-api.com'],
+  /// );
+  /// ```
   void addSentry({
     Hub? hub,
-    List<SentryStatusCode> failedRequestStatusCodes = const [],
+    List<SentryStatusCode> failedRequestStatusCodes = const [
+      SentryStatusCode.defaultRange()
+    ],
+    List<String> failedRequestTargets = const ['.*'],
   }) {
     hub = hub ?? HubAdapter();
 
@@ -51,6 +68,7 @@ extension SentryDioExtension on Dio {
         0,
         FailedRequestInterceptor(
           failedRequestStatusCodes: failedRequestStatusCodes,
+          failedRequestTargets: failedRequestTargets,
         ),
       );
       // ignore: invalid_use_of_internal_member

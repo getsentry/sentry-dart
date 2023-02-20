@@ -14,12 +14,14 @@ void main() {
   });
 
   test('interceptor send error', () async {
-    final interceptor = fixture.getSut();
-    final error = DioError(requestOptions: RequestOptions(path: ''));
-    await interceptor.onError(
-      error,
-      fixture.errorInterceptorHandler,
+    final requestOptions = RequestOptions(path: 'https://example.com');
+    final error = DioError(
+      requestOptions: requestOptions,
+      response: Response(statusCode: 500, requestOptions: requestOptions),
     );
+
+    final sut = fixture.getSut();
+    await sut.onError(error, fixture.errorInterceptorHandler);
 
     expect(fixture.errorInterceptorHandler.nextWasCalled, true);
     expect(fixture.hub.captureExceptionCalls.length, 1);
@@ -30,42 +32,74 @@ void main() {
     expect(throwable.throwable, error);
   });
 
-  test('capture in range failedRequestStatusCodes', () async {
-    final error = DioError(requestOptions: RequestOptions(path: ''));
-    error.response = Response(
-      requestOptions: RequestOptions(path: '/'),
-      statusCode: 404,
+  test('do not capture if captureFailedRequests false', () async {
+    final requestOptions = RequestOptions(path: 'https://example.com');
+    final error = DioError(
+      requestOptions: requestOptions,
+      response: Response(statusCode: 500, requestOptions: requestOptions),
     );
 
-    final interceptor = fixture.getSut(
-      failedRequestStatusCodes: [SentryStatusCode(404)],
-    );
+    fixture.hub.options.captureFailedRequests = false;
 
-    await interceptor.onError(
-      error,
-      fixture.errorInterceptorHandler,
-    );
+    final sut = fixture.getSut();
+    await sut.onError(error, fixture.errorInterceptorHandler);
 
-    final throwable = fixture.hub.captureExceptionCalls.first.throwable;
-    expect(throwable, isNotNull);
+    expect(fixture.errorInterceptorHandler.nextWasCalled, true);
+    expect(fixture.hub.captureExceptionCalls.length, 0);
   });
 
-  test('don\'t capture out of range failedRequestStatusCodes', () async {
-    final error = DioError(requestOptions: RequestOptions(path: ''));
-    error.response = Response(
-      requestOptions: RequestOptions(path: '/'),
-      statusCode: 502,
+  test('capture in range failedRequestStatusCodes', () async {
+    final requestOptions = RequestOptions(path: 'https://example.com');
+    final error = DioError(
+      requestOptions: requestOptions,
+      response: Response(statusCode: 404, requestOptions: requestOptions),
     );
 
-    final interceptor = fixture.getSut(
+    fixture.hub.options.captureFailedRequests = true;
+
+    final sut = fixture.getSut(
       failedRequestStatusCodes: [SentryStatusCode(404)],
     );
+    await sut.onError(error, fixture.errorInterceptorHandler);
 
-    await interceptor.onError(
-      error,
-      fixture.errorInterceptorHandler,
+    expect(fixture.errorInterceptorHandler.nextWasCalled, true);
+    expect(fixture.hub.captureExceptionCalls.first, isNotNull);
+    expect(fixture.hub.captureExceptionCalls.first.throwable, isNotNull);
+  });
+
+  test('do not capture out of range failedRequestStatusCodes', () async {
+    final requestOptions = RequestOptions(path: 'https://example.com');
+    final error = DioError(
+      requestOptions: requestOptions,
+      response: Response(statusCode: 502, requestOptions: requestOptions),
     );
 
+    fixture.hub.options.captureFailedRequests = true;
+
+    final sut = fixture.getSut(
+      failedRequestStatusCodes: [SentryStatusCode(404)],
+    );
+    await sut.onError(error, fixture.errorInterceptorHandler);
+
+    expect(fixture.errorInterceptorHandler.nextWasCalled, true);
+    expect(fixture.hub.captureExceptionCalls.length, 0);
+  });
+
+  test('don not capture not matching target', () async {
+    final requestOptions = RequestOptions(path: 'https://example.com');
+    final error = DioError(
+      requestOptions: requestOptions,
+      response: Response(statusCode: 502, requestOptions: requestOptions),
+    );
+
+    fixture.hub.options.captureFailedRequests = true;
+
+    final sut = fixture.getSut(
+      failedRequestTargets: ['myapi.com'],
+    );
+    await sut.onError(error, fixture.errorInterceptorHandler);
+
+    expect(fixture.errorInterceptorHandler.nextWasCalled, true);
     expect(fixture.hub.captureExceptionCalls.length, 0);
   });
 }
@@ -76,11 +110,15 @@ class Fixture {
       MockedErrorInterceptorHandler();
 
   FailedRequestInterceptor getSut({
-    List<SentryStatusCode> failedRequestStatusCodes = const [],
+    List<SentryStatusCode> failedRequestStatusCodes = const [
+      SentryStatusCode.defaultRange()
+    ],
+    List<String> failedRequestTargets = const ['.*'],
   }) {
     return FailedRequestInterceptor(
       hub: hub,
       failedRequestStatusCodes: failedRequestStatusCodes,
+      failedRequestTargets: failedRequestTargets,
     );
   }
 }
