@@ -49,7 +49,6 @@ class ScreenshotEventProcessor extends EventProcessor {
       final renderObject = context?.findRenderObject();
 
       if (context != null && renderObject is RenderRepaintBoundary) {
-
         final pixelRatio = window.devicePixelRatio;
         var image = await renderObject.toImage(pixelRatio: pixelRatio);
         // At the time of writing there's no other image format available which

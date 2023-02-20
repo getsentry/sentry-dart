@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Allow sentry user to control resolution of captured Flutter screenshots ([#1288](https://github.com/getsentry/sentry-dart/pull/1288))
+
 ### Fixes
 
 - Set client name with version in Android SDK ([#1274](https://github.com/getsentry/sentry-dart/pull/1274))
