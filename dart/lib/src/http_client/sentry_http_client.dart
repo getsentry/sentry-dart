@@ -105,6 +105,13 @@ class SentryHttpClient extends BaseClient {
 }
 
 class SentryStatusCode {
+  static const defaultMin = 500;
+  static const defaultMax = 599;
+
+  const SentryStatusCode.defaultRange()
+      : _min = defaultMin,
+        _max = defaultMax;
+
   SentryStatusCode.range(this._min, this._max)
       : assert(_min <= _max),
         assert(_min > 0 && _max > 0);
