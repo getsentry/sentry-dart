@@ -92,25 +92,25 @@ class NumberFormatParser {
         pattern = StringStack(input);
 
   static NumberFormatParseResult parse(
-      NumberSymbols symbols,
-      String? input,
-      bool isForCurrency,
-      String currencySymbol,
-      String currencyName,
-      int? decimalDigits) =>
+          NumberSymbols symbols,
+          String? input,
+          bool isForCurrency,
+          String currencySymbol,
+          String currencyName,
+          int? decimalDigits) =>
       input == null
           ? NumberFormatParseResult(symbols, decimalDigits)
           : (NumberFormatParser(symbols, input, isForCurrency, currencySymbol,
-          currencyName, decimalDigits)
-        .._parse())
-          .result;
+                  currencyName, decimalDigits)
+                .._parse())
+              .result;
 
   /// For currencies, the default number of decimal places to use in
   /// formatting. Defaults to two for non-currencies or currencies where it's
   /// not specified.
   int get _defaultDecimalDigits =>
       currencyFractionDigits[currencyName.toUpperCase()] ??
-          currencyFractionDigits['DEFAULT']!;
+      currencyFractionDigits['DEFAULT']!;
 
   /// Parse the input pattern and update [result].
   void _parse() {
@@ -190,7 +190,7 @@ class NumberFormatParser {
         case PATTERN_SEPARATOR:
           return false;
         case PATTERN_CURRENCY_SIGN:
-        // TODO(alanknight): Handle the local/global/portable currency signs
+          // TODO(alanknight): Handle the local/global/portable currency signs
           affix.write(currencySymbol);
           break;
         case PATTERN_PERCENT:
@@ -250,7 +250,7 @@ class NumberFormatParser {
     var totalDigits = digitLeftCount + zeroDigitCount + digitRightCount;
 
     result.maximumFractionDigits =
-    decimalPos >= 0 ? totalDigits - decimalPos : 0;
+        decimalPos >= 0 ? totalDigits - decimalPos : 0;
     if (decimalPos >= 0) {
       result.minimumFractionDigits =
           digitLeftCount + zeroDigitCount - decimalPos;

@@ -140,12 +140,12 @@ class _CompactStyleWithNegative extends _CompactStyleBase {
 class _CompactStyle extends _CompactStyleBase {
   _CompactStyle(
       {this.pattern,
-        this.divisor = 1,
-        this.positivePrefix = '',
-        this.negativePrefix = '',
-        this.positiveSuffix = '',
-        this.negativeSuffix = '',
-        this.isDirectValue = false});
+      this.divisor = 1,
+      this.positivePrefix = '',
+      this.negativePrefix = '',
+      this.positiveSuffix = '',
+      this.negativeSuffix = '',
+      this.isDirectValue = false});
 
   /// The pattern on which this is based.
   ///
@@ -220,9 +220,9 @@ class _CompactStyle extends _CompactStyleBase {
     }
 
     final positivePrefix =
-    (explicitSign && !isSigned) ? '${symbols.PLUS_SIGN}$prefix' : prefix;
+        (explicitSign && !isSigned) ? '${symbols.PLUS_SIGN}$prefix' : prefix;
     final negativePrefix =
-    (!isSigned) ? '${symbols.MINUS_SIGN}$prefix' : prefix;
+        (!isSigned) ? '${symbols.MINUS_SIGN}$prefix' : prefix;
     final positiveSuffix = suffix;
     final negativeSuffix = suffix;
 
@@ -256,14 +256,14 @@ class _CompactNumberFormat extends NumberFormat {
 
   factory _CompactNumberFormat(
       {String? locale,
-        _CompactFormatType? formatType,
-        String? name,
-        String? currencySymbol,
-        String? Function(NumberSymbols) getPattern = _forDecimal,
-        int? decimalDigits,
-        bool explicitSign = false,
-        bool lookupSimpleCurrencySymbol = false,
-        bool isForCurrency = false}) {
+      _CompactFormatType? formatType,
+      String? name,
+      String? currencySymbol,
+      String? Function(NumberSymbols) getPattern = _forDecimal,
+      int? decimalDigits,
+      bool explicitSign = false,
+      bool lookupSimpleCurrencySymbol = false,
+      bool isForCurrency = false}) {
     // Initialization copied from `NumberFormat` constructor.
     // TODO(davidmorgan): deduplicate.
     locale = helpers.verifiedLocale(locale, NumberFormat.localeExists, null)!;
@@ -378,7 +378,7 @@ class _CompactNumberFormat extends NumberFormat {
       this._styles,
       this._explicitSign)
       : super._(currencyName, currencySymbol, isForCurrency, locale, localeZero,
-      pattern, symbols, zeroOffset, result) {
+            pattern, symbols, zeroOffset, result) {
     significantDigits = 3;
     turnOffGrouping();
   }

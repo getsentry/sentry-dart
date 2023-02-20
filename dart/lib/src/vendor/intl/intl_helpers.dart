@@ -45,7 +45,7 @@ class UninitializedLocaleData<F> implements MessageLookup {
     if (throwOnFallback && _badMessages.isNotEmpty) {
       throw StateError(
           'The following messages were called before locale initialization:'
-              ' $_uninitializedMessages');
+          ' $_uninitializedMessages');
     }
   }
 
@@ -108,7 +108,7 @@ abstract class LocaleDataReader {
 /// by the implementing package so that we're not dependent on its
 /// implementation.
 MessageLookup messageLookup =
-UninitializedLocaleData('initializeMessages(<locale>)', null);
+    UninitializedLocaleData('initializeMessages(<locale>)', null);
 
 /// Initialize the message lookup mechanism. This is for internal use only.
 /// User applications should import `message_lookup_by_library.dart` and call

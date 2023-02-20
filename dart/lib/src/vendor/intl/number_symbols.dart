@@ -30,21 +30,21 @@ class NumberSymbols {
 
   const NumberSymbols(
       {required this.NAME,
-        required this.DECIMAL_SEP,
-        required this.GROUP_SEP,
-        required this.PERCENT,
-        required this.ZERO_DIGIT,
-        required this.PLUS_SIGN,
-        required this.MINUS_SIGN,
-        required this.EXP_SYMBOL,
-        required this.PERMILL,
-        required this.INFINITY,
-        required this.NAN,
-        required this.DECIMAL_PATTERN,
-        required this.SCIENTIFIC_PATTERN,
-        required this.PERCENT_PATTERN,
-        required this.CURRENCY_PATTERN,
-        required this.DEF_CURRENCY_CODE});
+      required this.DECIMAL_SEP,
+      required this.GROUP_SEP,
+      required this.PERCENT,
+      required this.ZERO_DIGIT,
+      required this.PLUS_SIGN,
+      required this.MINUS_SIGN,
+      required this.EXP_SYMBOL,
+      required this.PERMILL,
+      required this.INFINITY,
+      required this.NAN,
+      required this.DECIMAL_PATTERN,
+      required this.SCIENTIFIC_PATTERN,
+      required this.PERCENT_PATTERN,
+      required this.CURRENCY_PATTERN,
+      required this.DEF_CURRENCY_CODE});
 
   @override
   String toString() => NAME;
@@ -60,6 +60,6 @@ class CompactNumberSymbols {
   final Map<int, Map<String, String>> COMPACT_DECIMAL_SHORT_CURRENCY_PATTERN;
   CompactNumberSymbols(
       {required this.COMPACT_DECIMAL_SHORT_PATTERN,
-        this.COMPACT_DECIMAL_LONG_PATTERN,
-        required this.COMPACT_DECIMAL_SHORT_CURRENCY_PATTERN});
+      this.COMPACT_DECIMAL_LONG_PATTERN,
+      required this.COMPACT_DECIMAL_SHORT_CURRENCY_PATTERN});
 }

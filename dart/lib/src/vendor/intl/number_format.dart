@@ -208,7 +208,7 @@ class NumberFormat {
 
   /// Create a number format that prints as DECIMAL_PATTERN.
   factory NumberFormat.decimalPatternDigits(
-      {String? locale, int? decimalDigits}) =>
+          {String? locale, int? decimalDigits}) =>
       NumberFormat._forPattern(locale, (x) => x.DECIMAL_PATTERN,
           decimalDigits: decimalDigits);
 
@@ -218,7 +218,7 @@ class NumberFormat {
 
   /// Create a number format that prints as PERCENT_PATTERN.
   factory NumberFormat.decimalPercentPattern(
-      {String? locale, int? decimalDigits}) =>
+          {String? locale, int? decimalDigits}) =>
       NumberFormat._forPattern(locale, (x) => x.PERCENT_PATTERN,
           decimalDigits: decimalDigits);
 
@@ -287,11 +287,11 @@ class NumberFormat {
   /// unsupported formats (e.g. accounting format for currencies.)
   // TODO(alanknight): Should we allow decimalDigits on other numbers.
   factory NumberFormat.currency(
-      {String? locale,
-        String? name,
-        String? symbol,
-        int? decimalDigits,
-        String? customPattern}) =>
+          {String? locale,
+          String? name,
+          String? symbol,
+          int? decimalDigits,
+          String? customPattern}) =>
       NumberFormat._forPattern(
           locale, (x) => customPattern ?? x.CURRENCY_PATTERN,
           name: name,
@@ -355,10 +355,10 @@ class NumberFormat {
   /// information, typically the verified locale.
   factory NumberFormat._forPattern(String? locale, _PatternGetter getPattern,
       {String? name,
-        String? currencySymbol,
-        int? decimalDigits,
-        bool lookupSimpleCurrencySymbol = false,
-        bool isForCurrency = false}) {
+      String? currencySymbol,
+      int? decimalDigits,
+      bool lookupSimpleCurrencySymbol = false,
+      bool isForCurrency = false}) {
     locale = helpers.verifiedLocale(locale, localeExists, null)!;
     var symbols = numberFormatSymbols[locale] as NumberSymbols;
     var localeZero = symbols.ZERO_DIGIT.codeUnitAt(0);
@@ -675,9 +675,9 @@ class NumberFormat {
           var integerLength = number == 0
               ? 1
               : integerPart != 0
-              ? numberOfIntegerDigits(integerPart)
-          // We might need to add digits after decimal point.
-              : (log(fraction) / ln10).ceil();
+                  ? numberOfIntegerDigits(integerPart)
+                  // We might need to add digits after decimal point.
+                  : (log(fraction) / ln10).ceil();
 
           if (minimumSignificantDigits != null) {
             var remainingSignificantDigits =
@@ -801,7 +801,7 @@ class NumberFormat {
     var extra = extraIntegerDigits == 0 ? '' : extraIntegerDigits.toString();
     var intDigits = _mainIntegerDigits(integerPart);
     var paddedExtra =
-    intDigits.isEmpty ? extra : extra.padLeft(_multiplierDigits, '0');
+        intDigits.isEmpty ? extra : extra.padLeft(_multiplierDigits, '0');
     return '$intDigits$paddedExtra$paddingDigits';
   }
 
@@ -827,7 +827,7 @@ class NumberFormat {
   void _formatFractionPart(String fractionPart, int minDigits) {
     var fractionLength = fractionPart.length;
     while (fractionPart.codeUnitAt(fractionLength - 1) ==
-        constants.asciiZeroCodeUnit &&
+            constants.asciiZeroCodeUnit &&
         fractionLength > minDigits + 1) {
       fractionLength--;
     }

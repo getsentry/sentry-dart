@@ -27,7 +27,8 @@ void main() {
     ];
 
     for (var inputAndOutput in inputsAndOutputs) {
-      expect(NumberFormat('#.################').format(inputAndOutput.i), inputAndOutput.o);
+      expect(NumberFormat('#.################').format(inputAndOutput.i),
+          inputAndOutput.o);
     }
   });
 }

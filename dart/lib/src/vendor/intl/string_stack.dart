@@ -4,8 +4,6 @@
 
 import 'dart:math';
 
-import 'package:meta/meta.dart';
-
 /// An indexed position in a String which can read by specified character
 /// counts, or read digits up to a delimiter.
 class StringStack {

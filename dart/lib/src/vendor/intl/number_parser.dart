@@ -81,22 +81,22 @@ class NumberParser {
   Map<String, Function>? _replacements;
 
   Map<String, Function> _initializeReplacements() => {
-    symbols.DECIMAL_SEP: () => '.',
-    symbols.EXP_SYMBOL: () => 'E',
-    symbols.GROUP_SEP: handleSpace,
-    symbols.PERCENT: () {
-      scale = NumberFormatParser.PERCENT_SCALE;
-      return '';
-    },
-    symbols.PERMILL: () {
-      scale = NumberFormatParser.PER_MILLE_SCALE;
-      return '';
-    },
-    ' ': handleSpace,
-    '\u00a0': handleSpace,
-    '+': () => '+',
-    '-': () => '-',
-  };
+        symbols.DECIMAL_SEP: () => '.',
+        symbols.EXP_SYMBOL: () => 'E',
+        symbols.GROUP_SEP: handleSpace,
+        symbols.PERCENT: () {
+          scale = NumberFormatParser.PERCENT_SCALE;
+          return '';
+        },
+        symbols.PERMILL: () {
+          scale = NumberFormatParser.PER_MILLE_SCALE;
+          return '';
+        },
+        ' ': handleSpace,
+        '\u00a0': handleSpace,
+        '+': () => '+',
+        '-': () => '-',
+      };
 
   void invalidFormat() =>
       throw FormatException('Invalid number: ${input.contents}');
