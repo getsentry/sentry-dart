@@ -26,7 +26,7 @@ import 'failed_request_client.dart';
 /// If empty request status codes are provided, all failure requests will be
 /// captured. Per default, codes in the range 500-599 are recorded.
 ///
-/// If you provide failed request targets, rhe SDK will only capture HTTP
+/// If you provide failed request targets, the SDK will only capture HTTP
 /// Client errors if the HTTP Request URL is a match for any of the provided
 /// targets.
 ///
