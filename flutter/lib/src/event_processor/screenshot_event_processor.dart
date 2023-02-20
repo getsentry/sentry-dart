@@ -83,10 +83,12 @@ class ScreenshotEventProcessor extends EventProcessor {
     return null;
   }
 
-  FutureOr<ui.Image> _getImage(RenderRepaintBoundary repaintBoundary, double pixelRatio) {
+  FutureOr<ui.Image> _getImage(
+      RenderRepaintBoundary repaintBoundary, double pixelRatio) {
     // This one is a hack to use https://api.flutter.dev/flutter/rendering/RenderRepaintBoundary/toImage.html on versions older than 3.7 and https://api.flutter.dev/flutter/rendering/RenderRepaintBoundary/toImageSync.html on versions equal or newer than 3.7
     try {
-      return (repaintBoundary as dynamic).toImageSync(pixelRatio: pixelRatio) as ui.Image;
+      return (repaintBoundary as dynamic).toImageSync(pixelRatio: pixelRatio)
+          as ui.Image;
     } on NoSuchMethodError catch (_) {
       return repaintBoundary.toImage(pixelRatio: pixelRatio);
     }
