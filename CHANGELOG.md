@@ -6,6 +6,11 @@
 
 - Add In Foreground to App context ([#1260](https://github.com/getsentry/sentry-dart/pull/1260))
 
+### Breaking Changes
+
+- Support failedRequestTargets for HTTP Client errors ([#1285](https://github.com/getsentry/sentry-dart/pull/1285))
+  - Captures errors for the default range `500-599` if `captureFailedRequests` is enabled
+
 ### Fixes
 
 - View hierarchy reads size from RenderBox only ([#1258](https://github.com/getsentry/sentry-dart/pull/1258))
