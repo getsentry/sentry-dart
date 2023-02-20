@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Breaking Changes
+
+- Support failedRequestTargets for HTTP Client errors ([#1285](https://github.com/getsentry/sentry-dart/pull/1285))
+  - Captures errors for the default range `500-599` if `captureFailedRequests` is enabled
+
 ### Fixes
 
 - Set client name with version in Android SDK ([#1274](https://github.com/getsentry/sentry-dart/pull/1274))
@@ -12,11 +17,6 @@
 
 - Support beforeSendTransaction ([#1238](https://github.com/getsentry/sentry-dart/pull/1238))
 - Add In Foreground to App context ([#1260](https://github.com/getsentry/sentry-dart/pull/1260))
-
-### Breaking Changes
-
-- Support failedRequestTargets for HTTP Client errors ([#1285](https://github.com/getsentry/sentry-dart/pull/1285))
-  - Captures errors for the default range `500-599` if `captureFailedRequests` is enabled
 
 ### Fixes
 
