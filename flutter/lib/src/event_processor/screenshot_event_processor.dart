@@ -45,10 +45,8 @@ class ScreenshotEventProcessor extends EventProcessor {
 
   Future<Uint8List?> _createScreenshot() async {
     try {
-      final context = sentryScreenshotWidgetGlobalKey.currentContext;
-      final renderObject = context?.findRenderObject();
-
-      if (context != null && renderObject is RenderRepaintBoundary) {
+      final renderObject = sentryScreenshotWidgetGlobalKey.currentContext?.findRenderObject();
+      if (renderObject is RenderRepaintBoundary) {
         final pixelRatio = window.devicePixelRatio;
         var image = await renderObject.toImage(pixelRatio: pixelRatio);
         // At the time of writing there's no other image format available which
