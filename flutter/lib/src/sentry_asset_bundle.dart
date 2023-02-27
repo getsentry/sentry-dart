@@ -339,20 +339,24 @@ class SentryAssetBundle implements AssetBundle {
     return _loadStructuredBinaryDataWrapper<T>(key, parser);
   }
 
-  // helper method to have a "typesafe" method
+  // Helper method that emulates the loadStructuredBinaryData method present on
+  // Flutter 3.8 and later, but not on earlier versions. This is equivalent to
+  // the following code:
+  //
+  //   Future<T> loadStructuredBinaryData<T>(
+  //     String key,
+  //     FutureOr<T> Function(ByteData data) parser,
+  //   ) async {
+  //     return (_bundle as dynamic).loadStructuredBinaryData<T>(key, parser) as Future<T>;
+  //   }
+  //
+  // but it works on all Flutter versions. Can be safely refactored back to the
+  // above code once we drop support for Flutter versions < 3.8.
   Future<T> _loadStructuredBinaryDataWrapper<T>(
     String key,
     FutureOr<T> Function(ByteData data) parser,
   ) async {
-    // The loadStructuredBinaryData method exists as of Flutter greater than 3.8
-    // Previous versions don't have it, but later versions do.
-    // We can't use `extends` in order to provide this method because this is
-    // a wrapper and thus the method call must be forwarded.
-    // On Flutter versions <=3.8 we can't forward this call.
-    // On later version the call gets correctly forwarded.
-    // The error doesn't need to handled since it can't be called on earlier versions,
-    // and it's correctly forwarded on later versions.
-    return (_bundle as dynamic).loadStructuredBinaryData<T>(key, parser)
-        as Future<T>;
+    final ByteData data = await load(key);
+    return parser(data);
   }
 }

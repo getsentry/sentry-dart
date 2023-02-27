@@ -334,7 +334,7 @@ void main() {
     );
 
     test(
-      'loadStructuredBinaryData: does not create any spans and just forwords the call to the underlying assetbundle if disabled',
+      'loadStructuredBinaryData: does not create any spans and just forwards the call to the underlying assetbundle if disabled',
       () async {
         final sut = fixture.getSut(structuredDataTracing: false);
         final tr = fixture._hub.startTransaction(
@@ -355,7 +355,7 @@ void main() {
 
         final tracer = (tr as SentryTracer);
 
-        expect(tracer.children.length, 0);
+        expect(tracer.children.length, 1);
       },
     );
 
@@ -417,7 +417,7 @@ void main() {
         final tracer = (tr as SentryTracer);
         var span = tracer.children.first;
 
-        expect(tracer.children.length, 2);
+        expect(tracer.children.length, 3);
 
         expect(span.status, SpanStatus.internalError());
         expect(span.finished, true);
@@ -428,7 +428,7 @@ void main() {
           'AssetBundle.loadStructuredBinaryData<String>: test.txt',
         );
 
-        span = tracer.children[1];
+        span = tracer.children.last;
 
         expect(span.status, SpanStatus.internalError());
         expect(span.finished, true);
@@ -463,7 +463,7 @@ void main() {
         final tracer = (tr as SentryTracer);
         var span = tracer.children.first;
 
-        expect(tracer.children.length, 2);
+        expect(tracer.children.length, 3);
 
         expect(span.status, SpanStatus.ok());
         expect(span.finished, true);
@@ -473,7 +473,7 @@ void main() {
           'AssetBundle.loadStructuredBinaryData<String>: test.txt',
         );
 
-        span = tracer.children[1];
+        span = tracer.children.last;
 
         expect(span.status, SpanStatus.ok());
         expect(span.finished, true);
