@@ -1,9 +1,6 @@
-import 'package:meta/meta.dart';
-
 import 'protocol/sentry_level.dart';
 import 'sentry_options.dart';
 
-@experimental
 class SentryBaggage {
   static const String _sampleRateKeyName = 'sentry-sample_rate';
   static const int _maxChars = 8192;

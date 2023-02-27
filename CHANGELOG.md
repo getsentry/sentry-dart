@@ -2,9 +2,39 @@
 
 ## Unreleased
 
+### Fixes
+
+- Set client name with version in Android SDK ([#1274](https://github.com/getsentry/sentry-dart/pull/1274))
+
+## 7.0.0-beta.4
+
 ### Features
 
-- Error Cause Extractor ([#1198](https://github.com/getsentry/sentry-dart/pull/1198))
+- Support beforeSendTransaction ([#1238](https://github.com/getsentry/sentry-dart/pull/1238))
+- Add In Foreground to App context ([#1260](https://github.com/getsentry/sentry-dart/pull/1260))
+
+### Fixes
+
+- View hierarchy reads size from RenderBox only ([#1258](https://github.com/getsentry/sentry-dart/pull/1258))
+- Try to avoid ConcurrentModificationError by not using a Future.forEach ([#1259](https://github.com/getsentry/sentry-dart/pull/1259))
+
+### Dependencies
+
+- Bump Android SDK from v6.12.1 to v6.13.0 ([#1250](https://github.com/getsentry/sentry-dart/pull/1250))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6130)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.12.1...6.13.0)
+
+## 7.0.0-beta.1
+
+### Fixes
+
+- isWeb check for WASM ([#1249](https://github.com/getsentry/sentry-dart/pull/1249))
+
+## 7.0.0-alpha.5
+
+### Features
+
+- Error Cause Extractor ([#1198](https://github.com/getsentry/sentry-dart/pull/1198), [#1236](https://github.com/getsentry/sentry-dart/pull/1236))
   - Add `throwable` to `SentryException`
 - Sentry Isolate Extension ([#1266](https://github.com/getsentry/sentry-dart/pull/1266))
 
@@ -30,9 +60,6 @@
 - Bump Cocoa SDK from 8.0.0-rc.1 to 8.0.0
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#800)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.0.0-rc.1...8.0.0)
-- Bump Android SDK from v6.11.0 to v6.12.1 ([#1225](https://github.com/getsentry/sentry-dart/pull/1225), [#1230](https://github.com/getsentry/sentry-dart/pull/1230))
-  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6121)
-  - [diff](https://github.com/getsentry/sentry-java/compare/6.11.0...6.12.1)
 
 ## 7.0.0-alpha.3
 
@@ -90,6 +117,28 @@
 - Use `sentryClientName` instead of `sdk.identifier` ([#1135](https://github.com/getsentry/sentry-dart/pull/1135))
 - Refactor `BindingUtils` to `BindingWrapper` to enable the use of custom bindings ([#1184](https://github.com/getsentry/sentry-dart/pull/1184))
 - Bump Flutter min to 3.0.0 and Dart to 2.17.0 ([#1180](https://github.com/getsentry/sentry-dart/pull/1180))
+
+## 6.19.0
+
+### Fixes
+
+- intl is now more version permissive (>=0.17.0 <1.0.0) ([#1247](https://github.com/getsentry/sentry-dart/pull/1247))
+
+### Breaking Changes:
+
+- sentry_file now requires Dart >= 2.19 ([#1240](https://github.com/getsentry/sentry-dart/pull/1240))
+
+## 6.18.3
+
+### Fixes
+
+- Fix Pod target for iOS ([#1237](https://github.com/getsentry/sentry-dart/pull/1237))
+
+### Dependencies
+
+- Bump Android SDK from v6.11.0 to v6.12.1 ([#1225](https://github.com/getsentry/sentry-dart/pull/1225), [#1230](https://github.com/getsentry/sentry-dart/pull/1230))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6121)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.11.0...6.12.1)
 
 ## 6.18.2
 

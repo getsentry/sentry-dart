@@ -62,12 +62,21 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
               } else if (currentValue == null) {
                 eventContexts[key] = value;
               } else {
+                // merge the values
                 if (key == SentryOperatingSystem.type &&
                     currentValue is SentryOperatingSystem &&
                     value is SentryOperatingSystem) {
+                  // merge os context
                   final osMap = {...value.toJson(), ...currentValue.toJson()};
                   final os = SentryOperatingSystem.fromJson(osMap);
                   eventContexts[key] = os;
+                } else if (key == SentryApp.type &&
+                    currentValue is SentryApp &&
+                    value is SentryApp) {
+                  // merge app context
+                  final appMap = {...value.toJson(), ...currentValue.toJson()};
+                  final app = SentryApp.fromJson(appMap);
+                  eventContexts[key] = app;
                 }
               }
             }

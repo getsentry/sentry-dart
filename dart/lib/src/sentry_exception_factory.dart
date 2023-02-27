@@ -1,4 +1,4 @@
-import 'exception_cause_extractor.dart';
+import 'recursive_exception_cause_extractor.dart';
 import 'protocol.dart';
 import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';

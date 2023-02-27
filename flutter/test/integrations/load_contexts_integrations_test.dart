@@ -28,20 +28,21 @@ void main() {
         packages: packages);
   }
 
-  SentryEvent getEvent(
-      {SdkVersion? sdk,
-      Map<String, String>? tags,
-      Map<String, dynamic>? extra,
-      SentryUser? user,
-      String? dist,
-      String? environment,
-      List<String>? fingerprint,
-      SentryLevel? level,
-      List<Breadcrumb>? breadcrumbs,
-      List<String> integrations = const ['EventIntegration'],
-      List<SentryPackage> packages = const [
-        SentryPackage('event-package', '2.0')
-      ]}) {
+  SentryEvent getEvent({
+    SdkVersion? sdk,
+    Map<String, String>? tags,
+    Map<String, dynamic>? extra,
+    SentryUser? user,
+    String? dist,
+    String? environment,
+    List<String>? fingerprint,
+    SentryLevel? level,
+    List<Breadcrumb>? breadcrumbs,
+    List<String> integrations = const ['EventIntegration'],
+    List<SentryPackage> packages = const [
+      SentryPackage('event-package', '2.0')
+    ],
+  }) {
     return SentryEvent(
       sdk: sdk ??
           getSdkVersion(
@@ -77,11 +78,14 @@ void main() {
 
     final e = SentryEvent();
     e.contexts.operatingSystem = SentryOperatingSystem(theme: 'theme1');
+    e.contexts.app = SentryApp(inForeground: true);
+
     final event = await fixture.options.eventProcessors.first.apply(e);
 
     expect(fixture.called, true);
     expect(event?.contexts.device?.name, 'Device1');
     expect(event?.contexts.app?.name, 'test-app');
+    expect(event?.contexts.app?.inForeground, true);
     expect(event?.contexts.operatingSystem?.name, 'os1');
     expect(event?.contexts.operatingSystem?.theme, 'theme1');
     expect(event?.contexts.gpu?.name, 'gpu1');
@@ -107,7 +111,7 @@ void main() {
 
     final eventContexts = Contexts(
         device: const SentryDevice(name: 'eDevice'),
-        app: const SentryApp(name: 'eApp'),
+        app: const SentryApp(name: 'eApp', inForeground: true),
         operatingSystem: const SentryOperatingSystem(name: 'eOS'),
         gpu: const SentryGpu(name: 'eGpu'),
         browser: const SentryBrowser(name: 'eBrowser'),
@@ -121,6 +125,7 @@ void main() {
     expect(fixture.called, true);
     expect(event?.contexts.device?.name, 'eDevice');
     expect(event?.contexts.app?.name, 'eApp');
+    expect(event?.contexts.app?.inForeground, true);
     expect(event?.contexts.operatingSystem?.name, 'eOS');
     expect(event?.contexts.gpu?.name, 'eGpu');
     expect(event?.contexts.browser?.name, 'eBrowser');
