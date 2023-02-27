@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:isolate';
 
 import 'package:meta/meta.dart';
+import 'package:sentry/src/sentry_isolate.dart';
 
 import 'hub.dart';
 import 'hub_adapter.dart';
@@ -22,7 +23,7 @@ extension SentryIsolateExtension on Isolate {
     final hubToUse = hub ?? HubAdapter();
     final options = hubToUse.options;
 
-    final port = _createPort(hubToUse, options);
+    final port = SentryIsolate.createPort(hubToUse, options);
     addErrorListener(port.sendPort);
     return port;
   }
@@ -31,64 +32,5 @@ extension SentryIsolateExtension on Isolate {
   /// the sentry error listener.
   void removeSentryErrorListener(RawReceivePort receivePort) {
     removeErrorListener(receivePort.sendPort);
-  }
-
-  // Helper
-
-  RawReceivePort _createPort(Hub hub, SentryOptions options) {
-    return RawReceivePort(
-      (dynamic error) async {
-        await handleIsolateError(hub, options, error);
-      },
-    );
-  }
-
-  /// Parse and raise an event out of the Isolate error.
-  @visibleForTesting
-  Future<void> handleIsolateError(
-    Hub hub,
-    SentryOptions options,
-    dynamic error,
-  ) async {
-    options.logger(SentryLevel.debug, 'Capture from IsolateError $error');
-
-    // https://api.dartlang.org/stable/2.7.0/dart-isolate/Isolate/addErrorListener.html
-    // error is a list of 2 elements
-    if (error is List && error.length == 2) {
-      /// The errors are sent back as two-element lists.
-      /// The first element is a `String` representation of the error, usually
-      /// created by calling `toString` on the error.
-      /// The second element is a `String` representation of an accompanying
-      /// stack trace, or `null` if no stack trace was provided.
-      /// To convert this back to a [StackTrace] object, use [StackTrace.fromString].
-      final String throwable = error.first;
-      final String? stackTrace = error.last;
-
-      options.logger(
-        SentryLevel.error,
-        'Uncaught isolate error',
-        logger: 'sentry.isolateError',
-        exception: throwable,
-        stackTrace:
-            stackTrace == null ? null : StackTrace.fromString(stackTrace),
-      );
-
-      //  Isolate errors don't crash the App.
-      final mechanism = Mechanism(type: 'isolateError', handled: true);
-      final throwableMechanism = ThrowableMechanism(mechanism, throwable);
-      final event = SentryEvent(
-        throwable: throwableMechanism,
-        level: SentryLevel.fatal,
-        timestamp: hub.options.clock(),
-      );
-
-      // marks the span status if none to `internal_error` in case there's an
-      // unhandled error
-      hub.configureScope((scope) => {
-            scope.span?.status ??= const SpanStatus.internalError(),
-          });
-
-      await hub.captureEvent(event, stackTrace: stackTrace);
-    }
   }
 }

@@ -20,8 +20,6 @@ void main() {
       fixture = Fixture();
     });
 
-    // increase coverage of handleIsolateError
-
     test('add error listener', () async {
       final throwingClosure = (String message) async {
         throw StateError(message);
@@ -51,28 +49,6 @@ void main() {
       await Future.delayed(Duration(milliseconds: 10));
 
       expect(fixture.hub.captureEventCalls.isEmpty, true);
-    });
-
-    test('marks transaction as internal error if no status', () async {
-      final exception = StateError('error');
-      final stackTrace = StackTrace.current.toString();
-
-      final hub = Hub(fixture.options);
-      final client = MockSentryClient();
-      hub.bindClient(client);
-
-      final sut = fixture.getSut();
-
-      hub.startTransaction('name', 'operation', bindToScope: true);
-
-      await sut.handleIsolateError(
-          hub, fixture.options, [exception.toString(), stackTrace]);
-
-      final span = hub.getSpan();
-
-      expect(span?.status, const SpanStatus.internalError());
-
-      await span?.finish();
     });
   });
 }

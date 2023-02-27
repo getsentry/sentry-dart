@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Sentry Isolate Extension ([#1266](https://github.com/getsentry/sentry-dart/pull/1266))
+
 ### Fixes
 
 - Set client name with version in Android SDK ([#1274](https://github.com/getsentry/sentry-dart/pull/1274))
@@ -36,7 +40,6 @@
 
 - Error Cause Extractor ([#1198](https://github.com/getsentry/sentry-dart/pull/1198), [#1236](https://github.com/getsentry/sentry-dart/pull/1236))
   - Add `throwable` to `SentryException`
-- Sentry Isolate Extension ([#1266](https://github.com/getsentry/sentry-dart/pull/1266))
 
 ### Fixes
 
