@@ -8,6 +8,7 @@ import 'package:meta/meta.dart';
 import '../sentry_flutter.dart';
 import 'event_processor/android_platform_exception_event_processor.dart';
 import 'event_processor/flutter_exception_event_processor.dart';
+import 'event_processor/platform_exception_event_processor.dart';
 import 'integrations/screenshot_integration.dart';
 import 'native_scope_observer.dart';
 import 'renderer/renderer.dart';
@@ -112,6 +113,8 @@ mixin SentryFlutter {
       options
           .addEventProcessor(AndroidPlatformExceptionEventProcessor(options));
     }
+
+    options.addEventProcessor(PlatformExceptionEventProcessor());
 
     _setSdk(options);
   }
