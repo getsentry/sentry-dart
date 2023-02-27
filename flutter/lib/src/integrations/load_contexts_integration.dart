@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:sentry/sentry.dart';
 import '../sentry_flutter_options.dart';
@@ -138,35 +137,19 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
       }
 
       final breadcrumbsList = infos['breadcrumbs'] as List?;
-      if (breadcrumbsList != null && breadcrumbsList.isNotEmpty) {
-        final breadcrumbs = event.breadcrumbs ?? [];
+      if (breadcrumbsList != null &&
+          breadcrumbsList.isNotEmpty &&
+          _options.enableScopeSync) {
         final breadcrumbsJson =
-            breadcrumbs.map((breadcrumb) => breadcrumb.toJson());
-
-        final newBreadcrumbs =
             List<Map<dynamic, dynamic>>.from(breadcrumbsList);
+        final breadcrumbs = <Breadcrumb>[];
 
-        for (final breadcrumb in newBreadcrumbs) {
-          final newBreadcrumbJson = Map<String, dynamic>.from(breadcrumb);
-
-          var containsDuplicate = false;
-          for (final breadcrumbJson in breadcrumbsJson) {
-            if (mapEquals(newBreadcrumbJson, breadcrumbJson)) {
-              containsDuplicate = true;
-              break;
-            }
-          }
-
-          if (!containsDuplicate) {
-            final newBreadcrumb = Breadcrumb.fromJson(newBreadcrumbJson);
-            breadcrumbs.add(newBreadcrumb);
-          }
+        for (final breadcrumbJson in breadcrumbsJson) {
+          final breadcrumb = Breadcrumb.fromJson(
+            Map<String, dynamic>.from(breadcrumbJson),
+          );
+          breadcrumbs.add(breadcrumb);
         }
-
-        breadcrumbs.sort((a, b) {
-          return a.timestamp.compareTo(b.timestamp);
-        });
-
         event = event.copyWith(breadcrumbs: breadcrumbs);
       }
 

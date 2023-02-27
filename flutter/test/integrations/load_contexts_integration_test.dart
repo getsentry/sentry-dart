@@ -38,31 +38,52 @@ void main() {
           true);
     });
 
-    test('merging breadcrumbs removes duplicates', () async {
-      final breadcrumb = Breadcrumb(
-        message: "fixture-message",
-        data: {'LogRecord.sequenceNumber': 0},
-      );
-      final otherBreadcrumb = Breadcrumb(
-        message: "other",
-        data: {'LogRecord.sequenceNumber': 1},
-      );
-      var event = SentryEvent(breadcrumbs: [breadcrumb]);
+    test('take breadcrumbs from native if scope sync is enabled', () async {
+      fixture.options.enableScopeSync = true;
 
+      final eventBreadcrumb = Breadcrumb(message: 'event');
+      var event = SentryEvent(breadcrumbs: [eventBreadcrumb]);
+
+      final nativeBreadcrumb = Breadcrumb(message: 'native');
       Map<String, dynamic> loadContexts = {
-        'breadcrumbs': [breadcrumb.toJson(), otherBreadcrumb.toJson()]
+        'breadcrumbs': [nativeBreadcrumb.toJson()]
       };
+
       final future = Future.value(loadContexts);
       when(fixture.methodChannel.invokeMethod<dynamic>('loadContexts'))
           .thenAnswer((_) => future);
-
       _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
 
       final integration = LoadContextsIntegration(fixture.methodChannel);
       integration.call(fixture.hub, fixture.options);
       event = (await fixture.options.eventProcessors.first.apply(event))!;
 
-      expect(event.breadcrumbs!.length, 2);
+      expect(event.breadcrumbs!.length, 1);
+      expect(event.breadcrumbs!.first.message, 'native');
+    });
+
+    test('take breadcrumbs from event if scope sync is disabled', () async {
+      fixture.options.enableScopeSync = false;
+
+      final eventBreadcrumb = Breadcrumb(message: 'event');
+      var event = SentryEvent(breadcrumbs: [eventBreadcrumb]);
+
+      final nativeBreadcrumb = Breadcrumb(message: 'native');
+      Map<String, dynamic> loadContexts = {
+        'breadcrumbs': [nativeBreadcrumb.toJson()]
+      };
+
+      final future = Future.value(loadContexts);
+      when(fixture.methodChannel.invokeMethod<dynamic>('loadContexts'))
+          .thenAnswer((_) => future);
+      _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
+
+      final integration = LoadContextsIntegration(fixture.methodChannel);
+      integration.call(fixture.hub, fixture.options);
+      event = (await fixture.options.eventProcessors.first.apply(event))!;
+
+      expect(event.breadcrumbs!.length, 1);
+      expect(event.breadcrumbs!.first.message, 'event');
     });
   });
 }
