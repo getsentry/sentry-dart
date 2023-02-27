@@ -1,14 +1,8 @@
-import 'dart:async';
 import 'dart:isolate';
 
-import 'package:meta/meta.dart';
-import 'package:sentry/src/sentry_isolate.dart';
-
+import 'sentry_isolate.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
-import 'protocol.dart';
-import 'sentry_options.dart';
-import 'throwable_mechanism.dart';
 
 /// Record isolate errors with the Sentry SDK.
 extension SentryIsolateExtension on Isolate {
