@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Platform Exception Event Processor ([#1297](https://github.com/getsentry/sentry-dart/pull/1297))
+
 ### Fixes
 
 - Set client name with version in Android SDK ([#1274](https://github.com/getsentry/sentry-dart/pull/1274))
