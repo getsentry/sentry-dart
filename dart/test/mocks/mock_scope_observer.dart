@@ -1,6 +1,7 @@
 import 'package:sentry/sentry.dart';
 
 class MockScopeObserver extends ScopeObserver {
+  List<Breadcrumb> addedBreadcrumbs = [];
   bool calledAddBreadcrumb = false;
   bool calledClearBreadcrumbs = false;
   bool calledRemoveContexts = false;
@@ -25,6 +26,7 @@ class MockScopeObserver extends ScopeObserver {
   Future<void> addBreadcrumb(Breadcrumb breadcrumb) async {
     calledAddBreadcrumb = true;
     numberOfAddBreadcrumbCalls += 1;
+    addedBreadcrumbs.add(breadcrumb);
   }
 
   @override

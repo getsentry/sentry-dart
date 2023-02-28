@@ -137,21 +137,19 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
       }
 
       final breadcrumbsList = infos['breadcrumbs'] as List?;
-      if (breadcrumbsList != null && breadcrumbsList.isNotEmpty) {
-        final breadcrumbs = event.breadcrumbs ?? [];
-        final newBreadcrumbs =
+      if (breadcrumbsList != null &&
+          breadcrumbsList.isNotEmpty &&
+          _options.enableScopeSync) {
+        final breadcrumbsJson =
             List<Map<dynamic, dynamic>>.from(breadcrumbsList);
+        final breadcrumbs = <Breadcrumb>[];
 
-        for (final breadcrumb in newBreadcrumbs) {
-          final newBreadcrumb = Map<String, dynamic>.from(breadcrumb);
-          final crumb = Breadcrumb.fromJson(newBreadcrumb);
-          breadcrumbs.add(crumb);
+        for (final breadcrumbJson in breadcrumbsJson) {
+          final breadcrumb = Breadcrumb.fromJson(
+            Map<String, dynamic>.from(breadcrumbJson),
+          );
+          breadcrumbs.add(breadcrumb);
         }
-
-        breadcrumbs.sort((a, b) {
-          return a.timestamp.compareTo(b.timestamp);
-        });
-
         event = event.copyWith(breadcrumbs: breadcrumbs);
       }
 
