@@ -12,6 +12,10 @@
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6131)
   - [diff](https://github.com/getsentry/sentry-java/compare/6.13.0...6.13.1)
 
+### Fixes
+
+- Pass processed Breadcrumb to scope observer ([#1298](https://github.com/getsentry/sentry-dart/pull/1298))
+
 ## 6.20.1
 
 ### Fixes
