@@ -150,6 +150,9 @@ class _LoadContextsIntegrationEventProcessor extends EventProcessor {
           );
           breadcrumbs.add(breadcrumb);
         }
+        breadcrumbs.sort((a, b) {
+          return a.timestamp.compareTo(b.timestamp);
+        });
         event = event.copyWith(breadcrumbs: breadcrumbs);
       }
 
