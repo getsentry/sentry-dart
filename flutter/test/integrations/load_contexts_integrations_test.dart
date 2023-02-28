@@ -405,22 +405,6 @@ void main() {
 
     expect(event?.level, SentryLevel.fatal);
   });
-
-  test('should merge in breadcrumbs sorted by timestamp', () async {
-    final integration = fixture.getSut();
-    integration(fixture.hub, fixture.options);
-
-    final breadcrumb = Breadcrumb(
-      message: 'flutter-crumb',
-      timestamp: DateTime.fromMillisecondsSinceEpoch(1),
-    );
-    final e = getEvent(breadcrumbs: [breadcrumb]);
-    final event = await fixture.options.eventProcessors.first.apply(e);
-
-    expect(event?.breadcrumbs?.length, 2);
-    expect(event?.breadcrumbs?[0].message, 'native-crumb');
-    expect(event?.breadcrumbs?[1].message, 'flutter-crumb');
-  });
 }
 
 class Fixture {
