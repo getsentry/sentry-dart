@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Implement `loadStructuredBinaryData` from updated AssetBundle ([#1272](https://github.com/getsentry/sentry-dart/pull/1272))
+
+### Dependencies
+
+- Bump Android SDK from v6.13.0 to v6.13.1 ([#1273](https://github.com/getsentry/sentry-dart/pull/1273))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6131)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.13.0...6.13.1)
+
 ## 6.20.1
 
 ### Fixes
