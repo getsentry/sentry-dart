@@ -53,7 +53,7 @@ void main() {
         'maxCacheItems': 30,
         'sendDefaultPii': false,
         'enableOutOfMemoryTracking': true,
-        'enableNdkScopeSync': true,
+        'enableNdkScopeSync': false,
         'enableAutoPerformanceTracking': true,
         'sendClientReports': true
       });
