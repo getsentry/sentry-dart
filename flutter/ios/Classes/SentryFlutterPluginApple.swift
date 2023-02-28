@@ -53,7 +53,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
     }
 
-    private lazy var iso8601Formatter = {
+    private lazy var iso8601Formatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.timeZone = TimeZone(abbreviation: "UTC")
@@ -61,7 +61,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         return formatter
     }()
 
-    private lazy var iso8601FormatterWithMillisecondPrecision = {
+    private lazy var iso8601FormatterWithMillisecondPrecision: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.timeZone = TimeZone(abbreviation: "UTC")
