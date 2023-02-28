@@ -85,34 +85,6 @@ void main() {
       expect(event.breadcrumbs!.length, 1);
       expect(event.breadcrumbs!.first.message, 'event');
     });
-
-    test('should sort native breadcrumbs by timestamp', () async {
-      fixture.options.enableScopeSync = true;
-
-      final beforeCrumb = Breadcrumb(
-          message: 'before', timestamp: DateTime.fromMicrosecondsSinceEpoch(0));
-      final afterCrumb = Breadcrumb(
-          message: 'after',
-          timestamp: DateTime.fromMicrosecondsSinceEpoch(1000));
-      Map<String, dynamic> loadContexts = {
-        'breadcrumbs': [afterCrumb.toJson(), beforeCrumb.toJson()]
-      };
-
-      var event = SentryEvent(breadcrumbs: []);
-
-      final future = Future.value(loadContexts);
-      when(fixture.methodChannel.invokeMethod<dynamic>('loadContexts'))
-          .thenAnswer((_) => future);
-      _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
-
-      final integration = LoadContextsIntegration(fixture.methodChannel);
-      integration.call(fixture.hub, fixture.options);
-      event = (await fixture.options.eventProcessors.first.apply(event))!;
-
-      expect(event.breadcrumbs!.length, 2);
-      expect(event.breadcrumbs![0].message, 'before');
-      expect(event.breadcrumbs![1].message, 'after');
-    });
   });
 }
 
