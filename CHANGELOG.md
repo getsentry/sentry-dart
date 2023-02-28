@@ -14,6 +14,7 @@
 
 ### Fixes
 
+- Pass processed Breadcrumb to scope observer ([#1298](https://github.com/getsentry/sentry-dart/pull/1298))
 - Remove duplicated breadcrumbs when syncing with iOS/macOS ([#1283](https://github.com/getsentry/sentry-dart/pull/1283))
 
 ## 6.20.1
