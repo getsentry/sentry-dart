@@ -11,7 +11,7 @@ void main() {
       fixture = Fixture();
     });
 
-    test('test', () async {
+    test('applies code and message to mechanism', () async {
       final platformException = PlatformException(
         code: 'fixture-code',
         message: 'fixture-message',
@@ -28,13 +28,29 @@ void main() {
       final sut = fixture.getSut();
       event = (await sut.apply(event))!;
 
-      expect(
-          event.exceptions?.first.mechanism?.data["platformException"]["code"],
+      expect(event.exceptions?.first.mechanism?.data["platformExceptionCode"],
           "fixture-code");
       expect(
-          event.exceptions?.first.mechanism?.data["platformException"]
-              ["message"],
+          event.exceptions?.first.mechanism?.data["platformExceptionMessage"],
           "fixture-message");
+    });
+
+    test('creates fallback mechanism', () async {
+      final platformException = PlatformException(
+        code: 'fixture-code',
+        message: 'fixture-message',
+      );
+      final sentryException = SentryException(
+        type: 'fixture-type',
+        value: 'fixture-value',
+        throwable: platformException,
+      );
+      var event = SentryEvent(exceptions: [sentryException]);
+
+      final sut = fixture.getSut();
+      event = (await sut.apply(event))!;
+
+      expect(event.exceptions?.first.mechanism?.type, "platformException");
     });
   });
 }

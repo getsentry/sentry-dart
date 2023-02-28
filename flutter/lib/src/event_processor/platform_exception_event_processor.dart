@@ -25,12 +25,14 @@ class PlatformExceptionEventProcessor implements EventProcessor {
     final data = Map<String, dynamic>.from(
       sentryException.mechanism?.data ?? {},
     );
-    data['platformException'] = {'code': platformException.code};
+    data['platformExceptionCode'] = platformException.code;
     if (platformException.message != null) {
-      data['platformException']['message'] = platformException.message;
+      data['platformExceptionMessage'] = platformException.message;
     }
+    final mechanism =
+        sentryException.mechanism ?? Mechanism(type: "platformException");
     return sentryException.copyWith(
-      mechanism: sentryException.mechanism?.copyWith(data: data),
+      mechanism: mechanism.copyWith(data: data),
     );
   }
 }
