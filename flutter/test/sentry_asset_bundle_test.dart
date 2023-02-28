@@ -1,5 +1,6 @@
 // ignore_for_file: invalid_use_of_internal_member
 // The lint above is okay, because we're using another Sentry package
+import 'dart:async';
 import 'dart:convert';
 // backcompatibility for Flutter < 3.3
 // ignore: unnecessary_import
@@ -544,6 +545,20 @@ class Fixture {
 class TestAssetBundle extends CachingAssetBundle {
   bool throwException = false;
   String? evictKey;
+
+  @override
+  // ignore: override_on_non_overriding_member
+  Future<T> loadStructuredBinaryData<T>(
+      String key, FutureOr<T> Function(ByteData data) parser) async {
+    if (throwException) {
+      throw Exception('exception thrown for testing purposes');
+    }
+    if (key == _testFileName) {
+      return parser(ByteData.view(
+          Uint8List.fromList(utf8.encode('Hello World!')).buffer));
+    }
+    return parser(ByteData(0));
+  }
 
   @override
   Future<ByteData> load(String key) async {
