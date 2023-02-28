@@ -53,13 +53,27 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
     }
 
-    private lazy var dateFormatter = {
+    private lazy var iso8601Formatter = {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.timeZone = TimeZone(abbreviation: "UTC")
-        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX"
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
         return formatter
     }()
+
+    private lazy var iso8601FormatterWithMillisecondPrecision = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(abbreviation: "UTC")
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        return formatter
+    }()
+
+    // Replace with `NSDate+SentryExtras` when available.
+    private func dateFrom(iso8601String: String) -> Date? {
+      return iso8601FormatterWithMillisecondPrecision.date(from: iso8601String)
+        ?? iso8601Formatter.date(from: iso8601String) // Parse date with low precision formatter for backward compatible
+    }
 
     // swiftlint:disable:next cyclomatic_complexity
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -590,7 +604,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
       }
 
       if let timestampValue = breadcrumb["timestamp"] as? String,
-         let timestamp = dateFormatter.date(from: timestampValue) {
+         let timestamp = dateFrom(iso8601String: timestampValue) {
         breadcrumbInstance.timestamp = timestamp
       }
 
