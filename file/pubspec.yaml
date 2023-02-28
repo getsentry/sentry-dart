@@ -1,6 +1,6 @@
 name: sentry_file
 description: An integration which adds support for performance tracing for dart.io.File.
-version: 6.20.1
+version: 6.21.0
 homepage: https://docs.sentry.io/platforms/dart/
 repository: https://github.com/getsentry/sentry-dart
 issue_tracker: https://github.com/getsentry/sentry-dart/issues
@@ -9,7 +9,7 @@ environment:
   sdk: '>=2.19.0 <3.0.0'
 
 dependencies:
-  sentry: 6.20.1
+  sentry: 6.21.0
   meta: ^1.3.0
 
 dev_dependencies:
