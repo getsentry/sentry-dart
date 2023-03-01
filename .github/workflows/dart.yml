@@ -57,9 +57,10 @@ jobs:
           dart pub get
           dart compile exe bin/example.dart
 
-      # if condition because of: The pubspec.lock file has changed since the .dart_tool/package_config.json file was generated, please run "pub get" again.
+      # Windows if condition because of: The pubspec.lock file has changed since the .dart_tool/package_config.json file was generated, please run "pub get" again.
+      # stable if condition because of: beta channel requires newer build_web_compilers and build_runner with Dart 3
       - name: Build Web example
-        if: runner.os != 'Windows'
+        if: runner.os != 'Windows' && matrix.sdk == 'stable'
         run: |
           cd example_web
           dart pub get
