@@ -6,6 +6,7 @@
 
 - Support failedRequestTargets for HTTP Client errors ([#1285](https://github.com/getsentry/sentry-dart/pull/1285))
   - Captures errors for the default range `500-599` if `captureFailedRequests` is enabled
+
 ## 6.21.0
 
 ### Features
