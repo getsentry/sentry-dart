@@ -1,6 +1,10 @@
 # Changelog
 
-## 6.21.0
+## Unreleased
+
+### Features
+
+- Platform Exception Event Processor ([#1297](https://github.com/getsentry/sentry-dart/pull/1297))
 
 ## 6.21.0
 
@@ -20,10 +24,6 @@
 - Remove duplicated breadcrumbs when syncing with iOS/macOS ([#1283](https://github.com/getsentry/sentry-dart/pull/1283))
 
 ## 6.20.1
-
-### Features
-
-- Platform Exception Event Processor ([#1297](https://github.com/getsentry/sentry-dart/pull/1297))
 
 ### Fixes
 
