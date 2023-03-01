@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Change podspec `EXCLUDED_ARCHS` value to allow podfiles to add more excluded architetures
+
 ### Dependencies
 
 - Bump Android SDK from v6.13.1 to v6.14.0 ([#1287](https://github.com/getsentry/sentry-dart/pull/1287))
