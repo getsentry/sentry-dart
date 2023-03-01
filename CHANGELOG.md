@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Breaking Changes
+
+- Update `sentry_dio` to dio v5 ([#1282](https://github.com/getsentry/sentry-dart/pull/1282))
+
 ## 6.21.0
 
 ### Features
@@ -24,10 +28,6 @@
 ### Fixes
 
 - Set client name with version in Android SDK ([#1274](https://github.com/getsentry/sentry-dart/pull/1274))
-
-### Breaking Changes
-
-- Update `sentry_dio` to dio v5 ([#1282](https://github.com/getsentry/sentry-dart/pull/1282))
 
 ## 7.0.0-beta.4
 
