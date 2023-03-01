@@ -611,6 +611,22 @@ void main() {
     expect(true, fixture.mockScopeObserver.calledAddBreadcrumb);
   });
 
+  test('addBreadcrumb passes processed breadcrumb to scope observers',
+      () async {
+    final sut = fixture.getSut(
+      scopeObserver: fixture.mockScopeObserver,
+      beforeBreadcrumbCallback: (
+        Breadcrumb? breadcrumb, {
+        dynamic hint,
+      }) {
+        return breadcrumb?.copyWith(message: "modified");
+      },
+    );
+    await sut.addBreadcrumb(Breadcrumb());
+
+    expect(fixture.mockScopeObserver.addedBreadcrumbs[0].message, "modified");
+  });
+
   test('clearBreadcrumbs should call scope observers', () async {
     final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
     await sut.clearBreadcrumbs();
