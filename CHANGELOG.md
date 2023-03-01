@@ -5,6 +5,7 @@
 ### Enhancements
 
 - FrameTrackingIntegration ([#1271](https://github.com/getsentry/sentry-dart/pull/1271))
+
 ## 6.21.0
 
 ### Features
