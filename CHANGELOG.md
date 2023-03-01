@@ -5,6 +5,7 @@
 ### Enhancements
 
 - Replace `toImage` with `toImageSync` for Flutter >= 3.7 ([1268](https://github.com/getsentry/sentry-dart/pull/1268))
+
 ## 6.21.0
 
 ### Features
