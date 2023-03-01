@@ -1,5 +1,6 @@
 // ignore_for_file: invalid_use_of_internal_member
 // The lint above is okay, because we're using another Sentry package
+import 'dart:async';
 import 'dart:convert';
 // backcompatibility for Flutter < 3.3
 // ignore: unnecessary_import
@@ -334,6 +335,158 @@ void main() {
     );
 
     test(
+      'loadStructuredBinaryData: does not create any spans and just forwords the call to the underlying assetbundle if disabled',
+      () async {
+        final sut = fixture.getSut(structuredDataTracing: false);
+        final tr = fixture._hub.startTransaction(
+          'name',
+          'op',
+          bindToScope: true,
+        );
+
+        final data = await sut.loadStructuredBinaryData<String>(
+          _testFileName,
+          (value) async => utf8.decode(
+            value.buffer.asUint8List(value.offsetInBytes, value.lengthInBytes),
+          ),
+        );
+        expect(data, 'Hello World!');
+
+        await tr.finish();
+
+        final tracer = (tr as SentryTracer);
+
+        expect(tracer.children.length, 0);
+      },
+    );
+
+    test(
+      'loadStructuredBinaryData: finish with errored span if loading fails',
+      () async {
+        final sut = fixture.getSut(throwException: true);
+        final tr = fixture._hub.startTransaction(
+          'name',
+          'op',
+          bindToScope: true,
+        );
+        await expectLater(
+          sut.loadStructuredBinaryData<String>(
+            _testFileName,
+            (value) async => utf8.decode(
+              value.buffer
+                  .asUint8List(value.offsetInBytes, value.lengthInBytes),
+            ),
+          ),
+          throwsA(isA<Exception>()),
+        );
+
+        await tr.finish();
+
+        final tracer = (tr as SentryTracer);
+        final span = tracer.children.first;
+
+        expect(span.status, SpanStatus.internalError());
+        expect(span.finished, true);
+        expect(span.throwable, isA<Exception>());
+        expect(span.context.operation, 'file.read');
+        expect(
+          span.context.description,
+          'AssetBundle.loadStructuredBinaryData<String>: test.txt',
+        );
+      },
+    );
+
+    test(
+      'loadStructuredBinaryData: finish with errored span if parsing fails',
+      () async {
+        final sut = fixture.getSut(throwException: false);
+        final tr = fixture._hub.startTransaction(
+          'name',
+          'op',
+          bindToScope: true,
+        );
+        await expectLater(
+          sut.loadStructuredBinaryData<String>(
+            _testFileName,
+            (value) async => throw Exception('error while parsing'),
+          ),
+          throwsA(isA<Exception>()),
+        );
+
+        await tr.finish();
+
+        final tracer = (tr as SentryTracer);
+        var span = tracer.children.first;
+
+        expect(tracer.children.length, 2);
+
+        expect(span.status, SpanStatus.internalError());
+        expect(span.finished, true);
+        expect(span.throwable, isA<Exception>());
+        expect(span.context.operation, 'file.read');
+        expect(
+          span.context.description,
+          'AssetBundle.loadStructuredBinaryData<String>: test.txt',
+        );
+
+        span = tracer.children[1];
+
+        expect(span.status, SpanStatus.internalError());
+        expect(span.finished, true);
+        expect(span.throwable, isA<Exception>());
+        expect(span.context.operation, 'serialize.file.read');
+        expect(
+          span.context.description,
+          'parsing "resources/test.txt" to "String"',
+        );
+      },
+    );
+
+    test(
+      'loadStructuredBinaryData: finish with successfully',
+      () async {
+        final sut = fixture.getSut(throwException: false);
+        final tr = fixture._hub.startTransaction(
+          'name',
+          'op',
+          bindToScope: true,
+        );
+
+        await sut.loadStructuredBinaryData<String>(
+          _testFileName,
+          (value) async => utf8.decode(
+            value.buffer.asUint8List(value.offsetInBytes, value.lengthInBytes),
+          ),
+        );
+
+        await tr.finish();
+
+        final tracer = (tr as SentryTracer);
+        var span = tracer.children.first;
+
+        expect(tracer.children.length, 2);
+
+        expect(span.status, SpanStatus.ok());
+        expect(span.finished, true);
+        expect(span.context.operation, 'file.read');
+        expect(
+          span.context.description,
+          'AssetBundle.loadStructuredBinaryData<String>: test.txt',
+        );
+
+        span = tracer.children[1];
+
+        expect(span.status, SpanStatus.ok());
+        expect(span.finished, true);
+        expect(span.context.operation, 'serialize.file.read');
+        expect(
+          span.context.description,
+          'parsing "resources/test.txt" to "String"',
+        );
+      },
+    );
+
+    test(
       'evict call gets forwarded',
       () {
         final sut = fixture.getSut();
@@ -373,6 +526,20 @@ class Fixture {
 class TestAssetBundle extends CachingAssetBundle {
   bool throwException = false;
   String? evictKey;
+
+  @override
+  // ignore: override_on_non_overriding_member
+  Future<T> loadStructuredBinaryData<T>(
+      String key, FutureOr<T> Function(ByteData data) parser) async {
+    if (throwException) {
+      throw Exception('exception thrown for testing purposes');
+    }
+    if (key == _testFileName) {
+      return parser(ByteData.view(
+          Uint8List.fromList(utf8.encode('Hello World!')).buffer));
+    }
+    return parser(ByteData(0));
+  }
 
   @override
   Future<ByteData> load(String key) async {
