@@ -5,6 +5,7 @@
 ### Features
 
 - Sentry Isolate Extension ([#1266](https://github.com/getsentry/sentry-dart/pull/1266))
+
 ## 6.21.0
 
 ### Features
