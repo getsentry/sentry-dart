@@ -5,6 +5,7 @@
 ### Breaking Changes
 
 - Update `sentry_dio` to dio v5 ([#1282](https://github.com/getsentry/sentry-dart/pull/1282))
+
 ### Dependencies
 
 - Bump Android SDK from v6.13.1 to v6.14.0 ([#1287](https://github.com/getsentry/sentry-dart/pull/1287))
