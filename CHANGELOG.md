@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 6.21.0
+
 ### Features
 
 - Implement `loadStructuredBinaryData` from updated AssetBundle ([#1272](https://github.com/getsentry/sentry-dart/pull/1272))
@@ -11,6 +13,11 @@
 - Bump Android SDK from v6.13.0 to v6.13.1 ([#1273](https://github.com/getsentry/sentry-dart/pull/1273))
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6131)
   - [diff](https://github.com/getsentry/sentry-java/compare/6.13.0...6.13.1)
+
+### Fixes
+
+- Pass processed Breadcrumb to scope observer ([#1298](https://github.com/getsentry/sentry-dart/pull/1298))
+- Remove duplicated breadcrumbs when syncing with iOS/macOS ([#1283](https://github.com/getsentry/sentry-dart/pull/1283))
 
 ## 6.20.1
 
