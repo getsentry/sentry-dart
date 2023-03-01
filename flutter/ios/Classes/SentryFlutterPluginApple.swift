@@ -614,7 +614,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         breadcrumbInstance.timestamp = timestamp
       }
 
-      SentrySDK.addBreadcrumb(crumb: breadcrumbInstance)
+      SentrySDK.addBreadcrumb(breadcrumbInstance)
 
       result("")
     }
