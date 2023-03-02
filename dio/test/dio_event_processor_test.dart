@@ -75,7 +75,6 @@ void main() {
       expect(processedEvent.request?.queryString, 'foo=bar');
       expect(processedEvent.request?.headers, <String, String>{
         'foo': 'bar',
-        'content-type': 'application/json; charset=utf-8'
       });
       expect(processedEvent.request?.data, 'foobar');
     });
@@ -195,7 +194,8 @@ void main() {
     final dioError = DioError(
       error: exception,
       requestOptions: requestOptions,
-    )..stackTrace = StackTrace.current;
+      stackTrace: StackTrace.current,
+    );
 
     final extracted =
         fixture.exceptionFactory.extractor.flatten(dioError, null);

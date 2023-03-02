@@ -8,7 +8,7 @@ import 'package:sentry/sentry.dart';
 /// A [Dio](https://pub.dev/packages/dio)-package compatible HTTP client adapter
 /// which adds support to Sentry Performance feature.
 /// https://develop.sentry.dev/sdk/performance
-class TracingClientAdapter extends HttpClientAdapter {
+class TracingClientAdapter implements HttpClientAdapter {
   // ignore: public_member_api_docs
   TracingClientAdapter({required HttpClientAdapter client, Hub? hub})
       : _hub = hub ?? HubAdapter(),
@@ -54,7 +54,7 @@ class TracingClientAdapter extends HttpClientAdapter {
       }
 
       response = await _client.fetch(options, requestStream, cancelFuture);
-      span?.status = SpanStatus.fromHttpStatusCode(response.statusCode ?? -1);
+      span?.status = SpanStatus.fromHttpStatusCode(response.statusCode);
     } catch (exception) {
       span?.throwable = exception;
       span?.status = const SpanStatus.internalError();
