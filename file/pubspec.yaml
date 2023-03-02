@@ -4,6 +4,7 @@ version: 6.18.1
 homepage: https://docs.sentry.io/platforms/dart/
 repository: https://github.com/getsentry/sentry-dart
 issue_tracker: https://github.com/getsentry/sentry-dart/issues
+documentation: https://docs.sentry.io/platforms/dart/performance/instrumentation/automatic-instrumentation/#file-io-instrumentation
 
 environment:
   # <2.19 because of https://github.com/dart-lang/sdk/issues/49647 breaking change
