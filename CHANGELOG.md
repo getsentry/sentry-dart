@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Don't await `FutureOr<T>` if it's not a future. This should marginally improve the performance.
+
 ## 7.0.0-rc.1
 
 ### Breaking Changes

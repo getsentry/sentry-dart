@@ -306,7 +306,10 @@ class Hub {
     } else {
       // close integrations
       for (final integration in _options.integrations) {
-        await integration.close();
+        final close = integration.close();
+        if (close is Future) {
+          await close;
+        }
       }
 
       final item = _peek();
