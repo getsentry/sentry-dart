@@ -12,8 +12,9 @@ typedef MockFetchMethod = Future<ResponseBody> Function(
 
 typedef MockCloseMethod = void Function({bool force});
 
-class MockHttpClientAdapter extends HttpClientAdapter
-    with NoSuchMethodProvider {
+class MockHttpClientAdapter
+    with NoSuchMethodProvider
+    implements HttpClientAdapter {
   MockHttpClientAdapter(this.mockFetchMethod, {this.mockCloseMethod});
 
   final MockFetchMethod mockFetchMethod;

@@ -98,7 +98,7 @@ void main() {
         await sut.get<dynamic>('/');
         fail('Method did not throw');
       } on DioError catch (e) {
-        expect(e.message, 'Exception: test');
+        expect(e.error.toString(), 'Exception: test');
         expect(e.requestOptions.uri, Uri.parse('https://example.com/'));
       }
 

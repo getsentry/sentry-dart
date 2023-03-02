@@ -17,7 +17,8 @@ void main() {
     final dioError = DioError(
       error: exception,
       requestOptions: RequestOptions(path: '/foo/bar'),
-    )..stackTrace = stacktrace;
+      stackTrace: stacktrace,
+    );
 
     final cause = sut.cause(dioError);
 
@@ -31,7 +32,8 @@ void main() {
 
     final dioError = DioError(
       requestOptions: RequestOptions(path: '/foo/bar'),
-    )..stackTrace = stacktrace;
+      stackTrace: stacktrace,
+    );
 
     final cause = sut.cause(dioError);
 
