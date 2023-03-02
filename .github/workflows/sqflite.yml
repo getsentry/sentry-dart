@@ -1,4 +1,4 @@
-name: sentry-dio
+name: sentry-sqflite
 on:
   push:
     branches:
@@ -25,7 +25,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ./dio
+        working-directory: ./sqflite
     strategy:
       fail-fast: false
       matrix:
@@ -50,16 +50,16 @@ jobs:
       - uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70 # pin@v3
         if: runner.os == 'Linux' && matrix.sdk == 'stable'
         with:
-          name: sentry_dio
-          files: ./dio/coverage/lcov.info
+          name: sentry_sqflite
+          files: ./sqflite/coverage/lcov.info
 
       - uses: VeryGoodOpenSource/very_good_coverage@84e5b54ab888644554e5573dca87d7f76dec9fb3 # pin@v2.0.0
         if: runner.os == 'Linux' && matrix.sdk == 'stable'
         with:
-          path: './dio/coverage/lcov.info'
-          min_coverage: 81
+          path: './sqflite/coverage/lcov.info'
+          min_coverage: 90
 
   analyze:
     uses: ./.github/workflows/analyze.yml
     with:
-      package: dio
+      package: sqflite
