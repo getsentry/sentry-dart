@@ -144,7 +144,7 @@ class SentryFlutterOptions extends SentryOptions {
 
   /// Enable scope sync from Java to NDK.
   /// Only available on Android.
-  bool enableNdkScopeSync = false;
+  bool enableNdkScopeSync = true;
 
   /// Enable auto performance tracking by default.
   bool enableAutoPerformanceTracing = true;

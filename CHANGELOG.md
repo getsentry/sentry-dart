@@ -4,6 +4,7 @@
 
 ### Breaking Changes
 
+- Enable enableNdkScopeSync by default ([#1276](https://github.com/getsentry/sentry-dart/pull/1276))
 - Update `sentry_dio` to dio v5 ([#1282](https://github.com/getsentry/sentry-dart/pull/1282))
 
 ### Dependencies
