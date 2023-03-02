@@ -32,8 +32,10 @@ dependencies:
   sentry_flutter:
   sentry_dio:
   sentry_logging:
+  sentry_sqflite:
   dio: any # This gets constrained by `sentry_dio`
   logging: ^1.0.0
+  sqflite: any # This gets constrained by `sentry_dio`
 
 dev_dependencies:
   flutter_test:
@@ -50,6 +52,8 @@ dependency_overrides:
     path: ../dio
   sentry_logging:
     path: ../logging
+  sentry_sqflite:
+    path: ../sqflite
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
