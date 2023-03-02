@@ -1,3 +1,4 @@
 library sentry_sqflite;
 
-// export '';
+export 'src/sentry_database.dart';
+export 'src/sentry_sqflite.dart';
