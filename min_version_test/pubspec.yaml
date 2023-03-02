@@ -35,7 +35,7 @@ dependencies:
   sentry_sqflite:
   dio: any # This gets constrained by `sentry_dio`
   logging: ^1.0.0
-  sqflite: any # This gets constrained by `sentry_dio`
+  sqflite: any # This gets constrained by `sentry_sqflite`
 
 dev_dependencies:
   flutter_test:
