@@ -1,7 +1,7 @@
 name: sentry_logging
 description: An integration which adds support for recording log from the logging package.
 version: 6.18.1
-homepage: https://docs.sentry.io/platforms/flutter/
+homepage: https://docs.sentry.io/platforms/dart/
 repository: https://github.com/getsentry/sentry-dart
 issue_tracker: https://github.com/getsentry/sentry-dart/issues
 documentation: https://docs.sentry.io/platforms/dart/configuration/integrations/logging/
