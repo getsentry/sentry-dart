@@ -155,10 +155,10 @@ class Scope {
 
   Scope(this._options);
 
-  bool _addBreadCrumbSync(Breadcrumb breadcrumb, {dynamic hint}) {
+  Breadcrumb? _addBreadCrumbSync(Breadcrumb breadcrumb, {dynamic hint}) {
     // bail out if maxBreadcrumbs is zero
     if (_options.maxBreadcrumbs == 0) {
-      return false;
+      return null;
     }
 
     Breadcrumb? processedBreadcrumb = breadcrumb;
@@ -174,7 +174,7 @@ class Scope {
             SentryLevel.info,
             'Breadcrumb was dropped by beforeBreadcrumb',
           );
-          return false;
+          return null;
         }
       } catch (exception, stackTrace) {
         _options.logger(
@@ -193,14 +193,15 @@ class Scope {
       }
       _breadcrumbs.add(processedBreadcrumb);
     }
-    return true;
+    return processedBreadcrumb;
   }
 
   /// Adds a breadcrumb to the breadcrumbs queue
   Future<void> addBreadcrumb(Breadcrumb breadcrumb, {dynamic hint}) async {
-    if (_addBreadCrumbSync(breadcrumb, hint: hint)) {
+    final addedBreadcrumb = _addBreadCrumbSync(breadcrumb, hint: hint);
+    if (addedBreadcrumb != null) {
       await _callScopeObservers((scopeObserver) async =>
-          await scopeObserver.addBreadcrumb(breadcrumb));
+          await scopeObserver.addBreadcrumb(addedBreadcrumb));
     }
   }
 

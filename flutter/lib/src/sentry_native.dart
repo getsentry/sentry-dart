@@ -19,8 +19,10 @@ class SentryNative {
     return _instance;
   }
 
+  SentryNativeChannel? get nativeChannel => _instance._nativeChannel;
+
   /// Provide [nativeChannel] for native communication.
-  void setNativeChannel(SentryNativeChannel nativeChannel) {
+  set nativeChannel(SentryNativeChannel? nativeChannel) {
     _instance._nativeChannel = nativeChannel;
   }
 

@@ -15,6 +15,7 @@ import io.sentry.HubAdapter
 import io.sentry.SentryEvent
 import io.sentry.SentryLevel
 import io.sentry.Sentry
+import io.sentry.DateUtils
 import io.sentry.android.core.ActivityFramesTracker
 import io.sentry.android.core.AppStartState
 import io.sentry.android.core.LoadClass
@@ -190,8 +191,9 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       Log.w("Sentry", "App start won't be sent due to missing isColdStart")
       result.success(null)
     } else {
+      val appStartTimeMillis = DateUtils.nanosToMillis(appStartTime.nanoTimestamp().toDouble())
       val item = mapOf<String, Any?>(
-        "appStartTime" to appStartTime.time.toDouble(),
+        "appStartTime" to appStartTimeMillis,
         "isColdStart" to isColdStart
       )
       result.success(item)
