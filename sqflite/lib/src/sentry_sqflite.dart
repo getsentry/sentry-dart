@@ -2,7 +2,14 @@ import 'package:sqflite/sqflite.dart';
 
 import 'sentry_database.dart';
 
-// ignore: public_member_api_docs
+/// Opens a database with Sentry support.
+/// 
+/// ```dart
+/// import 'package:sqflite/sqflite.dart';
+/// import 'package:sentry_sqflite/sentry_sqflite.dart';
+/// 
+/// final database = await openDatabaseWithSentry('path/to/db');
+/// ```
 Future<Database> openDatabaseWithSentry(
   String path, {
   int? version,
@@ -33,7 +40,14 @@ Future<Database> openDatabaseWithSentry(
   return openDatabase();
 }
 
-// ignore: public_member_api_docs
+/// Opens a database with Sentry support.
+/// 
+/// ```dart
+/// import 'package:sqflite/sqflite.dart';
+/// import 'package:sentry_sqflite/sentry_sqflite.dart';
+/// 
+/// final database = await openReadOnlyDatabaseWithSentry('path/to/db');
+/// ```
 Future<Database> openReadOnlyDatabaseWithSentry(String path) {
   return openDatabaseWithSentry(path, readOnly: true);
 }

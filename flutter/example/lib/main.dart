@@ -38,7 +38,7 @@ Future<void> main() async {
             ),
           ),
       _exampleDsn);
-  databaseFactory = SentrySqfliteDatabaseFactoryMixin();
+  databaseFactory = SentrySqfliteDatabaseFactory();
 }
 
 Future<void> setupSentry(AppRunner appRunner, String dsn) async {
@@ -427,6 +427,13 @@ class MainScaffold extends StatelessWidget {
     }
 
     await db.query('Product');
+
+    await db.transaction((txn) async {
+      await txn
+          .insert('Product', <String, Object?>{'title': 'Product Another one'});
+      await txn.delete('Product',
+          where: 'title = ?', whereArgs: ['Product Another one']);
+    });
 
     await db.delete('Product', where: 'title = ?', whereArgs: ['Product 1']);
 

@@ -8,10 +8,18 @@ import 'package:sqflite/src/sqflite_impl.dart' as impl;
 
 import 'sentry_database.dart';
 
-// ignore: public_member_api_docs
-class SentrySqfliteDatabaseFactoryMixin with SqfliteDatabaseFactoryMixin {
+/// Using this factory, all [Database] instances will be wrapped with Sentry.
+///
+/// ```dart
+/// import 'package:sqflite/sqflite.dart';
+///
+/// databaseFactory = SentrySqfliteDatabaseFactory();
+///
+/// final database = await openDatabase('path/to/db');
+/// ```
+class SentrySqfliteDatabaseFactory with SqfliteDatabaseFactoryMixin {
   // ignore: public_member_api_docs
-  SentrySqfliteDatabaseFactoryMixin({@internal Hub? hub})
+  SentrySqfliteDatabaseFactory({@internal Hub? hub})
       : _hub = hub ?? HubAdapter();
 
   final Hub _hub;
