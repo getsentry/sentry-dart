@@ -202,6 +202,9 @@ class SentryFlutterOptions extends SentryOptions {
   /// runApp(SentryUserInteractionWidget(child: App()));
   bool enableUserInteractionTracing = false;
 
+  /// Sets the Proguard uuid for Android platform.
+  String? proguardUuid;
+
   @internal
   late RendererWrapper rendererWrapper = RendererWrapper();
 

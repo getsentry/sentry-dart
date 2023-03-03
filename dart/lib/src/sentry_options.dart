@@ -279,9 +279,6 @@ class SentryOptions {
   /// If enabled, [scopeObservers] will be called when mutating scope.
   bool enableScopeSync = true;
 
-  /// Sets the ProGuard uuid for Android platform.
-  String? proGuardUuid;
-
   final List<ScopeObserver> _scopeObservers = [];
 
   List<ScopeObserver> get scopeObservers => _scopeObservers;

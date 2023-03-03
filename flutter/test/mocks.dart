@@ -17,7 +17,7 @@ import 'mocks.mocks.dart';
 import 'no_such_method_provider.dart';
 
 const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
-const fakeProGuardUuid = '3457d982-65ef-576d-a6ad-65b5f30f49a5';
+const fakeProguardUuid = '3457d982-65ef-576d-a6ad-65b5f30f49a5';
 
 // https://github.com/dart-lang/mockito/blob/master/NULL_SAFETY_README.md#fallback-generators
 ISentrySpan startTransactionShim(

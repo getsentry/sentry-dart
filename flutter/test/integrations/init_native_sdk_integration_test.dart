@@ -56,7 +56,7 @@ void main() {
         'enableNdkScopeSync': false,
         'enableAutoPerformanceTracking': true,
         'sendClientReports': true,
-        'proGuardUuid': null
+        'proguardUuid': null
       });
     });
 
@@ -90,7 +90,7 @@ void main() {
         ..enableNdkScopeSync = true
         ..enableAutoPerformanceTracking = false
         ..sendClientReports = false
-        ..proGuardUuid = fakeProGuardUuid;
+        ..proguardUuid = fakeProguardUuid;
 
       options.sdk.addIntegration('foo');
       options.sdk.addPackage('bar', '1');
@@ -127,7 +127,7 @@ void main() {
         'enableNdkScopeSync': true,
         'enableAutoPerformanceTracking': false,
         'sendClientReports': false,
-        'proGuardUuid': fakeProGuardUuid
+        'proguardUuid': fakeProguardUuid
       });
     });
 
