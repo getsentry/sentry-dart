@@ -374,9 +374,19 @@ class SentryClient {
     try {
       if (event is SentryTransaction && beforeSendTransaction != null) {
         beforeSendName = 'beforeSendTransaction';
-        eventOrTransaction = await beforeSendTransaction(event);
+        final e = beforeSendTransaction(event);
+        if (e is Future) {
+          eventOrTransaction = await e;
+        } else {
+          eventOrTransaction = e;
+        }
       } else if (beforeSend != null) {
-        eventOrTransaction = await beforeSend(event, hint: hint);
+        final e = beforeSend(event, hint: hint);
+        if (e is Future) {
+          eventOrTransaction = await e;
+        } else {
+          eventOrTransaction = e;
+        }
       }
     } catch (exception, stackTrace) {
       _options.logger(

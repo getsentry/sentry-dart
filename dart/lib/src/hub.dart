@@ -81,7 +81,13 @@ class Hub {
       );
     } else {
       final item = _peek();
-      final scope = await _cloneAndRunWithScope(item.scope, withScope);
+      late Scope scope;
+      final s = _cloneAndRunWithScope(item.scope, withScope);
+      if (s is Future<Scope>) {
+        scope = await s;
+      } else {
+        scope = s;
+      }
 
       try {
         if (_options.isTracingEnabled()) {
@@ -129,7 +135,13 @@ class Hub {
       );
     } else {
       final item = _peek();
-      final scope = await _cloneAndRunWithScope(item.scope, withScope);
+      late Scope scope;
+      final s = _cloneAndRunWithScope(item.scope, withScope);
+      if (s is Future<Scope>) {
+        scope = await s;
+      } else {
+        scope = s;
+      }
 
       try {
         var event = SentryEvent(
@@ -185,7 +197,13 @@ class Hub {
       );
     } else {
       final item = _peek();
-      final scope = await _cloneAndRunWithScope(item.scope, withScope);
+      late Scope scope;
+      final s = _cloneAndRunWithScope(item.scope, withScope);
+      if (s is Future<Scope>) {
+        scope = await s;
+      } else {
+        scope = s;
+      }
 
       try {
         sentryId = await item.client.captureMessage(
@@ -239,12 +257,15 @@ class Hub {
     }
   }
 
-  Future<Scope> _cloneAndRunWithScope(
+  FutureOr<Scope> _cloneAndRunWithScope(
       Scope scope, ScopeCallback? withScope) async {
     if (withScope != null) {
       try {
         scope = scope.clone();
-        await withScope(scope);
+        final s = withScope(scope);
+        if (s is Future) {
+          await s;
+        }
       } catch (exception, stackTrace) {
         _options.logger(
           SentryLevel.error,

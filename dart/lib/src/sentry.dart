@@ -46,7 +46,10 @@ class Sentry {
     await _initDefaultValues(sentryOptions);
 
     try {
-      await optionsConfiguration(sentryOptions);
+      final config = optionsConfiguration(sentryOptions);
+      if (config is Future) {
+        await config;
+      }
     } catch (exception, stackTrace) {
       sentryOptions.logger(
         SentryLevel.error,
