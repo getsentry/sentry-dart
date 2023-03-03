@@ -1,7 +1,6 @@
 import 'package:sentry/sentry.dart';
-import 'package:sqflite_common/sqlite_api.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:sentry_sqflite/sentry_sqflite.dart';
 
 Future<void> main() async {
   // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
@@ -13,31 +12,26 @@ Future<void> main() async {
       options.dsn = dsn;
       options.tracesSampleRate = 1.0;
       options.debug = true;
-      options.sendDefaultPii = true;
     },
     appRunner: runApp, // Init your App.
   );
 }
 
 Future<void> runApp() async {
-  sqfliteFfiInit();
-  // final defaultFactory = databaseFactory;
-  databaseFactory = SentrySqfliteDatabaseFactory(databaseFactoryFfi)
+  databaseFactory = SentrySqfliteDatabaseFactory();
 
-  var db = await openDatabase(inMemoryDatabasePath);
-    await db.execute('''
+  final db = await openDatabase(inMemoryDatabasePath);
+  await db.execute('''
       CREATE TABLE Product (
         id INTEGER PRIMARY KEY,
         title TEXT
       )
   ''');
-    await db.insert('Product', <String, Object?>{'title': 'Product 1'});
-    await db.insert('Product', <String, Object?>{'title': 'Product 2'});
+  await db.insert('Product', <String, Object?>{'title': 'Product 1'});
+  await db.insert('Product', <String, Object?>{'title': 'Product 2'});
 
-    var result = await db.query('Product');
-    expect(result, [
-      {'id': 1, 'title': 'Product 1'},
-      {'id': 2, 'title': 'Product 2'}
-    ]);
-    await db.close();
+  final result = await db.query('Product');
+  print(result);
+
+  await db.close();
 }

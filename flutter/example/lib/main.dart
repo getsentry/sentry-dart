@@ -17,7 +17,6 @@ import 'user_feedback_dialog.dart';
 import 'package:dio/dio.dart';
 import 'package:sentry_dio/sentry_dio.dart';
 import 'package:sentry_logging/sentry_logging.dart';
-// import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
 const String _exampleDsn =
@@ -404,11 +403,6 @@ class MainScaffold extends StatelessWidget {
   }
 
   Future<void> sqfliteTest() async {
-    // sqfliteFfiInit();
-    // databaseFactory = databaseFactoryFfi;
-    // databaseFactory = SentryDatabaseFactory(databaseFactoryFfi);
-    // databaseFactory = SentrySqfliteDatabaseFactoryMixin();
-
     final tr = Sentry.startTransaction(
       'sqfliteTest',
       'db',

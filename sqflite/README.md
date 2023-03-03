@@ -25,19 +25,38 @@ Integration for the [`sqflite`](https://pub.dev/packages/sqflite) package.
 - Call...
 
 ```dart
-import 'package:sentry/sentry.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:sentry_sqflite/sentry_sqflite.dart';
 
 Future<void> main() async {
-  await Sentry.init(
+  await SentryFlutter.init(
     (options) {
-      options.dsn = 'https://example@sentry.io/example';
+      options.dsn = 'https://example@sentry.io/add-your-dsn-here';
+      options.tracesSampleRate = 1.0;
     },
-    appRunner: initSqflite, // Init your App.
+    // Init your App.
+    appRunner: () => runApp(MyApp()),
   );
 }
 
-void initSqflite() {
-  ///
+Future<void> insertProducts() async {
+  databaseFactory = SentrySqfliteDatabaseFactory();
+
+  final db = await openDatabase(inMemoryDatabasePath);
+  await db.execute('''
+      CREATE TABLE Product (
+        id INTEGER PRIMARY KEY,
+        title TEXT
+      )
+  ''');
+  await db.insert('Product', <String, Object?>{'title': 'Product 1'});
+  await db.insert('Product', <String, Object?>{'title': 'Product 2'});
+
+  final result = await db.query('Product');
+  print(result);
+
+  await db.close();
 }
 ```
 
