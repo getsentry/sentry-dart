@@ -4,6 +4,7 @@ description: Sentry SDK for Flutter. This package aims to support different Flut
 homepage: https://docs.sentry.io/platforms/flutter/
 repository: https://github.com/getsentry/sentry-dart
 issue_tracker: https://github.com/getsentry/sentry-dart/issues
+documentation: https://docs.sentry.io/platforms/flutter/
 
 environment:
   sdk: '>=2.12.0 <3.0.0'
