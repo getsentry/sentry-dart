@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:logging/logging.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_sqflite/sentry_sqflite.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:feedback/feedback.dart' as feedback;
 import 'package:provider/provider.dart';
@@ -15,6 +17,7 @@ import 'user_feedback_dialog.dart';
 import 'package:dio/dio.dart';
 import 'package:sentry_dio/sentry_dio.dart';
 import 'package:sentry_logging/sentry_logging.dart';
+// import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
 const String _exampleDsn =
@@ -35,6 +38,7 @@ Future<void> main() async {
             ),
           ),
       _exampleDsn);
+  databaseFactory = SentrySqfliteDatabaseFactoryMixin();
 }
 
 Future<void> setupSentry(AppRunner appRunner, String dsn) async {
@@ -51,6 +55,7 @@ Future<void> setupSentry(AppRunner appRunner, String dsn) async {
     options.reportSilentFlutterErrors = true;
     options.attachScreenshot = true;
     options.attachViewHierarchy = true;
+    options.environment = 'dev';
     // We can enable Sentry debug logging during development. This is likely
     // going to log too much for your app, but can be useful when figuring out
     // configuration issues, e.g. finding out why your events are not uploaded.
@@ -132,6 +137,10 @@ class MainScaffold extends StatelessWidget {
         child: Column(
           children: [
             const Center(child: Text('Trigger an action:\n')),
+            ElevatedButton(
+              onPressed: () => sqfliteTest(),
+              child: const Text('sqflite'),
+            ),
             ElevatedButton(
               onPressed: () => SecondaryScaffold.openSecondaryScaffold(context),
               child: const Text('Open another Scaffold'),
@@ -392,6 +401,38 @@ class MainScaffold extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> sqfliteTest() async {
+    // sqfliteFfiInit();
+    // databaseFactory = databaseFactoryFfi;
+    // databaseFactory = SentryDatabaseFactory(databaseFactoryFfi);
+    // databaseFactory = SentrySqfliteDatabaseFactoryMixin();
+
+    final tr = Sentry.startTransaction(
+      'sqfliteTest',
+      'db',
+      bindToScope: true,
+    );
+
+    var db = await openDatabase(inMemoryDatabasePath);
+    await db.execute('''
+      CREATE TABLE Product (
+        id INTEGER PRIMARY KEY,
+        title TEXT
+      )
+  ''');
+    for (int i = 1; i <= 20; i++) {
+      await db.insert('Product', <String, Object?>{'title': 'Product $i'});
+    }
+
+    await db.query('Product');
+
+    await db.delete('Product', where: 'title = ?', whereArgs: ['Product 1']);
+
+    await db.close();
+
+    await tr.finish(status: const SpanStatus.ok());
   }
 }
 

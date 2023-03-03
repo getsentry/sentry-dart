@@ -2,7 +2,8 @@ import 'package:sqflite/sqflite.dart';
 
 import 'sentry_database.dart';
 
-Future<Database> openDatabase(
+// ignore: public_member_api_docs
+Future<Database> openDatabaseWithSentry(
   String path, {
   int? version,
   OnDatabaseConfigureFn? onConfigure,
@@ -30,4 +31,9 @@ Future<Database> openDatabase(
   }
 
   return openDatabase();
+}
+
+// ignore: public_member_api_docs
+Future<Database> openReadOnlyDatabaseWithSentry(String path) {
+  return openDatabaseWithSentry(path, readOnly: true);
 }
