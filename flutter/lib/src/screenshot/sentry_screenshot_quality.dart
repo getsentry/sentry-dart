@@ -1,3 +1,4 @@
+/// The quality of the attached screenshot
 enum SentryScreenshotQuality {
   full,
   high,
