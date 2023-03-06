@@ -28,7 +28,7 @@ class FailedRequestInterceptor extends Interceptor {
 
     final containsStatusCode =
         _failedRequestStatusCodes.containsStatusCode(err.response?.statusCode);
-    final containsRequestTarget = containsTracePropagationTarget(
+    final containsRequestTarget = containsTargetOrMatchesRegExp(
         _failedRequestTargets, err.requestOptions.path);
 
     if (captureFailedRequests && containsStatusCode && containsRequestTarget) {

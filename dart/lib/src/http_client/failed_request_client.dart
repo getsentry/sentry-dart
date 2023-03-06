@@ -139,7 +139,7 @@ class FailedRequestClient extends BaseClient {
       if (!failedRequestStatusCodes.containsStatusCode(statusCode)) {
         return;
       }
-      if (!containsTracePropagationTarget(
+      if (!containsTargetOrMatchesRegExp(
           failedRequestTargets, request.url.toString())) {
         return;
       }

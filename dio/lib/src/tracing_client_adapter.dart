@@ -38,7 +38,7 @@ class TracingClientAdapter extends HttpClientAdapter {
     ResponseBody? response;
     try {
       if (span != null) {
-        if (containsTracePropagationTarget(
+        if (containsTargetOrMatchesRegExp(
           // ignore: invalid_use_of_internal_member
           _hub.options.tracePropagationTargets,
           options.uri.toString(),

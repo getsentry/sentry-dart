@@ -6,48 +6,48 @@ import '../mocks.dart';
 import '../mocks/mock_sentry_client.dart';
 
 void main() {
-  group('$containsTracePropagationTarget', () {
+  group('$containsTargetOrMatchesRegExp', () {
     final origins = ['localhost', '^(http|https)://api\\..*\$'];
 
     test('origins contains the url when it contains one of the defined origins',
         () {
       expect(
-          containsTracePropagationTarget(origins, 'http://localhost:8080/foo'),
+          containsTargetOrMatchesRegExp(origins, 'http://localhost:8080/foo'),
           isTrue);
       expect(
-          containsTracePropagationTarget(
+          containsTargetOrMatchesRegExp(
               origins, 'http://xxx.localhost:8080/foo'),
           isTrue);
     });
 
     test('origins contain the url when it matches regex', () {
       expect(
-          containsTracePropagationTarget(
+          containsTargetOrMatchesRegExp(
               origins, 'http://api.foo.bar:8080/foo'),
           isTrue);
       expect(
-          containsTracePropagationTarget(
+          containsTargetOrMatchesRegExp(
               origins, 'https://api.foo.bar:8080/foo'),
           isTrue);
       expect(
-          containsTracePropagationTarget(
+          containsTargetOrMatchesRegExp(
               origins, 'http://api.localhost:8080/foo'),
           isTrue);
       expect(
-          containsTracePropagationTarget(origins, 'ftp://api.foo.bar:8080/foo'),
+          containsTargetOrMatchesRegExp(origins, 'ftp://api.foo.bar:8080/foo'),
           isFalse);
     });
 
     test('invalid regex do not throw', () {
       expect(
-          containsTracePropagationTarget(
+          containsTargetOrMatchesRegExp(
               ['AABB???', '^(http|https)://api\\..*\$'],
               'http://api.foo.bar:8080/foo'),
           isTrue);
     });
 
     test('when no origins are defined, returns false for every url', () {
-      expect(containsTracePropagationTarget([], 'api.foo.com'), isFalse);
+      expect(containsTargetOrMatchesRegExp([], 'api.foo.com'), isFalse);
     });
   });
 
