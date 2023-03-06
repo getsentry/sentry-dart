@@ -75,10 +75,17 @@ import 'failed_request_client.dart';
 /// Read more on data scrubbing [here](https://docs.sentry.io/product/data-management-settings/advanced-datascrubbing/).
 /// ```
 class SentryHttpClient extends BaseClient {
+  static const defaultFailedRequestStatusCodes = [
+    SentryStatusCode.defaultRange()
+  ];
+  static const defaultFailedRequestTargets = ['.*'];
+
   SentryHttpClient({
     Client? client,
     Hub? hub,
-    List<SentryStatusCode> failedRequestStatusCodes = const [],
+    List<SentryStatusCode> failedRequestStatusCodes =
+        defaultFailedRequestStatusCodes,
+    List<String> failedRequestTargets = defaultFailedRequestTargets,
   }) {
     _hub = hub ?? HubAdapter();
 
@@ -86,6 +93,7 @@ class SentryHttpClient extends BaseClient {
 
     innerClient = FailedRequestClient(
       failedRequestStatusCodes: failedRequestStatusCodes,
+      failedRequestTargets: failedRequestTargets,
       hub: _hub,
       client: innerClient,
     );

@@ -68,8 +68,9 @@ import 'sentry_http_client.dart';
 /// ```
 class FailedRequestClient extends BaseClient {
   FailedRequestClient({
-    this.failedRequestStatusCodes = const [SentryStatusCode.defaultRange()],
-    this.failedRequestTargets = const ['.*'],
+    this.failedRequestStatusCodes =
+        SentryHttpClient.defaultFailedRequestStatusCodes,
+    this.failedRequestTargets = SentryHttpClient.defaultFailedRequestTargets,
     Client? client,
     Hub? hub,
   })  : _hub = hub ?? HubAdapter(),

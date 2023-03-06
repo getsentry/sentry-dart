@@ -40,10 +40,10 @@ extension SentryDioExtension on Dio {
   /// ```
   void addSentry({
     Hub? hub,
-    List<SentryStatusCode> failedRequestStatusCodes = const [
-      SentryStatusCode.defaultRange()
-    ],
-    List<String> failedRequestTargets = const ['.*'],
+    List<SentryStatusCode> failedRequestStatusCodes =
+        SentryHttpClient.defaultFailedRequestStatusCodes,
+    List<String> failedRequestTargets =
+        SentryHttpClient.defaultFailedRequestTargets,
   }) {
     hub = hub ?? HubAdapter();
 

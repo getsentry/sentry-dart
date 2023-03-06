@@ -6,10 +6,10 @@ import 'package:sentry/sentry.dart';
 class FailedRequestInterceptor extends Interceptor {
   FailedRequestInterceptor({
     Hub? hub,
-    List<SentryStatusCode> failedRequestStatusCodes = const [
-      SentryStatusCode.defaultRange()
-    ],
-    List<String> failedRequestTargets = const ['.*'],
+    List<SentryStatusCode> failedRequestStatusCodes =
+        SentryHttpClient.defaultFailedRequestStatusCodes,
+    List<String> failedRequestTargets =
+        SentryHttpClient.defaultFailedRequestTargets,
   })  : _hub = hub ?? HubAdapter(),
         _failedRequestStatusCodes = failedRequestStatusCodes,
         _failedRequestTargets = failedRequestTargets;
