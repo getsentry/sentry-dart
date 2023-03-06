@@ -29,7 +29,9 @@ class FailedRequestInterceptor extends Interceptor {
     final containsStatusCode =
         _failedRequestStatusCodes.containsStatusCode(err.response?.statusCode);
     final containsRequestTarget = containsTargetOrMatchesRegExp(
-        _failedRequestTargets, err.requestOptions.path);
+      _failedRequestTargets,
+      err.requestOptions.path,
+    );
 
     if (captureFailedRequests && containsStatusCode && containsRequestTarget) {
       final mechanism = Mechanism(type: 'SentryDioClientAdapter');
