@@ -2,12 +2,10 @@
 
 ## Unreleased
 
-### Feature
+### Features
 
 - Support failedRequestTargets for HTTP Client errors ([#1285](https://github.com/getsentry/sentry-dart/pull/1285))
   - Captures errors for the default range `500-599` if `captureFailedRequests` is enabled
-### Features
-
 - Sentry Isolate Extension ([#1266](https://github.com/getsentry/sentry-dart/pull/1266))
 - Allow sentry user to control resolution of captured Flutter screenshots ([#1288](https://github.com/getsentry/sentry-dart/pull/1288))
 
