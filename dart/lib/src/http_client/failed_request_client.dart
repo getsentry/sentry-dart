@@ -31,8 +31,6 @@ import 'sentry_http_client.dart';
 /// );
 /// ```
 ///
-///
-///
 /// Remarks:
 /// If this client is used as a wrapper, a call to close also closes the
 /// given client.

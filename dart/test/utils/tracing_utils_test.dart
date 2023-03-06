@@ -22,8 +22,7 @@ void main() {
 
     test('origins contain the url when it matches regex', () {
       expect(
-          containsTargetOrMatchesRegExp(
-              origins, 'http://api.foo.bar:8080/foo'),
+          containsTargetOrMatchesRegExp(origins, 'http://api.foo.bar:8080/foo'),
           isTrue);
       expect(
           containsTargetOrMatchesRegExp(
