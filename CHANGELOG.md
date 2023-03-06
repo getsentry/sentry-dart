@@ -4,6 +4,7 @@
 
 ### Features
 
+- Platform Exception Event Processor ([#1297](https://github.com/getsentry/sentry-dart/pull/1297))
 - Support failedRequestTargets for HTTP Client errors ([#1285](https://github.com/getsentry/sentry-dart/pull/1285))
   - Captures errors for the default range `500-599` if `captureFailedRequests` is enabled
 - Sentry Isolate Extension ([#1266](https://github.com/getsentry/sentry-dart/pull/1266))
