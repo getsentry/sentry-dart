@@ -374,9 +374,19 @@ class SentryClient {
     try {
       if (event is SentryTransaction && beforeSendTransaction != null) {
         beforeSendName = 'beforeSendTransaction';
-        eventOrTransaction = await beforeSendTransaction(event);
+        final e = beforeSendTransaction(event);
+        if (e is Future) {
+          eventOrTransaction = await e;
+        } else {
+          eventOrTransaction = e;
+        }
       } else if (beforeSend != null) {
-        eventOrTransaction = await beforeSend(event, hint: hint);
+        final e = beforeSend(event, hint: hint);
+        if (e is Future) {
+          eventOrTransaction = await e;
+        } else {
+          eventOrTransaction = e;
+        }
       }
     } catch (exception, stackTrace) {
       _options.logger(
@@ -406,7 +416,12 @@ class SentryClient {
     SentryEvent? processedEvent = event;
     for (final processor in eventProcessors) {
       try {
-        processedEvent = await processor.apply(processedEvent!, hint: hint);
+        final e = processor.apply(processedEvent!, hint: hint);
+        if (e is Future) {
+          processedEvent = await e;
+        } else {
+          processedEvent = e;
+        }
       } catch (exception, stackTrace) {
         _options.logger(
           SentryLevel.error,

@@ -1,6 +1,9 @@
 @TestOn('vm')
 
-import 'package:sentry/sentry.dart';
+import 'package:sentry/src/hub.dart';
+import 'package:sentry/src/protocol/span_status.dart';
+import 'package:sentry/src/sentry_isolate.dart';
+import 'package:sentry/src/sentry_options.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
@@ -8,14 +11,23 @@ import 'mocks/mock_hub.dart';
 import 'mocks/mock_sentry_client.dart';
 
 void main() {
-  group(IsolateErrorIntegration, () {
+  group("SentryIsolate", () {
     late Fixture fixture;
 
     setUp(() {
       fixture = Fixture();
     });
 
-    // increase coverage of handleIsolateError
+    test('adds error listener', () async {
+      final throwingClosure = (String message) async {
+        throw StateError(message);
+      };
+
+      await SentryIsolate.spawn(throwingClosure, "message", hub: fixture.hub);
+      await Future.delayed(Duration(milliseconds: 10));
+
+      expect(fixture.hub.captureEventCalls.first, isNotNull);
+    });
 
     test('marks transaction as internal error if no status', () async {
       final exception = StateError('error');
@@ -25,12 +37,10 @@ void main() {
       final client = MockSentryClient();
       hub.bindClient(client);
 
-      final sut = fixture.getSut();
-
       hub.startTransaction('name', 'operation', bindToScope: true);
 
-      await sut.handleIsolateError(
-          hub, fixture.options, [exception.toString(), stackTrace]);
+      await SentryIsolate.handleIsolateError(
+          hub, [exception.toString(), stackTrace]);
 
       final span = hub.getSpan();
 
@@ -44,8 +54,4 @@ void main() {
 class Fixture {
   final hub = MockHub();
   final options = SentryOptions(dsn: fakeDsn)..tracesSampleRate = 1.0;
-
-  IsolateErrorIntegration getSut() {
-    return IsolateErrorIntegration();
-  }
 }
