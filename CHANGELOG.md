@@ -13,6 +13,10 @@
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6140)
   - [diff](https://github.com/getsentry/sentry-java/compare/6.13.1...6.14.0)
 
+### Features
+
+- Allow sentry user to control resolution of captured Flutter screenshots ([#1288](https://github.com/getsentry/sentry-dart/pull/1288))
+
 ## 6.21.0
 
 ### Features

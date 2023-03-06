@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui show ImageByteFormat;
+import 'dart:ui';
 
 import 'package:sentry/sentry.dart';
 import '../screenshot/sentry_screenshot_widget.dart';
@@ -44,9 +46,9 @@ class ScreenshotEventProcessor extends EventProcessor {
     try {
       final renderObject =
           sentryScreenshotWidgetGlobalKey.currentContext?.findRenderObject();
-
       if (renderObject is RenderRepaintBoundary) {
-        final image = await renderObject.toImage(pixelRatio: 1);
+        final pixelRatio = window.devicePixelRatio;
+        var image = await renderObject.toImage(pixelRatio: pixelRatio);
         // At the time of writing there's no other image format available which
         // Sentry understands.
 
@@ -56,7 +58,17 @@ class ScreenshotEventProcessor extends EventProcessor {
           return null;
         }
 
+        final targetResolution = _options.screenshotQuality.targetResolution();
+        if (targetResolution != null) {
+          var ratioWidth = targetResolution / image.width;
+          var ratioHeight = targetResolution / image.height;
+          var ratio = min(ratioWidth, ratioHeight);
+          if (ratio > 0.0 && ratio < 1.0) {
+            image = await renderObject.toImage(pixelRatio: ratio * pixelRatio);
+          }
+        }
         final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+
         final bytes = byteData?.buffer.asUint8List();
         if (bytes?.isNotEmpty == true) {
           return bytes;
