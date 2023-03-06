@@ -46,7 +46,10 @@ class Sentry {
     await _initDefaultValues(sentryOptions);
 
     try {
-      await optionsConfiguration(sentryOptions);
+      final config = optionsConfiguration(sentryOptions);
+      if (config is Future) {
+        await config;
+      }
     } catch (exception, stackTrace) {
       sentryOptions.logger(
         SentryLevel.error,
@@ -149,7 +152,10 @@ class Sentry {
   static Future<void> _callIntegrations(
       Iterable<Integration> integrations, SentryOptions options) async {
     for (final integration in integrations) {
-      await integration(HubAdapter(), options);
+      final execute = integration(HubAdapter(), options);
+      if (execute is Future) {
+        await execute;
+      }
     }
   }
 
@@ -219,12 +225,12 @@ class Sentry {
   static SentryId get lastEventId => _hub.lastEventId;
 
   /// Adds a breacrumb to the current Scope
-  static Future<void> addBreadcrumb(Breadcrumb crumb, {Hint? hint}) async =>
-      await _hub.addBreadcrumb(crumb, hint: hint);
+  static Future<void> addBreadcrumb(Breadcrumb crumb, {Hint? hint}) =>
+      _hub.addBreadcrumb(crumb, hint: hint);
 
   /// Configures the scope through the callback.
-  static FutureOr<void> configureScope(ScopeCallback callback) async =>
-      await _hub.configureScope(callback);
+  static FutureOr<void> configureScope(ScopeCallback callback) =>
+      _hub.configureScope(callback);
 
   /// Clones the current Hub
   static Hub clone() => _hub.clone();

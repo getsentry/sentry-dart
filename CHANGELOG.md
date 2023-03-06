@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Enhancements
+
+- Don't await `FutureOr<T>` if it's not a future. This should marginally improve the performance ([#1310](https://github.com/getsentry/sentry-dart/pull/1310))
+
 ## 7.0.0-rc.1
 
 ### Breaking Changes
