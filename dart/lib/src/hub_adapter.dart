@@ -85,8 +85,8 @@ class HubAdapter implements Hub {
   Future<void> close() => Sentry.close();
 
   @override
-  FutureOr<void> configureScope(ScopeCallback callback) async =>
-      await Sentry.configureScope(callback);
+  FutureOr<void> configureScope(ScopeCallback callback) =>
+      Sentry.configureScope(callback);
 
   @override
   bool get isEnabled => Sentry.isEnabled;

@@ -32,8 +32,8 @@ dependencies:
   sentry_flutter:
   sentry_dio:
   sentry_logging:
-  dio: ^4.0.0
-  logging: ^1.0.0
+  dio: any # This gets constrained by `sentry_dio`
+  logging: any # This gets constrained by `sentry_logging`
 
 dev_dependencies:
   flutter_test:
