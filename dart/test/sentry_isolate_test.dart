@@ -40,7 +40,7 @@ void main() {
       hub.startTransaction('name', 'operation', bindToScope: true);
 
       await SentryIsolate.handleIsolateError(
-          hub, fixture.options, [exception.toString(), stackTrace]);
+          hub, [exception.toString(), stackTrace]);
 
       final span = hub.getSpan();
 

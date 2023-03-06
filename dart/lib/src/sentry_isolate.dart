@@ -2,7 +2,6 @@ import 'dart:isolate';
 import 'package:meta/meta.dart';
 
 import 'throwable_mechanism.dart';
-import 'sentry_options.dart';
 import 'protocol.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
@@ -19,25 +18,23 @@ class SentryIsolate {
       SendPort? onExit,
       SendPort? onError,
       String? debugName,
-      Hub? hub}) async {
-    final hubToUse = hub ?? HubAdapter();
-    final options = hubToUse.options;
-
+      @internal Hub? hub}) async {
     return Isolate.spawn(
       entryPoint,
       message,
       paused: paused,
       errorsAreFatal: errorsAreFatal,
       onExit: onExit,
-      onError: onError ?? createPort(hubToUse, options).sendPort,
+      onError: onError ?? createPort(hub ?? HubAdapter()).sendPort,
       debugName: debugName,
     );
   }
 
-  static RawReceivePort createPort(Hub hub, SentryOptions options) {
+  @internal
+  static RawReceivePort createPort(Hub hub) {
     return RawReceivePort(
       (dynamic error) async {
-        await handleIsolateError(hub, options, error);
+        await handleIsolateError(hub, error);
       },
     );
   }
@@ -47,10 +44,9 @@ class SentryIsolate {
   /// Parse and raise an event out of the Isolate error.
   static Future<void> handleIsolateError(
     Hub hub,
-    SentryOptions options,
     dynamic error,
   ) async {
-    options.logger(SentryLevel.debug, 'Capture from IsolateError $error');
+    hub.options.logger(SentryLevel.debug, 'Capture from IsolateError $error');
 
     // https://api.dartlang.org/stable/2.7.0/dart-isolate/Isolate/addErrorListener.html
     // error is a list of 2 elements
@@ -64,7 +60,7 @@ class SentryIsolate {
       final String throwable = error.first;
       final String? stackTrace = error.last;
 
-      options.logger(
+      hub.options.logger(
         SentryLevel.error,
         'Uncaught isolate error',
         logger: 'sentry.isolateError',
