@@ -28,10 +28,8 @@ void main() {
       final sut = fixture.getSut();
       event = (await sut.apply(event))!;
 
-      expect(event.exceptions?.first.mechanism?.data["code"],
-          "fixture-code");
-      expect(
-          event.exceptions?.first.mechanism?.data["message"],
+      expect(event.exceptions?.first.mechanism?.data["code"], "fixture-code");
+      expect(event.exceptions?.first.mechanism?.data["message"],
           "fixture-message");
     });
 
