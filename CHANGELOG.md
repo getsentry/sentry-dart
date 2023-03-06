@@ -2,9 +2,15 @@
 
 ## Unreleased
 
+### Features
+
+- Sentry Isolate Extension ([#1266](https://github.com/getsentry/sentry-dart/pull/1266))
+- Allow sentry user to control resolution of captured Flutter screenshots ([#1288](https://github.com/getsentry/sentry-dart/pull/1288))
+
 ### Enhancements
 
 - FrameTrackingIntegration ([#1271](https://github.com/getsentry/sentry-dart/pull/1271))
+- Replace `toImage` with `toImageSync` for Flutter >= 3.7 ([1268](https://github.com/getsentry/sentry-dart/pull/1268))
 - Don't await `FutureOr<T>` if it's not a future. This should marginally improve the performance ([#1310](https://github.com/getsentry/sentry-dart/pull/1310))
 
 ## 7.0.0-rc.1
@@ -19,14 +25,6 @@
 - Bump Android SDK from v6.13.1 to v6.14.0 ([#1287](https://github.com/getsentry/sentry-dart/pull/1287))
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6140)
   - [diff](https://github.com/getsentry/sentry-java/compare/6.13.1...6.14.0)
-
-### Features
-
-- Allow sentry user to control resolution of captured Flutter screenshots ([#1288](https://github.com/getsentry/sentry-dart/pull/1288))
-
-### Features
-
-- Sentry Isolate Extension ([#1266](https://github.com/getsentry/sentry-dart/pull/1266))
 
 ## 6.21.0
 

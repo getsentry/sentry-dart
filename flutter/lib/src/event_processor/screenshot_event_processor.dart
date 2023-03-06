@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 import 'dart:typed_data';
-import 'dart:ui' as ui show ImageByteFormat;
 import 'dart:ui';
 
 import 'package:sentry/sentry.dart';
@@ -48,7 +47,13 @@ class ScreenshotEventProcessor extends EventProcessor {
           sentryScreenshotWidgetGlobalKey.currentContext?.findRenderObject();
       if (renderObject is RenderRepaintBoundary) {
         final pixelRatio = window.devicePixelRatio;
-        var image = await renderObject.toImage(pixelRatio: pixelRatio);
+        var imageResult = _getImage(renderObject, pixelRatio);
+        Image image;
+        if (imageResult is Future) {
+          image = await imageResult;
+        } else {
+          image = imageResult;
+        }
         // At the time of writing there's no other image format available which
         // Sentry understands.
 
@@ -64,10 +69,15 @@ class ScreenshotEventProcessor extends EventProcessor {
           var ratioHeight = targetResolution / image.height;
           var ratio = min(ratioWidth, ratioHeight);
           if (ratio > 0.0 && ratio < 1.0) {
-            image = await renderObject.toImage(pixelRatio: ratio * pixelRatio);
+            imageResult = _getImage(renderObject, ratio * pixelRatio);
+            if (imageResult is Future) {
+              image = await imageResult;
+            } else {
+              image = imageResult;
+            }
           }
         }
-        final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+        final byteData = await image.toByteData(format: ImageByteFormat.png);
 
         final bytes = byteData?.buffer.asUint8List();
         if (bytes?.isNotEmpty == true) {
@@ -87,5 +97,16 @@ class ScreenshotEventProcessor extends EventProcessor {
       );
     }
     return null;
+  }
+
+  FutureOr<Image> _getImage(
+      RenderRepaintBoundary repaintBoundary, double pixelRatio) {
+    // This one is a hack to use https://api.flutter.dev/flutter/rendering/RenderRepaintBoundary/toImage.html on versions older than 3.7 and https://api.flutter.dev/flutter/rendering/RenderRepaintBoundary/toImageSync.html on versions equal or newer than 3.7
+    try {
+      return (repaintBoundary as dynamic).toImageSync(pixelRatio: pixelRatio)
+          as Image;
+    } on NoSuchMethodError catch (_) {
+      return repaintBoundary.toImage(pixelRatio: pixelRatio);
+    }
   }
 }
