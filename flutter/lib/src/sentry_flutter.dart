@@ -184,9 +184,7 @@ mixin SentryFlutter {
       ));
     }
 
-    integrations.add(
-      FrameTrackingIntegration(_schedulerBindingProvider),
-    );
+    integrations.add(FrameTrackingIntegration());
     return integrations;
   }
 
