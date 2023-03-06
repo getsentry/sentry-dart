@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'dart:ui' as ui show ImageByteFormat;
 import 'dart:ui';
 
-import 'package:flutter/widgets.dart';
 import 'package:sentry/sentry.dart';
 import '../screenshot/sentry_screenshot_widget.dart';
 import '../sentry_flutter_options.dart';
@@ -45,7 +44,8 @@ class ScreenshotEventProcessor extends EventProcessor {
 
   Future<Uint8List?> _createScreenshot() async {
     try {
-      final renderObject = sentryScreenshotWidgetGlobalKey.currentContext?.findRenderObject();
+      final renderObject =
+          sentryScreenshotWidgetGlobalKey.currentContext?.findRenderObject();
       if (renderObject is RenderRepaintBoundary) {
         final pixelRatio = window.devicePixelRatio;
         var image = await renderObject.toImage(pixelRatio: pixelRatio);
