@@ -11,7 +11,7 @@ import 'package:sentry/sentry.dart';
 /// Remarks:
 /// If this client is used as a wrapper, a call to close also closes the
 /// given client.
-class BreadcrumbClientAdapter extends HttpClientAdapter {
+class BreadcrumbClientAdapter implements HttpClientAdapter {
   // ignore: public_member_api_docs
   BreadcrumbClientAdapter({required HttpClientAdapter client, Hub? hub})
       : _hub = hub ?? HubAdapter(),

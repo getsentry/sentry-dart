@@ -1,6 +1,7 @@
 import 'package:http/http.dart';
 import '../hint.dart';
 import '../type_check_hint.dart';
+import '../utils/tracing_utils.dart';
 import 'sentry_http_client_error.dart';
 import '../protocol.dart';
 import '../hub.dart';
@@ -67,7 +68,9 @@ import 'sentry_http_client.dart';
 /// ```
 class FailedRequestClient extends BaseClient {
   FailedRequestClient({
-    this.failedRequestStatusCodes = const [],
+    this.failedRequestStatusCodes =
+        SentryHttpClient.defaultFailedRequestStatusCodes,
+    this.failedRequestTargets = SentryHttpClient.defaultFailedRequestTargets,
     Client? client,
     Hub? hub,
   })  : _hub = hub ?? HubAdapter(),
@@ -85,6 +88,8 @@ class FailedRequestClient extends BaseClient {
   ///
   /// Per default no status code is considered a failed request.
   final List<SentryStatusCode> failedRequestStatusCodes;
+
+  final List<String> failedRequestTargets;
 
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
@@ -106,30 +111,50 @@ class FailedRequestClient extends BaseClient {
       rethrow;
     } finally {
       stopwatch.stop();
+      await _captureEventIfNeeded(
+        request,
+        statusCode,
+        exception,
+        stackTrace,
+        response,
+        stopwatch.elapsed,
+      );
+    }
+  }
 
-      // If captureFailedRequests is true, there statusCode is null.
-      // So just one of these blocks can be called.
-      var capture = false;
-      String? reason;
-      if (_hub.options.captureFailedRequests && exception != null) {
-        capture = true;
-      } else if (failedRequestStatusCodes.containsStatusCode(statusCode)) {
-        // Capture an exception if the status code is considered bad
-        capture = true;
-        reason = 'HTTP Client Error with status code: $statusCode';
-        exception ??= SentryHttpClientError(reason);
+  Future<void> _captureEventIfNeeded(
+      BaseRequest request,
+      int? statusCode,
+      Object? exception,
+      StackTrace? stackTrace,
+      StreamedResponse? response,
+      Duration duration) async {
+    if (!_hub.options.captureFailedRequests) {
+      return;
+    }
+
+    // Only check `failedRequestStatusCodes` & `failedRequestTargets` if no exception was thrown.
+    if (exception == null) {
+      if (!failedRequestStatusCodes.containsStatusCode(statusCode)) {
+        return;
       }
-      if (capture) {
-        await _captureEvent(
-          exception: exception,
-          stackTrace: stackTrace,
-          request: request,
-          requestDuration: stopwatch.elapsed,
-          response: response,
-          reason: reason,
-        );
+      if (!containsTargetOrMatchesRegExp(
+          failedRequestTargets, request.url.toString())) {
+        return;
       }
     }
+
+    final reason = 'HTTP Client Error with status code: $statusCode';
+    exception ??= SentryHttpClientError(reason);
+
+    await _captureEvent(
+      exception: exception,
+      stackTrace: stackTrace,
+      request: request,
+      requestDuration: duration,
+      response: response,
+      reason: reason,
+    );
   }
 
   @override
