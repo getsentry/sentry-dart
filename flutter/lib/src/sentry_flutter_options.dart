@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 
 import 'binding_wrapper.dart';
 import 'renderer/renderer.dart';
+import 'screenshot/sentry_screenshot_quality.dart';
 
 /// This class adds options which are only availble in a Flutter environment.
 /// Note that some of these options require native Sentry integration, which is
@@ -163,6 +164,9 @@ class SentryFlutterOptions extends SentryOptions {
   /// The [SentryScreenshotWidget] has to be the root widget of the app.
   bool attachScreenshot = false;
 
+  /// The quality of the attached screenshot
+  SentryScreenshotQuality screenshotQuality = SentryScreenshotQuality.high;
+
   /// Enable or disable automatic breadcrumbs for User interactions Using [Listener]
   ///
   /// Requires adding the [SentryUserInteractionWidget] to the widget tree.
@@ -176,6 +180,9 @@ class SentryFlutterOptions extends SentryOptions {
   /// Example:
   /// runApp(SentryUserInteractionWidget(child: App()));
   bool enableUserInteractionTracing = true;
+
+  /// Sets the Proguard uuid for Android platform.
+  String? proguardUuid;
 
   @internal
   late RendererWrapper rendererWrapper = RendererWrapper();

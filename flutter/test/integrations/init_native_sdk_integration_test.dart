@@ -60,6 +60,7 @@ void main() {
           'name': 'sentry.dart.flutter',
           'version': sdkVersion,
         },
+        'proguardUuid': null
       });
     });
 
@@ -91,7 +92,9 @@ void main() {
         ..sendDefaultPii = true
         ..enableWatchdogTerminationTracking = false
         ..enableAutoPerformanceTracing = false
-        ..sendClientReports = false;
+        ..sendClientReports = false
+        ..enableNdkScopeSync = true
+        ..proguardUuid = fakeProguardUuid;
 
       options.sdk.addIntegration('foo');
       options.sdk.addPackage('bar', '1');
@@ -132,6 +135,7 @@ void main() {
           'name': 'sentry.dart.flutter',
           'version': sdkVersion,
         },
+        'proguardUuid': fakeProguardUuid
       });
     });
 

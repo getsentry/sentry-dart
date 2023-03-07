@@ -316,7 +316,12 @@ class Scope {
     SentryEvent? processedEvent = event;
     for (final processor in _eventProcessors) {
       try {
-        processedEvent = await processor.apply(processedEvent!, hint: hint);
+        final e = processor.apply(processedEvent!, hint: hint);
+        if (e is Future) {
+          processedEvent = await e;
+        } else {
+          processedEvent = e;
+        }
       } catch (exception, stackTrace) {
         _options.logger(
           SentryLevel.error,
