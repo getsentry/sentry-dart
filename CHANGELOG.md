@@ -1,5 +1,11 @@
 # Changelog
 
+### Unreleased
+
+### Enhancements
+
+- FrameTrackingIntegration ([#1271](https://github.com/getsentry/sentry-dart/pull/1271))
+
 ## 7.0.0-rc.2
 
 ### Features
@@ -12,7 +18,6 @@
 
 ### Enhancements
 
-- FrameTrackingIntegration ([#1271](https://github.com/getsentry/sentry-dart/pull/1271))
 - Replace `toImage` with `toImageSync` for Flutter >= 3.7 ([1268](https://github.com/getsentry/sentry-dart/pull/1268))
 - Don't await `FutureOr<T>` if it's not a future. This should marginally improve the performance ([#1310](https://github.com/getsentry/sentry-dart/pull/1310))
 
