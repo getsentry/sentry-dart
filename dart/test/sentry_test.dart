@@ -23,6 +23,7 @@ void main() {
           options.dsn = fakeDsn,
           options.tracesSampleRate = 1.0,
         },
+        devMode: true,
       );
       anException = Exception('anException');
 
@@ -136,7 +137,10 @@ void main() {
 
     test('null DSN', () async {
       expect(
-        () async => await Sentry.init((options) => options.dsn = null),
+        () async => await Sentry.init(
+          (options) => options.dsn = null,
+          devMode: true,
+        ),
         throwsArgumentError,
       );
       expect(Sentry.isEnabled, false);
@@ -144,12 +148,18 @@ void main() {
 
     test('appRunner should be optional', () async {
       expect(Sentry.isEnabled, false);
-      await Sentry.init((options) => options.dsn = fakeDsn);
+      await Sentry.init(
+        (options) => options.dsn = fakeDsn,
+        devMode: true,
+      );
       expect(Sentry.isEnabled, true);
     });
 
     test('empty DSN', () async {
-      await Sentry.init((options) => options.dsn = '');
+      await Sentry.init(
+        (options) => options.dsn = '',
+        devMode: true,
+      );
       expect(Sentry.isEnabled, false);
     });
 
@@ -161,13 +171,17 @@ void main() {
           options.dsn = '';
           options.addIntegration(integration);
         },
+        devMode: true,
       );
 
       expect(integration.callCalls, 1);
     });
 
     test('close disables the SDK', () async {
-      await Sentry.init((options) => options.dsn = fakeDsn);
+      await Sentry.init(
+        (options) => options.dsn = fakeDsn,
+        devMode: true,
+      );
 
       Sentry.bindClient(MockSentryClient());
 
@@ -192,6 +206,7 @@ void main() {
           options.dsn = fakeDsn;
           options.addIntegration(integration);
         },
+        devMode: true,
       );
 
       expect(integration.callCalls, 1);
@@ -205,6 +220,7 @@ void main() {
           optionsReference = options;
         },
         appRunner: appRunner,
+        devMode: true,
       );
       expect(
         optionsReference.integrations
@@ -229,6 +245,7 @@ void main() {
             0,
           );
         },
+        devMode: true,
       );
     }, onPlatform: {'vm': Skip()});
 
@@ -240,6 +257,7 @@ void main() {
           options.dsn = fakeDsn;
           options.addIntegration(integration);
         },
+        devMode: true,
       );
 
       await Sentry.close();
@@ -257,6 +275,7 @@ void main() {
               .length;
           expect(count, 1);
         },
+        devMode: true,
       );
     });
 
@@ -269,6 +288,7 @@ void main() {
           options.dsn = fakeDsn;
         },
         appRunner: () => completer.future,
+        devMode: true,
       ).whenComplete(() => completed = true);
 
       await Future(() {
@@ -295,6 +315,7 @@ void main() {
       },
       appRunner: () => completer.future,
       callAppRunnerInRunZonedGuarded: false,
+      devMode: true,
     ).whenComplete(() => completed = true);
 
     await Future(() {
@@ -313,49 +334,65 @@ void main() {
     final sentryOptions = SentryOptions(dsn: fakeDsn)
       ..platformChecker = FakePlatformChecker.debugMode();
 
-    await Sentry.init((options) {
-      options.dsn = fakeDsn;
-      expect(options.environment, 'debug');
-      expect(options.debug, false);
-    }, options: sentryOptions);
+    await Sentry.init(
+      (options) {
+        options.dsn = fakeDsn;
+        expect(options.environment, 'debug');
+        expect(options.debug, false);
+      },
+      options: sentryOptions,
+      devMode: true,
+    );
   });
 
   test('options.environment profile', () async {
     final sentryOptions =
         SentryOptions(dsn: fakeDsn, checker: FakePlatformChecker.profileMode());
 
-    await Sentry.init((options) {
-      options.dsn = fakeDsn;
-      expect(options.environment, 'profile');
-      expect(options.debug, false);
-    }, options: sentryOptions);
+    await Sentry.init(
+      (options) {
+        options.dsn = fakeDsn;
+        expect(options.environment, 'profile');
+        expect(options.debug, false);
+      },
+      options: sentryOptions,
+      devMode: true,
+    );
   });
 
   test('options.environment production (defaultEnvironment)', () async {
     final sentryOptions =
         SentryOptions(dsn: fakeDsn, checker: FakePlatformChecker.releaseMode());
 
-    await Sentry.init((options) {
-      options.dsn = fakeDsn;
-      expect(options.environment, 'production');
-      expect(options.debug, false);
-    }, options: sentryOptions);
+    await Sentry.init(
+      (options) {
+        options.dsn = fakeDsn;
+        expect(options.environment, 'production');
+        expect(options.debug, false);
+      },
+      options: sentryOptions,
+      devMode: true,
+    );
   });
 
   test('options.logger is set by setting the debug flag', () async {
     final sentryOptions =
         SentryOptions(dsn: fakeDsn, checker: FakePlatformChecker.debugMode());
 
-    await Sentry.init((options) {
-      options.dsn = fakeDsn;
-      options.debug = true;
-      // ignore: deprecated_member_use_from_same_package
-      expect(options.logger, isNot(noOpLogger));
+    await Sentry.init(
+      (options) {
+        options.dsn = fakeDsn;
+        options.debug = true;
+        // ignore: deprecated_member_use_from_same_package
+        expect(options.logger, isNot(noOpLogger));
 
-      options.debug = false;
-      // ignore: deprecated_member_use_from_same_package
-      expect(options.logger, noOpLogger);
-    }, options: sentryOptions);
+        options.debug = false;
+        // ignore: deprecated_member_use_from_same_package
+        expect(options.logger, noOpLogger);
+      },
+      options: sentryOptions,
+      devMode: true,
+    );
 
     // ignore: deprecated_member_use_from_same_package
     expect(sentryOptions.logger, isNot(dartLogger));
@@ -388,9 +425,12 @@ void main() {
         ..logger = fixture.mockLogger;
 
       final exception = Exception("Exception in options callback");
-      await Sentry.init((options) async {
-        throw exception;
-      }, options: sentryOptions);
+      await Sentry.init(
+        (options) async {
+          throw exception;
+        },
+        options: sentryOptions,
+      );
 
       expect(fixture.loggedException, exception);
       expect(fixture.loggedLevel, SentryLevel.error);

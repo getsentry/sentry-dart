@@ -41,8 +41,11 @@ class Sentry {
     @internal bool callAppRunnerInRunZonedGuarded = true,
     @internal RunZonedGuardedOnError? runZonedGuardedOnError,
     @internal SentryOptions? options,
+    @internal bool devMode = false,
   }) async {
     final sentryOptions = options ?? SentryOptions();
+    sentryOptions.devMode = devMode;
+
     await _initDefaultValues(sentryOptions);
 
     try {
@@ -57,6 +60,9 @@ class Sentry {
         exception: exception,
         stackTrace: stackTrace,
       );
+      if (sentryOptions.devMode) {
+        rethrow;
+      }
     }
 
     if (sentryOptions.dsn == null) {
