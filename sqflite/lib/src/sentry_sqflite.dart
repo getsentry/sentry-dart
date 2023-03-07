@@ -1,3 +1,5 @@
+import 'package:meta/meta.dart';
+import 'package:sentry/sentry.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'sentry_database.dart';
@@ -20,9 +22,10 @@ Future<Database> openDatabaseWithSentry(
   OnDatabaseOpenFn? onOpen,
   bool readOnly = false,
   bool singleInstance = true,
+  @internal Hub? hub,
 }) {
   Future<Database> openDatabase() async {
-    final options = OpenDatabaseOptions(
+    final dbOptions = OpenDatabaseOptions(
       version: version,
       onConfigure: onConfigure,
       onCreate: onCreate,
@@ -32,7 +35,16 @@ Future<Database> openDatabaseWithSentry(
       readOnly: readOnly,
       singleInstance: singleInstance,
     );
-    final database = await databaseFactory.openDatabase(path, options: options);
+
+    // ignore: invalid_use_of_internal_member
+    final options = (hub ?? HubAdapter()).options;
+
+    final database =
+        await databaseFactory.openDatabase(path, options: dbOptions);
+
+    if (!options.isTracingEnabled()) {
+      return database;
+    }
 
     return SentryDatabase(database);
   }
@@ -48,6 +60,9 @@ Future<Database> openDatabaseWithSentry(
 ///
 /// final database = await openReadOnlyDatabaseWithSentry('path/to/db');
 /// ```
-Future<Database> openReadOnlyDatabaseWithSentry(String path) {
-  return openDatabaseWithSentry(path, readOnly: true);
+Future<Database> openReadOnlyDatabaseWithSentry(
+  String path, {
+  @internal Hub? hub,
+}) {
+  return openDatabaseWithSentry(path, readOnly: true, hub: hub);
 }

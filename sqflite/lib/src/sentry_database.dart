@@ -4,6 +4,7 @@ import 'package:sqflite/sqflite.dart';
 
 import 'sentry_database_executor.dart';
 import 'sentry_sqflite_transaction.dart';
+import 'version.dart';
 
 /// A [Database] wrapper that adds Sentry support.
 ///
@@ -29,7 +30,13 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
     this._database, {
     @internal Hub? hub,
   })  : _hub = hub ?? HubAdapter(),
-        super(_database, hub: hub);
+        super(_database, hub: hub) {
+    
+    // ignore: invalid_use_of_internal_member
+    final options = _hub.options;
+    options.sdk.addIntegration('SentrySqfliteDatabaseIntegration');
+    options.sdk.addPackage(packageName, sdkVersion);
+  }
 
   @override
   Future<void> close() {

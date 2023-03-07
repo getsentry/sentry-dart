@@ -2,4 +2,4 @@
 const String sdkVersion = '7.0.0-rc.2';
 
 /// The package name reported to Sentry.io in the submitted events.
-const String packageName = 'pub:sentry_file';
+const String packageName = 'pub:sentry_dio';

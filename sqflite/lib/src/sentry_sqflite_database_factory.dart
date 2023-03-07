@@ -39,6 +39,11 @@ class SentrySqfliteDatabaseFactory with SqfliteDatabaseFactoryMixin {
     String path, {
     OpenDatabaseOptions? options,
   }) async {
+    // ignore: invalid_use_of_internal_member
+    if (!_hub.options.isTracingEnabled()) {
+      return super.openDatabase(path, options: options);
+    }
+
     Future<Database> openDatabase() async {
       final currentSpan = _hub.getSpan();
       final span = currentSpan?.startChild(
