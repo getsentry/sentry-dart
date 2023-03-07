@@ -6,11 +6,11 @@ import 'sentry_database_executor.dart';
 import 'sentry_sqflite_transaction.dart';
 
 /// A [Database] wrapper that adds Sentry support.
-/// 
+///
 /// ```dart
 /// import 'package:sqflite/sqflite.dart';
 /// import 'package:sentry_sqflite/sentry_sqflite.dart';
-/// 
+///
 /// final database = await openDatabase('path/to/db');
 /// final sentryDatabase = SentryDatabase(database);
 /// ```
@@ -18,7 +18,13 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
   final Database _database;
   final Hub _hub;
 
-  // ignore: public_member_api_docs
+  /// ```dart
+  /// import 'package:sqflite/sqflite.dart';
+  /// import 'package:sentry_sqflite/sentry_sqflite.dart';
+  ///
+  /// final database = await openDatabase('path/to/db');
+  /// final sentryDatabase = SentryDatabase(database);
+  /// ```
   SentryDatabase(
     this._database, {
     @internal Hub? hub,
@@ -58,8 +64,11 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
   }
 
   @override
-  Future<T> devInvokeSqlMethod<T>(String method, String sql,
-      [List<Object?>? arguments]) {
+  Future<T> devInvokeSqlMethod<T>(
+    String method,
+    String sql, [
+    List<Object?>? arguments,
+  ]) {
     // ignore: deprecated_member_use
     return _database.devInvokeSqlMethod(method, sql);
   }
@@ -86,7 +95,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
         final sentryExecutor =
             SentryDatabaseExecutor(txn, parentSpan: span, hub: _hub);
         final sentrySqfliteTransaction =
-            SentrySqfliteTransaction(sentryExecutor);
+            SentrySqfliteTransaction(sentryExecutor, hub: _hub);
 
         return await action(sentrySqfliteTransaction);
       }

@@ -18,7 +18,13 @@ import 'sentry_database.dart';
 /// final database = await openDatabase('path/to/db');
 /// ```
 class SentrySqfliteDatabaseFactory with SqfliteDatabaseFactoryMixin {
-  // ignore: public_member_api_docs
+  /// ```dart
+  /// import 'package:sqflite/sqflite.dart';
+  ///
+  /// databaseFactory = SentrySqfliteDatabaseFactory();
+  ///
+  /// final database = await openDatabase('path/to/db');
+  /// ```
   SentrySqfliteDatabaseFactory({@internal Hub? hub})
       : _hub = hub ?? HubAdapter();
 

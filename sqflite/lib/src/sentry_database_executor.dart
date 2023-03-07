@@ -5,6 +5,8 @@ import 'package:sqflite/sqflite.dart';
 // ignore: implementation_imports, depend_on_referenced_packages
 import 'package:sqflite_common/src/sql_builder.dart';
 
+import 'sentry_batch.dart';
+
 @internal
 // ignore: public_member_api_docs
 class SentryDatabaseExecutor implements DatabaseExecutor {
@@ -21,10 +23,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
   final Hub _hub;
 
   @override
-  Batch batch() {
-    // TODO: implement batch, needs a wrapper
-    return _executor.batch();
-  }
+  Batch batch() => SentryBatch(_executor.batch(), hub: _hub);
 
   @override
   Database get database => _executor.database;

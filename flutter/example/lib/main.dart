@@ -55,7 +55,6 @@ Future<void> setupSentry(AppRunner appRunner, String dsn) async {
     options.attachScreenshot = true;
     options.screenshotQuality = SentryScreenshotQuality.low;
     options.attachViewHierarchy = true;
-    options.environment = 'dev';
     // We can enable Sentry debug logging during development. This is likely
     // going to log too much for your app, but can be useful when figuring out
     // configuration issues, e.g. finding out why your events are not uploaded.
@@ -410,18 +409,22 @@ class MainScaffold extends StatelessWidget {
       bindToScope: true,
     );
 
-    var db = await openDatabase(inMemoryDatabasePath);
+    final db = await openDatabase(inMemoryDatabasePath);
+    // final batch = db.batch();
     await db.execute('''
       CREATE TABLE Product (
         id INTEGER PRIMARY KEY,
         title TEXT
       )
   ''');
+    final dbTitles = <String>[];
     for (int i = 1; i <= 20; i++) {
-      await db.insert('Product', <String, Object?>{'title': 'Product $i'});
+      final title = 'Product $i';
+      dbTitles.add(title);
+      await db.insert('Product', <String, Object?>{'title': title});
     }
 
-    await db.query('Product');
+    // await db.query('Product');
 
     await db.transaction((txn) async {
       await txn
@@ -430,7 +433,11 @@ class MainScaffold extends StatelessWidget {
           where: 'title = ?', whereArgs: ['Product Another one']);
     });
 
-    await db.delete('Product', where: 'title = ?', whereArgs: ['Product 1']);
+    // await db.delete('Product', where: 'title = ?', whereArgs: ['Product 1']);
+
+    // final batch = db.batch();
+    // batch.delete('Product', where: 'title = ?', whereArgs: dbTitles);
+    // await batch.commit();
 
     await db.close();
 

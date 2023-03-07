@@ -3,11 +3,11 @@ import 'package:sqflite/sqflite.dart';
 import 'sentry_database.dart';
 
 /// Opens a database with Sentry support.
-/// 
+///
 /// ```dart
 /// import 'package:sqflite/sqflite.dart';
 /// import 'package:sentry_sqflite/sentry_sqflite.dart';
-/// 
+///
 /// final database = await openDatabaseWithSentry('path/to/db');
 /// ```
 Future<Database> openDatabaseWithSentry(
@@ -41,11 +41,11 @@ Future<Database> openDatabaseWithSentry(
 }
 
 /// Opens a database with Sentry support.
-/// 
+///
 /// ```dart
 /// import 'package:sqflite/sqflite.dart';
 /// import 'package:sentry_sqflite/sentry_sqflite.dart';
-/// 
+///
 /// final database = await openReadOnlyDatabaseWithSentry('path/to/db');
 /// ```
 Future<Database> openReadOnlyDatabaseWithSentry(String path) {

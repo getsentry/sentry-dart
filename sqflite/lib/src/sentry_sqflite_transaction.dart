@@ -1,17 +1,35 @@
 import 'package:meta/meta.dart';
+import 'package:sentry/sentry.dart';
 import 'package:sqflite/sqflite.dart';
 
-@internal
-// ignore: public_member_api_docs
+import 'sentry_batch.dart';
+
+/// A [Transaction] wrapper that adds Sentry support.
+///
+/// ```dart
+/// import 'package:sqflite/sqflite.dart';
+/// import 'package:sentry_sqflite/sentry_sqflite.dart';
+///
+/// final database = await openDatabase('path/to/db');
+/// final sentryDatabase = SentryDatabase(database);
+///
+/// await sentryDatabase.transaction((txn) async {
+/// ...
+/// });
+/// ```
 class SentrySqfliteTransaction extends Transaction implements DatabaseExecutor {
   final DatabaseExecutor _executor;
+  final Hub _hub;
 
   // ignore: public_member_api_docs
-  SentrySqfliteTransaction(this._executor);
+  @internal
+  SentrySqfliteTransaction(
+    this._executor, {
+    @internal Hub? hub,
+  }) : _hub = hub ?? HubAdapter();
 
-  // TODO: wrapper batch
   @override
-  Batch batch() => _executor.batch();
+  Batch batch() => SentryBatch(_executor.batch(), hub: _hub);
 
   @override
   Database get database => _executor.database;
