@@ -526,25 +526,6 @@ class MockSentryNative extends _i1.Mock implements _i10.SentryNative {
         returnValue: _i6.Future<_i11.NativeAppStart?>.value(),
       ) as _i6.Future<_i11.NativeAppStart?>);
   @override
-  _i6.Future<void> beginNativeFramesCollection() => (super.noSuchMethod(
-        Invocation.method(
-          #beginNativeFramesCollection,
-          [],
-        ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
-  @override
-  _i6.Future<_i11.NativeFrames?> endNativeFramesCollection(
-          _i3.SentryId? traceId) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #endNativeFramesCollection,
-          [traceId],
-        ),
-        returnValue: _i6.Future<_i11.NativeFrames?>.value(),
-      ) as _i6.Future<_i11.NativeFrames?>);
-  @override
   _i6.Future<void> setContexts(
     String? key,
     dynamic value,

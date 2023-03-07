@@ -32,28 +32,6 @@ void main() {
       expect(sut.didFetchAppStart, true);
     });
 
-    test('beginNativeFramesCollection', () async {
-      final sut = fixture.getSut();
-
-      await sut.beginNativeFramesCollection();
-
-      expect(fixture.channel.numberOfBeginNativeFramesCalls, 1);
-    });
-
-    test('endNativeFramesCollection', () async {
-      final nativeFrames = NativeFrames(3, 2, 1);
-      final traceId = SentryId.empty();
-      fixture.channel.nativeFrames = nativeFrames;
-
-      final sut = fixture.getSut();
-
-      final actual = await sut.endNativeFramesCollection(traceId);
-
-      expect(actual, nativeFrames);
-      expect(fixture.channel.id, traceId);
-      expect(fixture.channel.numberOfEndNativeFramesCalls, 1);
-    });
-
     test('setUser', () async {
       final sut = fixture.getSut();
       await sut.setUser(null);

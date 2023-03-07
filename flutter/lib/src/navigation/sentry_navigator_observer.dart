@@ -2,7 +2,6 @@ import 'package:flutter/widgets.dart';
 
 import '../../sentry_flutter.dart';
 import '../integrations/frame_tracking_integration.dart';
-import '../sentry_native.dart';
 import '../sentry_native_channel.dart';
 
 /// This key must be used so that the web interface displays the events nicely
@@ -68,8 +67,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         _autoFinishAfter = autoFinishAfter,
         _setRouteNameAsTransaction = setRouteNameAsTransaction,
         _routeNameExtractor = routeNameExtractor,
-        _additionalInfoProvider = additionalInfoProvider,
-        _native = SentryNative() {
+        _additionalInfoProvider = additionalInfoProvider {
     if (enableAutoTransactions) {
       // ignore: invalid_use_of_internal_member
       _hub.options.sdk.addIntegration('UINavigationTracing');
@@ -82,7 +80,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
   final bool _setRouteNameAsTransaction;
   final RouteNameExtractor? _routeNameExtractor;
   final AdditionalInfoExtractor? _additionalInfoProvider;
-  final SentryNative _native;
 
   ISentrySpan? _transaction;
 
@@ -186,8 +183,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       waitForChildren: true,
       autoFinishAfter: _autoFinishAfter,
       trimEnd: true,
-      onFinish: (transaction) async {
-        await _endFramesCollection(transaction);
+      onFinish: (transaction) {
+        _endFramesCollection(transaction);
       },
     );
 
@@ -205,7 +202,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       scope.span ??= _transaction;
     });
 
-    await _beginFramesCollection();
+    _beginFramesCollection();
   }
 
   Future<void> _finishTransaction() async {
@@ -215,27 +212,12 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
   // Frames
 
-  Future<void> _beginFramesCollection() async {
-    final frameTrackingIntegration = _frameTrackingIntegration();
-    if (frameTrackingIntegration != null) {
-      frameTrackingIntegration.beginFramesCollection();
-    } else {
-      await _native.beginNativeFramesCollection();
-    }
+  void _beginFramesCollection() {
+    _getFrameTrackingIntegration()?.beginFramesCollection();
   }
 
-  Future<void> _endFramesCollection(ISentrySpan transaction) async {
-    Map<String, SentryMeasurement>? measurements;
-
-    final frameTrackingIntegration = _frameTrackingIntegration();
-    if (frameTrackingIntegration != null) {
-      measurements = frameTrackingIntegration.endFramesCollection();
-    } else {
-      final nativeFrames =
-          await _native.endNativeFramesCollection(transaction.context.traceId);
-      measurements = nativeFrames?.toMeasurements();
-    }
-
+  void _endFramesCollection(ISentrySpan transaction) async {
+    final measurements = _getFrameTrackingIntegration()?.endFramesCollection();
     if (measurements != null) {
       for (final item in measurements.entries) {
         final measurement = item.value;
@@ -248,14 +230,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
     }
   }
 
-  FrameTrackingIntegration? _frameTrackingIntegration() {
+  FrameTrackingIntegration? _getFrameTrackingIntegration() {
     // ignore: invalid_use_of_internal_member
     for (final integration in _hub.options.integrations) {
       if (integration is FrameTrackingIntegration) {
-        if (integration.isActive) {
-          return integration;
-        }
-        break;
+        return integration;
       }
     }
     return null;

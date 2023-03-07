@@ -44,16 +44,6 @@ class SentryNative {
     return await _nativeChannel?.fetchNativeAppStart();
   }
 
-  // NativeFrames
-
-  Future<void> beginNativeFramesCollection() async {
-    await _nativeChannel?.beginNativeFrames();
-  }
-
-  Future<NativeFrames?> endNativeFramesCollection(SentryId traceId) async {
-    return await _nativeChannel?.endNativeFrames(traceId);
-  }
-
   // Scope
 
   Future<void> setContexts(String key, dynamic value) async {

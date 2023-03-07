@@ -5,8 +5,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/integrations/frame_tracking_integration.dart';
 import 'package:sentry_flutter/src/sentry_native.dart';
-import 'package:sentry_flutter/src/sentry_native_channel.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 
 import 'mocks.dart';
@@ -46,9 +46,9 @@ void main() {
     test('transaction start begins frames collection', () async {
       final currentRoute = route(RouteSettings(name: 'Current Route'));
       final mockHub = _MockHub();
-      final native = SentryNative();
-      final mockNativeChannel = MockNativeChannel();
-      native.nativeChannel = mockNativeChannel;
+
+      final frameTrackingIntegration = _MockFrameTrackingIntegration();
+      mockHub.options.addIntegration(frameTrackingIntegration);
 
       final tracer = getMockSentryTracer();
       _whenAnyStart(mockHub, tracer);
@@ -59,23 +59,28 @@ void main() {
 
       // Handle internal async method calls.
       await Future.delayed(const Duration(milliseconds: 10), () {
-        expect(mockNativeChannel.numberOfBeginNativeFramesCalls, 1);
+        expect(frameTrackingIntegration.numberOfBeginFramesCollectionCalls, 1);
       });
     });
 
-    test('transaction finish adds native frames to tracer', () async {
+    test('transaction finish ends frame collection', () async {
       final currentRoute = route(RouteSettings(name: 'Current Route'));
 
-      final options = SentryOptions(dsn: fakeDsn);
-      options.tracesSampleRate = 1;
+      final options = SentryFlutterOptions(dsn: fakeDsn);
       final hub = Hub(options);
+      options.tracesSampleRate = 1;
 
-      final nativeFrames = NativeFrames(3, 2, 1);
-      final mockNativeChannel = MockNativeChannel();
-      mockNativeChannel.nativeFrames = nativeFrames;
-
-      final mockNative = SentryNative();
-      mockNative.nativeChannel = mockNativeChannel;
+      final frameTrackingIntegration = _MockFrameTrackingIntegration();
+      final total = SentryMeasurement.totalFrames(3);
+      final slow = SentryMeasurement.slowFrames(2);
+      final frozen = SentryMeasurement.frozenFrames(1);
+      frameTrackingIntegration.endFramesCollectionReturn = {
+        total.name: total,
+        slow.name: slow,
+        frozen.name: frozen,
+      };
+      // ignore: invalid_use_of_internal_member
+      options.addIntegration(frameTrackingIntegration);
 
       final sut = fixture.getSut(
         hub: hub,
@@ -94,7 +99,7 @@ void main() {
 
       await Future<void>.delayed(Duration(milliseconds: 500));
 
-      expect(mockNativeChannel.numberOfEndNativeFramesCalls, 1);
+      expect(frameTrackingIntegration.numberOfEndFramesCollectionCalls, 1);
 
       final measurements = actualTransaction?.measurements ?? {};
 
@@ -754,13 +759,30 @@ class Fixture {
 
 class _MockHub extends MockHub {
   @override
-  final options = SentryOptions(dsn: fakeDsn);
+  final options = SentryFlutterOptions(dsn: fakeDsn);
 
   late final scope = Scope(options);
 
   @override
   FutureOr<void> configureScope(ScopeCallback? callback) async {
     await callback?.call(scope);
+  }
+}
+
+class _MockFrameTrackingIntegration extends FrameTrackingIntegration {
+  var numberOfBeginFramesCollectionCalls = 0;
+  var numberOfEndFramesCollectionCalls = 0;
+  var endFramesCollectionReturn = <String, SentryMeasurement>{};
+
+  @override
+  void beginFramesCollection() {
+    numberOfBeginFramesCollectionCalls += 1;
+  }
+
+  @override
+  Map<String, SentryMeasurement> endFramesCollection() {
+    numberOfEndFramesCollectionCalls += 1;
+    return endFramesCollectionReturn;
   }
 }
 

@@ -4,8 +4,8 @@ import 'package:sentry/sentry.dart';
 import '../sentry_flutter_options.dart';
 
 class FrameTrackingIntegration extends Integration<SentryFlutterOptions> {
-  DateTime? _lastFrameTimeStamp;
   SentryFlutterOptions? _options;
+  DateTime? _lastFrameTimeStamp;
 
   final _slowFrame = Duration(milliseconds: 16);
   final _frozenFrame = Duration(milliseconds: 700);
@@ -17,8 +17,6 @@ class FrameTrackingIntegration extends Integration<SentryFlutterOptions> {
   var _collecting = false;
   var _active = false;
 
-  bool get isActive => _active;
-
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
     _options = options;
@@ -28,7 +26,6 @@ class FrameTrackingIntegration extends Integration<SentryFlutterOptions> {
 
   @override
   FutureOr<void> close() {
-    _collecting = false;
     _active = false;
   }
 
@@ -63,6 +60,9 @@ class FrameTrackingIntegration extends Integration<SentryFlutterOptions> {
   // Helper
 
   void _onNewFrame(Duration duration) {
+    if (!_collecting || !_active) {
+      return;
+    }
     final options = _options;
     final lastFrameTimeStamp = _lastFrameTimeStamp;
     if (options == null || lastFrameTimeStamp == null) return;
@@ -78,8 +78,6 @@ class FrameTrackingIntegration extends Integration<SentryFlutterOptions> {
     _totalFrames += 1;
     _lastFrameTimeStamp = now;
 
-    if (_collecting && _active) {
-      options.bindingUtils.instance?.addPostFrameCallback(_onNewFrame);
-    }
+    options.bindingUtils.instance?.addPostFrameCallback(_onNewFrame);
   }
 }

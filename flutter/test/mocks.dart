@@ -157,11 +157,7 @@ class NoOpHub with NoSuchMethodProvider implements Hub {
 
 class MockNativeChannel implements SentryNativeChannel {
   NativeAppStart? nativeAppStart;
-  NativeFrames? nativeFrames;
-  SentryId? id;
 
-  int numberOfBeginNativeFramesCalls = 0;
-  int numberOfEndNativeFramesCalls = 0;
   int numberOfSetUserCalls = 0;
   int numberOfAddBreadcrumbCalls = 0;
   int numberOfClearBreadcrumbCalls = 0;
@@ -174,18 +170,6 @@ class MockNativeChannel implements SentryNativeChannel {
 
   @override
   Future<NativeAppStart?> fetchNativeAppStart() async => nativeAppStart;
-
-  @override
-  Future<void> beginNativeFrames() async {
-    numberOfBeginNativeFramesCalls += 1;
-  }
-
-  @override
-  Future<NativeFrames?> endNativeFrames(SentryId id) async {
-    this.id = id;
-    numberOfEndNativeFramesCalls += 1;
-    return nativeFrames;
-  }
 
   @override
   Future<void> setUser(SentryUser? user) async {

@@ -35,34 +35,6 @@ void main() {
       expect(actual?.isColdStart, true);
     });
 
-    test('beginNativeFrames', () async {
-      final sut = fixture.getSut();
-      await sut.beginNativeFrames();
-
-      verify(fixture.methodChannel.invokeMethod('beginNativeFrames'));
-    });
-
-    test('endNativeFrames', () async {
-      final sentryId = SentryId.empty();
-      final map = <String, dynamic>{
-        'totalFrames': 3,
-        'slowFrames': 2,
-        'frozenFrames': 1
-      };
-      final future = Future.value(map);
-
-      when(fixture.methodChannel.invokeMapMethod<String, dynamic>(
-              'endNativeFrames', {'id': sentryId.toString()}))
-          .thenAnswer((_) => future);
-
-      final sut = fixture.getSut();
-      final actual = await sut.endNativeFrames(sentryId);
-
-      expect(actual?.totalFrames, 3);
-      expect(actual?.slowFrames, 2);
-      expect(actual?.frozenFrames, 1);
-    });
-
     test('setUser', () async {
       when(fixture.methodChannel.invokeMethod('setUser', {'user': null}))
           .thenAnswer((_) => Future.value());

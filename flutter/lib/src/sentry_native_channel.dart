@@ -26,25 +26,6 @@ class SentryNativeChannel {
     }
   }
 
-  Future<void> beginNativeFrames() async {
-    try {
-      await _channel.invokeMethod('beginNativeFrames');
-    } catch (error, stackTrace) {
-      _logError('beginNativeFrames', error, stackTrace);
-    }
-  }
-
-  Future<NativeFrames?> endNativeFrames(SentryId id) async {
-    try {
-      final json = await _channel.invokeMapMethod<String, dynamic>(
-          'endNativeFrames', {'id': id.toString()});
-      return (json != null) ? NativeFrames.fromJson(json) : null;
-    } catch (error, stackTrace) {
-      _logError('endNativeFrames', error, stackTrace);
-      return null;
-    }
-  }
-
   Future<void> setUser(SentryUser? user) async {
     try {
       await _channel.invokeMethod('setUser', {'user': user?.toJson()});
