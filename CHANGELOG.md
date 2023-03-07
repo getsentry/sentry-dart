@@ -15,15 +15,21 @@
 - Replace `toImage` with `toImageSync` for Flutter >= 3.7 ([1268](https://github.com/getsentry/sentry-dart/pull/1268))
 - Don't await `FutureOr<T>` if it's not a future. This should marginally improve the performance ([#1310](https://github.com/getsentry/sentry-dart/pull/1310))
 
+## 6.22.0
+
+### Features
+
+- Add proguard_uui property to SentryFlutterOptions to set proguard information at runtime ([#1312](https://github.com/getsentry/sentry-dart/pull/1312))
+
 ### Fixes
 
 - Change podspec `EXCLUDED_ARCHS` value to allow podfiles to add more excluded architetures ([#1303](https://github.com/getsentry/sentry-dart/pull/1303))
 
 ### Dependencies
 
-- Bump Android SDK from v6.14.0 to v6.15.0 ([#1287](https://github.com/getsentry/sentry-dart/pull/1287), [#1311](https://github.com/getsentry/sentry-dart/pull/1311))
+- Bump Android SDK from v6.13.1 to v6.15.0 ([#1287](https://github.com/getsentry/sentry-dart/pull/1287), [#1311](https://github.com/getsentry/sentry-dart/pull/1311))
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6150)
-  - [diff](https://github.com/getsentry/sentry-java/compare/6.14.0...6.15.0)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.13.1...6.15.0)
 
 ## 7.0.0-rc.1
 
