@@ -1,9 +1,12 @@
 # Changelog
 
-## Unreleased
+## 7.0.0-rc.2
 
 ### Features
 
+- Platform Exception Event Processor ([#1297](https://github.com/getsentry/sentry-dart/pull/1297))
+- Support failedRequestTargets for HTTP Client errors ([#1285](https://github.com/getsentry/sentry-dart/pull/1285))
+  - Captures errors for the default range `500-599` if `captureFailedRequests` is enabled
 - Sentry Isolate Extension ([#1266](https://github.com/getsentry/sentry-dart/pull/1266))
 - Allow sentry user to control resolution of captured Flutter screenshots ([#1288](https://github.com/getsentry/sentry-dart/pull/1288))
 
@@ -12,6 +15,22 @@
 - FrameTrackingIntegration ([#1271](https://github.com/getsentry/sentry-dart/pull/1271))
 - Replace `toImage` with `toImageSync` for Flutter >= 3.7 ([1268](https://github.com/getsentry/sentry-dart/pull/1268))
 - Don't await `FutureOr<T>` if it's not a future. This should marginally improve the performance ([#1310](https://github.com/getsentry/sentry-dart/pull/1310))
+
+## 6.22.0
+
+### Features
+
+- Add proguard_uui property to SentryFlutterOptions to set proguard information at runtime ([#1312](https://github.com/getsentry/sentry-dart/pull/1312))
+
+### Fixes
+
+- Change podspec `EXCLUDED_ARCHS` value to allow podfiles to add more excluded architetures ([#1303](https://github.com/getsentry/sentry-dart/pull/1303))
+
+### Dependencies
+
+- Bump Android SDK from v6.13.1 to v6.15.0 ([#1287](https://github.com/getsentry/sentry-dart/pull/1287), [#1311](https://github.com/getsentry/sentry-dart/pull/1311))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6150)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.13.1...6.15.0)
 
 ## 7.0.0-rc.1
 

@@ -23,6 +23,19 @@ import 'failed_request_client.dart';
 /// );
 /// ```
 ///
+/// If empty request status codes are provided, all failure requests will be
+/// captured. Per default, codes in the range 500-599 are recorded.
+///
+/// If you provide failed request targets, the SDK will only capture HTTP
+/// Client errors if the HTTP Request URL is a match for any of the provided
+/// targets.
+///
+/// ```dart
+/// var client = SentryHttpClient(
+///   failedRequestTargets: ['my-api.com'],
+/// );
+/// ```
+///
 /// Remarks: If this client is used as a wrapper, a call to close also closes
 /// the given client.
 ///
@@ -62,10 +75,17 @@ import 'failed_request_client.dart';
 /// Read more on data scrubbing [here](https://docs.sentry.io/product/data-management-settings/advanced-datascrubbing/).
 /// ```
 class SentryHttpClient extends BaseClient {
+  static const defaultFailedRequestStatusCodes = [
+    SentryStatusCode.defaultRange()
+  ];
+  static const defaultFailedRequestTargets = ['.*'];
+
   SentryHttpClient({
     Client? client,
     Hub? hub,
-    List<SentryStatusCode> failedRequestStatusCodes = const [],
+    List<SentryStatusCode> failedRequestStatusCodes =
+        defaultFailedRequestStatusCodes,
+    List<String> failedRequestTargets = defaultFailedRequestTargets,
   }) {
     _hub = hub ?? HubAdapter();
 
@@ -73,6 +93,7 @@ class SentryHttpClient extends BaseClient {
 
     innerClient = FailedRequestClient(
       failedRequestStatusCodes: failedRequestStatusCodes,
+      failedRequestTargets: failedRequestTargets,
       hub: _hub,
       client: innerClient,
     );
@@ -105,6 +126,13 @@ class SentryHttpClient extends BaseClient {
 }
 
 class SentryStatusCode {
+  static const _defaultMin = 500;
+  static const _defaultMax = 599;
+
+  const SentryStatusCode.defaultRange()
+      : _min = _defaultMin,
+        _max = _defaultMax;
+
   SentryStatusCode.range(this._min, this._max)
       : assert(_min <= _max),
         assert(_min > 0 && _max > 0);
