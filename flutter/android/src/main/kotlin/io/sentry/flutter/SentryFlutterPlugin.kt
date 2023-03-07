@@ -4,8 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.util.Log
 import io.flutter.embedding.engine.plugins.FlutterPlugin
-import io.flutter.embedding.engine.plugins.activity.ActivityAware
-import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -30,12 +28,10 @@ import java.lang.ref.WeakReference
 import java.util.Locale
 import java.util.UUID
 
-class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
+class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
   private lateinit var channel: MethodChannel
   private lateinit var context: Context
 
-  private var activity: WeakReference<Activity>? = null
-  private var framesTracker: ActivityFramesTracker? = null
   private var autoPerformanceTracingEnabled = false
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
@@ -51,8 +47,6 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       "loadImageList" -> loadImageList(result)
       "closeNativeSdk" -> closeNativeSdk(result)
       "fetchNativeAppStart" -> fetchNativeAppStart(result)
-      "beginNativeFrames" -> beginNativeFrames(result)
-      "endNativeFrames" -> endNativeFrames(call.argument("id"), result)
       "setContexts" -> setContexts(call.argument("key"), call.argument("value"), result)
       "removeContexts" -> removeContexts(call.argument("key"), result)
       "setUser" -> setUser(call.argument("user"), result)
@@ -72,23 +66,6 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 
     channel.setMethodCallHandler(null)
-  }
-
-  override fun onAttachedToActivity(binding: ActivityPluginBinding) {
-    activity = WeakReference(binding.activity)
-  }
-
-  override fun onDetachedFromActivity() {
-    activity = null
-    framesTracker = null
-  }
-
-  override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
-    // Stub
-  }
-
-  override fun onDetachedFromActivityForConfigChanges() {
-    // Stub
   }
 
   private fun writeEnvelope(envelope: ByteArray): Boolean {
@@ -156,10 +133,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       }
 
       args.getIfNotNull<Boolean>("enableAutoPerformanceTracing") { enableAutoPerformanceTracing ->
-        if (enableAutoPerformanceTracing) {
-          autoPerformanceTracingEnabled = true
-          framesTracker = ActivityFramesTracker(LoadClass(), options)
-        }
+        autoPerformanceTracingEnabled = enableAutoPerformanceTracing
       }
 
       args.getIfNotNull<Boolean>("sendClientReports") { options.isSendClientReports = it }
@@ -206,47 +180,6 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         "isColdStart" to isColdStart
       )
       result.success(item)
-    }
-  }
-
-  private fun beginNativeFrames(result: Result) {
-    if (!autoPerformanceTracingEnabled) {
-      result.success(null)
-      return
-    }
-
-    activity?.get()?.let {
-      framesTracker?.addActivity(it)
-    }
-    result.success(null)
-  }
-
-  private fun endNativeFrames(id: String?, result: Result) {
-    val activity = activity?.get()
-    if (!autoPerformanceTracingEnabled || activity == null || id == null) {
-      if (id == null) {
-        Log.w("Sentry", "Parameter id cannot be null when calling endNativeFrames.")
-      }
-      result.success(null)
-      return
-    }
-
-    val sentryId = SentryId(id)
-    framesTracker?.setMetrics(activity, sentryId)
-    val metrics = framesTracker?.takeMetrics(sentryId)
-    val total = metrics?.get("frames_total")?.value?.toInt() ?: 0
-    val slow = metrics?.get("frames_slow")?.value?.toInt() ?: 0
-    val frozen = metrics?.get("frames_frozen")?.value?.toInt() ?: 0
-
-    if (total == 0 && slow == 0 && frozen == 0) {
-      result.success(null)
-    } else {
-      val frames = mapOf<String, Any?>(
-        "totalFrames" to total,
-        "slowFrames" to slow,
-        "frozenFrames" to frozen
-      )
-      result.success(frames)
     }
   }
 
@@ -446,8 +379,6 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
   private fun closeNativeSdk(result: Result) {
     HubAdapter.getInstance().close()
-    framesTracker?.stop()
-    framesTracker = null
 
     result.success("")
   }
