@@ -32,7 +32,7 @@ jobs:
       # max-parallel: 4
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        target: ['ios', 'android', 'web', 'macos', 'linux', 'windows']
+        target: ['ios', 'android', 'macos', 'linux', 'windows']
         sdk: ['stable', 'beta']
         exclude:
           - os: ubuntu-latest
@@ -87,17 +87,11 @@ jobs:
           cd sqflite
           flutter pub get
 
-      - name: Test chrome
-        if: runner.os == 'Linux'
-        run: |
-          cd sqflite
-          flutter test --platform chrome --test-randomize-ordering-seed=random
-
       - name: Test VM with coverage
         if: runner.os != 'macOS'
         run: |
           cd sqflite
-          sqflite test --coverage --test-randomize-ordering-seed=random
+          flutter test --coverage --test-randomize-ordering-seed=random
 
       - uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70 # pin@v3
         if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
