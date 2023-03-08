@@ -110,4 +110,4 @@ jobs:
     uses: ./.github/workflows/analyze.yml
     with:
       package: sqflite
-      sdk: sqflite
+      sdk: flutter
