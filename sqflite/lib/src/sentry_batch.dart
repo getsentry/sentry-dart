@@ -2,7 +2,7 @@ import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sqflite/sqflite.dart';
 
-// ignore: implementation_imports, depend_on_referenced_packages
+// ignore: implementation_imports
 import 'package:sqflite_common/src/sql_builder.dart';
 
 /// A [Batch] wrapper that adds Sentry support.
