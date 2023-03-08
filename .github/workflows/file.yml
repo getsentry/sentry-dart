@@ -7,8 +7,10 @@ on:
   pull_request:
     paths-ignore:
       - 'logging/**'
-      - 'flutter/**'
       - 'dio/**'
+      - 'flutter/**'
+      - 'file/**'
+      - 'sqflite/**'
 
 jobs:
   cancel-previous-workflow:

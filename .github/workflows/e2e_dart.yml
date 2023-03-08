@@ -9,6 +9,8 @@ on:
       - 'logging/**'
       - 'dio/**'
       - 'flutter/**'
+      - 'file/**'
+      - 'sqflite/**'
 
 env:
   SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}

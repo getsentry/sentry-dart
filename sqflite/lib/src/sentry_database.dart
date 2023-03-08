@@ -31,7 +31,6 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
     @internal Hub? hub,
   })  : _hub = hub ?? HubAdapter(),
         super(_database, hub: hub) {
-    
     // ignore: invalid_use_of_internal_member
     final options = _hub.options;
     options.sdk.addIntegration('SentrySqfliteTracing');
