@@ -7,8 +7,8 @@ on:
   pull_request:
     paths-ignore:
       - 'logging/**'
-      - 'dio/**'
       - 'flutter/**'
+      - 'dio/**'
       - 'file/**'
       - 'sqflite/**'
 
