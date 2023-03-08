@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- sqflite Support for Flutter ([#1306](https://github.com/getsentry/sentry-dart/pull/1306))
+
 ## 7.0.0-rc.2
 
 ### Features
