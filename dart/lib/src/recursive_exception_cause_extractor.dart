@@ -17,7 +17,7 @@ class RecursiveExceptionCauseExtractor {
 
     var currentException = exception;
     ExceptionCause? currentExceptionCause =
-        ExceptionCause(exception, stackTrace);
+        ExceptionCause(exception, stackTrace ?? (exception is Error) ? (exception as Error).stackTrace : null);
 
     while (currentException != null &&
         currentExceptionCause != null &&

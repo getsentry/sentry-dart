@@ -5,12 +5,13 @@ import 'package:sentry/sentry.dart';
 class DioErrorExtractor extends ExceptionCauseExtractor<DioError> {
   @override
   ExceptionCause? cause(DioError error) {
-    if (error.stackTrace == null) {
+    final cause = error.error;
+    if (cause == null) {
       return null;
     }
     return ExceptionCause(
-      error.error ?? 'DioError inner stacktrace',
-      error.stackTrace,
+      cause,
+      (cause is Error) ? cause.stackTrace : null,
     );
   }
 }
