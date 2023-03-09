@@ -165,15 +165,18 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
       args.getIfNotNull<Boolean>("sendClientReports") { options.isSendClientReports = it }
 
-      args.getIfNotNull<Map<String, Any>>("sdk") { sdk ->
-        val name = sdk["name"] as? String
-        val version = sdk["version"] as? String
-        if (name != null && version != null) {
-          val sdkVersion = SdkVersion(name, version)
-          options.setSentryClientName("$name/$version")
-          options.setSdkVersion(sdkVersion)
-        }
+      val name = "sentry.java.android.flutter"
+      val version = io.sentry.android.core.BuildConfig.VERSION_NAME
+
+      var sdkVersion = options.sdkVersion
+      if (sdkVersion == null) {
+        sdkVersion = SdkVersion(name, version)
+      } else {
+        sdkVersion.name = name
       }
+
+      options.sdkVersion = sdkVersion
+      options.sentryClientName = "$name/$version"
 
       options.setBeforeSend { event, _ ->
         setEventOriginTag(event)
@@ -476,10 +479,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   private fun addPackages(event: SentryEvent, sdk: SdkVersion?) {
     event.sdk?.let {
       if (it.name == flutterSdk) {
-        sdk?.packages?.forEach { sentryPackage ->
+        sdk?.packageSet?.forEach { sentryPackage ->
           it.addPackage(sentryPackage.name, sentryPackage.version)
         }
-        sdk?.integrations?.forEach { integration ->
+        sdk?.integrationSet?.forEach { integration ->
           it.addIntegration(integration)
         }
       }

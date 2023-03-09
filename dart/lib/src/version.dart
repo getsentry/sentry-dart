@@ -17,7 +17,7 @@ String sdkName(bool isWeb) => isWeb ? _browserSdkName : _ioSdkName;
 const String _ioSdkName = 'sentry.dart';
 
 /// The SDK name for web projects reported to Sentry.io in the submitted events.
-const String _browserSdkName = 'sentry.dart.browser';
+const String _browserSdkName = '$_ioSdkName.browser';
 
 /// The name of the SDK platform reported to Sentry.io in the submitted events.
 ///
