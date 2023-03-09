@@ -17,6 +17,7 @@ import 'sentry_batch.dart';
 /// ...
 /// });
 /// ```
+@experimental
 class SentrySqfliteTransaction extends Transaction implements DatabaseExecutor {
   final DatabaseExecutor _executor;
   final Hub _hub;

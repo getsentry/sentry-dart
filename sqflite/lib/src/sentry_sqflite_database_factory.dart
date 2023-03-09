@@ -17,6 +17,7 @@ import 'sentry_database.dart';
 ///
 /// final database = await openDatabase('path/to/db');
 /// ```
+@experimental
 class SentrySqfliteDatabaseFactory with SqfliteDatabaseFactoryMixin {
   /// ```dart
   /// import 'package:sqflite/sqflite.dart';
@@ -47,7 +48,7 @@ class SentrySqfliteDatabaseFactory with SqfliteDatabaseFactoryMixin {
     Future<Database> openDatabase() async {
       final currentSpan = _hub.getSpan();
       final span = currentSpan?.startChild(
-        'db',
+        SentryDatabase.dbOp,
         description: 'OPEN',
       );
 

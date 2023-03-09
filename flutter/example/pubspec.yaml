@@ -24,6 +24,8 @@ dependencies:
   logging: any # This gets constrained by `sentry_logging`
   package_info_plus: ^3.0.0
   path_provider: ^2.0.0
+  #sqflite_common_ffi: ^2.0.0
+  #sqflite_common_ffi_web: ^0.3.0
 
 dev_dependencies:
   flutter_lints: ^2.0.0

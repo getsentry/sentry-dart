@@ -6,6 +6,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common/src/sql_builder.dart';
 
 import 'sentry_batch.dart';
+import 'sentry_database.dart';
 
 @internal
 // ignore: public_member_api_docs
@@ -35,7 +36,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       final builder =
           SqlBuilder.delete(table, where: where, whereArgs: whereArgs);
       final span = currentSpan?.startChild(
-        'db.sql.execute',
+        SentryDatabase.dbSqlExecuteOp,
         description: builder.sql,
       );
 
@@ -64,7 +65,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
     Future<void> future() async {
       final currentSpan = _parentSpan ?? _hub.getSpan();
       final span = currentSpan?.startChild(
-        'db.sql.execute',
+        SentryDatabase.dbSqlExecuteOp,
         description: sql,
       );
 
@@ -101,7 +102,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         conflictAlgorithm: conflictAlgorithm,
       );
       final span = currentSpan?.startChild(
-        'db.sql.execute',
+        SentryDatabase.dbSqlExecuteOp,
         description: builder.sql,
       );
 
@@ -157,7 +158,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         whereArgs: whereArgs,
       );
       final span = currentSpan?.startChild(
-        'db.sql.query',
+        SentryDatabase.dbSqlQueryOp,
         description: builder.sql,
       );
 
@@ -220,7 +221,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         whereArgs: whereArgs,
       );
       final span = currentSpan?.startChild(
-        'db.sql.query',
+        SentryDatabase.dbSqlQueryOp,
         description: builder.sql,
       );
 
@@ -260,7 +261,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
     Future<int> future() async {
       final currentSpan = _parentSpan ?? _hub.getSpan();
       final span = currentSpan?.startChild(
-        'db.sql.execute',
+        SentryDatabase.dbSqlExecuteOp,
         description: sql,
       );
 
@@ -288,7 +289,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
     Future<int> future() async {
       final currentSpan = _parentSpan ?? _hub.getSpan();
       final span = currentSpan?.startChild(
-        'db.sql.execute',
+        SentryDatabase.dbSqlExecuteOp,
         description: sql,
       );
 
@@ -319,7 +320,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
     Future<List<Map<String, Object?>>> future() async {
       final currentSpan = _parentSpan ?? _hub.getSpan();
       final span = currentSpan?.startChild(
-        'db.sql.query',
+        SentryDatabase.dbSqlQueryOp,
         description: sql,
       );
 
@@ -351,7 +352,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
     Future<QueryCursor> future() async {
       final currentSpan = _parentSpan ?? _hub.getSpan();
       final span = currentSpan?.startChild(
-        'db.sql.query',
+        SentryDatabase.dbSqlQueryOp,
         description: sql,
       );
 
@@ -383,7 +384,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
     Future<int> future() async {
       final currentSpan = _parentSpan ?? _hub.getSpan();
       final span = currentSpan?.startChild(
-        'db.sql.execute',
+        SentryDatabase.dbSqlExecuteOp,
         description: sql,
       );
 
@@ -424,7 +425,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         conflictAlgorithm: conflictAlgorithm,
       );
       final span = currentSpan?.startChild(
-        'db.sql.execute',
+        SentryDatabase.dbSqlExecuteOp,
         description: builder.sql,
       );
 

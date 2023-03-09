@@ -9,7 +9,10 @@ import 'package:flutter/services.dart';
 import 'package:logging/logging.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_sqflite/sentry_sqflite.dart';
+// import 'package:sentry_sqflite/sentry_sqflite.dart';
 import 'package:sqflite/sqflite.dart';
+// import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+// import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:feedback/feedback.dart' as feedback;
 import 'package:provider/provider.dart';
@@ -37,7 +40,6 @@ Future<void> main() async {
             ),
           ),
       _exampleDsn);
-  databaseFactory = SentrySqfliteDatabaseFactory();
 }
 
 Future<void> setupSentry(AppRunner appRunner, String dsn) async {
@@ -409,7 +411,10 @@ class MainScaffold extends StatelessWidget {
       bindToScope: true,
     );
 
-    final db = await openDatabase(inMemoryDatabasePath);
+    // databaseFactory = databaseFactoryFfiWeb; // or databaseFactoryFfi // or SentrySqfliteDatabaseFactory()
+
+    final sqfDb = await openDatabase(inMemoryDatabasePath);
+    final db = SentryDatabase(sqfDb);
     // final batch = db.batch();
     await db.execute('''
       CREATE TABLE Product (
@@ -424,7 +429,7 @@ class MainScaffold extends StatelessWidget {
       await db.insert('Product', <String, Object?>{'title': title});
     }
 
-    // await db.query('Product');
+    await db.query('Product');
 
     await db.transaction((txn) async {
       await txn
@@ -433,7 +438,7 @@ class MainScaffold extends StatelessWidget {
           where: 'title = ?', whereArgs: ['Product Another one']);
     });
 
-    // await db.delete('Product', where: 'title = ?', whereArgs: ['Product 1']);
+    await db.delete('Product', where: 'title = ?', whereArgs: ['Product 1']);
 
     // final batch = db.batch();
     // batch.delete('Product', where: 'title = ?', whereArgs: dbTitles);

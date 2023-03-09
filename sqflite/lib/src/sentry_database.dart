@@ -15,9 +15,22 @@ import 'version.dart';
 /// final database = await openDatabase('path/to/db');
 /// final sentryDatabase = SentryDatabase(database);
 /// ```
+@experimental
 class SentryDatabase extends SentryDatabaseExecutor implements Database {
   final Database _database;
   final Hub _hub;
+
+  @internal
+  // ignore: public_member_api_docs
+  static const dbOp = 'db';
+  @internal
+  // ignore: public_member_api_docs
+  static const dbSqlExecuteOp = 'db.sql.execute';
+  @internal
+  // ignore: public_member_api_docs
+  static const dbSqlQueryOp = 'db.sql.query';
+
+  static const _dbSqlOp = 'db.sql.transaction';
 
   /// ```dart
   /// import 'package:sqflite/sqflite.dart';
@@ -42,7 +55,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
     Future<void> future() async {
       final currentSpan = _hub.getSpan();
       final span = currentSpan?.startChild(
-        'db',
+        dbOp,
         description: 'CLOSE',
       );
 
@@ -93,7 +106,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
     Future<T> future() async {
       final currentSpan = _hub.getSpan();
       final span = currentSpan?.startChild(
-        'db',
+        _dbSqlOp,
         description: 'TRANSACTION',
       );
 
