@@ -213,7 +213,7 @@ mixin SentryFlutter {
   static void _setSdk(SentryFlutterOptions options) {
     // overwrite sdk info with current flutter sdk
     final sdk = SdkVersion(
-      name: sdkName(options.platformChecker.isWeb),
+      name: sdkName,
       version: sdkVersion,
       integrations: options.sdk.integrations,
       packages: options.sdk.packages,

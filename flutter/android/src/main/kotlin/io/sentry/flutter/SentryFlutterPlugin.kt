@@ -18,6 +18,7 @@ import io.sentry.Sentry
 import io.sentry.DateUtils
 import io.sentry.android.core.ActivityFramesTracker
 import io.sentry.android.core.AppStartState
+import io.sentry.android.core.BuildConfig.VERSION_NAME
 import io.sentry.android.core.LoadClass
 import io.sentry.android.core.SentryAndroid
 import io.sentry.android.core.SentryAndroidOptions
@@ -166,17 +167,16 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       args.getIfNotNull<Boolean>("sendClientReports") { options.isSendClientReports = it }
 
       val name = "sentry.java.android.flutter"
-      val version = io.sentry.android.core.BuildConfig.VERSION_NAME
 
       var sdkVersion = options.sdkVersion
       if (sdkVersion == null) {
-        sdkVersion = SdkVersion(name, version)
+        sdkVersion = SdkVersion(name, VERSION_NAME)
       } else {
         sdkVersion.name = name
       }
 
       options.sdkVersion = sdkVersion
-      options.sentryClientName = "$name/$version"
+      options.sentryClientName = "$name/$VERSION_NAME"
 
       options.setBeforeSend { event, _ ->
         setEventOriginTag(event)
