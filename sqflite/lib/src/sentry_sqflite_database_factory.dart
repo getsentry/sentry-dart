@@ -26,10 +26,14 @@ class SentrySqfliteDatabaseFactory with SqfliteDatabaseFactoryMixin {
   ///
   /// final database = await openDatabase('path/to/db');
   /// ```
-  SentrySqfliteDatabaseFactory({@internal Hub? hub})
-      : _hub = hub ?? HubAdapter();
+  SentrySqfliteDatabaseFactory({
+    DatabaseFactory? databaseFactory,
+    @internal Hub? hub,
+  })  : _databaseFactory = databaseFactory,
+        _hub = hub ?? HubAdapter();
 
   final Hub _hub;
+  final DatabaseFactory? _databaseFactory;
 
   @override
   Future<T> invokeMethod<T>(String method, [Object? arguments]) =>
@@ -40,20 +44,23 @@ class SentrySqfliteDatabaseFactory with SqfliteDatabaseFactoryMixin {
     String path, {
     OpenDatabaseOptions? options,
   }) async {
+    final databaseFactory = _databaseFactory ?? this;
+
     // ignore: invalid_use_of_internal_member
     if (!_hub.options.isTracingEnabled()) {
-      return super.openDatabase(path, options: options);
+      return databaseFactory.openDatabase(path, options: options);
     }
 
     Future<Database> openDatabase() async {
       final currentSpan = _hub.getSpan();
       final span = currentSpan?.startChild(
         SentryDatabase.dbOp,
-        description: 'OPEN',
+        description: 'Open DB: $path',
       );
 
       try {
-        final database = await super.openDatabase(path, options: options);
+        final database =
+            await databaseFactory.openDatabase(path, options: options);
 
         final sentryDatabase = SentryDatabase(database, hub: _hub);
 

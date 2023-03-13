@@ -44,7 +44,7 @@ class SentryBatch implements Batch {
       final currentSpan = _hub.getSpan();
 
       final span = currentSpan?.startChild(
-        SentryDatabase.dbSqlExecuteOp,
+        SentryDatabase.dbOp,
         description: _buffer.toString(),
       );
 
@@ -80,7 +80,7 @@ class SentryBatch implements Batch {
       final currentSpan = _hub.getSpan();
 
       final span = currentSpan?.startChild(
-        SentryDatabase.dbSqlExecuteOp,
+        SentryDatabase.dbOp,
         description: _buffer.toString(),
       );
 

@@ -413,8 +413,9 @@ class MainScaffold extends StatelessWidget {
 
     // databaseFactory = databaseFactoryFfiWeb; // or databaseFactoryFfi // or SentrySqfliteDatabaseFactory()
 
-    final sqfDb = await openDatabase(inMemoryDatabasePath);
-    final db = SentryDatabase(sqfDb);
+    // final sqfDb = await openDatabase(inMemoryDatabasePath);
+    final db = await openDatabaseWithSentry(inMemoryDatabasePath);
+    // final db = SentryDatabase(sqfDb);
     // final batch = db.batch();
     await db.execute('''
       CREATE TABLE Product (

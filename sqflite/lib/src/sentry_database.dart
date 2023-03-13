@@ -56,7 +56,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
       final currentSpan = _hub.getSpan();
       final span = currentSpan?.startChild(
         dbOp,
-        description: 'CLOSE',
+        description: 'Close DB: ${_database.path}',
       );
 
       try {
@@ -107,7 +107,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
       final currentSpan = _hub.getSpan();
       final span = currentSpan?.startChild(
         _dbSqlOp,
-        description: 'TRANSACTION',
+        description: 'Transaction DB: ${_database.path}',
       );
 
       Future<T> newAction(Transaction txn) async {

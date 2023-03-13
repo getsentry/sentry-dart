@@ -27,6 +27,7 @@ class SentrySqfliteTransaction extends Transaction implements DatabaseExecutor {
   SentrySqfliteTransaction(
     this._executor, {
     @internal Hub? hub,
+    StringBuffer? buffer,
   }) : _hub = hub ?? HubAdapter();
 
   @override

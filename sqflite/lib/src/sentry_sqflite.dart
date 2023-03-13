@@ -37,17 +37,35 @@ Future<Database> openDatabaseWithSentry(
       singleInstance: singleInstance,
     );
 
+    final newHub = hub ?? HubAdapter();
+
     // ignore: invalid_use_of_internal_member
-    final options = (hub ?? HubAdapter()).options;
-
-    final database =
-        await databaseFactory.openDatabase(path, options: dbOptions);
-
-    if (!options.isTracingEnabled()) {
-      return database;
+    if (!newHub.options.isTracingEnabled()) {
+      return await databaseFactory.openDatabase(path, options: dbOptions);
     }
 
-    return SentryDatabase(database);
+    final currentSpan = newHub.getSpan();
+    final span = currentSpan?.startChild(
+      SentryDatabase.dbOp,
+      description: 'Open DB: $path',
+    );
+
+    try {
+      final database =
+          await databaseFactory.openDatabase(path, options: dbOptions);
+
+      final sentryDatabase = SentryDatabase(database, hub: newHub);
+
+      span?.status = SpanStatus.ok();
+      return sentryDatabase;
+    } catch (exception) {
+      span?.throwable = exception;
+      span?.status = SpanStatus.internalError();
+
+      rethrow;
+    } finally {
+      await span?.finish();
+    }
   }
 
   return openDatabase();
