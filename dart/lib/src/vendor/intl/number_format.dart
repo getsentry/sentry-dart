@@ -73,8 +73,6 @@ class NumberFormat {
 
   /// Set to true if the format has explicitly set the grouping size.
   final bool _decimalSeparatorAlwaysShown;
-  final bool _useSignForPositiveExponent;
-  final bool _useExponentialNotation;
 
   /// Explicitly store if we are a currency format, and so should use the
   /// appropriate number of decimal digits for a currency.
@@ -400,7 +398,6 @@ class NumberFormat {
         negativeSuffix = result.negativeSuffix,
         multiplier = result.multiplier,
         _multiplierDigits = result.multiplierDigits,
-        _useExponentialNotation = result.useExponentialNotation,
         minimumExponentDigits = result.minimumExponentDigits,
         maximumIntegerDigits = result.maximumIntegerDigits,
         minimumIntegerDigits = result.minimumIntegerDigits,
@@ -408,7 +405,6 @@ class NumberFormat {
         _minimumFractionDigits = result.minimumFractionDigits,
         _groupingSize = result.groupingSize,
         _finalGroupingSize = result.finalGroupingSize,
-        _useSignForPositiveExponent = result.useSignForPositiveExponent,
         _decimalSeparatorAlwaysShown = result.decimalSeparatorAlwaysShown,
         decimalDigits = result.decimalDigits;
 
@@ -495,59 +491,7 @@ class NumberFormat {
 
   /// Format the main part of the number in the form dictated by the pattern.
   void _formatNumber(number) {
-    if (_useExponentialNotation) {
-      _formatExponential(number);
-    } else {
-      _formatFixed(number);
-    }
-  }
-
-  /// Format the number in exponential notation.
-  void _formatExponential(num number) {
-    if (number == 0.0) {
-      _formatFixed(number);
-      _formatExponent(0);
-      return;
-    }
-
-    var exponent = (log(number) / _ln10).floor();
-    var mantissa = number / pow(10.0, exponent);
-
-    if (maximumIntegerDigits > 1 &&
-        maximumIntegerDigits > minimumIntegerDigits) {
-      // A repeating range is defined; adjust to it as follows.
-      // If repeat == 3, we have 6,5,4=>3; 3,2,1=>0; 0,-1,-2=>-3;
-      // -3,-4,-5=>-6, etc. This takes into account that the
-      // exponent we have here is off by one from what we expect;
-      // it is for the format 0.MMMMMx10^n.
-      while ((exponent % maximumIntegerDigits) != 0) {
-        mantissa *= 10;
-        exponent--;
-      }
-    } else {
-      // No repeating range is defined, use minimum integer digits.
-      if (minimumIntegerDigits < 1) {
-        exponent++;
-        mantissa /= 10;
-      } else {
-        exponent -= minimumIntegerDigits - 1;
-        mantissa *= pow(10, minimumIntegerDigits - 1);
-      }
-    }
-    _formatFixed(mantissa);
-    _formatExponent(exponent);
-  }
-
-  /// Format the exponent portion, e.g. in "1.3e-5" the "e-5".
-  void _formatExponent(num exponent) {
-    _add(symbols.EXP_SYMBOL);
-    if (exponent < 0) {
-      exponent = -exponent;
-      _add(symbols.MINUS_SIGN);
-    } else if (_useSignForPositiveExponent) {
-      _add(symbols.PLUS_SIGN);
-    }
-    _pad(minimumExponentDigits, exponent.toString());
+    _formatFixed(number);
   }
 
   /// Used to test if we have exceeded integer limits.
