@@ -723,7 +723,7 @@ void main() {
       fixture = Fixture();
     });
 
-    test('should not apply the scope to non null event fields ', () async {
+    test('should not apply the scope to non null event fields', () async {
       final client = fixture.getSut(sendDefaultPii: true);
       final scope = await createScope(fixture.options);
 
@@ -740,7 +740,7 @@ void main() {
           eventCrumbs.map((e) => e.toJson()));
     });
 
-    test('should apply the scope user to null event user fields ', () async {
+    test('should apply the scope user to null event user fields', () async {
       final client = fixture.getSut(sendDefaultPii: true);
       final scope = await createScope(fixture.options);
 

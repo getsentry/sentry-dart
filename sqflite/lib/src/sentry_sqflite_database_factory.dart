@@ -10,10 +10,16 @@ import 'sentry_database.dart';
 
 /// Using this factory, all [Database] instances will be wrapped with Sentry.
 ///
+/// Only use the factory if you want to wrap all [Database] instances even from
+/// 3rd party libraries and SDKs, otherwise prefer the [openDatabaseWithSentry]
+/// or [SentryDatabase] constructor.
+///
 /// ```dart
 /// import 'package:sqflite/sqflite.dart';
 ///
 /// databaseFactory = SentrySqfliteDatabaseFactory();
+/// // or SentrySqfliteDatabaseFactory(databaseFactory: databaseFactoryFfi);
+/// // if you are using the FFI implementation.
 ///
 /// final database = await openDatabase('path/to/db');
 /// ```
@@ -31,6 +37,8 @@ class SentrySqfliteDatabaseFactory with SqfliteDatabaseFactoryMixin {
     @internal Hub? hub,
   })  : _databaseFactory = databaseFactory,
         _hub = hub ?? HubAdapter();
+
+  // TODO: consider always getting the factory instead being optional
 
   final Hub _hub;
   final DatabaseFactory? _databaseFactory;

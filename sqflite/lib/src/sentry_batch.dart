@@ -45,7 +45,7 @@ class SentryBatch implements Batch {
 
       final span = currentSpan?.startChild(
         SentryDatabase.dbOp,
-        description: _buffer.toString(),
+        description: _buffer.toString().trim(),
       );
 
       try {
@@ -81,7 +81,7 @@ class SentryBatch implements Batch {
 
       final span = currentSpan?.startChild(
         SentryDatabase.dbOp,
-        description: _buffer.toString(),
+        description: _buffer.toString().trim(),
       );
 
       try {

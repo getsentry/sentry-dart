@@ -1,13 +1,35 @@
 import 'package:mockito/annotations.dart';
-// import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sentry/src/sentry_tracer.dart';
 
-// @GenerateNiceMocks([MockSpec<Batch>()])
-// class MockBatch extends Mock implements Batch {}
-
-// @GenerateNiceMocks([MockSpec<SentryTracer>()])
-// class MockSentryTracer extends Mock implements SentryTracer {}
-
-@GenerateNiceMocks([MockSpec<Hub>(), MockSpec<Batch>()])
 import 'mocks.mocks.dart';
+
+ISentrySpan startTransactionShim(
+  String? name,
+  String? operation, {
+  String? description,
+  DateTime? startTimestamp,
+  bool? bindToScope,
+  bool? waitForChildren,
+  Duration? autoFinishAfter,
+  bool? trimEnd,
+  OnTransactionFinish? onFinish,
+  Map<String, dynamic>? customSamplingContext,
+}) {
+  return MockSentryTracer();
+}
+
+//  From a directory that contains a pubspec.yaml file:
+//  dart run build_runner build  # Dart SDK
+//  flutter pub run build_runner build  # Flutter SDK
+
+@GenerateMocks(
+  [
+    // ignore: invalid_use_of_internal_member
+    SentryTracer,
+  ],
+  customMocks: [
+    MockSpec<Hub>(fallbackGenerators: {#startTransaction: startTransactionShim})
+  ],
+)
+void main() {}
