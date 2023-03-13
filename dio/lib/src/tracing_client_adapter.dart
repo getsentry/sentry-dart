@@ -23,17 +23,28 @@ class TracingClientAdapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future? cancelFuture,
   ) async {
+    // ignore: invalid_use_of_internal_member
+    final urlDetails = UrlUtils.parse(options.uri.toString());
+
+    var description = options.method;
+    if (urlDetails != null) {
+      description += ' ${urlDetails.url}';
+    }
+
     // see https://develop.sentry.dev/sdk/performance/#header-sentry-trace
     final currentSpan = _hub.getSpan();
     var span = currentSpan?.startChild(
       'http.client',
-      description: '${options.method} ${options.uri}',
+      description: description,
     );
 
-    // if the span is NoOp, we dont want to attach headers
+    // if the span is NoOp, we don't want to attach headers
     if (span is NoOpSentrySpan) {
       span = null;
     }
+
+    span?.setData('method', options.method);
+    urlDetails?.applyToSpan(span);
 
     ResponseBody? response;
     try {

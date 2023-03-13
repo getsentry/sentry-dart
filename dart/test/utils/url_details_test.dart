@@ -5,21 +5,34 @@ import 'package:test/test.dart';
 
 void main() {
   test('does not crash on null span', () {
-    final urlDetails = UrlDetails("https://sentry.io/api", "q=1", "top");
+    final urlDetails =
+        UrlDetails(url: "https://sentry.io/api", query: "q=1", fragment: "top");
     urlDetails.applyToSpan(null);
   });
 
-  test('applies query and fragment to span', () {
-    final urlDetails = UrlDetails("https://sentry.io/api", "q=1", "top");
+  test('applies all to span', () {
+    final urlDetails =
+        UrlDetails(url: "https://sentry.io/api", query: "q=1", fragment: "top");
     final span = MockSpan();
     urlDetails.applyToSpan(span);
 
+    verify(span.setData("method", "GET"));
+    verify(span.setData("url", "https://sentry.io/api"));
     verify(span.setData("http.query", "q=1"));
     verify(span.setData("http.fragment", "top"));
   });
 
-  test('applies query to span', () {
-    final urlDetails = UrlDetails("https://sentry.io/api", "q=1", null);
+  test('applies only url to span', () {
+    final urlDetails = UrlDetails(url: "https://sentry.io/api");
+    final span = MockSpan();
+    urlDetails.applyToSpan(span);
+
+    verify(span.setData("url", "https://sentry.io/api"));
+    verifyNoMoreInteractions(span);
+  });
+
+  test('applies only query to span', () {
+    final urlDetails = UrlDetails(query: "q=1");
     final span = MockSpan();
     urlDetails.applyToSpan(span);
 
@@ -27,8 +40,8 @@ void main() {
     verifyNoMoreInteractions(span);
   });
 
-  test('applies fragment to span', () {
-    final urlDetails = UrlDetails("https://sentry.io/api", null, "top");
+  test('applies only fragment to span', () {
+    final urlDetails = UrlDetails(fragment: "top");
     final span = MockSpan();
     urlDetails.applyToSpan(span);
 
@@ -37,16 +50,18 @@ void main() {
   });
 
   test('applies details to request', () {
-    final urlDetails = UrlDetails("https://sentry.io/api", "q=1", "top");
+    final urlDetails =
+        UrlDetails(url: "https://sentry.io/api", query: "q=1", fragment: "top");
     final request = SentryRequest().withUriDetails(urlDetails);
 
+    expect(request.method, "GET");
     expect(request.url, "https://sentry.io/api");
     expect(request.queryString, "q=1");
     expect(request.fragment, "top");
   });
 
   test('applies details without fragment and url to request', () {
-    final urlDetails = UrlDetails("https://sentry.io/api", null, null);
+    final urlDetails = UrlDetails(url: "https://sentry.io/api");
     final request = SentryRequest().withUriDetails(urlDetails);
 
     expect(request.url, "https://sentry.io/api");
@@ -55,7 +70,7 @@ void main() {
   });
 
   test('returns fallback for null URL', () {
-    final urlDetails = UrlDetails(null, null, null);
+    final urlDetails = UrlDetails(url: null);
     expect(urlDetails.urlOrFallback, "unknown");
   });
 }

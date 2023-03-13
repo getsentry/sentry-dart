@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:html' as html show window, Window;
 
 import '../../../sentry.dart';
+import '../../utils/url_details.dart';
+import '../../utils/url_utils.dart';
 import 'enricher_event_processor.dart';
 
 EnricherEventProcessor enricherEventProcessor(SentryOptions options) {
@@ -49,10 +51,14 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
 
     header.putIfAbsent('User-Agent', () => _window.navigator.userAgent);
 
-    return (request ?? SentryRequest()).copyWith(
-      url: request?.url ?? _window.location.toString(),
-      headers: header,
-    );
+    final url = request?.url ?? _window.location.toString();
+    final urlDetails = UrlUtils.parse(url);
+
+    return (request ?? SentryRequest())
+        .copyWith(
+          headers: header,
+        )
+        .withUriDetails(urlDetails);
   }
 
   SentryDevice _getDevice(SentryDevice? device) {

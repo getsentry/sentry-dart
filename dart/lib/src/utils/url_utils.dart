@@ -16,14 +16,14 @@ class UrlUtils {
 
     if (queryIndex > -1 && fragmentIndex > -1 && fragmentIndex < queryIndex) {
       // url considered malformed because it has fragment
-      return UrlDetails(null, null, null);
+      return UrlDetails();
     } else {
       final uri = Uri.parse(url);
       final urlWithAuthRemoved = _urlWithAuthRemoved(uri._url());
       return UrlDetails(
-          urlWithAuthRemoved.isEmpty ? null : urlWithAuthRemoved,
-          uri.query.isEmpty ? null : uri.query,
-          uri.fragment.isEmpty ? null : uri.fragment);
+          url: urlWithAuthRemoved.isEmpty ? null : urlWithAuthRemoved,
+          query: uri.query.isEmpty ? null : uri.query,
+          fragment: uri.fragment.isEmpty ? null : uri.fragment);
     }
   }
 
