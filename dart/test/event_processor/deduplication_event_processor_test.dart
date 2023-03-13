@@ -83,6 +83,7 @@ void main() {
           options.transport = transport;
           options.enableDeduplication = true;
         },
+        devMode: true,
       );
 
       // The test doesn't work if `outerTestMethod` is passed as

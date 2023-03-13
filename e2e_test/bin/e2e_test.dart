@@ -18,9 +18,13 @@ void main(List<String> arguments) async {
     print('AUTH TOKEN is not set');
     exit(1);
   }
-  await Sentry.init((options) {
-    options.dsn = _exampleDsn;
-  });
+  await Sentry.init(
+    (options) {
+      options.dsn = _exampleDsn;
+      // ignore: invalid_use_of_internal_member
+    },
+    devMode: true,
+  );
 
   var id = SentryId.empty();
   try {

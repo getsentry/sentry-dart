@@ -27,6 +27,7 @@ void main() {
       await Sentry.init(
         (options) => options,
         options: options,
+        devMode: true,
       );
 
       expect(options.dsn, fakeDsn);
@@ -47,6 +48,7 @@ void main() {
       await Sentry.init(
         (options) => options,
         options: options,
+        devMode: true,
       );
 
       expect(options.dsn, 'foo-bar');

@@ -70,6 +70,7 @@ void main() {
         },
         appRunner: appRunner,
         platformChecker: getPlatformChecker(platform: MockPlatform.android()),
+        devMode: true,
       );
 
       testTransport(
@@ -117,6 +118,7 @@ void main() {
         },
         appRunner: appRunner,
         platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
+        devMode: true,
       );
 
       testTransport(
@@ -162,6 +164,7 @@ void main() {
         },
         appRunner: appRunner,
         platformChecker: getPlatformChecker(platform: MockPlatform.macOs()),
+        devMode: true,
       );
 
       testTransport(
@@ -207,6 +210,7 @@ void main() {
         },
         appRunner: appRunner,
         platformChecker: getPlatformChecker(platform: MockPlatform.windows()),
+        devMode: true,
       );
 
       testTransport(
@@ -255,6 +259,7 @@ void main() {
         },
         appRunner: appRunner,
         platformChecker: getPlatformChecker(platform: MockPlatform.linux()),
+        devMode: true,
       );
 
       testTransport(
@@ -306,6 +311,7 @@ void main() {
           isWeb: true,
           platform: MockPlatform.linux(),
         ),
+        devMode: true,
       );
 
       testTransport(
@@ -355,6 +361,7 @@ void main() {
           isWeb: true,
           platform: MockPlatform.iOs(),
         ),
+        devMode: true,
       );
 
       testTransport(
@@ -398,6 +405,7 @@ void main() {
           isWeb: true,
           platform: MockPlatform.macOs(),
         ),
+        devMode: true,
       );
 
       testTransport(
@@ -440,6 +448,7 @@ void main() {
           isWeb: true,
           platform: MockPlatform.android(),
         ),
+        devMode: true,
       );
 
       testTransport(
@@ -475,13 +484,16 @@ void main() {
     test('installed with skia renderer', () async {
       List<Integration> integrations = [];
 
-      await SentryFlutter.init((options) async {
-        options.dsn = fakeDsn;
-        integrations = options.integrations;
-      },
-          appRunner: appRunner,
-          platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
-          rendererWrapper: MockRendererWrapper(FlutterRenderer.skia));
+      await SentryFlutter.init(
+        (options) async {
+          options.dsn = fakeDsn;
+          integrations = options.integrations;
+        },
+        appRunner: appRunner,
+        platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
+        rendererWrapper: MockRendererWrapper(FlutterRenderer.skia),
+        devMode: true,
+      );
 
       expect(
           integrations
@@ -495,13 +507,16 @@ void main() {
     test('installed with canvasKit renderer', () async {
       List<Integration> integrations = [];
 
-      await SentryFlutter.init((options) async {
-        options.dsn = fakeDsn;
-        integrations = options.integrations;
-      },
-          appRunner: appRunner,
-          platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
-          rendererWrapper: MockRendererWrapper(FlutterRenderer.canvasKit));
+      await SentryFlutter.init(
+        (options) async {
+          options.dsn = fakeDsn;
+          integrations = options.integrations;
+        },
+        appRunner: appRunner,
+        platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
+        rendererWrapper: MockRendererWrapper(FlutterRenderer.canvasKit),
+        devMode: true,
+      );
 
       expect(
           integrations
@@ -515,13 +530,16 @@ void main() {
     test('not installed with html renderer', () async {
       List<Integration> integrations = [];
 
-      await SentryFlutter.init((options) async {
-        options.dsn = fakeDsn;
-        integrations = options.integrations;
-      },
-          appRunner: appRunner,
-          platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
-          rendererWrapper: MockRendererWrapper(FlutterRenderer.html));
+      await SentryFlutter.init(
+        (options) async {
+          options.dsn = fakeDsn;
+          integrations = options.integrations;
+        },
+        appRunner: appRunner,
+        platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
+        rendererWrapper: MockRendererWrapper(FlutterRenderer.html),
+        devMode: true,
+      );
 
       expect(
           integrations
@@ -535,13 +553,16 @@ void main() {
     test('not installed with unknown renderer', () async {
       List<Integration> integrations = [];
 
-      await SentryFlutter.init((options) async {
-        options.dsn = fakeDsn;
-        integrations = options.integrations;
-      },
-          appRunner: appRunner,
-          platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
-          rendererWrapper: MockRendererWrapper(FlutterRenderer.unknown));
+      await SentryFlutter.init(
+        (options) async {
+          options.dsn = fakeDsn;
+          integrations = options.integrations;
+        },
+        appRunner: appRunner,
+        platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
+        rendererWrapper: MockRendererWrapper(FlutterRenderer.unknown),
+        devMode: true,
+      );
 
       expect(
           integrations
@@ -576,6 +597,7 @@ void main() {
           platform: MockPlatform.android(),
           isWeb: true,
         ),
+        devMode: true,
       );
 
       await Sentry.close();

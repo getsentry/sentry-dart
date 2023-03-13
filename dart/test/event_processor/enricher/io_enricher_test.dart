@@ -165,6 +165,7 @@ void main() {
           options.dsn = fakeDsn;
           sentryOptions = options;
         },
+        devMode: true,
       );
       await Sentry.close();
 

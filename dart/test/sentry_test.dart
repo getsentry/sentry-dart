@@ -407,9 +407,13 @@ void main() {
         ..logger = fixture.mockLogger;
 
       final exception = Exception("Exception in options callback");
-      await Sentry.init((options) async {
-        throw exception;
-      }, options: sentryOptions);
+      await Sentry.init(
+        (options) async {
+          throw exception;
+        },
+        options: sentryOptions,
+        devMode: false,
+      );
 
       expect(fixture.loggedException, exception);
       expect(fixture.loggedLevel, SentryLevel.error);
@@ -430,6 +434,7 @@ void main() {
           throw exception;
         },
         options: sentryOptions,
+        devMode: false,
       );
 
       expect(fixture.loggedException, exception);
