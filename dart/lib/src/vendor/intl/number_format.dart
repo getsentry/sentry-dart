@@ -1,10 +1,6 @@
 import 'dart:math';
 
 import 'number_symbols.dart';
-import 'number_symbols_data.dart';
-import 'intl_helpers.dart' as helpers;
-
-import 'constants.dart' as constants;
 
 // ignore_for_file: constant_identifier_names
 
@@ -124,9 +120,6 @@ class NumberFormat {
   /// How many digits are there in the [multiplier].
   final int _multiplierDigits;
 
-  /// The locale in which we print numbers.
-  final String _locale;
-
   /// Caches the symbols used for our locale.
   final NumberSymbols _symbols;
 
@@ -166,21 +159,33 @@ class NumberFormat {
   /// function [computeCurrencySymbol] that will compute it later, given other
   /// information, typically the verified locale.
   factory NumberFormat._forPattern(String? locale) {
-    locale = helpers.verifiedLocale(locale, localeExists, null)!;
-
-    var symbols = numberFormatSymbols[locale] as NumberSymbols;
+    var symbols = NumberSymbols(
+        NAME: "en",
+        DECIMAL_SEP: '.',
+        GROUP_SEP: ',',
+        PERCENT: '%',
+        ZERO_DIGIT: '0',
+        PLUS_SIGN: '+',
+        MINUS_SIGN: '-',
+        EXP_SYMBOL: 'E',
+        PERMILL: '\u2030',
+        INFINITY: '\u221E',
+        NAN: 'NaN',
+        DECIMAL_PATTERN: '#,##0.###',
+        SCIENTIFIC_PATTERN: '#E0',
+        PERCENT_PATTERN: '#,##0%',
+        CURRENCY_PATTERN: '\u00A4#,##0.00',
+        DEF_CURRENCY_CODE: 'USD');
     var localeZero = symbols.ZERO_DIGIT.codeUnitAt(0);
-    var zeroOffset = localeZero - constants.asciiZeroCodeUnit;
+    var zeroOffset = localeZero - '0'.codeUnitAt(0);
 
     return NumberFormat._(
-        locale,
         localeZero,
         symbols,
         zeroOffset);
   }
 
   NumberFormat._(
-      this._locale,
       this.localeZero,
       this._symbols,
       this._zeroOffset)
@@ -194,16 +199,6 @@ class NumberFormat {
         _decimalSeparatorAlwaysShown = false,
         decimalDigits = null;
 
-  /// Return the locale code in which we operate, e.g. 'en_US' or 'pt'.
-  String get locale => _locale;
-
-  /// Return true if the locale exists, or if it is null. The null case
-  /// is interpreted to mean that we use the default locale.
-  static bool localeExists(String? localeName) {
-    if (localeName == null) return false;
-    return numberFormatSymbols.containsKey(localeName);
-  }
-
   /// Return the symbols which are used in our locale. Cache them to avoid
   /// repeated lookup.
   NumberSymbols get symbols => _symbols;
@@ -212,16 +207,11 @@ class NumberFormat {
   String format(dynamic number) {
     if (_isNaN(number)) return symbols.NAN;
 
-    _formatNumber(number.abs());
+    _formatFixed(number.abs());
 
     var result = _buffer.toString();
     _buffer.clear();
     return result;
-  }
-
-  /// Format the main part of the number in the form dictated by the pattern.
-  void _formatNumber(number) {
-    _formatFixed(number);
   }
 
   /// Used to test if we have exceeded integer limits.
@@ -500,7 +490,7 @@ class NumberFormat {
   void _formatFractionPart(String fractionPart, int minDigits) {
     var fractionLength = fractionPart.length;
     while (fractionPart.codeUnitAt(fractionLength - 1) ==
-            constants.asciiZeroCodeUnit &&
+            '0'.codeUnitAt(0) &&
         fractionLength > minDigits + 1) {
       fractionLength--;
     }
