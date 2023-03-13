@@ -3,13 +3,10 @@ import 'dart:math';
 import 'number_symbols.dart';
 import 'number_symbols_data.dart';
 import 'intl_helpers.dart' as helpers;
-import 'plural_rules.dart' as plural_rules;
 
 import 'constants.dart' as constants;
 import 'number_format_parser.dart';
 import 'number_parser.dart';
-
-part 'compact_number_format.dart';
 
 // ignore_for_file: constant_identifier_names
 
