@@ -53,13 +53,14 @@ void main() {
         'maxCacheItems': 30,
         'sendDefaultPii': false,
         'enableWatchdogTerminationTracking': true,
-        'enableNdkScopeSync': false,
+        'enableNdkScopeSync': true,
         'enableAutoPerformanceTracing': true,
         'sendClientReports': true,
         'sdk': {
           'name': 'sentry.dart.flutter',
           'version': sdkVersion,
         },
+        'proguardUuid': null
       });
     });
 
@@ -90,9 +91,10 @@ void main() {
         ..maxCacheItems = 0
         ..sendDefaultPii = true
         ..enableWatchdogTerminationTracking = false
-        ..enableNdkScopeSync = true
         ..enableAutoPerformanceTracing = false
-        ..sendClientReports = false;
+        ..sendClientReports = false
+        ..enableNdkScopeSync = true
+        ..proguardUuid = fakeProguardUuid;
 
       options.sdk.addIntegration('foo');
       options.sdk.addPackage('bar', '1');
@@ -133,6 +135,7 @@ void main() {
           'name': 'sentry.dart.flutter',
           'version': sdkVersion,
         },
+        'proguardUuid': fakeProguardUuid
       });
     });
 

@@ -49,6 +49,7 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
           'name': options.sdk.name,
           'version': options.sdk.version,
         },
+        'proguardUuid': options.proguardUuid,
       });
 
       options.sdk.addIntegration('nativeSdkIntegration');

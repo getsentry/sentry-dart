@@ -40,7 +40,7 @@ void addBaggageHeader(
   }
 }
 
-bool containsTracePropagationTarget(
+bool containsTargetOrMatchesRegExp(
     List<String> tracePropagationTargets, String url) {
   if (tracePropagationTargets.isEmpty) {
     return false;

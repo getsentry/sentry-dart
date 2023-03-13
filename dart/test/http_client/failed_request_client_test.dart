@@ -84,6 +84,18 @@ void main() {
       expect(fixture.transport.calls, 0);
     });
 
+    test('event not reported if not within the targets', () async {
+      final sut = fixture.getSut(
+          client: fixture.getClient(statusCode: 500),
+          captureFailedRequests: true,
+          failedRequestTargets: const ["myapi.com"]);
+
+      final response = await sut.get(requestUri);
+
+      expect(response.statusCode, 500);
+      expect(fixture.transport.calls, 0);
+    });
+
     test('exception gets reported if bad status code occurs', () async {
       fixture._hub.options.sendDefaultPii = true;
 
@@ -92,7 +104,7 @@ void main() {
             statusCode: 404,
             body: 'foo',
             headers: {'lorem': 'ipsum', 'set-cookie': 'foo=bar'}),
-        badStatusCodes: [SentryStatusCode(404)],
+        failedRequestStatusCodes: [SentryStatusCode(404)],
       );
 
       await sut.get(requestUri, headers: {'Cookie': 'foo=bar'});
@@ -142,7 +154,7 @@ void main() {
         () async {
       final sut = fixture.getSut(
         client: fixture.getClient(statusCode: 404),
-        badStatusCodes: [SentryStatusCode(404)],
+        failedRequestStatusCodes: [SentryStatusCode(404)],
       );
 
       await sut.get(requestUri, headers: {'Cookie': 'foo=bar'});
@@ -186,7 +198,7 @@ void main() {
     test('pii is not send on invalid status code', () async {
       final sut = fixture.getSut(
         client: fixture.getClient(statusCode: 404),
-        badStatusCodes: [SentryStatusCode(404)],
+        failedRequestStatusCodes: [SentryStatusCode(404)],
       );
 
       await sut.get(requestUri, headers: {'Cookie': 'foo=bar'});
@@ -303,15 +315,19 @@ class Fixture {
 
   FailedRequestClient getSut({
     MockClient? client,
-    List<SentryStatusCode> badStatusCodes = const [],
+    List<SentryStatusCode> failedRequestStatusCodes = const [
+      SentryStatusCode.defaultRange()
+    ],
     bool captureFailedRequests = true,
+    List<String> failedRequestTargets = const [".*"],
   }) {
     final mc = client ?? getClient();
     _hub.options.captureFailedRequests = captureFailedRequests;
     return FailedRequestClient(
       client: mc,
       hub: _hub,
-      failedRequestStatusCodes: badStatusCodes,
+      failedRequestStatusCodes: failedRequestStatusCodes,
+      failedRequestTargets: failedRequestTargets,
     );
   }
 
