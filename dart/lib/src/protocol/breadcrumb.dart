@@ -47,6 +47,8 @@ class Breadcrumb {
 
     // Size of the response body in bytes
     int? responseBodySize,
+    String? httpQuery,
+    String? httpFragment,
   }) {
     return Breadcrumb(
       type: 'http',
@@ -61,6 +63,8 @@ class Breadcrumb {
         if (requestDuration != null) 'duration': requestDuration.toString(),
         if (requestBodySize != null) 'request_body_size': requestBodySize,
         if (responseBodySize != null) 'response_body_size': responseBodySize,
+        if (httpQuery != null) 'http.query': httpQuery,
+        if (httpFragment != null) 'http.fragment': httpFragment,
       },
     );
   }

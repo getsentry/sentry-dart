@@ -1,4 +1,5 @@
 import 'package:http/http.dart';
+import '../../sentry.dart';
 import '../protocol.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
@@ -75,15 +76,19 @@ class BreadcrumbClient extends BaseClient {
     } finally {
       stopwatch.stop();
 
+      final urlDetails = UrlUtils.parse(request.url.toString()) ?? UrlDetails();
+
       var breadcrumb = Breadcrumb.http(
         level: requestHadException ? SentryLevel.error : SentryLevel.info,
-        url: request.url,
+        url: Uri.parse(urlDetails.url ?? ''),
         method: request.method,
         statusCode: statusCode,
         reason: reason,
         requestDuration: stopwatch.elapsed,
         requestBodySize: request.contentLength,
         responseBodySize: responseBodySize,
+        httpQuery: urlDetails.query,
+        httpFragment: urlDetails.fragment,
       );
 
       await _hub.addBreadcrumb(breadcrumb);

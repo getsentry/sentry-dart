@@ -9,7 +9,7 @@ import 'package:test/test.dart';
 
 import '../mocks/mock_hub.dart';
 
-final requestUri = Uri.parse('https://example.com');
+final requestUri = Uri.parse('https://example.com?foo=bar#baz');
 
 void main() {
   group(BreadcrumbClient, () {
@@ -32,6 +32,8 @@ void main() {
       expect(breadcrumb.type, 'http');
       expect(breadcrumb.data?['url'], 'https://example.com');
       expect(breadcrumb.data?['method'], 'GET');
+      expect(breadcrumb.data?['http.query'], 'foo=bar');
+      expect(breadcrumb.data?['http.fragment'], 'baz');
       expect(breadcrumb.data?['status_code'], 200);
       expect(breadcrumb.data?['reason'], 'OK');
       expect(breadcrumb.data?['duration'], isNotNull);
@@ -53,6 +55,8 @@ void main() {
       expect(breadcrumb.type, 'http');
       expect(breadcrumb.data?['url'], 'https://example.com');
       expect(breadcrumb.data?['method'], 'GET');
+      expect(breadcrumb.data?['http.query'], 'foo=bar');
+      expect(breadcrumb.data?['http.fragment'], 'baz');
       expect(breadcrumb.data?['status_code'], 404);
       expect(breadcrumb.data?['reason'], 'NOT FOUND');
       expect(breadcrumb.data?['duration'], isNotNull);
@@ -70,6 +74,8 @@ void main() {
       expect(breadcrumb.type, 'http');
       expect(breadcrumb.data?['url'], 'https://example.com');
       expect(breadcrumb.data?['method'], 'POST');
+      expect(breadcrumb.data?['http.query'], 'foo=bar');
+      expect(breadcrumb.data?['http.fragment'], 'baz');
       expect(breadcrumb.data?['status_code'], 200);
       expect(breadcrumb.data?['duration'], isNotNull);
     });
@@ -86,6 +92,8 @@ void main() {
       expect(breadcrumb.type, 'http');
       expect(breadcrumb.data?['url'], 'https://example.com');
       expect(breadcrumb.data?['method'], 'PUT');
+      expect(breadcrumb.data?['http.query'], 'foo=bar');
+      expect(breadcrumb.data?['http.fragment'], 'baz');
       expect(breadcrumb.data?['status_code'], 200);
       expect(breadcrumb.data?['duration'], isNotNull);
     });
@@ -102,6 +110,8 @@ void main() {
       expect(breadcrumb.type, 'http');
       expect(breadcrumb.data?['url'], 'https://example.com');
       expect(breadcrumb.data?['method'], 'DELETE');
+      expect(breadcrumb.data?['http.query'], 'foo=bar');
+      expect(breadcrumb.data?['http.fragment'], 'baz');
       expect(breadcrumb.data?['status_code'], 200);
       expect(breadcrumb.data?['duration'], isNotNull);
     });
@@ -162,6 +172,8 @@ void main() {
       expect(breadcrumb.type, 'http');
       expect(breadcrumb.data?['url'], 'https://example.com');
       expect(breadcrumb.data?['method'], 'GET');
+      expect(breadcrumb.data?['http.query'], 'foo=bar');
+      expect(breadcrumb.data?['http.fragment'], 'baz');
       expect(breadcrumb.level, SentryLevel.error);
       expect(breadcrumb.data?['duration'], isNotNull);
     });
