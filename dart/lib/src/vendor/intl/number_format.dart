@@ -62,15 +62,6 @@ class NumberFormat {
   final String negativeSuffix;
   final String positiveSuffix;
 
-  /// How many numbers in a group when using punctuation to group digits in
-  /// large numbers. e.g. in en_US: "1,000,000" has a grouping size of 3 digits
-  /// between commas.
-  int _groupingSize;
-
-  /// In some formats the last grouping size may be different than previous
-  /// ones, e.g. Hindi.
-  int _finalGroupingSize;
-
   /// Set to true if the format has explicitly set the grouping size.
   final bool _decimalSeparatorAlwaysShown;
 
@@ -258,8 +249,6 @@ class NumberFormat {
         minimumIntegerDigits = result.minimumIntegerDigits,
         _maximumFractionDigits = result.maximumFractionDigits,
         _minimumFractionDigits = result.minimumFractionDigits,
-        _groupingSize = result.groupingSize,
-        _finalGroupingSize = result.finalGroupingSize,
         _decimalSeparatorAlwaysShown = result.decimalSeparatorAlwaysShown,
         decimalDigits = result.decimalDigits;
 
@@ -518,7 +507,6 @@ class NumberFormat {
       digitLength = integerDigits.length;
       for (var i = 0; i < digitLength; i++) {
         _addDigit(integerDigits.codeUnitAt(i));
-        _group(digitLength, i);
       }
     } else if (!fractionPresent) {
       // If neither fraction nor integer part exists, just print zero.
@@ -632,23 +620,6 @@ class NumberFormat {
     }
   }
 
-  /// We are printing the digits of the number from left to right. We may need
-  /// to print a thousands separator or other grouping character as appropriate
-  /// to the locale. So we find how many places we are from the end of the number
-  /// by subtracting our current [position] from the [totalLength] and printing
-  /// the separator character every [_groupingSize] digits, with the final
-  /// grouping possibly being of a different size, [_finalGroupingSize].
-  void _group(int totalLength, int position) {
-    var distanceFromEnd = totalLength - position;
-    if (distanceFromEnd <= 1 || _groupingSize <= 0) return;
-    if (distanceFromEnd == _finalGroupingSize + 1) {
-      _add(symbols.GROUP_SEP);
-    } else if ((distanceFromEnd > _finalGroupingSize) &&
-        (distanceFromEnd - _finalGroupingSize) % _groupingSize == 1) {
-      _add(symbols.GROUP_SEP);
-    }
-  }
-
   /// The code point for the locale's zero digit.
   ///
   ///  Initialized when the locale is set.
@@ -667,15 +638,6 @@ class NumberFormat {
   /// Returns the suffix for [x] based on wether it's positive or negative.
   /// In en_US there are no suffixes for positive or negative.
   String _signSuffix(x) => x.isNegative ? negativeSuffix : positiveSuffix;
-
-  /// Explicitly turn off any grouping (e.g. by thousands) in this format.
-  ///
-  /// This is used in compact number formatting, where we
-  /// omit the normal grouping. Best to know what you're doing if you call it.
-  void turnOffGrouping() {
-    _groupingSize = 0;
-    _finalGroupingSize = 0;
-  }
 
   @override
   String toString() => 'NumberFormat($_locale, $_pattern)';

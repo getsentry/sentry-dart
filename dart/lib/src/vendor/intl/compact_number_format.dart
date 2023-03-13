@@ -380,7 +380,6 @@ class _CompactNumberFormat extends NumberFormat {
       : super._(currencyName, currencySymbol, isForCurrency, locale, localeZero,
             pattern, symbols, zeroOffset, result) {
     significantDigits = 3;
-    turnOffGrouping();
   }
 
   @override
