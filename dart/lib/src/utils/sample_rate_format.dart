@@ -1,30 +1,13 @@
 import 'dart:math';
 
-// Suppress naming issues as changes would be breaking.
-// ignore_for_file: non_constant_identifier_names
-class NumberSymbols {
-  final String DECIMAL_SEP,
-      ZERO_DIGIT,
-      NAN;
+import 'package:meta/meta.dart';
 
-  const NumberSymbols(
-      {required this.DECIMAL_SEP,
-        required this.ZERO_DIGIT,
-        required this.NAN});
-}
-
+@internal
 class SampleRateFormat {
 
-  int minimumIntegerDigits;
-
+  int _minimumIntegerDigits;
   int _maximumFractionDigits;
-  int get maximumFractionDigits => _maximumFractionDigits;
-
   int _minimumFractionDigits;
-  int get minimumFractionDigits => _minimumFractionDigits;
-
-  int? _minimumSignificantDigits;
-  int? get minimumSignificantDigits => _minimumSignificantDigits;
 
   /// The difference between our zero and '0'.
   ///
@@ -32,8 +15,8 @@ class SampleRateFormat {
   /// the locale is set.
   final int _zeroOffset;
 
-  /// Caches the symbols used for our locale.
-  final NumberSymbols _symbols;
+  /// Caches the symbols
+  final _NumberSymbols _symbols;
 
   /// Transient internal state in which to build up the result of the format
   /// operation. We can have this be just an instance variable because Dart is
@@ -43,7 +26,7 @@ class SampleRateFormat {
   final StringBuffer _buffer = StringBuffer();
 
   factory SampleRateFormat() {
-    var symbols = NumberSymbols(
+    var symbols = _NumberSymbols(
         DECIMAL_SEP: '.',
         ZERO_DIGIT: '0',
         NAN: 'NaN',
@@ -60,17 +43,14 @@ class SampleRateFormat {
   SampleRateFormat._(
       this._symbols,
       this._zeroOffset)
-      : minimumIntegerDigits = 1,
+      : _minimumIntegerDigits = 1,
         _maximumFractionDigits = 16,
         _minimumFractionDigits = 0;
 
-  /// Return the symbols which are used in our locale. Cache them to avoid
-  /// repeated lookup.
-  NumberSymbols get symbols => _symbols;
 
   /// Format the sample rate
   String format(dynamic sampleRate) {
-    if (_isNaN(sampleRate)) return symbols.NAN;
+    if (_isNaN(sampleRate)) return _symbols.NAN;
     if (_isSmallerZero(sampleRate)) {
       sampleRate = 0;
     }
@@ -97,8 +77,8 @@ class SampleRateFormat {
     dynamic integerPart;
     int fractionPart;
     int extraIntegerDigits;
-    var fractionDigits = maximumFractionDigits;
-    var minFractionDigits = minimumFractionDigits;
+    var fractionDigits = _maximumFractionDigits;
+    var minFractionDigits = _minimumFractionDigits;
 
     var power = 0;
     int digitMultiplier;
@@ -148,7 +128,7 @@ class SampleRateFormat {
 
     if (_hasIntegerDigits(integerDigits)) {
       // Add the padding digits to the regular digits so that we get grouping.
-      var padding = '0' * (minimumIntegerDigits - digitLength);
+      var padding = '0' * (_minimumIntegerDigits - digitLength);
       integerDigits = '$padding$integerDigits';
       digitLength = integerDigits.length;
       for (var i = 0; i < digitLength; i++) {
@@ -276,7 +256,7 @@ class SampleRateFormat {
   /// Print the decimal separator if appropriate.
   void _decimalSeparator(bool fractionPresent) {
     if (fractionPresent) {
-      _add(symbols.DECIMAL_SEP);
+      _add(_symbols.DECIMAL_SEP);
     }
   }
 
@@ -285,7 +265,7 @@ class SampleRateFormat {
   /// which have been moved left because of percent or permille formatting),
   /// or because the minimum number of printable digits is greater than 1.
   bool _hasIntegerDigits(String digits) =>
-      digits.isNotEmpty || minimumIntegerDigits > 0;
+      digits.isNotEmpty || _minimumIntegerDigits > 0;
 
   /// A group of methods that provide support for writing digits and other
   /// required characters into [_buffer] easily.
@@ -294,10 +274,23 @@ class SampleRateFormat {
   }
 
   void _addZero() {
-    _buffer.write(symbols.ZERO_DIGIT);
+    _buffer.write(_symbols.ZERO_DIGIT);
   }
 
   void _addDigit(int x) {
     _buffer.writeCharCode(x + _zeroOffset);
   }
+}
+
+// Suppress naming issues as changes would be breaking.
+// ignore_for_file: non_constant_identifier_names
+class _NumberSymbols {
+  final String DECIMAL_SEP,
+      ZERO_DIGIT,
+      NAN;
+
+  const _NumberSymbols(
+      {required this.DECIMAL_SEP,
+        required this.ZERO_DIGIT,
+        required this.NAN});
 }
