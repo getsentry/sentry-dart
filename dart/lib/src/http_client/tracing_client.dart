@@ -25,10 +25,17 @@ class TracingClient extends BaseClient {
       description: '${request.method} ${request.url}',
     );
 
-    // if the span is NoOp, we dont want to attach headers
+    // span.set_data("url", parsed_url.url)
+    // span.setData("http.query", parsedUrl.query)
+    // span.set_data("http.fragment", parsed_url.fragment)
+
+    // if the span is NoOp, we don't want to attach headers
     if (span is NoOpSentrySpan) {
       span = null;
     }
+
+    span?.setData('method', request.method);
+    span?.setData('url', request.url);
 
     StreamedResponse? response;
     try {
