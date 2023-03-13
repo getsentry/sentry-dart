@@ -35,8 +35,6 @@ void main() {
     });
 
     test('returns wrapped data base if performance enabled', () async {
-      fixture.options.tracesSampleRate = 1.0;
-
       final db = await openDatabase(inMemoryDatabasePath);
 
       expect(db is SentryDatabase, true);
@@ -45,6 +43,8 @@ void main() {
     });
 
     test('returns original data base if performance disabled', () async {
+      fixture.options.tracesSampleRate = null;
+
       final db = await openDatabase(inMemoryDatabasePath);
 
       expect(db is! SentryDatabase, true);
@@ -54,8 +54,6 @@ void main() {
 
     test('starts and finishes a open db span when performance enabled',
         () async {
-      fixture.options.tracesSampleRate = 1.0;
-
       final db = await openDatabase(inMemoryDatabasePath);
 
       final span = fixture.tracer.children.last;
@@ -73,7 +71,7 @@ void main() {
 
 class Fixture {
   final hub = MockHub();
-  final options = SentryOptions(dsn: fakeDsn);
+  final options = SentryOptions(dsn: fakeDsn)..tracesSampleRate = 1.0;
   final _context = SentryTransactionContext('name', 'operation');
   late final tracer = SentryTracer(_context, hub);
 }

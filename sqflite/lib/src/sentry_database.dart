@@ -50,6 +50,8 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
     options.sdk.addPackage(packageName, sdkVersion);
   }
 
+  // TODO: check if perf is enabled
+
   @override
   Future<void> close() {
     Future<void> future() async {

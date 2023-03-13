@@ -32,7 +32,6 @@ void main() {
     });
 
     test('returns wrapped data base if performance enabled', () async {
-      fixture.options.tracesSampleRate = 1.0;
       final db =
           await openDatabaseWithSentry(inMemoryDatabasePath, hub: fixture.hub);
 
@@ -53,7 +52,6 @@ void main() {
 
     test('returns wrapped read only data base if performance enabled ',
         () async {
-      fixture.options.tracesSampleRate = 1.0;
       final db = await openReadOnlyDatabaseWithSentry(
         inMemoryDatabasePath,
         hub: fixture.hub,
@@ -84,7 +82,6 @@ void main() {
     });
 
     test('returns wrapped data base if performance enabled', () async {
-      fixture.options.tracesSampleRate = 1.0;
       final db = await openReadOnlyDatabaseWithSentry(
         inMemoryDatabasePath,
         hub: fixture.hub,
@@ -103,7 +100,7 @@ void main() {
 
 class Fixture {
   final hub = MockHub();
-  final options = SentryOptions(dsn: fakeDsn);
+  final options = SentryOptions(dsn: fakeDsn)..tracesSampleRate = 1.0;
   final _context = SentryTransactionContext('name', 'operation');
   late final tracer = SentryTracer(_context, hub);
 }

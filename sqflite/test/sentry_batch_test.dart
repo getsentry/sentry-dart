@@ -42,9 +42,7 @@ void main() {
     });
 
     test('returns original batch if performance disabled', () async {
-      fixture.options.tracesSampleRate = null;
-
-      final db = await fixture.getDatabase();
+      final db = await fixture.getDatabase(tracesSampleRate: null);
       final batch = db.batch();
 
       expect(batch is! SentryBatch, true);
@@ -237,11 +235,14 @@ SELECT * FROM Product''';
 
 class Fixture {
   final hub = MockHub();
-  final options = SentryOptions(dsn: fakeDsn)..tracesSampleRate = 1.0;
+  final options = SentryOptions(dsn: fakeDsn);
   final _context = SentryTransactionContext('name', 'operation');
   late final tracer = SentryTracer(_context, hub);
 
-  Future<Database> getDatabase() async {
+  Future<Database> getDatabase({
+    double? tracesSampleRate = 1.0,
+  }) async {
+    options.tracesSampleRate = tracesSampleRate;
     final db = await openDatabase(inMemoryDatabasePath);
     await db.execute('''
       CREATE TABLE Product (
