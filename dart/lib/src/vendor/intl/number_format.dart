@@ -5,14 +5,8 @@ import 'number_symbols_data.dart';
 import 'intl_helpers.dart' as helpers;
 
 import 'constants.dart' as constants;
-import 'number_format_parser.dart';
-import 'number_parser.dart';
 
 // ignore_for_file: constant_identifier_names
-
-/// The function that we pass internally to NumberFormat to get
-/// the appropriate pattern (e.g. currency)
-typedef _PatternGetter = String? Function(NumberSymbols);
 
 /// Provides the ability to format a number in a locale-specific way.
 ///
@@ -61,12 +55,6 @@ class NumberFormat {
 
   /// Set to true if the format has explicitly set the grouping size.
   final bool _decimalSeparatorAlwaysShown;
-
-  /// Explicitly store if we are a currency format, and so should use the
-  /// appropriate number of decimal digits for a currency.
-  // TODO(alanknight): Handle currency formats which are specified in a raw
-  /// pattern, not using one of the currency constructors.
-  final bool _isForCurrency;
 
   int maximumIntegerDigits;
   int minimumIntegerDigits;
@@ -141,23 +129,11 @@ class NumberFormat {
   /// How many digits are there in the [multiplier].
   final int _multiplierDigits;
 
-  /// Stores the pattern used to create this format. This isn't used, but
-  /// is helpful in debugging.
-  final String? _pattern;
-
   /// The locale in which we print numbers.
   final String _locale;
 
   /// Caches the symbols used for our locale.
   final NumberSymbols _symbols;
-
-  /// The name of the currency to print, in ISO 4217 form.
-  String? currencyName;
-
-  /// The symbol to be used when formatting this as currency.
-  ///
-  /// For example, "$", "US$", or "€".
-  final String currencySymbol;
 
   /// The number of decimal places to use when formatting.
   ///
@@ -185,8 +161,8 @@ class NumberFormat {
 
   /// Create a number format that prints using [newPattern] as it applies in
   /// [locale].
-  factory NumberFormat([String? newPattern, String? locale]) =>
-      NumberFormat._forPattern(locale, (x) => newPattern);
+  factory NumberFormat([String? locale]) =>
+      NumberFormat._forPattern(locale);
 
   /// Create a number format that prints in a pattern we get from
   /// the [getPattern] function using the locale [locale].
@@ -194,60 +170,38 @@ class NumberFormat {
   /// The [currencySymbol] can either be specified directly, or we can pass a
   /// function [computeCurrencySymbol] that will compute it later, given other
   /// information, typically the verified locale.
-  factory NumberFormat._forPattern(String? locale, _PatternGetter getPattern,
-      {String? name,
-      String? currencySymbol,
-      int? decimalDigits,
-      bool lookupSimpleCurrencySymbol = false,
-      bool isForCurrency = false}) {
+  factory NumberFormat._forPattern(String? locale) {
     locale = helpers.verifiedLocale(locale, localeExists, null)!;
+
     var symbols = numberFormatSymbols[locale] as NumberSymbols;
     var localeZero = symbols.ZERO_DIGIT.codeUnitAt(0);
     var zeroOffset = localeZero - constants.asciiZeroCodeUnit;
-    name ??= symbols.DEF_CURRENCY_CODE;
-    if (currencySymbol == null && lookupSimpleCurrencySymbol) {
-      currencySymbol = constants.simpleCurrencySymbols[name];
-    }
-    currencySymbol ??= name;
-
-    var pattern = getPattern(symbols);
 
     return NumberFormat._(
-        name,
-        currencySymbol,
-        isForCurrency,
         locale,
         localeZero,
-        pattern,
         symbols,
-        zeroOffset,
-        NumberFormatParser.parse(symbols, pattern, isForCurrency,
-            currencySymbol, name, decimalDigits));
+        zeroOffset);
   }
 
   NumberFormat._(
-      this.currencyName,
-      this.currencySymbol,
-      this._isForCurrency,
       this._locale,
       this.localeZero,
-      this._pattern,
       this._symbols,
-      this._zeroOffset,
-      NumberFormatParseResult result)
-      : positivePrefix = result.positivePrefix,
-        negativePrefix = result.negativePrefix,
-        positiveSuffix = result.positiveSuffix,
-        negativeSuffix = result.negativeSuffix,
-        multiplier = result.multiplier,
-        _multiplierDigits = result.multiplierDigits,
-        minimumExponentDigits = result.minimumExponentDigits,
-        maximumIntegerDigits = result.maximumIntegerDigits,
-        minimumIntegerDigits = result.minimumIntegerDigits,
-        _maximumFractionDigits = result.maximumFractionDigits,
-        _minimumFractionDigits = result.minimumFractionDigits,
-        _decimalSeparatorAlwaysShown = result.decimalSeparatorAlwaysShown,
-        decimalDigits = result.decimalDigits;
+      this._zeroOffset)
+      : positivePrefix = "",
+        negativePrefix = "-",
+        positiveSuffix = "",
+        negativeSuffix = "",
+        multiplier = 1,
+        _multiplierDigits = 0,
+        minimumExponentDigits = 0,
+        maximumIntegerDigits = 40,
+        minimumIntegerDigits = 1,
+        _maximumFractionDigits = 16,
+        _minimumFractionDigits = 0,
+        _decimalSeparatorAlwaysShown = false,
+        decimalDigits = null;
 
   /// Return the locale code in which we operate, e.g. 'en_US' or 'pt'.
   String get locale => _locale;
@@ -276,10 +230,6 @@ class NumberFormat {
     _buffer.clear();
     return result;
   }
-
-  /// Parse the number represented by the string. If it's not
-  /// parseable, throws a [FormatException].
-  num parse(String text) => NumberParser(this, text).value!;
 
   /// Format the main part of the number in the form dictated by the pattern.
   void _formatNumber(number) {
@@ -356,7 +306,7 @@ class NumberFormat {
   }
 
   /// Whether to use SignificantDigits unconditionally for fraction digits.
-  bool _useDefaultSignificantDigits() => !_isForCurrency;
+  bool _useDefaultSignificantDigits() => true;
 
   /// How many digits after the decimal place should we display, given that
   /// by default, [fractionDigits] should be used, and there are up to
@@ -599,24 +549,6 @@ class NumberFormat {
     _buffer.writeCharCode(x + _zeroOffset);
   }
 
-  void _pad(int numberOfDigits, String basic) {
-    if (_zeroOffset == 0) {
-      _buffer.write(basic.padLeft(numberOfDigits, '0'));
-    } else {
-      _slowPad(numberOfDigits, basic);
-    }
-  }
-
-  /// Print padding up to [numberOfDigits] above what's included in [basic].
-  void _slowPad(int numberOfDigits, String basic) {
-    for (var i = 0; i < numberOfDigits - basic.length; i++) {
-      _add(symbols.ZERO_DIGIT);
-    }
-    for (var i = 0; i < basic.length; i++) {
-      _addDigit(basic.codeUnitAt(i));
-    }
-  }
-
   /// The code point for the locale's zero digit.
   ///
   ///  Initialized when the locale is set.
@@ -635,9 +567,6 @@ class NumberFormat {
   /// Returns the suffix for [x] based on wether it's positive or negative.
   /// In en_US there are no suffixes for positive or negative.
   String _signSuffix(x) => x.isNegative ? negativeSuffix : positiveSuffix;
-
-  @override
-  String toString() => 'NumberFormat($_locale, $_pattern)';
 }
 
 final _ln10 = log(10);

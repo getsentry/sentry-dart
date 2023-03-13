@@ -350,7 +350,7 @@ class SentryTracer extends ISentrySpan {
       return null;
     }
     return sampleRate != null
-        ? NumberFormat("#.################").format(sampleRate)
+        ? NumberFormat().format(sampleRate)
         : null;
   }
 
