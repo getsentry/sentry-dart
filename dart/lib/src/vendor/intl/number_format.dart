@@ -47,11 +47,6 @@ import 'constants.dart' as constants;
 /// limited. For example, at the moment, scientificPattern prints only as
 /// equivalent to "#E0" and does not take into account significant digits.
 class NumberFormat {
-  /// Variables to determine how number printing behaves.
-  final String negativePrefix;
-  final String positivePrefix;
-  final String negativeSuffix;
-  final String positiveSuffix;
 
   /// Set to true if the format has explicitly set the grouping size.
   final bool _decimalSeparatorAlwaysShown;
@@ -189,11 +184,7 @@ class NumberFormat {
       this.localeZero,
       this._symbols,
       this._zeroOffset)
-      : positivePrefix = "",
-        negativePrefix = "-",
-        positiveSuffix = "",
-        negativeSuffix = "",
-        multiplier = 1,
+      : multiplier = 1,
         _multiplierDigits = 0,
         minimumExponentDigits = 0,
         maximumIntegerDigits = 40,
@@ -220,11 +211,8 @@ class NumberFormat {
   /// Format [number] according to our pattern and return the formatted string.
   String format(dynamic number) {
     if (_isNaN(number)) return symbols.NAN;
-    if (_isInfinite(number)) return '${_signPrefix(number)}${symbols.INFINITY}';
 
-    _add(_signPrefix(number));
     _formatNumber(number.abs());
-    _add(_signSuffix(number));
 
     var result = _buffer.toString();
     _buffer.clear();
@@ -559,14 +547,6 @@ class NumberFormat {
   /// In other words, a constant _localeZero - _zero. Initialized when
   /// the locale is set.
   final int _zeroOffset;
-
-  /// Returns the prefix for [x] based on whether it's positive or negative.
-  /// In en_US this would be '' and '-' respectively.
-  String _signPrefix(x) => x.isNegative ? negativePrefix : positivePrefix;
-
-  /// Returns the suffix for [x] based on wether it's positive or negative.
-  /// In en_US there are no suffixes for positive or negative.
-  String _signSuffix(x) => x.isNegative ? negativeSuffix : positiveSuffix;
 }
 
 final _ln10 = log(10);
