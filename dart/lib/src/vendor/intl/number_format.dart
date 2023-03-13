@@ -47,28 +47,15 @@ class NumberFormat {
   /// Set to true if the format has explicitly set the grouping size.
   final bool _decimalSeparatorAlwaysShown;
 
-  int maximumIntegerDigits;
   int minimumIntegerDigits;
 
-  bool _explicitMaximumFractionDigits = false;
+  final bool _explicitMaximumFractionDigits = false;
   int _maximumFractionDigits;
   int get maximumFractionDigits => _maximumFractionDigits;
-  set maximumFractionDigits(int x) {
-    significantDigitsInUse = false;
-    _explicitMaximumFractionDigits = true;
-    _maximumFractionDigits = x;
-    _minimumFractionDigits = min(_minimumFractionDigits, x);
-  }
 
-  bool _explicitMinimumFractionDigits = false;
+  final bool _explicitMinimumFractionDigits = false;
   int _minimumFractionDigits;
   int get minimumFractionDigits => _minimumFractionDigits;
-  set minimumFractionDigits(int x) {
-    significantDigitsInUse = false;
-    _explicitMinimumFractionDigits = true;
-    _minimumFractionDigits = x;
-    _maximumFractionDigits = max(_maximumFractionDigits, x);
-  }
 
   int minimumExponentDigits;
 
@@ -113,13 +100,6 @@ class NumberFormat {
 
   bool significantDigitsInUse = false;
 
-  /// For percent and permille, what are we multiplying by in order to
-  /// get the printed value, e.g. 100 for percent.
-  final int multiplier;
-
-  /// How many digits are there in the [multiplier].
-  final int _multiplierDigits;
-
   /// Caches the symbols used for our locale.
   final NumberSymbols _symbols;
 
@@ -147,52 +127,33 @@ class NumberFormat {
   /// at a time. In languages with threads we'd need to pass this on the stack.
   final StringBuffer _buffer = StringBuffer();
 
-  /// Create a number format that prints using [newPattern] as it applies in
-  /// [locale].
-  factory NumberFormat([String? locale]) =>
-      NumberFormat._forPattern(locale);
-
   /// Create a number format that prints in a pattern we get from
   /// the [getPattern] function using the locale [locale].
   ///
   /// The [currencySymbol] can either be specified directly, or we can pass a
   /// function [computeCurrencySymbol] that will compute it later, given other
   /// information, typically the verified locale.
-  factory NumberFormat._forPattern(String? locale) {
+  factory NumberFormat([String? locale]) {
     var symbols = NumberSymbols(
-        NAME: "en",
         DECIMAL_SEP: '.',
-        GROUP_SEP: ',',
-        PERCENT: '%',
         ZERO_DIGIT: '0',
-        PLUS_SIGN: '+',
-        MINUS_SIGN: '-',
-        EXP_SYMBOL: 'E',
-        PERMILL: '\u2030',
-        INFINITY: '\u221E',
         NAN: 'NaN',
-        DECIMAL_PATTERN: '#,##0.###',
-        SCIENTIFIC_PATTERN: '#E0',
-        PERCENT_PATTERN: '#,##0%',
-        CURRENCY_PATTERN: '\u00A4#,##0.00',
-        DEF_CURRENCY_CODE: 'USD');
+    );
     var localeZero = symbols.ZERO_DIGIT.codeUnitAt(0);
     var zeroOffset = localeZero - '0'.codeUnitAt(0);
 
     return NumberFormat._(
         localeZero,
         symbols,
-        zeroOffset);
+        zeroOffset,
+    );
   }
 
   NumberFormat._(
       this.localeZero,
       this._symbols,
       this._zeroOffset)
-      : multiplier = 1,
-        _multiplierDigits = 0,
-        minimumExponentDigits = 0,
-        maximumIntegerDigits = 40,
+      : minimumExponentDigits = 0,
         minimumIntegerDigits = 1,
         _maximumFractionDigits = 16,
         _minimumFractionDigits = 0,
@@ -345,7 +306,7 @@ class NumberFormat {
 
           if (minimumSignificantDigits != null) {
             var remainingSignificantDigits =
-                minimumSignificantDigits! - _multiplierDigits - integerLength;
+                minimumSignificantDigits! - integerLength;
 
             fractionDigits = max(0, remainingSignificantDigits);
             if (minimumSignificantDigitsStrict) {
@@ -361,7 +322,7 @@ class NumberFormat {
               integerPart = 0;
               fractionDigits = 0;
             } else if (maximumSignificantDigits! <
-                integerLength + _multiplierDigits) {
+                integerLength) {
               // We may have to round.
               var divideBy = pow(10, integerLength - maximumSignificantDigits!);
               if (maximumSignificantDigits! < integerLength) {
@@ -371,7 +332,7 @@ class NumberFormat {
               fractionDigits = 0;
             } else {
               fractionDigits =
-                  maximumSignificantDigits! - integerLength - _multiplierDigits;
+                  maximumSignificantDigits! - integerLength;
               fractionDigits =
                   _adjustFractionDigits(fractionDigits, fractionDigits);
             }
@@ -390,7 +351,7 @@ class NumberFormat {
       computeFractionDigits();
 
       power = pow(10, fractionDigits) as int;
-      digitMultiplier = power * multiplier;
+      digitMultiplier = power;
 
       // Multiply out to the number of decimal places and the percent, then
       // round. For fixed-size integer types this should always be zero, so
@@ -464,7 +425,7 @@ class NumberFormat {
     var extra = extraIntegerDigits == 0 ? '' : extraIntegerDigits.toString();
     var intDigits = _mainIntegerDigits(integerPart);
     var paddedExtra =
-        intDigits.isEmpty ? extra : extra.padLeft(_multiplierDigits, '0');
+        intDigits.isEmpty ? extra : extra.padLeft(0, '0');
     return '$intDigits$paddedExtra$paddingDigits';
   }
 
