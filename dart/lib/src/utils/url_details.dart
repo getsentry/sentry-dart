@@ -13,11 +13,9 @@ class UrlDetails {
     if (span == null) {
       return;
     }
-
     if (url != null) {
       span.setData('url', url);
     }
-
     if (query != null) {
       span.setData("http.query", query);
     }

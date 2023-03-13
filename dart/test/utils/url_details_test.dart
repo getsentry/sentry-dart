@@ -1,6 +1,5 @@
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/utils/url_details.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -16,7 +15,6 @@ void main() {
     final span = MockSpan();
     urlDetails.applyToSpan(span);
 
-    verify(span.setData("method", "GET"));
     verify(span.setData("url", "https://sentry.io/api"));
     verify(span.setData("http.query", "q=1"));
     verify(span.setData("http.fragment", "top"));
@@ -54,7 +52,6 @@ void main() {
         UrlDetails(url: "https://sentry.io/api", query: "q=1", fragment: "top");
     final request = SentryRequest().withUriDetails(urlDetails);
 
-    expect(request.method, "GET");
     expect(request.url, "https://sentry.io/api");
     expect(request.queryString, "q=1");
     expect(request.fragment, "top");
