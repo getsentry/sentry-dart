@@ -2,9 +2,10 @@ import 'dart:math';
 
 import 'package:meta/meta.dart';
 
+/// Implementation details from `intl` package
+/// https://pub.dev/packages/intl
 @internal
 class SampleRateFormat {
-
   int _minimumIntegerDigits;
   int _maximumFractionDigits;
   int _minimumFractionDigits;
@@ -27,26 +28,23 @@ class SampleRateFormat {
 
   factory SampleRateFormat() {
     var symbols = _NumberSymbols(
-        DECIMAL_SEP: '.',
-        ZERO_DIGIT: '0',
-        NAN: 'NaN',
+      DECIMAL_SEP: '.',
+      ZERO_DIGIT: '0',
+      NAN: 'NaN',
     );
     var localeZero = symbols.ZERO_DIGIT.codeUnitAt(0);
     var zeroOffset = localeZero - '0'.codeUnitAt(0);
 
     return SampleRateFormat._(
-        symbols,
-        zeroOffset,
+      symbols,
+      zeroOffset,
     );
   }
 
-  SampleRateFormat._(
-      this._symbols,
-      this._zeroOffset)
+  SampleRateFormat._(this._symbols, this._zeroOffset)
       : _minimumIntegerDigits = 1,
         _maximumFractionDigits = 16,
         _minimumFractionDigits = 0;
-
 
   /// Format the sample rate
   String format(dynamic sampleRate) {
@@ -212,7 +210,8 @@ class SampleRateFormat {
     // so pad out the rest of it with zeros.
     var paddingDigits = '';
     if (integerPart is num && integerPart > _maxInt) {
-      var howManyDigitsTooBig = (log(integerPart) / log(10)).ceil() - _maxDigits;
+      var howManyDigitsTooBig =
+          (log(integerPart) / log(10)).ceil() - _maxDigits;
       num divisor = pow(10, howManyDigitsTooBig).round();
       // pow() produces 0 if the result is too large for a 64-bit int.
       // If that happens, use a floating point divisor instead.
@@ -223,8 +222,7 @@ class SampleRateFormat {
 
     var extra = extraIntegerDigits == 0 ? '' : extraIntegerDigits.toString();
     var intDigits = _mainIntegerDigits(integerPart);
-    var paddedExtra =
-        intDigits.isEmpty ? extra : extra.padLeft(0, '0');
+    var paddedExtra = intDigits.isEmpty ? extra : extra.padLeft(0, '0');
     return '$intDigits$paddedExtra$paddingDigits';
   }
 
@@ -243,8 +241,7 @@ class SampleRateFormat {
   /// Format the part after the decimal place in a fixed point number.
   void _formatFractionPart(String fractionPart, int minDigits) {
     var fractionLength = fractionPart.length;
-    while (fractionPart.codeUnitAt(fractionLength - 1) ==
-            '0'.codeUnitAt(0) &&
+    while (fractionPart.codeUnitAt(fractionLength - 1) == '0'.codeUnitAt(0) &&
         fractionLength > minDigits + 1) {
       fractionLength--;
     }
@@ -285,12 +282,8 @@ class SampleRateFormat {
 // Suppress naming issues as changes would be breaking.
 // ignore_for_file: non_constant_identifier_names
 class _NumberSymbols {
-  final String DECIMAL_SEP,
-      ZERO_DIGIT,
-      NAN;
+  final String DECIMAL_SEP, ZERO_DIGIT, NAN;
 
   const _NumberSymbols(
-      {required this.DECIMAL_SEP,
-        required this.ZERO_DIGIT,
-        required this.NAN});
+      {required this.DECIMAL_SEP, required this.ZERO_DIGIT, required this.NAN});
 }

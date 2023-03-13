@@ -1,5 +1,7 @@
+import 'package:intl/intl.dart';
 import 'package:sentry/src/utils/sample_rate_format.dart';
 import 'package:test/test.dart';
+import 'dart:math';
 
 void main() {
   test('format', () {
@@ -27,16 +29,25 @@ void main() {
     ];
 
     for (var inputAndOutput in inputsAndOutputs) {
-      expect(SampleRateFormat().format(inputAndOutput.i),
-          inputAndOutput.o);
+      expect(SampleRateFormat().format(inputAndOutput.i), inputAndOutput.o);
     }
   });
 
-  test('input smaller 0 is capped',  () {
+  test('formats same as intl', () {
+    for (var i = 0; i < 1000; i++) {
+      var doubleValue = Random().nextDouble();
+      expect(
+        NumberFormat('#.################').format(doubleValue),
+        SampleRateFormat().format(doubleValue),
+      );
+    }
+  });
+
+  test('input smaller 0 is capped', () {
     expect(SampleRateFormat().format(-1), '0');
   });
 
-  test('input larger 1 is capped',  () {
+  test('input larger 1 is capped', () {
     expect(SampleRateFormat().format(1.1), '1');
   });
 }

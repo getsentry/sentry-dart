@@ -349,9 +349,7 @@ class SentryTracer extends ISentrySpan {
     if (!isValidSampleRate(sampleRate)) {
       return null;
     }
-    return sampleRate != null
-        ? SampleRateFormat().format(sampleRate)
-        : null;
+    return sampleRate != null ? SampleRateFormat().format(sampleRate) : null;
   }
 
   bool _isHighQualityTransactionName(SentryTransactionNameSource source) {
