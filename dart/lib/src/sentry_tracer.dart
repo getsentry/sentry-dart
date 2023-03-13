@@ -4,7 +4,7 @@ import 'package:meta/meta.dart';
 
 import '../sentry.dart';
 import 'sentry_tracer_finish_status.dart';
-import 'vendor/intl/number_format.dart';
+import 'utils/sample_rate_format.dart';
 
 @internal
 class SentryTracer extends ISentrySpan {
@@ -350,7 +350,7 @@ class SentryTracer extends ISentrySpan {
       return null;
     }
     return sampleRate != null
-        ? NumberFormat().format(sampleRate)
+        ? SampleRateFormat().format(sampleRate)
         : null;
   }
 

@@ -1,4 +1,4 @@
-import 'package:sentry/src/vendor/intl/number_format.dart';
+import 'package:sentry/src/utils/sample_rate_format.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -27,9 +27,17 @@ void main() {
     ];
 
     for (var inputAndOutput in inputsAndOutputs) {
-      expect(NumberFormat().format(inputAndOutput.i),
+      expect(SampleRateFormat().format(inputAndOutput.i),
           inputAndOutput.o);
     }
+  });
+
+  test('input smaller 0 is capped',  () {
+    expect(SampleRateFormat().format(-1), '0');
+  });
+
+  test('input larger 1 is capped',  () {
+    expect(SampleRateFormat().format(1.1), '1');
   });
 }
 
