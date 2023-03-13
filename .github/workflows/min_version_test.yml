@@ -15,7 +15,7 @@ jobs:
         with:
           access_token: ${{ github.token }}
 
-  test-android:
+  build-android:
     runs-on: macos-latest
     timeout-minutes: 30
 
