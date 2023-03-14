@@ -13,7 +13,7 @@ class UrlUtils {
     final fragmentIndex = url.indexOf('#');
 
     if (queryIndex > -1 && fragmentIndex > -1 && fragmentIndex < queryIndex) {
-      // url considered malformed because it has fragment
+      // url considered malformed because of fragment position
       return UrlDetails();
     } else {
       final uri = Uri.parse(url);
