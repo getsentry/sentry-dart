@@ -33,6 +33,8 @@ class HttpSanitizer {
     mutableHeaders?.remove('Authorization');
     mutableHeaders?.remove('cookies');
     mutableHeaders?.remove('Cookies');
+    mutableHeaders?.remove('cookie');
+    mutableHeaders?.remove('Cookie');
     return mutableHeaders;
   }
 

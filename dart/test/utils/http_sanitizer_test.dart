@@ -151,11 +151,15 @@ void main() {
 
   test('removes Cookies headers', () {
     final sanitizedHeaders = HttpSanitizer.sanitizedHeaders(
-        {'Cookies': 'om', 'cookies': 'nom'});
+        {'Cookies': 'om', 'cookies': 'nom', 'Cookie': 'om', 'cookie': 'nom'});
     expect(sanitizedHeaders, isNotNull);
     expect(sanitizedHeaders?['Cookies'], isNull);
     expect(sanitizedHeaders?['cookies'], isNull);
+    expect(sanitizedHeaders?['Cookie'], isNull);
+    expect(sanitizedHeaders?['cookie'], isNull);
     expect(sanitizedHeaders?.containsKey('Cookies'), false);
     expect(sanitizedHeaders?.containsKey('cookies'), false);
+    expect(sanitizedHeaders?.containsKey('Cookie'), false);
+    expect(sanitizedHeaders?.containsKey('cookie'), false);
   });
 }
