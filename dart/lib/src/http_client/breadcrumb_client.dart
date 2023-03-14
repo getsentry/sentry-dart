@@ -77,7 +77,8 @@ class BreadcrumbClient extends BaseClient {
     } finally {
       stopwatch.stop();
 
-      final urlDetails = UrlSanitizer.sanitize(request.url.toString()) ?? UrlDetails();
+      final urlDetails =
+          UrlSanitizer.sanitize(request.url.toString()) ?? UrlDetails();
 
       var breadcrumb = Breadcrumb.http(
         level: requestHadException ? SentryLevel.error : SentryLevel.info,

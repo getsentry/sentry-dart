@@ -15,10 +15,20 @@ class SentryTransformer implements Transformer {
 
   @override
   Future<String> transformRequest(RequestOptions options) async {
+    final urlDetails = UrlSanitizer.sanitize(options.uri.toString());
+    var description = options.method;
+    if (urlDetails != null) {
+      description += ' ${urlDetails.urlOrFallback}';
+    }
+
     final span = _hub.getSpan()?.startChild(
           _serializeOp,
-          description: '${options.method} ${options.uri}',
+          description: description,
         );
+
+    span?.setData('method', options.method);
+    urlDetails?.applyToSpan(span);
+
     String? request;
     try {
       request = await _transformer.transformRequest(options);
@@ -39,10 +49,20 @@ class SentryTransformer implements Transformer {
     RequestOptions options,
     ResponseBody response,
   ) async {
+    final urlDetails = UrlSanitizer.sanitize(options.uri.toString());
+    var description = options.method;
+    if (urlDetails != null) {
+      description += ' ${urlDetails.urlOrFallback}';
+    }
+
     final span = _hub.getSpan()?.startChild(
           _serializeOp,
-          description: '${options.method} ${options.uri}',
+          description: description,
         );
+
+    span?.setData('method', options.method);
+    urlDetails?.applyToSpan(span);
+
     dynamic transformedResponse;
     try {
       transformedResponse =
