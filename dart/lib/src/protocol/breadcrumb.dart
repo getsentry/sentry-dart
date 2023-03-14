@@ -3,7 +3,7 @@ import 'package:meta/meta.dart';
 import '../utils.dart';
 import '../protocol.dart';
 
-/// Structed data to describe more information pior to the event captured.
+/// Structured data to describe more information prior to the event captured.
 /// See `Sentry.captureEvent()`.
 ///
 /// The outgoing JSON representation is:
