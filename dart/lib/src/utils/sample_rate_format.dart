@@ -30,7 +30,6 @@ class SampleRateFormat {
     var symbols = _NumberSymbols(
       DECIMAL_SEP: '.',
       ZERO_DIGIT: '0',
-      NAN: 'NaN',
     );
     var localeZero = symbols.ZERO_DIGIT.codeUnitAt(0);
     var zeroOffset = localeZero - '0'.codeUnitAt(0);
@@ -48,18 +47,23 @@ class SampleRateFormat {
 
   /// Format the sample rate
   String format(dynamic sampleRate) {
-    if (_isNaN(sampleRate)) return _symbols.NAN;
-    if (_isSmallerZero(sampleRate)) {
-      sampleRate = 0;
-    }
-    if (_isLargerOne(sampleRate)) {
-      sampleRate = 1;
-    }
-    _formatFixed(sampleRate.abs());
+    try {
+      if (_isNaN(sampleRate)) return '0';
+      if (_isSmallerZero(sampleRate)) {
+        sampleRate = 0;
+      }
+      if (_isLargerOne(sampleRate)) {
+        sampleRate = 1;
+      }
+      _formatFixed(sampleRate.abs());
 
-    var result = _buffer.toString();
-    _buffer.clear();
-    return result;
+      var result = _buffer.toString();
+      _buffer.clear();
+      return result;
+    } catch (_) {
+      _buffer.clear();
+      return '0';
+    }
   }
 
   /// Used to test if we have exceeded integer limits.
@@ -282,8 +286,7 @@ class SampleRateFormat {
 // Suppress naming issues as changes would be breaking.
 // ignore_for_file: non_constant_identifier_names
 class _NumberSymbols {
-  final String DECIMAL_SEP, ZERO_DIGIT, NAN;
+  final String DECIMAL_SEP, ZERO_DIGIT;
 
-  const _NumberSymbols(
-      {required this.DECIMAL_SEP, required this.ZERO_DIGIT, required this.NAN});
+  const _NumberSymbols({required this.DECIMAL_SEP, required this.ZERO_DIGIT});
 }

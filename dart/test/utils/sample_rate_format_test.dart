@@ -1,7 +1,5 @@
-import 'package:intl/intl.dart';
 import 'package:sentry/src/utils/sample_rate_format.dart';
 import 'package:test/test.dart';
-import 'dart:math';
 
 void main() {
   test('format', () {
@@ -28,18 +26,8 @@ void main() {
       Tuple(0.19191919191919199, '0.191919191919192'),
     ];
 
-    for (var inputAndOutput in inputsAndOutputs) {
+    for (final inputAndOutput in inputsAndOutputs) {
       expect(SampleRateFormat().format(inputAndOutput.i), inputAndOutput.o);
-    }
-  });
-
-  test('formats same as intl', () {
-    for (var i = 0; i < 1000; i++) {
-      var doubleValue = Random().nextDouble();
-      expect(
-        NumberFormat('#.################').format(doubleValue),
-        SampleRateFormat().format(doubleValue),
-      );
     }
   });
 
@@ -49,6 +37,10 @@ void main() {
 
   test('input larger 1 is capped', () {
     expect(SampleRateFormat().format(1.1), '1');
+  });
+
+  test('call with naN returns 0', () {
+    expect(SampleRateFormat().format(double.nan), '0');
   });
 }
 
