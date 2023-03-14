@@ -31,6 +31,8 @@ class HttpSanitizer {
         headers != null ? Map<String, String>.from(headers) : null;
     mutableHeaders?.remove('authorization');
     mutableHeaders?.remove('Authorization');
+    mutableHeaders?.remove('cookies');
+    mutableHeaders?.remove('Cookies');
     return mutableHeaders;
   }
 
