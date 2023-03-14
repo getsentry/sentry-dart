@@ -23,7 +23,6 @@ class TracingClientAdapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future? cancelFuture,
   ) async {
-    // ignore: invalid_use_of_internal_member
     final urlDetails = UrlSanitizer.sanitize(options.uri.toString());
 
     var description = options.method;
