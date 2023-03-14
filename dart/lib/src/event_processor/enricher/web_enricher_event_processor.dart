@@ -56,7 +56,7 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
         .copyWith(
           headers: header,
         )
-        .withUriDetails(urlDetails);
+        .withUrlDetails(urlDetails);
   }
 
   SentryDevice _getDevice(SentryDevice? device) {

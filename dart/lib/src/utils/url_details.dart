@@ -27,12 +27,12 @@ class UrlDetails {
 }
 
 extension SentryRequestWithUriDetails on SentryRequest {
-  SentryRequest withUriDetails(UrlDetails? urlDetails) {
+  SentryRequest withUrlDetails(UrlDetails? urlDetails) {
     if (urlDetails == null) {
       return this;
     }
     return copyWith(
-      url: urlDetails.url,
+      url: urlDetails.urlOrFallback,
       queryString: urlDetails.query,
       fragment: urlDetails.fragment,
     );
