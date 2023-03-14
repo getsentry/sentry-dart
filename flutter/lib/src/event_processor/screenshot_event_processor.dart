@@ -19,7 +19,7 @@ class ScreenshotEventProcessor extends EventProcessor {
       sentryScreenshotWidgetGlobalKey.currentContext != null;
 
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {
+  FutureOr<SentryEvent?> apply(SentryEvent event, {Hint? hint}) async {
     if (event.exceptions == null &&
         event.throwable == null &&
         _hasSentryScreenshotWidget) {
