@@ -39,7 +39,7 @@ void main() {
     expect(SampleRateFormat().format(1.1), '1');
   });
 
-  test('call with naN returns 0', () {
+  test('call with NaN returns 0', () {
     expect(SampleRateFormat().format(double.nan), '0');
   });
 }
