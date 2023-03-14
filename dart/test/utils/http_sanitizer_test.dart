@@ -1,13 +1,13 @@
-import 'package:sentry/src/utils/url_sanitizer.dart';
+import 'package:sentry/src/utils/http_sanitizer.dart';
 import 'package:test/test.dart';
 
 void main() {
   test('returns null for null', () {
-    expect(UrlSanitizer.sanitize(null), isNull);
+    expect(HttpSanitizer.sanitizeUrl(null), isNull);
   });
 
   test('strips user info with user and password from http', () {
-    final sanitizedUri = UrlSanitizer.sanitize(
+    final sanitizedUri = HttpSanitizer.sanitizeUrl(
         "http://user:password@sentry.io?q=1&s=2&token=secret#top");
     expect(sanitizedUri?.url, "http://[Filtered]:[Filtered]@sentry.io");
     expect(sanitizedUri?.query, "q=1&s=2&token=secret");
@@ -15,7 +15,7 @@ void main() {
   });
 
   test('strips user info with user and password from https', () {
-    final sanitizedUri = UrlSanitizer.sanitize(
+    final sanitizedUri = HttpSanitizer.sanitizeUrl(
         "https://user:password@sentry.io?q=1&s=2&token=secret#top");
     expect(sanitizedUri?.url, "https://[Filtered]:[Filtered]@sentry.io");
     expect(sanitizedUri?.query, "q=1&s=2&token=secret");
@@ -24,7 +24,7 @@ void main() {
 
   test('splits url', () {
     final sanitizedUri =
-        UrlSanitizer.sanitize("https://sentry.io?q=1&s=2&token=secret#top");
+        HttpSanitizer.sanitizeUrl("https://sentry.io?q=1&s=2&token=secret#top");
     expect(sanitizedUri?.url, "https://sentry.io");
     expect(sanitizedUri?.query, "q=1&s=2&token=secret");
     expect(sanitizedUri?.fragment, "top");
@@ -32,35 +32,38 @@ void main() {
 
   test('splits relative url', () {
     final sanitizedUri =
-        UrlSanitizer.sanitize("/users/1?q=1&s=2&token=secret#top");
+        HttpSanitizer.sanitizeUrl("/users/1?q=1&s=2&token=secret#top");
     expect(sanitizedUri?.url, "/users/1");
     expect(sanitizedUri?.query, "q=1&s=2&token=secret");
     expect(sanitizedUri?.fragment, "top");
   });
 
   test('splits relative root url', () {
-    final sanitizedUri = UrlSanitizer.sanitize("/?q=1&s=2&token=secret#top");
+    final sanitizedUri =
+        HttpSanitizer.sanitizeUrl("/?q=1&s=2&token=secret#top");
     expect(sanitizedUri?.url, "/");
     expect(sanitizedUri?.query, "q=1&s=2&token=secret");
     expect(sanitizedUri?.fragment, "top");
   });
 
   test('splits url with just query and fragment', () {
-    final sanitizedUri = UrlSanitizer.sanitize("/?q=1&s=2&token=secret#top");
+    final sanitizedUri =
+        HttpSanitizer.sanitizeUrl("/?q=1&s=2&token=secret#top");
     expect(sanitizedUri?.url, "/");
     expect(sanitizedUri?.query, "q=1&s=2&token=secret");
     expect(sanitizedUri?.fragment, "top");
   });
 
   test('splits relative url with query only', () {
-    final sanitizedUri = UrlSanitizer.sanitize("/users/1?q=1&s=2&token=secret");
+    final sanitizedUri =
+        HttpSanitizer.sanitizeUrl("/users/1?q=1&s=2&token=secret");
     expect(sanitizedUri?.url, "/users/1");
     expect(sanitizedUri?.query, "q=1&s=2&token=secret");
     expect(sanitizedUri?.fragment, isNull);
   });
 
   test('splits relative url with fragment only', () {
-    final sanitizedUri = UrlSanitizer.sanitize("/users/1#top");
+    final sanitizedUri = HttpSanitizer.sanitizeUrl("/users/1#top");
     expect(sanitizedUri?.url, "/users/1");
     expect(sanitizedUri?.query, isNull);
     expect(sanitizedUri?.fragment, "top");
@@ -68,21 +71,21 @@ void main() {
 
   test('strips user info with user and password without query', () {
     final sanitizedUri =
-        UrlSanitizer.sanitize("https://user:password@sentry.io#top");
+        HttpSanitizer.sanitizeUrl("https://user:password@sentry.io#top");
     expect(sanitizedUri?.url, "https://[Filtered]:[Filtered]@sentry.io");
     expect(sanitizedUri?.query, isNull);
     expect(sanitizedUri?.fragment, "top");
   });
 
   test('splits without query', () {
-    final sanitizedUri = UrlSanitizer.sanitize("https://sentry.io#top");
+    final sanitizedUri = HttpSanitizer.sanitizeUrl("https://sentry.io#top");
     expect(sanitizedUri?.url, "https://sentry.io");
     expect(sanitizedUri?.query, isNull);
     expect(sanitizedUri?.fragment, "top");
   });
 
   test('strips user info with user and password without fragment', () {
-    final sanitizedUri = UrlSanitizer.sanitize(
+    final sanitizedUri = HttpSanitizer.sanitizeUrl(
         "https://user:password@sentry.io?q=1&s=2&token=secret");
     expect(sanitizedUri?.url, "https://[Filtered]:[Filtered]@sentry.io");
     expect(sanitizedUri?.query, "q=1&s=2&token=secret");
@@ -91,21 +94,21 @@ void main() {
 
   test('strips user info with user and password without query or fragment', () {
     final sanitizedUri =
-        UrlSanitizer.sanitize("https://user:password@sentry.io");
+        HttpSanitizer.sanitizeUrl("https://user:password@sentry.io");
     expect(sanitizedUri?.url, "https://[Filtered]:[Filtered]@sentry.io");
     expect(sanitizedUri?.query, isNull);
     expect(sanitizedUri?.fragment, isNull);
   });
 
   test('splits url without query or fragment and no authority', () {
-    final sanitizedUri = UrlSanitizer.sanitize("https://sentry.io");
+    final sanitizedUri = HttpSanitizer.sanitizeUrl("https://sentry.io");
     expect(sanitizedUri?.url, "https://sentry.io");
     expect(sanitizedUri?.query, isNull);
     expect(sanitizedUri?.fragment, isNull);
   });
 
   test('strips user info with user only', () {
-    final sanitizedUri = UrlSanitizer.sanitize(
+    final sanitizedUri = HttpSanitizer.sanitizeUrl(
         "https://user@sentry.io?q=1&s=2&token=secret#top");
     expect(sanitizedUri?.url, "https://[Filtered]@sentry.io");
     expect(sanitizedUri?.query, "q=1&s=2&token=secret");
@@ -113,7 +116,7 @@ void main() {
   });
 
   test('no details extracted with query after fragment', () {
-    final sanitizedUri = UrlSanitizer.sanitize(
+    final sanitizedUri = HttpSanitizer.sanitizeUrl(
         "https://user:password@sentry.io#fragment?q=1&s=2&token=secret");
     expect(sanitizedUri?.url, isNull);
     expect(sanitizedUri?.query, isNull);
@@ -121,7 +124,7 @@ void main() {
   });
 
   test('no details extracted with query after fragment without authority', () {
-    final sanitizedUri = UrlSanitizer.sanitize(
+    final sanitizedUri = HttpSanitizer.sanitizeUrl(
         "https://sentry.io#fragment?q=1&s=2&token=secret");
     expect(sanitizedUri?.url, isNull);
     expect(sanitizedUri?.query, isNull);
@@ -129,10 +132,20 @@ void main() {
   });
 
   test('no details extracted from malformed url', () {
-    final sanitizedUri = UrlSanitizer.sanitize(
+    final sanitizedUri = HttpSanitizer.sanitizeUrl(
         "htps://user@sentry.io#fragment?q=1&s=2&token=secret");
     expect(sanitizedUri?.url, isNull);
     expect(sanitizedUri?.query, isNull);
     expect(sanitizedUri?.fragment, isNull);
+  });
+
+  test('removes auth headers', () {
+    final sanitizedHeaders = HttpSanitizer.sanitizedHeaders(
+        {'authorization': 'foo', 'Authorization': 'foo'});
+    expect(sanitizedHeaders, isNotNull);
+    expect(sanitizedHeaders?['authorization'], isNull);
+    expect(sanitizedHeaders?['Authorization'], isNull);
+    expect(sanitizedHeaders?.containsKey('authorization'), false);
+    expect(sanitizedHeaders?.containsKey('Authorization'), false);
   });
 }

@@ -25,16 +25,3 @@ class UrlDetails {
     }
   }
 }
-
-extension SentryRequestWithUriDetails on SentryRequest {
-  SentryRequest withUrlDetails(UrlDetails? urlDetails) {
-    if (urlDetails == null) {
-      return this;
-    }
-    return copyWith(
-      url: urlDetails.urlOrFallback,
-      queryString: urlDetails.query,
-      fragment: urlDetails.fragment,
-    );
-  }
-}

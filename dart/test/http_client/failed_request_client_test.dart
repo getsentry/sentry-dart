@@ -195,6 +195,24 @@ void main() {
       expect(event.contexts.response, isNull);
     });
 
+    test('removes authorization headers', () async {
+      fixture._hub.options.captureFailedRequests = true;
+      final sut = fixture.getSut(
+        client: createThrowingClient(),
+      );
+
+      await expectLater(
+        () async => await sut.get(requestUri,
+            headers: {'authorization': 'foo', 'Authorization': 'foo'}),
+        throwsException,
+      );
+
+      final event = fixture.transport.events.first;
+      expect(fixture.transport.calls, 1);
+      expect(event.request, isNotNull);
+      expect(event.request?.headers.isEmpty, true);
+    });
+
     test('pii is not send on invalid status code', () async {
       final sut = fixture.getSut(
         client: fixture.getClient(statusCode: 404),

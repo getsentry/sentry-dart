@@ -48,9 +48,8 @@ void main() {
   });
 
   test('applies details to request', () {
-    final urlDetails =
-        UrlDetails(url: "https://sentry.io/api", query: "q=1", fragment: "top");
-    final request = SentryRequest().withUrlDetails(urlDetails);
+    final url = "https://sentry.io/api?q=1#top";
+    final request = SentryRequest(url: url).sanitized();
 
     expect(request.url, "https://sentry.io/api");
     expect(request.queryString, "q=1");
@@ -58,8 +57,7 @@ void main() {
   });
 
   test('applies details without fragment and url to request', () {
-    final urlDetails = UrlDetails(url: "https://sentry.io/api");
-    final request = SentryRequest().withUrlDetails(urlDetails);
+    final request = SentryRequest(url: 'https://sentry.io/api').sanitized();
 
     expect(request.url, "https://sentry.io/api");
     expect(request.queryString, isNull);

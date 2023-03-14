@@ -15,7 +15,7 @@ class SentryTransformer implements Transformer {
 
   @override
   Future<String> transformRequest(RequestOptions options) async {
-    final urlDetails = UrlSanitizer.sanitize(options.uri.toString());
+    final urlDetails = HttpSanitizer.sanitizeUrl(options.uri.toString());
     var description = options.method;
     if (urlDetails != null) {
       description += ' ${urlDetails.urlOrFallback}';
@@ -49,7 +49,7 @@ class SentryTransformer implements Transformer {
     RequestOptions options,
     ResponseBody response,
   ) async {
-    final urlDetails = UrlSanitizer.sanitize(options.uri.toString());
+    final urlDetails = HttpSanitizer.sanitizeUrl(options.uri.toString());
     var description = options.method;
     if (urlDetails != null) {
       description += ' ${urlDetails.urlOrFallback}';

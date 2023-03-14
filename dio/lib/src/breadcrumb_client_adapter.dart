@@ -56,7 +56,7 @@ class BreadcrumbClientAdapter implements HttpClientAdapter {
       stopwatch.stop();
 
       final urlDetails =
-          UrlSanitizer.sanitize(options.uri.toString()) ?? UrlDetails();
+          HttpSanitizer.sanitizeUrl(options.uri.toString()) ?? UrlDetails();
 
       final breadcrumb = Breadcrumb.http(
         level: requestHadException ? SentryLevel.error : SentryLevel.info,

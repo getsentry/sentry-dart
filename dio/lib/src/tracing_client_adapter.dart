@@ -23,7 +23,7 @@ class TracingClientAdapter implements HttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future? cancelFuture,
   ) async {
-    final urlDetails = UrlSanitizer.sanitize(options.uri.toString());
+    final urlDetails = HttpSanitizer.sanitizeUrl(options.uri.toString());
 
     var description = options.method;
     if (urlDetails != null) {

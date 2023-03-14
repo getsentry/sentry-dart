@@ -1,8 +1,7 @@
 import 'package:meta/meta.dart';
 
 import '../utils/iterable_extension.dart';
-import '../utils/url_details.dart';
-import '../utils/url_sanitizer.dart';
+import '../utils/http_sanitizer.dart';
 
 /// The Request interface contains information on a HTTP request related to the event.
 /// In client SDKs, this can be an outgoing request, or the request that rendered the current web page.
@@ -101,9 +100,11 @@ class SentryRequest {
       data: data,
       headers: headers,
       env: env,
+      queryString: uri.query,
+      fragment: uri.fragment,
       // ignore: deprecated_member_use_from_same_package
       other: other,
-    ).withUrlDetails(UrlSanitizer.sanitize(uri.toString()));
+    ).sanitized();
   }
 
   /// Deserializes a [SentryRequest] from JSON [Map].

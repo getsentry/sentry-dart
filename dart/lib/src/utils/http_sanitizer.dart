@@ -1,10 +1,11 @@
+import '../protocol.dart';
 import 'url_details.dart';
 
-class UrlSanitizer {
+class HttpSanitizer {
   static final RegExp _authRegExp = RegExp("(.+://)(.*@)(.*)");
 
   /// Parse and sanitize url data for sentry.io
-  static UrlDetails? sanitize(String? url) {
+  static UrlDetails? sanitizeUrl(String? url) {
     if (url == null) {
       return null;
     }
@@ -23,6 +24,14 @@ class UrlSanitizer {
           query: uri.query.isEmpty ? null : uri.query,
           fragment: uri.fragment.isEmpty ? null : uri.fragment);
     }
+  }
+
+  static Map<String, String>? sanitizedHeaders(Map<String, String>? headers) {
+    var mutableHeaders =
+        headers != null ? Map<String, String>.from(headers) : null;
+    mutableHeaders?.remove('authorization');
+    mutableHeaders?.remove('Authorization');
+    return mutableHeaders;
   }
 
   static String _urlWithAuthRemoved(String url) {
@@ -53,5 +62,17 @@ extension UriPath on Uri {
       buffer += path;
     }
     return buffer;
+  }
+}
+
+extension SanitizedSentryRequest on SentryRequest {
+  SentryRequest sanitized() {
+    final urlDetails = HttpSanitizer.sanitizeUrl(url) ?? UrlDetails();
+    return copyWith(
+      url: urlDetails.urlOrFallback,
+      queryString: urlDetails.query,
+      fragment: urlDetails.fragment,
+      headers: HttpSanitizer.sanitizedHeaders(headers),
+    );
   }
 }
