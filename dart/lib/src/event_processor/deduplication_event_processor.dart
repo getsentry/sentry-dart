@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:collection';
 import '../event_processor.dart';
+import '../hint.dart';
 import '../protocol.dart';
 import '../sentry_options.dart';
 
@@ -26,7 +27,7 @@ class DeduplicationEventProcessor extends EventProcessor {
   final SentryOptions _options;
 
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) {
+  FutureOr<SentryEvent?> apply(SentryEvent event, {Hint? hint}) {
     if (event is SentryTransaction) {
       return event;
     }
