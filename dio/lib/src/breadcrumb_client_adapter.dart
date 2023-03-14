@@ -55,14 +55,19 @@ class BreadcrumbClientAdapter implements HttpClientAdapter {
     } finally {
       stopwatch.stop();
 
+      // ignore: invalid_use_of_internal_member
+      final urlDetails = UrlUtils.parse(options.uri.toString()) ?? UrlDetails();
+
       final breadcrumb = Breadcrumb.http(
         level: requestHadException ? SentryLevel.error : SentryLevel.info,
-        url: options.uri,
+        url: Uri.parse(urlDetails.url ?? ''),
         method: options.method,
         statusCode: statusCode,
         reason: reason,
         requestDuration: stopwatch.elapsed,
         responseBodySize: responseBodySize,
+        httpQuery: urlDetails.query,
+        httpFragment: urlDetails.fragment,
       );
 
       await _hub.addBreadcrumb(breadcrumb);

@@ -19,15 +19,17 @@ void main() {
       final sut =
           fixture.getSut(fixture.getClient(statusCode: 200, reason: 'OK'));
 
-      final response = await sut.get<dynamic>('/');
+      final response = await sut.get<dynamic>('');
       expect(response.statusCode, 200);
 
       expect(fixture.hub.addBreadcrumbCalls.length, 1);
       final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
 
       expect(breadcrumb.type, 'http');
-      expect(breadcrumb.data?['url'], 'https://example.com/');
+      expect(breadcrumb.data?['url'], 'https://example.com');
       expect(breadcrumb.data?['method'], 'GET');
+      expect(breadcrumb.data?['http.query'], 'foo=bar');
+      expect(breadcrumb.data?['http.fragment'], 'baz');
       expect(breadcrumb.data?['status_code'], 200);
       expect(breadcrumb.data?['reason'], null);
       expect(breadcrumb.data?['duration'], isNotNull);
@@ -38,15 +40,17 @@ void main() {
     test('POST: happy path', () async {
       final sut = fixture.getSut(fixture.getClient(statusCode: 200));
 
-      final response = await sut.post<dynamic>('/');
+      final response = await sut.post<dynamic>('');
       expect(response.statusCode, 200);
 
       expect(fixture.hub.addBreadcrumbCalls.length, 1);
       final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
 
       expect(breadcrumb.type, 'http');
-      expect(breadcrumb.data?['url'], 'https://example.com/');
+      expect(breadcrumb.data?['url'], 'https://example.com');
       expect(breadcrumb.data?['method'], 'POST');
+      expect(breadcrumb.data?['http.query'], 'foo=bar');
+      expect(breadcrumb.data?['http.fragment'], 'baz');
       expect(breadcrumb.data?['status_code'], 200);
       expect(breadcrumb.data?['duration'], isNotNull);
     });
@@ -54,15 +58,17 @@ void main() {
     test('PUT: happy path', () async {
       final sut = fixture.getSut(fixture.getClient(statusCode: 200));
 
-      final response = await sut.put<dynamic>('/');
+      final response = await sut.put<dynamic>('');
       expect(response.statusCode, 200);
 
       expect(fixture.hub.addBreadcrumbCalls.length, 1);
       final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
 
       expect(breadcrumb.type, 'http');
-      expect(breadcrumb.data?['url'], 'https://example.com/');
+      expect(breadcrumb.data?['url'], 'https://example.com');
       expect(breadcrumb.data?['method'], 'PUT');
+      expect(breadcrumb.data?['http.query'], 'foo=bar');
+      expect(breadcrumb.data?['http.fragment'], 'baz');
       expect(breadcrumb.data?['status_code'], 200);
       expect(breadcrumb.data?['duration'], isNotNull);
     });
@@ -70,15 +76,17 @@ void main() {
     test('DELETE: happy path', () async {
       final sut = fixture.getSut(fixture.getClient(statusCode: 200));
 
-      final response = await sut.delete<dynamic>('/');
+      final response = await sut.delete<dynamic>('');
       expect(response.statusCode, 200);
 
       expect(fixture.hub.addBreadcrumbCalls.length, 1);
       final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
 
       expect(breadcrumb.type, 'http');
-      expect(breadcrumb.data?['url'], 'https://example.com/');
+      expect(breadcrumb.data?['url'], 'https://example.com');
       expect(breadcrumb.data?['method'], 'DELETE');
+      expect(breadcrumb.data?['http.query'], 'foo=bar');
+      expect(breadcrumb.data?['http.fragment'], 'baz');
       expect(breadcrumb.data?['status_code'], 200);
       expect(breadcrumb.data?['duration'], isNotNull);
     });
@@ -89,17 +97,18 @@ void main() {
     test('no captureException for Exception', () async {
       final sut = fixture.getSut(
         MockHttpClientAdapter((options, requestStream, cancelFuture) async {
-          expect(options.uri, Uri.parse('https://example.com/'));
+          expect(options.uri, Uri.parse('https://example.com?foo=bar#baz'));
           throw Exception('test');
         }),
       );
 
       try {
-        await sut.get<dynamic>('/');
+        await sut.get<dynamic>('');
         fail('Method did not throw');
       } on DioError catch (e) {
         expect(e.error.toString(), 'Exception: test');
-        expect(e.requestOptions.uri, Uri.parse('https://example.com/'));
+        expect(
+            e.requestOptions.uri, Uri.parse('https://example.com?foo=bar#baz'));
       }
 
       expect(fixture.hub.captureExceptionCalls.length, 0);
@@ -108,13 +117,13 @@ void main() {
     test('breadcrumb gets added when an exception gets thrown', () async {
       final sut = fixture.getSut(
         MockHttpClientAdapter((options, requestStream, cancelFuture) async {
-          expect(options.uri, Uri.parse('https://example.com/'));
+          expect(options.uri, Uri.parse('https://example.com'));
           throw Exception('foo bar');
         }),
       );
 
       try {
-        await sut.get<dynamic>('/');
+        await sut.get<dynamic>('');
         fail('Method did not throw');
       } on DioError catch (_) {}
 
@@ -123,8 +132,10 @@ void main() {
       final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
 
       expect(breadcrumb.type, 'http');
-      expect(breadcrumb.data?['url'], 'https://example.com/');
+      expect(breadcrumb.data?['url'], 'https://example.com');
       expect(breadcrumb.data?['method'], 'GET');
+      expect(breadcrumb.data?['http.query'], 'foo=bar');
+      expect(breadcrumb.data?['http.fragment'], 'baz');
       expect(breadcrumb.level, SentryLevel.error);
       expect(breadcrumb.data?['duration'], isNotNull);
     });
@@ -145,13 +156,13 @@ void main() {
     test('Breadcrumb has correct duration', () async {
       final sut = fixture.getSut(
         MockHttpClientAdapter((options, _, __) async {
-          expect(options.uri, Uri.parse('https://example.com/'));
+          expect(options.uri, Uri.parse('https://example.com?foo=bar#baz'));
           await Future<void>.delayed(Duration(seconds: 1));
           return ResponseBody.fromString('', 200);
         }),
       );
 
-      final response = await sut.get<dynamic>('/');
+      final response = await sut.get<dynamic>('');
       expect(response.statusCode, 200);
 
       expect(fixture.hub.addBreadcrumbCalls.length, 1);
@@ -170,7 +181,7 @@ class Fixture {
   Dio getSut([MockHttpClientAdapter? client]) {
     final mc = client ?? getClient();
     final dio = Dio(
-      BaseOptions(baseUrl: 'https://example.com/'),
+      BaseOptions(baseUrl: 'https://example.com?foo=bar#baz'),
     );
     dio.httpClientAdapter = BreadcrumbClientAdapter(client: mc, hub: hub);
     return dio;
@@ -180,7 +191,7 @@ class Fixture {
 
   MockHttpClientAdapter getClient({int statusCode = 200, String? reason}) {
     return MockHttpClientAdapter((request, requestStream, cancelFuture) async {
-      expect(request.uri, Uri.parse('https://example.com/'));
+      expect(request.uri, Uri.parse('https://example.com?foo=bar#baz'));
 
       return ResponseBody.fromString(
         '',
