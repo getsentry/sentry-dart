@@ -1,7 +1,5 @@
-import 'package:meta/meta.dart';
 import 'url_details.dart';
 
-@internal
 class UrlUtils {
   static final RegExp _authRegExp = RegExp("(.+://)(.*@)(.*)");
 
