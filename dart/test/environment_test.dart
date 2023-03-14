@@ -23,11 +23,11 @@ void main() {
         release: 'release-9.8.7',
         dist: 'bar',
       );
+      options.devMode = true;
 
       await Sentry.init(
         (options) => options,
         options: options,
-        devMode: true,
       );
 
       expect(options.dsn, fakeDsn);
@@ -44,11 +44,11 @@ void main() {
         release: 'release-9.8.7',
         dist: 'bar',
       );
+      options.devMode = true;
 
       await Sentry.init(
         (options) => options,
         options: options,
-        devMode: true,
       );
 
       expect(options.dsn, 'foo-bar');

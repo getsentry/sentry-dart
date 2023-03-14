@@ -64,13 +64,13 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
+          options.devMode = true;
           integrations = options.integrations;
           transport = options.transport;
           sentryFlutterOptions = options;
         },
         appRunner: appRunner,
         platformChecker: getPlatformChecker(platform: MockPlatform.android()),
-        devMode: true,
       );
 
       testTransport(
@@ -112,13 +112,13 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
+          options.devMode = true;
           integrations = options.integrations;
           transport = options.transport;
           sentryFlutterOptions = options;
         },
         appRunner: appRunner,
         platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
-        devMode: true,
       );
 
       testTransport(
@@ -158,13 +158,13 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
+          options.devMode = true;
           integrations = options.integrations;
           transport = options.transport;
           sentryFlutterOptions = options;
         },
         appRunner: appRunner,
         platformChecker: getPlatformChecker(platform: MockPlatform.macOs()),
-        devMode: true,
       );
 
       testTransport(
@@ -204,13 +204,13 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
+          options.devMode = true;
           integrations = options.integrations;
           transport = options.transport;
           sentryFlutterOptions = options;
         },
         appRunner: appRunner,
         platformChecker: getPlatformChecker(platform: MockPlatform.windows()),
-        devMode: true,
       );
 
       testTransport(
@@ -253,13 +253,13 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
+          options.devMode = true;
           integrations = options.integrations;
           transport = options.transport;
           sentryFlutterOptions = options;
         },
         appRunner: appRunner,
         platformChecker: getPlatformChecker(platform: MockPlatform.linux()),
-        devMode: true,
       );
 
       testTransport(
@@ -302,6 +302,7 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
+          options.devMode = true;
           integrations = options.integrations;
           transport = options.transport;
           sentryFlutterOptions = options;
@@ -311,7 +312,6 @@ void main() {
           isWeb: true,
           platform: MockPlatform.linux(),
         ),
-        devMode: true,
       );
 
       testTransport(
@@ -353,6 +353,7 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
+          options.devMode = true;
           integrations = options.integrations;
           transport = options.transport;
         },
@@ -361,7 +362,6 @@ void main() {
           isWeb: true,
           platform: MockPlatform.iOs(),
         ),
-        devMode: true,
       );
 
       testTransport(
@@ -397,6 +397,7 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
+          options.devMode = true;
           integrations = options.integrations;
           transport = options.transport;
         },
@@ -405,7 +406,6 @@ void main() {
           isWeb: true,
           platform: MockPlatform.macOs(),
         ),
-        devMode: true,
       );
 
       testTransport(
@@ -440,6 +440,7 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
+          options.devMode = true;
           integrations = options.integrations;
           transport = options.transport;
         },
@@ -448,7 +449,6 @@ void main() {
           isWeb: true,
           platform: MockPlatform.android(),
         ),
-        devMode: true,
       );
 
       testTransport(
@@ -487,12 +487,12 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
+          options.devMode = true;
           integrations = options.integrations;
         },
         appRunner: appRunner,
         platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
         rendererWrapper: MockRendererWrapper(FlutterRenderer.skia),
-        devMode: true,
       );
 
       expect(
@@ -510,12 +510,12 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
+          options.devMode = true;
           integrations = options.integrations;
         },
         appRunner: appRunner,
         platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
         rendererWrapper: MockRendererWrapper(FlutterRenderer.canvasKit),
-        devMode: true,
       );
 
       expect(
@@ -533,12 +533,12 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
+          options.devMode = true;
           integrations = options.integrations;
         },
         appRunner: appRunner,
         platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
         rendererWrapper: MockRendererWrapper(FlutterRenderer.html),
-        devMode: true,
       );
 
       expect(
@@ -556,12 +556,12 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
+          options.devMode = true;
           integrations = options.integrations;
         },
         appRunner: appRunner,
         platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
         rendererWrapper: MockRendererWrapper(FlutterRenderer.unknown),
-        devMode: true,
       );
 
       expect(
@@ -584,6 +584,7 @@ void main() {
       await SentryFlutter.init(
         (options) {
           options.dsn = fakeDsn;
+          options.devMode = true;
 
           expect(false, options.debug);
           expect('debug', options.environment);
@@ -597,7 +598,6 @@ void main() {
           platform: MockPlatform.android(),
           isWeb: true,
         ),
-        devMode: true,
       );
 
       await Sentry.close();

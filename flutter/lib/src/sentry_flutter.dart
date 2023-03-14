@@ -37,7 +37,6 @@ mixin SentryFlutter {
     @internal MethodChannel channel = _channel,
     @internal PlatformChecker? platformChecker,
     @internal RendererWrapper? rendererWrapper,
-    @internal bool devMode = false,
   }) async {
     final flutterOptions = SentryFlutterOptions();
 
@@ -92,8 +91,6 @@ mixin SentryFlutter {
       callAppRunnerInRunZonedGuarded: !isOnErrorSupported,
       // ignore: invalid_use_of_internal_member
       runZonedGuardedOnError: runZonedGuardedOnError,
-      // ignore: invalid_use_of_internal_member
-      devMode: devMode,
     );
   }
 

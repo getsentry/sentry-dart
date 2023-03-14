@@ -17,8 +17,9 @@ void main() {
     await SentryFlutter.init(
       (options) {
         options.dsn = fakeDsn;
+        // ignore: invalid_use_of_internal_member
+        options.devMode = true;
       },
-      devMode: true,
     );
 
     await Sentry.close();
@@ -26,8 +27,9 @@ void main() {
     await SentryFlutter.init(
       (options) {
         options.dsn = fakeDsn;
+        // ignore: invalid_use_of_internal_member
+        options.devMode = true;
       },
-      devMode: true,
     );
 
     await Sentry.close();
@@ -39,8 +41,9 @@ void main() {
     await SentryFlutter.init(
       (options) {
         options.dsn = fakeDsn;
+        // ignore: invalid_use_of_internal_member
+        options.devMode = true;
       },
-      devMode: true,
     );
 
     await Sentry.close();
@@ -48,8 +51,9 @@ void main() {
     await SentryFlutter.init(
       (options) {
         options.dsn = fakeDsn;
+        // ignore: invalid_use_of_internal_member
+        options.devMode = true;
       },
-      devMode: true,
     );
 
     await Sentry.close();

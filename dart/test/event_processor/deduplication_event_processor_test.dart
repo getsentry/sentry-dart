@@ -77,13 +77,14 @@ void main() {
 
       final transport = MockTransport();
 
+      final options = SentryOptions(dsn: fakeDsn)..devMode = true;
       await Sentry.init(
         (options) {
           options.dsn = fakeDsn;
           options.transport = transport;
           options.enableDeduplication = true;
         },
-        devMode: true,
+        options: options,
       );
 
       // The test doesn't work if `outerTestMethod` is passed as
