@@ -1,10 +1,10 @@
 import 'url_details.dart';
 
-class UrlUtils {
+class UrlSanitizer {
   static final RegExp _authRegExp = RegExp("(.+://)(.*@)(.*)");
 
-  /// Parse and prepare url data for sentry.io
-  static UrlDetails? parse(String? url) {
+  /// Parse and sanitize url data for sentry.io
+  static UrlDetails? sanitize(String? url) {
     if (url == null) {
       return null;
     }

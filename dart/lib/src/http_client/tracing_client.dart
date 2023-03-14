@@ -4,7 +4,7 @@ import '../hub_adapter.dart';
 import '../protocol.dart';
 import '../tracing.dart';
 import '../utils/tracing_utils.dart';
-import '../utils/url_utils.dart';
+import '../utils/url_sanitizer.dart';
 
 /// A [http](https://pub.dev/packages/http)-package compatible HTTP client
 /// which adds support to Sentry Performance feature.
@@ -21,7 +21,7 @@ class TracingClient extends BaseClient {
   Future<StreamedResponse> send(BaseRequest request) async {
     // see https://develop.sentry.dev/sdk/performance/#header-sentry-trace
 
-    final urlDetails = UrlUtils.parse(request.url.toString());
+    final urlDetails = UrlSanitizer.sanitize(request.url.toString());
 
     var description = request.method;
     if (urlDetails != null) {

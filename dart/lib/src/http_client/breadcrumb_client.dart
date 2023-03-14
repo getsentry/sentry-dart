@@ -3,7 +3,7 @@ import '../protocol.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
 import '../utils/url_details.dart';
-import '../utils/url_utils.dart';
+import '../utils/url_sanitizer.dart';
 
 /// A [http](https://pub.dev/packages/http)-package compatible HTTP client
 /// which records requests as breadcrumbs.
@@ -77,7 +77,7 @@ class BreadcrumbClient extends BaseClient {
     } finally {
       stopwatch.stop();
 
-      final urlDetails = UrlUtils.parse(request.url.toString()) ?? UrlDetails();
+      final urlDetails = UrlSanitizer.sanitize(request.url.toString()) ?? UrlDetails();
 
       var breadcrumb = Breadcrumb.http(
         level: requestHadException ? SentryLevel.error : SentryLevel.info,

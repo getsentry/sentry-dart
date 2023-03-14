@@ -50,7 +50,7 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
     header.putIfAbsent('User-Agent', () => _window.navigator.userAgent);
 
     final url = request?.url ?? _window.location.toString();
-    final urlDetails = UrlUtils.parse(url);
+    final urlDetails = UrlSanitizer.sanitize(url);
 
     return (request ?? SentryRequest())
         .copyWith(
