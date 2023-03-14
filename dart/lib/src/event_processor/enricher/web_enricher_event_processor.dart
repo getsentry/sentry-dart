@@ -2,8 +2,6 @@ import 'dart:async';
 import 'dart:html' as html show window, Window;
 
 import '../../../sentry.dart';
-import '../../utils/url_details.dart';
-import '../../utils/url_utils.dart';
 import 'enricher_event_processor.dart';
 
 EnricherEventProcessor enricherEventProcessor(SentryOptions options) {

@@ -1,11 +1,11 @@
 import 'package:meta/meta.dart';
-
 import 'url_details.dart';
 
 @internal
 class UrlUtils {
-  static final RegExp authRegExp = RegExp("(.+://)(.*@)(.*)");
+  static final RegExp _authRegExp = RegExp("(.+://)(.*@)(.*)");
 
+  /// Parse and prepare url data for sentry.io
   static UrlDetails? parse(String? url) {
     if (url == null) {
       return null;
@@ -28,7 +28,7 @@ class UrlUtils {
   }
 
   static String _urlWithAuthRemoved(String url) {
-    final userInfoMatch = authRegExp.firstMatch(url);
+    final userInfoMatch = _authRegExp.firstMatch(url);
     if (userInfoMatch != null && userInfoMatch.groupCount == 3) {
       final userInfoString = userInfoMatch.group(2) ?? '';
       final replacementString = userInfoString.contains(":")

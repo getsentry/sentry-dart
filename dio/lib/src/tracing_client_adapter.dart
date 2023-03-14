@@ -28,7 +28,7 @@ class TracingClientAdapter implements HttpClientAdapter {
 
     var description = options.method;
     if (urlDetails != null) {
-      description += ' ${urlDetails.url}';
+      description += ' ${urlDetails.urlOrFallback}';
     }
 
     // see https://develop.sentry.dev/sdk/performance/#header-sentry-trace

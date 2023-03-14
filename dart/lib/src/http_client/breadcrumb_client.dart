@@ -1,8 +1,9 @@
 import 'package:http/http.dart';
-import '../../sentry.dart';
 import '../protocol.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
+import '../utils/url_details.dart';
+import '../utils/url_utils.dart';
 
 /// A [http](https://pub.dev/packages/http)-package compatible HTTP client
 /// which records requests as breadcrumbs.
@@ -80,7 +81,7 @@ class BreadcrumbClient extends BaseClient {
 
       var breadcrumb = Breadcrumb.http(
         level: requestHadException ? SentryLevel.error : SentryLevel.info,
-        url: Uri.parse(urlDetails.url ?? ''),
+        url: Uri.parse(urlDetails.urlOrFallback),
         method: request.method,
         statusCode: statusCode,
         reason: reason,

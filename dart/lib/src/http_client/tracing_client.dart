@@ -25,7 +25,7 @@ class TracingClient extends BaseClient {
 
     var description = request.method;
     if (urlDetails != null) {
-      description += ' ${urlDetails.url}';
+      description += ' ${urlDetails.urlOrFallback}';
     }
 
     final currentSpan = _hub.getSpan();

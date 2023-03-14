@@ -108,7 +108,9 @@ void main() {
       } on DioError catch (e) {
         expect(e.error.toString(), 'Exception: test');
         expect(
-            e.requestOptions.uri, Uri.parse('https://example.com?foo=bar#baz'));
+          e.requestOptions.uri,
+          Uri.parse('https://example.com?foo=bar#baz'),
+        );
       }
 
       expect(fixture.hub.captureExceptionCalls.length, 0);

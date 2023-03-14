@@ -60,7 +60,7 @@ class BreadcrumbClientAdapter implements HttpClientAdapter {
 
       final breadcrumb = Breadcrumb.http(
         level: requestHadException ? SentryLevel.error : SentryLevel.info,
-        url: Uri.parse(urlDetails.url ?? ''),
+        url: Uri.parse(urlDetails.urlOrFallback),
         method: options.method,
         statusCode: statusCode,
         reason: reason,
