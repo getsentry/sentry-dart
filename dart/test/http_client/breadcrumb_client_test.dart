@@ -9,7 +9,7 @@ import 'package:test/test.dart';
 
 import '../mocks/mock_hub.dart';
 
-final requestUri = Uri.parse('https://example.com?foo=bar#baz');
+final requestUri = Uri.parse('https://example.com/path?foo=bar#baz');
 
 void main() {
   group(BreadcrumbClient, () {
@@ -30,7 +30,7 @@ void main() {
       final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
 
       expect(breadcrumb.type, 'http');
-      expect(breadcrumb.data?['url'], 'https://example.com');
+      expect(breadcrumb.data?['url'], 'https://example.com/path');
       expect(breadcrumb.data?['method'], 'GET');
       expect(breadcrumb.data?['http.query'], 'foo=bar');
       expect(breadcrumb.data?['http.fragment'], 'baz');
@@ -53,7 +53,7 @@ void main() {
       final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
 
       expect(breadcrumb.type, 'http');
-      expect(breadcrumb.data?['url'], 'https://example.com');
+      expect(breadcrumb.data?['url'], 'https://example.com/path');
       expect(breadcrumb.data?['method'], 'GET');
       expect(breadcrumb.data?['http.query'], 'foo=bar');
       expect(breadcrumb.data?['http.fragment'], 'baz');
@@ -72,7 +72,7 @@ void main() {
       final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
 
       expect(breadcrumb.type, 'http');
-      expect(breadcrumb.data?['url'], 'https://example.com');
+      expect(breadcrumb.data?['url'], 'https://example.com/path');
       expect(breadcrumb.data?['method'], 'POST');
       expect(breadcrumb.data?['http.query'], 'foo=bar');
       expect(breadcrumb.data?['http.fragment'], 'baz');
@@ -90,7 +90,7 @@ void main() {
       final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
 
       expect(breadcrumb.type, 'http');
-      expect(breadcrumb.data?['url'], 'https://example.com');
+      expect(breadcrumb.data?['url'], 'https://example.com/path');
       expect(breadcrumb.data?['method'], 'PUT');
       expect(breadcrumb.data?['http.query'], 'foo=bar');
       expect(breadcrumb.data?['http.fragment'], 'baz');
@@ -108,7 +108,7 @@ void main() {
       final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
 
       expect(breadcrumb.type, 'http');
-      expect(breadcrumb.data?['url'], 'https://example.com');
+      expect(breadcrumb.data?['url'], 'https://example.com/path');
       expect(breadcrumb.data?['method'], 'DELETE');
       expect(breadcrumb.data?['http.query'], 'foo=bar');
       expect(breadcrumb.data?['http.fragment'], 'baz');
@@ -170,7 +170,7 @@ void main() {
       final breadcrumb = fixture.hub.addBreadcrumbCalls.first.crumb;
 
       expect(breadcrumb.type, 'http');
-      expect(breadcrumb.data?['url'], 'https://example.com');
+      expect(breadcrumb.data?['url'], 'https://example.com/path');
       expect(breadcrumb.data?['method'], 'GET');
       expect(breadcrumb.data?['http.query'], 'foo=bar');
       expect(breadcrumb.data?['http.fragment'], 'baz');
