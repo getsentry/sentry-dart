@@ -14,15 +14,15 @@
 - Error Cause Extractor ([#1198](https://github.com/getsentry/sentry-dart/pull/1198), [#1236](https://github.com/getsentry/sentry-dart/pull/1236))
   - Add `throwable` to `SentryException`
 - Dart 3 Support ([#1220](https://github.com/getsentry/sentry-dart/pull/1220))
-- Feat: Introduce `Hint` data bag ([#1136](https://github.com/getsentry/sentry-dart/pull/1136))
-- Feat: Use `Hint` for screenshots ([#1165](https://github.com/getsentry/sentry-dart/pull/1165))
-- Feat: Support custom units for custom measurements ([#1181](https://github.com/getsentry/sentry-dart/pull/1181))
+- Introduce `Hint` data bag ([#1136](https://github.com/getsentry/sentry-dart/pull/1136))
+- Use `Hint` for screenshots ([#1165](https://github.com/getsentry/sentry-dart/pull/1165))
+- Support custom units for custom measurements ([#1181](https://github.com/getsentry/sentry-dart/pull/1181))
 
 ### Enhancements
 
 - Replace `toImage` with `toImageSync` for Flutter >= 3.7 ([1268](https://github.com/getsentry/sentry-dart/pull/1268))
 - Don't await `FutureOr<T>` if it's not a future. This should marginally improve the performance ([#1310](https://github.com/getsentry/sentry-dart/pull/1310))
-- Enha: Replace `StackTrace.empty` with `StackTrace.current` ([#1183](https://github.com/getsentry/sentry-dart/pull/1183))
+- Replace `StackTrace.empty` with `StackTrace.current` ([#1183](https://github.com/getsentry/sentry-dart/pull/1183))
 
 ### Breaking Changes
 
