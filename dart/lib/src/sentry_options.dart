@@ -343,6 +343,11 @@ class SentryOptions {
     _extractorsByType[extractor.exceptionType] = extractor;
   }
 
+  /// Changed SDK behaviour when set to true:
+  /// - Rethrow exceptions that occur in user provided closures
+  @internal
+  bool devMode = false;
+
   SentryOptions({this.dsn, PlatformChecker? checker}) {
     if (checker != null) {
       platformChecker = checker;
