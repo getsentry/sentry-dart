@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:sentry_dio/src/dio_error_extractor.dart';
 import 'package:sentry_dio/src/dio_stacktrace_extractor.dart';
 import 'package:test/test.dart';
 
