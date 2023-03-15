@@ -5,6 +5,7 @@
 ### Features
 
 - sqflite Support for Flutter ([#1306](https://github.com/getsentry/sentry-dart/pull/1306))
+
 ### Dependencies
 
 - Bump Cocoa SDK from v8.0.0 to v8.3.1 ([#1331](https://github.com/getsentry/sentry-dart/pull/1331))
