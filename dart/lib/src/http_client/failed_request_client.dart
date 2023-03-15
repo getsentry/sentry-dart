@@ -1,4 +1,7 @@
 import 'package:http/http.dart';
+import '../hint.dart';
+import '../type_check_hint.dart';
+import '../utils/tracing_utils.dart';
 import 'sentry_http_client_error.dart';
 import '../protocol.dart';
 import '../hub.dart';
@@ -65,15 +68,14 @@ import 'sentry_http_client.dart';
 /// ```
 class FailedRequestClient extends BaseClient {
   FailedRequestClient({
-    this.maxRequestBodySize = MaxRequestBodySize.never,
-    this.failedRequestStatusCodes = const [],
-    this.captureFailedRequests = true,
-    this.sendDefaultPii = false,
+    this.failedRequestStatusCodes =
+        SentryHttpClient.defaultFailedRequestStatusCodes,
+    this.failedRequestTargets = SentryHttpClient.defaultFailedRequestTargets,
     Client? client,
     Hub? hub,
   })  : _hub = hub ?? HubAdapter(),
         _client = client ?? Client() {
-    if (captureFailedRequests) {
+    if (_hub.options.captureFailedRequests) {
       _hub.options.sdk.addIntegration('HTTPClientError');
     }
   }
@@ -81,24 +83,13 @@ class FailedRequestClient extends BaseClient {
   final Client _client;
   final Hub _hub;
 
-  /// Configures whether to record exceptions for failed requests.
-  /// Examples for captures exceptions are:
-  /// - In an browser environment this can be requests which fail because of CORS.
-  /// - In an mobile or desktop application this can be requests which failed
-  ///   because the connection was interrupted.
-  final bool captureFailedRequests;
-
-  /// Configures up to which size request bodies should be included in events.
-  /// This does not change whether an event is captured.
-  final MaxRequestBodySize maxRequestBodySize;
-
   /// Describes which HTTP status codes should be considered as a failed
   /// requests.
   ///
   /// Per default no status code is considered a failed request.
   final List<SentryStatusCode> failedRequestStatusCodes;
 
-  final bool sendDefaultPii;
+  final List<String> failedRequestTargets;
 
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
@@ -120,30 +111,50 @@ class FailedRequestClient extends BaseClient {
       rethrow;
     } finally {
       stopwatch.stop();
+      await _captureEventIfNeeded(
+        request,
+        statusCode,
+        exception,
+        stackTrace,
+        response,
+        stopwatch.elapsed,
+      );
+    }
+  }
 
-      // If captureFailedRequests is true, there statusCode is null.
-      // So just one of these blocks can be called.
-      var capture = false;
-      String? reason;
-      if (captureFailedRequests && exception != null) {
-        capture = true;
-      } else if (failedRequestStatusCodes.containsStatusCode(statusCode)) {
-        // Capture an exception if the status code is considered bad
-        capture = true;
-        reason = 'HTTP Client Error with status code: $statusCode';
-        exception ??= SentryHttpClientError(reason);
+  Future<void> _captureEventIfNeeded(
+      BaseRequest request,
+      int? statusCode,
+      Object? exception,
+      StackTrace? stackTrace,
+      StreamedResponse? response,
+      Duration duration) async {
+    if (!_hub.options.captureFailedRequests) {
+      return;
+    }
+
+    // Only check `failedRequestStatusCodes` & `failedRequestTargets` if no exception was thrown.
+    if (exception == null) {
+      if (!failedRequestStatusCodes.containsStatusCode(statusCode)) {
+        return;
       }
-      if (capture) {
-        await _captureEvent(
-          exception: exception,
-          stackTrace: stackTrace,
-          request: request,
-          requestDuration: stopwatch.elapsed,
-          response: response,
-          reason: reason,
-        );
+      if (!containsTargetOrMatchesRegExp(
+          failedRequestTargets, request.url.toString())) {
+        return;
       }
     }
+
+    final reason = 'HTTP Client Error with status code: $statusCode';
+    exception ??= SentryHttpClientError(reason);
+
+    await _captureEvent(
+      exception: exception,
+      stackTrace: stackTrace,
+      request: request,
+      requestDuration: duration,
+      response: response,
+      reason: reason,
+    );
   }
 
   @override
@@ -160,9 +171,9 @@ class FailedRequestClient extends BaseClient {
   }) async {
     final sentryRequest = SentryRequest.fromUri(
       method: request.method,
-      headers: sendDefaultPii ? request.headers : null,
+      headers: _hub.options.sendDefaultPii ? request.headers : null,
       uri: request.url,
-      data: sendDefaultPii ? _getDataFromRequest(request) : null,
+      data: _hub.options.sendDefaultPii ? _getDataFromRequest(request) : null,
       // ignore: deprecated_member_use_from_same_package
       other: {
         'content_length': request.contentLength.toString(),
@@ -192,15 +203,22 @@ class FailedRequestClient extends BaseClient {
       timestamp: _hub.options.clock(),
     );
 
+    final hint = Hint.withMap({TypeCheckHint.httpRequest: request});
+
     if (response != null) {
       event.contexts.response = SentryResponse(
-        headers: sendDefaultPii ? response.headers : null,
+        headers: _hub.options.sendDefaultPii ? response.headers : null,
         bodySize: response.contentLength,
         statusCode: response.statusCode,
       );
+      hint.set(TypeCheckHint.httpResponse, response);
     }
 
-    await _hub.captureEvent(event, stackTrace: stackTrace);
+    await _hub.captureEvent(
+      event,
+      stackTrace: stackTrace,
+      hint: hint,
+    );
   }
 
   // Types of Request can be found here:
@@ -210,7 +228,7 @@ class FailedRequestClient extends BaseClient {
     if (contentLength == null) {
       return null;
     }
-    if (!maxRequestBodySize.shouldAddBody(contentLength)) {
+    if (!_hub.options.maxRequestBodySize.shouldAddBody(contentLength)) {
       return null;
     }
     if (request is MultipartRequest) {

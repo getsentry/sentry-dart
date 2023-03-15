@@ -1,6 +1,3 @@
-import 'package:meta/meta.dart';
-
-@experimental
 class SentryTransactionInfo {
   SentryTransactionInfo(this.source);
 

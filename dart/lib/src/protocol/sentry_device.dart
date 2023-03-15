@@ -1,6 +1,4 @@
 import 'package:meta/meta.dart';
-import 'sentry_operating_system.dart';
-import 'sentry_culture.dart';
 import '../sentry_options.dart';
 
 /// If a device is on portrait or landscape mode
@@ -21,7 +19,6 @@ class SentryDevice {
     this.orientation,
     this.manufacturer,
     this.brand,
-    this.screenResolution,
     this.screenHeightPixels,
     this.screenWidthPixels,
     this.screenDensity,
@@ -38,9 +35,6 @@ class SentryDevice {
     this.externalStorageSize,
     this.externalFreeStorage,
     this.bootTime,
-    this.timezone,
-    this.language,
-    this.theme,
     this.processorCount,
     this.cpuDescription,
     this.processorFrequency,
@@ -87,15 +81,6 @@ class SentryDevice {
 
   /// The brand of the device.
   final String? brand;
-
-  /// The screen resolution. (e.g.: `800x600`, `3040x1444`).
-  /// This field is deprecated, please use [screenHeightPixels]
-  /// and [screenWidthPixels] instead.
-  @Deprecated(
-    'Scheduled for removal in v7.0.0. '
-    'Use SentryDevice.screenHeightPixels and SentryDevice.screenWidthPixels instead',
-  )
-  final String? screenResolution;
 
   /// The screen height in pixels. (e.g.: `600`, `1080`).
   final int? screenHeightPixels;
@@ -146,30 +131,6 @@ class SentryDevice {
 
   /// When the system was booted
   final DateTime? bootTime;
-
-  /// The timezone of the device, e.g.: `Europe/Vienna`.
-  /// This field is deprecated, please use [SentryCulture.timezone] instead.
-  @Deprecated(
-    'Scheduled for removal in v7.0.0. '
-    'Use SentryCulture.timezone instead',
-  )
-  final String? timezone;
-
-  /// The language of the device, e.g.: `en_US`.
-  /// This field is deprecated, please use [SentryCulture.locale] instead.
-  @Deprecated(
-    'Scheduled for removal in v7.0.0. '
-    'Use SentryCulture.locale instead',
-  )
-  final String? language;
-
-  /// The theme of the device. Typically `light` or `dark`
-  /// Deprecated: Use [SentryOperatingSystem.theme] instead.
-  @Deprecated(
-    'Scheduled for removal in v7.0.0. '
-    'Use SentryOperatingSystem.theme instead',
-  )
-  final String? theme;
 
   /// Optional. Number of "logical processors". For example, `8`.
   final int? processorCount;
@@ -225,7 +186,6 @@ class SentryDevice {
                 : null,
         manufacturer: data['manufacturer'],
         brand: data['brand'],
-        screenResolution: data['screen_resolution'],
         screenHeightPixels: data['screen_height_pixels']?.toInt(),
         screenWidthPixels: data['screen_width_pixels']?.toInt(),
         screenDensity: data['screen_density'],
@@ -244,9 +204,6 @@ class SentryDevice {
         bootTime: data['boot_time'] != null
             ? DateTime.tryParse(data['boot_time'])
             : null,
-        timezone: data['timezone'],
-        language: data['language'],
-        theme: data['theme'],
         processorCount: data['processor_count'],
         cpuDescription: data['cpu_description'],
         processorFrequency: data['processor_frequency'],
@@ -318,14 +275,6 @@ class SentryDevice {
       if (supportsAudio != null) 'supports_audio': supportsAudio,
       if (supportsLocationService != null)
         'supports_location_service': supportsLocationService,
-      // ignore: deprecated_member_use_from_same_package
-      if (screenResolution != null) 'screen_resolution': screenResolution,
-      // ignore: deprecated_member_use_from_same_package
-      if (timezone != null) 'timezone': timezone,
-      // ignore: deprecated_member_use_from_same_package
-      if (language != null) 'language': language,
-      // ignore: deprecated_member_use_from_same_package
-      if (theme != null) 'theme': theme,
     };
   }
 
@@ -366,14 +315,6 @@ class SentryDevice {
         supportsGyroscope: supportsGyroscope,
         supportsAudio: supportsAudio,
         supportsLocationService: supportsLocationService,
-        // ignore: deprecated_member_use_from_same_package
-        screenResolution: screenResolution,
-        // ignore: deprecated_member_use_from_same_package
-        timezone: timezone,
-        // ignore: deprecated_member_use_from_same_package
-        theme: theme,
-        // ignore: deprecated_member_use_from_same_package
-        language: language,
       );
 
   SentryDevice copyWith({
@@ -386,7 +327,6 @@ class SentryDevice {
     SentryOrientation? orientation,
     String? manufacturer,
     String? brand,
-    String? screenResolution,
     int? screenHeightPixels,
     int? screenWidthPixels,
     double? screenDensity,
@@ -403,9 +343,6 @@ class SentryDevice {
     int? externalStorageSize,
     int? externalFreeStorage,
     DateTime? bootTime,
-    String? timezone,
-    String? language,
-    String? theme,
     int? processorCount,
     String? cpuDescription,
     double? processorFrequency,
@@ -458,13 +395,5 @@ class SentryDevice {
         supportsAudio: supportsAudio ?? this.supportsAudio,
         supportsLocationService:
             supportsLocationService ?? this.supportsLocationService,
-        // ignore: deprecated_member_use_from_same_package
-        screenResolution: screenResolution ?? this.screenResolution,
-        // ignore: deprecated_member_use_from_same_package
-        timezone: timezone ?? this.timezone,
-        // ignore: deprecated_member_use_from_same_package
-        language: language ?? this.language,
-        // ignore: deprecated_member_use_from_same_package
-        theme: theme ?? this.theme,
       );
 }

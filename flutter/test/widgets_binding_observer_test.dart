@@ -4,9 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_flutter/src/binding_utils.dart';
 import 'package:sentry_flutter/src/widgets_binding_observer.dart';
 
+import 'mocks.dart';
 import 'mocks.mocks.dart';
 
 void main() {
@@ -17,10 +17,12 @@ void main() {
     setUp(() {
       TestWidgetsFlutterBinding.ensureInitialized();
 
-      flutterTrackingEnabledOptions = SentryFlutterOptions();
+      flutterTrackingEnabledOptions = SentryFlutterOptions()
+        ..bindingUtils = TestBindingWrapper();
       flutterTrackingEnabledOptions.useFlutterBreadcrumbTracking();
 
-      flutterTrackingDisabledOptions = SentryFlutterOptions();
+      flutterTrackingDisabledOptions = SentryFlutterOptions()
+        ..bindingUtils = TestBindingWrapper();
       flutterTrackingDisabledOptions.useNativeBreadcrumbTracking();
     });
 
@@ -31,7 +33,7 @@ void main() {
         hub: hub,
         options: flutterTrackingEnabledOptions,
       );
-      final instance = BindingUtils.getWidgetsBindingInstance();
+      final instance = flutterTrackingEnabledOptions.bindingUtils.instance;
       instance!.addObserver(observer);
 
       final message = const JSONMessageCodec()
@@ -64,8 +66,8 @@ void main() {
         hub: hub,
         options: flutterTrackingDisabledOptions,
       );
-      final instance = BindingUtils.getWidgetsBindingInstance();
-      instance!.addObserver(observer);
+      final instance = flutterTrackingDisabledOptions.bindingUtils.instance!;
+      instance.addObserver(observer);
 
       final message = const JSONMessageCodec()
           .encodeMessage(<String, dynamic>{'type': 'memoryPressure'});
@@ -98,7 +100,7 @@ void main() {
         hub: hub,
         options: flutterTrackingEnabledOptions,
       );
-      final instance = BindingUtils.getWidgetsBindingInstance();
+      final instance = flutterTrackingEnabledOptions.bindingUtils.instance;
       instance!.addObserver(observer);
 
       // paused lifecycle event
@@ -160,8 +162,8 @@ void main() {
         hub: hub,
         options: flutterTrackingDisabledOptions,
       );
-      final instance = BindingUtils.getWidgetsBindingInstance();
-      instance!.addObserver(observer);
+      final instance = flutterTrackingDisabledOptions.bindingUtils.instance!;
+      instance.addObserver(observer);
 
       await sendLifecycle('paused');
 
@@ -263,8 +265,8 @@ void main() {
         hub: hub,
         options: flutterTrackingDisabledOptions,
       );
-      final instance = BindingUtils.getWidgetsBindingInstance();
-      instance!.addObserver(observer);
+      final instance = flutterTrackingDisabledOptions.bindingUtils.instance!;
+      instance.addObserver(observer);
 
       final window = instance.window;
 
@@ -282,8 +284,8 @@ void main() {
         hub: hub,
         options: flutterTrackingEnabledOptions,
       );
-      final instance = BindingUtils.getWidgetsBindingInstance();
-      instance!.addObserver(observer);
+      final instance = flutterTrackingEnabledOptions.bindingUtils.instance!;
+      instance.addObserver(observer);
 
       final window = instance.window;
 
@@ -317,8 +319,8 @@ void main() {
         hub: hub,
         options: flutterTrackingDisabledOptions,
       );
-      final instance = BindingUtils.getWidgetsBindingInstance();
-      instance!.addObserver(observer);
+      final instance = flutterTrackingDisabledOptions.bindingUtils.instance!;
+      instance.addObserver(observer);
 
       final window = instance.window;
 
@@ -337,8 +339,8 @@ void main() {
         hub: hub,
         options: flutterTrackingEnabledOptions,
       );
-      final instance = BindingUtils.getWidgetsBindingInstance();
-      instance!.addObserver(observer);
+      final instance = flutterTrackingEnabledOptions.bindingUtils.instance!;
+      instance.addObserver(observer);
 
       final window = instance.window;
 
@@ -367,8 +369,8 @@ void main() {
 
       final observer = SentryWidgetsBindingObserver(
           hub: hub, options: flutterTrackingDisabledOptions);
-      final instance = BindingUtils.getWidgetsBindingInstance();
-      instance!.addObserver(observer);
+      final instance = flutterTrackingDisabledOptions.bindingUtils.instance!;
+      instance.addObserver(observer);
 
       final window = instance.window;
 

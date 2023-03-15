@@ -9,7 +9,7 @@
 library version;
 
 /// The SDK version reported to Sentry.io in the submitted events.
-const String sdkVersion = '6.22.0';
+const String sdkVersion = '7.0.0-rc.2';
 
 String sdkName(bool isWeb) => isWeb ? _browserSdkName : _ioSdkName;
 
@@ -17,7 +17,7 @@ String sdkName(bool isWeb) => isWeb ? _browserSdkName : _ioSdkName;
 const String _ioSdkName = 'sentry.dart';
 
 /// The SDK name for web projects reported to Sentry.io in the submitted events.
-const String _browserSdkName = 'sentry.dart.browser';
+const String _browserSdkName = '$_ioSdkName.browser';
 
 /// The name of the SDK platform reported to Sentry.io in the submitted events.
 ///

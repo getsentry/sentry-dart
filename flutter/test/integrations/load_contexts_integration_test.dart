@@ -3,7 +3,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/load_contexts_integration.dart';
 
@@ -91,19 +90,6 @@ void main() {
 class Fixture {
   final hub = MockHub();
   final options = SentryFlutterOptions(dsn: fakeDsn);
+
   final methodChannel = MockMethodChannel();
-
-  LoadReleaseIntegration getIntegration({PackageLoader? loader}) {
-    return LoadReleaseIntegration(loader ?? loadRelease);
-  }
-
-  Future<PackageInfo> loadRelease() {
-    return Future.value(PackageInfo(
-      appName: 'sentry_flutter',
-      packageName: 'foo.bar',
-      version: '1.2.3',
-      buildNumber: '789',
-      buildSignature: '',
-    ));
-  }
 }

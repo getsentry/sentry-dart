@@ -496,25 +496,6 @@ void main() {
         expect(fixture.assetBundle.evictKey, _testFileName);
       },
     );
-
-    // Test for Flutter before 2.8
-    test(
-      'clear does not throw on Flutter before 2.8',
-      () {
-        final sut = fixture.getSut();
-
-        expect(() => sut.clear(), returnsNormally);
-      },
-    );
-
-    test(
-      'clear does not throw on Flutter before 2.8',
-      () {
-        final sut = fixture.getSut();
-
-        expect(() => sut.clear(), returnsNormally);
-      },
-    );
   });
 }
 

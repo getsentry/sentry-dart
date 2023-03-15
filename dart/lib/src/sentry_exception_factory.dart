@@ -1,3 +1,4 @@
+import 'recursive_exception_cause_extractor.dart';
 import 'protocol.dart';
 import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
@@ -8,6 +9,8 @@ class SentryExceptionFactory {
   final SentryOptions _options;
 
   SentryStackTraceFactory get _stacktraceFactory => _options.stackTraceFactory;
+
+  late final extractor = RecursiveExceptionCauseExtractor(_options);
 
   SentryExceptionFactory(this._options);
 
@@ -33,7 +36,9 @@ class SentryExceptionFactory {
     if (_options.attachStacktrace) {
       // TODO: snapshot=true if stackTrace is null
       // Requires a major breaking change because of grouping
-      stackTrace ??= StackTrace.current;
+      if (stackTrace == null || stackTrace == StackTrace.empty) {
+        stackTrace = StackTrace.current;
+      }
     }
 
     SentryStackTrace? sentryStackTrace;
@@ -55,6 +60,7 @@ class SentryExceptionFactory {
       value: throwable.toString(),
       mechanism: mechanism,
       stackTrace: sentryStackTrace,
+      throwable: throwable,
     );
   }
 }

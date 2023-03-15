@@ -20,19 +20,18 @@ import 'breadcrumb_client_adapter.dart';
 /// Remarks:
 /// HTTP traffic can contain PII (personal identifiable information).
 /// Read more on data scrubbing [here](https://docs.sentry.io/product/data-management-settings/advanced-datascrubbing/).
-class SentryDioClientAdapter extends HttpClientAdapter {
+class SentryDioClientAdapter implements HttpClientAdapter {
   // ignore: public_member_api_docs
   SentryDioClientAdapter({
     required HttpClientAdapter client,
     Hub? hub,
-    bool recordBreadcrumbs = true,
-    bool networkTracing = true,
   }) {
     _hub = hub ?? HubAdapter();
 
     var innerClient = client;
 
-    if (networkTracing) {
+    // ignore: invalid_use_of_internal_member
+    if (_hub.options.isTracingEnabled()) {
       innerClient = TracingClientAdapter(client: innerClient, hub: _hub);
       // ignore: invalid_use_of_internal_member
       _hub.options.sdk.addIntegration('DioNetworkTracing');
@@ -42,7 +41,8 @@ class SentryDioClientAdapter extends HttpClientAdapter {
     // We don't want to include the breadcrumbs for the current request
     // when capturing it as a failed request.
     // However it still should be added for following events.
-    if (recordBreadcrumbs) {
+    // ignore: invalid_use_of_internal_member
+    if (_hub.options.recordHttpBreadcrumbs) {
       innerClient = BreadcrumbClientAdapter(client: innerClient, hub: _hub);
     }
 

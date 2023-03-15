@@ -15,8 +15,7 @@ jobs:
         with:
           access_token: ${{ github.token }}
 
-  build:
-    name: Build
+  build-android:
     runs-on: macos-latest
     timeout-minutes: 30
 
@@ -30,11 +29,27 @@ jobs:
 
       - uses: subosito/flutter-action@dbf1fa04f4d2e52c33185153d06cdb5443aa189d # pin@v2
         with:
-          flutter-version: '2.0.0'
+          flutter-version: '3.0.0'
       # Add flutter build web (missing index)
-      - name: Build
+      - name: Build Android
+        run: |
+          cd min_version_test
+          flutter pub get
+          flutter build appbundle
+
+  build-ios:
+    runs-on: macos-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: subosito/flutter-action@dbf1fa04f4d2e52c33185153d06cdb5443aa189d # pin@v2
+        with:
+          flutter-version: '3.0.0'
+      # Add flutter build web (missing index)
+      - name: Build iOS
         run: |
           cd min_version_test
           flutter pub get
           flutter build ios --no-codesign
-          flutter build appbundle

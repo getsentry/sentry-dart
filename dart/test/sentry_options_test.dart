@@ -1,6 +1,7 @@
 import 'package:http/http.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/noop_client.dart';
+import 'package:sentry/src/version.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
@@ -94,6 +95,13 @@ void main() {
     final options = SentryOptions.empty();
 
     expect(options.tracePropagationTargets, ['.*']);
+  });
+
+  test('SentryOptions has sentryClientName set', () {
+    final options = SentryOptions(dsn: fakeDsn);
+
+    expect(options.sentryClientName,
+        '${sdkName(options.platformChecker.isWeb)}/$sdkVersion');
   });
 
   test('SentryOptions has default idleTimeout', () {

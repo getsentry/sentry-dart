@@ -1,14 +1,15 @@
 // ignore_for_file: inference_failure_on_function_return_type
 
-import 'dart:async';
-
 import 'package:flutter/services.dart';
+import 'package:flutter/src/widgets/binding.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 
 import 'package:meta/meta.dart';
+import 'package:sentry_flutter/src/binding_wrapper.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
 import 'package:sentry_flutter/src/sentry_native.dart';
 import 'package:sentry_flutter/src/sentry_native_channel.dart';
@@ -257,3 +258,22 @@ class MockRendererWrapper implements RendererWrapper {
     }
   }
 }
+
+class TestBindingWrapper implements BindingWrapper {
+  bool ensureBindingInitializedCalled = false;
+  bool getWidgetsBindingInstanceCalled = false;
+
+  @override
+  WidgetsBinding ensureInitialized() {
+    ensureBindingInitializedCalled = true;
+    return TestWidgetsFlutterBinding.ensureInitialized();
+  }
+
+  @override
+  WidgetsBinding get instance {
+    getWidgetsBindingInstanceCalled = true;
+    return TestWidgetsFlutterBinding.instance;
+  }
+}
+
+class MockSentryClient with NoSuchMethodProvider implements SentryClient {}

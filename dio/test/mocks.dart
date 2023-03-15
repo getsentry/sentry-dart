@@ -78,7 +78,6 @@ final fakeEvent = SentryEvent(
       orientation: SentryOrientation.landscape,
       manufacturer: 'samsung',
       brand: 'samsung',
-      screenResolution: '2560x1600',
       screenDensity: 2.1,
       screenDpi: 320,
       online: true,
@@ -93,7 +92,6 @@ final fakeEvent = SentryEvent(
       externalStorageSize: 8589934592,
       externalFreeStorage: 2863311530,
       bootTime: DateTime.now().toUtc(),
-      timezone: 'America/Toronto',
     ),
   ),
 );
@@ -101,7 +99,7 @@ final fakeEvent = SentryEvent(
 /// Doesn't do anything with the events
 class NoOpEventProcessor extends EventProcessor {
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {dynamic hint}) {
+  FutureOr<SentryEvent?> apply(SentryEvent event, {Hint? hint}) {
     return event;
   }
 }
@@ -109,7 +107,7 @@ class NoOpEventProcessor extends EventProcessor {
 /// Always returns null and thus drops all events
 class DropAllEventProcessor extends EventProcessor {
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {dynamic hint}) {
+  FutureOr<SentryEvent?> apply(SentryEvent event, {Hint? hint}) {
     return null;
   }
 }
@@ -120,13 +118,13 @@ class FunctionEventProcessor extends EventProcessor {
   final EventProcessorFunction applyFunction;
 
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {dynamic hint}) {
+  FutureOr<SentryEvent?> apply(SentryEvent event, {Hint? hint}) {
     return applyFunction(event, hint: hint);
   }
 }
 
 typedef EventProcessorFunction = FutureOr<SentryEvent?>
-    Function(SentryEvent event, {dynamic hint});
+    Function(SentryEvent event, {Hint? hint});
 
 var fakeEnvelope = SentryEnvelope.fromEvent(
   fakeEvent,

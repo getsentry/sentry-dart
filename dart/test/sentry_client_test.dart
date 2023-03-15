@@ -237,6 +237,142 @@ void main() {
     });
   });
 
+  group('SentryClient captures exception cause', () {
+    dynamic exception;
+
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('should capture exception cause', () async {
+      fixture.options.addExceptionCauseExtractor(
+        ExceptionWithCauseExtractor(),
+      );
+
+      final cause = Object();
+      exception = ExceptionWithCause(cause, null);
+
+      final client = fixture.getSut();
+      await client.captureException(exception, stackTrace: null);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect(capturedEvent.exceptions?[0] is SentryException, true);
+      expect(capturedEvent.exceptions?[1] is SentryException, true);
+    });
+
+    test('should capture cause stacktrace', () async {
+      fixture.options.addExceptionCauseExtractor(
+        ExceptionWithCauseExtractor(),
+      );
+
+      final cause = Object();
+      final stackTrace = '''
+#0      baz (file:///pathto/test.dart:50:3)
+<asynchronous suspension>
+#1      bar (file:///pathto/test.dart:46:9)
+      ''';
+
+      exception = ExceptionWithCause(cause, stackTrace);
+
+      final client = fixture.getSut(attachStacktrace: true);
+      await client.captureException(exception, stackTrace: null);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect(capturedEvent.exceptions?[1].stackTrace, isNotNull);
+      expect(capturedEvent.exceptions?[1].stackTrace!.frames.first.fileName,
+          'test.dart');
+      expect(capturedEvent.exceptions?[1].stackTrace!.frames.first.lineNo, 46);
+      expect(capturedEvent.exceptions?[1].stackTrace!.frames.first.colNo, 9);
+    });
+
+    test('should not capture cause stacktrace when attachStacktrace is false',
+        () async {
+      fixture.options.addExceptionCauseExtractor(
+        ExceptionWithCauseExtractor(),
+      );
+
+      final cause = Object();
+      exception = ExceptionWithCause(cause, null);
+
+      final client = fixture.getSut(attachStacktrace: false);
+      await client.captureException(exception, stackTrace: null);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect(capturedEvent.exceptions?[1].stackTrace, isNull);
+    });
+
+    test(
+        'should not capture cause stacktrace when attachStacktrace is false and StackTrace.empty',
+        () async {
+      fixture.options.addExceptionCauseExtractor(
+        ExceptionWithCauseExtractor(),
+      );
+
+      final cause = Object();
+      exception = ExceptionWithCause(cause, StackTrace.empty);
+
+      final client = fixture.getSut(attachStacktrace: false);
+      await client.captureException(exception, stackTrace: null);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect(capturedEvent.exceptions?[1].stackTrace, isNull);
+    });
+
+    test('should capture cause exception with Stackframe.current', () async {
+      fixture.options.addExceptionCauseExtractor(
+        ExceptionWithCauseExtractor(),
+      );
+
+      final cause = Object();
+      exception = ExceptionWithCause(cause, null);
+
+      final client = fixture.getSut(attachStacktrace: true);
+      await client.captureException(exception, stackTrace: null);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect(capturedEvent.exceptions?[1].stackTrace, isNotNull);
+    });
+
+    test('should not capture sentry frames exception', () async {
+      fixture.options.addExceptionCauseExtractor(
+        ExceptionWithCauseExtractor(),
+      );
+
+      final cause = Object();
+      final stackTrace = '''
+#0      init (package:sentry/sentry.dart:46:9)
+#1      bar (file:///pathto/test.dart:46:9)
+<asynchronous suspension>
+#2      capture (package:sentry/sentry.dart:46:9)
+      ''';
+      exception = ExceptionWithCause(cause, stackTrace);
+
+      final client = fixture.getSut(attachStacktrace: true);
+      await client.captureException(exception, stackTrace: null);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect(
+        capturedEvent.exceptions?[1].stackTrace!.frames
+            .every((frame) => frame.package != 'sentry'),
+        true,
+      );
+    });
+  });
+
   group('SentryClient captures exception and stacktrace', () {
     late Fixture fixture;
 
@@ -758,6 +894,74 @@ void main() {
     });
   });
 
+  group('SentryClient before send transaction', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('before send transaction drops event', () async {
+      final client = fixture.getSut(
+          beforeSendTransaction: beforeSendTransactionCallbackDropEvent);
+      final fakeTransaction = fixture.fakeTransaction();
+      await client.captureTransaction(fakeTransaction);
+
+      expect((fixture.transport).called(0), true);
+    });
+
+    test('async before send transaction drops event', () async {
+      final client = fixture.getSut(
+          beforeSendTransaction: asyncBeforeSendTransactionCallbackDropEvent);
+      final fakeTransaction = fixture.fakeTransaction();
+      await client.captureTransaction(fakeTransaction);
+
+      expect((fixture.transport).called(0), true);
+    });
+
+    test(
+        'before send transaction returns an transaction and transaction is captured',
+        () async {
+      final client =
+          fixture.getSut(beforeSendTransaction: beforeSendTransactionCallback);
+      final fakeTransaction = fixture.fakeTransaction();
+      await client.captureTransaction(fakeTransaction);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final transaction = await transactionFromEnvelope(capturedEnvelope);
+
+      expect(transaction['tags']!.containsKey('theme'), true);
+      expect(transaction['extra']!.containsKey('host'), true);
+      expect(transaction['sdk']!['integrations'].contains('testIntegration'),
+          true);
+      expect(
+        transaction['sdk']!['packages']
+            .any((element) => element['name'] == 'test-pkg'),
+        true,
+      );
+      expect(
+        transaction['breadcrumbs']!
+            .any((element) => element['message'] == 'processor crumb'),
+        true,
+      );
+    });
+
+    test('thrown error is handled', () async {
+      final exception = Exception("before send exception");
+      final beforeSendTransactionCallback = (SentryTransaction event) {
+        throw exception;
+      };
+
+      final client = fixture.getSut(
+          beforeSendTransaction: beforeSendTransactionCallback, debug: true);
+      final fakeTransaction = fixture.fakeTransaction();
+      await client.captureTransaction(fakeTransaction);
+
+      expect(fixture.loggedException, exception);
+      expect(fixture.loggedLevel, SentryLevel.error);
+    });
+  });
+
   group('SentryClient before send', () {
     late Fixture fixture;
 
@@ -805,7 +1009,7 @@ void main() {
 
     test('thrown error is handled', () async {
       final exception = Exception("before send exception");
-      final beforeSendCallback = (SentryEvent event, {dynamic hint}) {
+      final beforeSendCallback = (SentryEvent event, {Hint? hint}) {
         throw exception;
       };
 
@@ -860,7 +1064,9 @@ void main() {
     });
 
     test('should pass hint to eventProcessors', () async {
-      final myHint = 'hint';
+      final myHint = Hint();
+      myHint.set('string', 'hint');
+
       var executed = false;
 
       final client = fixture.getSut(
@@ -871,6 +1077,21 @@ void main() {
       }));
 
       await client.captureEvent(fakeEvent, hint: myHint);
+
+      expect(executed, true);
+    });
+
+    test('should create hint when none was provided', () async {
+      var executed = false;
+
+      final client = fixture.getSut(
+          eventProcessor: FunctionEventProcessor((event, {hint}) {
+        expect(hint, isNotNull);
+        executed = true;
+        return event;
+      }));
+
+      await client.captureEvent(fakeEvent);
 
       expect(executed, true);
     });
@@ -1044,45 +1265,6 @@ void main() {
     });
   });
 
-  group('SentryClientAttachmentProcessor', () {
-    late Fixture fixture;
-
-    setUp(() {
-      fixture = Fixture();
-    });
-
-    test('processor filtering out attachments', () async {
-      fixture.options.clientAttachmentProcessor =
-          MockAttachmentProcessor(MockAttachmentProcessorMode.filter);
-      final scope = Scope(fixture.options);
-      scope.addAttachment(SentryAttachment.fromIntList([], "scope-attachment"));
-      final sut = fixture.getSut();
-
-      final event = SentryEvent();
-      await sut.captureEvent(event, scope: scope);
-
-      final capturedEnvelope = (fixture.transport).envelopes.first;
-      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
-          (element) => element.header.type == SentryItemType.attachment);
-      expect(attachmentItem, null);
-    });
-
-    test('processor adding attachments', () async {
-      fixture.options.clientAttachmentProcessor =
-          MockAttachmentProcessor(MockAttachmentProcessorMode.add);
-      final scope = Scope(fixture.options);
-      final sut = fixture.getSut();
-
-      final event = SentryEvent();
-      await sut.captureEvent(event, scope: scope);
-
-      final capturedEnvelope = (fixture.transport).envelopes.first;
-      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
-          (element) => element.header.type == SentryItemType.attachment);
-      expect(attachmentItem != null, true);
-    });
-  });
-
   group('ClientReportRecorder', () {
     late Fixture fixture;
 
@@ -1152,6 +1334,36 @@ void main() {
 
       final envelope = fixture.transport.envelopes.first;
       expect(envelope.header.traceContext, isNotNull);
+    });
+
+    test('captureEvent adds screenshot from hint', () async {
+      final client = fixture.getSut();
+      final screenshot =
+          SentryAttachment.fromScreenshotData(Uint8List.fromList([0, 0, 0, 0]));
+      final hint = Hint.withScreenshot(screenshot);
+
+      await client.captureEvent(fakeEvent, hint: hint);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
+          (element) => element.header.type == SentryItemType.attachment);
+      expect(attachmentItem?.header.fileName, 'screenshot.png');
+    });
+
+    test('captureEvent adds viewHierarchy from hint', () async {
+      final client = fixture.getSut();
+      final view = SentryViewHierarchy('flutter');
+      final attachment = SentryAttachment.fromViewHierarchy(view);
+      final hint = Hint.withViewHierarchy(attachment);
+
+      await client.captureEvent(fakeEvent, hint: hint);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
+          (element) => element.header.type == SentryItemType.attachment);
+
+      expect(attachmentItem?.header.attachmentType,
+          SentryAttachment.typeViewHierarchy);
     });
 
     test('captureTransaction adds trace context', () async {
@@ -1291,19 +1503,30 @@ Future<Map<String, dynamic>> transactionFromEnvelope(
 
 FutureOr<SentryEvent?> beforeSendCallbackDropEvent(
   SentryEvent event, {
-  dynamic hint,
+  Hint? hint,
 }) =>
+    null;
+
+FutureOr<SentryTransaction?> beforeSendTransactionCallbackDropEvent(
+  SentryTransaction event,
+) =>
     null;
 
 FutureOr<SentryEvent?> asyncBeforeSendCallbackDropEvent(
   SentryEvent event, {
-  dynamic hint,
+  Hint? hint,
 }) async {
   await Future.delayed(Duration(milliseconds: 200));
   return null;
 }
 
-FutureOr<SentryEvent?> beforeSendCallback(SentryEvent event, {dynamic hint}) {
+FutureOr<SentryTransaction?> asyncBeforeSendTransactionCallbackDropEvent(
+    SentryEvent event) async {
+  await Future.delayed(Duration(milliseconds: 200));
+  return null;
+}
+
+FutureOr<SentryEvent?> beforeSendCallback(SentryEvent event, {Hint? hint}) {
   return event
     ..tags!.addAll({'theme': 'material'})
     ..extra!['host'] = '0.0.0.1'
@@ -1312,6 +1535,16 @@ FutureOr<SentryEvent?> beforeSendCallback(SentryEvent event, {dynamic hint}) {
     ..fingerprint!.add('process')
     ..sdk!.addIntegration('testIntegration')
     ..sdk!.addPackage('test-pkg', '1.0');
+}
+
+FutureOr<SentryTransaction?> beforeSendTransactionCallback(
+    SentryTransaction transaction) {
+  return transaction
+    ..tags!.addAll({'theme': 'material'})
+    ..extra!['host'] = '0.0.0.1'
+    ..sdk!.addIntegration('testIntegration')
+    ..sdk!.addPackage('test-pkg', '1.0')
+    ..breadcrumbs!.add(Breadcrumb(message: 'processor crumb'));
 }
 
 class Fixture {
@@ -1333,6 +1566,7 @@ class Fixture {
     bool attachThreads = false,
     double? sampleRate,
     BeforeSendCallback? beforeSend,
+    BeforeSendTransactionCallback? beforeSendTransaction,
     EventProcessor? eventProcessor,
     bool provideMockRecorder = true,
     bool debug = false,
@@ -1350,6 +1584,7 @@ class Fixture {
     options.attachThreads = attachThreads;
     options.sampleRate = sampleRate;
     options.beforeSend = beforeSend;
+    options.beforeSendTransaction = beforeSendTransaction;
     options.debug = debug;
     options.logger = mockLogger;
 
@@ -1366,8 +1601,16 @@ class Fixture {
   }
 
   FutureOr<SentryEvent?> droppingBeforeSend(SentryEvent event,
-      {dynamic hint}) async {
+      {Hint? hint}) async {
     return null;
+  }
+
+  SentryTransaction fakeTransaction() {
+    return SentryTransaction(
+      tracer,
+      sdk: SdkVersion(name: 'sdk1', version: '1.0.0'),
+      breadcrumbs: [],
+    );
   }
 
   void mockLogger(
@@ -1379,5 +1622,19 @@ class Fixture {
   }) {
     loggedLevel = level;
     loggedException = exception;
+  }
+}
+
+class ExceptionWithCause {
+  ExceptionWithCause(this.cause, this.stackTrace);
+  final dynamic cause;
+  final dynamic stackTrace;
+}
+
+class ExceptionWithCauseExtractor
+    extends ExceptionCauseExtractor<ExceptionWithCause> {
+  @override
+  ExceptionCause? cause(ExceptionWithCause error) {
+    return ExceptionCause(error.cause, error.stackTrace);
   }
 }

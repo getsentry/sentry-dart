@@ -88,7 +88,6 @@ void main() {
 
       final dartContext = event.contexts['dart_context'];
       expect(dartContext, isNotNull);
-      expect(dartContext['isolate'], isNotNull);
       // Getting the executable sometimes throws
       //expect(dartContext['executable'], isNotNull);
       expect(dartContext['resolved_executable'], isNotNull);
@@ -103,7 +102,6 @@ void main() {
       final dartContext = event.contexts['dart_context'];
       expect(dartContext, isNotNull);
       expect(dartContext['compile_mode'], isNotNull);
-      expect(dartContext['isolate'], isNotNull);
       expect(dartContext['executable'], isNull);
       expect(dartContext['resolved_executable'], isNull);
       expect(dartContext['script'], isNull);
@@ -115,9 +113,7 @@ void main() {
       final fakeEvent = SentryEvent(
         contexts: Contexts(
           device: SentryDevice(
-            language: 'foo_bar_language',
             name: 'device_name',
-            timezone: 'foo_timezone',
           ),
           operatingSystem: SentryOperatingSystem(
             name: 'sentry_os',

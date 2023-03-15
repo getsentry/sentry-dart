@@ -23,19 +23,21 @@ const String _exampleDsn =
 const _channel = MethodChannel('example.flutter.sentry.io');
 
 Future<void> main() async {
-  await setupSentry(() => runApp(
-        SentryScreenshotWidget(
-          child: SentryUserInteractionWidget(
-            child: DefaultAssetBundle(
-              bundle: SentryAssetBundle(enableStructuredDataTracing: true),
-              child: const MyApp(),
+  await setupSentry(
+      () => runApp(
+            SentryScreenshotWidget(
+              child: SentryUserInteractionWidget(
+                child: DefaultAssetBundle(
+                  bundle: SentryAssetBundle(),
+                  child: const MyApp(),
+                ),
+              ),
             ),
           ),
-        ),
-      ));
+      _exampleDsn);
 }
 
-Future<void> setupSentry(AppRunner appRunner) async {
+Future<void> setupSentry(AppRunner appRunner, String dsn) async {
   await SentryFlutter.init((options) {
     options.dsn = _exampleDsn;
     options.tracesSampleRate = 1.0;
@@ -47,13 +49,16 @@ Future<void> setupSentry(AppRunner appRunner) async {
     options.addIntegration(LoggingIntegration());
     options.sendDefaultPii = true;
     options.reportSilentFlutterErrors = true;
-    options.enableNdkScopeSync = true;
-    options.enableUserInteractionTracing = true;
     options.attachScreenshot = true;
+    options.screenshotQuality = SentryScreenshotQuality.low;
+    options.attachViewHierarchy = true;
     // We can enable Sentry debug logging during development. This is likely
     // going to log too much for your app, but can be useful when figuring out
     // configuration issues, e.g. finding out why your events are not uploaded.
     options.debug = true;
+
+    options.maxRequestBodySize = MaxRequestBodySize.always;
+    options.maxResponseBodySize = MaxResponseBodySize.always;
   },
       // Init your App.
       appRunner: appRunner);
@@ -204,6 +209,31 @@ class MainScaffold extends StatelessWidget {
               child: const Text('Capture from FlutterError.onError'),
             ),
             ElevatedButton(
+              onPressed: () {
+                // Only usable on Flutter >= 3.3
+                // and needs the following additional setup:
+                // options.addIntegration(OnErrorIntegration());
+                (WidgetsBinding.instance.platformDispatcher as dynamic)
+                    .onError
+                    ?.call(
+                      Exception('PlatformDispatcher.onError'),
+                      StackTrace.current,
+                    );
+              },
+              child: const Text('Capture from PlatformDispatcher.onError'),
+            ),
+            ElevatedButton(
+              key: const Key('view hierarchy'),
+              onPressed: () => {},
+              child: const Visibility(
+                visible: true,
+                child: Opacity(
+                  opacity: 0.5,
+                  child: Text('view hierarchy'),
+                ),
+              ),
+            ),
+            ElevatedButton(
               onPressed: () => makeWebRequest(context),
               child: const Text('Dart: Web request'),
             ),
@@ -331,6 +361,11 @@ class MainScaffold extends StatelessWidget {
               onPressed: () async {
                 final id = await Sentry.captureMessage('UserFeedback');
                 // ignore: use_build_context_synchronously
+                if (!context.isMounted) {
+                  return;
+                }
+
+                // ignore: use_build_context_synchronously
                 await showDialog(
                   context: context,
                   builder: (context) {
@@ -358,6 +393,17 @@ class MainScaffold extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+extension BuildContextExtension on BuildContext {
+  bool get isMounted {
+    try {
+      return (this as dynamic).mounted;
+    } on NoSuchMethodError catch (_) {
+      // ignore, only available in newer Flutter versions
+    }
+    return true;
   }
 }
 
@@ -537,9 +583,6 @@ Future<void> makeWebRequest(BuildContext context) async {
       );
 
   final client = SentryHttpClient(
-    captureFailedRequests: true,
-    maxRequestBodySize: MaxRequestBodySize.always,
-    networkTracing: true,
     failedRequestStatusCodes: [SentryStatusCode.range(400, 500)],
   );
   // We don't do any exception handling here.
@@ -547,6 +590,11 @@ Future<void> makeWebRequest(BuildContext context) async {
   final response = await client.get(Uri.parse('https://flutter.dev/'));
 
   await transaction.finish(status: const SpanStatus.ok());
+
+  // ignore: use_build_context_synchronously
+  if (!context.isMounted) {
+    return;
+  }
 
   // ignore: use_build_context_synchronously
   await showDialog<void>(
@@ -574,12 +622,7 @@ Future<void> makeWebRequest(BuildContext context) async {
 
 Future<void> makeWebRequestWithDio(BuildContext context) async {
   final dio = Dio();
-
-  dio.addSentry(
-    captureFailedRequests: true,
-    maxRequestBodySize: MaxRequestBodySize.always,
-    maxResponseBodySize: MaxResponseBodySize.always,
-  );
+  dio.addSentry();
 
   final transaction = Sentry.getSpan() ??
       Sentry.startTransaction(
@@ -601,6 +644,11 @@ Future<void> makeWebRequestWithDio(BuildContext context) async {
     await Sentry.captureException(exception, stackTrace: stackTrace);
   } finally {
     await span.finish();
+  }
+
+  // ignore: use_build_context_synchronously
+  if (!context.isMounted) {
+    return;
   }
 
   // ignore: use_build_context_synchronously
@@ -636,6 +684,12 @@ Future<void> showDialogWithTextAndImage(BuildContext context) async {
       );
   final text =
       await DefaultAssetBundle.of(context).loadString('assets/lorem-ipsum.txt');
+
+  // ignore: use_build_context_synchronously
+  if (!context.isMounted) {
+    return;
+  }
+
   // ignore: use_build_context_synchronously
   await showDialog<void>(
     context: context,

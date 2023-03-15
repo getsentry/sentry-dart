@@ -3,8 +3,6 @@ import 'contexts.dart';
 import '../utils/iterable_extension.dart';
 
 /// The response interface contains information on a HTTP request related to the event.
-/// This is an experimental feature. It might be removed at any time.
-@experimental
 @immutable
 class SentryResponse {
   /// The tpye of this class in the [Contexts] field
@@ -43,10 +41,11 @@ class SentryResponse {
   /// Deserializes a [SentryResponse] from JSON [Map].
   factory SentryResponse.fromJson(Map<String, dynamic> json) {
     return SentryResponse(
-        headers: json.containsKey('headers') ? Map.from(json['headers']) : null,
-        cookies: json['cookies'],
-        bodySize: json['body_size'],
-        statusCode: json['status_code']);
+      headers: json.containsKey('headers') ? Map.from(json['headers']) : null,
+      cookies: json['cookies'],
+      bodySize: json['body_size'],
+      statusCode: json['status_code'],
+    );
   }
 
   /// Produces a [Map] that can be serialized to JSON.

@@ -12,17 +12,4 @@ class UserInteractionWidget {
     required this.type,
     required this.eventType,
   });
-
-  String? get keyValue {
-    final key = element.widget.key;
-    if (key == null) {
-      return null;
-    }
-    if (key is ValueKey<String>) {
-      return key.value;
-    } else if (key is ValueKey) {
-      return key.value?.toString();
-    }
-    return key.toString();
-  }
 }

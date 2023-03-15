@@ -4,6 +4,7 @@ import 'package:flutter/rendering.dart';
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
+import '../widget_utils.dart';
 import 'user_interaction_widget.dart';
 
 // Adapted from https://github.com/ueman/sentry-dart-tools/blob/8e41418c0f2c62dc88292cf32a4f22e79112b744/sentry_flutter_plus/lib/src/widgets/click_tracker.dart
@@ -30,7 +31,6 @@ Element? _clickTrackerElement;
 ///
 /// If you are using the [SentryScreenshotWidget] as well, make sure to add
 /// [SentryUserInteractionWidget] as a child of [SentryScreenshotWidget].
-@experimental
 class SentryUserInteractionWidget extends StatefulWidget {
   SentryUserInteractionWidget({
     Key? key,
@@ -109,7 +109,7 @@ class _SentryUserInteractionWidgetState
 
   void _onTappedAt(Offset position) {
     final tappedWidget = _getElementAt(position);
-    final keyValue = tappedWidget?.keyValue;
+    final keyValue = tappedWidget?.element.widget.key?.toStringValue();
     if (tappedWidget == null || keyValue == null) {
       return;
     }
@@ -132,7 +132,8 @@ class _SentryUserInteractionWidgetState
         viewClass: tappedWidget.type, // to avoid minification
         data: data,
       );
-      _hub.addBreadcrumb(crumb, hint: element.widget);
+      final hint = Hint.withMap({TypeCheckHint.widget: element.widget});
+      _hub.addBreadcrumb(crumb, hint: hint);
     }
 
     // ignore: invalid_use_of_internal_member

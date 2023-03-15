@@ -18,7 +18,7 @@ Future<void> main() async {
         SentryScreenshotWidget(
           child: SentryUserInteractionWidget(
             child: DefaultAssetBundle(
-              bundle: SentryAssetBundle(enableStructuredDataTracing: true),
+              bundle: SentryAssetBundle(),
               child: const MyApp(),
             ),
           ),
@@ -35,9 +35,8 @@ Future<void> setupSentry(AppRunner appRunner) async {
     options.addIntegration(LoggingIntegration());
     options.sendDefaultPii = true;
     options.reportSilentFlutterErrors = true;
-    options.enableNdkScopeSync = true;
-    options.enableUserInteractionTracing = true;
     options.attachScreenshot = true;
+    options.attachViewHierarchy = true;
     // We can enable Sentry debug logging during development. This is likely
     // going to log too much for your app, but can be useful when figuring out
     // configuration issues, e.g. finding out why your events are not uploaded.
@@ -109,7 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
       _counter++;
 
       final dio = Dio();
-      dio.addSentry(captureFailedRequests: true);
+      dio.addSentry();
       final log = Logger('_MyHomePageState');
 
       try {

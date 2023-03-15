@@ -1,7 +1,10 @@
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
+import 'package:flutter/widgets.dart';
 
+import 'binding_wrapper.dart';
 import 'renderer/renderer.dart';
+import 'screenshot/sentry_screenshot_quality.dart';
 
 /// This class adds options which are only availble in a Flutter environment.
 /// Note that some of these options require native Sentry integration, which is
@@ -37,20 +40,6 @@ class SentryFlutterOptions extends SentryOptions {
   /// feature, as this is required to mark Sessions as Crashed.
   bool enableNativeCrashHandling = true;
 
-  /// The session tracking interval in millis. This is the interval to end a
-  /// session if the App goes to the background.
-  /// See: [enableAutoSessionTracking]
-  @Deprecated('Use autoSessionTrackingInterval instead')
-  int get autoSessionTrackingIntervalMillis =>
-      autoSessionTrackingInterval.inMilliseconds;
-
-  @Deprecated('Use autoSessionTrackingInterval instead')
-  set autoSessionTrackingIntervalMillis(int value) {
-    autoSessionTrackingInterval = value >= 0
-        ? Duration(milliseconds: value)
-        : autoSessionTrackingInterval;
-  }
-
   Duration _autoSessionTrackingInterval = Duration(milliseconds: 30000);
 
   /// The session tracking interval. This is the interval to end a
@@ -71,19 +60,6 @@ class SentryFlutterOptions extends SentryOptions {
   /// the MessageChannel from Flutter, but you can enable it if you have
   /// Java/Kotlin code as well.
   bool anrEnabled = false;
-
-  /// ANR Timeout internal in Millis Default is 5000 = 5s Used by AnrIntegration.
-  /// Available only for Android.
-  /// See: [anrEnabled]
-  @Deprecated('Use anrTimeoutInterval instead')
-  int get anrTimeoutIntervalMillis => anrTimeoutInterval.inMilliseconds;
-
-  @Deprecated('Use anrTimeoutInterval instead')
-  set anrTimeoutIntervalMillis(int value) {
-    assert(value > 0);
-    anrTimeoutInterval =
-        value > 0 ? Duration(milliseconds: value) : anrTimeoutInterval;
-  }
 
   Duration _anrTimeoutInterval = Duration(milliseconds: 5000);
 
@@ -165,14 +141,14 @@ class SentryFlutterOptions extends SentryOptions {
   /// Enables Out of Memory Tracking for iOS and macCatalyst.
   /// See the following link for more information and possible restrictions:
   /// https://docs.sentry.io/platforms/apple/guides/ios/configuration/out-of-memory/
-  bool enableOutOfMemoryTracking = true;
+  bool enableWatchdogTerminationTracking = true;
 
   /// Enable scope sync from Java to NDK.
   /// Only available on Android.
-  bool enableNdkScopeSync = false;
+  bool enableNdkScopeSync = true;
 
   /// Enable auto performance tracking by default.
-  bool enableAutoPerformanceTracking = true;
+  bool enableAutoPerformanceTracing = true;
 
   /// Automatically track app start measurement and send it with the
   /// first transaction. Set to false when configuring option to disable or if
@@ -188,6 +164,9 @@ class SentryFlutterOptions extends SentryOptions {
   /// The [SentryScreenshotWidget] has to be the root widget of the app.
   bool attachScreenshot = false;
 
+  /// The quality of the attached screenshot
+  SentryScreenshotQuality screenshotQuality = SentryScreenshotQuality.high;
+
   /// Enable or disable automatic breadcrumbs for User interactions Using [Listener]
   ///
   /// Requires adding the [SentryUserInteractionWidget] to the widget tree.
@@ -200,13 +179,20 @@ class SentryFlutterOptions extends SentryOptions {
   /// Requires adding the [SentryUserInteractionWidget] to the widget tree.
   /// Example:
   /// runApp(SentryUserInteractionWidget(child: App()));
-  bool enableUserInteractionTracing = false;
+  bool enableUserInteractionTracing = true;
 
   /// Sets the Proguard uuid for Android platform.
   String? proguardUuid;
 
   @internal
   late RendererWrapper rendererWrapper = RendererWrapper();
+
+  /// Enables the View Hierarchy feature.
+  ///
+  /// Renders an ASCII represention of the entire view hierarchy of the
+  /// application when an error happens and includes it as an attachment.
+  @experimental
+  bool attachViewHierarchy = false;
 
   /// By using this, you are disabling native [Breadcrumb] tracking and instead
   /// you are just tracking [Breadcrumb]s which result from events available
@@ -254,4 +240,8 @@ class SentryFlutterOptions extends SentryOptions {
       useFlutterBreadcrumbTracking();
     }
   }
+
+  /// Setting this to a custom [BindingWrapper] allows you to use a custom [WidgetsBinding].
+  @experimental
+  BindingWrapper bindingUtils = BindingWrapper();
 }

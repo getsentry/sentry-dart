@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:meta/meta.dart';
+import 'hint.dart';
 
 import 'hub.dart';
 import 'protocol.dart';
@@ -25,7 +26,7 @@ class HubAdapter implements Hub {
   }
 
   @override
-  Future<void> addBreadcrumb(Breadcrumb crumb, {dynamic hint}) async =>
+  Future<void> addBreadcrumb(Breadcrumb crumb, {Hint? hint}) async =>
       await Sentry.addBreadcrumb(crumb, hint: hint);
 
   @override
@@ -35,7 +36,7 @@ class HubAdapter implements Hub {
   Future<SentryId> captureEvent(
     SentryEvent event, {
     dynamic stackTrace,
-    dynamic hint,
+    Hint? hint,
     ScopeCallback? withScope,
   }) =>
       Sentry.captureEvent(
@@ -49,7 +50,7 @@ class HubAdapter implements Hub {
   Future<SentryId> captureException(
     dynamic throwable, {
     dynamic stackTrace,
-    dynamic hint,
+    Hint? hint,
     ScopeCallback? withScope,
   }) =>
       Sentry.captureException(
@@ -65,7 +66,7 @@ class HubAdapter implements Hub {
     SentryLevel? level,
     String? template,
     List? params,
-    dynamic hint,
+    Hint? hint,
     ScopeCallback? withScope,
   }) =>
       Sentry.captureMessage(
@@ -84,8 +85,8 @@ class HubAdapter implements Hub {
   Future<void> close() => Sentry.close();
 
   @override
-  FutureOr<void> configureScope(ScopeCallback callback) async =>
-      await Sentry.configureScope(callback);
+  FutureOr<void> configureScope(ScopeCallback callback) =>
+      Sentry.configureScope(callback);
 
   @override
   bool get isEnabled => Sentry.isEnabled;

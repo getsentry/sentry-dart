@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sentry/sentry.dart';
 
-import '../binding_utils.dart';
 import '../sentry_flutter_options.dart';
 
 typedef WidgetBindingGetter = WidgetsBinding? Function();
@@ -14,19 +13,7 @@ typedef WidgetBindingGetter = WidgetsBinding? Function();
 /// FlutterEnricher only needs to add information which aren't exposed by
 /// the Dart runtime.
 class FlutterEnricherEventProcessor extends EventProcessor {
-  FlutterEnricherEventProcessor(
-    this._options,
-    this._getWidgetsBinding,
-  );
-
-  factory FlutterEnricherEventProcessor.simple({
-    required SentryFlutterOptions options,
-  }) {
-    return FlutterEnricherEventProcessor(
-      options,
-      BindingUtils.getWidgetsBindingInstance,
-    );
-  }
+  FlutterEnricherEventProcessor(this._options);
 
   final SentryFlutterOptions _options;
 
@@ -36,15 +23,15 @@ class FlutterEnricherEventProcessor extends EventProcessor {
   // We can't use `WidgetsBinding` as a direct parameter
   // because it must be called inside the `runZoneGuarded`-Integration.
   // Thus we call it on demand after all the initialization happened.
-  final WidgetBindingGetter _getWidgetsBinding;
-  WidgetsBinding? get _widgetsBinding => _getWidgetsBinding();
+  WidgetsBinding? get _widgetsBinding => _options.bindingUtils.instance;
+
   SingletonFlutterWindow? get _window => _widgetsBinding?.window;
   Map<String, String> _packages = {};
 
   @override
   FutureOr<SentryEvent> apply(
     SentryEvent event, {
-    dynamic hint,
+    Hint? hint,
   }) async {
     // If there's a native integration available, it probably has better
     // information available than Flutter.
@@ -56,6 +43,7 @@ class FlutterEnricherEventProcessor extends EventProcessor {
       runtimes: _getRuntimes(event.contexts.runtimes),
       culture: _getCulture(event.contexts.culture),
       operatingSystem: _getOperatingSystem(event.contexts.operatingSystem),
+      app: _getApp(event.contexts.app),
     );
 
     // Flutter has a lot of Accessibility Settings available and exposes them
@@ -112,10 +100,7 @@ class FlutterEnricherEventProcessor extends EventProcessor {
   }
 
   SentryCulture _getCulture(SentryCulture? culture) {
-    // The editor says it's fine without a `?` but the compiler complains
-    // if it's missing
-    // ignore: invalid_null_aware_operator
-    final languageTag = _window?.locale?.toLanguageTag();
+    final languageTag = _window?.locale.toLanguageTag();
 
     // Future enhancement:
     // _window?.locales
@@ -190,8 +175,6 @@ class FlutterEnricherEventProcessor extends EventProcessor {
       screenWidthPixels:
           device?.screenWidthPixels ?? window.physicalSize.width.toInt(),
       screenDensity: device?.screenDensity ?? window.devicePixelRatio,
-      // ignore: deprecated_member_use
-      theme: device?.theme ?? describeEnum(window.platformBrightness),
     );
   }
 
@@ -222,7 +205,6 @@ class FlutterEnricherEventProcessor extends EventProcessor {
     }
 
     final flutterRuntime = SentryRuntime(
-      key: 'sentry_flutter_runtime',
       name: 'Flutter',
       compiler: compiler,
     );
@@ -235,5 +217,19 @@ class FlutterEnricherEventProcessor extends EventProcessor {
       ...runtimes,
       flutterRuntime,
     ];
+  }
+
+  SentryApp? _getApp(SentryApp? app) {
+    final currentLifecycle = _widgetsBinding?.lifecycleState;
+    if (currentLifecycle == null) {
+      return app;
+    }
+
+    // See 'flutter_context' for more detailed app state.
+    final inForeground = currentLifecycle == AppLifecycleState.resumed;
+
+    return (app ?? SentryApp()).copyWith(
+      inForeground: inForeground,
+    );
   }
 }

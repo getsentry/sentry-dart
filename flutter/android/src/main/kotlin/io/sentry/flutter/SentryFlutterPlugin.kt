@@ -18,6 +18,7 @@ import io.sentry.Sentry
 import io.sentry.DateUtils
 import io.sentry.android.core.ActivityFramesTracker
 import io.sentry.android.core.AppStartState
+import io.sentry.android.core.BuildConfig.VERSION_NAME
 import io.sentry.android.core.LoadClass
 import io.sentry.android.core.SentryAndroid
 import io.sentry.android.core.SentryAndroidOptions
@@ -30,14 +31,13 @@ import java.lang.ref.WeakReference
 import java.util.Locale
 import java.util.UUID
 
-@Suppress("TooManyFunctions")
 class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   private lateinit var channel: MethodChannel
   private lateinit var context: Context
 
   private var activity: WeakReference<Activity>? = null
   private var framesTracker: ActivityFramesTracker? = null
-  private var autoPerformanceTrackingEnabled = false
+  private var autoPerformanceTracingEnabled = false
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     context = flutterPluginBinding.applicationContext
@@ -157,14 +157,26 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         // options.isEnableNdk = false
       }
 
-      args.getIfNotNull<Boolean>("enableAutoPerformanceTracking") { enableAutoPerformanceTracking ->
-        if (enableAutoPerformanceTracking) {
-          autoPerformanceTrackingEnabled = true
+      args.getIfNotNull<Boolean>("enableAutoPerformanceTracing") { enableAutoPerformanceTracing ->
+        if (enableAutoPerformanceTracing) {
+          autoPerformanceTracingEnabled = true
           framesTracker = ActivityFramesTracker(LoadClass(), options)
         }
       }
 
       args.getIfNotNull<Boolean>("sendClientReports") { options.isSendClientReports = it }
+
+      val name = "sentry.java.android.flutter"
+
+      var sdkVersion = options.sdkVersion
+      if (sdkVersion == null) {
+        sdkVersion = SdkVersion(name, VERSION_NAME)
+      } else {
+        sdkVersion.name = name
+      }
+
+      options.sdkVersion = sdkVersion
+      options.sentryClientName = "$name/$VERSION_NAME"
 
       options.setBeforeSend { event, _ ->
         setEventOriginTag(event)
@@ -172,13 +184,13 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         event
       }
 
-      // missing proxy, enableScopeSync
+      // missing proxy
     }
     result.success("")
   }
 
   private fun fetchNativeAppStart(result: Result) {
-    if (!autoPerformanceTrackingEnabled) {
+    if (!autoPerformanceTracingEnabled) {
       result.success(null)
       return
     }
@@ -202,7 +214,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   private fun beginNativeFrames(result: Result) {
-    if (!autoPerformanceTrackingEnabled) {
+    if (!autoPerformanceTracingEnabled) {
       result.success(null)
       return
     }
@@ -215,7 +227,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
   private fun endNativeFrames(id: String?, result: Result) {
     val activity = activity?.get()
-    if (!autoPerformanceTrackingEnabled || activity == null || id == null) {
+    if (!autoPerformanceTracingEnabled || activity == null || id == null) {
       if (id == null) {
         Log.w("Sentry", "Parameter id cannot be null when calling endNativeFrames.")
       }
@@ -266,7 +278,6 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
   }
 
-  @Suppress("ComplexMethod")
   private fun setUser(user: Map<String, Any?>?, result: Result) {
     if (user == null) {
       Sentry.setUser(null)
@@ -468,10 +479,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   private fun addPackages(event: SentryEvent, sdk: SdkVersion?) {
     event.sdk?.let {
       if (it.name == flutterSdk) {
-        sdk?.packages?.forEach { sentryPackage ->
+        sdk?.packageSet?.forEach { sentryPackage ->
           it.addPackage(sentryPackage.name, sentryPackage.version)
         }
-        sdk?.integrations?.forEach { integration ->
+        sdk?.integrationSet?.forEach { integration ->
           it.addIntegration(integration)
         }
       }

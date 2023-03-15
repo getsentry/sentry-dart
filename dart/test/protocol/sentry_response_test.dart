@@ -42,7 +42,6 @@ void main() {
       final data = sentryResponse;
 
       final copy = data.copyWith();
-
       expect(data.toJson(), copy.toJson());
     });
 

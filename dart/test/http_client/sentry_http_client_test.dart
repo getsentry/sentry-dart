@@ -34,6 +34,7 @@ void main() {
     test('no captured event with default config', () async {
       final sut = fixture.getSut(
         client: createThrowingClient(),
+        captureFailedRequests: false,
       );
 
       await expectLater(() async => await sut.get(requestUri), throwsException);
@@ -44,10 +45,10 @@ void main() {
 
     test('one captured event with when enabling $FailedRequestClient',
         () async {
+      fixture.hub.options.captureFailedRequests = true;
+      fixture.hub.options.recordHttpBreadcrumbs = true;
       final sut = fixture.getSut(
         client: createThrowingClient(),
-        captureFailedRequests: true,
-        recordBreadcrumbs: true,
       );
 
       await expectLater(() async => await sut.get(requestUri), throwsException);
@@ -74,10 +75,9 @@ void main() {
     });
 
     test('no captured span if tracing disabled', () async {
+      fixture.hub.options.recordHttpBreadcrumbs = false;
       final sut = fixture.getSut(
         client: fixture.getClient(statusCode: 200, reason: 'OK'),
-        recordBreadcrumbs: false,
-        networkTracing: false,
       );
 
       final response = await sut.get(requestUri);
@@ -87,10 +87,10 @@ void main() {
     });
 
     test('captured span if tracing enabled', () async {
+      fixture.hub.options.tracesSampleRate = 1.0;
+      fixture.hub.options.recordHttpBreadcrumbs = false;
       final sut = fixture.getSut(
         client: fixture.getClient(statusCode: 200, reason: 'OK'),
-        recordBreadcrumbs: false,
-        networkTracing: true,
       );
 
       final response = await sut.get(requestUri);
@@ -115,21 +115,15 @@ class CloseableMockClient extends Mock implements BaseClient {}
 class Fixture {
   SentryHttpClient getSut({
     MockClient? client,
-    bool captureFailedRequests = false,
-    MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never,
     List<SentryStatusCode> badStatusCodes = const [],
-    bool recordBreadcrumbs = true,
-    bool networkTracing = false,
+    bool captureFailedRequests = true,
   }) {
     final mc = client ?? getClient();
+    hub.options.captureFailedRequests = captureFailedRequests;
     return SentryHttpClient(
       client: mc,
       hub: hub,
-      captureFailedRequests: captureFailedRequests,
       failedRequestStatusCodes: badStatusCodes,
-      maxRequestBodySize: maxRequestBodySize,
-      recordBreadcrumbs: recordBreadcrumbs,
-      networkTracing: networkTracing,
     );
   }
 

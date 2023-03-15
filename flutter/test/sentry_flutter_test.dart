@@ -8,6 +8,7 @@ import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
 import 'package:sentry_flutter/src/sentry_native.dart';
 import 'package:sentry_flutter/src/version.dart';
+import 'package:sentry_flutter/src/view_hierarchy/view_hierarchy_integration.dart';
 import 'mocks.dart';
 import 'mocks.mocks.dart';
 import 'sentry_flutter_util.dart';
@@ -19,6 +20,7 @@ final platformAgnosticIntegrations = [
   FlutterErrorIntegration,
   LoadReleaseIntegration,
   DebugPrintIntegration,
+  SentryViewHierarchyIntegration,
 ];
 
 final nonWebIntegrations = [
@@ -46,6 +48,7 @@ void main() {
 
   group('Test platform integrations', () {
     setUp(() async {
+      loadTestPackage();
       await Sentry.close();
       final sentryNative = SentryNative();
       sentryNative.nativeChannel = null;
@@ -66,7 +69,6 @@ void main() {
           sentryFlutterOptions = options;
         },
         appRunner: appRunner,
-        packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.android()),
       );
 
@@ -114,7 +116,6 @@ void main() {
           sentryFlutterOptions = options;
         },
         appRunner: appRunner,
-        packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
       );
 
@@ -160,7 +161,6 @@ void main() {
           sentryFlutterOptions = options;
         },
         appRunner: appRunner,
-        packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.macOs()),
       );
 
@@ -206,7 +206,6 @@ void main() {
           sentryFlutterOptions = options;
         },
         appRunner: appRunner,
-        packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.windows()),
       );
 
@@ -255,7 +254,6 @@ void main() {
           sentryFlutterOptions = options;
         },
         appRunner: appRunner,
-        packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(platform: MockPlatform.linux()),
       );
 
@@ -304,7 +302,6 @@ void main() {
           sentryFlutterOptions = options;
         },
         appRunner: appRunner,
-        packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(
           isWeb: true,
           platform: MockPlatform.linux(),
@@ -354,7 +351,6 @@ void main() {
           transport = options.transport;
         },
         appRunner: appRunner,
-        packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(
           isWeb: true,
           platform: MockPlatform.iOs(),
@@ -398,7 +394,6 @@ void main() {
           transport = options.transport;
         },
         appRunner: appRunner,
-        packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(
           isWeb: true,
           platform: MockPlatform.macOs(),
@@ -441,7 +436,6 @@ void main() {
           transport = options.transport;
         },
         appRunner: appRunner,
-        packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(
           isWeb: true,
           platform: MockPlatform.android(),
@@ -486,7 +480,6 @@ void main() {
         integrations = options.integrations;
       },
           appRunner: appRunner,
-          packageLoader: loadTestPackage,
           platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
           rendererWrapper: MockRendererWrapper(FlutterRenderer.skia));
 
@@ -507,7 +500,6 @@ void main() {
         integrations = options.integrations;
       },
           appRunner: appRunner,
-          packageLoader: loadTestPackage,
           platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
           rendererWrapper: MockRendererWrapper(FlutterRenderer.canvasKit));
 
@@ -528,7 +520,6 @@ void main() {
         integrations = options.integrations;
       },
           appRunner: appRunner,
-          packageLoader: loadTestPackage,
           platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
           rendererWrapper: MockRendererWrapper(FlutterRenderer.html));
 
@@ -549,7 +540,6 @@ void main() {
         integrations = options.integrations;
       },
           appRunner: appRunner,
-          packageLoader: loadTestPackage,
           platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
           rendererWrapper: MockRendererWrapper(FlutterRenderer.unknown));
 
@@ -565,6 +555,7 @@ void main() {
 
   group('initial values', () {
     setUp(() async {
+      loadTestPackage();
       await Sentry.close();
     });
 
@@ -581,7 +572,6 @@ void main() {
           expect(sdkVersion, options.sdk.packages.last.version);
         },
         appRunner: appRunner,
-        packageLoader: loadTestPackage,
         platformChecker: getPlatformChecker(
           platform: MockPlatform.android(),
           isWeb: true,
@@ -595,13 +585,14 @@ void main() {
 
 void appRunner() {}
 
-Future<PackageInfo> loadTestPackage() async {
-  return PackageInfo(
+void loadTestPackage() {
+  PackageInfo.setMockInitialValues(
     appName: 'appName',
     packageName: 'packageName',
     version: 'version',
     buildNumber: 'buildNumber',
     buildSignature: '',
+    installerStore: null,
   );
 }
 

@@ -73,6 +73,51 @@ void main() {
       expect(culture?.timezone, isNotNull);
     });
 
+    testWidgets('app context in foreground', (WidgetTester tester) async {
+      final enricher = fixture.getSut(
+        binding: () => tester.binding,
+      );
+
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      final event = await enricher.apply(SentryEvent());
+
+      final app = event.contexts.app;
+
+      expect(app?.inForeground, true);
+    });
+
+    testWidgets('app context not in foreground', (WidgetTester tester) async {
+      final enricher = fixture.getSut(
+        binding: () => tester.binding,
+      );
+
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      final event = await enricher.apply(SentryEvent());
+
+      final app = event.contexts.app;
+
+      expect(app?.inForeground, false);
+    });
+
+    testWidgets('merge app context in foreground', (WidgetTester tester) async {
+      final enricher = fixture.getSut(
+        binding: () => tester.binding,
+      );
+
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+
+      const appName = 'My App';
+      final event = SentryEvent();
+      event.contexts.app = SentryApp(name: appName);
+
+      final mutatedEvent = await enricher.apply(event);
+
+      final app = mutatedEvent.contexts.app;
+
+      expect(app?.inForeground, true);
+      expect(app?.name, appName);
+    });
+
     testWidgets('no device when native integration is available',
         (WidgetTester tester) async {
       final enricher = fixture.getSut(
@@ -259,19 +304,17 @@ void main() {
     testWidgets('$FlutterEnricherEventProcessor gets added on init',
         (tester) async {
       late SentryFlutterOptions sentryOptions;
-      await SentryFlutter.init(
-        (options) {
-          options.dsn = fakeDsn;
-          sentryOptions = options;
-        },
-        appRunner: () {},
-        // use a mockplatform checker so that
-        // we don't need to mock platform channels
-        platformChecker: MockPlatformChecker(
-          hasNativeIntegration: false,
-        ),
-        packageLoader: loadTestPackage,
-      );
+      loadTestPackage();
+      await SentryFlutter.init((options) {
+        options.dsn = fakeDsn;
+        sentryOptions = options;
+      },
+          appRunner: () {},
+          // use a mockplatform checker so that
+          // we don't need to mock platform channels
+          platformChecker: MockPlatformChecker(
+            hasNativeIntegration: false,
+          ));
       await Sentry.close();
 
       final ioEnricherCount = sentryOptions.eventProcessors
@@ -297,19 +340,17 @@ class Fixture {
       dsn: fakeDsn,
       checker: platformChecker,
     )..reportPackages = reportPackages;
-    return FlutterEnricherEventProcessor(
-      options,
-      binding,
-    );
+    return FlutterEnricherEventProcessor(options);
   }
 }
 
-Future<PackageInfo> loadTestPackage() async {
-  return PackageInfo(
+void loadTestPackage() {
+  PackageInfo.setMockInitialValues(
     appName: 'appName',
     packageName: 'packageName',
     version: 'version',
     buildNumber: 'buildNumber',
     buildSignature: '',
+    installerStore: null,
   );
 }

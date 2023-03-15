@@ -69,7 +69,7 @@ class Hub {
   Future<SentryId> captureEvent(
     SentryEvent event, {
     dynamic stackTrace,
-    dynamic hint,
+    Hint? hint,
     ScopeCallback? withScope,
   }) async {
     var sentryId = SentryId.empty();
@@ -81,7 +81,13 @@ class Hub {
       );
     } else {
       final item = _peek();
-      final scope = await _cloneAndRunWithScope(item.scope, withScope);
+      late Scope scope;
+      final s = _cloneAndRunWithScope(item.scope, withScope);
+      if (s is Future<Scope>) {
+        scope = await s;
+      } else {
+        scope = s;
+      }
 
       try {
         if (_options.isTracingEnabled()) {
@@ -112,7 +118,7 @@ class Hub {
   Future<SentryId> captureException(
     dynamic throwable, {
     dynamic stackTrace,
-    dynamic hint,
+    Hint? hint,
     ScopeCallback? withScope,
   }) async {
     var sentryId = SentryId.empty();
@@ -129,7 +135,13 @@ class Hub {
       );
     } else {
       final item = _peek();
-      final scope = await _cloneAndRunWithScope(item.scope, withScope);
+      late Scope scope;
+      final s = _cloneAndRunWithScope(item.scope, withScope);
+      if (s is Future<Scope>) {
+        scope = await s;
+      } else {
+        scope = s;
+      }
 
       try {
         var event = SentryEvent(
@@ -168,7 +180,7 @@ class Hub {
     SentryLevel? level,
     String? template,
     List<dynamic>? params,
-    dynamic hint,
+    Hint? hint,
     ScopeCallback? withScope,
   }) async {
     var sentryId = SentryId.empty();
@@ -185,7 +197,13 @@ class Hub {
       );
     } else {
       final item = _peek();
-      final scope = await _cloneAndRunWithScope(item.scope, withScope);
+      late Scope scope;
+      final s = _cloneAndRunWithScope(item.scope, withScope);
+      if (s is Future<Scope>) {
+        scope = await s;
+      } else {
+        scope = s;
+      }
 
       try {
         sentryId = await item.client.captureMessage(
@@ -239,12 +257,15 @@ class Hub {
     }
   }
 
-  Future<Scope> _cloneAndRunWithScope(
+  FutureOr<Scope> _cloneAndRunWithScope(
       Scope scope, ScopeCallback? withScope) async {
     if (withScope != null) {
       try {
         scope = scope.clone();
-        await withScope(scope);
+        final s = withScope(scope);
+        if (s is Future) {
+          await s;
+        }
       } catch (exception, stackTrace) {
         _options.logger(
           SentryLevel.error,
@@ -258,7 +279,7 @@ class Hub {
   }
 
   /// Adds a breacrumb to the current Scope
-  Future<void> addBreadcrumb(Breadcrumb crumb, {dynamic hint}) async {
+  Future<void> addBreadcrumb(Breadcrumb crumb, {Hint? hint}) async {
     if (!_isEnabled) {
       _options.logger(
         SentryLevel.warning,
@@ -306,7 +327,10 @@ class Hub {
     } else {
       // close integrations
       for (final integration in _options.integrations) {
-        await integration.close();
+        final close = integration.close();
+        if (close is Future) {
+          await close;
+        }
       }
 
       final item = _peek();

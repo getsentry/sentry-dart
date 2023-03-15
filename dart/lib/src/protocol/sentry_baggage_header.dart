@@ -2,7 +2,6 @@ import 'package:meta/meta.dart';
 
 import '../sentry_baggage.dart';
 
-@experimental
 @immutable
 class SentryBaggageHeader {
   static const _traceHeader = 'baggage';

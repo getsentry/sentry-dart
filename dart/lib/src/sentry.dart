@@ -2,10 +2,11 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 
-import 'default_integrations.dart';
+import 'run_zoned_guarded_integration.dart';
 import 'event_processor/enricher/enricher_event_processor.dart';
 import 'environment/environment_variables.dart';
 import 'event_processor/deduplication_event_processor.dart';
+import 'hint.dart';
 import 'event_processor/exception/exception_event_processor.dart';
 import 'hub.dart';
 import 'hub_adapter.dart';
@@ -38,13 +39,17 @@ class Sentry {
     OptionsConfiguration optionsConfiguration, {
     AppRunner? appRunner,
     @internal bool callAppRunnerInRunZonedGuarded = true,
+    @internal RunZonedGuardedOnError? runZonedGuardedOnError,
     @internal SentryOptions? options,
   }) async {
     final sentryOptions = options ?? SentryOptions();
     await _initDefaultValues(sentryOptions);
 
     try {
-      await optionsConfiguration(sentryOptions);
+      final config = optionsConfiguration(sentryOptions);
+      if (config is Future) {
+        await config;
+      }
     } catch (exception, stackTrace) {
       sentryOptions.logger(
         SentryLevel.error,
@@ -58,7 +63,8 @@ class Sentry {
       throw ArgumentError('DSN is required.');
     }
 
-    await _init(sentryOptions, appRunner, callAppRunnerInRunZonedGuarded);
+    await _init(sentryOptions, appRunner, callAppRunnerInRunZonedGuarded,
+        runZonedGuardedOnError);
   }
 
   static Future<void> _initDefaultValues(SentryOptions options) async {
@@ -100,6 +106,7 @@ class Sentry {
     SentryOptions options,
     AppRunner? appRunner,
     bool callAppRunnerInRunZonedGuarded,
+    RunZonedGuardedOnError? runZonedGuardedOnError,
   ) async {
     if (isEnabled) {
       options.logger(
@@ -125,8 +132,8 @@ class Sentry {
           await appRunner();
         };
 
-        final runZonedGuardedIntegration =
-            RunZonedGuardedIntegration(runIntegrationsAndAppRunner);
+        final runZonedGuardedIntegration = RunZonedGuardedIntegration(
+            runIntegrationsAndAppRunner, runZonedGuardedOnError);
         options.addIntegrationByIndex(0, runZonedGuardedIntegration);
 
         // RunZonedGuardedIntegration will run other integrations and appRunner
@@ -145,7 +152,10 @@ class Sentry {
   static Future<void> _callIntegrations(
       Iterable<Integration> integrations, SentryOptions options) async {
     for (final integration in integrations) {
-      await integration(HubAdapter(), options);
+      final execute = integration(HubAdapter(), options);
+      if (execute is Future) {
+        await execute;
+      }
     }
   }
 
@@ -153,7 +163,7 @@ class Sentry {
   static Future<SentryId> captureEvent(
     SentryEvent event, {
     dynamic stackTrace,
-    dynamic hint,
+    Hint? hint,
     ScopeCallback? withScope,
   }) =>
       _hub.captureEvent(
@@ -167,7 +177,7 @@ class Sentry {
   static Future<SentryId> captureException(
     dynamic throwable, {
     dynamic stackTrace,
-    dynamic hint,
+    Hint? hint,
     ScopeCallback? withScope,
   }) =>
       _hub.captureException(
@@ -183,7 +193,7 @@ class Sentry {
     SentryLevel? level = SentryLevel.info,
     String? template,
     List<dynamic>? params,
-    dynamic hint,
+    Hint? hint,
     ScopeCallback? withScope,
   }) =>
       _hub.captureMessage(
@@ -215,12 +225,12 @@ class Sentry {
   static SentryId get lastEventId => _hub.lastEventId;
 
   /// Adds a breacrumb to the current Scope
-  static Future<void> addBreadcrumb(Breadcrumb crumb, {dynamic hint}) async =>
-      await _hub.addBreadcrumb(crumb, hint: hint);
+  static Future<void> addBreadcrumb(Breadcrumb crumb, {Hint? hint}) =>
+      _hub.addBreadcrumb(crumb, hint: hint);
 
   /// Configures the scope through the callback.
-  static FutureOr<void> configureScope(ScopeCallback callback) async =>
-      await _hub.configureScope(callback);
+  static FutureOr<void> configureScope(ScopeCallback callback) =>
+      _hub.configureScope(callback);
 
   /// Clones the current Hub
   static Hub clone() => _hub.clone();

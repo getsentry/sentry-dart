@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 /// A pure Dart client for Sentry.io crash reporting.
-export 'src/default_integrations.dart';
+export 'src/run_zoned_guarded_integration.dart';
 export 'src/hub.dart';
 // useful for tests
 export 'src/hub_adapter.dart';
@@ -30,3 +30,11 @@ export 'src/sentry_user_feedback.dart';
 export 'src/utils/tracing_utils.dart';
 // tracing
 export 'src/tracing.dart';
+export 'src/hint.dart';
+export 'src/type_check_hint.dart';
+// exception extraction
+export 'src/exception_cause_extractor.dart';
+export 'src/exception_cause.dart';
+// Isolates
+export 'src/sentry_isolate_extension.dart';
+export 'src/sentry_isolate.dart';

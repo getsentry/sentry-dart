@@ -4,20 +4,15 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry/sentry.dart';
 import '../sentry_flutter_options.dart';
 
-/// a PackageInfo wrapper to make it testable
-typedef PackageLoader = Future<PackageInfo> Function();
-
 /// An [Integration] that loads the release version from native apps
 class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
-  final PackageLoader _packageLoader;
-
-  LoadReleaseIntegration(this._packageLoader);
+  LoadReleaseIntegration();
 
   @override
   FutureOr<void> call(Hub hub, SentryFlutterOptions options) async {
     try {
       if (options.release == null || options.dist == null) {
-        final packageInfo = await _packageLoader();
+        final packageInfo = await PackageInfo.fromPlatform();
         var name = _cleanString(packageInfo.packageName);
         if (name.isEmpty) {
           // Not all platforms have a packageName.

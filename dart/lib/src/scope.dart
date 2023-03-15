@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'event_processor.dart';
+import 'hint.dart';
 import 'protocol.dart';
 import 'scope_observer.dart';
 import 'sentry_attachment/sentry_attachment.dart';
@@ -42,16 +43,6 @@ class Scope {
 
   /// Get the current user.
   SentryUser? get user => _user;
-
-  /// Sets the current user
-  /// This method is deprecated, use the [setUser(user)] instead.
-  /// This method will be removed in the future.
-  /// The breaking change is due to the [enableScopeSync] feature that
-  /// requires returning a [Future].
-  @Deprecated('Use [setUser(user)] instead')
-  set user(SentryUser? user) {
-    _user = user;
-  }
 
   void _setUserSync(SentryUser? user) {
     _user = user;
@@ -150,12 +141,9 @@ class Scope {
 
   List<SentryAttachment> get attachments => List.unmodifiable(_attachments);
 
-  @Deprecated('Use [attachments] instead')
-  List<SentryAttachment> get attachements => attachments;
-
   Scope(this._options);
 
-  Breadcrumb? _addBreadCrumbSync(Breadcrumb breadcrumb, {dynamic hint}) {
+  Breadcrumb? _addBreadCrumbSync(Breadcrumb breadcrumb, {Hint? hint}) {
     // bail out if maxBreadcrumbs is zero
     if (_options.maxBreadcrumbs == 0) {
       return null;
@@ -197,7 +185,7 @@ class Scope {
   }
 
   /// Adds a breadcrumb to the breadcrumbs queue
-  Future<void> addBreadcrumb(Breadcrumb breadcrumb, {dynamic hint}) async {
+  Future<void> addBreadcrumb(Breadcrumb breadcrumb, {Hint? hint}) async {
     final addedBreadcrumb = _addBreadCrumbSync(breadcrumb, hint: hint);
     if (addedBreadcrumb != null) {
       await _callScopeObservers((scopeObserver) async =>
@@ -285,7 +273,7 @@ class Scope {
 
   Future<SentryEvent?> applyToEvent(
     SentryEvent event, {
-    dynamic hint,
+    Hint? hint,
   }) async {
     event = event.copyWith(
       transaction: event.transaction ?? transaction,
@@ -328,7 +316,12 @@ class Scope {
     SentryEvent? processedEvent = event;
     for (final processor in _eventProcessors) {
       try {
-        processedEvent = await processor.apply(processedEvent!, hint: hint);
+        final e = processor.apply(processedEvent!, hint: hint);
+        if (e is Future) {
+          processedEvent = await e;
+        } else {
+          processedEvent = e;
+        }
       } catch (exception, stackTrace) {
         _options.logger(
           SentryLevel.error,

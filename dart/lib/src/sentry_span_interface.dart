@@ -65,11 +65,9 @@ abstract class ISentrySpan {
   });
 
   /// Returns the baggage that can be sent as "baggage" header.
-  @experimental
   SentryBaggageHeader? toBaggageHeader();
 
   /// Returns the trace context.
-  @experimental
   SentryTraceContextHeader? traceContext();
 
   @internal

@@ -5,7 +5,6 @@ import 'package:meta/meta.dart';
 import 'package:http/http.dart';
 
 import '../sentry.dart';
-import '../sentry_private.dart';
 import 'client_reports/client_report_recorder.dart';
 import 'client_reports/noop_client_report_recorder.dart';
 import 'sentry_exception_factory.dart';
@@ -89,6 +88,14 @@ class SentryOptions {
     _maxSpans = maxSpans;
   }
 
+  /// Configures up to which size request bodies should be included in events.
+  /// This does not change whether an event is captured.
+  MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.never;
+
+  /// Configures up to which size response bodies should be included in events.
+  /// This does not change whether an event is captured.
+  MaxResponseBodySize maxResponseBodySize = MaxResponseBodySize.never;
+
   // ignore: deprecated_member_use_from_same_package
   SentryLogger _logger = noOpLogger;
 
@@ -137,11 +144,15 @@ class SentryOptions {
 
   /// Sentry client name used for the HTTP authHeader and userAgent eg
   /// sentry.{language}.{platform}/{version} eg sentry.java.android/2.0.0 would be a valid case
-  String? sentryClientName;
+  String get sentryClientName => '${sdk.name}/${sdk.version}';
 
   /// This function is called with an SDK specific event object and can return a modified event
   /// object or nothing to skip reporting the event
   BeforeSendCallback? beforeSend;
+
+  /// This function is called with an SDK specific transaction object and can return a modified
+  /// transaction object or nothing to skip reporting the transaction
+  BeforeSendTransactionCallback? beforeSendTransaction;
 
   /// This function is called with an SDK specific breadcrumb object before the breadcrumb is added
   /// to the scope. When nothing is returned from the function, the breadcrumb is dropped
@@ -239,6 +250,18 @@ class SentryOptions {
   /// Whether to send personal identifiable information along with events
   bool sendDefaultPii = false;
 
+  /// Configures whether to record exceptions for failed requests.
+  /// Examples for captures exceptions are:
+  /// - In an browser environment this can be requests which fail because of CORS.
+  /// - In an mobile or desktop application this can be requests which failed
+  ///   because the connection was interrupted.
+  /// Use with [SentryHttpClient] or [Dio] integration for this to work
+  bool captureFailedRequests = true;
+
+  /// Whether to records requests as breadcrumbs. This is on by default.
+  /// It only has an effect when the SentryHttpClient or dio integration is in use
+  bool recordHttpBreadcrumbs = true;
+
   /// Whether [SentryEvent] deduplication is enabled.
   /// Can be further configured with [maxDeduplicationItems].
   /// Shoud be set to true if
@@ -308,11 +331,22 @@ class SentryOptions {
   /// The default is 3 seconds.
   Duration? idleTimeout = Duration(seconds: 3);
 
+  final _extractorsByType = <Type, ExceptionCauseExtractor>{};
+
+  /// Returns a previously added [ExceptionCauseExtractor] by type
+  ExceptionCauseExtractor? exceptionCauseExtractor(Type type) {
+    return _extractorsByType[type];
+  }
+
+  /// Adds [ExceptionCauseExtractor] in order to extract inner exceptions
+  void addExceptionCauseExtractor(ExceptionCauseExtractor extractor) {
+    _extractorsByType[extractor.exceptionType] = extractor;
+  }
+
   SentryOptions({this.dsn, PlatformChecker? checker}) {
     if (checker != null) {
       platformChecker = checker;
     }
-
     sdk = SdkVersion(name: sdkName(platformChecker.isWeb), version: sdkVersion);
     sdk.addPackage('pub:sentry', sdkVersion);
   }
@@ -370,10 +404,6 @@ class SentryOptions {
   late SentryStackTraceFactory stackTraceFactory =
       SentryStackTraceFactory(this);
 
-  @internal
-  late SentryClientAttachmentProcessor clientAttachmentProcessor =
-      SentryClientAttachmentProcessor();
-
   void _debugLogger(
     SentryLevel level,
     String message, {
@@ -396,14 +426,20 @@ class SentryOptions {
 /// object or nothing to skip reporting the event
 typedef BeforeSendCallback = FutureOr<SentryEvent?> Function(
   SentryEvent event, {
-  dynamic hint,
+  Hint? hint,
 });
+
+/// This function is called with an SDK specific transaction object and can return a modified transaction
+/// object or nothing to skip reporting the transaction
+typedef BeforeSendTransactionCallback = FutureOr<SentryTransaction?> Function(
+  SentryTransaction transaction,
+);
 
 /// This function is called with an SDK specific breadcrumb object before the breadcrumb is added
 /// to the scope. When nothing is returned from the function, the breadcrumb is dropped
 typedef BeforeBreadcrumbCallback = Breadcrumb? Function(
   Breadcrumb? breadcrumb, {
-  dynamic hint,
+  Hint? hint,
 });
 
 /// Used to provide timestamp for logging.
@@ -422,7 +458,7 @@ typedef TracesSamplerCallback = double? Function(
     SentrySamplingContext samplingContext);
 
 /// A NoOp logger that does nothing
-@Deprecated('This will be made private or removed in the future')
+@Deprecated('Will be removed in v8. Disable [debug] instead')
 void noOpLogger(
   SentryLevel level,
   String message, {
@@ -432,7 +468,7 @@ void noOpLogger(
 }) {}
 
 /// A Logger that prints out the level and message
-@Deprecated('This will be made private or removed in the future')
+@Deprecated('Will be removed in v8. Enable [debug] instead')
 void dartLogger(
   SentryLevel level,
   String message, {
