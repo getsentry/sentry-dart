@@ -617,7 +617,7 @@ void main() {
       scopeObserver: fixture.mockScopeObserver,
       beforeBreadcrumbCallback: (
         Breadcrumb? breadcrumb, {
-        dynamic hint,
+        Hint? hint,
       }) {
         return breadcrumb?.copyWith(message: "modified");
       },
