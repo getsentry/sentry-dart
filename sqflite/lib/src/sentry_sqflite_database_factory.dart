@@ -19,7 +19,7 @@ import 'sentry_database.dart';
 ///
 /// databaseFactory = SentrySqfliteDatabaseFactory();
 /// // or SentrySqfliteDatabaseFactory(databaseFactory: databaseFactoryFfi);
-/// // if you are using the FFI implementation.
+/// // if you are using the FFI or Web implementation.
 ///
 /// final database = await openDatabase('path/to/db');
 /// ```
