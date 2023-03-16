@@ -43,6 +43,7 @@ class Sentry {
     @internal SentryOptions? options,
   }) async {
     final sentryOptions = options ?? SentryOptions();
+
     await _initDefaultValues(sentryOptions);
 
     try {
@@ -57,6 +58,9 @@ class Sentry {
         exception: exception,
         stackTrace: stackTrace,
       );
+      if (sentryOptions.devMode) {
+        rethrow;
+      }
     }
 
     if (sentryOptions.dsn == null) {

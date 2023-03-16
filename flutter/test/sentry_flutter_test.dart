@@ -64,6 +64,7 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
+          options.devMode = true;
           integrations = options.integrations;
           transport = options.transport;
           sentryFlutterOptions = options;
@@ -111,6 +112,7 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
+          options.devMode = true;
           integrations = options.integrations;
           transport = options.transport;
           sentryFlutterOptions = options;
@@ -156,6 +158,7 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
+          options.devMode = true;
           integrations = options.integrations;
           transport = options.transport;
           sentryFlutterOptions = options;
@@ -201,6 +204,7 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
+          options.devMode = true;
           integrations = options.integrations;
           transport = options.transport;
           sentryFlutterOptions = options;
@@ -249,6 +253,7 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
+          options.devMode = true;
           integrations = options.integrations;
           transport = options.transport;
           sentryFlutterOptions = options;
@@ -297,6 +302,7 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
+          options.devMode = true;
           integrations = options.integrations;
           transport = options.transport;
           sentryFlutterOptions = options;
@@ -347,6 +353,7 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
+          options.devMode = true;
           integrations = options.integrations;
           transport = options.transport;
         },
@@ -390,6 +397,7 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
+          options.devMode = true;
           integrations = options.integrations;
           transport = options.transport;
         },
@@ -432,6 +440,7 @@ void main() {
       await SentryFlutter.init(
         (options) async {
           options.dsn = fakeDsn;
+          options.devMode = true;
           integrations = options.integrations;
           transport = options.transport;
         },
@@ -475,13 +484,16 @@ void main() {
     test('installed with skia renderer', () async {
       List<Integration> integrations = [];
 
-      await SentryFlutter.init((options) async {
-        options.dsn = fakeDsn;
-        integrations = options.integrations;
-      },
-          appRunner: appRunner,
-          platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
-          rendererWrapper: MockRendererWrapper(FlutterRenderer.skia));
+      await SentryFlutter.init(
+        (options) async {
+          options.dsn = fakeDsn;
+          options.devMode = true;
+          integrations = options.integrations;
+        },
+        appRunner: appRunner,
+        platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
+        rendererWrapper: MockRendererWrapper(FlutterRenderer.skia),
+      );
 
       expect(
           integrations
@@ -495,13 +507,16 @@ void main() {
     test('installed with canvasKit renderer', () async {
       List<Integration> integrations = [];
 
-      await SentryFlutter.init((options) async {
-        options.dsn = fakeDsn;
-        integrations = options.integrations;
-      },
-          appRunner: appRunner,
-          platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
-          rendererWrapper: MockRendererWrapper(FlutterRenderer.canvasKit));
+      await SentryFlutter.init(
+        (options) async {
+          options.dsn = fakeDsn;
+          options.devMode = true;
+          integrations = options.integrations;
+        },
+        appRunner: appRunner,
+        platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
+        rendererWrapper: MockRendererWrapper(FlutterRenderer.canvasKit),
+      );
 
       expect(
           integrations
@@ -515,13 +530,16 @@ void main() {
     test('not installed with html renderer', () async {
       List<Integration> integrations = [];
 
-      await SentryFlutter.init((options) async {
-        options.dsn = fakeDsn;
-        integrations = options.integrations;
-      },
-          appRunner: appRunner,
-          platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
-          rendererWrapper: MockRendererWrapper(FlutterRenderer.html));
+      await SentryFlutter.init(
+        (options) async {
+          options.dsn = fakeDsn;
+          options.devMode = true;
+          integrations = options.integrations;
+        },
+        appRunner: appRunner,
+        platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
+        rendererWrapper: MockRendererWrapper(FlutterRenderer.html),
+      );
 
       expect(
           integrations
@@ -535,13 +553,16 @@ void main() {
     test('not installed with unknown renderer', () async {
       List<Integration> integrations = [];
 
-      await SentryFlutter.init((options) async {
-        options.dsn = fakeDsn;
-        integrations = options.integrations;
-      },
-          appRunner: appRunner,
-          platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
-          rendererWrapper: MockRendererWrapper(FlutterRenderer.unknown));
+      await SentryFlutter.init(
+        (options) async {
+          options.dsn = fakeDsn;
+          options.devMode = true;
+          integrations = options.integrations;
+        },
+        appRunner: appRunner,
+        platformChecker: getPlatformChecker(platform: MockPlatform.iOs()),
+        rendererWrapper: MockRendererWrapper(FlutterRenderer.unknown),
+      );
 
       expect(
           integrations
@@ -563,6 +584,7 @@ void main() {
       await SentryFlutter.init(
         (options) {
           options.dsn = fakeDsn;
+          options.devMode = true;
 
           expect(false, options.debug);
           expect('debug', options.environment);

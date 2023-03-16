@@ -14,15 +14,23 @@ void main() {
   });
 
   test('async re-initilization', () async {
-    await SentryFlutter.init((options) {
-      options.dsn = fakeDsn;
-    });
+    await SentryFlutter.init(
+      (options) {
+        options.dsn = fakeDsn;
+        // ignore: invalid_use_of_internal_member
+        options.devMode = true;
+      },
+    );
 
     await Sentry.close();
 
-    await SentryFlutter.init((options) {
-      options.dsn = fakeDsn;
-    });
+    await SentryFlutter.init(
+      (options) {
+        options.dsn = fakeDsn;
+        // ignore: invalid_use_of_internal_member
+        options.devMode = true;
+      },
+    );
 
     await Sentry.close();
   });
@@ -30,15 +38,23 @@ void main() {
   // This is the failure from
   // https://github.com/getsentry/sentry-dart/issues/508
   test('re-initilization', () async {
-    await SentryFlutter.init((options) {
-      options.dsn = fakeDsn;
-    });
+    await SentryFlutter.init(
+      (options) {
+        options.dsn = fakeDsn;
+        // ignore: invalid_use_of_internal_member
+        options.devMode = true;
+      },
+    );
 
     await Sentry.close();
 
-    await SentryFlutter.init((options) {
-      options.dsn = fakeDsn;
-    });
+    await SentryFlutter.init(
+      (options) {
+        options.dsn = fakeDsn;
+        // ignore: invalid_use_of_internal_member
+        options.devMode = true;
+      },
+    );
 
     await Sentry.close();
   });
