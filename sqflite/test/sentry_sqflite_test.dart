@@ -40,16 +40,6 @@ void main() {
       await db.close();
     });
 
-    test('returns original data base if performance disabled', () async {
-      fixture.options.tracesSampleRate = null;
-      final db =
-          await openDatabaseWithSentry(inMemoryDatabasePath, hub: fixture.hub);
-
-      expect(db is! SentryDatabase, true);
-
-      await db.close();
-    });
-
     test('returns wrapped read only data base if performance enabled ',
         () async {
       final db = await openReadOnlyDatabaseWithSentry(

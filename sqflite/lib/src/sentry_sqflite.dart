@@ -39,11 +39,6 @@ Future<Database> openDatabaseWithSentry(
 
     final newHub = hub ?? HubAdapter();
 
-    // ignore: invalid_use_of_internal_member
-    if (!newHub.options.isTracingEnabled()) {
-      return await databaseFactory.openDatabase(path, options: dbOptions);
-    }
-
     final currentSpan = newHub.getSpan();
     final span = currentSpan?.startChild(
       SentryDatabase.dbOp,

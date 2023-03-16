@@ -113,10 +113,10 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
       );
 
       Future<T> newAction(Transaction txn) async {
-        final sentryExecutor =
+        final executor =
             SentryDatabaseExecutor(txn, parentSpan: span, hub: _hub);
         final sentrySqfliteTransaction =
-            SentrySqfliteTransaction(sentryExecutor, hub: _hub);
+            SentrySqfliteTransaction(executor, hub: _hub);
 
         return await action(sentrySqfliteTransaction);
       }

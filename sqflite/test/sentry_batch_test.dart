@@ -15,7 +15,7 @@ import 'utils.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('$SentryBatch', () {
+  group('$SentryBatch success', () {
     late Fixture fixture;
 
     setUp(() {
@@ -46,6 +46,34 @@ void main() {
       final batch = db.batch();
 
       expect(batch is! SentryBatch, true);
+
+      await db.close();
+    });
+
+    test('commit sets ok status', () async {
+      final db = await fixture.getDatabase();
+      final batch = db.batch();
+
+      batch.insert('Product', <String, Object?>{'title': 'Product 1'});
+
+      await batch.commit();
+
+      final span = fixture.tracer.children.last;
+      expect(span.status, SpanStatus.ok());
+
+      await db.close();
+    });
+
+    test('apply sets ok status', () async {
+      final db = await fixture.getDatabase();
+      final batch = db.batch();
+
+      batch.insert('Product', <String, Object?>{'title': 'Product 1'});
+
+      await batch.apply();
+
+      final span = fixture.tracer.children.last;
+      expect(span.status, SpanStatus.ok());
 
       await db.close();
     });
@@ -235,6 +263,45 @@ SELECT * FROM Product''';
       databaseFactory = sqfliteDatabaseFactoryDefault;
     });
   });
+
+  group('$SentryBatch fail', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+
+      when(fixture.hub.options).thenReturn(fixture.options);
+      when(fixture.hub.getSpan()).thenReturn(fixture.tracer);
+    });
+
+    test('commit sets span to internal error if its thrown', () async {
+      final batch = SentryBatch(fixture.batch, hub: fixture.hub);
+
+      when(fixture.batch.commit()).thenThrow(fixture.exception);
+
+      batch.insert('Product', <String, Object?>{'title': 'Product 1'});
+
+      expect(() async => await batch.commit(), throwsException);
+
+      final span = fixture.tracer.children.last;
+      expect(span.throwable, fixture.exception);
+      expect(span.status, SpanStatus.internalError());
+    });
+
+    test('apply sets span to internal error if its thrown', () async {
+      final batch = SentryBatch(fixture.batch, hub: fixture.hub);
+
+      when(fixture.batch.apply()).thenThrow(fixture.exception);
+
+      batch.insert('Product', <String, Object?>{'title': 'Product 1'});
+
+      expect(() async => await batch.apply(), throwsException);
+
+      final span = fixture.tracer.children.last;
+      expect(span.throwable, fixture.exception);
+      expect(span.status, SpanStatus.internalError());
+    });
+  });
 }
 
 class Fixture {
@@ -242,6 +309,8 @@ class Fixture {
   final options = SentryOptions(dsn: fakeDsn);
   final _context = SentryTransactionContext('name', 'operation');
   late final tracer = SentryTracer(_context, hub);
+  final batch = MockBatch();
+  final exception = Exception('error');
 
   Future<Database> getDatabase({
     double? tracesSampleRate = 1.0,

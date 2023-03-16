@@ -1,6 +1,7 @@
 import 'package:mockito/annotations.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_tracer.dart';
+import 'package:sqflite/sqflite.dart';
 
 import 'mocks.mocks.dart';
 
@@ -27,9 +28,14 @@ ISentrySpan startTransactionShim(
   [
     // ignore: invalid_use_of_internal_member
     SentryTracer,
+    Batch,
+    Database,
+    DatabaseExecutor,
   ],
   customMocks: [
     MockSpec<Hub>(fallbackGenerators: {#startTransaction: startTransactionShim})
   ],
 )
 void main() {}
+
+// ignore: invalid_use_of_internal_member
