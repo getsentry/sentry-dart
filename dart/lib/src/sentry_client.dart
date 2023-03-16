@@ -395,6 +395,9 @@ class SentryClient {
         exception: exception,
         stackTrace: stackTrace,
       );
+      if (_options.devMode) {
+        rethrow;
+      }
     }
 
     if (eventOrTransaction == null) {
@@ -429,6 +432,9 @@ class SentryClient {
           exception: exception,
           stackTrace: stackTrace,
         );
+        if (_options.devMode) {
+          rethrow;
+        }
       }
       if (processedEvent == null) {
         _recordLostEvent(event, DiscardReason.eventProcessor);

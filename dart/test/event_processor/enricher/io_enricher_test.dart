@@ -159,16 +159,18 @@ void main() {
     });
 
     test('$IoEnricherEventProcessor gets added on init', () async {
-      late SentryOptions sentryOptions;
+      final options = SentryOptions(dsn: fakeDsn)..devMode = true;
+      late SentryOptions configuredOptions;
       await Sentry.init(
         (options) {
           options.dsn = fakeDsn;
-          sentryOptions = options;
+          configuredOptions = options;
         },
+        options: options,
       );
       await Sentry.close();
 
-      final ioEnricherCount = sentryOptions.eventProcessors
+      final ioEnricherCount = configuredOptions.eventProcessors
           .whereType<IoEnricherEventProcessor>()
           .length;
       expect(ioEnricherCount, 1);

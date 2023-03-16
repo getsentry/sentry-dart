@@ -171,6 +171,9 @@ class Scope {
           exception: exception,
           stackTrace: stackTrace,
         );
+        if (_options.devMode) {
+          rethrow;
+        }
       }
     }
     if (processedBreadcrumb != null) {
@@ -329,6 +332,9 @@ class Scope {
           exception: exception,
           stackTrace: stackTrace,
         );
+        if (_options.devMode) {
+          rethrow;
+        }
       }
       if (processedEvent == null) {
         _options.logger(SentryLevel.debug, 'Event was dropped by a processor');
