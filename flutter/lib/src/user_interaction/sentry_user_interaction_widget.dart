@@ -153,8 +153,8 @@ class _SentryUserInteractionWidgetState
     final activeTransaction = _activeTransaction;
     final lastElement = _lastTappedWidget?.element;
     if (activeTransaction != null) {
-      if (lastElement?.mounted == true &&
-          element.mounted &&
+      if (lastElement?.isMounted == true &&
+          element.isMounted == true &&
           lastElement?.widget == element.widget &&
           _lastTappedWidget?.eventType == tappedWidget.eventType &&
           !activeTransaction.finished) {
@@ -341,5 +341,17 @@ class _SentryUserInteractionWidgetState
     }
 
     return null;
+  }
+}
+
+extension ElementExtension on Element {
+  bool get isMounted {
+    try {
+      // ignore: return_of_invalid_type
+      return (this as dynamic).mounted;
+    } on NoSuchMethodError catch (_) {
+      // ignore, only available in newer Flutter versions
+    }
+    return true;
   }
 }
