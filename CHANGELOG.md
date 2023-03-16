@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Exception StackTrace Extractor ([#1335](https://github.com/getsentry/sentry-dart/pull/1335))
+
 ### Dependencies
 
 - Bump Cocoa SDK from v8.0.0 to v8.3.1 ([#1331](https://github.com/getsentry/sentry-dart/pull/1331))

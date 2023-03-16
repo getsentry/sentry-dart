@@ -30,6 +30,10 @@ class SentryExceptionFactory {
     if (throwable is Error) {
       stackTrace ??= throwable.stackTrace;
     }
+    stackTrace ??= _options
+        .exceptionStackTraceExtractor(throwable.runtimeType)
+        ?.stackTrace(throwable);
+
     // throwable.stackTrace is null if its an exception that was never thrown
     // hence we check again if stackTrace is null and if not, read the current stack trace
     // but only if attachStacktrace is enabled
