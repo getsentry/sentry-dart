@@ -38,8 +38,6 @@ class SentrySqfliteDatabaseFactory with SqfliteDatabaseFactoryMixin {
   })  : _databaseFactory = databaseFactory,
         _hub = hub ?? HubAdapter();
 
-  // TODO: consider always getting the factory instead being optional
-
   final Hub _hub;
   final DatabaseFactory? _databaseFactory;
 

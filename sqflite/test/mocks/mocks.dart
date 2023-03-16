@@ -37,5 +37,3 @@ ISentrySpan startTransactionShim(
   ],
 )
 void main() {}
-
-// ignore: invalid_use_of_internal_member
