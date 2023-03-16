@@ -151,8 +151,11 @@ class _SentryUserInteractionWidgetState
     );
 
     final activeTransaction = _activeTransaction;
+    final lastElement = _lastTappedWidget?.element;
     if (activeTransaction != null) {
-      if (_lastTappedWidget?.element.widget == element.widget &&
+      if (lastElement?.mounted == true &&
+          element.mounted &&
+          lastElement?.widget == element.widget &&
           _lastTappedWidget?.eventType == tappedWidget.eventType &&
           !activeTransaction.finished) {
         // ignore: invalid_use_of_internal_member
