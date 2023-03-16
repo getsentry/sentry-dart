@@ -17,12 +17,12 @@ import 'sentry_options.dart';
 /// class ExceptionWithInner {
 ///   ExceptionWithInner(this.innerException, this.innerStackTrace);
 ///   Object innerException;
-///   StackTrace innerStackTrace;
+///   dynamic innerStackTrace;
 /// }
 ///
 /// class ExceptionWithInnerStackTraceExtractor extends ExceptionStackTraceExtractor<ExceptionWithInner>  {
 ///   @override
-///   StackTrace? cause(ExceptionWithInner error) {
+///   dynamic cause(ExceptionWithInner error) {
 ///     return error.innerStackTrace;
 ///   }
 /// }
@@ -30,6 +30,6 @@ import 'sentry_options.dart';
 /// options.addExceptionStackTraceExtractor(ExceptionWithInnerStackTraceExtractor());
 /// ```
 abstract class ExceptionStackTraceExtractor<T> {
-  StackTrace? stackTrace(T error);
+  dynamic stackTrace(T error);
   Type get exceptionType => T;
 }
