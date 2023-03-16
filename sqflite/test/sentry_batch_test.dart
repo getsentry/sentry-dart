@@ -61,7 +61,9 @@ void main() {
       final span = fixture.tracer.children.last;
       expect(span.context.operation, 'db');
       expect(
-          span.context.description, 'INSERT INTO Product (title) VALUES (?)');
+        span.context.description,
+        'INSERT INTO Product (title) VALUES (?)',
+      );
 
       await db.close();
     });
@@ -77,7 +79,9 @@ void main() {
       final span = fixture.tracer.children.last;
       expect(span.context.operation, 'db');
       expect(
-          span.context.description, 'INSERT INTO Product (title) VALUES (?)');
+        span.context.description,
+        'INSERT INTO Product (title) VALUES (?)',
+      );
 
       await db.close();
     });
