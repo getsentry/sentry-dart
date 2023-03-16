@@ -1,6 +1,6 @@
 name: sentry_sqflite
 description: An integration which adds support for performance tracing for the sqflite package.
-version: 7.0.0-rc.2
+version: 7.0.0
 homepage: https://docs.sentry.io/platforms/flutter/
 repository: https://github.com/getsentry/sentry-dart
 issue_tracker: https://github.com/getsentry/sentry-dart/issues
