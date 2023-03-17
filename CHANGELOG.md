@@ -12,6 +12,10 @@
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#831)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.0.0...8.3.1)
 
+### Fixes
+
+- SentryUserInteractionWidget checks if the Elements are mounted before comparing them ([#1339](https://github.com/getsentry/sentry-dart/pull/1339))
+
 ## 7.0.0
 
 ### Features
