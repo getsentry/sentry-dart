@@ -353,8 +353,15 @@ class _SentryUserInteractionWidgetState
     } on NoSuchMethodError catch (_) {
       // mounted checks if the widget is not null.
 
-      // ignore: unnecessary_null_comparison
-      return element.widget != null;
+      try {
+        // Flutter 3.0.0 does `_widget!` and if `_widget` is null it throws.
+
+        // ignore: unnecessary_null_comparison
+        return element.widget != null;
+      } catch (_) {
+        // if it throws, the `_widget` is null and not mounted.
+        return false;
+      }
     }
   }
 }
