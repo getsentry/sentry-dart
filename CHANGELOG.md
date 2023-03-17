@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- `DioErrorExtractor` no longer extracts `DioError.stackTrace` which is done via `DioStackTraceExtractor` instead
+- `DioErrorExtractor` no longer extracts `DioError.stackTrace` which is done via `DioStackTraceExtractor` instead ([#1344](https://github.com/getsentry/sentry-dart/pull/1344))
 
 ## 7.1.0
 
