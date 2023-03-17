@@ -14,7 +14,7 @@
 
 ### Fixes
 
-- SentryUserInteractionWidget checks if the Elements are mounted before comparing them ([#1181](https://github.com/getsentry/sentry-dart/pull/1181))
+- SentryUserInteractionWidget checks if the Elements are mounted before comparing them ([#1339](https://github.com/getsentry/sentry-dart/pull/1339))
 
 ## 7.0.0
 
