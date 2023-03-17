@@ -153,8 +153,8 @@ class _SentryUserInteractionWidgetState
     final activeTransaction = _activeTransaction;
     final lastElement = _lastTappedWidget?.element;
     if (activeTransaction != null) {
-      if (lastElement?.isMounted == true &&
-          element.isMounted == true &&
+      if (_isElementMounted(lastElement) &&
+          _isElementMounted(element) &&
           lastElement?.widget == element.widget &&
           _lastTappedWidget?.eventType == tappedWidget.eventType &&
           !activeTransaction.finished) {
@@ -342,16 +342,19 @@ class _SentryUserInteractionWidgetState
 
     return null;
   }
-}
 
-extension ElementExtension on Element {
-  bool get isMounted {
+  bool _isElementMounted(Element? element) {
+    if (element == null) {
+      return false;
+    }
     try {
       // ignore: return_of_invalid_type
-      return (this as dynamic).mounted;
+      return (element as dynamic).mounted;
     } on NoSuchMethodError catch (_) {
-      // ignore, only available in newer Flutter versions
+      // mounted checks if the widget is not null.
+
+      // ignore: unnecessary_null_comparison
+      return element.widget != null;
     }
-    return true;
   }
 }
