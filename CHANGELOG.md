@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- `DioErrorExtractor` no longer extracts `DioError.stackTrace` which is done via `DioStackTraceExtractor` instead
+
 ## 7.1.0
 
 ### Features
