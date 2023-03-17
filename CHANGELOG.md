@@ -1,10 +1,15 @@
 # Changelog
 
-## 7.1.0
+## Unreleased
 
 ### Features
 
 - sqflite Support for Flutter ([#1306](https://github.com/getsentry/sentry-dart/pull/1306))
+
+## 7.1.0
+
+### Features
+
 - Exception StackTrace Extractor ([#1335](https://github.com/getsentry/sentry-dart/pull/1335))
 
 ### Dependencies
