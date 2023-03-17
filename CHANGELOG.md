@@ -5,12 +5,17 @@
 ### Features
 
 - sqflite Support for Flutter ([#1306](https://github.com/getsentry/sentry-dart/pull/1306))
+- Exception StackTrace Extractor ([#1335](https://github.com/getsentry/sentry-dart/pull/1335))
 
 ### Dependencies
 
 - Bump Cocoa SDK from v8.0.0 to v8.3.1 ([#1331](https://github.com/getsentry/sentry-dart/pull/1331))
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#831)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.0.0...8.3.1)
+
+### Fixes
+
+- SentryUserInteractionWidget checks if the Elements are mounted before comparing them ([#1339](https://github.com/getsentry/sentry-dart/pull/1339))
 
 ## 7.0.0
 

@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:sentry_dio/sentry_dio.dart';
 import 'package:sentry_dio/src/dio_error_extractor.dart';
+import 'package:sentry_dio/src/dio_stacktrace_extractor.dart';
 import 'package:sentry_dio/src/sentry_dio_client_adapter.dart';
 import 'package:sentry_dio/src/sentry_dio_extension.dart';
 import 'package:sentry_dio/src/sentry_transformer.dart';
@@ -66,6 +67,17 @@ void main() {
 
       expect(
         fixture.hub.options.exceptionCauseExtractor(DioError),
+        isNotNull,
+      );
+    });
+
+    test('addSentry adds $DioStackTraceExtractor', () {
+      final dio = fixture.getSut();
+
+      dio.addSentry(hub: fixture.hub);
+
+      expect(
+        fixture.hub.options.exceptionStackTraceExtractor(DioError),
         isNotNull,
       );
     });
