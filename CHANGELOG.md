@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- LoadImageListIntegration won't throw bad state if there is no exceptions in the event ([#1339](https://github.com/getsentry/sentry-dart/pull/1339))
+- LoadImageListIntegration won't throw bad state if there is no exceptions in the event ([#1347](https://github.com/getsentry/sentry-dart/pull/1347))
 
 ## 7.1.0
 
