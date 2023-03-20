@@ -155,8 +155,7 @@ void main() {
           expect('test', image.debugFile);
         });
 
-        test('Native layer is not called as there is no exceptions',
-            () async {
+        test('Native layer is not called as there is no exceptions', () async {
           var called = false;
 
           final sut = fixture.getSut();

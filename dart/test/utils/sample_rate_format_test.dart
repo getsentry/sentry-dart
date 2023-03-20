@@ -1,6 +1,5 @@
 import 'package:sentry/src/utils/sample_rate_format.dart';
 import 'package:test/test.dart';
-import 'package:intl/intl.dart';
 
 void main() {
   test('format', () {
