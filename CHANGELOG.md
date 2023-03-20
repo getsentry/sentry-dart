@@ -5,6 +5,15 @@
 ### Features
 
 - Sanitize sensitive data from URLs (span desc, span data, crumbs, client errors) ([#1327](https://github.com/getsentry/sentry-dart/pull/1327))
+### Fixes
+
+- LoadImageListIntegration won't throw bad state if there is no exceptions in the event ([#1347](https://github.com/getsentry/sentry-dart/pull/1347))
+
+### Dependencies
+
+- Bump Android SDK from v6.15.0 to v6.16.0 ([#1342](https://github.com/getsentry/sentry-dart/pull/1342))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6160)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.15.0...6.16.0)
 
 ## 7.1.0
 
