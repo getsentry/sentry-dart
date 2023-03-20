@@ -8,6 +8,8 @@ on:
     paths-ignore:
       - 'logging/**'
       - 'dio/**'
+      - 'file/**'
+      - 'sqflite/**'
 
 jobs:
   cancel-previous-workflow:

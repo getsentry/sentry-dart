@@ -20,9 +20,11 @@ dart/coverage/*
 logging/coverage/*
 dio/coverage/*
 file/coverage/*
+flutter/coverage/*
+sqflite/coverage/*
+
 pubspec.lock
 Podfile.lock
-flutter/coverage/*
 
 .gradle
 flutter/.gradle

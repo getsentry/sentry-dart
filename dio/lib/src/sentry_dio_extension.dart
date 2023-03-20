@@ -6,6 +6,7 @@ import 'dio_stacktrace_extractor.dart';
 import 'failed_request_interceptor.dart';
 import 'sentry_transformer.dart';
 import 'sentry_dio_client_adapter.dart';
+import 'version.dart';
 
 /// Extension to add performance tracing for [Dio]
 extension SentryDioExtension on Dio {
@@ -66,6 +67,7 @@ extension SentryDioExtension on Dio {
       options.sdk.addIntegration('sentry_dio');
       options.addEventProcessor(DioEventProcessor(options));
     }
+    options.sdk.addPackage(packageName, sdkVersion);
 
     if (options.captureFailedRequests) {
       // Add FailedRequestInterceptor at index 0, so it's the first interceptor.

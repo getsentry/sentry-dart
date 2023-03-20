@@ -5,6 +5,9 @@ on:
       - main
       - release/**
   pull_request:
+    paths-ignore:
+      - 'file/**'
+      - 'sqflite/**'
 
 jobs:
   cancel-previous-workflow:
