@@ -32,20 +32,6 @@ void main() {
     }
   });
 
-  test('intl platform difference', () {
-    expect(
-      NumberFormat('#.################').format(0.1919191919191919),
-      '0.1919191919191919',
-    );
-  });
-
-  test('intl platform difference 2', () {
-    expect(
-      NumberFormat('#.################').format(0.19191919191919199),
-      '0.191919191919192',
-    );
-  });
-
   test('input smaller 0 is capped', () {
     expect(SampleRateFormat().format(-1), '0');
   });
