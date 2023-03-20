@@ -1,14 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Sanitize sensitive data from URLs (span desc, span data, crumbs, client errors) ([#1327](https://github.com/getsentry/sentry-dart/pull/1327))
+
 ## 7.1.0
 
 ### Features
 
 - Exception StackTrace Extractor ([#1335](https://github.com/getsentry/sentry-dart/pull/1335))
-
-### Features
-
-- Sanitize sensitive data from URLs (span desc, span data, crumbs, client errors) ([#1327](https://github.com/getsentry/sentry-dart/pull/1327))
 
 ### Dependencies
 
