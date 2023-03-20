@@ -51,7 +51,7 @@ class HttpSanitizer {
     if (headers == null) {
       return null;
     }
-    var sanitizedHeaders = <String, String>{};
+    final sanitizedHeaders = <String, String>{};
     headers.forEach((key, value) {
       if (!_securityHeaders.contains(key.toUpperCase())) {
         sanitizedHeaders[key] = value;
