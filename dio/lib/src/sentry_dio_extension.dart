@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
 import 'dio_error_extractor.dart';
 import 'dio_event_processor.dart';
+import 'dio_stacktrace_extractor.dart';
 import 'failed_request_interceptor.dart';
 import 'sentry_transformer.dart';
 import 'sentry_dio_client_adapter.dart';
@@ -50,9 +51,14 @@ extension SentryDioExtension on Dio {
     // ignore: invalid_use_of_internal_member
     final options = hub.options;
 
-    // Add to get inner exception & stacktrace
+    // Add to get inner exception
     if (options.exceptionCauseExtractor(DioError) == null) {
       options.addExceptionCauseExtractor(DioErrorExtractor());
+    }
+
+    // Add to get inner stacktrace
+    if (options.exceptionStackTraceExtractor(DioError) == null) {
+      options.addExceptionStackTraceExtractor(DioStackTraceExtractor());
     }
 
     // Add DioEventProcessor when it's not already present
