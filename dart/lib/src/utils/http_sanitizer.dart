@@ -3,6 +3,20 @@ import 'url_details.dart';
 
 class HttpSanitizer {
   static final RegExp _authRegExp = RegExp("(.+://)(.*@)(.*)");
+  static final List<String> _securityHeaders = [
+    "X-FORWARDED-FOR",
+    "AUTHORIZATION",
+    "COOKIE",
+    "SET-COOKIE",
+    "X-API-KEY",
+    "X-REAL-IP",
+    "REMOTE-ADDR",
+    "FORWARDED",
+    "PROXY-AUTHORIZATION",
+    "X-CSRF-TOKEN",
+    "X-CSRFTOKEN",
+    "X-XSRF-TOKEN"
+  ];
 
   /// Parse and sanitize url data for sentry.io
   static UrlDetails? sanitizeUrl(String? url) {
@@ -27,15 +41,16 @@ class HttpSanitizer {
   }
 
   static Map<String, String>? sanitizedHeaders(Map<String, String>? headers) {
-    var mutableHeaders =
-        headers != null ? Map<String, String>.from(headers) : null;
-    mutableHeaders?.remove('authorization');
-    mutableHeaders?.remove('Authorization');
-    mutableHeaders?.remove('cookies');
-    mutableHeaders?.remove('Cookies');
-    mutableHeaders?.remove('cookie');
-    mutableHeaders?.remove('Cookie');
-    return mutableHeaders;
+    if (headers == null) {
+      return null;
+    }
+    var sanitizedHeaders = <String, String>{};
+    headers.forEach((key, value) {
+      if (!_securityHeaders.contains(key.toUpperCase())) {
+        sanitizedHeaders[key] = value;
+      }
+    });
+    return sanitizedHeaders;
   }
 
   static String _urlWithAuthRemoved(String url) {

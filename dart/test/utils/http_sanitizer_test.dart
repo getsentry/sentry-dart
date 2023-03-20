@@ -139,14 +139,31 @@ void main() {
     expect(sanitizedUri?.fragment, isNull);
   });
 
-  test('removes auth headers', () {
-    final sanitizedHeaders = HttpSanitizer.sanitizedHeaders(
-        {'authorization': 'foo', 'Authorization': 'foo'});
+  test('removes security headers', () {
+    final securityHeaders = [
+      "X-FORWARDED-FOR",
+      "AUTHORIZATION",
+      "COOKIE",
+      "SET-COOKIE",
+      "X-API-KEY",
+      "X-REAL-IP",
+      "REMOTE-ADDR",
+      "FORWARDED",
+      "PROXY-AUTHORIZATION",
+      "X-CSRF-TOKEN",
+      "X-CSRFTOKEN",
+      "X-XSRF-TOKEN"
+    ];
+
+    final headers = <String, String>{};
+    for (final securityHeader in securityHeaders) {
+      headers[securityHeader] = 'foo';
+      headers[securityHeader.toLowerCase()] = 'bar';
+      headers[securityHeader._capitalize()] = 'baz';
+    }
+    final sanitizedHeaders = HttpSanitizer.sanitizedHeaders(headers);
     expect(sanitizedHeaders, isNotNull);
-    expect(sanitizedHeaders?['authorization'], isNull);
-    expect(sanitizedHeaders?['Authorization'], isNull);
-    expect(sanitizedHeaders?.containsKey('authorization'), false);
-    expect(sanitizedHeaders?.containsKey('Authorization'), false);
+    expect(sanitizedHeaders?.isEmpty, true);
   });
 
   test('removes Cookies headers', () {
@@ -162,4 +179,10 @@ void main() {
     expect(sanitizedHeaders?.containsKey('Cookie'), false);
     expect(sanitizedHeaders?.containsKey('cookie'), false);
   });
+}
+
+extension StringExtension on String {
+  String _capitalize() {
+    return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
+  }
 }
