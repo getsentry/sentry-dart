@@ -22,9 +22,16 @@ class LoadImageListIntegration extends Integration<SentryFlutterOptions> {
 
 extension _NeedsSymbolication on SentryEvent {
   bool needsSymbolication() {
-    if (this is SentryTransaction) return false;
+    if (this is SentryTransaction) {
+      return false;
+    }
+    if (exceptions?.isNotEmpty == false) {
+      return false;
+    }
     final frames = exceptions?.first.stackTrace?.frames;
-    if (frames == null) return false;
+    if (frames == null) {
+      return false;
+    }
     return frames.any((frame) => 'native' == frame.platform);
   }
 }
