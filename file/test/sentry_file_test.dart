@@ -6,6 +6,7 @@ import 'dart:io';
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry_file/sentry_file.dart';
+import 'package:sentry_file/src/version.dart';
 import 'package:test/test.dart';
 
 import 'mock_sentry_client.dart';
@@ -522,6 +523,22 @@ void main() {
 
       expect(fixture.hub.options.sdk.integrations.contains('SentryFileTracing'),
           true);
+    });
+
+    test('addSentry adds package to sdk', () {
+      final file = File('test_resources/testfile.txt');
+
+      fixture.getSut(
+        file,
+        tracesSampleRate: 1.0,
+      );
+
+      expect(
+        fixture.hub.options.sdk.packages
+            .where((it) => it.name == packageName && it.version == sdkVersion)
+            .length,
+        1,
+      );
     });
   });
 }

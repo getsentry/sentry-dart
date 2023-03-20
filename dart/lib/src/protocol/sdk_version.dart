@@ -88,6 +88,12 @@ class SdkVersion {
 
   /// Adds a package
   void addPackage(String name, String version) {
+    for (final item in _packages) {
+      if (item.name == name && item.version == version) {
+        return;
+      }
+    }
+
     final package = SentryPackage(name, version);
     _packages.add(package);
   }

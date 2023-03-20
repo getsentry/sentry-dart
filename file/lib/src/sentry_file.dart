@@ -9,6 +9,8 @@ import 'dart:typed_data';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 
+import 'version.dart';
+
 typedef Callback<T> = FutureOr<T> Function();
 
 /// The Sentry wrapper for the File IO implementation that creates a span
@@ -36,6 +38,7 @@ class SentryFile implements File {
     @internal Hub? hub,
   }) : _hub = hub ?? HubAdapter() {
     _hub.options.sdk.addIntegration('SentryFileTracing');
+    _hub.options.sdk.addPackage(packageName, sdkVersion);
   }
 
   final File _file;

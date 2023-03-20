@@ -1,4 +1,4 @@
-name: sentry-flutter
+name: sentry-sqflite
 on:
   push:
     branches:
@@ -7,9 +7,9 @@ on:
   pull_request:
     paths-ignore:
       - 'logging/**'
+      - 'flutter/**'
       - 'dio/**'
       - 'file/**'
-      - 'sqflite/**'
 
 jobs:
   cancel-previous-workflow:
@@ -32,7 +32,7 @@ jobs:
       # max-parallel: 4
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        target: ['ios', 'android', 'web', 'macos', 'linux', 'windows']
+        target: ['ios', 'android', 'macos', 'linux', 'windows']
         sdk: ['stable', 'beta']
         exclude:
           - os: ubuntu-latest
@@ -85,112 +85,30 @@ jobs:
 
       - name: Pub Get
         run: |
-          cd flutter
+          cd sqflite
           flutter pub get
-
-      - name: Test chrome
-        if: runner.os == 'Linux'
-        run: |
-          cd flutter
-          flutter test --platform chrome --test-randomize-ordering-seed=random --exclude-tags canvasKit
-          flutter test --platform chrome --test-randomize-ordering-seed=random --tags canvasKit --web-renderer canvaskit
 
       - name: Test VM with coverage
         if: runner.os != 'macOS'
         run: |
-          cd flutter
+          cd sqflite
           flutter test --coverage --test-randomize-ordering-seed=random
 
       - uses: codecov/codecov-action@d9f34f8cd5cb3b3eb79b3e4b5dae3a16df499a70 # pin@v3
         if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
         with:
-          name: sentry_flutter
-          file: ./flutter/coverage/lcov.info
+          name: sentry_sqflite
+          file: ./sqflite/coverage/lcov.info
           functionalities: 'search' # remove after https://github.com/codecov/codecov-action/issues/600
 
       - uses: VeryGoodOpenSource/very_good_coverage@84e5b54ab888644554e5573dca87d7f76dec9fb3 # pin@v2.0.0
         if: runner.os == 'Linux' && matrix.sdk == 'stable' && matrix.target == 'linux'
         with:
-          path: './flutter/coverage/lcov.info'
-          min_coverage: 90
-
-      - name: Build ${{ matrix.target }}
-        run: |
-          flutter config --enable-windows-desktop
-          flutter config --enable-macos-desktop
-          flutter config --enable-linux-desktop
-          cd flutter/example
-          TARGET=${{ matrix.target }}
-          flutter pub get
-          case $TARGET in
-          ios)
-          flutter build ios --no-codesign
-          ;;
-          macos)
-          flutter build macos
-          ;;
-          android)
-          flutter build appbundle
-          ;;
-          web)
-          flutter build web
-          ;;
-          linux)
-          flutter build linux
-          ;;
-          windows)
-          flutter build windows
-          ;;
-          esac
+          path: './sqflite/coverage/lcov.info'
+          min_coverage: 80
 
   analyze:
     uses: ./.github/workflows/analyze.yml
     with:
-      package: flutter
+      package: sqflite
       sdk: flutter
-
-  pod-lint:
-    runs-on: macos-latest
-    defaults:
-      run:
-        working-directory: ./flutter
-    steps:
-      - uses: actions/checkout@v3
-      # https://github.com/CocoaPods/CocoaPods/issues/5275#issuecomment-315461879
-      - run: pod lib lint ios/sentry_flutter.podspec --configuration=Debug --skip-import-validation --allow-warnings
-
-  swift-lint:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./flutter
-    steps:
-      - uses: actions/checkout@v3
-      - uses: norio-nomura/action-swiftlint@9f4dcd7fd46b4e75d7935cf2f4df406d5cae3684 # pin@3.2.1
-        with:
-          args: --strict
-
-  ktlint:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./flutter
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: ktlint
-        uses: ScaCap/action-ktlint@0169eb4232c76b235d26d94e92111c32aee7660e # pin@1.5.1
-        with:
-          github_token: ${{ secrets.github_token }}
-          reporter: github-pr-review
-          android: true
-          fail_on_error: true
-
-  detekt:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      # To recreate baseline run: detekt -i flutter/android,flutter/example/android -b flutter/config/detekt-bl.xml -cb
-      - uses: natiginfo/action-detekt-all@e01de6ff0eef7c24131e8a133bf598cfac6ceeab # pin@1.21.0
-        with:
-          args: -i flutter/android,flutter/example/android --baseline flutter/config/detekt-bl.xml --jvm-target 1.8 --build-upon-default-config --all-rules
