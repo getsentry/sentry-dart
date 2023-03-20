@@ -154,6 +154,26 @@ void main() {
           expect('e77c5713-5311-28c2-ecf0-eb73fc39f450', image.debugId);
           expect('test', image.debugFile);
         });
+
+        test('Native layer is not called as there is no exceptions',
+            () async {
+          var called = false;
+
+          final sut = fixture.getSut();
+          fixture.channel
+              .setMockMethodCallHandler((MethodCall methodCall) async {
+            called = true;
+            return imageList;
+          });
+
+          sut.call(fixture.hub, fixture.options);
+
+          expect(fixture.options.eventProcessors.length, 1);
+
+          await fixture.hub.captureMessage('error');
+
+          expect(called, false);
+        });
       });
     }
   });
