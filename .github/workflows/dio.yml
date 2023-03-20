@@ -8,6 +8,8 @@ on:
     paths-ignore:
       - 'logging/**'
       - 'flutter/**'
+      - 'file/**'
+      - 'sqflite/**'
 
 jobs:
   cancel-previous-workflow:

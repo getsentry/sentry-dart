@@ -8,6 +8,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:logging/logging.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_sqflite/sentry_sqflite.dart';
+import 'package:sqflite/sqflite.dart';
+// import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+// import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:feedback/feedback.dart' as feedback;
 import 'package:provider/provider.dart';
@@ -133,6 +137,10 @@ class MainScaffold extends StatelessWidget {
         child: Column(
           children: [
             const Center(child: Text('Trigger an action:\n')),
+            ElevatedButton(
+              onPressed: () => sqfliteTest(),
+              child: const Text('sqflite'),
+            ),
             ElevatedButton(
               onPressed: () => SecondaryScaffold.openSecondaryScaffold(context),
               child: const Text('Open another Scaffold'),
@@ -393,6 +401,52 @@ class MainScaffold extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> sqfliteTest() async {
+    final tr = Sentry.startTransaction(
+      'sqfliteTest',
+      'db',
+      bindToScope: true,
+    );
+
+    // databaseFactory = databaseFactoryFfiWeb; // or databaseFactoryFfi // or SentrySqfliteDatabaseFactory()
+
+    // final sqfDb = await openDatabase(inMemoryDatabasePath);
+    final db = await openDatabaseWithSentry(inMemoryDatabasePath);
+    // final db = SentryDatabase(sqfDb);
+    // final batch = db.batch();
+    await db.execute('''
+      CREATE TABLE Product (
+        id INTEGER PRIMARY KEY,
+        title TEXT
+      )
+  ''');
+    final dbTitles = <String>[];
+    for (int i = 1; i <= 20; i++) {
+      final title = 'Product $i';
+      dbTitles.add(title);
+      await db.insert('Product', <String, Object?>{'title': title});
+    }
+
+    await db.query('Product');
+
+    await db.transaction((txn) async {
+      await txn
+          .insert('Product', <String, Object?>{'title': 'Product Another one'});
+      await txn.delete('Product',
+          where: 'title = ?', whereArgs: ['Product Another one']);
+    });
+
+    await db.delete('Product', where: 'title = ?', whereArgs: ['Product 1']);
+
+    // final batch = db.batch();
+    // batch.delete('Product', where: 'title = ?', whereArgs: dbTitles);
+    // await batch.commit();
+
+    await db.close();
+
+    await tr.finish(status: const SpanStatus.ok());
   }
 }
 

@@ -3,7 +3,10 @@ on:
   push:
     branches:
       - main
+      - release/**
   pull_request:
+    paths-ignore:
+      - 'file/**'
 
 jobs:
   cancel-previous-workflow:
@@ -29,7 +32,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'adopt'
-          java-version: '8'
+          java-version: '11'
 
       - uses: subosito/flutter-action@1e6ee87cb840500837bcd50a667fb28815d8e310 # pin@v2
         with:

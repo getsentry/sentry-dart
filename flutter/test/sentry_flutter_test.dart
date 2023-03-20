@@ -344,7 +344,7 @@ void main() {
       await Sentry.close();
     });
 
-    test('Web && (iOS || macOS) ', () async {
+    test('Web && (iOS || macOS)', () async {
       List<Integration> integrations = [];
       Transport transport = MockTransport();
 

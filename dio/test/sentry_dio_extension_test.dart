@@ -5,6 +5,7 @@ import 'package:sentry_dio/src/dio_stacktrace_extractor.dart';
 import 'package:sentry_dio/src/sentry_dio_client_adapter.dart';
 import 'package:sentry_dio/src/sentry_dio_extension.dart';
 import 'package:sentry_dio/src/sentry_transformer.dart';
+import 'package:sentry_dio/src/version.dart';
 import 'package:test/test.dart';
 
 import 'mocks/mock_hub.dart';
@@ -101,6 +102,19 @@ void main() {
       expect(
         fixture.hub.options.sdk.integrations
             .where((it) => it == 'sentry_dio')
+            .length,
+        1,
+      );
+    });
+
+    test('addSentry adds package to sdk', () {
+      final dio = fixture.getSut();
+
+      dio.addSentry(hub: fixture.hub);
+
+      expect(
+        fixture.hub.options.sdk.packages
+            .where((it) => it.name == packageName && it.version == sdkVersion)
             .length,
         1,
       );

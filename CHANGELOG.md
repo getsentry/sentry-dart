@@ -2,10 +2,20 @@
 
 ## Unreleased
 
+### Features
+
+- sqflite Support for Flutter ([#1306](https://github.com/getsentry/sentry-dart/pull/1306))
+
 ### Fixes
 
 - `DioErrorExtractor` no longer extracts `DioError.stackTrace` which is done via `DioStackTraceExtractor` instead ([#1344](https://github.com/getsentry/sentry-dart/pull/1344))
 - LoadImageListIntegration won't throw bad state if there is no exceptions in the event ([#1347](https://github.com/getsentry/sentry-dart/pull/1347))
+
+### Dependencies
+
+- Bump Android SDK from v6.15.0 to v6.16.0 ([#1342](https://github.com/getsentry/sentry-dart/pull/1342))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6160)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.15.0...6.16.0)
 
 ## 7.1.0
 
