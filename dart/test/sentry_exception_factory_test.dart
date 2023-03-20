@@ -73,6 +73,43 @@ void main() {
     expect(sentryException.stackTrace!.frames.first.fileName, 'test.dart');
   });
 
+  test('should extract stackTrace from custom exception', () {
+    fixture.options
+        .addExceptionStackTraceExtractor(CustomExceptionStackTraceExtractor());
+
+    SentryException sentryException;
+    try {
+      throw CustomException(StackTrace.fromString('''
+#0      baz (file:///pathto/test.dart:50:3)
+<asynchronous suspension>
+#1      bar (file:///pathto/test.dart:46:9)
+      '''));
+    } catch (err, _) {
+      sentryException = fixture.getSut().getSentryException(
+            err,
+          );
+    }
+
+    expect(sentryException.type, 'CustomException');
+    expect(sentryException.stackTrace!.frames.first.lineNo, 46);
+    expect(sentryException.stackTrace!.frames.first.colNo, 9);
+    expect(sentryException.stackTrace!.frames.first.fileName, 'test.dart');
+  });
+
+  test('should not fail when stackTrace property does not exist', () {
+    SentryException sentryException;
+    try {
+      throw Object();
+    } catch (err, _) {
+      sentryException = fixture.getSut().getSentryException(
+            err,
+          );
+    }
+
+    expect(sentryException.type, 'Object');
+    expect(sentryException.stackTrace, isNotNull);
+  });
+
   test('getSentryException with not thrown Error and frames', () {
     final sentryException = fixture.getSut().getSentryException(
           CustomError(),
@@ -135,6 +172,20 @@ void main() {
 }
 
 class CustomError extends Error {}
+
+class CustomException implements Exception {
+  final StackTrace stackTrace;
+
+  CustomException(this.stackTrace);
+}
+
+class CustomExceptionStackTraceExtractor
+    extends ExceptionStackTraceExtractor<CustomException> {
+  @override
+  StackTrace? stackTrace(CustomException error) {
+    return error.stackTrace;
+  }
+}
 
 class Fixture {
   final options = SentryOptions(dsn: fakeDsn);

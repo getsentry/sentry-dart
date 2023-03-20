@@ -35,6 +35,7 @@ export 'src/type_check_hint.dart';
 // exception extraction
 export 'src/exception_cause_extractor.dart';
 export 'src/exception_cause.dart';
+export 'src/exception_stacktrace_extractor.dart';
 // Isolates
 export 'src/sentry_isolate_extension.dart';
 export 'src/sentry_isolate.dart';

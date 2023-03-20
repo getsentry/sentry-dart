@@ -273,6 +273,9 @@ class Hub {
           exception: exception,
           stackTrace: stackTrace,
         );
+        if (_options.devMode) {
+          rethrow;
+        }
       }
     }
     return scope;
@@ -367,6 +370,9 @@ class Hub {
           SentryLevel.error,
           "Error in the 'configureScope' callback, error: $err",
         );
+        if (_options.devMode) {
+          rethrow;
+        }
       }
     }
   }

@@ -291,6 +291,32 @@ void main() {
       expect(capturedEvent.exceptions?[1].stackTrace!.frames.first.colNo, 9);
     });
 
+    test('should capture custom stacktrace', () async {
+      fixture.options.addExceptionStackTraceExtractor(
+        ExceptionWithStackTraceExtractor(),
+      );
+
+      final stackTrace = StackTrace.fromString('''
+#0      baz (file:///pathto/test.dart:50:3)
+<asynchronous suspension>
+#1      bar (file:///pathto/test.dart:46:9)
+      ''');
+
+      exception = ExceptionWithStackTrace(stackTrace);
+
+      final client = fixture.getSut(attachStacktrace: true);
+      await client.captureException(exception, stackTrace: null);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect(capturedEvent.exceptions?[0].stackTrace, isNotNull);
+      expect(capturedEvent.exceptions?[0].stackTrace!.frames.first.fileName,
+          'test.dart');
+      expect(capturedEvent.exceptions?[0].stackTrace!.frames.first.lineNo, 46);
+      expect(capturedEvent.exceptions?[0].stackTrace!.frames.first.colNo, 9);
+    });
+
     test('should not capture cause stacktrace when attachStacktrace is false',
         () async {
       fixture.options.addExceptionCauseExtractor(
@@ -1636,5 +1662,18 @@ class ExceptionWithCauseExtractor
   @override
   ExceptionCause? cause(ExceptionWithCause error) {
     return ExceptionCause(error.cause, error.stackTrace);
+  }
+}
+
+class ExceptionWithStackTrace {
+  ExceptionWithStackTrace(this.stackTrace);
+  final StackTrace stackTrace;
+}
+
+class ExceptionWithStackTraceExtractor
+    extends ExceptionStackTraceExtractor<ExceptionWithStackTrace> {
+  @override
+  StackTrace? stackTrace(ExceptionWithStackTrace error) {
+    return error.stackTrace;
   }
 }
