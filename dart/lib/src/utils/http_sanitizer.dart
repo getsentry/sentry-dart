@@ -31,12 +31,16 @@ class HttpSanitizer {
       // url considered malformed because of fragment position
       return UrlDetails();
     } else {
-      final uri = Uri.parse(url);
-      final urlWithAuthRemoved = _urlWithAuthRemoved(uri._url());
-      return UrlDetails(
-          url: urlWithAuthRemoved.isEmpty ? null : urlWithAuthRemoved,
-          query: uri.query.isEmpty ? null : uri.query,
-          fragment: uri.fragment.isEmpty ? null : uri.fragment);
+      try {
+        final uri = Uri.parse(url);
+        final urlWithAuthRemoved = _urlWithAuthRemoved(uri._url());
+        return UrlDetails(
+            url: urlWithAuthRemoved.isEmpty ? null : urlWithAuthRemoved,
+            query: uri.query.isEmpty ? null : uri.query,
+            fragment: uri.fragment.isEmpty ? null : uri.fragment);
+      } catch (_) {
+        return null;
+      }
     }
   }
 
