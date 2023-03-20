@@ -6,6 +6,10 @@
 
 - sqflite Support for Flutter ([#1306](https://github.com/getsentry/sentry-dart/pull/1306))
 
+### Fixes
+
+- LoadImageListIntegration won't throw bad state if there is no exceptions in the event ([#1347](https://github.com/getsentry/sentry-dart/pull/1347))
+
 ## 7.1.0
 
 ### Features
