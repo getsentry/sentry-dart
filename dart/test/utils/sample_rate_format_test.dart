@@ -1,5 +1,6 @@
 import 'package:sentry/src/utils/sample_rate_format.dart';
 import 'package:test/test.dart';
+import 'package:intl/intl.dart';
 
 void main() {
   test('format', () {
@@ -29,6 +30,20 @@ void main() {
     for (final inputAndOutput in inputsAndOutputs) {
       expect(SampleRateFormat().format(inputAndOutput.i), inputAndOutput.o);
     }
+  });
+
+  test('intl platform difference', () {
+    expect(
+      NumberFormat('#.################').format(0.1919191919191919),
+      '0.1919191919191919',
+    );
+  });
+
+  test('intl platform difference 2', () {
+    expect(
+      NumberFormat('#.################').format(0.19191919191919199),
+      '0.191919191919192',
+    );
   });
 
   test('input smaller 0 is capped', () {
