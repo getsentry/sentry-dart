@@ -1,6 +1,9 @@
+import 'package:meta/meta.dart';
+
 import '../protocol.dart';
 import 'url_details.dart';
 
+@internal
 class HttpSanitizer {
   static final RegExp _authRegExp = RegExp("(.+://)(.*@)(.*)");
   static final List<String> _securityHeaders = [

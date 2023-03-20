@@ -55,6 +55,7 @@ class BreadcrumbClientAdapter implements HttpClientAdapter {
     } finally {
       stopwatch.stop();
 
+      // ignore: invalid_use_of_internal_member
       final urlDetails =
           HttpSanitizer.sanitizeUrl(options.uri.toString()) ?? UrlDetails();
 

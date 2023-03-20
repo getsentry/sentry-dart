@@ -1,5 +1,7 @@
+import 'package:meta/meta.dart';
 import '../../sentry.dart';
 
+@internal
 /// Sanitized url data for sentry.io
 class UrlDetails {
   UrlDetails({this.url, this.query, this.fragment});

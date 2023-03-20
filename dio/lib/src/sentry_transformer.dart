@@ -15,6 +15,7 @@ class SentryTransformer implements Transformer {
 
   @override
   Future<String> transformRequest(RequestOptions options) async {
+    // ignore: invalid_use_of_internal_member
     final urlDetails = HttpSanitizer.sanitizeUrl(options.uri.toString());
     var description = options.method;
     if (urlDetails != null) {
@@ -49,6 +50,7 @@ class SentryTransformer implements Transformer {
     RequestOptions options,
     ResponseBody response,
   ) async {
+    // ignore: invalid_use_of_internal_member
     final urlDetails = HttpSanitizer.sanitizeUrl(options.uri.toString());
     var description = options.method;
     if (urlDetails != null) {
