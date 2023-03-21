@@ -331,17 +331,34 @@ class SentryOptions {
   /// The default is 3 seconds.
   Duration? idleTimeout = Duration(seconds: 3);
 
-  final _extractorsByType = <Type, ExceptionCauseExtractor>{};
+  final _causeExtractorsByType = <Type, ExceptionCauseExtractor>{};
+
+  final _stackTraceExtractorsByType = <Type, ExceptionStackTraceExtractor>{};
 
   /// Returns a previously added [ExceptionCauseExtractor] by type
   ExceptionCauseExtractor? exceptionCauseExtractor(Type type) {
-    return _extractorsByType[type];
+    return _causeExtractorsByType[type];
   }
 
   /// Adds [ExceptionCauseExtractor] in order to extract inner exceptions
   void addExceptionCauseExtractor(ExceptionCauseExtractor extractor) {
-    _extractorsByType[extractor.exceptionType] = extractor;
+    _causeExtractorsByType[extractor.exceptionType] = extractor;
   }
+
+  /// Returns a previously added [ExceptionStackTraceExtractor] by type
+  ExceptionStackTraceExtractor? exceptionStackTraceExtractor(Type type) {
+    return _stackTraceExtractorsByType[type];
+  }
+
+  /// Adds [ExceptionStackTraceExtractor] in order to extract inner exceptions
+  void addExceptionStackTraceExtractor(ExceptionStackTraceExtractor extractor) {
+    _stackTraceExtractorsByType[extractor.exceptionType] = extractor;
+  }
+
+  /// Changed SDK behaviour when set to true:
+  /// - Rethrow exceptions that occur in user provided closures
+  @internal
+  bool devMode = false;
 
   SentryOptions({this.dsn, PlatformChecker? checker}) {
     if (checker != null) {

@@ -5,6 +5,112 @@
 ### Enhancements
 
 - FrameTrackingIntegration ([#1271](https://github.com/getsentry/sentry-dart/pull/1271))
+## 7.2.0
+
+### Features
+
+- sqflite Support for Flutter ([#1306](https://github.com/getsentry/sentry-dart/pull/1306))
+
+### Fixes
+
+- `DioErrorExtractor` no longer extracts `DioError.stackTrace` which is done via `DioStackTraceExtractor` instead ([#1344](https://github.com/getsentry/sentry-dart/pull/1344))
+- LoadImageListIntegration won't throw bad state if there is no exceptions in the event ([#1347](https://github.com/getsentry/sentry-dart/pull/1347))
+
+### Dependencies
+
+- Bump Android SDK from v6.15.0 to v6.16.0 ([#1342](https://github.com/getsentry/sentry-dart/pull/1342))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6160)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.15.0...6.16.0)
+
+## 7.1.0
+
+### Features
+
+- Exception StackTrace Extractor ([#1335](https://github.com/getsentry/sentry-dart/pull/1335))
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.0.0 to v8.3.1 ([#1331](https://github.com/getsentry/sentry-dart/pull/1331))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#831)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.0.0...8.3.1)
+
+### Fixes
+
+- SentryUserInteractionWidget checks if the Elements are mounted before comparing them ([#1339](https://github.com/getsentry/sentry-dart/pull/1339))
+
+## 7.0.0
+
+### Features
+
+- Platform Exception Event Processor ([#1297](https://github.com/getsentry/sentry-dart/pull/1297))
+- Support failedRequestTargets for HTTP Client errors ([#1285](https://github.com/getsentry/sentry-dart/pull/1285))
+  - Captures errors for the default range `500-599` if `captureFailedRequests` is enabled
+- Sentry Isolate Extension ([#1266](https://github.com/getsentry/sentry-dart/pull/1266))
+- Allow sentry user to control resolution of captured Flutter screenshots ([#1288](https://github.com/getsentry/sentry-dart/pull/1288))
+- Support beforeSendTransaction ([#1238](https://github.com/getsentry/sentry-dart/pull/1238))
+- Add In Foreground to App context ([#1260](https://github.com/getsentry/sentry-dart/pull/1260))
+- Error Cause Extractor ([#1198](https://github.com/getsentry/sentry-dart/pull/1198), [#1236](https://github.com/getsentry/sentry-dart/pull/1236))
+  - Add `throwable` to `SentryException`
+- Dart 3 Support ([#1220](https://github.com/getsentry/sentry-dart/pull/1220))
+- Introduce `Hint` data bag ([#1136](https://github.com/getsentry/sentry-dart/pull/1136))
+- Use `Hint` for screenshots ([#1165](https://github.com/getsentry/sentry-dart/pull/1165))
+- Support custom units for custom measurements ([#1181](https://github.com/getsentry/sentry-dart/pull/1181))
+
+### Enhancements
+
+- Replace `toImage` with `toImageSync` for Flutter >= 3.7 ([1268](https://github.com/getsentry/sentry-dart/pull/1268))
+- Don't await `FutureOr<T>` if it's not a future. This should marginally improve the performance ([#1310](https://github.com/getsentry/sentry-dart/pull/1310))
+- Replace `StackTrace.empty` with `StackTrace.current` ([#1183](https://github.com/getsentry/sentry-dart/pull/1183))
+
+### Breaking Changes
+
+[Dart Migration guide](https://docs.sentry.io/platforms/dart/migration/#migrating-from-sentry-618x-to-sentry-700).
+
+[Flutter Migration guide](https://docs.sentry.io/platforms/flutter/migration/#migrating-from-sentry_flutter-618x-to-sentry-700).
+
+- Enable enableNdkScopeSync by default ([#1276](https://github.com/getsentry/sentry-dart/pull/1276))
+- Update `sentry_dio` to dio v5 ([#1282](https://github.com/getsentry/sentry-dart/pull/1282))
+- Remove deprecated fields ([#1227](https://github.com/getsentry/sentry-dart/pull/1227))
+  - Remove deprecated fields from the `Scope` class.
+    - `user(SentryUser? user)`, using the `setUser(SentryUser? user)` instead.
+    - `attachements`, using the `attachments` instead.
+  - Remove deprecated field from the `SentryFlutterOptions` class.
+    - `anrTimeoutIntervalMillis`, using the `anrTimeoutInterval` instead.
+    - `autoSessionTrackingIntervalMillis`, using the `autoSessionTrackingInterval` instead.
+- Rename APM tracking feature flags to tracing ([#1222](https://github.com/getsentry/sentry-dart/pull/1222))
+  - Rename
+    - enableAutoPerformanceTracking to enableAutoPerformanceTracing
+    - enableOutOfMemoryTracking to enableWatchdogTerminationTracking
+- Enable APM features by default ([#1217](https://github.com/getsentry/sentry-dart/pull/1217))
+  - Enable by default
+    - captureFailedRequests
+    - enableStructuredDataTracing
+    - enableUserInteractionTracing
+- Mark transaction as internal_error in case of unhandled errors ([#1218](https://github.com/getsentry/sentry-dart/pull/1218))
+- Removed various deprecated fields ([#1036](https://github.com/getsentry/sentry-dart/pull/1036)):
+  - Removed the following fields from the `device` context
+    - language
+    - timezone
+    - screenResolution
+    - theme
+  - Removed isolate name from Dart context. It's now reported via the threads interface. It can be enabled via `options.attachThreads`
+- Use `sentryClientName` instead of `sdk.identifier` ([#1135](https://github.com/getsentry/sentry-dart/pull/1135))
+- Refactor `BindingUtils` to `BindingWrapper` to enable the use of custom bindings ([#1184](https://github.com/getsentry/sentry-dart/pull/1184))
+- Bump Flutter min to 3.0.0 and Dart to 2.17.0 ([#1180](https://github.com/getsentry/sentry-dart/pull/1180))
+
+### Dependencies
+
+- Bump Cocoa SDK from 7.31.5 to 8.0.0
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#800)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/7.31.5...8.0.0)
+
+### Fixes
+
+- View hierarchy reads size from RenderBox only ([#1258](https://github.com/getsentry/sentry-dart/pull/1258))
+- Try to avoid ConcurrentModificationError by not using a Future.forEach ([#1259](https://github.com/getsentry/sentry-dart/pull/1259))
+- isWeb check for WASM ([#1249](https://github.com/getsentry/sentry-dart/pull/1249))
+- Don't suppress error logs ([#1228](https://github.com/getsentry/sentry-dart/pull/1228))
+- Fix: Remove `SentryOptions` related parameters from classes which also take `Hub` as a parameter (#816)
 
 ## 7.0.0-rc.2
 

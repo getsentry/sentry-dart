@@ -22,9 +22,16 @@ class LoadImageListIntegration extends Integration<SentryFlutterOptions> {
 
 extension _NeedsSymbolication on SentryEvent {
   bool needsSymbolication() {
-    if (this is SentryTransaction) return false;
+    if (this is SentryTransaction) {
+      return false;
+    }
+    if (exceptions?.isNotEmpty == false) {
+      return false;
+    }
     final frames = exceptions?.first.stackTrace?.frames;
-    if (frames == null) return false;
+    if (frames == null) {
+      return false;
+    }
     return frames.any((frame) => 'native' == frame.platform);
   }
 }
@@ -36,7 +43,7 @@ class _LoadImageListIntegrationEventProcessor extends EventProcessor {
   final SentryFlutterOptions _options;
 
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) async {
+  FutureOr<SentryEvent?> apply(SentryEvent event, {Hint? hint}) async {
     if (event.needsSymbolication()) {
       try {
         // we call on every event because the loaded image list is cached

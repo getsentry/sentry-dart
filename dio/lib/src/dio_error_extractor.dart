@@ -1,16 +1,19 @@
 import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
 
-/// Extracts the inner exception and stacktrace from [DioError]
+/// Extracts the inner cause and stacktrace from [DioError]
 class DioErrorExtractor extends ExceptionCauseExtractor<DioError> {
   @override
   ExceptionCause? cause(DioError error) {
-    if (error.stackTrace == null) {
+    final cause = error.error;
+    if (cause == null) {
       return null;
     }
     return ExceptionCause(
-      error.error ?? 'DioError inner stacktrace',
-      error.stackTrace,
+      cause,
+      // A custom [ExceptionStackTraceExtractor] can be
+      // used to extract the inner stacktrace in other cases
+      cause is Error ? cause.stackTrace : null,
     );
   }
 }

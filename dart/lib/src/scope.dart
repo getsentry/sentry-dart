@@ -143,7 +143,7 @@ class Scope {
 
   Scope(this._options);
 
-  Breadcrumb? _addBreadCrumbSync(Breadcrumb breadcrumb, {dynamic hint}) {
+  Breadcrumb? _addBreadCrumbSync(Breadcrumb breadcrumb, {Hint? hint}) {
     // bail out if maxBreadcrumbs is zero
     if (_options.maxBreadcrumbs == 0) {
       return null;
@@ -171,6 +171,9 @@ class Scope {
           exception: exception,
           stackTrace: stackTrace,
         );
+        if (_options.devMode) {
+          rethrow;
+        }
       }
     }
     if (processedBreadcrumb != null) {
@@ -185,7 +188,7 @@ class Scope {
   }
 
   /// Adds a breadcrumb to the breadcrumbs queue
-  Future<void> addBreadcrumb(Breadcrumb breadcrumb, {dynamic hint}) async {
+  Future<void> addBreadcrumb(Breadcrumb breadcrumb, {Hint? hint}) async {
     final addedBreadcrumb = _addBreadCrumbSync(breadcrumb, hint: hint);
     if (addedBreadcrumb != null) {
       await _callScopeObservers((scopeObserver) async =>
@@ -329,6 +332,9 @@ class Scope {
           exception: exception,
           stackTrace: stackTrace,
         );
+        if (_options.devMode) {
+          rethrow;
+        }
       }
       if (processedEvent == null) {
         _options.logger(SentryLevel.debug, 'Event was dropped by a processor');

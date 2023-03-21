@@ -16,6 +16,7 @@ import io.sentry.Sentry
 import io.sentry.DateUtils
 import io.sentry.android.core.ActivityFramesTracker
 import io.sentry.android.core.AppStartState
+import io.sentry.android.core.BuildConfig.VERSION_NAME
 import io.sentry.android.core.LoadClass
 import io.sentry.android.core.SentryAndroid
 import io.sentry.android.core.SentryAndroidOptions
@@ -139,15 +140,17 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
 
       args.getIfNotNull<Boolean>("sendClientReports") { options.isSendClientReports = it }
 
-      args.getIfNotNull<Map<String, Any>>("sdk") { sdk ->
-        val name = sdk["name"] as? String
-        val version = sdk["version"] as? String
-        if (name != null && version != null) {
-          val sdkVersion = SdkVersion(name, version)
-          options.setSentryClientName("$name/$version")
-          options.setSdkVersion(sdkVersion)
-        }
+      val name = "sentry.java.android.flutter"
+
+      var sdkVersion = options.sdkVersion
+      if (sdkVersion == null) {
+        sdkVersion = SdkVersion(name, VERSION_NAME)
+      } else {
+        sdkVersion.name = name
       }
+
+      options.sdkVersion = sdkVersion
+      options.sentryClientName = "$name/$VERSION_NAME"
 
       options.setBeforeSend { event, _ ->
         setEventOriginTag(event)
@@ -407,10 +410,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler {
   private fun addPackages(event: SentryEvent, sdk: SdkVersion?) {
     event.sdk?.let {
       if (it.name == flutterSdk) {
-        sdk?.packages?.forEach { sentryPackage ->
+        sdk?.packageSet?.forEach { sentryPackage ->
           it.addPackage(sentryPackage.name, sentryPackage.version)
         }
-        sdk?.integrations?.forEach { integration ->
+        sdk?.integrationSet?.forEach { integration ->
           it.addIntegration(integration)
         }
       }

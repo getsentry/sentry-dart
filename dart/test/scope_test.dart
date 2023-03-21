@@ -507,7 +507,7 @@ void main() {
           updatedEvent?.contexts[SentryOperatingSystem.type].name, 'event-os');
     });
 
-    test('should apply the scope.contexts values ', () async {
+    test('should apply the scope.contexts values', () async {
       final event = SentryEvent();
       final scope = Scope(SentryOptions(dsn: fakeDsn));
       await scope.setContexts(
@@ -617,7 +617,7 @@ void main() {
       scopeObserver: fixture.mockScopeObserver,
       beforeBreadcrumbCallback: (
         Breadcrumb? breadcrumb, {
-        dynamic hint,
+        Hint? hint,
       }) {
         return breadcrumb?.copyWith(message: "modified");
       },
