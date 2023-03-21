@@ -29,8 +29,8 @@ void main() {
 
     for (final input in inputs) {
       expect(
-          SampleRateFormat().format(input),
-          NumberFormat('#.################').format(input),
+        SampleRateFormat().format(input),
+        NumberFormat('#.################').format(input),
       );
     }
   });
