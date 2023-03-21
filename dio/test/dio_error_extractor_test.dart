@@ -5,54 +5,55 @@ import 'package:test/test.dart';
 void main() {
   late Fixture fixture;
 
-  setUp(() {
-    fixture = Fixture();
-  });
+  group(DioErrorExtractor, () {
+    setUp(() {
+      fixture = Fixture();
+    });
 
-  test('$DioErrorExtractor extracts error and stacktrace', () {
-    final sut = fixture.getSut();
-    final exception = Exception('foo bar');
-    final stacktrace = StackTrace.current;
+    test('extracts error and stacktrace', () {
+      final sut = fixture.getSut();
+      late Error error;
+      try {
+        throw ArgumentError('foo bar');
+      } on ArgumentError catch (e) {
+        error = e;
+      }
+      final dioError = DioError(
+        error: error,
+        requestOptions: RequestOptions(path: '/foo/bar'),
+      );
 
-    final dioError = DioError(
-      error: exception,
-      requestOptions: RequestOptions(path: '/foo/bar'),
-      stackTrace: stacktrace,
-    );
+      final cause = sut.cause(dioError);
 
-    final cause = sut.cause(dioError);
+      expect(cause?.exception, error);
+      expect(cause?.stackTrace, error.stackTrace);
+    });
 
-    expect(cause?.exception, exception);
-    expect(cause?.stackTrace, stacktrace);
-  });
+    test('extracts exception', () {
+      final sut = fixture.getSut();
 
-  test('$DioErrorExtractor extracts stacktrace only', () {
-    final sut = fixture.getSut();
-    final stacktrace = StackTrace.current;
+      final dioError = DioError(
+        error: 'Some error',
+        requestOptions: RequestOptions(path: '/foo/bar'),
+      );
 
-    final dioError = DioError(
-      requestOptions: RequestOptions(path: '/foo/bar'),
-      stackTrace: stacktrace,
-    );
+      final cause = sut.cause(dioError);
 
-    final cause = sut.cause(dioError);
+      expect(cause?.exception, 'Some error');
+      expect(cause?.stackTrace, isNull);
+    });
 
-    expect(cause?.exception, 'DioError inner stacktrace');
-    expect(cause?.stackTrace, stacktrace);
-  });
+    test('extracts nothing with missing cause', () {
+      final sut = fixture.getSut();
 
-  test('$DioErrorExtractor extracts nothing with missing stacktrace', () {
-    final sut = fixture.getSut();
-    final exception = Exception('foo bar');
+      final dioError = DioError(
+        requestOptions: RequestOptions(path: '/foo/bar'),
+      );
 
-    final dioError = DioError(
-      error: exception,
-      requestOptions: RequestOptions(path: '/foo/bar'),
-    );
+      final cause = sut.cause(dioError);
 
-    final cause = sut.cause(dioError);
-
-    expect(cause, isNull);
+      expect(cause, isNull);
+    });
   });
 }
 

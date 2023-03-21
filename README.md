@@ -25,7 +25,7 @@ Sentry SDK for Dart and Flutter
 
 ##### Usage
 
-For detailed usage, check out the inner [dart](https://github.com/getsentry/sentry-dart/tree/main/dart), [flutter](https://github.com/getsentry/sentry-dart/tree/main/flutter), [logging](https://github.com/getsentry/sentry-dart/tree/main/logging), [dio](https://github.com/getsentry/sentry-dart/tree/main/dio) and [file](https://github.com/getsentry/sentry-dart/tree/main/file) `README's` or our `Resources` section below.
+For detailed usage, check out the inner [dart](https://github.com/getsentry/sentry-dart/tree/main/dart), [flutter](https://github.com/getsentry/sentry-dart/tree/main/flutter), [logging](https://github.com/getsentry/sentry-dart/tree/main/logging), [dio](https://github.com/getsentry/sentry-dart/tree/main/dio), [file](https://github.com/getsentry/sentry-dart/tree/main/file) and [sqflite](https://github.com/getsentry/sentry-dart/tree/main/sqflite) `README's` or our `Resources` section below.
 
 #### Blog posts
 
