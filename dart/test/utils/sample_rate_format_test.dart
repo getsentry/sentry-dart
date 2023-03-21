@@ -47,9 +47,3 @@ void main() {
     expect(SampleRateFormat().format(double.nan), '0');
   });
 }
-
-class Tuple {
-  Tuple(this.i, this.o);
-  final double i;
-  final String o;
-}
