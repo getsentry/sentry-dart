@@ -1,45 +1,37 @@
-import 'dart:math';
 import 'package:sentry/src/utils/sample_rate_format.dart';
 import 'package:test/test.dart';
+import 'package:intl/intl.dart';
 
 void main() {
   test('format', () {
-    final inputsAndOutputs = [
-      Tuple(0.0, '0'),
-      Tuple(1.0, '1'),
-      Tuple(0.1, '0.1'),
-      Tuple(0.11, '0.11'),
-      Tuple(0.19, '0.19'),
-      Tuple(0.191, '0.191'),
-      Tuple(0.1919, '0.1919'),
-      Tuple(0.19191, '0.19191'),
-      Tuple(0.191919, '0.191919'),
-      Tuple(0.1919191, '0.1919191'),
-      Tuple(0.19191919, '0.19191919'),
-      Tuple(0.191919191, '0.191919191'),
-      Tuple(0.1919191919, '0.1919191919'),
-      Tuple(0.19191919191, '0.19191919191'),
-      Tuple(0.191919191919, '0.191919191919'),
-      Tuple(0.1919191919191, '0.1919191919191'),
-      Tuple(0.19191919191919, '0.19191919191919'),
-      Tuple(0.191919191919191, '0.191919191919191'),
-      Tuple(0.1919191919191919, '0.1919191919191919'),
-      Tuple(0.19191919191919199, '0.191919191919192'),
+    final inputs = [
+      0.0,
+      1.0,
+      0.1,
+      0.11,
+      0.19,
+      0.191,
+      0.1919,
+      0.19191,
+      0.191919,
+      0.1919191,
+      0.19191919,
+      0.191919191,
+      0.1919191919,
+      0.19191919191,
+      0.191919191919,
+      0.1919191919191,
+      0.19191919191919,
+      0.191919191919191,
+      0.1919191919191919,
+      0.19191919191919199,
     ];
 
-    for (final inputAndOutput in inputsAndOutputs) {
-      final actual = SampleRateFormat().format(inputAndOutput.i);
-      final expected = inputAndOutput.o;
-      final epsilon = 0.0000000000000001;
-
-      final actualDouble = double.parse(actual);
-      final expectedDouble = double.parse(expected);
-
-      if (expectedDouble > 0) {
-        expect((actualDouble/expectedDouble - 1).abs() < epsilon, true);
-      } else {
-        expect(actualDouble, expectedDouble);
-      }
+    for (final input in inputs) {
+      expect(
+          SampleRateFormat().format(input),
+          NumberFormat('#.################').format(input),
+      );
     }
   });
 
