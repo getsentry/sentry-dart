@@ -9,6 +9,7 @@ on:
       - 'logging/**'
       - 'flutter/**'
       - 'dio/**'
+      - 'sqflite/**'
 
 jobs:
   cancel-previous-workflow:

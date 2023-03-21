@@ -1,6 +1,10 @@
 # Changelog
 
-## Unreleased
+## 7.2.0
+
+### Features
+
+- sqflite Support for Flutter ([#1306](https://github.com/getsentry/sentry-dart/pull/1306))
 
 ### Features
 
@@ -8,6 +12,7 @@
 
 ### Fixes
 
+- `DioErrorExtractor` no longer extracts `DioError.stackTrace` which is done via `DioStackTraceExtractor` instead ([#1344](https://github.com/getsentry/sentry-dart/pull/1344))
 - LoadImageListIntegration won't throw bad state if there is no exceptions in the event ([#1347](https://github.com/getsentry/sentry-dart/pull/1347))
 
 ### Dependencies
