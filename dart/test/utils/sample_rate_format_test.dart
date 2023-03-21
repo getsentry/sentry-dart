@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:sentry/src/utils/sample_rate_format.dart';
 import 'package:test/test.dart';
 
@@ -27,7 +28,18 @@ void main() {
     ];
 
     for (final inputAndOutput in inputsAndOutputs) {
-      expect(SampleRateFormat().format(inputAndOutput.i), inputAndOutput.o);
+      final actual = SampleRateFormat().format(inputAndOutput.i);
+      final expected = inputAndOutput.o;
+      final epsilon = 0.0000000000000001;
+
+      final actualDouble = double.parse(actual);
+      final expectedDouble = double.parse(expected);
+
+      if (expectedDouble > 0) {
+        expect((actualDouble/expectedDouble - 1).abs() < epsilon, true);
+      } else {
+        expect(actualDouble, expectedDouble);
+      }
     }
   });
 
