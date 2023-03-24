@@ -166,7 +166,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
       args.getIfNotNull<Boolean>("sendClientReports") { options.isSendClientReports = it }
 
-      args.getIfNotNull<maxAttachmentSize>("maxAttachmentSize") { options.maxAttachmentSize = it }
+      args.getIfNotNull<Long>("maxAttachmentSize") { options.maxAttachmentSize = it }
 
       val name = "sentry.java.android.flutter"
 
