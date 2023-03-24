@@ -346,7 +346,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         }
 
         if let captureFailedRequests = arguments["captureFailedRequests"] as? Bool {
-            options.captureFailedRequests = captureFailedRequests
+            options.enableCaptureFailedRequests = captureFailedRequests
         }
 
         if let enableAppHangTracking = arguments["enableAppHangTracking"] as? Bool {
