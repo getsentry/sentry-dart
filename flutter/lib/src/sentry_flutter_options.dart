@@ -194,7 +194,7 @@ class SentryFlutterOptions extends SentryOptions {
   @experimental
   bool attachViewHierarchy = false;
 
-  /// When enabled, the SDK tracks when the application stops responding for a 
+  /// When enabled, the SDK tracks when the application stops responding for a
   /// specific amount of time (default 2s).
   /// Only available on iOS and macOS.
   bool enableAppHangTracking = true;
