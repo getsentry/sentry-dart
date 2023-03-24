@@ -45,11 +45,10 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
         'enableNdkScopeSync': options.enableNdkScopeSync,
         'enableAutoPerformanceTracing': options.enableAutoPerformanceTracing,
         'sendClientReports': options.sendClientReports,
-        'sdk': {
-          'name': options.sdk.name,
-          'version': options.sdk.version,
-        },
         'proguardUuid': options.proguardUuid,
+        'maxAttachmentSize': options.maxAttachmentSize,
+        'captureFailedRequests': options.captureFailedRequests,
+        'enableAppHangTracking': options.enableAppHangTracking,
       });
 
       options.sdk.addIntegration('nativeSdkIntegration');
