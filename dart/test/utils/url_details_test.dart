@@ -64,6 +64,13 @@ void main() {
     expect(request.fragment, isNull);
   });
 
+  test('removes cookies from request', () {
+    final request =
+        SentryRequest(url: 'https://sentry.io/api', cookies: 'foo=bar')
+            .sanitized();
+    expect(request.cookies, isNull);
+  });
+
   test('returns fallback for null URL', () {
     final urlDetails = UrlDetails(url: null);
     expect(urlDetails.urlOrFallback, "unknown");

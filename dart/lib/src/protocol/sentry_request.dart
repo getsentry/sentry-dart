@@ -150,12 +150,13 @@ class SentryRequest {
     Map<String, String>? env,
     @Deprecated('Will be removed in v8. Use [data] instead')
         Map<String, String>? other,
+    bool removeCookies = false,
   }) =>
       SentryRequest(
         url: url ?? this.url,
         method: method ?? this.method,
         queryString: queryString ?? this.queryString,
-        cookies: cookies ?? this.cookies,
+        cookies: removeCookies ? null : cookies ?? this.cookies,
         data: data ?? _data,
         headers: headers ?? _headers,
         env: env ?? _env,

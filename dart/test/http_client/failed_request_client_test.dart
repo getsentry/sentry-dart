@@ -59,8 +59,8 @@ void main() {
       expect(request?.url, 'https://example.com');
       expect(request?.queryString, 'foo=bar');
       expect(request?.fragment, 'myFragment');
-      expect(request?.cookies, 'foo=bar');
-      expect(request?.headers, {'Cookie': 'foo=bar'});
+      expect(request?.cookies, isNull);
+      expect(request?.headers, {});
       // ignore: deprecated_member_use_from_same_package
       expect(request?.other.keys.contains('duration'), true);
       // ignore: deprecated_member_use_from_same_package
@@ -134,8 +134,8 @@ void main() {
       expect(request?.url, 'https://example.com');
       expect(request?.queryString, 'foo=bar');
       expect(request?.fragment, 'myFragment');
-      expect(request?.cookies, 'foo=bar');
-      expect(request?.headers, {'Cookie': 'foo=bar'});
+      expect(request?.cookies, isNull);
+      expect(request?.headers, {});
       // ignore: deprecated_member_use_from_same_package
       expect(request?.other.keys.contains('duration'), true);
       // ignore: deprecated_member_use_from_same_package

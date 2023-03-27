@@ -99,6 +99,7 @@ extension SanitizedSentryRequest on SentryRequest {
       queryString: urlDetails.query,
       fragment: urlDetails.fragment,
       headers: HttpSanitizer.sanitizedHeaders(headers),
+      removeCookies: true,
     );
   }
 }
