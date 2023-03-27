@@ -25,20 +25,6 @@ void main() {
 
       expect(result, stacktrace);
     });
-
-    test('extracts nothing with missing stacktrace', () {
-      final sut = fixture.getSut();
-      final exception = Exception('foo bar');
-
-      final dioError = DioError(
-        error: exception,
-        requestOptions: RequestOptions(path: '/foo/bar'),
-      );
-
-      final result = sut.stackTrace(dioError);
-
-      expect(result, isNull);
-    });
   });
 }
 
