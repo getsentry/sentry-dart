@@ -3,7 +3,7 @@ import 'package:meta/meta.dart';
 import '../utils.dart';
 import '../protocol.dart';
 
-/// Structed data to describe more information pior to the event captured.
+/// Structured data to describe more information prior to the event captured.
 /// See `Sentry.captureEvent()`.
 ///
 /// The outgoing JSON representation is:
@@ -47,6 +47,8 @@ class Breadcrumb {
 
     // Size of the response body in bytes
     int? responseBodySize,
+    String? httpQuery,
+    String? httpFragment,
   }) {
     return Breadcrumb(
       type: 'http',
@@ -61,6 +63,8 @@ class Breadcrumb {
         if (requestDuration != null) 'duration': requestDuration.toString(),
         if (requestBodySize != null) 'request_body_size': requestBodySize,
         if (responseBodySize != null) 'response_body_size': responseBodySize,
+        if (httpQuery != null) 'http.query': httpQuery,
+        if (httpFragment != null) 'http.fragment': httpFragment,
       },
     );
   }

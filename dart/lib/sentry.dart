@@ -39,3 +39,8 @@ export 'src/exception_stacktrace_extractor.dart';
 // Isolates
 export 'src/sentry_isolate_extension.dart';
 export 'src/sentry_isolate.dart';
+// URL
+// ignore: invalid_export_of_internal_element
+export 'src/utils/http_sanitizer.dart';
+// ignore: invalid_export_of_internal_element
+export 'src/utils/url_details.dart';

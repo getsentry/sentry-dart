@@ -82,16 +82,17 @@ void main() {
   group('ctor', () {
     test('Breadcrumb http', () {
       final breadcrumb = Breadcrumb.http(
-        url: Uri.parse('https://example.org'),
-        method: 'GET',
-        level: SentryLevel.fatal,
-        reason: 'OK',
-        statusCode: 200,
-        requestDuration: Duration.zero,
-        timestamp: DateTime.now(),
-        requestBodySize: 2,
-        responseBodySize: 3,
-      );
+          url: Uri.parse('https://example.org'),
+          method: 'GET',
+          level: SentryLevel.fatal,
+          reason: 'OK',
+          statusCode: 200,
+          requestDuration: Duration.zero,
+          timestamp: DateTime.now(),
+          requestBodySize: 2,
+          responseBodySize: 3,
+          httpQuery: 'foo=bar',
+          httpFragment: 'baz');
       final json = breadcrumb.toJson();
 
       expect(json, {
@@ -106,6 +107,8 @@ void main() {
           'duration': '0:00:00.000000',
           'request_body_size': 2,
           'response_body_size': 3,
+          'http.query': 'foo=bar',
+          'http.fragment': 'baz'
         },
         'level': 'fatal',
         'type': 'http',

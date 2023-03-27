@@ -49,10 +49,12 @@ class WebEnricherEventProcessor implements EnricherEventProcessor {
 
     header.putIfAbsent('User-Agent', () => _window.navigator.userAgent);
 
-    return (request ?? SentryRequest()).copyWith(
-      url: request?.url ?? _window.location.toString(),
-      headers: header,
-    );
+    final url = request?.url ?? _window.location.toString();
+    return (request ?? SentryRequest(url: url))
+        .copyWith(
+          headers: header,
+        )
+        .sanitized();
   }
 
   SentryDevice _getDevice(SentryDevice? device) {

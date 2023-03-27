@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 
 import '../utils/iterable_extension.dart';
+import '../utils/http_sanitizer.dart';
 
 /// The Request interface contains information on a HTTP request related to the event.
 /// In client SDKs, this can be an outgoing request, or the request that rendered the current web page.
@@ -92,31 +93,18 @@ class SentryRequest {
     @Deprecated('Will be removed in v8. Use [data] instead')
         Map<String, String>? other,
   }) {
-    // As far as I can tell there's no way to get the uri without the query part
-    // so we replace it with an empty string.
-    final urlWithoutQuery = uri
-        .replace(query: '', fragment: '')
-        .toString()
-        .replaceAll('?', '')
-        .replaceAll('#', '');
-
-    // Future proof, Dio does not support it yet and even if passing in the path,
-    // the parsing of the uri returns empty.
-    final query = uri.query.isEmpty ? null : uri.query;
-    final fragment = uri.fragment.isEmpty ? null : uri.fragment;
-
     return SentryRequest(
-      url: urlWithoutQuery,
-      fragment: fragment,
-      queryString: query,
+      url: uri.toString(),
       method: method,
       cookies: cookies,
       data: data,
       headers: headers,
       env: env,
+      queryString: uri.query,
+      fragment: uri.fragment,
       // ignore: deprecated_member_use_from_same_package
       other: other,
-    );
+    ).sanitized();
   }
 
   /// Deserializes a [SentryRequest] from JSON [Map].
@@ -162,12 +150,13 @@ class SentryRequest {
     Map<String, String>? env,
     @Deprecated('Will be removed in v8. Use [data] instead')
         Map<String, String>? other,
+    bool removeCookies = false,
   }) =>
       SentryRequest(
         url: url ?? this.url,
         method: method ?? this.method,
         queryString: queryString ?? this.queryString,
-        cookies: cookies ?? this.cookies,
+        cookies: removeCookies ? null : cookies ?? this.cookies,
         data: data ?? _data,
         headers: headers ?? _headers,
         env: env ?? _env,

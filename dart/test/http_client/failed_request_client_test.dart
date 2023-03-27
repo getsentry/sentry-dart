@@ -59,8 +59,8 @@ void main() {
       expect(request?.url, 'https://example.com');
       expect(request?.queryString, 'foo=bar');
       expect(request?.fragment, 'myFragment');
-      expect(request?.cookies, 'foo=bar');
-      expect(request?.headers, {'Cookie': 'foo=bar'});
+      expect(request?.cookies, isNull);
+      expect(request?.headers, {});
       // ignore: deprecated_member_use_from_same_package
       expect(request?.other.keys.contains('duration'), true);
       // ignore: deprecated_member_use_from_same_package
@@ -134,8 +134,8 @@ void main() {
       expect(request?.url, 'https://example.com');
       expect(request?.queryString, 'foo=bar');
       expect(request?.fragment, 'myFragment');
-      expect(request?.cookies, 'foo=bar');
-      expect(request?.headers, {'Cookie': 'foo=bar'});
+      expect(request?.cookies, isNull);
+      expect(request?.headers, {});
       // ignore: deprecated_member_use_from_same_package
       expect(request?.other.keys.contains('duration'), true);
       // ignore: deprecated_member_use_from_same_package
@@ -193,6 +193,24 @@ void main() {
       expect(event.request?.cookies, isNull);
       expect(event.request?.data, isNull);
       expect(event.contexts.response, isNull);
+    });
+
+    test('removes authorization headers', () async {
+      fixture._hub.options.captureFailedRequests = true;
+      final sut = fixture.getSut(
+        client: createThrowingClient(),
+      );
+
+      await expectLater(
+        () async => await sut.get(requestUri,
+            headers: {'authorization': 'foo', 'Authorization': 'foo'}),
+        throwsException,
+      );
+
+      final event = fixture.transport.events.first;
+      expect(fixture.transport.calls, 1);
+      expect(event.request, isNotNull);
+      expect(event.request?.headers.isEmpty, true);
     });
 
     test('pii is not send on invalid status code', () async {
