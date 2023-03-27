@@ -1,7 +1,3 @@
-import 'dart:math';
-
-import 'package:meta/meta.dart';
-
 /// Code ported & adapted from `intl` package
 /// https://pub.dev/packages/intl
 ///
@@ -34,6 +30,11 @@ import 'package:meta/meta.dart';
 /// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 /// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 /// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+import 'dart:math';
+
+import 'package:meta/meta.dart';
+
 @internal
 class SampleRateFormat {
   int _minimumIntegerDigits;
