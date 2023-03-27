@@ -313,18 +313,12 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             options.dist = dist
         }
 
-        if let enableAutoNativeBreadcrumbs = arguments["enableAutoNativeBreadcrumbs"] as? Bool,
-           enableAutoNativeBreadcrumbs == false {
-            options.integrations = options.integrations?.filter { (name) -> Bool in
-                name != "SentryAutoBreadcrumbTrackingIntegration"
-            }
+        if let enableAutoNativeBreadcrumbs = arguments["enableAutoNativeBreadcrumbs"] as? Bool {
+            options.enableAutoBreadcrumbTracking = false
         }
 
-        if let enableNativeCrashHandling = arguments["enableNativeCrashHandling"] as? Bool,
-           enableNativeCrashHandling == false {
-            options.integrations = options.integrations?.filter { (name) -> Bool in
-                name != "SentryCrashIntegration"
-            }
+        if let enableNativeCrashHandling = arguments["enableNativeCrashHandling"] as? Bool {
+            options.enableCrashHandler = false
         }
 
         if let maxBreadcrumbs = arguments["maxBreadcrumbs"] as? UInt {
@@ -345,6 +339,18 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
         if let sendClientReports = arguments["sendClientReports"] as? Bool {
             options.sendClientReports = sendClientReports
+        }
+
+        if let maxAttachmentSize = arguments["maxAttachmentSize"] as? UInt {
+            options.maxAttachmentSize = maxAttachmentSize
+        }
+
+        if let captureFailedRequests = arguments["captureFailedRequests"] as? Bool {
+            options.enableCaptureFailedRequests = captureFailedRequests
+        }
+
+        if let enableAppHangTracking = arguments["enableAppHangTracking"] as? Bool {
+            options.enableAppHangTracking = enableAppHangTracking
         }
     }
 

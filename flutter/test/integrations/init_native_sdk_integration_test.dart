@@ -56,11 +56,10 @@ void main() {
         'enableNdkScopeSync': true,
         'enableAutoPerformanceTracing': true,
         'sendClientReports': true,
-        'sdk': {
-          'name': 'sentry.dart.flutter',
-          'version': sdkVersion,
-        },
-        'proguardUuid': null
+        'proguardUuid': null,
+        'maxAttachmentSize': 20 * 1024 * 1024,
+        'captureFailedRequests': true,
+        'enableAppHangTracking': true,
       });
     });
 
@@ -94,7 +93,10 @@ void main() {
         ..enableAutoPerformanceTracing = false
         ..sendClientReports = false
         ..enableNdkScopeSync = true
-        ..proguardUuid = fakeProguardUuid;
+        ..proguardUuid = fakeProguardUuid
+        ..maxAttachmentSize = 10
+        ..captureFailedRequests = false
+        ..enableAppHangTracking = false;
 
       options.sdk.addIntegration('foo');
       options.sdk.addPackage('bar', '1');
@@ -131,11 +133,10 @@ void main() {
         'enableNdkScopeSync': true,
         'enableAutoPerformanceTracing': false,
         'sendClientReports': false,
-        'sdk': {
-          'name': 'sentry.dart.flutter',
-          'version': sdkVersion,
-        },
-        'proguardUuid': fakeProguardUuid
+        'proguardUuid': fakeProguardUuid,
+        'maxAttachmentSize': 10,
+        'captureFailedRequests': false,
+        'enableAppHangTracking': false,
       });
     });
 
