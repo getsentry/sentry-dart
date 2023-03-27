@@ -163,6 +163,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             Text(
               '$_counter',
+              // ignore: deprecated_member_use
               style: Theme.of(context).textTheme.headline4,
             ),
           ],
