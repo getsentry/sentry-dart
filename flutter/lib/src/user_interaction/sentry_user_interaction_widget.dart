@@ -251,7 +251,10 @@ class SentryUserInteractionWidget extends StatefulWidget {
 
   SentryFlutterOptions? get _options =>
       // ignore: invalid_use_of_internal_member
-      _hub.options as SentryFlutterOptions?;
+      _hub.options is SentryFlutterOptions
+          // ignore: invalid_use_of_internal_member
+          ? _hub.options as SentryFlutterOptions
+          : null;
 
   @override
   StatefulElement createElement() {
