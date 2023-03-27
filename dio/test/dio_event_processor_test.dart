@@ -105,6 +105,31 @@ void main() {
       expect(processedEvent.request?.data, null);
       expect(processedEvent.request?.headers, <String, String>{});
     });
+
+    test('$DioEventProcessor removes auth headers', () {
+      final sut = fixture.getSut(sendDefaultPii: false);
+
+      final requestOptionsWithAuthHeaders = requestOptions.copyWith(
+        headers: {'authorization': 'foo', 'Authorization': 'bar'},
+      );
+      final throwable = Exception();
+      final dioError = DioError(
+        requestOptions: requestOptionsWithAuthHeaders,
+        response: Response<dynamic>(
+          requestOptions: requestOptionsWithAuthHeaders,
+        ),
+      );
+      final event = SentryEvent(
+        throwable: throwable,
+        exceptions: [
+          fixture.sentryError(throwable),
+          fixture.sentryError(dioError)
+        ],
+      );
+      final processedEvent = sut.apply(event) as SentryEvent;
+
+      expect(processedEvent.request?.headers, <String, String>{});
+    });
   });
 
   group('response', () {

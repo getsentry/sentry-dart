@@ -4,6 +4,7 @@ import '../hub_adapter.dart';
 import '../protocol.dart';
 import '../tracing.dart';
 import '../utils/tracing_utils.dart';
+import '../utils/http_sanitizer.dart';
 
 /// A [http](https://pub.dev/packages/http)-package compatible HTTP client
 /// which adds support to Sentry Performance feature.
@@ -19,16 +20,27 @@ class TracingClient extends BaseClient {
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
     // see https://develop.sentry.dev/sdk/performance/#header-sentry-trace
+
+    final urlDetails = HttpSanitizer.sanitizeUrl(request.url.toString());
+
+    var description = request.method;
+    if (urlDetails != null) {
+      description += ' ${urlDetails.urlOrFallback}';
+    }
+
     final currentSpan = _hub.getSpan();
     var span = currentSpan?.startChild(
       'http.client',
-      description: '${request.method} ${request.url}',
+      description: description,
     );
 
-    // if the span is NoOp, we dont want to attach headers
+    // if the span is NoOp, we don't want to attach headers
     if (span is NoOpSentrySpan) {
       span = null;
     }
+
+    span?.setData('method', request.method);
+    urlDetails?.applyToSpan(span);
 
     StreamedResponse? response;
     try {

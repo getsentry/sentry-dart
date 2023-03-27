@@ -1,5 +1,21 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Sanitize sensitive data from URLs (span desc, span data, crumbs, client errors) ([#1327](https://github.com/getsentry/sentry-dart/pull/1327))
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.3.1 to v8.3.3 ([#1350](https://github.com/getsentry/sentry-dart/pull/1350), [#1355](https://github.com/getsentry/sentry-dart/pull/1355))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#833)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.3.1...8.3.3)
+
+## Fixes
+
+- Sync missing properties to the Native SDKs ([#1354](https://github.com/getsentry/sentry-dart/pull/1354))
+
 ## 7.2.0
 
 ### Features
