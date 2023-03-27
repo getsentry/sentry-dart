@@ -12,7 +12,7 @@
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#833)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.3.1...8.3.3)
 
-## Fixes
+### Fixes
 
 - Sync missing properties to the Native SDKs ([#1354](https://github.com/getsentry/sentry-dart/pull/1354))
 
