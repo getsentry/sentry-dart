@@ -219,7 +219,7 @@ Element? _clickTrackerElement;
 ///
 /// It's supported by the most common [Widget], for example:
 /// [ButtonStyleButton], [MaterialButton], [CupertinoButton], [InkWell],
-/// and [IconButton].
+/// [IconButton], [PopupMenuButton] and [PopupMenuItem].
 /// Mostly for onPressed, onTap, and onLongPress events
 ///
 /// Example on how to set up:
@@ -540,6 +540,24 @@ class _SentryUserInteractionWidgetState
           description: _findDescriptionOf(element, false),
           type: 'IconButton',
           eventType: 'onPressed',
+        );
+      }
+    } else if (widget is PopupMenuButton) {
+      if (widget.enabled) {
+        return UserInteractionWidget(
+          element: element,
+          description: _findDescriptionOf(element, false),
+          type: 'PopupMenuButton',
+          eventType: 'onTap',
+        );
+      }
+    } else if (widget is PopupMenuItem) {
+      if (widget.enabled) {
+        return UserInteractionWidget(
+          element: element,
+          description: _findDescriptionOf(element, false),
+          type: 'PopupMenuItem',
+          eventType: 'onTap',
         );
       }
     }
