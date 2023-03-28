@@ -1,11 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- SentryUserInteractionWidget: add support for PopupMenuButton and PopupMenuItem ([#1361](https://github.com/getsentry/sentry-dart/pull/1361))
+
 ## 7.3.0
 
 ### Features
 
 - Sanitize sensitive data from URLs (span desc, span data, crumbs, client errors) ([#1327](https://github.com/getsentry/sentry-dart/pull/1327))
-- SentryUserInteractionWidget: add support for PopupMenuButton and PopupMenuItem ([#1361](https://github.com/getsentry/sentry-dart/pull/1361))
 
 ### Dependencies
 
