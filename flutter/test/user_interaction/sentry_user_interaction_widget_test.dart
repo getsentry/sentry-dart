@@ -1,5 +1,4 @@
 @TestOn('vm')
-
 // ignore_for_file: invalid_use_of_internal_member
 
 import 'dart:async';
@@ -14,13 +13,26 @@ import '../mocks.dart';
 import '../mocks.mocks.dart';
 
 void main() {
-  group('$SentryUserInteractionWidget crumbs', () {
-    late Fixture fixture;
-    setUp(() async {
-      fixture = Fixture();
-      TestWidgetsFlutterBinding.ensureInitialized();
-    });
+  late Fixture fixture;
+  setUp(() async {
+    fixture = Fixture();
+    TestWidgetsFlutterBinding.ensureInitialized();
+  });
 
+  testWidgets(
+    '$SentryUserInteractionWidget does not throw cast exception when Sentry is disabled',
+    (tester) async {
+      await tester.runAsync(() async {
+        await tester.pumpWidget(
+          SentryUserInteractionWidget(
+            child: MaterialApp(),
+          ),
+        );
+      });
+    },
+  );
+
+  group('$SentryUserInteractionWidget crumbs', () {
     testWidgets('Add crumb for MaterialButton', (tester) async {
       await tester.runAsync(() async {
         final sut = fixture.getSut();
