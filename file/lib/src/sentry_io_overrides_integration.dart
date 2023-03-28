@@ -12,9 +12,10 @@ import 'sentry_io_overrides.dart';
 /// Otherwise the FileOverrides aren't attached to the root zone.
 class SentryIOOverridesIntegration extends Integration<SentryOptions> {
   IOOverrides? _previousOverrides;
-
+  SentryOptions? _options;
   @override
   FutureOr<void> call(Hub hub, SentryOptions options) {
+    _options = options;
     if (options.isTracingEnabled()) {
       _previousOverrides = IOOverrides.current;
       IOOverrides.global = SentryIOOverrides(hub);
@@ -24,6 +25,8 @@ class SentryIOOverridesIntegration extends Integration<SentryOptions> {
 
   @override
   FutureOr<void> close() {
-    IOOverrides.global = _previousOverrides;
+    if (_options?.isTracingEnabled() ?? false) {
+      IOOverrides.global = _previousOverrides;
+    }
   }
 }
