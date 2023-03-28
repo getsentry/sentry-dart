@@ -5,6 +5,7 @@
 ### Features
 
 - SentryUserInteractionWidget: add support for PopupMenuButton and PopupMenuItem ([#1361](https://github.com/getsentry/sentry-dart/pull/1361))
+- SentryIOOverridesIntegration ([#1362](https://github.com/getsentry/sentry-dart/pull/1362))
 
 ### Fixes
 
