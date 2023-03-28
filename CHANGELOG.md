@@ -9,6 +9,7 @@
 ### Fixes
 
 - Fix `SentryUserInteractionWidget` throwing when Sentry is not enabled ([#1363](https://github.com/getsentry/sentry-dart/pull/1363))
+- Remove breadcrumbs from transaction to avoid duplication ([#1366](https://github.com/getsentry/sentry-dart/pull/1366))
 
 ## 7.3.0
 
