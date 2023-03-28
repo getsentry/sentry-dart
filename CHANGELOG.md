@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix `SentryUserInteractionWidget` throwing when Sentry is not enabled ([#1363](https://github.com/getsentry/sentry-dart/pull/1363))
+
 ## 7.3.0
 
 ### Features
@@ -15,7 +21,6 @@
 ### Fixes
 
 - Sync missing properties to the Native SDKs ([#1354](https://github.com/getsentry/sentry-dart/pull/1354))
-- Fix `SentryUserInteractionWidget` throwing when Sentry is not enabled ([#1363](https://github.com/getsentry/sentry-dart/pull/1363))
 
 ## 7.2.0
 
