@@ -1,4 +1,3 @@
-
 import 'dart:io';
 import 'package:sentry/sentry.dart';
 

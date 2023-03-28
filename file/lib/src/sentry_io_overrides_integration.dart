@@ -5,7 +5,6 @@ import 'package:sentry/sentry.dart';
 import 'sentry_io_overrides.dart';
 
 class SentryIOOverridesIntegration extends Integration<SentryOptions> {
-
   IOOverrides? _previousOverrides;
 
   @override
