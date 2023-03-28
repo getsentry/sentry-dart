@@ -108,18 +108,7 @@ class SentryClient {
       return _sentryId;
     }
 
-    if (_options.platformChecker.platform.isAndroid &&
-        _options.enableScopeSync) {
-      /*
-      We do this to avoid duplicate breadcrumbs on Android as sentry-android applies the breadcrumbs
-      from the native scope onto every envelope sent through it. This scope will contain the breadcrumbs
-      sent through the scope sync feature. This causes duplicate breadcrumbs.
-      We then remove the breadcrumbs in all cases but if it is handled == false,
-      this is a signal that the app would crash and android would lose the breadcrumbs by the time the app is restarted to read
-      the envelope.
-      */
-      preparedEvent = _eventWithRemovedBreadcrumbsIfHandled(preparedEvent);
-    }
+    preparedEvent = _eventWithoutBreadcrumbsIfNeeded(preparedEvent);
 
     var attachments = List<SentryAttachment>.from(scope?.attachments ?? []);
     var screenshot = hint.screenshot;
@@ -329,6 +318,9 @@ class SentryClient {
       return _sentryId;
     }
 
+    preparedTransaction =
+        _transactionWithoutBreadcrumbsIfNeeded(preparedTransaction);
+
     final attachments = scope?.attachments
         .where((element) => element.addToTransactions)
         .toList();
@@ -462,18 +454,43 @@ class SentryClient {
     _options.recorder.recordLostEvent(reason, category);
   }
 
-  SentryEvent _eventWithRemovedBreadcrumbsIfHandled(SentryEvent event) {
+  SentryEvent _eventWithoutBreadcrumbsIfNeeded(SentryEvent event) {
+    if (_shouldRemoveBreadcrumbs(event)) {
+      return event.copyWith(breadcrumbs: []);
+    } else {
+      return event;
+    }
+  }
+
+  SentryTransaction _transactionWithoutBreadcrumbsIfNeeded(
+      SentryTransaction transaction) {
+    if (_shouldRemoveBreadcrumbs(transaction)) {
+      return transaction.copyWith(breadcrumbs: []);
+    } else {
+      return transaction;
+    }
+  }
+
+  /// We do this to avoid duplicate breadcrumbs on Android as sentry-android applies the breadcrumbs
+  /// from the native scope onto every envelope sent through it. This scope will contain the breadcrumbs
+  /// sent through the scope sync feature. This causes duplicate breadcrumbs.
+  /// We then remove the breadcrumbs in all cases but if it is handled == false,
+  /// this is a signal that the app would crash and android would lose the breadcrumbs by the time the app is restarted to read
+  /// the envelope.
+  bool _shouldRemoveBreadcrumbs(SentryEvent event) {
+    final isAndroid = _options.platformChecker.platform.isAndroid;
+    final enableScopeSync = _options.enableScopeSync;
+
+    if (!isAndroid || !enableScopeSync) {
+      return false;
+    }
+
     final mechanisms =
         (event.exceptions ?? []).map((e) => e.mechanism).whereType<Mechanism>();
     final hasNoMechanism = mechanisms.isEmpty;
     final hasOnlyHandledMechanism =
         mechanisms.every((e) => (e.handled ?? true));
-
-    if (hasNoMechanism || hasOnlyHandledMechanism) {
-      return event.copyWith(breadcrumbs: []);
-    } else {
-      return event;
-    }
+    return hasNoMechanism || hasOnlyHandledMechanism;
   }
 
   Future<SentryId?> _attachClientReportsAndSend(SentryEnvelope envelope) {
