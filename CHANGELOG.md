@@ -4,6 +4,16 @@
 
 ### Features
 
+- SentryUserInteractionWidget: add support for PopupMenuButton and PopupMenuItem ([#1361](https://github.com/getsentry/sentry-dart/pull/1361))
+
+### Fixes
+
+- Fix `SentryUserInteractionWidget` throwing when Sentry is not enabled ([#1363](https://github.com/getsentry/sentry-dart/pull/1363))
+
+## 7.3.0
+
+### Features
+
 - Sanitize sensitive data from URLs (span desc, span data, crumbs, client errors) ([#1327](https://github.com/getsentry/sentry-dart/pull/1327))
 
 ### Dependencies
@@ -12,7 +22,7 @@
   - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#833)
   - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.3.1...8.3.3)
 
-## Fixes
+### Fixes
 
 - Sync missing properties to the Native SDKs ([#1354](https://github.com/getsentry/sentry-dart/pull/1354))
 

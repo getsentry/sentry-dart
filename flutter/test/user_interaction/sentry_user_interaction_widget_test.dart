@@ -1,5 +1,4 @@
 @TestOn('vm')
-
 // ignore_for_file: invalid_use_of_internal_member
 
 import 'dart:async';
@@ -14,13 +13,26 @@ import '../mocks.dart';
 import '../mocks.mocks.dart';
 
 void main() {
-  group('$SentryUserInteractionWidget crumbs', () {
-    late Fixture fixture;
-    setUp(() async {
-      fixture = Fixture();
-      TestWidgetsFlutterBinding.ensureInitialized();
-    });
+  late Fixture fixture;
+  setUp(() async {
+    fixture = Fixture();
+    TestWidgetsFlutterBinding.ensureInitialized();
+  });
 
+  testWidgets(
+    '$SentryUserInteractionWidget does not throw cast exception when Sentry is disabled',
+    (tester) async {
+      await tester.runAsync(() async {
+        await tester.pumpWidget(
+          SentryUserInteractionWidget(
+            child: MaterialApp(),
+          ),
+        );
+      });
+    },
+  );
+
+  group('$SentryUserInteractionWidget crumbs', () {
     testWidgets('Add crumb for MaterialButton', (tester) async {
       await tester.runAsync(() async {
         final sut = fixture.getSut();
@@ -106,6 +118,42 @@ void main() {
           crumb = scope.breadcrumbs.last;
         });
         expect(crumb?.data?['label'], 'Button 5');
+      });
+    });
+
+    testWidgets('Add crumb for PopupMenuButton', (tester) async {
+      await tester.runAsync(() async {
+        final sut = fixture.getSut();
+
+        await tapMe(tester, sut, 'popup_menu_button');
+
+        Breadcrumb? crumb;
+        fixture.hub.configureScope((scope) {
+          crumb = scope.breadcrumbs.last;
+        });
+        expect(crumb?.category, 'ui.click');
+        expect(crumb?.data?['view.id'], 'popup_menu_button');
+        expect(crumb?.data?['view.class'], 'PopupMenuButton');
+      });
+    });
+
+    testWidgets('Add crumb for PopupMenuItem', (tester) async {
+      await tester.runAsync(() async {
+        final sut = fixture.getSut();
+
+        // open the popup menu and wait for the animation to complete
+        await tapMe(tester, sut, 'popup_menu_button');
+        await tester.pumpAndSettle();
+
+        await tapMe(tester, sut, 'popup_menu_item_1');
+
+        Breadcrumb? crumb;
+        fixture.hub.configureScope((scope) {
+          crumb = scope.breadcrumbs.last;
+        });
+        expect(crumb?.category, 'ui.click');
+        expect(crumb?.data?['view.id'], 'popup_menu_item_1');
+        expect(crumb?.data?['view.class'], 'PopupMenuItem');
       });
     });
   });
@@ -350,6 +398,15 @@ class Page1 extends StatelessWidget {
                 Navigator.of(context).pushNamed('page2');
               },
               child: const Text('Go to page 2'),
+            ),
+            PopupMenuButton(
+              key: ValueKey('popup_menu_button'),
+              itemBuilder: (_) => [
+                PopupMenuItem<void>(
+                  key: ValueKey('popup_menu_item_1'),
+                  child: Text('first item'),
+                ),
+              ],
             ),
           ],
         ),
