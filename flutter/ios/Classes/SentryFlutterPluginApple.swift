@@ -679,3 +679,5 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
       }
     }
 }
+
+// swiftlint:enable function_body_length
