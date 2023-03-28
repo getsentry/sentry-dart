@@ -2,6 +2,8 @@ import 'package:http/http.dart';
 import '../protocol.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
+import '../utils/url_details.dart';
+import '../utils/http_sanitizer.dart';
 
 /// A [http](https://pub.dev/packages/http)-package compatible HTTP client
 /// which records requests as breadcrumbs.
@@ -75,15 +77,20 @@ class BreadcrumbClient extends BaseClient {
     } finally {
       stopwatch.stop();
 
+      final urlDetails =
+          HttpSanitizer.sanitizeUrl(request.url.toString()) ?? UrlDetails();
+
       var breadcrumb = Breadcrumb.http(
         level: requestHadException ? SentryLevel.error : SentryLevel.info,
-        url: request.url,
+        url: Uri.parse(urlDetails.urlOrFallback),
         method: request.method,
         statusCode: statusCode,
         reason: reason,
         requestDuration: stopwatch.elapsed,
         requestBodySize: request.contentLength,
         responseBodySize: responseBodySize,
+        httpQuery: urlDetails.query,
+        httpFragment: urlDetails.fragment,
       );
 
       await _hub.addBreadcrumb(breadcrumb);

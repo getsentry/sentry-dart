@@ -8,7 +8,7 @@ import 'package:test/test.dart';
 import '../mocks.dart';
 import '../mocks/mock_transport.dart';
 
-final requestUri = Uri.parse('https://example.com?foo=bar');
+final requestUri = Uri.parse('https://example.com?foo=bar#baz');
 
 void main() {
   group(TracingClient, () {
@@ -37,7 +37,11 @@ void main() {
 
       expect(span.status, SpanStatus.ok());
       expect(span.context.operation, 'http.client');
-      expect(span.context.description, 'GET https://example.com?foo=bar');
+      expect(span.context.description, 'GET https://example.com');
+      expect(span.data['method'], 'GET');
+      expect(span.data['url'], 'https://example.com');
+      expect(span.data['http.query'], 'foo=bar');
+      expect(span.data['http.fragment'], 'baz');
     });
 
     test('finish span if errored request', () async {

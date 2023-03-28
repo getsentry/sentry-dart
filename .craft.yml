@@ -19,4 +19,4 @@ targets:
       pub:sentry_logging:
       pub:sentry_dio:
       pub:sentry_file:
-      #pub:sentry_sqflite:
+      pub:sentry_sqflite:

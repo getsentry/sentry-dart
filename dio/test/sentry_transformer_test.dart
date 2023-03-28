@@ -11,6 +11,8 @@ import 'mocks.dart';
 import 'mocks/mock_transport.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 
+final requestUri = Uri.parse('https://example.com?foo=bar#baz');
+
 void main() {
   group(SentryTransformer, () {
     late Fixture fixture;
@@ -18,6 +20,7 @@ void main() {
     setUp(() {
       fixture = Fixture();
     });
+
     test('transformRequest creates span', () async {
       final sut = fixture.getSut();
       final tr = fixture._hub.startTransaction(
@@ -26,7 +29,7 @@ void main() {
         bindToScope: true,
       );
 
-      await sut.transformRequest(RequestOptions(path: 'foo'));
+      await sut.transformRequest(RequestOptions(path: requestUri.toString()));
 
       await tr.finish();
 
@@ -35,7 +38,11 @@ void main() {
 
       expect(span.status, SpanStatus.ok());
       expect(span.context.operation, 'serialize.http.client');
-      expect(span.context.description, 'GET foo');
+      expect(span.context.description, 'GET https://example.com');
+      expect(span.data['method'], 'GET');
+      expect(span.data['url'], 'https://example.com');
+      expect(span.data['http.query'], 'foo=bar');
+      expect(span.data['http.fragment'], 'baz');
     });
 
     test('transformRequest finish span if errored request', () async {
@@ -47,7 +54,7 @@ void main() {
       );
 
       try {
-        await sut.transformRequest(RequestOptions(path: 'foo'));
+        await sut.transformRequest(RequestOptions(path: requestUri.toString()));
       } catch (_) {}
 
       await tr.finish();
@@ -57,7 +64,11 @@ void main() {
 
       expect(span.status, SpanStatus.internalError());
       expect(span.context.operation, 'serialize.http.client');
-      expect(span.context.description, 'GET foo');
+      expect(span.context.description, 'GET https://example.com');
+      expect(span.data['method'], 'GET');
+      expect(span.data['url'], 'https://example.com');
+      expect(span.data['http.query'], 'foo=bar');
+      expect(span.data['http.fragment'], 'baz');
       expect(span.finished, true);
     });
 
@@ -70,7 +81,7 @@ void main() {
       );
 
       await sut.transformResponse(
-        RequestOptions(path: 'foo'),
+        RequestOptions(path: requestUri.toString()),
         ResponseBody.fromString('', 200),
       );
 
@@ -81,8 +92,13 @@ void main() {
 
       expect(span.status, SpanStatus.ok());
       expect(span.context.operation, 'serialize.http.client');
-      expect(span.context.description, 'GET foo');
+      expect(span.context.description, 'GET https://example.com');
+      expect(span.data['method'], 'GET');
+      expect(span.data['url'], 'https://example.com');
+      expect(span.data['http.query'], 'foo=bar');
+      expect(span.data['http.fragment'], 'baz');
     });
+
     test('transformResponse finish span if errored request', () async {
       final sut = fixture.getSut(throwException: true);
       final tr = fixture._hub.startTransaction(
@@ -93,7 +109,7 @@ void main() {
 
       try {
         await sut.transformResponse(
-          RequestOptions(path: 'foo'),
+          RequestOptions(path: requestUri.toString()),
           ResponseBody.fromString('', 200),
         );
       } catch (_) {}
@@ -105,7 +121,11 @@ void main() {
 
       expect(span.status, SpanStatus.internalError());
       expect(span.context.operation, 'serialize.http.client');
-      expect(span.context.description, 'GET foo');
+      expect(span.context.description, 'GET https://example.com');
+      expect(span.data['method'], 'GET');
+      expect(span.data['url'], 'https://example.com');
+      expect(span.data['http.query'], 'foo=bar');
+      expect(span.data['http.fragment'], 'baz');
       expect(span.finished, true);
     });
   });
@@ -121,7 +141,7 @@ class Fixture {
     _hub = Hub(_options);
   }
 
-  Transformer getSut({bool throwException = false}) {
+  SentryTransformer getSut({bool throwException = false}) {
     return SentryTransformer(
       transformer: MockTransformer(throwException),
       hub: _hub,

@@ -57,6 +57,23 @@ void main() {
       expect(event.request?.url, 'foo.bar');
     });
 
+    test('does not add auth headers to request', () async {
+      var event = SentryEvent(
+        request: SentryRequest(
+          url: 'foo.bar',
+          headers: {
+            'Authorization': 'foo',
+            'authorization': 'bar',
+          },
+        ),
+      );
+      var enricher = fixture.getSut();
+      event = await enricher.apply(event);
+
+      expect(event.request?.headers['Authorization'], isNull);
+      expect(event.request?.headers['authorization'], isNull);
+    });
+
     test('user-agent is not overridden if already present', () async {
       var event = SentryEvent(
         request: SentryRequest(
