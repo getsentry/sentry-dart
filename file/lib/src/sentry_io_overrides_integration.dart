@@ -11,8 +11,10 @@ class SentryIOOverridesIntegration extends Integration<SentryOptions> {
   @override
   FutureOr<void> call(Hub hub, SentryOptions options) {
     _previousOverrides = IOOverrides.current;
-    IOOverrides.global = SentryIoOverrides(hub, options);
-    options.sdk.addIntegration('sentryIOOverridesIntegration');
+    if (options.isTracingEnabled()) {
+      IOOverrides.global = SentryIOOverrides(hub);
+      options.sdk.addIntegration('sentryIOOverridesIntegration');
+    }
   }
 
   @override
