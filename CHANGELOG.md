@@ -9,6 +9,7 @@
 ### Fixes
 
 - Fix `SentryUserInteractionWidget` throwing when Sentry is not enabled ([#1363](https://github.com/getsentry/sentry-dart/pull/1363))
+- Fix enableAutoNativeBreadcrumbs and enableNativeCrashHandling sync flags ([#1367](https://github.com/getsentry/sentry-dart/pull/1367))
 
 ## 7.3.0
 
