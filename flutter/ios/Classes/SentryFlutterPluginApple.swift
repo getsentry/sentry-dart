@@ -314,11 +314,11 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         }
 
         if let enableAutoNativeBreadcrumbs = arguments["enableAutoNativeBreadcrumbs"] as? Bool {
-            options.enableAutoBreadcrumbTracking = false
+            options.enableAutoBreadcrumbTracking = enableAutoNativeBreadcrumbs
         }
 
         if let enableNativeCrashHandling = arguments["enableNativeCrashHandling"] as? Bool {
-            options.enableCrashHandler = false
+            options.enableCrashHandler = enableNativeCrashHandling
         }
 
         if let maxBreadcrumbs = arguments["maxBreadcrumbs"] as? UInt {
