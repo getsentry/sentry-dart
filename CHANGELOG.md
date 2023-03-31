@@ -1,11 +1,11 @@
 # Changelog
 
-## 7.5.0
+## Unreleased
 
 ### Fixes
 
 - Fix Dart web builds breaking due to `dart:io` imports when using `SentryIsolate` or `SentryIsolateExtension` ([#1369](https://github.com/getsentry/sentry-dart/pull/1371))
-- When using `SentryIsolate` or `SentryIsolateExtension`, import `sentry_io.dart`.
+  - When using `SentryIsolate` or `SentryIsolateExtension`, import `sentry_io.dart`.
 
 ## 7.4.0
 
