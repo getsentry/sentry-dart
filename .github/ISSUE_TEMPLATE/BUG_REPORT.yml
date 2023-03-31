@@ -92,8 +92,8 @@ body:
       label: Are you willing to submit a PR?
       description:  We accept contributions!
       options:
-        - Yes
-        - No
+        - "Yes"
+        - "No"
 
   - type: markdown
     attributes:
