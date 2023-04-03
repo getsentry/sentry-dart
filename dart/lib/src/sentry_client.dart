@@ -108,7 +108,6 @@ class SentryClient {
       return _sentryId;
     }
 
-    if (_options.platformChecker.platform.isAndroid &&
     if (!_options.platformChecker.isWeb && _options.platformChecker.platform.isAndroid &&
         _options.enableScopeSync) {
       /*
