@@ -109,6 +109,7 @@ class SentryClient {
     }
 
     if (_options.platformChecker.platform.isAndroid &&
+    if (!_options.platformChecker.isWeb && _options.platformChecker.platform.isAndroid &&
         _options.enableScopeSync) {
       /*
       We do this to avoid duplicate breadcrumbs on Android as sentry-android applies the breadcrumbs
