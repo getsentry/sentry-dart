@@ -318,8 +318,7 @@ class SentryClient {
       return _sentryId;
     }
 
-    preparedTransaction =
-        _transactionWithoutBreadcrumbsIfNeeded(preparedTransaction);
+    preparedTransaction = _eventWithoutBreadcrumbsIfNeeded(preparedTransaction);
 
     final attachments = scope?.attachments
         .where((element) => element.addToTransactions)
@@ -454,20 +453,11 @@ class SentryClient {
     _options.recorder.recordLostEvent(reason, category);
   }
 
-  SentryEvent _eventWithoutBreadcrumbsIfNeeded(SentryEvent event) {
+  T _eventWithoutBreadcrumbsIfNeeded<T extends SentryEvent>(T event) {
     if (_shouldRemoveBreadcrumbs(event)) {
-      return event.copyWith(breadcrumbs: []);
+      return event.copyWith(breadcrumbs: []) as T;
     } else {
       return event;
-    }
-  }
-
-  SentryTransaction _transactionWithoutBreadcrumbsIfNeeded(
-      SentryTransaction transaction) {
-    if (_shouldRemoveBreadcrumbs(transaction)) {
-      return transaction.copyWith(breadcrumbs: []);
-    } else {
-      return transaction;
     }
   }
 
