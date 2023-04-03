@@ -136,24 +136,6 @@ class MainScaffold extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            const Center(child: Text('Trigger an action:\n')),
-            ElevatedButton(
-              onPressed: () async {
-                final transaction = Sentry.getSpan()?.startChild('foo') ??
-                    Sentry.startTransaction(
-                      'foo',
-                      'op',
-                      bindToScope: true,
-                    );
-
-                final crumb = Breadcrumb(message: "bar");
-                Sentry.addBreadcrumb(crumb);
-
-                await Future.delayed(
-                    const Duration(seconds: 2), transaction.finish);
-              },
-              child: const Text('Duplicate Transaction Breadcrumbs'),
-            ),
             ElevatedButton(
               onPressed: () => sqfliteTest(),
               child: const Text('sqflite'),
