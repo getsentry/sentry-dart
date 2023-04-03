@@ -136,6 +136,7 @@ class MainScaffold extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            const Center(child: Text('Trigger an action:\n')),
             ElevatedButton(
               onPressed: () => sqfliteTest(),
               child: const Text('sqflite'),
