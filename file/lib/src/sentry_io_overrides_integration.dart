@@ -9,12 +9,13 @@ import 'sentry_io_overrides.dart';
 /// implementation whenever [File] is used.
 class SentryIOOverridesIntegration extends Integration<SentryOptions> {
   IOOverrides? _previousOverrides;
-  SentryOptions? _options;
+  bool _installed = false;
+
   @override
   FutureOr<void> call(Hub hub, SentryOptions options) {
-    _options = options;
     if (options.isTracingEnabled()) {
       _previousOverrides = IOOverrides.current;
+      _installed = true;
       IOOverrides.global = SentryIOOverrides(hub);
       options.sdk.addIntegration('sentryIOOverridesIntegration');
     }
@@ -22,7 +23,7 @@ class SentryIOOverridesIntegration extends Integration<SentryOptions> {
 
   @override
   FutureOr<void> close() {
-    if (_options?.isTracingEnabled() ?? false) {
+    if (_installed) {
       IOOverrides.global = _previousOverrides;
     }
   }
