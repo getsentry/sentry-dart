@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Fix breadcrumbs not being sent on Android web ([#979](https://github.com/getsentry/sentry-dart/pull/1378))
+- Fix breadcrumbs not being sent on Android web ([#1378](https://github.com/getsentry/sentry-dart/pull/1378))
 
 ### Fixes
 
