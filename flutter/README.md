@@ -101,8 +101,6 @@ runApp(
 
 This adds performance tracing for all `AssetBundle` usages, where the `AssetBundle` is accessed with `DefaultAssetBunlde.of(context)`.
 This includes all of Flutters internal access of `AssetBundle`s, like `Image.asset` for example.
-Tracing for `AssetBundle.loadStructuredData()` is currently disabled.
-It's hidden by the `enableStructuredDataTracing` flag and considered experimental. Using it could lead to bugs. We recognize the irony.
 
 ##### Tracking HTTP events
 
