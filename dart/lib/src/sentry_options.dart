@@ -71,18 +71,12 @@ class SentryOptions {
   }
 
   /// Maximum number of spans that can be attached to single transaction.
-  ///
-  /// The is an experimental feature. Use at your own risk.
   int _maxSpans = 1000;
 
   /// Returns the maximum number of spans that can be attached to single transaction.
-  ///
-  /// The is an experimental feature. Use at your own risk.
   int get maxSpans => _maxSpans;
 
   /// Sets the maximum number of spans that can be attached to single transaction.
-  ///
-  /// The is an experimental feature. Use at your own risk.
   set maxSpans(int maxSpans) {
     assert(maxSpans > 0);
     _maxSpans = maxSpans;
