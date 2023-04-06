@@ -6,6 +6,7 @@
 
 - Fix Dart web builds breaking due to `dart:io` imports when using `SentryIsolate` or `SentryIsolateExtension` ([#1371](https://github.com/getsentry/sentry-dart/pull/1371))
   - When using `SentryIsolate` or `SentryIsolateExtension`, import `sentry_io.dart`.
+- Remove breadcrumbs from transaction to avoid duplication ([#1366](https://github.com/getsentry/sentry-dart/pull/1366))
 
 ## 7.4.0
 
