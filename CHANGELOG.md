@@ -7,6 +7,13 @@
 - Fix Dart web builds breaking due to `dart:io` imports when using `SentryIsolate` or `SentryIsolateExtension` ([#1371](https://github.com/getsentry/sentry-dart/pull/1371))
   - When using `SentryIsolate` or `SentryIsolateExtension`, import `sentry_io.dart`.
 - Export `SentryBaggage` ([#1377](https://github.com/getsentry/sentry-dart/pull/1377))
+- Remove breadcrumbs from transaction to avoid duplication ([#1366](https://github.com/getsentry/sentry-dart/pull/1366))
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.3.3 to v8.4.0 ([#1379](https://github.com/getsentry/sentry-dart/pull/1379))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#840)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.3.3...8.4.0)
 
 ## 7.4.0
 
