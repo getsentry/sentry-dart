@@ -18,29 +18,29 @@ void main() {
       fixture = Fixture();
     });
 
-    test('add path as transaction if transaction is null', () async {
+    test('add path as transaction if transaction is null', () {
       var enricher = fixture.getSut();
       final event = enricher.apply(SentryEvent());
 
-      expect(event.transaction, isNotNull);
+      expect(event?.transaction, isNotNull);
     });
 
-    test("don't overwrite transaction", () async {
+    test("don't overwrite transaction", () {
       var enricher = fixture.getSut();
       final event = enricher.apply(SentryEvent(transaction: 'foobar'));
 
-      expect(event.transaction, 'foobar');
+      expect(event?.transaction, 'foobar');
     });
 
-    test('add request with user-agent header', () async {
+    test('add request with user-agent header', () {
       var enricher = fixture.getSut();
       final event = enricher.apply(SentryEvent());
 
-      expect(event.request?.headers['User-Agent'], isNotNull);
-      expect(event.request?.url, isNotNull);
+      expect(event?.request?.headers['User-Agent'], isNotNull);
+      expect(event?.request?.url, isNotNull);
     });
 
-    test('adds header to request if request already exists', () async {
+    test('adds header to request if request already exists', () {
       var event = SentryEvent(
         request: SentryRequest(
           url: 'foo.bar',
@@ -50,14 +50,14 @@ void main() {
         ),
       );
       var enricher = fixture.getSut();
-      event = enricher.apply(event);
+      event = enricher.apply(event)!;
 
       expect(event.request?.headers['User-Agent'], isNotNull);
       expect(event.request?.headers['foo'], 'bar');
       expect(event.request?.url, 'foo.bar');
     });
 
-    test('does not add auth headers to request', () async {
+    test('does not add auth headers to request', () {
       var event = SentryEvent(
         request: SentryRequest(
           url: 'foo.bar',
@@ -68,13 +68,13 @@ void main() {
         ),
       );
       var enricher = fixture.getSut();
-      event = enricher.apply(event);
+      event = enricher.apply(event)!;
 
       expect(event.request?.headers['Authorization'], isNull);
       expect(event.request?.headers['authorization'], isNull);
     });
 
-    test('user-agent is not overridden if already present', () async {
+    test('user-agent is not overridden if already present', () {
       var event = SentryEvent(
         request: SentryRequest(
           url: 'foo.bar',
@@ -84,43 +84,43 @@ void main() {
         ),
       );
       var enricher = fixture.getSut();
-      event = enricher.apply(event);
+      event = enricher.apply(event)!;
 
       expect(event.request?.headers['User-Agent'], 'best browser agent');
       expect(event.request?.url, 'foo.bar');
     });
 
-    test('adds device and os', () async {
+    test('adds device and os', () {
       var enricher = fixture.getSut();
       final event = enricher.apply(SentryEvent());
 
-      expect(event.contexts.device, isNotNull);
+      expect(event?.contexts.device, isNotNull);
     });
 
-    test('adds Dart context', () async {
+    test('adds Dart context', () {
       final enricher = fixture.getSut();
       final event = enricher.apply(SentryEvent());
 
-      final dartContext = event.contexts['dart_context'];
+      final dartContext = event?.contexts['dart_context'];
       expect(dartContext, isNotNull);
       expect(dartContext['compile_mode'], isNotNull);
     });
 
-    test('device has screendensity', () async {
+    test('device has screendensity', () {
       var enricher = fixture.getSut();
       final event = enricher.apply(SentryEvent());
 
-      expect(event.contexts.device?.screenDensity, isNotNull);
+      expect(event?.contexts.device?.screenDensity, isNotNull);
     });
 
-    test('culture has timezone', () async {
+    test('culture has timezone', () {
       var enricher = fixture.getSut();
       final event = enricher.apply(SentryEvent());
 
-      expect(event.contexts.culture?.timezone, isNotNull);
+      expect(event?.contexts.culture?.timezone, isNotNull);
     });
 
-    test('does not override event', () async {
+    test('does not override event', () {
       final fakeEvent = SentryEvent(
         contexts: Contexts(
           device: SentryDevice(
@@ -146,37 +146,37 @@ void main() {
 
       // contexts.device
       expect(
-        event.contexts.device?.online,
+        event?.contexts.device?.online,
         fakeEvent.contexts.device?.online,
       );
       expect(
-        event.contexts.device?.memorySize,
+        event?.contexts.device?.memorySize,
         fakeEvent.contexts.device?.memorySize,
       );
       expect(
-        event.contexts.device?.orientation,
+        event?.contexts.device?.orientation,
         fakeEvent.contexts.device?.orientation,
       );
       expect(
-        event.contexts.device?.screenHeightPixels,
+        event?.contexts.device?.screenHeightPixels,
         fakeEvent.contexts.device?.screenHeightPixels,
       );
       expect(
-        event.contexts.device?.screenWidthPixels,
+        event?.contexts.device?.screenWidthPixels,
         fakeEvent.contexts.device?.screenWidthPixels,
       );
       expect(
-        event.contexts.device?.screenDensity,
+        event?.contexts.device?.screenDensity,
         fakeEvent.contexts.device?.screenDensity,
       );
       // contexts.culture
       expect(
-        event.contexts.culture?.timezone,
+        event?.contexts.culture?.timezone,
         fakeEvent.contexts.culture?.timezone,
       );
       // contexts.operatingSystem
       expect(
-        event.contexts.operatingSystem?.name,
+        event?.contexts.operatingSystem?.name,
         fakeEvent.contexts.operatingSystem?.name,
       );
     });
