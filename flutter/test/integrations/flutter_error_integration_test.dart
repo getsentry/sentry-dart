@@ -159,7 +159,7 @@ void main() {
 
       final integrationA = fixture.getSut();
       integrationA.call(fixture.hub, fixture.options);
-      await integrationA.close();
+      integrationA.close();
 
       final integrationB = fixture.getSut();
       integrationB.call(fixture.hub, fixture.options);
@@ -172,7 +172,7 @@ void main() {
       expect(numberOfDefaultCalls, 1);
     });
 
-    test('closes restored default onError', () async {
+    test('closes restored default onError', () {
       final defaultOnError = (FlutterErrorDetails errorDetails) async {};
       FlutterError.onError = defaultOnError;
 
@@ -180,11 +180,11 @@ void main() {
       integration.call(fixture.hub, fixture.options);
       expect(false, defaultOnError == FlutterError.onError);
 
-      await integration.close();
+      integration.close();
       expect(FlutterError.onError, defaultOnError);
     });
 
-    test('default is not restored if set after integration', () async {
+    test('default is not restored if set after integration', () {
       final defaultOnError = (FlutterErrorDetails errorDetails) async {};
       FlutterError.onError = defaultOnError;
 
@@ -196,7 +196,7 @@ void main() {
           (FlutterErrorDetails errorDetails) async {};
       FlutterError.onError = afterIntegrationOnError;
 
-      await integration.close();
+      integration.close();
       expect(FlutterError.onError, afterIntegrationOnError);
     });
 

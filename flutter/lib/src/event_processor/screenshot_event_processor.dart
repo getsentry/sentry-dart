@@ -9,7 +9,7 @@ import '../sentry_flutter_options.dart';
 import 'package:flutter/rendering.dart';
 import '../renderer/renderer.dart';
 
-class ScreenshotEventProcessor extends EventProcessor {
+class ScreenshotEventProcessor implements EventProcessor {
   final SentryFlutterOptions _options;
 
   ScreenshotEventProcessor(this._options);
@@ -19,7 +19,11 @@ class ScreenshotEventProcessor extends EventProcessor {
       sentryScreenshotWidgetGlobalKey.currentContext != null;
 
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {Hint? hint}) async {
+  Future<SentryEvent?> apply(SentryEvent event, {Hint? hint}) async {
+    if (event is SentryTransaction) {
+      return event;
+    }
+
     if (event.exceptions == null &&
         event.throwable == null &&
         _hasSentryScreenshotWidget) {

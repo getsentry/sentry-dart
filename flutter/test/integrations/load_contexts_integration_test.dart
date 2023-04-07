@@ -25,12 +25,12 @@ void main() {
       _channel.setMockMethodCallHandler(null);
     });
 
-    test('loadContextsIntegration adds integration', () async {
+    test('loadContextsIntegration adds integration', () {
       _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
 
       final integration = LoadContextsIntegration(_channel);
 
-      await integration(fixture.hub, fixture.options);
+      integration(fixture.hub, fixture.options);
 
       expect(
           fixture.options.sdk.integrations.contains('loadContextsIntegration'),

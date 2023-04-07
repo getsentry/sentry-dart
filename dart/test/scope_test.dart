@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/sentry_tracer.dart';
@@ -795,13 +793,13 @@ class Fixture {
   }
 }
 
-class AddTagsEventProcessor extends EventProcessor {
+class AddTagsEventProcessor implements EventProcessor {
   final Map<String, String> tags;
 
   AddTagsEventProcessor(this.tags);
 
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) {
+  SentryEvent? apply(SentryEvent event, {hint}) {
     return event..tags?.addAll(tags);
   }
 }

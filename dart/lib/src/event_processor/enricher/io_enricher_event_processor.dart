@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 
 import '../../../sentry.dart';
@@ -19,7 +18,7 @@ class IoEnricherEventProcessor implements EnricherEventProcessor {
   final SentryOptions _options;
 
   @override
-  FutureOr<SentryEvent> apply(SentryEvent event, {Hint? hint}) {
+  SentryEvent apply(SentryEvent event, {Hint? hint}) {
     // If there's a native integration available, it probably has better
     // information available than Flutter.
 

@@ -1,19 +1,18 @@
-import 'dart:async';
-
 import '../../sentry_flutter.dart';
 import 'view_hierarchy_event_processor.dart';
 
 /// A [Integration] that renders an ASCII represention of the entire view
 /// hierarchy of the application when an error happens and includes it as an
 /// attachment to the [Hint].
-class SentryViewHierarchyIntegration extends Integration<SentryFlutterOptions> {
+class SentryViewHierarchyIntegration
+    implements Integration<SentryFlutterOptions> {
   SentryViewHierarchyEventProcessor? _eventProcessor;
   SentryFlutterOptions? _options;
 
   @override
-  FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
+  void call(Hub hub, SentryFlutterOptions options) {
     if (!options.attachViewHierarchy) {
-      return Future.value();
+      return;
     }
     _options = options;
     final eventProcessor = SentryViewHierarchyEventProcessor(options);
@@ -23,7 +22,7 @@ class SentryViewHierarchyIntegration extends Integration<SentryFlutterOptions> {
   }
 
   @override
-  FutureOr<void> close() {
+  void close() {
     final eventProcessor = _eventProcessor;
     if (eventProcessor != null) {
       _options?.removeEventProcessor(eventProcessor);

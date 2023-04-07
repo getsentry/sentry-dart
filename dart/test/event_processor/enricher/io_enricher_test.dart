@@ -17,7 +17,7 @@ void main() {
 
     test('adds dart runtime', () async {
       final enricher = fixture.getSut();
-      final event = await enricher.apply(SentryEvent());
+      final event = enricher.apply(SentryEvent());
 
       expect(event.contexts.runtimes, isNotEmpty);
       final dartRuntime = event.contexts.runtimes
@@ -31,7 +31,7 @@ void main() {
       var event = SentryEvent(contexts: Contexts(runtimes: [runtime]));
       final enricher = fixture.getSut();
 
-      event = await enricher.apply(event);
+      event = enricher.apply(event);
 
       expect(event.contexts.runtimes.contains(runtime), true);
       // second runtime is Dart runtime
@@ -42,7 +42,7 @@ void main() {
         'does not add device, os and culture if native integration is available',
         () async {
       final enricher = fixture.getSut(hasNativeIntegration: true);
-      final event = await enricher.apply(SentryEvent());
+      final event = enricher.apply(SentryEvent());
 
       expect(event.contexts.device, isNull);
       expect(event.contexts.operatingSystem, isNull);
@@ -52,7 +52,7 @@ void main() {
     test('adds device, os and culture if no native integration is available',
         () async {
       final enricher = fixture.getSut(hasNativeIntegration: false);
-      final event = await enricher.apply(SentryEvent());
+      final event = enricher.apply(SentryEvent());
 
       expect(event.contexts.device, isNotNull);
       expect(event.contexts.operatingSystem, isNotNull);
@@ -61,14 +61,14 @@ void main() {
 
     test('device has name', () async {
       final enricher = fixture.getSut();
-      final event = await enricher.apply(SentryEvent());
+      final event = enricher.apply(SentryEvent());
 
       expect(event.contexts.device?.name, isNotNull);
     });
 
     test('culture has locale and timezone', () async {
       final enricher = fixture.getSut();
-      final event = await enricher.apply(SentryEvent());
+      final event = enricher.apply(SentryEvent());
 
       expect(event.contexts.culture?.locale, isNotNull);
       expect(event.contexts.culture?.timezone, isNotNull);
@@ -76,7 +76,7 @@ void main() {
 
     test('os has name and version', () async {
       final enricher = fixture.getSut();
-      final event = await enricher.apply(SentryEvent());
+      final event = enricher.apply(SentryEvent());
 
       expect(event.contexts.operatingSystem?.name, isNotNull);
       expect(event.contexts.operatingSystem?.version, isNotNull);
@@ -84,7 +84,7 @@ void main() {
 
     test('adds Dart context with PII', () async {
       final enricher = fixture.getSut(includePii: true);
-      final event = await enricher.apply(SentryEvent());
+      final event = enricher.apply(SentryEvent());
 
       final dartContext = event.contexts['dart_context'];
       expect(dartContext, isNotNull);
@@ -97,7 +97,7 @@ void main() {
 
     test('adds Dart context without PII', () async {
       final enricher = fixture.getSut(includePii: false);
-      final event = await enricher.apply(SentryEvent());
+      final event = enricher.apply(SentryEvent());
 
       final dartContext = event.contexts['dart_context'];
       expect(dartContext, isNotNull);
@@ -131,7 +131,7 @@ void main() {
         hasNativeIntegration: false,
       );
 
-      final event = await enricher.apply(fakeEvent);
+      final event = enricher.apply(fakeEvent);
 
       // contexts.device
       expect(

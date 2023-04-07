@@ -13,10 +13,10 @@ void main() {
     fixture = Fixture();
   });
 
-  test('widgetsBindingIntegration does not add integration', () async {
+  test('widgetsBindingIntegration does not add integration', () {
     final integration = WidgetsBindingIntegration();
 
-    await integration(fixture.hub, fixture.options);
+    integration(fixture.hub, fixture.options);
 
     expect(false,
         fixture.options.sdk.integrations.contains('widgetsBindingIntegration'));

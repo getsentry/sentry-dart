@@ -21,9 +21,9 @@ void main() {
     _channel.setMockMethodCallHandler(null);
   });
 
-  test('WidgetsFlutterBindingIntegration adds integration', () async {
+  test('WidgetsFlutterBindingIntegration adds integration', () {
     final integration = WidgetsFlutterBindingIntegration();
-    await integration(fixture.hub, fixture.options);
+    integration(fixture.hub, fixture.options);
 
     expect(
         fixture.options.sdk.integrations
@@ -31,9 +31,9 @@ void main() {
         true);
   });
 
-  test('WidgetsFlutterBindingIntegration calls ensureInitialized', () async {
+  test('WidgetsFlutterBindingIntegration calls ensureInitialized', () {
     final integration = WidgetsFlutterBindingIntegration();
-    await integration(fixture.hub, fixture.options);
+    integration(fixture.hub, fixture.options);
 
     expect(fixture.testBindingUtils.ensureBindingInitializedCalled, true);
   });

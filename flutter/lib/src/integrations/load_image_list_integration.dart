@@ -11,7 +11,7 @@ class LoadImageListIntegration extends Integration<SentryFlutterOptions> {
   LoadImageListIntegration(this._channel);
 
   @override
-  FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
+  void call(Hub hub, SentryFlutterOptions options) {
     options.addEventProcessor(
       _LoadImageListIntegrationEventProcessor(_channel, options),
     );
@@ -36,14 +36,14 @@ extension _NeedsSymbolication on SentryEvent {
   }
 }
 
-class _LoadImageListIntegrationEventProcessor extends EventProcessor {
+class _LoadImageListIntegrationEventProcessor implements EventProcessor {
   _LoadImageListIntegrationEventProcessor(this._channel, this._options);
 
   final MethodChannel _channel;
   final SentryFlutterOptions _options;
 
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {Hint? hint}) async {
+  Future<SentryEvent?> apply(SentryEvent event, {Hint? hint}) async {
     if (event.needsSymbolication()) {
       try {
         // we call on every event because the loaded image list is cached

@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
@@ -88,7 +87,7 @@ class OnErrorIntegration implements Integration<SentryFlutterOptions> {
   }
 
   @override
-  void close() async {
+  void close() {
     if (!(dispatchWrapper?.isOnErrorSupported(_options!) == true)) {
       // bail out
       return;

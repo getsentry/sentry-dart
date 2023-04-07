@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import '../../sentry_flutter.dart';
 import 'sentry_tree_walker.dart';
 
@@ -12,7 +10,13 @@ class SentryViewHierarchyEventProcessor implements EventProcessor {
   final SentryFlutterOptions _options;
 
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {Hint? hint}) async {
+  SentryEvent? apply(SentryEvent event, {Hint? hint}) {
+    // View hierarchy is always minified on Web and we don't support
+    // symbolication of source maps for view hierarchy yet.
+    if (event is SentryTransaction || _options.platformChecker.isWeb) {
+      return event;
+    }
+
     if (event.exceptions == null && event.throwable == null) {
       return event;
     }

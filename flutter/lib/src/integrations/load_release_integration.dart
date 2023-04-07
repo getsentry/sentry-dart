@@ -9,7 +9,7 @@ class LoadReleaseIntegration extends Integration<SentryFlutterOptions> {
   LoadReleaseIntegration();
 
   @override
-  FutureOr<void> call(Hub hub, SentryFlutterOptions options) async {
+  Future<void> call(Hub hub, SentryFlutterOptions options) async {
     try {
       if (options.release == null || options.dist == null) {
         final packageInfo = await PackageInfo.fromPlatform();

@@ -12,10 +12,10 @@ void main() {
     fixture = Fixture();
   });
 
-  test('viewHierarchyIntegration creates view hierarchy processor', () async {
+  test('viewHierarchyIntegration creates view hierarchy processor', () {
     final integration = fixture.getSut();
 
-    await integration(fixture.hub, fixture.options);
+    integration(fixture.hub, fixture.options);
 
     final processors = fixture.options.eventProcessors
         .where((e) => e.runtimeType == SentryViewHierarchyEventProcessor);
@@ -25,10 +25,10 @@ void main() {
 
   test(
       'viewHierarchyIntegration does not add view hierarchy processor if opt out in options',
-      () async {
+      () {
     final integration = fixture.getSut(attachViewHierarchy: false);
 
-    await integration(fixture.hub, fixture.options);
+    integration(fixture.hub, fixture.options);
 
     final processors = fixture.options.eventProcessors
         .where((e) => e.runtimeType == SentryViewHierarchyEventProcessor);
@@ -36,11 +36,11 @@ void main() {
     expect(processors.isEmpty, true);
   });
 
-  test('viewHierarchyIntegration close resets processor', () async {
+  test('viewHierarchyIntegration close resets processor', () {
     final integration = fixture.getSut();
 
-    await integration(fixture.hub, fixture.options);
-    await integration.close();
+    integration(fixture.hub, fixture.options);
+    integration.close();
 
     final processors = fixture.options.eventProcessors
         .where((e) => e.runtimeType == SentryViewHierarchyEventProcessor);
@@ -48,21 +48,20 @@ void main() {
     expect(processors.isEmpty, true);
   });
 
-  test('viewHierarchyIntegration adds integration to the sdk list', () async {
+  test('viewHierarchyIntegration adds integration to the sdk list', () {
     final integration = fixture.getSut();
 
-    await integration(fixture.hub, fixture.options);
+    integration(fixture.hub, fixture.options);
 
     expect(
         fixture.options.sdk.integrations.contains('viewHierarchyIntegration'),
         true);
   });
 
-  test('viewHierarchyIntegration does not add integration to the sdk list',
-      () async {
+  test('viewHierarchyIntegration does not add integration to the sdk list', () {
     final integration = fixture.getSut(attachViewHierarchy: false);
 
-    await integration(fixture.hub, fixture.options);
+    integration(fixture.hub, fixture.options);
 
     expect(
         fixture.options.sdk.integrations.contains('viewHierarchyIntegration'),
