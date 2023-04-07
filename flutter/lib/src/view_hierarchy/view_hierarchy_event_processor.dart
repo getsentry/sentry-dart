@@ -11,9 +11,7 @@ class SentryViewHierarchyEventProcessor implements EventProcessor {
 
   @override
   SentryEvent? apply(SentryEvent event, {Hint? hint}) {
-    // View hierarchy is always minified on Web and we don't support
-    // symbolication of source maps for view hierarchy yet.
-    if (event is SentryTransaction || _options.platformChecker.isWeb) {
+    if (event is SentryTransaction) {
       return event;
     }
 

@@ -125,8 +125,7 @@ void main() {
     expect(fixture.hub.breadcrumbs.length, 0);
   });
 
-  test('exception is recorded as event if minEventLevel over minlevel',
-      () {
+  test('exception is recorded as event if minEventLevel over minlevel', () {
     final sut = fixture.createSut(minEventLevel: Level.INFO);
     sut.call(fixture.hub, fixture.options);
 
@@ -149,8 +148,7 @@ void main() {
     expect(fixture.hub.events.first.stackTrace, stackTrace);
   });
 
-  test('exception is recorded as event if minEventLevel equal minlevel',
-      () {
+  test('exception is recorded as event if minEventLevel equal minlevel', () {
     final sut = fixture.createSut(minEventLevel: Level.INFO);
     sut.call(fixture.hub, fixture.options);
 
