@@ -468,6 +468,10 @@ class SentryClient {
   /// this is a signal that the app would crash and android would lose the breadcrumbs by the time the app is restarted to read
   /// the envelope.
   bool _shouldRemoveBreadcrumbs(SentryEvent event) {
+    if (_options.platformChecker.isWeb) {
+      return false;
+    }
+
     final isAndroid = _options.platformChecker.platform.isAndroid;
     final enableScopeSync = _options.enableScopeSync;
 
