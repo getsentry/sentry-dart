@@ -1,5 +1,4 @@
 import '../../sentry.dart';
-import '../sentry_baggage.dart';
 
 void addSentryTraceHeader(ISentrySpan span, Map<String, dynamic> headers) {
   final traceHeader = span.toSentryTrace();
