@@ -1312,6 +1312,35 @@ void main() {
 
       expect((capturedEvent.breadcrumbs ?? []).isNotEmpty, true);
     });
+
+    test('web breadcrumbs exist on web Android devices', () async {
+      fixture.options.enableScopeSync = true;
+      fixture.options.platformChecker =
+          MockPlatformChecker(
+              platform: MockPlatform.android(),
+              isWebValue: true,
+          );
+
+      final client = fixture.getSut();
+      final event = SentryEvent(exceptions: [
+        SentryException(
+          type: "type",
+          value: "value",
+          mechanism: Mechanism(
+            type: 'type',
+            handled: true,
+          ),
+        ),
+      ], breadcrumbs: [
+        Breadcrumb(),
+      ]);
+      await client.captureEvent(event);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect((capturedEvent.breadcrumbs ?? []).isNotEmpty, true);
+    });
   });
 
   group('ClientReportRecorder', () {
