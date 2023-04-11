@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix breadcrumbs not being sent on Android web ([#1378](https://github.com/getsentry/sentry-dart/pull/1378))
+
 ## 7.4.1
 
 ### Fixes
