@@ -1,10 +1,15 @@
 # Changelog
 
-## 7.4.1
+## Unreleased
 
 ### Fixes
 
 - Fix breadcrumbs not being sent on Android web ([#1378](https://github.com/getsentry/sentry-dart/pull/1378))
+
+## 7.4.1
+
+### Fixes
+
 - Fix Dart web builds breaking due to `dart:io` imports when using `SentryIsolate` or `SentryIsolateExtension` ([#1371](https://github.com/getsentry/sentry-dart/pull/1371))
   - When using `SentryIsolate` or `SentryIsolateExtension`, import `sentry_io.dart`.
 - Export `SentryBaggage` ([#1377](https://github.com/getsentry/sentry-dart/pull/1377))
