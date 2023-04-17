@@ -320,7 +320,7 @@ class Scope {
     for (final processor in _eventProcessors) {
       try {
         final e = processor.apply(processedEvent!, hint: hint);
-        if (e is Future) {
+        if (e is Future<SentryEvent?>) {
           processedEvent = await e;
         } else {
           processedEvent = e;

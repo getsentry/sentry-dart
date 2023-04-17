@@ -300,7 +300,7 @@ class SentryAssetBundle implements AssetBundle {
     try {
       final result = parser(value);
 
-      if (result is Future) {
+      if (result is Future<T>) {
         data = await result;
       } else {
         data = result;
