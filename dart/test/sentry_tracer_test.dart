@@ -1,5 +1,4 @@
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/sentry_baggage.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/utils.dart';
 import 'package:test/test.dart';

@@ -1154,7 +1154,28 @@ void main() {
       fixture = Fixture();
     });
 
-    test('Clears breadcrumbs on Android if mechanism.handled is true',
+    test('Clears breadcrumbs on Android for transaction', () async {
+      fixture.options.enableScopeSync = true;
+      fixture.options.platformChecker =
+          MockPlatformChecker(platform: MockPlatform.android());
+
+      final client = fixture.getSut();
+      final transaction = SentryTransaction(
+        fixture.tracer,
+        breadcrumbs: [
+          Breadcrumb(),
+        ],
+      );
+      await client.captureTransaction(transaction);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedTransaction =
+          await transactionFromEnvelope(capturedEnvelope);
+
+      expect((capturedTransaction['breadcrumbs'] ?? []).isEmpty, true);
+    });
+
+    test('Clears breadcrumbs on Android if mechanism.handled is true for event',
         () async {
       fixture.options.enableScopeSync = true;
       fixture.options.platformChecker =
@@ -1181,7 +1202,7 @@ void main() {
       expect((capturedEvent.breadcrumbs ?? []).isEmpty, true);
     });
 
-    test('Clears breadcrumbs on Android if mechanism.handled is null',
+    test('Clears breadcrumbs on Android if mechanism.handled is null for event',
         () async {
       fixture.options.enableScopeSync = true;
       fixture.options.platformChecker =
@@ -1205,7 +1226,8 @@ void main() {
       expect((capturedEvent.breadcrumbs ?? []).isEmpty, true);
     });
 
-    test('Clears breadcrumbs on Android if theres no mechanism', () async {
+    test('Clears breadcrumbs on Android if theres no mechanism for event',
+        () async {
       fixture.options.enableScopeSync = true;
       fixture.options.platformChecker =
           MockPlatformChecker(platform: MockPlatform.android());
@@ -1227,7 +1249,8 @@ void main() {
       expect((capturedEvent.breadcrumbs ?? []).isEmpty, true);
     });
 
-    test('Does not clear breadcrumbs on Android if mechanism.handled is false',
+    test(
+        'Does not clear breadcrumbs on Android if mechanism.handled is false for event',
         () async {
       fixture.options.enableScopeSync = true;
       fixture.options.platformChecker =
@@ -1255,7 +1278,7 @@ void main() {
     });
 
     test(
-        'Does not clear breadcrumbs on Android if any mechanism.handled is false',
+        'Does not clear breadcrumbs on Android if any mechanism.handled is false for event',
         () async {
       fixture.options.enableScopeSync = true;
       fixture.options.platformChecker =
@@ -1281,6 +1304,34 @@ void main() {
         )
       ], breadcrumbs: [
         Breadcrumb()
+      ]);
+      await client.captureEvent(event);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedEvent = await eventFromEnvelope(capturedEnvelope);
+
+      expect((capturedEvent.breadcrumbs ?? []).isNotEmpty, true);
+    });
+
+    test('web breadcrumbs exist on web Android devices', () async {
+      fixture.options.enableScopeSync = true;
+      fixture.options.platformChecker = MockPlatformChecker(
+        platform: MockPlatform.android(),
+        isWebValue: true,
+      );
+
+      final client = fixture.getSut();
+      final event = SentryEvent(exceptions: [
+        SentryException(
+          type: "type",
+          value: "value",
+          mechanism: Mechanism(
+            type: 'type',
+            handled: true,
+          ),
+        ),
+      ], breadcrumbs: [
+        Breadcrumb(),
       ]);
       await client.captureEvent(event);
 
