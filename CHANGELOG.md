@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Screenshots and View Hierarchy should only be added to errors ([#1385](https://github.com/getsentry/sentry-dart/pull/1385))
+  - View Hierarchy is removed from Web errors since we don't symbolicate minified View Hierarchy yet.
+- More improvements related to not awaiting `FutureOr<T>` if it's not a future ([#1385](https://github.com/getsentry/sentry-dart/pull/1385))
+
 ## 7.4.2
 
 ### Fixes
