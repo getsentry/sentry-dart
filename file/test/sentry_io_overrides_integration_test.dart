@@ -56,6 +56,16 @@ void main() {
 
     expect(IOOverrides.current, previous);
   });
+
+  test('files created are sentry file after adding integration', () {
+    fixture.options.tracesSampleRate = 1.0;
+
+    final sut = fixture.getSut();
+    sut.call(fixture.hub, fixture.options);
+
+    final file = File("/home");
+    expect(file is SentryFile, true);
+  });
 }
 
 class Fixture {
