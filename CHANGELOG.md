@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- SentryIOOverridesIntegration ([#1362](https://github.com/getsentry/sentry-dart/pull/1362))
+
 ## 7.4.2
 
 ### Fixes
@@ -7,10 +13,6 @@
 - Fix breadcrumbs not being sent on Android web ([#1378](https://github.com/getsentry/sentry-dart/pull/1378))
 
 ## 7.4.1
-
-### Features
-
-- SentryIOOverridesIntegration ([#1362](https://github.com/getsentry/sentry-dart/pull/1362))
 
 ### Fixes
 
