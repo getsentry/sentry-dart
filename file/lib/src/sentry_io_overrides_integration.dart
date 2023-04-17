@@ -7,6 +7,9 @@ import 'sentry_io_overrides.dart';
 /// When installed, every new file will be created as [SentryFile].
 /// When installed, operations will use [SentryFile] instead of dart:io's [File]
 /// implementation whenever [File] is used.
+///
+/// When closed, the [IOOverrides.current] value before this integration was
+/// added will be assigned to [IOOverrides.global].
 class SentryIOOverridesIntegration extends Integration<SentryOptions> {
   IOOverrides? _previousOverrides;
   bool _installed = false;
