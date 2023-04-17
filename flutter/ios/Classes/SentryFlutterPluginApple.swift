@@ -563,10 +563,16 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             userInstance.data = data
           }
         }
-
-        // missing name and geo
-        // Should be solved by https://github.com/getsentry/team-mobile/issues/59
-        // or https://github.com/getsentry/team-mobile/issues/56
+        if let name = user["name"] as? String {
+          userInstance.name = name
+        }
+        if let geoData = user["geo"] as? [String: Any] {
+          let geo = Geo()
+          geo.city = geoData["city"] as? String
+          geo.countryCode = geoData["country_code"] as? String
+          geo.region = geoData["region"] as? String
+          userInstance.geo = geo
+        }
 
         SentrySDK.setUser(userInstance)
       } else {
