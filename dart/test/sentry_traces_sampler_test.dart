@@ -97,7 +97,8 @@ void main() {
     expect(fixture.loggedLevel, SentryLevel.error);
   });
 
-  test('when no tracesSampleRate is set, don\'t sample with enableTracing null', () {
+  test('when no tracesSampleRate is set, don\'t sample with enableTracing null',
+      () {
     final sampler = fixture.getSut(tracesSampleRate: null, enableTracing: null);
     final trContext = SentryTransactionContext(
       'name',
@@ -110,8 +111,11 @@ void main() {
     expect(samplingDecision.sampleRate, isNull);
   });
 
-  test('when no tracesSampleRate is set, don\'t sample with enableTracing false', () {
-    final sampler = fixture.getSut(tracesSampleRate: null, enableTracing: false);
+  test(
+      'when no tracesSampleRate is set, don\'t sample with enableTracing false',
+      () {
+    final sampler =
+        fixture.getSut(tracesSampleRate: null, enableTracing: false);
     final trContext = SentryTransactionContext(
       'name',
       'op',
@@ -123,7 +127,9 @@ void main() {
     expect(samplingDecision.sampleRate, isNull);
   });
 
-  test('when no tracesSampleRate is set, uses default rate with enableTracing true', () {
+  test(
+      'when no tracesSampleRate is set, uses default rate with enableTracing true',
+      () {
     final sampler = fixture.getSut(tracesSampleRate: null, enableTracing: true);
     final trContext = SentryTransactionContext(
       'name',

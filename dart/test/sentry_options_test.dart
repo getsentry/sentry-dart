@@ -121,7 +121,9 @@ void main() {
     final options = SentryOptions.empty();
     options.enableTracing = false;
     options.tracesSampleRate = 1.0;
-    options.tracesSampler = (_) { return 1.0; };
+    options.tracesSampler = (_) {
+      return 1.0;
+    };
 
     expect(options.isTracingEnabled(), false);
   });
