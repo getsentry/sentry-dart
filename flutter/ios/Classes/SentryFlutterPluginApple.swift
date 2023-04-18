@@ -534,6 +534,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
       }
     }
 
+    // swiftlint:disable:next cyclomatic_complexity
     private func setUser(user: [String: Any?]?, result: @escaping FlutterResult) {
       if let user = user {
         let userInstance = User()
