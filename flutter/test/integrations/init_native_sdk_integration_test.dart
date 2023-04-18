@@ -60,8 +60,6 @@ void main() {
         'maxAttachmentSize': 20 * 1024 * 1024,
         'captureFailedRequests': true,
         'enableAppHangTracking': true,
-        'connectionTimeoutMillis': 5000,
-        'readTimeoutMillis': 5000,
       });
     });
 
@@ -98,9 +96,7 @@ void main() {
         ..proguardUuid = fakeProguardUuid
         ..maxAttachmentSize = 10
         ..captureFailedRequests = false
-        ..enableAppHangTracking = false
-        ..connectionTimeout = Duration(milliseconds: 9001)
-        ..readTimeout = Duration(milliseconds: 9002);
+        ..enableAppHangTracking = false;
 
       options.sdk.addIntegration('foo');
       options.sdk.addPackage('bar', '1');
@@ -141,8 +137,6 @@ void main() {
         'maxAttachmentSize': 10,
         'captureFailedRequests': false,
         'enableAppHangTracking': false,
-        'connectionTimeoutMillis': 9001,
-        'readTimeoutMillis': 9002,
       });
     });
 
