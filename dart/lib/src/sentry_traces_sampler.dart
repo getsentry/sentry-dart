@@ -53,15 +53,16 @@ class SentryTracesSampler {
       return parentSamplingDecision;
     }
 
-    double? tracesSampleRateFromOptions = _options.tracesSampleRate;
-    bool? isEnableTracing = _options.enableTracing;
-    double? defaultSampleRate = isEnableTracing == true ? SentryTracesSampler.defaultSampleRate : null;
-    double? tracesSampleRateOrDefault = tracesSampleRateFromOptions ?? defaultSampleRate;
+    double? optionsRate = _options.tracesSampleRate;
+    double? defaultRate = _options.enableTracing == true
+        ? SentryTracesSampler.defaultSampleRate
+        : null;
+    double? optionsOrDefaultRate = optionsRate ?? defaultRate;
 
-    if (tracesSampleRateOrDefault != null) {
+    if (optionsOrDefaultRate != null) {
       return SentryTracesSamplingDecision(
-        _sample(tracesSampleRateOrDefault),
-        sampleRate: tracesSampleRateOrDefault,
+        _sample(optionsOrDefaultRate),
+        sampleRate: optionsOrDefaultRate,
       );
     }
 
