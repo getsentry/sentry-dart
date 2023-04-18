@@ -96,6 +96,45 @@ void main() {
     expect(fixture.loggedException, exception);
     expect(fixture.loggedLevel, SentryLevel.error);
   });
+
+  test('when no tracesSampleRate is set, don\'t sample with enableTracing null', () {
+    final sampler = fixture.getSut(tracesSampleRate: null, enableTracing: null);
+    final trContext = SentryTransactionContext(
+      'name',
+      'op',
+    );
+    final context = SentrySamplingContext(trContext, {});
+    final samplingDecision = sampler.sample(context);
+
+    expect(samplingDecision.sampled, false);
+    expect(samplingDecision.sampleRate, isNull);
+  });
+
+  test('when no tracesSampleRate is set, don\'t sample with enableTracing false', () {
+    final sampler = fixture.getSut(tracesSampleRate: null, enableTracing: false);
+    final trContext = SentryTransactionContext(
+      'name',
+      'op',
+    );
+    final context = SentrySamplingContext(trContext, {});
+    final samplingDecision = sampler.sample(context);
+
+    expect(samplingDecision.sampled, false);
+    expect(samplingDecision.sampleRate, isNull);
+  });
+
+  test('when no tracesSampleRate is set, uses default rate with enableTracing true', () {
+    final sampler = fixture.getSut(tracesSampleRate: null, enableTracing: true);
+    final trContext = SentryTransactionContext(
+      'name',
+      'op',
+    );
+    final context = SentrySamplingContext(trContext, {});
+    final samplingDecision = sampler.sample(context);
+
+    expect(samplingDecision.sampled, true);
+    expect(SentryTracesSampler.defaultSampleRate, samplingDecision.sampleRate);
+  });
 }
 
 class Fixture {
@@ -108,11 +147,15 @@ class Fixture {
     double? tracesSampleRate = 1.0,
     TracesSamplerCallback? tracesSampler,
     bool debug = false,
+    bool? enableTracing,
   }) {
     options.tracesSampleRate = tracesSampleRate;
     options.tracesSampler = tracesSampler;
     options.debug = debug;
     options.logger = mockLogger;
+    if (enableTracing != null) {
+      options.enableTracing = enableTracing;
+    }
     return SentryTracesSampler(options);
   }
 
