@@ -133,7 +133,7 @@ void main() {
     final samplingDecision = sampler.sample(context);
 
     expect(samplingDecision.sampled, true);
-    expect(SentryTracesSampler.defaultSampleRate, samplingDecision.sampleRate);
+    expect(1.0, samplingDecision.sampleRate);
   });
 }
 
