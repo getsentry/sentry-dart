@@ -7,7 +7,7 @@ import '../sentry.dart';
 @internal
 class SentryTracesSampler {
 
-  static final _defaultSampleRate = 1.0;
+  static const _defaultSampleRate = 1.0;
 
   final SentryOptions _options;
   final Random _random;
