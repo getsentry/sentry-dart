@@ -49,6 +49,8 @@ class NativeSdkIntegration extends Integration<SentryFlutterOptions> {
         'maxAttachmentSize': options.maxAttachmentSize,
         'captureFailedRequests': options.captureFailedRequests,
         'enableAppHangTracking': options.enableAppHangTracking,
+        'connectionTimeoutMillis': options.connectionTimeout.inMilliseconds,
+        'readTimeoutMillis': options.readTimeout.inMilliseconds,
       });
 
       options.sdk.addIntegration('nativeSdkIntegration');
