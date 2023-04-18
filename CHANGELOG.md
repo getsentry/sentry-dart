@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Sync `connectionTimeout` and `readTimeout` to Android ([#1397](https://github.com/getsentry/sentry-dart/pull/1397))
+
 ## 7.4.2
 
 ### Fixes
