@@ -24,6 +24,7 @@ jobs:
   metrics:
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.host }}
+    timeout-minutes: 30
     strategy:
       # We want that the matrix keeps running, default is to cancel all jobs if a single fails.
       fail-fast: false

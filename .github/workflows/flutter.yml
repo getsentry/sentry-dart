@@ -151,6 +151,7 @@ jobs:
 
   pod-lint:
     runs-on: macos-latest
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: ./flutter
@@ -161,6 +162,7 @@ jobs:
 
   swift-lint:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: ./flutter
@@ -172,6 +174,7 @@ jobs:
 
   ktlint:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: ./flutter
@@ -188,6 +191,7 @@ jobs:
 
   detekt:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v3
       # To recreate baseline run: detekt -i flutter/android,flutter/example/android -b flutter/config/detekt-bl.xml -cb

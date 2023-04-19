@@ -19,6 +19,7 @@ jobs:
           
   test-android:
     runs-on: macos-latest
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: ./flutter/example
@@ -55,6 +56,7 @@ jobs:
           script: flutter test integration_test/integration_test.dart --verbose
   test-ios:
     runs-on: macos-11
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: ./flutter/example
