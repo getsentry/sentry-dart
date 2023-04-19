@@ -23,6 +23,7 @@ jobs:
       run:
         working-directory: ./flutter/example
     strategy:
+      fail-fast: false
       matrix:
         sdk: ['stable', 'beta']
     steps:
@@ -58,6 +59,7 @@ jobs:
       run:
         working-directory: ./flutter/example
     strategy:
+      fail-fast: false
       matrix:
         sdk: ['stable', 'beta']
     steps:

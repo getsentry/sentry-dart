@@ -37,10 +37,6 @@ target 'Runner' do
 end
 
 post_install do |installer|
-  installer.pods_project.targets.each do |target|
-    flutter_additional_ios_build_settings(target)
-  end
-  
   # remove after https://github.com/flutter/flutter/issues/124340 getting into all channels
   installer.generated_projects.each do |project|
     project.targets.each do |target|
@@ -48,5 +44,9 @@ post_install do |installer|
             config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = wanted_project_target
         end
     end
+  end
+
+  installer.pods_project.targets.each do |target|
+    flutter_additional_ios_build_settings(target)
   end
 end
