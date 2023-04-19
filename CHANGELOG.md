@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Do not report only async gap frames for logging calls ([#1378](https://github.com/getsentry/sentry-dart/pull/1378))
+- Do not report only async gap frames for logging calls ([#1398](https://github.com/getsentry/sentry-dart/pull/1398))
 
 ## 7.4.2
 
