@@ -81,7 +81,7 @@ jobs:
       - name: launch ios emulator
         uses: futureware-tech/simulator-action@ee05c113b79f056b47f354d7b313555f5491e158 #pin@v2
         with:
-          model: 'iphone 14'
+          model: 'iPhone 14'
           os_version: '16.2'
 
       - name: run ios integration test
