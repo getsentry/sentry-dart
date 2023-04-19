@@ -50,7 +50,7 @@ Future<void> setupSentry(AppRunner appRunner, String dsn) async {
     options.considerInAppFramesByDefault = false;
     options.attachThreads = true;
     options.enableWindowMetricBreadcrumbs = true;
-    options.addIntegration(LoggingIntegration());
+    options.addIntegration(LoggingIntegration(minEventLevel: Level.INFO));
     options.sendDefaultPii = true;
     options.reportSilentFlutterErrors = true;
     options.attachScreenshot = true;
@@ -394,6 +394,13 @@ class MainScaffold extends StatelessWidget {
               },
               child: const Text('Show UserFeedback Dialog without event'),
             ),
+            ElevatedButton(
+              onPressed: () {
+                final log = Logger('Logging');
+                log.info('My Logging test 2');
+              },
+              child: const Text('Logging'),
+            ),
             if (UniversalPlatform.isIOS || UniversalPlatform.isMacOS)
               const CocoaExample(),
             if (UniversalPlatform.isAndroid) const AndroidExample(),
@@ -503,13 +510,6 @@ class AndroidExample extends StatelessWidget {
           await execute('platform_exception');
         },
         child: const Text('Platform exception'),
-      ),
-      ElevatedButton(
-        onPressed: () {
-          final log = Logger('Logging');
-          log.info('My Logging test');
-        },
-        child: const Text('Logging'),
       ),
     ]);
   }
