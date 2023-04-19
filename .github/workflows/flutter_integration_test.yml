@@ -52,7 +52,7 @@ jobs:
           api-level: 21
           arch: x86_64
           profile: Nexus 6
-          script: flutter test integration_test/integration_test.dart
+          script: flutter test integration_test/integration_test.dart --verbose
   test-ios:
     runs-on: macos-11
     defaults:
@@ -83,4 +83,4 @@ jobs:
           os_version: '15.2'
 
       - name: run ios integration test
-        run: flutter test integration_test/integration_test.dart
+        run: flutter test integration_test/integration_test.dart --verbose
