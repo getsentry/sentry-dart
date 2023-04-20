@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:sentry/sentry.dart';
 
@@ -10,20 +8,20 @@ import '../sentry_flutter_options.dart';
 /// add a [Breadcrumb]. [debugPrint] is not outputting to the console anymore!
 /// This integration fixes the issue described in
 /// [#492](https://github.com/getsentry/sentry-dart/issues/492).
-class DebugPrintIntegration extends Integration<SentryFlutterOptions> {
+class DebugPrintIntegration implements Integration<SentryFlutterOptions> {
   DebugPrintCallback? _debugPrintBackup;
   late Hub _hub;
   late SentryFlutterOptions _options;
 
   @override
-  FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
+  void call(Hub hub, SentryFlutterOptions options) {
     _hub = hub;
     _options = options;
 
     final isDebug = options.platformChecker.isDebugMode();
     final enablePrintBreadcrumbs = options.enablePrintBreadcrumbs;
     if (isDebug || !enablePrintBreadcrumbs) {
-      return Future.value();
+      return;
     }
 
     _debugPrintBackup = debugPrint;

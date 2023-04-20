@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:sentry/sentry.dart';
 import '../sentry_flutter_options.dart';
 import '../widgets_binding_observer.dart';
@@ -8,12 +6,12 @@ import '../widgets_binding_observer.dart';
 /// See also:
 ///   - [SentryWidgetsBindingObserver]
 ///   - [WidgetsBindingObserver](https://api.flutter.dev/flutter/widgets/WidgetsBindingObserver-class.html)
-class WidgetsBindingIntegration extends Integration<SentryFlutterOptions> {
+class WidgetsBindingIntegration implements Integration<SentryFlutterOptions> {
   SentryWidgetsBindingObserver? _observer;
   SentryFlutterOptions? _options;
 
   @override
-  FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
+  void call(Hub hub, SentryFlutterOptions options) {
     _options = options;
     final observer = SentryWidgetsBindingObserver(
       hub: hub,
@@ -32,7 +30,7 @@ class WidgetsBindingIntegration extends Integration<SentryFlutterOptions> {
   }
 
   @override
-  FutureOr<void> close() {
+  void close() {
     final instance = _options?.bindingUtils.instance;
     final observer = _observer;
     if (instance != null && observer != null) {

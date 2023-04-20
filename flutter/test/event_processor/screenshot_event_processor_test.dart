@@ -11,11 +11,11 @@ import '../mocks.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   late Fixture fixture;
 
   setUp(() {
     fixture = Fixture();
-    TestWidgetsFlutterBinding.ensureInitialized();
   });
 
   Future<void> _addScreenshotAttachment(

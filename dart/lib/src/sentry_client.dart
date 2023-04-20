@@ -366,14 +366,14 @@ class SentryClient {
       if (event is SentryTransaction && beforeSendTransaction != null) {
         beforeSendName = 'beforeSendTransaction';
         final e = beforeSendTransaction(event);
-        if (e is Future) {
+        if (e is Future<SentryTransaction?>) {
           eventOrTransaction = await e;
         } else {
           eventOrTransaction = e;
         }
       } else if (beforeSend != null) {
         final e = beforeSend(event, hint: hint);
-        if (e is Future) {
+        if (e is Future<SentryEvent?>) {
           eventOrTransaction = await e;
         } else {
           eventOrTransaction = e;
@@ -411,7 +411,7 @@ class SentryClient {
     for (final processor in eventProcessors) {
       try {
         final e = processor.apply(processedEvent!, hint: hint);
-        if (e is Future) {
+        if (e is Future<SentryEvent?>) {
           processedEvent = await e;
         } else {
           processedEvent = e;

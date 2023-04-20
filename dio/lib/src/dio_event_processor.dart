@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
 
@@ -13,7 +11,11 @@ class DioEventProcessor implements EventProcessor {
   final SentryOptions _options;
 
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {Hint? hint}) {
+  SentryEvent? apply(SentryEvent event, {Hint? hint}) {
+    if (event is SentryTransaction) {
+      return event;
+    }
+
     DioError? dioError;
 
     for (final exception in event.exceptions ?? []) {
@@ -30,7 +32,7 @@ class DioEventProcessor implements EventProcessor {
 
     final response = _responseFrom(dioError);
 
-    Contexts contexts = event.contexts;
+    var contexts = event.contexts;
     if (event.contexts.response == null) {
       contexts = contexts.copyWith(response: response);
     }

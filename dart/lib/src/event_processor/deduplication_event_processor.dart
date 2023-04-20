@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:collection';
 import '../event_processor.dart';
 import '../hint.dart';
@@ -19,7 +18,7 @@ import '../sentry_options.dart';
 /// var fooTwo = Exception('foo');
 /// ```
 /// because (fooOne == fooTwo) equals false
-class DeduplicationEventProcessor extends EventProcessor {
+class DeduplicationEventProcessor implements EventProcessor {
   DeduplicationEventProcessor(this._options);
 
   // Using a HashSet makes this performant.
@@ -27,7 +26,7 @@ class DeduplicationEventProcessor extends EventProcessor {
   final SentryOptions _options;
 
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {Hint? hint}) {
+  SentryEvent? apply(SentryEvent event, {Hint? hint}) {
     if (event is SentryTransaction) {
       return event;
     }
@@ -39,7 +38,7 @@ class DeduplicationEventProcessor extends EventProcessor {
     return _deduplicate(event);
   }
 
-  FutureOr<SentryEvent?> _deduplicate(SentryEvent event) {
+  SentryEvent? _deduplicate(SentryEvent event) {
     // Cast to `Object?` in order to enable better type checking
     // because `event.throwable` is `dynamic`
     final exception = event.throwable as Object?;

@@ -1578,18 +1578,18 @@ Future<Map<String, dynamic>> transactionFromEnvelope(
   return envelopeItemJson as Map<String, dynamic>;
 }
 
-FutureOr<SentryEvent?> beforeSendCallbackDropEvent(
+SentryEvent? beforeSendCallbackDropEvent(
   SentryEvent event, {
   Hint? hint,
 }) =>
     null;
 
-FutureOr<SentryTransaction?> beforeSendTransactionCallbackDropEvent(
+SentryTransaction? beforeSendTransactionCallbackDropEvent(
   SentryTransaction event,
 ) =>
     null;
 
-FutureOr<SentryEvent?> asyncBeforeSendCallbackDropEvent(
+Future<SentryEvent?> asyncBeforeSendCallbackDropEvent(
   SentryEvent event, {
   Hint? hint,
 }) async {
@@ -1597,13 +1597,13 @@ FutureOr<SentryEvent?> asyncBeforeSendCallbackDropEvent(
   return null;
 }
 
-FutureOr<SentryTransaction?> asyncBeforeSendTransactionCallbackDropEvent(
+Future<SentryTransaction?> asyncBeforeSendTransactionCallbackDropEvent(
     SentryEvent event) async {
   await Future.delayed(Duration(milliseconds: 200));
   return null;
 }
 
-FutureOr<SentryEvent?> beforeSendCallback(SentryEvent event, {Hint? hint}) {
+SentryEvent? beforeSendCallback(SentryEvent event, {Hint? hint}) {
   return event
     ..tags!.addAll({'theme': 'material'})
     ..extra!['host'] = '0.0.0.1'
@@ -1614,7 +1614,7 @@ FutureOr<SentryEvent?> beforeSendCallback(SentryEvent event, {Hint? hint}) {
     ..sdk!.addPackage('test-pkg', '1.0');
 }
 
-FutureOr<SentryTransaction?> beforeSendTransactionCallback(
+SentryTransaction? beforeSendTransactionCallback(
     SentryTransaction transaction) {
   return transaction
     ..tags!.addAll({'theme': 'material'})
@@ -1677,7 +1677,7 @@ class Fixture {
     return client;
   }
 
-  FutureOr<SentryEvent?> droppingBeforeSend(SentryEvent event,
+  Future<SentryEvent?> droppingBeforeSend(SentryEvent event,
       {Hint? hint}) async {
     return null;
   }
