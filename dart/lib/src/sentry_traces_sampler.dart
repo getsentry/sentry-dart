@@ -53,9 +53,8 @@ class SentryTracesSampler {
     }
 
     double? optionsRate = _options.tracesSampleRate;
-    double? defaultRate = _options.enableTracing == true
-        ? SentryTracesSampler._defaultSampleRate
-        : null;
+    double? defaultRate =
+        _options.enableTracing == true ? _defaultSampleRate : null;
     double? optionsOrDefaultRate = optionsRate ?? defaultRate;
 
     if (optionsOrDefaultRate != null) {
