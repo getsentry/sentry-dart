@@ -4,9 +4,6 @@ import 'package:meta/meta.dart';
 /// It should contain at least a filename, function or instruction_addr
 @immutable
 class SentryStackFrame {
-  static final SentryStackFrame asynchronousGapFrameJson =
-      SentryStackFrame(absPath: '<asynchronous suspension>');
-
   SentryStackFrame({
     this.absPath,
     this.fileName,
