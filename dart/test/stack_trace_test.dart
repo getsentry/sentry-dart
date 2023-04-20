@@ -249,6 +249,21 @@ isolate_instructions: 10fa27070, vm_instructions: 10fa21e20
         }
       ]);
     });
+
+    test('remove frames if only async gap is left', () {
+      final frames = Fixture()
+          .getSut(considerInAppFramesByDefault: true)
+          .getStackFrames(StackTrace.fromString('''
+#0      SentryClient._prepareEvent (package:sentry/src/sentry_client.dart:206:33)
+#1      SentryClient.captureEvent (package:sentry/src/sentry_client.dart:74:34)
+#2      Hub.captureEvent (package:sentry/src/hub.dart:97:38)
+<asynchronous suspension>
+#3      LoggingIntegration._onLog (package:sentry_logging/src/logging_integration.dart:58:7)
+<asynchronous suspension>
+            '''))
+          .map((frame) => frame.toJson());
+      expect(frames.isEmpty, true);
+    });
   });
 }
 

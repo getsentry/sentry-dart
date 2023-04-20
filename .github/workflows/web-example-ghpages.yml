@@ -7,13 +7,14 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     env:
       SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
     steps:
       - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@dbf1fa04f4d2e52c33185153d06cdb5443aa189d # pin@v2
+      - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa # pin@v2.10.0
       - uses: bluefireteam/flutter-gh-pages@57815b17b371455ec1a98f075b71b4c6ba0a938c # pin@v8
         with:
           workingDir: flutter/example
