@@ -7,6 +7,11 @@
   - If set to `true`, performance is enabled, even if no `tracesSampleRate` or `tracesSampler` have been configured.
   - If set to `true`, sampler will use default sample rate of 1.0, if no `tracesSampleRate` is set.
   - If set to `false` performance is disabled, regardless of `tracesSampleRate` and `tracesSampler` options.
+## Unreleased
+
+### Fixes
+
+- Do not report only async gap frames for logging calls ([#1398](https://github.com/getsentry/sentry-dart/pull/1398))
 
 ## 7.4.2
 
