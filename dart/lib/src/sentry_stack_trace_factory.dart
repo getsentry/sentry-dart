@@ -29,6 +29,8 @@ class SentryStackTraceFactory {
   List<SentryStackFrame> getStackFrames(dynamic stackTrace) {
     final chain = _parseStackTrace(stackTrace);
     final frames = <SentryStackFrame>[];
+    var onlyAsyncGap = true;
+
     for (var t = 0; t < chain.traces.length; t += 1) {
       final trace = chain.traces[t];
 
@@ -42,21 +44,13 @@ class SentryStackTraceFactory {
         final stackTraceFrame = encodeStackTraceFrame(frame);
         if (stackTraceFrame != null) {
           frames.add(stackTraceFrame);
+          onlyAsyncGap = false;
         }
       }
 
       // fill asynchronous gap
       if (t < chain.traces.length - 1) {
         frames.add(_asynchronousGapFrameJson);
-      }
-    }
-
-    // If the frames are only async gaps, we don't want to send them.
-    var onlyAsyncGap = true;
-    for (final frame in frames) {
-      if (frame != _asynchronousGapFrameJson) {
-        onlyAsyncGap = false;
-        break;
       }
     }
 
