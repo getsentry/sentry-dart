@@ -2,12 +2,13 @@
 
 ### Unreleased
 
+### Features
+
 - Add `enableTracing` option ([#1395](https://github.com/getsentry/sentry-dart/pull/1395))
   - This change is backwards compatible. The default is `null` meaning existing behaviour remains unchanged (setting either `tracesSampleRate` or `tracesSampler` enables performance).
   - If set to `true`, performance is enabled, even if no `tracesSampleRate` or `tracesSampler` have been configured.
   - If set to `true`, sampler will use default sample rate of 1.0, if no `tracesSampleRate` is set.
   - If set to `false` performance is disabled, regardless of `tracesSampleRate` and `tracesSampler` options.
-## Unreleased
 
 ### Fixes
 
