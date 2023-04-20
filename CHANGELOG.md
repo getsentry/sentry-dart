@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Set User `name` and `geo` in native plugins ([#1393](https://github.com/getsentry/sentry-dart/pull/1393))
+
 ### Fixes
 
 - Screenshots and View Hierarchy should only be added to errors ([#1385](https://github.com/getsentry/sentry-dart/pull/1385))

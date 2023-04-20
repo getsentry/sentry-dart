@@ -26,6 +26,7 @@ import io.sentry.protocol.DebugImage
 import io.sentry.protocol.SdkVersion
 import io.sentry.protocol.SentryId
 import io.sentry.protocol.User
+import io.sentry.protocol.Geo
 import java.io.File
 import java.lang.ref.WeakReference
 import java.util.Locale
@@ -296,12 +297,14 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     (user["username"] as? String)?.let { userInstance.username = it }
     (user["ip_address"] as? String)?.let { userInstance.ipAddress = it }
     (user["segment"] as? String)?.let { userInstance.segment = it }
-
-    // Not mapped on Android yet, added to the unknown databag that gets serialized correctly anyway
-    // Should be solved by https://github.com/getsentry/team-mobile/issues/59
-    // or https://github.com/getsentry/team-mobile/issues/56
-    (user["name"] as? String)?.let { unknown["name"] = it }
-    (user["geo"] as? Map<String, Any?>)?.let { unknown["geo"] = it }
+    (user["name"] as? String)?.let { userInstance.name = it }
+    (user["geo"] as? Map<String, Any?>)?.let {
+      val geo = Geo()
+      geo.city = it["city"] as? String
+      geo.countryCode = it["country_code"] as? String
+      geo.region = it["region"] as? String
+      userInstance.geo = geo
+    }
 
     (user["extras"] as? Map<String, Any?>)?.let { extras ->
       for ((key, value) in extras.entries) {
