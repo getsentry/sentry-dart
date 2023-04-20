@@ -63,7 +63,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        sdk: ['stable', 'beta']
+        # 'beta' is flaky because of https://github.com/flutter/flutter/issues/124340
+        sdk: ['stable']
     steps:
       - name: checkout
         uses: actions/checkout@v3
