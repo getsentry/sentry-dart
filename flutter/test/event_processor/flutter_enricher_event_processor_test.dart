@@ -37,7 +37,7 @@ void main() {
       debugBrightnessOverride = null;
       debugDefaultTargetPlatformOverride = null;
 
-      final flutterContext = event.contexts['flutter_context'];
+      final flutterContext = event?.contexts['flutter_context'];
       expect(flutterContext, isNotNull);
       expect(flutterContext, isA<Map<String, String>>());
       expect(flutterContext['renderer'], isNotNull);
@@ -50,7 +50,7 @@ void main() {
 
       final event = await enricher.apply(SentryEvent());
 
-      final accessibility = event.contexts['accessibility'];
+      final accessibility = event?.contexts['accessibility'];
 
       expect(accessibility['accessible_navigation'], isNotNull);
       expect(accessibility['bold_text'], isNotNull);
@@ -67,7 +67,7 @@ void main() {
 
       final event = await enricher.apply(SentryEvent());
 
-      final culture = event.contexts.culture;
+      final culture = event?.contexts.culture;
 
       expect(culture?.is24HourFormat, isNotNull);
       expect(culture?.timezone, isNotNull);
@@ -81,7 +81,7 @@ void main() {
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
       final event = await enricher.apply(SentryEvent());
 
-      final app = event.contexts.app;
+      final app = event?.contexts.app;
 
       expect(app?.inForeground, true);
     });
@@ -94,7 +94,7 @@ void main() {
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
       final event = await enricher.apply(SentryEvent());
 
-      final app = event.contexts.app;
+      final app = event?.contexts.app;
 
       expect(app?.inForeground, false);
     });
@@ -112,7 +112,7 @@ void main() {
 
       final mutatedEvent = await enricher.apply(event);
 
-      final app = mutatedEvent.contexts.app;
+      final app = mutatedEvent?.contexts.app;
 
       expect(app?.inForeground, true);
       expect(app?.name, appName);
@@ -127,7 +127,7 @@ void main() {
 
       final event = await enricher.apply(SentryEvent());
 
-      expect(event.contexts.device, isNull);
+      expect(event?.contexts.device, isNull);
     });
 
     testWidgets('has device when native integration is not available',
@@ -139,7 +139,7 @@ void main() {
 
       final event = await enricher.apply(SentryEvent());
 
-      expect(event.contexts.device, isNotNull);
+      expect(event?.contexts.device, isNotNull);
     });
 
     testWidgets('adds flutter runtime', (WidgetTester tester) async {
@@ -149,10 +149,10 @@ void main() {
 
       final event = await enricher.apply(SentryEvent());
 
-      final flutterRuntime = event.contexts.runtimes
+      final flutterRuntime = event?.contexts.runtimes
           .firstWhere((element) => element.name == 'Flutter');
-      expect(flutterRuntime.name, 'Flutter');
-      expect(flutterRuntime.compiler, isNotNull);
+      expect(flutterRuntime?.name, 'Flutter');
+      expect(flutterRuntime?.compiler, isNotNull);
     });
 
     testWidgets('adds correct flutter runtime', (WidgetTester tester) async {
@@ -172,11 +172,11 @@ void main() {
         );
 
         final event = await enricher.apply(SentryEvent());
-        final flutterRuntime = event.contexts.runtimes
+        final flutterRuntime = event?.contexts.runtimes
             .firstWhere((element) => element.name == 'Flutter');
 
-        expect(flutterRuntime.name, 'Flutter');
-        expect(flutterRuntime.compiler, pair.value);
+        expect(flutterRuntime?.name, 'Flutter');
+        expect(flutterRuntime?.compiler, pair.value);
       }
     });
 
@@ -201,7 +201,7 @@ void main() {
 
       final event = await enricher.apply(SentryEvent());
 
-      expect(event.modules, {
+      expect(event?.modules, {
         'foo_package': 'unknown',
         'bar_package': 'unknown',
       });
@@ -229,7 +229,7 @@ void main() {
 
       final event = await enricher.apply(SentryEvent());
 
-      expect(event.modules, null);
+      expect(event?.modules, null);
     });
 
     testWidgets('adds packages only once', (WidgetTester tester) async {
@@ -253,7 +253,7 @@ void main() {
 
       final event = await enricher.apply(SentryEvent());
 
-      expect(event.modules, {'foo_package': 'unknown'});
+      expect(event?.modules, {'foo_package': 'unknown'});
     });
 
     testWidgets('does not override event', (WidgetTester tester) async {
@@ -280,23 +280,23 @@ void main() {
 
       // contexts.device
       expect(
-        event.contexts.device?.orientation,
+        event?.contexts.device?.orientation,
         fakeEvent.contexts.device?.orientation,
       );
       expect(
-        event.contexts.device?.screenHeightPixels,
+        event?.contexts.device?.screenHeightPixels,
         fakeEvent.contexts.device?.screenHeightPixels,
       );
       expect(
-        event.contexts.device?.screenWidthPixels,
+        event?.contexts.device?.screenWidthPixels,
         fakeEvent.contexts.device?.screenWidthPixels,
       );
       expect(
-        event.contexts.device?.screenDensity,
+        event?.contexts.device?.screenDensity,
         fakeEvent.contexts.device?.screenDensity,
       );
       expect(
-        event.contexts.operatingSystem?.theme,
+        event?.contexts.operatingSystem?.theme,
         fakeEvent.contexts.operatingSystem?.theme,
       );
     });

@@ -49,7 +49,7 @@ void main() {
       };
       final sut = fixture.getSut(runner: runner, onError: onError);
 
-      sut.call(fixture.hub, fixture.options);
+      await sut.call(fixture.hub, fixture.options);
       await Future.delayed(Duration(milliseconds: 10));
 
       expect(onErrorCalled, true);

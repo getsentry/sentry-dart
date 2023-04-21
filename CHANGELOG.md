@@ -9,10 +9,20 @@
   - If set to `true`, performance is enabled, even if no `tracesSampleRate` or `tracesSampler` have been configured.
   - If set to `true`, sampler will use default sample rate of 1.0, if no `tracesSampleRate` is set.
   - If set to `false` performance is disabled, regardless of `tracesSampleRate` and `tracesSampler` options.
+- Set User `name` and `geo` in native plugins ([#1393](https://github.com/getsentry/sentry-dart/pull/1393))
 
 ### Fixes
 
+- Screenshots and View Hierarchy should only be added to errors ([#1385](https://github.com/getsentry/sentry-dart/pull/1385))
+  - View Hierarchy is removed from Web errors since we don't symbolicate minified View Hierarchy yet.
+- More improvements related to not awaiting `FutureOr<T>` if it's not a future ([#1385](https://github.com/getsentry/sentry-dart/pull/1385))
 - Do not report only async gap frames for logging calls ([#1398](https://github.com/getsentry/sentry-dart/pull/1398))
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.4.0 to v8.5.0 ([#1394](https://github.com/getsentry/sentry-dart/pull/1394))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#850)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.4.0...8.5.0)
 
 ## 7.4.2
 

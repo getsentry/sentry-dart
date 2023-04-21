@@ -9,7 +9,7 @@ import '../sentry_flutter_options.dart';
 import 'package:flutter/rendering.dart';
 import '../renderer/renderer.dart';
 
-class ScreenshotEventProcessor extends EventProcessor {
+class ScreenshotEventProcessor implements EventProcessor {
   final SentryFlutterOptions _options;
 
   ScreenshotEventProcessor(this._options);
@@ -19,7 +19,11 @@ class ScreenshotEventProcessor extends EventProcessor {
       sentryScreenshotWidgetGlobalKey.currentContext != null;
 
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {Hint? hint}) async {
+  Future<SentryEvent?> apply(SentryEvent event, {Hint? hint}) async {
+    if (event is SentryTransaction) {
+      return event;
+    }
+
     if (event.exceptions == null &&
         event.throwable == null &&
         _hasSentryScreenshotWidget) {
@@ -49,7 +53,7 @@ class ScreenshotEventProcessor extends EventProcessor {
         final pixelRatio = window.devicePixelRatio;
         var imageResult = _getImage(renderObject, pixelRatio);
         Image image;
-        if (imageResult is Future) {
+        if (imageResult is Future<Image>) {
           image = await imageResult;
         } else {
           image = imageResult;
@@ -70,7 +74,7 @@ class ScreenshotEventProcessor extends EventProcessor {
           var ratio = min(ratioWidth, ratioHeight);
           if (ratio > 0.0 && ratio < 1.0) {
             imageResult = _getImage(renderObject, ratio * pixelRatio);
-            if (imageResult is Future) {
+            if (imageResult is Future<Image>) {
               image = await imageResult;
             } else {
               image = imageResult;

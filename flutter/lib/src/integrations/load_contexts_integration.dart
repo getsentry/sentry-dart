@@ -25,7 +25,7 @@ class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
   LoadContextsIntegration(this._channel);
 
   @override
-  FutureOr<void> call(Hub hub, SentryFlutterOptions options) async {
+  void call(Hub hub, SentryFlutterOptions options) {
     options.addEventProcessor(
       _LoadContextsIntegrationEventProcessor(_channel, options),
     );
@@ -33,14 +33,14 @@ class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
   }
 }
 
-class _LoadContextsIntegrationEventProcessor extends EventProcessor {
+class _LoadContextsIntegrationEventProcessor implements EventProcessor {
   _LoadContextsIntegrationEventProcessor(this._channel, this._options);
 
   final MethodChannel _channel;
   final SentryFlutterOptions _options;
 
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {Hint? hint}) async {
+  Future<SentryEvent?> apply(SentryEvent event, {Hint? hint}) async {
     try {
       final loadContexts = await _channel.invokeMethod('loadContexts');
 

@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:sentry/sentry.dart';
 import '../sentry_flutter_options.dart';
@@ -11,7 +9,7 @@ import '../sentry_flutter_options.dart';
 ///     [these](https://flutter.dev/docs/testing/common-errors)) are AssertionErrors
 ///     and are stripped in release mode. See [Flutter build modes](https://flutter.dev/docs/testing/build-modes).
 ///     So they only get caught in debug mode.
-class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
+class FlutterErrorIntegration implements Integration<SentryFlutterOptions> {
   /// Reference to the original handler.
   FlutterExceptionHandler? _defaultOnError;
 
@@ -106,7 +104,7 @@ class FlutterErrorIntegration extends Integration<SentryFlutterOptions> {
   }
 
   @override
-  FutureOr<void> close() async {
+  void close() {
     /// Restore default if the integration error is still set.
     if (FlutterError.onError == _integrationOnError) {
       FlutterError.onError = _defaultOnError;

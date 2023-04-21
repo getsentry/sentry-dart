@@ -364,7 +364,10 @@ class Hub {
       final item = _peek();
 
       try {
-        await callback(item.scope);
+        final result = callback(item.scope);
+        if (result is Future) {
+          await result;
+        }
       } catch (err) {
         _options.logger(
           SentryLevel.error,

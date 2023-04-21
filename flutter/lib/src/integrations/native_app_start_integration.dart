@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/scheduler.dart';
 import 'package:sentry/sentry.dart';
 
@@ -16,7 +14,7 @@ class NativeAppStartIntegration extends Integration<SentryFlutterOptions> {
   final SchedulerBindingProvider _schedulerBindingProvider;
 
   @override
-  FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
+  void call(Hub hub, SentryFlutterOptions options) {
     if (options.autoAppStart) {
       final schedulerBinding = _schedulerBindingProvider();
       if (schedulerBinding == null) {

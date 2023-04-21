@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import '../../sentry_flutter.dart';
 import 'sentry_tree_walker.dart';
 
@@ -12,7 +10,11 @@ class SentryViewHierarchyEventProcessor implements EventProcessor {
   final SentryFlutterOptions _options;
 
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {Hint? hint}) async {
+  SentryEvent? apply(SentryEvent event, {Hint? hint}) {
+    if (event is SentryTransaction) {
+      return event;
+    }
+
     if (event.exceptions == null && event.throwable == null) {
       return event;
     }

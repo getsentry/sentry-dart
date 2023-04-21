@@ -12,7 +12,7 @@ typedef WidgetBindingGetter = WidgetsBinding? Function();
 /// Enriches [SentryEvent]s with various kinds of information.
 /// FlutterEnricher only needs to add information which aren't exposed by
 /// the Dart runtime.
-class FlutterEnricherEventProcessor extends EventProcessor {
+class FlutterEnricherEventProcessor implements EventProcessor {
   FlutterEnricherEventProcessor(this._options);
 
   final SentryFlutterOptions _options;
@@ -29,7 +29,7 @@ class FlutterEnricherEventProcessor extends EventProcessor {
   Map<String, String> _packages = {};
 
   @override
-  FutureOr<SentryEvent> apply(
+  Future<SentryEvent?> apply(
     SentryEvent event, {
     Hint? hint,
   }) async {
@@ -70,7 +70,7 @@ class FlutterEnricherEventProcessor extends EventProcessor {
   /// - Only packages with licenses are known
   /// - No version information is available
   /// - Flutter's native dependencies are also included.
-  FutureOr<Map<String, String>?> _getPackages() async {
+  Future<Map<String, String>?> _getPackages() async {
     if (!_options.reportPackages) {
       return null;
     }
