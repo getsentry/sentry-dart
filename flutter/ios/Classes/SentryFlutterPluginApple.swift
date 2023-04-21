@@ -156,9 +156,13 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
     private func loadContexts(result: @escaping FlutterResult) {
         SentrySDK.configureScope { scope in
             let serializedScope = scope.serialize()
-            let context = serializedScope["context"]
-
-            var infos = ["contexts": context]
+            
+            var context: [String: Any] = [:];
+            if let newContext = serializedScope["context"] as? [String: Any] {
+                context = newContext;
+            }
+            
+            var infos: [String: Any] = [:];
 
             if let tags = serializedScope["tags"] as? [String: String] {
                 infos["tags"] = tags
@@ -194,6 +198,32 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             if let integrations = PrivateSentrySDKOnly.options.integrations {
                 infos["integrations"] = integrations
             }
+            
+            let deviceStr = "device"
+            let appStr = "app"
+            if let extraContext = PrivateSentrySDKOnly.getExtraContext() as? [String: Any] {
+                // merge device
+                if let extraDevice = extraContext[deviceStr] as? [String: Any] {
+                    if var currentDevice = context[deviceStr] as? [String: Any] {
+                        currentDevice.mergeDictionary(other: extraDevice)
+                        context[deviceStr] = currentDevice
+                    } else {
+                        context[deviceStr] = extraDevice
+                    }
+                }
+                
+                // merge app
+                if let extraApp = extraContext[appStr] as? [String: Any] {
+                    if var currentApp = context[appStr] as? [String: Any] {
+                        currentApp.mergeDictionary(other: extraApp)
+                        context[appStr] = currentApp
+                    } else {
+                        context[appStr] = extraApp
+                    }
+                }
+            }
+
+            infos["contexts"] = context;
 
             // Not reading the name from PrivateSentrySDKOnly.getSdkName because
             // this is added as a package and packages should follow the sentry-release-registry format
@@ -684,6 +714,14 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
         result("")
       }
+    }
+}
+
+extension Dictionary {
+    mutating func mergeDictionary(other:Dictionary) {
+        for (key,value) in other {
+            self.updateValue(value, forKey:key)
+        }
     }
 }
 
