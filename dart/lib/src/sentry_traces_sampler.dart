@@ -6,7 +6,7 @@ import '../sentry.dart';
 
 @internal
 class SentryTracesSampler {
-  static const _defaultSampleRate = 0.1;
+  static const _defaultSampleRate = 1.0;
 
   final SentryOptions _options;
   final Random _random;
@@ -46,11 +46,11 @@ class SentryTracesSampler {
       }
     }
 
-    final parentSamplingDecision =
-        samplingContext.transactionContext.parentSamplingDecision;
-    if (parentSamplingDecision != null) {
-      return parentSamplingDecision;
-    }
+    // final parentSamplingDecision =
+    //     samplingContext.transactionContext.parentSamplingDecision;
+    // if (parentSamplingDecision != null) {
+    //   return parentSamplingDecision;
+    // }
 
     double? optionsRate = _options.tracesSampleRate;
     double? defaultRate =
