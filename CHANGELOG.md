@@ -4,6 +4,7 @@
 
 ### Features
 
+- SentryIOOverridesIntegration ([#1362](https://github.com/getsentry/sentry-dart/pull/1362))
 - Add `enableTracing` option ([#1395](https://github.com/getsentry/sentry-dart/pull/1395))
   - This change is backwards compatible. The default is `null` meaning existing behaviour remains unchanged (setting either `tracesSampleRate` or `tracesSampler` enables performance).
   - If set to `true`, performance is enabled, even if no `tracesSampleRate` or `tracesSampler` have been configured.
