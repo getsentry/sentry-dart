@@ -5,10 +5,21 @@
 ### Features
 
 - SentryIOOverridesIntegration ([#1362](https://github.com/getsentry/sentry-dart/pull/1362))
+- Set User `name` and `geo` in native plugins ([#1393](https://github.com/getsentry/sentry-dart/pull/1393))
+- Add processor count to device info ([#1402](https://github.com/getsentry/sentry-dart/pull/1402))
 
 ### Fixes
 
+- Screenshots and View Hierarchy should only be added to errors ([#1385](https://github.com/getsentry/sentry-dart/pull/1385))
+  - View Hierarchy is removed from Web errors since we don't symbolicate minified View Hierarchy yet.
+- More improvements related to not awaiting `FutureOr<T>` if it's not a future ([#1385](https://github.com/getsentry/sentry-dart/pull/1385))
 - Do not report only async gap frames for logging calls ([#1398](https://github.com/getsentry/sentry-dart/pull/1398))
+
+### Dependencies
+
+- Bump Cocoa SDK from v8.4.0 to v8.5.0 ([#1394](https://github.com/getsentry/sentry-dart/pull/1394))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#850)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.4.0...8.5.0)
 
 ## 7.4.2
 

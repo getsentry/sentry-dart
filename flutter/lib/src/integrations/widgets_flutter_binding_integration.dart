@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/widgets.dart';
 import 'package:sentry/sentry.dart';
 import '../sentry_flutter_options.dart';
@@ -11,7 +9,7 @@ typedef OnWidgetsBinding = WidgetsBinding Function();
 class WidgetsFlutterBindingIntegration
     extends Integration<SentryFlutterOptions> {
   @override
-  FutureOr<void> call(Hub hub, SentryFlutterOptions options) {
+  void call(Hub hub, SentryFlutterOptions options) {
     options.bindingUtils.ensureInitialized();
     options.sdk.addIntegration('widgetsFlutterBindingIntegration');
   }

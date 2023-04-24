@@ -14,7 +14,7 @@ void main() {
       fixture = Fixture();
     });
 
-    test('adds $SentryRequest for $HttpException with uris', () async {
+    test('adds $SentryRequest for $HttpException with uris', () {
       final enricher = fixture.getSut();
       final event = enricher.apply(
         SentryEvent(
@@ -25,12 +25,12 @@ void main() {
         ),
       );
 
-      expect(event.request, isNotNull);
-      expect(event.request?.url, 'https://example.org/foo/bar');
-      expect(event.request?.queryString, 'foo=bar');
+      expect(event?.request, isNotNull);
+      expect(event?.request?.url, 'https://example.org/foo/bar');
+      expect(event?.request?.queryString, 'foo=bar');
     });
 
-    test('no $SentryRequest for $HttpException without uris', () async {
+    test('no $SentryRequest for $HttpException without uris', () {
       final enricher = fixture.getSut();
       final event = enricher.apply(
         SentryEvent(
@@ -38,10 +38,10 @@ void main() {
         ),
       );
 
-      expect(event.request, isNull);
+      expect(event?.request, isNull);
     });
 
-    test('adds $SentryRequest for $SocketException with addresses', () async {
+    test('adds $SentryRequest for $SocketException with addresses', () {
       final enricher = fixture.getSut();
       final event = enricher.apply(
         SentryEvent(
@@ -57,21 +57,21 @@ void main() {
         ),
       );
 
-      expect(event.request, isNotNull);
-      expect(event.request?.url, '127.0.0.1');
+      expect(event?.request, isNotNull);
+      expect(event?.request?.url, '127.0.0.1');
 
       // Due to the test setup, there's no SentryException for the SocketException.
       // And thus only one entry for the added OSError
-      expect(event.exceptions?.first.type, 'OSError');
+      expect(event?.exceptions?.first.type, 'OSError');
       expect(
-        event.exceptions?.first.value,
+        event?.exceptions?.first.value,
         'OS Error: Connection reset by peer, errno = 54',
       );
-      expect(event.exceptions?.first.mechanism?.type, 'OSError');
-      expect(event.exceptions?.first.mechanism?.meta['errno']['number'], 54);
+      expect(event?.exceptions?.first.mechanism?.type, 'OSError');
+      expect(event?.exceptions?.first.mechanism?.meta['errno']['number'], 54);
     });
 
-    test('adds OSError SentryException for $FileSystemException', () async {
+    test('adds OSError SentryException for $FileSystemException', () {
       final enricher = fixture.getSut();
       final event = enricher.apply(
         SentryEvent(
@@ -85,13 +85,13 @@ void main() {
 
       // Due to the test setup, there's no SentryException for the FileSystemException.
       // And thus only one entry for the added OSError
-      expect(event.exceptions?.first.type, 'OSError');
+      expect(event?.exceptions?.first.type, 'OSError');
       expect(
-        event.exceptions?.first.value,
+        event?.exceptions?.first.value,
         'OS Error: Oh no :(, errno = 42',
       );
-      expect(event.exceptions?.first.mechanism?.type, 'OSError');
-      expect(event.exceptions?.first.mechanism?.meta['errno']['number'], 42);
+      expect(event?.exceptions?.first.mechanism?.type, 'OSError');
+      expect(event?.exceptions?.first.mechanism?.meta['errno']['number'], 42);
     });
   });
 }

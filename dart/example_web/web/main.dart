@@ -127,9 +127,9 @@ Future<void> parseData() async {
   throw StateError('This is a test error');
 }
 
-class TagEventProcessor extends EventProcessor {
+class TagEventProcessor implements EventProcessor {
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {hint}) {
+  SentryEvent? apply(SentryEvent event, {hint}) {
     return event..tags?.addAll({'page-locale': 'en-us'});
   }
 }

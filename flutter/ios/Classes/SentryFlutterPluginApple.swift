@@ -153,12 +153,17 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         }
     }
 
+    // swiftlint:disable:next cyclomatic_complexity
     private func loadContexts(result: @escaping FlutterResult) {
         SentrySDK.configureScope { scope in
             let serializedScope = scope.serialize()
-            let context = serializedScope["context"]
 
-            var infos = ["contexts": context]
+            var context: [String: Any] = [:]
+            if let newContext = serializedScope["context"] as? [String: Any] {
+                context = newContext
+            }
+
+            var infos: [String: Any] = [:]
 
             if let tags = serializedScope["tags"] as? [String: String] {
                 infos["tags"] = tags
@@ -194,6 +199,32 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             if let integrations = PrivateSentrySDKOnly.options.integrations {
                 infos["integrations"] = integrations
             }
+
+            let deviceStr = "device"
+            let appStr = "app"
+            if let extraContext = PrivateSentrySDKOnly.getExtraContext() as? [String: Any] {
+                // merge device
+                if let extraDevice = extraContext[deviceStr] as? [String: Any] {
+                    if var currentDevice = context[deviceStr] as? [String: Any] {
+                        currentDevice.merge(extraDevice) { (current, _) in current }
+                        context[deviceStr] = currentDevice
+                    } else {
+                        context[deviceStr] = extraDevice
+                    }
+                }
+
+                // merge app
+                if let extraApp = extraContext[appStr] as? [String: Any] {
+                    if var currentApp = context[appStr] as? [String: Any] {
+                        currentApp.merge(extraApp) { (current, _) in current }
+                        context[appStr] = currentApp
+                    } else {
+                        context[appStr] = extraApp
+                    }
+                }
+            }
+
+            infos["contexts"] = context
 
             // Not reading the name from PrivateSentrySDKOnly.getSdkName because
             // this is added as a package and packages should follow the sentry-release-registry format
@@ -534,6 +565,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
       }
     }
 
+    // swiftlint:disable:next cyclomatic_complexity
     private func setUser(user: [String: Any?]?, result: @escaping FlutterResult) {
       if let user = user {
         let userInstance = User()
@@ -563,10 +595,16 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             userInstance.data = data
           }
         }
-
-        // missing name and geo
-        // Should be solved by https://github.com/getsentry/team-mobile/issues/59
-        // or https://github.com/getsentry/team-mobile/issues/56
+        if let name = user["name"] as? String {
+          userInstance.name = name
+        }
+        if let geoData = user["geo"] as? [String: Any] {
+          let geo = Geo()
+          geo.city = geoData["city"] as? String
+          geo.countryCode = geoData["country_code"] as? String
+          geo.region = geoData["region"] as? String
+          userInstance.geo = geo
+        }
 
         SentrySDK.setUser(userInstance)
       } else {

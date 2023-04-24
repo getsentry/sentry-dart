@@ -1,12 +1,14 @@
-import 'dart:async';
-
 import 'package:flutter/services.dart';
 import 'package:sentry/sentry.dart';
 
 /// Add code & message from [PlatformException] to [SentryException]
 class PlatformExceptionEventProcessor implements EventProcessor {
   @override
-  FutureOr<SentryEvent?> apply(SentryEvent event, {Hint? hint}) {
+  SentryEvent? apply(SentryEvent event, {Hint? hint}) {
+    if (event is SentryTransaction) {
+      return event;
+    }
+
     final exceptions = <SentryException>[];
 
     for (SentryException exception in (event.exceptions ?? [])) {

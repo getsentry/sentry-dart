@@ -112,7 +112,7 @@ class _CachedItem {
 
   Future<List<int>> getData() async {
     final data = _dataFactory();
-    if (data is Future) {
+    if (data is Future<List<int>>) {
       _data ??= await data;
     } else {
       _data ??= data;

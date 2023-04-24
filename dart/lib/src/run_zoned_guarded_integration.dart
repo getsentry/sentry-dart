@@ -20,7 +20,7 @@ typedef RunZonedGuardedOnError = FutureOr<void> Function(Object, StackTrace);
 ///
 /// This integration also records calls to `print()` as Breadcrumbs.
 /// This can be configured with [SentryOptions.enablePrintBreadcrumbs]
-class RunZonedGuardedIntegration extends Integration {
+class RunZonedGuardedIntegration extends Integration<SentryOptions> {
   RunZonedGuardedIntegration(this._runner, this._onError);
 
   final RunZonedGuardedRunner _runner;
@@ -64,7 +64,7 @@ class RunZonedGuardedIntegration extends Integration {
   }
 
   @override
-  FutureOr<void> call(Hub hub, SentryOptions options) {
+  Future<void> call(Hub hub, SentryOptions options) {
     final completer = Completer<void>();
 
     runZonedGuarded(
