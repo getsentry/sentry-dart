@@ -109,4 +109,22 @@ void main() {
 
     expect(options.idleTimeout?.inSeconds, Duration(seconds: 3).inSeconds);
   });
+
+  test('when enableTracing is set to true tracing is considered enabled', () {
+    final options = SentryOptions.empty();
+    options.enableTracing = true;
+
+    expect(options.isTracingEnabled(), true);
+  });
+
+  test('when enableTracing is set to false tracing is considered disabled', () {
+    final options = SentryOptions.empty();
+    options.enableTracing = false;
+    options.tracesSampleRate = 1.0;
+    options.tracesSampler = (_) {
+      return 1.0;
+    };
+
+    expect(options.isTracingEnabled(), false);
+  });
 }
