@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:sentry/sentry.dart';
 
 import '../sentry_file.dart';
-import 'sentry_file.dart';
 
 /// If set to [IOOverrides.global], newly created [File] instances will be of
 /// type [SentryFile].

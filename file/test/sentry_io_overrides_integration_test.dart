@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:sentry/sentry.dart';
 import 'package:sentry_file/sentry_file.dart';
-import 'package:sentry_file/src/sentry_io_overrides.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 
