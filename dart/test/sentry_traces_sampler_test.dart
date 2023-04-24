@@ -108,8 +108,9 @@ void main() {
     final context = SentrySamplingContext(trContext, {});
     final samplingDecision = sampler.sample(context);
 
-    expect(samplingDecision.sampled, false);
+    expect(trContext.parentSamplingDecision, isNull);
     expect(samplingDecision.sampleRate, isNull);
+    expect(samplingDecision.sampled, false);
   });
 
   test(
@@ -125,8 +126,9 @@ void main() {
     final context = SentrySamplingContext(trContext, {});
     final samplingDecision = sampler.sample(context);
 
-    expect(samplingDecision.sampled, false);
+    expect(trContext.parentSamplingDecision, isNull);
     expect(samplingDecision.sampleRate, isNull);
+    expect(samplingDecision.sampled, false);
   });
 
   test(
