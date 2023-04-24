@@ -349,6 +349,11 @@ class SentryOptions {
     _stackTraceExtractorsByType[extractor.exceptionType] = extractor;
   }
 
+  /// Enables generation of transactions and propagation of trace data. If set
+  /// to null, tracing might be enabled if [tracesSampleRate] or [tracesSampler]
+  /// are set.
+  bool? enableTracing;
+
   /// Changed SDK behaviour when set to true:
   /// - Rethrow exceptions that occur in user provided closures
   @internal
@@ -405,6 +410,10 @@ class SentryOptions {
   /// Returns if tracing should be enabled. If tracing is disabled, starting transactions returns
   /// [NoOpSentrySpan].
   bool isTracingEnabled() {
+    final enable = enableTracing;
+    if (enable != null) {
+      return enable;
+    }
     return tracesSampleRate != null || tracesSampler != null;
   }
 
