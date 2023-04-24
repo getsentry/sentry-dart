@@ -108,6 +108,8 @@ void main() {
     final context = SentrySamplingContext(trContext, {});
     final samplingDecision = sampler.sample(context);
 
+    expect(fixture.options.tracesSampler, isNull);
+    expect(fixture.options.enableTracing, isNull);
     expect(context.transactionContext.samplingDecision, isNull);
     expect(trContext.parentSamplingDecision, isNull);
     expect(samplingDecision.sampleRate, isNull);
@@ -127,6 +129,8 @@ void main() {
     final context = SentrySamplingContext(trContext, {});
     final samplingDecision = sampler.sample(context);
 
+    expect(fixture.options.tracesSampler, isNull);
+    expect(fixture.options.enableTracing, false);
     expect(context.transactionContext.samplingDecision, isNull);
     expect(trContext.parentSamplingDecision, isNull);
     expect(samplingDecision.sampleRate, isNull);
