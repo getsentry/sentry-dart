@@ -28,6 +28,8 @@ class SentryIOOverridesIntegration extends Integration<SentryOptions> {
   FutureOr<void> close() {
     if (_installed) {
       IOOverrides.global = _previousOverrides;
+      _previousOverrides = null;
+      _installed = false;
     }
   }
 }
