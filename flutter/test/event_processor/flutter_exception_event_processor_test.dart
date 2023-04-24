@@ -11,8 +11,7 @@ void main() {
       fixture = Fixture();
     });
 
-    test('adds $SentryRequest for $NetworkImageLoadException with uris',
-        () async {
+    test('adds $SentryRequest for $NetworkImageLoadException with uris', () {
       final enricher = fixture.getSut();
       final event = enricher.apply(
         SentryEvent(
@@ -23,9 +22,9 @@ void main() {
         ),
       );
 
-      expect(event.request, isNotNull);
-      expect(event.request?.url, 'https://example.org/foo/bar');
-      expect(event.request?.queryString, 'foo=bar');
+      expect(event?.request, isNotNull);
+      expect(event?.request?.url, 'https://example.org/foo/bar');
+      expect(event?.request?.queryString, 'foo=bar');
     });
   });
 }

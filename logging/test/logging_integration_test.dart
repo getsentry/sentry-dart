@@ -15,7 +15,7 @@ void main() {
 
   test('options.sdk.integrations contains $LoggingIntegration', () async {
     final sut = fixture.createSut();
-    await sut.call(fixture.hub, fixture.options);
+    sut.call(fixture.hub, fixture.options);
     await sut.close();
     expect(
       fixture.options.sdk.integrations.contains('LoggingIntegration'),
@@ -25,7 +25,7 @@ void main() {
 
   test('options.sdk.integrations contains version', () async {
     final sut = fixture.createSut();
-    await sut.call(fixture.hub, fixture.options);
+    sut.call(fixture.hub, fixture.options);
     await sut.close();
 
     final package =
@@ -34,9 +34,9 @@ void main() {
     expect(package.version, sdkVersion);
   });
 
-  test('logger gets recorded if level over minlevel', () async {
+  test('logger gets recorded if level over minlevel', () {
     final sut = fixture.createSut(minBreadcrumbLevel: Level.CONFIG);
-    await sut.call(fixture.hub, fixture.options);
+    sut.call(fixture.hub, fixture.options);
 
     final log = Logger('FooBarLogger');
     log.warning('A log message');
@@ -55,9 +55,9 @@ void main() {
     expect(crumb.type, 'debug');
   });
 
-  test('logger gets recorded if level equal minlevel', () async {
+  test('logger gets recorded if level equal minlevel', () {
     final sut = fixture.createSut(minBreadcrumbLevel: Level.INFO);
-    await sut.call(fixture.hub, fixture.options);
+    sut.call(fixture.hub, fixture.options);
 
     final log = Logger('FooBarLogger');
     log.info('A log message');
@@ -66,12 +66,12 @@ void main() {
     expect(fixture.hub.breadcrumbs.length, 1);
   });
 
-  test('passes log records as hints', () async {
+  test('passes log records as hints', () {
     final sut = fixture.createSut(
       minBreadcrumbLevel: Level.INFO,
       minEventLevel: Level.WARNING,
     );
-    await sut.call(fixture.hub, fixture.options);
+    sut.call(fixture.hub, fixture.options);
     final logger = Logger('FooBarLogger');
 
     logger.info(
@@ -102,9 +102,9 @@ void main() {
     expect(errorHint.stackTrace, stackTrace);
   });
 
-  test('logger gets not recorded if level under minlevel', () async {
+  test('logger gets not recorded if level under minlevel', () {
     final sut = fixture.createSut(minBreadcrumbLevel: Level.SEVERE);
-    await sut.call(fixture.hub, fixture.options);
+    sut.call(fixture.hub, fixture.options);
 
     final log = Logger('FooBarLogger');
     log.warning('A log message');
@@ -113,10 +113,10 @@ void main() {
     expect(fixture.hub.breadcrumbs.length, 0);
   });
 
-  test('Level.Off is never recorded as breadcrumb', () async {
+  test('Level.Off is never recorded as breadcrumb', () {
     // even if everything should be logged, Level.Off is never logged
     final sut = fixture.createSut(minBreadcrumbLevel: Level.ALL);
-    await sut.call(fixture.hub, fixture.options);
+    sut.call(fixture.hub, fixture.options);
 
     final log = Logger('FooBarLogger');
     log.log(Level.OFF, 'A log message');
@@ -125,10 +125,9 @@ void main() {
     expect(fixture.hub.breadcrumbs.length, 0);
   });
 
-  test('exception is recorded as event if minEventLevel over minlevel',
-      () async {
+  test('exception is recorded as event if minEventLevel over minlevel', () {
     final sut = fixture.createSut(minEventLevel: Level.INFO);
-    await sut.call(fixture.hub, fixture.options);
+    sut.call(fixture.hub, fixture.options);
 
     final exception = Exception('foo bar');
     final stackTrace = StackTrace.current;
@@ -149,10 +148,9 @@ void main() {
     expect(fixture.hub.events.first.stackTrace, stackTrace);
   });
 
-  test('exception is recorded as event if minEventLevel equal minlevel',
-      () async {
+  test('exception is recorded as event if minEventLevel equal minlevel', () {
     final sut = fixture.createSut(minEventLevel: Level.INFO);
-    await sut.call(fixture.hub, fixture.options);
+    sut.call(fixture.hub, fixture.options);
 
     final exception = Exception('foo bar');
     final stackTrace = StackTrace.current;
@@ -168,9 +166,9 @@ void main() {
   });
 
   test('exception is not recorded as event if minEventLevel under minlevel',
-      () async {
+      () {
     final sut = fixture.createSut(minEventLevel: Level.SEVERE);
-    await sut.call(fixture.hub, fixture.options);
+    sut.call(fixture.hub, fixture.options);
 
     final exception = Exception('foo bar');
     final stackTrace = StackTrace.current;
@@ -184,10 +182,10 @@ void main() {
     expect(fixture.hub.events.length, 0);
   });
 
-  test('Level.Off is never sent as event', () async {
+  test('Level.Off is never sent as event', () {
     // even if everything should be logged, Level.Off is never logged
     final sut = fixture.createSut(minEventLevel: Level.ALL);
-    await sut.call(fixture.hub, fixture.options);
+    sut.call(fixture.hub, fixture.options);
 
     final exception = Exception('foo bar');
     final stackTrace = StackTrace.current;

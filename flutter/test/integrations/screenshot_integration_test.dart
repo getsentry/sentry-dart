@@ -12,10 +12,10 @@ void main() {
     fixture = Fixture();
   });
 
-  test('screenshotIntegration creates screenshot processor', () async {
+  test('screenshotIntegration creates screenshot processor', () {
     final integration = fixture.getSut();
 
-    await integration(fixture.hub, fixture.options);
+    integration(fixture.hub, fixture.options);
 
     final processors = fixture.options.eventProcessors
         .where((e) => e.runtimeType == ScreenshotEventProcessor);
@@ -25,10 +25,10 @@ void main() {
 
   test(
       'screenshotIntegration does not add screenshot processor if opt out in options',
-      () async {
+      () {
     final integration = fixture.getSut(attachScreenshot: false);
 
-    await integration(fixture.hub, fixture.options);
+    integration(fixture.hub, fixture.options);
 
     final processors = fixture.options.eventProcessors
         .where((e) => e.runtimeType == ScreenshotEventProcessor);
@@ -36,30 +36,29 @@ void main() {
     expect(processors.isEmpty, true);
   });
 
-  test('screenshotIntegration adds integration to the sdk list', () async {
+  test('screenshotIntegration adds integration to the sdk list', () {
     final integration = fixture.getSut();
 
-    await integration(fixture.hub, fixture.options);
+    integration(fixture.hub, fixture.options);
 
     expect(fixture.options.sdk.integrations.contains('screenshotIntegration'),
         true);
   });
 
-  test('screenshotIntegration does not add integration to the sdk list',
-      () async {
+  test('screenshotIntegration does not add integration to the sdk list', () {
     final integration = fixture.getSut(attachScreenshot: false);
 
-    await integration(fixture.hub, fixture.options);
+    integration(fixture.hub, fixture.options);
 
     expect(fixture.options.sdk.integrations.contains('screenshotIntegration'),
         false);
   });
 
-  test('screenshotIntegration close resets processor', () async {
+  test('screenshotIntegration close resets processor', () {
     final integration = fixture.getSut();
 
-    await integration(fixture.hub, fixture.options);
-    await integration.close();
+    integration(fixture.hub, fixture.options);
+    integration.close();
 
     final processors = fixture.options.eventProcessors
         .where((e) => e.runtimeType == ScreenshotEventProcessor);

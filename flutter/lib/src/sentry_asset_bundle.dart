@@ -123,7 +123,7 @@ class SentryAssetBundle implements AssetBundle {
     return data;
   }
 
-  FutureOr<T> _loadStructuredBinaryDataWithTracing<T>(
+  Future<T> _loadStructuredBinaryDataWithTracing<T>(
       String key, _ByteParser<T> parser) async {
     final span = _hub.getSpan()?.startChild(
           'file.read',
@@ -298,7 +298,14 @@ class SentryAssetBundle implements AssetBundle {
     );
     T data;
     try {
-      data = await parser(value);
+      final result = parser(value);
+
+      if (result is Future<T>) {
+        data = await result;
+      } else {
+        data = result;
+      }
+
       span?.status = const SpanStatus.ok();
     } catch (e) {
       span?.throwable = e;
