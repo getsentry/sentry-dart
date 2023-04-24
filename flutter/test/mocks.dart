@@ -156,6 +156,117 @@ class NoOpHub with NoSuchMethodProvider implements Hub {
   bool get isEnabled => false;
 }
 
+class MockSentryNative implements SentryNative {
+  @override
+  DateTime? appStartEnd;
+
+  @override
+  SentryNativeChannel? nativeChannel;
+
+  bool _didFetchAppStart = false;
+
+  @override
+  bool get didFetchAppStart => _didFetchAppStart;
+
+  Breadcrumb? breadcrumb;
+  var numberOfAddBreadcrumbCalls = 0;
+  var numberOfBeginNativeFramesCollectionCalls = 0;
+  var numberOfClearBreadcrumbsCalls = 0;
+  var numberOfEndNativeFramesCollectionCalls = 0;
+  var numberOfFetchNativeAppStartCalls = 0;
+  var removeContextsKey = '';
+  var numberOfRemoveContextsCalls = 0;
+  var removeExtraKey = '';
+  var numberOfRemoveExtraCalls = 0;
+  var removeTagKey = '';
+  var numberOfRemoveTagCalls = 0;
+  var numberOfResetCalls = 0;
+  Map<String, dynamic> setContextData = {};
+  var numberOfSetContextsCalls = 0;
+  Map<String, dynamic> setExtraData = {};
+  var numberOfSetExtraCalls = 0;
+  Map<String, String> setTagsData = {};
+  var numberOfSetTagCalls = 0;
+  SentryUser? sentryUser;
+  var numberOfSetUserCalls = 0;
+
+  @override
+  Future<void> addBreadcrumb(Breadcrumb breadcrumb) async {
+    this.breadcrumb = breadcrumb;
+    numberOfAddBreadcrumbCalls++;
+  }
+
+  @override
+  Future<void> beginNativeFramesCollection() async {
+    numberOfBeginNativeFramesCollectionCalls++;
+  }
+
+  @override
+  Future<void> clearBreadcrumbs() async {
+    numberOfClearBreadcrumbsCalls++;
+  }
+
+  @override
+  Future<NativeFrames?> endNativeFramesCollection(SentryId traceId) async {
+    numberOfEndNativeFramesCollectionCalls++;
+    return null;
+  }
+
+  @override
+  Future<NativeAppStart?> fetchNativeAppStart() async {
+    _didFetchAppStart = true;
+    numberOfFetchNativeAppStartCalls++;
+    return null;
+  }
+
+  @override
+  Future<void> removeContexts(String key) async {
+    removeContextsKey = key;
+    numberOfRemoveContextsCalls++;
+  }
+
+  @override
+  Future<void> removeExtra(String key) async {
+    removeExtraKey = key;
+    numberOfRemoveExtraCalls++;
+  }
+
+  @override
+  Future<void> removeTag(String key) async {
+    removeTagKey = key;
+    numberOfRemoveTagCalls++;
+  }
+
+  @override
+  void reset() {
+    numberOfResetCalls++;
+  }
+
+  @override
+  Future<void> setContexts(String key, value) async {
+    setContextData?[key] = value;
+    numberOfSetContextsCalls++;
+  }
+
+  @override
+  Future<void> setExtra(String key, value) async {
+    setExtraData?[key] = value;
+    numberOfSetExtraCalls++;
+  }
+
+  @override
+  Future<void> setTag(String key, String value) async {
+    setTagsData?[key] = value;
+    numberOfSetTagCalls++;
+  }
+
+  @override
+  Future<void> setUser(SentryUser? sentryUser) async {
+    this.sentryUser = sentryUser;
+    numberOfSetUserCalls++;
+  }
+}
+
 class MockNativeChannel implements SentryNativeChannel {
   NativeAppStart? nativeAppStart;
   NativeFrames? nativeFrames;
