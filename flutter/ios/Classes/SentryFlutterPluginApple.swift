@@ -206,7 +206,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
                 // merge device
                 if let extraDevice = extraContext[deviceStr] as? [String: Any] {
                     if var currentDevice = context[deviceStr] as? [String: Any] {
-                        currentDevice.mergeDictionary(other: extraDevice)
+                        currentDevice.merge(extraDevice) { (current, _) in current }
                         context[deviceStr] = currentDevice
                     } else {
                         context[deviceStr] = extraDevice
@@ -216,7 +216,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
                 // merge app
                 if let extraApp = extraContext[appStr] as? [String: Any] {
                     if var currentApp = context[appStr] as? [String: Any] {
-                        currentApp.mergeDictionary(other: extraApp)
+                        currentApp.merge(extraApp) { (current, _) in current }
                         context[appStr] = currentApp
                     } else {
                         context[appStr] = extraApp
@@ -715,14 +715,6 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
         result("")
       }
-    }
-}
-
-extension Dictionary {
-    mutating func mergeDictionary(other: Dictionary) {
-        for (key, value) in other {
-            self.updateValue(value, forKey: key)
-        }
     }
 }
 
