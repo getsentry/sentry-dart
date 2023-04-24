@@ -17,40 +17,40 @@ class SentryTracesSampler {
   }) : _random = random ?? Random();
 
   SentryTracesSamplingDecision sample(SentrySamplingContext samplingContext) {
-    final samplingDecision =
-        samplingContext.transactionContext.samplingDecision;
-    if (samplingDecision != null) {
-      return samplingDecision;
+    // final samplingDecision =
+    //     samplingContext.transactionContext.samplingDecision;
+    // if (samplingDecision != null) {
+    //   return samplingDecision;
+    // }
+
+    final tracesSampler = _options.tracesSampler;
+    if (tracesSampler != null) {
+      try {
+        final result = tracesSampler(samplingContext);
+        if (result != null) {
+          return SentryTracesSamplingDecision(
+            _sample(result),
+            sampleRate: result,
+          );
+        }
+      } catch (exception, stackTrace) {
+        _options.logger(
+          SentryLevel.error,
+          'The tracesSampler callback threw an exception',
+          exception: exception,
+          stackTrace: stackTrace,
+        );
+        if (_options.devMode) {
+          rethrow;
+        }
+      }
     }
 
-    // final tracesSampler = _options.tracesSampler;
-    // if (tracesSampler != null) {
-    //   try {
-    //     final result = tracesSampler(samplingContext);
-    //     if (result != null) {
-    //       return SentryTracesSamplingDecision(
-    //         _sample(result),
-    //         sampleRate: result,
-    //       );
-    //     }
-    //   } catch (exception, stackTrace) {
-    //     _options.logger(
-    //       SentryLevel.error,
-    //       'The tracesSampler callback threw an exception',
-    //       exception: exception,
-    //       stackTrace: stackTrace,
-    //     );
-    //     if (_options.devMode) {
-    //       rethrow;
-    //     }
-    //   }
-    // }
-
-    // final parentSamplingDecision =
-    //     samplingContext.transactionContext.parentSamplingDecision;
-    // if (parentSamplingDecision != null) {
-    //   return parentSamplingDecision;
-    // }
+    final parentSamplingDecision =
+        samplingContext.transactionContext.parentSamplingDecision;
+    if (parentSamplingDecision != null) {
+      return parentSamplingDecision;
+    }
 
     double? optionsRate = _options.tracesSampleRate;
     double? defaultRate =
