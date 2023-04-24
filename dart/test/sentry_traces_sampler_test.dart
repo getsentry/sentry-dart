@@ -5,7 +5,11 @@ import 'package:test/test.dart';
 import 'mocks.dart';
 
 void main() {
-  final fixture = Fixture();
+  late Fixture fixture;
+
+  setUp(() {
+    fixture = Fixture();
+  });
 
   test('transactionContext has sampled', () {
     final sut = fixture.getSut();
@@ -108,10 +112,6 @@ void main() {
     final context = SentrySamplingContext(trContext, {});
     final samplingDecision = sampler.sample(context);
 
-    expect(fixture.options.tracesSampler, isNull);
-    expect(fixture.options.enableTracing, isNull);
-    expect(context.transactionContext.samplingDecision, isNull);
-    expect(trContext.parentSamplingDecision, isNull);
     expect(samplingDecision.sampleRate, isNull);
     expect(samplingDecision.sampled, false);
   });
@@ -129,10 +129,6 @@ void main() {
     final context = SentrySamplingContext(trContext, {});
     final samplingDecision = sampler.sample(context);
 
-    expect(fixture.options.tracesSampler, isNull);
-    expect(fixture.options.enableTracing, false);
-    expect(context.transactionContext.samplingDecision, isNull);
-    expect(trContext.parentSamplingDecision, isNull);
     expect(samplingDecision.sampleRate, isNull);
     expect(samplingDecision.sampled, false);
   });
