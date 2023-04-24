@@ -170,9 +170,7 @@ class Fixture {
     options.tracesSampler = tracesSampler;
     options.debug = debug;
     options.logger = mockLogger;
-    if (enableTracing != null) {
-      options.enableTracing = enableTracing;
-    }
+    options.enableTracing = enableTracing;
     return SentryTracesSampler(options);
   }
 
