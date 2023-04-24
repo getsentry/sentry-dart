@@ -244,19 +244,19 @@ class MockSentryNative implements SentryNative {
 
   @override
   Future<void> setContexts(String key, value) async {
-    setContextData?[key] = value;
+    setContextData[key] = value;
     numberOfSetContextsCalls++;
   }
 
   @override
   Future<void> setExtra(String key, value) async {
-    setExtraData?[key] = value;
+    setExtraData[key] = value;
     numberOfSetExtraCalls++;
   }
 
   @override
   Future<void> setTag(String key, String value) async {
-    setTagsData?[key] = value;
+    setTagsData[key] = value;
     numberOfSetTagCalls++;
   }
 
