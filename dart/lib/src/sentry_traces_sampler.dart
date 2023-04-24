@@ -17,11 +17,11 @@ class SentryTracesSampler {
   }) : _random = random ?? Random();
 
   SentryTracesSamplingDecision sample(SentrySamplingContext samplingContext) {
-    // final samplingDecision =
-    //     samplingContext.transactionContext.samplingDecision;
-    // if (samplingDecision != null) {
-    //   return samplingDecision;
-    // }
+    final samplingDecision =
+        samplingContext.transactionContext.samplingDecision;
+    if (samplingDecision != null) {
+      return samplingDecision;
+    }
 
     final tracesSampler = _options.tracesSampler;
     if (tracesSampler != null) {

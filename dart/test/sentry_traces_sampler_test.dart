@@ -103,6 +103,7 @@ void main() {
     final trContext = SentryTransactionContext(
       'name',
       'op',
+      parentSamplingDecision: null,
     );
     final context = SentrySamplingContext(trContext, {});
     final samplingDecision = sampler.sample(context);
@@ -119,6 +120,7 @@ void main() {
     final trContext = SentryTransactionContext(
       'name',
       'op',
+      parentSamplingDecision: null,
     );
     final context = SentrySamplingContext(trContext, {});
     final samplingDecision = sampler.sample(context);
@@ -134,6 +136,7 @@ void main() {
     final trContext = SentryTransactionContext(
       'name',
       'op',
+      parentSamplingDecision: null,
     );
     final context = SentrySamplingContext(trContext, {});
     final samplingDecision = sampler.sample(context);
