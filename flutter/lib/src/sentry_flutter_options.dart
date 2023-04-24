@@ -199,6 +199,12 @@ class SentryFlutterOptions extends SentryOptions {
   /// Only available on iOS and macOS.
   bool enableAppHangTracking = true;
 
+  /// Connection timeout. This will only be synced to the Android native SDK.
+  Duration connectionTimeout = Duration(seconds: 5);
+
+  /// Read timeout. This will only be synced to the Android native SDK.
+  Duration readTimeout = Duration(seconds: 5);
+
   /// By using this, you are disabling native [Breadcrumb] tracking and instead
   /// you are just tracking [Breadcrumb]s which result from events available
   /// in the current Flutter environment.

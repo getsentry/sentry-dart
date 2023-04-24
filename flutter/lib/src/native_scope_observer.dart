@@ -46,7 +46,7 @@ class NativeScopeObserver implements ScopeObserver {
 
   @override
   Future<void> setTag(String key, String value) async {
-    await _sentryNative.setExtra(key, value);
+    await _sentryNative.setTag(key, value);
   }
 
   @override

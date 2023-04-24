@@ -187,6 +187,9 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         event
       }
 
+      args.getIfNotNull<Int>("connectionTimeoutMillis") { options.connectionTimeoutMillis = it }
+      args.getIfNotNull<Int>("readTimeoutMillis") { options.connectionTimeoutMillis = it }
+
       // missing proxy
     }
     result.success("")
