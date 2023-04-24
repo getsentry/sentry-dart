@@ -10,6 +10,7 @@
   - If set to `true`, sampler will use default sample rate of 1.0, if no `tracesSampleRate` is set.
   - If set to `false` performance is disabled, regardless of `tracesSampleRate` and `tracesSampler` options.
 - Set User `name` and `geo` in native plugins ([#1393](https://github.com/getsentry/sentry-dart/pull/1393))
+- Add processor count to device info ([#1402](https://github.com/getsentry/sentry-dart/pull/1402))
 
 ### Fixes
 
