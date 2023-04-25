@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'sentry_attachment/sentry_attachment.dart';
 
 /// Hints are used in [BeforeSendCallback], [BeforeBreadcrumbCallback] and
