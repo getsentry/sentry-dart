@@ -13,6 +13,7 @@
 - Sync `connectionTimeout` and `readTimeout` to Android ([#1397](https://github.com/getsentry/sentry-dart/pull/1397))
 - Set User `name` and `geo` in native plugins ([#1393](https://github.com/getsentry/sentry-dart/pull/1393))
 - Add processor count to device info ([#1402](https://github.com/getsentry/sentry-dart/pull/1402))
+- Add attachments to `Hint` ([#1404](https://github.com/getsentry/sentry-dart/pull/1404))
 
 ### Fixes
 
