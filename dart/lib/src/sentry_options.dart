@@ -15,6 +15,7 @@ import 'noop_client.dart';
 import 'transport/noop_transport.dart';
 import 'utils.dart';
 import 'version.dart';
+import 'dart:async';
 
 // TODO: shutdownTimeout, flushTimeoutMillis
 // https://api.dart.dev/stable/2.10.2/dart-io/HttpClient/close.html doesn't have a timeout param, we'd need to implement manually
@@ -291,7 +292,8 @@ class SentryOptions {
   TracesSamplerCallback? tracesSampler;
 
   /// Send statistics to sentry when the client drops events.
-  bool sendClientReports = true;
+  bool sendClientReports =
+  true;
 
   /// If enabled, [scopeObservers] will be called when mutating scope.
   bool enableScopeSync = true;
