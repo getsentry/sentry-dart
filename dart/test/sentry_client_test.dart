@@ -1413,6 +1413,20 @@ void main() {
       expect(envelope.header.traceContext, isNotNull);
     });
 
+    test('captureEvent adds attachments from hint', () async {
+      final attachment = SentryAttachment.fromIntList([], "fixture-fileName");
+      final hint = Hint.withAttachment(attachment);
+
+      final sut = fixture.getSut();
+      await sut.captureEvent(fakeEvent, hint: hint);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
+          (element) => element.header.type == SentryItemType.attachment);
+      expect(attachmentItem?.header.attachmentType,
+          SentryAttachment.typeAttachmentDefault);
+    });
+
     test('captureEvent adds screenshot from hint', () async {
       final client = fixture.getSut();
       final screenshot =

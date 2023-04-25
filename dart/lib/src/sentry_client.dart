@@ -111,6 +111,7 @@ class SentryClient {
     preparedEvent = _eventWithoutBreadcrumbsIfNeeded(preparedEvent);
 
     var attachments = List<SentryAttachment>.from(scope?.attachments ?? []);
+    attachments.addAll(hint.attachments);
     var screenshot = hint.screenshot;
     if (screenshot != null) {
       attachments.add(screenshot);
