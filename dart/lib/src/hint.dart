@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'sentry_attachment/sentry_attachment.dart';
 
 /// Hints are used in [BeforeSendCallback], [BeforeBreadcrumbCallback] and
@@ -19,6 +21,25 @@ import 'sentry_attachment/sentry_attachment.dart';
 ///     return event;
 ///   };
 /// }
+/// ```
+///
+/// The hint can also be used to add attachments to events.
+///
+/// Example:
+///
+/// ```dart
+/// import 'dart:convert';
+///
+/// options.beforeSend = (event, {hint}) {
+///   final text = 'This event should not be sent happen in prod. Investigate.';
+///   final textAttachment = SentryAttachment.fromIntList(
+///     utf8.encode(text),
+///     'event_info.txt',
+///     contentType: 'text/plain',
+///   );
+///   hint?.attachments.add(textAttachment);
+///   return event;
+/// };
 /// ```
 class Hint {
   final Map<String, Object> _internalStorage = {};
