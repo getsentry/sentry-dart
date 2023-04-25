@@ -6,8 +6,9 @@ jobs:
   format-code:
     name: Format Code
     runs-on: ubuntu-latest
-    matrix:
-      working-directory: [flutter, dart]
+    strategy:
+      matrix:
+        working-directory: [flutter, dart]
     defaults:
       run:
         working-directory: ${{ matrix.working-directory }}
