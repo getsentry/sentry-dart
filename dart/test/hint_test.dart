@@ -67,53 +67,11 @@ void main() {
     expect(hint.get("hint2"), null);
   });
 
-  test('add attachment', () {
-    final attachment = SentryAttachment.fromIntList([], "fixture-fileName");
-
-    final sut = fixture.givenSut();
-    sut.addAttachment(attachment);
-
-    expect(sut.attachments.contains(attachment), true);
-  });
-
-  test('add attachments', () {
-    final attachmentA = SentryAttachment.fromIntList([], "fixture-fileName-A");
-    final attachmentB = SentryAttachment.fromIntList([], "fixture-fileName-B");
-
-    final sut = fixture.givenSut();
-    sut.addAttachments([attachmentA, attachmentB]);
-
-    expect(sut.attachments.contains(attachmentA), true);
-    expect(sut.attachments.contains(attachmentB), true);
-  });
-
-  test('replace attachments', () {
-    final attachmentA = SentryAttachment.fromIntList([], "fixture-fileName-A");
-    final attachmentB = SentryAttachment.fromIntList([], "fixture-fileName-B");
-
-    final sut = fixture.givenSut();
-    sut.addAttachment(attachmentA);
-    sut.replaceAttachments([attachmentB]);
-
-    expect(sut.attachments.contains(attachmentA), false);
-    expect(sut.attachments.contains(attachmentB), true);
-  });
-
-  test('clear attachments', () {
-    final attachment = SentryAttachment.fromIntList([], "fixture-fileName");
-
-    final sut = fixture.givenSut();
-    sut.addAttachment(attachment);
-    sut.clearAttachments();
-
-    expect(sut.attachments.contains(attachment), false);
-  });
-
   test('clear does not remove attachments, screenshot & viewHierarchy', () {
     final attachment = SentryAttachment.fromIntList([], "fixture-fileName");
 
     final sut = fixture.givenSut();
-    sut.addAttachment(attachment);
+    sut.attachments.add(attachment);
     sut.screenshot = attachment;
     sut.viewHierarchy = attachment;
 

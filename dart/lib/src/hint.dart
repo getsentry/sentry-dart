@@ -23,9 +23,7 @@ import 'sentry_attachment/sentry_attachment.dart';
 class Hint {
   final Map<String, Object> _internalStorage = {};
 
-  final List<SentryAttachment> _attachments = [];
-
-  List<SentryAttachment> get attachments => _attachments;
+  final List<SentryAttachment> attachments = [];
 
   SentryAttachment? screenshot;
 
@@ -35,13 +33,13 @@ class Hint {
 
   factory Hint.withAttachment(SentryAttachment attachment) {
     final hint = Hint();
-    hint._attachments.add(attachment);
+    hint.attachments.add(attachment);
     return hint;
   }
 
   factory Hint.withAttachments(List<SentryAttachment> attachments) {
     final hint = Hint();
-    hint._attachments.addAll(attachments);
+    hint.attachments.addAll(attachments);
     return hint;
   }
 
@@ -61,23 +59,6 @@ class Hint {
     final hint = Hint();
     hint.viewHierarchy = viewHierarchy;
     return hint;
-  }
-
-  void addAttachment(SentryAttachment attachment) {
-    _attachments.add(attachment);
-  }
-
-  void addAttachments(List<SentryAttachment> attachments) {
-    _attachments.addAll(attachments);
-  }
-
-  void replaceAttachments(List<SentryAttachment> attachments) {
-    clearAttachments();
-    addAttachments(attachments);
-  }
-
-  void clearAttachments() {
-    _attachments.clear();
   }
 
   // Objects
