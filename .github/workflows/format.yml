@@ -15,6 +15,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: dart-lang/setup-dart@6a218f2413a3e78e9087f638a238f6b40893203d # pin@v1
+        if: ${{ matrix.package == 'dart' }}
+      - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa # pin@v2.10.0
+        if: ${{ matrix.package == 'flutter' }}
 
       - name: pub get
         run: ${{ matrix.package }} pub get
