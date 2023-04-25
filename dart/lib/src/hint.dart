@@ -23,7 +23,7 @@ import 'sentry_attachment/sentry_attachment.dart';
 /// }
 /// ```
 ///
-/// The hint can also be used to add attachments to events.
+/// The [Hint] can also be used to add attachments to events.
 ///
 /// Example:
 ///
