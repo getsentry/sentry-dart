@@ -109,6 +109,21 @@ void main() {
 
     expect(sut.attachments.contains(attachment), false);
   });
+
+  test('clear does not remove attachments, screenshot & viewHierarchy', () {
+    final attachment = SentryAttachment.fromIntList([], "fixture-fileName");
+
+    final sut = fixture.givenSut();
+    sut.addAttachment(attachment);
+    sut.screenshot = attachment;
+    sut.viewHierarchy = attachment;
+
+    sut.clear();
+
+    expect(sut.attachments.contains(attachment), true);
+    expect(sut.screenshot, attachment);
+    expect(sut.viewHierarchy, attachment);
+  });
 }
 
 class Fixture {
