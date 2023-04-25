@@ -16,18 +16,18 @@
 - Add attachments to `Hint` ([#1404](https://github.com/getsentry/sentry-dart/pull/1404))
 
 ```dart
-  import 'dart:convert';
-  
-  options.beforeSend = (event, {hint}) {
-    final text = 'This event should not be sent happen in prod. Investigate.';
-    final textAttachment = SentryAttachment.fromIntList(
-      utf8.encode(text),
-      'event_info.txt',
-      contentType: 'text/plain',
-    );
-    hint?.attachments.add(textAttachment);
-    return event;
-  };
+import 'dart:convert';
+
+options.beforeSend = (event, {hint}) {
+  final text = 'This event should not be sent happen in prod. Investigate.';
+  final textAttachment = SentryAttachment.fromIntList(
+    utf8.encode(text),
+    'event_info.txt',
+    contentType: 'text/plain',
+  );
+  hint?.attachments.add(textAttachment);
+  return event;
+};
 ```
 
 ### Fixes
