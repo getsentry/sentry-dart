@@ -4,6 +4,12 @@
 
 ### Features
 
+- SentryIOOverridesIntegration ([#1362](https://github.com/getsentry/sentry-dart/pull/1362))
+- Add `enableTracing` option ([#1395](https://github.com/getsentry/sentry-dart/pull/1395))
+  - This change is backwards compatible. The default is `null` meaning existing behaviour remains unchanged (setting either `tracesSampleRate` or `tracesSampler` enables performance).
+  - If set to `true`, performance is enabled, even if no `tracesSampleRate` or `tracesSampler` have been configured.
+  - If set to `true`, sampler will use default sample rate of 1.0, if no `tracesSampleRate` is set.
+  - If set to `false` performance is disabled, regardless of `tracesSampleRate` and `tracesSampler` options.
 - Sync `connectionTimeout` and `readTimeout` to Android ([#1397](https://github.com/getsentry/sentry-dart/pull/1397))
 - Set User `name` and `geo` in native plugins ([#1393](https://github.com/getsentry/sentry-dart/pull/1393))
 - Add processor count to device info ([#1402](https://github.com/getsentry/sentry-dart/pull/1402))
