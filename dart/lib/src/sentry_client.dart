@@ -111,6 +111,7 @@ class SentryClient {
     preparedEvent = _eventWithoutBreadcrumbsIfNeeded(preparedEvent);
 
     var attachments = List<SentryAttachment>.from(scope?.attachments ?? []);
+    attachments.addAll(hint.attachments);
     var screenshot = hint.screenshot;
     if (screenshot != null) {
       attachments.add(screenshot);
@@ -323,6 +324,9 @@ class SentryClient {
     final attachments = scope?.attachments
         .where((element) => element.addToTransactions)
         .toList();
+
+    // TODO Do we need to add attahcments?
+
     final envelope = SentryEnvelope.fromTransaction(
       preparedTransaction,
       _options.sdk,

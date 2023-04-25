@@ -2,7 +2,6 @@ import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
 
 void main() {
-
   late Fixture fixture;
 
   setUp(() {
