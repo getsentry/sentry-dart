@@ -324,9 +324,6 @@ class SentryClient {
     final attachments = scope?.attachments
         .where((element) => element.addToTransactions)
         .toList();
-
-    // TODO Do we need to add attahcments?
-
     final envelope = SentryEnvelope.fromTransaction(
       preparedTransaction,
       _options.sdk,
