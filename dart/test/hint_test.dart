@@ -1,4 +1,5 @@
-import 'package:sentry/sentry.dart';
+import 'package:sentry/src/hint.dart';
+import 'package:sentry/src/sentry_attachment/sentry_attachment.dart';
 import 'package:test/test.dart';
 
 void main() {
