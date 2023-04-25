@@ -172,7 +172,8 @@ class SentryFlutterOptions extends SentryOptions {
   /// Requires adding the [SentryUserInteractionWidget] to the widget tree.
   /// Example:
   /// runApp(SentryUserInteractionWidget(child: App()));
-  bool enableUserInteractionBreadcrumbs = true;
+  bool enableUserInteractionBreadcrumbs =
+  true;
 
   /// Enables the Auto instrumentation for user interaction tracing.
   ///
