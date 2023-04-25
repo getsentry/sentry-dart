@@ -1,7 +1,14 @@
 import 'package:sentry/src/hint.dart';
+import 'package:sentry/src/sentry_attachment/sentry_attachment.dart';
 import 'package:test/test.dart';
 
 void main() {
+  late Fixture fixture;
+
+  setUp(() {
+    fixture = Fixture();
+  });
+
   test('Hint init with map', () {
     final hint = Hint.withMap({'fixture-key': 'fixture-value'});
     expect("fixture-value", hint.get("fixture-key"));
@@ -60,4 +67,25 @@ void main() {
     expect(hint.get("hint1"), null);
     expect(hint.get("hint2"), null);
   });
+
+  test('clear does not remove attachments, screenshot & viewHierarchy', () {
+    final attachment = SentryAttachment.fromIntList([], "fixture-fileName");
+
+    final sut = fixture.givenSut();
+    sut.attachments.add(attachment);
+    sut.screenshot = attachment;
+    sut.viewHierarchy = attachment;
+
+    sut.clear();
+
+    expect(sut.attachments.contains(attachment), true);
+    expect(sut.screenshot, attachment);
+    expect(sut.viewHierarchy, attachment);
+  });
+}
+
+class Fixture {
+  Hint givenSut() {
+    return Hint();
+  }
 }
