@@ -20,14 +20,47 @@ import 'sentry_attachment/sentry_attachment.dart';
 ///   };
 /// }
 /// ```
+///
+/// The [Hint] can also be used to add attachments to events.
+///
+/// Example:
+///
+/// ```dart
+/// import 'dart:convert';
+///
+/// options.beforeSend = (event, {hint}) {
+///   final text = 'This event should not be sent happen in prod. Investigate.';
+///   final textAttachment = SentryAttachment.fromIntList(
+///     utf8.encode(text),
+///     'event_info.txt',
+///     contentType: 'text/plain',
+///   );
+///   hint?.attachments.add(textAttachment);
+///   return event;
+/// };
+/// ```
 class Hint {
   final Map<String, Object> _internalStorage = {};
+
+  final List<SentryAttachment> attachments = [];
 
   SentryAttachment? screenshot;
 
   SentryAttachment? viewHierarchy;
 
   Hint();
+
+  factory Hint.withAttachment(SentryAttachment attachment) {
+    final hint = Hint();
+    hint.attachments.add(attachment);
+    return hint;
+  }
+
+  factory Hint.withAttachments(List<SentryAttachment> attachments) {
+    final hint = Hint();
+    hint.attachments.addAll(attachments);
+    return hint;
+  }
 
   factory Hint.withMap(Map<String, Object> map) {
     final hint = Hint();
