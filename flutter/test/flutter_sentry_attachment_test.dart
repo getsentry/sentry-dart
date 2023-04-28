@@ -21,6 +21,16 @@ void main() {
     expect(attachment.addToTransactions, true);
     await expectLater(await attachment.bytes, [102, 111, 111, 32, 98, 97, 114]);
   });
+
+  test('invalid Uri fall back to unknown', () async {
+    final attachment = FlutterSentryAttachment.fromAsset(
+      'htttps://[Filtered].com/foobar.txt',
+      bundle: TestAssetBundle(),
+      addToTransactions: true,
+    );
+
+    expect(attachment.filename, 'unknown');
+  });
 }
 
 class TestAssetBundle extends CachingAssetBundle {

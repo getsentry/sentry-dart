@@ -75,6 +75,13 @@ void main() {
     final urlDetails = UrlDetails(url: null);
     expect(urlDetails.urlOrFallback, "unknown");
   });
+
+  test('returns fallback for invalid Uri', () {
+    final urlDetails = UrlDetails(url: 'htttps://[Filtered].com/foobar.txt');
+
+    expect(urlDetails.urlOrFallback, "unknown");
+    expect(Uri.parse(urlDetails.urlOrFallback), isNotNull);
+  });
 }
 
 class MockSpan extends Mock implements SentrySpan {}
