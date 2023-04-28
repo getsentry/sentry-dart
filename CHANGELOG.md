@@ -6,6 +6,12 @@
 
 - Fallback Uri parsing to `unknown` if its invalid ([#1414](https://github.com/getsentry/sentry-dart/pull/1414))
 
+### Dependencies
+
+- Bump Android SDK from v6.17.0 to v6.18.0 ([#1413](https://github.com/getsentry/sentry-dart/pull/1413))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6180)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.17.0...6.18.0)
+
 ## 7.5.0
 
 ### Features
