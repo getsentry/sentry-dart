@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Fallback Uri parsing to `unknown` if its invalid ([#1395](https://github.com/getsentry/sentry-dart/pull/1395))
+- Fallback Uri parsing to `unknown` if its invalid ([#1414](https://github.com/getsentry/sentry-dart/pull/1414))
 
 ## 7.5.0
 
