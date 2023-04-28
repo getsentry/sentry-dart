@@ -23,7 +23,10 @@ class FlutterSentryAttachment extends SentryAttachment {
             final data = await (bundle ?? rootBundle).load(key);
             return data.buffer.asUint8List();
           },
-          filename: filename ?? Uri.parse(key).pathSegments.last,
+          filename: filename ??
+              ((Uri.tryParse(key)?.pathSegments.isNotEmpty == true)
+                  ? Uri.parse(key).pathSegments.last
+                  : 'unknown'),
           attachmentType: type,
           contentType: contentType,
           addToTransactions: addToTransactions,
