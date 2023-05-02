@@ -3,7 +3,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 
-import '../sentry_flutter.dart';
 
 /// The methods and properties are modelled after the the real binding class.
 @experimental
