@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sqflite/sqflite.dart';
+import 'dart:collection';
 
 import 'sentry_database.dart';
 
@@ -39,7 +40,8 @@ Future<Database> openDatabaseWithSentry(
 
     final newHub = hub ?? HubAdapter();
 
-    final currentSpan = newHub.getSpan();
+    final currentSpan
+    = newHub.getSpan();
     final span = currentSpan?.startChild(
       SentryDatabase.dbOp,
       description: 'Open DB: $path',

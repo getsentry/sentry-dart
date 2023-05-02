@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        package: [flutter, dart, file, dio]
+        package: [flutter, dart, file, dio, sqflite]
     defaults:
       run:
         working-directory: ${{ matrix.package }}
