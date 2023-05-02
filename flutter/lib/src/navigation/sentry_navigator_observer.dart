@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 
+import '../../sentry_flutter.dart';
 import '../sentry_native.dart';
 import '../sentry_native_channel.dart';
 

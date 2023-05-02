@@ -203,6 +203,8 @@
 
 import 'package:flutter/widgets.dart';
 
+import '../../sentry_flutter.dart';
+import '../widget_utils.dart';
 
 class _TreeWalker {
   static const _privateDelimiter = '_';
