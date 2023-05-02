@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        package: [flutter, dart]
+        package: [flutter, dart, file]
     defaults:
       run:
         working-directory: ${{ matrix.package }}
