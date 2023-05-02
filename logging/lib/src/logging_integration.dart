@@ -5,7 +5,6 @@ import 'package:sentry/sentry.dart';
 
 import 'extension.dart';
 import 'version.dart';
-import 'dart:collection';
 
 /// An [Integration] which listens to all messages of the
 /// [logging](https://pub.dev/packages/logging) package.
@@ -23,8 +22,7 @@ class LoggingIntegration implements Integration<SentryOptions> {
         _minEventLevel = minEventLevel;
 
   final Level _minBreadcrumbLevel;
-  final Level
-  _minEventLevel;
+  final Level _minEventLevel;
   late StreamSubscription<LogRecord> _subscription;
   late Hub _hub;
 
