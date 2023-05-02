@@ -209,7 +209,6 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
-import 'dart:collection';
 
 import 'version.dart';
 
@@ -244,8 +243,7 @@ class SentryFile implements File {
   }
 
   final File _file;
-  final Hub
-  _hub;
+  final Hub _hub;
 
   @override
   Future<File> copy(String newPath) {
