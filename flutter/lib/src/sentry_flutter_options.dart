@@ -5,7 +5,6 @@ import 'package:flutter/widgets.dart';
 import 'binding_wrapper.dart';
 import 'renderer/renderer.dart';
 import 'screenshot/sentry_screenshot_quality.dart';
-import 'dart:async';
 
 /// This class adds options which are only availble in a Flutter environment.
 /// Note that some of these options require native Sentry integration, which is
@@ -25,8 +24,7 @@ class SentryFlutterOptions extends SentryOptions {
   bool autoInitializeNativeSdk = true;
 
   /// Enable or disable reporting of used packages.
-  bool reportPackages
-  = true;
+  bool reportPackages = true;
 
   /// Enable or disable the Auto session tracking on the Native SDKs (Android/iOS)
   bool enableAutoSessionTracking = true;
