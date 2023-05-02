@@ -10,7 +10,10 @@ class UrlDetails {
   final String? query;
   final String? fragment;
 
-  late final urlOrFallback = url ?? 'unknown';
+  static const _unknown = 'unknown';
+
+  late final urlOrFallback =
+      Uri.tryParse(url ?? _unknown)?.toString() ?? _unknown;
 
   void applyToSpan(ISentrySpan? span) {
     if (span == null) {

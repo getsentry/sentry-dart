@@ -1,6 +1,12 @@
 # Changelog
 
-## Unreleased
+## 7.5.1
+
+### Fixes
+
+- Fallback Uri parsing to `unknown` if its invalid ([#1414](https://github.com/getsentry/sentry-dart/pull/1414))
+
+## 7.5.0
 
 ### Features
 
