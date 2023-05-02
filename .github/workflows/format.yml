@@ -20,11 +20,11 @@ jobs:
 
       - name: flutter pub get
         run: flutter pub get
-        if: ${{ matrix.package == 'flutter' }}
+        if: ${{ matrix.package == 'flutter' || matrix.package == 'sqflite'  }}
 
       - name: dart pub get
         run: dart pub get
-        if: ${{ matrix.package != 'flutter' }}
+        if: ${{ matrix.package != 'flutter' && matrix.package != 'sqflite' }}
 
       - name: format
         run: dart format .
