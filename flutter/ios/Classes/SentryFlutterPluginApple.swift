@@ -12,7 +12,7 @@ import AppKit
 // swiftlint:disable:next type_body_length
 public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
-    private static var nativeClientName = "sentry.cocoa.flutter"
+    private static let nativeClientName = "sentry.cocoa.flutter"
 
     // The Cocoa SDK is init. after the notification didBecomeActiveNotification is registered.
     // We need to be able to receive this notification and start a session when the SDK is fully operational.
