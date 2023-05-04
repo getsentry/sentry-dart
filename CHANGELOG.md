@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Fix `event.origin` and `event.environment` on unhandled exception on iOS ([#1419](https://github.com/getsentry/sentry-dart/pull/1419))
+
 ### Dependencies
 
 - Bump Android SDK from v6.17.0 to v6.18.1 ([#1415](https://github.com/getsentry/sentry-dart/pull/1415))
