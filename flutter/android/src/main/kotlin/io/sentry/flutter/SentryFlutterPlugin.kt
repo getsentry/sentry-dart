@@ -40,6 +40,10 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   private var framesTracker: ActivityFramesTracker? = null
   private var autoPerformanceTracingEnabled = false
 
+  private val flutterSdk = "sentry.dart.flutter"
+  private val androidSdk = "sentry.java.android.flutter"
+  private val nativeSdk = "sentry.native.android"
+
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     context = flutterPluginBinding.applicationContext
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "sentry_flutter")
@@ -169,17 +173,15 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
       args.getIfNotNull<Long>("maxAttachmentSize") { options.maxAttachmentSize = it }
 
-      val name = "sentry.java.android.flutter"
-
       var sdkVersion = options.sdkVersion
       if (sdkVersion == null) {
-        sdkVersion = SdkVersion(name, VERSION_NAME)
+        sdkVersion = SdkVersion(androidSdk, VERSION_NAME)
       } else {
-        sdkVersion.name = name
+        sdkVersion.name = androidSdk
       }
 
       options.sdkVersion = sdkVersion
-      options.sentryClientName = "$name/$VERSION_NAME"
+      options.sentryClientName = "$androidSdk/$VERSION_NAME"
 
       options.setBeforeSend { event, _ ->
         setEventOriginTag(event)
@@ -463,10 +465,6 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     result.success("")
   }
-
-  private val flutterSdk = "sentry.dart.flutter"
-  private val androidSdk = "sentry.java.android"
-  private val nativeSdk = "sentry.native"
 
   private fun setEventOriginTag(event: SentryEvent) {
     event.sdk?.let {
