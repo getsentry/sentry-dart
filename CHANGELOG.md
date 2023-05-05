@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Fix `event.origin` and `event.environment` on unhandled exception on iOS ([#1419](https://github.com/getsentry/sentry-dart/pull/1419))
+- Fix `event.origin` and `event.environment` on unhandled exceptions ([#1419](https://github.com/getsentry/sentry-dart/pull/1419))
 
 ### Dependencies
 
