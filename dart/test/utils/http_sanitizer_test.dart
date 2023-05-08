@@ -173,9 +173,10 @@ void main() {
 
   test('keeps email address', () {
     final urlDetails = HttpSanitizer.sanitizeUrl(
-      "https://staging.server.com/api/v4/auth/password/reset/email@example.com"
-    );
-    expect("https://staging.server.com/api/v4/auth/password/reset/email@example.com", urlDetails?.url);
+        "https://staging.server.com/api/v4/auth/password/reset/email@example.com");
+    expect(
+        "https://staging.server.com/api/v4/auth/password/reset/email@example.com",
+        urlDetails?.url);
     expect(urlDetails?.query, isNull);
     expect(urlDetails?.fragment, isNull);
   });

@@ -68,9 +68,8 @@ extension UriPath on Uri {
       buffer += '$scheme://';
     }
     if (userInfo.isNotEmpty) {
-      buffer += userInfo.contains(":")
-          ? "[Filtered]:[Filtered]@"
-          : "[Filtered]@";
+      buffer +=
+          userInfo.contains(":") ? "[Filtered]:[Filtered]@" : "[Filtered]@";
     }
     buffer += host;
     if (path.isNotEmpty) {
