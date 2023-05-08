@@ -35,9 +35,9 @@ class HttpSanitizer {
     } else {
       try {
         final uri = Uri.parse(url);
-        final urlWithAuthRemoved = uri._urlWithAuthRemoved();
+        final urlWithRedactedAuth = uri._urlWithRedactedAuth();
         return UrlDetails(
-            url: urlWithAuthRemoved.isEmpty ? null : urlWithAuthRemoved,
+            url: urlWithRedactedAuth.isEmpty ? null : urlWithRedactedAuth,
             query: uri.query.isEmpty ? null : uri.query,
             fragment: uri.fragment.isEmpty ? null : uri.fragment);
       } catch (_) {
@@ -61,7 +61,7 @@ class HttpSanitizer {
 }
 
 extension UriPath on Uri {
-  String _urlWithAuthRemoved() {
+  String _urlWithRedactedAuth() {
     var buffer = '';
     if (scheme.isNotEmpty) {
       buffer += '$scheme://';
