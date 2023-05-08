@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix `event.origin` and `event.environment` on unhandled exceptions ([#1419](https://github.com/getsentry/sentry-dart/pull/1419))
+
+### Dependencies
+
+- Bump Android SDK from v6.17.0 to v6.18.1 ([#1415](https://github.com/getsentry/sentry-dart/pull/1415))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6181)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.17.0...6.18.1)
+
 ## 7.5.1
 
 ### Fixes

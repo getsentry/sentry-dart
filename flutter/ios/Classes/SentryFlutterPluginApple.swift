@@ -12,6 +12,8 @@ import AppKit
 // swiftlint:disable:next type_body_length
 public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
+    private static let nativeClientName = "sentry.cocoa.flutter"
+
     // The Cocoa SDK is init. after the notification didBecomeActiveNotification is registered.
     // We need to be able to receive this notification and start a session when the SDK is fully operational.
     private var didReceiveDidBecomeActiveNotification = false
@@ -257,9 +259,8 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
                 #endif
             }
 
-            let name = "sentry.cocoa.flutter"
             let version = PrivateSentrySDKOnly.getSdkVersionString()
-            PrivateSentrySDKOnly.setSdkName(name, andVersionString: version)
+            PrivateSentrySDKOnly.setSdkName(SentryFlutterPluginApple.nativeClientName, andVersionString: version)
 
             // note : for now, in sentry-cocoa, beforeSend is not called before captureEnvelope
             options.beforeSend = { event in
@@ -409,7 +410,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         if isValidSdk(sdk: sdk) {
 
             switch sdk["name"] as? String {
-            case "sentry.cocoa":
+            case SentryFlutterPluginApple.nativeClientName:
                 #if os(OSX)
                     let origin = "mac"
                 #elseif os(watchOS)
