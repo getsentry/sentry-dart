@@ -5,7 +5,6 @@ import 'url_details.dart';
 
 @internal
 class HttpSanitizer {
-  static final RegExp _authRegExp = RegExp("(.+://)(.*@)(.*)");
   static final List<String> _securityHeaders = [
     "X-FORWARDED-FOR",
     "AUTHORIZATION",
