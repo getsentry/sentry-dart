@@ -170,6 +170,15 @@ void main() {
     final details = HttpSanitizer.sanitizeUrl('::Not valid URI::');
     expect(details, isNull);
   });
+
+  test('keeps email address', () {
+    final urlDetails = HttpSanitizer.sanitizeUrl(
+      "https://staging.server.com/api/v4/auth/password/reset/email@example.com"
+    );
+    expect("https://staging.server.com/api/v4/auth/password/reset/email@example.com", urlDetails?.url);
+    expect(urlDetails?.query, isNull);
+    expect(urlDetails?.fragment, isNull);
+  });
 }
 
 extension StringExtension on String {

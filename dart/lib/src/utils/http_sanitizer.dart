@@ -36,7 +36,7 @@ class HttpSanitizer {
     } else {
       try {
         final uri = Uri.parse(url);
-        final urlWithAuthRemoved = _urlWithAuthRemoved(uri._url());
+        final urlWithAuthRemoved = uri._urlWithAuthRemoved();
         return UrlDetails(
             url: urlWithAuthRemoved.isEmpty ? null : urlWithAuthRemoved,
             query: uri.query.isEmpty ? null : uri.query,
@@ -59,29 +59,18 @@ class HttpSanitizer {
     });
     return sanitizedHeaders;
   }
-
-  static String _urlWithAuthRemoved(String url) {
-    final userInfoMatch = _authRegExp.firstMatch(url);
-    if (userInfoMatch != null && userInfoMatch.groupCount == 3) {
-      final userInfoString = userInfoMatch.group(2) ?? '';
-      final replacementString = userInfoString.contains(":")
-          ? "[Filtered]:[Filtered]@"
-          : "[Filtered]@";
-      return '${userInfoMatch.group(1) ?? ''}$replacementString${userInfoMatch.group(3) ?? ''}';
-    } else {
-      return url;
-    }
-  }
 }
 
 extension UriPath on Uri {
-  String _url() {
+  String _urlWithAuthRemoved() {
     var buffer = '';
     if (scheme.isNotEmpty) {
       buffer += '$scheme://';
     }
     if (userInfo.isNotEmpty) {
-      buffer += '$userInfo@';
+      buffer += userInfo.contains(":")
+          ? "[Filtered]:[Filtered]@"
+          : "[Filtered]@";
     }
     buffer += host;
     if (path.isNotEmpty) {
