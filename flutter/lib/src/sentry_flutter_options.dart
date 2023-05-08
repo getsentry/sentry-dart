@@ -5,7 +5,6 @@ import 'package:flutter/widgets.dart';
 import 'binding_wrapper.dart';
 import 'renderer/renderer.dart';
 import 'screenshot/sentry_screenshot_quality.dart';
-import 'dart:collection';
 
 /// This class adds options which are only availble in a Flutter environment.
 /// Note that some of these options require native Sentry integration, which is
@@ -22,8 +21,7 @@ class SentryFlutterOptions extends SentryOptions {
   /// NOTE: Be careful and only use this if you know what you are doing.
   /// If you use this flag, make sure a native SDK is running before the Flutter Engine initializes or events might not be captured.
   /// Defaults to `true`.
-  bool autoInitializeNativeSdk
-  = true;
+  bool autoInitializeNativeSdk = true;
 
   /// Enable or disable reporting of used packages.
   bool reportPackages = true;
