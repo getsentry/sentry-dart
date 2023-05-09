@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add `sent_at` to envelope header ([#1428](https://github.com/getsentry/sentry-dart/pull/1428))
+
 ### Fixes
 
 - Fix `event.origin` and `event.environment` on unhandled exceptions ([#1419](https://github.com/getsentry/sentry-dart/pull/1419))
