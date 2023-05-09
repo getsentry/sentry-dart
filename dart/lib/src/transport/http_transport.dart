@@ -46,7 +46,6 @@ class HttpTransport implements Transport {
     _credentialBuilder = _CredentialBuilder(
       _dsn,
       _options.sentryClientName,
-      _options.clock,
     );
   }
 
@@ -135,23 +134,18 @@ class HttpTransport implements Transport {
 class _CredentialBuilder {
   final String _authHeader;
 
-  final ClockProvider _clock;
-
-  int get timestamp => _clock().millisecondsSinceEpoch;
-
-  _CredentialBuilder._(String authHeader, ClockProvider clock)
-      : _authHeader = authHeader,
-        _clock = clock;
+  _CredentialBuilder._(String authHeader)
+      : _authHeader = authHeader;
 
   factory _CredentialBuilder(
-      Dsn dsn, String sdkIdentifier, ClockProvider clock) {
+      Dsn dsn, String sdkIdentifier) {
     final authHeader = _buildAuthHeader(
       publicKey: dsn.publicKey,
       secretKey: dsn.secretKey,
       sdkIdentifier: sdkIdentifier,
     );
 
-    return _CredentialBuilder._(authHeader, clock);
+    return _CredentialBuilder._(authHeader);
   }
 
   static String _buildAuthHeader({
@@ -173,7 +167,7 @@ class _CredentialBuilder {
     return headers
       ..addAll(
         <String, String>{
-          'X-Sentry-Auth': '$_authHeader, sentry_timestamp=$timestamp'
+          'X-Sentry-Auth': _authHeader
         },
       );
   }
