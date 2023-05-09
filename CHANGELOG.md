@@ -6,6 +6,7 @@
 
 - Fix `event.origin` and `event.environment` on unhandled exceptions ([#1419](https://github.com/getsentry/sentry-dart/pull/1419))
 - Fix authority redaction ([#1424](https://github.com/getsentry/sentry-dart/pull/1424))
+- Adds a namespace for compatibility with AGP 8.0. ([#1427](https://github.com/getsentry/sentry-dart/pull/1427))
 
 ### Dependencies
 
