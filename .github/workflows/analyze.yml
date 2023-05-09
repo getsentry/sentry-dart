@@ -24,6 +24,7 @@ jobs:
           access_token: ${{ github.token }}
 
   analyze:
+    name: Format, fix & analyze Code
     if: ${{ !startsWith(github.ref, 'refs/heads/release/') }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -36,8 +37,17 @@ jobs:
         if: ${{ inputs.sdk == 'dart' }}
       - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa # pin@v2.10.0
         if: ${{ inputs.sdk == 'flutter' }}
+
       - run: ${{ inputs.sdk }} pub get
-      - run: ${{ inputs.sdk }} format --set-exit-if-changed ./
+
+      - run: dart format .
+
+      - run: dart fix --apply
+
+        # actions/checkout fetches only a single commit in a detached HEAD state. Therefore
+        # we need to pass the current branch, otherwise we can't commit the changes.
+        # GITHUB_HEAD_REF is the name of the head branch. GitHub Actions only sets this for PRs.
+      - run: ../scripts/commit-formatted-code.sh $GITHUB_HEAD_REF
 
       - name: dart analyze
         uses: invertase/github-action-dart-analyzer@cdd8652b05bf7ed08ffce30f425436780f869f13 # pin@v1
