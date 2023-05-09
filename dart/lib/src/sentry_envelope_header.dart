@@ -1,6 +1,7 @@
 import 'protocol/sentry_id.dart';
 import 'protocol/sdk_version.dart';
 import 'sentry_trace_context_header.dart';
+import 'utils.dart';
 
 /// Header containing `SentryId` and `SdkVersion`.
 class SentryEnvelopeHeader {
@@ -9,12 +10,14 @@ class SentryEnvelopeHeader {
     this.sdkVersion, {
     this.dsn,
     this.traceContext,
+    this.sentAt,
   });
   SentryEnvelopeHeader.newEventId()
       : eventId = SentryId.newId(),
         sdkVersion = null,
         dsn = null,
-        traceContext = null;
+        traceContext = null,
+        sentAt = null;
 
   /// The identifier of encoded `SentryEvent`.
   final SentryId? eventId;
@@ -26,6 +29,8 @@ class SentryEnvelopeHeader {
 
   /// The `DSN` of the Sentry project.
   final String? dsn;
+
+  DateTime? sentAt;
 
   /// Header encoded as JSON
   Map<String, dynamic> toJson() {
@@ -49,6 +54,11 @@ class SentryEnvelopeHeader {
     if (dsn != null) {
       json['dsn'] = dsn;
     }
+
+    if (sentAt != null) {
+      json['sent_at'] = formatDateAsIso8601WithMillisPrecision(sentAt!);
+    }
+
     return json;
   }
 }
