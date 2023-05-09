@@ -55,6 +55,7 @@ class HttpTransport implements Transport {
     if (filteredEnvelope == null) {
       return SentryId.empty();
     }
+    filteredEnvelope.header.sentAt = _options.clock();
 
     final streamedRequest = await _createStreamedRequest(filteredEnvelope);
     final response = await _options.httpClient
@@ -134,11 +135,9 @@ class HttpTransport implements Transport {
 class _CredentialBuilder {
   final String _authHeader;
 
-  _CredentialBuilder._(String authHeader)
-      : _authHeader = authHeader;
+  _CredentialBuilder._(String authHeader) : _authHeader = authHeader;
 
-  factory _CredentialBuilder(
-      Dsn dsn, String sdkIdentifier) {
+  factory _CredentialBuilder(Dsn dsn, String sdkIdentifier) {
     final authHeader = _buildAuthHeader(
       publicKey: dsn.publicKey,
       secretKey: dsn.secretKey,
@@ -166,9 +165,7 @@ class _CredentialBuilder {
   Map<String, String> configure(Map<String, String> headers) {
     return headers
       ..addAll(
-        <String, String>{
-          'X-Sentry-Auth': _authHeader
-        },
+        <String, String>{'X-Sentry-Auth': _authHeader},
       );
   }
 }
