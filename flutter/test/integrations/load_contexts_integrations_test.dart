@@ -50,6 +50,7 @@ void main() {
             packages: packages,
           ),
       tags: tags,
+      // ignore: deprecated_member_use
       extra: extra,
       user: user,
       dist: dist,

@@ -26,7 +26,8 @@ class SentryTransaction extends SentryEvent {
     String? transaction,
     dynamic throwable,
     Map<String, String>? tags,
-    Map<String, dynamic>? extra,
+    @Deprecated('Additional Data is deprecated in favor of structured [Contexts] and should be avoided when possible')
+        Map<String, dynamic>? extra,
     SentryUser? user,
     Contexts? contexts,
     List<Breadcrumb>? breadcrumbs,
@@ -46,6 +47,7 @@ class SentryTransaction extends SentryEvent {
           transaction: transaction ?? _tracer.name,
           throwable: throwable ?? _tracer.throwable,
           tags: tags ?? _tracer.tags,
+          // ignore: deprecated_member_use_from_same_package
           extra: extra ?? _tracer.data,
           user: user,
           contexts: contexts,
@@ -116,7 +118,8 @@ class SentryTransaction extends SentryEvent {
     SentryLevel? level,
     String? culprit,
     Map<String, String>? tags,
-    Map<String, dynamic>? extra,
+    @Deprecated('Additional Data is deprecated in favor of structured [Contexts] and should be avoided when possible')
+        Map<String, dynamic>? extra,
     List<String>? fingerprint,
     SentryUser? user,
     Contexts? contexts,

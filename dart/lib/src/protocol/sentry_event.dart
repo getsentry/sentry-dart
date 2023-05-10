@@ -13,7 +13,8 @@ class SentryEvent with SentryEventLike<SentryEvent> {
     DateTime? timestamp,
     Map<String, String>? modules,
     Map<String, String>? tags,
-    Map<String, dynamic>? extra,
+    @Deprecated('Additional Data is deprecated in favor of structured [Contexts] and should be avoided when possible')
+        Map<String, dynamic>? extra,
     List<String>? fingerprint,
     List<Breadcrumb>? breadcrumbs,
     List<SentryException>? exceptions,
@@ -40,6 +41,7 @@ class SentryEvent with SentryEventLike<SentryEvent> {
         contexts = contexts ?? Contexts(),
         modules = modules != null ? Map.from(modules) : null,
         tags = tags != null ? Map.from(tags) : null,
+        // ignore: deprecated_member_use_from_same_package
         extra = extra != null ? Map.from(extra) : null,
         fingerprint = fingerprint != null ? List.from(fingerprint) : null,
         breadcrumbs = breadcrumbs != null ? List.from(breadcrumbs) : null,
@@ -128,6 +130,8 @@ class SentryEvent with SentryEventLike<SentryEvent> {
   ///
   /// Sentry.io docs do not talk about restrictions on the values, other than
   /// they must be JSON-serializable.
+  @Deprecated(
+      'Additional Data is deprecated in favor of structured [Contexts] and should be avoided when possible')
   final Map<String, dynamic>? extra;
 
   /// List of breadcrumbs for this event.
@@ -201,7 +205,8 @@ class SentryEvent with SentryEventLike<SentryEvent> {
     SentryLevel? level,
     String? culprit,
     Map<String, String>? tags,
-    Map<String, dynamic>? extra,
+    @Deprecated('Additional Data is deprecated in favor of structured [Contexts] and should be avoided when possible')
+        Map<String, dynamic>? extra,
     List<String>? fingerprint,
     SentryUser? user,
     Contexts? contexts,
