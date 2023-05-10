@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixes
+
+- Fix battery level convertion for iOS 16.4 ([#1424](https://github.com/getsentry/sentry-dart/pull/1424))
+
 ## 7.5.2
 
 ### Fixes
