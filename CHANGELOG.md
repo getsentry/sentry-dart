@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Fix battery level convertion for iOS 16.4 ([#1424](https://github.com/getsentry/sentry-dart/pull/1424))
+- Deprecate extra in favor of contexts ([#1435](https://github.com/getsentry/sentry-dart/pull/1435))
 - Fix battery level convertion for iOS 16.4 ([#1433](https://github.com/getsentry/sentry-dart/pull/1433))
 - Adds a namespace for compatibility with AGP 8.0. ([#1427](https://github.com/getsentry/sentry-dart/pull/1427))
 
