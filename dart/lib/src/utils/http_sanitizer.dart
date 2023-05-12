@@ -5,7 +5,6 @@ import 'url_details.dart';
 
 @internal
 class HttpSanitizer {
-  static final RegExp _authRegExp = RegExp("(.+://)(.*@)(.*)");
   static final List<String> _securityHeaders = [
     "X-FORWARDED-FOR",
     "AUTHORIZATION",
@@ -36,9 +35,9 @@ class HttpSanitizer {
     } else {
       try {
         final uri = Uri.parse(url);
-        final urlWithAuthRemoved = _urlWithAuthRemoved(uri._url());
+        final urlWithRedactedAuth = uri._urlWithRedactedAuth();
         return UrlDetails(
-            url: urlWithAuthRemoved.isEmpty ? null : urlWithAuthRemoved,
+            url: urlWithRedactedAuth.isEmpty ? null : urlWithRedactedAuth,
             query: uri.query.isEmpty ? null : uri.query,
             fragment: uri.fragment.isEmpty ? null : uri.fragment);
       } catch (_) {
@@ -59,29 +58,17 @@ class HttpSanitizer {
     });
     return sanitizedHeaders;
   }
-
-  static String _urlWithAuthRemoved(String url) {
-    final userInfoMatch = _authRegExp.firstMatch(url);
-    if (userInfoMatch != null && userInfoMatch.groupCount == 3) {
-      final userInfoString = userInfoMatch.group(2) ?? '';
-      final replacementString = userInfoString.contains(":")
-          ? "[Filtered]:[Filtered]@"
-          : "[Filtered]@";
-      return '${userInfoMatch.group(1) ?? ''}$replacementString${userInfoMatch.group(3) ?? ''}';
-    } else {
-      return url;
-    }
-  }
 }
 
 extension UriPath on Uri {
-  String _url() {
+  String _urlWithRedactedAuth() {
     var buffer = '';
     if (scheme.isNotEmpty) {
       buffer += '$scheme://';
     }
     if (userInfo.isNotEmpty) {
-      buffer += '$userInfo@';
+      buffer +=
+          userInfo.contains(":") ? "[Filtered]:[Filtered]@" : "[Filtered]@";
     }
     buffer += host;
     if (path.isNotEmpty) {
