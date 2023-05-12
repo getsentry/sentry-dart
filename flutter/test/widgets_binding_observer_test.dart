@@ -184,7 +184,7 @@ void main() {
       final instance = tester.binding;
       instance.addObserver(observer);
 
-// ignore: deprecated_member_use
+      // ignore: deprecated_member_use
       final window = instance.window;
 
       const newWidth = 123.0;
@@ -219,10 +219,10 @@ void main() {
       final instance = tester.binding;
       instance.addObserver(observer);
 
-// ignore: deprecated_member_use
+      // ignore: deprecated_member_use
       final window = instance.window;
 
-// ignore: deprecated_member_use
+      // ignore: deprecated_member_use
       window.physicalSizeTestValue = window.physicalSize;
 
       const newPixelRatio = 1.618;
@@ -300,12 +300,12 @@ void main() {
       final instance = flutterTrackingEnabledOptions.bindingUtils.instance!;
       instance.addObserver(observer);
 
-// ignore: deprecated_member_use
+      // ignore: deprecated_member_use
       final window = instance.window;
 
       window.onPlatformBrightnessChanged!();
 
-// ignore: deprecated_member_use
+      // ignore: deprecated_member_use
       final brightness = instance.window.platformBrightness;
       final brightnessDescription =
           brightness == Brightness.dark ? 'dark' : 'light';
@@ -337,7 +337,7 @@ void main() {
       final instance = flutterTrackingDisabledOptions.bindingUtils.instance!;
       instance.addObserver(observer);
 
-// ignore: deprecated_member_use
+      // ignore: deprecated_member_use
       final window = instance.window;
 
       window.onPlatformBrightnessChanged!();
@@ -358,12 +358,12 @@ void main() {
       final instance = flutterTrackingEnabledOptions.bindingUtils.instance!;
       instance.addObserver(observer);
 
-// ignore: deprecated_member_use
+      // ignore: deprecated_member_use
       final window = instance.window;
 
       window.onTextScaleFactorChanged!();
 
-// ignore: deprecated_member_use
+      // ignore: deprecated_member_use
       final newTextScaleFactor = instance.window.textScaleFactor;
 
       final breadcrumb =
@@ -390,7 +390,7 @@ void main() {
       final instance = flutterTrackingDisabledOptions.bindingUtils.instance!;
       instance.addObserver(observer);
 
-// ignore: deprecated_member_use
+      // ignore: deprecated_member_use
       final window = instance.window;
 
       window.onTextScaleFactorChanged!();
