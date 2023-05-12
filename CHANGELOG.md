@@ -7,6 +7,10 @@
 - Fix battery level conversion for iOS 16.4 ([#1433](https://github.com/getsentry/sentry-dart/pull/1433))
 - Adds a namespace for compatibility with AGP 8.0. ([#1427](https://github.com/getsentry/sentry-dart/pull/1427))
 
+### Breaking Changes
+
+- Support `package_info_plus` versions `4.x` which require `min_sdk_version` `>=19` and iOS `11`
+
 ## 7.5.2
 
 ### Fixes
