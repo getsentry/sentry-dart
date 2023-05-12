@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <!-- force minSdk 16 -->
-    <uses-sdk tools:overrideLibrary="dev.fluttercommunity.plus.packageinfo"/>
+    <uses-sdk tools:overrideLibrary="dev.fluttercommunity.plus.packageinfo, dev.flutter.integration_test"/>
 
     <application
         android:allowBackup="false"
