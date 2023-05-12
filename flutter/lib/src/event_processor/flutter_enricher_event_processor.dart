@@ -120,7 +120,7 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     final defaultRouteName = _window?.defaultRouteName;
     // A FlutterEngine has no renderViewElement if it was started or is
     // accessed from an isolate different to the main isolate.
-    final hasRenderView = _widgetsBinding?.renderViewElement != null;
+    final hasRenderView = _widgetsBinding?.rootElement != null;
 
     return <String, String>{
       'has_render_view': hasRenderView.toString(),
