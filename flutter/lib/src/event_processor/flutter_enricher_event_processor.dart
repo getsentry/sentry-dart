@@ -25,6 +25,7 @@ class FlutterEnricherEventProcessor implements EventProcessor {
   // Thus we call it on demand after all the initialization happened.
   WidgetsBinding? get _widgetsBinding => _options.bindingUtils.instance;
 
+  // ignore: deprecated_member_use
   SingletonFlutterWindow? get _window => _widgetsBinding?.window;
   Map<String, String> _packages = {};
 
@@ -181,6 +182,7 @@ class FlutterEnricherEventProcessor implements EventProcessor {
 
   SentryOperatingSystem _getOperatingSystem(SentryOperatingSystem? os) {
     return (os ?? SentryOperatingSystem()).copyWith(
+      // ignore: deprecated_member_use
       theme: os?.theme ?? describeEnum(window.platformBrightness),
     );
   }

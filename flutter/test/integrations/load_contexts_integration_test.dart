@@ -22,10 +22,12 @@ void main() {
     });
 
     tearDown(() {
+      // ignore: deprecated_member_use
       _channel.setMockMethodCallHandler(null);
     });
 
     test('loadContextsIntegration adds integration', () {
+      // ignore: deprecated_member_use
       _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
 
       final integration = LoadContextsIntegration(_channel);
@@ -51,6 +53,7 @@ void main() {
       final future = Future.value(loadContexts);
       when(fixture.methodChannel.invokeMethod<dynamic>('loadContexts'))
           .thenAnswer((_) => future);
+      // ignore: deprecated_member_use
       _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
 
       final integration = LoadContextsIntegration(fixture.methodChannel);
@@ -75,6 +78,7 @@ void main() {
       final future = Future.value(loadContexts);
       when(fixture.methodChannel.invokeMethod<dynamic>('loadContexts'))
           .thenAnswer((_) => future);
+      // ignore: deprecated_member_use
       _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
 
       final integration = LoadContextsIntegration(fixture.methodChannel);
