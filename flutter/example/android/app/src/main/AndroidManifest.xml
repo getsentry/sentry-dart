@@ -1,9 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="io.sentry.samples.flutter"
-    xmlns:tools="http://schemas.android.com/tools">
-
-    <!-- force minSdk 16 -->
-    <uses-sdk tools:overrideLibrary="dev.fluttercommunity.plus.packageinfo, dev.flutter.integration_test"/>
+    package="io.sentry.samples.flutter">
 
     <application
         android:allowBackup="false"

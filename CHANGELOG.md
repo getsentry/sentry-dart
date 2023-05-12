@@ -8,6 +8,10 @@
 - Adds a namespace for compatibility with AGP 8.0. ([#1427](https://github.com/getsentry/sentry-dart/pull/1427))
 - Avoid dependency conflict with package_info_plus v4 ([#1440](https://github.com/getsentry/sentry-dart/pull/1440))
 
+### Breaking Changes
+
+- Android `minSdkVersion` is now 19 (Flutter already defines 19-20 as best effort)
+
 ## 7.5.2
 
 ### Fixes
