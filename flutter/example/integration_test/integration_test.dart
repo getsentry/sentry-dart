@@ -1,12 +1,14 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter_example/main.dart';
 
 void main() {
-  final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  binding.framePolicy = LiveTestWidgetsFlutterBindingFramePolicy.fullyLive;
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() async {
+    await Sentry.close();
+  });
 
   // Using fake DSN for testing purposes.
   Future<void> setupSentryAndApp(WidgetTester tester) async {
