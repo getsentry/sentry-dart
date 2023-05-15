@@ -293,6 +293,7 @@ class _TreeWalker {
 }
 
 SentryViewHierarchy? walkWidgetTree(WidgetsBinding instance) {
+  // ignore: deprecated_member_use
   final rootElement = instance.renderViewElement;
   if (rootElement == null) {
     return null;

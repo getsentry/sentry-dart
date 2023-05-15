@@ -178,6 +178,7 @@ MethodChannel createChannelWithCallback(
   Future<dynamic>? Function(MethodCall call)? handler,
 ) {
   final channel = MethodChannel('initNativeSdk');
+  // ignore: deprecated_member_use
   channel.setMockMethodCallHandler(handler);
   return channel;
 }

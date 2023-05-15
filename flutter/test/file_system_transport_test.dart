@@ -24,10 +24,12 @@ void main() {
   });
 
   tearDown(() {
+    // ignore: deprecated_member_use
     _channel.setMockMethodCallHandler(null);
   });
 
   test('FileSystemTransport wont throw', () async {
+    // ignore: deprecated_member_use
     _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
 
     final transport = fixture.getSut(_channel);
@@ -46,6 +48,7 @@ void main() {
   });
 
   test('FileSystemTransport returns emptyId if channel throws', () async {
+    // ignore: deprecated_member_use
     _channel.setMockMethodCallHandler((MethodCall methodCall) async {
       throw Exception();
     });
@@ -67,6 +70,7 @@ void main() {
 
   test('FileSystemTransport asserts the event', () async {
     dynamic arguments;
+    // ignore: deprecated_member_use
     _channel.setMockMethodCallHandler((MethodCall methodCall) async {
       arguments = methodCall.arguments;
     });

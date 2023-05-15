@@ -230,6 +230,7 @@ void main() {
   );
 
   test('should not throw on loadContextsIntegration exception', () async {
+    // ignore: deprecated_member_use
     fixture.channel.setMockMethodCallHandler((MethodCall methodCall) async {
       throw Exception();
     });
@@ -453,6 +454,7 @@ class Fixture {
           }
         ]
       }}) {
+    // ignore: deprecated_member_use
     channel.setMockMethodCallHandler((MethodCall methodCall) async {
       called = true;
       return contexts;

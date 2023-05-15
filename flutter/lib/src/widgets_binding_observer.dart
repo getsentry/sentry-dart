@@ -38,6 +38,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
           .skip(1) // Skip initial event added below in constructor
           .listen(_onScreenSizeChanged);
 
+      // ignore: deprecated_member_use
       final window = _options.bindingUtils.instance?.window;
       _screenSizeStreamController.add(window);
     }
@@ -46,6 +47,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   final Hub _hub;
   final SentryFlutterOptions _options;
 
+  // ignore: deprecated_member_use
   final StreamController<SingletonFlutterWindow?> _screenSizeStreamController;
 
   /// This method records lifecycle events.
@@ -86,6 +88,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
     if (!_options.enableWindowMetricBreadcrumbs) {
       return;
     }
+    // ignore: deprecated_member_use
     final window = _options.bindingUtils.instance?.window;
     _screenSizeStreamController.add(window);
   }
@@ -109,6 +112,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
       return;
     }
     final brightness =
+        // ignore: deprecated_member_use
         _options.bindingUtils.instance?.window.platformBrightness;
     final brightnessDescription =
         brightness == Brightness.dark ? 'dark' : 'light';
@@ -133,6 +137,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
       return;
     }
     final newTextScaleFactor =
+        // ignore: deprecated_member_use
         _options.bindingUtils.instance?.window.textScaleFactor;
 
     _hub.addBreadcrumb(Breadcrumb(
