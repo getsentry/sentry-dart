@@ -14,6 +14,7 @@ void main() {
     late Fixture fixture;
 
     tearDown(() {
+      // ignore: deprecated_member_use
       fixture.channel.setMockMethodCallHandler(null);
     });
 
@@ -38,6 +39,7 @@ void main() {
         setUp(() {
           fixture = Fixture(platform);
           fixture.channel
+              // ignore: deprecated_member_use
               .setMockMethodCallHandler((MethodCall methodCall) async {
             return imageList;
           });
@@ -62,6 +64,7 @@ void main() {
 
           final sut = fixture.getSut();
           fixture.channel
+              // ignore: deprecated_member_use
               .setMockMethodCallHandler((MethodCall methodCall) async {
             called = true;
             return imageList;
@@ -83,6 +86,7 @@ void main() {
 
           final sut = fixture.getSut();
           fixture.channel
+              // ignore: deprecated_member_use
               .setMockMethodCallHandler((MethodCall methodCall) async {
             called = true;
             return imageList;
@@ -101,6 +105,7 @@ void main() {
 
           final sut = fixture.getSut();
           fixture.channel
+              // ignore: deprecated_member_use
               .setMockMethodCallHandler((MethodCall methodCall) async {
             called = true;
             return imageList;
@@ -160,6 +165,7 @@ void main() {
 
           final sut = fixture.getSut();
           fixture.channel
+              // ignore: deprecated_member_use
               .setMockMethodCallHandler((MethodCall methodCall) async {
             called = true;
             return imageList;

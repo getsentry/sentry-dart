@@ -40,6 +40,7 @@ void main() {
           .encodeMessage(<String, dynamic>{'type': 'memoryPressure'});
 
       await instance.defaultBinaryMessenger
+          // ignore: deprecated_member_use
           .handlePlatformMessage('flutter/system', message, (_) {});
 
       final breadcrumb =
@@ -73,6 +74,7 @@ void main() {
           .encodeMessage(<String, dynamic>{'type': 'memoryPressure'});
 
       await instance.defaultBinaryMessenger
+          // ignore: deprecated_member_use
           .handlePlatformMessage('flutter/system', message, (_) {});
 
       verifyNever(hub.addBreadcrumb(captureAny));
@@ -182,10 +184,12 @@ void main() {
       final instance = tester.binding;
       instance.addObserver(observer);
 
+      // ignore: deprecated_member_use
       final window = instance.window;
 
       const newWidth = 123.0;
       const newHeight = 456.0;
+      // ignore: deprecated_member_use
       window.physicalSizeTestValue = Size(newWidth, newHeight);
 
       final breadcrumb =
@@ -196,6 +200,7 @@ void main() {
       expect(breadcrumb.type, 'navigation');
       expect(breadcrumb.level, SentryLevel.info);
       expect(breadcrumb.data, <String, dynamic>{
+        // ignore: deprecated_member_use
         'new_pixel_ratio': window.devicePixelRatio,
         'new_height': newHeight,
         'new_width': newWidth,
@@ -214,11 +219,14 @@ void main() {
       final instance = tester.binding;
       instance.addObserver(observer);
 
+      // ignore: deprecated_member_use
       final window = instance.window;
 
+      // ignore: deprecated_member_use
       window.physicalSizeTestValue = window.physicalSize;
 
       const newPixelRatio = 1.618;
+      // ignore: deprecated_member_use
       window.devicePixelRatioTestValue = newPixelRatio;
 
       final breadcrumb =
@@ -230,7 +238,9 @@ void main() {
       expect(breadcrumb.level, SentryLevel.info);
       expect(breadcrumb.data, <String, dynamic>{
         'new_pixel_ratio': newPixelRatio,
+        // ignore: deprecated_member_use
         'new_height': window.physicalSize.height,
+        // ignore: deprecated_member_use
         'new_width': window.physicalSize.width,
       });
 
@@ -248,8 +258,10 @@ void main() {
       final instance = tester.binding;
       instance.addObserver(observer);
 
+      // ignore: deprecated_member_use
       final window = instance.window;
 
+      // ignore: deprecated_member_use
       window.viewInsetsTestValue = WindowPadding.zero;
 
       verifyNever(hub.addBreadcrumb(captureAny));
@@ -268,6 +280,7 @@ void main() {
       final instance = flutterTrackingDisabledOptions.bindingUtils.instance!;
       instance.addObserver(observer);
 
+      // ignore: deprecated_member_use
       final window = instance.window;
 
       window.onMetricsChanged!();
@@ -287,10 +300,12 @@ void main() {
       final instance = flutterTrackingEnabledOptions.bindingUtils.instance!;
       instance.addObserver(observer);
 
+      // ignore: deprecated_member_use
       final window = instance.window;
 
       window.onPlatformBrightnessChanged!();
 
+      // ignore: deprecated_member_use
       final brightness = instance.window.platformBrightness;
       final brightnessDescription =
           brightness == Brightness.dark ? 'dark' : 'light';
@@ -322,6 +337,7 @@ void main() {
       final instance = flutterTrackingDisabledOptions.bindingUtils.instance!;
       instance.addObserver(observer);
 
+      // ignore: deprecated_member_use
       final window = instance.window;
 
       window.onPlatformBrightnessChanged!();
@@ -342,10 +358,12 @@ void main() {
       final instance = flutterTrackingEnabledOptions.bindingUtils.instance!;
       instance.addObserver(observer);
 
+      // ignore: deprecated_member_use
       final window = instance.window;
 
       window.onTextScaleFactorChanged!();
 
+      // ignore: deprecated_member_use
       final newTextScaleFactor = instance.window.textScaleFactor;
 
       final breadcrumb =
@@ -372,6 +390,7 @@ void main() {
       final instance = flutterTrackingDisabledOptions.bindingUtils.instance!;
       instance.addObserver(observer);
 
+      // ignore: deprecated_member_use
       final window = instance.window;
 
       window.onTextScaleFactorChanged!();

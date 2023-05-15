@@ -19,6 +19,10 @@ flutterCreate() {
 flutterCreate 'perf-test-app-plain'
 flutterCreate 'perf-test-app-with-sentry'
 
+# bump minSdkVersion to 19
+gradleFile="$targetDir/perf-test-app-with-sentry/android/app/build.gradle"
+sed "s/flutter.minSdkVersion/19/g" "$gradleFile" > "$gradleFile.new" && mv "$gradleFile.new" "$gradleFile"
+
 echo '::group::Patch perf-test-app-with-sentry'
 pubspec="$targetDir/perf-test-app-with-sentry/pubspec_overrides.yaml"
 echo "Adding dependencies to $pubspec"

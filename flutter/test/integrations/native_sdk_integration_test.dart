@@ -20,10 +20,12 @@ void main() {
   });
 
   tearDown(() {
+    // ignore: deprecated_member_use
     _channel.setMockMethodCallHandler(null);
   });
 
   test('nativeSdkIntegration adds integration', () async {
+    // ignore: deprecated_member_use
     _channel.setMockMethodCallHandler((MethodCall methodCall) async {});
 
     final integration = NativeSdkIntegration(_channel);
@@ -35,6 +37,7 @@ void main() {
   });
 
   test('nativeSdkIntegration do not throw', () async {
+    // ignore: deprecated_member_use
     _channel.setMockMethodCallHandler((MethodCall methodCall) async {
       throw Exception();
     });
@@ -49,6 +52,7 @@ void main() {
 
   test('nativeSdkIntegration closes native SDK', () async {
     var closeCalled = false;
+    // ignore: deprecated_member_use
     _channel.setMockMethodCallHandler((MethodCall methodCall) async {
       expect(methodCall.method, 'closeNativeSdk');
       closeCalled = true;
@@ -64,6 +68,7 @@ void main() {
   test('nativeSdkIntegration does not call native sdk when auto init disabled',
       () async {
     var methodChannelCalled = false;
+    // ignore: deprecated_member_use
     _channel.setMockMethodCallHandler((MethodCall methodCall) async {
       methodChannelCalled = true;
     });
@@ -79,6 +84,7 @@ void main() {
   test('nativeSdkIntegration does not close native when auto init disabled',
       () async {
     var methodChannelCalled = false;
+    // ignore: deprecated_member_use
     _channel.setMockMethodCallHandler((MethodCall methodCall) async {
       methodChannelCalled = true;
     });
