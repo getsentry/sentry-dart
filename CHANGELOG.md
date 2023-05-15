@@ -17,6 +17,12 @@
 - Android `minSdkVersion` is now 19 (Flutter already defines 19-20 as best effort)
 - Deprecate `extra` in favor of `contexts` ([#1435](https://github.com/getsentry/sentry-dart/pull/1435))
 
+### Dependencies
+
+- Bump Cocoa SDK from v8.5.0 to v8.7.1 ([#1449](https://github.com/getsentry/sentry-dart/pull/1449))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#871)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.5.0...8.7.1)
+
 ## 7.5.2
 
 ### Fixes
