@@ -6,7 +6,6 @@ import 'package:logging/logging.dart';
 import 'package:dio/dio.dart';
 
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_dio/sentry_dio.dart';
 import 'package:sentry_logging/sentry_logging.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
@@ -108,6 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
       _counter++;
 
       final dio = Dio();
+      // ignore: undefined_method
       dio.addSentry();
       final log = Logger('_MyHomePageState');
 
