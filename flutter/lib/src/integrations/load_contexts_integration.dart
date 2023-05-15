@@ -109,7 +109,7 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
             extras[extra.key] = extra.value;
           }
         }
-        
+
         // ignore: deprecated_member_use
         event = event.copyWith(extra: extras);
       }
