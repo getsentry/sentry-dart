@@ -145,6 +145,7 @@ class SentryTransaction extends SentryEvent {
         transaction: transaction ?? this.transaction,
         throwable: throwable ?? this.throwable,
         tags: (tags != null ? Map.from(tags) : null) ?? this.tags,
+        // ignore: deprecated_member_use_from_same_package
         extra: (extra != null ? Map.from(extra) : null) ?? this.extra,
         user: user ?? this.user,
         contexts: contexts ?? this.contexts,

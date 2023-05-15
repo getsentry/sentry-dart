@@ -234,6 +234,7 @@ class SentryEvent with SentryEventLike<SentryEvent> {
         level: level ?? this.level,
         culprit: culprit ?? this.culprit,
         tags: (tags != null ? Map.from(tags) : null) ?? this.tags,
+        // ignore: deprecated_member_use_from_same_package
         extra: (extra != null ? Map.from(extra) : null) ?? this.extra,
         fingerprint: (fingerprint != null ? List.from(fingerprint) : null) ??
             this.fingerprint,
@@ -291,6 +292,7 @@ class SentryEvent with SentryEventLike<SentryEvent> {
           timestampJson != null ? DateTime.tryParse(timestampJson) : null,
       modules: modules,
       tags: tags,
+      // ignore: deprecated_member_use_from_same_package
       extra: extra,
       fingerprint:
           fingerprintJson?.map((e) => e as String).toList(growable: false),
@@ -379,6 +381,7 @@ class SentryEvent with SentryEventLike<SentryEvent> {
       if (level != null) 'level': level!.name,
       if (culprit != null) 'culprit': culprit,
       if (tags?.isNotEmpty ?? false) 'tags': tags,
+      // ignore: deprecated_member_use_from_same_package
       if (extra?.isNotEmpty ?? false) 'extra': extra,
       if (type != null) 'type': type,
       if (fingerprint?.isNotEmpty ?? false) 'fingerprint': fingerprint,

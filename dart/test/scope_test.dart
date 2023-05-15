@@ -389,6 +389,7 @@ void main() {
     test('apply context to event', () async {
       final event = SentryEvent(
         tags: const {'etag': '987'},
+        // ignore: deprecated_member_use_from_same_package
         extra: const {'e-infos': 'abc'},
       );
       final scope = Scope(SentryOptions(dsn: fakeDsn))
@@ -413,7 +414,9 @@ void main() {
       expect(updatedEvent?.tags,
           {'etag': '987', 'build': '579', 'page-locale': 'en-us'});
       expect(
-          updatedEvent?.extra, {'e-infos': 'abc', 'company-name': 'Dart Inc'});
+          // ignore: deprecated_member_use_from_same_package
+          updatedEvent?.extra,
+          {'e-infos': 'abc', 'company-name': 'Dart Inc'});
       expect(updatedEvent?.contexts['theme'], {'value': 'material'});
     });
 

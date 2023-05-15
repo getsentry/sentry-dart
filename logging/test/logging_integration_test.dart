@@ -144,6 +144,7 @@ void main() {
     expect(event.level, SentryLevel.warning);
     expect(event.logger, 'FooBarLogger');
     expect(event.throwable, exception);
+    // ignore: deprecated_member_use
     expect(event.extra?['LogRecord.sequenceNumber'], isNotNull);
     expect(fixture.hub.events.first.stackTrace, stackTrace);
   });

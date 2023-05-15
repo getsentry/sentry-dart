@@ -97,6 +97,7 @@ void main() {
       expect(sentryEvent.level, isNull);
       expect(sentryEvent.culprit, isNull);
       expect(sentryEvent.tags, isNull);
+      // ignore: deprecated_member_use_from_same_package
       expect(sentryEvent.extra, isNull);
       expect(sentryEvent.breadcrumbs, isNull);
       expect(sentryEvent.user, isNull);
@@ -199,6 +200,7 @@ void main() {
             'a': 'b',
             'c': 'd',
           },
+          // ignore: deprecated_member_use_from_same_package
           extra: const <String, dynamic>{
             'e': 'f',
             'g': 2,
@@ -441,6 +443,7 @@ void main() {
         exceptions: [SentryException(type: null, value: null)],
         threads: [SentryThread(stacktrace: SentryStackTrace(frames: []))],
         tags: {},
+        // ignore: deprecated_member_use_from_same_package
         extra: {},
         contexts: Contexts(),
         fingerprint: [],

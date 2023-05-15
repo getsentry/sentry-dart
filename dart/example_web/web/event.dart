@@ -7,6 +7,7 @@ final event = SentryEvent(
   environment: 'Test',
   message: SentryMessage('This is an example Dart event.'),
   tags: const <String, String>{'project-id': '7371'},
+  // ignore: deprecated_member_use
   extra: const <String, String>{'section': '1'},
   // fingerprint: const <String>['example-dart'],
   user: SentryUser(

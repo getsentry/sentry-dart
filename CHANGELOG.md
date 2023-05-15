@@ -5,7 +5,6 @@
 ### Fixes
 
 - Deprecate extra in favor of contexts ([#1435](https://github.com/getsentry/sentry-dart/pull/1435))
-- Fix battery level convertion for iOS 16.4 ([#1433](https://github.com/getsentry/sentry-dart/pull/1433))
 - Fix battery level conversion for iOS 16.4 ([#1433](https://github.com/getsentry/sentry-dart/pull/1433))
 - Adds a namespace for compatibility with AGP 8.0. ([#1427](https://github.com/getsentry/sentry-dart/pull/1427))
 - Avoid dependency conflict with package_info_plus v4 ([#1440](https://github.com/getsentry/sentry-dart/pull/1440))
