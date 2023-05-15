@@ -101,6 +101,7 @@ void main() {
 
       final tr = fixture.hub.captureTransactionCalls.first;
 
+      // ignore: deprecated_member_use_from_same_package
       expect(tr.transaction.extra?['test'], 'test');
     });
 
@@ -114,6 +115,7 @@ void main() {
 
       final tr = fixture.hub.captureTransactionCalls.first;
 
+      // ignore: deprecated_member_use_from_same_package
       expect(tr.transaction.extra?['test'], isNull);
     });
 
@@ -126,6 +128,7 @@ void main() {
 
       final tr = fixture.hub.captureTransactionCalls.first;
 
+      // ignore: deprecated_member_use_from_same_package
       expect(tr.transaction.extra?['test'], {'key': 'value'});
     });
 

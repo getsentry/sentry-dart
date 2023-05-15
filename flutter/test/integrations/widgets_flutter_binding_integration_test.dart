@@ -18,6 +18,7 @@ void main() {
   });
 
   tearDown(() {
+    // ignore: deprecated_member_use
     _channel.setMockMethodCallHandler(null);
   });
 

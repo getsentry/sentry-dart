@@ -115,6 +115,39 @@ void main() {
         true,
       );
     });
+
+    test('batery level converts int to double', () {
+      final map = {'battery_level': 1};
+
+      final sentryDevice = SentryDevice.fromJson(map);
+
+      expect(
+        sentryDevice.batteryLevel,
+        1.0,
+      );
+    });
+
+    test('batery level maps double', () {
+      final map = {'battery_level': 1.0};
+
+      final sentryDevice = SentryDevice.fromJson(map);
+
+      expect(
+        sentryDevice.batteryLevel,
+        1.0,
+      );
+    });
+
+    test('batery level ignores if not a num', () {
+      final map = {'battery_level': 'abc'};
+
+      final sentryDevice = SentryDevice.fromJson(map);
+
+      expect(
+        sentryDevice.batteryLevel,
+        null,
+      );
+    });
   });
 
   group('copyWith', () {

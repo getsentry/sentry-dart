@@ -8,6 +8,19 @@
 
 ### Fixes
 
+- Fix battery level conversion for iOS 16.4 ([#1433](https://github.com/getsentry/sentry-dart/pull/1433))
+- Adds a namespace for compatibility with AGP 8.0. ([#1427](https://github.com/getsentry/sentry-dart/pull/1427))
+- Avoid dependency conflict with package_info_plus v4 ([#1440](https://github.com/getsentry/sentry-dart/pull/1440))
+
+### Breaking Changes
+
+- Android `minSdkVersion` is now 19 (Flutter already defines 19-20 as best effort)
+- Deprecate `extra` in favor of `contexts` ([#1435](https://github.com/getsentry/sentry-dart/pull/1435))
+
+## 7.5.2
+
+### Fixes
+
 - Fix `event.origin` and `event.environment` on unhandled exceptions ([#1419](https://github.com/getsentry/sentry-dart/pull/1419))
 - Fix authority redaction ([#1424](https://github.com/getsentry/sentry-dart/pull/1424))
 

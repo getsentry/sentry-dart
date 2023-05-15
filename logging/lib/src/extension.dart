@@ -28,6 +28,7 @@ extension LogRecordX on LogRecord {
       level: level.toSentryLevel(),
       message: SentryMessage(message),
       throwable: error,
+      // ignore: deprecated_member_use
       extra: <String, Object>{
         if (object != null) 'LogRecord.object': object!,
         'LogRecord.sequenceNumber': sequenceNumber,

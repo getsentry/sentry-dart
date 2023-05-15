@@ -55,7 +55,7 @@ jobs:
           profile: Nexus 6
           script: flutter test integration_test/integration_test.dart --verbose
   test-ios:
-    runs-on: macos-12
+    runs-on: macos-latest
     timeout-minutes: 30
     defaults:
       run:

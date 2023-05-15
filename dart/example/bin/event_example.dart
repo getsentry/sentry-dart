@@ -7,6 +7,7 @@ final event = SentryEvent(
   environment: 'Test',
   message: SentryMessage('This is an example Dart event.'),
   tags: const <String, String>{'project-id': '7371'},
+  // ignore: deprecated_member_use
   extra: const <String, String>{'section': '1'},
   // fingerprint: const <String>['example-dart'], fingerprint forces events to group together
   user: SentryUser(
@@ -14,6 +15,7 @@ final event = SentryEvent(
     username: 'first-user',
     email: 'first@user.lan',
     // ipAddress: '127.0.0.1', sendDefaultPii feature is enabled
+    // ignore: deprecated_member_use
     extras: <String, String>{'first-sign-in': '2020-01-01'},
   ),
   breadcrumbs: [
