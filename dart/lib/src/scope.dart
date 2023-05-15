@@ -285,6 +285,7 @@ class Scope {
           ? event.breadcrumbs
           : List.from(_breadcrumbs),
       tags: tags.isNotEmpty ? _mergeEventTags(event) : event.tags,
+      // ignore: deprecated_member_use_from_same_package
       extra: extra.isNotEmpty ? _mergeEventExtra(event) : event.extra,
     );
 
@@ -362,6 +363,7 @@ class Scope {
   /// the event extra will be kept.
   Map<String, dynamic> _mergeEventExtra(SentryEvent event) =>
       extra.map((key, value) => MapEntry(key, value))
+        // ignore: deprecated_member_use_from_same_package
         ..addAll(event.extra ?? {});
 
   /// If scope and event have a user, the user of the event takes

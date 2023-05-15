@@ -171,6 +171,7 @@ void main() {
     // This test passes if no exceptions are thrown, thus no asserts.
     // This is a test for https://github.com/getsentry/sentry-dart/issues/523
     test('serialize with non-serializable class', () async {
+      // ignore: deprecated_member_use_from_same_package
       final event = SentryEvent(extra: {'non-ecodable': NonEncodable()});
       final sut = SentryEnvelope.fromEvent(
         event,

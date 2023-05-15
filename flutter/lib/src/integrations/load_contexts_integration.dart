@@ -100,6 +100,7 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
 
       final extraMap = infos['extra'] as Map?;
       if (extraMap != null && extraMap.isNotEmpty) {
+        // ignore: deprecated_member_use
         final extras = event.extra ?? {};
         final newExtras = Map<String, dynamic>.from(extraMap);
 
@@ -108,6 +109,8 @@ class _LoadContextsIntegrationEventProcessor implements EventProcessor {
             extras[extra.key] = extra.value;
           }
         }
+
+        // ignore: deprecated_member_use
         event = event.copyWith(extra: extras);
       }
 

@@ -22,6 +22,7 @@ final fakeEvent = SentryEvent(
   transaction: '/example/app',
   level: SentryLevel.warning,
   tags: const <String, String>{'project-id': '7371'},
+  // ignore: deprecated_member_use_from_same_package
   extra: const <String, String>{'company-name': 'Dart Inc'},
   fingerprint: const <String>['example-dart'],
   modules: const {'module1': 'factory'},

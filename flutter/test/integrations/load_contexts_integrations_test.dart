@@ -50,6 +50,7 @@ void main() {
             packages: packages,
           ),
       tags: tags,
+      // ignore: deprecated_member_use
       extra: extra,
       user: user,
       dist: dist,
@@ -312,8 +313,11 @@ void main() {
     final e = getEvent(extra: {'key': 'flutter', 'key-a': 'flutter'});
     final event = await fixture.options.eventProcessors.first.apply(e);
 
+    // ignore: deprecated_member_use
     expect(event?.extra?['key'], 'flutter');
+    // ignore: deprecated_member_use
     expect(event?.extra?['key-a'], 'flutter');
+    // ignore: deprecated_member_use
     expect(event?.extra?['key-b'], 'native');
   });
 

@@ -11,6 +11,7 @@
 ### Breaking Changes
 
 - Android `minSdkVersion` is now 19 (Flutter already defines 19-20 as best effort)
+- Deprecate `extra` in favor of `contexts` ([#1435](https://github.com/getsentry/sentry-dart/pull/1435))
 
 ## 7.5.2
 

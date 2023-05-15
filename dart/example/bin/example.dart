@@ -45,6 +45,7 @@ Future<void> runApp() async {
       username: 'first-user',
       email: 'first@user.lan',
       // ipAddress: '127.0.0.1', sendDefaultPii feature is enabled
+      // ignore: deprecated_member_use
       extras: <String, String>{'first-sign-in': '2020-01-01'},
     ));
     scope
