@@ -38,7 +38,8 @@ class SentryFlutterOptions extends SentryOptions {
   ///
   /// Disabling this feature affects the [enableAutoSessionTracking]
   /// feature, as this is required to mark Sessions as Crashed.
-  bool enableNativeCrashHandling = true;
+  bool enableNativeCrashHandling =
+  true;
 
   Duration _autoSessionTrackingInterval = Duration(milliseconds: 30000);
 
