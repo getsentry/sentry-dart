@@ -160,6 +160,18 @@ jobs:
       # https://github.com/CocoaPods/CocoaPods/issues/5275#issuecomment-315461879
       - run: pod lib lint ios/sentry_flutter.podspec --configuration=Debug --skip-import-validation --allow-warnings
 
+  swift-lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: ./flutter
+    steps:
+      - uses: actions/checkout@v3
+      - uses: norio-nomura/action-swiftlint@9f4dcd7fd46b4e75d7935cf2f4df406d5cae3684 # pin@3.2.1
+        with:
+          args: --strict
+
   ktlint:
     runs-on: ubuntu-latest
     timeout-minutes: 20

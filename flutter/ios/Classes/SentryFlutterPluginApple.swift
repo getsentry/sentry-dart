@@ -576,8 +576,6 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
       result("")
     }
 
-
-
     private func addBreadcrumb(breadcrumb: [String: Any?]?, result: @escaping FlutterResult) {
       if let breadcrumb = breadcrumb {
         let breadcrumbInstance = PrivateSentrySDKOnly.breadcrumb(with: breadcrumb)
