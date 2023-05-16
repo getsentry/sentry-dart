@@ -288,7 +288,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
   private fun setUser(user: Map<String, Any?>?, result: Result) {
     if (user != null) {
-      val options = HubAdapter.getInstance().options as SentryAndroidOptions
+      val options = HubAdapter.getInstance().options
       val userInstance = User.fromMap(user, options)
       Sentry.setUser(userInstance)
     } else {
@@ -299,7 +299,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
   private fun addBreadcrumb(breadcrumb: Map<String, Any?>?, result: Result) {
     if (breadcrumb != null) {
-      val options = HubAdapter.getInstance().options as SentryAndroidOptions
+      val options = HubAdapter.getInstance().options
       val breadcrumbInstance = Breadcrumb.fromMap(breadcrumb, options)
       Sentry.addBreadcrumb(breadcrumbInstance)
     }
