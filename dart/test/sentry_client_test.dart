@@ -672,6 +672,7 @@ void main() {
 
     final event = SentryEvent(
       tags: const {eventTagKey: eventTagValue},
+      // ignore: deprecated_member_use_from_same_package
       extra: const {eventExtraKey: eventExtraValue},
       modules: const {eventExtraKey: eventExtraValue},
       level: SentryLevel.warning,
@@ -709,6 +710,7 @@ void main() {
         scopeTagKey: scopeTagValue,
         eventTagKey: eventTagValue,
       });
+      // ignore: deprecated_member_use_from_same_package
       expect(capturedEvent.extra, {
         scopeExtraKey: scopeExtraValue,
         eventExtraKey: eventExtraValue,
@@ -1018,6 +1020,7 @@ void main() {
       final event = await eventFromEnvelope(capturedEnvelope);
 
       expect(event.tags!.containsKey('theme'), true);
+      // ignore: deprecated_member_use_from_same_package
       expect(event.extra!.containsKey('host'), true);
       expect(event.modules!.containsKey('core'), true);
       expect(event.sdk!.integrations.contains('testIntegration'), true);
@@ -1057,6 +1060,7 @@ void main() {
       fixture.options.addEventProcessor(FunctionEventProcessor(
         (event, {hint}) => event
           ..tags!.addAll({'theme': 'material'})
+          // ignore: deprecated_member_use_from_same_package
           ..extra!['host'] = '0.0.0.1'
           ..modules!.addAll({'core': '1.0'})
           ..breadcrumbs!.add(Breadcrumb(message: 'processor crumb'))
@@ -1074,6 +1078,7 @@ void main() {
       final event = await eventFromEnvelope(capturedEnvelope);
 
       expect(event.tags!.containsKey('theme'), true);
+      // ignore: deprecated_member_use_from_same_package
       expect(event.extra!.containsKey('host'), true);
       expect(event.modules!.containsKey('core'), true);
       expect(event.sdk!.integrations.contains('testIntegration'), true);
@@ -1620,6 +1625,7 @@ Future<SentryTransaction?> asyncBeforeSendTransactionCallbackDropEvent(
 SentryEvent? beforeSendCallback(SentryEvent event, {Hint? hint}) {
   return event
     ..tags!.addAll({'theme': 'material'})
+    // ignore: deprecated_member_use_from_same_package
     ..extra!['host'] = '0.0.0.1'
     ..modules!.addAll({'core': '1.0'})
     ..breadcrumbs!.add(Breadcrumb(message: 'processor crumb'))
@@ -1632,6 +1638,7 @@ SentryTransaction? beforeSendTransactionCallback(
     SentryTransaction transaction) {
   return transaction
     ..tags!.addAll({'theme': 'material'})
+    // ignore: deprecated_member_use_from_same_package
     ..extra!['host'] = '0.0.0.1'
     ..sdk!.addIntegration('testIntegration')
     ..sdk!.addPackage('test-pkg', '1.0')

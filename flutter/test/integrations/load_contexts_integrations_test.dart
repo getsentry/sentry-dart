@@ -50,6 +50,7 @@ void main() {
             packages: packages,
           ),
       tags: tags,
+      // ignore: deprecated_member_use
       extra: extra,
       user: user,
       dist: dist,
@@ -230,6 +231,7 @@ void main() {
   );
 
   test('should not throw on loadContextsIntegration exception', () async {
+    // ignore: deprecated_member_use
     fixture.channel.setMockMethodCallHandler((MethodCall methodCall) async {
       throw Exception();
     });
@@ -311,8 +313,11 @@ void main() {
     final e = getEvent(extra: {'key': 'flutter', 'key-a': 'flutter'});
     final event = await fixture.options.eventProcessors.first.apply(e);
 
+    // ignore: deprecated_member_use
     expect(event?.extra?['key'], 'flutter');
+    // ignore: deprecated_member_use
     expect(event?.extra?['key-a'], 'flutter');
+    // ignore: deprecated_member_use
     expect(event?.extra?['key-b'], 'native');
   });
 
@@ -453,6 +458,7 @@ class Fixture {
           }
         ]
       }}) {
+    // ignore: deprecated_member_use
     channel.setMockMethodCallHandler((MethodCall methodCall) async {
       called = true;
       return contexts;

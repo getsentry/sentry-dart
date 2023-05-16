@@ -56,9 +56,9 @@ class RunZonedGuardedIntegration extends Integration<SentryOptions> {
 
     // marks the span status if none to `internal_error` in case there's an
     // unhandled error
-    hub.configureScope((scope) => {
-          scope.span?.status ??= const SpanStatus.internalError(),
-        });
+    hub.configureScope(
+      (scope) => scope.span?.status ??= const SpanStatus.internalError(),
+    );
 
     await hub.captureEvent(event, stackTrace: stackTrace);
   }
