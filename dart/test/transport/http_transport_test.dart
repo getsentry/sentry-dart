@@ -159,6 +159,31 @@ void main() {
     });
   });
 
+  group('sent_at', () {
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    test('capture envelope sets sent_at in header', () async {
+      final sentryEvent = SentryEvent();
+      final envelope = SentryEnvelope.fromEvent(
+        sentryEvent,
+        fixture.options.sdk,
+        dsn: fixture.options.dsn,
+      );
+
+      final httpMock = MockClient((http.Request request) async {
+        return http.Response('{}', 200);
+      });
+      final sut = fixture.getSut(httpMock, MockRateLimiter());
+      await sut.send(envelope);
+
+      expect(envelope.header.sentAt, DateTime.utc(2019));
+    });
+  });
+
   group('client reports', () {
     late Fixture fixture;
 
@@ -232,6 +257,9 @@ class Fixture {
   HttpTransport getSut(http.Client client, RateLimiter rateLimiter) {
     options.httpClient = client;
     options.recorder = clientReportRecorder;
+    options.clock = () {
+      return DateTime.utc(2019);
+    };
     return HttpTransport(options, rateLimiter);
   }
 }

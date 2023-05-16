@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add `sent_at` to envelope header ([#1428](https://github.com/getsentry/sentry-dart/pull/1428))
+
 ### Fixes
 
 - Fix battery level conversion for iOS 16.4 ([#1433](https://github.com/getsentry/sentry-dart/pull/1433))
