@@ -569,44 +569,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
     // swiftlint:disable:next cyclomatic_complexity
     private func setUser(user: [String: Any?]?, result: @escaping FlutterResult) {
       if let user = user {
-        let userInstance = User()
-
-        if let email = user["email"] as? String {
-          userInstance.email = email
-        }
-        if let id = user["id"] as? String {
-          userInstance.userId = id
-        }
-        if let username = user["username"] as? String {
-          userInstance.username = username
-        }
-        if let ipAddress = user["ip_address"] as? String {
-          userInstance.ipAddress = ipAddress
-        }
-        if let segment = user["segment"] as? String {
-          userInstance.segment = segment
-        }
-        if let extras = user["extras"] as? [String: Any] {
-          userInstance.data = extras
-        }
-        if let data = user["data"] as? [String: Any] {
-          if let oldData = userInstance.data {
-            userInstance.data = oldData.reduce(into: data) { (first, second) in first[second.0] = second.1 }
-          } else {
-            userInstance.data = data
-          }
-        }
-        if let name = user["name"] as? String {
-          userInstance.name = name
-        }
-        if let geoData = user["geo"] as? [String: Any] {
-          let geo = Geo()
-          geo.city = geoData["city"] as? String
-          geo.countryCode = geoData["country_code"] as? String
-          geo.region = geoData["region"] as? String
-          userInstance.geo = geo
-        }
-
+        let userInstance = PrivateSentrySDKOnly.user(with: user)
         SentrySDK.setUser(userInstance)
       } else {
         SentrySDK.setUser(nil)
@@ -616,49 +579,10 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
     // swiftlint:disable:next cyclomatic_complexity
     private func addBreadcrumb(breadcrumb: [String: Any?]?, result: @escaping FlutterResult) {
-      guard let breadcrumb = breadcrumb else {
-        result("")
-        return
+      if let breadcrumb = breadcrumb {
+        let breadcrumbInstance = PrivateSentrySDKOnly.breadcrumb(with: breadcrumb)
+        SentrySDK.addBreadcrumb(breadcrumbInstance)
       }
-
-      let breadcrumbInstance = Breadcrumb()
-
-      if let message = breadcrumb["message"] as? String {
-        breadcrumbInstance.message = message
-      }
-      if let type = breadcrumb["type"] as? String {
-        breadcrumbInstance.type = type
-      }
-      if let category = breadcrumb["category"] as? String {
-        breadcrumbInstance.category = category
-      }
-      if let level = breadcrumb["level"] as? String {
-        switch level {
-        case "fatal":
-          breadcrumbInstance.level = SentryLevel.fatal
-        case "warning":
-          breadcrumbInstance.level = SentryLevel.warning
-        case "info":
-          breadcrumbInstance.level = SentryLevel.info
-        case "debug":
-          breadcrumbInstance.level = SentryLevel.debug
-        case "error":
-          breadcrumbInstance.level = SentryLevel.error
-        default:
-          breadcrumbInstance.level = SentryLevel.error
-        }
-      }
-      if let data = breadcrumb["data"] as? [String: Any] {
-        breadcrumbInstance.data = data
-      }
-
-      if let timestampValue = breadcrumb["timestamp"] as? String,
-         let timestamp = dateFrom(iso8601String: timestampValue) {
-        breadcrumbInstance.timestamp = timestamp
-      }
-
-      SentrySDK.addBreadcrumb(breadcrumbInstance)
-
       result("")
     }
 
