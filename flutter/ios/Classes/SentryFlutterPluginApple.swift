@@ -565,8 +565,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         result("")
       }
     }
-
-    // swiftlint:disable:next cyclomatic_complexity
+    
     private func setUser(user: [String: Any?]?, result: @escaping FlutterResult) {
       if let user = user {
         let userInstance = PrivateSentrySDKOnly.user(with: user)
@@ -577,7 +576,6 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
       result("")
     }
 
-    // swiftlint:disable:next cyclomatic_complexity
     private func addBreadcrumb(breadcrumb: [String: Any?]?, result: @escaping FlutterResult) {
       if let breadcrumb = breadcrumb {
         let breadcrumbInstance = PrivateSentrySDKOnly.breadcrumb(with: breadcrumb)
