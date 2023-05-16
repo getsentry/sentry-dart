@@ -37,6 +37,8 @@ jobs:
         if: ${{ inputs.sdk == 'dart' }}
       - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa # pin@v2.10.0
         if: ${{ inputs.sdk == 'flutter' }}
+      - uses: norio-nomura/action-swiftlint@9f4dcd7 # pin@v3.2.1
+        if: ${{ inputs.package == 'flutter' }}
 
       - run: ${{ inputs.sdk }} pub get
 
