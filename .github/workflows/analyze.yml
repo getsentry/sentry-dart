@@ -44,6 +44,9 @@ jobs:
 
       - run: dart fix --apply
 
+      - name: ls
+        run: ls
+
       - name: swiftlint --fix
         uses: norio-nomura/action-swiftlint@9f4dcd7fd46b4e75d7935cf2f4df406d5cae3684 # pin@v3.2.1
         if: ${{ inputs.package == 'flutter' }}
