@@ -287,86 +287,22 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   private fun setUser(user: Map<String, Any?>?, result: Result) {
-    if (user == null) {
+    if (user != null) {
+      val options = HubAdapter.getInstance().options
+      val userInstance = User.fromMap(user, options)
+      Sentry.setUser(userInstance)
+    } else {
       Sentry.setUser(null)
-      result.success("")
-      return
     }
-
-    val userInstance = User()
-    val userData = mutableMapOf<String, String>()
-    val unknown = mutableMapOf<String, Any>()
-
-    (user["email"] as? String)?.let { userInstance.email = it }
-    (user["id"] as? String)?.let { userInstance.id = it }
-    (user["username"] as? String)?.let { userInstance.username = it }
-    (user["ip_address"] as? String)?.let { userInstance.ipAddress = it }
-    (user["segment"] as? String)?.let { userInstance.segment = it }
-    (user["name"] as? String)?.let { userInstance.name = it }
-    (user["geo"] as? Map<String, Any?>)?.let {
-      val geo = Geo()
-      geo.city = it["city"] as? String
-      geo.countryCode = it["country_code"] as? String
-      geo.region = it["region"] as? String
-      userInstance.geo = geo
-    }
-
-    (user["extras"] as? Map<String, Any?>)?.let { extras ->
-      for ((key, value) in extras.entries) {
-        if (value != null) {
-          userData[key] = value.toString()
-        }
-      }
-    }
-    (user["data"] as? Map<String, Any?>)?.let { data ->
-      for ((key, value) in data.entries) {
-        if (value != null) {
-          // data has precedence over extras
-          userData[key] = value.toString()
-        }
-      }
-    }
-
-    if (userData.isNotEmpty()) {
-      userInstance.data = userData
-    }
-    if (unknown.isNotEmpty()) {
-      userInstance.unknown = unknown
-    }
-
-    Sentry.setUser(userInstance)
-
     result.success("")
   }
 
   private fun addBreadcrumb(breadcrumb: Map<String, Any?>?, result: Result) {
-    if (breadcrumb == null) {
-      result.success("")
-      return
+    if (breadcrumb != null) {
+      val options = HubAdapter.getInstance().options
+      val breadcrumbInstance = Breadcrumb.fromMap(breadcrumb, options)
+      Sentry.addBreadcrumb(breadcrumbInstance)
     }
-    val breadcrumbInstance = Breadcrumb()
-
-    (breadcrumb["message"] as? String)?.let { breadcrumbInstance.message = it }
-    (breadcrumb["type"] as? String)?.let { breadcrumbInstance.type = it }
-    (breadcrumb["category"] as? String)?.let { breadcrumbInstance.category = it }
-    (breadcrumb["level"] as? String)?.let {
-      breadcrumbInstance.level = when (it) {
-        "fatal" -> SentryLevel.FATAL
-        "warning" -> SentryLevel.WARNING
-        "info" -> SentryLevel.INFO
-        "debug" -> SentryLevel.DEBUG
-        "error" -> SentryLevel.ERROR
-        else -> SentryLevel.INFO
-      }
-    }
-    (breadcrumb["data"] as? Map<String, Any?>)?.let { data ->
-      for ((key, value) in data.entries) {
-        breadcrumbInstance.data[key] = value
-      }
-    }
-
-    Sentry.addBreadcrumb(breadcrumbInstance)
-
     result.success("")
   }
 
