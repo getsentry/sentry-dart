@@ -37,8 +37,6 @@ jobs:
         if: ${{ inputs.sdk == 'dart' }}
       - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa # pin@v2.10.0
         if: ${{ inputs.sdk == 'flutter' }}
-      - uses: norio-nomura/action-swiftlint@9f4dcd7fd46b4e75d7935cf2f4df406d5cae3684 # pin@v3.2.1
-        if: ${{ inputs.package == 'flutter' }}
 
       - run: ${{ inputs.sdk }} pub get
 
@@ -46,8 +44,11 @@ jobs:
 
       - run: dart fix --apply
 
-      - run: swiftlint --fix --path 'ios/Classes/SentryFlutterPluginApple.swift'
+      - name: swiftlint --fix
+        uses: norio-nomura/action-swiftlint@9f4dcd7fd46b4e75d7935cf2f4df406d5cae3684 # pin@v3.2.1
         if: ${{ inputs.package == 'flutter' }}
+        with:
+          args: --fix --path 'ios/Classes/SentryFlutterPluginApple.swift'
 
         # actions/checkout fetches only a single commit in a detached HEAD state. Therefore
         # we need to pass the current branch, otherwise we can't commit the changes.
