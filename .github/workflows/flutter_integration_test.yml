@@ -18,7 +18,7 @@ jobs:
           access_token: ${{ github.token }}
           
   test-android:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:
       run:

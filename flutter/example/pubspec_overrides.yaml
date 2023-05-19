@@ -9,3 +9,5 @@ dependency_overrides:
     path: ../../logging
   sentry_sqflite:
     path: ../../sqflite
+  sentry_file:
+    path: ../../file

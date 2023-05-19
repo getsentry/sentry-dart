@@ -29,7 +29,6 @@ jobs:
         shell: bash
     strategy:
       fail-fast: false
-      # max-parallel: 4
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         target: ['ios', 'android', 'macos', 'linux', 'windows']
@@ -44,14 +43,14 @@ jobs:
           - os: windows-latest
             target: ios
           - os: windows-latest
+            target: android
+          - os: windows-latest
             target: macos
           - os: windows-latest
             target: linux
           # macos-latest is taking hours due to limited resources
           - os: macos-latest
             target: android
-          - os: macos-latest
-            target: web
           - os: macos-latest
             target: linux
           - os: macos-latest
@@ -89,7 +88,6 @@ jobs:
           flutter pub get
 
       - name: Test VM with coverage
-        if: runner.os != 'macOS'
         run: |
           cd sqflite
           flutter test --coverage --test-randomize-ordering-seed=random
