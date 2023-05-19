@@ -43,7 +43,7 @@ class SentryUser {
     this.name,
     Map<String, dynamic>? data,
     @Deprecated('Will be removed in v8. Use [data] instead')
-        Map<String, dynamic>? extras,
+    Map<String, dynamic>? extras,
   })  : assert(
           id != null ||
               username != null ||
@@ -145,7 +145,7 @@ class SentryUser {
     String? ipAddress,
     String? segment,
     @Deprecated('Will be removed in v8. Use [data] instead')
-        Map<String, dynamic>? extras,
+    Map<String, dynamic>? extras,
     String? name,
     SentryGeo? geo,
     Map<String, dynamic>? data,

@@ -13,8 +13,9 @@ class SentryEvent with SentryEventLike<SentryEvent> {
     DateTime? timestamp,
     Map<String, String>? modules,
     Map<String, String>? tags,
-    @Deprecated('Additional Data is deprecated in favor of structured [Contexts] and should be avoided when possible')
-        Map<String, dynamic>? extra,
+    @Deprecated(
+        'Additional Data is deprecated in favor of structured [Contexts] and should be avoided when possible')
+    Map<String, dynamic>? extra,
     List<String>? fingerprint,
     List<Breadcrumb>? breadcrumbs,
     List<SentryException>? exceptions,
@@ -205,8 +206,9 @@ class SentryEvent with SentryEventLike<SentryEvent> {
     SentryLevel? level,
     String? culprit,
     Map<String, String>? tags,
-    @Deprecated('Additional Data is deprecated in favor of structured [Contexts] and should be avoided when possible')
-        Map<String, dynamic>? extra,
+    @Deprecated(
+        'Additional Data is deprecated in favor of structured [Contexts] and should be avoided when possible')
+    Map<String, dynamic>? extra,
     List<String>? fingerprint,
     SentryUser? user,
     Contexts? contexts,
