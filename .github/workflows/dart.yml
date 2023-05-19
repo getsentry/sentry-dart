@@ -52,6 +52,7 @@ jobs:
           dart pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
 
       - name: Install webdev
+        if: runner.os != 'Windows'
         run: dart pub global activate webdev
 
       - name: Build example
@@ -61,6 +62,7 @@ jobs:
           dart compile aot-snapshot bin/example.dart
 
       - name: Build Web example
+        if: runner.os != 'Windows'
         run: |
           cd example_web
           dart pub get
