@@ -45,7 +45,9 @@ jobs:
       - run: dart fix --apply
 
       - name: git status
-        run: echo "GIT_STATUS={$(git status)}" >> $GITHUB_ENV
+        run: |
+          GIT_STATUS=$(git status)
+          echo "GIT_STATUS=$GIT_STATUS" >> $GITHUB_ENV
 
       - name: Test git status
         run: echo ${{ env.GIT_STATUS }}
