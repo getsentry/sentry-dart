@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Improve `SentryException#value`, remove stringified stack trace ([##1470](https://github.com/getsentry/sentry-dart/pull/#1470))
+
 ### Dependencies
 
 - Bump Android SDK from v6.18.1 to v6.19.0 ([#1455](https://github.com/getsentry/sentry-dart/pull/1455))
