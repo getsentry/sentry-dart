@@ -44,24 +44,25 @@ jobs:
 
       - run: dart fix --apply
 
-      - name: git status
+      - name: check for changes
+        id: changes
         run: |
-          GIT_STATUS=$(git status)
-          echo "GIT_STATUS=$GIT_STATUS" >> $GITHUB_ENV
+          if [[ $(git status) == *"nothing to commit"* ]]; then
+            echo "::set-output name=changes::false"
+          else
+            echo "::set-output name=changes::true"
+          fi
 
-      - name: Test git status
-        run: echo ${{ env.GIT_STATUS }}
-
-      - name: Commit
-        if: github.head_ref != null
+      - name: commit
+        if: github.head_ref != null && steps.changes.outputs.changes
         run: |
           git config --local user.name "Sentry Github Bot"
           git config --local user.email "bot+github-bot@sentry.io"
           git commit -a -m "Format & fix code"
 
-      - name: Push
+      - name: push
         uses: ad-m/github-push-action@40bf560936a8022e68a3c00e7d2abefaf01305a6 # pin@v0.6.0
-        if: github.head_ref != null
+        if: github.head_ref != null && steps.changes.outputs.changes
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ github.head_ref }}
