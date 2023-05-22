@@ -34,6 +34,8 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         sdk: [stable, beta]
         exclude:
+          - os: windows-latest
+            sdk: beta
           - os: macos-latest
             sdk: beta
     steps:
@@ -41,9 +43,8 @@ jobs:
         with:
           sdk: ${{ matrix.sdk }}
       - uses: actions/checkout@v3
-      # coverage with 'chrome' platform hangs the build
+
       - name: Test (VM and browser)
-        if: runner.os != 'macOS'
         run: |
           dart pub get
           dart test -p chrome --test-randomize-ordering-seed=random --chain-stack-traces
@@ -51,18 +52,17 @@ jobs:
           dart pub run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --packages=.dart_tool/package_config.json --report-on=lib
 
       - name: Install webdev
+        if: runner.os != 'Windows'
         run: dart pub global activate webdev
 
       - name: Build example
         run: |
           cd example
           dart pub get
-          dart compile exe bin/example.dart
+          dart compile aot-snapshot bin/example.dart
 
-      # Windows if condition because of: The pubspec.lock file has changed since the .dart_tool/package_config.json file was generated, please run "pub get" again.
-      # stable if condition because of: beta channel requires newer build_web_compilers and build_runner with Dart 3
       - name: Build Web example
-        if: runner.os != 'Windows' && matrix.sdk == 'stable'
+        if: runner.os != 'Windows'
         run: |
           cd example_web
           dart pub get

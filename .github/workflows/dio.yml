@@ -34,6 +34,8 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         sdk: [stable, beta]
         exclude:
+          - os:  windows-latest
+            sdk: beta
           - os: macos-latest
             sdk: beta
     steps:
@@ -41,7 +43,7 @@ jobs:
         with:
           sdk: ${{ matrix.sdk }}
       - uses: actions/checkout@v3
-      # coverage with 'chrome' platform hangs the build
+
       - name: Test (VM and browser)
         run: |
           dart pub get

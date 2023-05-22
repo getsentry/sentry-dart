@@ -32,7 +32,12 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        sdk: [stable]
+        sdk: [stable, beta]
+        exclude:
+          - os:  windows-latest
+            sdk: beta
+          - os: macos-latest
+            sdk: beta
     steps:
       - uses: dart-lang/setup-dart@6a218f2413a3e78e9087f638a238f6b40893203d # pin@v1
         with:
