@@ -41,7 +41,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   private var autoPerformanceTracingEnabled = false
 
   private val flutterSdk = "sentry.dart.flutter"
-  private val androidSdk = "sentry.java.android.flutter"
+  private val androidSdk = "sentry.native.android.flutter"
   private val nativeSdk = "sentry.native.android"
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
