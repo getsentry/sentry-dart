@@ -44,8 +44,11 @@ jobs:
 
       - run: dart fix --apply
 
+      - name: Check git status
+        run: echo "{HAS_CHANGES}={$(git status) != *nothing to commit*}" >> $GITHUB_ENV
+
       - name: Commit
-        if: github.head_ref != null
+        if: github.head_ref != null & $HAS_CHANGES
         run: |
           git config --local user.name "Sentry Github Bot"
           git config --local user.email "bot+github-bot@sentry.io"
@@ -53,7 +56,7 @@ jobs:
 
       - name: Push
         uses: ad-m/github-push-action@40bf560936a8022e68a3c00e7d2abefaf01305a6 # pin@v0.6.0
-        if: github.head_ref != null
+        if: github.head_ref != null & $HAS_CHANGES
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ github.head_ref }}
