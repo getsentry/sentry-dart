@@ -48,13 +48,13 @@ jobs:
         id: changes
         run: |
           if [[ $(git status) == *"nothing to commit"* ]]; then
-            echo "::set-output name=changes::false"
+            echo "{HAS_CHANGES}={false}" >> $GITHUB_STATE  
           else
-            echo "::set-output name=changes::true"
+            echo "{HAS_CHANGES}={true}" >> $GITHUB_STATE
           fi
 
       - name: commit
-        if: github.head_ref != null && steps.changes.outputs.changes
+        if: github.head_ref != null && $HAS_CHANGES
         run: |
           git config --local user.name "Sentry Github Bot"
           git config --local user.email "bot+github-bot@sentry.io"
@@ -62,7 +62,7 @@ jobs:
 
       - name: push
         uses: ad-m/github-push-action@40bf560936a8022e68a3c00e7d2abefaf01305a6 # pin@v0.6.0
-        if: github.head_ref != null && steps.changes.outputs.changes
+        if: github.head_ref != null && $HAS_CHANGES
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ github.head_ref }}
