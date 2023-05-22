@@ -169,6 +169,13 @@ void main() {
 
     expect(sentryException.throwable, throwable);
   });
+
+  test('should not assigns stackTrace string to value', () {
+    final stackTraceError = StackTraceError();
+    final sentryException =
+        fixture.getSut().getSentryException(stackTraceError);
+    expect(sentryException.value, isNull);
+  });
 }
 
 class CustomError extends Error {}
@@ -184,6 +191,17 @@ class CustomExceptionStackTraceExtractor
   @override
   StackTrace? stackTrace(CustomException error) {
     return error.stackTrace;
+  }
+}
+
+class StackTraceError extends Error {
+  @override
+  String toString() {
+    return '''
+#0      baz (file:///pathto/test.dart:50:3)
+<asynchronous suspension>
+#1      bar (file:///pathto/test.dart:46:9)
+    ''';
   }
 }
 
