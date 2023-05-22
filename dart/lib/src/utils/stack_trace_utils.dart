@@ -2,19 +2,15 @@ import 'package:meta/meta.dart';
 
 @internal
 class StackTraceUtils {
-  StackTraceUtils(this.input);
-
-  final String input;
-
-  late final _stackStackTrace =
+  static final _stackStackTrace =
       RegExp(r'^#\d+.*\.dart:\d+:\d+\)$', multiLine: true);
-  late final _flutterStackTrace =
+  static final _flutterStackTrace =
       RegExp(r'^flutter:\s#\d+.*\.dart:\d+:\d+\)$', multiLine: true);
-  late final _obfuscatedStackTrace =
+  static final _obfuscatedStackTrace =
       RegExp(r'^#\d+.*\+0x\w+$', multiLine: true);
-  late final _multipleNewlines = RegExp(r'\n+');
+  static final _multipleNewlines = RegExp(r'\n+');
 
-  String removeStackStraceLines() {
+  static String removeStackStraceLines(String input) {
     return input
         .replaceAll(_stackStackTrace, '')
         .replaceAll(_flutterStackTrace, '')

@@ -2,12 +2,6 @@ import 'package:sentry/src/utils/stack_trace_utils.dart';
 import 'package:test/test.dart';
 
 void main() {
-  late Fixture fixture;
-
-  setUp(() {
-    fixture = Fixture();
-  });
-
   final dartStackTrace = '''
 randomPrefix
 #0      main (file:///Users/denis/Repos/other/dart-stacktrace/main.dart:2:20)
@@ -53,28 +47,22 @@ randomSuffix
   final cleanedUp = 'randomPrefix\nrandomSuffix';
 
   test('removes dart stack trace', () {
-    final sut = fixture.getSut(dartStackTrace);
-    expect(sut.removeStackStraceLines(), cleanedUp);
+    expect(StackTraceUtils.removeStackStraceLines(dartStackTrace), cleanedUp);
   });
 
   test('removes flutter stack trace', () {
-    final sut = fixture.getSut(flutterStackTrace);
-    expect(sut.removeStackStraceLines(), cleanedUp);
+    expect(
+        StackTraceUtils.removeStackStraceLines(flutterStackTrace), cleanedUp);
   });
 
   test('removes flutter obfuscated stack trace', () {
-    final sut = fixture.getSut(flutterObfuscatedStackTrace);
-    expect(sut.removeStackStraceLines(), cleanedUp);
+    expect(StackTraceUtils.removeStackStraceLines(flutterObfuscatedStackTrace),
+        cleanedUp);
   });
 
   test('removes stack trace with asynchronous suspension', () {
-    final sut = fixture.getSut(stackTraceWithAsyncSuspension);
-    expect(sut.removeStackStraceLines(), cleanedUp);
+    expect(
+        StackTraceUtils.removeStackStraceLines(stackTraceWithAsyncSuspension),
+        cleanedUp);
   });
-}
-
-class Fixture {
-  StackTraceUtils getSut(String input) {
-    return StackTraceUtils(input);
-  }
 }
