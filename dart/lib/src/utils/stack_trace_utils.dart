@@ -1,25 +1,26 @@
 import 'package:meta/meta.dart';
 
 @internal
-extension StackTraceUtils on String {
-  bool isStackTrace() {
-    final frameNumberPrefix = RegExp(r'^#\d+', multiLine: true);
-    final matchesFrameNumber = frameNumberPrefix.hasMatch(this);
+class StackTraceUtils {
+  StackTraceUtils(this.input);
 
-    final fileAndLineNumberSuffix =
-        RegExp(r'.dart:\d+:\d+\)$', multiLine: true);
-    final matchesFileAndLineNumber = fileAndLineNumberSuffix.hasMatch(this);
+  final String input;
 
-    final abs = RegExp(r'\s(abs)\s');
-    final virt = RegExp(r'\s(virt)\s');
-    final matchesAbsAndVirt = abs.hasMatch(this) & virt.hasMatch(this);
+  late final _stackStackTrace =
+      RegExp(r'^#\d+.*\.dart:\d+:\d+\)$', multiLine: true);
+  late final _flutterStackTrace =
+      RegExp(r'^flutter:\s#\d+.*\.dart:\d+:\d+\)$', multiLine: true);
+  late final _obfuscatedStackTrace =
+      RegExp(r'^#\d+.*\+0x\w+$', multiLine: true);
+  late final _multipleNewlines = RegExp(r'\n+');
 
-    final hexSuffix = RegExp(r'\+0(x)\w+$', multiLine: true);
-    final matchesHexSuffix = hexSuffix.hasMatch(this);
-
-    final isStackTrace = matchesFrameNumber & matchesFileAndLineNumber;
-    final isObfuscatedStackTrace =
-        matchesFrameNumber & (matchesAbsAndVirt || matchesHexSuffix);
-    return isStackTrace || isObfuscatedStackTrace;
+  String removeStackStraceLines() {
+    return input
+        .replaceAll(_stackStackTrace, '')
+        .replaceAll(_flutterStackTrace, '')
+        .replaceAll(_obfuscatedStackTrace, '')
+        .replaceAll('<asynchronous suspension>', '')
+        .replaceAll(_multipleNewlines, '\n')
+        .trim();
   }
 }
