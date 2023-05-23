@@ -5,6 +5,7 @@
 ### Features
 
 - Improve `SentryException#value`, remove stringified stack trace ([##1470](https://github.com/getsentry/sentry-dart/pull/#1470))
+
 ### Enhancements
 
 - `SentryAssetBundle` returns Future by default ([#1462](https://github.com/getsentry/sentry-dart/pull/1462))
