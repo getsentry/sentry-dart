@@ -58,8 +58,7 @@ jobs:
         run: echo "has head ref"
 
       - name: test changes
-        if: steps.changes.outputs.has_changes
-        run: echo "has changes"
+        run: echo "${{ steps.changes.outputs.has_changes }}"
 
       - name: commit
         if: github.head_ref != null && steps.changes.outputs.has_changes
