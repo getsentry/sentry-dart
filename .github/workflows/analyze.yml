@@ -44,22 +44,21 @@ jobs:
 
       - run: dart fix --apply
 
-      - name: check for changes
-        id: changes
-        run: |
-          if [[ $(git status) == *"nothing to commit"* ]]; then
-            echo "{has_changes}={false}" >> "$GITHUB_OUTPUT"
-          else
-            echo "{has_changes}={true}" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: test head ref
-        if: github.head_ref != null
-        run: echo "has head ref"
+#      - name: check for changes
+#        id: changes
+#        run: |
+#          if [[ $(git status) == *"nothing to commit"* ]]; then
+#            echo "{has_changes}={false}" >> "$GITHUB_OUTPUT"
+#          else
+#            echo "{has_changes}={true}" >> "$GITHUB_OUTPUT"
+#          fi
 
       - name: test changes
-        if: steps.changes.outputs.has_changes == 'true'
-        run: echo "has changes"
+        id: changes
+        run: echo "has_changes=test" >> "$GITHUB_OUTPUT"
+
+      - name: test changes
+        run: echo "${{ steps.changes.outputs.has_changes }}"
 
       - name: commit
         if: github.head_ref != null && steps.changes.outputs.has_changes == 'true'
