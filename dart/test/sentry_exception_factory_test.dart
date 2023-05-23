@@ -170,7 +170,7 @@ void main() {
     expect(sentryException.throwable, throwable);
   });
 
-  test('should not assigns stackTrace string to value', () {
+  test('should remove stackTrace string from value', () {
     final stackTraceError = StackTraceError();
     final sentryException = fixture.getSut().getSentryException(stackTraceError,
         stackTrace: StackTraceErrorStackTrace());
