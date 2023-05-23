@@ -4,7 +4,7 @@
 
 ### Features
 
-- Support `http` >= 1.0.0 ([#1428](https://github.com/getsentry/sentry-dart/pull/1428))
+- Support `http` >= 1.0.0 ([#1475](https://github.com/getsentry/sentry-dart/pull/1475))
 
 ### Dependencies
 
