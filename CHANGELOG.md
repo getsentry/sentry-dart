@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Support `http` >= 1.0.0 ([#1475](https://github.com/getsentry/sentry-dart/pull/1475))
+
 ### Dependencies
 
 - Bump Android SDK from v6.18.1 to v6.19.0 ([#1455](https://github.com/getsentry/sentry-dart/pull/1455))
