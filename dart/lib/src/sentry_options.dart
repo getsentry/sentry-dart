@@ -31,8 +31,7 @@ class SentryOptions {
   /// If [compressPayload] is `true` the outgoing HTTP payloads are compressed
   /// using gzip. Otherwise, the payloads are sent in plain UTF8-encoded JSON
   /// text. The compression is enabled by default.
-  bool compressPayload
-  = true;
+  bool compressPayload = true;
 
   /// If [httpClient] is provided, it is used instead of the default client to
   /// make HTTP calls to Sentry.io. This is useful in tests.
