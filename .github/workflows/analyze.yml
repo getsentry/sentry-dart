@@ -58,6 +58,8 @@ jobs:
         run: |
           git config --local user.name "Sentry Github Bot"
           git config --local user.email "bot+github-bot@sentry.io"
+          git fetch
+          git checkout ${{ github.head_ref }}
           git commit -a -m "Format & fix code"
 
       - name: push
