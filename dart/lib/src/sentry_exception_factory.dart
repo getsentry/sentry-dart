@@ -3,7 +3,6 @@ import 'protocol.dart';
 import 'sentry_options.dart';
 import 'sentry_stack_trace_factory.dart';
 import 'throwable_mechanism.dart';
-import 'utils/stack_trace_utils.dart';
 
 /// class to convert Dart Error and exception to SentryException
 class SentryExceptionFactory {
@@ -58,11 +57,15 @@ class SentryExceptionFactory {
       }
     }
 
+    final exceptionString = exception.toString();
+    final stackTraceString = stackTrace.toString();
+    final value = exceptionString.replaceAll(stackTraceString, '').trim();
+
     // if --obfuscate feature is enabled, 'type' won't be human readable.
     // https://flutter.dev/docs/deployment/obfuscate#caveat
     return SentryException(
       type: (throwable.runtimeType).toString(),
-      value: StackTraceUtils.removeStackStraceLines(throwable.toString()),
+      value: value,
       mechanism: mechanism,
       stackTrace: sentryStackTrace,
       throwable: throwable,
