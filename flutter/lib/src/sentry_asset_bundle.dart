@@ -53,27 +53,31 @@ class SentryAssetBundle implements AssetBundle {
   final bool _enableStructuredDataTracing;
 
   @override
-  Future<ByteData> load(String key) async {
-    final span = _hub.getSpan()?.startChild(
-          'file.read',
-          description: 'AssetBundle.load: ${_fileName(key)}',
-        );
+  Future<ByteData> load(String key) {
+    Future<ByteData> future() async {
+      final span = _hub.getSpan()?.startChild(
+            'file.read',
+            description: 'AssetBundle.load: ${_fileName(key)}',
+          );
 
-    span?.setData('file.path', key);
+      span?.setData('file.path', key);
 
-    ByteData? data;
-    try {
-      data = await _bundle.load(key);
-      _setDataLength(data, span);
-      span?.status = SpanStatus.ok();
-    } catch (exception) {
-      span?.throwable = exception;
-      span?.status = SpanStatus.internalError();
-      rethrow;
-    } finally {
-      await span?.finish();
+      ByteData? data;
+      try {
+        data = await _bundle.load(key);
+        _setDataLength(data, span);
+        span?.status = SpanStatus.ok();
+      } catch (exception) {
+        span?.throwable = exception;
+        span?.status = SpanStatus.internalError();
+        rethrow;
+      } finally {
+        await span?.finish();
+      }
+      return data;
     }
-    return data;
+
+    return future();
   }
 
   @override
@@ -85,106 +89,119 @@ class SentryAssetBundle implements AssetBundle {
   }
 
   Future<T> _loadStructuredDataWithTracing<T>(
-      String key, _StringParser<T> parser) async {
-    final span = _hub.getSpan()?.startChild(
-          'file.read',
-          description: 'AssetBundle.loadStructuredData<$T>: ${_fileName(key)}',
+      String key, _StringParser<T> parser) {
+    Future<T> future() async {
+      final span = _hub.getSpan()?.startChild(
+            'file.read',
+            description:
+                'AssetBundle.loadStructuredData<$T>: ${_fileName(key)}',
+          );
+      span?.setData('file.path', key);
+
+      final completer = Completer<T>();
+
+      // This future is intentionally not awaited. Otherwise we deadlock with
+      // the completer.
+      // ignore: unawaited_futures
+      runZonedGuarded(() async {
+        final data = await _bundle.loadStructuredData(
+          key,
+          (value) async => await _wrapParsing(parser, value, key, span),
         );
-    span?.setData('file.path', key);
+        span?.status = SpanStatus.ok();
+        completer.complete(data);
+      }, (exception, stackTrace) {
+        completer.completeError(exception, stackTrace);
+      });
 
-    final completer = Completer<T>();
-
-    // This future is intentionally not awaited. Otherwise we deadlock with
-    // the completer.
-    // ignore: unawaited_futures
-    runZonedGuarded(() async {
-      final data = await _bundle.loadStructuredData(
-        key,
-        (value) async => await _wrapParsing(parser, value, key, span),
-      );
-      span?.status = SpanStatus.ok();
-      completer.complete(data);
-    }, (exception, stackTrace) {
-      completer.completeError(exception, stackTrace);
-    });
-
-    T data;
-    try {
-      data = await completer.future;
-      _setDataLength(data, span);
-      span?.status = const SpanStatus.ok();
-    } catch (e) {
-      span?.throwable = e;
-      span?.status = const SpanStatus.internalError();
-      rethrow;
-    } finally {
-      await span?.finish();
+      T data;
+      try {
+        data = await completer.future;
+        _setDataLength(data, span);
+        span?.status = const SpanStatus.ok();
+      } catch (e) {
+        span?.throwable = e;
+        span?.status = const SpanStatus.internalError();
+        rethrow;
+      } finally {
+        await span?.finish();
+      }
+      return data;
     }
-    return data;
+
+    return future();
   }
 
   Future<T> _loadStructuredBinaryDataWithTracing<T>(
-      String key, _ByteParser<T> parser) async {
-    final span = _hub.getSpan()?.startChild(
-          'file.read',
-          description:
-              'AssetBundle.loadStructuredBinaryData<$T>: ${_fileName(key)}',
+      String key, _ByteParser<T> parser) {
+    Future<T> future() async {
+      final span = _hub.getSpan()?.startChild(
+            'file.read',
+            description:
+                'AssetBundle.loadStructuredBinaryData<$T>: ${_fileName(key)}',
+          );
+      span?.setData('file.path', key);
+
+      final completer = Completer<T>();
+
+      // This future is intentionally not awaited. Otherwise we deadlock with
+      // the completer.
+      // ignore: unawaited_futures
+      runZonedGuarded(() async {
+        final data = await _loadStructuredBinaryDataWrapper(
+          key,
+          (value) async => await _wrapBinaryParsing(parser, value, key, span),
         );
-    span?.setData('file.path', key);
+        span?.status = SpanStatus.ok();
+        completer.complete(data);
+      }, (exception, stackTrace) {
+        completer.completeError(exception, stackTrace);
+      });
 
-    final completer = Completer<T>();
-
-    // This future is intentionally not awaited. Otherwise we deadlock with
-    // the completer.
-    // ignore: unawaited_futures
-    runZonedGuarded(() async {
-      final data = await _loadStructuredBinaryDataWrapper(
-        key,
-        (value) async => await _wrapBinaryParsing(parser, value, key, span),
-      );
-      span?.status = SpanStatus.ok();
-      completer.complete(data);
-    }, (exception, stackTrace) {
-      completer.completeError(exception, stackTrace);
-    });
-
-    T data;
-    try {
-      data = await completer.future;
-      _setDataLength(data, span);
-      span?.status = const SpanStatus.ok();
-    } catch (e) {
-      span?.throwable = e;
-      span?.status = const SpanStatus.internalError();
-      rethrow;
-    } finally {
-      await span?.finish();
+      T data;
+      try {
+        data = await completer.future;
+        _setDataLength(data, span);
+        span?.status = const SpanStatus.ok();
+      } catch (e) {
+        span?.throwable = e;
+        span?.status = const SpanStatus.internalError();
+        rethrow;
+      } finally {
+        await span?.finish();
+      }
+      return data;
     }
-    return data;
+
+    return future();
   }
 
   @override
-  Future<String> loadString(String key, {bool cache = true}) async {
-    final span = _hub.getSpan()?.startChild(
-          'file.read',
-          description: 'AssetBundle.loadString: ${_fileName(key)}',
-        );
+  Future<String> loadString(String key, {bool cache = true}) {
+    Future<String> future() async {
+      final span = _hub.getSpan()?.startChild(
+            'file.read',
+            description: 'AssetBundle.loadString: ${_fileName(key)}',
+          );
 
-    span?.setData('file.path', key);
-    span?.setData('from-cache', cache);
+      span?.setData('file.path', key);
+      span?.setData('from-cache', cache);
 
-    String? data;
-    try {
-      data = await _bundle.loadString(key, cache: cache);
-      span?.status = SpanStatus.ok();
-    } catch (exception) {
-      span?.throwable = exception;
-      span?.status = SpanStatus.internalError();
-      rethrow;
-    } finally {
-      await span?.finish();
+      String? data;
+      try {
+        data = await _bundle.loadString(key, cache: cache);
+        span?.status = SpanStatus.ok();
+      } catch (exception) {
+        span?.throwable = exception;
+        span?.status = SpanStatus.internalError();
+        rethrow;
+      } finally {
+        await span?.finish();
+      }
+      return data;
     }
-    return data;
+
+    return future();
   }
 
   void _setDataLength(dynamic data, ISentrySpan? span) {
@@ -220,30 +237,34 @@ class SentryAssetBundle implements AssetBundle {
   @override
   // This is an override on Flutter greater than 3.1
   // ignore: override_on_non_overriding_member
-  Future<ImmutableBuffer> loadBuffer(String key) async {
-    final span = _hub.getSpan()?.startChild(
-          'file.read',
-          description: 'AssetBundle.loadBuffer: ${_fileName(key)}',
-        );
+  Future<ImmutableBuffer> loadBuffer(String key) {
+    Future<ImmutableBuffer> future() async {
+      final span = _hub.getSpan()?.startChild(
+            'file.read',
+            description: 'AssetBundle.loadBuffer: ${_fileName(key)}',
+          );
 
-    span?.setData('file.path', key);
+      span?.setData('file.path', key);
 
-    ImmutableBuffer data;
-    try {
-      data = await _loadBuffer(key);
-      _setDataLength(data, span);
-      span?.status = SpanStatus.ok();
-    } catch (exception) {
-      span?.throwable = exception;
-      span?.status = SpanStatus.internalError();
-      rethrow;
-    } finally {
-      await span?.finish();
+      ImmutableBuffer data;
+      try {
+        data = await _loadBuffer(key);
+        _setDataLength(data, span);
+        span?.status = SpanStatus.ok();
+      } catch (exception) {
+        span?.throwable = exception;
+        span?.status = SpanStatus.internalError();
+        rethrow;
+      } finally {
+        await span?.finish();
+      }
+      return data;
     }
-    return data;
+
+    return future();
   }
 
-  Future<ImmutableBuffer> _loadBuffer(String key) async {
+  Future<ImmutableBuffer> _loadBuffer(String key) {
     try {
       // ignore: return_of_invalid_type
       return (_bundle as dynamic).loadBuffer(key);
@@ -323,7 +344,7 @@ class SentryAssetBundle implements AssetBundle {
   Future<T> loadStructuredBinaryData<T>(
     String key,
     FutureOr<T> Function(ByteData data) parser,
-  ) async {
+  ) {
     if (_enableStructuredDataTracing) {
       return _loadStructuredBinaryDataWithTracing<T>(key, parser);
     }
@@ -335,7 +356,7 @@ class SentryAssetBundle implements AssetBundle {
   Future<T> _loadStructuredBinaryDataWrapper<T>(
     String key,
     FutureOr<T> Function(ByteData data) parser,
-  ) async {
+  ) {
     // The loadStructuredBinaryData method exists as of Flutter greater than 3.8
     // Previous versions don't have it, but later versions do.
     // We can't use `extends` in order to provide this method because this is
