@@ -57,7 +57,7 @@ class SentrySqfliteDatabaseFactory with SqfliteDatabaseFactoryMixin {
       return databaseFactory.openDatabase(path, options: options);
     }
 
-    Future<Database> openDatabase() async {
+    return Future<Database>(() async {
       final currentSpan = _hub.getSpan();
       final span = currentSpan?.startChild(
         SentryDatabase.dbOp,
@@ -80,8 +80,6 @@ class SentrySqfliteDatabaseFactory with SqfliteDatabaseFactoryMixin {
       } finally {
         await span?.finish();
       }
-    }
-
-    return openDatabase();
+    });
   }
 }

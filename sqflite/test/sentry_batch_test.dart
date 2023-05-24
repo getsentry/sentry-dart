@@ -281,7 +281,7 @@ SELECT * FROM Product''';
 
       batch.insert('Product', <String, Object?>{'title': 'Product 1'});
 
-      expect(() async => await batch.commit(), throwsException);
+      await expectLater(() async => await batch.commit(), throwsException);
 
       final span = fixture.tracer.children.last;
       expect(span.throwable, fixture.exception);
@@ -295,7 +295,7 @@ SELECT * FROM Product''';
 
       batch.insert('Product', <String, Object?>{'title': 'Product 1'});
 
-      expect(() async => await batch.apply(), throwsException);
+      await expectLater(() async => await batch.apply(), throwsException);
 
       final span = fixture.tracer.children.last;
       expect(span.throwable, fixture.exception);
