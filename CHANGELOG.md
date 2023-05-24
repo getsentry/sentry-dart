@@ -6,6 +6,10 @@
 
 - Support `http` >= 1.0.0 ([#1475](https://github.com/getsentry/sentry-dart/pull/1475))
 
+### Fixes
+
+- Align http method to span convention ([#1477](https://github.com/getsentry/sentry-dart/pull/1477))
+
 ### Dependencies
 
 - Bump Android SDK from v6.18.1 to v6.19.0 ([#1455](https://github.com/getsentry/sentry-dart/pull/1455))
