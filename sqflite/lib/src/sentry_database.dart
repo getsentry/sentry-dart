@@ -54,7 +54,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
 
   @override
   Future<void> close() {
-    Future<void> future() async {
+    return Future<void>(() async {
       final currentSpan = _hub.getSpan();
       final span = currentSpan?.startChild(
         dbOp,
@@ -73,9 +73,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
       } finally {
         await span?.finish();
       }
-    }
-
-    return future();
+    });
   }
 
   @override
@@ -105,7 +103,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
     Future<T> Function(Transaction txn) action, {
     bool? exclusive,
   }) {
-    Future<T> future() async {
+    return Future<T>(() async {
       final currentSpan = _hub.getSpan();
       final span = currentSpan?.startChild(
         _dbSqlOp,
@@ -136,8 +134,6 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
       } finally {
         await span?.finish();
       }
-    }
-
-    return future();
+    });
   }
 }

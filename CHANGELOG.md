@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Fixes
+
+- Wrapped methods return a `Future` instead of executing right away ([#1462](https://github.com/getsentry/sentry-dart/pull/1462))
+  - Relates to ([#1462](https://github.com/getsentry/sentry-dart/pull/1462))
+
 ### Dependencies
 
 - Bump Android SDK from v6.19.0 to v6.19.1 ([#1466](https://github.com/getsentry/sentry-dart/pull/1466))
