@@ -54,7 +54,7 @@ class SentryAssetBundle implements AssetBundle {
 
   @override
   Future<ByteData> load(String key) {
-    Future<ByteData> future() async {
+    return Future<ByteData>(() async {
       final span = _hub.getSpan()?.startChild(
             'file.read',
             description: 'AssetBundle.load: ${_fileName(key)}',
@@ -75,9 +75,7 @@ class SentryAssetBundle implements AssetBundle {
         await span?.finish();
       }
       return data;
-    }
-
-    return future();
+    });
   }
 
   @override
@@ -90,7 +88,7 @@ class SentryAssetBundle implements AssetBundle {
 
   Future<T> _loadStructuredDataWithTracing<T>(
       String key, _StringParser<T> parser) {
-    Future<T> future() async {
+    return Future<T>(() async {
       final span = _hub.getSpan()?.startChild(
             'file.read',
             description:
@@ -127,14 +125,12 @@ class SentryAssetBundle implements AssetBundle {
         await span?.finish();
       }
       return data;
-    }
-
-    return future();
+    });
   }
 
   Future<T> _loadStructuredBinaryDataWithTracing<T>(
       String key, _ByteParser<T> parser) {
-    Future<T> future() async {
+    return Future<T>(() async {
       final span = _hub.getSpan()?.startChild(
             'file.read',
             description:
@@ -171,14 +167,12 @@ class SentryAssetBundle implements AssetBundle {
         await span?.finish();
       }
       return data;
-    }
-
-    return future();
+    });
   }
 
   @override
   Future<String> loadString(String key, {bool cache = true}) {
-    Future<String> future() async {
+    return Future<String>(() async {
       final span = _hub.getSpan()?.startChild(
             'file.read',
             description: 'AssetBundle.loadString: ${_fileName(key)}',
@@ -199,9 +193,7 @@ class SentryAssetBundle implements AssetBundle {
         await span?.finish();
       }
       return data;
-    }
-
-    return future();
+    });
   }
 
   void _setDataLength(dynamic data, ISentrySpan? span) {
@@ -238,7 +230,7 @@ class SentryAssetBundle implements AssetBundle {
   // This is an override on Flutter greater than 3.1
   // ignore: override_on_non_overriding_member
   Future<ImmutableBuffer> loadBuffer(String key) {
-    Future<ImmutableBuffer> future() async {
+    return Future<ImmutableBuffer>(() async {
       final span = _hub.getSpan()?.startChild(
             'file.read',
             description: 'AssetBundle.loadBuffer: ${_fileName(key)}',
@@ -259,9 +251,7 @@ class SentryAssetBundle implements AssetBundle {
         await span?.finish();
       }
       return data;
-    }
-
-    return future();
+    });
   }
 
   Future<ImmutableBuffer> _loadBuffer(String key) {

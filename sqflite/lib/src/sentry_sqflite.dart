@@ -25,7 +25,7 @@ Future<Database> openDatabaseWithSentry(
   bool singleInstance = true,
   @internal Hub? hub,
 }) {
-  Future<Database> openDatabase() async {
+  return Future<Database>(() async {
     final dbOptions = OpenDatabaseOptions(
       version: version,
       onConfigure: onConfigure,
@@ -61,9 +61,7 @@ Future<Database> openDatabaseWithSentry(
     } finally {
       await span?.finish();
     }
-  }
-
-  return openDatabase();
+  });
 }
 
 /// Opens a database with Sentry support.

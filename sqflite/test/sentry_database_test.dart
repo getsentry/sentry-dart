@@ -137,7 +137,7 @@ void main() {
 
       final db = await fixture.getSut(database: fixture.database);
 
-      expect(() async => await db.close(), throwsException);
+      await expectLater(() async => await db.close(), throwsException);
 
       final span = fixture.tracer.children.last;
       expect(span.throwable, fixture.exception);
@@ -150,7 +150,10 @@ void main() {
 
       final db = await fixture.getSut(database: fixture.database);
 
-      expect(() async => await db.transaction((txn) async {}), throwsException);
+      await expectLater(
+        () async => await db.transaction((txn) async {}),
+        throwsException,
+      );
 
       final span = fixture.tracer.children.last;
       expect(span.throwable, fixture.exception);
@@ -342,7 +345,7 @@ void main() {
 
       final executor = fixture.getExecutorSut();
 
-      expect(
+      await expectLater(
         () async => await executor.delete('Product'),
         throwsException,
       );
@@ -357,7 +360,7 @@ void main() {
 
       final executor = fixture.getExecutorSut();
 
-      expect(
+      await expectLater(
         () async => await executor.execute('sql'),
         throwsException,
       );
@@ -372,7 +375,7 @@ void main() {
 
       final executor = fixture.getExecutorSut();
 
-      expect(
+      await expectLater(
         () async => await executor
             .insert('Product', <String, Object?>{'title': 'Product 1'}),
         throwsException,
@@ -388,7 +391,7 @@ void main() {
 
       final executor = fixture.getExecutorSut();
 
-      expect(
+      await expectLater(
         () async => await executor.query('sql'),
         throwsException,
       );
@@ -403,7 +406,7 @@ void main() {
 
       final executor = fixture.getExecutorSut();
 
-      expect(
+      await expectLater(
         () async => await executor.queryCursor('sql'),
         throwsException,
       );
@@ -418,7 +421,7 @@ void main() {
 
       final executor = fixture.getExecutorSut();
 
-      expect(
+      await expectLater(
         () async => await executor.rawDelete('sql'),
         throwsException,
       );
@@ -433,7 +436,7 @@ void main() {
 
       final executor = fixture.getExecutorSut();
 
-      expect(
+      await expectLater(
         () async => await executor.rawInsert('sql'),
         throwsException,
       );
@@ -448,7 +451,7 @@ void main() {
 
       final executor = fixture.getExecutorSut();
 
-      expect(
+      await expectLater(
         () async => await executor.rawQuery('sql'),
         throwsException,
       );
@@ -464,7 +467,7 @@ void main() {
 
       final executor = fixture.getExecutorSut();
 
-      expect(
+      await expectLater(
         () async => await executor.rawQueryCursor('sql', []),
         throwsException,
       );
@@ -479,7 +482,7 @@ void main() {
 
       final executor = fixture.getExecutorSut();
 
-      expect(
+      await expectLater(
         () async => await executor.rawUpdate('sql'),
         throwsException,
       );
@@ -494,7 +497,7 @@ void main() {
 
       final executor = fixture.getExecutorSut();
 
-      expect(
+      await expectLater(
         () async => await executor
             .update('Product', <String, Object?>{'title': 'Product 1'}),
         throwsException,

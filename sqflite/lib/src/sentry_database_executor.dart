@@ -31,7 +31,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
 
   @override
   Future<int> delete(String table, {String? where, List<Object?>? whereArgs}) {
-    Future<int> future() async {
+    return Future<int>(() async {
       final currentSpan = _parentSpan ?? _hub.getSpan();
       final builder =
           SqlBuilder.delete(table, where: where, whereArgs: whereArgs);
@@ -55,14 +55,12 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       } finally {
         await span?.finish();
       }
-    }
-
-    return future();
+    });
   }
 
   @override
   Future<void> execute(String sql, [List<Object?>? arguments]) {
-    Future<void> future() async {
+    return Future<void>(() async {
       final currentSpan = _parentSpan ?? _hub.getSpan();
       final span = currentSpan?.startChild(
         SentryDatabase.dbSqlExecuteOp,
@@ -81,9 +79,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       } finally {
         await span?.finish();
       }
-    }
-
-    return future();
+    });
   }
 
   @override
@@ -93,7 +89,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
     String? nullColumnHack,
     ConflictAlgorithm? conflictAlgorithm,
   }) {
-    Future<int> future() async {
+    return Future<int>(() async {
       final currentSpan = _parentSpan ?? _hub.getSpan();
       final builder = SqlBuilder.insert(
         table,
@@ -125,9 +121,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       } finally {
         await span?.finish();
       }
-    }
-
-    return future();
+    });
   }
 
   @override
@@ -143,7 +137,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
     int? limit,
     int? offset,
   }) {
-    Future<List<Map<String, Object?>>> future() async {
+    return Future<List<Map<String, Object?>>>(() async {
       final currentSpan = _parentSpan ?? _hub.getSpan();
       final builder = SqlBuilder.query(
         table,
@@ -187,9 +181,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       } finally {
         await span?.finish();
       }
-    }
-
-    return future();
+    });
   }
 
   @override
@@ -206,7 +198,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
     int? offset,
     int? bufferSize,
   }) {
-    Future<QueryCursor> future() async {
+    return Future<QueryCursor>(() async {
       final currentSpan = _parentSpan ?? _hub.getSpan();
       final builder = SqlBuilder.query(
         table,
@@ -251,14 +243,12 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       } finally {
         await span?.finish();
       }
-    }
-
-    return future();
+    });
   }
 
   @override
   Future<int> rawDelete(String sql, [List<Object?>? arguments]) {
-    Future<int> future() async {
+    return Future<int>(() async {
       final currentSpan = _parentSpan ?? _hub.getSpan();
       final span = currentSpan?.startChild(
         SentryDatabase.dbSqlExecuteOp,
@@ -279,14 +269,12 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       } finally {
         await span?.finish();
       }
-    }
-
-    return future();
+    });
   }
 
   @override
   Future<int> rawInsert(String sql, [List<Object?>? arguments]) {
-    Future<int> future() async {
+    return Future<int>(() async {
       final currentSpan = _parentSpan ?? _hub.getSpan();
       final span = currentSpan?.startChild(
         SentryDatabase.dbSqlExecuteOp,
@@ -307,9 +295,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       } finally {
         await span?.finish();
       }
-    }
-
-    return future();
+    });
   }
 
   @override
@@ -317,7 +303,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
     String sql, [
     List<Object?>? arguments,
   ]) {
-    Future<List<Map<String, Object?>>> future() async {
+    return Future<List<Map<String, Object?>>>(() async {
       final currentSpan = _parentSpan ?? _hub.getSpan();
       final span = currentSpan?.startChild(
         SentryDatabase.dbSqlQueryOp,
@@ -338,9 +324,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       } finally {
         await span?.finish();
       }
-    }
-
-    return future();
+    });
   }
 
   @override
@@ -349,7 +333,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
     List<Object?>? arguments, {
     int? bufferSize,
   }) {
-    Future<QueryCursor> future() async {
+    return Future<QueryCursor>(() async {
       final currentSpan = _parentSpan ?? _hub.getSpan();
       final span = currentSpan?.startChild(
         SentryDatabase.dbSqlQueryOp,
@@ -374,14 +358,12 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       } finally {
         await span?.finish();
       }
-    }
-
-    return future();
+    });
   }
 
   @override
   Future<int> rawUpdate(String sql, [List<Object?>? arguments]) {
-    Future<int> future() async {
+    return Future<int>(() async {
       final currentSpan = _parentSpan ?? _hub.getSpan();
       final span = currentSpan?.startChild(
         SentryDatabase.dbSqlExecuteOp,
@@ -402,9 +384,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       } finally {
         await span?.finish();
       }
-    }
-
-    return future();
+    });
   }
 
   @override
@@ -415,7 +395,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
     List<Object?>? whereArgs,
     ConflictAlgorithm? conflictAlgorithm,
   }) {
-    Future<int> future() async {
+    return Future<int>(() async {
       final currentSpan = _parentSpan ?? _hub.getSpan();
       final builder = SqlBuilder.update(
         table,
@@ -449,8 +429,6 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       } finally {
         await span?.finish();
       }
-    }
-
-    return future();
+    });
   }
 }
