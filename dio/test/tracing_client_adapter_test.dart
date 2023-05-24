@@ -42,7 +42,7 @@ void main() {
       expect(span.status, SpanStatus.ok());
       expect(span.context.operation, 'http.client');
       expect(span.context.description, 'GET https://example.com');
-      expect(span.data['method'], 'GET');
+      expect(span.data['http.method'], 'GET');
       expect(span.data['url'], 'https://example.com');
       expect(span.data['http.query'], 'foo=bar');
       expect(span.data['http.fragment'], 'baz');

@@ -27,7 +27,7 @@ class SentryTransformer implements Transformer {
           description: description,
         );
 
-    span?.setData('method', options.method);
+    span?.setData('http.method', options.method);
     urlDetails?.applyToSpan(span);
 
     String? request;
@@ -62,7 +62,7 @@ class SentryTransformer implements Transformer {
           description: description,
         );
 
-    span?.setData('method', options.method);
+    span?.setData('http.method', options.method);
     urlDetails?.applyToSpan(span);
 
     dynamic transformedResponse;

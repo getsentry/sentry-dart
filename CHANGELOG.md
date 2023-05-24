@@ -4,6 +4,7 @@
 
 ### Fixes
 
+- Align http method to span convention ([#1477](https://github.com/getsentry/sentry-dart/pull/1477))
 - Wrapped methods return a `Future` instead of executing right away ([#1476](https://github.com/getsentry/sentry-dart/pull/1476))
   - Relates to ([#1462](https://github.com/getsentry/sentry-dart/pull/1462))
 

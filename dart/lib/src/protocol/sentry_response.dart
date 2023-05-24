@@ -5,7 +5,7 @@ import '../utils/iterable_extension.dart';
 /// The response interface contains information on a HTTP request related to the event.
 @immutable
 class SentryResponse {
-  /// The tpye of this class in the [Contexts] field
+  /// The type of this class in the [Contexts] field
   static const String type = 'response';
 
   /// The size of the response body.
