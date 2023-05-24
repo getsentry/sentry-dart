@@ -151,7 +151,9 @@ void main() {
       final db = await fixture.getSut(database: fixture.database);
 
       await expectLater(
-          () async => await db.transaction((txn) async {}), throwsException);
+        () async => await db.transaction((txn) async {}),
+        throwsException,
+      );
 
       final span = fixture.tracer.children.last;
       expect(span.throwable, fixture.exception);
