@@ -354,20 +354,25 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   private fun captureEnvelope(call: MethodCall, result: Result) {
+    if (!Sentry.isEnabled()) {
+      result.error("1", "The Sentry Android SDK is disabled", null)
+      return
+    }
+
     val args = call.arguments() as List<Any>? ?: listOf<Any>()
     if (args.isNotEmpty()) {
       val event = args.first() as ByteArray?
 
       if (event != null && event.isNotEmpty()) {
         if (!writeEnvelope(event)) {
-          result.error("3", "SentryOptions or outboxPath are null or empty", null)
+          result.error("2", "SentryOptions or outboxPath are null or empty", null)
         }
         result.success("")
         return
       }
     }
 
-    result.error("2", "Envelope is null or empty", null)
+    result.error("3", "Envelope is null or empty", null)
   }
 
   private fun loadImageList(result: Result) {
