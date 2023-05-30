@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Enhancements
+
+- Set `http.response.status_code` to `span.data` ([#1497](https://github.com/getsentry/sentry-dart/pull/1497))
+
 ### Fixes
 
 - Check if the Native SDKs are enabled when using `autoInitializeNativeSdk=false` ([#1489](https://github.com/getsentry/sentry-dart/pull/1489))
