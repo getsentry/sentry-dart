@@ -102,13 +102,13 @@ void main() {
         'data': {
           'url': 'https://example.org',
           'method': 'GET',
-          'status_code': 200,
           'reason': 'OK',
           'duration': '0:00:00.000000',
           'request_body_size': 2,
           'response_body_size': 3,
           'http.query': 'foo=bar',
-          'http.fragment': 'baz'
+          'http.fragment': 'baz',
+          'http.response.status_code': 200,
         },
         'level': 'fatal',
         'type': 'http',
