@@ -138,14 +138,6 @@ class MainScaffold extends StatelessWidget {
           children: [
             const Center(child: Text('Trigger an action:\n')),
             ElevatedButton(
-              onPressed: () {
-                final stackTrace = StackTrace.current;
-                NetworkError(type: NetworkErrorType.unknown, error: Instance of 'iH')
-                print(stackTrace);
-              },
-              child: const Text('StackTrace'),
-            ),
-            ElevatedButton(
               onPressed: () => sqfliteTest(),
               child: const Text('sqflite'),
             ),
