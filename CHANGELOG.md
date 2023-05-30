@@ -1,10 +1,12 @@
 # Changelog
 
-## 7.6.3
+## Unreleased
 
 ### Enhancements
 
 - Set `http.response.status_code` to `span.data` ([#1497](https://github.com/getsentry/sentry-dart/pull/1497))
+
+## 7.6.3
 
 ### Fixes
 
