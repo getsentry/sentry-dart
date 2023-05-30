@@ -66,6 +66,7 @@ class TracingClientAdapter implements HttpClientAdapter {
 
       response = await _client.fetch(options, requestStream, cancelFuture);
       span?.status = SpanStatus.fromHttpStatusCode(response.statusCode);
+      span?.setData('http.response.status_code', response.statusCode);
     } catch (exception) {
       span?.throwable = exception;
       span?.status = const SpanStatus.internalError();

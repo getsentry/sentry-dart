@@ -46,6 +46,7 @@ void main() {
       expect(span.data['url'], 'https://example.com');
       expect(span.data['http.query'], 'foo=bar');
       expect(span.data['http.fragment'], 'baz');
+      expect(span.data['http.response.status_code'], 200);
     });
 
     test('finish span if errored request', () async {
