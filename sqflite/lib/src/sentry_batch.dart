@@ -68,6 +68,7 @@ class SentryBatch implements Batch {
     });
   }
 
+  /// @nodoc
   @override
   Future<List<Object?>> commit({
     bool? exclusive,
