@@ -24,7 +24,8 @@ void main() {
 
     test('captured span if successful request', () async {
       final sut = fixture.getSut(
-        client: fixture.getClient(statusCode: 200, reason: 'OK', contentLength: 2),
+        client:
+            fixture.getClient(statusCode: 200, reason: 'OK', contentLength: 2),
       );
       final tr = fixture._hub.startTransaction(
         'name',
@@ -177,12 +178,13 @@ class Fixture {
     return dio;
   }
 
-  MockHttpClientAdapter getClient({int statusCode = 200, String? reason, int? contentLength}) {
+  MockHttpClientAdapter getClient(
+      {int statusCode = 200, String? reason, int? contentLength}) {
     return MockHttpClientAdapter((options, requestStream, cancelFuture) async {
       expect(options.uri, requestUri);
 
       final headers = options.headers.map(
-            (key, dynamic value) =>
+        (key, dynamic value) =>
             MapEntry(key, <String>[value?.toString() ?? '']),
       );
 

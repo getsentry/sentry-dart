@@ -68,7 +68,8 @@ class TracingClientAdapter implements HttpClientAdapter {
       span?.status = SpanStatus.fromHttpStatusCode(response.statusCode);
       span?.setData('http.response.status_code', response.statusCode);
       // ignore: invalid_use_of_internal_member
-      final contentLengthHeader = HttpHeaderUtils.getContentLength(response.headers);
+      final contentLengthHeader =
+          HttpHeaderUtils.getContentLength(response.headers);
       if (contentLengthHeader != null) {
         span?.setData('http.response_content_length', contentLengthHeader);
       }
