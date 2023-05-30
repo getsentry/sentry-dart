@@ -108,7 +108,7 @@ void main() {
           'request_body_size': 2,
           'response_body_size': 3,
           'http.query': 'foo=bar',
-          'http.fragment': 'baz',
+          'http.fragment': 'baz'
         },
         'level': 'fatal',
         'type': 'http',
