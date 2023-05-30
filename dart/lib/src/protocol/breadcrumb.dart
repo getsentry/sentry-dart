@@ -58,13 +58,13 @@ class Breadcrumb {
       data: {
         'url': url.toString(),
         'method': method,
+        if (statusCode != null) 'status_code': statusCode,
         if (reason != null) 'reason': reason,
         if (requestDuration != null) 'duration': requestDuration.toString(),
         if (requestBodySize != null) 'request_body_size': requestBodySize,
         if (responseBodySize != null) 'response_body_size': responseBodySize,
         if (httpQuery != null) 'http.query': httpQuery,
         if (httpFragment != null) 'http.fragment': httpFragment,
-        if (statusCode != null) 'http.response.status_code': statusCode,
       },
     );
   }

@@ -30,7 +30,7 @@ void main() {
       expect(breadcrumb.data?['method'], 'GET');
       expect(breadcrumb.data?['http.query'], 'foo=bar');
       expect(breadcrumb.data?['http.fragment'], 'baz');
-      expect(breadcrumb.data?['http.response.status_code'], 200);
+      expect(breadcrumb.data?['status_code'], 200);
       expect(breadcrumb.data?['reason'], null);
       expect(breadcrumb.data?['duration'], isNotNull);
       expect(breadcrumb.data?['request_body_size'], isNull);
@@ -51,7 +51,7 @@ void main() {
       expect(breadcrumb.data?['method'], 'POST');
       expect(breadcrumb.data?['http.query'], 'foo=bar');
       expect(breadcrumb.data?['http.fragment'], 'baz');
-      expect(breadcrumb.data?['http.response.status_code'], 200);
+      expect(breadcrumb.data?['status_code'], 200);
       expect(breadcrumb.data?['duration'], isNotNull);
     });
 
@@ -69,7 +69,7 @@ void main() {
       expect(breadcrumb.data?['method'], 'PUT');
       expect(breadcrumb.data?['http.query'], 'foo=bar');
       expect(breadcrumb.data?['http.fragment'], 'baz');
-      expect(breadcrumb.data?['http.response.status_code'], 200);
+      expect(breadcrumb.data?['status_code'], 200);
       expect(breadcrumb.data?['duration'], isNotNull);
     });
 
@@ -87,7 +87,7 @@ void main() {
       expect(breadcrumb.data?['method'], 'DELETE');
       expect(breadcrumb.data?['http.query'], 'foo=bar');
       expect(breadcrumb.data?['http.fragment'], 'baz');
-      expect(breadcrumb.data?['http.response.status_code'], 200);
+      expect(breadcrumb.data?['status_code'], 200);
       expect(breadcrumb.data?['duration'], isNotNull);
     });
 
