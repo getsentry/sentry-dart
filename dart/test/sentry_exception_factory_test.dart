@@ -207,8 +207,8 @@ class CustomExceptionStackTraceExtractor
 }
 
 class StackTraceError extends Error {
-
-  var prefix = "NetworkError(type: NetworkErrorType.unknown, error: Instance of 'iH')";
+  var prefix =
+      "NetworkError(type: NetworkErrorType.unknown, error: Instance of 'iH')";
 
   @override
   String toString() {
