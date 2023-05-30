@@ -5,6 +5,7 @@
 ### Features
 
 - Improve `SentryException#value`, remove stringified stack trace ([##1470](https://github.com/getsentry/sentry-dart/pull/#1470))
+
 ### Fixes
 
 - Check if the Native SDKs are enabled when using `autoInitializeNativeSdk=false` ([#1489](https://github.com/getsentry/sentry-dart/pull/1489))
