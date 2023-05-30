@@ -178,8 +178,11 @@ class Fixture {
     return dio;
   }
 
-  MockHttpClientAdapter getClient(
-      {int statusCode = 200, String? reason, int? contentLength}) {
+  MockHttpClientAdapter getClient({
+    int statusCode = 200,
+    String? reason,
+    int? contentLength,
+  }) {
     return MockHttpClientAdapter((options, requestStream, cancelFuture) async {
       expect(options.uri, requestUri);
 
