@@ -65,7 +65,7 @@ class SentryExceptionFactory {
     // https://flutter.dev/docs/deployment/obfuscate#caveat
     return SentryException(
       type: (throwable.runtimeType).toString(),
-      value: value,
+      value: value.isNotEmpty ? value : null,
       mechanism: mechanism,
       stackTrace: sentryStackTrace,
       throwable: throwable,

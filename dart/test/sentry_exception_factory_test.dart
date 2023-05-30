@@ -179,6 +179,15 @@ void main() {
 
     expect(sentryException.value, expected);
   });
+
+  test('no empty value', () {
+    final stackTraceError = StackTraceError();
+    stackTraceError.prefix = "";
+    final sentryException = fixture.getSut().getSentryException(stackTraceError,
+        stackTrace: StackTraceErrorStackTrace());
+
+    expect(sentryException.value, isNull);
+  });
 }
 
 class CustomError extends Error {}
@@ -198,10 +207,13 @@ class CustomExceptionStackTraceExtractor
 }
 
 class StackTraceError extends Error {
+
+  var prefix = "NetworkError(type: NetworkErrorType.unknown, error: Instance of 'iH')";
+
   @override
   String toString() {
     return '''
-NetworkError(type: NetworkErrorType.unknown, error: Instance of 'iH')
+$prefix
 
 pid: 9437, tid: 10069, name 1.ui
 os: android arch: arm64 comp: yes sim: no
