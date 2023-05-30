@@ -37,12 +37,12 @@ class SentryStackFrame {
 
   final List<String>? _preContext;
 
-  /// An immutable list of source code lines before context_line (in order) – usually [lineno - 5:lineno].
+  /// An immutable list of source code lines before context_line (in order) – usually `[lineno - 5:lineno]`.
   List<String> get preContext => List.unmodifiable(_preContext ?? const []);
 
   final List<String>? _postContext;
 
-  /// An immutable list of source code lines after context_line (in order) – usually [lineno + 1:lineno + 5].
+  /// An immutable list of source code lines after context_line (in order) – usually `[lineno + 1:lineno + 5]`.
   List<String> get postContext => List.unmodifiable(_postContext ?? const []);
 
   final Map<String, dynamic>? _vars;

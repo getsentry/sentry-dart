@@ -85,7 +85,7 @@ class SentryEvent with SentryEventLike<SentryEvent> {
 
   /// Event message.
   ///
-  /// Generally an event either contains a [message] or an [exception].
+  /// Generally an event either contains a [message] or [exceptions].
   final SentryMessage? message;
 
   final dynamic _throwable;

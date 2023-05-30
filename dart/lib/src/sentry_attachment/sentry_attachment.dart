@@ -103,7 +103,7 @@ class SentryAttachment {
         );
 
   /// Attachment type.
-  /// Should be one of types given in [AttachmentType].
+  /// Should be one of the static types declared in [SentryAttachment].
   final String attachmentType;
 
   /// Attachment content.

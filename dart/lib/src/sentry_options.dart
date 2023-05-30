@@ -172,14 +172,14 @@ class SentryOptions {
   /// A list of string prefixes of packages names that do not belong to the app, but rather third-party
   /// packages. Packages considered not to be part of the app will be hidden from stack traces by
   /// default.
-  /// example : ['sentry'] will exclude exception from 'package:sentry/sentry.dart'
+  /// example : `['sentry']` will exclude exception from `package:sentry/sentry.dart`
   List<String> get inAppExcludes => List.unmodifiable(_inAppExcludes);
 
   final List<String> _inAppIncludes = [];
 
   /// A list of string prefixes of packages names that belong to the app. This option takes precedence
   /// over inAppExcludes.
-  /// example : ['sentry'] will include exception from 'package:sentry/sentry.dart'
+  /// example: `['sentry']` will include exception from `package:sentry/sentry.dart`
   List<String> get inAppIncludes => List.unmodifiable(_inAppIncludes);
 
   /// Configures whether stack trace frames are considered in app frames by default.
@@ -249,7 +249,7 @@ class SentryOptions {
   /// - In an browser environment this can be requests which fail because of CORS.
   /// - In an mobile or desktop application this can be requests which failed
   ///   because the connection was interrupted.
-  /// Use with [SentryHttpClient] or [Dio] integration for this to work
+  /// Use with [SentryHttpClient] or `sentry_dio` integration for this to work
   bool captureFailedRequests = true;
 
   /// Whether to records requests as breadcrumbs. This is on by default.
