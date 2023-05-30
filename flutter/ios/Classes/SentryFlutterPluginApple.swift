@@ -117,12 +117,12 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
         case "setUser":
             let arguments = call.arguments as? [String: Any?]
-            let user = arguments?["user"] as? [String: Any?]
+            let user = arguments?["user"] as? [String: Any]
             setUser(user: user, result: result)
 
         case "addBreadcrumb":
             let arguments = call.arguments as? [String: Any?]
-            let breadcrumb = arguments?["breadcrumb"] as? [String: Any?]
+            let breadcrumb = arguments?["breadcrumb"] as? [String: Any]
             addBreadcrumb(breadcrumb: breadcrumb, result: result)
 
         case "clearBreadcrumbs":
@@ -566,7 +566,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
       }
     }
 
-    private func setUser(user: [String: Any?]?, result: @escaping FlutterResult) {
+    private func setUser(user: [String: Any]?, result: @escaping FlutterResult) {
       if let user = user {
         let userInstance = PrivateSentrySDKOnly.user(with: user)
         SentrySDK.setUser(userInstance)
@@ -576,7 +576,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
       result("")
     }
 
-    private func addBreadcrumb(breadcrumb: [String: Any?]?, result: @escaping FlutterResult) {
+    private func addBreadcrumb(breadcrumb: [String: Any]?, result: @escaping FlutterResult) {
       if let breadcrumb = breadcrumb {
         let breadcrumbInstance = PrivateSentrySDKOnly.breadcrumb(with: breadcrumb)
         SentrySDK.addBreadcrumb(breadcrumbInstance)
