@@ -57,9 +57,9 @@ class SentryExceptionFactory {
       }
     }
 
-    final exceptionString = exception.toString();
+    final throwableString = throwable.toString();
     final stackTraceString = stackTrace.toString();
-    final value = exceptionString.replaceAll(stackTraceString, '').trim();
+    final value = throwableString.replaceAll(stackTraceString, '').trim();
 
     // if --obfuscate feature is enabled, 'type' won't be human readable.
     // https://flutter.dev/docs/deployment/obfuscate#caveat
