@@ -1,6 +1,6 @@
 name: sentry_logging
 description: An integration which adds support for recording log from the logging package.
-version: 7.6.1
+version: 7.6.2
 homepage: https://docs.sentry.io/platforms/dart/
 repository: https://github.com/getsentry/sentry-dart
 issue_tracker: https://github.com/getsentry/sentry-dart/issues
@@ -11,7 +11,7 @@ environment:
 
 dependencies:
   logging: ^1.0.0
-  sentry: 7.6.1
+  sentry: 7.6.2
 
 dev_dependencies:
   lints: ^2.0.0

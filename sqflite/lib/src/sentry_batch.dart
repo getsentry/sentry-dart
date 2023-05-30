@@ -40,7 +40,7 @@ class SentryBatch implements Batch {
 
   @override
   Future<List<Object?>> apply({bool? noResult, bool? continueOnError}) {
-    Future<List<Object?>> future() async {
+    return Future<List<Object?>>(() async {
       final currentSpan = _hub.getSpan();
 
       final span = currentSpan?.startChild(
@@ -65,9 +65,7 @@ class SentryBatch implements Batch {
       } finally {
         await span?.finish();
       }
-    }
-
-    return future();
+    });
   }
 
   @override
@@ -76,7 +74,7 @@ class SentryBatch implements Batch {
     bool? noResult,
     bool? continueOnError,
   }) {
-    Future<List<Object?>> future() async {
+    return Future<List<Object?>>(() async {
       final currentSpan = _hub.getSpan();
 
       final span = currentSpan?.startChild(
@@ -102,9 +100,7 @@ class SentryBatch implements Batch {
       } finally {
         await span?.finish();
       }
-    }
-
-    return future();
+    });
   }
 
   @override
