@@ -42,3 +42,5 @@ export 'src/exception_stacktrace_extractor.dart';
 export 'src/utils/http_sanitizer.dart';
 // ignore: invalid_export_of_internal_element
 export 'src/utils/url_details.dart';
+// ignore: invalid_export_of_internal_element
+export 'src/utils/http_header_utils.dart';

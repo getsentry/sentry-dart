@@ -42,11 +42,8 @@ class BreadcrumbClientAdapter implements HttpClientAdapter {
 
       statusCode = response.statusCode;
       reason = response.statusMessage;
-      final contentLengthHeader = response.headers['content-length'];
-      if (contentLengthHeader != null && contentLengthHeader.isNotEmpty) {
-        final headerValue = contentLengthHeader.first;
-        responseBodySize = int.tryParse(headerValue);
-      }
+      // ignore: invalid_use_of_internal_member
+      responseBodySize = HttpHeaderUtils.getContentLength(response.headers);
 
       return response;
     } catch (_) {

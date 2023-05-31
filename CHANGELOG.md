@@ -2,8 +2,11 @@
 
 ## Unreleased
 
-### Features
+### Enhancements
 
+- Add http fields to `span.data` ([#1497](https://github.com/getsentry/sentry-dart/pull/1497))
+  - Set `http.response.status_code`
+  - Set `http.response_content_length`
 - Improve `SentryException#value`, remove stringified stack trace ([##1470](https://github.com/getsentry/sentry-dart/pull/#1470))
 
 ## 7.6.3
