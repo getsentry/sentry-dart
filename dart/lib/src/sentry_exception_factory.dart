@@ -57,11 +57,15 @@ class SentryExceptionFactory {
       }
     }
 
+    final throwableString = throwable.toString();
+    final stackTraceString = stackTrace.toString();
+    final value = throwableString.replaceAll(stackTraceString, '').trim();
+
     // if --obfuscate feature is enabled, 'type' won't be human readable.
     // https://flutter.dev/docs/deployment/obfuscate#caveat
     return SentryException(
       type: (throwable.runtimeType).toString(),
-      value: throwable.toString(),
+      value: value.isNotEmpty ? value : null,
       mechanism: mechanism,
       stackTrace: sentryStackTrace,
       throwable: throwable,
