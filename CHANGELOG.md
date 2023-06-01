@@ -9,6 +9,12 @@
   - Set `http.response_content_length`
 - Improve `SentryException#value`, remove stringified stack trace ([##1470](https://github.com/getsentry/sentry-dart/pull/#1470))
 
+### Dependencies
+
+- Bump Android SDK from v6.20.0 to v6.21.0 ([#1500](https://github.com/getsentry/sentry-dart/pull/1500))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6210)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.20.0...6.21.0)
+
 ## 7.6.3
 
 ### Fixes
