@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+### Enhancements
+
+- Add http fields to `span.data` ([#1497](https://github.com/getsentry/sentry-dart/pull/1497))
+  - Set `http.response.status_code`
+  - Set `http.response_content_length`
+- Improve `SentryException#value`, remove stringified stack trace ([##1470](https://github.com/getsentry/sentry-dart/pull/#1470))
+
+## 7.6.3
+
 ### Fixes
 
 - Check if the Native SDKs are enabled when using `autoInitializeNativeSdk=false` ([#1489](https://github.com/getsentry/sentry-dart/pull/1489))
@@ -15,6 +24,9 @@
 - Bump Android SDK from v6.19.0 to v6.20.0 ([#1466](https://github.com/getsentry/sentry-dart/pull/1466), [#1491](https://github.com/getsentry/sentry-dart/pull/1491))
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6200)
   - [diff](https://github.com/getsentry/sentry-java/compare/6.19.0...6.20.0)
+- Bump Cocoa SDK from v8.7.2 to v8.7.3 ([#1487](https://github.com/getsentry/sentry-dart/pull/1487))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#873)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.7.2...8.7.3)
 
 ## 7.6.2
 

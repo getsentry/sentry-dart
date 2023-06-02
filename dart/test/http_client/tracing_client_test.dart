@@ -42,6 +42,8 @@ void main() {
       expect(span.data['url'], 'https://example.com');
       expect(span.data['http.query'], 'foo=bar');
       expect(span.data['http.fragment'], 'baz');
+      expect(span.data['http.response.status_code'], 200);
+      expect(span.data['http.response_content_length'], 2);
     });
 
     test('finish span if errored request', () async {
@@ -225,7 +227,7 @@ class Fixture {
   MockClient getClient({int statusCode = 200, String? reason}) {
     return MockClient((request) async {
       expect(request.url, requestUri);
-      return Response('', statusCode, reasonPhrase: reason, request: request);
+      return Response('{}', statusCode, reasonPhrase: reason, request: request);
     });
   }
 }
