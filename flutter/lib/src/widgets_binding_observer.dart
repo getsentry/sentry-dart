@@ -181,16 +181,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
   }
 
   static String _lifecycleToString(AppLifecycleState state) {
-    switch (state) {
-      case AppLifecycleState.resumed:
-        return 'resumed';
-      case AppLifecycleState.inactive:
-        return 'inactive';
-      case AppLifecycleState.paused:
-        return 'paused';
-      case AppLifecycleState.detached:
-        return 'detached';
-    }
+    return state.name;
   }
 
 /*
