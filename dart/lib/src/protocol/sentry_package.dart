@@ -1,9 +1,9 @@
 import 'package:meta/meta.dart';
 
-/// A [SentryPackage] part of the sdk.
+/// A [SentryPackage] part of the SDK.
 @immutable
 class SentryPackage {
-  /// Creates an [SentryPackage] object that is part of the sdk.
+  /// Creates an [SentryPackage] object that is part of the SDK.
   const SentryPackage(this.name, this.version);
 
   /// The name of the SDK.
