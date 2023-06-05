@@ -221,19 +221,6 @@ class SentryDevice {
 
   /// Produces a [Map] that can be serialized to JSON.
   Map<String, dynamic> toJson() {
-    String? orientation;
-
-    switch (this.orientation) {
-      case SentryOrientation.portrait:
-        orientation = 'portait';
-        break;
-      case SentryOrientation.landscape:
-        orientation = 'landscape';
-        break;
-      case null:
-        orientation = null;
-        break;
-    }
     return <String, dynamic>{
       if (name != null) 'name': name,
       if (family != null) 'family': family,
@@ -241,7 +228,7 @@ class SentryDevice {
       if (modelId != null) 'model_id': modelId,
       if (arch != null) 'arch': arch,
       if (batteryLevel != null) 'battery_level': batteryLevel,
-      if (orientation != null) 'orientation': orientation,
+      if (orientation != null) 'orientation': orientation!.name,
       if (manufacturer != null) 'manufacturer': manufacturer,
       if (brand != null) 'brand': brand,
       if (screenWidthPixels != null) 'screen_width_pixels': screenWidthPixels,

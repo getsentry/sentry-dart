@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Enums use its name instead of non exhaustive switches ([##1506](https://github.com/getsentry/sentry-dart/pull/#1506))
+
 ### Enhancements
 
 - Add http fields to `span.data` ([#1497](https://github.com/getsentry/sentry-dart/pull/1497))

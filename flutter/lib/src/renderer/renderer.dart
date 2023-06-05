@@ -9,19 +9,6 @@ class RendererWrapper {
   FlutterRenderer getRenderer() {
     return implementation.getRenderer();
   }
-
-  String getRendererAsString() {
-    switch (getRenderer()) {
-      case FlutterRenderer.skia:
-        return 'Skia';
-      case FlutterRenderer.canvasKit:
-        return 'CanvasKit';
-      case FlutterRenderer.html:
-        return 'HTML';
-      case FlutterRenderer.unknown:
-        return 'Unknown';
-    }
-  }
 }
 
 enum FlutterRenderer {

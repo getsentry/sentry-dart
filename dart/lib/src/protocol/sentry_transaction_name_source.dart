@@ -17,22 +17,3 @@ enum SentryTransactionNameSource {
   /// Name of a background task
   task,
 }
-
-extension SentryTransactionNameSourceExtension on SentryTransactionNameSource {
-  String toStringValue() {
-    switch (this) {
-      case SentryTransactionNameSource.custom:
-        return 'custom';
-      case SentryTransactionNameSource.url:
-        return 'url';
-      case SentryTransactionNameSource.route:
-        return 'route';
-      case SentryTransactionNameSource.view:
-        return 'view';
-      case SentryTransactionNameSource.component:
-        return 'component';
-      case SentryTransactionNameSource.task:
-        return 'task';
-    }
-  }
-}
