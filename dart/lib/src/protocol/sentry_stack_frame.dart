@@ -37,12 +37,12 @@ class SentryStackFrame {
 
   final List<String>? _preContext;
 
-  /// An immutable list of source code lines before context_line (in order) – usually `[lineno - 5:lineno]`.
+  /// An immutable list of source code lines before context_line (in order) – usually `lineno - 5:lineno`.
   List<String> get preContext => List.unmodifiable(_preContext ?? const []);
 
   final List<String>? _postContext;
 
-  /// An immutable list of source code lines after context_line (in order) – usually `[lineno + 1:lineno + 5]`.
+  /// An immutable list of source code lines after context_line (in order) – usually `lineno + 1:lineno + 5`.
   List<String> get postContext => List.unmodifiable(_postContext ?? const []);
 
   final Map<String, dynamic>? _vars;
@@ -59,7 +59,7 @@ class SentryStackFrame {
   /// The frames_omitted must be a single tuple two values: start and end.
   //
   /// Example : If you only removed the 8th frame, the value would be (8, 9),
-  /// meaning it started at the 8th frame, and went untilthe 9th (the number of frames omitted is end-start).
+  /// meaning it started at the 8th frame, and went until the 9th (the number of frames omitted is end-start).
   /// The values should be based on a one-index.
   List<int> get framesOmitted => List.unmodifiable(_framesOmitted ?? const []);
 
