@@ -354,20 +354,6 @@ class MockRendererWrapper implements RendererWrapper {
   FlutterRenderer getRenderer() {
     return _renderer;
   }
-
-  @override
-  String getRendererAsString() {
-    switch (getRenderer()) {
-      case FlutterRenderer.skia:
-        return 'Skia';
-      case FlutterRenderer.canvasKit:
-        return 'CanvasKit';
-      case FlutterRenderer.html:
-        return 'HTML';
-      case FlutterRenderer.unknown:
-        return 'Unknown';
-    }
-  }
 }
 
 class TestBindingWrapper implements BindingWrapper {

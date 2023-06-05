@@ -57,6 +57,8 @@ class TracingClient extends BaseClient {
       }
 
       response = await _client.send(request);
+      span?.setData('http.response.status_code', response.statusCode);
+      span?.setData('http.response_content_length', response.contentLength);
       span?.status = SpanStatus.fromHttpStatusCode(response.statusCode);
     } catch (exception) {
       span?.throwable = exception;

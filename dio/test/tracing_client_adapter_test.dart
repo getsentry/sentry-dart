@@ -24,7 +24,8 @@ void main() {
 
     test('captured span if successful request', () async {
       final sut = fixture.getSut(
-        client: fixture.getClient(statusCode: 200, reason: 'OK'),
+        client:
+            fixture.getClient(statusCode: 200, reason: 'OK', contentLength: 2),
       );
       final tr = fixture._hub.startTransaction(
         'name',
@@ -46,6 +47,8 @@ void main() {
       expect(span.data['url'], 'https://example.com');
       expect(span.data['http.query'], 'foo=bar');
       expect(span.data['http.fragment'], 'baz');
+      expect(span.data['http.response.status_code'], 200);
+      expect(span.data['http.response_content_length'], 2);
     });
 
     test('finish span if errored request', () async {
@@ -175,16 +178,27 @@ class Fixture {
     return dio;
   }
 
-  MockHttpClientAdapter getClient({int statusCode = 200, String? reason}) {
+  MockHttpClientAdapter getClient({
+    int statusCode = 200,
+    String? reason,
+    int? contentLength,
+  }) {
     return MockHttpClientAdapter((options, requestStream, cancelFuture) async {
       expect(options.uri, requestUri);
+
+      final headers = options.headers.map(
+        (key, dynamic value) =>
+            MapEntry(key, <String>[value?.toString() ?? '']),
+      );
+
+      if (contentLength != null) {
+        headers['Content-Length'] = [contentLength.toString()];
+      }
+
       return ResponseBody.fromString(
-        '',
+        '{}',
         statusCode,
-        headers: options.headers.map(
-          (key, dynamic value) =>
-              MapEntry(key, <String>[value?.toString() ?? '']),
-        ),
+        headers: headers,
       );
     });
   }
