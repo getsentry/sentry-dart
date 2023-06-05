@@ -15,6 +15,10 @@
   - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6210)
   - [diff](https://github.com/getsentry/sentry-java/compare/6.20.0...6.21.0)
 
+### Fixes
+- fix widgets_binding_observer.dart:183:17: ([#1503](https://github.com/getsentry/sentry-dart/pull/1503))  Error: A non-null value must be returned since the return type 'String' doesn't allow null. because switch returns String? not String because there is no default case
+
+
 ## 7.6.3
 
 ### Fixes
