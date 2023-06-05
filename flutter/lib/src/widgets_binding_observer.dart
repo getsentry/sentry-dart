@@ -71,7 +71,7 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
       category: 'app.lifecycle',
       type: 'navigation',
       data: <String, String>{
-        'state': _lifecycleToString(state),
+        'state': state.name,
       },
       // ignore: invalid_use_of_internal_member
       timestamp: _options.clock(),
@@ -178,19 +178,6 @@ class SentryWidgetsBindingObserver with WidgetsBindingObserver {
       // ignore: invalid_use_of_internal_member
       timestamp: _options.clock(),
     ));
-  }
-
-  static String _lifecycleToString(AppLifecycleState state) {
-    switch (state) {
-      case AppLifecycleState.resumed:
-        return 'resumed';
-      case AppLifecycleState.inactive:
-        return 'inactive';
-      case AppLifecycleState.paused:
-        return 'paused';
-      case AppLifecycleState.detached:
-        return 'detached';
-    }
   }
 
 /*

@@ -69,7 +69,7 @@ class SentryTransaction extends SentryEvent {
     );
 
     this.transactionInfo = transactionInfo ??
-        SentryTransactionInfo(_tracer.transactionNameSource.toStringValue());
+        SentryTransactionInfo(_tracer.transactionNameSource.name);
   }
 
   @override
