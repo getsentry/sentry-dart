@@ -4,7 +4,7 @@
 
 ### Fixes
 
-- Enums use its name instead of non exhaustive switches ([##1470](https://github.com/getsentry/sentry-dart/pull/#1470))
+- Enums use its name instead of non exhaustive switches ([##1506](https://github.com/getsentry/sentry-dart/pull/#1506))
 
 ### Enhancements
 
