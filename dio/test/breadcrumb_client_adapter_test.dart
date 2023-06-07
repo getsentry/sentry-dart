@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:dio/dio.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry/sentry.dart';

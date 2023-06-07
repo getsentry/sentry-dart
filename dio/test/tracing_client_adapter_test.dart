@@ -1,4 +1,4 @@
-// ignore_for_file: invalid_use_of_internal_member
+// ignore_for_file: invalid_use_of_internal_member, deprecated_member_use
 // The lint above is okay, because we're using another Sentry package
 
 import 'package:dio/dio.dart';

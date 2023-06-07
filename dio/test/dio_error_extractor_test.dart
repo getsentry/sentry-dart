@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:dio/dio.dart';
 import 'package:sentry_dio/src/dio_error_extractor.dart';
 import 'package:test/test.dart';
