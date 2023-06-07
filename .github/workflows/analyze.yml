@@ -59,6 +59,8 @@ jobs:
           annotate-only: false
           working-directory: ${{ inputs.package }}
 
+      - run: dart doc --dry-run
+
   package-analysis:
     # `axel-op/dart-package-analyzer` is using `flutter pub upgrade` instead of `get`,
     # which ignores pubspec.yaml `dependency_overrides`. Because of that, all `release/*` branches are failing,

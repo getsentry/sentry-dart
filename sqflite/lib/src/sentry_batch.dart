@@ -68,6 +68,7 @@ class SentryBatch implements Batch {
     });
   }
 
+  /// @nodoc Disable dart doc warnings inherited from [Batch]
   @override
   Future<List<Object?>> commit({
     bool? exclusive,
