@@ -2,12 +2,15 @@ import 'package:meta/meta.dart';
 
 /// The Message Interface carries a log message that describes an event or error.
 /// Optionally, it can carry a format string and structured parameters. This can help to group similar messages into the same issue.
-/// example of a serialized message : {
+/// example of a serialized message:
+/// ```json
+/// {
 ///   "message": {
 ///     "message": "My raw message with interpreted strings like %s",
 ///     "params": ["this"]
 ///   }
 /// }
+/// ```
 @immutable
 class SentryMessage {
   /// The fully formatted message. If missing, Sentry will try to interpolate the message.
