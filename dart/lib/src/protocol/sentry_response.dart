@@ -26,19 +26,31 @@ class SentryResponse {
   /// Cookie key-value pairs as string.
   final String? cookies;
 
+  final Object? _data;
+
   /// Response data in any format that makes sense.
   ///
   /// SDKs should discard large and binary bodies by default.
   /// Can be given as a string or structural data of any format.
-  final Object? data;
+  Object? get data {
+    final typedData = _data;
+    if (typedData is List) {
+      return List.unmodifiable(typedData);
+    } else if (typedData is Map) {
+      return Map.unmodifiable(typedData);
+    }
+
+    return _data;
+  }
 
   SentryResponse({
     this.bodySize,
     this.statusCode,
     Map<String, String>? headers,
     String? cookies,
-    this.data,
-  })  : _headers = headers != null ? Map.from(headers) : null,
+    Object? data,
+  })  : _data = data,
+        _headers = headers != null ? Map.from(headers) : null,
         // Look for a 'Set-Cookie' header (case insensitive) if not given.
         cookies = cookies ??
             headers?.entries
