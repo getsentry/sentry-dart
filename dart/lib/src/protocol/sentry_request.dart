@@ -80,7 +80,7 @@ class SentryRequest {
     Map<String, String>? headers,
     Map<String, String>? env,
     @Deprecated('Will be removed in v8. Use [data] instead')
-        Map<String, String>? other,
+    Map<String, String>? other,
   })  : _data = data,
         _headers = headers != null ? Map.from(headers) : null,
         // Look for a 'Set-Cookie' header (case insensitive) if not given.
@@ -100,7 +100,7 @@ class SentryRequest {
     Map<String, String>? env,
     String? apiTarget,
     @Deprecated('Will be removed in v8. Use [data] instead')
-        Map<String, String>? other,
+    Map<String, String>? other,
   }) {
     return SentryRequest(
       url: uri.toString(),
@@ -163,7 +163,7 @@ class SentryRequest {
     bool removeCookies = false,
     String? apiTarget,
     @Deprecated('Will be removed in v8. Use [data] instead')
-        Map<String, String>? other,
+    Map<String, String>? other,
   }) =>
       SentryRequest(
         url: url ?? this.url,
