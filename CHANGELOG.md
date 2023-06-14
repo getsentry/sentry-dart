@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Enhancements
+
+- Add `apiTarget` field to `SentryRequest` and `data` field to `SentryResponse` ([#1517](https://github.com/getsentry/sentry-dart/pull/1517))
+
 ### Dependencies
 
 - Bump Android SDK from v6.21.0 to v6.22.0 ([#1512](https://github.com/getsentry/sentry-dart/pull/1512))
