@@ -4,7 +4,7 @@
 
 ### Enhancements
 
-- Add `apiTarget` field to `SentryRequest` and `data` field to `SentryResponse`
+- Add `apiTarget` field to `SentryRequest` and `data` field to `SentryResponse` ([#1517](https://github.com/getsentry/sentry-dart/pull/1517))
 
 ### Dependencies
 
