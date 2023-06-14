@@ -26,12 +26,19 @@ class SentryResponse {
   /// Cookie key-value pairs as string.
   final String? cookies;
 
-  SentryResponse(
-      {this.bodySize,
-      this.statusCode,
-      Map<String, String>? headers,
-      String? cookies})
-      : _headers = headers != null ? Map.from(headers) : null,
+  /// Response data in any format that makes sense.
+  ///
+  /// SDKs should discard large and binary bodies by default.
+  /// Can be given as a string or structural data of any format.
+  final Object? data;
+
+  SentryResponse({
+    this.bodySize,
+    this.statusCode,
+    Map<String, String>? headers,
+    String? cookies,
+    this.data,
+  })  : _headers = headers != null ? Map.from(headers) : null,
         // Look for a 'Set-Cookie' header (case insensitive) if not given.
         cookies = cookies ??
             headers?.entries
@@ -45,6 +52,7 @@ class SentryResponse {
       cookies: json['cookies'],
       bodySize: json['body_size'],
       statusCode: json['status_code'],
+      data: json['data'],
     );
   }
 
@@ -55,6 +63,7 @@ class SentryResponse {
       if (cookies != null) 'cookies': cookies,
       if (bodySize != null) 'body_size': bodySize,
       if (statusCode != null) 'status_code': statusCode,
+      if (data != null) 'data': data,
     };
   }
 
@@ -63,12 +72,14 @@ class SentryResponse {
     int? bodySize,
     Map<String, String>? headers,
     String? cookies,
+    Object? data,
   }) =>
       SentryResponse(
         headers: headers ?? _headers,
         cookies: cookies ?? this.cookies,
         bodySize: bodySize ?? this.bodySize,
         statusCode: statusCode ?? this.statusCode,
+        data: data ?? this.data,
       );
 
   SentryResponse clone() => SentryResponse(
@@ -76,5 +87,6 @@ class SentryResponse {
         headers: headers,
         cookies: cookies,
         statusCode: statusCode,
+        data: data,
       );
 }
