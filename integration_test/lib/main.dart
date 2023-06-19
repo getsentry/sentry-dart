@@ -1,23 +1,21 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:http/http.dart';
 
-String _dsn =
+String realDsn =
     'https://e85b375ffb9f43cf8bdf9787768149e0@o447951.ingest.sentry.io/5428562';
+String fakeDsn =
+    'https://abc@def.ingest.sentry.io/1234567';
 
 void main() async {
   await setupSentry(
     () => runApp(const IntegrationTestApp()),
+    realDsn,
   );
 }
 
-Future<void> setupSentry(AppRunner appRunner, {String? dsn}) async {
-  if (dsn != null) {
-    _dsn = dsn;
-  }
+Future<void> setupSentry(AppRunner appRunner, String dsn) async {
   await SentryFlutter.init((options) {
-    options.dsn = _dsn;
+    options.dsn = dsn;
     options.debug = true;
     options.dist = '1';
     options.environment = 'integration';

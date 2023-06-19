@@ -22,7 +22,7 @@ void main() {
     await setupSentry(() async {
       await tester.pumpWidget(const IntegrationTestApp());
       await tester.pumpAndSettle();
-    }, dsn: dsn ?? 'https://abc@def.ingest.sentry.io/1234567');
+    }, dsn ?? fakeDsn);
     FlutterError.onError = onError;
   }
 
@@ -39,7 +39,7 @@ void main() {
     testWidgets('captureException', (tester) async {
       await setupSentryAndApp(
           tester,
-          dsn: 'https://e85b375ffb9f43cf8bdf9787768149e0@o447951.ingest.sentry.io/5428562'
+          dsn: realDsn
       );
 
       await tester.tap(find.text('captureException'));
