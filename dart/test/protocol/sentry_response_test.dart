@@ -8,6 +8,7 @@ void main() {
     statusCode: 200,
     headers: {'header_key': 'header_value'},
     cookies: 'foo=bar, another=cookie',
+    data: 'foo',
   );
 
   final sentryResponseJson = <String, dynamic>{
@@ -15,6 +16,7 @@ void main() {
     'status_code': 200,
     'headers': {'header_key': 'header_value'},
     'cookies': 'foo=bar, another=cookie',
+    'data': 'foo',
   };
 
   group('json', () {

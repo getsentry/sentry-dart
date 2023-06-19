@@ -62,12 +62,20 @@ class SentryRequest {
   /// The fragment of the request URL.
   final String? fragment;
 
+  /// The API target/specification that made the request.
+  /// Values can be `graphql`, `rest`, etc.
+  ///
+  /// The data field should contain the request and response bodies based on
+  /// its target specification.
+  final String? apiTarget;
+
   SentryRequest({
     this.url,
     this.method,
     this.queryString,
     String? cookies,
     this.fragment,
+    this.apiTarget,
     dynamic data,
     Map<String, String>? headers,
     Map<String, String>? env,
@@ -90,6 +98,7 @@ class SentryRequest {
     dynamic data,
     Map<String, String>? headers,
     Map<String, String>? env,
+    String? apiTarget,
     @Deprecated('Will be removed in v8. Use [data] instead')
     Map<String, String>? other,
   }) {
@@ -104,6 +113,7 @@ class SentryRequest {
       fragment: uri.fragment,
       // ignore: deprecated_member_use_from_same_package
       other: other,
+      apiTarget: apiTarget,
     ).sanitized();
   }
 
@@ -120,6 +130,7 @@ class SentryRequest {
       // ignore: deprecated_member_use_from_same_package
       other: json.containsKey('other') ? Map.from(json['other']) : null,
       fragment: json['fragment'],
+      apiTarget: json['api_target'],
     );
   }
 
@@ -136,6 +147,7 @@ class SentryRequest {
       // ignore: deprecated_member_use_from_same_package
       if (other.isNotEmpty) 'other': other,
       if (fragment != null) 'fragment': fragment,
+      if (apiTarget != null) 'api_target': apiTarget,
     };
   }
 
@@ -148,9 +160,10 @@ class SentryRequest {
     dynamic data,
     Map<String, String>? headers,
     Map<String, String>? env,
+    bool removeCookies = false,
+    String? apiTarget,
     @Deprecated('Will be removed in v8. Use [data] instead')
     Map<String, String>? other,
-    bool removeCookies = false,
   }) =>
       SentryRequest(
         url: url ?? this.url,
@@ -160,8 +173,9 @@ class SentryRequest {
         data: data ?? _data,
         headers: headers ?? _headers,
         env: env ?? _env,
+        fragment: fragment ?? this.fragment,
+        apiTarget: apiTarget ?? this.apiTarget,
         // ignore: deprecated_member_use_from_same_package
         other: other ?? _other,
-        fragment: fragment,
       );
 }
