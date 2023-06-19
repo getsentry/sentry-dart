@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -21,10 +22,11 @@ import 'package:sentry_dio/sentry_dio.dart';
 import 'package:sentry_logging/sentry_logging.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
-const String _exampleDsn =
+const String exampleDsn =
     'https://e85b375ffb9f43cf8bdf9787768149e0@o447951.ingest.sentry.io/5428562';
 
 const _channel = MethodChannel('example.flutter.sentry.io');
+var _isIntegrationTest = false;
 
 Future<void> main() async {
   await setupSentry(
@@ -38,12 +40,13 @@ Future<void> main() async {
               ),
             ),
           ),
-      _exampleDsn);
+      exampleDsn);
 }
 
-Future<void> setupSentry(AppRunner appRunner, String dsn) async {
+Future<void> setupSentry(AppRunner appRunner, String dsn,
+    {bool isIntegrationTest = false}) async {
   await SentryFlutter.init((options) {
-    options.dsn = _exampleDsn;
+    options.dsn = exampleDsn;
     options.tracesSampleRate = 1.0;
     options.reportPackages = false;
     options.addInAppInclude('sentry_flutter_example');
@@ -63,6 +66,12 @@ Future<void> setupSentry(AppRunner appRunner, String dsn) async {
 
     options.maxRequestBodySize = MaxRequestBodySize.always;
     options.maxResponseBodySize = MaxResponseBodySize.always;
+
+    _isIntegrationTest = isIntegrationTest;
+    if (_isIntegrationTest) {
+      options.dist = '1';
+      options.environment = 'integration';
+    }
   },
       // Init your App.
       appRunner: appRunner);
@@ -136,6 +145,7 @@ class MainScaffold extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            if (_isIntegrationTest) const IntegrationTestWidget(),
             const Center(child: Text('Trigger an action:\n')),
             ElevatedButton(
               onPressed: () => sqfliteTest(),
@@ -525,6 +535,53 @@ Future<void> tryCatch() async {
 
 Future<void> asyncThrows() async {
   throw StateError('async throws');
+}
+
+class IntegrationTestWidget extends StatefulWidget {
+  const IntegrationTestWidget({super.key});
+
+  @override
+  State<StatefulWidget> createState() {
+    return _IntegrationTestWidgetState();
+  }
+}
+
+class _IntegrationTestWidgetState extends State<IntegrationTestWidget> {
+  _IntegrationTestWidgetState();
+
+  var _output = "--";
+  var _isLoading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(children: [
+      Text(
+        _output,
+        key: const Key('output'),
+      ),
+      _isLoading
+          ? const CircularProgressIndicator()
+          : ElevatedButton(
+              onPressed: () async => await _captureException(),
+              child: const Text('captureException'),
+            )
+    ]);
+  }
+
+  Future<void> _captureException() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      throw Exception('captureException');
+    } catch (error, stackTrace) {
+      final id = await Sentry.captureException(error, stackTrace: stackTrace);
+      setState(() {
+        _output = id.toString();
+        _isLoading = false;
+      });
+    }
+  }
 }
 
 class CocoaExample extends StatelessWidget {
