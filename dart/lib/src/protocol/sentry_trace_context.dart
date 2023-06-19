@@ -28,6 +28,13 @@ class SentryTraceContext {
   /// The Span status
   final SpanStatus? status;
 
+  /// The origin of the span indicates what created the span.
+  ///
+  /// @note Gets set by the SDK. It is not expected to be set manually by users.
+  ///
+  /// @see <https://develop.sentry.dev/sdk/performance/trace-origin>
+  final String? origin;
+
   factory SentryTraceContext.fromJson(Map<String, dynamic> json) {
     return SentryTraceContext(
       operation: json['op'] as String,
@@ -41,6 +48,9 @@ class SentryTraceContext {
           ? null
           : SpanStatus.fromString(json['status'] as String),
       sampled: true,
+      origin: json['origin'] == null
+          ? null
+          : json['origin'] as String?
     );
   }
 
@@ -53,6 +63,7 @@ class SentryTraceContext {
       if (parentSpanId != null) 'parent_span_id': parentSpanId!.toString(),
       if (description != null) 'description': description,
       if (status != null) 'status': status!.toString(),
+      if (origin != null) 'origin': origin,
     };
   }
 
@@ -74,6 +85,7 @@ class SentryTraceContext {
     required this.operation,
     this.description,
     this.status,
+    this.origin,
   })  : traceId = traceId ?? SentryId.newId(),
         spanId = spanId ?? SpanId.newId();
 }

@@ -15,6 +15,7 @@ void main() {
     expect(map['parent_span_id'], isNotNull);
     expect(map['description'], 'desc');
     expect(map['status'], 'aborted');
+    expect(map['origin'], 'auto.ui');
   });
 
   test('fromJson deserializes', () {
@@ -25,6 +26,7 @@ void main() {
       'parent_span_id': '0000000000000000',
       'description': 'desc',
       'status': 'aborted',
+      'origin': 'auto.ui'
     };
     final traceContext = SentryTraceContext.fromJson(map);
 
@@ -46,6 +48,7 @@ class Fixture {
       description: 'desc',
       sampled: true,
       status: SpanStatus.aborted(),
+      origin: 'auto.ui'
     );
   }
 }
