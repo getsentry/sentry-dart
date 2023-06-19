@@ -6,7 +6,7 @@ import 'package:sentry_flutter_example/main.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUp(() async {
+  tearDown(() async {
     await Sentry.close();
   });
 
@@ -18,7 +18,6 @@ void main() {
         bundle: SentryAssetBundle(enableStructuredDataTracing: true),
         child: const MyApp(),
       )));
-      await tester.pumpAndSettle();
     }, 'https://abc@def.ingest.sentry.io/1234567');
   }
 
