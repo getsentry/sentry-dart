@@ -36,6 +36,7 @@ class SentrySpan extends ISentrySpan {
   }) {
     _startTimestamp = startTimestamp?.toUtc() ?? _hub.options.clock();
     _finishedCallback = finishedCallback;
+    _origin = _context.origin;
   }
 
   @override
@@ -145,6 +146,14 @@ class SentrySpan extends ISentrySpan {
   @override
   SentrySpanContext get context => _context;
 
+  String? _origin;
+
+  @override
+  String? get origin => _origin;
+
+  @override
+  set origin(String? origin) => _origin = origin;
+
   Map<String, dynamic> toJson() {
     final json = _context.toJson();
     json['start_timestamp'] =
@@ -161,6 +170,9 @@ class SentrySpan extends ISentrySpan {
     }
     if (_tags.isNotEmpty) {
       json['tags'] = _tags;
+    }
+    if (_origin != null) {
+      json['origin'] = _origin;
     }
     return json;
   }

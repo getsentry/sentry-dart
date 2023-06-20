@@ -36,6 +36,12 @@ abstract class ISentrySpan {
   /// Gets the span context.
   SentrySpanContext get context;
 
+  /// Gets the span origin
+  String? get origin;
+
+  /// Sets span origin.
+  set origin(String? origin);
+
   /// Returns the end timestamp if finished
   DateTime? get endTimestamp;
 

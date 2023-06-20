@@ -90,6 +90,14 @@ void main() {
     expect(sut.data['test'], isNull);
   });
 
+  test('span sets origin', () {
+    final sut = fixture.getSut();
+
+    sut.origin = 'manual';
+
+    expect(sut.origin, 'manual');
+  });
+
   test('span adds tag', () {
     final sut = fixture.getSut();
 
@@ -122,6 +130,7 @@ void main() {
 
     sut.setTag('test', 'test');
     sut.setData('test', 'test');
+    sut.origin = 'manual';
 
     await sut.finish(status: SpanStatus.aborted());
 
@@ -132,6 +141,7 @@ void main() {
     expect(map['data']['test'], 'test');
     expect(map['tags']['test'], 'test');
     expect(map['status'], 'aborted');
+    expect(map['origin'], 'manual');
   });
 
   test('finished returns false if not yet', () {
@@ -257,12 +267,18 @@ void main() {
 
     expect(currentTimer, isNot(equals(newTimer)));
   });
+
+  test('takes origin from context', () async {
+    final sut = fixture.getSut();
+    expect(sut.origin, 'manual');
+  });
 }
 
 class Fixture {
   final context = SentryTransactionContext(
     'name',
     'op',
+    origin: 'manual'
   );
   late SentryTracer tracer;
   final hub = MockHub();

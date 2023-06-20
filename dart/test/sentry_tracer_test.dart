@@ -33,6 +33,12 @@ void main() {
       expect(sut.samplingDecision?.sampled, isTrue);
     });
 
+    test('tracer origin from root span', () {
+      final sut = fixture.getSut();
+
+      expect(sut.origin, 'manual');
+    });
+
     test('tracer finishes with status', () async {
       final sut = fixture.getSut();
 
@@ -585,6 +591,7 @@ class Fixture {
       'name',
       'op',
       samplingDecision: SentryTracesSamplingDecision(sampled!),
+      origin: 'manual'
     );
     return SentryTracer(
       context,
