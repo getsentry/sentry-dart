@@ -399,7 +399,7 @@ class Hub {
           name,
           operation,
           description: description,
-          origin: SentryTraceOrigin.manual,
+          origin: SentryTraceOrigins.manual,
         ),
         startTimestamp: startTimestamp,
         bindToScope: bindToScope,
@@ -420,6 +420,7 @@ class Hub {
     Duration? autoFinishAfter,
     bool? trimEnd,
     OnTransactionFinish? onFinish,
+    String? origin,
   }) {
     if (!_isEnabled) {
       _options.logger(
@@ -446,7 +447,7 @@ class Hub {
 
       if (transactionContext.origin == null) {
         transactionContext = transactionContext.copyWith(
-            origin: SentryTraceOrigin.manual,
+            origin: origin ?? SentryTraceOrigins.manual,
         );
       }
 

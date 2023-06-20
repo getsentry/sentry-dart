@@ -291,6 +291,7 @@ class Sentry {
     Duration? autoFinishAfter,
     bool? trimEnd,
     OnTransactionFinish? onFinish,
+    String? origin,
   }) =>
       _hub.startTransactionWithContext(
         transactionContext,
@@ -301,6 +302,7 @@ class Sentry {
         autoFinishAfter: autoFinishAfter,
         trimEnd: trimEnd,
         onFinish: onFinish,
+        origin: origin,
       );
 
   /// Gets the current active transaction or span bound to the scope.

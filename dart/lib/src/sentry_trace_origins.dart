@@ -1,7 +1,8 @@
 import 'package:meta/meta.dart';
 
 @internal
-class SentryTraceOrigin {
+class SentryTraceOrigins {
   static const manual = 'manual';
-  static const auto = 'auto';
+
+  static const autoNavigationSentryNavigatorObserver = 'auto.navigation.sentry_navigator_observer';
 }

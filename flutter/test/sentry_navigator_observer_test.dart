@@ -30,6 +30,7 @@ void main() {
       onFinish: anyNamed('onFinish'),
       customSamplingContext: anyNamed('customSamplingContext'),
       startTimestamp: anyNamed('startTimestamp'),
+      origin: anyNamed('origin'),
     )).thenReturn(thenReturnSpan);
   }
 
@@ -141,6 +142,8 @@ void main() {
         autoFinishAfter: anyNamed('autoFinishAfter'),
         trimEnd: true,
         onFinish: anyNamed('onFinish'),
+        // ignore: invalid_use_of_internal_member
+        origin: SentryTraceOrigins.autoNavigationSentryNavigatorObserver,
       )).captured.single as SentryTransactionContext;
 
       expect(context.name, name);
@@ -172,6 +175,8 @@ void main() {
         autoFinishAfter: Duration(seconds: 5),
         trimEnd: true,
         onFinish: anyNamed('onFinish'),
+        // ignore: invalid_use_of_internal_member
+        origin: SentryTraceOrigins.autoNavigationSentryNavigatorObserver,
       ));
 
       hub.configureScope((scope) {
@@ -198,6 +203,8 @@ void main() {
         autoFinishAfter: anyNamed('autoFinishAfter'),
         trimEnd: true,
         onFinish: anyNamed('onFinish'),
+        // ignore: invalid_use_of_internal_member
+        origin: SentryTraceOrigins.autoNavigationSentryNavigatorObserver,
       ));
 
       hub.configureScope((scope) {
@@ -223,6 +230,8 @@ void main() {
         autoFinishAfter: anyNamed('autoFinishAfter'),
         trimEnd: true,
         onFinish: anyNamed('onFinish'),
+        // ignore: invalid_use_of_internal_member
+        origin: SentryTraceOrigins.autoNavigationSentryNavigatorObserver,
       ));
 
       hub.configureScope((scope) {
@@ -250,6 +259,8 @@ void main() {
         autoFinishAfter: anyNamed('autoFinishAfter'),
         trimEnd: true,
         onFinish: anyNamed('onFinish'),
+        // ignore: invalid_use_of_internal_member
+        origin: SentryTraceOrigins.autoNavigationSentryNavigatorObserver,
       ));
 
       hub.configureScope((scope) {
@@ -315,6 +326,8 @@ void main() {
         autoFinishAfter: anyNamed('autoFinishAfter'),
         trimEnd: true,
         onFinish: anyNamed('onFinish'),
+        // ignore: invalid_use_of_internal_member
+        origin: SentryTraceOrigins.autoNavigationSentryNavigatorObserver,
       ));
 
       hub.configureScope((scope) {
@@ -360,6 +373,8 @@ void main() {
         autoFinishAfter: anyNamed('autoFinishAfter'),
         trimEnd: true,
         onFinish: anyNamed('onFinish'),
+        // ignore: invalid_use_of_internal_member
+        origin: SentryTraceOrigins.autoNavigationSentryNavigatorObserver,
       )).captured.single as SentryTransactionContext;
 
       expect(context.name, 'root ("/")');

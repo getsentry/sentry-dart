@@ -200,6 +200,8 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
           }
         }
       },
+      // ignore: invalid_use_of_internal_member
+      origin: SentryTraceOrigins.autoNavigationSentryNavigatorObserver,
     );
 
     // if _enableAutoTransactions is enabled but there's no traces sample rate
