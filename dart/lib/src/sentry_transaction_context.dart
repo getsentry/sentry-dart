@@ -65,6 +65,7 @@ class SentryTransactionContext extends SentrySpanContext {
     SpanId? parentSpanId,
     SentryTransactionNameSource? transactionNameSource,
     SentryTracesSamplingDecision? samplingDecision,
+    String? origin,
   }) =>
       SentryTransactionContext(
         name ?? this.name,
@@ -78,5 +79,6 @@ class SentryTransactionContext extends SentrySpanContext {
         transactionNameSource:
             transactionNameSource ?? this.transactionNameSource,
         samplingDecision: samplingDecision ?? this.samplingDecision,
+        origin: origin ?? this.origin,
       );
 }

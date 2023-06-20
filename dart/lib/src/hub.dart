@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:meta/meta.dart';
+import 'sentry_trace_origins.dart';
 import 'transport/data_category.dart';
 
 import '../sentry.dart';
@@ -398,6 +399,7 @@ class Hub {
           name,
           operation,
           description: description,
+          origin: SentryTraceOrigin.manual,
         ),
         startTimestamp: startTimestamp,
         bindToScope: bindToScope,
@@ -440,6 +442,12 @@ class Hub {
         final samplingDecision = _tracesSampler.sample(samplingContext);
         transactionContext =
             transactionContext.copyWith(samplingDecision: samplingDecision);
+      }
+
+      if (transactionContext.origin == null) {
+        transactionContext = transactionContext.copyWith(
+            origin: SentryTraceOrigin.manual,
+        );
       }
 
       final tracer = SentryTracer(

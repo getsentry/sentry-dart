@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/client_reports/discard_reason.dart';
+import 'package:sentry/src/sentry_trace_origins.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/transport/data_category.dart';
 import 'package:test/test.dart';
@@ -176,6 +177,7 @@ void main() {
       expect(tr.context.description, 'desc');
       expect(tr.startTimestamp.isAtSameMomentAs(startTime), true);
       expect((tr as SentryTracer).name, 'name');
+      expect(tr.origin, SentryTraceOrigin.manual);
     });
 
     test('start transaction binds span to the scope', () async {
@@ -263,6 +265,14 @@ void main() {
       );
 
       expect(tr.samplingDecision?.sampled, false);
+    });
+
+    test('start transaction with context sets trace origin', () async {
+      final hub = fixture.getSut();
+      final tr = hub.startTransactionWithContext(
+        SentryTransactionContext('name', 'op'),
+      );
+      expect(tr.origin, SentryTraceOrigin.manual);
     });
 
     test('start transaction return NoOp if performance is disabled', () async {
