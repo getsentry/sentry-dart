@@ -44,6 +44,7 @@ void main() {
       expect(span.data['http.fragment'], 'baz');
       expect(span.data['http.response.status_code'], 200);
       expect(span.data['http.response_content_length'], 2);
+      expect(span.origin, SentryTraceOrigins.autoHttpHttpTracingClient);
     });
 
     test('finish span if errored request', () async {
