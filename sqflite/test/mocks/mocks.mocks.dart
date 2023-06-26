@@ -139,6 +139,7 @@ class _FakeHub_10 extends _i1.SmartFake implements _i2.Hub {
 /// A class which mocks [SentryTracer].
 ///
 /// See the documentation for Mockito's code generation for more information.
+// ignore: invalid_use_of_internal_member
 class MockSentryTracer extends _i1.Mock implements _i5.SentryTracer {
   MockSentryTracer() {
     _i1.throwOnMissingStub(this);
