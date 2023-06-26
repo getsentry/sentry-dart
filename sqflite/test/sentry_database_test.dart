@@ -67,11 +67,10 @@ void main() {
       expect(span.context.operation, 'db');
       expect(span.context.description, 'Close DB: $inMemoryDatabasePath');
       expect(span.status, SpanStatus.ok());
-
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
-        SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor,
+        SentryTraceOrigins.autoFileSqfliteSentryDatabase,
       );
     });
 
@@ -85,11 +84,10 @@ void main() {
       expect(span.context.operation, 'db.sql.transaction');
       expect(span.context.description, 'Transaction DB: $inMemoryDatabasePath');
       expect(span.status, SpanStatus.ok());
-
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
-        SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor,
+        SentryTraceOrigins.autoFileSqfliteSentryDatabase,
       );
 
       await db.close();
@@ -164,7 +162,7 @@ void main() {
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
-        SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor,
+        SentryTraceOrigins.autoFileSqfliteSentryDatabase,
       );
     });
 
@@ -186,7 +184,7 @@ void main() {
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
-        SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor,
+        SentryTraceOrigins.autoFileSqfliteSentryDatabase,
       );
     });
   });
