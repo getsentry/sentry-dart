@@ -59,7 +59,13 @@ void main() {
       final span = fixture.tracer.children.last;
       expect(span.context.operation, 'db');
       expect(span.context.description, 'Open DB: $inMemoryDatabasePath');
+      expect(span.context.description, 'Open DB: $inMemoryDatabasePath');
 
+      expect(
+        span.origin,
+        // ignore: invalid_use_of_internal_member
+        SentryTraceOrigins.autoFileSqfliteSentrySqfliteDatabaseFactory,
+      );
       await db.close();
     });
   });

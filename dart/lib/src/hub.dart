@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:meta/meta.dart';
-import 'sentry_trace_origins.dart';
 import 'transport/data_category.dart';
 
 import '../sentry.dart';
@@ -447,7 +446,7 @@ class Hub {
 
       if (transactionContext.origin == null) {
         transactionContext = transactionContext.copyWith(
-            origin: origin ?? SentryTraceOrigins.manual,
+          origin: origin ?? SentryTraceOrigins.manual,
         );
       }
 

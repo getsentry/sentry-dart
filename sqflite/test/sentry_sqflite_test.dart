@@ -88,7 +88,7 @@ void main() {
 
     test('creates db open span', () async {
       final db =
-      await openDatabaseWithSentry(inMemoryDatabasePath, hub: fixture.hub);
+          await openDatabaseWithSentry(inMemoryDatabasePath, hub: fixture.hub);
 
       final span = fixture.tracer.children.last;
 
@@ -100,10 +100,7 @@ void main() {
 
       await db.close();
     });
-
   });
-
-
 }
 
 class Fixture {

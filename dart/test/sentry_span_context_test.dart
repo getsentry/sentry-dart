@@ -39,10 +39,9 @@ void main() {
 class Fixture {
   SentrySpanContext getSut() {
     return SentrySpanContext(
-      operation: 'op',
-      parentSpanId: SpanId.newId(),
-      description: 'desc',
-      origin: 'manual'
-    );
+        operation: 'op',
+        parentSpanId: SpanId.newId(),
+        description: 'desc',
+        origin: 'manual');
   }
 }

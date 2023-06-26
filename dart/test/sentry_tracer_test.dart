@@ -591,7 +591,7 @@ class Fixture {
       'name',
       'op',
       samplingDecision: SentryTracesSamplingDecision(sampled!),
-      origin: 'manual'
+      origin: 'manual',
     );
     return SentryTracer(
       context,

@@ -43,12 +43,11 @@ void main() {
 class Fixture {
   SentryTraceContext getSut() {
     return SentryTraceContext(
-      operation: 'op',
-      parentSpanId: SpanId.newId(),
-      description: 'desc',
-      sampled: true,
-      status: SpanStatus.aborted(),
-      origin: 'auto.ui'
-    );
+        operation: 'op',
+        parentSpanId: SpanId.newId(),
+        description: 'desc',
+        sampled: true,
+        status: SpanStatus.aborted(),
+        origin: 'auto.ui');
   }
 }

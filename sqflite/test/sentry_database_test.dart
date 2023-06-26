@@ -67,8 +67,12 @@ void main() {
       expect(span.context.operation, 'db');
       expect(span.context.description, 'Close DB: $inMemoryDatabasePath');
       expect(span.status, SpanStatus.ok());
-      // ignore: invalid_use_of_internal_member
-      expect(span.origin, SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor);
+
+      expect(
+        span.origin,
+        // ignore: invalid_use_of_internal_member
+        SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor,
+      );
     });
 
     test('creates transaction span', () async {
@@ -81,8 +85,12 @@ void main() {
       expect(span.context.operation, 'db.sql.transaction');
       expect(span.context.description, 'Transaction DB: $inMemoryDatabasePath');
       expect(span.status, SpanStatus.ok());
-      // ignore: invalid_use_of_internal_member
-      expect(span.origin, SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor);
+
+      expect(
+        span.origin,
+        // ignore: invalid_use_of_internal_member
+        SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor,
+      );
 
       await db.close();
     });
@@ -103,8 +111,12 @@ void main() {
       );
       expect(insertSpan.context.parentSpanId, trSpan.context.spanId);
       expect(insertSpan.status, SpanStatus.ok());
-      // ignore: invalid_use_of_internal_member
-      expect(insertSpan.origin, SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor);
+
+      expect(
+        insertSpan.origin,
+        // ignore: invalid_use_of_internal_member,
+        SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor,
+      );
 
       await db.close();
     });
@@ -148,8 +160,12 @@ void main() {
       final span = fixture.tracer.children.last;
       expect(span.throwable, fixture.exception);
       expect(span.status, SpanStatus.internalError());
-      // ignore: invalid_use_of_internal_member
-      expect(span.origin, SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor);
+
+      expect(
+        span.origin,
+        // ignore: invalid_use_of_internal_member
+        SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor,
+      );
     });
 
     test('transaction sets span to internal error', () async {
@@ -166,8 +182,12 @@ void main() {
       final span = fixture.tracer.children.last;
       expect(span.throwable, fixture.exception);
       expect(span.status, SpanStatus.internalError());
-      // ignore: invalid_use_of_internal_member
-      expect(span.origin, SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor);
+
+      expect(
+        span.origin,
+        // ignore: invalid_use_of_internal_member
+        SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor,
+      );
     });
   });
 
@@ -194,8 +214,12 @@ void main() {
       expect(span.context.operation, 'db.sql.execute');
       expect(span.context.description, 'DELETE FROM Product');
       expect(span.status, SpanStatus.ok());
-      // ignore: invalid_use_of_internal_member
-      expect(span.origin, SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor);
+
+      expect(
+        span.origin,
+        // ignore: invalid_use_of_internal_member
+        SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor,
+      );
 
       await db.close();
     });
@@ -209,8 +233,12 @@ void main() {
       expect(span.context.operation, 'db.sql.execute');
       expect(span.context.description, 'DELETE FROM Product');
       expect(span.status, SpanStatus.ok());
-      // ignore: invalid_use_of_internal_member
-      expect(span.origin, SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor);
+
+      expect(
+        span.origin,
+        // ignore: invalid_use_of_internal_member
+        SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor,
+      );
 
       await db.close();
     });
@@ -227,8 +255,12 @@ void main() {
         'INSERT INTO Product (title) VALUES (?)',
       );
       expect(span.status, SpanStatus.ok());
-      // ignore: invalid_use_of_internal_member
-      expect(span.origin, SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor);
+
+      expect(
+        span.origin,
+        // ignore: invalid_use_of_internal_member
+        SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor,
+      );
 
       await db.close();
     });
@@ -242,8 +274,12 @@ void main() {
       expect(span.context.operation, 'db.sql.query');
       expect(span.context.description, 'SELECT * FROM Product');
       expect(span.status, SpanStatus.ok());
-      // ignore: invalid_use_of_internal_member
-      expect(span.origin, SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor);
+
+      expect(
+        span.origin,
+        // ignore: invalid_use_of_internal_member
+        SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor,
+      );
 
       await db.close();
     });
@@ -257,8 +293,12 @@ void main() {
       expect(span.context.operation, 'db.sql.query');
       expect(span.context.description, 'SELECT * FROM Product');
       expect(span.status, SpanStatus.ok());
-      // ignore: invalid_use_of_internal_member
-      expect(span.origin, SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor);
+
+      expect(
+        span.origin,
+        // ignore: invalid_use_of_internal_member
+        SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor,
+      );
 
       await db.close();
     });
@@ -272,8 +312,12 @@ void main() {
       expect(span.context.operation, 'db.sql.execute');
       expect(span.context.description, 'DELETE FROM Product');
       expect(span.status, SpanStatus.ok());
-      // ignore: invalid_use_of_internal_member
-      expect(span.origin, SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor);
+
+      expect(
+        span.origin,
+        // ignore: invalid_use_of_internal_member
+        SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor,
+      );
 
       await db.close();
     });
@@ -291,8 +335,12 @@ void main() {
         'INSERT INTO Product (title) VALUES (?)',
       );
       expect(span.status, SpanStatus.ok());
-      // ignore: invalid_use_of_internal_member
-      expect(span.origin, SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor);
+
+      expect(
+        span.origin,
+        // ignore: invalid_use_of_internal_member
+        SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor,
+      );
 
       await db.close();
     });
@@ -306,8 +354,12 @@ void main() {
       expect(span.context.operation, 'db.sql.query');
       expect(span.context.description, 'SELECT * FROM Product');
       expect(span.status, SpanStatus.ok());
-      // ignore: invalid_use_of_internal_member
-      expect(span.origin, SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor);
+
+      expect(
+        span.origin,
+        // ignore: invalid_use_of_internal_member
+        SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor,
+      );
 
       await db.close();
     });
@@ -321,8 +373,12 @@ void main() {
       expect(span.context.operation, 'db.sql.query');
       expect(span.context.description, 'SELECT * FROM Product');
       expect(span.status, SpanStatus.ok());
-      // ignore: invalid_use_of_internal_member
-      expect(span.origin, SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor);
+
+      expect(
+        span.origin,
+        // ignore: invalid_use_of_internal_member
+        SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor,
+      );
 
       await db.close();
     });
@@ -336,8 +392,12 @@ void main() {
       expect(span.context.operation, 'db.sql.execute');
       expect(span.context.description, 'UPDATE Product SET title = ?');
       expect(span.status, SpanStatus.ok());
-      // ignore: invalid_use_of_internal_member
-      expect(span.origin, SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor);
+
+      expect(
+        span.origin,
+        // ignore: invalid_use_of_internal_member
+        SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor,
+      );
 
       await db.close();
     });
@@ -351,8 +411,12 @@ void main() {
       expect(span.context.operation, 'db.sql.execute');
       expect(span.context.description, 'UPDATE Product SET title = ?');
       expect(span.status, SpanStatus.ok());
-      // ignore: invalid_use_of_internal_member
-      expect(span.origin, SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor);
+
+      expect(
+        span.origin,
+        // ignore: invalid_use_of_internal_member
+        SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor,
+      );
 
       await db.close();
     });
@@ -385,8 +449,12 @@ void main() {
       final span = fixture.tracer.children.last;
       expect(span.throwable, fixture.exception);
       expect(span.status, SpanStatus.internalError());
-      // ignore: invalid_use_of_internal_member
-      expect(span.origin, SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor);
+
+      expect(
+        span.origin,
+        // ignore: invalid_use_of_internal_member
+        SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor,
+      );
     });
 
     test('execute sets span to internal error', () async {
@@ -402,8 +470,12 @@ void main() {
       final span = fixture.tracer.children.last;
       expect(span.throwable, fixture.exception);
       expect(span.status, SpanStatus.internalError());
-      // ignore: invalid_use_of_internal_member
-      expect(span.origin, SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor);
+
+      expect(
+        span.origin,
+        // ignore: invalid_use_of_internal_member
+        SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor,
+      );
     });
 
     test('insert sets span to internal error', () async {
@@ -420,8 +492,12 @@ void main() {
       final span = fixture.tracer.children.last;
       expect(span.throwable, fixture.exception);
       expect(span.status, SpanStatus.internalError());
-      // ignore: invalid_use_of_internal_member
-      expect(span.origin, SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor);
+
+      expect(
+        span.origin,
+        // ignore: invalid_use_of_internal_member
+        SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor,
+      );
     });
 
     test('query sets span to internal error', () async {
@@ -437,8 +513,12 @@ void main() {
       final span = fixture.tracer.children.last;
       expect(span.throwable, fixture.exception);
       expect(span.status, SpanStatus.internalError());
-      // ignore: invalid_use_of_internal_member
-      expect(span.origin, SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor);
+
+      expect(
+        span.origin,
+        // ignore: invalid_use_of_internal_member
+        SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor,
+      );
     });
 
     test('query cursor sets span to internal error', () async {
@@ -454,8 +534,12 @@ void main() {
       final span = fixture.tracer.children.last;
       expect(span.throwable, fixture.exception);
       expect(span.status, SpanStatus.internalError());
-      // ignore: invalid_use_of_internal_member
-      expect(span.origin, SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor);
+
+      expect(
+        span.origin,
+        // ignore: invalid_use_of_internal_member
+        SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor,
+      );
     });
 
     test('raw delete sets span to internal error', () async {
@@ -471,8 +555,12 @@ void main() {
       final span = fixture.tracer.children.last;
       expect(span.throwable, fixture.exception);
       expect(span.status, SpanStatus.internalError());
-      // ignore: invalid_use_of_internal_member
-      expect(span.origin, SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor);
+
+      expect(
+        span.origin,
+        // ignore: invalid_use_of_internal_member
+        SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor,
+      );
     });
 
     test('raw insert sets span to internal error', () async {
@@ -488,8 +576,12 @@ void main() {
       final span = fixture.tracer.children.last;
       expect(span.throwable, fixture.exception);
       expect(span.status, SpanStatus.internalError());
-      // ignore: invalid_use_of_internal_member
-      expect(span.origin, SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor);
+
+      expect(
+        span.origin,
+        // ignore: invalid_use_of_internal_member
+        SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor,
+      );
     });
 
     test('raw query sets span to internal error', () async {
@@ -505,8 +597,12 @@ void main() {
       final span = fixture.tracer.children.last;
       expect(span.throwable, fixture.exception);
       expect(span.status, SpanStatus.internalError());
-      // ignore: invalid_use_of_internal_member
-      expect(span.origin, SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor);
+
+      expect(
+        span.origin,
+        // ignore: invalid_use_of_internal_member
+        SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor,
+      );
     });
 
     test('raw query cursor sets span to internal error', () async {
@@ -523,8 +619,12 @@ void main() {
       final span = fixture.tracer.children.last;
       expect(span.throwable, fixture.exception);
       expect(span.status, SpanStatus.internalError());
-      // ignore: invalid_use_of_internal_member
-      expect(span.origin, SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor);
+
+      expect(
+        span.origin,
+        // ignore: invalid_use_of_internal_member
+        SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor,
+      );
     });
 
     test('raw update sets span to internal error', () async {
@@ -540,8 +640,12 @@ void main() {
       final span = fixture.tracer.children.last;
       expect(span.throwable, fixture.exception);
       expect(span.status, SpanStatus.internalError());
-      // ignore: invalid_use_of_internal_member
-      expect(span.origin, SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor);
+
+      expect(
+        span.origin,
+        // ignore: invalid_use_of_internal_member
+        SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor,
+      );
     });
 
     test('update sets span to internal error', () async {
@@ -558,8 +662,12 @@ void main() {
       final span = fixture.tracer.children.last;
       expect(span.throwable, fixture.exception);
       expect(span.status, SpanStatus.internalError());
-      // ignore: invalid_use_of_internal_member
-      expect(span.origin, SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor);
+
+      expect(
+        span.origin,
+        // ignore: invalid_use_of_internal_member
+        SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor,
+      );
     });
   });
 }

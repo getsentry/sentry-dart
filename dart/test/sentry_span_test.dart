@@ -275,11 +275,7 @@ void main() {
 }
 
 class Fixture {
-  final context = SentryTransactionContext(
-    'name',
-    'op',
-    origin: 'manual'
-  );
+  final context = SentryTransactionContext('name', 'op', origin: 'manual');
   late SentryTracer tracer;
   final hub = MockHub();
 
