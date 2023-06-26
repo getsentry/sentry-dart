@@ -31,6 +31,10 @@ void main() {
       databaseFactory = databaseFactoryFfi;
     });
 
+    tearDown(() {
+      databaseFactory = sqfliteDatabaseFactoryDefault;
+    });
+
     test('returns wrapped data base if performance enabled', () async {
       final db =
           await openDatabaseWithSentry(inMemoryDatabasePath, hub: fixture.hub);
@@ -82,10 +86,24 @@ void main() {
       await db.close();
     });
 
-    tearDown(() {
-      databaseFactory = sqfliteDatabaseFactoryDefault;
+    test('creates db open span', () async {
+      final db =
+      await openDatabaseWithSentry(inMemoryDatabasePath, hub: fixture.hub);
+
+      final span = fixture.tracer.children.last;
+
+      expect(span.context.operation, SentryDatabase.dbOp);
+      expect(span.context.description, 'Open DB: $inMemoryDatabasePath');
+      expect(span.status, SpanStatus.ok());
+      // ignore: invalid_use_of_internal_member
+      expect(span.origin, SentryTraceOrigins.autoFileSqflite);
+
+      await db.close();
     });
+
   });
+
+
 }
 
 class Fixture {

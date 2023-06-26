@@ -44,6 +44,8 @@ Future<Database> openDatabaseWithSentry(
       SentryDatabase.dbOp,
       description: 'Open DB: $path',
     );
+    // ignore: invalid_use_of_internal_member
+    span?.origin = SentryTraceOrigins.autoFileSqflite;
 
     try {
       final database =
