@@ -47,6 +47,8 @@ class SentryBatch implements Batch {
         SentryDatabase.dbOp,
         description: _buffer.toString().trim(),
       );
+      // ignore: invalid_use_of_internal_member
+      span?.origin = SentryTraceOrigins.autoFileSqfliteSentryBatch;
 
       try {
         final result = await _batch.apply(
@@ -82,6 +84,8 @@ class SentryBatch implements Batch {
         SentryDatabase.dbOp,
         description: _buffer.toString().trim(),
       );
+      // ignore: invalid_use_of_internal_member
+      span?.origin = SentryTraceOrigins.autoFileSqfliteSentryBatch;
 
       try {
         final result = await _batch.commit(

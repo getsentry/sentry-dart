@@ -10,4 +10,5 @@ class SentryTraceOrigins {
   static const autoHttpDioSentryTransformer = 'auto.http.dio.sentry_transformer';
   static const autoFile = 'auto.file';
   static const autoFileAssetBundle = 'auto.file.asset_bundle';
+  static const autoFileSqfliteSentryBatch = 'auto.file.sqflite.sentry_batch';
 }
