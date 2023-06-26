@@ -57,7 +57,7 @@ jobs:
 
   # Enable after fixing https://github.com/getsentry/sentry-dart/issues/1448
   test-ios:
-    runs-on: macos-latest
+    runs-on: macos-13
     timeout-minutes: 30
     defaults:
       run:
@@ -83,7 +83,7 @@ jobs:
 
       - name: launch ios simulator
         run: |
-          simulator_id=$(xcrun simctl create sentryPhone com.apple.CoreSimulator.SimDeviceType.iPhone-14 com.apple.CoreSimulator.SimRuntime.iOS-16-2)
+          simulator_id=$(xcrun simctl create sentryPhone com.apple.CoreSimulator.SimDeviceType.iPhone-14 com.apple.CoreSimulator.SimRuntime.iOS-16-4)
           xcrun simctl boot ${simulator_id}
         
       - name: run ios integration test
