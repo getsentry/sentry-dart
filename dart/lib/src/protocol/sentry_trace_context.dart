@@ -73,6 +73,7 @@ class SentryTraceContext {
         status: status,
         parentSpanId: parentSpanId,
         sampled: sampled,
+        origin: origin,
       );
 
   SentryTraceContext({
