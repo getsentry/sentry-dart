@@ -11,4 +11,5 @@ class SentryTraceOrigins {
   static const autoFile = 'auto.file';
   static const autoFileAssetBundle = 'auto.file.asset_bundle';
   static const autoFileSqfliteSentryBatch = 'auto.file.sqflite.sentry_batch';
+  static const autoFileSqfliteSentryDatabaseExecutor = 'auto.file.sqflite.sentry_database_executor';
 }
