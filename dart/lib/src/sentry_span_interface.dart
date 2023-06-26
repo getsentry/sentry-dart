@@ -40,6 +40,10 @@ abstract class ISentrySpan {
   String? get origin;
 
   /// Sets span origin.
+  ///
+  /// Gets set by the SDK. It is not expected to be set manually by users.
+  ///
+  /// See https://develop.sentry.dev/sdk/performance/trace-origin
   set origin(String? origin);
 
   /// Returns the end timestamp if finished

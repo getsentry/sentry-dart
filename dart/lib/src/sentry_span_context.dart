@@ -20,6 +20,11 @@ class SentrySpanContext {
   /// consistent across instances of the span.
   final String? description;
 
+  /// The origin of the span indicates what created the span.
+  ///
+  /// Gets set by the SDK. It is not expected to be set manually by users.
+  ///
+  /// See https://develop.sentry.dev/sdk/performance/trace-origin
   final String? origin;
 
   /// Item encoded as JSON
