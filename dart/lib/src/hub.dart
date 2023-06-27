@@ -419,7 +419,6 @@ class Hub {
     Duration? autoFinishAfter,
     bool? trimEnd,
     OnTransactionFinish? onFinish,
-    String? origin,
   }) {
     if (!_isEnabled) {
       _options.logger(
@@ -446,7 +445,7 @@ class Hub {
 
       if (transactionContext.origin == null) {
         transactionContext = transactionContext.copyWith(
-          origin: origin ?? SentryTraceOrigins.manual,
+          origin: SentryTraceOrigins.manual,
         );
       }
 

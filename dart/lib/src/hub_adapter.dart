@@ -121,7 +121,6 @@ class HubAdapter implements Hub {
     Duration? autoFinishAfter,
     bool? trimEnd,
     OnTransactionFinish? onFinish,
-    String? origin,
   }) =>
       Sentry.startTransactionWithContext(
         transactionContext,
@@ -132,7 +131,6 @@ class HubAdapter implements Hub {
         autoFinishAfter: autoFinishAfter,
         trimEnd: trimEnd,
         onFinish: onFinish,
-        origin: origin,
       );
 
   @override

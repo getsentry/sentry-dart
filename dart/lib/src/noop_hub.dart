@@ -110,7 +110,6 @@ class NoOpHub implements Hub {
     Duration? autoFinishAfter,
     bool? trimEnd,
     OnTransactionFinish? onFinish,
-    String? origin,
   }) =>
       NoOpSentrySpan();
 

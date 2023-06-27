@@ -179,7 +179,10 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       name,
       'navigation',
       transactionNameSource: SentryTransactionNameSource.component,
+      // ignore: invalid_use_of_internal_member
+      origin: SentryTraceOrigins.autoNavigationSentryNavigatorObserver,
     );
+
     _transaction = _hub.startTransactionWithContext(
       transactionContext,
       waitForChildren: true,
@@ -200,8 +203,6 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
           }
         }
       },
-      // ignore: invalid_use_of_internal_member
-      origin: SentryTraceOrigins.autoNavigationSentryNavigatorObserver,
     );
 
     // if _enableAutoTransactions is enabled but there's no traces sample rate

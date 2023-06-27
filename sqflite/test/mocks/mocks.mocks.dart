@@ -1510,7 +1510,6 @@ class MockHub extends _i1.Mock implements _i2.Hub {
     Duration? autoFinishAfter,
     bool? trimEnd,
     _i2.OnTransactionFinish? onFinish,
-    String? origin,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -1524,7 +1523,6 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             #autoFinishAfter: autoFinishAfter,
             #trimEnd: trimEnd,
             #onFinish: onFinish,
-            #origin: origin,
           },
         ),
         returnValue: _FakeISentrySpan_2(
@@ -1540,7 +1538,6 @@ class MockHub extends _i1.Mock implements _i2.Hub {
               #autoFinishAfter: autoFinishAfter,
               #trimEnd: trimEnd,
               #onFinish: onFinish,
-              #origin: origin,
             },
           ),
         ),
