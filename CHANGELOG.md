@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Enhancements
+
+- Mark exceptions not handled by user as `handled: false` ([#1535](https://github.com/getsentry/sentry-dart/pull/1535))
+
 ## 7.8.0
 
 ### Enhancements
