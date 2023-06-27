@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+import 'sentry_trace_origins.dart';
 
 import 'protocol.dart';
 import 'sentry_baggage.dart';
@@ -52,6 +53,7 @@ class SentryTransactionContext extends SentrySpanContext {
           : null,
       transactionNameSource:
           transactionNameSource ?? SentryTransactionNameSource.custom,
+      origin: SentryTraceOrigins.manual,
     );
   }
 

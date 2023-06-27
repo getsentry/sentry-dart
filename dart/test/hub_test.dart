@@ -277,7 +277,7 @@ void main() {
     test('start transaction with context keeps origin', () async {
       final hub = fixture.getSut();
       final tr = hub.startTransactionWithContext(
-          SentryTransactionContext('name', 'op', origin: 'auto.navigation.test'),
+        SentryTransactionContext('name', 'op', origin: 'auto.navigation.test'),
       );
       expect(tr.origin, 'auto.navigation.test');
     });
