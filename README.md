@@ -29,9 +29,7 @@ For detailed usage, check out the inner [dart](https://github.com/getsentry/sent
 
 #### Blog posts
 
-[Introducing Mobile Screenshots and Suspect Commits](https://blog.sentry.io/2022/07/07/introducing-mobile-screenshots-and-suspect-commits).
-
-[Sentry's New Mobile App for Managing Releases](https://blog.sentry.io/2021/08/03/fluttering-our-mobile-wings).
+[Introducing Mobile Screenshots](https://blog.sentry.io/introducing-mobile-screenshots-and-suspect-commits/).
 
 [With Flutter and Sentry, You Can Put All Your Eggs in One Repo](https://blog.sentry.io/2021/03/03/with-flutter-and-sentry-you-can-put-all-your-eggs-in-one-repo).
 
