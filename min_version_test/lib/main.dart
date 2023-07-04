@@ -112,9 +112,13 @@ class _MyHomePageState extends State<MyHomePage> {
       final log = Logger('_MyHomePageState');
 
       try {
+
+        // TODO Handle web file error
+
         final file = File('response.txt');
         final response = await dio.get<String>('https://flutter.dev/');
-        await file.writeAsString(response.data ?? 'no response');
+        print(response);
+        // await file.writeAsString(response.data ?? 'no response');
 
         await transaction.finish(status: SpanStatus.ok());
       } catch (exception, stackTrace) {
