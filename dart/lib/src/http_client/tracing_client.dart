@@ -34,7 +34,7 @@ class TracingClient extends BaseClient {
       'http.client',
       description: description,
     );
-    span?.origin = SentryTraceOrigins.autoHttpHttpTracingClient;
+    span?.origin = SentryTraceOrigins.autoHttpHttp;
 
     // if the span is NoOp, we don't want to attach headers
     if (span is NoOpSentrySpan) {

@@ -64,7 +64,7 @@ void main() {
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
-        SentryTraceOrigins.autoFileSqfliteSentrySqfliteDatabaseFactory,
+        SentryTraceOrigins.autoFileSqfliteDatabaseFactory,
       );
       await db.close();
     });

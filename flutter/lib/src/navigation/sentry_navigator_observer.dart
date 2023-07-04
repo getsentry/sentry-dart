@@ -180,7 +180,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
       'navigation',
       transactionNameSource: SentryTransactionNameSource.component,
       // ignore: invalid_use_of_internal_member
-      origin: SentryTraceOrigins.autoNavigationSentryNavigatorObserver,
+      origin: SentryTraceOrigins.autoNavigationRouteObserver,
     );
 
     _transaction = _hub.startTransactionWithContext(

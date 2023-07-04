@@ -45,7 +45,7 @@ Future<Database> openDatabaseWithSentry(
       description: 'Open DB: $path',
     );
     // ignore: invalid_use_of_internal_member
-    span?.origin = SentryTraceOrigins.autoFileSqflite;
+    span?.origin = SentryTraceOrigins.autoFileSqfliteOpenDatabase;
 
     try {
       final database =

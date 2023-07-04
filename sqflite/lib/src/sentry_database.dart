@@ -61,7 +61,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
         description: 'Close DB: ${_database.path}',
       );
       // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoFileSqfliteSentryDatabase;
+      span?.origin = SentryTraceOrigins.autoFileSqfliteDatabase;
 
       try {
         await _database.close();
@@ -112,7 +112,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
         description: 'Transaction DB: ${_database.path}',
       );
       // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoFileSqfliteSentryDatabase;
+      span?.origin = SentryTraceOrigins.autoFileSqfliteDatabase;
 
       Future<T> newAction(Transaction txn) async {
         final executor =

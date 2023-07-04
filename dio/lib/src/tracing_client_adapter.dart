@@ -39,7 +39,7 @@ class TracingClientAdapter implements HttpClientAdapter {
     );
 
     // ignore: invalid_use_of_internal_member
-    span?.origin = SentryTraceOrigins.autoHttpDioTracingClientAdapter;
+    span?.origin = SentryTraceOrigins.autoHttpDioHttpClientAdapter;
 
     // if the span is NoOp, we don't want to attach headers
     if (span is NoOpSentrySpan) {

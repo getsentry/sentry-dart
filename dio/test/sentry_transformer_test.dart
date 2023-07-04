@@ -44,7 +44,7 @@ void main() {
       expect(span.data['http.query'], 'foo=bar');
       expect(span.data['http.fragment'], 'baz');
       expect(span.data['http.fragment'], 'baz');
-      expect(span.origin, SentryTraceOrigins.autoHttpDioSentryTransformer);
+      expect(span.origin, SentryTraceOrigins.autoHttpDioTransformer);
     });
 
     test('transformRequest finish span if errored request', () async {
@@ -72,7 +72,7 @@ void main() {
       expect(span.data['http.query'], 'foo=bar');
       expect(span.data['http.fragment'], 'baz');
       expect(span.finished, true);
-      expect(span.origin, SentryTraceOrigins.autoHttpDioSentryTransformer);
+      expect(span.origin, SentryTraceOrigins.autoHttpDioTransformer);
     });
 
     test('transformResponse creates span', () async {
@@ -100,7 +100,7 @@ void main() {
       expect(span.data['url'], 'https://example.com');
       expect(span.data['http.query'], 'foo=bar');
       expect(span.data['http.fragment'], 'baz');
-      expect(span.origin, SentryTraceOrigins.autoHttpDioSentryTransformer);
+      expect(span.origin, SentryTraceOrigins.autoHttpDioTransformer);
     });
 
     test('transformResponse finish span if errored request', () async {
@@ -131,7 +131,7 @@ void main() {
       expect(span.data['http.query'], 'foo=bar');
       expect(span.data['http.fragment'], 'baz');
       expect(span.finished, true);
-      expect(span.origin, SentryTraceOrigins.autoHttpDioSentryTransformer);
+      expect(span.origin, SentryTraceOrigins.autoHttpDioTransformer);
     });
   });
 }

@@ -29,7 +29,7 @@ class SentryTransformer implements Transformer {
 
     span?.setData('http.method', options.method);
     // ignore: invalid_use_of_internal_member
-    span?.origin = SentryTraceOrigins.autoHttpDioSentryTransformer;
+    span?.origin = SentryTraceOrigins.autoHttpDioTransformer;
 
     urlDetails?.applyToSpan(span);
 
@@ -67,7 +67,7 @@ class SentryTransformer implements Transformer {
 
     span?.setData('http.method', options.method);
     // ignore: invalid_use_of_internal_member
-    span?.origin = SentryTraceOrigins.autoHttpDioSentryTransformer;
+    span?.origin = SentryTraceOrigins.autoHttpDioTransformer;
 
     urlDetails?.applyToSpan(span);
 

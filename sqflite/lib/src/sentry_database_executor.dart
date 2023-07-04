@@ -40,7 +40,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         description: builder.sql,
       );
       // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor;
+      span?.origin = SentryTraceOrigins.autoFileSqfliteDatabaseExecutor;
 
       try {
         final result =
@@ -69,7 +69,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         description: sql,
       );
       // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor;
+      span?.origin = SentryTraceOrigins.autoFileSqfliteDatabaseExecutor;
 
       try {
         await _executor.execute(sql, arguments);
@@ -106,7 +106,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         description: builder.sql,
       );
       // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor;
+      span?.origin = SentryTraceOrigins.autoFileSqfliteDatabaseExecutor;
 
       try {
         final result = await _executor.insert(
@@ -162,7 +162,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         description: builder.sql,
       );
       // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor;
+      span?.origin = SentryTraceOrigins.autoFileSqfliteDatabaseExecutor;
 
       try {
         final result = await _executor.query(
@@ -225,7 +225,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         description: builder.sql,
       );
       // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor;
+      span?.origin = SentryTraceOrigins.autoFileSqfliteDatabaseExecutor;
 
       try {
         final result = await _executor.queryCursor(
@@ -265,7 +265,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         description: sql,
       );
       // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor;
+      span?.origin = SentryTraceOrigins.autoFileSqfliteDatabaseExecutor;
 
       try {
         final result = await _executor.rawDelete(sql, arguments);
@@ -293,7 +293,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         description: sql,
       );
       // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor;
+      span?.origin = SentryTraceOrigins.autoFileSqfliteDatabaseExecutor;
 
       try {
         final result = await _executor.rawInsert(sql, arguments);
@@ -324,7 +324,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         description: sql,
       );
       // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor;
+      span?.origin = SentryTraceOrigins.autoFileSqfliteDatabaseExecutor;
 
       try {
         final result = await _executor.rawQuery(sql, arguments);
@@ -356,7 +356,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         description: sql,
       );
       // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor;
+      span?.origin = SentryTraceOrigins.autoFileSqfliteDatabaseExecutor;
 
       try {
         final result = await _executor.rawQueryCursor(
@@ -388,7 +388,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         description: sql,
       );
       // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor;
+      span?.origin = SentryTraceOrigins.autoFileSqfliteDatabaseExecutor;
 
       try {
         final result = await _executor.rawUpdate(sql, arguments);
@@ -429,7 +429,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         description: builder.sql,
       );
       // ignore: invalid_use_of_internal_member
-      span?.origin = SentryTraceOrigins.autoFileSqfliteSentryDatabaseExecutor;
+      span?.origin = SentryTraceOrigins.autoFileSqfliteDatabaseExecutor;
 
       try {
         final result = await _executor.update(

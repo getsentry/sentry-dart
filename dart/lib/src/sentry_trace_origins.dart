@@ -4,21 +4,18 @@ import 'package:meta/meta.dart';
 class SentryTraceOrigins {
   static const manual = 'manual';
 
-  static const autoNavigationSentryNavigatorObserver =
-      'auto.navigation.sentry_navigator_observer';
-  static const autoHttpHttpTracingClient = 'auto.http.http.tracing_client';
-  static const autoHttpDioTracingClientAdapter =
-      'auto.http.dio.tracing_client_adapter';
-  static const autoHttpDioSentryTransformer =
-      'auto.http.dio.sentry_transformer';
+  static const autoNavigationRouteObserver = 'auto.navigation.route_observer';
+  static const autoHttpHttp = 'auto.http.http';
+  static const autoHttpDioHttpClientAdapter =
+      'auto.http.dio.http_client_adapter';
+  static const autoHttpDioTransformer = 'auto.http.dio.transformer';
   static const autoFile = 'auto.file';
   static const autoFileAssetBundle = 'auto.file.asset_bundle';
-  static const autoFileSqflite = 'auto.file.sqflite';
-  static const autoFileSqfliteSentryBatch = 'auto.file.sqflite.sentry_batch';
-  static const autoFileSqfliteSentryDatabase =
-      'auto.file.sqflite.sentry_database';
-  static const autoFileSqfliteSentryDatabaseExecutor =
-      'auto.file.sqflite.sentry_database_executor';
-  static const autoFileSqfliteSentrySqfliteDatabaseFactory =
-      'auto.file.sqflite.sentry_sqflite_database_factory';
+  static const autoFileSqfliteOpenDatabase = 'auto.file.sqflite.open_database';
+  static const autoFileSqfliteBatch = 'auto.file.sqflite.batch';
+  static const autoFileSqfliteDatabase = 'auto.file.sqflite.database';
+  static const autoFileSqfliteDatabaseExecutor =
+      'auto.file.sqflite.database_executor';
+  static const autoFileSqfliteDatabaseFactory =
+      'auto.file.sqflite.database_factory';
 }

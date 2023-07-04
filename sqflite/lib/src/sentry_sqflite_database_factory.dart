@@ -66,7 +66,7 @@ class SentrySqfliteDatabaseFactory with SqfliteDatabaseFactoryMixin {
 
       span?.origin =
           // ignore: invalid_use_of_internal_member
-          SentryTraceOrigins.autoFileSqfliteSentrySqfliteDatabaseFactory;
+          SentryTraceOrigins.autoFileSqfliteDatabaseFactory;
 
       try {
         final database =
