@@ -96,7 +96,7 @@ void main() {
       expect(span.context.description, 'Open DB: $inMemoryDatabasePath');
       expect(span.status, SpanStatus.ok());
       // ignore: invalid_use_of_internal_member
-      expect(span.origin, SentryTraceOrigins.autoFileSqfliteOpenDatabase);
+      expect(span.origin, SentryTraceOrigins.autoDbSqfliteOpenDatabase);
 
       await db.close();
     });

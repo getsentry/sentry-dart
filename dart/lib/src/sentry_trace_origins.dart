@@ -11,11 +11,11 @@ class SentryTraceOrigins {
   static const autoHttpDioTransformer = 'auto.http.dio.transformer';
   static const autoFile = 'auto.file';
   static const autoFileAssetBundle = 'auto.file.asset_bundle';
-  static const autoFileSqfliteOpenDatabase = 'auto.file.sqflite.open_database';
-  static const autoFileSqfliteBatch = 'auto.file.sqflite.batch';
-  static const autoFileSqfliteDatabase = 'auto.file.sqflite.database';
-  static const autoFileSqfliteDatabaseExecutor =
-      'auto.file.sqflite.database_executor';
-  static const autoFileSqfliteDatabaseFactory =
-      'auto.file.sqflite.database_factory';
+  static const autoDbSqfliteOpenDatabase = 'auto.db.sqflite.open_database';
+  static const autoDbSqfliteBatch = 'auto.db.sqflite.batch';
+  static const autoDbSqfliteDatabase = 'auto.db.sqflite.database';
+  static const autoDbSqfliteDatabaseExecutor =
+      'auto.db.sqflite.database_executor';
+  static const autoDbSqfliteDatabaseFactory =
+      'auto.db.sqflite.database_factory';
 }

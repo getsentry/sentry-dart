@@ -70,7 +70,7 @@ void main() {
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
-        SentryTraceOrigins.autoFileSqfliteDatabase,
+        SentryTraceOrigins.autoDbSqfliteDatabase,
       );
     });
 
@@ -87,7 +87,7 @@ void main() {
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
-        SentryTraceOrigins.autoFileSqfliteDatabase,
+        SentryTraceOrigins.autoDbSqfliteDatabase,
       );
 
       await db.close();
@@ -113,7 +113,7 @@ void main() {
       expect(
         insertSpan.origin,
         // ignore: invalid_use_of_internal_member,
-        SentryTraceOrigins.autoFileSqfliteDatabaseExecutor,
+        SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
       );
 
       await db.close();
@@ -162,7 +162,7 @@ void main() {
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
-        SentryTraceOrigins.autoFileSqfliteDatabase,
+        SentryTraceOrigins.autoDbSqfliteDatabase,
       );
     });
 
@@ -184,7 +184,7 @@ void main() {
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
-        SentryTraceOrigins.autoFileSqfliteDatabase,
+        SentryTraceOrigins.autoDbSqfliteDatabase,
       );
     });
   });
@@ -216,7 +216,7 @@ void main() {
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
-        SentryTraceOrigins.autoFileSqfliteDatabaseExecutor,
+        SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
       );
 
       await db.close();
@@ -235,7 +235,7 @@ void main() {
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
-        SentryTraceOrigins.autoFileSqfliteDatabaseExecutor,
+        SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
       );
 
       await db.close();
@@ -257,7 +257,7 @@ void main() {
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
-        SentryTraceOrigins.autoFileSqfliteDatabaseExecutor,
+        SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
       );
 
       await db.close();
@@ -276,7 +276,7 @@ void main() {
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
-        SentryTraceOrigins.autoFileSqfliteDatabaseExecutor,
+        SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
       );
 
       await db.close();
@@ -295,7 +295,7 @@ void main() {
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
-        SentryTraceOrigins.autoFileSqfliteDatabaseExecutor,
+        SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
       );
 
       await db.close();
@@ -314,7 +314,7 @@ void main() {
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
-        SentryTraceOrigins.autoFileSqfliteDatabaseExecutor,
+        SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
       );
 
       await db.close();
@@ -337,7 +337,7 @@ void main() {
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
-        SentryTraceOrigins.autoFileSqfliteDatabaseExecutor,
+        SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
       );
 
       await db.close();
@@ -356,7 +356,7 @@ void main() {
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
-        SentryTraceOrigins.autoFileSqfliteDatabaseExecutor,
+        SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
       );
 
       await db.close();
@@ -375,7 +375,7 @@ void main() {
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
-        SentryTraceOrigins.autoFileSqfliteDatabaseExecutor,
+        SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
       );
 
       await db.close();
@@ -394,7 +394,7 @@ void main() {
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
-        SentryTraceOrigins.autoFileSqfliteDatabaseExecutor,
+        SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
       );
 
       await db.close();
@@ -413,7 +413,7 @@ void main() {
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
-        SentryTraceOrigins.autoFileSqfliteDatabaseExecutor,
+        SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
       );
 
       await db.close();
@@ -451,7 +451,7 @@ void main() {
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
-        SentryTraceOrigins.autoFileSqfliteDatabaseExecutor,
+        SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
       );
     });
 
@@ -472,7 +472,7 @@ void main() {
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
-        SentryTraceOrigins.autoFileSqfliteDatabaseExecutor,
+        SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
       );
     });
 
@@ -494,7 +494,7 @@ void main() {
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
-        SentryTraceOrigins.autoFileSqfliteDatabaseExecutor,
+        SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
       );
     });
 
@@ -515,7 +515,7 @@ void main() {
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
-        SentryTraceOrigins.autoFileSqfliteDatabaseExecutor,
+        SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
       );
     });
 
@@ -536,7 +536,7 @@ void main() {
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
-        SentryTraceOrigins.autoFileSqfliteDatabaseExecutor,
+        SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
       );
     });
 
@@ -557,7 +557,7 @@ void main() {
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
-        SentryTraceOrigins.autoFileSqfliteDatabaseExecutor,
+        SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
       );
     });
 
@@ -578,7 +578,7 @@ void main() {
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
-        SentryTraceOrigins.autoFileSqfliteDatabaseExecutor,
+        SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
       );
     });
 
@@ -599,7 +599,7 @@ void main() {
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
-        SentryTraceOrigins.autoFileSqfliteDatabaseExecutor,
+        SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
       );
     });
 
@@ -621,7 +621,7 @@ void main() {
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
-        SentryTraceOrigins.autoFileSqfliteDatabaseExecutor,
+        SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
       );
     });
 
@@ -642,7 +642,7 @@ void main() {
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
-        SentryTraceOrigins.autoFileSqfliteDatabaseExecutor,
+        SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
       );
     });
 
@@ -664,7 +664,7 @@ void main() {
       expect(
         span.origin,
         // ignore: invalid_use_of_internal_member
-        SentryTraceOrigins.autoFileSqfliteDatabaseExecutor,
+        SentryTraceOrigins.autoDbSqfliteDatabaseExecutor,
       );
     });
   });
