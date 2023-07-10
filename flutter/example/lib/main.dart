@@ -44,7 +44,8 @@ Future<void> main() async {
 }
 
 Future<void> setupSentry(AppRunner appRunner, String dsn,
-    {bool isIntegrationTest = false}) async {
+    {bool isIntegrationTest = false,
+    BeforeSendCallback? beforeSendCallback}) async {
   await SentryFlutter.init((options) {
     options.dsn = exampleDsn;
     options.tracesSampleRate = 1.0;
@@ -71,6 +72,7 @@ Future<void> setupSentry(AppRunner appRunner, String dsn,
     if (_isIntegrationTest) {
       options.dist = '1';
       options.environment = 'integration';
+      options.beforeSend = beforeSendCallback;
     }
   },
       // Init your App.

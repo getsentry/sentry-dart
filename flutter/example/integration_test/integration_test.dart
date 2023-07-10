@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
@@ -19,7 +20,8 @@ void main() {
   });
 
   // Using fake DSN for testing purposes.
-  Future<void> setupSentryAndApp(WidgetTester tester, {String? dsn}) async {
+  Future<void> setupSentryAndApp(WidgetTester tester,
+      {String? dsn, BeforeSendCallback? beforeSendCallback}) async {
     await setupSentry(() async {
       await tester.pumpWidget(SentryScreenshotWidget(
           child: DefaultAssetBundle(
@@ -27,7 +29,8 @@ void main() {
         child: const MyApp(),
       )));
       await tester.pumpAndSettle();
-    }, dsn ?? fakeDsn, isIntegrationTest: true);
+    }, dsn ?? fakeDsn,
+        isIntegrationTest: true, beforeSendCallback: beforeSendCallback);
   }
 
   // Tests
@@ -142,7 +145,8 @@ void main() {
     });
 
     testWidgets('captureException', (tester) async {
-      await setupSentryAndApp(tester, dsn: exampleDsn);
+      await setupSentryAndApp(tester,
+          dsn: exampleDsn, beforeSendCallback: fixture.beforeSend);
 
       await tester.tap(find.text('captureException'));
       await tester.pumpAndSettle();
@@ -156,12 +160,44 @@ void main() {
 
       final event = await fixture.poll(uri, authToken);
       expect(event, isNotNull);
-      expect(fixture.validate(event!), isTrue);
+
+      final sentEvent = fixture.sentEvent;
+      expect(sentEvent, isNotNull);
+
+      final tags = event!["tags"] as List<dynamic>;
+
+      expect(sentEvent!.eventId.toString(), event["id"]);
+      expect("_Exception: Exception: captureException", event["title"]);
+      expect(sentEvent.release, event["release"]["version"]);
+      expect(
+          2,
+          (tags.firstWhere((e) => e["value"] == sentEvent.environment) as Map)
+              .length);
+      expect(sentEvent.fingerprint, event["fingerprint"] ?? []);
+      expect(
+          2,
+          (tags.firstWhere((e) => e["value"] == SentryLevel.error.name) as Map)
+              .length);
+      expect(sentEvent.logger, event["logger"]);
+
+      final dist = tags.firstWhere((element) => element['key'] == 'dist');
+      expect('1', dist['value']);
+
+      final environment =
+          tags.firstWhere((element) => element['key'] == 'environment');
+      expect('integration', environment['value']);
     });
   });
 }
 
 class Fixture {
+  SentryEvent? sentEvent;
+
+  FutureOr<SentryEvent?> beforeSend(SentryEvent event, {Hint? hint}) async {
+    sentEvent = event;
+    return event;
+  }
+
   Future<Map<String, dynamic>?> poll(Uri url, String authToken) async {
     final client = Client();
 
@@ -190,19 +226,5 @@ class Fixture {
       }
     }
     return null;
-  }
-
-  bool validate(Map<String, dynamic> event) {
-    final tags = event['tags'] as List<dynamic>;
-    final dist = tags.firstWhere((element) => element['key'] == 'dist');
-    if (dist['value'] != '1') {
-      return false;
-    }
-    final environment =
-        tags.firstWhere((element) => element['key'] == 'environment');
-    if (environment['value'] != 'integration') {
-      return false;
-    }
-    return true;
   }
 }
