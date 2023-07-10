@@ -1,6 +1,6 @@
 name: sentry_flutter_example
 description: Demonstrates how to use the sentry_flutter plugin.
-version: 7.8.2
+version: 7.8.0
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
@@ -43,13 +43,13 @@ flutter:
     - assets/sentry-wordmark.png
 
 sentry:
-  upload_debug_symbols: true
-  upload_source_maps: false
+  #upload_debug_symbols: true
+  #upload_source_maps: true
   upload_sources: true
   project: sentry-flutter
   org: sentry-sdks
   wait_for_processing: true
   commits: true
   ignore_missing: true
-  auth_token: 5ac5c14f29074714a034379bb0d16dc0b33ec3be83e041e6bae979c62307ce8f
+  #auth_token: .
   log_level: info
