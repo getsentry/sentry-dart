@@ -72,4 +72,4 @@ jobs:
         run: |
           cd min_version_test
           flutter pub get
-          flutter build web
+          flutter build web --source-maps
