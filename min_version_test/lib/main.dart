@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'dart:io' if (dart.library.html) 'dart:html';
-
-import 'package:logging/logging.dart';
-import 'package:dio/dio.dart';
-
+import 'package:min_version_test/transaction/transaction_locator.dart'
+    if (dart.library.html) 'package:min_version_test/transaction/file_transaction.dart'
+    if (dart.library.io) 'package:min_version_test/transaction/web_transaction.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:sentry_dio/sentry_dio.dart';
 import 'package:sentry_logging/sentry_logging.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
@@ -94,11 +91,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> _incrementCounter() async {
     setState(() async {
-      final transaction = Sentry.startTransaction(
-        'incrementCounter',
-        'task',
-        bindToScope: true,
-      );
+      final transactionTest = getTransaction();
+      await transactionTest.start();
 
       // This call to setState tells the Flutter framework that something has
       // changed in this State, which causes it to rerun the build method below
@@ -106,25 +100,6 @@ class _MyHomePageState extends State<MyHomePage> {
       // _counter without calling setState(), then the build method would not be
       // called again, and so nothing would appear to happen.
       _counter++;
-
-      final dio = Dio();
-      dio.addSentry();
-      final log = Logger('_MyHomePageState');
-
-      try {
-
-        // TODO Handle web file error
-
-        final file = File('response.txt');
-        final response = await dio.get<String>('https://flutter.dev/');
-        print(response);
-        // await file.writeAsString(response.data ?? 'no response');
-
-        await transaction.finish(status: SpanStatus.ok());
-      } catch (exception, stackTrace) {
-        log.info(exception.toString(), exception, stackTrace);
-        await transaction.finish(status: SpanStatus.internalError());
-      }
     });
   }
 
