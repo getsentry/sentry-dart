@@ -62,10 +62,13 @@ jobs:
         if: steps.avd-cache.outputs.cache-hit != 'true'
         uses: reactivecircus/android-emulator-runner@d94c3fbe4fe6a29e4a5ba47c12fb47677c73656b #pin@v2.28.0
         with:
+          working-directory: ./flutter/example
           api-level: 21
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: false
+          arch: x86_64
+          profile: Nexus 6
           script: echo "Generated AVD snapshot for caching."
 
       - name: launch android emulator & run android integration test
