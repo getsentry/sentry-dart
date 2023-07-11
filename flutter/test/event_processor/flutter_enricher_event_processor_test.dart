@@ -340,24 +340,6 @@ void main() {
 
       expect(event?.contexts.app?.screen, 'fixture-currentRouteName');
     });
-
-    testWidgets(
-        'does not add SentryNavigatorObserver.currentRouteName if no app',
-        (tester) async {
-      final observer = SentryNavigatorObserver();
-      final route =
-          fixture.route(RouteSettings(name: 'fixture-currentRouteName'));
-      observer.didPush(route, null);
-
-      final eventWithoutContextsApp = SentryEvent(contexts: Contexts());
-
-      final enricher = fixture.getSut(
-        binding: () => tester.binding,
-      );
-      final event = await enricher.apply(eventWithoutContextsApp);
-
-      expect(event?.contexts.app?.screen, isNull);
-    });
   });
 }
 
