@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sentry/sentry.dart';
 
+import '../navigation/sentry_navigator_observer.dart';
 import '../sentry_flutter_options.dart';
 
 typedef WidgetBindingGetter = WidgetsBinding? Function();
@@ -46,6 +47,11 @@ class FlutterEnricherEventProcessor implements EventProcessor {
       operatingSystem: _getOperatingSystem(event.contexts.operatingSystem),
       app: _getApp(event.contexts.app),
     );
+
+    final app = contexts.app;
+    if (app != null) {
+      _getAppScreen(contexts, app);
+    }
 
     // Flutter has a lot of Accessibility Settings available and exposes them
     contexts['accessibility'] = _getAccessibilityContext();
@@ -236,5 +242,12 @@ class FlutterEnricherEventProcessor implements EventProcessor {
     return (app ?? SentryApp()).copyWith(
       inForeground: inForeground,
     );
+  }
+
+  void _getAppScreen(Contexts contexts, SentryApp app) {
+    final currentRouteName = SentryNavigatorObserver.currentRouteName;
+    if (currentRouteName != null) {
+      contexts.app = app.copyWith(screen: currentRouteName);
+    }
   }
 }

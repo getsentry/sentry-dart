@@ -6,16 +6,15 @@ void main() {
   final testStartTime = DateTime.fromMicrosecondsSinceEpoch(0);
 
   final sentryApp = SentryApp(
-    name: 'fixture-name',
-    version: 'fixture-version',
-    identifier: 'fixture-identifier',
-    build: 'fixture-build',
-    buildType: 'fixture-buildType',
-    startTime: testStartTime,
-    deviceAppHash: 'fixture-deviceAppHash',
-    inForeground: true,
-    screen: 'fixture-screen'
-  );
+      name: 'fixture-name',
+      version: 'fixture-version',
+      identifier: 'fixture-identifier',
+      build: 'fixture-build',
+      buildType: 'fixture-buildType',
+      startTime: testStartTime,
+      deviceAppHash: 'fixture-deviceAppHash',
+      inForeground: true,
+      screen: 'fixture-screen');
 
   final sentryAppJson = <String, dynamic>{
     'app_name': 'fixture-name',

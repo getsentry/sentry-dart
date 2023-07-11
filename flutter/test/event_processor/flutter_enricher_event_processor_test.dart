@@ -322,6 +322,42 @@ void main() {
           .length;
       expect(ioEnricherCount, 1);
     });
+
+    testWidgets('adds SentryNavigatorObserver.currentRouteName as app.screen',
+        (tester) async {
+      final observer = SentryNavigatorObserver();
+      final route =
+          fixture.route(RouteSettings(name: 'fixture-currentRouteName'));
+      observer.didPush(route, null);
+
+      final eventWithContextsApp =
+          SentryEvent(contexts: Contexts(app: SentryApp()));
+
+      final enricher = fixture.getSut(
+        binding: () => tester.binding,
+      );
+      final event = await enricher.apply(eventWithContextsApp);
+
+      expect(event?.contexts.app?.screen, 'fixture-currentRouteName');
+    });
+
+    testWidgets(
+        'does not add SentryNavigatorObserver.currentRouteName if no app',
+        (tester) async {
+      final observer = SentryNavigatorObserver();
+      final route =
+          fixture.route(RouteSettings(name: 'fixture-currentRouteName'));
+      observer.didPush(route, null);
+
+      final eventWithoutContextsApp = SentryEvent(contexts: Contexts());
+
+      final enricher = fixture.getSut(
+        binding: () => tester.binding,
+      );
+      final event = await enricher.apply(eventWithoutContextsApp);
+
+      expect(event?.contexts.app?.screen, isNull);
+    });
   });
 }
 
@@ -342,6 +378,11 @@ class Fixture {
     )..reportPackages = reportPackages;
     return FlutterEnricherEventProcessor(options);
   }
+
+  PageRoute<dynamic> route(RouteSettings? settings) => PageRouteBuilder<void>(
+        pageBuilder: (_, __, ___) => Container(),
+        settings: settings,
+      );
 }
 
 void loadTestPackage() {

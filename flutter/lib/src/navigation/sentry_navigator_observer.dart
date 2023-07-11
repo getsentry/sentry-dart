@@ -85,6 +85,11 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
 
   ISentrySpan? _transaction;
 
+  static String? _currentRouteName;
+
+  /// Get the current route of the observer.
+  static String? get currentRouteName => _currentRouteName;
+
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
     super.didPush(route, previousRoute);
@@ -201,6 +206,7 @@ class SentryNavigatorObserver extends RouteObserver<PageRoute<dynamic>> {
         }
       },
     );
+    _currentRouteName = name;
 
     // if _enableAutoTransactions is enabled but there's no traces sample rate
     if (_transaction is NoOpSentrySpan) {

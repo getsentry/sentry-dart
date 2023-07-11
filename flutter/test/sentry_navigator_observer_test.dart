@@ -368,6 +368,26 @@ void main() {
         expect(scope.span, span);
       });
     });
+
+    test('exposes current route name', () {
+      const name = 'Current Route';
+      final currentRoute = route(RouteSettings(name: name));
+
+      const op = 'navigation';
+      final hub = _MockHub();
+      final span = getMockSentryTracer(name: name);
+      when(span.context).thenReturn(SentrySpanContext(operation: op));
+      _whenAnyStart(hub, span);
+
+      final sut = fixture.getSut(
+        hub: hub,
+        autoFinishAfter: Duration(seconds: 5),
+      );
+
+      sut.didPush(currentRoute, null);
+
+      expect(SentryNavigatorObserver.currentRouteName, 'Current Route');
+    });
   });
 
   group('RouteObserverBreadcrumb', () {
