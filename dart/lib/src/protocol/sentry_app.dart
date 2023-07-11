@@ -18,6 +18,7 @@ class SentryApp {
     this.deviceAppHash,
     this.appMemory,
     this.inForeground,
+    this.screen,
   });
 
   /// Human readable application name, as it appears on the platform.
@@ -48,6 +49,9 @@ class SentryApp {
   /// An app is in foreground when it's visible to the user.
   final bool? inForeground;
 
+  /// The current application screen.
+  final String? screen;
+
   /// Deserializes a [SentryApp] from JSON [Map].
   factory SentryApp.fromJson(Map<String, dynamic> data) => SentryApp(
         name: data['app_name'],
@@ -61,6 +65,7 @@ class SentryApp {
         deviceAppHash: data['device_app_hash'],
         appMemory: data['app_memory'],
         inForeground: data['in_foreground'],
+        screen: data['screen'],
       );
 
   /// Produces a [Map] that can be serialized to JSON.
@@ -75,6 +80,7 @@ class SentryApp {
       if (appMemory != null) 'app_memory': appMemory!,
       if (startTime != null) 'app_start_time': startTime!.toIso8601String(),
       if (inForeground != null) 'in_foreground': inForeground!,
+      if (screen != null) 'screen': screen!
     };
   }
 
@@ -88,6 +94,7 @@ class SentryApp {
         deviceAppHash: deviceAppHash,
         appMemory: appMemory,
         inForeground: inForeground,
+        screen: screen,
       );
 
   SentryApp copyWith({
@@ -100,6 +107,7 @@ class SentryApp {
     String? deviceAppHash,
     int? appMemory,
     bool? inForeground,
+    String? screen,
   }) =>
       SentryApp(
         name: name ?? this.name,
@@ -111,5 +119,6 @@ class SentryApp {
         deviceAppHash: deviceAppHash ?? this.deviceAppHash,
         appMemory: appMemory ?? this.appMemory,
         inForeground: inForeground ?? this.inForeground,
+        screen: screen ?? this.screen,
       );
 }
