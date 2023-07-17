@@ -14,7 +14,7 @@ void main() {
       startTime: testStartTime,
       deviceAppHash: 'fixture-deviceAppHash',
       inForeground: true,
-      screen: 'fixture-screen');
+      viewName: 'fixture-viewName');
 
   final sentryAppJson = <String, dynamic>{
     'app_name': 'fixture-name',
@@ -25,7 +25,7 @@ void main() {
     'app_start_time': testStartTime.toIso8601String(),
     'device_app_hash': 'fixture-deviceAppHash',
     'in_foreground': true,
-    'screen': 'fixture-screen',
+    'view_name': 'fixture-viewName',
   };
 
   group('json', () {
@@ -74,7 +74,7 @@ void main() {
         startTime: startTime,
         deviceAppHash: 'hash1',
         inForeground: true,
-        screen: 'screen1',
+        viewName: 'screen1',
       );
 
       expect('name1', copy.name);
@@ -85,7 +85,7 @@ void main() {
       expect(startTime, copy.startTime);
       expect('hash1', copy.deviceAppHash);
       expect(true, copy.inForeground);
-      expect('screen1', copy.screen);
+      expect('screen1', copy.viewName);
     });
   });
 }
