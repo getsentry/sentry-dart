@@ -44,3 +44,5 @@ export 'src/utils/http_sanitizer.dart';
 export 'src/utils/url_details.dart';
 // ignore: invalid_export_of_internal_element
 export 'src/utils/http_header_utils.dart';
+// ignore: invalid_export_of_internal_element
+export 'src/sentry_trace_origins.dart';

@@ -67,4 +67,10 @@ void main() {
 
     expect(context.parentSamplingDecision?.sampleRate, 1.0);
   });
+
+  test('origin set to manual', () {
+    final context = getSentryTransactionContext();
+
+    expect(context.origin, SentryTraceOrigins.manual);
+  });
 }

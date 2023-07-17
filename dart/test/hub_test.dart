@@ -176,6 +176,7 @@ void main() {
       expect(tr.context.description, 'desc');
       expect(tr.startTimestamp.isAtSameMomentAs(startTime), true);
       expect((tr as SentryTracer).name, 'name');
+      expect(tr.origin, SentryTraceOrigins.manual);
     });
 
     test('start transaction binds span to the scope', () async {
@@ -263,6 +264,22 @@ void main() {
       );
 
       expect(tr.samplingDecision?.sampled, false);
+    });
+
+    test('start transaction with context sets trace origin fallback', () async {
+      final hub = fixture.getSut();
+      final tr = hub.startTransactionWithContext(
+        SentryTransactionContext('name', 'op'),
+      );
+      expect(tr.origin, SentryTraceOrigins.manual);
+    });
+
+    test('start transaction with context keeps origin', () async {
+      final hub = fixture.getSut();
+      final tr = hub.startTransactionWithContext(
+        SentryTransactionContext('name', 'op', origin: 'auto.navigation.test'),
+      );
+      expect(tr.origin, 'auto.navigation.test');
     });
 
     test('start transaction return NoOp if performance is disabled', () async {

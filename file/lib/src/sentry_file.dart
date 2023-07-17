@@ -423,6 +423,7 @@ class SentryFile implements File {
     final currentSpan = _hub.getSpan();
     final span = currentSpan?.startChild(operation, description: desc);
 
+    span?.origin = SentryTraceOrigins.autoFile;
     span?.setData('file.async', true);
     if (_hub.options.sendDefaultPii) {
       span?.setData('file.path', absolute.path);
@@ -470,6 +471,8 @@ class SentryFile implements File {
 
     final currentSpan = _hub.getSpan();
     final span = currentSpan?.startChild(operation, description: desc);
+
+    span?.origin = SentryTraceOrigins.autoFile;
     span?.setData('file.async', false);
 
     if (_hub.options.sendDefaultPii) {

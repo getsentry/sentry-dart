@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+import 'sentry_trace_origins.dart';
 
 import 'protocol.dart';
 import 'sentry_baggage.dart';
@@ -21,12 +22,14 @@ class SentryTransactionContext extends SentrySpanContext {
     SpanId? parentSpanId,
     this.transactionNameSource,
     this.samplingDecision,
+    String? origin,
   }) : super(
           operation: operation,
           description: description,
           traceId: traceId,
           spanId: spanId,
           parentSpanId: parentSpanId,
+          origin: origin,
         );
 
   factory SentryTransactionContext.fromSentryTrace(
@@ -50,6 +53,7 @@ class SentryTransactionContext extends SentrySpanContext {
           : null,
       transactionNameSource:
           transactionNameSource ?? SentryTransactionNameSource.custom,
+      origin: SentryTraceOrigins.manual,
     );
   }
 
@@ -63,6 +67,7 @@ class SentryTransactionContext extends SentrySpanContext {
     SpanId? parentSpanId,
     SentryTransactionNameSource? transactionNameSource,
     SentryTracesSamplingDecision? samplingDecision,
+    String? origin,
   }) =>
       SentryTransactionContext(
         name ?? this.name,
@@ -76,5 +81,6 @@ class SentryTransactionContext extends SentrySpanContext {
         transactionNameSource:
             transactionNameSource ?? this.transactionNameSource,
         samplingDecision: samplingDecision ?? this.samplingDecision,
+        origin: origin ?? this.origin,
       );
 }
