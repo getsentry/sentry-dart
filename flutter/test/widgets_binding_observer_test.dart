@@ -136,6 +136,7 @@ void main() {
       expect(breadcrumb.level, SentryLevel.info);
 
       // detached lifecycle event
+      await sendLifecycle('paused');
       await sendLifecycle('detached');
 
       breadcrumb =
