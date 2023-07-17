@@ -52,6 +52,12 @@ class NoOpSentrySpan extends ISentrySpan {
   SentrySpanContext get context => _spanContext;
 
   @override
+  String? get origin => null;
+
+  @override
+  set origin(String? origin) {}
+
+  @override
   SpanStatus? get status => null;
 
   @override

@@ -5,6 +5,9 @@
 ### Features
 
 - Set `SentryNavigatorObserver` current route as `event.app.contexts.viewName` ([#1545](https://github.com/getsentry/sentry-dart/pull/1545))
+- Send trace origin ([#1534](https://github.com/getsentry/sentry-dart/pull/1534))
+
+[Trace origin](https://develop.sentry.dev/sdk/performance/trace-origin/) indicates what created a trace or a span. Not all transactions and spans contain enough information to tell whether the user or what precisely in the SDK created it. Origin solves this problem. The SDK now sends origin for transactions and spans.
 
 ## 7.8.0
 

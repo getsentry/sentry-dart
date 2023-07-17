@@ -61,6 +61,8 @@ class SentryAssetBundle implements AssetBundle {
           );
 
       span?.setData('file.path', key);
+      // ignore: invalid_use_of_internal_member
+      span?.origin = SentryTraceOrigins.autoFileAssetBundle;
 
       ByteData? data;
       try {
@@ -95,6 +97,8 @@ class SentryAssetBundle implements AssetBundle {
                 'AssetBundle.loadStructuredData<$T>: ${_fileName(key)}',
           );
       span?.setData('file.path', key);
+      // ignore: invalid_use_of_internal_member
+      span?.origin = SentryTraceOrigins.autoFileAssetBundle;
 
       final completer = Completer<T>();
 
@@ -137,6 +141,8 @@ class SentryAssetBundle implements AssetBundle {
                 'AssetBundle.loadStructuredBinaryData<$T>: ${_fileName(key)}',
           );
       span?.setData('file.path', key);
+      // ignore: invalid_use_of_internal_member
+      span?.origin = SentryTraceOrigins.autoFileAssetBundle;
 
       final completer = Completer<T>();
 
@@ -180,6 +186,8 @@ class SentryAssetBundle implements AssetBundle {
 
       span?.setData('file.path', key);
       span?.setData('from-cache', cache);
+      // ignore: invalid_use_of_internal_member
+      span?.origin = SentryTraceOrigins.autoFileAssetBundle;
 
       String? data;
       try {
@@ -237,6 +245,8 @@ class SentryAssetBundle implements AssetBundle {
           );
 
       span?.setData('file.path', key);
+      // ignore: invalid_use_of_internal_member
+      span?.origin = SentryTraceOrigins.autoFileAssetBundle;
 
       ImmutableBuffer data;
       try {
@@ -282,6 +292,9 @@ class SentryAssetBundle implements AssetBundle {
       'serialize.file.read',
       description: 'parsing "$key" to "$T"',
     );
+    // ignore: invalid_use_of_internal_member
+    span?.origin = SentryTraceOrigins.autoFileAssetBundle;
+
     T data;
     try {
       data = await parser(value);
@@ -307,6 +320,9 @@ class SentryAssetBundle implements AssetBundle {
       'serialize.file.read',
       description: 'parsing "$key" to "$T"',
     );
+    // ignore: invalid_use_of_internal_member
+    span?.origin = SentryTraceOrigins.autoFileAssetBundle;
+
     T data;
     try {
       final result = parser(value);

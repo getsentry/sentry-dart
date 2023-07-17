@@ -33,6 +33,7 @@ void main() {
           (span.data['file.path'] as String)
               .endsWith('test_resources/testfile.txt'),
           true);
+      expect(span.origin, SentryTraceOrigins.autoFile);
     }
 
     test('async', () async {
@@ -103,6 +104,7 @@ void main() {
           (span.data['file.path'] as String)
               .endsWith('test_resources/testfile_create.txt'),
           true);
+      expect(span.origin, SentryTraceOrigins.autoFile);
     }
 
     test('async', () async {
@@ -171,6 +173,7 @@ void main() {
           (span.data['file.path'] as String)
               .endsWith('test_resources/testfile_delete.txt'),
           true);
+      expect(span.origin, SentryTraceOrigins.autoFile);
     }
 
     test('async', () async {
@@ -237,6 +240,7 @@ void main() {
           (span.data['file.path'] as String)
               .endsWith('test_resources/sentry.png'),
           true);
+      expect(span.origin, SentryTraceOrigins.autoFile);
     }
 
     test('async', () async {
@@ -279,6 +283,7 @@ void main() {
           (span.data['file.path'] as String)
               .endsWith('test_resources/$fileName'),
           true);
+      expect(span.origin, SentryTraceOrigins.autoFile);
     }
 
     test('as bytes async', () async {
@@ -408,6 +413,7 @@ void main() {
       expect(
           (span.data['file.path'] as String).endsWith('test_resources/$name'),
           true);
+      expect(span.origin, SentryTraceOrigins.autoFile);
     }
 
     test('async', () async {
@@ -476,6 +482,7 @@ void main() {
 
       expect(span.data['file.async'], async);
       expect(span.data['file.path'], null);
+      expect(span.origin, SentryTraceOrigins.autoFile);
     }
 
     test('does not add file path if sendDefaultPii is disabled async',

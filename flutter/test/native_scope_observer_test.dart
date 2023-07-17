@@ -89,7 +89,7 @@ void main() {
 }
 
 class Fixture {
-  var mock = MockSentryNative();
+  var mock = TestMockSentryNative();
 
   NativeScopeObserver getSut() {
     final sut = NativeScopeObserver(mock);
