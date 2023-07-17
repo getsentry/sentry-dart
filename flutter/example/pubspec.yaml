@@ -50,3 +50,4 @@ sentry:
   wait_for_processing: true
   commits: true
   ignore_missing: true
+  log_level: info
