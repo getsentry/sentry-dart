@@ -21,20 +21,54 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 30
     defaults:
+     run:
+       working-directory: ./flutter/example
+    strategy:
+     fail-fast: false
+     matrix:
+       sdk: ['stable', 'beta']
+    steps:
+     - name: checkout
+       uses: actions/checkout@v3
+
+     - uses: actions/setup-java@v3
+       with:
+         distribution: 'adopt'
+         java-version: '11'
+
+     - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa # pin@v2.10.0
+       with:
+         channel: ${{ matrix.sdk }}
+
+     - name: flutter upgrade
+       run: flutter upgrade
+
+     - name: flutter pub get
+       run: flutter pub get
+
+     - name: launch android emulator & run android integration test
+       uses: reactivecircus/android-emulator-runner@50986b1464923454c95e261820bc626f38490ec0 #pin@v2.27.0
+       with:
+         working-directory: ./flutter/example
+         api-level: 21
+         arch: x86_64
+         profile: Nexus 6
+         script: flutter test integration_test/integration_test.dart --verbose
+
+  test-ios:
+    runs-on: macos-13
+    timeout-minutes: 30
+    defaults:
       run:
         working-directory: ./flutter/example
     strategy:
       fail-fast: false
       matrix:
-        sdk: ['stable', 'beta']
+        # 'beta' is flaky because of https://github.com/flutter/flutter/issues/124340
+        sdk: ['stable']
     steps:
       - name: checkout
         uses: actions/checkout@v3
-
-      - uses: actions/setup-java@v3
-        with:
-          distribution: 'adopt'
-          java-version: '11'
 
       - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa # pin@v2.10.0
         with:
@@ -46,46 +80,10 @@ jobs:
       - name: flutter pub get
         run: flutter pub get
 
-      - name: launch android emulator & run android integration test
-        uses: reactivecircus/android-emulator-runner@50986b1464923454c95e261820bc626f38490ec0 #pin@v2.27.0
-        with:
-          working-directory: ./flutter/example
-          api-level: 21
-          arch: x86_64
-          profile: Nexus 6
-          script: flutter test integration_test/integration_test.dart --verbose
+      - name: launch ios simulator
+        run: |
+          simulator_id=$(xcrun simctl create sentryPhone com.apple.CoreSimulator.SimDeviceType.iPhone-14 com.apple.CoreSimulator.SimRuntime.iOS-16-2)
+          xcrun simctl boot ${simulator_id}
 
-  # Enable after fixing https://github.com/getsentry/sentry-dart/issues/1448
-  # test-ios:
-  #   runs-on: macos-latest
-  #   timeout-minutes: 30
-  #   defaults:
-  #     run:
-  #       working-directory: ./flutter/example
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       # 'beta' is flaky because of https://github.com/flutter/flutter/issues/124340
-  #       sdk: ['stable']
-  #   steps:
-  #     - name: checkout
-  #       uses: actions/checkout@v3
-
-  #     - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa # pin@v2.10.0
-  #       with:
-  #         channel: ${{ matrix.sdk }}
-
-  #     - name: flutter upgrade
-  #       run: flutter upgrade
-
-  #     - name: flutter pub get
-  #       run: flutter pub get
-
-  #     - name: launch ios emulator
-  #       uses: futureware-tech/simulator-action@ee05c113b79f056b47f354d7b313555f5491e158 #pin@v2
-  #       with:
-  #         model: 'iPhone 14'
-  #         os_version: '16.2'
-
-  #     - name: run ios integration test
-  #       run: flutter test integration_test/integration_test.dart --verbose
+      - name: run ios integration test
+        run: flutter test integration_test/integration_test.dart --verbose

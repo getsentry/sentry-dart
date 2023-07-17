@@ -15,22 +15,25 @@ void main() {
 
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUp(() async {
+  tearDown(() async {
     await Sentry.close();
   });
 
   // Using fake DSN for testing purposes.
   Future<void> setupSentryAndApp(WidgetTester tester,
       {String? dsn, BeforeSendCallback? beforeSendCallback}) async {
-    await setupSentry(() async {
-      await tester.pumpWidget(SentryScreenshotWidget(
-          child: DefaultAssetBundle(
-        bundle: SentryAssetBundle(enableStructuredDataTracing: true),
-        child: const MyApp(),
-      )));
-      await tester.pumpAndSettle();
-    }, dsn ?? fakeDsn,
-        isIntegrationTest: true, beforeSendCallback: beforeSendCallback);
+    await setupSentry(
+      () async {
+        await tester.pumpWidget(SentryScreenshotWidget(
+            child: DefaultAssetBundle(
+          bundle: SentryAssetBundle(enableStructuredDataTracing: true),
+          child: const MyApp(),
+        )));
+      },
+      dsn ?? fakeDsn,
+      isIntegrationTest: true,
+      beforeSendCallback: beforeSendCallback,
+    );
   }
 
   // Tests
