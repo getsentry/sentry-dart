@@ -14,9 +14,10 @@ void main() {
     expect(map['op'], 'op');
     expect(map['parent_span_id'], isNotNull);
     expect(map['description'], 'desc');
+    expect(map['origin'], 'manual');
   });
 
-  test('toTraceContext gets sampled and status', () {
+  test('toTraceContext gets sampled, status, and origin', () {
     final sut = fixture.getSut();
     final aborted = SpanStatus.aborted();
     final traceContext = sut.toTraceContext(
@@ -31,15 +32,16 @@ void main() {
     expect(traceContext.parentSpanId, isNotNull);
     expect(traceContext.description, 'desc');
     expect(traceContext.status, aborted);
+    expect(traceContext.origin, 'manual');
   });
 }
 
 class Fixture {
   SentrySpanContext getSut() {
     return SentrySpanContext(
-      operation: 'op',
-      parentSpanId: SpanId.newId(),
-      description: 'desc',
-    );
+        operation: 'op',
+        parentSpanId: SpanId.newId(),
+        description: 'desc',
+        origin: 'manual');
   }
 }

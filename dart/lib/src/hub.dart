@@ -398,6 +398,7 @@ class Hub {
           name,
           operation,
           description: description,
+          origin: SentryTraceOrigins.manual,
         ),
         startTimestamp: startTimestamp,
         bindToScope: bindToScope,
@@ -440,6 +441,12 @@ class Hub {
         final samplingDecision = _tracesSampler.sample(samplingContext);
         transactionContext =
             transactionContext.copyWith(samplingDecision: samplingDecision);
+      }
+
+      if (transactionContext.origin == null) {
+        transactionContext = transactionContext.copyWith(
+          origin: SentryTraceOrigins.manual,
+        );
       }
 
       final tracer = SentryTracer(

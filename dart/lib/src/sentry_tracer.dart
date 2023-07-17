@@ -256,6 +256,12 @@ class SentryTracer extends ISentrySpan {
   SentrySpanContext get context => _rootSpan.context;
 
   @override
+  String? get origin => _rootSpan.origin;
+
+  @override
+  set origin(String? origin) => _rootSpan.origin = origin;
+
+  @override
   DateTime get startTimestamp => _rootSpan.startTimestamp;
 
   @override
