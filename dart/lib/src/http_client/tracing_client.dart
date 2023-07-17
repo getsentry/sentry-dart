@@ -2,6 +2,7 @@ import 'package:http/http.dart';
 import '../hub.dart';
 import '../hub_adapter.dart';
 import '../protocol.dart';
+import '../sentry_trace_origins.dart';
 import '../tracing.dart';
 import '../utils/tracing_utils.dart';
 import '../utils/http_sanitizer.dart';
@@ -33,6 +34,7 @@ class TracingClient extends BaseClient {
       'http.client',
       description: description,
     );
+    span?.origin = SentryTraceOrigins.autoHttpHttp;
 
     // if the span is NoOp, we don't want to attach headers
     if (span is NoOpSentrySpan) {
