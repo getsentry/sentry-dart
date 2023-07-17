@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-- Set `SentryNavigatorObserver` current route as `event.app.contexts.screen` ([#1545](https://github.com/getsentry/sentry-dart/pull/1545))
+### Features
+
+- Set `SentryNavigatorObserver` current route as `event.app.contexts.viewName` ([#1545](https://github.com/getsentry/sentry-dart/pull/1545))
 
 ## 7.8.0
 
