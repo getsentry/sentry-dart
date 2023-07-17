@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:http/http.dart';
 import 'package:http/testing.dart';
 import 'package:mockito/mockito.dart';
@@ -277,6 +279,56 @@ void main() {
         final capturedRequest = eventCall.request;
         expect(capturedRequest, isNotNull);
         expect(capturedRequest?.data,
+            scenario.shouldBeIncluded ? isNotNull : isNull);
+      }
+    });
+
+    test('response body is included according to $MaxResponseBodySize',
+        () async {
+      final scenarios = [
+        // never
+        MaxBodySizeTestConfig(MaxResponseBodySize.never, 0, false),
+        MaxBodySizeTestConfig(MaxResponseBodySize.never, 4001, false),
+        MaxBodySizeTestConfig(MaxResponseBodySize.never, 10001, false),
+        // always
+        MaxBodySizeTestConfig(MaxResponseBodySize.always, 0, true),
+        MaxBodySizeTestConfig(MaxResponseBodySize.always, 4001, true),
+        MaxBodySizeTestConfig(MaxResponseBodySize.always, 10001, true),
+        // small
+        MaxBodySizeTestConfig(MaxResponseBodySize.small, 0, true),
+        MaxBodySizeTestConfig(MaxResponseBodySize.small, 4000, true),
+        MaxBodySizeTestConfig(MaxResponseBodySize.small, 4001, false),
+        // medium
+        MaxBodySizeTestConfig(MaxResponseBodySize.medium, 0, true),
+        MaxBodySizeTestConfig(MaxResponseBodySize.medium, 4001, true),
+        MaxBodySizeTestConfig(MaxResponseBodySize.medium, 10000, true),
+        MaxBodySizeTestConfig(MaxResponseBodySize.medium, 10001, false),
+      ];
+
+      fixture._hub.options.captureFailedRequests = true;
+      fixture._hub.options.sendDefaultPii = true;
+
+      for (final scenario in scenarios) {
+        fixture._hub.options.maxResponseBodySize = scenario.maxBodySize;
+        fixture.transport.reset();
+
+        final bodyBytes = List.generate(scenario.contentLength, (index) => 0);
+        final bodyString = utf8.decode(bodyBytes);
+
+        final sut = fixture.getSut(
+          client: fixture.getClient(statusCode: 401, body: bodyString),
+          failedRequestStatusCodes: [SentryStatusCode(401)],
+        );
+
+        final request = Request('GET', requestUri);
+        await sut.send(request);
+
+        expect(fixture.transport.calls, 1);
+
+        final eventCall = fixture.transport.events.first;
+        final capturedResponse = eventCall.contexts.response;
+        expect(capturedResponse, isNotNull);
+        expect(capturedResponse?.data,
             scenario.shouldBeIncluded ? isNotNull : isNull);
       }
     });
