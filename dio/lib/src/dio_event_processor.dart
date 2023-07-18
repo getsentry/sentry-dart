@@ -62,7 +62,7 @@ class DioEventProcessor implements EventProcessor {
   }
 
   /// Returns the request data, if possible according to the users settings.
-  Object? _getRequestData(dynamic data) {
+  Object? _getRequestData(Object? data) {
     if (!_options.sendDefaultPii) {
       return null;
     }
@@ -94,7 +94,7 @@ class DioEventProcessor implements EventProcessor {
   }
 
   /// Returns the response data, if possible according to the users settings.
-  Object? _getResponseData(dynamic data) {
+  Object? _getResponseData(Object? data) {
     if (!_options.sendDefaultPii) {
       return null;
     }
