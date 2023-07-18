@@ -8,6 +8,12 @@
 
 [Trace origin](https://develop.sentry.dev/sdk/performance/trace-origin/) indicates what created a trace or a span. Not all transactions and spans contain enough information to tell whether the user or what precisely in the SDK created it. Origin solves this problem. The SDK now sends origin for transactions and spans.
 
+### Dependencies
+
+- Bump Cocoa SDK from v8.8.0 to v8.9.1 ([#1553](https://github.com/getsentry/sentry-dart/pull/1553))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#891)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.8.0...8.9.1)
+
 ## 7.8.0
 
 ### Enhancements
