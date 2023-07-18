@@ -1,5 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:sentry/sentry.dart';
 
@@ -87,26 +89,76 @@ class DioEventProcessor implements EventProcessor {
 
     return SentryResponse(
       headers: _options.sendDefaultPii ? headers : null,
-      bodySize: dioError.response?.data?.length as int?,
+      bodySize: _getBodySize(
+        dioError.response?.data,
+        dioError.requestOptions.responseType,
+      ),
       statusCode: response?.statusCode,
-      data: _getResponseData(dioError.response?.data),
+      data: _getResponseData(
+        dioError.response?.data,
+        dioError.requestOptions.responseType,
+      ),
     );
   }
 
   /// Returns the response data, if possible according to the users settings.
-  Object? _getResponseData(Object? data) {
+  Object? _getResponseData(Object? data, ResponseType responseType) {
     if (!_options.sendDefaultPii) {
       return null;
     }
-    if (data is String) {
-      if (_options.maxResponseBodySize.shouldAddBody(data.codeUnits.length)) {
-        return data;
-      }
-    } else if (data is List<int>) {
-      if (_options.maxResponseBodySize.shouldAddBody(data.length)) {
-        return data;
-      }
+    if (data == null) {
+      return null;
+    }
+    switch (responseType) {
+      case ResponseType.json:
+        final js = json.encode(data);
+        if (_options.maxResponseBodySize.shouldAddBody(js.codeUnits.length)) {
+          return data;
+        }
+        break;
+      case ResponseType.stream:
+        break; // No support for logging stream body.
+      case ResponseType.plain:
+        if (data is String &&
+            _options.maxResponseBodySize.shouldAddBody(data.codeUnits.length)) {
+          return data;
+        }
+        break;
+      case ResponseType.bytes:
+        if (data is List<int> &&
+            _options.maxResponseBodySize.shouldAddBody(data.length)) {
+          return data;
+        }
+        break;
     }
     return null;
+  }
+
+  int? _getBodySize(Object? data, ResponseType responseType) {
+    if (data == null) {
+      return null;
+    }
+    switch (responseType) {
+      case ResponseType.json:
+        return json.encode(data).codeUnits.length;
+      case ResponseType.stream:
+        if (data is String) {
+          return data.length;
+        } else {
+          return null;
+        }
+      case ResponseType.plain:
+        if (data is String) {
+          return data.codeUnits.length;
+        } else {
+          return null;
+        }
+      case ResponseType.bytes:
+        if (data is List<int>) {
+          return data.length;
+        } else {
+          return null;
+        }
+    }
   }
 }
