@@ -8,6 +8,8 @@
 
 [Trace origin](https://develop.sentry.dev/sdk/performance/trace-origin/) indicates what created a trace or a span. Not all transactions and spans contain enough information to tell whether the user or what precisely in the SDK created it. Origin solves this problem. The SDK now sends origin for transactions and spans.
 
+- Append http response body ([#1557](https://github.com/getsentry/sentry-dart/pull/1557))
+
 ## 7.8.0
 
 ### Enhancements
