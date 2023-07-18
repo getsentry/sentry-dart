@@ -89,6 +89,24 @@ class DioEventProcessor implements EventProcessor {
       headers: _options.sendDefaultPii ? headers : null,
       bodySize: dioError.response?.data?.length as int?,
       statusCode: response?.statusCode,
+      data: _getResponseData(dioError.response?.data),
     );
+  }
+
+  /// Returns the response data, if possible according to the users settings.
+  Object? _getResponseData(dynamic data) {
+    if (!_options.sendDefaultPii) {
+      return null;
+    }
+    if (data is String) {
+      if (_options.maxResponseBodySize.shouldAddBody(data.codeUnits.length)) {
+        return data;
+      }
+    } else if (data is List<int>) {
+      if (_options.maxResponseBodySize.shouldAddBody(data.length)) {
+        return data;
+      }
+    }
+    return null;
   }
 }
