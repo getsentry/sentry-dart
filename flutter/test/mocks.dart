@@ -156,7 +156,7 @@ class NoOpHub with NoSuchMethodProvider implements Hub {
   bool get isEnabled => false;
 }
 
-class MockSentryNative implements SentryNative {
+class TestMockSentryNative implements SentryNative {
   @override
   DateTime? appStartEnd;
 

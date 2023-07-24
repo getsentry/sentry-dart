@@ -48,6 +48,7 @@ void main() {
       expect(span.data['file.path'], '');
       expect(span.data['file.size'], 0);
       expect(span.context.description, 'AssetBundle.load: ');
+      expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
     });
 
     test('load: creates a span if transaction is bound to scope', () async {
@@ -71,6 +72,7 @@ void main() {
       expect(span.data['file.path'], 'resources/test.txt');
       expect(span.data['file.size'], 12);
       expect(span.context.description, 'AssetBundle.load: test.txt');
+      expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
     });
 
     test('load: end span with error if exception is thrown', () async {
@@ -94,6 +96,7 @@ void main() {
       expect(span.finished, true);
       expect(span.context.operation, 'file.read');
       expect(span.context.description, 'AssetBundle.load: test.txt');
+      expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
     });
 
     test('loadString: creates a span if transaction is bound to scope',
@@ -118,6 +121,7 @@ void main() {
       expect(span.data['file.path'], 'resources/test.txt');
       expect(span.data['from-cache'], true);
       expect(span.context.description, 'AssetBundle.loadString: test.txt');
+      expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
     });
 
     test('loadString: end span with error if exception is thrown', () async {
@@ -140,6 +144,7 @@ void main() {
       expect(span.finished, true);
       expect(span.context.operation, 'file.read');
       expect(span.context.description, 'AssetBundle.loadString: test.txt');
+      expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
     });
 
     test('loadBuffer: creates a span if transaction is bound to scope',
@@ -164,6 +169,7 @@ void main() {
       expect(span.data['file.path'], 'resources/test.txt');
       expect(span.data['file.size'], 12);
       expect(span.context.description, 'AssetBundle.loadBuffer: test.txt');
+      expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
     });
 
     test('loadBuffer: end span with error if exception is thrown', () async {
@@ -187,10 +193,11 @@ void main() {
       expect(span.finished, true);
       expect(span.context.operation, 'file.read');
       expect(span.context.description, 'AssetBundle.loadBuffer: test.txt');
+      expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
     });
 
     test(
-      'loadStructuredData: does not create any spans and just forwords the call to the underlying assetbundle if disabled',
+      'loadStructuredData: does not create any spans and just forwards the call to the underlying assetbundle if disabled',
       () async {
         final sut = fixture.getSut(structuredDataTracing: false);
         final tr = fixture._hub.startTransaction(
@@ -243,6 +250,7 @@ void main() {
           span.context.description,
           'AssetBundle.loadStructuredData<String>: test.txt',
         );
+        expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
       },
     );
 
@@ -278,6 +286,7 @@ void main() {
           span.context.description,
           'AssetBundle.loadStructuredData<String>: test.txt',
         );
+        expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
 
         span = tracer.children[1];
 
@@ -289,6 +298,7 @@ void main() {
           span.context.description,
           'parsing "resources/test.txt" to "String"',
         );
+        expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
       },
     );
 
@@ -321,6 +331,7 @@ void main() {
           span.context.description,
           'AssetBundle.loadStructuredData<String>: test.txt',
         );
+        expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
 
         span = tracer.children[1];
 
@@ -331,6 +342,7 @@ void main() {
           span.context.description,
           'parsing "resources/test.txt" to "String"',
         );
+        expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
       },
     );
 
@@ -393,6 +405,7 @@ void main() {
           span.context.description,
           'AssetBundle.loadStructuredBinaryData<String>: test.txt',
         );
+        expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
       },
     );
 
@@ -439,6 +452,7 @@ void main() {
           span.context.description,
           'parsing "resources/test.txt" to "String"',
         );
+        expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
       },
     );
 
@@ -473,6 +487,7 @@ void main() {
           span.context.description,
           'AssetBundle.loadStructuredBinaryData<String>: test.txt',
         );
+        expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
 
         span = tracer.children[1];
 
@@ -483,6 +498,7 @@ void main() {
           span.context.description,
           'parsing "resources/test.txt" to "String"',
         );
+        expect(span.origin, SentryTraceOrigins.autoFileAssetBundle);
       },
     );
 

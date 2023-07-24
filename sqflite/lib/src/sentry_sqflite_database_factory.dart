@@ -64,6 +64,10 @@ class SentrySqfliteDatabaseFactory with SqfliteDatabaseFactoryMixin {
         description: 'Open DB: $path',
       );
 
+      span?.origin =
+          // ignore: invalid_use_of_internal_member
+          SentryTraceOrigins.autoDbSqfliteDatabaseFactory;
+
       try {
         final database =
             await databaseFactory.openDatabase(path, options: options);

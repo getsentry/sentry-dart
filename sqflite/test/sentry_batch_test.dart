@@ -60,6 +60,8 @@ void main() {
 
       final span = fixture.tracer.children.last;
       expect(span.status, SpanStatus.ok());
+      // ignore: invalid_use_of_internal_member
+      expect(span.origin, SentryTraceOrigins.autoDbSqfliteBatch);
 
       await db.close();
     });
@@ -74,6 +76,8 @@ void main() {
 
       final span = fixture.tracer.children.last;
       expect(span.status, SpanStatus.ok());
+      // ignore: invalid_use_of_internal_member
+      expect(span.origin, SentryTraceOrigins.autoDbSqfliteBatch);
 
       await db.close();
     });
@@ -92,6 +96,8 @@ void main() {
         span.context.description,
         'INSERT INTO Product (title) VALUES (?)',
       );
+      // ignore: invalid_use_of_internal_member
+      expect(span.origin, SentryTraceOrigins.autoDbSqfliteBatch);
 
       await db.close();
     });
@@ -110,6 +116,8 @@ void main() {
         span.context.description,
         'INSERT INTO Product (title) VALUES (?)',
       );
+      // ignore: invalid_use_of_internal_member
+      expect(span.origin, SentryTraceOrigins.autoDbSqfliteBatch);
 
       await db.close();
     });
@@ -125,6 +133,8 @@ void main() {
       final span = fixture.tracer.children.last;
       expect(span.context.operation, 'db');
       expect(span.context.description, 'UPDATE Product SET title = ?');
+      // ignore: invalid_use_of_internal_member
+      expect(span.origin, SentryTraceOrigins.autoDbSqfliteBatch);
 
       await db.close();
     });
@@ -140,6 +150,8 @@ void main() {
       final span = fixture.tracer.children.last;
       expect(span.context.operation, 'db');
       expect(span.context.description, 'UPDATE Product SET title = ?');
+      // ignore: invalid_use_of_internal_member
+      expect(span.origin, SentryTraceOrigins.autoDbSqfliteBatch);
 
       await db.close();
     });
@@ -155,6 +167,8 @@ void main() {
       final span = fixture.tracer.children.last;
       expect(span.context.operation, 'db');
       expect(span.context.description, 'DELETE FROM Product');
+      // ignore: invalid_use_of_internal_member
+      expect(span.origin, SentryTraceOrigins.autoDbSqfliteBatch);
 
       await db.close();
     });
@@ -170,6 +184,8 @@ void main() {
       final span = fixture.tracer.children.last;
       expect(span.context.operation, 'db');
       expect(span.context.description, 'DELETE FROM Product');
+      // ignore: invalid_use_of_internal_member
+      expect(span.origin, SentryTraceOrigins.autoDbSqfliteBatch);
 
       await db.close();
     });
@@ -185,6 +201,8 @@ void main() {
       final span = fixture.tracer.children.last;
       expect(span.context.operation, 'db');
       expect(span.context.description, 'DELETE FROM Product');
+      // ignore: invalid_use_of_internal_member
+      expect(span.origin, SentryTraceOrigins.autoDbSqfliteBatch);
 
       await db.close();
     });
@@ -200,6 +218,8 @@ void main() {
       final span = fixture.tracer.children.last;
       expect(span.context.operation, 'db');
       expect(span.context.description, 'SELECT * FROM Product');
+      // ignore: invalid_use_of_internal_member
+      expect(span.origin, SentryTraceOrigins.autoDbSqfliteBatch);
 
       await db.close();
     });
@@ -215,6 +235,8 @@ void main() {
       final span = fixture.tracer.children.last;
       expect(span.context.operation, 'db');
       expect(span.context.description, 'SELECT * FROM Product');
+      // ignore: invalid_use_of_internal_member
+      expect(span.origin, SentryTraceOrigins.autoDbSqfliteBatch);
 
       await db.close();
     });
@@ -235,6 +257,8 @@ SELECT * FROM Product''';
 
       expect(span.context.operation, 'db');
       expect(span.context.description, desc);
+      // ignore: invalid_use_of_internal_member
+      expect(span.origin, SentryTraceOrigins.autoDbSqfliteBatch);
 
       await db.close();
     });
@@ -255,6 +279,8 @@ SELECT * FROM Product''';
 
       expect(span.context.operation, 'db');
       expect(span.context.description, desc);
+      // ignore: invalid_use_of_internal_member
+      expect(span.origin, SentryTraceOrigins.autoDbSqfliteBatch);
 
       await db.close();
     });
@@ -286,6 +312,8 @@ SELECT * FROM Product''';
       final span = fixture.tracer.children.last;
       expect(span.throwable, fixture.exception);
       expect(span.status, SpanStatus.internalError());
+      // ignore: invalid_use_of_internal_member
+      expect(span.origin, SentryTraceOrigins.autoDbSqfliteBatch);
     });
 
     test('apply sets span to internal error if its thrown', () async {
@@ -300,6 +328,8 @@ SELECT * FROM Product''';
       final span = fixture.tracer.children.last;
       expect(span.throwable, fixture.exception);
       expect(span.status, SpanStatus.internalError());
+      // ignore: invalid_use_of_internal_member
+      expect(span.origin, SentryTraceOrigins.autoDbSqfliteBatch);
     });
   });
 }
