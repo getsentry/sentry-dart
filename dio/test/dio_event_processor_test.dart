@@ -198,6 +198,7 @@ void main() {
 
       final request = requestOptions.copyWith(
         method: 'POST',
+        responseType: ResponseType.plain,
       );
       final throwable = Exception();
       final dioError = DioError(
@@ -239,6 +240,7 @@ void main() {
 
       final request = requestOptions.copyWith(
         method: 'POST',
+        responseType: ResponseType.plain,
       );
       final throwable = Exception();
       final dioError = DioError(
@@ -300,7 +302,11 @@ void main() {
         );
 
         final data = List.generate(scenario.contentLength, (index) => 0);
-        final request = requestOptions.copyWith(method: 'POST', data: data);
+        final request = requestOptions.copyWith(
+          method: 'POST',
+          data: data,
+          responseType: ResponseType.bytes,
+        );
         final throwable = Exception();
         final dioError = DioError(
           requestOptions: request,
