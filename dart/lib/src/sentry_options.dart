@@ -300,6 +300,12 @@ class SentryOptions {
 
   List<ScopeObserver> get scopeObservers => _scopeObservers;
 
+  /// The minimum amount of time an app should be unresponsive to be classified
+  /// as an App Hanging. The actual amount may be a little longer. Avoid using
+  /// values lower than 100ms, which may cause a lot of app hangs events being
+  /// transmitted.
+  Duration appHangTimeoutInterval = Duration(seconds: 2);
+
   void addScopeObserver(ScopeObserver scopeObserver) {
     _scopeObservers.add(scopeObserver);
   }
