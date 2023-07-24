@@ -1,9 +1,18 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter_example/main.dart';
+import 'package:http/http.dart';
 
 void main() {
+  const org = 'sentry-sdks';
+  const slug = 'sentry-flutter';
+  const authToken = String.fromEnvironment('SENTRY_AUTH_TOKEN');
+  const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
+
   TestWidgetsFlutterBinding.ensureInitialized();
 
   tearDown(() async {
@@ -11,14 +20,20 @@ void main() {
   });
 
   // Using fake DSN for testing purposes.
-  Future<void> setupSentryAndApp(WidgetTester tester) async {
-    await setupSentry(() async {
-      await tester.pumpWidget(SentryScreenshotWidget(
-          child: DefaultAssetBundle(
-        bundle: SentryAssetBundle(enableStructuredDataTracing: true),
-        child: const MyApp(),
-      )));
-    }, 'https://abc@def.ingest.sentry.io/1234567');
+  Future<void> setupSentryAndApp(WidgetTester tester,
+      {String? dsn, BeforeSendCallback? beforeSendCallback}) async {
+    await setupSentry(
+      () async {
+        await tester.pumpWidget(SentryScreenshotWidget(
+            child: DefaultAssetBundle(
+          bundle: SentryAssetBundle(enableStructuredDataTracing: true),
+          child: const MyApp(),
+        )));
+      },
+      dsn ?? fakeDsn,
+      isIntegrationTest: true,
+      beforeSendCallback: beforeSendCallback,
+    );
   }
 
   // Tests
@@ -123,4 +138,96 @@ void main() {
     final transaction = Sentry.startTransactionWithContext(context);
     await transaction.finish();
   });
+
+  group('e2e', () {
+    var output = find.byKey(const Key('output'));
+    late Fixture fixture;
+
+    setUp(() {
+      fixture = Fixture();
+    });
+
+    testWidgets('captureException', (tester) async {
+      await setupSentryAndApp(tester,
+          dsn: exampleDsn, beforeSendCallback: fixture.beforeSend);
+
+      await tester.tap(find.text('captureException'));
+      await tester.pumpAndSettle();
+
+      final text = output.evaluate().single.widget as Text;
+      final id = text.data!;
+
+      final uri = Uri.parse(
+        'https://sentry.io/api/0/projects/$org/$slug/events/$id/',
+      );
+
+      final event = await fixture.poll(uri, authToken);
+      expect(event, isNotNull);
+
+      final sentEvent = fixture.sentEvent;
+      expect(sentEvent, isNotNull);
+
+      final tags = event!["tags"] as List<dynamic>;
+
+      expect(sentEvent!.eventId.toString(), event["id"]);
+      expect("_Exception: Exception: captureException", event["title"]);
+      expect(sentEvent.release, event["release"]["version"]);
+      expect(
+          2,
+          (tags.firstWhere((e) => e["value"] == sentEvent.environment) as Map)
+              .length);
+      expect(sentEvent.fingerprint, event["fingerprint"] ?? []);
+      expect(
+          2,
+          (tags.firstWhere((e) => e["value"] == SentryLevel.error.name) as Map)
+              .length);
+      expect(sentEvent.logger, event["logger"]);
+
+      final dist = tags.firstWhere((element) => element['key'] == 'dist');
+      expect('1', dist['value']);
+
+      final environment =
+          tags.firstWhere((element) => element['key'] == 'environment');
+      expect('integration', environment['value']);
+    });
+  });
+}
+
+class Fixture {
+  SentryEvent? sentEvent;
+
+  FutureOr<SentryEvent?> beforeSend(SentryEvent event, {Hint? hint}) async {
+    sentEvent = event;
+    return event;
+  }
+
+  Future<Map<String, dynamic>?> poll(Uri url, String authToken) async {
+    final client = Client();
+
+    const maxRetries = 10;
+    const initialDelay = Duration(seconds: 2);
+    const factor = 2;
+
+    var retries = 0;
+    var delay = initialDelay;
+
+    while (retries < maxRetries) {
+      try {
+        final response = await client.get(
+          url,
+          headers: <String, String>{'Authorization': 'Bearer $authToken'},
+        );
+        if (response.statusCode == 200) {
+          return jsonDecode(utf8.decode(response.bodyBytes));
+        }
+      } catch (e) {
+        // Do nothing
+      } finally {
+        retries++;
+        await Future.delayed(delay);
+        delay *= factor;
+      }
+    }
+    return null;
+  }
 }
