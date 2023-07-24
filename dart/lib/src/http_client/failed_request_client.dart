@@ -104,7 +104,6 @@ class FailedRequestClient extends BaseClient {
     try {
       response = await _client.send(request);
       statusCode = response.statusCode;
-
       return response;
     } catch (e, st) {
       exception = e;
@@ -211,9 +210,6 @@ class FailedRequestClient extends BaseClient {
         headers: _hub.options.sendDefaultPii ? response.headers : null,
         bodySize: response.contentLength,
         statusCode: response.statusCode,
-        data: _hub.options.sendDefaultPii
-            ? await _getDataFromStreamedResponse(response)
-            : null,
       );
       hint.set(TypeCheckHint.httpResponse, response);
     }
@@ -223,19 +219,6 @@ class FailedRequestClient extends BaseClient {
       stackTrace: stackTrace,
       hint: hint,
     );
-  }
-
-  Future<Object?> _getDataFromStreamedResponse(
-      StreamedResponse streamedResponse) async {
-    final contentLength = streamedResponse.contentLength;
-    if (contentLength == null) {
-      return null;
-    }
-    if (!_hub.options.maxResponseBodySize.shouldAddBody(contentLength)) {
-      return null;
-    }
-    var response = await Response.fromStream(streamedResponse);
-    return response.body;
   }
 
   // Types of Request can be found here:
