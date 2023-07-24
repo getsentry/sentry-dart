@@ -51,7 +51,8 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
         'enableAppHangTracking': options.enableAppHangTracking,
         'connectionTimeoutMillis': options.connectionTimeout.inMilliseconds,
         'readTimeoutMillis': options.readTimeout.inMilliseconds,
-        'appHangTimeoutIntervalMillis': options.appHangTimeoutInterval.inMilliseconds
+        'appHangTimeoutIntervalMillis':
+            options.appHangTimeoutInterval.inMilliseconds,
       });
 
       options.sdk.addIntegration('nativeSdkIntegration');
