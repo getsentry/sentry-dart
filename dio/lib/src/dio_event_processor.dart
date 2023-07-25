@@ -108,8 +108,9 @@ class DioEventProcessor implements EventProcessor {
     }
     switch (responseType) {
       case ResponseType.json:
-        final js = json.encode(data);
-        if (_options.maxResponseBodySize.shouldAddBody(js.codeUnits.length)) {
+        // ignore: invalid_use_of_internal_member
+        final jsData = utf8JsonEncoder.convert(data);
+        if (_options.maxResponseBodySize.shouldAddBody(jsData.length)) {
           return data;
         }
         break;
