@@ -10,6 +10,8 @@
 
 - Add `appHangTimeoutInterval` to `SentryFlutterOptions` ([#1568](https://github.com/getsentry/sentry-dart/pull/1568))
 - DioEventProcessor: Append http response body ([#1557](https://github.com/getsentry/sentry-dart/pull/1557))
+  - This is opt-in and depends on `maxResponseBodySize`
+  - Only for `dio` package
 
 ### Dependencies
 
