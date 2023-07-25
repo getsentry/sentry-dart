@@ -103,10 +103,7 @@ class DioEventProcessor implements EventProcessor {
 
   /// Returns the response data, if possible according to the users settings.
   Object? _getResponseData(Object? data, ResponseType responseType) {
-    if (!_options.sendDefaultPii) {
-      return null;
-    }
-    if (data == null) {
+    if (!_options.sendDefaultPii || data == null) {
       return null;
     }
     switch (responseType) {
