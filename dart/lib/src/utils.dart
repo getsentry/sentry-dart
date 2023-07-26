@@ -27,7 +27,6 @@ String formatDateAsIso8601WithMillisPrecision(DateTime date) {
 @internal
 final utf8JsonEncoder = JsonUtf8Encoder(null, jsonSerializationFallback, null);
 
-@visibleForTesting
 @internal
 Object? jsonSerializationFallback(Object? nonEncodable) {
   if (nonEncodable == null) {
