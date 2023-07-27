@@ -1,11 +1,13 @@
 # Changelog
 
-## 7.9.0
+## 8.0.0
 
-### Feature
+### Breaking Changes
 
-- Mark exceptions not handled by user as `handled: false` ([#1535](https://github.com/getsentry/sentry-dart/pull/1535))
+- Mark exceptions not handled by the user as `handled: false` ([#1535](https://github.com/getsentry/sentry-dart/pull/1535))
   - This will affect your release health data, and is therefore considered a breaking change.
+
+## 7.9.0
   
 ### Features
 
