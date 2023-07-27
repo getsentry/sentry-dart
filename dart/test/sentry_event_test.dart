@@ -5,7 +5,6 @@
 import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sentry/src/version.dart';
-import 'package:sentry/src/utils.dart';
 import 'package:test/test.dart';
 
 void main() {

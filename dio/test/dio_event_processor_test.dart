@@ -132,6 +132,64 @@ void main() {
 
       expect(processedEvent.request?.headers, <String, String>{});
     });
+
+    test('request body is included according to $MaxResponseBodySize',
+        () async {
+      final scenarios = [
+        // never
+        MaxBodySizeTestConfig(MaxRequestBodySize.never, 0, false),
+        MaxBodySizeTestConfig(MaxRequestBodySize.never, 4001, false),
+        MaxBodySizeTestConfig(MaxRequestBodySize.never, 10001, false),
+        // always
+        MaxBodySizeTestConfig(MaxRequestBodySize.always, 0, true),
+        MaxBodySizeTestConfig(MaxRequestBodySize.always, 4001, true),
+        MaxBodySizeTestConfig(MaxRequestBodySize.always, 10001, true),
+        // small
+        MaxBodySizeTestConfig(MaxRequestBodySize.small, 0, true),
+        MaxBodySizeTestConfig(MaxRequestBodySize.small, 4000, true),
+        MaxBodySizeTestConfig(MaxRequestBodySize.small, 4001, false),
+        // medium
+        MaxBodySizeTestConfig(MaxRequestBodySize.medium, 0, true),
+        MaxBodySizeTestConfig(MaxRequestBodySize.medium, 4001, true),
+        MaxBodySizeTestConfig(MaxRequestBodySize.medium, 10000, true),
+        MaxBodySizeTestConfig(MaxRequestBodySize.medium, 10001, false),
+      ];
+
+      for (final scenario in scenarios) {
+        final sut = fixture.getSut(
+          sendDefaultPii: true,
+          captureFailedRequests: true,
+          maxRequestBodySize: scenario.maxBodySize,
+        );
+
+        final data = List.generate(scenario.contentLength, (index) => 0);
+        final request = requestOptions.copyWith(method: 'POST', data: data);
+        final throwable = Exception();
+        final dioError = DioError(
+          requestOptions: request,
+          response: Response<dynamic>(
+            requestOptions: request,
+            statusCode: 401,
+            data: data,
+          ),
+        );
+        final event = SentryEvent(
+          throwable: throwable,
+          exceptions: [
+            fixture.sentryError(throwable),
+            fixture.sentryError(dioError)
+          ],
+        );
+        final processedEvent = sut.apply(event) as SentryEvent;
+        final capturedRequest = processedEvent.request;
+
+        expect(capturedRequest, isNotNull);
+        expect(
+          capturedRequest?.data,
+          scenario.shouldBeIncluded ? isNotNull : isNull,
+        );
+      }
+    });
   });
 
   group('response', () {
@@ -140,6 +198,7 @@ void main() {
 
       final request = requestOptions.copyWith(
         method: 'POST',
+        responseType: ResponseType.plain,
       );
       final throwable = Exception();
       final dioError = DioError(
@@ -181,6 +240,7 @@ void main() {
 
       final request = requestOptions.copyWith(
         method: 'POST',
+        responseType: ResponseType.plain,
       );
       final throwable = Exception();
       final dioError = DioError(
@@ -210,6 +270,121 @@ void main() {
       expect(processedEvent.contexts.response?.bodySize, 6);
       expect(processedEvent.contexts.response?.statusCode, 200);
       expect(processedEvent.contexts.response?.headers, <String, String>{});
+    });
+
+    test('response body is included according to $MaxResponseBodySize',
+        () async {
+      final scenarios = [
+        // never
+        MaxBodySizeTestConfig(MaxResponseBodySize.never, 0, false),
+        MaxBodySizeTestConfig(MaxResponseBodySize.never, 4001, false),
+        MaxBodySizeTestConfig(MaxResponseBodySize.never, 10001, false),
+        // always
+        MaxBodySizeTestConfig(MaxResponseBodySize.always, 0, true),
+        MaxBodySizeTestConfig(MaxResponseBodySize.always, 4001, true),
+        MaxBodySizeTestConfig(MaxResponseBodySize.always, 10001, true),
+        // small
+        MaxBodySizeTestConfig(MaxResponseBodySize.small, 0, true),
+        MaxBodySizeTestConfig(MaxResponseBodySize.small, 4000, true),
+        MaxBodySizeTestConfig(MaxResponseBodySize.small, 4001, false),
+        // medium
+        MaxBodySizeTestConfig(MaxResponseBodySize.medium, 0, true),
+        MaxBodySizeTestConfig(MaxResponseBodySize.medium, 4001, true),
+        MaxBodySizeTestConfig(MaxResponseBodySize.medium, 10000, true),
+        MaxBodySizeTestConfig(MaxResponseBodySize.medium, 10001, false),
+      ];
+
+      for (final scenario in scenarios) {
+        final sut = fixture.getSut(
+          sendDefaultPii: true,
+          captureFailedRequests: true,
+          maxResponseBodySize: scenario.maxBodySize,
+        );
+
+        final data = List.generate(scenario.contentLength, (index) => 0);
+        final request = requestOptions.copyWith(
+          method: 'POST',
+          data: data,
+          responseType: ResponseType.bytes,
+        );
+        final throwable = Exception();
+        final dioError = DioError(
+          requestOptions: request,
+          response: Response<dynamic>(
+            requestOptions: request,
+            statusCode: 401,
+            data: data,
+          ),
+        );
+        final event = SentryEvent(
+          throwable: throwable,
+          exceptions: [
+            fixture.sentryError(throwable),
+            fixture.sentryError(dioError)
+          ],
+        );
+        final processedEvent = sut.apply(event) as SentryEvent;
+        final capturedResponse = processedEvent.contexts.response;
+
+        expect(capturedResponse, isNotNull);
+        expect(
+          capturedResponse?.data,
+          scenario.shouldBeIncluded ? isNotNull : isNull,
+        );
+      }
+    });
+
+    test('data supports all response body types', () async {
+      final dataByType = {
+        ResponseType.plain: ['plain'],
+        ResponseType.bytes: [
+          [1337]
+        ],
+        ResponseType.json: [
+          9001,
+          null,
+          'string',
+          true,
+          ['list'],
+          {'map-key': 'map-value'},
+        ]
+      };
+
+      for (final entry in dataByType.entries) {
+        final responseType = entry.key;
+
+        for (final data in entry.value) {
+          final request = requestOptions.copyWith(
+            method: 'POST',
+            data: data,
+            responseType: responseType,
+          );
+          final throwable = Exception();
+          final dioError = DioError(
+            requestOptions: request,
+            response: Response<dynamic>(
+              requestOptions: request,
+              statusCode: 401,
+              data: data,
+            ),
+          );
+
+          final sut = fixture.getSut(sendDefaultPii: true);
+
+          final event = SentryEvent(
+            throwable: throwable,
+            exceptions: [
+              fixture.sentryError(throwable),
+              fixture.sentryError(dioError)
+            ],
+          );
+          final processedEvent = sut.apply(event) as SentryEvent;
+          final capturedResponse = processedEvent.contexts.response;
+
+          expect(capturedResponse, isNotNull);
+          expect(capturedResponse?.data, data);
+        }
+      }
     });
   });
 
@@ -266,12 +441,18 @@ class Fixture {
   // ignore: invalid_use_of_internal_member
   SentryExceptionFactory get exceptionFactory => options.exceptionFactory;
 
-  DioEventProcessor getSut({bool sendDefaultPii = false}) {
+  DioEventProcessor getSut({
+    bool sendDefaultPii = false,
+    bool captureFailedRequests = true,
+    MaxRequestBodySize maxRequestBodySize = MaxRequestBodySize.always,
+    MaxResponseBodySize maxResponseBodySize = MaxResponseBodySize.always,
+  }) {
     return DioEventProcessor(
       options
         ..sendDefaultPii = sendDefaultPii
-        ..maxRequestBodySize = MaxRequestBodySize.always
-        ..maxResponseBodySize = MaxResponseBodySize.always,
+        ..captureFailedRequests = captureFailedRequests
+        ..maxRequestBodySize = maxRequestBodySize
+        ..maxResponseBodySize = maxResponseBodySize,
     );
   }
 
@@ -282,4 +463,18 @@ class Fixture {
       throwable: throwable,
     );
   }
+}
+
+class MaxBodySizeTestConfig<T> {
+  MaxBodySizeTestConfig(
+    this.maxBodySize,
+    this.contentLength,
+    this.shouldBeIncluded,
+  );
+
+  final T maxBodySize;
+  final int contentLength;
+  final bool shouldBeIncluded;
+
+  Matcher get matcher => shouldBeIncluded ? isNotNull : isNull;
 }

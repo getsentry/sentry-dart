@@ -195,9 +195,17 @@ class SentryFlutterOptions extends SentryOptions {
   bool attachViewHierarchy = false;
 
   /// When enabled, the SDK tracks when the application stops responding for a
-  /// specific amount of time (default 2s).
+  /// specific amount of time, See [appHangTimeoutInterval].
   /// Only available on iOS and macOS.
   bool enableAppHangTracking = true;
+
+  /// The minimum amount of time an app should be unresponsive to be classified
+  /// as an App Hanging. The actual amount may be a little longer. Avoid using
+  /// values lower than 100ms, which may cause a lot of app hangs events being
+  /// transmitted.
+  /// Default to 2s.
+  /// Only available on iOS and macOS.
+  Duration appHangTimeoutInterval = Duration(seconds: 2);
 
   /// Connection timeout. This will only be synced to the Android native SDK.
   Duration connectionTimeout = Duration(seconds: 5);

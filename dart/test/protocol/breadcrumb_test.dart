@@ -1,7 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:sentry/sentry.dart';
 import 'package:test/test.dart';
-import 'package:sentry/src/utils.dart';
 
 void main() {
   final timestamp = DateTime.now();
