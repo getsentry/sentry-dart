@@ -8,7 +8,6 @@ import 'package:sentry/src/sentry_envelope_item_header.dart';
 import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/transport/data_category.dart';
-import 'package:sentry/src/utils.dart';
 import 'package:test/test.dart';
 
 import 'mocks/mock_hub.dart';

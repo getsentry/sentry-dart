@@ -62,6 +62,7 @@ void main() {
         'enableAppHangTracking': true,
         'connectionTimeoutMillis': 5000,
         'readTimeoutMillis': 5000,
+        'appHangTimeoutIntervalMillis': 2000,
       });
     });
 
@@ -100,7 +101,8 @@ void main() {
         ..captureFailedRequests = false
         ..enableAppHangTracking = false
         ..connectionTimeout = Duration(milliseconds: 9001)
-        ..readTimeout = Duration(milliseconds: 9002);
+        ..readTimeout = Duration(milliseconds: 9002)
+        ..appHangTimeoutInterval = Duration(milliseconds: 9003);
 
       options.sdk.addIntegration('foo');
       options.sdk.addPackage('bar', '1');
@@ -143,6 +145,7 @@ void main() {
         'enableAppHangTracking': false,
         'connectionTimeoutMillis': 9001,
         'readTimeoutMillis': 9002,
+        'appHangTimeoutIntervalMillis': 9003,
       });
     });
 
