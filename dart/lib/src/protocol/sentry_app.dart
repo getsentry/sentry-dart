@@ -49,7 +49,7 @@ class SentryApp {
   /// An app is in foreground when it's visible to the user.
   final bool? inForeground;
 
-  /// The name of the current view that is visible.
+  /// The names of the currently visible views.
   final List<String>? viewNames;
 
   /// Deserializes a [SentryApp] from JSON [Map].
