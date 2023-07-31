@@ -24,7 +24,7 @@ typedef AdditionalInfoExtractor = Map<String, dynamic>? Function(
 /// RouteSettings.
 ///
 /// The current route name will also be set to [SentryEvent]
-/// `contexts.app.view_name` by [FlutterEnricherEventProcessor].
+/// `contexts.app.view_names` by [FlutterEnricherEventProcessor].
 ///
 /// [SentryNavigatorObserver] must be added to the [navigation observer](https://api.flutter.dev/flutter/material/MaterialApp/navigatorObservers.html) of
 /// your used app. This is an example for [MaterialApp](https://api.flutter.dev/flutter/material/MaterialApp/navigatorObservers.html),
