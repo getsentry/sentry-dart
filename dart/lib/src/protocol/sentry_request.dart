@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import '../utils/iterable_extension.dart';
+import '../utils/iterable_utils.dart';
 import '../utils/http_sanitizer.dart';
 
 /// The Request interface contains information on a HTTP request related to the event.
@@ -85,7 +85,7 @@ class SentryRequest {
         _headers = headers != null ? Map.from(headers) : null,
         // Look for a 'Set-Cookie' header (case insensitive) if not given.
         cookies = cookies ??
-            headers?.entries
+            IterableUtils(headers?.entries)
                 .firstWhereOrNull((e) => e.key.toLowerCase() == 'cookie')
                 ?.value,
         _env = env != null ? Map.from(env) : null,

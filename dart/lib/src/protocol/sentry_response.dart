@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 import 'contexts.dart';
-import '../utils/iterable_extension.dart';
+import '../utils/iterable_utils.dart';
 
 /// The response interface contains information on a HTTP request related to the event.
 @immutable
@@ -53,7 +53,7 @@ class SentryResponse {
         _headers = headers != null ? Map.from(headers) : null,
         // Look for a 'Set-Cookie' header (case insensitive) if not given.
         cookies = cookies ??
-            headers?.entries
+            IterableUtils(headers?.entries)
                 .firstWhereOrNull((e) => e.key.toLowerCase() == 'set-cookie')
                 ?.value;
 
