@@ -100,7 +100,7 @@ class SentryClient {
 
     preparedEvent = await _runBeforeSend(
       preparedEvent,
-      hint: hint,
+      hint,
     );
 
     // dropped by beforeSend
@@ -312,7 +312,7 @@ class SentryClient {
     }
 
     preparedTransaction =
-        await _runBeforeSend(preparedTransaction) as SentryTransaction?;
+        await _runBeforeSend(preparedTransaction, Hint()) as SentryTransaction?;
 
     // dropped by beforeSendTransaction
     if (preparedTransaction == null) {
@@ -354,9 +354,9 @@ class SentryClient {
   void close() => _options.httpClient.close();
 
   Future<SentryEvent?> _runBeforeSend(
-    SentryEvent event, {
-    Hint? hint,
-  }) async {
+    SentryEvent event,
+    Hint hint,
+  ) async {
     SentryEvent? eventOrTransaction = event;
 
     final beforeSend = _options.beforeSend;
@@ -373,7 +373,7 @@ class SentryClient {
           eventOrTransaction = e;
         }
       } else if (beforeSend != null) {
-        final e = beforeSend(event, hint: hint);
+        final e = beforeSend(event, hint);
         if (e is Future<SentryEvent?>) {
           eventOrTransaction = await e;
         } else {

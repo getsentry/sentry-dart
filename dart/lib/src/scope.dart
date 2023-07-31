@@ -143,7 +143,7 @@ class Scope {
 
   Scope(this._options);
 
-  Breadcrumb? _addBreadCrumbSync(Breadcrumb breadcrumb, {Hint? hint}) {
+  Breadcrumb? _addBreadCrumbSync(Breadcrumb breadcrumb, Hint hint) {
     // bail out if maxBreadcrumbs is zero
     if (_options.maxBreadcrumbs == 0) {
       return null;
@@ -155,7 +155,7 @@ class Scope {
       try {
         processedBreadcrumb = _options.beforeBreadcrumb!(
           processedBreadcrumb,
-          hint: hint,
+          hint,
         );
         if (processedBreadcrumb == null) {
           _options.logger(
@@ -189,7 +189,7 @@ class Scope {
 
   /// Adds a breadcrumb to the breadcrumbs queue
   Future<void> addBreadcrumb(Breadcrumb breadcrumb, {Hint? hint}) async {
-    final addedBreadcrumb = _addBreadCrumbSync(breadcrumb, hint: hint);
+    final addedBreadcrumb = _addBreadCrumbSync(breadcrumb, hint ?? Hint());
     if (addedBreadcrumb != null) {
       await _callScopeObservers((scopeObserver) async =>
           await scopeObserver.addBreadcrumb(addedBreadcrumb));
@@ -429,7 +429,7 @@ class Scope {
     }
 
     for (final breadcrumb in List.from(_breadcrumbs)) {
-      clone._addBreadCrumbSync(breadcrumb);
+      clone._addBreadCrumbSync(breadcrumb, Hint());
     }
 
     for (final eventProcessor in List.from(_eventProcessors)) {

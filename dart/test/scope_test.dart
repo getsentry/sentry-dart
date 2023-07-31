@@ -617,9 +617,9 @@ void main() {
     final sut = fixture.getSut(
       scopeObserver: fixture.mockScopeObserver,
       beforeBreadcrumbCallback: (
-        Breadcrumb? breadcrumb, {
+        Breadcrumb? breadcrumb,
         Hint? hint,
-      }) {
+      ) {
         return breadcrumb?.copyWith(message: "modified");
       },
     );
@@ -690,9 +690,9 @@ void main() {
 
       final sut = fixture.getSut(
           beforeBreadcrumbCallback: (
-            Breadcrumb? breadcrumb, {
-            Hint? hint,
-          }) {
+            Breadcrumb? breadcrumb,
+            Hint hint,
+          ) {
             throw exception;
           },
           debug: true);
@@ -714,9 +714,9 @@ void main() {
 
       final sut = fixture.getSut(
           beforeBreadcrumbCallback: (
-            Breadcrumb? breadcrumb, {
-            Hint? hint,
-          }) {
+            Breadcrumb? breadcrumb,
+            Hint hint,
+          ) {
             if (numberOfBeforeBreadcrumbCalls > 0) {
               throw exception;
             }
@@ -777,11 +777,11 @@ class Fixture {
 
   EventProcessor get processor => DropAllEventProcessor();
 
-  Breadcrumb? beforeBreadcrumbCallback(Breadcrumb? breadcrumb, {Hint? hint}) =>
+  Breadcrumb? beforeBreadcrumbCallback(Breadcrumb? breadcrumb, Hint hint) =>
       null;
 
-  Breadcrumb? beforeBreadcrumbMutateCallback(Breadcrumb? breadcrumb,
-          {Hint? hint}) =>
+  Breadcrumb? beforeBreadcrumbMutateCallback(
+          Breadcrumb? breadcrumb, Hint hint) =>
       breadcrumb?.copyWith(message: 'new message');
 
   void mockLogger(
