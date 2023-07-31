@@ -338,7 +338,7 @@ void main() {
       );
       final event = await enricher.apply(eventWithContextsApp);
 
-      expect(event?.contexts.app?.viewName, 'fixture-currentRouteName');
+      expect(event?.contexts.app?.viewNames, ['fixture-currentRouteName']);
     });
   });
 }

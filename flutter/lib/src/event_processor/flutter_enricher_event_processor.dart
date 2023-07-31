@@ -247,7 +247,9 @@ class FlutterEnricherEventProcessor implements EventProcessor {
   void _getAppScreen(Contexts contexts, SentryApp app) {
     final currentRouteName = SentryNavigatorObserver.currentRouteName;
     if (currentRouteName != null) {
-      contexts.app = app.copyWith(viewName: currentRouteName);
+      final viewNames = app.viewNames ?? [];
+      viewNames.add(currentRouteName);
+      contexts.app = app.copyWith(viewNames: viewNames);
     }
   }
 }
