@@ -384,6 +384,10 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         if let enableAppHangTracking = arguments["enableAppHangTracking"] as? Bool {
             options.enableAppHangTracking = enableAppHangTracking
         }
+
+        if let appHangTimeoutIntervalMillis = arguments["appHangTimeoutIntervalMillis"] as? UInt {
+            options.appHangTimeoutInterval = TimeInterval(appHangTimeoutIntervalMillis) / 1000
+        }
     }
 
     private func logLevelFrom(diagnosticLevel: String) -> SentryLevel {

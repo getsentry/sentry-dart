@@ -13,7 +13,6 @@ import 'diagnostic_logger.dart';
 import 'environment/environment_variables.dart';
 import 'noop_client.dart';
 import 'transport/noop_transport.dart';
-import 'utils.dart';
 import 'version.dart';
 
 // TODO: shutdownTimeout, flushTimeoutMillis
