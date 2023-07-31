@@ -98,6 +98,26 @@ void main() {
     expect(sut.breadcrumbs.last, breadcrumb);
   });
 
+  test('beforeBreadcrumb called with user provided hint', () {
+    Hint? actual;
+    BeforeBreadcrumbCallback bb = (_, hint) {
+      actual = hint;
+      return null;
+    };
+    final sut = fixture.getSut(
+      beforeBreadcrumbCallback: bb,
+    );
+
+    final breadcrumb = Breadcrumb(
+      message: 'test log',
+      timestamp: DateTime.utc(2019),
+    );
+    final hint = Hint.withMap({'user-name': 'joe dirt'});
+    sut.addBreadcrumb(breadcrumb, hint: hint);
+
+    expect(actual?.get('user-name'), 'joe dirt');
+  });
+
   test('Executes and drops $Breadcrumb', () {
     final sut = fixture.getSut(
       beforeBreadcrumbCallback: fixture.beforeBreadcrumbCallback,
