@@ -29,7 +29,7 @@ class RateLimitParser {
       if (allCategories.isNotEmpty) {
         final categoryValues = allCategories.split(';');
         for (final categoryValue in categoryValues) {
-          final category = DataCategoryExtension.fromStringValue(categoryValue);
+          final category = _DataCategoryExtension._fromStringValue(categoryValue);
           if (category != DataCategory.unknown) {
             rateLimits.add(RateLimit(category, duration));
           }
@@ -54,5 +54,27 @@ class RateLimitParser {
     } else {
       return RateLimitParser.httpRetryAfterDefaultDelay;
     }
+  }
+}
+
+extension _DataCategoryExtension on DataCategory {
+  static DataCategory _fromStringValue(String stringValue) {
+    switch (stringValue) {
+      case '__all__':
+        return DataCategory.all;
+      case 'default':
+        return DataCategory.dataCategoryDefault;
+      case 'error':
+        return DataCategory.error;
+      case 'session':
+        return DataCategory.session;
+      case 'transaction':
+        return DataCategory.transaction;
+      case 'attachment':
+        return DataCategory.attachment;
+      case 'security':
+        return DataCategory.security;
+    }
+    return DataCategory.unknown;
   }
 }
