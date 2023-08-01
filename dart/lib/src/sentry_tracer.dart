@@ -85,15 +85,6 @@ class SentryTracer extends ISentrySpan {
       _children.removeWhere(
           (span) => !_hasSpanSuitableTimestamps(span, commonEndTimestamp));
 
-      // finish unfinished spans otherwise transaction gets dropped
-      final spansToBeFinished = _children.where((span) => !span.finished);
-      for (final span in spansToBeFinished) {
-        await span.finish(
-          status: SpanStatus.deadlineExceeded(),
-          endTimestamp: commonEndTimestamp,
-        );
-      }
-
       var _rootEndTimestamp = commonEndTimestamp;
       if (_trimEnd && children.isNotEmpty) {
         final childEndTimestamps = children
