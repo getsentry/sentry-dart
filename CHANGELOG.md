@@ -6,6 +6,7 @@
 
 - Mark exceptions not handled by the user as `handled: false` ([#1535](https://github.com/getsentry/sentry-dart/pull/1535))
   - This will affect your release health data, and is therefore considered a breaking change.
+- Do not leak extensions of external classes ([#1576](https://github.com/getsentry/sentry-dart/pull/1576))
 
 ## 7.9.0
   
