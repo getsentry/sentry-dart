@@ -6,13 +6,13 @@ class IterableUtils<T> {
 
   Iterable<T>? iterable;
 
-  T? firstWhereOrNull(bool Function(T item) predicate) {
+  T? firstWhereOrNull(bool Function(T item) test) {
     final iterable = this.iterable;
     if (iterable == null) {
       return null;
     }
     for (var item in iterable) {
-      if (predicate(item)) return item;
+      if (test(item)) return item;
     }
     return null;
   }
