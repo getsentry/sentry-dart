@@ -9,4 +9,3 @@ enum DataCategory {
   security,
   unknown
 }
-

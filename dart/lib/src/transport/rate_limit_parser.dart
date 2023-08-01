@@ -29,7 +29,8 @@ class RateLimitParser {
       if (allCategories.isNotEmpty) {
         final categoryValues = allCategories.split(';');
         for (final categoryValue in categoryValues) {
-          final category = _DataCategoryExtension._fromStringValue(categoryValue);
+          final category =
+              _DataCategoryExtension._fromStringValue(categoryValue);
           if (category != DataCategory.unknown) {
             rateLimits.add(RateLimit(category, duration));
           }
