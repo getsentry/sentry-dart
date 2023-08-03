@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Ensure Breadcrumbs and SentryEvents are always serialisable ([#1582](https://github.com/getsentry/sentry-dart/pull/1582))
+
 ## 7.9.0
 
 ### Features
