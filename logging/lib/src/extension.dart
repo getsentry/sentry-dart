@@ -12,9 +12,9 @@ extension LogRecordX on LogRecord {
       level: level.toSentryLevel(),
       message: message,
       data: <String, Object>{
-        if (object != null) 'LogRecord.object': object!,
-        if (error != null) 'LogRecord.error': error!,
-        if (stackTrace != null) 'LogRecord.stackTrace': stackTrace!,
+        if (object != null) 'LogRecord.object': object!.toString(),
+        if (error != null) 'LogRecord.error': error!.toString(),
+        if (stackTrace != null) 'LogRecord.stackTrace': stackTrace!.toString(),
         'LogRecord.loggerName': loggerName,
         'LogRecord.sequenceNumber': sequenceNumber,
       },
@@ -30,7 +30,7 @@ extension LogRecordX on LogRecord {
       throwable: error,
       // ignore: deprecated_member_use
       extra: <String, Object>{
-        if (object != null) 'LogRecord.object': object!,
+        if (object != null) 'LogRecord.object': object!.toString(),
         'LogRecord.sequenceNumber': sequenceNumber,
       },
     );
