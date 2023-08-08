@@ -124,9 +124,15 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       args.getIfNotNull<String>("environment") { options.environment = it }
       args.getIfNotNull<String>("release") { options.release = it }
       args.getIfNotNull<String>("dist") { options.dist = it }
-      args.getIfNotNull<Boolean>("enableAutoSessionTracking") { options.isEnableAutoSessionTracking = it }
-      args.getIfNotNull<Long>("autoSessionTrackingIntervalMillis") { options.sessionTrackingIntervalMillis = it }
-      args.getIfNotNull<Long>("anrTimeoutIntervalMillis") { options.anrTimeoutIntervalMillis = it }
+      args.getIfNotNull<Boolean>("enableAutoSessionTracking") {
+        options.isEnableAutoSessionTracking = it
+      }
+      args.getIfNotNull<Long>("autoSessionTrackingIntervalMillis") {
+        options.sessionTrackingIntervalMillis = it
+      }
+      args.getIfNotNull<Long>("anrTimeoutIntervalMillis") {
+        options.anrTimeoutIntervalMillis = it
+      }
       args.getIfNotNull<Boolean>("attachThreads") { options.isAttachThreads = it }
       args.getIfNotNull<Boolean>("attachStacktrace") { options.isAttachStacktrace = it }
       args.getIfNotNull<Boolean>("enableAutoNativeBreadcrumbs") {
@@ -208,7 +214,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       val appStartTimeMillis = DateUtils.nanosToMillis(appStartTime.nanoTimestamp().toDouble())
       val item = mapOf<String, Any?>(
         "appStartTime" to appStartTimeMillis,
-        "isColdStart" to isColdStart,
+        "isColdStart" to isColdStart
       )
       result.success(item)
     }
@@ -249,7 +255,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       val frames = mapOf<String, Any?>(
         "totalFrames" to total,
         "slowFrames" to slow,
-        "frozenFrames" to frozen,
+        "frozenFrames" to frozen
       )
       result.success(frames)
     }
@@ -400,7 +406,9 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     result.success("")
   }
 
-  private class BeforeSendCallbackImpl(private val sdkVersion: SdkVersion?) : SentryOptions.BeforeSendCallback {
+  private class BeforeSendCallbackImpl(
+    private val sdkVersion: SdkVersion?
+  ) : SentryOptions.BeforeSendCallback {
     override fun execute(event: SentryEvent, hint: Hint): SentryEvent {
       setEventOriginTag(event)
       addPackages(event, sdkVersion)
@@ -424,7 +432,11 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       }
     }
 
-    private fun setEventEnvironmentTag(event: SentryEvent, origin: String = "android", environment: String) {
+    private fun setEventEnvironmentTag(
+      event: SentryEvent,
+      origin: String = "android",
+      environment: String
+    ) {
       event.setTag("event.origin", origin)
       event.setTag("event.environment", environment)
     }
