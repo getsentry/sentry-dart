@@ -78,7 +78,10 @@ class SentryFlutterTest {
 
     assertEquals("sentry.java.android.flutter", fixture.options.sdkVersion?.name)
     assertEquals(BuildConfig.VERSION_NAME, fixture.options.sdkVersion?.version)
-    assertEquals("sentry.java.android.flutter/${BuildConfig.VERSION_NAME}", fixture.options.sentryClientName)
+    assertEquals(
+      "sentry.java.android.flutter/${BuildConfig.VERSION_NAME}",
+      fixture.options.sentryClientName
+    )
     assertEquals("fixture-nativeSdk", fixture.options.nativeSdkName)
 
     assertEquals(true, sut.autoPerformanceTracingEnabled)
