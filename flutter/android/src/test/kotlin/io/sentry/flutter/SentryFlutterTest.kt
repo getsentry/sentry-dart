@@ -17,39 +17,12 @@ class SentryFlutterTest {
   }
 
   @Test
-  fun initNativeSkd() {
+  fun updateOptions() {
     // Given
     val sut = fixture.getSut()
 
     // When
-    sut.updateOptions(
-      fixture.options,
-      mapOf(
-        "dsn" to "fixture-dsn",
-        "debug" to true,
-        "environment" to "fixture-environment",
-        "release" to "fixture-release",
-        "dist" to "fixture-dist",
-        "enableAutoSessionTracking" to false,
-        "autoSessionTrackingIntervalMillis" to 9001L,
-        "anrTimeoutIntervalMillis" to 9002L,
-        "attachThreads" to true,
-        "attachStacktrace" to false,
-        "enableAutoNativeBreadcrumbs" to false,
-        "maxBreadcrumbs" to 9003,
-        "maxCacheItems" to 9004,
-        "anrEnabled" to false,
-        "sendDefaultPii" to true,
-        "enableNdkScopeSync" to false,
-        "proguardUuid" to "fixture-proguardUuid",
-        "enableNativeCrashHandling" to false,
-        "sendClientReports" to false,
-        "maxAttachmentSize" to 9005L,
-        "enableAutoPerformanceTracing" to true,
-        "connectionTimeoutMillis" to 9006,
-        "readTimeoutMillis" to 9007
-      )
-    )
+    sut.updateOptions(fixture.options, fixture.data)
 
     // Then
     assertEquals("fixture-dsn", fixture.options.dsn)
@@ -130,6 +103,32 @@ class SentryFlutterTest {
 class Fixture {
 
   var options = SentryAndroidOptions()
+
+  val data = mapOf(
+    "dsn" to "fixture-dsn",
+    "debug" to true,
+    "environment" to "fixture-environment",
+    "release" to "fixture-release",
+    "dist" to "fixture-dist",
+    "enableAutoSessionTracking" to false,
+    "autoSessionTrackingIntervalMillis" to 9001L,
+    "anrTimeoutIntervalMillis" to 9002L,
+    "attachThreads" to true,
+    "attachStacktrace" to false,
+    "enableAutoNativeBreadcrumbs" to false,
+    "maxBreadcrumbs" to 9003,
+    "maxCacheItems" to 9004,
+    "anrEnabled" to false,
+    "sendDefaultPii" to true,
+    "enableNdkScopeSync" to false,
+    "proguardUuid" to "fixture-proguardUuid",
+    "enableNativeCrashHandling" to false,
+    "sendClientReports" to false,
+    "maxAttachmentSize" to 9005L,
+    "enableAutoPerformanceTracing" to true,
+    "connectionTimeoutMillis" to 9006,
+    "readTimeoutMillis" to 9007
+  )
 
   fun getSut(): SentryFlutter {
     return SentryFlutter(
