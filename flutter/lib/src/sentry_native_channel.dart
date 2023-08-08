@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 
 import '../sentry_flutter.dart';
+import 'method_channel_helper.dart';
 
 /// Provide typed methods to access native layer.
 @internal
@@ -47,7 +48,13 @@ class SentryNativeChannel {
 
   Future<void> setUser(SentryUser? user) async {
     try {
-      await _channel.invokeMethod('setUser', {'user': user?.toJson()});
+      final normalizedUser = user?.copyWith(
+        data: MethodChannelHelper.normalizeMap(user.data),
+      );
+      await _channel.invokeMethod(
+        'setUser',
+        {'user': normalizedUser?.toJson()},
+      );
     } catch (error, stackTrace) {
       _logError('setUser', error, stackTrace);
     }
@@ -55,8 +62,13 @@ class SentryNativeChannel {
 
   Future<void> addBreadcrumb(Breadcrumb breadcrumb) async {
     try {
-      await _channel
-          .invokeMethod('addBreadcrumb', {'breadcrumb': breadcrumb.toJson()});
+      final normalizedBreadcrumb = breadcrumb.copyWith(
+        data: MethodChannelHelper.normalizeMap(breadcrumb.data),
+      );
+      await _channel.invokeMethod(
+        'addBreadcrumb',
+        {'breadcrumb': normalizedBreadcrumb.toJson()},
+      );
     } catch (error, stackTrace) {
       _logError('addBreadcrumb', error, stackTrace);
     }

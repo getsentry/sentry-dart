@@ -5,6 +5,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:sentry_flutter/src/method_channel_helper.dart';
 import 'package:sentry_flutter/src/sentry_native.dart';
 import 'package:sentry_flutter/src/sentry_native_channel.dart';
 import 'mocks.mocks.dart';
@@ -64,26 +65,40 @@ void main() {
     });
 
     test('setUser', () async {
-      when(fixture.methodChannel.invokeMethod('setUser', {'user': null}))
+      final user = SentryUser(
+        id: "fixture-id",
+        data: {'object': Object()},
+      );
+      final normalizedUser = user.copyWith(
+        data: MethodChannelHelper.normalizeMap(user.data),
+      );
+      when(fixture.methodChannel
+              .invokeMethod('setUser', {'user': normalizedUser.toJson()}))
           .thenAnswer((_) => Future.value());
 
       final sut = fixture.getSut();
-      await sut.setUser(null);
+      await sut.setUser(user);
 
-      verify(fixture.methodChannel.invokeMethod('setUser', {'user': null}));
+      verify(fixture.methodChannel
+          .invokeMethod('setUser', {'user': normalizedUser.toJson()}));
     });
 
     test('addBreadcrumb', () async {
-      final breadcrumb = Breadcrumb();
+      final breadcrumb = Breadcrumb(
+        data: {'object': Object()},
+      );
+      final normalizedBreadcrumb = breadcrumb.copyWith(
+          data: MethodChannelHelper.normalizeMap(breadcrumb.data));
+
       when(fixture.methodChannel.invokeMethod(
-              'addBreadcrumb', {'breadcrumb': breadcrumb.toJson()}))
+              'addBreadcrumb', {'breadcrumb': normalizedBreadcrumb.toJson()}))
           .thenAnswer((_) => Future.value());
 
       final sut = fixture.getSut();
       await sut.addBreadcrumb(breadcrumb);
 
-      verify(fixture.methodChannel
-          .invokeMethod('addBreadcrumb', {'breadcrumb': breadcrumb.toJson()}));
+      verify(fixture.methodChannel.invokeMethod(
+          'addBreadcrumb', {'breadcrumb': normalizedBreadcrumb.toJson()}));
     });
 
     test('clearBreadcrumbs', () async {
