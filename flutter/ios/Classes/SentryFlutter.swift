@@ -5,6 +5,7 @@ public final class SentryFlutter {
     public init() {
     }
 
+    // swiftlint:disable:next function_body_length cyclomatic_complexity
     public func update(options: Options, with data: [String: Any]) {
         if let dsn = data["dsn"] as? String {
             options.dsn = dsn
@@ -67,9 +68,7 @@ public final class SentryFlutter {
             options.appHangTimeoutInterval = appHangTimeoutIntervalMillis.doubleValue / 1000
         }
     }
-    
-    // Helper
-    
+
     private func logLevelFrom(diagnosticLevel: String) -> SentryLevel {
         switch diagnosticLevel {
         case "fatal":

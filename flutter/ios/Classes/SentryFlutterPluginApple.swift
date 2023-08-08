@@ -40,7 +40,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
     }
 
     private lazy var sentryFlutter = SentryFlutter()
-    
+
     private func registerObserver() {
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(applicationDidBecomeActive),
@@ -252,9 +252,8 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         }
 
         SentrySDK.start { options in
-            
             self.sentryFlutter.update(options: options, with: arguments)
-            
+
             if arguments["enableAutoPerformanceTracing"] as? Bool ?? false {
                 PrivateSentrySDKOnly.appStartMeasurementHybridSDKMode = true
                 #if os(iOS) || targetEnvironment(macCatalyst)
@@ -309,7 +308,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         SentrySDK.close()
         result("")
     }
-    
+
     private func setEventOriginTag(event: Event) {
         guard let sdk = event.sdk else {
             return
