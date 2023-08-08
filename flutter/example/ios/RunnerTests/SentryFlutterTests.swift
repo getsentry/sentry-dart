@@ -12,7 +12,7 @@ import Sentry
 final class SentryFlutterTests: XCTestCase {
 
     private var fixture: Fixture!
-    
+
     override func setUp() {
         super.setUp()
         fixture = Fixture()
@@ -20,7 +20,7 @@ final class SentryFlutterTests: XCTestCase {
 
     func testUpdate() {
         let sut = fixture.getSut()
-        
+
         sut.update(
             options: fixture.options,
             with: [
@@ -46,7 +46,7 @@ final class SentryFlutterTests: XCTestCase {
                 "appHangTimeoutIntervalMillis": NSNumber(value: 10000)
             ]
         )
-        
+
         XCTAssertEqual("https://e85b375ffb9f43cf8bdf9787768149e0@o447951.ingest.sentry.io/5428562", fixture.options.dsn)
         XCTAssertEqual(true, fixture.options.debug)
         XCTAssertEqual("fixture-environment", fixture.options.environment)
@@ -73,9 +73,9 @@ final class SentryFlutterTests: XCTestCase {
 
 extension SentryFlutterTests {
     final class Fixture {
-        
+
         var options = Options()
-        
+
         func getSut() -> SentryFlutter {
             return SentryFlutter()
         }
