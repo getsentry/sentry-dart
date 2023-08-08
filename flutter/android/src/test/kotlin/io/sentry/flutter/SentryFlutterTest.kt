@@ -100,7 +100,7 @@ class SentryFlutterTest {
     sut.updateOptions(
       fixture.options,
       mapOf(
-        "diagnosticLevel" to "warning",
+        "diagnosticLevel" to "warning"
       )
     )
 
@@ -117,7 +117,7 @@ class SentryFlutterTest {
     sut.updateOptions(
       fixture.options,
       mapOf(
-        "enableNativeCrashHandling" to false,
+        "enableNativeCrashHandling" to false
       )
     )
 
