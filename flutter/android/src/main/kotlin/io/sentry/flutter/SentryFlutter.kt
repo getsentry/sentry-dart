@@ -17,15 +17,33 @@ class SentryFlutter(
     data.getIfNotNull<String>("dsn") {
       options.dsn = it
     }
-    data.getIfNotNull<Boolean>("debug") { options.isDebug = it }
-    data.getIfNotNull<String>("environment") { options.environment = it }
-    data.getIfNotNull<String>("release") { options.release = it }
-    data.getIfNotNull<String>("dist") { options.dist = it }
-    data.getIfNotNull<Boolean>("enableAutoSessionTracking") { options.isEnableAutoSessionTracking = it }
-    data.getIfNotNull<Long>("autoSessionTrackingIntervalMillis") { options.sessionTrackingIntervalMillis = it }
-    data.getIfNotNull<Long>("anrTimeoutIntervalMillis") { options.anrTimeoutIntervalMillis = it }
-    data.getIfNotNull<Boolean>("attachThreads") { options.isAttachThreads = it }
-    data.getIfNotNull<Boolean>("attachStacktrace") { options.isAttachStacktrace = it }
+    data.getIfNotNull<Boolean>("debug") {
+      options.isDebug = it
+    }
+    data.getIfNotNull<String>("environment") {
+      options.environment = it
+    }
+    data.getIfNotNull<String>("release") {
+      options.release = it
+    }
+    data.getIfNotNull<String>("dist") {
+      options.dist = it
+    }
+    data.getIfNotNull<Boolean>("enableAutoSessionTracking") {
+      options.isEnableAutoSessionTracking = it
+    }
+    data.getIfNotNull<Long>("autoSessionTrackingIntervalMillis") {
+      options.sessionTrackingIntervalMillis = it
+    }
+    data.getIfNotNull<Long>("anrTimeoutIntervalMillis") {
+      options.anrTimeoutIntervalMillis = it
+    }
+    data.getIfNotNull<Boolean>("attachThreads") {
+      options.isAttachThreads = it
+    }
+    data.getIfNotNull<Boolean>("attachStacktrace") {
+      options.isAttachStacktrace = it
+    }
     data.getIfNotNull<Boolean>("enableAutoNativeBreadcrumbs") {
       options.isEnableActivityLifecycleBreadcrumbs = it
       options.isEnableAppLifecycleBreadcrumbs = it
@@ -33,18 +51,30 @@ class SentryFlutter(
       options.isEnableAppComponentBreadcrumbs = it
       options.isEnableUserInteractionBreadcrumbs = it
     }
-    data.getIfNotNull<Int>("maxBreadcrumbs") { options.maxBreadcrumbs = it }
-    data.getIfNotNull<Int>("maxCacheItems") { options.maxCacheItems = it }
+    data.getIfNotNull<Int>("maxBreadcrumbs") {
+      options.maxBreadcrumbs = it
+    }
+    data.getIfNotNull<Int>("maxCacheItems") {
+      options.maxCacheItems = it
+    }
     data.getIfNotNull<String>("diagnosticLevel") {
       if (options.isDebug) {
         val sentryLevel = SentryLevel.valueOf(it.toUpperCase(Locale.ROOT))
         options.setDiagnosticLevel(sentryLevel)
       }
     }
-    data.getIfNotNull<Boolean>("anrEnabled") { options.isAnrEnabled = it }
-    data.getIfNotNull<Boolean>("sendDefaultPii") { options.isSendDefaultPii = it }
-    data.getIfNotNull<Boolean>("enableNdkScopeSync") { options.isEnableScopeSync = it }
-    data.getIfNotNull<String>("proguardUuid") { options.proguardUuid = it }
+    data.getIfNotNull<Boolean>("anrEnabled") {
+      options.isAnrEnabled = it
+    }
+    data.getIfNotNull<Boolean>("sendDefaultPii") {
+      options.isSendDefaultPii = it
+    }
+    data.getIfNotNull<Boolean>("enableNdkScopeSync") {
+      options.isEnableScopeSync = it
+    }
+    data.getIfNotNull<String>("proguardUuid") {
+      options.proguardUuid = it
+    }
 
     val nativeCrashHandling = (data["enableNativeCrashHandling"] as? Boolean) ?: true
     // nativeCrashHandling has priority over anrEnabled
@@ -62,9 +92,13 @@ class SentryFlutter(
       }
     }
 
-    data.getIfNotNull<Boolean>("sendClientReports") { options.isSendClientReports = it }
+    data.getIfNotNull<Boolean>("sendClientReports") {
+      options.isSendClientReports = it
+    }
 
-    data.getIfNotNull<Long>("maxAttachmentSize") { options.maxAttachmentSize = it }
+    data.getIfNotNull<Long>("maxAttachmentSize") {
+      options.maxAttachmentSize = it
+    }
 
     var sdkVersion = options.sdkVersion
     if (sdkVersion == null) {
@@ -77,8 +111,12 @@ class SentryFlutter(
     options.sentryClientName = "$androidSdk/${BuildConfig.VERSION_NAME}"
     options.nativeSdkName = nativeSdk
 
-    data.getIfNotNull<Int>("connectionTimeoutMillis") { options.connectionTimeoutMillis = it }
-    data.getIfNotNull<Int>("readTimeoutMillis") { options.readTimeoutMillis = it }
+    data.getIfNotNull<Int>("connectionTimeoutMillis") {
+      options.connectionTimeoutMillis = it
+    }
+    data.getIfNotNull<Int>("readTimeoutMillis") {
+      options.readTimeoutMillis = it
+    }
   }
 }
 
