@@ -133,7 +133,7 @@ class Fixture {
   fun getSut(): SentryFlutter {
     return SentryFlutter(
       androidSdk = "sentry.java.android.flutter",
-      nativeSdk = "fixture-nativeSdk",
+      nativeSdk = "fixture-nativeSdk"
     )
   }
 }

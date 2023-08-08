@@ -52,7 +52,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     sentryFlutter = SentryFlutter(
       androidSdk = androidSdk,
-      nativeSdk = nativeSdk,
+      nativeSdk = nativeSdk
     )
   }
 
