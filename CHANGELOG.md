@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+
+- Fixing memory leak issue in SentryFlutterPlugin (Android Plugin) ([#1588](https://github.com/getsentry/sentry-dart/pull/1588))
+
 ### Dependencies
 
 - Bump Android SDK from v6.25.2 to v6.28.0 ([#1586](https://github.com/getsentry/sentry-dart/pull/1586))
