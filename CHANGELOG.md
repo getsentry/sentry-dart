@@ -6,7 +6,7 @@
 
 - Mark exceptions not handled by the user as `handled: false` ([#1535](https://github.com/getsentry/sentry-dart/pull/1535))
   - This will affect your release health data, and is therefore considered a breaking change.
-- Make `hint` non-nullable in `BeforeSendCallback` and `BeforeBreadcrumbCall` ([#1574](https://github.com/getsentry/sentry-dart/pull/1574))
+- Make `hint` non-nullable in `BeforeSendCallback`, `BeforeBreadcrumbCall` and `EventProcessor` ([#1574](https://github.com/getsentry/sentry-dart/pull/1574))
   - This will affect your callbacks, making this a breaking change.
 
 ## 7.9.0
