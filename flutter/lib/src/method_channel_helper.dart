@@ -24,7 +24,7 @@ class MethodChannelHelper {
 
   static List<dynamic> _normalizeList(List<dynamic> data) {
     final listToReturn = <dynamic>[];
-    for (var element in data) {
+    for (final element in data) {
       if (_isPrimitive(element)) {
         listToReturn.add(element);
       } else if (element is List<dynamic>) {
