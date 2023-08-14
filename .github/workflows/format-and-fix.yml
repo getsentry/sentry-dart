@@ -16,15 +16,16 @@ jobs:
     if: ${{ !startsWith(github.ref, 'refs/heads/release/') }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    matrix:
-      package: [
-        {name: dart, sdk: dart},
-        {name: dio, sdk: dart},
-        {name: file, sdk: dart},
-        {name: flutter, sdk: flutter},
-        {name: logging, sdk: dart},
-        {name: sqflite, sdk: flutter},
-      ]
+    strategy:
+      matrix:
+        package: [
+          {name: dart, sdk: dart},
+          {name: dio, sdk: dart},
+          {name: file, sdk: dart},
+          {name: flutter, sdk: flutter},
+          {name: logging, sdk: dart},
+          {name: sqflite, sdk: flutter},
+        ]
     defaults:
       run:
         working-directory: ${{ matrix.package.name }}
