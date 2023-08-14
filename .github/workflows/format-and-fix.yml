@@ -19,9 +19,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: dart-lang/setup-dart@6a218f2413a3e78e9087f638a238f6b40893203d # pin@v1
+      - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa # pin@v2.10.0
+
       - run: dart format .
       - run: dart fix --apply
 
+        # Source: https://stackoverflow.com/a/58035262
       - name: Extract branch name
         shell: bash
         run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
@@ -30,4 +33,5 @@ jobs:
         # actions/checkout fetches only a single commit in a detached HEAD state. Therefore
         # we need to pass the current branch, otherwise we can't commit the changes.
         # GITHUB_HEAD_REF is the name of the head branch. GitHub Actions only sets this for PRs.
-      - run: ./scripts/commit-formatted-code.sh ${{ steps.extract_branch.outputs.branch }}
+      - name: Commit & push
+        run: ./scripts/commit-formatted-code.sh ${{ steps.extract_branch.outputs.branch }}
