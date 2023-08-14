@@ -16,12 +16,29 @@ jobs:
     if: ${{ !startsWith(github.ref, 'refs/heads/release/') }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    matrix:
+      package: [
+        {name: dart, sdk: dart},
+        {name: dio, sdk: dart},
+        {name: file, sdk: dart},
+        {name: flutter, sdk: flutter},
+        {name: logging, sdk: dart},
+        {name: sqflite, sdk: flutter},
+      ]
+    defaults:
+      run:
+        working-directory: ${{ matrix.package.name }}
     steps:
       - uses: actions/checkout@v3
       - uses: dart-lang/setup-dart@6a218f2413a3e78e9087f638a238f6b40893203d # pin@v1
+        if: ${{ matrix.package.sdk == 'dart' }}
       - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa # pin@v2.10.0
+        if: ${{ matrix.package.sdk == 'flutter' }}
+
+      - run: ${{ matrix.package.sdk }} pub get
 
       - run: dart format .
+
       - run: dart fix --apply
 
         # Source: https://stackoverflow.com/a/58035262
