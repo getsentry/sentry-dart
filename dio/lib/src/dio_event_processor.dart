@@ -158,6 +158,5 @@ class DioEventProcessor implements EventProcessor {
           return null;
         }
     }
-    return null;
   }
 }
