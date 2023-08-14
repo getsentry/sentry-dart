@@ -15,7 +15,7 @@ class MethodChannelHelper {
         mapToReturn[key] = _normalizeList(value);
       } else if (value is Map<String, dynamic>) {
         mapToReturn[key] = normalizeMap(value);
-      } else if (value is Object) {
+      } else {
         mapToReturn[key] = value.toString();
       }
     });
@@ -31,7 +31,7 @@ class MethodChannelHelper {
         listToReturn.add(_normalizeList(element));
       } else if (element is Map<String, dynamic>) {
         listToReturn.add(normalizeMap(element));
-      } else if (element is Object) {
+      } else {
         listToReturn.add(element.toString());
       }
     }
