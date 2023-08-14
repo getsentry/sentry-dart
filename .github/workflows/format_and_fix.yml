@@ -1,0 +1,46 @@
+on:
+  workflow_call:
+    inputs:
+      package:
+        required: true
+        type: string
+      sdk:
+        required: false
+        type: string
+        default: dart
+
+jobs:
+  cancel-previous-workflow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@b173b6ec0100793626c2d9e6b90435061f4fc3e5 # pin@0.11.0
+        with:
+          access_token: ${{ github.token }}
+
+  format-and-fix:
+    name: Format & fix code
+    if: ${{ !startsWith(github.ref, 'refs/heads/release/') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: ${{ inputs.package }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dart-lang/setup-dart@6a218f2413a3e78e9087f638a238f6b40893203d # pin@v1
+        if: ${{ inputs.sdk == 'dart' }}
+      - uses: subosito/flutter-action@48cafc24713cca54bbe03cdc3a423187d413aafa # pin@v2.10.0
+        if: ${{ inputs.sdk == 'flutter' }}
+
+      - run: ${{ inputs.sdk }} pub get
+
+      - run: dart format .
+
+      - run: dart fix --apply
+
+        # actions/checkout fetches only a single commit in a detached HEAD state. Therefore
+        # we need to pass the current branch, otherwise we can't commit the changes.
+        # GITHUB_HEAD_REF is the name of the head branch. GitHub Actions only sets this for PRs.
+      - run: ../scripts/commit-formatted-code.sh $GITHUB_HEAD_REF
+        if: env.GITHUB_HEAD_REF != null
