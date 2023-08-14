@@ -1,13 +1,23 @@
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       package:
         required: true
-        type: string
+        type: choice
+        options:
+          - dart
+          - flutter
+          - dio
+          - sqflite
+          - logging
+          - file
       sdk:
         required: false
-        type: string
+        type: choice
         default: dart
+        options:
+          - dart
+          - flutter
 
 jobs:
   cancel-previous-workflow:

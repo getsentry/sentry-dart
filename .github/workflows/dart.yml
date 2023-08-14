@@ -80,13 +80,7 @@ jobs:
           path: './dart/coverage/lcov.info'
           min_coverage: 85
 
-  format-and-fix:
-    uses: ./.github/workflows/format-and-fix.yml
-    with:
-      package: dart
-
   analyze:
     uses: ./.github/workflows/analyze.yml
     with:
       package: dart
-      
