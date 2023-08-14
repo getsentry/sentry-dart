@@ -84,7 +84,11 @@ class SentryNativeChannel {
 
   Future<void> setContexts(String key, dynamic value) async {
     try {
-      await _channel.invokeMethod('setContexts', {'key': key, 'value': value});
+      final normalizedValue = MethodChannelHelper.normalize(value);
+      await _channel.invokeMethod(
+        'setContexts',
+        {'key': key, 'value': normalizedValue},
+      );
     } catch (error, stackTrace) {
       _logError('setContexts', error, stackTrace);
     }
@@ -100,7 +104,11 @@ class SentryNativeChannel {
 
   Future<void> setExtra(String key, dynamic value) async {
     try {
-      await _channel.invokeMethod('setExtra', {'key': key, 'value': value});
+      final normalizedValue = MethodChannelHelper.normalize(value);
+      await _channel.invokeMethod(
+        'setExtra',
+        {'key': key, 'value': normalizedValue},
+      );
     } catch (error, stackTrace) {
       _logError('setExtra', error, stackTrace);
     }
@@ -114,7 +122,7 @@ class SentryNativeChannel {
     }
   }
 
-  Future<void> setTag(String key, dynamic value) async {
+  Future<void> setTag(String key, String value) async {
     try {
       await _channel.invokeMethod('setTag', {'key': key, 'value': value});
     } catch (error, stackTrace) {

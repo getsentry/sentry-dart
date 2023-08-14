@@ -3,39 +3,33 @@ import 'package:meta/meta.dart';
 /// Makes sure no invalid data is sent over method channels.
 @internal
 class MethodChannelHelper {
+  static dynamic normalize(dynamic data) {
+    if (data == null) {
+      return null;
+    }
+    if (_isPrimitive(data)) {
+      return data;
+    } else if (data is List<dynamic>) {
+      return _normalizeList(data);
+    } else if (data is Map<String, dynamic>) {
+      return normalizeMap(data);
+    } else {
+      return data.toString();
+    }
+  }
+
   static Map<String, dynamic>? normalizeMap(Map<String, dynamic>? data) {
     if (data == null) {
       return null;
     }
-    final mapToReturn = <String, dynamic>{};
-    data.forEach((key, value) {
-      if (_isPrimitive(value)) {
-        mapToReturn[key] = value;
-      } else if (value is List<dynamic>) {
-        mapToReturn[key] = _normalizeList(value);
-      } else if (value is Map<String, dynamic>) {
-        mapToReturn[key] = normalizeMap(value);
-      } else {
-        mapToReturn[key] = value.toString();
-      }
-    });
-    return mapToReturn;
+    return data.map((key, value) => MapEntry(key, normalize(value)));
   }
 
-  static List<dynamic> _normalizeList(List<dynamic> data) {
-    final listToReturn = <dynamic>[];
-    for (final element in data) {
-      if (_isPrimitive(element)) {
-        listToReturn.add(element);
-      } else if (element is List<dynamic>) {
-        listToReturn.add(_normalizeList(element));
-      } else if (element is Map<String, dynamic>) {
-        listToReturn.add(normalizeMap(element));
-      } else {
-        listToReturn.add(element.toString());
-      }
+  static List<dynamic>? _normalizeList(List<dynamic>? data) {
+    if (data == null) {
+      return null;
     }
-    return listToReturn;
+    return data.map((e) => normalize(e)).toList();
   }
 
   static bool _isPrimitive(dynamic value) {

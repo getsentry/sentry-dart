@@ -112,15 +112,17 @@ void main() {
     });
 
     test('setContexts', () async {
+      final value = {'object': Object()};
+      final normalizedValue = MethodChannelHelper.normalize(value);
       when(fixture.methodChannel.invokeMethod(
-              'setContexts', {'key': 'fixture-key', 'value': 'fixture-value'}))
+              'setContexts', {'key': 'fixture-key', 'value': normalizedValue}))
           .thenAnswer((_) => Future.value());
 
       final sut = fixture.getSut();
-      await sut.setContexts('fixture-key', 'fixture-value');
+      await sut.setContexts('fixture-key', value);
 
       verify(fixture.methodChannel.invokeMethod(
-          'setContexts', {'key': 'fixture-key', 'value': 'fixture-value'}));
+          'setContexts', {'key': 'fixture-key', 'value': normalizedValue}));
     });
 
     test('removeContexts', () async {
@@ -136,15 +138,17 @@ void main() {
     });
 
     test('setExtra', () async {
+      final value = {'object': Object()};
+      final normalizedValue = MethodChannelHelper.normalize(value);
       when(fixture.methodChannel.invokeMethod(
-              'setExtra', {'key': 'fixture-key', 'value': 'fixture-value'}))
+              'setExtra', {'key': 'fixture-key', 'value': normalizedValue}))
           .thenAnswer((_) => Future.value());
 
       final sut = fixture.getSut();
-      await sut.setExtra('fixture-key', 'fixture-value');
+      await sut.setExtra('fixture-key', value);
 
       verify(fixture.methodChannel.invokeMethod(
-          'setExtra', {'key': 'fixture-key', 'value': 'fixture-value'}));
+          'setExtra', {'key': 'fixture-key', 'value': normalizedValue}));
     });
 
     test('removeExtra', () async {
