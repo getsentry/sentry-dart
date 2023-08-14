@@ -53,9 +53,11 @@ class SentryResponse {
         _headers = headers != null ? Map.from(headers) : null,
         // Look for a 'Set-Cookie' header (case insensitive) if not given.
         cookies = cookies ??
-            IterableUtils(headers?.entries)
-                .firstWhereOrNull((e) => e.key.toLowerCase() == 'set-cookie')
-                ?.value;
+            IterableUtils.firstWhereOrNull(
+              headers?.entries,
+              (MapEntry<String, String> e) =>
+                  e.key.toLowerCase() == 'set-cookie',
+            )?.value;
 
   /// Deserializes a [SentryResponse] from JSON [Map].
   factory SentryResponse.fromJson(Map<String, dynamic> json) {

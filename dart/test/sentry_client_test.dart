@@ -1427,9 +1427,10 @@ void main() {
       await sut.captureEvent(fakeEvent, hint: hint);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
-      final attachmentItem = IterableUtils(capturedEnvelope.items)
-          .firstWhereOrNull(
-              (element) => element.header.type == SentryItemType.attachment);
+      final attachmentItem = IterableUtils.firstWhereOrNull(
+        capturedEnvelope.items,
+        (SentryEnvelopeItem e) => e.header.type == SentryItemType.attachment,
+      );
       expect(attachmentItem?.header.attachmentType,
           SentryAttachment.typeAttachmentDefault);
     });
