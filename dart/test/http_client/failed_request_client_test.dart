@@ -295,7 +295,7 @@ void main() {
       final sut = fixture.getSut(client: client);
 
       Hint? eventHint;
-      fixture.options.addEventProcessor(FunctionEventProcessor((event, {hint}) {
+      fixture.options.addEventProcessor(FunctionEventProcessor((event, hint) {
         eventHint = hint;
         return event;
       }));

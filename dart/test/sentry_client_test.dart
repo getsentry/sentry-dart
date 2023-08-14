@@ -1058,7 +1058,7 @@ void main() {
     setUp(() {
       fixture = Fixture();
       fixture.options.addEventProcessor(FunctionEventProcessor(
-        (event, {hint}) => event
+        (event, hint) => event
           ..tags!.addAll({'theme': 'material'})
           // ignore: deprecated_member_use_from_same_package
           ..extra!['host'] = '0.0.0.1'
@@ -1100,8 +1100,8 @@ void main() {
 
       var executed = false;
 
-      final client = fixture.getSut(
-          eventProcessor: FunctionEventProcessor((event, {hint}) {
+      final client =
+          fixture.getSut(eventProcessor: FunctionEventProcessor((event, hint) {
         expect(myHint, hint);
         executed = true;
         return event;
@@ -1115,8 +1115,8 @@ void main() {
     test('should create hint when none was provided', () async {
       var executed = false;
 
-      final client = fixture.getSut(
-          eventProcessor: FunctionEventProcessor((event, {hint}) {
+      final client =
+          fixture.getSut(eventProcessor: FunctionEventProcessor((event, hint) {
         expect(hint, isNotNull);
         executed = true;
         return event;
@@ -1610,7 +1610,7 @@ SentryTransaction? beforeSendTransactionCallbackDropEvent(
 
 Future<SentryEvent?> asyncBeforeSendCallbackDropEvent(
   SentryEvent event,
-  Hint? hint,
+  Hint hint,
 ) async {
   await Future.delayed(Duration(milliseconds: 200));
   return null;

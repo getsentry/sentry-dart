@@ -58,7 +58,8 @@ void main() {
 
       final integration = LoadContextsIntegration(fixture.methodChannel);
       integration.call(fixture.hub, fixture.options);
-      event = (await fixture.options.eventProcessors.first.apply(event))!;
+      event =
+          (await fixture.options.eventProcessors.first.apply(event, Hint()))!;
 
       expect(event.breadcrumbs!.length, 1);
       expect(event.breadcrumbs!.first.message, 'native');
@@ -83,7 +84,8 @@ void main() {
 
       final integration = LoadContextsIntegration(fixture.methodChannel);
       integration.call(fixture.hub, fixture.options);
-      event = (await fixture.options.eventProcessors.first.apply(event))!;
+      event =
+          (await fixture.options.eventProcessors.first.apply(event, Hint()))!;
 
       expect(event.breadcrumbs!.length, 1);
       expect(event.breadcrumbs!.first.message, 'event');

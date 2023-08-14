@@ -8,5 +8,5 @@ ExceptionEventProcessor exceptionEventProcessor(SentryOptions _) =>
 
 class WebExcptionEventProcessor implements ExceptionEventProcessor {
   @override
-  SentryEvent apply(SentryEvent event, {Hint? hint}) => event;
+  SentryEvent apply(SentryEvent event, Hint hint) => event;
 }

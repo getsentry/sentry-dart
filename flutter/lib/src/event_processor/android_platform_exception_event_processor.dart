@@ -19,7 +19,7 @@ class AndroidPlatformExceptionEventProcessor implements EventProcessor {
   static final _platformExceptionType = (PlatformException).toString();
 
   @override
-  Future<SentryEvent?> apply(SentryEvent event, {Hint? hint}) async {
+  Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
     if (event is SentryTransaction) {
       return event;
     }

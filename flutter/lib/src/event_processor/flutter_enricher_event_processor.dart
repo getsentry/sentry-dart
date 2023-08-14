@@ -31,9 +31,9 @@ class FlutterEnricherEventProcessor implements EventProcessor {
 
   @override
   Future<SentryEvent?> apply(
-    SentryEvent event, {
-    Hint? hint,
-  }) async {
+    SentryEvent event,
+    Hint hint,
+  ) async {
     // If there's a native integration available, it probably has better
     // information available than Flutter.
     final device =
