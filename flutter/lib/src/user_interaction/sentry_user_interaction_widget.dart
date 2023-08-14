@@ -207,7 +207,6 @@ import 'package:flutter/rendering.dart';
 import 'package:meta/meta.dart';
 
 import '../../sentry_flutter.dart';
-import '../widget_utils.dart';
 import 'user_interaction_widget.dart';
 
 const _tapDeltaArea = 20 * 20;
