@@ -186,6 +186,34 @@ void main() {
       verify(fixture.methodChannel
           .invokeMethod('removeTag', {'key': 'fixture-key'}));
     });
+
+    test('startProfiling', () async {
+      final traceId = SentryId.newId();
+      when(fixture.methodChannel
+              .invokeMethod('startProfiling', traceId.toString()))
+          .thenAnswer((_) => Future.value());
+
+      final sut = fixture.getSut();
+      await sut.startProfiling(traceId);
+
+      verify(fixture.methodChannel
+          .invokeMethod('startProfiling', traceId.toString()));
+    });
+
+    test('collectProfile', () async {
+      final traceId = SentryId.newId();
+      const startTime = 42;
+      when(fixture.methodChannel.invokeMethod('collectProfile', {
+        'traceId': traceId.toString(),
+        'startTime': startTime
+      })).thenAnswer((_) => Future.value());
+
+      final sut = fixture.getSut();
+      await sut.collectProfile(traceId, startTime);
+
+      verify(fixture.methodChannel.invokeMethod('collectProfile',
+          {'traceId': traceId.toString(), 'startTime': startTime}));
+    });
   });
 }
 

@@ -152,6 +152,14 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             let key = arguments?["key"] as? String
             removeTag(key: key, result: result)
 
+        #if !os(tvOS) && !os(watchOS)
+        case "startProfiling":
+            startProfiling(call, result)
+
+        case "collectProfile":
+            collectProfile(call, result)
+        #endif
+
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -352,8 +360,8 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
     private func captureEnvelope(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         guard let arguments = call.arguments as? [Any],
               !arguments.isEmpty,
-              let data = (arguments.first as? FlutterStandardTypedData)?.data  else {
-            print("Envelope is null or empty !")
+              let data = (arguments.first as? FlutterStandardTypedData)?.data else {
+            print("Envelope is null or empty!")
             result(FlutterError(code: "2", message: "Envelope is null or empty", details: nil))
             return
         }
@@ -385,8 +393,8 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
         result(item)
         #else
-            print("note: appStartMeasurement not available on this platform")
-            result(nil)
+        print("note: appStartMeasurement not available on this platform")
+        result(nil)
         #endif
     }
 
@@ -549,6 +557,35 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
 
         result("")
       }
+    }
+
+    private func startProfiling(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let traceId = call.arguments as? String else {
+            print("Cannot start profiling: trace ID missing")
+            result(FlutterError(code: "5", message: "Cannot start profiling: trace ID missing", details: nil))
+            return
+        }
+
+        let startTime = PrivateSentrySDKOnly.startProfiling(forTrace: SentryId(uuidString: traceId))
+        result(startTime)
+    }
+
+    private func collectProfile(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        guard let arguments = call.arguments as? [String: Any],
+              let traceId = arguments["traceId"] as? String else {
+            print("Cannot collect profile: trace ID missing")
+            result(FlutterError(code: "6", message: "Cannot collect profile: trace ID missing", details: nil))
+            return
+        }
+
+        guard let startTime = arguments["startTime"] as? uint64 else {
+            print("Cannot collect profile: start time missing")
+            result(FlutterError(code: "7", message: "Cannot collect profile: start time missing", details: nil))
+            return
+        }
+
+        let payload = PrivateSentrySDKOnly.collectProfile(forTrace: SentryId(uuidString: traceId), since: startTime)
+        result(payload)
     }
 }
 

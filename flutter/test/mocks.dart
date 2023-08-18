@@ -41,7 +41,6 @@ ISentrySpan startTransactionShim(
   // ignore: invalid_use_of_internal_member
   SentryTracer,
   MethodChannel,
-  SentryNative,
 ], customMocks: [
   MockSpec<Hub>(fallbackGenerators: {#startTransaction: startTransactionShim})
 ])
@@ -156,6 +155,7 @@ class NoOpHub with NoSuchMethodProvider implements Hub {
   bool get isEnabled => false;
 }
 
+// TODO can this be replaced with https://pub.dev/packages/mockito#verifying-exact-number-of-invocations--at-least-x--never
 class TestMockSentryNative implements SentryNative {
   @override
   DateTime? appStartEnd;
@@ -189,6 +189,8 @@ class TestMockSentryNative implements SentryNative {
   var numberOfSetTagCalls = 0;
   SentryUser? sentryUser;
   var numberOfSetUserCalls = 0;
+  var numberOfStartProfilingCalls = 0;
+  var numberOfCollectProfileCalls = 0;
 
   @override
   Future<void> addBreadcrumb(Breadcrumb breadcrumb) async {
@@ -265,8 +267,21 @@ class TestMockSentryNative implements SentryNative {
     this.sentryUser = sentryUser;
     numberOfSetUserCalls++;
   }
+
+  @override
+  Future<dynamic> collectProfile(SentryId traceId, int startTimeNs) {
+    numberOfCollectProfileCalls++;
+    return Future.value(null);
+  }
+
+  @override
+  Future<int?> startProfiling(SentryId traceId) {
+    numberOfStartProfilingCalls++;
+    return Future.value(null);
+  }
 }
 
+// TODO can this be replaced with https://pub.dev/packages/mockito#verifying-exact-number-of-invocations--at-least-x--never
 class MockNativeChannel implements SentryNativeChannel {
   NativeAppStart? nativeAppStart;
   NativeFrames? nativeFrames;
@@ -283,6 +298,8 @@ class MockNativeChannel implements SentryNativeChannel {
   int numberOfSetContextsCalls = 0;
   int numberOfSetExtraCalls = 0;
   int numberOfSetTagCalls = 0;
+  int numberOfStartProfilingCalls = 0;
+  int numberOfCollectProfileCalls = 0;
 
   @override
   Future<NativeAppStart?> fetchNativeAppStart() async => nativeAppStart;
@@ -342,6 +359,18 @@ class MockNativeChannel implements SentryNativeChannel {
   @override
   Future<void> setTag(String key, value) async {
     numberOfSetTagCalls += 1;
+  }
+
+  @override
+  Future<dynamic> collectProfile(SentryId traceId, int startTimeNs) {
+    numberOfCollectProfileCalls++;
+    return Future.value(null);
+  }
+
+  @override
+  Future<int?> startProfiling(SentryId traceId) {
+    numberOfStartProfilingCalls++;
+    return Future.value(null);
   }
 }
 

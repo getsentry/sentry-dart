@@ -13,10 +13,8 @@ import 'package:sentry/sentry.dart' as _i2;
 import 'package:sentry/src/protocol.dart' as _i3;
 import 'package:sentry/src/sentry_envelope.dart' as _i7;
 import 'package:sentry/src/sentry_tracer.dart' as _i8;
-import 'package:sentry_flutter/src/native/sentry_native.dart' as _i10;
-import 'package:sentry_flutter/src/native/sentry_native_channel.dart' as _i11;
 
-import 'mocks.dart' as _i12;
+import 'mocks.dart' as _i10;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -504,176 +502,6 @@ class MockMethodChannel extends _i1.Mock implements _i9.MethodChannel {
       );
 }
 
-/// A class which mocks [SentryNative].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockSentryNative extends _i1.Mock implements _i10.SentryNative {
-  MockSentryNative() {
-    _i1.throwOnMissingStub(this);
-  }
-
-  @override
-  set appStartEnd(DateTime? _appStartEnd) => super.noSuchMethod(
-        Invocation.setter(
-          #appStartEnd,
-          _appStartEnd,
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  set nativeChannel(_i11.SentryNativeChannel? nativeChannel) =>
-      super.noSuchMethod(
-        Invocation.setter(
-          #nativeChannel,
-          nativeChannel,
-        ),
-        returnValueForMissingStub: null,
-      );
-  @override
-  bool get didFetchAppStart => (super.noSuchMethod(
-        Invocation.getter(#didFetchAppStart),
-        returnValue: false,
-      ) as bool);
-  @override
-  _i6.Future<_i10.NativeAppStart?> fetchNativeAppStart() => (super.noSuchMethod(
-        Invocation.method(
-          #fetchNativeAppStart,
-          [],
-        ),
-        returnValue: _i6.Future<_i10.NativeAppStart?>.value(),
-      ) as _i6.Future<_i10.NativeAppStart?>);
-  @override
-  _i6.Future<void> beginNativeFramesCollection() => (super.noSuchMethod(
-        Invocation.method(
-          #beginNativeFramesCollection,
-          [],
-        ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
-  @override
-  _i6.Future<_i10.NativeFrames?> endNativeFramesCollection(
-          _i3.SentryId? traceId) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #endNativeFramesCollection,
-          [traceId],
-        ),
-        returnValue: _i6.Future<_i10.NativeFrames?>.value(),
-      ) as _i6.Future<_i10.NativeFrames?>);
-  @override
-  _i6.Future<void> setContexts(
-    String? key,
-    dynamic value,
-  ) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #setContexts,
-          [
-            key,
-            value,
-          ],
-        ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
-  @override
-  _i6.Future<void> removeContexts(String? key) => (super.noSuchMethod(
-        Invocation.method(
-          #removeContexts,
-          [key],
-        ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
-  @override
-  _i6.Future<void> setUser(_i3.SentryUser? sentryUser) => (super.noSuchMethod(
-        Invocation.method(
-          #setUser,
-          [sentryUser],
-        ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
-  @override
-  _i6.Future<void> addBreadcrumb(_i3.Breadcrumb? breadcrumb) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #addBreadcrumb,
-          [breadcrumb],
-        ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
-  @override
-  _i6.Future<void> clearBreadcrumbs() => (super.noSuchMethod(
-        Invocation.method(
-          #clearBreadcrumbs,
-          [],
-        ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
-  @override
-  _i6.Future<void> setExtra(
-    String? key,
-    dynamic value,
-  ) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #setExtra,
-          [
-            key,
-            value,
-          ],
-        ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
-  @override
-  _i6.Future<void> removeExtra(String? key) => (super.noSuchMethod(
-        Invocation.method(
-          #removeExtra,
-          [key],
-        ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
-  @override
-  _i6.Future<void> setTag(
-    String? key,
-    String? value,
-  ) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #setTag,
-          [
-            key,
-            value,
-          ],
-        ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
-  @override
-  _i6.Future<void> removeTag(String? key) => (super.noSuchMethod(
-        Invocation.method(
-          #removeTag,
-          [key],
-        ),
-        returnValue: _i6.Future<void>.value(),
-        returnValueForMissingStub: _i6.Future<void>.value(),
-      ) as _i6.Future<void>);
-  @override
-  void reset() => super.noSuchMethod(
-        Invocation.method(
-          #reset,
-          [],
-        ),
-        returnValueForMissingStub: null,
-      );
-}
-
 /// A class which mocks [Hub].
 ///
 /// See the documentation for Mockito's code generation for more information.
@@ -899,7 +727,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             #customSamplingContext: customSamplingContext,
           },
         ),
-        returnValue: _i12.startTransactionShim(
+        returnValue: _i10.startTransactionShim(
           name,
           operation,
           description: description,

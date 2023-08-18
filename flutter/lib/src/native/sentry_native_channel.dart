@@ -139,6 +139,28 @@ class SentryNativeChannel {
     }
   }
 
+  Future<int?> startProfiling(SentryId traceId) async {
+    try {
+      return await _channel.invokeMethod('startProfiling', traceId.toString())
+          as int?;
+    } catch (error, stackTrace) {
+      _logError('startProfiling', error, stackTrace);
+      return null;
+    }
+  }
+
+  Future<dynamic> collectProfile(SentryId traceId, int startTimeNs) async {
+    try {
+      return await _channel.invokeMethod('collectProfile', {
+        'traceId': traceId.toString(),
+        'startTime': startTimeNs
+      }) as Map<String, dynamic>?;
+    } catch (error, stackTrace) {
+      _logError('collectProfile', error, stackTrace);
+      return null;
+    }
+  }
+
   // Helper
 
   void _logError(String nativeMethodName, Object error, StackTrace stackTrace) {
