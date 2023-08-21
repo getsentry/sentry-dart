@@ -115,6 +115,9 @@ jobs:
           echo "SIMULATOR_ID=${simulator_id}" >> "$GITHUB_OUTPUT"
           xcrun simctl boot ${simulator_id}
 
+      - name: build ios app
+        run: flutter build ios
+
       - name: run ios native test
         working-directory: ./flutter/example/ios
         env:
