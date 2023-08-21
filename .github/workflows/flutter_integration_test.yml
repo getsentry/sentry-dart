@@ -122,7 +122,7 @@ jobs:
         working-directory: ./flutter/example/ios
         env:
           SIMULATOR_ID: ${{ steps.sim.outputs.SIMULATOR_ID }}
-        run: xcodebuild test -workspace Runner.xcworkspace -scheme Runner -configuration Debug -destination "platform=iOS Simulator,id=$SIMULATOR_ID"
+        run: xcodebuild test -workspace Runner.xcworkspace -scheme Runner -configuration Debug -destination "platform=iOS Simulator,id=$SIMULATOR_ID" -allowProvisioningUpdates CODE_SIGNING_ALLOWED=NO
 
 #      - name: run ios integration test
 #        run: flutter test integration_test/integration_test.dart --verbose
