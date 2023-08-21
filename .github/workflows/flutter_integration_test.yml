@@ -108,15 +108,15 @@ jobs:
       - name: flutter pub get
         run: flutter pub get
 
+      - name: build ios app
+        run: flutter build ios
+
       - name: launch ios simulator
         id: sim
         run: |
           simulator_id=$(xcrun simctl create sentryPhone com.apple.CoreSimulator.SimDeviceType.iPhone-14 com.apple.CoreSimulator.SimRuntime.iOS-16-2)
           echo "SIMULATOR_ID=${simulator_id}" >> "$GITHUB_OUTPUT"
           xcrun simctl boot ${simulator_id}
-
-      - name: build ios app
-        run: flutter build ios
 
       - name: run ios native test
         working-directory: ./flutter/example/ios
