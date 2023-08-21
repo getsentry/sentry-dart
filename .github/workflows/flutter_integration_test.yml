@@ -117,5 +117,5 @@ jobs:
 #        run: flutter test integration_test/integration_test.dart --verbose
 
       - name: run ios native test
-        working-directory: ./ios
+        working-directory: ./flutter/example/ios
         run: xcodebuild test -workspace Runner.xcworkspace -scheme Runner -configuration Debug
