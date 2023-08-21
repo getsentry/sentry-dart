@@ -368,6 +368,7 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
     }
 
     private func fetchNativeAppStart(result: @escaping FlutterResult) {
+        #if os(iOS) || os(tvOS)
         guard let appStartMeasurement = PrivateSentrySDKOnly.appStartMeasurement else {
             print("warning: appStartMeasurement is null")
             result(nil)
@@ -383,6 +384,10 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
         ]
 
         result(item)
+        #else
+            print("note: appStartMeasurement not available on this platform")
+            result(nil)
+        #endif
     }
 
     private var totalFrames: UInt = 0

@@ -11,11 +11,13 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.sentry.Breadcrumb
+import io.sentry.DateUtils
+import io.sentry.Hint
 import io.sentry.HubAdapter
+import io.sentry.Sentry
 import io.sentry.SentryEvent
 import io.sentry.SentryLevel
-import io.sentry.Sentry
-import io.sentry.DateUtils
+import io.sentry.SentryOptions
 import io.sentry.android.core.ActivityFramesTracker
 import io.sentry.android.core.AppStartState
 import io.sentry.android.core.BuildConfig.VERSION_NAME
@@ -26,7 +28,6 @@ import io.sentry.protocol.DebugImage
 import io.sentry.protocol.SdkVersion
 import io.sentry.protocol.SentryId
 import io.sentry.protocol.User
-import io.sentry.protocol.Geo
 import java.io.File
 import java.lang.ref.WeakReference
 import java.util.Locale
@@ -40,10 +41,6 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   private var activity: WeakReference<Activity>? = null
   private var framesTracker: ActivityFramesTracker? = null
   private var autoPerformanceTracingEnabled = false
-
-  private val flutterSdk = "sentry.dart.flutter"
-  private val androidSdk = "sentry.java.android.flutter"
-  private val nativeSdk = "sentry.native.android.flutter"
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     context = flutterPluginBinding.applicationContext
@@ -134,11 +131,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         framesTracker = ActivityFramesTracker(LoadClass(), options)
       }
 
-      options.setBeforeSend { event, _ ->
-        setEventOriginTag(event)
-        addPackages(event, options.sdkVersion)
-        event
-      }
+      options.beforeSend = BeforeSendCallbackImpl(options.sdkVersion)
     }
     result.success("")
   }
@@ -353,30 +346,50 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     result.success("")
   }
 
-  private fun setEventOriginTag(event: SentryEvent) {
-    event.sdk?.let {
-      when (it.name) {
-        flutterSdk -> setEventEnvironmentTag(event, "flutter", "dart")
-        androidSdk -> setEventEnvironmentTag(event, environment = "java")
-        nativeSdk -> setEventEnvironmentTag(event, environment = "native")
-        else -> return
-      }
+  private class BeforeSendCallbackImpl(
+    private val sdkVersion: SdkVersion?
+  ) : SentryOptions.BeforeSendCallback {
+    override fun execute(event: SentryEvent, hint: Hint): SentryEvent {
+      setEventOriginTag(event)
+      addPackages(event, sdkVersion)
+      return event
     }
   }
 
-  private fun setEventEnvironmentTag(event: SentryEvent, origin: String = "android", environment: String) {
-    event.setTag("event.origin", origin)
-    event.setTag("event.environment", environment)
-  }
+  companion object {
 
-  private fun addPackages(event: SentryEvent, sdk: SdkVersion?) {
-    event.sdk?.let {
-      if (it.name == flutterSdk) {
-        sdk?.packageSet?.forEach { sentryPackage ->
-          it.addPackage(sentryPackage.name, sentryPackage.version)
+    private const val flutterSdk = "sentry.dart.flutter"
+    private const val androidSdk = "sentry.java.android.flutter"
+    private const val nativeSdk = "sentry.native.android.flutter"
+    private fun setEventOriginTag(event: SentryEvent) {
+      event.sdk?.let {
+        when (it.name) {
+          flutterSdk -> setEventEnvironmentTag(event, "flutter", "dart")
+          androidSdk -> setEventEnvironmentTag(event, environment = "java")
+          nativeSdk -> setEventEnvironmentTag(event, environment = "native")
+          else -> return
         }
-        sdk?.integrationSet?.forEach { integration ->
-          it.addIntegration(integration)
+      }
+    }
+
+    private fun setEventEnvironmentTag(
+      event: SentryEvent,
+      origin: String = "android",
+      environment: String
+    ) {
+      event.setTag("event.origin", origin)
+      event.setTag("event.environment", environment)
+    }
+
+    private fun addPackages(event: SentryEvent, sdk: SdkVersion?) {
+      event.sdk?.let {
+        if (it.name == flutterSdk) {
+          sdk?.packageSet?.forEach { sentryPackage ->
+            it.addPackage(sentryPackage.name, sentryPackage.version)
+          }
+          sdk?.integrationSet?.forEach { integration ->
+            it.addIntegration(integration)
+          }
         }
       }
     }
