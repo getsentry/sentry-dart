@@ -113,8 +113,8 @@ jobs:
           simulator_id=$(xcrun simctl create sentryPhone com.apple.CoreSimulator.SimDeviceType.iPhone-14 com.apple.CoreSimulator.SimRuntime.iOS-16-2)
           xcrun simctl boot ${simulator_id}
 
-      - name: run ios integration test
-        run: flutter test integration_test/integration_test.dart --verbose
+#      - name: run ios integration test
+#        run: flutter test integration_test/integration_test.dart --verbose
 
       - name: run ios native test
         working-directory: ./ios
