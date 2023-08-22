@@ -6,13 +6,12 @@
 
 - Mark exceptions not handled by the user as `handled: false` ([#1535](https://github.com/getsentry/sentry-dart/pull/1535))
   - This will affect your release health data, and is therefore considered a breaking change.
-- Make `hint` non-nullable in `BeforeSendCallback`, `BeforeBreadcrumbCall` and `EventProcessor` ([#1574](https://github.com/getsentry/sentry-dart/pull/1574))
-  - This will affect your callbacks, making this a breaking change.
-
 - Refrain from overwriting the span status for unfinished spans ([#1577](https://github.com/getsentry/sentry-dart/pull/1577))
   - Older self-hosted sentry instances will drop transactions containing unfinished spans.
     - This change was introduced in [relay/#1690](https://github.com/getsentry/relay/pull/1690) and released with [22.12.0](https://github.com/getsentry/relay/releases/tag/22.12.0)
-  
+- Make `hint` non-nullable in `BeforeSendCallback`, `BeforeBreadcrumbCall` and `EventProcessor` ([#1574](https://github.com/getsentry/sentry-dart/pull/1574))
+  - This will affect your callbacks, making this a breaking change.
+  - 
 ## 7.9.0
   
 ### Features
