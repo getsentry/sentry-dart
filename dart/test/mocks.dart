@@ -1,4 +1,6 @@
+import 'package:mockito/annotations.dart';
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/profiling.dart';
 import 'package:sentry/src/transport/rate_limiter.dart';
 
 final fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
@@ -149,3 +151,10 @@ class MockRateLimiter implements RateLimiter {
     this.errorCode = errorCode;
   }
 }
+
+@GenerateMocks([
+  ProfilerFactory,
+  Profiler,
+  ProfileInfo,
+])
+void main() {}

@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 
+import '../profiling.dart';
 import '../protocol.dart';
 import '../sentry_tracer.dart';
 import '../utils.dart';
@@ -13,6 +14,9 @@ class SentryTransaction extends SentryEvent {
   final SentryTracer _tracer;
   late final Map<String, SentryMeasurement> measurements;
   late final SentryTransactionInfo? transactionInfo;
+
+  @internal
+  late final ProfileInfo? profileInfo;
 
   SentryTransaction(
     this._tracer, {

@@ -289,6 +289,23 @@ class SentryOptions {
   /// to be sent to Sentry.
   TracesSamplerCallback? tracesSampler;
 
+  double? _profilesSampleRate;
+
+  /// The sample rate for profiling traces in the range [0.0, 1.0].
+  /// This is relative to tracesSampleRate - it is a ratio of profiled traces out of all sampled traces.
+  /// At the moment, only apps targeting iOS and macOS are supported.
+  @experimental
+  double? get profilesSampleRate => _profilesSampleRate;
+
+  /// The sample rate for profiling traces in the range [0.0, 1.0].
+  /// This is relative to tracesSampleRate - it is a ratio of profiled traces out of all sampled traces.
+  /// At the moment, only apps targeting iOS and macOS are supported.
+  @experimental
+  set profilesSampleRate(double? value) {
+    assert(value == null || (value >= 0 && value <= 1));
+    _profilesSampleRate = value;
+  }
+
   /// Send statistics to sentry when the client drops events.
   bool sendClientReports = true;
 

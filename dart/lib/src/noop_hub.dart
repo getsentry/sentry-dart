@@ -4,6 +4,7 @@ import 'package:meta/meta.dart';
 
 import 'hint.dart';
 import 'hub.dart';
+import 'profiling.dart';
 import 'protocol.dart';
 import 'scope.dart';
 import 'sentry_client.dart';
@@ -119,6 +120,10 @@ class NoOpHub implements Hub {
 
   @override
   void setSpanContext(throwable, ISentrySpan span, String transaction) {}
+
+  @internal
+  @override
+  set profilerFactory(ProfilerFactory? value) {}
 
   @override
   Scope get scope => Scope(_options);

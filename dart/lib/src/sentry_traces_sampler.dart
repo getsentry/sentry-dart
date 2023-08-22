@@ -67,5 +67,13 @@ class SentryTracesSampler {
     return SentryTracesSamplingDecision(false);
   }
 
+  bool sampleProfiling(SentryTracesSamplingDecision tracesSamplingDecision) {
+    double? optionsRate = _options.profilesSampleRate;
+    if (optionsRate == null || !tracesSamplingDecision.sampled) {
+      return false;
+    }
+    return _sample(optionsRate);
+  }
+
   bool _sample(double result) => !(result < _random.nextDouble());
 }

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import '../sentry.dart';
+import 'profiling.dart';
 import 'sentry_tracer_finish_status.dart';
 import 'utils/sample_rate_format.dart';
 
@@ -31,6 +32,8 @@ class SentryTracer extends ISentrySpan {
 
   SentryTraceContextHeader? _sentryTraceContextHeader;
 
+  late final Profiler? profiler;
+
   /// If [waitForChildren] is true, this transaction will not finish until all
   /// its children are finished.
   ///
@@ -52,6 +55,7 @@ class SentryTracer extends ISentrySpan {
     Duration? autoFinishAfter,
     bool trimEnd = false,
     OnTransactionFinish? onFinish,
+    this.profiler,
   }) {
     _rootSpan = SentrySpan(
       this,
@@ -77,8 +81,13 @@ class SentryTracer extends ISentrySpan {
     final commonEndTimestamp = endTimestamp ?? _hub.options.clock();
     _autoFinishAfterTimer?.cancel();
     _finishStatus = SentryTracerFinishStatus.finishing(status);
-    if (!_rootSpan.finished &&
-        (!_waitForChildren || _haveAllChildrenFinished())) {
+    if (_rootSpan.finished) {
+      return;
+    }
+    if (_waitForChildren && !_haveAllChildrenFinished()) {
+      return;
+    }
+    try {
       _rootSpan.status ??= status;
 
       // remove span where its endTimestamp is before startTimestamp
@@ -131,10 +140,19 @@ class SentryTracer extends ISentrySpan {
 
       final transaction = SentryTransaction(this);
       transaction.measurements.addAll(_measurements);
+
+      if (profiler != null) {
+        if (status == null || status == SpanStatus.ok()) {
+          transaction.profileInfo = await profiler?.finishFor(transaction);
+        }
+      }
+
       await _hub.captureTransaction(
         transaction,
         traceContext: traceContext(),
       );
+    } finally {
+      profiler?.dispose();
     }
   }
 
