@@ -108,8 +108,9 @@ jobs:
       - name: flutter pub get
         run: flutter pub get
 
-      - name: build ios app
-        run: flutter build ios
+      - name: pod install
+        working-directory: ./flutter/example/ios
+        run: pod install
 
       - name: launch ios simulator
         id: sim
