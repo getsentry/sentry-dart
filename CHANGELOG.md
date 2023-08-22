@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Add `SentryNavigatorObserver` current route to `event.app.contexts.viewNames` ([#1545](https://github.com/getsentry/sentry-dart/pull/1545))
+
 ### Fixes
 
 - Fixing memory leak issue in SentryFlutterPlugin (Android Plugin) ([#1588](https://github.com/getsentry/sentry-dart/pull/1588))
@@ -19,7 +23,6 @@
 
 ### Features
 
-- Add `SentryNavigatorObserver` current route to `event.app.contexts.viewNames` ([#1545](https://github.com/getsentry/sentry-dart/pull/1545))
 - Send trace origin ([#1534](https://github.com/getsentry/sentry-dart/pull/1534))
 
 [Trace origin](https://develop.sentry.dev/sdk/performance/trace-origin/) indicates what created a trace or a span. Not all transactions and spans contain enough information to tell whether the user or what precisely in the SDK created it. Origin solves this problem. The SDK now sends origin for transactions and spans.
