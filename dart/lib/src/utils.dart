@@ -8,9 +8,11 @@ import 'package:meta/meta.dart';
 
 /// Sentry does not take a timezone and instead expects the date-time to be
 /// submitted in UTC timezone.
+@internal
 DateTime getUtcDateTime() => DateTime.now().toUtc();
 
 /// Formats a Date as ISO8601 and UTC with millis precision
+@internal
 String formatDateAsIso8601WithMillisPrecision(DateTime date) {
   var iso = date.toIso8601String();
   final millisecondSeparatorIndex = iso.lastIndexOf('.');
@@ -22,9 +24,10 @@ String formatDateAsIso8601WithMillisPrecision(DateTime date) {
   return '${iso}Z';
 }
 
+@internal
 final utf8JsonEncoder = JsonUtf8Encoder(null, jsonSerializationFallback, null);
 
-@visibleForTesting
+@internal
 Object? jsonSerializationFallback(Object? nonEncodable) {
   if (nonEncodable == null) {
     return null;

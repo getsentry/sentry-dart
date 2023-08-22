@@ -2,12 +2,32 @@
 
 ## Unreleased
 
+### Fixes
+
+- Fixing memory leak issue in SentryFlutterPlugin (Android Plugin) ([#1588](https://github.com/getsentry/sentry-dart/pull/1588))
+
+### Dependencies
+
+- Bump Android SDK from v6.25.2 to v6.28.0 ([#1586](https://github.com/getsentry/sentry-dart/pull/1586))
+  - [changelog](https://github.com/getsentry/sentry-java/blob/main/CHANGELOG.md#6280)
+  - [diff](https://github.com/getsentry/sentry-java/compare/6.25.2...6.28.0)
+- Bump Cocoa SDK from v8.9.1 to v8.10.0 ([#1584](https://github.com/getsentry/sentry-dart/pull/1584), [#1606](https://github.com/getsentry/sentry-dart/pull/1606))
+  - [changelog](https://github.com/getsentry/sentry-cocoa/blob/main/CHANGELOG.md#8100)
+  - [diff](https://github.com/getsentry/sentry-cocoa/compare/8.9.1...8.10.0)
+
+## 7.9.0
+
 ### Features
 
 - Add `SentryNavigatorObserver` current route to `event.app.contexts.viewNames` ([#1545](https://github.com/getsentry/sentry-dart/pull/1545))
 - Send trace origin ([#1534](https://github.com/getsentry/sentry-dart/pull/1534))
 
 [Trace origin](https://develop.sentry.dev/sdk/performance/trace-origin/) indicates what created a trace or a span. Not all transactions and spans contain enough information to tell whether the user or what precisely in the SDK created it. Origin solves this problem. The SDK now sends origin for transactions and spans.
+
+- Add `appHangTimeoutInterval` to `SentryFlutterOptions` ([#1568](https://github.com/getsentry/sentry-dart/pull/1568))
+- DioEventProcessor: Append http response body ([#1557](https://github.com/getsentry/sentry-dart/pull/1557))
+  - This is opt-in and depends on `maxResponseBodySize`
+  - Only for `dio` package
 
 ### Dependencies
 

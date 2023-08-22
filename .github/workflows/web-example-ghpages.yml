@@ -20,6 +20,7 @@ jobs:
           workingDir: flutter/example
           customArgs: --source-maps
           webRenderer: canvaskit
+          baseHref: "/sentry-dart/"
 
       - name: Upload source maps
         run: |
