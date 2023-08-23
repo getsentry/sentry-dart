@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:async';
 import 'dart:convert';
 
@@ -160,6 +162,7 @@ void main() {
       final uri = Uri.parse(
         'https://sentry.io/api/0/projects/$org/$slug/events/$id/',
       );
+      expect(authToken, isNotEmpty);
 
       final event = await fixture.poll(uri, authToken);
       expect(event, isNotNull);
@@ -206,26 +209,31 @@ class Fixture {
 
     const maxRetries = 10;
     const initialDelay = Duration(seconds: 2);
-    const factor = 2;
+    const delayIncrease = Duration(seconds: 2);
 
     var retries = 0;
     var delay = initialDelay;
 
     while (retries < maxRetries) {
       try {
+        print("Trying to fetch $url [try $retries/$maxRetries]");
         final response = await client.get(
           url,
           headers: <String, String>{'Authorization': 'Bearer $authToken'},
         );
+        print("Response status code: ${response.statusCode}");
         if (response.statusCode == 200) {
           return jsonDecode(utf8.decode(response.bodyBytes));
+        } else if (response.statusCode == 401) {
+          print("Cannot fetch $url - invalid auth token.");
+          break;
         }
       } catch (e) {
         // Do nothing
       } finally {
         retries++;
         await Future.delayed(delay);
-        delay *= factor;
+        delay += delayIncrease;
       }
     }
     return null;
