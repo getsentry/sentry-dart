@@ -291,16 +291,10 @@ class SentryOptions {
 
   double? _profilesSampleRate;
 
-  /// The sample rate for profiling traces in the range [0.0, 1.0].
-  /// This is relative to tracesSampleRate - it is a ratio of profiled traces out of all sampled traces.
-  /// At the moment, only apps targeting iOS and macOS are supported.
-  @experimental
+  @internal // Only exposed by SentryFlutterOptions at the moment.
   double? get profilesSampleRate => _profilesSampleRate;
 
-  /// The sample rate for profiling traces in the range [0.0, 1.0].
-  /// This is relative to tracesSampleRate - it is a ratio of profiled traces out of all sampled traces.
-  /// At the moment, only apps targeting iOS and macOS are supported.
-  @experimental
+  @internal // Only exposed by SentryFlutterOptions at the moment.
   set profilesSampleRate(double? value) {
     assert(value == null || (value >= 0 && value <= 1));
     _profilesSampleRate = value;
