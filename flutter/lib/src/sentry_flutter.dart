@@ -11,6 +11,7 @@ import 'event_processor/flutter_exception_event_processor.dart';
 import 'event_processor/platform_exception_event_processor.dart';
 import 'integrations/screenshot_integration.dart';
 import 'native/native_scope_observer.dart';
+import 'profiling.dart';
 import 'renderer/renderer.dart';
 import 'native/sentry_native.dart';
 import 'native/sentry_native_channel.dart';
@@ -81,9 +82,7 @@ mixin SentryFlutter {
     await _initDefaultValues(flutterOptions, channel);
 
     await Sentry.init(
-      (options) async {
-        await optionsConfiguration(options as SentryFlutterOptions);
-      },
+      (options) => optionsConfiguration(options as SentryFlutterOptions),
       appRunner: appRunner,
       // ignore: invalid_use_of_internal_member
       options: flutterOptions,
@@ -92,6 +91,9 @@ mixin SentryFlutter {
       // ignore: invalid_use_of_internal_member
       runZonedGuardedOnError: runZonedGuardedOnError,
     );
+
+    // ignore: invalid_use_of_internal_member
+    NativeProfilerFactory.attachTo(Sentry.currentHub);
   }
 
   static Future<void> _initDefaultValues(

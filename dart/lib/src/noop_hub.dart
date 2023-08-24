@@ -81,6 +81,7 @@ class NoOpHub implements Hub {
   Future<SentryId> captureTransaction(
     SentryTransaction transaction, {
     SentryTraceContextHeader? traceContext,
+    ProfileInfo? profileInfo,
   }) async =>
       SentryId.empty();
 

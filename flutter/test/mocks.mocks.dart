@@ -7,14 +7,15 @@ import 'dart:async' as _i6;
 
 import 'package:flutter/src/services/binary_messenger.dart' as _i5;
 import 'package:flutter/src/services/message_codec.dart' as _i4;
-import 'package:flutter/src/services/platform_channel.dart' as _i9;
+import 'package:flutter/src/services/platform_channel.dart' as _i10;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:sentry/sentry.dart' as _i2;
+import 'package:sentry/src/profiling.dart' as _i9;
 import 'package:sentry/src/protocol.dart' as _i3;
 import 'package:sentry/src/sentry_envelope.dart' as _i7;
 import 'package:sentry/src/sentry_tracer.dart' as _i8;
 
-import 'mocks.dart' as _i10;
+import 'mocks.dart' as _i11;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -183,6 +184,14 @@ class MockSentryTracer extends _i1.Mock implements _i8.SentryTracer {
         Invocation.setter(
           #transactionNameSource,
           _transactionNameSource,
+        ),
+        returnValueForMissingStub: null,
+      );
+  @override
+  set profiler(_i9.Profiler? _profiler) => super.noSuchMethod(
+        Invocation.setter(
+          #profiler,
+          _profiler,
         ),
         returnValueForMissingStub: null,
       );
@@ -419,7 +428,7 @@ class MockSentryTracer extends _i1.Mock implements _i8.SentryTracer {
 /// A class which mocks [MethodChannel].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockMethodChannel extends _i1.Mock implements _i9.MethodChannel {
+class MockMethodChannel extends _i1.Mock implements _i10.MethodChannel {
   MockMethodChannel() {
     _i1.throwOnMissingStub(this);
   }
@@ -539,6 +548,14 @@ class MockHub extends _i1.Mock implements _i2.Hub {
           Invocation.getter(#scope),
         ),
       ) as _i2.Scope);
+  @override
+  set profilerFactory(_i9.ProfilerFactory? value) => super.noSuchMethod(
+        Invocation.setter(
+          #profilerFactory,
+          value,
+        ),
+        returnValueForMissingStub: null,
+      );
   @override
   _i6.Future<_i3.SentryId> captureEvent(
     _i3.SentryEvent? event, {
@@ -727,7 +744,7 @@ class MockHub extends _i1.Mock implements _i2.Hub {
             #customSamplingContext: customSamplingContext,
           },
         ),
-        returnValue: _i10.startTransactionShim(
+        returnValue: _i11.startTransactionShim(
           name,
           operation,
           description: description,
@@ -786,19 +803,26 @@ class MockHub extends _i1.Mock implements _i2.Hub {
   _i6.Future<_i3.SentryId> captureTransaction(
     _i3.SentryTransaction? transaction, {
     _i2.SentryTraceContextHeader? traceContext,
+    _i9.ProfileInfo? profileInfo,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
           #captureTransaction,
           [transaction],
-          {#traceContext: traceContext},
+          {
+            #traceContext: traceContext,
+            #profileInfo: profileInfo,
+          },
         ),
         returnValue: _i6.Future<_i3.SentryId>.value(_FakeSentryId_7(
           this,
           Invocation.method(
             #captureTransaction,
             [transaction],
-            {#traceContext: traceContext},
+            {
+              #traceContext: traceContext,
+              #profileInfo: profileInfo,
+            },
           ),
         )),
       ) as _i6.Future<_i3.SentryId>);

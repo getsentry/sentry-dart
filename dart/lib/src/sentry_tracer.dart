@@ -141,15 +141,14 @@ class SentryTracer extends ISentrySpan {
       final transaction = SentryTransaction(this);
       transaction.measurements.addAll(_measurements);
 
-      if (profiler != null) {
-        if (status == null || status == SpanStatus.ok()) {
-          transaction.profileInfo = await profiler?.finishFor(transaction);
-        }
-      }
+      final profileInfo = (status == null || status == SpanStatus.ok())
+          ? await profiler?.finishFor(transaction)
+          : null;
 
       await _hub.captureTransaction(
         transaction,
         traceContext: traceContext(),
+        profileInfo: profileInfo,
       );
     } finally {
       profiler?.dispose();

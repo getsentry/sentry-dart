@@ -1,4 +1,5 @@
 import 'package:sentry/sentry.dart';
+import 'package:sentry/src/profiling.dart';
 
 import 'no_such_method_provider.dart';
 
@@ -84,6 +85,7 @@ class MockSentryClient with NoSuchMethodProvider implements SentryClient {
     SentryTransaction transaction, {
     Scope? scope,
     SentryTraceContextHeader? traceContext,
+    ProfileInfo? profileInfo,
   }) async {
     captureTransactionCalls
         .add(CaptureTransactionCall(transaction, traceContext));

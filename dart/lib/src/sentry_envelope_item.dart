@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:meta/meta.dart';
+
 import 'client_reports/client_report.dart';
 import 'protocol.dart';
 import 'utils.dart';

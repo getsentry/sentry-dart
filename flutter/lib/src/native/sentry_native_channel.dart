@@ -149,12 +149,11 @@ class SentryNativeChannel {
     }
   }
 
-  Future<dynamic> collectProfile(SentryId traceId, int startTimeNs) async {
+  Future<Map<String, dynamic>?> collectProfile(
+      SentryId traceId, int startTimeNs) async {
     try {
-      return await _channel.invokeMethod('collectProfile', {
-        'traceId': traceId.toString(),
-        'startTime': startTimeNs
-      }) as Map<String, dynamic>?;
+      return await _channel.invokeMapMethod<String, dynamic>('collectProfile',
+          {'traceId': traceId.toString(), 'startTime': startTimeNs});
     } catch (error, stackTrace) {
       _logError('collectProfile', error, stackTrace);
       return null;

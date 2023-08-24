@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:meta/meta.dart';
+import 'profiling.dart';
 import 'sentry_baggage.dart';
 import 'sentry_attachment/sentry_attachment.dart';
 
@@ -298,6 +299,7 @@ class SentryClient {
     SentryTransaction transaction, {
     Scope? scope,
     SentryTraceContextHeader? traceContext,
+    ProfileInfo? profileInfo,
   }) async {
     SentryTransaction? preparedTransaction =
         _prepareEvent(transaction) as SentryTransaction;
@@ -345,6 +347,9 @@ class SentryClient {
       traceContext: traceContext,
       attachments: attachments,
     );
+    if (profileInfo != null) {
+      envelope.items.add(profileInfo.asEnvelopeItem());
+    }
     final id = await captureEnvelope(envelope);
 
     return id ?? SentryId.empty();

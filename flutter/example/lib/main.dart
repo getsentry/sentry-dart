@@ -48,6 +48,7 @@ Future<void> setupSentry(AppRunner appRunner, String dsn,
   await SentryFlutter.init((options) {
     options.dsn = exampleDsn;
     options.tracesSampleRate = 1.0;
+    options.profilesSampleRate = 1.0;
     options.reportPackages = false;
     options.addInAppInclude('sentry_flutter_example');
     options.considerInAppFramesByDefault = false;

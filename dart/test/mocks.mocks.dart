@@ -6,8 +6,8 @@
 import 'dart:async' as _i4;
 
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:sentry/sentry.dart' as _i3;
-import 'package:sentry/src/profiling.dart' as _i2;
+import 'package:sentry/sentry.dart' as _i2;
+import 'package:sentry/src/profiling.dart' as _i3;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -20,29 +20,9 @@ import 'package:sentry/src/profiling.dart' as _i2;
 // ignore_for_file: camel_case_types
 // ignore_for_file: subtype_of_sealed_class
 
-class _FakeProfiler_0 extends _i1.SmartFake implements _i2.Profiler {
-  _FakeProfiler_0(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeProfileInfo_1 extends _i1.SmartFake implements _i2.ProfileInfo {
-  _FakeProfileInfo_1(
-    Object parent,
-    Invocation parentInvocation,
-  ) : super(
-          parent,
-          parentInvocation,
-        );
-}
-
-class _FakeSentryEnvelopeItem_2 extends _i1.SmartFake
-    implements _i3.SentryEnvelopeItem {
-  _FakeSentryEnvelopeItem_2(
+class _FakeSentryEnvelopeItem_0 extends _i1.SmartFake
+    implements _i2.SentryEnvelopeItem {
+  _FakeSentryEnvelopeItem_0(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -54,51 +34,36 @@ class _FakeSentryEnvelopeItem_2 extends _i1.SmartFake
 /// A class which mocks [ProfilerFactory].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockProfilerFactory extends _i1.Mock implements _i2.ProfilerFactory {
+class MockProfilerFactory extends _i1.Mock implements _i3.ProfilerFactory {
   MockProfilerFactory() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i2.Profiler startProfiling(_i3.SentryTransactionContext? context) =>
-      (super.noSuchMethod(
-        Invocation.method(
-          #startProfiling,
-          [context],
-        ),
-        returnValue: _FakeProfiler_0(
-          this,
-          Invocation.method(
-            #startProfiling,
-            [context],
-          ),
-        ),
-      ) as _i2.Profiler);
+  _i3.Profiler? startProfiling(_i2.SentryTransactionContext? context) =>
+      (super.noSuchMethod(Invocation.method(
+        #startProfiling,
+        [context],
+      )) as _i3.Profiler?);
 }
 
 /// A class which mocks [Profiler].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockProfiler extends _i1.Mock implements _i2.Profiler {
+class MockProfiler extends _i1.Mock implements _i3.Profiler {
   MockProfiler() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Future<_i2.ProfileInfo> finishFor(_i3.SentryTransaction? transaction) =>
+  _i4.Future<_i3.ProfileInfo?> finishFor(_i2.SentryTransaction? transaction) =>
       (super.noSuchMethod(
         Invocation.method(
           #finishFor,
           [transaction],
         ),
-        returnValue: _i4.Future<_i2.ProfileInfo>.value(_FakeProfileInfo_1(
-          this,
-          Invocation.method(
-            #finishFor,
-            [transaction],
-          ),
-        )),
-      ) as _i4.Future<_i2.ProfileInfo>);
+        returnValue: _i4.Future<_i3.ProfileInfo?>.value(),
+      ) as _i4.Future<_i3.ProfileInfo?>);
   @override
   void dispose() => super.noSuchMethod(
         Invocation.method(
@@ -112,24 +77,23 @@ class MockProfiler extends _i1.Mock implements _i2.Profiler {
 /// A class which mocks [ProfileInfo].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockProfileInfo extends _i1.Mock implements _i2.ProfileInfo {
+class MockProfileInfo extends _i1.Mock implements _i3.ProfileInfo {
   MockProfileInfo() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.FutureOr<_i3.SentryEnvelopeItem> asEnvelopeItem() => (super.noSuchMethod(
+  _i2.SentryEnvelopeItem asEnvelopeItem() => (super.noSuchMethod(
         Invocation.method(
           #asEnvelopeItem,
           [],
         ),
-        returnValue:
-            _i4.Future<_i3.SentryEnvelopeItem>.value(_FakeSentryEnvelopeItem_2(
+        returnValue: _FakeSentryEnvelopeItem_0(
           this,
           Invocation.method(
             #asEnvelopeItem,
             [],
           ),
-        )),
-      ) as _i4.FutureOr<_i3.SentryEnvelopeItem>);
+        ),
+      ) as _i2.SentryEnvelopeItem);
 }

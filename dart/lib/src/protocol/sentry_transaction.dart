@@ -15,9 +15,6 @@ class SentryTransaction extends SentryEvent {
   late final Map<String, SentryMeasurement> measurements;
   late final SentryTransactionInfo? transactionInfo;
 
-  @internal
-  late final ProfileInfo? profileInfo;
-
   SentryTransaction(
     this._tracer, {
     SentryId? eventId,
