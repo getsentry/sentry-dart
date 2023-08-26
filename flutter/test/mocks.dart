@@ -269,7 +269,8 @@ class TestMockSentryNative implements SentryNative {
   }
 
   @override
-  Future<dynamic> collectProfile(SentryId traceId, int startTimeNs) {
+  Future<Map<String, dynamic>?> collectProfile(
+      SentryId traceId, int startTimeNs) {
     numberOfCollectProfileCalls++;
     return Future.value(null);
   }
@@ -362,7 +363,8 @@ class MockNativeChannel implements SentryNativeChannel {
   }
 
   @override
-  Future<dynamic> collectProfile(SentryId traceId, int startTimeNs) {
+  Future<Map<String, dynamic>?> collectProfile(
+      SentryId traceId, int startTimeNs) {
     numberOfCollectProfileCalls++;
     return Future.value(null);
   }

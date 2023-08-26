@@ -1,6 +1,5 @@
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
-import 'package:sentry/src/profiling.dart';
 
 import '../mocks.dart';
 import 'mock_sentry_client.dart';
@@ -111,7 +110,6 @@ class MockHub with NoSuchMethodProvider implements Hub {
   Future<SentryId> captureTransaction(
     SentryTransaction transaction, {
     SentryTraceContextHeader? traceContext,
-    ProfileInfo? profileInfo,
   }) async {
     captureTransactionCalls
         .add(CaptureTransactionCall(transaction, traceContext));

@@ -32,7 +32,12 @@ class SentryTracer extends ISentrySpan {
 
   SentryTraceContextHeader? _sentryTraceContextHeader;
 
+  // Profiler attached to this tracer.
   late final Profiler? profiler;
+
+  // Resulting profile, after it has been collected.  This is later used by
+  // SentryClient to attach as an envelope item when sending the transaction.
+  ProfileInfo? profileInfo;
 
   /// If [waitForChildren] is true, this transaction will not finish until all
   /// its children are finished.
@@ -141,14 +146,13 @@ class SentryTracer extends ISentrySpan {
       final transaction = SentryTransaction(this);
       transaction.measurements.addAll(_measurements);
 
-      final profileInfo = (status == null || status == SpanStatus.ok())
+      profileInfo = (status == null || status == SpanStatus.ok())
           ? await profiler?.finishFor(transaction)
           : null;
 
       await _hub.captureTransaction(
         transaction,
         traceContext: traceContext(),
-        profileInfo: profileInfo,
       );
     } finally {
       profiler?.dispose();
