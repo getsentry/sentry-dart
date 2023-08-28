@@ -137,7 +137,7 @@ jobs:
           simulator_id=$(xcrun simctl create sentryPhone com.apple.CoreSimulator.SimDeviceType.iPhone-14 com.apple.CoreSimulator.SimRuntime.iOS-16-2)
           echo "SIMULATOR_ID=${simulator_id}" >> "$GITHUB_OUTPUT"
           xcrun simctl boot ${simulator_id}
-          
+
       - name: run ios integration test
         env:
           SIMULATOR_ID: ${{ steps.sim.outputs.SIMULATOR_ID }}
