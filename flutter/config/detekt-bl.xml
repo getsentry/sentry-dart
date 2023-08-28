@@ -2,6 +2,7 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
+    <ID>ComplexMethod:SentryFlutterPlugin.kt$SentryFlutterPlugin$override fun onMethodCall(call: MethodCall, result: Result)</ID>
     <ID>CyclomaticComplexMethod:SentryFlutterPlugin.kt$SentryFlutterPlugin$override fun onMethodCall(call: MethodCall, result: Result)</ID>
     <ID>LongMethod:SentryFlutter.kt$SentryFlutter$fun updateOptions(options: SentryAndroidOptions, data: Map&lt;String, Any&gt;)</ID>
     <ID>MagicNumber:MainActivity.kt$MainActivity$6_000</ID>
