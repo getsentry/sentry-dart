@@ -203,7 +203,7 @@ void main() {
     test('collectProfile', () async {
       final traceId = SentryId.newId();
       const startTime = 42;
-      when(fixture.methodChannel.invokeMethod('collectProfile', {
+      when(fixture.methodChannel.invokeMapMethod('collectProfile', {
         'traceId': traceId.toString(),
         'startTime': startTime
       })).thenAnswer((_) => Future.value());
@@ -211,7 +211,7 @@ void main() {
       final sut = fixture.getSut();
       await sut.collectProfile(traceId, startTime);
 
-      verify(fixture.methodChannel.invokeMethod('collectProfile',
+      verify(fixture.methodChannel.invokeMapMethod('collectProfile',
           {'traceId': traceId.toString(), 'startTime': startTime}));
     });
   });
