@@ -10,9 +10,9 @@ import 'package:sentry_flutter_example/main.dart';
 import 'package:http/http.dart';
 
 void main() {
-  const org = 'sentry-sdks';
-  const slug = 'sentry-flutter';
-  const authToken = String.fromEnvironment('SENTRY_AUTH_TOKEN');
+  // const org = 'sentry-sdks';
+  // const slug = 'sentry-flutter';
+  // const authToken = String.fromEnvironment('SENTRY_AUTH_TOKEN');
   const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -141,6 +141,7 @@ void main() {
     await transaction.finish();
   });
 
+  // Disabled until CI issues are fixed
   // group('e2e', () {
   //   var output = find.byKey(const Key('output'));
   //   late Fixture fixture;
