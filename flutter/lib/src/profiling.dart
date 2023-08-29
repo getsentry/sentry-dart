@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:sentry/sentry.dart';
 // ignore: implementation_imports

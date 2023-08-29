@@ -4,8 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/profiling.dart';
-import 'package:sentry_flutter/src/sentry_native.dart';
-import 'package:sentry_flutter/src/sentry_native_channel.dart';
 import 'mocks.dart';
 import 'mocks.mocks.dart';
 import 'sentry_flutter_test.dart';
@@ -25,10 +23,12 @@ void main() {
     test('attachTo() respects sampling rate', () async {
       var hub = hubWithSampleRate(0.0);
       NativeProfilerFactory.attachTo(hub);
+      // ignore: invalid_use_of_internal_member
       verifyNever(hub.profilerFactory = any);
 
       hub = hubWithSampleRate(0.1);
       NativeProfilerFactory.attachTo(hub);
+      // ignore: invalid_use_of_internal_member
       verify(hub.profilerFactory = any);
     });
 
