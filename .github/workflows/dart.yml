@@ -6,10 +6,10 @@ on:
       - release/**
   pull_request:
     paths-ignore:
-      - 'logging/**'
-      - 'dio/**'
-      - 'file/**'
-      - 'sqflite/**'
+      - "logging/**"
+      - "dio/**"
+      - "file/**"
+      - "sqflite/**"
 
 jobs:
   cancel-previous-workflow:
@@ -74,10 +74,10 @@ jobs:
           name: sentry
           files: ./dart/coverage/lcov.info
 
-      - uses: VeryGoodOpenSource/very_good_coverage@84e5b54ab888644554e5573dca87d7f76dec9fb3 # pin@v2.0.0
+      - uses: VeryGoodOpenSource/very_good_coverage@e5c91bc7ce9843e87c800b3bcafdfb86fbe28491 # pin@v2.1.0
         if: runner.os == 'Linux' && matrix.sdk == 'stable'
         with:
-          path: './dart/coverage/lcov.info'
+          path: "./dart/coverage/lcov.info"
           min_coverage: 85
 
   analyze:
