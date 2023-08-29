@@ -160,7 +160,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       # https://github.com/CocoaPods/CocoaPods/issues/5275#issuecomment-315461879
-      - run: pod lib lint ios/sentry_flutter.podspec --configuration=Debug --skip-import-validation --allow-warnings
+      - run: pod lib lint ios/sentry_flutter.podspec --configuration=Debug --skip-import-validation --allow-warnings --verbose
 
   swift-lint:
     runs-on: ubuntu-latest
