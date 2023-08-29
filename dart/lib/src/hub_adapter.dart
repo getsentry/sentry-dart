@@ -97,8 +97,10 @@ class HubAdapter implements Hub {
   SentryId get lastEventId => Sentry.lastEventId;
 
   @override
-  Future<SentryId> captureTransaction(SentryTransaction transaction,
-          {SentryTraceContextHeader? traceContext}) =>
+  Future<SentryId> captureTransaction(
+    SentryTransaction transaction, {
+    SentryTraceContextHeader? traceContext,
+  }) =>
       Sentry.currentHub.captureTransaction(
         transaction,
         traceContext: traceContext,
@@ -171,6 +173,10 @@ class HubAdapter implements Hub {
   @override
   set profilerFactory(ProfilerFactory? value) =>
       Sentry.currentHub.profilerFactory = value;
+
+  @internal
+  @override
+  ProfilerFactory? get profilerFactory => Sentry.currentHub.profilerFactory;
 
   @override
   Scope get scope => Sentry.currentHub.scope;

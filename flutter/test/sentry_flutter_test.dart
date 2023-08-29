@@ -5,6 +5,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
+import 'package:sentry_flutter/src/profiling.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
 import 'package:sentry_flutter/src/native/sentry_native.dart';
 import 'package:sentry_flutter/src/version.dart';
@@ -65,6 +66,7 @@ void main() {
         (options) async {
           options.dsn = fakeDsn;
           options.devMode = true;
+          options.profilesSampleRate = 1.0;
           integrations = options.integrations;
           transport = options.transport;
           sentryFlutterOptions = options;
@@ -100,6 +102,7 @@ void main() {
           afterIntegration: OnErrorIntegration);
 
       expect(SentryNative().nativeChannel, isNotNull);
+      expect(Sentry.currentHub.profilerFactory, isNull);
 
       await Sentry.close();
     }, testOn: 'vm');
@@ -113,6 +116,7 @@ void main() {
         (options) async {
           options.dsn = fakeDsn;
           options.devMode = true;
+          options.profilesSampleRate = 1.0;
           integrations = options.integrations;
           transport = options.transport;
           sentryFlutterOptions = options;
@@ -146,6 +150,8 @@ void main() {
           afterIntegration: OnErrorIntegration);
 
       expect(SentryNative().nativeChannel, isNotNull);
+      expect(Sentry.currentHub.profilerFactory,
+          isInstanceOf<NativeProfilerFactory>());
 
       await Sentry.close();
     }, testOn: 'vm');
@@ -159,6 +165,7 @@ void main() {
         (options) async {
           options.dsn = fakeDsn;
           options.devMode = true;
+          options.profilesSampleRate = 1.0;
           integrations = options.integrations;
           transport = options.transport;
           sentryFlutterOptions = options;
@@ -192,6 +199,8 @@ void main() {
           afterIntegration: OnErrorIntegration);
 
       expect(SentryNative().nativeChannel, isNotNull);
+      expect(Sentry.currentHub.profilerFactory,
+          isInstanceOf<NativeProfilerFactory>());
 
       await Sentry.close();
     }, testOn: 'vm');
@@ -205,6 +214,7 @@ void main() {
         (options) async {
           options.dsn = fakeDsn;
           options.devMode = true;
+          options.profilesSampleRate = 1.0;
           integrations = options.integrations;
           transport = options.transport;
           sentryFlutterOptions = options;
@@ -241,6 +251,7 @@ void main() {
           afterIntegration: OnErrorIntegration);
 
       expect(SentryNative().nativeChannel, isNull);
+      expect(Sentry.currentHub.profilerFactory, isNull);
 
       await Sentry.close();
     }, testOn: 'vm');
@@ -254,6 +265,7 @@ void main() {
         (options) async {
           options.dsn = fakeDsn;
           options.devMode = true;
+          options.profilesSampleRate = 1.0;
           integrations = options.integrations;
           transport = options.transport;
           sentryFlutterOptions = options;
@@ -290,6 +302,7 @@ void main() {
           afterIntegration: OnErrorIntegration);
 
       expect(SentryNative().nativeChannel, isNull);
+      expect(Sentry.currentHub.profilerFactory, isNull);
 
       await Sentry.close();
     }, testOn: 'vm');
@@ -303,6 +316,7 @@ void main() {
         (options) async {
           options.dsn = fakeDsn;
           options.devMode = true;
+          options.profilesSampleRate = 1.0;
           integrations = options.integrations;
           transport = options.transport;
           sentryFlutterOptions = options;
@@ -340,6 +354,7 @@ void main() {
           afterIntegration: WidgetsFlutterBindingIntegration);
 
       expect(SentryNative().nativeChannel, isNull);
+      expect(Sentry.currentHub.profilerFactory, isNull);
 
       await Sentry.close();
     });
@@ -428,6 +443,8 @@ void main() {
           integrations: Sentry.currentHub.options.integrations,
           beforeIntegration: RunZonedGuardedIntegration,
           afterIntegration: WidgetsFlutterBindingIntegration);
+
+      expect(Sentry.currentHub.profilerFactory, isNull);
 
       await Sentry.close();
     });

@@ -563,6 +563,9 @@ class Hub {
       _throwableToSpan.add(throwable, span, transaction);
 
   @internal
+  ProfilerFactory? get profilerFactory => _profilerFactory;
+
+  @internal
   set profilerFactory(ProfilerFactory? value) => _profilerFactory = value;
 
   ProfilerFactory? _profilerFactory;
