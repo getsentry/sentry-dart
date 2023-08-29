@@ -13,11 +13,12 @@ import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.StandardMessageCodec
 import io.sentry.Breadcrumb
 import io.sentry.DateUtils
+import io.sentry.Hint
 import io.sentry.HubAdapter
-import io.sentry.Scope
 import io.sentry.Sentry
 import io.sentry.SentryEvent
 import io.sentry.SentryLevel
+import io.sentry.SentryOptions
 import io.sentry.android.core.ActivityFramesTracker
 import io.sentry.android.core.AppStartState
 import io.sentry.android.core.BuildConfig.VERSION_NAME
@@ -41,10 +42,6 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
   private var activity: WeakReference<Activity>? = null
   private var framesTracker: ActivityFramesTracker? = null
   private var autoPerformanceTracingEnabled = false
-
-  private val flutterSdk = "sentry.dart.flutter"
-  private val androidSdk = "sentry.java.android.flutter"
-  private val nativeSdk = "sentry.native.android.flutter"
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     context = flutterPluginBinding.applicationContext
@@ -118,9 +115,15 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       args.getIfNotNull<String>("environment") { options.environment = it }
       args.getIfNotNull<String>("release") { options.release = it }
       args.getIfNotNull<String>("dist") { options.dist = it }
-      args.getIfNotNull<Boolean>("enableAutoSessionTracking") { options.isEnableAutoSessionTracking = it }
-      args.getIfNotNull<Long>("autoSessionTrackingIntervalMillis") { options.sessionTrackingIntervalMillis = it }
-      args.getIfNotNull<Long>("anrTimeoutIntervalMillis") { options.anrTimeoutIntervalMillis = it }
+      args.getIfNotNull<Boolean>("enableAutoSessionTracking") {
+        options.isEnableAutoSessionTracking = it
+      }
+      args.getIfNotNull<Long>("autoSessionTrackingIntervalMillis") {
+        options.sessionTrackingIntervalMillis = it
+      }
+      args.getIfNotNull<Long>("anrTimeoutIntervalMillis") {
+        options.anrTimeoutIntervalMillis = it
+      }
       args.getIfNotNull<Boolean>("attachThreads") { options.isAttachThreads = it }
       args.getIfNotNull<Boolean>("attachStacktrace") { options.isAttachStacktrace = it }
       args.getIfNotNull<Boolean>("enableAutoNativeBreadcrumbs") {
@@ -174,12 +177,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       options.sdkVersion = sdkVersion
       options.sentryClientName = "$androidSdk/$VERSION_NAME"
       options.nativeSdkName = nativeSdk
-
-      options.setBeforeSend { event, _ ->
-        setEventOriginTag(event)
-        addPackages(event, options.sdkVersion)
-        event
-      }
+      options.beforeSend = BeforeSendCallbackImpl(options.sdkVersion)
 
       args.getIfNotNull<Int>("connectionTimeoutMillis") { options.connectionTimeoutMillis = it }
       args.getIfNotNull<Int>("readTimeoutMillis") { options.readTimeoutMillis = it }
@@ -398,30 +396,50 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     result.success("")
   }
 
-  private fun setEventOriginTag(event: SentryEvent) {
-    event.sdk?.let {
-      when (it.name) {
-        flutterSdk -> setEventEnvironmentTag(event, "flutter", "dart")
-        androidSdk -> setEventEnvironmentTag(event, environment = "java")
-        nativeSdk -> setEventEnvironmentTag(event, environment = "native")
-        else -> return
-      }
+  private class BeforeSendCallbackImpl(
+    private val sdkVersion: SdkVersion?
+  ) : SentryOptions.BeforeSendCallback {
+    override fun execute(event: SentryEvent, hint: Hint): SentryEvent {
+      setEventOriginTag(event)
+      addPackages(event, sdkVersion)
+      return event
     }
   }
 
-  private fun setEventEnvironmentTag(event: SentryEvent, origin: String = "android", environment: String) {
-    event.setTag("event.origin", origin)
-    event.setTag("event.environment", environment)
-  }
+  companion object {
 
-  private fun addPackages(event: SentryEvent, sdk: SdkVersion?) {
-    event.sdk?.let {
-      if (it.name == flutterSdk) {
-        sdk?.packageSet?.forEach { sentryPackage ->
-          it.addPackage(sentryPackage.name, sentryPackage.version)
+    private const val flutterSdk = "sentry.dart.flutter"
+    private const val androidSdk = "sentry.java.android.flutter"
+    private const val nativeSdk = "sentry.native.android.flutter"
+    private fun setEventOriginTag(event: SentryEvent) {
+      event.sdk?.let {
+        when (it.name) {
+          flutterSdk -> setEventEnvironmentTag(event, "flutter", "dart")
+          androidSdk -> setEventEnvironmentTag(event, environment = "java")
+          nativeSdk -> setEventEnvironmentTag(event, environment = "native")
+          else -> return
         }
-        sdk?.integrationSet?.forEach { integration ->
-          it.addIntegration(integration)
+      }
+    }
+
+    private fun setEventEnvironmentTag(
+      event: SentryEvent,
+      origin: String = "android",
+      environment: String
+    ) {
+      event.setTag("event.origin", origin)
+      event.setTag("event.environment", environment)
+    }
+
+    private fun addPackages(event: SentryEvent, sdk: SdkVersion?) {
+      event.sdk?.let {
+        if (it.name == flutterSdk) {
+          sdk?.packageSet?.forEach { sentryPackage ->
+            it.addPackage(sentryPackage.name, sentryPackage.version)
+          }
+          sdk?.integrationSet?.forEach { integration ->
+            it.addIntegration(integration)
+          }
         }
       }
     }
