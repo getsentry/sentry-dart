@@ -108,8 +108,6 @@ class SentryClient {
       return _sentryId;
     }
 
-    preparedEvent = _eventWithoutBreadcrumbsIfNeeded(preparedEvent);
-
     var attachments = List<SentryAttachment>.from(scope?.attachments ?? []);
     attachments.addAll(hint.attachments);
     var screenshot = hint.screenshot;
@@ -319,8 +317,6 @@ class SentryClient {
       return _sentryId;
     }
 
-    preparedTransaction = _eventWithoutBreadcrumbsIfNeeded(preparedTransaction);
-
     final attachments = scope?.attachments
         .where((element) => element.addToTransactions)
         .toList();
@@ -452,40 +448,6 @@ class SentryClient {
       category = DataCategory.error;
     }
     _options.recorder.recordLostEvent(reason, category);
-  }
-
-  T _eventWithoutBreadcrumbsIfNeeded<T extends SentryEvent>(T event) {
-    if (_shouldRemoveBreadcrumbs(event)) {
-      return event.copyWith(breadcrumbs: []) as T;
-    } else {
-      return event;
-    }
-  }
-
-  /// We do this to avoid duplicate breadcrumbs on Android as sentry-android applies the breadcrumbs
-  /// from the native scope onto every envelope sent through it. This scope will contain the breadcrumbs
-  /// sent through the scope sync feature. This causes duplicate breadcrumbs.
-  /// We then remove the breadcrumbs in all cases but if it is handled == false,
-  /// this is a signal that the app would crash and android would lose the breadcrumbs by the time the app is restarted to read
-  /// the envelope.
-  bool _shouldRemoveBreadcrumbs(SentryEvent event) {
-    if (_options.platformChecker.isWeb) {
-      return false;
-    }
-
-    final isAndroid = _options.platformChecker.platform.isAndroid;
-    final enableScopeSync = _options.enableScopeSync;
-
-    if (!isAndroid || !enableScopeSync) {
-      return false;
-    }
-
-    final mechanisms =
-        (event.exceptions ?? []).map((e) => e.mechanism).whereType<Mechanism>();
-    final hasNoMechanism = mechanisms.isEmpty;
-    final hasOnlyHandledMechanism =
-        mechanisms.every((e) => (e.handled ?? true));
-    return hasNoMechanism || hasOnlyHandledMechanism;
   }
 
   Future<SentryId?> _attachClientReportsAndSend(SentryEnvelope envelope) {
