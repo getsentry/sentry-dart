@@ -154,7 +154,7 @@ mixin SentryFlutter {
     // Will enrich events with device context, native packages and integrations
     if (platformChecker.hasNativeIntegration &&
         !platformChecker.isWeb &&
-        (platform.isIOS || platform.isMacOS)) {
+        (platform.isIOS || platform.isMacOS || platform.isAndroid)) {
       integrations.add(LoadContextsIntegration(channel));
     }
 
