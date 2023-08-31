@@ -1,5 +1,7 @@
 import 'package:meta/meta.dart';
 
+import '../../sentry.dart';
+import '../propagation_context.dart';
 import '../protocol.dart';
 
 @immutable
@@ -87,4 +89,16 @@ class SentryTraceContext {
     this.origin,
   })  : traceId = traceId ?? SentryId.newId(),
         spanId = spanId ?? SpanId.newId();
+
+  @internal
+  factory SentryTraceContext.fromPropagationContext(
+      PropagationContext propagationContext) {
+    return SentryTraceContext(
+      traceId: propagationContext.traceId,
+      spanId: propagationContext.spanId,
+      parentSpanId: propagationContext.parentSpanId,
+      sampled: propagationContext.sampled,
+      operation: 'default',
+    );
+  }
 }

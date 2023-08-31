@@ -1,3 +1,6 @@
+import 'package:meta/meta.dart';
+
+import '../sentry.dart';
 import 'protocol/sentry_level.dart';
 import 'sentry_options.dart';
 
@@ -85,6 +88,27 @@ class SentryBaggage {
     );
 
     return SentryBaggage(keyValues, logger: logger);
+  }
+
+  @internal
+  setValuesFromScope(Scope scope, SentryOptions options) {
+    final propagationContext = scope.propagationContext;
+    setTraceId(propagationContext.traceId.toString());
+    if (options.dsn != null) {
+      setPublicKey(Dsn.parse(options.dsn!).publicKey);
+    }
+    if (options.release != null) {
+      setRelease(options.release!);
+    }
+    if (options.environment != null) {
+      setEnvironment(options.environment!);
+    }
+    if (scope.user?.id != null) {
+      setUserId(scope.user!.id!);
+    }
+    if (scope.user?.segment != null) {
+      setUserSegment(scope.user!.segment!);
+    }
   }
 
   static Map<String, String> _extractKeyValuesFromBaggageString(

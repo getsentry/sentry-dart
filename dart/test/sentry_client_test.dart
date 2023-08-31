@@ -542,6 +542,138 @@ void main() {
       fixture = Fixture();
     });
 
+    test(
+        'when scope does not have an active transaction, trace state is set on the envelope from scope',
+        () async {
+      final client = fixture.getSut();
+      final scope = Scope(fixture.options);
+      await client.captureEvent(SentryEvent(), scope: scope);
+
+      final capturedEnvelope = (fixture.transport).envelopes.first;
+      final capturedTraceContext = capturedEnvelope.header.traceContext;
+      final capturedTraceId = capturedTraceContext?.traceId;
+      final propagationContextTraceId = scope.propagationContext.traceId;
+
+      expect(capturedTraceContext, isNotNull);
+      expect(capturedTraceId, propagationContextTraceId);
+    });
+
+    test('attaches trace context from span if none present yet', () async {
+      final client = fixture.getSut();
+      final spanContext = SentrySpanContext(
+        traceId: SentryId.newId(),
+        spanId: SpanId.newId(),
+        operation: 'op.load',
+      );
+      final scope = Scope(fixture.options);
+      scope.span = SentrySpan(fixture.tracer, spanContext, MockHub());
+
+      final sentryEvent = SentryEvent();
+      await client.captureEvent(sentryEvent, scope: scope);
+
+      expect(fixture.transport.envelopes.length, 1);
+      expect(spanContext.spanId, sentryEvent.contexts.trace!.spanId);
+      expect(spanContext.traceId, sentryEvent.contexts.trace!.traceId);
+    });
+
+    test(
+        'attaches trace context from scope if none present yet and no span on scope',
+        () async {
+      final client = fixture.getSut();
+
+      final scope = Scope(fixture.options);
+      final scopePropagationContext = scope.propagationContext;
+
+      final sentryEvent = SentryEvent();
+      await client.captureEvent(sentryEvent, scope: scope);
+
+      expect(fixture.transport.envelopes.length, 1);
+      expect(
+          scopePropagationContext.traceId, sentryEvent.contexts.trace!.traceId);
+      expect(
+          scopePropagationContext.spanId, sentryEvent.contexts.trace!.spanId);
+    });
+
+    test('keeps existing trace context if already present', () async {
+      final client = fixture.getSut();
+
+      final spanContext = SentrySpanContext(
+        traceId: SentryId.newId(),
+        spanId: SpanId.newId(),
+        operation: 'op.load',
+      );
+      final scope = Scope(fixture.options);
+      scope.span = SentrySpan(fixture.tracer, spanContext, MockHub());
+
+      final propagationContext = scope.propagationContext;
+      final preExistingSpanContext = SentryTraceContext(
+          traceId: SentryId.newId(),
+          spanId: SpanId.newId(),
+          operation: 'op.load');
+
+      final sentryEvent = SentryEvent();
+      sentryEvent.contexts.trace = preExistingSpanContext;
+      await client.captureEvent(sentryEvent, scope: scope);
+
+      expect(fixture.transport.envelopes.length, 1);
+      expect(
+          preExistingSpanContext.traceId, sentryEvent.contexts.trace!.traceId);
+      expect(preExistingSpanContext.spanId, sentryEvent.contexts.trace!.spanId);
+      expect(spanContext.traceId, isNot(sentryEvent.contexts.trace!.traceId));
+      expect(spanContext.spanId, isNot(sentryEvent.contexts.trace!.spanId));
+      expect(propagationContext.traceId,
+          isNot(sentryEvent.contexts.trace!.traceId));
+      expect(
+          propagationContext.spanId, isNot(sentryEvent.contexts.trace!.spanId));
+    });
+
+    test(
+        'uses propagation context on scope for trace header if no transaction is on scope',
+        () async {
+      final client = fixture.getSut();
+
+      final scope = Scope(fixture.options);
+      final scopePropagationContext = scope.propagationContext;
+
+      final sentryEvent = SentryEvent();
+      await client.captureEvent(sentryEvent, scope: scope);
+
+      final capturedEnvelope = fixture.transport.envelopes.first;
+      final capturedTraceContext = capturedEnvelope.header.traceContext;
+
+      expect(fixture.transport.envelopes.length, 1);
+      expect(scope.span, isNull);
+      expect(capturedTraceContext, isNotNull);
+      expect(scopePropagationContext.traceId, capturedTraceContext!.traceId);
+    });
+
+    test(
+        'uses trace context on transaction for trace header if a transaction is on scope',
+        () async {
+      print("starting");
+      final client = fixture.getSut();
+
+      final spanContext = SentrySpanContext(
+        traceId: SentryId.newId(),
+        spanId: SpanId.newId(),
+        operation: 'op.load',
+      );
+      final scope = Scope(fixture.options);
+      scope.span = SentrySpan(fixture.tracer, spanContext, MockHub());
+
+      final sentryEvent = SentryEvent();
+      await client.captureEvent(sentryEvent, scope: scope);
+
+      final capturedEnvelope = fixture.transport.envelopes.first;
+      final capturedTraceContext = capturedEnvelope.header.traceContext;
+
+      expect(fixture.transport.envelopes.length, 1);
+      expect(scope.span, isNotNull);
+      expect(capturedTraceContext, isNotNull);
+      expect(
+          scope.span!.traceContext()!.traceId, capturedTraceContext!.traceId);
+    });
+
     test('should contain a transaction in the envelope', () async {
       try {
         throw StateError('Error');
