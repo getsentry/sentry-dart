@@ -6,10 +6,10 @@ on:
       - release/**
   pull_request:
     paths-ignore:
-      - 'logging/**'
-      - 'flutter/**'
-      - 'file/**'
-      - 'sqflite/**'
+      - "logging/**"
+      - "flutter/**"
+      - "file/**"
+      - "sqflite/**"
 
 jobs:
   cancel-previous-workflow:
@@ -34,7 +34,7 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         sdk: [stable, beta]
         exclude:
-          - os:  windows-latest
+          - os: windows-latest
             sdk: beta
           - os: macos-latest
             sdk: beta
@@ -57,10 +57,10 @@ jobs:
           name: sentry_dio
           files: ./dio/coverage/lcov.info
 
-      - uses: VeryGoodOpenSource/very_good_coverage@84e5b54ab888644554e5573dca87d7f76dec9fb3 # pin@v2.0.0
+      - uses: VeryGoodOpenSource/very_good_coverage@e5c91bc7ce9843e87c800b3bcafdfb86fbe28491 # pin@v2.1.0
         if: runner.os == 'Linux' && matrix.sdk == 'stable'
         with:
-          path: './dio/coverage/lcov.info'
+          path: "./dio/coverage/lcov.info"
           min_coverage: 81
 
   analyze:
