@@ -26,6 +26,8 @@ dev_dependencies:
   mockito: ^5.1.0
   yaml: ^3.1.0 # needed for version match (code and pubspec)
   flutter_lints: ^2.0.0
+  ffigen:
+    path: /Users/ivan/dev/ffigen
 
 flutter:
   plugin:
