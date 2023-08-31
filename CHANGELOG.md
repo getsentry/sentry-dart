@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Tracing without performance ([#1621](https://github.com/getsentry/sentry-dart/pull/1621))
+
 ### Fixes
 
 - Fixing memory leak issue in SentryFlutterPlugin (Android Plugin) ([#1588](https://github.com/getsentry/sentry-dart/pull/1588))
