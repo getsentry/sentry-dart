@@ -6,8 +6,6 @@ import '../sentry.dart';
 class PropagationContext {
   late SentryId traceId;
   late SpanId spanId;
-  SpanId? parentSpanId;
-  bool? sampled;
   SentryBaggage? baggage;
 
   PropagationContext() {
