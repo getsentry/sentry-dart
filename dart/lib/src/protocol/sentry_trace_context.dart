@@ -96,8 +96,6 @@ class SentryTraceContext {
     return SentryTraceContext(
       traceId: propagationContext.traceId,
       spanId: propagationContext.spanId,
-      parentSpanId: propagationContext.parentSpanId,
-      sampled: propagationContext.sampled,
       operation: 'default',
     );
   }
