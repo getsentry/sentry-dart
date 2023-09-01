@@ -1,12 +1,10 @@
 import 'dart:async';
-import 'dart:ffi';
 
 import 'package:flutter/services.dart';
-import 'package:jni/jni.dart';
 import 'package:sentry/sentry.dart';
-import '../sentry_cocoa.dart';
+//import '../sentry_android.dart' as android;
+// import '../sentry_cocoa.dart' as cocoa;
 import '../sentry_flutter_options.dart';
-import '../sentry_android.dart' as android;
 
 /// Enables Sentry's native SDKs (Android and iOS) with options.
 class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
@@ -24,11 +22,13 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
 
     try {
       // XXX
-      // final nativeLib = SentryCocoa(DynamicLibrary.process());
-      // final orignalName = PrivateSentrySDKOnly.getSdkName(nativeLib).toString();
-      // PrivateSentrySDKOnly.setSdkName_(
-      //     nativeLib, NSString(nativeLib, "Custom SDK name"));
-      // final newName = PrivateSentrySDKOnly.getSdkName(nativeLib).toString();
+      // final nativeLib = cocoa.SentryCocoa(DynamicLibrary.process());
+      // final orignalName =
+      //     cocoa.PrivateSentrySDKOnly.getSdkName(nativeLib).toString();
+      // cocoa.PrivateSentrySDKOnly.setSdkName_(
+      //     nativeLib, cocoa.NSString(nativeLib, "Custom SDK name"));
+      // final newName =
+      //     cocoa.PrivateSentrySDKOnly.getSdkName(nativeLib).toString();
 
       await _channel.invokeMethod('initNativeSdk', <String, dynamic>{
         'dsn': options.dsn,
