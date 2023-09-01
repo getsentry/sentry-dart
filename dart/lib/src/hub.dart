@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:meta/meta.dart';
+import 'propagation_context.dart';
 import 'transport/data_category.dart';
 
 import '../sentry.dart';
@@ -426,10 +427,8 @@ class Hub {
         "Instance is disabled and this 'startTransaction' call is a no-op.",
       );
     } else if (!_options.isTracingEnabled()) {
-      _options.logger(
-        SentryLevel.info,
-        "Tracing is disabled and this 'startTransaction' returns a no-op.",
-      );
+      final item = _peek();
+      item.scope.propagationContext = PropagationContext();
     } else {
       final item = _peek();
 
