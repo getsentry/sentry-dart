@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:sentry/sentry.dart';
+//import '../sentry_android.dart' as android;
+// import '../sentry_cocoa.dart' as cocoa;
 import '../sentry_flutter_options.dart';
 
 /// Enables Sentry's native SDKs (Android and iOS) with options.
@@ -17,7 +19,17 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
     if (!options.autoInitializeNativeSdk) {
       return;
     }
+
     try {
+      // XXX
+      // final nativeLib = cocoa.SentryCocoa(DynamicLibrary.process());
+      // final orignalName =
+      //     cocoa.PrivateSentrySDKOnly.getSdkName(nativeLib).toString();
+      // cocoa.PrivateSentrySDKOnly.setSdkName_(
+      //     nativeLib, cocoa.NSString(nativeLib, "Custom SDK name"));
+      // final newName =
+      //     cocoa.PrivateSentrySDKOnly.getSdkName(nativeLib).toString();
+
       await _channel.invokeMethod('initNativeSdk', <String, dynamic>{
         'dsn': options.dsn,
         'debug': options.debug,
@@ -54,6 +66,9 @@ class NativeSdkIntegration implements Integration<SentryFlutterOptions> {
         'appHangTimeoutIntervalMillis':
             options.appHangTimeoutInterval.inMilliseconds,
       });
+
+      // android.Sentry.setTag(
+      //     JString.fromString("ffi-key"), JString.fromString("ffi-value"));
 
       options.sdk.addIntegration('nativeSdkIntegration');
     } catch (exception, stackTrace) {
