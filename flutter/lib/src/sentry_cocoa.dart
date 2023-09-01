@@ -23597,8 +23597,8 @@ class SentryCocoa {
       'objc_msgSend');
   late final __objc_msgSend_831 = __objc_msgSend_831Ptr.asFunction<
       ffi.Pointer<
-              ffi.NativeFunction<
-                  ffi.UnsignedLong Function(ffi.Pointer<ffi.Void>)>>
+              ffi
+              .NativeFunction<ffi.UnsignedLong Function(ffi.Pointer<ffi.Void>)>>
           Function(ffi.Pointer<ObjCObject>, ffi.Pointer<ObjCSel>)>();
 
   late final _sel_setSizeFunction_1 = _registerName1("setSizeFunction:");
@@ -23606,8 +23606,8 @@ class SentryCocoa {
     ffi.Pointer<ObjCObject> obj,
     ffi.Pointer<ObjCSel> sel,
     ffi.Pointer<
-            ffi.NativeFunction<
-                ffi.UnsignedLong Function(ffi.Pointer<ffi.Void>)>>
+            ffi
+            .NativeFunction<ffi.UnsignedLong Function(ffi.Pointer<ffi.Void>)>>
         value,
   ) {
     return __objc_msgSend_832(
@@ -36938,19 +36938,20 @@ class ObjCBlock1 extends _ObjCBlockBase {
       SentryCocoa lib,
       ffi.Pointer<
               ffi.NativeFunction<
-                  ffi.Void Function(
-                      ffi.UnsignedLong arg0, ffi.Pointer<ffi.Bool> arg1)>>
+                  ffi.Void Function(ffi.UnsignedLong arg0,
+                      ffi.Pointer<ffi.Bool> arg1)>>
           ptr)
       : this._(
-            lib._newBlock1(
-                _cFuncTrampoline ??= ffi.Pointer.fromFunction<
-                            ffi.Void Function(
-                                ffi.Pointer<_ObjCBlock> block,
-                                ffi.UnsignedLong arg0,
-                                ffi.Pointer<ffi.Bool> arg1)>(
-                        _ObjCBlock1_fnPtrTrampoline)
-                    .cast(),
-                ptr.cast()),
+            lib
+                ._newBlock1(
+                    _cFuncTrampoline ??= ffi.Pointer.fromFunction<
+                                ffi.Void Function(
+                                    ffi.Pointer<_ObjCBlock> block,
+                                    ffi.UnsignedLong arg0,
+                                    ffi.Pointer<ffi.Bool> arg1)>(
+                            _ObjCBlock1_fnPtrTrampoline)
+                        .cast(),
+                    ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
@@ -37351,7 +37352,8 @@ class ObjCBlock6 extends _ObjCBlockBase {
   ObjCBlock6.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
-              ffi.NativeFunction<
+              ffi
+              .NativeFunction<
                   ffi.Int32 Function(ffi.Pointer<ObjCObject> arg0,
                       ffi.Pointer<ObjCObject> arg1)>>
           ptr)
@@ -38439,19 +38441,26 @@ class ObjCBlock10 extends _ObjCBlockBase {
   /// Creates a block from a C function pointer.
   ObjCBlock10.fromFunctionPointer(
       SentryCocoa lib,
-      ffi.Pointer<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ObjCObject> arg1, ffi.Pointer<ffi.Bool> arg2)>>
+      ffi.Pointer<
+              ffi
+              .NativeFunction<
+                  ffi.Bool Function(
+                      ffi.Pointer<ObjCObject> arg0,
+                      ffi.Pointer<ObjCObject> arg1,
+                      ffi.Pointer<ffi.Bool> arg2)>>
           ptr)
       : this._(
-            lib._newBlock1(
-                _cFuncTrampoline ??= ffi.Pointer.fromFunction<
-                            ffi.Bool Function(
-                                ffi.Pointer<_ObjCBlock> block,
-                                ffi.Pointer<ObjCObject> arg0,
-                                ffi.Pointer<ObjCObject> arg1,
-                                ffi.Pointer<ffi.Bool> arg2)>(
-                        _ObjCBlock10_fnPtrTrampoline, false)
-                    .cast(),
-                ptr.cast()),
+            lib
+                ._newBlock1(
+                    _cFuncTrampoline ??= ffi.Pointer.fromFunction<
+                                ffi.Bool Function(
+                                    ffi.Pointer<_ObjCBlock> block,
+                                    ffi.Pointer<ObjCObject> arg0,
+                                    ffi.Pointer<ObjCObject> arg1,
+                                    ffi.Pointer<ffi.Bool> arg2)>(
+                            _ObjCBlock10_fnPtrTrampoline, false)
+                        .cast(),
+                    ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
@@ -40734,19 +40743,20 @@ class ObjCBlock12 extends _ObjCBlockBase {
       SentryCocoa lib,
       ffi.Pointer<
               ffi.NativeFunction<
-                  ffi.Void Function(
-                      ffi.Pointer<ffi.Void> arg0, ffi.UnsignedLong arg1)>>
+                  ffi.Void Function(ffi.Pointer<ffi.Void> arg0,
+                      ffi.UnsignedLong arg1)>>
           ptr)
       : this._(
-            lib._newBlock1(
-                _cFuncTrampoline ??= ffi.Pointer.fromFunction<
-                            ffi.Void Function(
-                                ffi.Pointer<_ObjCBlock> block,
-                                ffi.Pointer<ffi.Void> arg0,
-                                ffi.UnsignedLong arg1)>(
-                        _ObjCBlock12_fnPtrTrampoline)
-                    .cast(),
-                ptr.cast()),
+            lib
+                ._newBlock1(
+                    _cFuncTrampoline ??= ffi.Pointer.fromFunction<
+                                ffi.Void Function(
+                                    ffi.Pointer<_ObjCBlock> block,
+                                    ffi.Pointer<ffi.Void> arg0,
+                                    ffi.UnsignedLong arg1)>(
+                            _ObjCBlock12_fnPtrTrampoline)
+                        .cast(),
+                    ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
@@ -41412,18 +41422,23 @@ class ObjCBlock17 extends _ObjCBlockBase {
   /// Creates a block from a C function pointer.
   ObjCBlock17.fromFunctionPointer(
       SentryCocoa lib,
-      ffi.Pointer<ffi.NativeFunction<ffi.Bool Function(ffi.Pointer<ObjCObject> arg0, ffi.Pointer<ffi.Bool> arg1)>>
+      ffi.Pointer<
+              ffi
+              .NativeFunction<
+                  ffi.Bool Function(ffi.Pointer<ObjCObject> arg0,
+                      ffi.Pointer<ffi.Bool> arg1)>>
           ptr)
       : this._(
-            lib._newBlock1(
-                _cFuncTrampoline ??= ffi.Pointer.fromFunction<
-                            ffi.Bool Function(
-                                ffi.Pointer<_ObjCBlock> block,
-                                ffi.Pointer<ObjCObject> arg0,
-                                ffi.Pointer<ffi.Bool> arg1)>(
-                        _ObjCBlock17_fnPtrTrampoline, false)
-                    .cast(),
-                ptr.cast()),
+            lib
+                ._newBlock1(
+                    _cFuncTrampoline ??= ffi.Pointer.fromFunction<
+                                ffi.Bool Function(
+                                    ffi.Pointer<_ObjCBlock> block,
+                                    ffi.Pointer<ObjCObject> arg0,
+                                    ffi.Pointer<ffi.Bool> arg1)>(
+                            _ObjCBlock17_fnPtrTrampoline, false)
+                        .cast(),
+                    ptr.cast()),
             lib);
   static ffi.Pointer<ffi.Void>? _cFuncTrampoline;
 
@@ -42184,8 +42199,8 @@ class ObjCBlock18 extends _ObjCBlockBase {
   ObjCBlock18.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
-              ffi.NativeFunction<
-                  ffi.Void Function(ffi.Pointer<ObjCObject> arg0)>>
+              ffi
+              .NativeFunction<ffi.Void Function(ffi.Pointer<ObjCObject> arg0)>>
           ptr)
       : this._(
             lib._newBlock1(
@@ -44805,8 +44820,8 @@ class ObjCBlock21 extends _ObjCBlockBase {
   void call() {
     return _id.ref.invoke
         .cast<
-            ffi.NativeFunction<
-                ffi.Void Function(ffi.Pointer<_ObjCBlock> block)>>()
+            ffi
+            .NativeFunction<ffi.Void Function(ffi.Pointer<_ObjCBlock> block)>>()
         .asFunction<void Function(ffi.Pointer<_ObjCBlock> block)>()(_id);
   }
 }
@@ -46087,8 +46102,8 @@ class ObjCBlock22 extends _ObjCBlockBase {
   ObjCBlock22.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
-              ffi.NativeFunction<
-                  ffi.Void Function(ffi.Pointer<ObjCObject> arg0)>>
+              ffi
+              .NativeFunction<ffi.Void Function(ffi.Pointer<ObjCObject> arg0)>>
           ptr)
       : this._(
             lib._newBlock1(
@@ -49846,7 +49861,8 @@ class ObjCBlock31 extends _ObjCBlockBase {
   ObjCBlock31.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
-              ffi.NativeFunction<
+              ffi
+              .NativeFunction<
                   ffi.Void Function(
                       ffi.Pointer<_ObjCBlock> arg0,
                       ffi.Pointer<ObjCObject> arg1,
@@ -55633,8 +55649,8 @@ class ObjCBlock35 extends _ObjCBlockBase {
   ObjCBlock35.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
-              ffi.NativeFunction<
-                  ffi.Void Function(ffi.Pointer<ObjCObject> arg0)>>
+              ffi
+              .NativeFunction<ffi.Void Function(ffi.Pointer<ObjCObject> arg0)>>
           ptr)
       : this._(
             lib._newBlock1(
@@ -57575,8 +57591,8 @@ class ObjCBlock36 extends _ObjCBlockBase {
   ObjCBlock36.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
-              ffi.NativeFunction<
-                  ffi.Void Function(ffi.Pointer<ObjCObject> arg0)>>
+              ffi
+              .NativeFunction<ffi.Void Function(ffi.Pointer<ObjCObject> arg0)>>
           ptr)
       : this._(
             lib._newBlock1(
@@ -59014,8 +59030,8 @@ class NSPointerFunctions extends NSObject {
 
   set sizeFunction(
       ffi.Pointer<
-              ffi.NativeFunction<
-                  ffi.UnsignedLong Function(ffi.Pointer<ffi.Void>)>>
+              ffi
+              .NativeFunction<ffi.UnsignedLong Function(ffi.Pointer<ffi.Void>)>>
           value) {
     _lib._objc_msgSend_832(_id, _lib._sel_setSizeFunction_1, value);
   }
@@ -60830,8 +60846,8 @@ class ObjCBlock39 extends _ObjCBlockBase {
   ObjCBlock39.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
-              ffi.NativeFunction<
-                  ffi.Void Function(ffi.Pointer<ObjCObject> arg0)>>
+              ffi
+              .NativeFunction<ffi.Void Function(ffi.Pointer<ObjCObject> arg0)>>
           ptr)
       : this._(
             lib._newBlock1(
@@ -61118,7 +61134,8 @@ class ObjCBlock40 extends _ObjCBlockBase {
   ObjCBlock40.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
-              ffi.NativeFunction<
+              ffi
+              .NativeFunction<
                   ffi.Void Function(
                       ffi.Pointer<ObjCObject> arg0,
                       ffi.Pointer<ObjCObject> arg1,
@@ -61843,8 +61860,8 @@ class ObjCBlock41 extends _ObjCBlockBase {
   ObjCBlock41.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
-              ffi.NativeFunction<
-                  ffi.Void Function(ffi.Pointer<ObjCObject> arg0)>>
+              ffi
+              .NativeFunction<ffi.Void Function(ffi.Pointer<ObjCObject> arg0)>>
           ptr)
       : this._(
             lib._newBlock1(
@@ -61912,8 +61929,8 @@ class ObjCBlock42 extends _ObjCBlockBase {
   ObjCBlock42.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
-              ffi.NativeFunction<
-                  ffi.Void Function(ffi.Pointer<ObjCObject> arg0)>>
+              ffi
+              .NativeFunction<ffi.Void Function(ffi.Pointer<ObjCObject> arg0)>>
           ptr)
       : this._(
             lib._newBlock1(
@@ -63931,7 +63948,8 @@ class ObjCBlock43 extends _ObjCBlockBase {
   ObjCBlock43.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
-              ffi.NativeFunction<
+              ffi
+              .NativeFunction<
                   ffi.Void Function(
                       ffi.Pointer<ObjCObject> arg0,
                       ffi.Pointer<ObjCObject> arg1,
@@ -64246,8 +64264,8 @@ class ObjCBlock44 extends _ObjCBlockBase {
   ObjCBlock44.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
-              ffi.NativeFunction<
-                  ffi.Void Function(ffi.Pointer<ObjCObject> arg0)>>
+              ffi
+              .NativeFunction<ffi.Void Function(ffi.Pointer<ObjCObject> arg0)>>
           ptr)
       : this._(
             lib._newBlock1(
@@ -65244,7 +65262,8 @@ class ObjCBlock47 extends _ObjCBlockBase {
   ObjCBlock47.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
-              ffi.NativeFunction<
+              ffi
+              .NativeFunction<
                   ffi.Void Function(
                       ffi.Pointer<ObjCObject> arg0,
                       ffi.Pointer<ObjCObject> arg1,
@@ -65347,7 +65366,8 @@ class ObjCBlock48 extends _ObjCBlockBase {
   ObjCBlock48.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
-              ffi.NativeFunction<
+              ffi
+              .NativeFunction<
                   ffi.Void Function(
                       ffi.Pointer<ObjCObject> arg0,
                       ffi.Pointer<ObjCObject> arg1,
@@ -65804,8 +65824,8 @@ class ObjCBlock49 extends _ObjCBlockBase {
   ObjCBlock49.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
-              ffi.NativeFunction<
-                  ffi.Void Function(ffi.Pointer<ObjCObject> arg0)>>
+              ffi
+              .NativeFunction<ffi.Void Function(ffi.Pointer<ObjCObject> arg0)>>
           ptr)
       : this._(
             lib._newBlock1(
@@ -69056,8 +69076,8 @@ class ObjCBlock50 extends _ObjCBlockBase {
   ObjCBlock50.fromFunctionPointer(
       SentryCocoa lib,
       ffi.Pointer<
-              ffi.NativeFunction<
-                  ffi.Void Function(ffi.Pointer<ObjCObject> arg0)>>
+              ffi
+              .NativeFunction<ffi.Void Function(ffi.Pointer<ObjCObject> arg0)>>
           ptr)
       : this._(
             lib._newBlock1(

@@ -28,7 +28,9 @@ dev_dependencies:
   yaml: ^3.1.0 # needed for version match (code and pubspec)
   flutter_lints: ^2.0.0
   ffigen:
-    path: /Users/ivan/dev/ffigen
+    git:
+      url: https://github.com/vaind/ffigen
+      ref: 4d714b0f2d11e9698a1885ec2d5de15f2ed827f1
   jnigen: ^0.5.0
 
 flutter:
