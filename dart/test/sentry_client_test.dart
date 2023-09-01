@@ -650,7 +650,6 @@ void main() {
     test(
         'uses trace context on transaction for trace header if a transaction is on scope',
         () async {
-      print("starting");
       final client = fixture.getSut();
 
       final spanContext = SentrySpanContext(
