@@ -1,0 +1,14 @@
+android_sdk_config:
+  add_gradle_deps: true
+  android_example: ./example/
+
+output:
+  c:
+    library_name: sentry_android_binding
+    path: android/src/main/cpp/
+  dart:
+    structure: single_file
+    path: lib/src/sentry_android.dart
+
+classes:
+  - io.sentry.Sentry
