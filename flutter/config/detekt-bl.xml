@@ -3,8 +3,8 @@
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
     <ID>ComplexMethod:SentryFlutterPlugin.kt$SentryFlutterPlugin$override fun onMethodCall(call: MethodCall, result: Result)</ID>
-    <ID>ComplexMethod:SentryFlutterPlugin.kt$SentryFlutterPlugin$private fun setUser(user: Map&lt;String, Any?&gt;?, result: Result)</ID>
-    <ID>LongMethod:SentryFlutterPlugin.kt$SentryFlutterPlugin$private fun initNativeSdk(call: MethodCall, result: Result)</ID>
+    <ID>CyclomaticComplexMethod:SentryFlutterPlugin.kt$SentryFlutterPlugin$override fun onMethodCall(call: MethodCall, result: Result)</ID>
+    <ID>LongMethod:SentryFlutter.kt$SentryFlutter$fun updateOptions(options: SentryAndroidOptions, data: Map&lt;String, Any&gt;)</ID>
     <ID>MagicNumber:MainActivity.kt$MainActivity$6_000</ID>
     <ID>TooGenericExceptionCaught:MainActivity.kt$MainActivity$e: Exception</ID>
     <ID>TooGenericExceptionThrown:MainActivity.kt$MainActivity$throw Exception("Catch this java exception thrown from Kotlin thread!")</ID>

@@ -1,14 +1,15 @@
-name: flutter integration tests
+name: flutter native & integration test
 on:
-  # Currently broken, enable after fixing
-  workflow_dispatch
-  # push:
-  #   branches:
-  #     - main
-  #     - release/**
-  # pull_request:
-  #   paths-ignore:
-  #     - 'file/**'
+  push:
+    branches:
+      - main
+      - release/**
+  pull_request:
+    paths-ignore:
+      - 'file/**'
+
+env:
+  SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
 jobs:
   cancel-previous-workflow:
@@ -73,6 +74,22 @@ jobs:
           profile: Nexus 6
           script: echo 'Generated AVD snapshot for caching.'
 
+      - name: build apk
+        working-directory: ./flutter/example/android
+        run: flutter build apk --debug
+
+      - name: launch android emulator & run android native test
+        uses: reactivecircus/android-emulator-runner@d94c3fbe4fe6a29e4a5ba47c12fb47677c73656b #pin@v2.28.0
+        with:
+          working-directory: ./flutter/example/android
+          api-level: 21
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          arch: x86_64
+          profile: Nexus 6
+          script: ./gradlew testDebugUnitTest
+
       - name: launch android emulator & run android integration test
         uses: reactivecircus/android-emulator-runner@d94c3fbe4fe6a29e4a5ba47c12fb47677c73656b #pin@v2.28.0
         with:
@@ -110,10 +127,26 @@ jobs:
       - name: flutter pub get
         run: flutter pub get
 
+      - name: pod install
+        working-directory: ./flutter/example/ios
+        run: pod install
+
       - name: launch ios simulator
+        id: sim
         run: |
           simulator_id=$(xcrun simctl create sentryPhone com.apple.CoreSimulator.SimDeviceType.iPhone-14 com.apple.CoreSimulator.SimRuntime.iOS-16-2)
+          echo "SIMULATOR_ID=${simulator_id}" >> "$GITHUB_OUTPUT"
           xcrun simctl boot ${simulator_id}
+# Disable flutter integration tests because of flaky execution
+#      - name: run ios integration test
+#        env:
+#          SIMULATOR_ID: ${{ steps.sim.outputs.SIMULATOR_ID }}
+#        run: flutter test -d "$SIMULATOR_ID" integration_test/integration_test.dart --verbose
 
-      - name: run ios integration test
-        run: flutter test integration_test/integration_test.dart --verbose
+      - name: run ios native test
+        working-directory: ./flutter/example/ios
+        env:
+          SIMULATOR_ID: ${{ steps.sim.outputs.SIMULATOR_ID }}
+        run: xcodebuild test -workspace Runner.xcworkspace -scheme Runner -configuration Debug -destination "platform=iOS Simulator,id=$SIMULATOR_ID" -allowProvisioningUpdates CODE_SIGNING_ALLOWED=NO
+
+
