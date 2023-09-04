@@ -13,7 +13,7 @@ import '../sentry_flutter_options.dart';
 /// The Device's contexts are:
 /// App, Device and OS.
 ///
-/// This integration is only executed on iOS, MacOS & Android Apps.
+/// This integration is only executed on iOS, macOS & Android Apps.
 class LoadContextsIntegration extends Integration<SentryFlutterOptions> {
   final MethodChannel _channel;
 
