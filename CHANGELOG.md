@@ -12,7 +12,12 @@
 - Do not leak extensions of external classes ([#1576](https://github.com/getsentry/sentry-dart/pull/1576))
 - Make `hint` non-nullable in `BeforeSendCallback`, `BeforeBreadcrumbCall` and `EventProcessor` ([#1574](https://github.com/getsentry/sentry-dart/pull/1574))
   - This will affect your callbacks, making this a breaking change.
-  
+
+### Features
+
+- Load Device Contexts from Sentry Java ([#1616](https://github.com/getsentry/sentry-dart/pull/1616))
+  - Now the full device context is available in `BeforeSendCallback`
+
 ## Unreleased
   
 ### Fixes
