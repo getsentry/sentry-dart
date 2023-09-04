@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:meta/meta.dart';
 
 import '../sentry_flutter.dart';
+import 'method_channel_helper.dart';
 
 /// Provide typed methods to access native layer.
 @internal
@@ -47,7 +48,13 @@ class SentryNativeChannel {
 
   Future<void> setUser(SentryUser? user) async {
     try {
-      await _channel.invokeMethod('setUser', {'user': user?.toJson()});
+      final normalizedUser = user?.copyWith(
+        data: MethodChannelHelper.normalizeMap(user.data),
+      );
+      await _channel.invokeMethod(
+        'setUser',
+        {'user': normalizedUser?.toJson()},
+      );
     } catch (error, stackTrace) {
       _logError('setUser', error, stackTrace);
     }
@@ -55,8 +62,13 @@ class SentryNativeChannel {
 
   Future<void> addBreadcrumb(Breadcrumb breadcrumb) async {
     try {
-      await _channel
-          .invokeMethod('addBreadcrumb', {'breadcrumb': breadcrumb.toJson()});
+      final normalizedBreadcrumb = breadcrumb.copyWith(
+        data: MethodChannelHelper.normalizeMap(breadcrumb.data),
+      );
+      await _channel.invokeMethod(
+        'addBreadcrumb',
+        {'breadcrumb': normalizedBreadcrumb.toJson()},
+      );
     } catch (error, stackTrace) {
       _logError('addBreadcrumb', error, stackTrace);
     }
@@ -72,7 +84,11 @@ class SentryNativeChannel {
 
   Future<void> setContexts(String key, dynamic value) async {
     try {
-      await _channel.invokeMethod('setContexts', {'key': key, 'value': value});
+      final normalizedValue = MethodChannelHelper.normalize(value);
+      await _channel.invokeMethod(
+        'setContexts',
+        {'key': key, 'value': normalizedValue},
+      );
     } catch (error, stackTrace) {
       _logError('setContexts', error, stackTrace);
     }
@@ -88,7 +104,11 @@ class SentryNativeChannel {
 
   Future<void> setExtra(String key, dynamic value) async {
     try {
-      await _channel.invokeMethod('setExtra', {'key': key, 'value': value});
+      final normalizedValue = MethodChannelHelper.normalize(value);
+      await _channel.invokeMethod(
+        'setExtra',
+        {'key': key, 'value': normalizedValue},
+      );
     } catch (error, stackTrace) {
       _logError('setExtra', error, stackTrace);
     }
@@ -102,7 +122,7 @@ class SentryNativeChannel {
     }
   }
 
-  Future<void> setTag(String key, dynamic value) async {
+  Future<void> setTag(String key, String value) async {
     try {
       await _channel.invokeMethod('setTag', {'key': key, 'value': value});
     } catch (error, stackTrace) {

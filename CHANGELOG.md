@@ -8,6 +8,7 @@
 
 ### Fixes
 
+- Normalize data properties of `SentryUser` and `Breadcrumb` before sending over method channel ([#1591](https://github.com/getsentry/sentry-dart/pull/1591))
 - Fixing memory leak issue in SentryFlutterPlugin (Android Plugin) ([#1588](https://github.com/getsentry/sentry-dart/pull/1588))
 
 ### Dependencies

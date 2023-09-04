@@ -51,7 +51,7 @@ jobs:
         if: env.GITHUB_HEAD_REF != null
 
       - name: dart analyze
-        uses: invertase/github-action-dart-analyzer@cdd8652b05bf7ed08ffce30f425436780f869f13 # pin@v1
+        uses: invertase/github-action-dart-analyzer@1cda5922c6369263b1c7e2fbe281f69704f4d63e # pin@v2.0.0
         with:
           annotate: true
           fatal-infos: true
