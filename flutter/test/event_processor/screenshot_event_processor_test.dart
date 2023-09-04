@@ -32,7 +32,7 @@ void main() {
       final throwable = Exception();
       final event = SentryEvent(throwable: throwable);
       final hint = Hint();
-      await sut.apply(event, hint: hint);
+      await sut.apply(event, hint);
 
       expect(hint.screenshot != null, added);
       if (expectedMaxWidthOrHeight != null) {

@@ -444,9 +444,9 @@ class SentryOptions {
 /// This function is called with an SDK specific event object and can return a modified event
 /// object or nothing to skip reporting the event
 typedef BeforeSendCallback = FutureOr<SentryEvent?> Function(
-  SentryEvent event, {
-  Hint? hint,
-});
+  SentryEvent event,
+  Hint hint,
+);
 
 /// This function is called with an SDK specific transaction object and can return a modified transaction
 /// object or nothing to skip reporting the transaction
@@ -457,9 +457,9 @@ typedef BeforeSendTransactionCallback = FutureOr<SentryTransaction?> Function(
 /// This function is called with an SDK specific breadcrumb object before the breadcrumb is added
 /// to the scope. When nothing is returned from the function, the breadcrumb is dropped
 typedef BeforeBreadcrumbCallback = Breadcrumb? Function(
-  Breadcrumb? breadcrumb, {
-  Hint? hint,
-});
+  Breadcrumb? breadcrumb,
+  Hint hint,
+);
 
 /// Used to provide timestamp for logging.
 typedef ClockProvider = DateTime Function();

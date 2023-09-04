@@ -3,7 +3,7 @@ import 'package:sentry/sentry.dart';
 
 class FlutterExceptionEventProcessor implements EventProcessor {
   @override
-  SentryEvent? apply(SentryEvent event, {Hint? hint}) {
+  SentryEvent? apply(SentryEvent event, Hint hint) {
     if (event is SentryTransaction) {
       return event;
     }

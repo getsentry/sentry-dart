@@ -76,7 +76,7 @@ class SentryClient {
     hint ??= Hint();
 
     if (scope != null) {
-      preparedEvent = await scope.applyToEvent(preparedEvent, hint: hint);
+      preparedEvent = await scope.applyToEvent(preparedEvent, hint);
     } else {
       _options.logger(
           SentryLevel.debug, 'No scope to apply on event was provided');
@@ -89,8 +89,8 @@ class SentryClient {
 
     preparedEvent = await _runEventProcessors(
       preparedEvent,
+      hint,
       eventProcessors: _options.eventProcessors,
-      hint: hint,
     );
 
     // dropped by event processors
@@ -100,7 +100,7 @@ class SentryClient {
 
     preparedEvent = await _runBeforeSend(
       preparedEvent,
-      hint: hint,
+      hint,
     );
 
     // dropped by beforeSend
@@ -288,9 +288,11 @@ class SentryClient {
     SentryTransaction? preparedTransaction =
         _prepareEvent(transaction) as SentryTransaction;
 
+    final hint = Hint();
+
     if (scope != null) {
-      preparedTransaction =
-          await scope.applyToEvent(preparedTransaction) as SentryTransaction?;
+      preparedTransaction = await scope.applyToEvent(preparedTransaction, hint)
+          as SentryTransaction?;
     } else {
       _options.logger(
           SentryLevel.debug, 'No scope to apply on transaction was provided');
@@ -303,6 +305,7 @@ class SentryClient {
 
     preparedTransaction = await _runEventProcessors(
       preparedTransaction,
+      hint,
       eventProcessors: _options.eventProcessors,
     ) as SentryTransaction?;
 
@@ -312,7 +315,7 @@ class SentryClient {
     }
 
     preparedTransaction =
-        await _runBeforeSend(preparedTransaction) as SentryTransaction?;
+        await _runBeforeSend(preparedTransaction, hint) as SentryTransaction?;
 
     // dropped by beforeSendTransaction
     if (preparedTransaction == null) {
@@ -354,9 +357,9 @@ class SentryClient {
   void close() => _options.httpClient.close();
 
   Future<SentryEvent?> _runBeforeSend(
-    SentryEvent event, {
-    Hint? hint,
-  }) async {
+    SentryEvent event,
+    Hint hint,
+  ) async {
     SentryEvent? eventOrTransaction = event;
 
     final beforeSend = _options.beforeSend;
@@ -373,7 +376,7 @@ class SentryClient {
           eventOrTransaction = e;
         }
       } else if (beforeSend != null) {
-        final e = beforeSend(event, hint: hint);
+        final e = beforeSend(event, hint);
         if (e is Future<SentryEvent?>) {
           eventOrTransaction = await e;
         } else {
@@ -404,14 +407,14 @@ class SentryClient {
   }
 
   Future<SentryEvent?> _runEventProcessors(
-    SentryEvent event, {
-    Hint? hint,
+    SentryEvent event,
+    Hint hint, {
     required List<EventProcessor> eventProcessors,
   }) async {
     SentryEvent? processedEvent = event;
     for (final processor in eventProcessors) {
       try {
-        final e = processor.apply(processedEvent!, hint: hint);
+        final e = processor.apply(processedEvent!, hint);
         if (e is Future<SentryEvent?>) {
           processedEvent = await e;
         } else {

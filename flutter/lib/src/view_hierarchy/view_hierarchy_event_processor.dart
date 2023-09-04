@@ -1,7 +1,7 @@
 import '../../sentry_flutter.dart';
 import 'sentry_tree_walker.dart';
 
-/// A [EventProcessor] that renders an ASCII represention of the entire view
+/// A [EventProcessor] that renders an ASCII representation of the entire view
 /// hierarchy of the application when an error happens and includes it as an
 /// attachment to the [Hint].
 class SentryViewHierarchyEventProcessor implements EventProcessor {
@@ -10,7 +10,7 @@ class SentryViewHierarchyEventProcessor implements EventProcessor {
   final SentryFlutterOptions _options;
 
   @override
-  SentryEvent? apply(SentryEvent event, {Hint? hint}) {
+  SentryEvent? apply(SentryEvent event, Hint hint) {
     if (event is SentryTransaction) {
       return event;
     }
@@ -31,7 +31,7 @@ class SentryViewHierarchyEventProcessor implements EventProcessor {
 
     final viewHierarchy =
         SentryAttachment.fromViewHierarchy(sentryViewHierarchy);
-    hint?.viewHierarchy = viewHierarchy;
+    hint.viewHierarchy = viewHierarchy;
     return event;
   }
 }

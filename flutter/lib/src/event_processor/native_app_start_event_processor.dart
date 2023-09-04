@@ -18,7 +18,7 @@ class NativeAppStartEventProcessor implements EventProcessor {
   final SentryNative _native;
 
   @override
-  Future<SentryEvent?> apply(SentryEvent event, {Hint? hint}) async {
+  Future<SentryEvent?> apply(SentryEvent event, Hint hint) async {
     final appStartEnd = _native.appStartEnd;
 
     if (appStartEnd != null &&

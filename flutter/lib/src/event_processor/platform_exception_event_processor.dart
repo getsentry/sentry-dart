@@ -4,7 +4,7 @@ import 'package:sentry/sentry.dart';
 /// Add code & message from [PlatformException] to [SentryException]
 class PlatformExceptionEventProcessor implements EventProcessor {
   @override
-  SentryEvent? apply(SentryEvent event, {Hint? hint}) {
+  SentryEvent? apply(SentryEvent event, Hint hint) {
     if (event is SentryTransaction) {
       return event;
     }
