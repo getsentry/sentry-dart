@@ -59,8 +59,7 @@ class TracingClient extends BaseClient {
           final scope = _hub.scope;
           final propagationContext = scope.propagationContext;
 
-          final traceHeader = SentryTraceHeader(
-              propagationContext.traceId, propagationContext.spanId);
+          final traceHeader = propagationContext.toSentryTrace();
           addSentryTraceheader(traceHeader, request.headers);
 
           final baggage = propagationContext.baggage;

@@ -5,6 +5,7 @@ import 'hint.dart';
 
 import 'hub.dart';
 import 'protocol.dart';
+import 'scope.dart';
 import 'sentry.dart';
 import 'sentry_client.dart';
 import 'sentry_user_feedback.dart';
@@ -166,4 +167,7 @@ class HubAdapter implements Hub {
     String transaction,
   ) =>
       Sentry.currentHub.setSpanContext(throwable, span, transaction);
+
+  @override
+  Scope get scope => Sentry.currentHub.scope;
 }

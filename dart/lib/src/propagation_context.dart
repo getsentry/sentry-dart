@@ -12,4 +12,6 @@ class PropagationContext {
     traceId = SentryId.newId();
     spanId = SpanId.newId();
   }
+
+  SentryTraceHeader toSentryTrace() => SentryTraceHeader(traceId, spanId);
 }

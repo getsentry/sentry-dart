@@ -188,6 +188,37 @@ void main() {
 
       await sut.get(requestUri);
     });
+
+    test('set headers from propagationContext when tracing is disabled', () async {
+      fixture._options.enableTracing = false;
+      final sut = fixture.getSut(
+        client: fixture.getClient(statusCode: 200, reason: 'OK'),
+      );
+
+      final propagationContext = fixture._hub.scope.propagationContext;
+      propagationContext.baggage = SentryBaggage({'foo': 'bar'});
+
+      final response = await sut.get(requestUri);
+
+      expect(response.request!.headers['sentry-trace'],
+          propagationContext.toSentryTrace().value);
+      expect(response.request!.headers['baggage'], 'foo=bar');
+    });
+
+    test('set headers from propagationContext when no transaction', () async {
+      final sut = fixture.getSut(
+        client: fixture.getClient(statusCode: 200, reason: 'OK'),
+      );
+
+      final propagationContext = fixture._hub.scope.propagationContext;
+      propagationContext.baggage = SentryBaggage({'foo': 'bar'});
+
+      final response = await sut.get(requestUri);
+
+      expect(response.request!.headers['sentry-trace'],
+          propagationContext.toSentryTrace().value);
+      expect(response.request!.headers['baggage'], 'foo=bar');
+    });
   });
 }
 
