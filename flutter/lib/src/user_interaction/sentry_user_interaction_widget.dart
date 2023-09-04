@@ -313,7 +313,8 @@ class _SentryUserInteractionWidgetState
 
   void _onTappedAt(Offset position) {
     final tappedWidget = _getElementAt(position);
-    final keyValue = tappedWidget?.element.widget.key?.toStringValue();
+    final keyValue =
+        WidgetUtils.toStringValue(tappedWidget?.element.widget.key);
     if (tappedWidget == null || keyValue == null) {
       return;
     }

@@ -11,6 +11,7 @@
     - This change was introduced in [relay/#1690](https://github.com/getsentry/relay/pull/1690) and released with [22.12.0](https://github.com/getsentry/relay/releases/tag/22.12.0)
 - Make `hint` non-nullable in `BeforeSendCallback`, `BeforeBreadcrumbCall` and `EventProcessor` ([#1574](https://github.com/getsentry/sentry-dart/pull/1574))
   - This will affect your callbacks, making this a breaking change.
+- Do not leak extensions of external classes ([#1576](https://github.com/getsentry/sentry-dart/pull/1576))
 
 ## Unreleased
   
