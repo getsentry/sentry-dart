@@ -12,24 +12,3 @@ enum DiscardReason {
   cacheOverflow,
   rateLimitBackoff,
 }
-
-extension OutcomeExtension on DiscardReason {
-  String toStringValue() {
-    switch (this) {
-      case DiscardReason.beforeSend:
-        return 'before_send';
-      case DiscardReason.eventProcessor:
-        return 'event_processor';
-      case DiscardReason.sampleRate:
-        return 'sample_rate';
-      case DiscardReason.networkError:
-        return 'network_error';
-      case DiscardReason.queueOverflow:
-        return 'queue_overflow';
-      case DiscardReason.cacheOverflow:
-        return 'cache_overflow';
-      case DiscardReason.rateLimitBackoff:
-        return 'ratelimit_backoff';
-    }
-  }
-}

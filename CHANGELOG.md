@@ -9,6 +9,7 @@
 - Refrain from overwriting the span status for unfinished spans ([#1577](https://github.com/getsentry/sentry-dart/pull/1577))
   - Older self-hosted sentry instances will drop transactions containing unfinished spans.
     - This change was introduced in [relay/#1690](https://github.com/getsentry/relay/pull/1690) and released with [22.12.0](https://github.com/getsentry/relay/releases/tag/22.12.0)
+- Do not leak extensions of external classes ([#1576](https://github.com/getsentry/sentry-dart/pull/1576))
 
 ## Unreleased
   

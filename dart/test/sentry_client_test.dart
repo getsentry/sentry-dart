@@ -12,6 +12,7 @@ import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/transport/data_category.dart';
+import 'package:sentry/src/utils/iterable_utils.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
@@ -1426,8 +1427,10 @@ void main() {
       await sut.captureEvent(fakeEvent, hint: hint);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
-      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
-          (element) => element.header.type == SentryItemType.attachment);
+      final attachmentItem = IterableUtils.firstWhereOrNull(
+        capturedEnvelope.items,
+        (SentryEnvelopeItem e) => e.header.type == SentryItemType.attachment,
+      );
       expect(attachmentItem?.header.attachmentType,
           SentryAttachment.typeAttachmentDefault);
     });

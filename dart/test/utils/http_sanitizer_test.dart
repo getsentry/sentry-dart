@@ -182,7 +182,7 @@ void main() {
   });
 }
 
-extension StringExtension on String {
+extension _StringExtension on String {
   String _capitalize() {
     return "${this[0].toUpperCase()}${substring(1).toLowerCase()}";
   }
