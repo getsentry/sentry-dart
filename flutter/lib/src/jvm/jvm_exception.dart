@@ -259,7 +259,7 @@ class JvmException {
     final thisExceptionFrames = thisException
         .map((e) => JvmFrame.parse(e))
         .where(
-            (e) => e.originalFrame.isNotEmpty && e.originalFrame.trim() != 'at' )
+            (e) => e.originalFrame.isNotEmpty && e.originalFrame.trim() != 'at')
         .toList(growable: false);
 
     final suppressedExceptions = supressed

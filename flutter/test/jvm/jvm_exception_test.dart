@@ -40,7 +40,7 @@ void main() {
         'Violation of unique constraint MY_ENTITY_UK_1: duplicate value(s) for column(s) MY_COLUMN in statement [...]');
     expect(thirdCause.thread, null);
     expect(thirdCause.type, 'java.sql.SQLException');
-    expect(thirdCause.stackTrace.length, 6);
+    expect(thirdCause.stackTrace.length, 5);
     expect(thirdCause.causes, null);
     expect(thirdCause.suppressed, null);
   });
@@ -87,8 +87,7 @@ void main() {
   });
 
   test('parse drops frames with `at ` and empty original frame', () {
-    final exception =
-        JvmException.parse(platformExceptionWithEmptyLastStackFrame);
+    final exception = JvmException.parse(platformExceptionWithEmptyStackFrames);
     expect(exception.stackTrace.length, 13);
     expect(exception.stackTrace.last.className,
         'com.android.internal.os.ZygoteInit');
@@ -206,7 +205,7 @@ java.lang.IllegalArgumentException: Unsupported value: '[Ljava.lang.StackTraceEl
 	at com.android.internal.os.RuntimeInit\$MethodAndArgsCaller.run(RuntimeInit.java:556)
 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:1037)''';
 
-const platformExceptionWithEmptyLastStackFrame = '''
+const platformExceptionWithEmptyStackFrames = '''
 java.lang.RuntimeException: Catch this platform exception!
     at io.sentry.samples.flutter.MainActivity\$configureFlutterEngine\$1.onMethodCall(MainActivity.kt:40)
     at io.flutter.plugin.common.MethodChannel\$IncomingMethodCallHandler.onMessage(MethodChannel.java:258)
