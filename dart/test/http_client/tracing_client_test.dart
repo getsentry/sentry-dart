@@ -141,20 +141,6 @@ void main() {
       expect(response.request!.headers[sentryTrace.name], sentryTrace.value);
     });
 
-    test('captured span do not add headers if NoOp', () async {
-      final sut = fixture.getSut(
-        client: fixture.getClient(statusCode: 200, reason: 'OK'),
-      );
-
-      await fixture._hub
-          .configureScope((scope) => scope.span = NoOpSentrySpan());
-
-      final response = await sut.get(requestUri);
-
-      expect(response.request!.headers['baggage'], null);
-      expect(response.request!.headers['sentry-trace'], null);
-    });
-
     test('captured span do not add headers if origins not set', () async {
       final sut = fixture.getSut(
         client: fixture.getClient(

@@ -50,7 +50,7 @@ void main() {
     });
   });
 
-  group('$addSentryTraceHeader', () {
+  group('$addSentryTraceHeaderFromSpan', () {
     final fixture = Fixture();
 
     test('adds sentry trace header', () {
@@ -58,13 +58,13 @@ void main() {
       final sut = fixture.getSut();
       final sentryHeader = sut.toSentryTrace();
 
-      addSentryTraceHeader(sut, headers);
+      addSentryTraceHeaderFromSpan(sut, headers);
 
       expect(headers[sentryHeader.name], sentryHeader.value);
     });
   });
 
-  group('$addBaggageHeader', () {
+  group('$addBaggageHeaderFromSpan', () {
     final fixture = Fixture();
 
     test('adds baggage header', () {
@@ -72,7 +72,7 @@ void main() {
       final sut = fixture.getSut();
       final baggage = sut.toBaggageHeader();
 
-      addBaggageHeader(sut, headers);
+      addBaggageHeaderFromSpan(sut, headers);
 
       expect(headers[baggage!.name], baggage.value);
     });
@@ -87,7 +87,7 @@ void main() {
 
       final newValue = '$oldValue,${baggage!.value}';
 
-      addBaggageHeader(sut, headers);
+      addBaggageHeaderFromSpan(sut, headers);
 
       expect(headers[baggage.name], newValue);
     });
@@ -102,7 +102,7 @@ void main() {
       final sut = fixture.getSut();
       final baggage = sut.toBaggageHeader();
 
-      addBaggageHeader(sut, headers);
+      addBaggageHeaderFromSpan(sut, headers);
 
       expect(headers[baggage!.name],
           'other-vendor-value=foo,sentry-trace_id=${sut.context.traceId},sentry-public_key=abc,sentry-release=release,sentry-environment=environment,sentry-user_segment=segment,sentry-transaction=name,sentry-sample_rate=1');
