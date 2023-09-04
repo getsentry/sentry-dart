@@ -32,7 +32,7 @@ void main() {
         binding: () => tester.binding,
       );
 
-      final event = await enricher.apply(SentryEvent());
+      final event = await enricher.apply(SentryEvent(), Hint());
 
       debugBrightnessOverride = null;
       debugDefaultTargetPlatformOverride = null;
@@ -48,7 +48,7 @@ void main() {
         binding: () => tester.binding,
       );
 
-      final event = await enricher.apply(SentryEvent());
+      final event = await enricher.apply(SentryEvent(), Hint());
 
       final accessibility = event?.contexts['accessibility'];
 
@@ -65,7 +65,7 @@ void main() {
         binding: () => tester.binding,
       );
 
-      final event = await enricher.apply(SentryEvent());
+      final event = await enricher.apply(SentryEvent(), Hint());
 
       final culture = event?.contexts.culture;
 
@@ -79,7 +79,7 @@ void main() {
       );
 
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
-      final event = await enricher.apply(SentryEvent());
+      final event = await enricher.apply(SentryEvent(), Hint());
 
       final app = event?.contexts.app;
 
@@ -92,7 +92,7 @@ void main() {
       );
 
       tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
-      final event = await enricher.apply(SentryEvent());
+      final event = await enricher.apply(SentryEvent(), Hint());
 
       final app = event?.contexts.app;
 
@@ -110,7 +110,7 @@ void main() {
       final event = SentryEvent();
       event.contexts.app = SentryApp(name: appName);
 
-      final mutatedEvent = await enricher.apply(event);
+      final mutatedEvent = await enricher.apply(event, Hint());
 
       final app = mutatedEvent?.contexts.app;
 
@@ -125,7 +125,7 @@ void main() {
         hasNativeIntegration: true,
       );
 
-      final event = await enricher.apply(SentryEvent());
+      final event = await enricher.apply(SentryEvent(), Hint());
 
       expect(event?.contexts.device, isNull);
     });
@@ -137,7 +137,7 @@ void main() {
         hasNativeIntegration: false,
       );
 
-      final event = await enricher.apply(SentryEvent());
+      final event = await enricher.apply(SentryEvent(), Hint());
 
       expect(event?.contexts.device, isNotNull);
     });
@@ -147,7 +147,7 @@ void main() {
         binding: () => tester.binding,
       );
 
-      final event = await enricher.apply(SentryEvent());
+      final event = await enricher.apply(SentryEvent(), Hint());
 
       final flutterRuntime = event?.contexts.runtimes
           .firstWhere((element) => element.name == 'Flutter');
@@ -171,7 +171,7 @@ void main() {
           checker: pair.key,
         );
 
-        final event = await enricher.apply(SentryEvent());
+        final event = await enricher.apply(SentryEvent(), Hint());
         final flutterRuntime = event?.contexts.runtimes
             .firstWhere((element) => element.name == 'Flutter');
 
@@ -199,7 +199,7 @@ void main() {
         ),
       );
 
-      final event = await enricher.apply(SentryEvent());
+      final event = await enricher.apply(SentryEvent(), Hint());
 
       expect(event?.modules, {
         'foo_package': 'unknown',
@@ -227,7 +227,7 @@ void main() {
         ),
       );
 
-      final event = await enricher.apply(SentryEvent());
+      final event = await enricher.apply(SentryEvent(), Hint());
 
       expect(event?.modules, null);
     });
@@ -251,7 +251,7 @@ void main() {
         ),
       );
 
-      final event = await enricher.apply(SentryEvent());
+      final event = await enricher.apply(SentryEvent(), Hint());
 
       expect(event?.modules, {'foo_package': 'unknown'});
     });
@@ -276,7 +276,7 @@ void main() {
         hasNativeIntegration: false,
       );
 
-      final event = await enricher.apply(fakeEvent);
+      final event = await enricher.apply(fakeEvent, Hint());
 
       // contexts.device
       expect(

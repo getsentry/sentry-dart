@@ -281,7 +281,7 @@ class _TreeWalker {
     return SentryViewHierarchyElement(
       element.widget.runtimeType.toString(),
       depth: element.depth,
-      identifier: element.widget.key?.toStringValue(),
+      identifier: WidgetUtils.toStringValue(element.widget.key),
       width: width,
       height: height,
       x: x,

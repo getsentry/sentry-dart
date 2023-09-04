@@ -135,7 +135,7 @@ void main() {
 
           final ep = fixture.options.eventProcessors.first;
           SentryEvent? event = _getEvent();
-          event = await ep.apply(event);
+          event = await ep.apply(event, Hint());
 
           expect(1, event!.debugMeta!.images.length);
         });
@@ -146,7 +146,7 @@ void main() {
           sut.call(fixture.hub, fixture.options);
           final ep = fixture.options.eventProcessors.first;
           SentryEvent? event = _getEvent();
-          event = await ep.apply(event);
+          event = await ep.apply(event, Hint());
 
           final image = event!.debugMeta!.images.first;
 

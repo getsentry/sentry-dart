@@ -12,6 +12,7 @@ import 'package:sentry/src/sentry_item_type.dart';
 import 'package:sentry/src/sentry_stack_trace_factory.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 import 'package:sentry/src/transport/data_category.dart';
+import 'package:sentry/src/utils/iterable_utils.dart';
 import 'package:test/test.dart';
 
 import 'mocks.dart';
@@ -1038,7 +1039,7 @@ void main() {
 
     test('thrown error is handled', () async {
       final exception = Exception("before send exception");
-      final beforeSendCallback = (SentryEvent event, {Hint? hint}) {
+      final beforeSendCallback = (SentryEvent event, Hint hint) {
         throw exception;
       };
 
@@ -1058,7 +1059,7 @@ void main() {
     setUp(() {
       fixture = Fixture();
       fixture.options.addEventProcessor(FunctionEventProcessor(
-        (event, {hint}) => event
+        (event, hint) => event
           ..tags!.addAll({'theme': 'material'})
           // ignore: deprecated_member_use_from_same_package
           ..extra!['host'] = '0.0.0.1'
@@ -1100,8 +1101,8 @@ void main() {
 
       var executed = false;
 
-      final client = fixture.getSut(
-          eventProcessor: FunctionEventProcessor((event, {hint}) {
+      final client =
+          fixture.getSut(eventProcessor: FunctionEventProcessor((event, hint) {
         expect(myHint, hint);
         executed = true;
         return event;
@@ -1115,8 +1116,8 @@ void main() {
     test('should create hint when none was provided', () async {
       var executed = false;
 
-      final client = fixture.getSut(
-          eventProcessor: FunctionEventProcessor((event, {hint}) {
+      final client =
+          fixture.getSut(eventProcessor: FunctionEventProcessor((event, hint) {
         expect(hint, isNotNull);
         executed = true;
         return event;
@@ -1231,8 +1232,10 @@ void main() {
       await sut.captureEvent(fakeEvent, hint: hint);
 
       final capturedEnvelope = (fixture.transport).envelopes.first;
-      final attachmentItem = capturedEnvelope.items.firstWhereOrNull(
-          (element) => element.header.type == SentryItemType.attachment);
+      final attachmentItem = IterableUtils.firstWhereOrNull(
+        capturedEnvelope.items,
+        (SentryEnvelopeItem e) => e.header.type == SentryItemType.attachment,
+      );
       expect(attachmentItem?.header.attachmentType,
           SentryAttachment.typeAttachmentDefault);
     });
@@ -1403,9 +1406,9 @@ Future<Map<String, dynamic>> transactionFromEnvelope(
 }
 
 SentryEvent? beforeSendCallbackDropEvent(
-  SentryEvent event, {
-  Hint? hint,
-}) =>
+  SentryEvent event,
+  Hint hint,
+) =>
     null;
 
 SentryTransaction? beforeSendTransactionCallbackDropEvent(
@@ -1414,9 +1417,9 @@ SentryTransaction? beforeSendTransactionCallbackDropEvent(
     null;
 
 Future<SentryEvent?> asyncBeforeSendCallbackDropEvent(
-  SentryEvent event, {
-  Hint? hint,
-}) async {
+  SentryEvent event,
+  Hint hint,
+) async {
   await Future.delayed(Duration(milliseconds: 200));
   return null;
 }
@@ -1427,7 +1430,7 @@ Future<SentryTransaction?> asyncBeforeSendTransactionCallbackDropEvent(
   return null;
 }
 
-SentryEvent? beforeSendCallback(SentryEvent event, {Hint? hint}) {
+SentryEvent? beforeSendCallback(SentryEvent event, Hint hint) {
   return event
     ..tags!.addAll({'theme': 'material'})
     // ignore: deprecated_member_use_from_same_package
@@ -1503,8 +1506,7 @@ class Fixture {
     return client;
   }
 
-  Future<SentryEvent?> droppingBeforeSend(SentryEvent event,
-      {Hint? hint}) async {
+  Future<SentryEvent?> droppingBeforeSend(SentryEvent event, Hint hint) async {
     return null;
   }
 

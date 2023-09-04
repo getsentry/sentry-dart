@@ -98,6 +98,26 @@ void main() {
     expect(sut.breadcrumbs.last, breadcrumb);
   });
 
+  test('beforeBreadcrumb called with user provided hint', () {
+    Hint? actual;
+    BeforeBreadcrumbCallback bb = (_, hint) {
+      actual = hint;
+      return null;
+    };
+    final sut = fixture.getSut(
+      beforeBreadcrumbCallback: bb,
+    );
+
+    final breadcrumb = Breadcrumb(
+      message: 'test log',
+      timestamp: DateTime.utc(2019),
+    );
+    final hint = Hint.withMap({'user-name': 'joe dirt'});
+    sut.addBreadcrumb(breadcrumb, hint: hint);
+
+    expect(actual?.get('user-name'), 'joe dirt');
+  });
+
   test('Executes and drops $Breadcrumb', () {
     final sut = fixture.getSut(
       beforeBreadcrumbCallback: fixture.beforeBreadcrumbCallback,
@@ -404,7 +424,7 @@ void main() {
       await scope.setContexts('theme', 'material');
       await scope.setUser(scopeUser);
 
-      final updatedEvent = await scope.applyToEvent(event);
+      final updatedEvent = await scope.applyToEvent(event, Hint());
 
       expect(updatedEvent?.user, scopeUser);
       expect(updatedEvent?.transaction, '/example/app');
@@ -425,7 +445,7 @@ void main() {
       final scope = Scope(SentryOptions(dsn: fakeDsn))
         ..span = fixture.sentryTracer;
 
-      final updatedEvent = await scope.applyToEvent(event);
+      final updatedEvent = await scope.applyToEvent(event, Hint());
 
       expect(updatedEvent?.contexts['trace'] is SentryTraceContext, true);
     });
@@ -448,7 +468,7 @@ void main() {
       await scope.addBreadcrumb(breadcrumb);
       await scope.setUser(scopeUser);
 
-      final updatedEvent = await scope.applyToEvent(event);
+      final updatedEvent = await scope.applyToEvent(event, Hint());
 
       expect(updatedEvent?.user, isNotNull);
       expect(updatedEvent?.user?.id, eventUser.id);
@@ -496,7 +516,7 @@ void main() {
         SentryOperatingSystem(name: 'context-os'),
       );
 
-      final updatedEvent = await scope.applyToEvent(event);
+      final updatedEvent = await scope.applyToEvent(event, Hint());
 
       expect(updatedEvent?.contexts[SentryDevice.type].name, 'event-device');
       expect(updatedEvent?.contexts[SentryApp.type].name, 'event-app');
@@ -526,7 +546,7 @@ void main() {
       await scope.setContexts('location', {'city': 'London'});
       await scope.setContexts('items', [1, 2, 3]);
 
-      final updatedEvent = await scope.applyToEvent(event);
+      final updatedEvent = await scope.applyToEvent(event, Hint());
 
       expect(updatedEvent?.contexts[SentryDevice.type].name, 'context-device');
       expect(updatedEvent?.contexts[SentryApp.type].name, 'context-app');
@@ -551,7 +571,7 @@ void main() {
       final scope = Scope(SentryOptions(dsn: fakeDsn))
         ..level = SentryLevel.error;
 
-      final updatedEvent = await scope.applyToEvent(event);
+      final updatedEvent = await scope.applyToEvent(event, Hint());
 
       expect(updatedEvent?.level, SentryLevel.error);
     });
@@ -561,7 +581,7 @@ void main() {
       final scope = Scope(SentryOptions(dsn: fakeDsn))
         ..span = fixture.sentryTracer;
 
-      final updatedEvent = await scope.applyToEvent(event);
+      final updatedEvent = await scope.applyToEvent(event, Hint());
 
       expect(updatedEvent?.transaction, 'name');
     });
@@ -573,7 +593,7 @@ void main() {
     sut.addEventProcessor(fixture.processor);
 
     final event = SentryEvent();
-    var newEvent = await sut.applyToEvent(event);
+    var newEvent = await sut.applyToEvent(event, Hint());
 
     expect(newEvent, isNull);
   });
@@ -582,7 +602,7 @@ void main() {
     var tr = SentryTransaction(fixture.sentryTracer);
     final scope = Scope(SentryOptions(dsn: fakeDsn))..fingerprint = ['test'];
 
-    final updatedTr = await scope.applyToEvent(tr);
+    final updatedTr = await scope.applyToEvent(tr, Hint());
 
     expect(updatedTr?.fingerprint, isNull);
   });
@@ -591,7 +611,7 @@ void main() {
     var tr = SentryTransaction(fixture.sentryTracer);
     final scope = Scope(SentryOptions(dsn: fakeDsn))..level = SentryLevel.error;
 
-    final updatedTr = await scope.applyToEvent(tr);
+    final updatedTr = await scope.applyToEvent(tr, Hint());
 
     expect(updatedTr?.level, isNull);
   });
@@ -600,7 +620,7 @@ void main() {
     var tr = SentryTransaction(fixture.sentryTracer);
     final scope = Scope(SentryOptions(dsn: fakeDsn))..level = SentryLevel.error;
 
-    final updatedTr = await scope.applyToEvent(tr);
+    final updatedTr = await scope.applyToEvent(tr, Hint());
 
     expect(updatedTr?.contexts.trace?.sampled, isTrue);
   });
@@ -617,9 +637,9 @@ void main() {
     final sut = fixture.getSut(
       scopeObserver: fixture.mockScopeObserver,
       beforeBreadcrumbCallback: (
-        Breadcrumb? breadcrumb, {
-        Hint? hint,
-      }) {
+        Breadcrumb? breadcrumb,
+        Hint hint,
+      ) {
         return breadcrumb?.copyWith(message: "modified");
       },
     );
@@ -690,9 +710,9 @@ void main() {
 
       final sut = fixture.getSut(
           beforeBreadcrumbCallback: (
-            Breadcrumb? breadcrumb, {
-            Hint? hint,
-          }) {
+            Breadcrumb? breadcrumb,
+            Hint hint,
+          ) {
             throw exception;
           },
           debug: true);
@@ -714,9 +734,9 @@ void main() {
 
       final sut = fixture.getSut(
           beforeBreadcrumbCallback: (
-            Breadcrumb? breadcrumb, {
-            Hint? hint,
-          }) {
+            Breadcrumb? breadcrumb,
+            Hint hint,
+          ) {
             if (numberOfBeforeBreadcrumbCalls > 0) {
               throw exception;
             }
@@ -777,11 +797,11 @@ class Fixture {
 
   EventProcessor get processor => DropAllEventProcessor();
 
-  Breadcrumb? beforeBreadcrumbCallback(Breadcrumb? breadcrumb, {Hint? hint}) =>
+  Breadcrumb? beforeBreadcrumbCallback(Breadcrumb? breadcrumb, Hint hint) =>
       null;
 
-  Breadcrumb? beforeBreadcrumbMutateCallback(Breadcrumb? breadcrumb,
-          {Hint? hint}) =>
+  Breadcrumb? beforeBreadcrumbMutateCallback(
+          Breadcrumb? breadcrumb, Hint hint) =>
       breadcrumb?.copyWith(message: 'new message');
 
   void mockLogger(
@@ -802,7 +822,7 @@ class AddTagsEventProcessor implements EventProcessor {
   AddTagsEventProcessor(this.tags);
 
   @override
-  SentryEvent? apply(SentryEvent event, {hint}) {
+  SentryEvent? apply(SentryEvent event, Hint hint) {
     return event..tags?.addAll(tags);
   }
 }
