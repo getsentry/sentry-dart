@@ -2,11 +2,15 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ffi';
+import 'dart:io';
+import 'package:ffi/ffi.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:logging/logging.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_sqflite/sentry_sqflite.dart';
 import 'package:sqflite/sqflite.dart';
@@ -19,6 +23,7 @@ import 'user_feedback_dialog.dart';
 import 'package:dio/dio.dart';
 import 'package:sentry_dio/sentry_dio.dart';
 import 'package:sentry_logging/sentry_logging.dart';
+import 'package:sentry_flutter/src/android_native_profiler.dart';
 
 // ATTENTION: Change the DSN below with your own to see the events in Sentry. Get one at sentry.io
 const String exampleDsn =
@@ -493,7 +498,41 @@ class AndroidExample extends StatelessWidget {
       ),
       ElevatedButton(
         onPressed: () async {
-          await execute('capture');
+          // await execute('capture');
+          var watch = Stopwatch()..start();
+          final profileFile =
+              (await getApplicationDocumentsDirectory()).path + '/test.prof';
+          if (File(profileFile).existsSync()) {
+            File(profileFile).deleteSync();
+          }
+
+          final nativeDll = DynamicLibrary.open("libprofiler.so");
+          final profiler = AndroidNativeProfiler(nativeDll);
+          final startStatus = profiler.Start(profileFile.toNativeUtf8().cast());
+          print("Profiler start status: $startStatus");
+          var result = findPrimeNumber(500000);
+          // var result = await Future.wait(List.generate(
+          //   50,
+          //   (_) => SentryHttpClient()
+          //       .get(Uri.parse('https://flutter.dev/'))
+          //       .then((value) => value.contentLength),
+          // ));
+          print(
+              "Calculation finished in ${watch.elapsedMilliseconds} ms: ${result}");
+          final state = calloc<ProfilerState>(); // TODO free
+          profiler.GetCurrentState(state);
+          print("""Profiler status:
+              enabled          ${state.ref.enabled}
+              profile_name     ${state.ref.profile_name.toString()}
+              samples_gathered ${state.ref.samples_gathered}
+              start_time       ${state.ref.start_time}""");
+          profiler.Flush(); // shouldn't be necessary
+          profiler.Stop();
+          print("Profiler stopped");
+          final contents = File(profileFile).readAsBytesSync();
+          print(
+              "Profiler output written to $profileFile (${contents.length} bytes): $contents");
+          print("all done");
         },
         child: const Text('Kotlin Capture Exception'),
       ),
@@ -854,4 +893,25 @@ class ThemeProvider extends ChangeNotifier {
 
 Future<void> execute(String method) async {
   await _channel.invokeMethod(method);
+}
+
+int findPrimeNumber(int n) {
+  int count = 0;
+  int a = 2;
+  while (count < n) {
+    int b = 2;
+    bool prime = true; // to check if found a prime
+    while (b * b <= a) {
+      if (a % b == 0) {
+        prime = false;
+        break;
+      }
+      b++;
+    }
+    if (prime) {
+      count++;
+    }
+    a++;
+  }
+  return a - 1;
 }

@@ -36,6 +36,7 @@ dev_dependencies:
     sdk: flutter
   flutter_test:
     sdk: flutter
+  ffigen: ^8.0.2
 
 flutter:
   uses-material-design: true

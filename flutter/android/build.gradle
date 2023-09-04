@@ -41,6 +41,12 @@ android {
             // Flutter does not currently support building for x86 Android (See Issue 9253).
             abiFilters("armeabi-v7a", "x86_64", "arm64-v8a")
         }
+
+        externalNativeBuild {
+            cmake {
+                targets "profiler"
+            }
+        }
     }
 
     buildTypes {
@@ -53,9 +59,16 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8
         languageVersion = "1.4"
+    }
+
+    externalNativeBuild {
+        cmake {
+            path "/Users/ivan/dev/gperftools/CMakeLists.txt"
+        }
     }
 }
 

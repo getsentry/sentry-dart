@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/dart-lang/ffigen/main/ffigen.schema.json
+
+name: AndroidNativeProfiler
+description: Android native profiler bindings.
+output: lib/src/android_native_profiler.dart
+headers:
+  entry-points:
+    - /Users/ivan/dev/gperftools/src/gperftools/profiler.h
+exclude-all-by-default: true
+functions:
+  include:
+    - Profiler.*
+  rename:
+    'Profiler(.*)': '$1'
+  exclude:
+    - ProfilerEnable  # deprecated, doesn't do anything
+    - ProfilerDisable # deprecated, doesn't do anything
