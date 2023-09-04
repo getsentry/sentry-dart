@@ -65,7 +65,8 @@ class TracingClient extends BaseClient {
           final baggage = propagationContext.baggage;
           if (baggage != null) {
             final baggageHeader = SentryBaggageHeader.fromBaggage(baggage);
-            addBaggageHeader(baggageHeader, request.headers, logger: _hub.options.logger);
+            addBaggageHeader(baggageHeader, request.headers,
+                logger: _hub.options.logger);
           }
         }
       }

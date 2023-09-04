@@ -175,7 +175,8 @@ void main() {
       await sut.get(requestUri);
     });
 
-    test('set headers from propagationContext when tracing is disabled', () async {
+    test('set headers from propagationContext when tracing is disabled',
+        () async {
       fixture._options.enableTracing = false;
       final sut = fixture.getSut(
         client: fixture.getClient(statusCode: 200, reason: 'OK'),
