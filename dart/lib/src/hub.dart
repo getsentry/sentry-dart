@@ -66,6 +66,9 @@ class Hub {
   /// Last event id recorded by the Hub
   SentryId get lastEventId => _lastEventId;
 
+  @internal
+  Scope get scope => _peek().scope;
+
   /// Captures the event.
   Future<SentryId> captureEvent(
     SentryEvent event, {

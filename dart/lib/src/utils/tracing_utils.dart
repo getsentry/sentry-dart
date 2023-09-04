@@ -1,17 +1,31 @@
 import '../../sentry.dart';
 
-void addSentryTraceHeader(ISentrySpan span, Map<String, dynamic> headers) {
+void addSentryTraceHeaderFromSpan(ISentrySpan span, Map<String, dynamic> headers) {
   final traceHeader = span.toSentryTrace();
   headers[traceHeader.name] = traceHeader.value;
 }
 
+void addSentryTraceheader(SentryTraceHeader traceHeader, Map<String, dynamic> headers) {
+  headers[traceHeader.name] = traceHeader.value;
+}
+
+void addBaggageHeaderFromSpan(
+    ISentrySpan span,
+    Map<String, dynamic> headers, {
+      SentryLogger? logger,
+    }) {
+  final baggage = span.toBaggageHeader();
+  if (baggage != null) {
+    addBaggageHeader(baggage, headers, logger: logger);
+  }
+}
+
+
 void addBaggageHeader(
-  ISentrySpan span,
+  SentryBaggageHeader baggage,
   Map<String, dynamic> headers, {
   SentryLogger? logger,
 }) {
-  final baggage = span.toBaggageHeader();
-  if (baggage != null) {
     final currentValue = headers[baggage.name] as String? ?? '';
 
     final currentBaggage = SentryBaggage.fromHeader(
@@ -36,7 +50,6 @@ void addBaggageHeader(
     final newBaggage = SentryBaggage(mergedBaggage, logger: logger);
 
     headers[baggage.name] = newBaggage.toHeaderString();
-  }
 }
 
 bool containsTargetOrMatchesRegExp(
