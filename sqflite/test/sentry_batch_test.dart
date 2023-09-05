@@ -294,8 +294,8 @@ SELECT * FROM Product''';
       await batch.apply();
 
       final span = fixture.tracer.children.last;
-      expect(span.data[SentryDatabase.dbSystem], 'sqlite');
-      expect(span.data[SentryDatabase.dbName], SentryDatabase.currentDbName);
+      expect(span.data[SentryDatabase.dbSystemKey], 'sqlite');
+      expect(span.data[SentryDatabase.dbNameKey], SentryDatabase.currentDbName);
 
       await db.close();
     });
@@ -310,8 +310,8 @@ SELECT * FROM Product''';
       await batch.commit();
 
       final span = fixture.tracer.children.last;
-      expect(span.data[SentryDatabase.dbSystem], 'sqlite');
-      expect(span.data[SentryDatabase.dbName], SentryDatabase.currentDbName);
+      expect(span.data[SentryDatabase.dbSystemKey], 'sqlite');
+      expect(span.data[SentryDatabase.dbNameKey], SentryDatabase.currentDbName);
 
       await db.close();
     });
@@ -326,8 +326,8 @@ SELECT * FROM Product''';
       await batch.commit();
 
       final span = fixture.tracer.children.last;
-      expect(span.data[SentryDatabase.dbSystem], 'sqlite');
-      expect(span.data[SentryDatabase.dbName], isNull);
+      expect(span.data[SentryDatabase.dbSystemKey], 'sqlite');
+      expect(span.data[SentryDatabase.dbNameKey], isNull);
 
       await db.close();
     });

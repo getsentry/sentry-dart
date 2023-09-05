@@ -35,10 +35,10 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
   static const _dbSqlOp = 'db.sql.transaction';
   @internal
   // ignore: public_member_api_docs
-  static const dbSystem = 'db.system';
+  static const dbSystemKey = 'db.system';
   @internal
   // ignore: public_member_api_docs
-  static const dbName = 'db.name';
+  static const dbNameKey = 'db.name';
   @internal
   // ignore: public_member_api_docs
   static String? currentDbName;
@@ -127,9 +127,9 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabase;
-      span?.setData(dbSystem, 'sqlite');
+      span?.setData(dbSystemKey, 'sqlite');
       if (currentDbName != null) {
-        span?.setData(dbName, currentDbName);
+        span?.setData(dbNameKey, currentDbName);
       }
 
       Future<T> newAction(Transaction txn) async {

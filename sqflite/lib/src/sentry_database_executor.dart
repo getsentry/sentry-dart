@@ -41,9 +41,9 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      span?.setData(SentryDatabase.dbSystem, 'sqlite');
+      span?.setData(SentryDatabase.dbSystemKey, 'sqlite');
       if (SentryDatabase.currentDbName != null) {
-        span?.setData(SentryDatabase.dbName, SentryDatabase.currentDbName);
+        span?.setData(SentryDatabase.dbNameKey, SentryDatabase.currentDbName);
       }
 
       try {
@@ -72,12 +72,12 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         SentryDatabase.dbSqlExecuteOp,
         description: sql,
       );
-      span?.setData(SentryDatabase.dbSystem, 'sqlite');
+      span?.setData(SentryDatabase.dbSystemKey, 'sqlite');
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      span?.setData(SentryDatabase.dbSystem, 'sqlite');
+      span?.setData(SentryDatabase.dbSystemKey, 'sqlite');
       if (SentryDatabase.currentDbName != null) {
-        span?.setData(SentryDatabase.dbName, SentryDatabase.currentDbName);
+        span?.setData(SentryDatabase.dbNameKey, SentryDatabase.currentDbName);
       }
 
       try {
@@ -116,9 +116,9 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      span?.setData(SentryDatabase.dbSystem, 'sqlite');
+      span?.setData(SentryDatabase.dbSystemKey, 'sqlite');
       if (SentryDatabase.currentDbName != null) {
-        span?.setData(SentryDatabase.dbName, SentryDatabase.currentDbName);
+        span?.setData(SentryDatabase.dbNameKey, SentryDatabase.currentDbName);
       }
 
       try {
@@ -176,9 +176,9 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      span?.setData(SentryDatabase.dbSystem, 'sqlite');
+      span?.setData(SentryDatabase.dbSystemKey, 'sqlite');
       if (SentryDatabase.currentDbName != null) {
-        span?.setData(SentryDatabase.dbName, SentryDatabase.currentDbName);
+        span?.setData(SentryDatabase.dbNameKey, SentryDatabase.currentDbName);
       }
 
       try {
@@ -243,9 +243,9 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      span?.setData(SentryDatabase.dbSystem, 'sqlite');
+      span?.setData(SentryDatabase.dbSystemKey, 'sqlite');
       if (SentryDatabase.currentDbName != null) {
-        span?.setData(SentryDatabase.dbName, SentryDatabase.currentDbName);
+        span?.setData(SentryDatabase.dbNameKey, SentryDatabase.currentDbName);
       }
 
       try {
@@ -287,9 +287,9 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      span?.setData(SentryDatabase.dbSystem, 'sqlite');
+      span?.setData(SentryDatabase.dbSystemKey, 'sqlite');
       if (SentryDatabase.currentDbName != null) {
-        span?.setData(SentryDatabase.dbName, SentryDatabase.currentDbName);
+        span?.setData(SentryDatabase.dbNameKey, SentryDatabase.currentDbName);
       }
 
       try {
@@ -319,9 +319,9 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      span?.setData(SentryDatabase.dbSystem, 'sqlite');
+      span?.setData(SentryDatabase.dbSystemKey, 'sqlite');
       if (SentryDatabase.currentDbName != null) {
-        span?.setData(SentryDatabase.dbName, SentryDatabase.currentDbName);
+        span?.setData(SentryDatabase.dbNameKey, SentryDatabase.currentDbName);
       }
 
       try {
@@ -354,9 +354,9 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      span?.setData(SentryDatabase.dbSystem, 'sqlite');
+      span?.setData(SentryDatabase.dbSystemKey, 'sqlite');
       if (SentryDatabase.currentDbName != null) {
-        span?.setData(SentryDatabase.dbName, SentryDatabase.currentDbName);
+        span?.setData(SentryDatabase.dbNameKey, SentryDatabase.currentDbName);
       }
 
       try {
@@ -390,9 +390,9 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      span?.setData(SentryDatabase.dbSystem, 'sqlite');
+      span?.setData(SentryDatabase.dbSystemKey, 'sqlite');
       if (SentryDatabase.currentDbName != null) {
-        span?.setData(SentryDatabase.dbName, SentryDatabase.currentDbName);
+        span?.setData(SentryDatabase.dbNameKey, SentryDatabase.currentDbName);
       }
 
       try {
@@ -426,9 +426,9 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      span?.setData(SentryDatabase.dbSystem, 'sqlite');
+      span?.setData(SentryDatabase.dbSystemKey, 'sqlite');
       if (SentryDatabase.currentDbName != null) {
-        span?.setData(SentryDatabase.dbName, SentryDatabase.currentDbName);
+        span?.setData(SentryDatabase.dbNameKey, SentryDatabase.currentDbName);
       }
 
       try {
@@ -471,9 +471,9 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
-      span?.setData(SentryDatabase.dbSystem, 'sqlite');
+      span?.setData(SentryDatabase.dbSystemKey, 'sqlite');
       if (SentryDatabase.currentDbName != null) {
-        span?.setData(SentryDatabase.dbName, SentryDatabase.currentDbName);
+        span?.setData(SentryDatabase.dbNameKey, SentryDatabase.currentDbName);
       }
 
       try {

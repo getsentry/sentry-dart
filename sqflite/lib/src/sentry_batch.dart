@@ -51,9 +51,9 @@ class SentryBatch implements Batch {
 
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteBatch;
-      span?.setData(SentryDatabase.dbSystem, 'sqlite');
+      span?.setData(SentryDatabase.dbSystemKey, 'sqlite');
       if (SentryDatabase.currentDbName != null) {
-        span?.setData(SentryDatabase.dbName, SentryDatabase.currentDbName);
+        span?.setData(SentryDatabase.dbNameKey, SentryDatabase.currentDbName);
       }
 
       try {
@@ -92,9 +92,9 @@ class SentryBatch implements Batch {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteBatch;
-      span?.setData(SentryDatabase.dbSystem, 'sqlite');
+      span?.setData(SentryDatabase.dbSystemKey, 'sqlite');
       if (SentryDatabase.currentDbName != null) {
-        span?.setData(SentryDatabase.dbName, SentryDatabase.currentDbName);
+        span?.setData(SentryDatabase.dbNameKey, SentryDatabase.currentDbName);
       }
 
       try {
