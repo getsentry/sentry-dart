@@ -1,7 +1,9 @@
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart' as p;
 
+import '../sentry_sqflite.dart';
 import 'sentry_database_executor.dart';
 import 'sentry_sqflite_transaction.dart';
 import 'version.dart';
@@ -31,6 +33,15 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
   static const dbSqlQueryOp = 'db.sql.query';
 
   static const _dbSqlOp = 'db.sql.transaction';
+  @internal
+  // ignore: public_member_api_docs
+  static const dbSystem = 'db.system';
+  @internal
+  // ignore: public_member_api_docs
+  static const dbName = 'db.name';
+  @internal
+  // ignore: public_member_api_docs
+  static String? currentDbName;
 
   /// ```dart
   /// import 'package:sqflite/sqflite.dart';
@@ -48,6 +59,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
     final options = _hub.options;
     options.sdk.addIntegration('SentrySqfliteTracing');
     options.sdk.addPackage(packageName, sdkVersion);
+    currentDbName = p.basenameWithoutExtension(_database.path);
   }
 
   // TODO: check if perf is enabled
@@ -62,6 +74,8 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabase;
+
+      currentDbName = null;
 
       try {
         await _database.close();
@@ -113,6 +127,10 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabase;
+      span?.setData(dbSystem, 'sqlite');
+      if (currentDbName != null) {
+        span?.setData(dbName, currentDbName);
+      }
 
       Future<T> newAction(Transaction txn) async {
         final executor =

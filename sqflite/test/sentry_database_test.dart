@@ -130,6 +130,35 @@ void main() {
       await db.close();
     });
 
+    test('opening db sets currentDbName with :memory:', () async {
+      final db = await fixture.getSut();
+
+      expect(SentryDatabase.currentDbName, ':memory:');
+
+      await db.close();
+    });
+
+    test('opening db sets currentDbName with db file without extension',
+        () async {
+      final db = await fixture.getSut(
+          database: await openDatabase('path/database/mydatabase.db'),
+          execute: false);
+
+      expect(SentryDatabase.currentDbName, 'mydatabase');
+
+      await db.close();
+    });
+
+    test('closing db sets currentDbName to null', () async {
+      final db = await fixture.getSut();
+
+      expect(SentryDatabase.currentDbName, ':memory:');
+
+      await db.close();
+
+      expect(SentryDatabase.currentDbName, null);
+    });
+
     tearDown(() {
       databaseFactory = sqfliteDatabaseFactoryDefault;
     });
@@ -212,6 +241,8 @@ void main() {
       expect(span.context.operation, 'db.sql.execute');
       expect(span.context.description, 'DELETE FROM Product');
       expect(span.status, SpanStatus.ok());
+      expect(span.data[SentryDatabase.dbSystem], 'sqlite');
+      expect(span.data[SentryDatabase.dbName], inMemoryDatabasePath);
 
       expect(
         span.origin,
@@ -231,6 +262,8 @@ void main() {
       expect(span.context.operation, 'db.sql.execute');
       expect(span.context.description, 'DELETE FROM Product');
       expect(span.status, SpanStatus.ok());
+      expect(span.data[SentryDatabase.dbSystem], 'sqlite');
+      expect(span.data[SentryDatabase.dbName], inMemoryDatabasePath);
 
       expect(
         span.origin,
@@ -253,6 +286,8 @@ void main() {
         'INSERT INTO Product (title) VALUES (?)',
       );
       expect(span.status, SpanStatus.ok());
+      expect(span.data[SentryDatabase.dbSystem], 'sqlite');
+      expect(span.data[SentryDatabase.dbName], inMemoryDatabasePath);
 
       expect(
         span.origin,
@@ -272,6 +307,8 @@ void main() {
       expect(span.context.operation, 'db.sql.query');
       expect(span.context.description, 'SELECT * FROM Product');
       expect(span.status, SpanStatus.ok());
+      expect(span.data[SentryDatabase.dbSystem], 'sqlite');
+      expect(span.data[SentryDatabase.dbName], inMemoryDatabasePath);
 
       expect(
         span.origin,
@@ -291,6 +328,8 @@ void main() {
       expect(span.context.operation, 'db.sql.query');
       expect(span.context.description, 'SELECT * FROM Product');
       expect(span.status, SpanStatus.ok());
+      expect(span.data[SentryDatabase.dbSystem], 'sqlite');
+      expect(span.data[SentryDatabase.dbName], inMemoryDatabasePath);
 
       expect(
         span.origin,
@@ -310,6 +349,8 @@ void main() {
       expect(span.context.operation, 'db.sql.execute');
       expect(span.context.description, 'DELETE FROM Product');
       expect(span.status, SpanStatus.ok());
+      expect(span.data[SentryDatabase.dbSystem], 'sqlite');
+      expect(span.data[SentryDatabase.dbName], inMemoryDatabasePath);
 
       expect(
         span.origin,
@@ -333,6 +374,8 @@ void main() {
         'INSERT INTO Product (title) VALUES (?)',
       );
       expect(span.status, SpanStatus.ok());
+      expect(span.data[SentryDatabase.dbSystem], 'sqlite');
+      expect(span.data[SentryDatabase.dbName], inMemoryDatabasePath);
 
       expect(
         span.origin,
@@ -352,6 +395,8 @@ void main() {
       expect(span.context.operation, 'db.sql.query');
       expect(span.context.description, 'SELECT * FROM Product');
       expect(span.status, SpanStatus.ok());
+      expect(span.data[SentryDatabase.dbSystem], 'sqlite');
+      expect(span.data[SentryDatabase.dbName], inMemoryDatabasePath);
 
       expect(
         span.origin,
@@ -371,6 +416,8 @@ void main() {
       expect(span.context.operation, 'db.sql.query');
       expect(span.context.description, 'SELECT * FROM Product');
       expect(span.status, SpanStatus.ok());
+      expect(span.data[SentryDatabase.dbSystem], 'sqlite');
+      expect(span.data[SentryDatabase.dbName], inMemoryDatabasePath);
 
       expect(
         span.origin,
@@ -390,6 +437,8 @@ void main() {
       expect(span.context.operation, 'db.sql.execute');
       expect(span.context.description, 'UPDATE Product SET title = ?');
       expect(span.status, SpanStatus.ok());
+      expect(span.data[SentryDatabase.dbSystem], 'sqlite');
+      expect(span.data[SentryDatabase.dbName], inMemoryDatabasePath);
 
       expect(
         span.origin,
@@ -409,6 +458,8 @@ void main() {
       expect(span.context.operation, 'db.sql.execute');
       expect(span.context.description, 'UPDATE Product SET title = ?');
       expect(span.status, SpanStatus.ok());
+      expect(span.data[SentryDatabase.dbSystem], 'sqlite');
+      expect(span.data[SentryDatabase.dbName], inMemoryDatabasePath);
 
       expect(
         span.origin,

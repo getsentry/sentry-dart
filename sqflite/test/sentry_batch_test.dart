@@ -285,6 +285,53 @@ SELECT * FROM Product''';
       await db.close();
     });
 
+    test('apply creates db span with dbSystem and dbName attributes', () async {
+      final db = await fixture.getDatabase();
+      final batch = db.batch();
+
+      batch.insert('Product', <String, Object?>{'title': 'Product 1'});
+
+      await batch.apply();
+
+      final span = fixture.tracer.children.last;
+      expect(span.data[SentryDatabase.dbSystem], 'sqlite');
+      expect(span.data[SentryDatabase.dbName], SentryDatabase.currentDbName);
+
+      await db.close();
+    });
+
+    test('commit creates db span with dbSystem and dbName attributes',
+        () async {
+      final db = await fixture.getDatabase();
+      final batch = db.batch();
+
+      batch.insert('Product', <String, Object?>{'title': 'Product 1'});
+
+      await batch.commit();
+
+      final span = fixture.tracer.children.last;
+      expect(span.data[SentryDatabase.dbSystem], 'sqlite');
+      expect(span.data[SentryDatabase.dbName], SentryDatabase.currentDbName);
+
+      await db.close();
+    });
+
+    test('dbName attribute is null if currentDbName is null', () async {
+      final db = await fixture.getDatabase();
+      final batch = db.batch();
+      SentryDatabase.currentDbName = null;
+
+      batch.insert('Product', <String, Object?>{'title': 'Product 1'});
+
+      await batch.commit();
+
+      final span = fixture.tracer.children.last;
+      expect(span.data[SentryDatabase.dbSystem], 'sqlite');
+      expect(span.data[SentryDatabase.dbName], isNull);
+
+      await db.close();
+    });
+
     tearDown(() {
       databaseFactory = sqfliteDatabaseFactoryDefault;
     });

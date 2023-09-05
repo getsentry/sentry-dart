@@ -5,6 +5,7 @@ import 'package:sqflite/sqflite.dart';
 // ignore: implementation_imports
 import 'package:sqflite_common/src/sql_builder.dart';
 
+import '../sentry_sqflite.dart';
 import 'sentry_database.dart';
 
 /// A [Batch] wrapper that adds Sentry support.
@@ -47,8 +48,13 @@ class SentryBatch implements Batch {
         SentryDatabase.dbOp,
         description: _buffer.toString().trim(),
       );
+
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteBatch;
+      span?.setData(SentryDatabase.dbSystem, 'sqlite');
+      if (SentryDatabase.currentDbName != null) {
+        span?.setData(SentryDatabase.dbName, SentryDatabase.currentDbName);
+      }
 
       try {
         final result = await _batch.apply(
@@ -86,6 +92,10 @@ class SentryBatch implements Batch {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteBatch;
+      span?.setData(SentryDatabase.dbSystem, 'sqlite');
+      if (SentryDatabase.currentDbName != null) {
+        span?.setData(SentryDatabase.dbName, SentryDatabase.currentDbName);
+      }
 
       try {
         final result = await _batch.commit(
