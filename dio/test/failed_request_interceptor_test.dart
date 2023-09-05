@@ -113,7 +113,7 @@ class Fixture {
 
   FailedRequestInterceptor getSut({
     List<SentryStatusCode> failedRequestStatusCodes = const [
-      SentryStatusCode.defaultRange()
+      SentryStatusCode.defaultRange(),
     ],
     List<String> failedRequestTargets = const ['.*'],
   }) {
