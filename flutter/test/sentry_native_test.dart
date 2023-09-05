@@ -116,16 +116,23 @@ void main() {
       expect(fixture.channel.numberOfRemoveTagCalls, 1);
     });
 
-    test('startProfiling', () async {
+    test('startProfiler', () async {
       final sut = fixture.getSut();
-      await sut.startProfiling(SentryId.newId());
+      await sut.startProfiler(SentryId.newId());
 
-      expect(fixture.channel.numberOfStartProfilingCalls, 1);
+      expect(fixture.channel.numberOfStartProfilerCalls, 1);
+    });
+
+    test('discardProfiler', () async {
+      final sut = fixture.getSut();
+      await sut.discardProfiler(SentryId.newId());
+
+      expect(fixture.channel.numberOfDiscardProfilerCalls, 1);
     });
 
     test('collectProfile', () async {
       final sut = fixture.getSut();
-      await sut.collectProfile(SentryId.newId(), 42);
+      await sut.collectProfile(SentryId.newId(), 1, 2);
 
       expect(fixture.channel.numberOfCollectProfileCalls, 1);
     });

@@ -40,6 +40,7 @@ ISentrySpan startTransactionShim(
   Transport,
   // ignore: invalid_use_of_internal_member
   SentryTracer,
+  SentryTransaction,
   MethodChannel,
 ], customMocks: [
   MockSpec<Hub>(fallbackGenerators: {#startTransaction: startTransactionShim})
@@ -189,7 +190,8 @@ class TestMockSentryNative implements SentryNative {
   var numberOfSetTagCalls = 0;
   SentryUser? sentryUser;
   var numberOfSetUserCalls = 0;
-  var numberOfStartProfilingCalls = 0;
+  var numberOfStartProfilerCalls = 0;
+  var numberOfDiscardProfilerCalls = 0;
   var numberOfCollectProfileCalls = 0;
 
   @override
@@ -270,14 +272,20 @@ class TestMockSentryNative implements SentryNative {
 
   @override
   Future<Map<String, dynamic>?> collectProfile(
-      SentryId traceId, int startTimeNs) {
+      SentryId traceId, int startTimeNs, int endTimeNs) {
     numberOfCollectProfileCalls++;
     return Future.value(null);
   }
 
   @override
-  Future<int?> startProfiling(SentryId traceId) {
-    numberOfStartProfilingCalls++;
+  Future<int?> startProfiler(SentryId traceId) {
+    numberOfStartProfilerCalls++;
+    return Future.value(42);
+  }
+
+  @override
+  Future<void> discardProfiler(SentryId traceId) {
+    numberOfDiscardProfilerCalls++;
     return Future.value(null);
   }
 }
@@ -299,7 +307,8 @@ class MockNativeChannel implements SentryNativeChannel {
   int numberOfSetContextsCalls = 0;
   int numberOfSetExtraCalls = 0;
   int numberOfSetTagCalls = 0;
-  int numberOfStartProfilingCalls = 0;
+  int numberOfStartProfilerCalls = 0;
+  int numberOfDiscardProfilerCalls = 0;
   int numberOfCollectProfileCalls = 0;
 
   @override
@@ -364,14 +373,20 @@ class MockNativeChannel implements SentryNativeChannel {
 
   @override
   Future<Map<String, dynamic>?> collectProfile(
-      SentryId traceId, int startTimeNs) {
+      SentryId traceId, int startTimeNs, int endTimeNs) {
     numberOfCollectProfileCalls++;
     return Future.value(null);
   }
 
   @override
-  Future<int?> startProfiling(SentryId traceId) {
-    numberOfStartProfilingCalls++;
+  Future<int?> startProfiler(SentryId traceId) {
+    numberOfStartProfilerCalls++;
+    return Future.value(null);
+  }
+
+  @override
+  Future<int?> discardProfiler(SentryId traceId) {
+    numberOfDiscardProfilerCalls++;
     return Future.value(null);
   }
 }

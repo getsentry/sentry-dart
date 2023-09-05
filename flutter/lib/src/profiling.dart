@@ -13,8 +13,9 @@ import 'sentry_native.dart';
 // ignore: invalid_use_of_internal_member
 class NativeProfilerFactory implements ProfilerFactory {
   final SentryNative _native;
+  final ClockProvider _clock;
 
-  NativeProfilerFactory(this._native);
+  NativeProfilerFactory(this._native, this._clock);
 
   static void attachTo(Hub hub) {
     // ignore: invalid_use_of_internal_member
@@ -32,24 +33,26 @@ class NativeProfilerFactory implements ProfilerFactory {
     if (options.platformChecker.platform.isMacOS ||
         options.platformChecker.platform.isIOS) {
       // ignore: invalid_use_of_internal_member
-      hub.profilerFactory = NativeProfilerFactory(SentryNative());
+      hub.profilerFactory =
+          // ignore: invalid_use_of_internal_member
+          NativeProfilerFactory(SentryNative(), options.clock);
     }
   }
 
   @override
-  NativeProfiler? startProfiling(SentryTransactionContext context) {
+  NativeProfiler? startProfiler(SentryTransactionContext context) {
     if (context.traceId == SentryId.empty()) {
       return null;
     }
 
-    final startTime = _native.startProfiling(context.traceId);
+    final startTime = _native.startProfiler(context.traceId);
 
     // TODO we cannot await the future returned by a method channel because
     //  startTransaction() is synchronous. In order to make this code fully
     //  synchronous and actually start the profiler, we need synchronous FFI
     //  calls, see https://github.com/getsentry/sentry-dart/issues/1444
     //  For now, return immediately even though the profiler may not have started yet...
-    return NativeProfiler(_native, startTime, context.traceId);
+    return NativeProfiler(_native, startTime, context.traceId, _clock);
   }
 }
 
@@ -60,33 +63,45 @@ class NativeProfiler implements Profiler {
   final SentryNative _native;
   final Future<int?> _startTime;
   final SentryId _traceId;
+  bool _finished = false;
+  final ClockProvider _clock;
 
-  NativeProfiler(this._native, this._startTime, this._traceId);
+  NativeProfiler(this._native, this._startTime, this._traceId, this._clock);
 
   @override
   void dispose() {
-    // TODO expose in the cocoa SDK
-    // _startTime.then((_) => _native.discardProfiling(this._traceId));
+    if (!_finished) {
+      _finished = true;
+      _startTime.then((_) => _native.discardProfiler(_traceId));
+    }
   }
 
   @override
   Future<NativeProfileInfo?> finishFor(SentryTransaction transaction) async {
-    final starTime = await _startTime;
-    if (starTime == null) {
+    if (_finished) {
+      return null;
+    }
+    _finished = true;
+
+    final starTimeNs = await _startTime;
+    if (starTimeNs == null) {
       return null;
     }
 
-    final payload = await _native.collectProfile(_traceId, starTime);
+    // ignore: invalid_use_of_internal_member
+    final transactionEndTime = transaction.timestamp ?? _clock();
+    final duration = transactionEndTime.difference(transaction.startTimestamp);
+    final endTimeNs = starTimeNs + (duration.inMicroseconds * 1000);
+
+    final payload =
+        await _native.collectProfile(_traceId, starTimeNs, endTimeNs);
     if (payload == null) {
       return null;
     }
 
-    payload["transaction"] = <String, String?>{
-      "id": transaction.eventId.toString(),
-      "trace_id": _traceId.toString(),
-      "name": transaction.transaction,
-      // "active_thread_id" : [transaction.trace.transactionContext sentry_threadInfo].threadId
-    };
+    payload["transaction"]["id"] = transaction.eventId.toString();
+    payload["transaction"]["trace_id"] = _traceId.toString();
+    payload["transaction"]["name"] = transaction.transaction;
     payload["timestamp"] = transaction.startTimestamp.toIso8601String();
     return NativeProfileInfo(payload);
   }

@@ -387,7 +387,7 @@ void main() {
     test('profiler is started according to the sampling rate', () async {
       final hub = fixture.getSut();
       final factory = MockProfilerFactory();
-      when(factory.startProfiling(fixture._context)).thenReturn(MockProfiler());
+      when(factory.startProfiler(fixture._context)).thenReturn(MockProfiler());
       hub.profilerFactory = factory;
 
       var tr = hub.startTransactionWithContext(fixture._context);
@@ -397,7 +397,7 @@ void main() {
       hub.options.profilesSampleRate = 1.0;
       tr = hub.startTransactionWithContext(fixture._context);
       expect((tr as SentryTracer).profiler, isNotNull);
-      verify(factory.startProfiling(fixture._context)).called(1);
+      verify(factory.startProfiler(fixture._context)).called(1);
     });
 
     test('profiler.finish() is called', () async {
@@ -405,7 +405,7 @@ void main() {
       final factory = MockProfilerFactory();
       final profiler = MockProfiler();
       final expected = MockProfileInfo();
-      when(factory.startProfiling(fixture._context)).thenReturn(profiler);
+      when(factory.startProfiler(fixture._context)).thenReturn(profiler);
       when(profiler.finishFor(any)).thenAnswer((_) async => expected);
 
       hub.profilerFactory = factory;
@@ -421,7 +421,7 @@ void main() {
       final factory = MockProfilerFactory();
       final profiler = MockProfiler();
       final expected = MockProfileInfo();
-      when(factory.startProfiling(fixture._context)).thenReturn(profiler);
+      when(factory.startProfiler(fixture._context)).thenReturn(profiler);
       when(profiler.finishFor(any)).thenAnswer((_) async => expected);
 
       hub.profilerFactory = factory;

@@ -187,32 +187,50 @@ void main() {
           .invokeMethod('removeTag', {'key': 'fixture-key'}));
     });
 
-    test('startProfiling', () async {
+    test('startProfiler', () async {
       final traceId = SentryId.newId();
       when(fixture.methodChannel
-              .invokeMethod('startProfiling', traceId.toString()))
-          .thenAnswer((_) => Future.value());
+              .invokeMethod('startProfiler', traceId.toString()))
+          .thenAnswer((_) async {});
 
       final sut = fixture.getSut();
-      await sut.startProfiling(traceId);
+      await sut.startProfiler(traceId);
 
       verify(fixture.methodChannel
-          .invokeMethod('startProfiling', traceId.toString()));
+          .invokeMethod('startProfiler', traceId.toString()));
+    });
+
+    test('discardProfiler', () async {
+      final traceId = SentryId.newId();
+      when(fixture.methodChannel
+              .invokeMethod('discardProfiler', traceId.toString()))
+          .thenAnswer((_) async {});
+
+      final sut = fixture.getSut();
+      await sut.discardProfiler(traceId);
+
+      verify(fixture.methodChannel
+          .invokeMethod('discardProfiler', traceId.toString()));
     });
 
     test('collectProfile', () async {
       final traceId = SentryId.newId();
       const startTime = 42;
+      const endTime = 50;
       when(fixture.methodChannel.invokeMapMethod('collectProfile', {
         'traceId': traceId.toString(),
-        'startTime': startTime
+        'startTime': startTime,
+        'endTime': endTime,
       })).thenAnswer((_) => Future.value());
 
       final sut = fixture.getSut();
-      await sut.collectProfile(traceId, startTime);
+      await sut.collectProfile(traceId, startTime, endTime);
 
-      verify(fixture.methodChannel.invokeMapMethod('collectProfile',
-          {'traceId': traceId.toString(), 'startTime': startTime}));
+      verify(fixture.methodChannel.invokeMapMethod('collectProfile', {
+        'traceId': traceId.toString(),
+        'startTime': startTime,
+        'endTime': endTime,
+      }));
     });
   });
 }

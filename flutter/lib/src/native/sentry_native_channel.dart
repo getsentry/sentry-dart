@@ -139,21 +139,32 @@ class SentryNativeChannel {
     }
   }
 
-  Future<int?> startProfiling(SentryId traceId) async {
+  Future<int?> startProfiler(SentryId traceId) async {
     try {
-      return await _channel.invokeMethod('startProfiling', traceId.toString())
+      return await _channel.invokeMethod('startProfiler', traceId.toString())
           as int?;
     } catch (error, stackTrace) {
-      _logError('startProfiling', error, stackTrace);
+      _logError('startProfiler', error, stackTrace);
       return null;
     }
   }
 
-  Future<Map<String, dynamic>?> collectProfile(
-      SentryId traceId, int startTimeNs) async {
+  Future<void> discardProfiler(SentryId traceId) async {
     try {
-      return await _channel.invokeMapMethod<String, dynamic>('collectProfile',
-          {'traceId': traceId.toString(), 'startTime': startTimeNs});
+      return await _channel.invokeMethod('discardProfiler', traceId.toString());
+    } catch (error, stackTrace) {
+      _logError('discardProfiler', error, stackTrace);
+    }
+  }
+
+  Future<Map<String, dynamic>?> collectProfile(
+      SentryId traceId, int startTimeNs, int endTimeNs) async {
+    try {
+      return await _channel.invokeMapMethod<String, dynamic>('collectProfile', {
+        'traceId': traceId.toString(),
+        'startTime': startTimeNs,
+        'endTime': endTimeNs,
+      });
     } catch (error, stackTrace) {
       _logError('collectProfile', error, stackTrace);
       return null;

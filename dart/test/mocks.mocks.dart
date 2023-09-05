@@ -40,9 +40,9 @@ class MockProfilerFactory extends _i1.Mock implements _i3.ProfilerFactory {
   }
 
   @override
-  _i3.Profiler? startProfiling(_i2.SentryTransactionContext? context) =>
+  _i3.Profiler? startProfiler(_i2.SentryTransactionContext? context) =>
       (super.noSuchMethod(Invocation.method(
-        #startProfiling,
+        #startProfiler,
         [context],
       )) as _i3.Profiler?);
 }

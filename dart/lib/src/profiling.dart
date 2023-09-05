@@ -6,7 +6,7 @@ import '../sentry.dart';
 
 @internal
 abstract class ProfilerFactory {
-  Profiler? startProfiling(SentryTransactionContext context);
+  Profiler? startProfiler(SentryTransactionContext context);
 }
 
 @internal

@@ -92,13 +92,17 @@ class SentryNative {
     return await _nativeChannel?.removeTag(key);
   }
 
-  Future<int?> startProfiling(SentryId traceId) async {
-    return _nativeChannel?.startProfiling(traceId);
+  Future<int?> startProfiler(SentryId traceId) async {
+    return _nativeChannel?.startProfiler(traceId);
+  }
+
+  Future<void> discardProfiler(SentryId traceId) async {
+    return _nativeChannel?.discardProfiler(traceId);
   }
 
   Future<Map<String, dynamic>?> collectProfile(
-      SentryId traceId, int startTimeNs) async {
-    return _nativeChannel?.collectProfile(traceId, startTimeNs);
+      SentryId traceId, int startTimeNs, int endTimeNs) async {
+    return _nativeChannel?.collectProfile(traceId, startTimeNs, endTimeNs);
   }
 
   /// Reset state

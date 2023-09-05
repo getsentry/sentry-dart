@@ -34,13 +34,62 @@ void main() {
 
     test('creates a profiler', () async {
       final nativeMock = TestMockSentryNative();
-      final sut = NativeProfilerFactory(nativeMock);
-      final profiler = sut.startProfiling(SentryTransactionContext(
+      // ignore: invalid_use_of_internal_member
+      final sut = NativeProfilerFactory(nativeMock, getUtcDateTime);
+      final profiler = sut.startProfiler(SentryTransactionContext(
         'name',
         'op',
       ));
-      expect(nativeMock.numberOfStartProfilingCalls, 1);
+      expect(nativeMock.numberOfStartProfilerCalls, 1);
       expect(profiler, isNotNull);
+    });
+  });
+
+  group('$NativeProfiler', () {
+    late TestMockSentryNative nativeMock;
+    late NativeProfiler sut;
+
+    setUp(() {
+      nativeMock = TestMockSentryNative();
+      // ignore: invalid_use_of_internal_member
+      final factory = NativeProfilerFactory(nativeMock, getUtcDateTime);
+      final profiler = factory.startProfiler(SentryTransactionContext(
+        'name',
+        'op',
+      ));
+      expect(nativeMock.numberOfStartProfilerCalls, 1);
+      expect(profiler, isNotNull);
+      sut = profiler!;
+    });
+
+    test('dispose() calls native discard() exactly once', () async {
+      sut.dispose();
+      sut.dispose(); // Additional calls must not have an effect.
+
+      // Yield to let the .then() in .dispose() execute.
+      await null;
+      await null;
+
+      expect(nativeMock.numberOfDiscardProfilerCalls, 1);
+
+      // finishFor() mustn't work after disposing
+      expect(await sut.finishFor(MockSentryTransaction()), isNull);
+      expect(nativeMock.numberOfCollectProfileCalls, 0);
+    });
+
+    test('dispose() does not call discard() after finishing', () async {
+      final mockTransaction = MockSentryTransaction();
+      when(mockTransaction.startTimestamp).thenReturn(DateTime.now());
+      when(mockTransaction.timestamp).thenReturn(DateTime.now());
+      expect(await sut.finishFor(mockTransaction), isNull);
+
+      sut.dispose();
+
+      // Yield to let the .then() in .dispose() execute.
+      await null;
+
+      expect(nativeMock.numberOfDiscardProfilerCalls, 0);
+      expect(nativeMock.numberOfCollectProfileCalls, 1);
     });
   });
 }

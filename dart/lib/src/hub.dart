@@ -455,7 +455,7 @@ class Hub {
       Profiler? profiler;
       if (_profilerFactory != null &&
           _tracesSampler.sampleProfiling(samplingDecision)) {
-        profiler = _profilerFactory?.startProfiling(transactionContext);
+        profiler = _profilerFactory?.startProfiler(transactionContext);
       }
 
       final tracer = SentryTracer(

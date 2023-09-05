@@ -153,8 +153,11 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             removeTag(key: key, result: result)
 
         #if !os(tvOS) && !os(watchOS)
-        case "startProfiling":
-            startProfiling(call, result)
+        case "startProfiler":
+            startProfiler(call, result)
+
+        case "discardProfiler":
+            discardProfiler(call, result)
 
         case "collectProfile":
             collectProfile(call, result)
@@ -559,14 +562,14 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
       }
     }
 
-    private func startProfiling(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+    private func startProfiler(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         guard let traceId = call.arguments as? String else {
             print("Cannot start profiling: trace ID missing")
             result(FlutterError(code: "5", message: "Cannot start profiling: trace ID missing", details: nil))
             return
         }
 
-        let startTime = PrivateSentrySDKOnly.startProfiling(forTrace: SentryId(uuidString: traceId))
+        let startTime = PrivateSentrySDKOnly.startProfiler(forTrace: SentryId(uuidString: traceId))
         result(startTime)
     }
 
@@ -584,8 +587,25 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             return
         }
 
-        let payload = PrivateSentrySDKOnly.collectProfile(forTrace: SentryId(uuidString: traceId), since: startTime)
+        guard let endTime = arguments["endTime"] as? UInt64 else {
+            print("Cannot collect profile: end time missing")
+            result(FlutterError(code: "8", message: "Cannot collect profile: end time missing", details: nil))
+            return
+        }
+
+        let payload = PrivateSentrySDKOnly.collectProfileBetween(startTime, and: endTime, forTrace: SentryId(uuidString: traceId))
         result(payload)
+    }
+
+    private func discardProfiler(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        guard let traceId = call.arguments as? String else {
+            print("Cannot discard a profiler: trace ID missing")
+            result(FlutterError(code: "9", message: "Cannot discard a profiler: trace ID missing", details: nil))
+            return
+        }
+
+        PrivateSentrySDKOnly.discardProfiler(forTrace: SentryId(uuidString: traceId))
+        result(nil)
     }
 }
 
