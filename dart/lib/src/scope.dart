@@ -136,6 +136,7 @@ class Scope {
       List.unmodifiable(_eventProcessors);
 
   final SentryOptions _options;
+  bool _enableScopeSync = true;
 
   final List<SentryAttachment> _attachments = [];
 
@@ -412,7 +413,8 @@ class Scope {
       ..level = level
       ..fingerprint = List.from(fingerprint)
       .._transaction = _transaction
-      ..span = span;
+      ..span = span
+      .._enableScopeSync = false;
 
     clone._setUserSync(user);
 
@@ -450,7 +452,7 @@ class Scope {
   }
 
   Future<void> _callScopeObservers(_OnScopeObserver action) async {
-    if (_options.enableScopeSync) {
+    if (_options.enableScopeSync && _enableScopeSync) {
       for (final scopeObserver in _options.scopeObservers) {
         await action(scopeObserver);
       }
