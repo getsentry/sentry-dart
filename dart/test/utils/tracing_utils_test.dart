@@ -50,15 +50,25 @@ void main() {
     });
   });
 
-  group('$addSentryTraceHeader', () {
+  group('$addSentryTraceHeaderFromSpan', () {
     final fixture = Fixture();
+
+    test('adds sentry trace header from span', () {
+      final headers = <String, String>{};
+      final sut = fixture.getSut();
+      final sentryHeader = sut.toSentryTrace();
+
+      addSentryTraceHeaderFromSpan(sut, headers);
+
+      expect(headers[sentryHeader.name], sentryHeader.value);
+    });
 
     test('adds sentry trace header', () {
       final headers = <String, String>{};
       final sut = fixture.getSut();
       final sentryHeader = sut.toSentryTrace();
 
-      addSentryTraceHeader(sut, headers);
+      addSentryTraceHeader(sentryHeader, headers);
 
       expect(headers[sentryHeader.name], sentryHeader.value);
     });
@@ -72,12 +82,22 @@ void main() {
       final sut = fixture.getSut();
       final baggage = sut.toBaggageHeader();
 
-      addBaggageHeader(sut, headers);
+      addBaggageHeader(sut.toBaggageHeader()!, headers);
 
       expect(headers[baggage!.name], baggage.value);
     });
 
-    test('appends baggage header', () {
+    test('adds baggage header from span', () {
+      final headers = <String, String>{};
+      final sut = fixture.getSut();
+      final baggage = sut.toBaggageHeader();
+
+      addBaggageHeaderFromSpan(sut, headers);
+
+      expect(headers[baggage!.name], baggage.value);
+    });
+
+    test('appends baggage header from span', () {
       final headers = <String, String>{};
       final oldValue = 'other-vendor-value-1=foo';
       headers['baggage'] = oldValue;
@@ -87,7 +107,7 @@ void main() {
 
       final newValue = '$oldValue,${baggage!.value}';
 
-      addBaggageHeader(sut, headers);
+      addBaggageHeaderFromSpan(sut, headers);
 
       expect(headers[baggage.name], newValue);
     });
@@ -102,7 +122,7 @@ void main() {
       final sut = fixture.getSut();
       final baggage = sut.toBaggageHeader();
 
-      addBaggageHeader(sut, headers);
+      addBaggageHeaderFromSpan(sut, headers);
 
       expect(headers[baggage!.name],
           'other-vendor-value=foo,sentry-trace_id=${sut.context.traceId},sentry-public_key=abc,sentry-release=release,sentry-environment=environment,sentry-user_segment=segment,sentry-transaction=name,sentry-sample_rate=1');

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Features
+
+- Tracing without performance ([#1621](https://github.com/getsentry/sentry-dart/pull/1621))
+
 ### Fixes
 
 - Normalize data properties of `SentryUser` and `Breadcrumb` before sending over method channel ([#1591](https://github.com/getsentry/sentry-dart/pull/1591))
