@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
+import 'scope.dart';
+import 'protocol.dart';
 
-import 'protocol/sentry_level.dart';
 import 'sentry_options.dart';
 
 class SentryBaggage {
