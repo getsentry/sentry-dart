@@ -57,15 +57,13 @@ class TracingClientAdapter implements HttpClientAdapter {
           _hub.options.tracePropagationTargets,
           options.uri.toString(),
         )) {
-          addSentryTraceHeader(span.toSentryTrace(), options.headers);
-          if (span.toBaggageHeader() != null) {
-            addBaggageHeader(
-              span.toBaggageHeader()!,
-              options.headers,
-              // ignore: invalid_use_of_internal_member
-              logger: _hub.options.logger,
-            );
-          }
+          addSentryTraceHeaderFromSpan(span, options.headers);
+          addBaggageHeaderFromSpan(
+            span,
+            options.headers,
+            // ignore: invalid_use_of_internal_member
+            logger: _hub.options.logger,
+          );
         }
       }
 
