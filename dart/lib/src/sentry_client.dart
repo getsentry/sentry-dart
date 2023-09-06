@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:meta/meta.dart';
-import '../sentry.dart';
+import 'sentry_baggage.dart';
 import 'sentry_attachment/sentry_attachment.dart';
 
 import 'event_processor.dart';

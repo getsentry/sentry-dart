@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
-
-import '../sentry.dart';
+import 'protocol.dart';
+import 'sentry_baggage.dart';
 
 @internal
 class PropagationContext {
