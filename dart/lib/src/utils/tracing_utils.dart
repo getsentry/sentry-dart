@@ -6,7 +6,7 @@ void addSentryTraceHeaderFromSpan(
   headers[traceHeader.name] = traceHeader.value;
 }
 
-void addSentryTraceheader(
+void addSentryTraceHeader(
     SentryTraceHeader traceHeader, Map<String, dynamic> headers) {
   headers[traceHeader.name] = traceHeader.value;
 }
