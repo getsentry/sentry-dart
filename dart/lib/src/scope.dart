@@ -3,7 +3,6 @@ import 'dart:collection';
 
 import 'package:meta/meta.dart';
 
-import '../sentry.dart';
 import 'event_processor.dart';
 import 'hint.dart';
 import 'propagation_context.dart';
