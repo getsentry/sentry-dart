@@ -64,10 +64,20 @@ void main() {
     });
   });
 
-  group('$addBaggageHeaderFromSpan', () {
+  group('addBaggageHeader', () {
     final fixture = Fixture();
 
     test('adds baggage header', () {
+      final headers = <String, String>{};
+      final sut = fixture.getSut();
+      final baggage = sut.toBaggageHeader();
+
+      addBaggageHeader(sut.toBaggageHeader()!, headers);
+
+      expect(headers[baggage!.name], baggage.value);
+    });
+
+    test('adds baggage header from span', () {
       final headers = <String, String>{};
       final sut = fixture.getSut();
       final baggage = sut.toBaggageHeader();
@@ -77,7 +87,7 @@ void main() {
       expect(headers[baggage!.name], baggage.value);
     });
 
-    test('appends baggage header', () {
+    test('appends baggage header from span', () {
       final headers = <String, String>{};
       final oldValue = 'other-vendor-value-1=foo';
       headers['baggage'] = oldValue;

@@ -4,14 +4,9 @@ import '../sentry.dart';
 
 @internal
 class PropagationContext {
-  late SentryId traceId;
-  late SpanId spanId;
+  late SentryId traceId = SentryId.newId();
+  late SpanId spanId = SpanId.newId();
   SentryBaggage? baggage;
-
-  PropagationContext() {
-    traceId = SentryId.newId();
-    spanId = SpanId.newId();
-  }
 
   SentryTraceHeader toSentryTrace() => SentryTraceHeader(traceId, spanId);
 }
