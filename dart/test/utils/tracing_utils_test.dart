@@ -53,7 +53,7 @@ void main() {
   group('$addSentryTraceHeaderFromSpan', () {
     final fixture = Fixture();
 
-    test('adds sentry trace header', () {
+    test('adds sentry trace header from span', () {
       final headers = <String, String>{};
       final sut = fixture.getSut();
       final sentryHeader = sut.toSentryTrace();
@@ -62,9 +62,19 @@ void main() {
 
       expect(headers[sentryHeader.name], sentryHeader.value);
     });
+
+    test('adds sentry trace header', () {
+      final headers = <String, String>{};
+      final sut = fixture.getSut();
+      final sentryHeader = sut.toSentryTrace();
+
+      addSentryTraceHeader(sentryHeader, headers);
+
+      expect(headers[sentryHeader.name], sentryHeader.value);
+    });
   });
 
-  group('addBaggageHeader', () {
+  group('$addBaggageHeader', () {
     final fixture = Fixture();
 
     test('adds baggage header', () {
