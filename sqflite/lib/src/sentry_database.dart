@@ -6,6 +6,7 @@ import 'sentry_database_executor.dart';
 import 'sentry_sqflite_transaction.dart';
 import 'version.dart';
 import 'utils/sentry_database_span_attributes.dart';
+import 'package:path/path.dart' as p;
 
 /// A [Database] wrapper that adds Sentry support.
 ///
@@ -56,25 +57,13 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
     this._database, {
     @internal Hub? hub,
   })  : _hub = hub ?? HubAdapter(),
-        dbName = _basenameWithoutExtension(_database.path),
+        dbName = p.basenameWithoutExtension(_database.path),
         super(_database,
-            hub: hub, dbName: _basenameWithoutExtension(_database.path)) {
+            hub: hub, dbName: p.basenameWithoutExtension(_database.path)) {
     // ignore: invalid_use_of_internal_member
     final options = _hub.options;
     options.sdk.addIntegration('SentrySqfliteTracing');
     options.sdk.addPackage(packageName, sdkVersion);
-  }
-
-  /// Gets the part of path after the last separator, and without any trailing file extension.
-  static String _basenameWithoutExtension(String filePath) {
-    final int lastIndex = filePath.lastIndexOf('/');
-    final int dotIndex = filePath.lastIndexOf('.');
-
-    if (dotIndex == -1 || (lastIndex != -1 && dotIndex < lastIndex)) {
-      return filePath;
-    }
-
-    return filePath.substring(lastIndex + 1, dotIndex);
   }
 
   // TODO: check if perf is enabled
