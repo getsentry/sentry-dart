@@ -295,7 +295,8 @@ SELECT * FROM Product''';
 
       final span = fixture.tracer.children.last;
       expect(span.data[SentryDatabase.dbSystemKey], SentryDatabase.dbSystem);
-      expect(span.data[SentryDatabase.dbNameKey], (db as SentryDatabase).dbName);
+      expect(
+          span.data[SentryDatabase.dbNameKey], (db as SentryDatabase).dbName);
 
       await db.close();
     });
@@ -311,7 +312,8 @@ SELECT * FROM Product''';
 
       final span = fixture.tracer.children.last;
       expect(span.data[SentryDatabase.dbSystemKey], SentryDatabase.dbSystem);
-      expect(span.data[SentryDatabase.dbNameKey], (db as SentryDatabase).dbName);
+      expect(
+          span.data[SentryDatabase.dbNameKey], (db as SentryDatabase).dbName);
 
       await db.close();
     });

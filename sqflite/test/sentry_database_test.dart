@@ -113,7 +113,8 @@ void main() {
       );
       expect(insertSpan.context.parentSpanId, trSpan.context.spanId);
       expect(insertSpan.status, SpanStatus.ok());
-      expect(insertSpan.data[SentryDatabase.dbSystemKey], SentryDatabase.dbSystem);
+      expect(
+          insertSpan.data[SentryDatabase.dbSystemKey], SentryDatabase.dbSystem);
       expect(insertSpan.data[SentryDatabase.dbNameKey], inMemoryDatabasePath);
 
       expect(
@@ -147,8 +148,9 @@ void main() {
     test('opening db sets currentDbName with db file without extension',
         () async {
       final db = await fixture.getSut(
-          database: await openDatabase('path/database/mydatabase.db'),
-          execute: false);
+        database: await openDatabase('path/database/mydatabase.db'),
+        execute: false,
+      );
 
       expect(db.dbName, 'mydatabase');
 

@@ -57,7 +57,8 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
     @internal Hub? hub,
   })  : _hub = hub ?? HubAdapter(),
         dbName = _basenameWithoutExtension(_database.path),
-        super(_database, hub: hub, dbName: _basenameWithoutExtension(_database.path)) {
+        super(_database,
+            hub: hub, dbName: _basenameWithoutExtension(_database.path)) {
     // ignore: invalid_use_of_internal_member
     final options = _hub.options;
     options.sdk.addIntegration('SentrySqfliteTracing');
@@ -66,8 +67,8 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
 
   /// Gets the part of path after the last separator, and without any trailing file extension.
   static String _basenameWithoutExtension(String filePath) {
-    int lastIndex = filePath.lastIndexOf('/');
-    int dotIndex = filePath.lastIndexOf('.');
+    final int lastIndex = filePath.lastIndexOf('/');
+    final int dotIndex = filePath.lastIndexOf('.');
 
     if (dotIndex == -1 || (lastIndex != -1 && dotIndex < lastIndex)) {
       return filePath;
@@ -143,8 +144,8 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
       setDatabaseAttributeData(span, dbName);
 
       Future<T> newAction(Transaction txn) async {
-        final executor =
-            SentryDatabaseExecutor(txn, parentSpan: span, hub: _hub, dbName: dbName);
+        final executor = SentryDatabaseExecutor(txn,
+            parentSpan: span, hub: _hub, dbName: dbName);
         final sentrySqfliteTransaction =
             SentrySqfliteTransaction(executor, hub: _hub, dbName: dbName);
 
