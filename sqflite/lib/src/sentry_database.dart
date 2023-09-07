@@ -44,7 +44,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
   static const dbNameKey = 'db.name';
   @internal
   // ignore: public_member_api_docs
-  String? dbName;
+  String dbName;
 
   /// ```dart
   /// import 'package:sqflite/sqflite.dart';
@@ -82,7 +82,6 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
       try {
         await _database.close();
 
-        dbName = null;
         span?.status = SpanStatus.ok();
       } catch (exception) {
         span?.throwable = exception;

@@ -63,8 +63,6 @@ void main() {
 
       await db.close();
 
-      expect(db.dbName, null);
-
       final span = fixture.tracer.children.last;
       expect(span.context.operation, 'db');
       expect(span.context.description, 'Close DB: $inMemoryDatabasePath');
@@ -163,8 +161,6 @@ void main() {
       expect(db.dbName, inMemoryDatabasePath);
 
       await db.close();
-
-      expect(db.dbName, null);
     });
 
     tearDown(() {
