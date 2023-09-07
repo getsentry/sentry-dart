@@ -2,7 +2,6 @@ import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sqflite/sqflite.dart';
 
-import '../sentry_sqflite.dart';
 import 'sentry_database_executor.dart';
 import 'sentry_sqflite_transaction.dart';
 import 'version.dart';
