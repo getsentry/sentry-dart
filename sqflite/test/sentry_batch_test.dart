@@ -294,8 +294,8 @@ SELECT * FROM Product''';
       await batch.apply();
 
       final span = fixture.tracer.children.last;
-      expect(span.data[SentryDatabase.dbSystemKey], 'sqlite');
-      expect(span.data[SentryDatabase.dbNameKey], SentryDatabase.currentDbName);
+      expect(span.data[SentryDatabase.dbSystemKey], SentryDatabase.dbSystem);
+      expect(span.data[SentryDatabase.dbNameKey], SentryDatabase.dbName);
 
       await db.close();
     });
@@ -310,8 +310,8 @@ SELECT * FROM Product''';
       await batch.commit();
 
       final span = fixture.tracer.children.last;
-      expect(span.data[SentryDatabase.dbSystemKey], 'sqlite');
-      expect(span.data[SentryDatabase.dbNameKey], SentryDatabase.currentDbName);
+      expect(span.data[SentryDatabase.dbSystemKey], SentryDatabase.dbSystem);
+      expect(span.data[SentryDatabase.dbNameKey], SentryDatabase.dbName);
 
       await db.close();
     });
@@ -319,14 +319,14 @@ SELECT * FROM Product''';
     test('dbName attribute is null if currentDbName is null', () async {
       final db = await fixture.getDatabase();
       final batch = db.batch();
-      SentryDatabase.currentDbName = null;
+      SentryDatabase.dbName = null;
 
       batch.insert('Product', <String, Object?>{'title': 'Product 1'});
 
       await batch.commit();
 
       final span = fixture.tracer.children.last;
-      expect(span.data[SentryDatabase.dbSystemKey], 'sqlite');
+      expect(span.data[SentryDatabase.dbSystemKey], SentryDatabase.dbSystem);
       expect(span.data[SentryDatabase.dbNameKey], isNull);
 
       await db.close();

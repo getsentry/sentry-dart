@@ -1,12 +1,12 @@
 import 'package:meta/meta.dart';
 import 'package:sentry/sentry.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart' as p;
 
 import '../sentry_sqflite.dart';
 import 'sentry_database_executor.dart';
 import 'sentry_sqflite_transaction.dart';
 import 'version.dart';
+import 'utils/sentry_database_span_attributes.dart';
 
 /// A [Database] wrapper that adds Sentry support.
 ///
@@ -38,10 +38,14 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
   static const dbSystemKey = 'db.system';
   @internal
   // ignore: public_member_api_docs
+  static const dbSystem = 'sqlite';
+  @internal
+  // ignore: public_member_api_docs
   static const dbNameKey = 'db.name';
   @internal
   // ignore: public_member_api_docs
-  static String? currentDbName;
+  static String? dbName;
+  
 
   /// ```dart
   /// import 'package:sqflite/sqflite.dart';
@@ -59,7 +63,19 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
     final options = _hub.options;
     options.sdk.addIntegration('SentrySqfliteTracing');
     options.sdk.addPackage(packageName, sdkVersion);
-    currentDbName = p.basenameWithoutExtension(_database.path);
+    dbName = _basenameWithoutExtension(_database.path);
+  }
+
+  /// Gets the part of path after the last separator, and without any trailing file extension.
+  String _basenameWithoutExtension(String filePath) {
+    int lastIndex = filePath.lastIndexOf('/');
+    int dotIndex = filePath.lastIndexOf('.');
+
+    if (dotIndex == -1 || (lastIndex != -1 && dotIndex < lastIndex)) {
+      return filePath;
+    }
+
+    return filePath.substring(lastIndex + 1, dotIndex);
   }
 
   // TODO: check if perf is enabled
@@ -75,7 +91,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabase;
 
-      currentDbName = null;
+      dbName = null;
 
       try {
         await _database.close();
@@ -127,10 +143,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabase;
-      span?.setData(dbSystemKey, 'sqlite');
-      if (currentDbName != null) {
-        span?.setData(dbNameKey, currentDbName);
-      }
+      setDatabaseAttributeData(span);
 
       Future<T> newAction(Transaction txn) async {
         final executor =
