@@ -37,8 +37,8 @@ void main() {
     test('returns wrapped data base if performance enabled', () async {
       final db = await openDatabase(inMemoryDatabasePath);
 
-      expect(SentryDatabase.dbName, inMemoryDatabasePath);
       expect(db is SentryDatabase, true);
+      expect((db as SentryDatabase).dbName, inMemoryDatabasePath);
 
       await db.close();
     });
@@ -48,7 +48,6 @@ void main() {
 
       final db = await openDatabase(inMemoryDatabasePath);
 
-      expect(SentryDatabase.dbName, null);
       expect(db is! SentryDatabase, true);
 
       await db.close();
@@ -58,7 +57,7 @@ void main() {
         () async {
       final db = await openDatabase(inMemoryDatabasePath);
 
-      expect(SentryDatabase.dbName, inMemoryDatabasePath);
+      expect((db as SentryDatabase).dbName, inMemoryDatabasePath);
 
       final span = fixture.tracer.children.last;
       expect(span.context.operation, 'db');

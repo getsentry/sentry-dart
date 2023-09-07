@@ -63,7 +63,7 @@ void main() {
 
       await db.close();
 
-      expect(SentryDatabase.dbName, null);
+      expect(db.dbName, null);
 
       final span = fixture.tracer.children.last;
       expect(span.context.operation, 'db');
@@ -139,7 +139,7 @@ void main() {
     test('opening db sets currentDbName with :memory:', () async {
       final db = await fixture.getSut();
 
-      expect(SentryDatabase.dbName, ':memory:');
+      expect(db.dbName, ':memory:');
 
       await db.close();
     });
@@ -150,7 +150,7 @@ void main() {
           database: await openDatabase('path/database/mydatabase.db'),
           execute: false);
 
-      expect(SentryDatabase.dbName, 'mydatabase');
+      expect(db.dbName, 'mydatabase');
 
       await db.close();
     });
@@ -158,11 +158,11 @@ void main() {
     test('closing db sets currentDbName to null', () async {
       final db = await fixture.getSut();
 
-      expect(SentryDatabase.dbName, inMemoryDatabasePath);
+      expect(db.dbName, inMemoryDatabasePath);
 
       await db.close();
 
-      expect(SentryDatabase.dbName, null);
+      expect(db.dbName, null);
     });
 
     tearDown(() {

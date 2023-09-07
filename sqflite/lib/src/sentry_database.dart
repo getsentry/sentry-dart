@@ -43,8 +43,7 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
   static const dbNameKey = 'db.name';
   @internal
   // ignore: public_member_api_docs
-  static String? dbName;
-  
+  String? dbName;
 
   /// ```dart
   /// import 'package:sqflite/sqflite.dart';
@@ -57,16 +56,16 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
     this._database, {
     @internal Hub? hub,
   })  : _hub = hub ?? HubAdapter(),
-        super(_database, hub: hub) {
+        dbName = _basenameWithoutExtension(_database.path),
+        super(_database, hub: hub, dbName: _basenameWithoutExtension(_database.path)) {
     // ignore: invalid_use_of_internal_member
     final options = _hub.options;
     options.sdk.addIntegration('SentrySqfliteTracing');
     options.sdk.addPackage(packageName, sdkVersion);
-    dbName = _basenameWithoutExtension(_database.path);
   }
 
   /// Gets the part of path after the last separator, and without any trailing file extension.
-  String _basenameWithoutExtension(String filePath) {
+  static String _basenameWithoutExtension(String filePath) {
     int lastIndex = filePath.lastIndexOf('/');
     int dotIndex = filePath.lastIndexOf('.');
 
@@ -90,11 +89,10 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabase;
 
-      dbName = null;
-
       try {
         await _database.close();
 
+        dbName = null;
         span?.status = SpanStatus.ok();
       } catch (exception) {
         span?.throwable = exception;
@@ -142,13 +140,13 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabase;
-      setDatabaseAttributeData(span);
+      setDatabaseAttributeData(span, dbName);
 
       Future<T> newAction(Transaction txn) async {
         final executor =
-            SentryDatabaseExecutor(txn, parentSpan: span, hub: _hub);
+            SentryDatabaseExecutor(txn, parentSpan: span, hub: _hub, dbName: dbName);
         final sentrySqfliteTransaction =
-            SentrySqfliteTransaction(executor, hub: _hub);
+            SentrySqfliteTransaction(executor, hub: _hub, dbName: dbName);
 
         return await action(sentrySqfliteTransaction);
       }

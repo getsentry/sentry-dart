@@ -22,6 +22,7 @@ import 'utils/sentry_database_span_attributes.dart';
 class SentryBatch implements Batch {
   final Batch _batch;
   final Hub _hub;
+  final String? _dbName;
 
   // we don't clear the buffer because SqfliteBatch don't either
   final _buffer = StringBuffer();
@@ -37,7 +38,9 @@ class SentryBatch implements Batch {
   SentryBatch(
     this._batch, {
     @internal Hub? hub,
-  }) : _hub = hub ?? HubAdapter();
+    @internal String? dbName,
+  })  : _hub = hub ?? HubAdapter(),
+        _dbName = dbName;
 
   @override
   Future<List<Object?>> apply({bool? noResult, bool? continueOnError}) {
@@ -51,7 +54,7 @@ class SentryBatch implements Batch {
 
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteBatch;
-      setDatabaseAttributeData(span);
+      setDatabaseAttributeData(span, _dbName);
 
       try {
         final result = await _batch.apply(
@@ -89,7 +92,7 @@ class SentryBatch implements Batch {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteBatch;
-      setDatabaseAttributeData(span);
+      setDatabaseAttributeData(span, _dbName);
 
       try {
         final result = await _batch.commit(
