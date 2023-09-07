@@ -593,7 +593,8 @@ public class SentryFlutterPluginApple: NSObject, FlutterPlugin {
             return
         }
 
-        let payload = PrivateSentrySDKOnly.collectProfileBetween(startTime, and: endTime, forTrace: SentryId(uuidString: traceId))
+        let payload = PrivateSentrySDKOnly.collectProfileBetween(startTime, and: endTime,
+                                                                       forTrace: SentryId(uuidString: traceId))
         result(payload)
     }
 
