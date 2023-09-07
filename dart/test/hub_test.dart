@@ -374,6 +374,14 @@ void main() {
       expect(
           fixture.client.captureTransactionCalls.first.traceContext, context);
     });
+
+    test('returns scope', () async {
+      final hub = fixture.getSut();
+
+      final scope = hub.scope;
+
+      expect(scope, isNotNull);
+    });
   });
 
   group('Hub scope', () {
