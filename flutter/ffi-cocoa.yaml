@@ -6,6 +6,7 @@ headers:
   entry-points:
     # - ./example/macos/Pods/Sentry/Sources/Sentry/include/HybridPublic/PrivateSentrySDKOnly.h
     - ./example/build/macos/Build/Products/Release/Sentry/Sentry.framework/Headers/PrivateSentrySDKOnly.h
+    - ./example/build/macos/Build/Products/Release/Sentry/Sentry.framework/Headers/SentryId.h
 compiler-opts:
   - -DSENTRY_TARGET_PROFILING_SUPPORTED=1
   - -DCOCOAPODS=1
@@ -14,3 +15,4 @@ exclude-all-by-default: true
 objc-interfaces:
   include:
     - PrivateSentrySDKOnly
+    - SentryId
