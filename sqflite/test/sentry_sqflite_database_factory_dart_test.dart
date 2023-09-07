@@ -48,7 +48,7 @@ void main() {
 
       final db = await openDatabase(inMemoryDatabasePath);
 
-      expect(SentryDatabase.dbName, inMemoryDatabasePath);
+      expect(SentryDatabase.dbName, null);
       expect(db is! SentryDatabase, true);
 
       await db.close();
