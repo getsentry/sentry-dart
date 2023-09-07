@@ -5,7 +5,6 @@ import 'package:sqflite/sqflite.dart';
 // ignore: implementation_imports
 import 'package:sqflite_common/src/sql_builder.dart';
 
-import '../sentry_sqflite.dart';
 import 'sentry_database.dart';
 import 'utils/sentry_database_span_attributes.dart';
 
