@@ -46,7 +46,7 @@ class TracingClientAdapter implements HttpClientAdapter {
       span = null;
     }
 
-    span?.setData('http.method', options.method);
+    span?.setData('http.request.method', options.method);
     urlDetails?.applyToSpan(span);
 
     ResponseBody? response;

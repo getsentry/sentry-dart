@@ -41,7 +41,7 @@ class TracingClient extends BaseClient {
       span = null;
     }
 
-    span?.setData('http.method', request.method);
+    span?.setData('http.request.method', request.method);
     urlDetails?.applyToSpan(span);
 
     StreamedResponse? response;
