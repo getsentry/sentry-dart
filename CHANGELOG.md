@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+- Add http.request.method attribute to http spans data ([#1633](https://github.com/getsentry/sentry-dart/pull/1633))
 - Add db.system and db.name attributes to db spans data ([#1629](https://github.com/getsentry/sentry-dart/pull/1629))
 
 ### Features
