@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Enhancements
+
+- Add db.system and db.name attributes to db spans data ([#1629](https://github.com/getsentry/sentry-dart/pull/1629))
+
 ### Features
 
 - Tracing without performance ([#1621](https://github.com/getsentry/sentry-dart/pull/1621))

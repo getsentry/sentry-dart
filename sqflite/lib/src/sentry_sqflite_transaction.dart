@@ -21,16 +21,19 @@ import 'sentry_batch.dart';
 class SentrySqfliteTransaction extends Transaction implements DatabaseExecutor {
   final DatabaseExecutor _executor;
   final Hub _hub;
+  final String? _dbName;
 
   // ignore: public_member_api_docs
   @internal
   SentrySqfliteTransaction(
     this._executor, {
     @internal Hub? hub,
-  }) : _hub = hub ?? HubAdapter();
+    @internal String? dbName,
+  })  : _hub = hub ?? HubAdapter(),
+        _dbName = dbName;
 
   @override
-  Batch batch() => SentryBatch(_executor.batch(), hub: _hub);
+  Batch batch() => SentryBatch(_executor.batch(), hub: _hub, dbName: _dbName);
 
   @override
   Database get database => _executor.database;
