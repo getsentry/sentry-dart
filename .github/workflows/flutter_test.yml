@@ -59,19 +59,20 @@ jobs:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: avd-21
+          key: avd-31
 
       - name: create AVD and generate snapshot for caching
         if: steps.avd-cache.outputs.cache-hit != 'true'
         uses: reactivecircus/android-emulator-runner@d94c3fbe4fe6a29e4a5ba47c12fb47677c73656b #pin@v2.28.0
         with:
           working-directory: ./flutter/example
-          api-level: 21
-          force-avd-creation: false
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          disable-animations: false
-          arch: x86_64
+          api-level: 31
           profile: Nexus 6
+          arch: x86_64
+          force-avd-creation: false
+          avd-name: macOS-avd-x86_64-31
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
           script: echo 'Generated AVD snapshot for caching.'
 
       - name: build apk
@@ -82,24 +83,26 @@ jobs:
         uses: reactivecircus/android-emulator-runner@d94c3fbe4fe6a29e4a5ba47c12fb47677c73656b #pin@v2.28.0
         with:
           working-directory: ./flutter/example/android
-          api-level: 21
+          api-level: 31
+          profile: Nexus 6
+          arch: x86_64
           force-avd-creation: false
+          avd-name: macOS-avd-x86_64-31
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
-          arch: x86_64
-          profile: Nexus 6
           script: ./gradlew testDebugUnitTest
 
       - name: launch android emulator & run android integration test
         uses: reactivecircus/android-emulator-runner@d94c3fbe4fe6a29e4a5ba47c12fb47677c73656b #pin@v2.28.0
         with:
           working-directory: ./flutter/example
-          api-level: 21
+          api-level: 31
+          profile: Nexus 6
+          arch: x86_64
           force-avd-creation: false
+          avd-name: macOS-avd-x86_64-31
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
-          arch: x86_64
-          profile: Nexus 6
           script: flutter test integration_test/integration_test.dart --verbose
 
   test-ios:
@@ -134,7 +137,7 @@ jobs:
       - name: launch ios simulator
         id: sim
         run: |
-          simulator_id=$(xcrun simctl create sentryPhone com.apple.CoreSimulator.SimDeviceType.iPhone-14 com.apple.CoreSimulator.SimRuntime.iOS-16-2)
+          simulator_id=$(xcrun simctl create sentryPhone com.apple.CoreSimulator.SimDeviceType.iPhone-14 com.apple.CoreSimulator.SimRuntime.iOS-16-4)
           echo "SIMULATOR_ID=${simulator_id}" >> "$GITHUB_OUTPUT"
           xcrun simctl boot ${simulator_id}
 # Disable flutter integration tests because of flaky execution
