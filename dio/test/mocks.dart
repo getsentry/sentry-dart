@@ -42,7 +42,7 @@ final fakeEvent = SentryEvent(
       type: 'navigation',
       data: <String, dynamic>{'screen': 'MainActivity', 'state': 'created'},
       level: SentryLevel.info,
-    )
+    ),
   ],
   contexts: Contexts(
     operatingSystem: const SentryOperatingSystem(

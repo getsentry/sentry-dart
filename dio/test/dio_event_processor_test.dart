@@ -67,7 +67,7 @@ void main() {
         throwable: throwable,
         exceptions: [
           fixture.sentryError(throwable),
-          fixture.sentryError(dioError)
+          fixture.sentryError(dioError),
         ],
       );
       final processedEvent = sut.apply(event) as SentryEvent;
@@ -96,7 +96,7 @@ void main() {
         throwable: throwable,
         exceptions: [
           fixture.sentryError(throwable),
-          fixture.sentryError(dioError)
+          fixture.sentryError(dioError),
         ],
       );
       final processedEvent = sut.apply(event) as SentryEvent;
@@ -125,7 +125,7 @@ void main() {
         throwable: throwable,
         exceptions: [
           fixture.sentryError(throwable),
-          fixture.sentryError(dioError)
+          fixture.sentryError(dioError),
         ],
       );
       final processedEvent = sut.apply(event) as SentryEvent;
@@ -177,7 +177,7 @@ void main() {
           throwable: throwable,
           exceptions: [
             fixture.sentryError(throwable),
-            fixture.sentryError(dioError)
+            fixture.sentryError(dioError),
           ],
         );
         final processedEvent = sut.apply(event) as SentryEvent;
@@ -207,7 +207,7 @@ void main() {
           data: 'foobar',
           headers: Headers.fromMap(<String, List<String>>{
             'foo': ['bar'],
-            'set-cookie': ['foo=bar']
+            'set-cookie': ['foo=bar'],
           }),
           requestOptions: request,
           isRedirect: true,
@@ -219,7 +219,7 @@ void main() {
         throwable: throwable,
         exceptions: [
           fixture.sentryError(throwable),
-          fixture.sentryError(dioError)
+          fixture.sentryError(dioError),
         ],
       );
       final processedEvent = sut.apply(event) as SentryEvent;
@@ -248,7 +248,7 @@ void main() {
         response: Response<dynamic>(
           data: 'foobar',
           headers: Headers.fromMap(<String, List<String>>{
-            'foo': ['bar']
+            'foo': ['bar'],
           }),
           requestOptions: request,
           isRedirect: true,
@@ -260,7 +260,7 @@ void main() {
         throwable: throwable,
         exceptions: [
           fixture.sentryError(throwable),
-          fixture.sentryError(dioError)
+          fixture.sentryError(dioError),
         ],
       );
       final processedEvent = sut.apply(event) as SentryEvent;
@@ -320,7 +320,7 @@ void main() {
           throwable: throwable,
           exceptions: [
             fixture.sentryError(throwable),
-            fixture.sentryError(dioError)
+            fixture.sentryError(dioError),
           ],
         );
         final processedEvent = sut.apply(event) as SentryEvent;
@@ -338,7 +338,7 @@ void main() {
       final dataByType = {
         ResponseType.plain: ['plain'],
         ResponseType.bytes: [
-          [1337]
+          [1337],
         ],
         ResponseType.json: [
           9001,
@@ -347,7 +347,7 @@ void main() {
           true,
           ['list'],
           {'map-key': 'map-value'},
-        ]
+        ],
       };
 
       for (final entry in dataByType.entries) {
@@ -375,7 +375,7 @@ void main() {
             throwable: throwable,
             exceptions: [
               fixture.sentryError(throwable),
-              fixture.sentryError(dioError)
+              fixture.sentryError(dioError),
             ],
           );
           final processedEvent = sut.apply(event) as SentryEvent;
