@@ -112,7 +112,9 @@ void main() {
       expect(insertSpan.context.parentSpanId, trSpan.context.spanId);
       expect(insertSpan.status, SpanStatus.ok());
       expect(
-          insertSpan.data[SentryDatabase.dbSystemKey], SentryDatabase.dbSystem);
+        insertSpan.data[SentryDatabase.dbSystemKey],
+        SentryDatabase.dbSystem,
+      );
       expect(insertSpan.data[SentryDatabase.dbNameKey], inMemoryDatabasePath);
 
       expect(

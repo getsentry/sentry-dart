@@ -756,6 +756,7 @@ class _MockHub extends MockHub {
   @override
   final options = SentryOptions(dsn: fakeDsn);
 
+  @override
   late final scope = Scope(options);
 
   @override
