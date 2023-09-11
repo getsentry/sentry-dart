@@ -375,6 +375,14 @@ void main() {
     expect(1, fixture.mockScopeObserver.numberOfRemoveTagCalls);
   });
 
+  test('clone has disabled scope sync', () async {
+    final sut = fixture.getSut(scopeObserver: fixture.mockScopeObserver);
+    final clone = sut.clone();
+
+    await clone.setContexts("fixture-contexts-key", "fixture-contexts-value");
+    expect(0, fixture.mockScopeObserver.numberOfSetContextsCalls);
+  });
+
   group('Scope apply', () {
     final scopeUser = SentryUser(
       id: '800',

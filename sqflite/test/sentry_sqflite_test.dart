@@ -97,6 +97,7 @@ void main() {
       expect(span.status, SpanStatus.ok());
       // ignore: invalid_use_of_internal_member
       expect(span.origin, SentryTraceOrigins.autoDbSqfliteOpenDatabase);
+      expect((db as SentryDatabase).dbName, inMemoryDatabasePath);
 
       await db.close();
     });

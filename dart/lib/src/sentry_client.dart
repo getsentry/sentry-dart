@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:meta/meta.dart';
+import 'sentry_baggage.dart';
 import 'sentry_attachment/sentry_attachment.dart';
 
 import 'event_processor.dart';
@@ -122,11 +123,24 @@ class SentryClient {
       attachments.add(viewHierarchy);
     }
 
+    var traceContext = scope?.span?.traceContext();
+    if (traceContext == null) {
+      if (scope?.propagationContext.baggage == null) {
+        scope?.propagationContext.baggage =
+            SentryBaggage({}, logger: _options.logger);
+        scope?.propagationContext.baggage?.setValuesFromScope(scope, _options);
+      }
+      if (scope != null) {
+        traceContext = SentryTraceContextHeader.fromBaggage(
+            scope.propagationContext.baggage!);
+      }
+    }
+
     final envelope = SentryEnvelope.fromEvent(
       preparedEvent,
       _options.sdk,
       dsn: _options.dsn,
-      traceContext: scope?.span?.traceContext(),
+      traceContext: traceContext,
       attachments: attachments.isNotEmpty ? attachments : null,
     );
 
