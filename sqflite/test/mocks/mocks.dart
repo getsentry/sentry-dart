@@ -33,7 +33,9 @@ ISentrySpan startTransactionShim(
     DatabaseExecutor,
   ],
   customMocks: [
-    MockSpec<Hub>(fallbackGenerators: {#startTransaction: startTransactionShim}),
+    MockSpec<Hub>(
+      fallbackGenerators: {#startTransaction: startTransactionShim},
+    ),
   ],
 )
 void main() {}

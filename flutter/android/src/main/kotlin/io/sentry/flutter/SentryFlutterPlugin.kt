@@ -21,6 +21,7 @@ import io.sentry.SentryOptions
 import io.sentry.android.core.ActivityFramesTracker
 import io.sentry.android.core.AppStartState
 import io.sentry.android.core.BuildConfig.VERSION_NAME
+import io.sentry.android.core.InternalSentrySdk
 import io.sentry.android.core.LoadClass
 import io.sentry.android.core.SentryAndroid
 import io.sentry.android.core.SentryAndroidOptions
@@ -65,6 +66,7 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       "removeExtra" -> removeExtra(call.argument("key"), result)
       "setTag" -> setTag(call.argument("key"), call.argument("value"), result)
       "removeTag" -> removeTag(call.argument("key"), result)
+      "loadContexts" -> loadContexts(result)
       else -> result.notImplemented()
     }
   }
@@ -92,18 +94,6 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
   override fun onDetachedFromActivityForConfigChanges() {
     // Stub
-  }
-
-  private fun writeEnvelope(envelope: ByteArray): Boolean {
-    val options = HubAdapter.getInstance().options
-    if (options.outboxPath.isNullOrEmpty()) {
-      return false
-    }
-
-    val file = File(options.outboxPath, UUID.randomUUID().toString())
-    file.writeBytes(envelope)
-
-    return true
   }
 
   private fun initNativeSdk(call: MethodCall, result: Result) {
@@ -356,20 +346,19 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
       result.error("1", "The Sentry Android SDK is disabled", null)
       return
     }
-
-    val args = call.arguments() as List<Any>? ?: listOf<Any>()
+    val args = call.arguments() as List<Any>? ?: listOf()
     if (args.isNotEmpty()) {
       val event = args.first() as ByteArray?
-
       if (event != null && event.isNotEmpty()) {
-        if (!writeEnvelope(event)) {
-          result.error("2", "SentryOptions or outboxPath are null or empty", null)
+        val id = InternalSentrySdk.captureEnvelope(event)
+        if (id != null) {
+          result.success("")
+        } else {
+          result.error("2", "Failed to capture envelope", null)
         }
-        result.success("")
         return
       }
     }
-
     result.error("3", "Envelope is null or empty", null)
   }
 
@@ -453,6 +442,21 @@ class SentryFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         }
       }
     }
+  }
+
+  private fun loadContexts(result: Result) {
+    val options = HubAdapter.getInstance().options
+    if (options !is SentryAndroidOptions) {
+      result.success(null)
+      return
+    }
+    val currentScope = InternalSentrySdk.getCurrentScope()
+    val serializedScope = InternalSentrySdk.serializeScope(
+      context,
+      options,
+      currentScope
+    )
+    result.success(serializedScope)
   }
 }
 
