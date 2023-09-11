@@ -257,6 +257,8 @@ class JvmException {
     }
 
     final thisExceptionFrames = thisException
+        // Sometimes stringified exceptions from the native side have
+        // empty lines. Discard those!
         .where((line) => line.trim().isNotEmpty)
         .map((e) => JvmFrame.parse(e))
         .toList(growable: false);
