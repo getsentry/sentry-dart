@@ -86,7 +86,7 @@ void main() {
     expect(exception.stackTrace[0].lineNumber, 292);
   });
 
-  test('parse drops frames with `at ` and empty original frame', () {
+  test('parse drops empty frames', () {
     final exception = JvmException.parse(platformExceptionWithEmptyStackFrames);
     expect(exception.stackTrace.length, 13);
     expect(exception.stackTrace.last.className,
@@ -220,5 +220,5 @@ java.lang.RuntimeException: Catch this platform exception!
     at java.lang.reflect.Method.invoke
     at com.android.internal.os.RuntimeInit\$MethodAndArgsCaller.run(RuntimeInit.java:548)
     at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:936)
-    at
+
     ''';

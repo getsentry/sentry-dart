@@ -58,8 +58,11 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
     @internal Hub? hub,
   })  : _hub = hub ?? HubAdapter(),
         dbName = p.basenameWithoutExtension(_database.path),
-        super(_database,
-            hub: hub, dbName: p.basenameWithoutExtension(_database.path)) {
+        super(
+          _database,
+          hub: hub,
+          dbName: p.basenameWithoutExtension(_database.path),
+        ) {
     // ignore: invalid_use_of_internal_member
     final options = _hub.options;
     options.sdk.addIntegration('SentrySqfliteTracing');
@@ -132,8 +135,12 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
       setDatabaseAttributeData(span, dbName);
 
       Future<T> newAction(Transaction txn) async {
-        final executor = SentryDatabaseExecutor(txn,
-            parentSpan: span, hub: _hub, dbName: dbName);
+        final executor = SentryDatabaseExecutor(
+          txn,
+          parentSpan: span,
+          hub: _hub,
+          dbName: dbName,
+        );
         final sentrySqfliteTransaction =
             SentrySqfliteTransaction(executor, hub: _hub, dbName: dbName);
 
