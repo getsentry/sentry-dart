@@ -5,6 +5,7 @@ import 'package:meta/meta.dart';
 import 'hint.dart';
 import 'hub.dart';
 import 'protocol.dart';
+import 'scope.dart';
 import 'sentry_client.dart';
 import 'sentry_options.dart';
 import 'sentry_user_feedback.dart';
@@ -118,4 +119,7 @@ class NoOpHub implements Hub {
 
   @override
   void setSpanContext(throwable, ISentrySpan span, String transaction) {}
+
+  @override
+  Scope get scope => Scope(_options);
 }

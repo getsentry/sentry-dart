@@ -27,7 +27,7 @@ class SentryTransformer implements Transformer {
           description: description,
         );
 
-    span?.setData('http.method', options.method);
+    span?.setData('http.request.method', options.method);
     // ignore: invalid_use_of_internal_member
     span?.origin = SentryTraceOrigins.autoHttpDioTransformer;
 
@@ -65,7 +65,7 @@ class SentryTransformer implements Transformer {
           description: description,
         );
 
-    span?.setData('http.method', options.method);
+    span?.setData('http.request.method', options.method);
     // ignore: invalid_use_of_internal_member
     span?.origin = SentryTraceOrigins.autoHttpDioTransformer;
 

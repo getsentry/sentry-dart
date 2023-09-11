@@ -79,4 +79,13 @@ class SentryTraceContextHeader {
 
     return baggage;
   }
+
+  factory SentryTraceContextHeader.fromBaggage(SentryBaggage baggage) {
+    return SentryTraceContextHeader(
+      SentryId.fromId(baggage.get('sentry-trace_id').toString()),
+      baggage.get('sentry-public_key').toString(),
+      release: baggage.get('sentry-release'),
+      environment: baggage.get('sentry-environment'),
+    );
+  }
 }

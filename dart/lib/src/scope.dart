@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:meta/meta.dart';
+
 import 'event_processor.dart';
 import 'hint.dart';
+import 'propagation_context.dart';
 import 'protocol.dart';
 import 'scope_observer.dart';
 import 'sentry_attachment/sentry_attachment.dart';
@@ -38,6 +41,9 @@ class Scope {
 
   /// Returns active transaction or null if there is no active transaction.
   ISentrySpan? span;
+
+  @internal
+  PropagationContext propagationContext = PropagationContext();
 
   SentryUser? _user;
 
@@ -312,10 +318,15 @@ class Scope {
     });
 
     final newSpan = span;
-    if (event.contexts.trace == null && newSpan != null) {
-      event.contexts.trace = newSpan.context.toTraceContext(
-        sampled: newSpan.samplingDecision?.sampled,
-      );
+    if (event.contexts.trace == null) {
+      if (newSpan != null) {
+        event.contexts.trace = newSpan.context.toTraceContext(
+          sampled: newSpan.samplingDecision?.sampled,
+        );
+      } else {
+        event.contexts.trace =
+            SentryTraceContext.fromPropagationContext(propagationContext);
+      }
     }
 
     SentryEvent? processedEvent = event;
