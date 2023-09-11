@@ -2,9 +2,6 @@
 
 ## Unreleased
 
-### Features
-
-- Add `SentryNavigatorObserver` current route to `event.app.contexts.viewNames` ([#1545](https://github.com/getsentry/sentry-dart/pull/1545))
 ### Enhancements
 
 - Add http.request.method attribute to http spans data ([#1633](https://github.com/getsentry/sentry-dart/pull/1633))
@@ -13,6 +10,7 @@
 ### Features
 
 - Tracing without performance ([#1621](https://github.com/getsentry/sentry-dart/pull/1621))
+- Add `SentryNavigatorObserver` current route to `event.app.contexts.viewNames` ([#1545](https://github.com/getsentry/sentry-dart/pull/1545))
 
 ### Fixes
 
