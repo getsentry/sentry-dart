@@ -5,6 +5,8 @@ import 'package:sqflite/sqflite.dart';
 import 'sentry_database_executor.dart';
 import 'sentry_sqflite_transaction.dart';
 import 'version.dart';
+import 'utils/sentry_database_span_attributes.dart';
+import 'package:path/path.dart' as p;
 
 /// A [Database] wrapper that adds Sentry support.
 ///
@@ -31,6 +33,18 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
   static const dbSqlQueryOp = 'db.sql.query';
 
   static const _dbSqlOp = 'db.sql.transaction';
+  @internal
+  // ignore: public_member_api_docs
+  static const dbSystemKey = 'db.system';
+  @internal
+  // ignore: public_member_api_docs
+  static const dbSystem = 'sqlite';
+  @internal
+  // ignore: public_member_api_docs
+  static const dbNameKey = 'db.name';
+  @internal
+  // ignore: public_member_api_docs
+  String dbName;
 
   /// ```dart
   /// import 'package:sqflite/sqflite.dart';
@@ -43,7 +57,9 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
     this._database, {
     @internal Hub? hub,
   })  : _hub = hub ?? HubAdapter(),
-        super(_database, hub: hub) {
+        dbName = p.basenameWithoutExtension(_database.path),
+        super(_database,
+            hub: hub, dbName: p.basenameWithoutExtension(_database.path)) {
     // ignore: invalid_use_of_internal_member
     final options = _hub.options;
     options.sdk.addIntegration('SentrySqfliteTracing');
@@ -113,12 +129,13 @@ class SentryDatabase extends SentryDatabaseExecutor implements Database {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabase;
+      setDatabaseAttributeData(span, dbName);
 
       Future<T> newAction(Transaction txn) async {
-        final executor =
-            SentryDatabaseExecutor(txn, parentSpan: span, hub: _hub);
+        final executor = SentryDatabaseExecutor(txn,
+            parentSpan: span, hub: _hub, dbName: dbName);
         final sentrySqfliteTransaction =
-            SentrySqfliteTransaction(executor, hub: _hub);
+            SentrySqfliteTransaction(executor, hub: _hub, dbName: dbName);
 
         return await action(sentrySqfliteTransaction);
       }

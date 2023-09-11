@@ -46,7 +46,7 @@ class TracingClientAdapter implements HttpClientAdapter {
       span = null;
     }
 
-    span?.setData('http.method', options.method);
+    span?.setData('http.request.method', options.method);
     urlDetails?.applyToSpan(span);
 
     ResponseBody? response;
@@ -57,8 +57,8 @@ class TracingClientAdapter implements HttpClientAdapter {
           _hub.options.tracePropagationTargets,
           options.uri.toString(),
         )) {
-          addSentryTraceHeader(span, options.headers);
-          addBaggageHeader(
+          addSentryTraceHeaderFromSpan(span, options.headers);
+          addBaggageHeaderFromSpan(
             span,
             options.headers,
             // ignore: invalid_use_of_internal_member

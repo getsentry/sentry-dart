@@ -7,24 +7,28 @@ import 'package:sqflite_common/src/sql_builder.dart';
 
 import 'sentry_batch.dart';
 import 'sentry_database.dart';
+import 'utils/sentry_database_span_attributes.dart';
 
 @internal
 // ignore: public_member_api_docs
 class SentryDatabaseExecutor implements DatabaseExecutor {
   final DatabaseExecutor _executor;
   final ISentrySpan? _parentSpan;
+  final String? _dbName;
 
   // ignore: public_member_api_docs
   SentryDatabaseExecutor(
     this._executor, {
     ISentrySpan? parentSpan,
     @internal Hub? hub,
+    @internal String? dbName,
   })  : _parentSpan = parentSpan,
-        _hub = hub ?? HubAdapter();
+        _hub = hub ?? HubAdapter(),
+        _dbName = dbName;
   final Hub _hub;
 
   @override
-  Batch batch() => SentryBatch(_executor.batch(), hub: _hub);
+  Batch batch() => SentryBatch(_executor.batch(), hub: _hub, dbName: _dbName);
 
   @override
   Database get database => _executor.database;
@@ -41,6 +45,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
+      setDatabaseAttributeData(span, _dbName);
 
       try {
         final result =
@@ -68,8 +73,10 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
         SentryDatabase.dbSqlExecuteOp,
         description: sql,
       );
+      span?.setData(SentryDatabase.dbSystemKey, SentryDatabase.dbSystem);
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
+      setDatabaseAttributeData(span, _dbName);
 
       try {
         await _executor.execute(sql, arguments);
@@ -107,6 +114,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
+      setDatabaseAttributeData(span, _dbName);
 
       try {
         final result = await _executor.insert(
@@ -163,6 +171,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
+      setDatabaseAttributeData(span, _dbName);
 
       try {
         final result = await _executor.query(
@@ -226,6 +235,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
+      setDatabaseAttributeData(span, _dbName);
 
       try {
         final result = await _executor.queryCursor(
@@ -266,6 +276,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
+      setDatabaseAttributeData(span, _dbName);
 
       try {
         final result = await _executor.rawDelete(sql, arguments);
@@ -294,6 +305,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
+      setDatabaseAttributeData(span, _dbName);
 
       try {
         final result = await _executor.rawInsert(sql, arguments);
@@ -325,6 +337,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
+      setDatabaseAttributeData(span, _dbName);
 
       try {
         final result = await _executor.rawQuery(sql, arguments);
@@ -357,6 +370,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
+      setDatabaseAttributeData(span, _dbName);
 
       try {
         final result = await _executor.rawQueryCursor(
@@ -389,6 +403,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
+      setDatabaseAttributeData(span, _dbName);
 
       try {
         final result = await _executor.rawUpdate(sql, arguments);
@@ -430,6 +445,7 @@ class SentryDatabaseExecutor implements DatabaseExecutor {
       );
       // ignore: invalid_use_of_internal_member
       span?.origin = SentryTraceOrigins.autoDbSqfliteDatabaseExecutor;
+      setDatabaseAttributeData(span, _dbName);
 
       try {
         final result = await _executor.update(

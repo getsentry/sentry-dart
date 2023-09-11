@@ -38,6 +38,7 @@ void main() {
       final db = await openDatabase(inMemoryDatabasePath);
 
       expect(db is SentryDatabase, true);
+      expect((db as SentryDatabase).dbName, inMemoryDatabasePath);
 
       await db.close();
     });
@@ -56,9 +57,10 @@ void main() {
         () async {
       final db = await openDatabase(inMemoryDatabasePath);
 
+      expect((db as SentryDatabase).dbName, inMemoryDatabasePath);
+
       final span = fixture.tracer.children.last;
       expect(span.context.operation, 'db');
-      expect(span.context.description, 'Open DB: $inMemoryDatabasePath');
       expect(span.context.description, 'Open DB: $inMemoryDatabasePath');
 
       expect(
