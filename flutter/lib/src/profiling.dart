@@ -8,7 +8,7 @@ import 'package:sentry/src/sentry_envelope_item_header.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/sentry_item_type.dart';
 
-import 'sentry_native.dart';
+import 'native/sentry_native.dart';
 
 // ignore: invalid_use_of_internal_member
 class NativeProfilerFactory implements ProfilerFactory {
