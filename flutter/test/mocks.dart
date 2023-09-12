@@ -4,21 +4,26 @@ import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/binding.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
-import 'package:sentry/sentry.dart';
 import 'package:sentry/src/platform/platform.dart';
 import 'package:sentry/src/sentry_tracer.dart';
 
 import 'package:meta/meta.dart';
-import 'package:sentry_flutter/src/binding_wrapper.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
 import 'package:sentry_flutter/src/native/sentry_native.dart';
-import 'package:sentry_flutter/src/native/sentry_native_channel.dart';
+import 'package:sentry_flutter/src/native/sentry_native_binding.dart';
 
 import 'mocks.mocks.dart';
 import 'no_such_method_provider.dart';
 
 const fakeDsn = 'https://abc@def.ingest.sentry.io/1234567';
 const fakeProguardUuid = '3457d982-65ef-576d-a6ad-65b5f30f49a5';
+
+// TODO use this everywhere in tests so that we don't get exceptions swallowed.
+SentryFlutterOptions defaultTestOptions() {
+  // ignore: invalid_use_of_internal_member
+  return SentryFlutterOptions(dsn: fakeDsn)..devMode = true;
+}
 
 // https://github.com/dart-lang/mockito/blob/master/NULL_SAFETY_README.md#fallback-generators
 ISentrySpan startTransactionShim(
@@ -146,7 +151,7 @@ class MockPlatformChecker with NoSuchMethodProvider implements PlatformChecker {
 // Does nothing or returns default values.
 // Useful for when a Hub needs to be passed but is not used.
 class NoOpHub with NoSuchMethodProvider implements Hub {
-  final _options = SentryOptions(dsn: 'fixture-dsn');
+  final _options = defaultTestOptions();
 
   @override
   @internal
@@ -160,9 +165,6 @@ class NoOpHub with NoSuchMethodProvider implements Hub {
 class TestMockSentryNative implements SentryNative {
   @override
   DateTime? appStartEnd;
-
-  @override
-  SentryNativeChannel? nativeChannel;
 
   bool _didFetchAppStart = false;
 
@@ -278,9 +280,9 @@ class TestMockSentryNative implements SentryNative {
   }
 
   @override
-  Future<int?> startProfiler(SentryId traceId) {
+  int? startProfiler(SentryId traceId) {
     numberOfStartProfilerCalls++;
-    return Future.value(42);
+    return 42;
   }
 
   @override
@@ -291,7 +293,7 @@ class TestMockSentryNative implements SentryNative {
 }
 
 // TODO can this be replaced with https://pub.dev/packages/mockito#verifying-exact-number-of-invocations--at-least-x--never
-class MockNativeChannel implements SentryNativeChannel {
+class MockNativeChannel implements SentryNativeBinding {
   NativeAppStart? nativeAppStart;
   NativeFrames? nativeFrames;
   SentryId? id;
@@ -379,9 +381,9 @@ class MockNativeChannel implements SentryNativeChannel {
   }
 
   @override
-  Future<int?> startProfiler(SentryId traceId) {
+  int? startProfiler(SentryId traceId) {
     numberOfStartProfilerCalls++;
-    return Future.value(null);
+    return null;
   }
 
   @override

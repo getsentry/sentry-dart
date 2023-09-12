@@ -11,10 +11,11 @@ import 'event_processor/flutter_exception_event_processor.dart';
 import 'event_processor/platform_exception_event_processor.dart';
 import 'integrations/screenshot_integration.dart';
 import 'native/native_scope_observer.dart';
+import 'native/sentry_native_channel.dart';
 import 'profiling.dart';
 import 'renderer/renderer.dart';
 import 'native/sentry_native.dart';
-import 'native/sentry_native_channel.dart';
+import 'native/sentry_native_binding.dart';
 
 import 'integrations/integrations.dart';
 import 'event_processor/flutter_enricher_event_processor.dart';
@@ -49,9 +50,18 @@ mixin SentryFlutter {
     }
 
     if (flutterOptions.platformChecker.hasNativeIntegration) {
+      late final SentryNativeBinding binding;
+
       // Set a default native channel to the singleton SentryNative instance.
-      SentryNative().nativeChannel =
-          SentryNativeChannel(channel, flutterOptions);
+      if (flutterOptions.platformChecker.platform.isIOS ||
+          flutterOptions.platformChecker.platform.isMacOS) {
+        // TODO SentryNativeCocoa(channel);
+        binding = SentryNativeChannel(channel);
+      } else {
+        binding = SentryNativeChannel(channel);
+      }
+
+      _native = SentryNative(flutterOptions, binding);
     }
 
     final platformDispatcher = PlatformDispatcher.instance;
@@ -92,8 +102,10 @@ mixin SentryFlutter {
       runZonedGuardedOnError: runZonedGuardedOnError,
     );
 
-    // ignore: invalid_use_of_internal_member
-    NativeProfilerFactory.attachTo(Sentry.currentHub);
+    if (_native != null) {
+      // ignore: invalid_use_of_internal_member
+      NativeProfilerFactory.attachTo(Sentry.currentHub, _native!);
+    }
   }
 
   static Future<void> _initDefaultValues(
@@ -103,9 +115,9 @@ mixin SentryFlutter {
     options.addEventProcessor(FlutterExceptionEventProcessor());
 
     // Not all platforms have a native integration.
-    if (options.platformChecker.hasNativeIntegration) {
+    if (_native != null) {
       options.transport = FileSystemTransport(channel, options);
-      options.addScopeObserver(NativeScopeObserver(SentryNative()));
+      options.addScopeObserver(NativeScopeObserver(_native!));
     }
 
     var flutterEventProcessor = FlutterEnricherEventProcessor(options);
@@ -181,9 +193,9 @@ mixin SentryFlutter {
     // in errors.
     integrations.add(LoadReleaseIntegration());
 
-    if (platformChecker.hasNativeIntegration) {
+    if (_native != null) {
       integrations.add(NativeAppStartIntegration(
-        SentryNative(),
+        _native!,
         () {
           try {
             /// Flutter >= 2.12 throws if SchedulerBinding.instance isn't initialized.
@@ -209,7 +221,7 @@ mixin SentryFlutter {
   /// Manually set when your app finished startup. Make sure to set
   /// [SentryFlutterOptions.autoAppStart] to false on init.
   static void setAppStartEnd(DateTime appStartEnd) {
-    SentryNative().appStartEnd = appStartEnd;
+    _native?.appStartEnd = appStartEnd;
   }
 
   static void _setSdk(SentryFlutterOptions options) {
@@ -223,4 +235,10 @@ mixin SentryFlutter {
     sdk.addPackage('pub:sentry_flutter', sdkVersion);
     options.sdk = sdk;
   }
+
+  @internal
+  static SentryNative? get native => _native;
+  @internal
+  static set native(SentryNative? value) => _native = value;
+  static SentryNative? _native;
 }

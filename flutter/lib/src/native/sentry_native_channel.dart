@@ -6,179 +6,102 @@ import 'package:meta/meta.dart';
 import '../../sentry_flutter.dart';
 import 'sentry_native.dart';
 import 'method_channel_helper.dart';
+import 'sentry_native_binding.dart';
 
 /// Provide typed methods to access native layer via MethodChannel.
 @internal
-class SentryNativeChannel {
-  SentryNativeChannel(this._channel, this._options);
+class SentryNativeChannel implements SentryNativeBinding {
+  SentryNativeChannel(this._channel);
 
   final MethodChannel _channel;
-  final SentryFlutterOptions _options;
 
   // TODO Move other native calls here.
 
+  @override
   Future<NativeAppStart?> fetchNativeAppStart() async {
-    try {
-      final json = await _channel
-          .invokeMapMethod<String, dynamic>('fetchNativeAppStart');
-      return (json != null) ? NativeAppStart.fromJson(json) : null;
-    } catch (error, stackTrace) {
-      _logError('fetchNativeAppStart', error, stackTrace);
-      return null;
-    }
+    final json =
+        await _channel.invokeMapMethod<String, dynamic>('fetchNativeAppStart');
+    return (json != null) ? NativeAppStart.fromJson(json) : null;
   }
 
-  Future<void> beginNativeFrames() async {
-    try {
-      await _channel.invokeMethod('beginNativeFrames');
-    } catch (error, stackTrace) {
-      _logError('beginNativeFrames', error, stackTrace);
-    }
-  }
+  @override
+  Future<void> beginNativeFrames() =>
+      _channel.invokeMethod('beginNativeFrames');
 
+  @override
   Future<NativeFrames?> endNativeFrames(SentryId id) async {
-    try {
-      final json = await _channel.invokeMapMethod<String, dynamic>(
-          'endNativeFrames', {'id': id.toString()});
-      return (json != null) ? NativeFrames.fromJson(json) : null;
-    } catch (error, stackTrace) {
-      _logError('endNativeFrames', error, stackTrace);
-      return null;
-    }
+    final json = await _channel.invokeMapMethod<String, dynamic>(
+        'endNativeFrames', {'id': id.toString()});
+    return (json != null) ? NativeFrames.fromJson(json) : null;
   }
 
+  @override
   Future<void> setUser(SentryUser? user) async {
-    try {
-      final normalizedUser = user?.copyWith(
-        data: MethodChannelHelper.normalizeMap(user.data),
-      );
-      await _channel.invokeMethod(
-        'setUser',
-        {'user': normalizedUser?.toJson()},
-      );
-    } catch (error, stackTrace) {
-      _logError('setUser', error, stackTrace);
-    }
+    final normalizedUser = user?.copyWith(
+      data: MethodChannelHelper.normalizeMap(user.data),
+    );
+    await _channel.invokeMethod(
+      'setUser',
+      {'user': normalizedUser?.toJson()},
+    );
   }
 
+  @override
   Future<void> addBreadcrumb(Breadcrumb breadcrumb) async {
-    try {
-      final normalizedBreadcrumb = breadcrumb.copyWith(
-        data: MethodChannelHelper.normalizeMap(breadcrumb.data),
-      );
-      await _channel.invokeMethod(
-        'addBreadcrumb',
-        {'breadcrumb': normalizedBreadcrumb.toJson()},
-      );
-    } catch (error, stackTrace) {
-      _logError('addBreadcrumb', error, stackTrace);
-    }
+    final normalizedBreadcrumb = breadcrumb.copyWith(
+      data: MethodChannelHelper.normalizeMap(breadcrumb.data),
+    );
+    await _channel.invokeMethod(
+      'addBreadcrumb',
+      {'breadcrumb': normalizedBreadcrumb.toJson()},
+    );
   }
 
-  Future<void> clearBreadcrumbs() async {
-    try {
-      await _channel.invokeMethod('clearBreadcrumbs');
-    } catch (error, stackTrace) {
-      _logError('clearBreadcrumbs', error, stackTrace);
-    }
-  }
+  @override
+  Future<void> clearBreadcrumbs() => _channel.invokeMethod('clearBreadcrumbs');
 
-  Future<void> setContexts(String key, dynamic value) async {
-    try {
-      final normalizedValue = MethodChannelHelper.normalize(value);
-      await _channel.invokeMethod(
+  @override
+  Future<void> setContexts(String key, dynamic value) => _channel.invokeMethod(
         'setContexts',
-        {'key': key, 'value': normalizedValue},
+        {'key': key, 'value': MethodChannelHelper.normalize(value)},
       );
-    } catch (error, stackTrace) {
-      _logError('setContexts', error, stackTrace);
-    }
-  }
 
-  Future<void> removeContexts(String key) async {
-    try {
-      await _channel.invokeMethod('removeContexts', {'key': key});
-    } catch (error, stackTrace) {
-      _logError('removeContexts', error, stackTrace);
-    }
-  }
+  @override
+  Future<void> removeContexts(String key) =>
+      _channel.invokeMethod('removeContexts', {'key': key});
 
-  Future<void> setExtra(String key, dynamic value) async {
-    try {
-      final normalizedValue = MethodChannelHelper.normalize(value);
-      await _channel.invokeMethod(
+  @override
+  Future<void> setExtra(String key, dynamic value) => _channel.invokeMethod(
         'setExtra',
-        {'key': key, 'value': normalizedValue},
+        {'key': key, 'value': MethodChannelHelper.normalize(value)},
       );
-    } catch (error, stackTrace) {
-      _logError('setExtra', error, stackTrace);
-    }
-  }
 
-  Future<void> removeExtra(String key) async {
-    try {
-      await _channel.invokeMethod('removeExtra', {'key': key});
-    } catch (error, stackTrace) {
-      _logError('removeExtra', error, stackTrace);
-    }
-  }
+  @override
+  Future<void> removeExtra(String key) =>
+      _channel.invokeMethod('removeExtra', {'key': key});
 
-  Future<void> setTag(String key, String value) async {
-    try {
-      await _channel.invokeMethod('setTag', {'key': key, 'value': value});
-    } catch (error, stackTrace) {
-      _logError('setTag', error, stackTrace);
-    }
-  }
+  @override
+  Future<void> setTag(String key, String value) =>
+      _channel.invokeMethod('setTag', {'key': key, 'value': value});
 
-  Future<void> removeTag(String key) async {
-    try {
-      await _channel.invokeMethod('removeTag', {'key': key});
-    } catch (error, stackTrace) {
-      _logError('removeTag', error, stackTrace);
-    }
-  }
+  @override
+  Future<void> removeTag(String key) =>
+      _channel.invokeMethod('removeTag', {'key': key});
 
-  Future<int?> startProfiler(SentryId traceId) async {
-    try {
-      return await _channel.invokeMethod('startProfiler', traceId.toString())
-          as int?;
-    } catch (error, stackTrace) {
-      _logError('startProfiler', error, stackTrace);
-      return null;
-    }
-  }
+  @override
+  int? startProfiler(SentryId traceId) =>
+      throw UnsupportedError("Not supported on this platform");
 
-  Future<void> discardProfiler(SentryId traceId) async {
-    try {
-      return await _channel.invokeMethod('discardProfiler', traceId.toString());
-    } catch (error, stackTrace) {
-      _logError('discardProfiler', error, stackTrace);
-    }
-  }
+  @override
+  Future<void> discardProfiler(SentryId traceId) =>
+      _channel.invokeMethod('discardProfiler', traceId.toString());
 
+  @override
   Future<Map<String, dynamic>?> collectProfile(
-      SentryId traceId, int startTimeNs, int endTimeNs) async {
-    try {
-      return await _channel.invokeMapMethod<String, dynamic>('collectProfile', {
+          SentryId traceId, int startTimeNs, int endTimeNs) =>
+      _channel.invokeMapMethod<String, dynamic>('collectProfile', {
         'traceId': traceId.toString(),
         'startTime': startTimeNs,
         'endTime': endTimeNs,
       });
-    } catch (error, stackTrace) {
-      _logError('collectProfile', error, stackTrace);
-      return null;
-    }
-  }
-
-  // Helper
-
-  void _logError(String nativeMethodName, Object error, StackTrace stackTrace) {
-    _options.logger(
-      SentryLevel.error,
-      'Native call `$nativeMethodName` failed',
-      exception: error,
-      stackTrace: stackTrace,
-    );
-  }
 }

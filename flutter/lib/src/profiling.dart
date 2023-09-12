@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:sentry/sentry.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/profiling.dart';
 // ignore: implementation_imports
@@ -8,6 +7,7 @@ import 'package:sentry/src/sentry_envelope_item_header.dart';
 // ignore: implementation_imports
 import 'package:sentry/src/sentry_item_type.dart';
 
+import '../sentry_flutter.dart';
 import 'native/sentry_native.dart';
 
 // ignore: invalid_use_of_internal_member
@@ -17,7 +17,7 @@ class NativeProfilerFactory implements ProfilerFactory {
 
   NativeProfilerFactory(this._native, this._clock);
 
-  static void attachTo(Hub hub) {
+  static void attachTo(Hub hub, SentryNative native) {
     // ignore: invalid_use_of_internal_member
     final options = hub.options;
 
@@ -33,9 +33,7 @@ class NativeProfilerFactory implements ProfilerFactory {
     if (options.platformChecker.platform.isMacOS ||
         options.platformChecker.platform.isIOS) {
       // ignore: invalid_use_of_internal_member
-      hub.profilerFactory =
-          // ignore: invalid_use_of_internal_member
-          NativeProfilerFactory(SentryNative(), options.clock);
+      hub.profilerFactory = NativeProfilerFactory(native, options.clock);
     }
   }
 
@@ -52,7 +50,9 @@ class NativeProfilerFactory implements ProfilerFactory {
     //  synchronous and actually start the profiler, we need synchronous FFI
     //  calls, see https://github.com/getsentry/sentry-dart/issues/1444
     //  For now, return immediately even though the profiler may not have started yet...
-    return NativeProfiler(_native, startTime, context.traceId, _clock);
+    // XXX fixme future.value
+    return NativeProfiler(
+        _native, Future.value(startTime), context.traceId, _clock);
   }
 }
 
@@ -104,6 +104,13 @@ class NativeProfiler implements Profiler {
     payload["transaction"]["name"] = transaction.transaction;
     payload["timestamp"] = transaction.startTimestamp.toIso8601String();
     return NativeProfileInfo(payload);
+    // final cSentryId = c.SentryId.alloc(_ffi)
+    //   ..initWithUUIDString_(c.NSString(_ffi, context.traceId.toString()));
+    // final startTime =
+    //     c.PrivateSentrySDKOnly.startProfilerForTrace_(_ffi, cSentryId);
+
+    // return NativeProfiler(
+    //     _native, Future.value(startTime), context.traceId, _clock);
   }
 }
 

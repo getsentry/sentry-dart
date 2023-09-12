@@ -7,7 +7,6 @@ import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:sentry_flutter/src/integrations/screenshot_integration.dart';
 import 'package:sentry_flutter/src/profiling.dart';
 import 'package:sentry_flutter/src/renderer/renderer.dart';
-import 'package:sentry_flutter/src/native/sentry_native.dart';
 import 'package:sentry_flutter/src/version.dart';
 import 'package:sentry_flutter/src/view_hierarchy/view_hierarchy_integration.dart';
 import 'mocks.dart';
@@ -51,9 +50,7 @@ void main() {
     setUp(() async {
       loadTestPackage();
       await Sentry.close();
-      final sentryNative = SentryNative();
-      sentryNative.nativeChannel = null;
-      sentryNative.reset();
+      SentryFlutter.native = null;
     });
 
     test('Android', () async {
@@ -101,7 +98,7 @@ void main() {
           beforeIntegration: WidgetsFlutterBindingIntegration,
           afterIntegration: OnErrorIntegration);
 
-      expect(SentryNative().nativeChannel, isNotNull);
+      expect(SentryFlutter.native, isNotNull);
       expect(Sentry.currentHub.profilerFactory, isNull);
 
       await Sentry.close();
@@ -149,7 +146,7 @@ void main() {
           beforeIntegration: WidgetsFlutterBindingIntegration,
           afterIntegration: OnErrorIntegration);
 
-      expect(SentryNative().nativeChannel, isNotNull);
+      expect(SentryFlutter.native, isNotNull);
       expect(Sentry.currentHub.profilerFactory,
           isInstanceOf<NativeProfilerFactory>());
 
@@ -198,7 +195,7 @@ void main() {
           beforeIntegration: WidgetsFlutterBindingIntegration,
           afterIntegration: OnErrorIntegration);
 
-      expect(SentryNative().nativeChannel, isNotNull);
+      expect(SentryFlutter.native, isNotNull);
       expect(Sentry.currentHub.profilerFactory,
           isInstanceOf<NativeProfilerFactory>());
 
@@ -250,7 +247,7 @@ void main() {
           beforeIntegration: WidgetsFlutterBindingIntegration,
           afterIntegration: OnErrorIntegration);
 
-      expect(SentryNative().nativeChannel, isNull);
+      expect(SentryFlutter.native, isNull);
       expect(Sentry.currentHub.profilerFactory, isNull);
 
       await Sentry.close();
@@ -301,7 +298,7 @@ void main() {
           beforeIntegration: WidgetsFlutterBindingIntegration,
           afterIntegration: OnErrorIntegration);
 
-      expect(SentryNative().nativeChannel, isNull);
+      expect(SentryFlutter.native, isNull);
       expect(Sentry.currentHub.profilerFactory, isNull);
 
       await Sentry.close();
@@ -353,7 +350,7 @@ void main() {
           beforeIntegration: RunZonedGuardedIntegration,
           afterIntegration: WidgetsFlutterBindingIntegration);
 
-      expect(SentryNative().nativeChannel, isNull);
+      expect(SentryFlutter.native, isNull);
       expect(Sentry.currentHub.profilerFactory, isNull);
 
       await Sentry.close();

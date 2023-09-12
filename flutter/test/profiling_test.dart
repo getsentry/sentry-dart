@@ -22,12 +22,12 @@ void main() {
 
     test('attachTo() respects sampling rate', () async {
       var hub = hubWithSampleRate(0.0);
-      NativeProfilerFactory.attachTo(hub);
+      NativeProfilerFactory.attachTo(hub, TestMockSentryNative());
       // ignore: invalid_use_of_internal_member
       verifyNever(hub.profilerFactory = any);
 
       hub = hubWithSampleRate(0.1);
-      NativeProfilerFactory.attachTo(hub);
+      NativeProfilerFactory.attachTo(hub, TestMockSentryNative());
       // ignore: invalid_use_of_internal_member
       verify(hub.profilerFactory = any);
     });

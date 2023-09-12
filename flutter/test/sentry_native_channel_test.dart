@@ -38,6 +38,8 @@ void main() {
 
     test('beginNativeFrames', () async {
       final sut = fixture.getSut();
+      when(fixture.methodChannel.invokeMethod('beginNativeFrames'))
+          .thenAnswer((realInvocation) async {});
       await sut.beginNativeFrames();
 
       verify(fixture.methodChannel.invokeMethod('beginNativeFrames'));
@@ -187,17 +189,10 @@ void main() {
           .invokeMethod('removeTag', {'key': 'fixture-key'}));
     });
 
-    test('startProfiler', () async {
-      final traceId = SentryId.newId();
-      when(fixture.methodChannel
-              .invokeMethod('startProfiler', traceId.toString()))
-          .thenAnswer((_) async {});
-
+    test('startProfiler', () {
       final sut = fixture.getSut();
-      await sut.startProfiler(traceId);
-
-      verify(fixture.methodChannel
-          .invokeMethod('startProfiler', traceId.toString()));
+      expect(() => sut.startProfiler(SentryId.newId()), throwsUnsupportedError);
+      verifyZeroInteractions(fixture.methodChannel);
     });
 
     test('discardProfiler', () async {
@@ -217,7 +212,8 @@ void main() {
       final traceId = SentryId.newId();
       const startTime = 42;
       const endTime = 50;
-      when(fixture.methodChannel.invokeMapMethod('collectProfile', {
+      when(fixture.methodChannel
+          .invokeMapMethod<String, dynamic>('collectProfile', {
         'traceId': traceId.toString(),
         'startTime': startTime,
         'endTime': endTime,
@@ -237,9 +233,8 @@ void main() {
 
 class Fixture {
   final methodChannel = MockMethodChannel();
-  final options = SentryFlutterOptions();
 
   SentryNativeChannel getSut() {
-    return SentryNativeChannel(methodChannel, options);
+    return SentryNativeChannel(methodChannel);
   }
 }

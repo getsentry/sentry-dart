@@ -33,21 +33,25 @@ void main() {
   }
 
   setUp(() {
-    SentryNative().reset();
     fixture = Fixture();
   });
 
-  tearDown(() {
-    SentryNative().reset();
-  });
-
   group('NativeFrames', () {
+    late MockNativeChannel mockNativeChannel;
+
+    setUp(() {
+      mockNativeChannel = MockNativeChannel();
+      SentryFlutter.native =
+          SentryNative(SentryFlutterOptions(dsn: fakeDsn), mockNativeChannel);
+    });
+
+    tearDown(() {
+      SentryFlutter.native = null;
+    });
+
     test('transaction start begins frames collection', () async {
       final currentRoute = route(RouteSettings(name: 'Current Route'));
       final mockHub = _MockHub();
-      final native = SentryNative();
-      final mockNativeChannel = MockNativeChannel();
-      native.nativeChannel = mockNativeChannel;
 
       final tracer = getMockSentryTracer();
       _whenAnyStart(mockHub, tracer);
@@ -65,16 +69,12 @@ void main() {
     test('transaction finish adds native frames to tracer', () async {
       final currentRoute = route(RouteSettings(name: 'Current Route'));
 
-      final options = SentryOptions(dsn: fakeDsn);
+      final options = defaultTestOptions();
       options.tracesSampleRate = 1;
       final hub = Hub(options);
 
       final nativeFrames = NativeFrames(3, 2, 1);
-      final mockNativeChannel = MockNativeChannel();
       mockNativeChannel.nativeFrames = nativeFrames;
-
-      final mockNative = SentryNative();
-      mockNative.nativeChannel = mockNativeChannel;
 
       final sut = fixture.getSut(
         hub: hub,
@@ -728,6 +728,8 @@ void main() {
 }
 
 class Fixture {
+  final mockNativeChannel = MockNativeChannel();
+
   SentryNavigatorObserver getSut({
     required Hub hub,
     bool enableAutoTransactions = true,
@@ -753,7 +755,7 @@ class Fixture {
 
 class _MockHub extends MockHub {
   @override
-  final options = SentryOptions(dsn: fakeDsn);
+  final options = defaultTestOptions();
 
   @override
   late final scope = Scope(options);
