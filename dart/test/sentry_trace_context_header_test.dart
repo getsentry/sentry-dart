@@ -14,6 +14,7 @@ void main() {
       'user_segment': 'user_segment',
       'transaction': 'transaction',
       'sample_rate': '1.0',
+      'sampled': 'false'
     };
     final context = SentryTraceContextHeader.fromJson(mapJson);
 
@@ -26,6 +27,7 @@ void main() {
       expect(context.userSegment, 'user_segment');
       expect(context.transaction, 'transaction');
       expect(context.sampleRate, '1.0');
+      expect(context.sampled, 'false');
     });
 
     test('toJson', () {
@@ -38,7 +40,7 @@ void main() {
       final baggage = context.toBaggage();
 
       expect(baggage.toHeaderString(),
-          'sentry-trace_id=${id.toString()},sentry-public_key=123,sentry-release=release,sentry-environment=environment,sentry-user_id=user_id,sentry-user_segment=user_segment,sentry-transaction=transaction,sentry-sample_rate=1.0');
+          'sentry-trace_id=${id.toString()},sentry-public_key=123,sentry-release=release,sentry-environment=environment,sentry-user_id=user_id,sentry-user_segment=user_segment,sentry-transaction=transaction,sentry-sample_rate=1.0,sentry-sampled=false');
     });
   });
 }

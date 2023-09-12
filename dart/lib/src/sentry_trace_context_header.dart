@@ -12,6 +12,7 @@ class SentryTraceContextHeader {
     this.userSegment,
     this.transaction,
     this.sampleRate,
+    this.sampled,
   });
 
   final SentryId traceId;
@@ -22,6 +23,7 @@ class SentryTraceContextHeader {
   final String? userSegment;
   final String? transaction;
   final String? sampleRate;
+  final String? sampled;
 
   /// Deserializes a [SentryTraceContextHeader] from JSON [Map].
   factory SentryTraceContextHeader.fromJson(Map<String, dynamic> json) {
@@ -34,6 +36,7 @@ class SentryTraceContextHeader {
       userSegment: json['user_segment'],
       transaction: json['transaction'],
       sampleRate: json['sample_rate'],
+      sampled: json['sampled'],
     );
   }
 
@@ -48,6 +51,7 @@ class SentryTraceContextHeader {
       if (userSegment != null) 'user_segment': userSegment,
       if (transaction != null) 'transaction': transaction,
       if (sampleRate != null) 'sample_rate': sampleRate,
+      if (sampled != null) 'sampled': sampled,
     };
   }
 
@@ -76,7 +80,9 @@ class SentryTraceContextHeader {
     if (sampleRate != null) {
       baggage.setSampleRate(sampleRate!);
     }
-
+    if (sampled != null) {
+      baggage.setSampled(sampled!);
+    }
     return baggage;
   }
 

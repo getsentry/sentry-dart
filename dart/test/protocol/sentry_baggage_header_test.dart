@@ -20,11 +20,12 @@ void main() {
       baggage.setUserSegment('userSegment');
       baggage.setTransaction('transaction');
       baggage.setSampleRate('1.0');
+      baggage.setSampled('false');
 
       final baggageHeader = SentryBaggageHeader.fromBaggage(baggage);
 
       expect(baggageHeader.value,
-          'sentry-trace_id=$id,sentry-public_key=publicKey,sentry-release=release,sentry-environment=environment,sentry-user_id=userId,sentry-user_segment=userSegment,sentry-transaction=transaction,sentry-sample_rate=1.0');
+          'sentry-trace_id=$id,sentry-public_key=publicKey,sentry-release=release,sentry-environment=environment,sentry-user_id=userId,sentry-user_segment=userSegment,sentry-transaction=transaction,sentry-sample_rate=1.0,sentry-sampled=false');
     });
   });
 }
