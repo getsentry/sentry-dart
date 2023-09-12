@@ -328,7 +328,7 @@ class MainScaffold extends StatelessWidget {
                     status: const SpanStatus.internalError());
 
                 await Future.delayed(const Duration(milliseconds: 50));
-
+                findPrimeNumber(1000000); // xxx remove - just for testing
                 await transaction.finish(status: const SpanStatus.ok());
               },
               child: const Text('Capture transaction'),
@@ -855,4 +855,25 @@ class ThemeProvider extends ChangeNotifier {
 
 Future<void> execute(String method) async {
   await _channel.invokeMethod(method);
+}
+
+int findPrimeNumber(int n) {
+  int count = 0;
+  int a = 2;
+  while (count < n) {
+    int b = 2;
+    bool prime = true; // to check if found a prime
+    while (b * b <= a) {
+      if (a % b == 0) {
+        prime = false;
+        break;
+      }
+      b++;
+    }
+    if (prime) {
+      count++;
+    }
+    a++;
+  }
+  return a - 1;
 }
