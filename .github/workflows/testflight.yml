@@ -18,8 +18,7 @@ jobs:
       - run: ./scripts/ci-select-xcode.sh
       - uses: ruby/setup-ruby@250fcd6a742febb1123a77a841497ccaa8b9e939 # pin@v1.152.0
         with:
-          with:
-            ruby-version: '2.7.5'
+          ruby-version: '2.7.5'
           bundler-cache: true
 
       - name: flutter
