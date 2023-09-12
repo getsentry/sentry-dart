@@ -10,10 +10,10 @@ import 'event_processor/android_platform_exception_event_processor.dart';
 import 'event_processor/flutter_exception_event_processor.dart';
 import 'event_processor/platform_exception_event_processor.dart';
 import 'integrations/screenshot_integration.dart';
-import 'native_scope_observer.dart';
+import 'native/native_scope_observer.dart';
 import 'renderer/renderer.dart';
-import 'sentry_native.dart';
-import 'sentry_native_channel.dart';
+import 'native/sentry_native.dart';
+import 'native/sentry_native_channel.dart';
 
 import 'integrations/integrations.dart';
 import 'event_processor/flutter_enricher_event_processor.dart';
@@ -47,10 +47,10 @@ mixin SentryFlutter {
       flutterOptions.rendererWrapper = rendererWrapper;
     }
 
-    final nativeChannel = SentryNativeChannel(channel, flutterOptions);
     if (flutterOptions.platformChecker.hasNativeIntegration) {
-      final native = SentryNative();
-      native.nativeChannel = nativeChannel;
+      // Set a default native channel to the singleton SentryNative instance.
+      SentryNative().nativeChannel =
+          SentryNativeChannel(channel, flutterOptions);
     }
 
     final platformDispatcher = PlatformDispatcher.instance;

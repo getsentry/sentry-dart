@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sentry_flutter/src/method_channel_helper.dart';
+import 'package:sentry_flutter/src/native/method_channel_helper.dart';
 import 'package:collection/collection.dart';
 
 void main() {
